@@ -1,153 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271646AbTGQX5d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 19:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271656AbTGQX4L
+	id S271654AbTGRABW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 20:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271745AbTGRABV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 19:56:11 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60621 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S271653AbTGQXzl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 19:55:41 -0400
-X-Sieve: CMU Sieve 2.2
-Message-ID: <3F13653F.2020804@mvista.com>
-Date: Mon, 14 Jul 2003 19:21:51 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Amos Waterland <apw@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: 2.5 kernel regression in alarm() syscall behaviour?
-References: <20030714101656.73cdb75f.akpm@osdl.org> <3F1347C6.3030105@mvista.com> <20030715015303.GA4845@kvasir.austin.ibm.com>
-In-Reply-To: <20030715015303.GA4845@kvasir.austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Jul 2003 02:22:28.0311 (UTC) FILETIME=[EFE93E70:01C34A77]
+	Thu, 17 Jul 2003 20:01:21 -0400
+Received: from mail.kroah.org ([65.200.24.183]:21410 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S271654AbTGQX6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 19:58:13 -0400
+Date: Thu, 17 Jul 2003 17:13:03 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB fixes for 2.6.0-test1
+Message-ID: <20030718001303.GA4849@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amos Waterland wrote:
-> On Mon, Jul 14, 2003 at 05:16:06PM -0700, george anzinger wrote:
-> 
->>I suppose we are going to have a lot of these.  The test calls alarm
->>which sets up an itimer for the specified number of seconds and
->>returns the number of seconds remaining on the old itimer.  If any
->>useconds remain, seconds is boosted by 1.  The test expects the number
->>returned to be the same as what was sent, i.e. 1 second wait is
->>expected to return 1 second if it is immeadiatly queried.
->>
->>The problem with this test is that it assumes that seconds can be
->>translated into jiffies with out any error.  Jiffies, however, is now
->>defined to be close but not equal to 1/HZ.  In fact, on the x86
->>jiffies is 999848 nano seconds.  The conversion of a second with the
->>proper round up gives 1001 jiffies and converting this back to seconds
->>gives 1.000847848 seconds.  It is this 0.000847848 that is forcing the
->>subject test to report a number higher than expected.
->>
->>IMHO it is the test that is wrong, not the kernel.
-> 
-> 
-> Thanks for your explanation.
-> 
-> The language of the SuSv3[1] seems a little vague:
-> 
->   If there is a previous alarm() request with time remaining, alarm()
->   shall return a non-zero value that is the number of seconds until the
->   previous request would have generated a SIGALRM signal.
-> 
-> It leaves open to interpretation the question of what the return value
-> should be if the delta between calling alarm(1) and alarm(n) is near 0s,
-> about .5s, and near 1s.  I think the issue can be boiled down to an
-> implementation choice of floor(delta), round(delta), ceil(delta).
-> 
-> Linux 2.4, Solaris, OpenBSD take the floor() approach.  Running
-> alarm2.c[2] on them gives results similar to the following; where
-> 'delta' is the difference in microseconds between calling alarm(1) and
-> alarm(2), and 'ret' is the return value of the alarm(2) call:
-> 
-> t1      t2      delta   ret
-> ------  ------  ------  ------
-> 940284  947913  7629    1
-> 948336  57230   108894  1
-> 57697   266358  208661  1
-> 266826  576979  310153  1
-> 577455  986953  409498  1
-> 987447  497109  509662  1
-> 497576  106690  609114  1
-> 107173  817304  710131  1
-> 817767  626956  809189  1
-> Alarm clock
-> 
-> That is, even when 809ms have passed between calling alarm(1) and
-> alarm(2), Linux 2.4/Solaris/OpenBSD report that there is 1s "until the
-> previous request would have generated a SIGALRM signal."
-> 
-> Since 2.5 is incrementing tv_sec if any tv_usec remain, it is much
-> closer to taking a ceil() approach: 1.000847848 gets converted to 2,
-> rather than 1.
-> 
-> I guess the question boils down to: does Linux 2.6 want to make a
-> different implementation choice than 2.4 and other Unix variants?
+Hi,
 
-It is the glibc "alarm()" code that is doing this, not the kernel.
+Here are some USB fixes for 2.6.0-test1.  There are a lot of good race
+condition fixes from Oliver Neukum, and some usb-storage fixes for some
+devices.  I've also included the change that flushes all in-flight urbs
+_before_ disconnect() is called to fix some problems in the visor and
+ftdi_sio drivers.  This also lets drivers become a lot simpler as they
+don't have to manage their list of urbs now.  And some usb gadget fixes
+are also present.
 
-AND, gosh, I was hoping the standard would give some guidance here, 
-but it completely ignores the issue.
+I've also fixed a nasty bug in the usb-serial core that has been there
+for about 4 years now.  Thanks to the good debugging options in the
+kernel now, it was pretty easy to find.
 
--g
-> 
-> ----
-> 
-> [1] http://www.opengroup.org/onlinepubs/007904975/functions/alarm.html
-> 
-> [2]
-> 
-> #include <unistd.h>
-> #include <stdio.h>
-> #include <sys/time.h>
-> 
-> /* Returns the difference in usecs between now and before.
->  */
-> long delta_t(struct timeval now, struct timeval before)
-> {
->     if (now.tv_sec == before.tv_sec && now.tv_usec >= before.tv_usec) {
->         return now.tv_usec - before.tv_usec;
->     } else if (now.tv_sec > before.tv_sec) {
->         return (now.tv_usec + 1000000) - before.tv_usec;
->     }
-> 
->     return -1;
-> }
-> 
-> int main(int argc, char **argv)
-> {
->     int i, ret, fails = 0;
->     struct timeval t1, t2;
-> 
->     printf("t1\tt2\tdelta\tret\n------\t------\t------\t------\n");
-> 
->     for (i = 0; ; i += 100000) {
->         gettimeofday(&t1, NULL);
-> 
->         alarm(1);
->         usleep(i);
->         ret = alarm(2);
-> 
->         gettimeofday(&t2, NULL);
-> 
->         printf("%li\t%li\t%li\t%i\n", t1.tv_usec,
->                t2.tv_usec, delta_t(t2, t1), ret);
->     }
-> 
->     return fails;
-> }
-> 
-> 
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
+
+thanks,
+
+greg k-h
+
+ drivers/usb/class/bluetty.c        |    3 
+ drivers/usb/class/cdc-acm.c        |    3 
+ drivers/usb/class/usblp.c          |   35 +-
+ drivers/usb/core/hcd-pci.c         |    9 
+ drivers/usb/core/hcd.c             |   12 
+ drivers/usb/core/usb.c             |   33 +-
+ drivers/usb/gadget/ether.c         |  359 ++++++++++++++++++--------
+ drivers/usb/gadget/net2280.c       |    6 
+ drivers/usb/gadget/net2280.h       |    2 
+ drivers/usb/gadget/zero.c          |   80 ++++-
+ drivers/usb/host/ohci-hcd.c        |    3 
+ drivers/usb/host/ohci-q.c          |   10 
+ drivers/usb/host/uhci-hcd.c        |   18 -
+ drivers/usb/image/hpusbscsi.c      |   18 +
+ drivers/usb/image/scanner.c        |   16 -
+ drivers/usb/image/scanner.h        |    8 
+ drivers/usb/media/dabusb.c         |   15 -
+ drivers/usb/misc/usblcd.c          |   22 -
+ drivers/usb/misc/usbtest.c         |  103 ++++++-
+ drivers/usb/net/ax8817x.c          |    1 
+ drivers/usb/net/catc.c             |    1 
+ drivers/usb/net/kaweth.c           |    3 
+ drivers/usb/net/pegasus.c          |    3 
+ drivers/usb/net/rtl8150.c          |    1 
+ drivers/usb/net/usbnet.c           |    2 
+ drivers/usb/serial/ftdi_sio.c      |    3 
+ drivers/usb/serial/ftdi_sio.h      |    6 
+ drivers/usb/serial/ipaq.c          |    3 
+ drivers/usb/serial/ipaq.h          |    5 
+ drivers/usb/serial/usb-serial.c    |    2 
+ drivers/usb/serial/visor.c         |   13 
+ drivers/usb/storage/isd200.c       |   37 +-
+ drivers/usb/storage/jumpshot.c     |   42 ++-
+ drivers/usb/storage/protocol.c     |  189 +-------------
+ drivers/usb/storage/scsiglue.c     |  497 -------------------------------------
+ drivers/usb/storage/sddr09.c       |  101 ++++---
+ drivers/usb/storage/sddr55.c       |   41 +--
+ drivers/usb/storage/unusual_devs.h |    6 
+ drivers/usb/storage/usb.h          |   10 
+ drivers/usb/usb-skeleton.c         |   37 +-
+ include/linux/usb.h                |   22 +
+ 41 files changed, 746 insertions(+), 1034 deletions(-)
+-----
+
+<david:csse.uwa.edu.au>:
+  o USB: Adding DSS-20 SyncStation to ftdi_sio
+
+Alan Stern:
+  o USB: Handle over current inputs on all Intel controllers
+  o USB: Make sddr55 use proper I/O buffering
+  o USB: I/O buffering for sddr09
+  o USB: More unusual_devs.h entry updates
+
+David Brownell:
+  o USB: better locking in hcd_endpoint_disable()
+  o USB: ethernet gadget, another pxa update
+  o USB: gadget zero learns about pxa2xx udc
+  o USB: usbtest, autoconfigure from descriptors
+  o USB: ethernet gadget learns about pxa2xx udc
+  o USB: usb net drivers SET_NETDEV_DEV
+  o USB: ohci minor tweaks
+
+Ganesh Varadarajan:
+  o USB: more ids for ipaq
+
+Greg Kroah-Hartman:
+  o USB: fix memory leak in the visor driver
+  o USB: fix a nasty use-after-free bug in the usb-serial core
+  o USB: fix up cdc-acm driver's tty and devfs names
+  o USB: fix up bluetty driver's tty and devfs names
+  o USB: flush all in-flight urbs _before_ disconnect() is called
+  o USB: remove some warnings when building the documentation
+  o USB: fixed up pci slot_name accesses in usb gadget code
+  o USB: fixed up pci slot_name accesses in usb code
+
+Henning Meier-Geinitz:
+  o USB: unlink interrupt URBs in scanner driver
+  o USB: New vendor/product ids for scanner driver
+  o USB: fix open/probe race in scanner driver
+
+Matthew Dharm:
+  o USB: remove now-dead mode-translation code
+  o USB: convert ISD200 and Jumpshot to DMA-safe buffer
+
+Oliver Neukum:
+  o USB: fix race between probe and open in dabusb
+  o USB: usblcd: race between open and read/write
+  o USB: fix race between probe and open in skeleton
+  o USB: fix irq urb in hpusbscsi
+  o USB: fix layering violation in usblp
+  o USB: fix race between open() and probe()
 

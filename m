@@ -1,33 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265339AbTB0Poz>; Thu, 27 Feb 2003 10:44:55 -0500
+	id <S265276AbTB0Pmo>; Thu, 27 Feb 2003 10:42:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265355AbTB0Poy>; Thu, 27 Feb 2003 10:44:54 -0500
-Received: from oumail.zero.ou.edu ([129.15.0.75]:6895 "EHLO r2d2.ou.edu")
-	by vger.kernel.org with ESMTP id <S265339AbTB0Poy>;
-	Thu, 27 Feb 2003 10:44:54 -0500
-Date: Thu, 27 Feb 2003 09:55:08 -0600
-From: Steve Kenton <skenton@ou.edu>
-Subject: Re: [PATCH] 2.5.63 Nasssty little hobbitsses making ssso many
-To: lkml <linux-kernel@vger.kernel.org>
-Message-id: <3E5E34DC.A4F39BCC@ou.edu>
-Organization: The University Of Oklahoma
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (X11; U; SunOS 5.8 sun4u)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	id <S265339AbTB0Pmo>; Thu, 27 Feb 2003 10:42:44 -0500
+Received: from [213.133.112.210] ([213.133.112.210]:55564 "EHLO
+	mail.pacebladeeurope.com") by vger.kernel.org with ESMTP
+	id <S265276AbTB0Pmm>; Thu, 27 Feb 2003 10:42:42 -0500
+Message-ID: <3E5E3483.7000302@paceblade.com>
+Date: Thu, 27 Feb 2003 16:53:39 +0100
+From: Robert Woerle Paceblade/Support <robert@paceblade.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.2.1) Gecko/20021130
+X-Accept-Language: de-at, de, en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: "Grover, Andrew" <andrew.grover@intel.com>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: mem= option for broken bioses
+References: <F760B14C9561B941B89469F59BA3A8471380D7@orsmsx401.jf.intel.com> <20030226224450.GD15455@atrey.karlin.mff.cuni.cz> <3E5E2061.2060807@paceblade.com> <20030227151907.GC12434@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20030227151907.GC12434@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From the look of the BK snapshot they *are* being integrated.
-Linus probably knows better than anyone the problems this causes.
-I think he's right, documentation both internal and external is
-important if things are to mature.  Some will never want to fix
-this sort of thing because it gets in the way of "real work" but
-if it's going to be done it should be done before the next fork.
 
-Steve
 
-> Yes, I know this is a lot of work. But as it stands, it is a lot of
-> _wasted_ work if the patches aren't being integrated.
+Pavel Machek schrieb:
+
+>Hi!
+>
+>  
+>
+>>>>OK, looks reasonable. Can you also gen up a patch documenting this in
+>>>>kernel-parameters.txt?
+>>>>  
+>>>>
+>>>>        
+>>>>
+>>>You can, assuming you took the patch ;-).
+>>>
+>>>
+>>>      
+>>>
+>>well how can i find the correct value`s to put in ??
+>>    
+>>
+>
+>Well, similar method to how you use mem=123@456 parameters. You just
+>guess them. [Given kernel messages, it is actually quite easy.]
+>
+>  
+>
+well .. wow ... what a accurate solution `????
+...
+..
+.
+well cant you tell me more ?
+
+>  
+>
+>>>--- clean/Documentation/kernel-parameters.txt	2003-02-11 
+>>>17:40:28.000000000 +0100
+>>>+++ linux/Documentation/kernel-parameters.txt	2003-02-26 
+>>>23:43:21.000000000 +0100
+>>>@@ -516,6 +516,10 @@
+>>>			[KNL,BOOT] Force usage of a specific region of memory
+>>>			Region of memory to be used, from ss to ss+nn.
+>>>
+>>>+	mem=nn[KMG]#ss[KMG]
+>>>+			[KNL,BOOT,ACPI] Mark specific memory as ACPI data.
+>>>+			Region of memory to be used, from ss to ss+nn.
+>>>+
+>>>	mem=nopentium	[BUGS=IA-32] Disable usage of 4MB pages for kernel
+>>>			memory.
+>>>
+>>>      
+>>>
+>
+>
+>  
+>
+
+-- 
+_____________________________________
+*Robert Woerle
+**Technical Support | Linux
+PaceBlade Technology Europe SA*
+phone: +49 89 552 99935
+fax: +49 89 552 99910
+mobile: +49 179 474 45 27
+email: robert@paceblade.com <mailto:robert@paceblade.com>
+web: http://www.paceblade.com
+_____________________________________
+
+
+
+
+

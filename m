@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263293AbSJCMkJ>; Thu, 3 Oct 2002 08:40:09 -0400
+	id <S263282AbSJCMge>; Thu, 3 Oct 2002 08:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263294AbSJCMkJ>; Thu, 3 Oct 2002 08:40:09 -0400
-Received: from moutvdom.kundenserver.de ([195.20.224.130]:27643 "EHLO
-	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S263293AbSJCMkI> convert rfc822-to-8bit; Thu, 3 Oct 2002 08:40:08 -0400
-From: "Emmeran \"Emmy\" Seehuber" <rototor@rototor.de>
-Reply-To: rototor@rototor.de
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.40 + Loadlin problems -> Use new version
-Date: Thu, 3 Oct 2002 15:12:44 +0200
-User-Agent: KMail/1.4.6
+	id <S263283AbSJCMge>; Thu, 3 Oct 2002 08:36:34 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:11910 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S263282AbSJCMgd>; Thu, 3 Oct 2002 08:36:33 -0400
+Date: Thu, 3 Oct 2002 08:42:47 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: hps@intermeta.de
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Sequence of IP fragment packets on the wire
+In-Reply-To: <20021003111847.AAA15244@shell.webmaster.com@whenever>
+Message-ID: <Pine.LNX.3.95.1021003082804.13839B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200210031512.44913.rototor@rototor.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> as far as I can see, Linux sends out fragmented IP packets
+> "butt-first":
+> (where the first packet is actually the fragmented 2nd part of the
+> second packet).
+> This confuses at least one firewall appliance.
+> 
 
-i had the same problem with loadlin and kernel 2.5.40. I searched around in 
-the web for the sources of loadlin (to add some debug output) and came 
-accros:
+The sequence-number of an IP Packet, whether or not it's fragmented,
+has nothing to do with any order of reception. The "2nd" part of
+a fragmented packet may be received at any time, in fact multiple
+times. Any so-called Network appliance that assumes that there is
+any specific order of packets being received is fundamentally
+broken.
 
-http://sunsite.ulatina.ac.cr/Unix/Linux/Slackware/slackware-8.1/source/a/loadlin/update-1.6c/
+Well designed network software can sometimes optimize its buffer
+handling if it "knows" that the last packet of a fragment has
+been received, but it can't count on any specific order because
+there isn't any. Even if you put all your "ducks in a row" on
+the wire, once the least-cost route becomes different for different
+packets, all bets are off. You might get one packet with satellite-
+link latency (seconds) and another with terrestrial latency
+(miliseconds).
 
-This version of loadlin boots up 2.5.40 very well for me.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
-cu,
-  Emmy

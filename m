@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267904AbTAHO4r>; Wed, 8 Jan 2003 09:56:47 -0500
+	id <S267509AbTAHPDc>; Wed, 8 Jan 2003 10:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267905AbTAHO4r>; Wed, 8 Jan 2003 09:56:47 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61190 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267904AbTAHO4q>; Wed, 8 Jan 2003 09:56:46 -0500
-Date: Wed, 8 Jan 2003 10:02:08 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: jeff gerard <jeff-lk@gerard.st>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][TRIVIAL] menuconfig color sanity
-In-Reply-To: <20030108104714.GM268@gage.org>
-Message-ID: <Pine.LNX.3.96.1030108095857.21895A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267515AbTAHPDc>; Wed, 8 Jan 2003 10:03:32 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:41865 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267509AbTAHPDb>; Wed, 8 Jan 2003 10:03:31 -0500
+Subject: Re: long stalls
+From: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
+To: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E1B8439.8040209@elegant-software.com>
+References: <3E1B73F3.2070604@emageon.com> 
+	<3E1B8439.8040209@elegant-software.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Jan 2003 16:17:39 +0100
+Message-Id: <1042039060.1290.82.camel@voyager>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, jeff gerard wrote:
-
-> using yellow and green text with a "white" background in menuconfig works all
-> right on console, but it looks like crap under xterm, rxvt, etc. no
-> matter whose fault that is, the trivial patch below makes things more
-> readable without any major change in appearance. applies to 2.4 and 2.5.
+On Wed, 2003-01-08 at 02:51, Russell Leighton wrote:
 > 
-> now you can stop wondering about support for "lug and play", "mateur radio", 
-> and "elephony" in the linux kernel.
+> I can't help, but I can echo a "me too".
+> 
+> We only see it when I have 2 file I/O intensive processes...they both 
+> will just stop for some few seconds, system seems idle...then
+> they just start again. RH7.3 SMP, Dual PIII, 4GB RAM, 3com RAID Controller .
 
-Man, did you look at this on a console? That is uglier than a hedgehog's
-asshole! Good idea, poor implementation. Please retry, the default colors
-are not as bad on an xterm as the new colors on a console. And with small
-memory machines I sure don't build kernels using X! 
+Same thing here with a Promise SX6000 RAID controller (P4, 1GB RAM,
+system is completely on RAID, 2.4.20-pre10-ac1). But, this seems not to
+be related. At least in my case, it's the controller that causes the
+stalls, 'cause only processes depending on file IO (including swap) get
+into D state. Everything else just runs fine.
+
+George
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Juergen "George" Sawinski                  |  Phone:  +49-6221-486-308
+Max-Planck Institute for Medical Research  |  Fax:    +49-6221-486-325
+Dept. of Biomedical Optics                 |  Mobile: +49-171-532 5302
+Jahnstr. 29                                |  
+D-69120 Heidelberg                         |  
+Germany                                    |  
+
+GPG Key/Fingerprint: 9A5F7A31/86F2E5D5EDF4D9983BDD3F23986F154F9A5F7A31
 

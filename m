@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133110AbREJLmu>; Thu, 10 May 2001 07:42:50 -0400
+	id <S135213AbREJLzt>; Thu, 10 May 2001 07:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135213AbREJLmk>; Thu, 10 May 2001 07:42:40 -0400
-Received: from phoenix.datrix.co.za ([196.37.220.5]:25900 "EHLO
-	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
-	id <S133110AbREJLmd>; Thu, 10 May 2001 07:42:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marcin Kowalski <kowalski@datrix.co.za>
-Reply-To: kowalski@datrix.co.za
-Organization: Datrix Solutions
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3 Kernel Freeze with highmem BUG at highmem.c:155 - CRASH
-Date: Thu, 10 May 2001 13:42:58 +0200
-X-Mailer: KMail [version 1.2]
+	id <S135594AbREJLzj>; Thu, 10 May 2001 07:55:39 -0400
+Received: from www.topmail.de ([212.255.16.226]:32765 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S135213AbREJLzc>;
+	Thu, 10 May 2001 07:55:32 -0400
+Message-ID: <00a501c0d948$1c6b4a40$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        "Jeff Garzik" <jgarzik@mandrakesoft.com>
+Cc: "Pavel Roskin" <proski@gnu.org>, "Pete Zaitcev" <zaitcev@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <200105100253.f4A2rsK305959@saturn.cs.uml.edu>
+Subject: Re: Patch to make ymfpci legacy address 16 bits
+Date: Thu, 10 May 2001 11:54:48 -0000
+Organization: eccesys.net Linux development
 MIME-Version: 1.0
-Message-Id: <01051013425806.03256@webman>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All
+> When you write "the kernel", do you mean the driver or generic
+> code? I hope you mean the driver, because I have this:
+> 
+> 1. the device looks normal at power on
+> 2. the driver pokes a device-specific config register
+> 3. the config space header changes from type 0 to type 1
+> 
+> (The class code does NOT indicate PCI-to-PCI bridge.
+> You could say this is like CardBus but much weirder)
+> 
+> If the kernel saves type 1 header data, cuts power using
+> motherboard features, restores power, and then tries to
+> restore type 1 header data into a type 0 header... the
+> system will be well and truly screwed IMHO.
 
-After two weeks of quasi stability the server has crashed.. again... with the 
-following message... (partial)
-------------------
-kernel BUG at highmem.c:155
+This reminds me of being unable to use my sound card under Windoze
+after stand-by, suspend etc. (NB Win2k hibernate worked, suspend
+I had disabled then).
+Seems as not only linux has this kind of problems...
+I don't remember _which_ card it was but I am quite sure it was
+an old OPTi MAD16 Pro.
 
-Invalid Operand : 0000
-CPU : 1
-EIP : 0010:[<c012fcb>]
-EFLAGS: 00010286
-eax:0000001d ebx: 00000000 esi:c2147ec0
-edi: 00000000 ebp: 00001000 esp: df587ebc
-
-Process sshd (pid : 6230, stackpage : df587000)
-......
------------------
-This is a standard 2.4.3 kernel with four patches, to correct the 
-dcache inode non-clearance (ever growing inode and directory cache) as well 
-as the patch to apply vm pressure to lower these caches (Ed Tomlinsons, I 
-beleive...).., next patches are for aacraid.. including jens axboes' SCSI 
-patch as well as the aacraid patch.
-
-The symptons were an ever more sluggish machine over time, memory usage 
-looked pretty standard with the majority of memory assigned to cache... what 
-would happen is that at terminal it would go into semi-freeze states of about 
-5-10 seconds (increasing with time), where no user interaction was possible. 
-By terminal I mean through a ssh remote terminal.... The load would also 
-occasionally just increase for no apparent reason to values of 7,8,9...
-
-The server is a dual 933mhz Xeon (PIII) on a ServerWorks Motherboard (HP 
-NetServer) with 1.2 gig or ram, 6 SCSI III 18.6 GIG drives in HP Netraid and 
-1 9 gig SCSI as the root FS... Running suse 7.0 and reiserfs...
-
-ANy and ALL advice/patches would be greatly appreciated.... I will probably 
-be moving back to 2.2 kernel series as a result of my stability problems..
-
-Thanks 
-MarCin
-
+-mirabilos
 -- 
------------------------------
-     Marcin Kowalski
-     Linux/Perl Developer
------------------------------
+EA F0 FF 00 F0 #$@%CARRIER LOST
+

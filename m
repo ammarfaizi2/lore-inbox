@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317947AbSHBDPj>; Thu, 1 Aug 2002 23:15:39 -0400
+	id <S317978AbSHBDUL>; Thu, 1 Aug 2002 23:20:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317978AbSHBDPj>; Thu, 1 Aug 2002 23:15:39 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:25533 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317947AbSHBDPi>; Thu, 1 Aug 2002 23:15:38 -0400
-Date: Thu, 1 Aug 2002 22:19:04 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] automatic module_init ordering
-In-Reply-To: <E17aPjw-0007zG-00@scrub.xs4all.nl>
-Message-ID: <Pine.LNX.4.44.0208012156460.24984-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317980AbSHBDUK>; Thu, 1 Aug 2002 23:20:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34833 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317978AbSHBDUK>; Thu, 1 Aug 2002 23:20:10 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: large page patch
+Date: Fri, 2 Aug 2002 03:23:39 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <aictvr$1dd$1@penguin.transmeta.com>
+References: <3D49D45A.D68CCFB4@zip.com.au> <20020801.174301.123634127.davem@redhat.com> <3D49DFD0.FE0DBC1D@zip.com.au> <20020801.181944.09310618.davem@redhat.com>
+X-Trace: palladium.transmeta.com 1028258603 13304 127.0.0.1 (2 Aug 2002 03:23:23 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 2 Aug 2002 03:23:23 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Aug 2002, Roman Zippel wrote:
+In article <20020801.181944.09310618.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
+>   From: Andrew Morton <akpm@zip.com.au>
+>   Date: Thu, 01 Aug 2002 18:26:40 -0700
+>
+>   "David S. Miller" wrote:
+>   > This is probably done to increase the likelyhood that 4MB page orders
+>   > are available.  If we collapse 4MB pages deeper, they are less likely
+>   > to be broken up because smaller orders would be selected first.
+>   
+>   This is leakage from ia64, which supports up to 256k pages.
+>
+>Ummm, 4MB > 256K and even with a 4K PAGE_SIZE MAX_ORDER coalesces
+>up to 4MB already :-)
 
-> This is latest version of the automatic module_init ordering patch.
-> IMO the patch is almost ready. A bit annoying problem is that
-> -DKBUILD_MODNAME=unix becomes -DKBUILD_MODNAME=1. An undef helps
-> of course, but I'm not sure whether we should put it on the command
-> line or in the source.
-> This patch depends on Kai's KBUILD_MODNAME patch.
-> Kai, do you see any possible kbuild problem left? I hope I found
-> everything. :)
+That should be 256_M_ pages (13 bits of page size + 15 bits of MAX_ORDER
+gives you 256MB max).
 
-> +	for o in $(sort $(local-objs-y)); do \
-> +	  if [ -n "$$($(OBJDUMP) -h $$o | grep .initcall.module)" ]; then \
-> +	    echo $$o; \
-> +	  fi \
-> +	done > $@; \
-> +	for s in $(sort $(subdir-y)); do \
-> +	  sed "s,^,$$s/," < $$s/.builtin_mods; \
-> +	done >> $@
-
-I had to replace this with
-
-	for o in `echo $(sort $(local-objs-y))`; do \
-
-and the like, since otherwise my shell (bash) would complain about an
-empty "for o in ; do". Maybe there's a less hacky way to handle that? 
-
-BTW, it'd be also nice if scripts/build-initcalls would add some \n's to
-init/generated-initcalls.c ;)
-
-The "unix" thing is stupid. The obvious way around that is 
--DKBUILD_MODNAME="unix", but unfortunately, I don't know of any 
-"unstringify" preprocessing function, so that doesn't work easily, either.
-
-Well, I cannot think of a nicer solution there (and I tried ;), other than
-these small issues things look very nice, though.
-
---Kai
-
-
+		Linus

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265576AbUAGVGS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 16:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265557AbUAGVGS
+	id S265659AbUAGVLm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 16:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUAGVLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 16:06:18 -0500
-Received: from mail.kroah.org ([65.200.24.183]:31653 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265576AbUAGVGP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 16:06:15 -0500
-Date: Wed, 7 Jan 2004 13:06:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Michael Stucki <mundaun@gmx.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to handle kernel NULL pointer dereference
-Message-ID: <20040107210610.GB1083@kroah.com>
-References: <200401011944.51109.lilo.please.no.spam@roccatello.it> <20040102013238.GC19598@kroah.com> <bt632p$26h$1@sea.gmane.org>
+	Wed, 7 Jan 2004 16:11:41 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:50905 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S265659AbUAGVLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 16:11:39 -0500
+Date: Wed, 7 Jan 2004 13:11:34 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+Message-ID: <20040107211134.GR1882@matchmail.com>
+Mail-Followup-To: Mike Waychison <Michael.Waychison@Sun.COM>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <1b5GC-29h-1@gated-at.bofh.it> <1b6CO-3v0-15@gated-at.bofh.it> <m3ad50tmlq.fsf@averell.firstfloor.org> <3FFC46EB.9050201@zytor.com> <3FFC7469.3050700@sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bt632p$26h$1@sea.gmane.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3FFC7469.3050700@sun.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 10:47:05AM +0100, Michael Stucki wrote:
-> Dear Greg,
+On Wed, Jan 07, 2004 at 04:04:41PM -0500, Mike Waychison wrote:
+> H. Peter Anvin wrote:
 > 
-> I have exactly the same problem and I am using nvidia's binary drivers as
-> well, so they might be a problem anyway.
+> >>Also when /home or other important fs are mounted via autofs there is
+> >>not much practical difference between a hung kernel and a hung
+> >>daemon. You have to reboot the system anyways.
+> >
+> >
+> >a) Guess which one is easier to debug?
+> 
+> When they may both equally hang your machine, neither.
 
-Can you duplicate this on 2.6.1-rc2 + the sysfs patch without the nvidia
-drivers?
+Let's see.
 
-thanks,
+If it's in userspace, then setup your debug area in an area your system
+doesn't depend on, and wham, the hang won't affect the entire system anymore.
 
-greg k-h
+Also, if you have /home automounted then it only affects the users on /home,
+and root's $home should be /home...
+
+Though, you can debug in-kernel code with UML...

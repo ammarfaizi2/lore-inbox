@@ -1,46 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313603AbSDHMoJ>; Mon, 8 Apr 2002 08:44:09 -0400
+	id <S313602AbSDHMq4>; Mon, 8 Apr 2002 08:46:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313607AbSDHMoI>; Mon, 8 Apr 2002 08:44:08 -0400
-Received: from [212.18.235.99] ([212.18.235.99]:60935 "EHLO street-vision.com")
-	by vger.kernel.org with ESMTP id <S313603AbSDHMoH>;
-	Mon, 8 Apr 2002 08:44:07 -0400
-From: Justin Cormack <kernel@street-vision.com>
-Message-Id: <200204081244.g38Ci4T17740@street-vision.com>
-Subject: Re: Further WatchDog Updates
-To: rob@osinvestor.com (Rob Radez)
-Date: Mon, 8 Apr 2002 13:44:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204072342550.17511-100000@pita.lan> from "Rob Radez" at Apr 07, 2002 11:45:45 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S313607AbSDHMqz>; Mon, 8 Apr 2002 08:46:55 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:6839 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S313602AbSDHMqy>; Mon, 8 Apr 2002 08:46:54 -0400
+From: "Jochen Barth" <jochen.barth@bib.uni-mannheim.de>
+Organization: UB Mannheim
+To: mj@ucw.cz, linux-kernel@vger.kernel.org
+Date: Mon, 8 Apr 2002 14:46:51 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: My previous mail
+Message-ID: <3CB1AD5B.16564.18DE198@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Ok, new version of watchdog updates is up at
-> http://osinvestor.com/bigwatchdog-4.diff
+Sorry, i've forgot the kernel version: 2.4.18
 
-> 
-> Please take a look at it, especially the documentation.
-> 
-> Regards,
-> Rob Radez
-
-ok for wafer5823wdt, which I wrote:
-
-Timeout is a single byte, so should be in range 1-255 (and should probably be
-a byte not an int...), not 1-3600.
-
-All uses of waf_expect_close should be wrapped in
-#ifndef CONFIG_WATCHDOG_NOWAYOUT, rather than just haveing it set to zero
-if nowayout is not set. Saves a byte and makes it clearer. Though personally
-I think the 'V' to close interface shouldnt be there at all. If you dont
-want your watchdog to shut down, use no way out. If you do, then dont.
-
-These may apply to other drivers too.
-
-Justin
+  J. Barth
+      jochen barth / dipl.-inform. (fh) / jochen.barth@bib.uni-mannheim.de
+        universitaetsbibliothek mannheim / edv-abteilung / 0621-181-2969

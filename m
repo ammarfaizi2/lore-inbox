@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130513AbRBKAYW>; Sat, 10 Feb 2001 19:24:22 -0500
+	id <S130513AbRBKAtW>; Sat, 10 Feb 2001 19:49:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131487AbRBKAYM>; Sat, 10 Feb 2001 19:24:12 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12292 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130513AbRBKAXv>; Sat, 10 Feb 2001 19:23:51 -0500
-Date: Sat, 10 Feb 2001 20:33:29 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.0-ac8/9  page_launder() fix
-In-Reply-To: <Pine.LNX.4.21.0102102051450.2378-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0102102027250.27734-100000@freak.distro.conectiva>
+	id <S131377AbRBKAtM>; Sat, 10 Feb 2001 19:49:12 -0500
+Received: from pikachu.3ti.org ([212.204.216.221]:44293 "EHLO pikachu.3ti.org")
+	by vger.kernel.org with ESMTP id <S130513AbRBKAtD>;
+	Sat, 10 Feb 2001 19:49:03 -0500
+Date: Sun, 11 Feb 2001 01:49:01 +0100 (CET)
+From: Dag Wieers <dag@mind.be>
+X-X-Sender: <dag@pikachu.3ti.org>
+To: <linux-kernel@vger.kernel.org>
+cc: "Richard E. Gooch" <rgooch@atnf.csiro.au>
+Subject: Re: Unresolved symbols for wavelan_cs in 2.4.1-ac9
+Message-ID: <Pine.LNX.4.32.0102110144560.11777-100000@pikachu.3ti.org>
+User-Agent: Mutt/1.2i
+X-Mailer: Evolution 1.0 (Stable release)
+Organization: Mind Linux Solutions in Leuven/Belgium - http://mind.be/
+X-Extra: If you can read this and Linux is your thing. Work for us !
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I just tested it here and it seems to behave pretty well. 
-
 On Sat, 10 Feb 2001, Rik van Riel wrote:
 
-> Hi,
-> 
-> the patch below should make page_launder() more well-behaved
-> than it is in -ac8 and -ac9 ... note, however, that this thing
-> is still completely untested and only in theory makes page_launder
-> behave better ;)
-> 
-> Since there seems to be a lot of VM testing going on at the
-> moment I thought I might as well send it out now so I can get
-> some feedback before I get into the airplane towards sweden
-> tomorrow...
-> 
-> cheers,
-> 
+>> Rejected. It is meant not to be there.
+>
+> To be more specific ... __bad_udelay() is meant to be an
+> unresolvable symbol, which is referenced when people call
+> udelay with a "wrong" timeout.
+
+Maybe this (and similar situations) could be added to the lkml-FAQ ?
+It would have prevented me to post it on lkml ;)
+
+Thanks,
+
+--  dag wieers, <dag@mind.be>, http://mind.be/  --
+            Out of swap, out of luck.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

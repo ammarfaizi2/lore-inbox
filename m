@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbTEFK6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 06:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTEFK6M
+	id S262531AbTEFLAE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 07:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTEFLAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 06:58:12 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:15745 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S262530AbTEFK6L (ORCPT
+	Tue, 6 May 2003 07:00:04 -0400
+Received: from holomorphy.com ([66.224.33.161]:19335 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262531AbTEFLAD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 06:58:11 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Tue, 6 May 2003 13:06:44 +0200
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Bill Hartner <bhartner@us.ibm.com>,
-       Andrew Theurer <habanero@us.ibm.com>, Andrew Morton <akpm@zip.com.au>,
-       Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Bug 619 - sched_best_cpu does not pick best cpu (2/2)
-Message-ID: <20030506110644.GA15131@iram.es>
-References: <3EB70EEC.9040004@us.ibm.com> <3EB70FC2.1010903@us.ibm.com>
+	Tue, 6 May 2003 07:00:03 -0400
+Date: Tue, 6 May 2003 04:11:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Felix von Leitner <felix-kernel@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.68] Scalability issues
+Message-ID: <20030506111159.GR8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Felix von Leitner <felix-kernel@fefe.de>,
+	linux-kernel@vger.kernel.org
+References: <20030504173956.GA28370@codeblau.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3EB70FC2.1010903@us.ibm.com>
+In-Reply-To: <20030504173956.GA28370@codeblau.de>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 06:28:34PM -0700, Matthew Dobson wrote:
-> This patch is in regard to bugme.osdl.org bug 619, link here:
-> 
-> http://bugme.osdl.org/show_bug.cgi?id=619
-> 
-> This is the second of two patches to fix this bug.  This patch fills in 
-> include/linux/topology.h (created in the last patch) with a couple 
-> #defines.  The patch also creates a generic_hweight64() in 
-> include/linux/bitops.h, which we've been lacking for a while.  It then 
-> uses these new macros in sched.c to ensure that if a node has no CPUs, 
-> it is not used in scheduling decisions.
-> 
-> [mcd@arrakis src]$ diffstat ~/patches/node_online.patch
->  include/linux/bitops.h   |   27 +++++++++++++++++++++++++++
->  include/linux/topology.h |    7 +++++++
->  kernel/sched.c           |    2 +-
->  3 files changed, 35 insertions(+), 1 deletion(-)
-> 
-> Cheers!
-> 
-> -Matt
+On Sun, May 04, 2003 at 07:39:56PM +0200, Felix von Leitner wrote:
+>   Out of Memory: Killed process 51 (sshd).
+>   artillery-fork: page allocation failure. order:0, mode:0x20
+>     [this message comes about 50 times]
+>   Out of Memory: Killed process 52 (zsh).
+>   spurious 8259A interrupt: IRQ7.
+>   Out of Memory: Killed process 49 (sshd).
+>   alloc_area_pte: page already exists
+>   alloc_area_pte: page already exists
+>   alloc_area_pte: page already exists
+>   alloc_area_pte: page already exists
+>   VFS: Close: file count is 0
+>   VFS: Close: file count is 0
 
-> diff -Nur --exclude-from=/home/mcd/.dontdiff linux-2.5.69-add_linux_topo/include/linux/bitops.h linux-2.5.69-node_online_fix/include/linux/bitops.h
-> --- linux-2.5.69-add_linux_topo/include/linux/bitops.h	Sun May  4 16:53:42 2003
-> +++ linux-2.5.69-node_online_fix/include/linux/bitops.h	Mon May  5 18:00:00 2003
-> @@ -107,6 +107,33 @@
->          return (res & 0x0F) + ((res >> 4) & 0x0F);
->  }
->  
-> +#if (BITS_PER_LONG == 64)
-> +
-> +static inline unsigned int generic_hweight64(unsigned int w)
-> +{
-> +        unsigned int res = (w & 0x5555555555555555) + ((w >> 1) & 0x5555555555555555);
+Could I get a list of devices on your system and the drivers you're using?
+A .config and a list of out-of-tree modules (ignore nvidia you already
+reproduced without it) would be nice, too.
 
-Ignoring the fact that the types are wrong for 64 bit values, you can save
-one masking (in all generic_hweight functions in fact) by using the
-following expression for the first line:
+Thanks.
 
-	uxx res = w - ((w>>1) & 0x55...55);
-
-where xx is 8, 16, 32, or 64 and the right number of 5s.
-That's an old trick but I can't remember the reference nor
-where I found the reference to it, sorry.
-
-	Gabriel
+-- wli

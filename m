@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbSKZVQ2>; Tue, 26 Nov 2002 16:16:28 -0500
+	id <S261292AbSKZVS0>; Tue, 26 Nov 2002 16:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261292AbSKZVQ2>; Tue, 26 Nov 2002 16:16:28 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:9694 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261295AbSKZVQU>;
-	Tue, 26 Nov 2002 16:16:20 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 26 Nov 2002 22:23:33 +0100 (MET)
-Message-Id: <UTC200211262123.gAQLNXV15145.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com
-Subject: [PATCH] Silence debugging message
-Cc: eric@ma-northadams1b-112.nad.adelphia.net, linux-kernel@vger.kernel.org
+	id <S261312AbSKZVS0>; Tue, 26 Nov 2002 16:18:26 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1489 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261292AbSKZVSX>; Tue, 26 Nov 2002 16:18:23 -0500
+Date: Tue, 26 Nov 2002 22:25:33 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andika Triwidada <andika@research.indocisc.com>
+Cc: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH] drivers/net/Makefile
+Message-ID: <20021126212532.GC21307@fs.tum.de>
+References: <20021103053017.GB29448@research.indocisc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021103053017.GB29448@research.indocisc.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Buddington writes:
+On Sun, Nov 03, 2002 at 12:30:17PM +0700, Andika Triwidada wrote:
+> This patch will allow 2.5.45 make modules_install
+> I'm not sure the best way to say that drivers/net/pcmcia/smc91c92_cs.c
+> needs exports from drivers/net/mii.c. But at least this modification
+> allows my kernel compile error free.
+> 
+> 
+> --- linux-2.5.44/drivers/net/Makefile.orig	2002-10-19 11:01:19.000000000 +0700
+> +++ linux-2.5.44/drivers/net/Makefile	2002-11-02 22:00:02.000000000 +0700
+> @@ -78,7 +78,7 @@
+>  obj-$(CONFIG_NET_SB1000) += sb1000.o
+>  obj-$(CONFIG_MAC8390) += daynaport.o 8390.o
+>  obj-$(CONFIG_APNE) += apne.o 8390.o
+> -obj-$(CONFIG_PCMCIA_PCNET) += 8390.o
+> +obj-$(CONFIG_PCMCIA_PCNET) += 8390.o mii.o
+>  obj-$(CONFIG_SHAPER) += shaper.o
+>  obj-$(CONFIG_SK_G16) += sk_g16.o
+>  obj-$(CONFIG_HP100) += hp100.o
 
-> ...  I tried getting rid of the advanced partition types options,
-> which eliminated the MS-DOS partition table message, but did not
-> otherwise change things.
 
-> hda: host protected area => 1
-> hda: 80043264 sectors (40982 MB) w/2048KiB Cache, CHS=4982/255/63
-> /dev/ide/host0/bus0/target0/lun0:<7>ldm_validate_partition_table(): Found an MS-DOS partition table, not a dynamic disk.
-> p1 p4
+It has definitely nothing to do with CONFIG_PCMCIA_PCNET.
 
-Yes, that annoying ldm message is just debugging output
-somebody forgot to remove.
+The following (untested) patch should be correct:
 
-Andries
+--- linux-2.5.49/drivers/net/Makefile.old	2002-11-26 22:20:27.000000000 +0100
++++ linux-2.5.49/drivers/net/Makefile	2002-11-26 22:21:34.000000000 +0100
+@@ -79,6 +79,7 @@
+ obj-$(CONFIG_MAC8390) += mac8390.o 8390.o
+ obj-$(CONFIG_APNE) += apne.o 8390.o
+ obj-$(CONFIG_PCMCIA_PCNET) += 8390.o
++obj-$(CONFIG_PCMCIA_SMC91C92) += mii.o
+ obj-$(CONFIG_SHAPER) += shaper.o
+ obj-$(CONFIG_SK_G16) += sk_g16.o
+ obj-$(CONFIG_HP100) += hp100.o
 
---- /linux/2.5/linux-2.5.49/linux/fs/partitions/ldm.c	Fri Nov 22 22:40:30 2002
-+++ ./ldm.c	Tue Nov 26 22:22:28 2002
-@@ -560,10 +560,8 @@
- 		return FALSE;
- 	}
- 
--	if (*(u16*) (data + 0x01FE) != cpu_to_le16 (MSDOS_LABEL_MAGIC)) {
--		ldm_debug ("No MS-DOS partition table found.");
-+	if (*(u16*) (data + 0x01FE) != cpu_to_le16 (MSDOS_LABEL_MAGIC))
- 		goto out;
--	}
- 
- 	p = (struct partition*)(data + 0x01BE);
- 	for (i = 0; i < 4; i++, p++)
-@@ -573,9 +571,8 @@
- 		}
- 
- 	if (result)
--		ldm_debug ("Parsed partition table successfully.");
--	else
--		ldm_debug ("Found an MS-DOS partition table, not a dynamic disk.");
-+		ldm_debug ("Found W2K dynamic disk partition type.");
-+
- out:
- 	put_dev_sector (sect);
- 	return result;
-@@ -585,9 +582,10 @@
-  * ldm_get_disk_objid - Search a linked list of vblk's for a given Disk Id
-  * @ldb:  Cache of the database structures
-  *
-- * The LDM Database contains a list of all partitions on all dynamic disks.  The
-- * primary PRIVHEAD, at the beginning of the physical disk, tells us the GUID of
-- * this disk.  This function searches for the GUID in a linked list of vblk's.
-+ * The LDM Database contains a list of all partitions on all dynamic disks.
-+ * The primary PRIVHEAD, at the beginning of the physical disk, tells us
-+ * the GUID of this disk.  This function searches for the GUID in a linked
-+ * list of vblk's.
-  *
-  * Return:  Pointer, A matching vblk was found
-  *          NULL,    No match, or an error
+
+> -- andika
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

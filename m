@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268473AbUHZKHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268065AbUHZKJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268473AbUHZKHv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 06:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268032AbUHZKDS
+	id S268065AbUHZKJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 06:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268032AbUHZKIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 06:03:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5331 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268026AbUHZKBM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 06:01:12 -0400
-Date: Thu, 26 Aug 2004 02:59:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: pmarques@grupopie.com, mpm@selenic.com, linux-kernel@vger.kernel.org,
-       bcasavan@sgi.com
-Subject: Re: [PATCH] kallsyms data size reduction / lookup speedup
-Message-Id: <20040826025904.02bf4c0e.akpm@osdl.org>
-In-Reply-To: <20040825234345.GN21964@parcelfarce.linux.theplanet.co.uk>
-References: <1093406686.412c0fde79d4f@webmail.grupopie.com>
-	<20040825173941.GJ5414@waste.org>
-	<412CDE9D.3090609@grupopie.com>
-	<20040825185854.GP31237@waste.org>
-	<412CE3ED.5000803@grupopie.com>
-	<20040825192922.GH21964@parcelfarce.linux.theplanet.co.uk>
-	<412D236E.3030401@grupopie.com>
-	<20040825234345.GN21964@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 26 Aug 2004 06:08:06 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:59790 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268065AbUHZKGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 06:06:01 -0400
+Date: Thu, 26 Aug 2004 03:05:30 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Linus Torvalds <torvalds@osdl.org>,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826100530.GA20805@taniwha.stupidest.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826010049.GA24731@mail.shareable.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
->
-> On Thu, Aug 26, 2004 at 12:40:30AM +0100, Paulo Marques wrote:
->  > That is why I kept a big *If* in that sentence. I'm quite new to all
->  > this, and I'm still reading a lot of source code.
->  > 
->  > If the culprit is in fact seq_file, and seq_file can be improved in a
->  > way that works for everyone (not only kallsyms), then I also agree
->  > that is is the way to go. But hunting this down might prove that the
->  > problem is somewhere else. It is just too soon to draw conclusions.
-> 
->  readprofile(1) ought to narrow it down with that kind of timing difference...
+On Thu, Aug 26, 2004 at 02:00:49AM +0100, Jamie Lokier wrote:
+
+> One of the big potential uses for file-as-directory is to go inside
+> archive files, ELF files, .iso files and so on in a convenient way.
+
+Arguably this belongs in userspace --- and people have put it there.
 
 
-
-c014696c do_anonymous_page                             4   0.0133
-c0133550 kallsyms_expand_symbol                       17   0.1545
-c026b78f __copy_user_intel                            31   0.2039
-c026a5ec vsnprintf                                    39   0.0283
-c026a318 number                                       40   0.0552
-c011d102 write_profile                                79   0.7182
-c0131f39 is_exported                                3805  17.0628
-c0104028 default_idle                               4254  86.8163
-00000000 total                                      8325   0.0025
-
-It's all in the O(n) is_exported().  Rusty's fault ;)
+  --cw

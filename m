@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUJHW5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUJHXHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266183AbUJHW5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 18:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUJHWzP
+	id S265943AbUJHXHN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUJHXHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 18:55:15 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:48033 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266183AbUJHWxn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 18:53:43 -0400
-Date: Fri, 08 Oct 2004 15:53:42 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>
-cc: greg@kroah.com, hannal@us.ibm.com, davem@davemloft.net, ecd@skynet.be,
-       jj@sunsite.ms.mff.cuni.cz, anton@samba.org
-Subject: [RFT 2.6] ebus.c replace pci_find_device with pci_get_device
-Message-ID: <87310000.1097276022@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Oct 2004 19:07:13 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52966 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265943AbUJHXHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:07:12 -0400
+Subject: Re: [PATCH] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
+       "Jack O'Quin" <joq@io.com>
+In-Reply-To: <20041008152430.R2357@build.pdx.osdl.net>
+References: <1096669179.27818.29.camel@krustophenia.net>
+	 <20041001152746.L1924@build.pdx.osdl.net> <877jq5vhcw.fsf@sulphur.joq.us>
+	 <1097193102.9372.25.camel@krustophenia.net>
+	 <1097269108.1442.53.camel@krustophenia.net>
+	 <20041008144539.K2357@build.pdx.osdl.net>
+	 <1097272140.1442.75.camel@krustophenia.net>
+	 <20041008145252.M2357@build.pdx.osdl.net>
+	 <1097273105.1442.78.camel@krustophenia.net>
+	 <20041008151911.Q2357@build.pdx.osdl.net>
+	 <20041008152430.R2357@build.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1097276726.1442.82.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 19:05:31 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As pci_find_device is going away I've replaced it with pci_get_device.
-If someone with a Sparc64 system could test it I would appreciate it.
-Thanks.
+On Fri, 2004-10-08 at 18:24, Chris Wright wrote:
+> (relative to last one)
+> 
+> use in_group_p
+> 
 
-Hanna Linder
-IBM Linux Technology Center
+Thanks!  These make the patch even smaller and more comprehensible. 
+Does this cover all the issues with the patch as I posted it?
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
----
-diff -Nrup linux-2.6.9-rc3-mm3cln/arch/sparc64/kernel/ebus.c linux-2.6.9-rc3-mm3patch2/arch/sparc64/kernel/ebus.c
---- linux-2.6.9-rc3-mm3cln/arch/sparc64/kernel/ebus.c	2004-09-29 20:04:25.000000000 -0700
-+++ linux-2.6.9-rc3-mm3patch2/arch/sparc64/kernel/ebus.c	2004-10-08 15:37:52.333561336 -0700
-@@ -528,7 +528,7 @@ static struct pci_dev *find_next_ebus(st
- 	struct pci_dev *pdev = start;
- 
- 	do {
--		pdev = pci_find_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
-+		pdev = pci_get_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
- 		if (pdev &&
- 		    (pdev->device == PCI_DEVICE_ID_SUN_EBUS ||
- 		     pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS))
-
+Lee
 

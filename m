@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313730AbSDUS0U>; Sun, 21 Apr 2002 14:26:20 -0400
+	id <S313722AbSDUS2A>; Sun, 21 Apr 2002 14:28:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313722AbSDUSZD>; Sun, 21 Apr 2002 14:25:03 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:50853 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313717AbSDUSYw>;
-	Sun, 21 Apr 2002 14:24:52 -0400
-Date: Sun, 21 Apr 2002 14:24:47 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Larry McVoy <lm@work.bitmover.com>, Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org,
-        Wayne Scott <wscott@work.bitmover.com>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020421142447.G8142@havoc.gtf.org>
-In-Reply-To: <20020421131354.C4479@havoc.gtf.org> <20020421102339.E10525@work.bitmover.com> <20020421133225.F4479@havoc.gtf.org> <20020421103923.I10525@work.bitmover.com> <20020421134500.A7828@havoc.gtf.org> <20020421104725.K10525@work.bitmover.com> <20020421134955.C7828@havoc.gtf.org> <20020421105706.M10525@work.bitmover.com> <20020421140753.C8142@havoc.gtf.org> <20020421111450.P10525@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313719AbSDUS0b>; Sun, 21 Apr 2002 14:26:31 -0400
+Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:50836 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S313720AbSDUS0R>;
+	Sun, 21 Apr 2002 14:26:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Date: Sat, 20 Apr 2002 20:26:58 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020421101731.D10525@work.bitmover.com> <E16yzMr-0000lO-00@starship> <20020421141519.E8142@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16yzZa-0000le-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 11:14:50AM -0700, Larry McVoy wrote:
-> On Sun, Apr 21, 2002 at 02:07:53PM -0400, Jeff Garzik wrote:
-> > Triggers are completely useless for "show me what the next-to-last
-> > 'bk pull' downloaded, in GNU patch style."  
+On Sunday 21 April 2002 20:15, Jeff Garzik wrote:
+> On Sat, Apr 20, 2002 at 08:13:48PM +0200, Daniel Phillips wrote:
+> > On Sunday 21 April 2002 19:55, Jeff Garzik wrote:
+> > > On Sat, Apr 20, 2002 at 07:48:44PM +0200, Daniel Phillips wrote:
+> > > > On Sunday 21 April 2002 19:22, Jeff Garzik wrote:
+> > > > > Daniel Phillips wrote:
+> > > > > > How much less convenient is it to click on a link?  So much harder that it's
+> > > > > > worth pissing off some key developers?
+> > > 
+> > > > > Linus has already explained why he put it into the kernel sources.
+> > > 
+> > > > So far the only argument I've seen is: it's convenient.  Did I miss something? 
+> > > > The convenience argument is bogus.  A url is just as convenient,
+> > >
+> > > If you say this, then you either missed, or are willfully ignoring,
+> > > what Linus said.  Search for the string "helsinki.fi".
+> > 
+> > Linus said:
+> > 
+> > > As to why the docs are in the kernel sources rather than on any web-sites:
+> > > it's simply because I don't even _have_ a web page of my own (I've long
+> > > since forgotten the password to my old helsinki.fi account ;),
+> > 
+> > Larry has offered to host it, so Linus's argument is answered.
+> 
+> These are docs-about-Linus, not docs-about-Larry.
+> 
+> Do you propose to move SubmittingPatches and all info related to CVS, to
+> Larry's web site?
 
-> All you need to do is save the starting and ending cset revs as keys,
-> and then send those into bk export -tpatch.  So a trigger which saved
-> top of trunk on a stack is all you need, the rest is a tiny amount of
-> perl/shell.  Write it, send it to me, if people like it, we'll roll it
-> into the mainline release.
+Which part of 'Larry offered to host it' was not completely clear?
 
-In order to implement multiple 'bk undo' stack as you described, you
-need to store or deduce that info anyway.  If I wrote it, wouldn't I be
-duplicating work (or doing work for you)?
+CVS does not have the license issues.  Red herring.
 
-	Jeff
-
-
-
+-- 
+Daniel

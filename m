@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUFHWdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265366AbUFHWfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUFHWdk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 18:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUFHWdk
+	id S265366AbUFHWfX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 18:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbUFHWfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 18:33:40 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:9605 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S265354AbUFHWdj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 18:33:39 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: USBDEVFS_RESET deadlocks USB bus.
-Date: Tue, 8 Jun 2004 22:19:40 +0200
-User-Agent: KMail/1.6.2
-Cc: "Zephaniah E. Hull" <warp@babylon.d2dc.net>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org,
-       "David A. Desrosiers" <desrod@gnu-designs.com>
-References: <20040604193911.GA3261@babylon.d2dc.net> <200406072111.32827.baldrick@free.fr> <20040607231348.GB10404@babylon.d2dc.net>
-In-Reply-To: <20040607231348.GB10404@babylon.d2dc.net>
+	Tue, 8 Jun 2004 18:35:23 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:16215 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265368AbUFHWfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 18:35:11 -0400
+Date: Tue, 8 Jun 2004 23:34:56 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: arjanv@redhat.com, <joern@wohnheim.fh-wedel.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] stop page_state stack waste
+In-Reply-To: <20040608141106.3c7c3c10.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0406082331470.2556-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406082219.41213.baldrick@free.fr>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Great, could you send me the patch? (So I have something usable until it
-> gets into mainline and a kernel is released with it.)
+On Tue, 8 Jun 2004, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> >
+> > Replace get_page_state (which memset most of full page_state to 0) by
+> > get_main_page_state, which just sets the small structure needed.  This
+> > helps 4k stacks not to overflow: cuts 224 bytes off try_to_free_pages
+> > and wakeup_bdflush (and sync_inodes_sb) stack usages: wakeup_bdflush
+> > doesn't do much, but is called by try_to_free_pages and mempool_alloc.
+> 
+> Yeah, I was looking at that.  I simply did:
+> -} ____cacheline_aligned;
+> +};
 
-Sure - I just have to write it first!  It's a bit tricky to do right...
+Well, that is a smaller patch; but you're still wasting 124 bytes of
+stack in wakeup_bdflush below 124 bytes wasted in try_to_free_pages.
 
-Duncan.
+Hugh
+

@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130861AbQK3TYw>; Thu, 30 Nov 2000 14:24:52 -0500
+        id <S130820AbQK3TYv>; Thu, 30 Nov 2000 14:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130882AbQK3TYD>; Thu, 30 Nov 2000 14:24:03 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:25615 "EHLO
-        smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-        id <S130792AbQK3TXn>; Thu, 30 Nov 2000 14:23:43 -0500
-Message-ID: <3A26A1B5.9050203@megapathdsl.net>
-Date: Thu, 30 Nov 2000 10:51:33 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001127
-X-Accept-Language: en
+        id <S130861AbQK3TYD>; Thu, 30 Nov 2000 14:24:03 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:1292 "EHLO
+        Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+        id <S131034AbQK3TLt>; Thu, 30 Nov 2000 14:11:49 -0500
+Message-ID: <3A269F47.17336A69@Hell.WH8.TU-Dresden.De>
+Date: Thu, 30 Nov 2000 19:41:11 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test12-pre3 -- Playing an audio CD halts with drive errors.
-In-Reply-To: <3A25F803.6090609@megapathdsl.net> <20001130122019.A31057@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+CC: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: eepro100 driver update for 2.4
+In-Reply-To: <20001117172336.B27444@saw.sw.com.sg>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrey Savochkin wrote:
 
-> Try with
-> 
-> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test11/cd-1.bz2
-> 
-> It should apply cleanly to test12-pre3 too.
+> I've updated eepro100 driver for 2.4 kernel branch.
+> So far, the most annoying initialization problem (expressing itself in "card
+> reports no resources" messages) hasn't been fixed.
 
-Thanks Jens.
+Hi Andrey,
 
-Your patch enables me to play the entire CD.
-However, I still get this error every time
-I begin playing the CD:
+I've been using an older EEPro100/B card until now and it's been working without any
+problems ever since the transmitter bugs were fixed. The boot output looked like this:
 
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x50
-ATAPI device hdc:
-   Error: Illegal request -- (Sense key=0x05)
-   Invalid field in command packet -- (asc=0x24, ascq=0x00)
-   The failed "Play Audio MSF" packet command was:
-   "47 00 00 00 02 00 3f 24 ff 00 00 00 "
-   Error in command packet byte 8 bit 0
-Play from track 1 to 9
-lba 0 to lba 286050
+eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+eepro100.c: $Revision: 1.35 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+eth0: Intel Corporation 82557 [Ethernet Pro 100], 00:A0:C9:41:F4:DE, IRQ 9.
+  Board assembly 667280-003, Physical connectors present: RJ45
+  Primary interface chip i82555 PHY #1.
+  General self-test: passed.
+  Serial sub-system self-test: passed.
+  Internal registers self-test: passed.
+  ROM checksum self-test: passed (0x49caa8d6).
+  Receiver lock-up workaround activated.       
 
+Intel webpage says: 667280-xxx is a model EEPro100/B but I dunno which chipset.
+
+
+Today I've installed a new model with Wake-on-LAN support and got caught by
+above mentioned
+
+eth0: card reports no RX buffers.
+eth0: card reports no resources.
+
+messages as well. Strangely those messages only ever happen during bootup and
+*every* time. Shutting eth0 down and bringing it back up fixes the problem.
+
+What puzzles me a bit is that the newer card (721383-xxx) is an 82559 chip,
+according to the Intel site, but the boot output doesn't say so:
+
+eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+eepro100.c: $Revision: 1.35 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+eth0: Intel Corporation 82557 [Ethernet Pro 100], 00:02:B3:1F:BA:5D, IRQ 9.
+  Receiver lock-up bug exists -- enabling work-around.
+  Board assembly 721383-016, Physical connectors present: RJ45
+  Primary interface chip i82555 PHY #1.
+  General self-test: passed.
+  Serial sub-system self-test: passed.
+  Internal registers self-test: passed.
+  ROM checksum self-test: passed (0x04f4518b).  
+
+If you have any patches or tests that would help to find and fix this init
+bug, I'd offer to test them out, since I can reliably reproduce the problem.
+
+Regards,
+Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

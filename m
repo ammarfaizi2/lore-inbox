@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319081AbSHTOZ2>; Tue, 20 Aug 2002 10:25:28 -0400
+	id <S319079AbSHTOYR>; Tue, 20 Aug 2002 10:24:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319091AbSHTOZ2>; Tue, 20 Aug 2002 10:25:28 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:13565 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S319081AbSHTOZ1>; Tue, 20 Aug 2002 10:25:27 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020819223044.A1507@mars.ravnborg.org> 
-References: <20020819223044.A1507@mars.ravnborg.org>  <Pine.LNX.4.44.0208161049200.8911-100000@serv> <3D60BA16.38B9CC40@alphalink.com.au> 
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Greg Banks <gnb@alphalink.com.au>, Roman Zippel <zippel@linux-m68k.org>,
-       Peter Samuelson <peter@cadcamlab.org>,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements 
+	id <S319081AbSHTOYR>; Tue, 20 Aug 2002 10:24:17 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:33531 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319079AbSHTOYQ>; Tue, 20 Aug 2002 10:24:16 -0400
+Subject: Re: hpt374 / BUG();
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jools <j1@gramstad.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <IOELJIHGBNLBJNBMHABBIEPOCCAA.j1@gramstad.org>
+References: <IOELJIHGBNLBJNBMHABBIEPOCCAA.j1@gramstad.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 20 Aug 2002 15:28:51 +0100
+Message-Id: <1029853731.22982.28.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 20 Aug 2002 15:28:40 +0100
-Message-ID: <26597.1029853720@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-08-20 at 15:10, jools wrote:
 
-sam@ravnborg.org said:
-> David suggest to use randomly generated configurations, but they lack
-> one important feature. They are always valid, and a new system shall
-> be able to deal with hand-edited .config files in the same way as
-> oldconfig. 
+> I'm using a RocketRAID 404 (hpt374) and a Asus A7v266.
+> When trying to boot from a 'htp374-enabled' kernel like 2.4.19-ac4 or
+> 2.4.20-pre2-ac4, i keep getting kernel panic at hpt366.c:1393.
+> Does anyone know why this happens, or what I might do to correct this
+> problem? I have tried every patch I can find for the 2.4 kernel.
 
-I suggested those as a way for testing the equivalence of the old and new
-rulesets if the language changed. My main objection to CML2 was not the
-language itself or the gratuitous use of python, but the fact that the
-actual configuration rules were changed in extremely dubious ways.
+Its hitting a setup check for later chips when it finds them on a 66MHz
+PCI bus slot. At that point the current code aborts because the 66MHz
+tables for the HPT374 haven't been verified yet. 
 
-Think 'provably correct transforms between AndreCode and C'.
-
-You do also want to deal with hand-edited .config files in a similar manner 
-to the existing tools, yes -- but that's a different issue.
-
---
-dwmw2
-
+The status on that bit is an Andre question
 

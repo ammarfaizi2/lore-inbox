@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132892AbRDENOA>; Thu, 5 Apr 2001 09:14:00 -0400
+	id <S132893AbRDENPB>; Thu, 5 Apr 2001 09:15:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132893AbRDENNu>; Thu, 5 Apr 2001 09:13:50 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:12602 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132892AbRDENNf>; Thu, 5 Apr 2001 09:13:35 -0400
-Date: Thu, 5 Apr 2001 14:12:48 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Bart Trojanowski <bart@jukie.net>
-Cc: =?iso-8859-1?Q?Sarda=F1ons=2C_Eliel?= 
-	<Eliel.Sardanons@philips.edu.ar>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+	id <S132894AbRDENOl>; Thu, 5 Apr 2001 09:14:41 -0400
+Received: from ppp43.ts3-2.NewportNews.visi.net ([209.8.198.171]:64755 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S132893AbRDENOk>; Thu, 5 Apr 2001 09:14:40 -0400
+Date: Thu, 5 Apr 2001 09:13:02 -0400
+From: Ben Collins <bcollins@debian.org>
+To: "Sarda?ons, Eliel" <Eliel.Sardanons@philips.edu.ar>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 Subject: Re: asm/unistd.h
-Message-ID: <20010405141248.Z9355@redhat.com>
-In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER> <Pine.LNX.4.30.0104050901500.13496-100000@localhost>
+Message-ID: <20010405091302.S17338@visi.net>
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="EUwkhXZbCcD53YNR"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0104050901500.13496-100000@localhost>; from bart@jukie.net on Thu, Apr 05, 2001 at 09:06:20AM -0400
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER>; from Eliel.Sardanons@philips.edu.ar on Thu, Apr 05, 2001 at 09:58:43AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 05, 2001 at 09:58:43AM -0300, Sarda?ons, Eliel wrote:
+> I'm taking a look at the linux code and I don't understand how do you
+> programm...mmm (?) may be i'm a stupid why in include/asm/unistd.h in some
+> macros you use this:
+> 
+> do {
+> ...
+> } while (0)
 
---EUwkhXZbCcD53YNR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Imagine a macro of several lines of code like:
 
-On Thu, Apr 05, 2001 at 09:06:20AM -0400, Bart Trojanowski wrote:
+#define FOO(x) \
+	printf("arg is %s\n", x); \
+	do_something_useful(x);
 
-> So you ask: "why not just use a { ... } to define a macro".  I don't
-> remember the case for this but I know it's there.  It has to do with a
-> complicated if/else structure where a simple {} breaks.
+Now imagine using it like:
 
-It's for eating the semi-colon after the macro invocation.
+	if (blah == 2)
+		FOO(blah);
 
-Tim.
-*/
+This interprets to
 
---EUwkhXZbCcD53YNR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	if (blah == 2)
+		printf("arg is %s\n", blah);
+		do_something_useful(blah);;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+As you can see, the "if" then only encompasses the printf, and the
+do_something_useful() call is unconditional (not within the scope of the
+if), like you wanted it.
 
-iD8DBQE6zG9PONXnILZ4yVIRAn46AJ9qAOqXytZwZ5LmJj9B4o8tNgzefwCfV94b
-TJcxDB2GBbVHXSN1g6PA9Cw=
-=YurY
------END PGP SIGNATURE-----
+So, by using a block like do{...}while(0), you would get this:
 
---EUwkhXZbCcD53YNR--
+	if (blah == 2)
+		do {
+			printf("arg is %s\n", blah);
+			do_something_useful(blah);
+		} while (0);
+
+Which is exactly what you want.
+
+-- 
+ -----------=======-=-======-=========-----------=====------------=-=------
+/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

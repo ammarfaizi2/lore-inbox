@@ -1,95 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130839AbQLHMNY>; Fri, 8 Dec 2000 07:13:24 -0500
+	id <S130901AbQLHMOX>; Fri, 8 Dec 2000 07:14:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130901AbQLHMNO>; Fri, 8 Dec 2000 07:13:14 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:13064 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130839AbQLHMNI>;
-	Fri, 8 Dec 2000 07:13:08 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: linux-kernel@vger.kernel.org
-Date: Fri, 8 Dec 2000 12:41:56 MET-1
+	id <S132079AbQLHMON>; Fri, 8 Dec 2000 07:14:13 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:5617 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S130901AbQLHMOC>; Fri, 8 Dec 2000 07:14:02 -0500
+Date: Fri, 8 Dec 2000 12:30:54 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: richardj_moore@uk.ibm.com
+cc: Andi Kleen <ak@suse.de>, root@chaos.analogic.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Why is double_fault serviced by a trap gate?
+In-Reply-To: <802569AE.00747B7E.00@d06mta06.portsmouth.uk.ibm.com>
+Message-ID: <Pine.GSO.3.96.1001208121406.6796B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.2.18pre21: iput: device 08:0x inode xy still has aliases!
-CC: hulinsky@fel.cvut.cz
-X-mailer: Pegasus Mail v3.40
-Message-ID: <F1344A81978@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  one of my friends uses 2.2.18-pre21 (packaged by Debian...) and
-when he run tripwire, he got:
+On Thu, 7 Dec 2000 richardj_moore@uk.ibm.com wrote:
 
-iput: device 08:07 inode 47215 still has aliases!
-iput: device 08:07 inode 47592 still has aliases!
-iput: device 08:07 inode 110279 still has aliases!
-iput: device 08:02 inode 62928 still has aliases!
-iput: device 08:02 inode 34036 still has aliases!
-iput: device 08:02 inode 33863 still has aliases!
-iput: device 08:02 inode 3518 still has aliases!
-iput: device 08:02 inode 64494 still has aliases!
-iput: device 08:02 inode 62928 still has aliases!
-iput: device 08:02 inode 109302 still has aliases!
-iput: device 08:02 inode 34834 still has aliases!
-iput: device 08:02 inode 33928 still has aliases!
-iput: device 08:02 inode 16601 still has aliases!
-iput: device 08:02 inode 3333 still has aliases!
-iput: device 08:02 inode 107577 still has aliases!
-iput: device 08:02 inode 2457 still has aliases!
-iput: device 08:02 inode 16908 still has aliases!
-iput: device 08:02 inode 95410 still has aliases!
-iput: device 08:02 inode 110990 still has aliases!
-iput: device 08:02 inode 78678 still has aliases!
-iput: device 08:02 inode 30685 still has aliases!
-iput: inode 08:02/30685 count wrapped
+> Which surely we can on today's x86 systems. Even back in the days of OS/2
+> 2.0 running on a 386 with 4Mb RAM we used a taskgate for both NMI and
+> Double Fault. You need only a minimal stack - 1K, sufficient to save state
+> and restore ESP to a known point before switching back to the main TSS to
+> allow normal exception handling to occur.
 
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sda2               964532    487668    427868  53% /
-/dev/sda1                31077      2103     27370   7% /boot
-/dev/sda6               482217        13    457305   0% /tmp
-/dev/sda7              2213668    147208   1954008   7% /var
+ The memory hit is surely not a problem.
 
-Abit BE6-II, one year old, both of these devices are ext2.
+> There's no problem under MP since the double fault exception will be only
+> presented on the processor that instigated the problem.
 
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-00:0f.0 SCSI storage controller: Adaptec 7892A (rev 02)
-00:11.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
+ But what if another double fault happens on another CPU at roughly the
+same time (unlikely, but still...)?
 
-(scsi0) <Adaptec AIC-7892 Ultra 160/m SCSI host adapter> found at PCI
-0/15/0
-(scsi0) Wide Channel, SCSI ID=7, 32/255 SCBs
-(scsi0) Downloading sequencer code... 392 instructions downloaded
-scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.31/3.2.4
-       <Adaptec AIC-7892 Ultra 160/m SCSI host adapter>
-scsi : 1 host.
-(scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 15.
-  Vendor: WDIGTL    Model: ENTERPRISE        Rev: 1.80
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-scsi : detected 1 SCSI disk total.
-SCSI device sda: hdwr sector= 512 bytes. Sectors= 8515173 [4157 MB] [4.2
-GB]
-Partition check:
- sda: sda1 sda2 sda3 < sda5 sda6 sda7 >
+> As for NMIs I didn't think they  were presented to all processors
+> simultaneously. If they are then the way to handle that is to map a page of
+> the GDT,  to a  unique physical address per-processor - i.e. processor
+> local storage. The virtual address will be the same on each. This is what
+> we did under OS/2 SMP.
 
-When he rerun 'tripwire' (witout reboot), he was awarded by 
+ Good idea.
 
-iput: inode 00:00/0 count wrapped
+> The only time you want the NMI handler to be fast is when it's being used
+> for hand-shaking, which some disk devices do. And perhaps for APIC NMI
+> class interprocessor interrupts. But I honestly don't think that's really a
+> good enough reason not to have a task gate for NMI.
 
-Tripwire itself finished without any complaints.
-                                                Thanks,
-                                                        Petr Vandrovec
-                                                        vandrove@vc.cvut.cz
-                                                        
+ Do we really want to waste 60000+ CPU cycles every second just to handle
+a TSS switch? 
+
+> The unpredictablility of the abort (NMI or Double-fault) refers to fact
+> that in general it is indeterminate as to whether it is  a fault or trap.
+
+ NMI is a normal interrupt (fault-like) and not an abort.  It's fully
+predictable.
+
+> And that's a matter of whether the EIP point at ot after the instruction
+> related to the exception. The abort nature  of theses exceptions is not
+> really a problem for the exception handler.
+
+ If you get a double fault during retrieving a CPU state from a TSS, you
+may end with an inconsistent state -- you may be unable to iretd or use
+the stack.  For NMIs it doesn't happen -- an NMI event, if happens during
+a TSS switch, will not be handled until the switch completes.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

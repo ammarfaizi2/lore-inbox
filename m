@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261783AbTCLQLA>; Wed, 12 Mar 2003 11:11:00 -0500
+	id <S261782AbTCLQKZ>; Wed, 12 Mar 2003 11:10:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261789AbTCLQLA>; Wed, 12 Mar 2003 11:11:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3332 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261783AbTCLQK6>; Wed, 12 Mar 2003 11:10:58 -0500
+	id <S261783AbTCLQKZ>; Wed, 12 Mar 2003 11:10:25 -0500
+Received: from in02-fes2.whowhere.com ([209.202.220.219]:55540 "HELO
+	whowhere.com") by vger.kernel.org with SMTP id <S261782AbTCLQKX>;
+	Wed, 12 Mar 2003 11:10:23 -0500
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [patch 3/3] add Via Nehemiah ("xstore") rng support
-Date: 12 Mar 2003 08:21:26 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b4nmq6$3et$1@cesium.transmeta.com>
-References: <20030312125542.GA4284@suse.de> <Pine.LNX.4.44.0303120714030.13807-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Date: Wed, 12 Mar 2003 16:20:52  0000
+From: "Dean McEwan" <dean.mcewan@eudoramail.com>
+Message-ID: <AOJCKBNBCPFCKBAA@whowhere.com>
+Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: dean.mcewan@eudoramail.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Re: The GPL, the kernel. <cough>and the GNU, barely </cough>.
+X-Sender-Ip: 195.195.129.3
+Organization: Lycos Mail  (http://www.mail.eudoramail.com)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0303120714030.13807-100000@home.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
->
-> 
-> On Wed, 12 Mar 2003, Dave Jones wrote:
-> >  
-> >  > +#define cpu_has_xstore		boot_cpu_has(X86_FEATURE_XSTORE)
-> >  
-> > Do we want to do this check only on VIA CPUs I wonder.
-> > As a vendor specific extension, I'd be inclined to do that.
-> 
-> No, the whole point of all the crud in arch/i386/kernel/cpu is to make 
-> those tests _once_ at bootup, and then the internal kernel "extended CPU 
-> feature set" has a unique feature-set that is independent of manufacturers 
-> and totally disjunct, so that we never need to care about manufacturers 
-> ever again.
-> 
+> Because, to a large extent, for the core kernel developers, the existing
+> system is fine.
 
-Right.  I have also pointed out to Jeff already that the test is done
-wrong... it's pretty clear from the code that VIA has set up a feature
-flag space of their own like Intel, AMD and Transmeta already have
-(which is a good thing), so we should add that as an additional word
-in the feature test vector instead of special-casing such a bit.
+Rather like a chocolate teapot, those who are going off tea, wouldn't
+ care less.
 
-In fact, we need to add two words since Intel ran out of theirs and
-started using additional flags in %ecx just recently.
+>Right there you've put your finger on a problem.  Many core developers are
+>working hard to make sure that this never happens.  See arguments in favor
+>of open source.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+This list has those? WOW.
+
+>>It looks to me as though an underlying, larger problem is that there are
+>several distinct communities which are all interested in Linux, but which
+>have divergent values.  
+
+Only 2 of those communities developed the whole OS, neither of them was NVidia.
+
+>Others want a Windows-killer and
+>obsess about the desktop, or installation, or other ease-of-use-by-those-
+>who'd-rather-not-think-about-computers issues.  
+
+Ah the readers/creators of linux format...
+
+
+>Me, I could care less whether Linux achieves world domination.  The
+>business desktop is to me an utterly uninteresting problem.  The only
+>reason I worry about things like market penetration is that competing
+>So, you need to look at the *really* big picture.  There are people who
+>think the way you do, and people who don't, and it would be a worthy
+>challenge to find a way to somewhat satisfy both groups.
+
+Why if they don't develop code, should they get a say???
+
+>Given the inertia of existing applications and documents in business
+>[read Microsoft Office] you also need to get Microsoft on board as an
+
+ NO NO NO NO NO No. NOT M$, NOT NOW. NOT EVER.
+
+>john alvord
+Thanks for your opinion... Time to develop code, and shut up...
+---
+Cheers, Dean.
+
+
+
+Need a new email address that people can remember
+Check out the new EudoraMail at
+http://www.eudoramail.com

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271949AbTGRVIs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 17:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271873AbTGRVHR
+	id S271884AbTGRVB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 17:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271880AbTGRVBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 17:07:17 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:45554 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S271951AbTGRVGk
+	Fri, 18 Jul 2003 17:01:42 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:27272 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S270373AbTGRU7b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 17:06:40 -0400
-Subject: Re: Linux 2.6.0-test1 Ext3 Ooops. Reboot needed.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
+	Fri, 18 Jul 2003 16:59:31 -0400
+Date: Sat, 19 Jul 2003 09:05:53 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Software suspend testing in 2.6.0-test1
+In-reply-to: <20030718094542.07b2685a.akpm@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030718140019.4f6667bd.akpm@osdl.org>
-References: <200307181228.40142.gallir@uib.es>
-	 <20030718140019.4f6667bd.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4JsKzipLD8HMEeuJ4zQa"
-Organization: Red Hat, Inc.
-Message-Id: <1058563289.5948.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 18 Jul 2003 23:21:29 +0200
+Cc: Peter Osterlund <petero2@telia.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1058562011.2015.17.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <m2wueh2axz.fsf@telia.com> <20030717200039.GA227@elf.ucw.cz>
+ <20030717130906.0717b30d.akpm@osdl.org> <m2d6g8cg06.fsf@telia.com>
+ <20030718032433.4b6b9281.akpm@osdl.org> <20030718152205.GA407@elf.ucw.cz>
+ <m2el0nvnhm.fsf@telia.com> <20030718094542.07b2685a.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-07-19 at 04:45, Andrew Morton wrote:
+> Oh, we shouldn't be doing this sort of thing when the kernel threads are
+> refrigerated.  We do need kswapd services for the trick you tried.
+> 
+> And all flavours of ext3_writepage() can block on kjournald activity, so if
+> kjournald is refrigerated during the memory shrink the machine can deadlock.
+> 
+> It would be much better to freeze kernel threads _after_ doing the big
+> memory shrink.
 
---=-4JsKzipLD8HMEeuJ4zQa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes, that's what the 2.4 version does. And it freezes the kernel threads
+in a particular order to avoid deadlocking.
 
-On Fri, 2003-07-18 at 23:00, Andrew Morton wrote:
-> Ricardo Galli <gallir@uib.es> wrote:
-> >
-> >  Unable to handle kernel paging request at virtual address e9000018
-> > EIP is at find_inode_fast+0x20/0x70
-> > Call Trace:
-> >  [<c0168e42>] iget_locked+0x52/0xc0
-> >  [<c018a54b>] ext3_lookup+0x6b/0xd0
-> >  [<c015cd92>] real_lookup+0xd2/0x100
->=20
-> What is "famd"?  File access monitor daemon? =20
-it's probably the SGI thing that dnotify()s directories for one of the
-GUI filemanagers out there...=20
+Regards,
 
---=-4JsKzipLD8HMEeuJ4zQa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Nigel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-iD8DBQA/GGTZxULwo51rQBIRAtt3AJwKb01Fkmu1m0Oh03/cf26Vva4nFwCeOqRB
-oYVptsevqEl/woN+BSie/10=
-=w7e0
------END PGP SIGNATURE-----
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 
---=-4JsKzipLD8HMEeuJ4zQa--

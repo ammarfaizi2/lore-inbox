@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265128AbTL3Tmn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 14:42:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbTL3Tmn
+	id S264271AbTL3TlV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 14:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbTL3TlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 14:42:43 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:23966 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S265128AbTL3Tmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 14:42:40 -0500
-Date: Tue, 30 Dec 2003 20:42:03 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Derek Foreman <manmower@signalmarketing.com>
-Cc: DervishD <raul@pleyades.net>, Eugene <spamacct11@yahoo.com>,
-       linux-kernel@vger.kernel.org,
-       "ynezz @ hysteria. sk" <ynezz@hysteria.sk>
-Subject: Re: best AMD motherboard for Linux
-Message-ID: <20031230194203.GA8062@louise.pinerecords.com>
-References: <3FEF0AFD.4040109@yahoo.com> <20031228172008.GA9089@c0re.hysteria.sk> <3FEF0AFD.4040109@yahoo.com> <20031228174828.GF3386@DervishD> <20031229165620.GF30794@louise.pinerecords.com> <Pine.LNX.4.58.0312301144340.467@uberdeity>
+	Tue, 30 Dec 2003 14:41:21 -0500
+Received: from holomorphy.com ([199.26.172.102]:10435 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264271AbTL3TlT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 14:41:19 -0500
+Date: Tue, 30 Dec 2003 11:40:51 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Thomas Molina <tmolina@cablespeed.com>, Roger Luethi <rl@hellgate.ch>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 performance problems
+Message-ID: <20031230194051.GD22443@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andy Isaacson <adi@hexapodia.org>,
+	Thomas Molina <tmolina@cablespeed.com>,
+	Roger Luethi <rl@hellgate.ch>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <20031230012551.GA6226@k3.hellgate.ch> <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain> <20031230132145.B32120@hexapodia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312301144340.467@uberdeity>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031230132145.B32120@hexapodia.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-30 2003, Tue, 12:32 -0600
-Derek Foreman <manmower@signalmarketing.com> wrote:
+On Mon, Dec 29, 2003 at 08:37:53PM -0500, Thomas Molina wrote:
+>> Right.  I have 120MB RAM and 256MB swap partition.  That corresponds to 
+>> the 85 to 90 percent top says I am spending in iowait.
 
-> > > > planning to get GeForce FX graphics card, if it makes a difference.
-> > >
-> > >     Ask here before if you are planning to change your video card.
-> >
-> > nVidia translates to "trouble" around here.  Selected Radeon cards,
-> > on the other hand, work perfectly with opensource drivers and should
-> > perform comparably.
-> 
-> I'm not sure how you're defining "comparably".  If you mean they get
-> similar numbers from glxgears, that's possible.  But the feature sets are
-> not at all comparable.  Nvidia's linux driver actually exposes the
-> features available on modern graphics hardware.
-> 
-> If you're going to advise against the use of their products in a public
-> forum, I suggest you be a lot more specific.
+On Tue, Dec 30, 2003 at 01:21:45PM -0600, Andy Isaacson wrote:
+> Yeah, right now BK needs about 140-160MB of working set to do a
+> consistency check on the 2.5 tree.  That means you're paging, and it
+> sounds like paging sucks on 2.6?
+> (Actually, BK is even happier if the kernel can keep all the sfiles in
+> cache, so a half-gig is a comfortable amount for working with the
+> current 2.5 tree, although 256MB should be enough to avoid paging hell.
+> With a full gig, you can keep two full trees in "checkout:get" mode in
+> cache, which is nice.)
 
-The person asking for advice was very articulate in what their primary
-concerns in choosing hardware were, and my suggestion was made with those
-in mind.  Yes, I'm convinced that a binary only driver is not an adequate
-solution in "supporting linux."
+Well, it's not supposed to suck.
 
-And by the way, you are not being specific in naming the "features
-available on modern graphics hardware," either.
+Something to try that affects paging directly would be adjusting
+/proc/sys/vm/swappiness to, say, 0 and 100 and trying it at both levels.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+More intelligent solutions require more instrumentation to address.
+
+I generally recommend:
+(1) logging top(1) running in batch mode
+(2) logging vmstat(1)
+(3) snapshotting /proc/meminfo
+(4) snapshotting /prov/vmstat
+
+I recommend an interval of 5s and logging with things like
+top b d 5 > /tmp/top.log 2>&1 &
+vmstat 5 > /tmp/vmstat.log 2>&1 &
+(while true; do cat /proc/meminfo; sleep 5; done) > /tmp/meminfo.log 2>&1 &
+(while true; do cat /proc/vmstat; sleep 5; done) > /tmp/proc_vmstat.log 2>&1 &
+
+Thus far interpretations of information collected this way have been
+somewhat lacking. Roger Luethi has identified various points at which
+regressions happened over the course of 2.5, but it appears that
+information hasn't yet been and still needs to be acted on.
+
+If you could also try to identify points in time when the system has
+become less responsive I'd be much obliged.
+
+
+-- wli

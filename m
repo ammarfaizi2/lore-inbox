@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318976AbSHMRjV>; Tue, 13 Aug 2002 13:39:21 -0400
+	id <S318229AbSHMRlm>; Tue, 13 Aug 2002 13:41:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318968AbSHMRib>; Tue, 13 Aug 2002 13:38:31 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33035 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318975AbSHMRh4>; Tue, 13 Aug 2002 13:37:56 -0400
-Date: Tue, 13 Aug 2002 10:44:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 7/21] batched freeing of anonymous pages
-In-Reply-To: <3D56148E.D06B13F2@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0208131041100.7411-100000@home.transmeta.com>
+	id <S318966AbSHMRku>; Tue, 13 Aug 2002 13:40:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7691 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318229AbSHMRj7>;
+	Tue, 13 Aug 2002 13:39:59 -0400
+Message-ID: <3D5947B7.EDE01C2E@zip.com.au>
+Date: Tue, 13 Aug 2002 10:53:59 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch 2/21] reduced locking in buffer.c
+References: <3D561473.40A53C0D@zip.com.au> <Pine.LNX.4.44.0208131032210.7411-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 11 Aug 2002, Andrew Morton wrote:
+Linus Torvalds wrote:
 > 
-> The VMA teardown code is currently removing pages from the LRU
-> one-at-a-time.  And it is freeing those pages one-at-a-time.
+> On Sun, 11 Aug 2002, Andrew Morton wrote:
+> >
+> > Resend.  Replace the buffer lru spinlock protection with
+> > local_irq_disable and a cross-CPU call to invalidate them.
+> 
+> This almost certainly breaks on sparc, where CPU cross-calls are
+> non-maskable, so local_irq_disable doesn't do anything for them.
+> 
+> Talk to Davem about this - there may be some workaround.
 
-This patch is wrong.
+I have discussed it with David - he said it's OK in 2.5, but
+not in 2.4, and he has eyeballed the diff.
 
-We already _have_ the pagevec for page table teardown, and by making it a 
-per-CPU static structure instead of allocating it on the stack it can be 
-made (and is) quite a lot bigger than a pvec.
+However there's another thing to think about:
 
-If you want batching here, then the right approach is to just remove the
-"fast" code entirely, and batch it properly at the TLB struct level (since
-we _have_ to batch it there anyway, to fix the the thread unmapping TLB
-race condition)
+	local_irq_disable();
+	atomic_inc();
 
-This is what "tlbgather" is all about.
+If the architecture implements atomic_inc with spinlocks, this will
+schedule with interrupts off with CONFIG_PREEMPT=y, I expect.
 
-		Linus
-
+I can fix that with a preempt_disable() in there, but ick.

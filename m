@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287507AbRLaNDg>; Mon, 31 Dec 2001 08:03:36 -0500
+	id <S287520AbRLaNFq>; Mon, 31 Dec 2001 08:05:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287509AbRLaND1>; Mon, 31 Dec 2001 08:03:27 -0500
-Received: from ns.suse.de ([213.95.15.193]:44811 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287507AbRLaNDM>;
-	Mon, 31 Dec 2001 08:03:12 -0500
-Date: Mon, 31 Dec 2001 14:02:17 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S287514AbRLaNFe>; Mon, 31 Dec 2001 08:05:34 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:38921 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287513AbRLaNFN>;
+	Mon, 31 Dec 2001 08:05:13 -0500
+Date: Mon, 31 Dec 2001 14:04:55 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
         Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: merge in progress.
-In-Reply-To: <Pine.LNX.4.33.0112311306450.1366-100000@vaio>
-Message-ID: <Pine.LNX.4.33.0112311401330.15812-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011231140455.F7130@suse.de>
+In-Reply-To: <20011231031506.A1537@suse.de> <E16L2F5-00050A-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16L2F5-00050A-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Dec 2001, Kai Germaschewski wrote:
+On Mon, Dec 31 2001, Alan Cox wrote:
+> > Things unlikely to merge yet.
+> > o  Alans aacraid driver (not bio aware)
+> 
+> Thats fine. I don't plan to worry about that until 2.5 is a lot more stable.
 
-> I'll take care of ISDN. Should I include the ISDN __devexit changes, or do
-> you want to push all of these in one batch?
-
-If you push all the drivers/isdn/ bits I'd rather not not worry about
-that at all..
-
-Dave.
+I'm assuming you mean stable wrt code base changes, otherwise I'd like
+to hear about any instability of the kernel wrt bio.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Jens Axboe
 

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278434AbRJSPeT>; Fri, 19 Oct 2001 11:34:19 -0400
+	id <S278432AbRJSPg3>; Fri, 19 Oct 2001 11:36:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278432AbRJSPeK>; Fri, 19 Oct 2001 11:34:10 -0400
-Received: from danielle.hinet.hr ([195.29.254.157]:31899 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S278434AbRJSPeC>; Fri, 19 Oct 2001 11:34:02 -0400
-Date: Fri, 19 Oct 2001 17:34:34 +0200
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: linux-kernel@vger.kernel.org
-Subject: RAID and 2.4.12 ?
-Message-ID: <20011019173434.A10220@danielle.hinet.hr>
+	id <S278436AbRJSPgT>; Fri, 19 Oct 2001 11:36:19 -0400
+Received: from cs6625129-123.austin.rr.com ([66.25.129.123]:50700 "HELO
+	dragon.taral.net") by vger.kernel.org with SMTP id <S278432AbRJSPgM> convert rfc822-to-8bit;
+	Fri, 19 Oct 2001 11:36:12 -0400
+Date: Fri, 19 Oct 2001 10:38:09 -0500
+From: Taral <taral@taral.net>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
+Message-ID: <20011019103809.E30774@taral.net>
+In-Reply-To: <3bcef893.4872.0@panix.com> <20011018114921.A30969@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 18, 2001 at 11:49:21AM -0400, Arjan van de Ven wrote:
+> I'm sorry. "module inserting" is LINKING. A kernel module does, in my
+> oppinion, NOT fall under the gpl stated "mere aggregation" boundary of the
+> GPL, it is compiled with kernel headers, contains kernel _code_ from these
+> headers etc etc, and is for all intents and purposes part of the GPL program
+> "kernel" once loaded. It uses normal function calls etc etc, symbols are
+> resolved using normal linking mechanisms etc etc.
 
-are there any known problems with software raid and kernel 2.4.12 ?
+You're quite right. Module insertion is linking. And distributing a
+kernel with binary-only modules already inserted would be a GPL
+violation. What modules do is let people do the link at the last stage
+-- the end user. The GPL does not restrict what end-users do with your
+code if it doesn't involve redistribution.
 
-I have several production servers (Dell poweredge 1550) with active
-kernels from range of 2.4.8/2.4.9/2.4.12. All of them are quite loaded
-with web/ftp/game/realmedia servers.
-
-Only combination of RAID and 2.4.12 gives me trouble, complete hang,
-no output, no ping. Unfortunately I can't reproduce it by will, sometimes
-it hangs just after few mins of uptime, sometimes after few hours.
-
-I _do_ have few servers running 2.4.12 quite realiably (not a single reboot yet)
-but without RAID on them (heavily loaded list server and very heavily loaded
-realmedia server).
-
-Combination of 2.4.9 and RAID works without any problem so far.
-
-
-Any help? Pointers? Patches ?
+In short: Copyright holders have the right to attempt to restrict their
+interfaces. But end-users also have the right to ignore those attempts.
+That is, unless the DMCA comes into play.
 
 -- 
-Mario Mikoèeviæ (Mozgy)
-mozgy at hinet dot hr
-My favourite FUBAR ...
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose

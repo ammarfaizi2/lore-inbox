@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131720AbRCONrp>; Thu, 15 Mar 2001 08:47:45 -0500
+	id <S131723AbRCONuz>; Thu, 15 Mar 2001 08:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131718AbRCONrf>; Thu, 15 Mar 2001 08:47:35 -0500
-Received: from mx1out.umbc.edu ([130.85.253.51]:57291 "EHLO mx1out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S131717AbRCONr0>;
-	Thu, 15 Mar 2001 08:47:26 -0500
-Date: Thu, 15 Mar 2001 08:46:42 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Lars Kellogg-Stedman <lars@larsshack.org>,
-        Christoph Hellwig <hch@caldera.de>, <linux-kernel@vger.kernel.org>,
-        AmNet Computers <amnet@amnet-comp.com>
-Subject: Re: magic device renumbering was -- Re: Linux 2.4.2ac20
-In-Reply-To: <Pine.LNX.3.95.1010314143853.1825A-100000@chaos.analogic.com>
-Message-ID: <Pine.SGI.4.31L.02.0103150841230.44205-100000@irix2.gl.umbc.edu>
+	id <S131722AbRCONup>; Thu, 15 Mar 2001 08:50:45 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:32721 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131721AbRCONuf>;
+	Thu, 15 Mar 2001 08:50:35 -0500
+Date: Thu, 15 Mar 2001 16:23:46 +0100 (CET)
+From: Ketil Froyn <ketil@froyn.com>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Is swap == 2 * RAM a permanent thing?
+In-Reply-To: <Pine.LNX.4.33.0103150720100.757-100000@asdf.capslock.lan>
+Message-ID: <Pine.LNX.4.30.0103151610230.12994-100000@pccn3.uio.no>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Mar 2001, Richard B. Johnson wrote:
+On Thu, 15 Mar 2001, Mike A. Harris wrote:
 
-> This used to even be the way disks were located by the kernel
-> drivers. Now, these are found in some "random" order.
->
-> If whatever is causing the "random" order was fixed, put back like
-> it used to be, etc., we wouldn't have these problems.
+> Is the fact that we're supposed to use double the RAM size as
+> swap a permanent thing or a temporary annoyance that will get
+> tweaked/fixed in the future at some point during 2.4.x perhaps?
 
-Another alternative to path2inst or a database, I suppose, would be to use
-bus/pci slot information (like in /proc/pci?) to order multiple devices, so
-at least there's some consistency.
+You're not supposed to do anything, that's just a general rule of thumb.
+If your system hardly ever swaps, use a swapfile, because speed doesn't
+matter a lot anyway.
 
-You might have a serious headache, however, when adding a device, under
-that scheme.
+> Would it be better to make part of RAM a ramdisk and swap to
+> that?
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+No, don't do that. Physical memory is better than swap. Swap is a backup
+for physical memory, so that you can run programs that use more memory
+than you have. You don't really *need* swap, linux works fine without.
+
+Ketil
+
 

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130359AbQKLKRH>; Sun, 12 Nov 2000 05:17:07 -0500
+	id <S130241AbQKLK3x>; Sun, 12 Nov 2000 05:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130392AbQKLKQ6>; Sun, 12 Nov 2000 05:16:58 -0500
-Received: from aeon.tvd.be ([195.162.196.20]:23804 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S130359AbQKLKQp>;
-	Sun, 12 Nov 2000 05:16:45 -0500
-Date: Sun, 12 Nov 2000 11:16:42 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test11-pre3
-In-Reply-To: <Pine.LNX.4.10.10011111914170.7609-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.05.10011121115050.24986-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130322AbQKLK3n>; Sun, 12 Nov 2000 05:29:43 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:16000 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130241AbQKLK3b>;
+	Sun, 12 Nov 2000 05:29:31 -0500
+Date: Sun, 12 Nov 2000 02:14:54 -0800
+Message-Id: <200011121014.CAA01706@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: elenstev@mesatop.com
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <00111123102400.01425@localhost.localdomain> (message from Steven
+	Cole on Sat, 11 Nov 2000 23:10:24 -0700)
+Subject: Re: [PATCH] Addition to ECN documentation in Configure.help
+In-Reply-To: <00111123102400.01425@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Nov 2000, Linus Torvalds wrote:
->     - Alan Cox: SCSI driver NULL ptr checks
+   From: Steven Cole <elenstev@mesatop.com>
+   Date: 	Sat, 11 Nov 2000 23:10:24 -0700
 
-Which needs the following fix:
+   Here is a little patchlet which adds to the new documentation for
+   CONFIG_INET_ECN in Configure.help.  This patch applies to
+   2.4.0-test11-pre3.
 
---- linux-2.4.0-test11-pre3/drivers/scsi/a2091.c.orig	Sun Nov 12 10:50:26 2000
-+++ linux-2.4.0-test11-pre3/drivers/scsi/a2091.c	Sun Nov 12 11:14:15 2000
-@@ -207,8 +207,10 @@
- 	    continue;
- 
- 	instance = scsi_register (tpnt, sizeof (struct WD33C93_hostdata));
--	if(instance == NULL)
--		continue;
-+	if (instance == NULL) {
-+	    release_mem_region(address, 256);
-+	    continue;
-+	}
- 	instance->base = ZTWO_VADDR(address);
- 	instance->irq = IRQ_AMIGA_PORTS;
- 	instance->unique_id = z->slotaddr;
+This is really superfluous.
 
-Gr{oetje,eeting}s,
+ip-sysctl.txt documents this fully, and lists it as a BOOLEAN
+sysctl, this should be enough to show folks how to turn the
+thing on and off.
 
-						Geert
+So such instruction doesn't belong in Configure.Help
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

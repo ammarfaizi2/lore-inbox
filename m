@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132124AbRDDUUv>; Wed, 4 Apr 2001 16:20:51 -0400
+	id <S132137AbRDDUWL>; Wed, 4 Apr 2001 16:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132409AbRDDUUn>; Wed, 4 Apr 2001 16:20:43 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:24324 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S132295AbRDDUTF>;
-	Wed, 4 Apr 2001 16:19:05 -0400
-Date: Mon, 2 Apr 2001 14:42:05 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [WISHLIST] Addition of suspend patch into 2.5?
-Message-ID: <20010402144204.C34@(none)>
-In-Reply-To: <Pine.LNX.4.21md.0103291046060.2103-100000@dexter.allieddomecq.ro> <Pine.LNX.4.30.0103291228490.4119-100000@coredump.sh0n.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.30.0103291228490.4119-100000@coredump.sh0n.net>; from spstarr@sh0n.net on Thu, Mar 29, 2001 at 12:29:03PM -0500
+	id <S132433AbRDDUV5>; Wed, 4 Apr 2001 16:21:57 -0400
+Received: from ns.suse.de ([213.95.15.193]:14601 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132396AbRDDUVE> convert rfc822-to-8bit;
+	Wed, 4 Apr 2001 16:21:04 -0400
+To: Tim Walberg <tewalberg@mediaone.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel/sched.c questions
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA028416D@MAINSERVER> <20010404150833.C28474@mediaone.net>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Apr 2001 22:20:12 +0200
+In-Reply-To: Tim Walberg's message of "4 Apr 2001 22:13:59 +0200"
+Message-ID: <oupzodwxvr7.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Tim Walberg <tewalberg@mediaone.net> writes:
 
-> Not only for laptops :)
+> On 04/04/2001 16:52 -0300, Sardañons, Eliel wrote:
+> >>	Hello, I would like to know why you put this two functions:
+> >>	void scheduling_functions_start_here(void) { }
+> >>	...
+> >>	void scheduling_functions_end_here(void) { }
+> >>	
 > 
-> It's nice for PCs too also.
+> That one I have no idea about - maybe some perverse sort
+> of comment? Or maybe something somewhere needs to know the
+> address range that some functions lie within, and these functions
+> would delimit that range. Of course, that presumes that the
+> compiler in use doesn't reorder functions in the object code
+> that emits, but I think that's a fairly safe assumption for
+> now...
 
-And it is called sw_susp. So what about trying it, *NOW*?
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+This is needed for a very bad hack to get the EIP information in ps -lax:
+most programs would be shown as hanging in schedule(), which would not be 
+very useful to show the user. To avoid this sched.c is always compiled with 
+frame pointers and if the EIP is inside these two functions the proc code 
+goes back one level in the stack frame.
 
+
+-Andi

@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVADXql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVADXdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVADXql (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 18:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVADXhT
+	id S262413AbVADXdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 18:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVADXMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 18:37:19 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8886 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262426AbVADXYM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 18:24:12 -0500
-Date: Tue, 4 Jan 2005 15:24:09 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, chrisw@osdl.org
-Subject: Re: [PATCH] track capabilities in default dummy security module code
-Message-ID: <20050104152409.C2357@build.pdx.osdl.net>
-References: <20050104133313.D469@build.pdx.osdl.net>
+	Tue, 4 Jan 2005 18:12:05 -0500
+Received: from grendel.firewall.com ([66.28.58.176]:5004 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S262155AbVADXJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 18:09:11 -0500
+Date: Wed, 5 Jan 2005 00:09:10 +0100
+From: Marek Habersack <grendel@caudium.net>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Very high load on P4 machines with 2.4.28
+Message-ID: <20050104230910.GF5592@beowulf.thanes.org>
+Reply-To: grendel@caudium.net
+References: <20050104195636.GA23034@beowulf.thanes.org> <20050104220521.GE7048@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050104133313.D469@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, Jan 04, 2005 at 01:33:13PM -0800
+In-Reply-To: <20050104220521.GE7048@alpha.home.local>
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Wright (chrisw@osdl.org) wrote:
-> Switch dummy logic around to set cap_* bits during exec and set*uid based
-> on basic uid check.  Then check cap_* bits during capable() (rather than
-> doing basic uid check).  This ensures that capability bits are properly
-> initialized in case the capability module is later loaded.
 
-OK, somehow I managed to botch this one.  It happens to work fine, but I
-should have been more careful with forward porting this 1+ year old patch.
-The exec-time calc should go in bprm_apply_creds, not bprm_free_security.
-Thanks to Stephen for spotting my mistake.
+--WYTEVAkct0FjGQmd
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+On Tue, Jan 04, 2005 at 11:05:21PM +0100, Willy Tarreau scribbled:
+> Oh, while I'm at it, are you using hyperthreading, and if so, could you
+yes, as I wrote in the mail I've just sent - on one box which does NOT
+exhibit the problem... :)
 
-===== security/dummy.c 1.50 vs edited =====
---- 1.50/security/dummy.c	2005-01-04 13:14:10 -08:00
-+++ edited/security/dummy.c	2005-01-04 14:45:31 -08:00
-@@ -180,7 +180,6 @@ static int dummy_bprm_alloc_security (st
- 
- static void dummy_bprm_free_security (struct linux_binprm *bprm)
- {
--	dummy_capget(current, &current->cap_effective, &current->cap_inheritable, &current->cap_permitted);
- 	return;
- }
- 
-@@ -197,6 +196,8 @@ static void dummy_bprm_apply_creds (stru
- 
- 	current->suid = current->euid = current->fsuid = bprm->e_uid;
- 	current->sgid = current->egid = current->fsgid = bprm->e_gid;
-+
-+	dummy_capget(current, &current->cap_effective, &current->cap_inheritable, &current->cap_permitted);
- }
- 
- static int dummy_bprm_set_security (struct linux_binprm *bprm)
+> disable it ? I have seen many cases where it degrades performances
+> significantly (eg: highly loaded user space network applications).
+We saw it in two cases as well, that's why in general we don't run with HT
+enabled (although we do test the boxes with it and if it behaves, we leave
+it on).
+
+best regards,
+
+marek
+
+--WYTEVAkct0FjGQmd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB2yIWq3909GIf5uoRAgNjAJ9ZLu99O9QjRdz3hTJ7LWnb7+jLiQCgifrx
+4fm2+M/EZukogw7YPAf+cDA=
+=fjo5
+-----END PGP SIGNATURE-----
+
+--WYTEVAkct0FjGQmd--

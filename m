@@ -1,96 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318853AbSHETo6>; Mon, 5 Aug 2002 15:44:58 -0400
+	id <S318847AbSHETn2>; Mon, 5 Aug 2002 15:43:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318854AbSHETo6>; Mon, 5 Aug 2002 15:44:58 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:59148 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S318853AbSHETo5>; Mon, 5 Aug 2002 15:44:57 -0400
-Date: Mon, 5 Aug 2002 21:48:31 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: Chris Mason <mason@suse.com>
-Cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs blocks long on getdents64() during concurrent write
-In-Reply-To: <1028573698.1759.284.camel@tiny>
-Message-ID: <Pine.LNX.4.44.0208052113150.31879-101000@pc40.e18.physik.tu-muenchen.de>
+	id <S318853AbSHETn2>; Mon, 5 Aug 2002 15:43:28 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:24962 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S318847AbSHETn1>; Mon, 5 Aug 2002 15:43:27 -0400
+Date: Mon, 5 Aug 2002 14:47:02 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Patrick Mochel <mochel@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: driverfs API Updates
+In-Reply-To: <Pine.LNX.4.44.0208051216090.1241-100000@cherise.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0208051438430.2694-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1149134438-420069091-1028576911=:1357"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 5 Aug 2002, Patrick Mochel wrote:
 
----1149134438-420069091-1028576911=:1357
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> [1]: The reason for the macro is because the driverfs internals
+> have changed enough to be able to support attributes of any type. In
+> order to do this in a type-safe manner, we have a generic object type
+> (struct attribute) that we use. We pass this to an intermediate layer
+> that does a container_of() on that object to obtain the specific
+> attribute type. 
 
-Hi!
+Of course that means that it's not really type-safe, since it has no way 
+to check whether the object is embedded in the right type of struct, right 
+;) (But I think that's okay, C doesn't have provisions for real 
+inheritance)
 
-sorry, I read this mail after Oleg's, so disregard my previous post.
+> This means the specific attribute types have an embedded struct
+> attribute in them, making the initializers kinda ugly. I played with
+> anonymous structs and unions to have something that could
+> theoretically work, but they apparently don't like named
+> initializers. 
 
-On 5 Aug 2002, Chris Mason wrote:
+Have you considered just putting in the embedded part via some macro - 
+I think that's what NTFS does for compilers which don't support unnamed 
+structs.
 
-> On Mon, 2002-08-05 at 14:30, Oleg Drokin wrote:
-> > Hello!
-> > 
-> > On Mon, Aug 05, 2002 at 08:19:05PM +0200, Roland Kuhn wrote:
-> > > > > > ftp://ftp.suse.com/pub/people/mason/patches/data-logging/02-commit_super-8-relocation.diff.gz 
-> > > >From there I get 'permission denied', but I got it somewhere else (google 
-> > > is great).
-> > > However, it does not apply cleanly to 2.4.19. It is already partly in, as 
-> > > it seems, but there are some rejects that are not obvious to fix for me. 
-> > > If this patch still makes sense, it would be great if someone with more 
-> > > knowledge/experience than me could have a look...
-> 
-> The stack traces you sent earlier show a few procs stuck waiting for the
-> transaction to begin, but they don't show which process is currently in
-> a transaction (this is who they are waiting on).
-> 
-The ShowTasks output is attached (it's a RedHat patched klogd which
-resolves symbols on the fly). To me it looks like kupdated is indeed
-inside do_journal_end().
+Basically
 
-> Oleg is right, they are probably waiting on kupdated, since the FS might
-> get marked dirty faster than it can clear it.
-> 
-> Another possibility is ctime/mtime updates during write.
-> 
-In our application there are always at least one writer and one reader 
-active in one directory of the partition, both with data rates up to 
-10MB/s. The reader uses a block size of 128kB, but I don't know about the 
-writer.
+#define EMB_ATTRIBUTE \
+	int emb1;
+	int emb2
 
-> So, on ftp.suse.com/pub/people/mason/patches/data-logging
-> 
-> Apply:
-> 01-relocation-4.diff
-> 02-commit_super-8.diff # this is the one you want, but it depends on 01.
-> 
-Okay, will try.
+struct my_attribute {
+	EMB_ATTRIBUTE
+	int my1;
+	int my2;
+};
 
-> And try again.  If that doesn't do it, try 04-write_times.diff (which
-> doesn't depend on anything).
-> 
-Is there a documentation about what this patch does as a whole?
+That'll work with named initializers just fine, so the users don't have to 
+deal with ugly DEVICE_ATTR macros, where one forgets if parameter #3 was 
+show or store ;) - It follows the common way of hiding away unavoidable 
+ugliness in some header.
 
-Ciao,
-					Roland
+> [2]: I wanted to consolidate the first two parameters, but I couldn't
+> find a way to stringify ##name (or un-stringify "strname"). Is that
+> even possible? 
 
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
+Why would stringify (include/linux/stringify.h) not work? However, Al Viro 
+may get mad at you for generating ungreppable symbols either way ;-)
+
+--Kai
 
 
----1149134438-420069091-1028576911=:1357
-Content-Type: APPLICATION/x-gzip; name="tasks.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0208052148310.1357@pc40.e18.physik.tu-muenchen.de>
-Content-Description: 
-Content-Disposition: attachment; filename="tasks.gz"
 
-
----1149134438-420069091-1028576911=:1357--

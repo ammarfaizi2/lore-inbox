@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315935AbSEGSkM>; Tue, 7 May 2002 14:40:12 -0400
+	id <S315934AbSEGSo3>; Tue, 7 May 2002 14:44:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315936AbSEGSkL>; Tue, 7 May 2002 14:40:11 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16835 "EHLO
+	id <S315937AbSEGSo2>; Tue, 7 May 2002 14:44:28 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:19395 "EHLO
 	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S315934AbSEGSkK>; Tue, 7 May 2002 14:40:10 -0400
-Date: Tue, 7 May 2002 12:40:01 -0600
-Message-Id: <200205071840.g47Ie1m32403@vindaloo.ras.ucalgary.ca>
+	id <S315934AbSEGSo1>; Tue, 7 May 2002 14:44:27 -0400
+Date: Tue, 7 May 2002 12:44:15 -0600
+Message-Id: <200205071844.g47IiFR32553@vindaloo.ras.ucalgary.ca>
 From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <benh@kernel.crashing.org>,
+To: Patrick Mochel <mochel@osdl.org>
+Cc: <benh@kernel.crashing.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Padraig Brady <padraig@antefacto.com>,
         Anton Altaparmakov <aia21@cantab.net>,
         Martin Dalecki <dalecki@evision-ventures.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <Pine.LNX.4.44.0205071114200.975-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0205071053070.6307-100000@segfault.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> 
-> 
-> On Tue, 7 May 2002, Alan Cox wrote:
-> >
-> > > > Fugly. What's wrong with readlink(2) as this "magic syscall"?
-> > > Ehh - like the fact that it doesn't work on device files?
-> >
-> > I can't find anything in Posix/SuS that says it isnt allowed to however 8)
-> 
-> We can certainly do it, it just doesn't buy us much of anything, since
-> none of the standard tools (ie "ls") will actually do the readlink() for
-> anything but a symlink.
-> 
-> So at that point it's just another magic syscall, except we've overloaded
-> an old one.
-> 
-> Which may certainly be acceptable, of course.
+Patrick Mochel writes:
+> Oh, and it's with a modern, clean filesystem, 1/5 the size of devfs. 
 
-I wasn't suggesting a magic readlink(2). I was suggesting a *real*
-one. Device nodes get stored in the physical tree (what you call
-driverfs), and the entries in the logical tree are symlinks. Such as:
-
-	/dev/scsi/host0  symlink to  /dev/bus/pci0/slot1/function2
-
-or something like that. Easy to implement, easy to understand, easy to
-manage.
+The size argument is not an issue. I've already said that devfs will
+shrink a lot once I move tree management from my own code to the VFS.
+At that point devfs will mostly be:
+- an API
+- a way fo supporting the devfsd protocol.
 
 				Regards,
 

@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270999AbRIFOjm>; Thu, 6 Sep 2001 10:39:42 -0400
+	id <S270992AbRIFOfx>; Thu, 6 Sep 2001 10:35:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271006AbRIFOjc>; Thu, 6 Sep 2001 10:39:32 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:19212 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S270999AbRIFOjY>;
-	Thu, 6 Sep 2001 10:39:24 -0400
-Date: Thu, 6 Sep 2001 16:39:09 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: phillips@bonn-fries.net, riel@conectiva.com.br, jaharkes@cs.cmu.edu,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-Id: <20010906163909.186b8b46.skraw@ithnet.com>
-In-Reply-To: <594419049.999788509@[10.132.112.53]>
-In-Reply-To: <20010906154212.442bdf7b.skraw@ithnet.com>
-	<594419049.999788509@[10.132.112.53]>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S270999AbRIFOfm>; Thu, 6 Sep 2001 10:35:42 -0400
+Received: from va.flyingbuttmonkeys.com ([207.198.61.36]:26571 "EHLO
+	va.flyingbuttmonkeys.com") by vger.kernel.org with ESMTP
+	id <S270992AbRIFOfd>; Thu, 6 Sep 2001 10:35:33 -0400
+Message-ID: <002b01c136e1$3bb36a80$81d4870a@cartman>
+Reply-To: "Michael Rothwell" <rothwell@holly-springs.nc.us>
+From: "Michael Rothwell" <rothwell@holly-springs.nc.us>
+To: <linux-kernel@vger.kernel.org>
+Subject: nfs is stupid ("getfh failed")
+Date: Thu, 6 Sep 2001 10:35:53 -0400
+Organization: Holly Springs, NC
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Sep 2001 15:01:49 +0100 Alex Bligh - linux-kernel
-<linux-kernel@alex.org.uk> wrote:
+Two systems that worked fine for weeks, both running 2.4.[7,8] kernels. The
+server is running 2.4.8 and exporting a reiserfs filesystem via nfs. Or it
+was, anyway. The server was shut down and brought back up (power failure).
+The client was then
+rebooted.
 
-> Yes, but this is because VM system's targets & pressure calcs do not
-> take into account fragmentation of the underlying physical memory.
-> IE, in theory you could have half your memory free, but
-> not be able to allocate a single 8k block. Nothing would cause
-> cache, or InactiveDirty stuff to be written.
+server# cat /etc/exports
+/export 192.168.1.*(rw,no_root_squash)
+/export/home 192.168.1.*(rw,no_root_squash)
 
-Which is obviously not the right way to go. I guess we agree in that.
+client# mount /export
+mount: 192.168.1.1:/export failed, reason given by server: Permission denied
 
-> You yourself proved this, by switching rsize,wsize to 1k and said
-> it all worked fine! (unless I misread your email).
+server# tail /var/log/messages
+Sep  6 09:37:43 gateway rpc.mountd: authenticated mount request from
+192.168.1.133:933 for /export (/export)
+Sep  6 09:37:43 gateway rpc.mountd: getfh failed: Operation not permitted
 
-Sorry, misunderstanding: I did not touch rsize/wsize. What I do is to lower fs
-action by not letting knfsd walk through the subtrees of a mounted fs. This
-leads to less allocs/frees by the fs layer which tend to fail and let knfs fail
-afterwards.
+... so,  rebooting two working systems seems to kill NFS. Any ideas why?
 
-> [...]
-> I think what you want isn't more memory, its less
-> fragmented memory.
+On a related topic, will Linux ever have a better file-service protocol?
 
-This is one important part for sure.
 
-> Or an underlying system which can
-> cope with fragmentation.
 
-Well, I'd rather prefer the cure than the dope :-)
-
-Regards, Stephan
 

@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267201AbSIRQJy>; Wed, 18 Sep 2002 12:09:54 -0400
+	id <S267236AbSIRQMH>; Wed, 18 Sep 2002 12:12:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267232AbSIRQJy>; Wed, 18 Sep 2002 12:09:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51469 "EHLO
+	id <S267239AbSIRQMH>; Wed, 18 Sep 2002 12:12:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63245 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267201AbSIRQJx>; Wed, 18 Sep 2002 12:09:53 -0400
-Date: Wed, 18 Sep 2002 09:15:20 -0700 (PDT)
+	id <S267236AbSIRQMG>; Wed, 18 Sep 2002 12:12:06 -0400
+Date: Wed, 18 Sep 2002 09:17:46 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Ingo Molnar <mingo@elte.hu>, William Lee Irwin III <wli@holomorphy.com>,
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
  elimination, 2.5.35-BK
-In-Reply-To: <20020918123206.GA14595@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0209180906460.1913-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0209181452050.19672-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209180915350.1913-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 18 Sep 2002, Andries Brouwer wrote:
+On Wed, 18 Sep 2002, Ingo Molnar wrote:
 > 
-> Please leave pid_max large.
+> why? For most desktop systems even 32K PIDs is probably too high. A large
+> pid_max only increases the RAM footprint. (well not under the current
+> allocation scheme but still.)
 
-I have to agree.
+Yeah. It increases memory pressure for the _complex_ and _slow_ 
+algorithms. Agreed.
 
-There is no goodness in making life complicated, and then putting a lot of 
-effort in solving that complexity with other complexity.
-
-I would suggest something like this:
- - make pid_max start out at 32k or whatever, to make "ps" look nice if 
-   nothing else.
- - every time we have _any_ trouble at all with looking up a new pid, we 
-   double pid_max.
-
-And it's really easy to recognize trouble with something truly trivial
-like the appended. 
-
-Give me one reason for why these two added lines aren't better than all
-the complexity we've discussed? I can pretty much _guarantee_ that it's
-faster, and it sure as hell is simpler. And all traditional uses that has
-less than a few thousand threads at most will never see the larger pids, 
-so people can stare at "ps" output without going blind - the big pids 
-start showing up only on boxes that might actually _need_ them.
+See my two-liner suggestion (which is admittedly not even compiled, so the
+one disadvantage it might have is that it might need to be debugged. But
+it's only two lines and doesn't actually change any fundamental part of
+any existing algorithms, so debugging shouldn't be a big problem.
 
 		Linus
-
-----
---- 1.77/kernel/fork.c	Sun Sep 15 11:01:39 2002
-+++ edited/fork.c	Wed Sep 18 09:11:43 2002
-@@ -175,6 +175,8 @@
- 
- 	if (last_pid >= next_safe) {
- inside:
-+		if (nr_threads > pid_max >> 4)
-+			pid_max <<= 1;
- 		next_safe = pid_max;
- 		read_lock(&tasklist_lock);
- 	repeat:
 

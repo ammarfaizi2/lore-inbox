@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263944AbUFCLuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263932AbUFCLuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263944AbUFCLuN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 07:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUFCLuN
+	id S263932AbUFCLuS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 07:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbUFCLuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 07:50:13 -0400
-Received: from imap.gmx.net ([213.165.64.20]:403 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263944AbUFCLtV (ORCPT
+	Thu, 3 Jun 2004 07:50:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29673 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264034AbUFCLty (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 07:49:21 -0400
-X-Authenticated: #4512188
-Message-ID: <40BF1039.4030403@gmx.de>
-Date: Thu, 03 Jun 2004 13:49:13 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040525)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.7-rc1-mm1: libata flooding my log
-References: <40B8E8D4.1010905@gmx.de> <40B8EB07.6000700@pobox.com> <40B8F601.2000600@gmx.de> <40BD8B7A.2010901@gmx.de> <40BEB840.8060305@gmx.de> <40BEF10F.1040108@gentoo.org>
-In-Reply-To: <40BEF10F.1040108@gentoo.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jun 2004 07:49:54 -0400
+Date: Thu, 3 Jun 2004 07:46:45 -0400
+From: Alan Cox <alan@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: PATCH: Submission of via "velocity(tm)" series adapter driver
+Message-ID: <20040603114645.GC5196@devserv.devel.redhat.com>
+References: <20040602201315.GA10339@devserv.devel.redhat.com> <20040602231648.57a08478.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602231648.57a08478.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Prakash K. Cheemplavam wrote:
+On Wed, Jun 02, 2004 at 11:16:48PM -0700, Andrew Morton wrote:
+> Alan Cox <alan@redhat.com> wrote:
+> >
+> > +config VIA_VELOCITY
+> >  +	tristate "VIA Velocity support"
 > 
->> I found another interesting thing: It seems those errors only appear 
->> when I use mozilla thunderbird! Any idea what tb is trying to do to 
->> the hd? As I said earlier kernels didn't report such errors. (Are 
->> those actually errors?)
-> 
-> 
-> I'm having similar problems (posted to linux-ide last week). Its not 
-> just thunderbird though, I can easily reproduce this under heavy disk 
-> activity (e.g. rsync'ing lots of data with a local server while 
-> unpacking/patching a kernel).
-> 
+> The driver bites the big one when there's no hardware present because it
+> still calls register_inetaddr_notifier():
 
-I seems 2.6.7-rc2-mm2 fixed the issue. At least since 2h no entry in my 
-logs. Well done, Jeff (if it was you :-)).
+Looks reasonable. The device wants to sleep for wake on lan with its current
+address so ->open might work with a little thought.
 
-Prakash

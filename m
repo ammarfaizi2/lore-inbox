@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261544AbSJZPlo>; Sat, 26 Oct 2002 11:41:44 -0400
+	id <S261526AbSJZPlI>; Sat, 26 Oct 2002 11:41:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261598AbSJZPln>; Sat, 26 Oct 2002 11:41:43 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:8186 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261544AbSJZPll>;
-	Sat, 26 Oct 2002 11:41:41 -0400
-Message-ID: <3DBAB90F.CEF29920@mvista.com>
-Date: Sat, 26 Oct 2002 08:47:27 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S261544AbSJZPlI>; Sat, 26 Oct 2002 11:41:08 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21300 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261526AbSJZPlH>; Sat, 26 Oct 2002 11:41:07 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Robert Love <rml@tech9.net>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+References: <F2DBA543B89AD51184B600508B68D4000ECE7046@fmsmsx103.fm.intel.com>
+	<1035584076.13032.96.camel@irongate.swansea.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 26 Oct 2002 09:45:18 -0600
+In-Reply-To: <1035584076.13032.96.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m165vpkxv5.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] High-res-timers part 2 (x86 platform code) take 6
-References: <3DAFB303.4543C579@mvista.com> <20021023093815.GB3416@elf.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> Hi!
-> 
-> > This patch, in conjunction with the "core" high-res-timers
-> > patch implements high resolution timers on the i386
-> > platforms.  The high-res-timers use the periodic interrupt
-> > to "remind" the system to look at the clock.  The clock
-> 
-> This scares me:
-> 
-> +#define fail_message \
-> +"High-res-timers:
-> >-<--><-->-<-->-<-->-<--><-->-<-->-<-->-<-->-<-->-<-->-<-->-<\n"\
-> +"High-res-timers: >Failed to find the ACPI pm timer
-> <\n"\
-> +"High-res-timers: >-<--><-->-<-->-<-->-<-->Boot will fail in
-> Calibrate Delay  <\n"\
-> +"High-res-timers: >Supply a valid default pm timer address
-> <\n"\
-> +"High-res-timers: >or get your BIOS to turn on ACPI support.
-> <\n"\
-> +"High-res-timers: >See CONFIGURE help for more information.
-> <\n"\
-> +"High-res-timers:
-> >-<--><-->-<-->-<-->-<--><-->-<-->-<-->-<-->-<-->-<-->-<-->-<\n"
-> 
-> Does that mean our boot has now so much junk in it that we start
-> adding ascii art for "important" messages?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Well, Yes! It does.  However, the problem here is that this
-is detected prior to enabling the console so, unless the
-boot can limp along until that happens, this message will
-not be seen.  I have seen both conditions...
+> On Fri, 2002-10-25 at 22:50, Nakajima, Jun wrote:
+> > Sorry,
+> > 
+> > Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for example,
+> > is already doing it:
+> 
+> Could do
+> > 
+> > +#ifdef CONFIG_SMP
+> > +	if (cpu_has_ht) {
+> > +		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
+> > +		seq_printf(m, "threads\t\t: %d\n", smp_num_siblings);
+> > +	}
+> > +#endif
+> 
+> 
+> Im just wondering what we would then use to describe a true multiple cpu
+> on a die x86. Im curious what the powerpc people think since they have
+> this kind of stuff - is there a generic terminology they prefer ?
 
-I am open to suggestions...
+How about using "SMT width" for the P4 case?
+And if we needed to break it down per package for a Power4 and the
+like we could talk about CMP something, or other.
 
-Thanks for looking.
+Only SMT and CMP seem to be unambiguous prefixes.  Though for CMP
+we probably do not need to do anything because it really is 2 cpus, and we
+only need to worry about locatity in the cache hierarchy not the fact that
+if we schedule a cpu intensive job on 1 ``cpu'' the others are useless.
 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Eric

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265486AbSJaXe5>; Thu, 31 Oct 2002 18:34:57 -0500
+	id <S265511AbSJaXmz>; Thu, 31 Oct 2002 18:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265490AbSJaXe5>; Thu, 31 Oct 2002 18:34:57 -0500
-Received: from pop.gmx.net ([213.165.64.20]:1295 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265486AbSJaXez>;
-	Thu, 31 Oct 2002 18:34:55 -0500
-Message-ID: <3DC1BF2D.9000701@gmx.net>
-Date: Fri, 01 Nov 2002 00:39:25 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Xiafs inclusion in 2.5?
-References: <3DC18308.1040808@gmx.net> <20021031232358.GA29933@win.tue.nl>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265514AbSJaXmz>; Thu, 31 Oct 2002 18:42:55 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:17683 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265511AbSJaXmy>;
+	Thu, 31 Oct 2002 18:42:54 -0500
+Date: Thu, 31 Oct 2002 15:46:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Scott Murray <scottm@somanetworks.com>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "Lee, Jung-Ik" <jung-ik.lee@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bare pci configuration access functions ?
+Message-ID: <20021031234621.GE10689@kroah.com>
+References: <20021031221136.GC10689@kroah.com> <Pine.LNX.4.33.0210311748050.26260-100000@rancor.yyz.somanetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0210311748050.26260-100000@rancor.yyz.somanetworks.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> On Thu, Oct 31, 2002 at 08:22:48PM +0100, Carl-Daniel Hailfinger wrote:
->>>Who still remembers xiafs?
->>
+On Thu, Oct 31, 2002 at 05:50:06PM -0500, Scott Murray wrote:
+> On Thu, 31 Oct 2002, Greg KH wrote:
+> [snip]
+> > Anyway, this is a nice diversion from the real problem here, for 2.4,
+> > should I just backport the pci_ops changes which will allow pci
+> > hotplugging to work again on ia64, or do we want to do something else?
 > 
-> Ah, xiafs. Where are all these old floppies? [search]
-> Hmm. Exactly one left, a filesystem with 0.99pl7 vmlinux.z.
-> 
-> Yes, if you add xiafs again, I'll be able to read this floppy
-> without booting 2.0 (or 2.1.20) first.
-> 
-> Andries
-> 
-> [archaeologist]
+> It would be nice from a hotplug driver maintenance point of view if the
+> 2.4 and 2.5 interfaces were the same IMO.
 
-I'd like to do that, but it is not my decision if it gets included or not.
-;-)
+Yes it would be, but it's not a necessary thing :)
 
-Regards,
-Carl-Daniel
+> How about submitting the change in 2.4.21-pre?
 
+It is a _very_ big change.  It hits every architecture.  It was the
+right thing to do in 2.5, I'm just questioning if it's the right thing
+to do in 2.4 because of the magnitude of it.
+
+So, if people say it's ok, I'll do it.  But I would like to hear from
+the PPC64 group first, as I know I caused them a lot of grief and rework
+because of it.
+
+thanks,
+
+greg k-h

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269003AbTCDCTT>; Mon, 3 Mar 2003 21:19:19 -0500
+	id <S269091AbTCDC2R>; Mon, 3 Mar 2003 21:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269039AbTCDCTT>; Mon, 3 Mar 2003 21:19:19 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:62612 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S269003AbTCDCTS>; Mon, 3 Mar 2003 21:19:18 -0500
-Date: Mon, 03 Mar 2003 18:20:03 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: David Lang <david.lang@digitalinsight.com>,
-       Andrea Arcangeli <andrea@suse.de>
-cc: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Arador <diegocg@teleline.es>,
-       "Adam J. Richter" <adam@yggdrasil.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       pavel@janik.cz, pavel@ucw.cz
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-Message-ID: <592860000.1046744403@flay>
-In-Reply-To: <Pine.LNX.4.44.0303031554230.29949-100000@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0303031554230.29949-100000@dlang.diginsite.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S269092AbTCDC2R>; Mon, 3 Mar 2003 21:28:17 -0500
+Received: from mx02.cyberus.ca ([216.191.240.26]:5391 "EHLO mx02.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S269091AbTCDC2P>;
+	Mon, 3 Mar 2003 21:28:15 -0500
+Date: Mon, 3 Mar 2003 21:38:17 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Terje Eggestad <terje.eggestad@scali.com>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, "" <netdev@oss.sgi.com>,
+       "" <linux-net@vger.kernel.org>, "" <davem@redhat.com>
+Subject: Re: anyone ever done multicast AF_UNIX sockets?
+In-Reply-To: <1046734165.27924.263.camel@eggis1>
+Message-ID: <20030303212628.M67734@shell.cyberus.ca>
+References: <3E5E7081.6020704@nortelnetworks.com> <1046695876.7731.78.camel@pc-16.office
+ .scali.no>  <3E638C51.2000904@nortelnetworks.com> <1046720360.28127.209.camel@eggis1>
+  <3E63D73A.2000402@nortelnetworks.com> <1046734165.27924.263.camel@eggis1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Just curious, this also means that at least around the 80% of merges
->> in Linus's tree is submitted via a bitkeeper pull, right?
->> 
->> Andrea
-> 
-> remember how Linus works, all normal patches get copied into a single
-> large patch file as he reads his mail then he runs patch to apply them to
-> the tree. I think this would make the entire batch of messages look like
-> one cset.
 
-I think he also creates subtrees, applies flat patches to those, then 
-merges the subtrees back into his main tree as a bk-merge ... won't that 
-distort the stats? 
+Hi Terje,
 
-M.
+On Mon, 4 Mar 2003, Terje Eggestad wrote:
 
+> How do you design a protocol that uses multicast to send a request to do
+> work?
+>
+> All uses I can think of right now of multicast/broadcast is:
+> * Discovery, like in NIS.
+> * Announcements like in OSPF.
+> * update like in NTP broadcast
+>
+
+I know we are digressing away from main discussion ...
+
+The concept of reliable multicast is known to be useful.
+Look at(for some sample apps):
+http://www.ietf.org/html.charters/rmt-charter.html
+
+But we are talking about a distributed system in that context.
+
+Agreed, reliability and multicast do not always make sense.
+
+
+cheers,
+jamal

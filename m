@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264181AbTDPBL1 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTDPBL1 
+	id S264188AbTDPBP5 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTDPBP5 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 21:11:27 -0400
-Received: from taka.swcp.com ([198.59.115.12]:27661 "EHLO taka.swcp.com")
-	by vger.kernel.org with ESMTP id S264181AbTDPBL0 
+	Tue, 15 Apr 2003 21:15:57 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:12512 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264188AbTDPBP4 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 21:11:26 -0400
-Date: Tue, 15 Apr 2003 19:21:19 -0600
-From: Trammell Hudson <hudson@osresearch.net>
-To: linux-kernel@vger.kernel.org
-Subject: drivers/net/isa-skeleton.c queue management bug?
-Message-ID: <20030416012119.GC8482@osbox.osresearch.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Tue, 15 Apr 2003 21:15:56 -0400
+Date: Tue, 15 Apr 2003 18:27:43 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200304160127.h3G1Rh3b010502@napali.hpl.hp.com>
+To: torvalds@transmeta.com
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: module symbol fix
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I realize that the code is going on ten years old and isn't supposed
-to be run, but is there a bug in the interface queue handling for
-packet transmissions in isa-skeleton.c?
+Fix for trivial typo.  Without it, you can't insert anything on top of
+agpgart.ko because the agp_register_driver() will erroneously pick up
+the symbol version from agp_backend_acquire().  I'm surprised a bug
+like this would survive for 9+ weeks.  Lack of testers?
 
-If TX_RING is defined, net_interrupt() will check to see if it was
-called due to a completed packet, and if so, then it executes:
+	--david
 
-        if (status & TX_INTR) {
-                /* Transmit complete. */                  
-                net_tx(dev);
-                np->stats.tx_packets++;                  
-                netif_wake_queue(dev);
-        }
-
-However, the net_tx() function processes any completed entries and
-then executes:
-
-        if (netif_queue_stopped(dev) && ! tx_full(dev))
-                netif_wake_queue(dev);     
-
-
-It seems that the queue is going to be awoken in net_interrupt,
-regardless of the state of the ring buffer.  I'm not exactly sure
-under what circumstances this might occur, but I'm trying to track
-down random hangs in a driver that is based on isa-skeleton.
-
-Trammell      
---           
-  -----|----- hudson@osresearch.net                   W 240-283-1700
-*>=====[]L\   hudson@rotomotion.com                   M 505-463-1896
-'     -'-`-   http://www.swcp.com/~hudson/                    KC5RNF
+===== kernel/module.c 1.72 vs edited =====
+--- 1.72/kernel/module.c	Tue Apr  8 12:36:21 2003
++++ edited/kernel/module.c	Tue Apr 15 18:14:55 2003
+@@ -165,7 +165,7 @@
+ 		if (gplok) {
+ 			for (i = 0; i < mod->num_gpl_syms; i++) {
+ 				if (strcmp(mod->gpl_syms[i].name, name) == 0) {
+-					*crc = symversion(mod->crcs, i);
++					*crc = symversion(mod->gpl_crcs, i);
+ 					return mod->gpl_syms[i].value;
+ 				}
+ 			}

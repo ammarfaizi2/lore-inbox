@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269412AbUINM13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269360AbUINMVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269412AbUINM13 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 08:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269406AbUINMZ0
+	id S269360AbUINMVa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 08:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269358AbUINMUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 08:25:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47565 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269362AbUINMXU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 08:23:20 -0400
-Date: Tue, 14 Sep 2004 14:21:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "C.Y.M." <syphir@syphir.sytes.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
-Message-ID: <20040914122144.GT2336@suse.de>
-References: <20040914060628.GC2336@suse.de> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAA6P8AlyGHikORXOqFZ6fdPAEAAAAA@syphir.sytes.net> <20040914070649.GI2336@suse.de> <20040914071555.GJ2336@suse.de> <1095156542.16570.7.camel@localhost.localdomain> <20040914111207.GR2336@suse.de> <1095158149.16520.24.camel@localhost.localdomain> <20040914114341.GS2336@suse.de> <1095160759.16572.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095160759.16572.36.camel@localhost.localdomain>
+	Tue, 14 Sep 2004 08:20:39 -0400
+Received: from outmx002.isp.belgacom.be ([195.238.3.52]:12434 "EHLO
+	outmx002.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S269329AbUINLrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 07:47:03 -0400
+Message-ID: <4146DA7D.80504@246tNt.com>
+Date: Tue, 14 Sep 2004 13:48:13 +0200
+From: Sylvain Munaut <tnt@246tNt.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040816)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Cc: Linux PPC Dev <linuxppc-dev@ozlabs.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>
+Subject: [PATCH 2/9] Small updates for Freescale MPC52xx
+References: <4146D833.8040703@246tNt.com>
+In-Reply-To: <4146D833.8040703@246tNt.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14 2004, Alan Cox wrote:
-> On Maw, 2004-09-14 at 12:43, Jens Axboe wrote:
-> > > I've nothing against a well documented "actually I have a cache" option
-> > > with appropriate warnings (and of course possibly a whitelist if we can
-> > > get vendors to help). But one that like hdparm does bother to note when
-> > > you may be playing with fire.
-> > 
-> > You should be able to turn on support from user space, if you so wish,
-> > if you know that the drive works.
-> 
-> No argument there at all. A whitelist would be nice also.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/09/13 21:16:32+02:00 tnt@246tNt.com
+#   ppc: Fix missing include in Freescale MPC52xx syslib
+#  
+#   pgtable.h is needed for _PAGE_IO
+#  
+#   Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
+#
+# arch/ppc/syslib/mpc52xx_setup.c
+#   2004/09/13 21:16:20+02:00 tnt@246tNt.com +1 -0
+#   ppc: Fix missing include in Freescale MPC52xx syslib
+#
+diff -Nru a/arch/ppc/syslib/mpc52xx_setup.c 
+b/arch/ppc/syslib/mpc52xx_setup.c
+--- a/arch/ppc/syslib/mpc52xx_setup.c   2004-09-14 12:47:30 +02:00
++++ b/arch/ppc/syslib/mpc52xx_setup.c   2004-09-14 12:47:30 +02:00
+@@ -23,6 +23,7 @@
+ #include <asm/mpc52xx.h>
+ #include <asm/mpc52xx_psc.h>
+ #include <asm/ocp.h>
++#include <asm/pgtable.h>
+ #include <asm/ppcboot.h>
 
-Definitely. I have the first entry candidate right here ;-)
-
--- 
-Jens Axboe
-
+ extern bd_t __res;

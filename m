@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQLAUGT>; Fri, 1 Dec 2000 15:06:19 -0500
+	id <S129476AbQLAUNs>; Fri, 1 Dec 2000 15:13:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129911AbQLAUF5>; Fri, 1 Dec 2000 15:05:57 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:22290 "EHLO
+	id <S129571AbQLAUNj>; Fri, 1 Dec 2000 15:13:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:14099 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129351AbQLAUFt>; Fri, 1 Dec 2000 15:05:49 -0500
-Date: Fri, 1 Dec 2000 20:35:22 +0100
+	id <S129476AbQLAUN2>; Fri, 1 Dec 2000 15:13:28 -0500
+Date: Thu, 30 Nov 2000 18:17:40 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Phillip Ezolt <ezolt@perf.zko.dec.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, rth@twiddle.net,
-        Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org,
-        wcarr@perf.zko.dec.com
-Subject: Re: Alpha SCSI error on 2.4.0-test11
-Message-ID: <20001201203522.B2098@inspiron.random>
-In-Reply-To: <20001201145619.A553@jurassic.park.msu.ru> <Pine.OSF.3.96.1001201132729.32335G-100000@perf.zko.dec.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre24
+Message-ID: <20001130181740.A18566@athlon.random>
+In-Reply-To: <E140wh7-0005Na-00@the-village.bc.nu> <20001129150159.Y872@opus.bloom.county>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.3.96.1001201132729.32335G-100000@perf.zko.dec.com>; from ezolt@perf.zko.dec.com on Fri, Dec 01, 2000 at 01:30:10PM -0500
+In-Reply-To: <20001129150159.Y872@opus.bloom.county>; from trini@kernel.crashing.org on Wed, Nov 29, 2000 at 03:01:59PM -0700
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2000 at 01:30:10PM -0500, Phillip Ezolt wrote:
-> Any ideas? (Or patches that I can test... ;-) ) 
+On Wed, Nov 29, 2000 at 03:01:59PM -0700, Tom Rini wrote:
+> As Dave Miller pointed out, DEV_MAC_HID sysctl conflicts with the RAID patches
 
-miata seems to use cia southbridge so it should set an iommu direct mapping
-large 2G. So it's maybe the second window between 1G and 2G that isn't set
-correctly? Does the qlogic driver works on a tsunami southbridge?
+That's right but OTOH I'd simply declare the sysctl-by-number interface dead
+for new introduced sysctl. We need to preserve backwards compatibility of
+course but that's not a problem. I'd preferred if we killed it completly (just
+providing backwards compatibility) during the 2.4.x cycle. Only reliable
+way to use new sysctl is sysctl-by-name IMHO.
 
 Andrea
 -

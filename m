@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265353AbSKARAZ>; Fri, 1 Nov 2002 12:00:25 -0500
+	id <S265365AbSKARTr>; Fri, 1 Nov 2002 12:19:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265365AbSKARAZ>; Fri, 1 Nov 2002 12:00:25 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:23681 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S265353AbSKARAY> convert rfc822-to-8bit; Fri, 1 Nov 2002 12:00:24 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.45] NUMA Scheduler  (1/2)
-Date: Fri, 1 Nov 2002 18:06:36 +0100
-User-Agent: KMail/1.4.1
-Cc: mingo@elte.hu
-References: <1036107098.21647.104.camel@dyn9-47-17-164.beaverton.ibm.com> <1010470000.1036108344@flay>
-In-Reply-To: <1010470000.1036108344@flay>
+	id <S265367AbSKARTr>; Fri, 1 Nov 2002 12:19:47 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:21655 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S265365AbSKARTr>; Fri, 1 Nov 2002 12:19:47 -0500
+Message-ID: <3DC2BCF5.5010607@kegel.com>
+Date: Fri, 01 Nov 2002 09:42:13 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211011806.36986.efocht@ess.nec.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+References: <Pine.LNX.4.44.0210311043380.1562-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 00:52, Martin J. Bligh wrote:
-> > Erich Focht has written scheduler extensions in support of
-> > NUMA systems.  These extensions are being used at customer
-> > sites.  I have branched off and done some similar NUMA scheduler
-> > extensions, though on a much smaller scale.  We have combined
-> > efforts and produced two patches which provide minimal NUMA
-> > scheduler capabilities.
->
-> Just wanted to add that everyone that's been involved in this is
-> now in harmonious agreement about this combined solution.
+Davide Libenzi wrote:
+>>Do you avoid the cost of epoll_ctl() per new fd?
+> 
+> Jamie, the cost of epoll_ctl(2) is minimal/zero compared with the average
+> life of a connection.
 
-Yes, I'd like to confirm this, too. Just couldn't be online last night
-(european time) so I'm glad that Michael sent it all out. Happily
-we have a holiday over here today, after Helloween ;-)
+Depends on the workload.  Where I work, the http client I'm writing
+has to perform extremely well even on 1 byte files with HTTP 1.0.
+Minimizing system calls is suprisingly important - even
+a gettimeofday hurts.
 
-Regards,
-Erich
+- Dan
 

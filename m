@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317944AbSFNQGb>; Fri, 14 Jun 2002 12:06:31 -0400
+	id <S317945AbSFNQGd>; Fri, 14 Jun 2002 12:06:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317947AbSFNQGa>; Fri, 14 Jun 2002 12:06:30 -0400
-Received: from host213-121-105-182.in-addr.btopenworld.com ([213.121.105.182]:22416
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S317944AbSFNQG2>; Fri, 14 Jun 2002 12:06:28 -0400
-Subject: Re: [PROBLEM] sundance on d-link dfe-580tx
-From: Matthew Hall <matt@ecsc.co.uk>
-To: Donald Becker <becker@scyld.com>
-Cc: Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0206131201480.1828-100000@presario>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: ECSC Ltd.
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 14 Jun 2002 17:06:19 +0100
-Message-Id: <1024070779.972.53.camel@smelly.dark.lan>
-Mime-Version: 1.0
+	id <S317947AbSFNQGc>; Fri, 14 Jun 2002 12:06:32 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19438 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317945AbSFNQG3>; Fri, 14 Jun 2002 12:06:29 -0400
+Date: Fri, 14 Jun 2002 18:06:17 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Dave Jones <davej@suse.de>
+cc: Jens Axboe <axboe@suse.de>, Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 IDE 91
+In-Reply-To: <20020614174330.P16772@suse.de>
+Message-ID: <Pine.SOL.4.30.0206141758350.7326-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry to bother you again Donald, but I'm still having problems,
-The following error comes up when I make modules with the 1.06 version:
 
-sundance.c: In function `sundance_probe1':
-sundance.c:464: `pci_tbl' undeclared (first use in this function)
-sundance.c:464: (Each undeclared identifier is reported only once
-sundance.c:464: for each function it appears in.)
-sundance.c: In function `cleanup_module':
-sundance.c:1372: `pci_tbl' undeclared (first use in this function)
-make[2]: *** [sundance.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/drivers/net'
-make[1]: *** [_modsubdir_net] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_mod_drivers] Error 2
+Just my 0.02 plns...
 
-I've checked the code of sundance.c, pci-scan.h and kern_compat.c and
-pci_tbl isn't defined or declared anywhere in these files, am I missing
-something else, or going crazy?
-Thanks in advance,
+On Fri, 14 Jun 2002, Dave Jones wrote:
 
-Matthew Hall
+> On Fri, Jun 14, 2002 at 05:17:03PM +0200, Jens Axboe wrote:
+>
+>  > And finally a small plea for more testing. Do you even test before
+>  > blindly sending patches off to Linus?! Sometimes just watching how
+>  > quickly these big patches appears makes it impossible that they have
+>  > gotten any kind of testing other than the 'hey it compiles', which I
+>  > think it just way too little for something that could possible screw
+>  > peoples data up very badly. Frankly, _I'm_ too scared to run 2.5 IDE
+>  > currently. The success ratio of posted over working patches is too big.
+>
 
-On Thu, 2002-06-13 at 17:12, Donald Becker wrote:
-> You are still running the old driver, not the driver at
->    http://www.scyld.com/network/ethercard.html
->       ftp://www.scyld.com/pub/network/sundance.c
-> 
-> > Just in case you can provide any more insight into this I compiled the
-> > alta-diag tool, for debugging purposes, the results of -aa, -ee and -mm
-> > are attached, aswell as the full detection message from dmesg after
-> > modprob'ing the module.
-> 
-> I never released a "1.01b" driver in January 2002.  The 1.01a driver was
-> released about two years ago.  The current version is
-> sundance.c:v1.06 1/28/2002
-> 
-> The diagnostic program is reading the correct station address, however
-> the driver you are using is reading a bogus address.  I believe that
-> that my driver release should correctly work with this card.
-> 
+I review every single patch from Martin and they are usually ok,
+but it is generally good habbit to wait for next patch before running
+previous one (just to see if there was any bugs in previous one)...
 
+> Ditto. As we rapidly approach the 100th incarnation of Martin's IDE
+> patches, there are still cases where we die within seconds of booting
+> on some old PIO-only boxes for eg.  There seems to be far too much
+> "lets rip this out as it doesn't do much anyway" rather than fixing
+> known problems.
+
+I will try to fix them one by one soon...
+
+>
+> When the IDE carnage first started back circa 2.5.3, I had contemplated
+> not merging *any* of the IDE patches, just so that people who want to
+> work on other areas could have something solid to build upon.
+> I regret not following through on that instinct.
+>
+
+Your mistake, Dave ;)
+
+>         Dave.
+>
+> --
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
+
+--
+Bartlomiej
 

@@ -1,87 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129778AbQLSSRO>; Tue, 19 Dec 2000 13:17:14 -0500
+	id <S129595AbQLSSSe>; Tue, 19 Dec 2000 13:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130069AbQLSSRF>; Tue, 19 Dec 2000 13:17:05 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:52911 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129778AbQLSSQp>;
-	Tue, 19 Dec 2000 13:16:45 -0500
-Date: Tue, 19 Dec 2000 18:45:42 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>, tytso@mit.edu
-Subject: Re: [PATCH] ident of whole-disk ext2 fs
-Message-ID: <20001219184542.A367@veritas.com>
-In-Reply-To: <3A3F42FC.4E341732@yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A3F42FC.4E341732@yahoo.com>; from p_gortmaker@yahoo.com on Tue, Dec 19, 2000 at 06:14:04AM -0500
+	id <S130382AbQLSSSO>; Tue, 19 Dec 2000 13:18:14 -0500
+Received: from cannet.com ([206.156.188.2]:5134 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S130380AbQLSSSF>;
+	Tue, 19 Dec 2000 13:18:05 -0500
+Message-ID: <004601c069d1$8e615a40$7930000a@hcd.net>
+From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Time problem
+Date: Tue, 19 Dec 2000 10:37:02 -0500
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+	boundary="----=_NextPart_000_0042_01C069A7.A1BF5620";
+	micalg=SHA1;
+	protocol="application/x-pkcs7-signature"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2000 at 06:14:04AM -0500, Paul Gortmaker wrote:
+This is a multi-part message in MIME format.
 
-> I always disliked the unknown partition table messages you get when you
-> mke2fs a whole disk and don't bother with a table at all, so I fixed it.
-> Output before/after shown below:
-> 
->  Partition check:
->   hda: hda1 hda2
-> - hdd: unknown partition table
-> + hdd: whole disk EXT2-fs, revision 1.0, 1k blocks, status: clean.
+------=_NextPart_000_0042_01C069A7.A1BF5620
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-A nice boot message.
+Hello,
 
-But what if you just replace the "unknown partition table"
-by the more correct "no recognized partition table"?
+    I am having a weird time problem when mounting Novell 5.1 volumes with
+ncpmount.  The Novell server is located in a different timezone, and once I
+mount the volume my system time gets set back 5 hours (to match the Novell
+server).  I am also loosing my mounts periodically.  The system is running
+Red Hat 6.2 with stock 2.2.14-5.0 (up) kernel.  Can anyone point me to doc
+on how to fix this, or to the ncpfs maintainers so I can bug them.  TIA!
 
+--
+Kind Regards,
+Timothy A. DeWees
 
-> +static int ext2_partition(struct gendisk *hd, ...
+------=_NextPart_000_0042_01C069A7.A1BF5620
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
 
-I don't like the patch very much. It is too ad hoc.
-Why ext2? Not ext3? reiser? ufs?
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII7jCCAqEw
+ggIKoAMCAQICAwMkHDANBgkqhkiG9w0BAQQFADCBlDELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
+c3Rlcm4gQ2FwZTEUMBIGA1UEBxMLRHVyYmFudmlsbGUxDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
+CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAx
+OTk5LjkuMTYwHhcNMDAwODI1MTQyNDE2WhcNMDEwODI1MTQyNDE2WjBEMR8wHQYDVQQDExZUaGF3
+dGUgRnJlZW1haWwgTWVtYmVyMSEwHwYJKoZIhvcNAQkBFhJ3aHRkcmduQGNhbm5ldC5jb20wgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALJ5dJTLACq2XOImvdzV+9+ljLAiKyoPWnDKTx8wPW+P
+ImV8VRO+DZMG62LqIkwZRwUcwDkPVC1l2NTsiPeTs+V2Wq88MDod6ykAvmGq7b33fuMzrzhGkT1i
+gRzVnvAjfOObtS6rXJBo/O4QHh7M9Mgghqw+G+Iaj/KmW6HZ+CgrAgMBAAGjUDBOMB0GA1UdEQQW
+MBSBEndodGRyZ25AY2FubmV0LmNvbTAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFIir8WCDZlX0
+5FjHRh3AYb0j18OMMA0GCSqGSIb3DQEBBAUAA4GBAK7NQGi7lypyRqBIJqNsb3ttb9uqk/svWipd
+X6rFV3GYgajI0G2APE+2auJaySEzLP/awRURG4PzCP6Lj4gYGwOaOMgCa43H/OyMnlv07G2KcaZk
+9uFMUZf4lnDVFYlG7U/Ugvkoqcyd9Euomjs81SibcmQUqq3RCw6/+zKOXTzvMIIDFDCCAn2gAwIB
+AgIBCzANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2Fw
+ZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
+CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
+Y29tMB4XDTk5MDkxNjE0MDE0MFoXDTAxMDkxNTE0MDE0MFowgZQxCzAJBgNVBAYTAlpBMRUwEwYD
+VQQIEwxXZXN0ZXJuIENhcGUxFDASBgNVBAcTC0R1cmJhbnZpbGxlMQ8wDQYDVQQKEwZUaGF3dGUx
+HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFp
+bCBSU0EgMTk5OS45LjE2MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzaVqX1NAWC3q1xV3p
+IZwjcs0STEv3fs/H+8pyJPRCUqxXleN7YXoXhOf9cjk4lLTq7WWnkgZeveBl9hm7lHl2TD65aHB1
+hBz0EXQAvAUsTwkDFzHM9EHUcsamXeKIRLCLLsRN8fDWhT5s85WUeJF+QOmc0Y0VV47Cc+Uw3kb1
+TwIDAQABozcwNTASBgNVHRMBAf8ECDAGAQH/AgEAMB8GA1UdIwQYMBaAFHJJwnM0xlX0C3ZygX53
+9IfnxrIOMA0GCSqGSIb3DQEBBAUAA4GBAGvGWekx+um27LED2N9ycv6RYEjqxlXde/BnjsZhcOdt
+wqU32J23FyhWBYvdXHVvxpGQxmxmcRPQEHxrkW+G4CE2LcHX6rIJrc8tbcaDUpv7u/6ch538t+l0
+kuRcl678fqzKDW9yemcsa3P1hvmd9QBu9B0Hzp2egmMp75MJflXeMIIDLTCCApagAwIBAgIBADAN
+BgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAG
+A1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
+dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZy
+ZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4X
+DTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
+ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRp
+bmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1Ro
+YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1h
+aWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG2
+6nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDim
+AKOHePb5lIZererAXnbr2RSjXW56fAylS1V/Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkC
+AwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk
+8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JCI4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBH
+H7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AUG95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRznei
+gTGCAgAwggH8AgEBMIGcMIGUMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRQw
+EgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
+ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDE5OTkuOS4xNgIDAyQc
+MAkGBSsOAwIaBQCggbowGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN
+MDAxMjE5MTUzNzAyWjAjBgkqhkiG9w0BCQQxFgQUR5X2QNM1OAM3tknV7HLJDnZqsYowWwYJKoZI
+hvcNAQkPMU4wTDAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYF
+Kw4DAgcwDQYIKoZIhvcNAwICASgwBwYFKw4DAh0wDQYJKoZIhvcNAQEBBQAEgYCu8yzm6lVEJu2L
+ChGzDeb6y5aEhGojJSNGSeqODtYwpTRNW2LKPpmOScCwth7Y1cJ4hliDkNVLaewqiSN7uCCxjReu
+D00bLqZFpJEstwjCL8vXj/084O2GQfcYtaDiCIO3mdbgTwz1+aPrGxFfB7dFilxGG1d8vdoRkUVU
+baTFJAAAAAAAAA==
 
-At boot time, the kernel needs 6 pieces of information:
-- the rootdevice
-- the partitiontype of the rootdevice
-- the rootpartition
-- the filesystemtype of the root filesystem
-- the remaining mount options for the root filesystem
-- the first program to start
+------=_NextPart_000_0042_01C069A7.A1BF5620--
 
-We can make the kernel guess, or we can specify.
-The usual situation is that we specify rootdevice and rootpartition
-and mount options like ro/rw or nfsaddr and perhaps the init program,
-but make the kernel guess partitiontype and rootfstype.
-
-It would be good to at least have the possibility to specify
-partitiontype and rootfstype. In the course of time several
-people have submitted patches adding a "rootfstype=" boot option.
-Today or so Tigran did this again - maybe Linus accepts it this time.
-
-Remains the partitiontype. You remind us of the fact that a good
-partitiontype is "none". And then there are "dos", "bsd", "atari", ...
-And recursive ones: a dos-type partition further sliced up into
-bsd-type partitions, etc.
-So, I can imagine two useful boot options here:
-(i) "root_partition_type=", and
-(ii) "do_not_parse_partition_tables"
-(you may invent shorter forms if you prefer).
-Since it is possible to parse partition tables from user space
-and tell the kernel which disk regions should be considered
-partitions, there is no need for the kernel to do this parsing,
-except for the rootdevice, just like there is no need for the
-kernel to do any mounting except for the root filesystem.
-(And one could have /etc/pttab as analogue of /etc/fstab.)
-The second option would tell the kernel to leave the disks alone,
-except for the rootdevice; the first option would tell the kernel
-what partition table type to expect there.
-
-There is no hurry, but sooner or later it would be good to
-get rid of all partition table parsing in the kernel.
-
-Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

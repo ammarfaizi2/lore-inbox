@@ -1,126 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVBORzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVBOSBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVBORzg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 12:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVBORzf
+	id S261732AbVBOSBH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 13:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVBOSBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 12:55:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15072 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261799AbVBORyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 12:54:38 -0500
-Date: Tue, 15 Feb 2005 17:54:31 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch] add scsi changer driver
-Message-ID: <20050215175431.GA2896@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-scsi@vger.kernel.org
-References: <20050215164245.GA13352@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050215164245.GA13352@bytesex>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 15 Feb 2005 13:01:07 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:26258 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261732AbVBOSAt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 13:00:49 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: [RFC UPDATE PATCH] add wait_event_*_lock() functions and comments
+Date: Tue, 15 Feb 2005 18:50:45 +0100
+User-Agent: KMail/1.6.2
+Cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Sergey Vlasov <vsu@altlinux.ru>,
+       Al Borchers <alborchers@steinerpoint.com>, david-b@pacbell.net,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+References: <1108105628.420c599cf3558@my.visi.com> <29495f1d05021221003ef31c3e@mail.gmail.com> <20050215010435.GD2403@us.ibm.com>
+In-Reply-To: <20050215010435.GD2403@us.ibm.com>
+MIME-Version: 1.0
+Message-Id: <200502151850.46217.arnd@arndb.de>
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_2ZjECu8LxrHVQdU";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[this should go to linux-scsi]
 
-> +#include <linux/version.h>
+--Boundary-02=_2ZjECu8LxrHVQdU
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-not needed.
+On Dinsdag 15 Februar 2005 02:04, Nishanth Aravamudan wrote:
+> Here's at least one example:
+>=20
+> drivers/ieee1394/video1394.c:__video1394_ioctl()
+>=20
+AFAICS, that one should work just fine using after converting
 
-> +#include <asm/system.h>
+          while (d->buffer_status[v.buffer]!=3D VIDEO1394_BUFFER_READY) {
+                  spin_unlock_irqrestore(&d->lock, flags);
+                  interruptible_sleep_on(&d->waitq);
+                  spin_lock_irqsave(&d->lock, flags);
+                  if (signal_pending(current)) {
+                           spin_unlock_irqrestore(&d->lock,flags);
+                           return -EINTR;
+                  }
+          }
 
-I doubt you'll need this one.
+to
 
-> +#include <asm/uaccess.h>
-> +
-> +#include <linux/chio.h>			/* here are all the ioctls */
+static inline unsigned video1394_buffer_state(struct dma_iso_ctx *d,
+						unsigned int buffer)
+{
+	unsigned long flags;
+	unsigned int ret;
+	spin_lock_irqsave(&d->lock, flags);
+	ret =3D d->buffer_status[buffer];
+	spin_unlock_irqrestore(&d->lock, flags);
+	return ret;
+}
+=2E..
 
-<linux/*.h> should always go before <asm/*.h>
+	spin_unlock_irqrestore(&d->lock, flags);
+	if (wait_event_interruptible(d->waitq,=20
+	    video1394_buffer_state(d, v.buffer) =3D=3D VIDEO1394_BUFFER_READY))
+		return -EINTR;
+	spin_lock_irqsave(&d->lock, flags);
 
-> +#define MAJOR_NR	SCSI_CHANGER_MAJOR
+The trick here is that it is known in advance that the state does not actua=
+lly
+have to be protected by the lock after reading it, because the state can no=
+t=20
+change from READY to FREE in any other place in the code.
+One exception might be two processes calling the ioctl at the same time, but
+I think that is racy will any of these variations.
 
-please kill this one
+	Arnd <><
 
-> +#include "scsi.h"
 
-never use this header but always the <scsi/*.h>
 
-> +MODULE_SUPPORTED_DEVICE("sch");
+--Boundary-02=_2ZjECu8LxrHVQdU
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-no needed thsese days
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-> +static int dt_id[CH_DT_MAX] = { [ 0 ... (CH_DT_MAX-1) ] = -1 };
-> +static int dt_lun[CH_DT_MAX];
-> +module_param_array(dt_id,  int, NULL, 0444);
-> +module_param_array(dt_lun, int, NULL, 0444);
-> +
-> +/* tell the driver about vendor-specific slots */
-> +static int vendor_firsts[CH_TYPES-4];
-> +static int vendor_counts[CH_TYPES-4];
-> +module_param_array(vendor_firsts, int, NULL, 0444);
-> +module_param_array(vendor_counts, int, NULL, 0444);
-> +
-> +static char *vendor_labels[CH_TYPES-4] = {
-> +	"v0", "v1", "v2", "v3"
-> +};
-> +// module_param_string_array(vendor_labels, NULL, 0444);
-> +
-> +#define dprintk(fmt, arg...)    if (debug) \
-> +        printk(KERN_DEBUG "%s: " fmt, ch->name, ##arg)
-> +#define vprintk(fmt, arg...)    if (verbose) \
-> +        printk(KERN_INFO "%s: " fmt, ch->name, ##arg)
-> +
-> +/* ------------------------------------------------------------------- */
+iD8DBQBCEjZ25t5GS2LDRf4RAsKeAJ9AxXA045FZ9wIHfjlZrlzHvR2F1QCcCw0s
+4AiKiYcmkwKFGy278OdbZrk=
+=jjDZ
+-----END PGP SIGNATURE-----
 
-> +static int ioctl32_register(void)
-> +{
-> +	unsigned int i;
-> +	int err;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(ioctl32_cmds); i++) {
-> +		err = register_ioctl32_conversion(ioctl32_cmds[i].cmd,NULL);
-> +		if (err >= 0)
-> +			ioctl32_cmds[i].reg++;
-> +	}
-> +	return 0;
-> +}
-
-please implement ->compat_ioctl instead.
-
-> +	int errno, retries = 0, timeout;
-> +	DECLARE_COMPLETION(wait);
-> +	Scsi_Request *sr;
-> +	
-> +	sr = scsi_allocate_request(ch->device, GFP_ATOMIC);
-
-wouldn't a GFP_KERNEL do just fine?
-
-> +	if (NULL == sr)
-> +		return -ENOMEM;
-
-normal kernel style would be
-
-	if (!s)
-		return -ENOMEM;
-
-> +	list_for_each(item,&ch_devlist) {
-> +		tmp = list_entry(item, scsi_changer, list);
-
-list_for_each_entry
-
-> +	list_for_each(item,&ch_devlist) {
-> +		tmp = list_entry(item, scsi_changer, list);
-
-dito
-
+--Boundary-02=_2ZjECu8LxrHVQdU--

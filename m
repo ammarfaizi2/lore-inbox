@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264901AbSLQLAM>; Tue, 17 Dec 2002 06:00:12 -0500
+	id <S264915AbSLQLGW>; Tue, 17 Dec 2002 06:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264892AbSLQLAM>; Tue, 17 Dec 2002 06:00:12 -0500
-Received: from [80.247.74.2] ([80.247.74.2]:915 "EHLO foradada.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S264889AbSLQLAL>;
-	Tue, 17 Dec 2002 06:00:11 -0500
-Message-Id: <5.2.0.9.0.20021217105617.00aa31e0@mail.isolaweb.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Tue, 17 Dec 2002 12:05:55 +0100
-To: mgross@unix-os.sc.intel.com
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: Multithreaded coredump patch where?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200212170015.gBH0FXP13878@unix-os.sc.intel.com>
-References: <5.2.0.9.0.20021216182325.042a2b60@mail.isolaweb.it>
- <5.2.0.9.0.20021216182325.042a2b60@mail.isolaweb.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-scanner: scanned by Antivirus Service IsolaWeb Agency - (http://www.isolaweb.it)
+	id <S264919AbSLQLGW>; Tue, 17 Dec 2002 06:06:22 -0500
+Received: from cpe.atm2-0-1071115.0x50c4d862.boanxx10.customer.tele.dk ([80.196.216.98]:12477
+	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
+	id <S264915AbSLQLGV>; Tue, 17 Dec 2002 06:06:21 -0500
+Message-ID: <3DFF070A.6010804@fugmann.dhs.org>
+Date: Tue, 17 Dec 2002 12:14:18 +0100
+From: Anders Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: mousewheel not working.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13.21 16/12/02 -0800, mgross wrote:
+Hi
 
->I haven't rebased the patches I posted back in June for a while now.
->
->Attached is the patch I posted for the 2.4.18 vanilla kernel.  Its a bit
->controversial, but it seems to work for a number of folks.  Let me know if
->you have any troubles re-basing it.
+I'm having troubles getting the mosuewheel on my logitech ps/2 mouseman+
+(model M-C48) to work, under 2.5.52. Do I need to add something special 
+to the kernel boot parameters to instruct the driver that my mouse 
+carries 5 buttons?
 
-Only one hunk failed on include/asm-ia64/elf.h but fixed by hand.
-Why do you say a bit controversial ? One difference that I have
-notice is in coredump size after your patch. However seem to be
-working well for now. I'll try later on a SMP machine.
+dmesg:
+device class 'input': registering
+register interface 'mouse' with class 'input'
+mice: PS/2 mouse device common for all mice
+input: PS2++ Logitech Wheel Mouse on isa0060/serio1
 
+.config
 
->I don't know if there is any plan to back port Ingo's version of this feature
->to 2.4.x
->
->--mgross
->
->
->
->On Monday 16 December 2002 09:28 am, Roberto Fichera wrote:
-> > Does anyone point me where can I download a stable
-> > multithread coredump patch for the 2.4.19/20 kernel ?
-> >
-> > Thanks in advance,
-> >
-> > Roberto Fichera.
-> >
-> >
-> > ______________________________________
-> > E-mail protetta dal servizio antivirus di IsolaWeb Agency & ISP
-> > http://wwww.isolaweb.it
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+# CONFIG_MOUSE_SERIAL is not set
 
-Roberto Fichera. 
+Regards
+Anders Fugmann
 
-
-______________________________________
-E-mail protetta dal servizio antivirus di IsolaWeb Agency & ISP
-http://wwww.isolaweb.it

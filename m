@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314065AbSDKOIr>; Thu, 11 Apr 2002 10:08:47 -0400
+	id <S314063AbSDKOKd>; Thu, 11 Apr 2002 10:10:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314067AbSDKOIq>; Thu, 11 Apr 2002 10:08:46 -0400
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:23044 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S314065AbSDKOIp>; Thu, 11 Apr 2002 10:08:45 -0400
-Date: Thu, 11 Apr 2002 16:08:31 +0200
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Erik Andersen <andersen@codepoet.org>, Amol Kumar Lad <amolk@ishoni.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Reducing root filesystem
-Message-ID: <20020411140831.GE1405@arthur.ubicom.tudelft.nl>
-In-Reply-To: <7CFD7CA8510CD6118F950002A519EA3001067D06@leonoid.in.ishoni.com> <20020410152813.GA22103@codepoet.org>
+	id <S314067AbSDKOKc>; Thu, 11 Apr 2002 10:10:32 -0400
+Received: from angband.namesys.com ([212.16.7.85]:45696 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S314063AbSDKOKb>; Thu, 11 Apr 2002 10:10:31 -0400
+Date: Thu, 11 Apr 2002 18:10:27 +0400
+From: Oleg Drokin <green@namesys.com>
+To: ted@psyber.com, linux-kernel@vger.kernel.org,
+        Hans Reiser <reiser@namesys.com>
+Subject: Re: New IDE code and DMA failures
+Message-ID: <20020411181027.A1870@namesys.com>
+In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua> <20020411130544.GA8163@dondra.ofc.psyber.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 09:28:13AM -0600, Erik Andersen wrote:
-> On Wed Apr 10, 2002 at 07:38:09PM +0530, Amol Kumar Lad wrote:
-> >   I am porting Linux to an embedded system. Currently my rootfilesystem is
-> > around 2.5 MB (after keeping it to minimal and adding tools like busybox). I
-> > want to furthur reduce it to say maximum of 1.5 MB. 
-> > Please suggest some link/references where I can find the details to optimise
-> > my root filesystem
-> 
-> busybox and uClibc are both a good start...
+Hello!
 
-Yup. Busybox+tinylogin with glibc makes a 900kB (compressed) ramdisk on
-StrongARM. I think I can make this a lot smaller when I use uClibc.
+On Thu, Apr 11, 2002 at 06:05:44AM -0700, Ted Deppner wrote:
+ 
+> In one of my tests the contents /dev/hdh was additionally corrupted (a
+> write test to /dev/hdh1) so badly that the partion information changed
+> from type 83 to type 3 (Xenix), and the contents of a reiser partition so
+> badly damaged that a --rebuild-tree and later a --rebuild-sb to reiserfsck
+> didn't restore it to usable. (I put those options in at the request of
+> reiserfsck, and I haven't wiped the drive yet if someone would like
+> further tests against the reiserfs partition).
 
+We are interested in such a damaged partitions that makes current reiserfsck
+to segfault or to incorrectly repair FS (incorrectly in the meaning that
+subsequent reiserfsck run finds more errors)
+Is this the case with you?
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Bye,
+    Oleg

@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264952AbRGADAm>; Sat, 30 Jun 2001 23:00:42 -0400
+	id <S264954AbRGADNG>; Sat, 30 Jun 2001 23:13:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264953AbRGADAc>; Sat, 30 Jun 2001 23:00:32 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:34578 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264952AbRGADAU>;
-	Sat, 30 Jun 2001 23:00:20 -0400
+	id <S264956AbRGADMp>; Sat, 30 Jun 2001 23:12:45 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:36114 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264954AbRGADMo>;
+	Sat, 30 Jun 2001 23:12:44 -0400
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Riley Williams <rhw@MemAlpha.CX>
-cc: Russell King <rmk@arm.linux.org.uk>, Adam J Richter <adam@yggdrasil.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6p6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs 
-In-Reply-To: Your message of "Sat, 30 Jun 2001 21:36:26 +0100."
-             <Pine.LNX.4.33.0106302120560.14977-100000@infradead.org> 
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: "Kernel-Mailingliste" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.5ac19] reproduceable Kernel crashes 
+In-Reply-To: Your message of "Sat, 30 Jun 2001 16:47:21 +0200."
+             <01063015302700.00954@athlon> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 Jul 2001 13:00:13 +1000
-Message-ID: <6794.993956413@ocs3.ocs-net>
+Date: Sun, 01 Jul 2001 13:12:38 +1000
+Message-ID: <6927.993957158@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Jun 2001 21:36:26 +0100 (BST), 
-Riley Williams <rhw@MemAlpha.CX> wrote:
-> 1. Adam's point is that there are dep_* statements in the config
->    setup that have been used to say that a particular option is
->    dependant upon a particular architecture, but this doesn't work.
->
-> 3. MY understanding of the situation is that ALL architecture
->    specific config lines are EXPECTED to be in the arch/*/config.in
->    files, where they will only even be seen when the relevant
->    architecture is being compiled for.
->
->As a result of this, I would summarise this discussion as saying that
->there is a bug in the kernel config scripts in that some options that
->should be located in the architecture-specific config files are in the
->all-architecture config files instead.
+On Sat, 30 Jun 2001 16:47:21 +0200, 
+Andreas Hartmann <andihartmann@freenet.de> wrote:
+>Warning (compare_maps): mismatch on symbol unix_socket_table  , unix says 
+>e08b11e0, /lib/modules/2.4.5-ac19/kernel/net/unix/unix.o says e08b0e40.  
+>Ignoring /lib/modules/2.4.5-ac19/kernel/net/unix/unix.o entry
+>Trace; e0a4c45d <[unix].bss.end+19ae76/382a79>
+>Trace; e0a4c535 <[unix].bss.end+19af4e/382a79>
 
-(1) and (3) are correct but your conclusion is not.  The problem is
+The mismatch and the weird entries in the trace imply that you ran
+ksymoops with a different set of modules from the failing system.  This
+is a common problem when decoding an oops after a reboot, the current
+set of modules does not match the set at the time of failure so
+ksymoops gets bad data.
 
-  dep_tristate CONFIG_some_driver $CONFIG_some_arch
-
-where the intention is to allow the driver only if some_arch is set.
-When you compile for some_other_arch, CONFIG_some_arch is undefined.
-dep_tristate treats undefined variables as "don't care" and we cannot
-fix that without changing bash or a major rewrite of the shell scripts.
-There are two solutions, either change all such lines to
-
-  if [ "$CONFIG_some_arch" = "y" ];then
-    tristate CONFIG_some_driver
-  fi
-
-or
-
-  define_bool CONFIG_some_arch n
-
-for all architectures at the start, followed by turning on the one that
-is required.
-
-Lots of if statements are messy and they will not prevent somebody
-adding new options with exactly the same problem.  Explicitly setting
-all but one arch variable to 'n' results in cleaner config scripts and
-new arch dependent driver settings will automatically work.
+The easiest fix is to follow the procedure in 'man insmod', section
+KSYMOOPS ASSISTANCE.  Create directory /var/log/ksymoops, reproduce the
+problem then decode the oops giving ksymoops the relevant ksyms.<date>
+and modules.<date> files.  That way you guarantee that you are decoding
+the oops using the correct set of symbols.  When you have a clean
+decode, mail it to linux-kernel.
 

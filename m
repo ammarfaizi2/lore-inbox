@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269169AbRGaDY2>; Mon, 30 Jul 2001 23:24:28 -0400
+	id <S268779AbRGaD6w>; Mon, 30 Jul 2001 23:58:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269170AbRGaDYS>; Mon, 30 Jul 2001 23:24:18 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:50191 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S269169AbRGaDYQ>; Mon, 30 Jul 2001 23:24:16 -0400
-Message-ID: <3B662642.4AB6E800@zip.com.au>
-Date: Tue, 31 Jul 2001 13:30:10 +1000
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tony.Lill@ajlc.waterloo.on.ca
-CC: linux-kernel@vger.kernel.org
-Subject: Re: laptops and journalling filesystems
-In-Reply-To: <200107310254.WAA22236@spider.ajlc.waterloo.on.ca>
+	id <S269170AbRGaD6n>; Mon, 30 Jul 2001 23:58:43 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:5729 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268779AbRGaD6d>; Mon, 30 Jul 2001 23:58:33 -0400
+Date: Tue, 31 Jul 2001 05:58:44 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel diff_small_2.4.8pre2_2.4.8pre3
+Message-ID: <20010731055844.A25719@athlon.random>
+In-Reply-To: <200107301808.f6UI8DL29566@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200107301808.f6UI8DL29566@athlon.random>; from andrea@athlon.random on Mon, Jul 30, 2001 at 08:08:13PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Tony Lill wrote:
-> 
-> Do any of the current batch of journalling filesystems NOT diddle the
-> disk every 5 seconds? I've tried reiser and ext3 and they're both
-> antithetic to spinning down the disk. Any plans to fix this bug in
-> future kernels?
+On Mon, Jul 30, 2001 at 08:08:13PM +0200, Andrea Arcangeli wrote:
+> diff -urN 2.4.8pre2/include/asm-i386/softirq.h 2.4.8pre3/include/asm-i386/softirq.h
+> --- 2.4.8pre2/include/asm-i386/softirq.h	Sun Jul 29 06:02:41 2001
+> +++ 2.4.8pre3/include/asm-i386/softirq.h	Mon Jul 30 20:07:54 2001
+> @@ -28,8 +28,6 @@
+>  	unsigned long flags;						\
+>  									\
+>  	__save_flags(flags);						\
+> -	if (!(flags & (1 << 9)))					\
+> -		BUG();							\
+>  	barrier();							\
+>  	if (!--*ptr)							\
+>  		__asm__ __volatile__ (					\
 
-If you mount everything with `noatime' there's nothing to
-be written unless you're writing stuff.
+if you drop the bugcheck you should drop the __save_flags and flags too.
 
-Unfortunately ext3 defeats the trick of setting the kupdate
-interval to something huge.  On my list of things-to-do.
+What was the problem with it? I seen a report from Chris but that sounds
+like a bug in a caller of the the smp-call function (smp-call must be
+run with irq enabled as it's written explicitly in the comment on top of
+it).
 
-Probably it's as simple as setting the commit timer to
-a large interval (grep for "HZ" in fs/jbd/journal.c).
-
-Commits are driven by either a timer expiry or by the
-journal getting too full.  If the interval is set large
-then probably journal-full will be the main reason for
-running a commit.
-
-Of course, if the interval is set to 15 minutes and
-you crash, you'll lose up to 15 minutes' work.
-
--
+Andrea

@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVBKLrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVBKMCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVBKLrM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 06:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVBKLrL
+	id S262122AbVBKMCW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 07:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVBKMCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 06:47:11 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:47948 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262123AbVBKLrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 06:47:08 -0500
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108104083.32129.0.camel@localhost.localdomain>
-References: <20050211004033.GA26624@suse.de>
-	 <20050211005258.GB26890@kroah.com>  <1108085445.12935.0.camel@localhost>
-	 <1108104083.32129.0.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 11 Feb 2005 12:47:07 +0100
-Message-Id: <1108122427.12911.0.camel@localhost>
+	Fri, 11 Feb 2005 07:02:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:35847 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262122AbVBKMCT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 07:02:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TchAqgFAalbQMVk03j2LeBSQYijRkTr2J16wcJbqzBk6m86aCwm1QzVf5LUfZQPL1P+NpeDpHguAdN4TqKpGR1orJeVoMSHllpqdvMWj+eMNIfB3q0v180ABDW9PQ6SwPeuQfzGo225BS6Q1BVTDj6CvsPwO6QyByXAVZ1v/mak=
+Message-ID: <84144f02050211040253e33dab@mail.gmail.com>
+Date: Fri, 11 Feb 2005 14:02:19 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
+       Jean Delvare <khali@linux-fr.org>, Pekka Enberg <penberg@gmail.com>
+Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
+In-Reply-To: <20050211113636.GI3263@crusoe.alcove-fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050210161809.GK3493@crusoe.alcove-fr>
+	 <20050211113636.GI3263@crusoe.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-10 at 22:41 -0800, Greg KH wrote:
-> On Fri, 2005-02-11 at 02:30 +0100, Kasper Sandberg wrote:
-> > hey greg
-> > 
-> > i remember for some months back, you posted something similar.. is this
-> > a version thats ready for use? if it is! im gonna use it! :D
-> 
-> Yes, this is that version, cleaned up and given a proper build system,
-> and even tested on my machines here :)
-ah cool. and in that case, you probably also have ebuilds for it, if you
-do, please post them somewhere :)
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+On Fri, 11 Feb 2005 12:36:37 +0100, Stelian Pop <stelian@popies.net> wrote:
+> +static int __init sony_acpi_add(struct acpi_device *device)
+> +{
+> +       acpi_status status = AE_OK;
+> +       struct sony_snc *snc = NULL;
+> +       int result;
+> +
+> +       snc = kmalloc(sizeof(struct sony_snc), GFP_KERNEL);
+> +       if (!snc)
+> +               return -ENOMEM;
+> +       memset(snc, 0, sizeof(struct sony_snc));
 
+Nitpick: use kcalloc() instead of kmalloc() and memset().
+
+                                 Pekka

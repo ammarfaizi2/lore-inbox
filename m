@@ -1,398 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266381AbUHMSL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266745AbUHMSRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266381AbUHMSL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 14:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266427AbUHMSK7
+	id S266745AbUHMSRb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 14:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266545AbUHMSRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 14:10:59 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14012 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266380AbUHMSJA (ORCPT
+	Fri, 13 Aug 2004 14:17:31 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:45956 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S266775AbUHMSRZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 14:09:00 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: [PATCH] add scheduler domains for ia64
-Date: Fri, 13 Aug 2004 11:08:40 -0700
-User-Agent: KMail/1.6.2
-Cc: John Hawkes <hawkes@sgi.com>
-MIME-Version: 1.0
+	Fri, 13 Aug 2004 14:17:25 -0400
+Date: Fri, 13 Aug 2004 20:17:25 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040813181725.GD5685@ucw.cz>
+References: <88056F38E9E48644A0F562A38C64FB600296D33C@scsmsx403.amr.corp.intel.com> <20040812022229.23100.qmail@web14929.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_oOQHBrWSHZUr5Zz"
-Message-Id: <200408131108.40502.jbarnes@engr.sgi.com>
+In-Reply-To: <20040812022229.23100.qmail@web14929.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---Boundary-00=_oOQHBrWSHZUr5Zz
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Just a couple of notes about your patch:
 
-Nick, how does this look?  It adds scheduler domain code for ia64 and replaces 
-the patch in Andrew's tree.  It also adds SD_NODE_INIT macros to each arch 
-that has ARCH_HAS_SCHED_DOMAIN so that the balance values are more easily 
-tweaked.  Since the cpu span of the nodes on ia64 is smaller than the whole 
-system, I also removed a WARN_ON in active_load_balance, but I'm not sure if 
-that's correct.
++unsigned char *
++pci_map_rom(struct pci_dev *dev, size_t *size) {
++	struct resource *res = &dev->resource[PCI_ROM_RESOURCE];
++	loff_t start;
++	unsigned char *rom;
++	
++	if (res->flags & PCI_ROM_SHADOW) {	/* PCI_ROM_SHADOW only set on x86 */
++		start = (loff_t)0xC0000; 	/* primary video rom always starts here */
++		*size = 0x20000;		/* cover C000:0 through E000:0 */
 
-Thanks,
-Jesse
+Shouldn't we do this only if we find that the device has a ROM resource?
 
---Boundary-00=_oOQHBrWSHZUr5Zz
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="sched-domains-ia64.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sched-domains-ia64.patch"
++	} else if (res->flags & PCI_ROM_COPY) {
++		*size = pci_resource_len(dev, PCI_ROM_RESOURCE);
++		return (unsigned char *)pci_resource_start(dev, PCI_ROM_RESOURCE);
++	} else {
++		start = pci_resource_start(dev, PCI_ROM_RESOURCE);
++		*size = pci_resource_len(dev, PCI_ROM_RESOURCE);
++		if (*size == 0)
++			return NULL;
++		
++		/* Enable ROM space decodes */
++		pci_enable_rom(dev);
++	}
 
-===== arch/ia64/kernel/smpboot.c 1.56 vs edited =====
---- 1.56/arch/ia64/kernel/smpboot.c	2004-08-04 10:50:16 -07:00
-+++ edited/arch/ia64/kernel/smpboot.c	2004-08-13 11:03:29 -07:00
-@@ -719,3 +719,182 @@
- 		printk(KERN_ERR "SMP: Can't set SAL AP Boot Rendezvous: %s\n",
- 		       ia64_sal_strerror(sal_ret));
- }
-+
-+#ifdef CONFIG_NUMA
-+
-+/**
-+ * find_next_best_node - find the next node to include in a sched_domain
-+ * @node: node whose sched_domain we're building
-+ * @used_nodes: nodes already in the sched_domain
-+ *
-+ * Find the next node to include in a given scheduling domain.  Simply
-+ * finds the closest node not already in the @used_nodes map.
-+ *
-+ * Should use nodemask_t.
-+ */
-+static int __init find_next_best_node(int node, unsigned long *used_nodes)
-+{
-+	int i, n, val, min_val, best_node = 0;
-+
-+	min_val = INT_MAX;
-+
-+	for (i = 0; i < numnodes; i++) {
-+		/* Start at @node */
-+		n = (node + i) % numnodes;
-+
-+		/* Skip already used nodes */
-+		if (test_bit(n, used_nodes))
-+			continue;
-+
-+		/* Simple min distance search */
-+		val = node_distance(node, i);
-+
-+		if (val < min_val) {
-+			min_val = val;
-+			best_node = n;
+This seems to be wrong -- before enabling a resource, you must call
+request_resource() on it and make sure that the ROM (1) has an address
+allocated, and (2) the address is not used by anything else.
+
++	/* If the device has a ROM, try to expose it in sysfs. */
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
++		unsigned char *rom;
++		struct bin_attribute *rom_attr;
++		
++		pdev->rom_attr = NULL;
++		rom_attr = kmalloc(sizeof(*rom_attr), GFP_ATOMIC);
++		if (rom_attr) {
++			/* set default size */
++			rom_attr->size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++			/* get true size if possible */
++			rom = pci_map_rom(pdev, &rom_attr->size);
+
+As we can never be sure about the decoder sharing, it is very wise not to
+touch the ROM BAR until somebody accesses the sysfs file. Using size according
+to the PCI config space (i.e., the resource) does not harm anybody.
+
++	if (dev->hdr_type == PCI_HEADER_TYPE_NORMAL) {
++		res = &dev->resource[PCI_ROM_RESOURCE];
++		if (res->flags & PCI_ROM_COPY) {
++			kfree((void*)res->start);
++			res->flags &= !PCI_ROM_COPY;
+
+~, not !
+
++			res->start = 0;
++			res->end = 0;
 +		}
 +	}
-+
-+	set_bit(best_node, used_nodes);
-+	return best_node;
-+}
-+
-+/**
-+ * sched_domain_node_span - get a cpumask for a node's sched_domain
-+ * @node: node whose cpumask we're constructing
-+ * @size: number of nodes to include in this span
-+ *
-+ * Given a node, construct a good cpumask for its sched_domain to span.  It
-+ * should be one that prevents unnecessary balancing, but also spreads tasks
-+ * out optimally.
-+ */
-+cpumask_t __init sched_domain_node_span(int node, int size)
-+{
-+	int i;
-+	cpumask_t span;
-+	DECLARE_BITMAP(used_nodes, MAX_NUMNODES);
-+
-+	cpus_clear(span);
-+	bitmap_zero(used_nodes, MAX_NUMNODES);
-+
-+	for (i = 0; i < size; i++) {
-+		int next_node = find_next_best_node(node, used_nodes);
-+		cpus_or(span, span, node_to_cpumask(next_node));
-+	}
-+
-+	return span;
-+}
-+
-+static struct sched_group sched_group_cpus[NR_CPUS];
-+static DEFINE_PER_CPU(struct sched_domain, cpu_domains);
-+
-+/* Number of nearby nodes in a node's scheduling domain */
-+#define SD_NODES_PER_DOMAIN 4
-+
-+static struct sched_group sched_group_nodes[MAX_NUMNODES];
-+static DEFINE_PER_CPU(struct sched_domain, node_domains);
-+void __init arch_init_sched_domains(void)
-+{
-+	int i;
-+	struct sched_group *first_node = NULL, *last_node = NULL;
-+
-+	/* Set up domains */
-+	for_each_cpu(i) {
-+		int node = cpu_to_node(i);
-+		cpumask_t nodemask = node_to_cpumask(node);
-+		struct sched_domain *node_sd = &per_cpu(node_domains, i);
-+		struct sched_domain *cpu_sd = &per_cpu(cpu_domains, i);
-+
-+		*node_sd = SD_NODE_INIT;
-+		node_sd->span = sched_domain_node_span(i, SD_NODES_PER_DOMAIN);
-+		node_sd->groups = &sched_group_nodes[cpu_to_node(i)];
-+
-+		*cpu_sd = SD_CPU_INIT;
-+		cpus_and(cpu_sd->span, nodemask, cpu_possible_map);
-+		cpu_sd->groups = &sched_group_cpus[i];
-+		cpu_sd->parent = node_sd;
-+	}
-+
-+	/* Set up groups */
-+	for (i = 0; i < MAX_NUMNODES; i++) {
-+		cpumask_t tmp = node_to_cpumask(i);
-+		cpumask_t nodemask;
-+		struct sched_group *first_cpu = NULL, *last_cpu = NULL;
-+		struct sched_group *node = &sched_group_nodes[i];
-+		int j;
-+
-+		cpus_and(nodemask, tmp, cpu_possible_map);
-+
-+		if (cpus_empty(nodemask))
-+			continue;
-+
-+		node->cpumask = nodemask;
-+		node->cpu_power = SCHED_LOAD_SCALE * cpus_weight(node->cpumask);
-+
-+		for_each_cpu_mask(j, node->cpumask) {
-+			struct sched_group *cpu = &sched_group_cpus[j];
-+
-+			cpus_clear(cpu->cpumask);
-+			cpu_set(j, cpu->cpumask);
-+			cpu->cpu_power = SCHED_LOAD_SCALE;
-+
-+			if (!first_cpu)
-+				first_cpu = cpu;
-+			if (last_cpu)
-+				last_cpu->next = cpu;
-+			last_cpu = cpu;
-+		}
-+		last_cpu->next = first_cpu;
-+
-+		if (!first_node)
-+			first_node = node;
-+		if (last_node)
-+			last_node->next = node;
-+		last_node = node;
-+	}
-+	last_node->next = first_node;
-+
-+	mb();
-+	for_each_cpu(i) {
-+		struct sched_domain *cpu_sd = &per_cpu(cpu_domains, i);
-+		cpu_attach_domain(cpu_sd, i);
-+	}
-+}
-+#else /* !CONFIG_NUMA */
-+static void __init arch_init_sched_domains(void)
-+{
-+	int i;
-+	struct sched_group *first_cpu = NULL, *last_cpu = NULL;
-+
-+	/* Set up domains */
-+	for_each_cpu(i) {
-+		struct sched_domain *cpu_sd = &per_cpu(cpu_domains, i);
-+
-+		*cpu_sd = SD_CPU_INIT;
-+		cpu_sd->span = cpu_possible_map;
-+		cpu_sd->groups = &sched_group_cpus[i];
-+	}
-+
-+	/* Set up CPU groups */
-+	for_each_cpu_mask(i, cpu_possible_map) {
-+		struct sched_group *cpu = &sched_group_cpus[i];
-+
-+		cpus_clear(cpu->cpumask);
-+		cpu_set(i, cpu->cpumask);
-+		cpu->cpu_power = SCHED_LOAD_SCALE;
-+
-+		if (!first_cpu)
-+			first_cpu = cpu;
-+		if (last_cpu)
-+			last_cpu->next = cpu;
-+		last_cpu = cpu;
-+	}
-+	last_cpu->next = first_cpu;
-+
-+	mb(); /* domains were modified outside the lock */
-+	for_each_cpu(i) {
-+		struct sched_domain *cpu_sd = &per_cpu(cpu_domains, i);
-+		cpu_attach_domain(cpu_sd, i);
-+	}
-+}
-+#endif /* CONFIG_NUMA */
-===== include/asm-i386/processor.h 1.67 vs edited =====
---- 1.67/include/asm-i386/processor.h	2004-06-27 00:19:26 -07:00
-+++ edited/include/asm-i386/processor.h	2004-08-13 10:37:06 -07:00
-@@ -647,6 +647,24 @@
- 
- #ifdef CONFIG_SCHED_SMT
- #define ARCH_HAS_SCHED_DOMAIN
-+#define SD_NODE_INIT (struct sched_domain) {		\
-+	.span			= CPU_MASK_NONE,	\
-+	.parent			= NULL,			\
-+	.groups			= NULL,			\
-+	.min_interval		= 8,			\
-+	.max_interval		= 32,			\
-+	.busy_factor		= 32,			\
-+	.imbalance_pct		= 125,			\
-+	.cache_hot_time		= (10*1000000),		\
-+	.cache_nice_tries	= 1,			\
-+	.per_cpu_gain		= 100,			\
-+	.flags			= SD_BALANCE_EXEC	\
-+				| SD_BALANCE_CLONE	\
-+				| SD_WAKE_BALANCE,	\
-+	.last_balance		= jiffies,		\
-+	.balance_interval	= 1,			\
-+	.nr_balance_failed	= 0,			\
-+}
- #define ARCH_HAS_SCHED_WAKE_IDLE
- #endif
- 
-===== include/asm-ia64/processor.h 1.61 vs edited =====
---- 1.61/include/asm-ia64/processor.h	2004-07-26 22:26:50 -07:00
-+++ edited/include/asm-ia64/processor.h	2004-08-13 10:08:03 -07:00
-@@ -334,6 +334,29 @@
- /* Prepare to copy thread state - unlazy all lazy status */
- #define prepare_to_copy(tsk)	do { } while (0)
- 
-+#ifdef CONFIG_NUMA
-+/* smpboot.c defines a numa specific scheduler domain routine */
-+#define ARCH_HAS_SCHED_DOMAIN
-+#define SD_NODE_INIT (struct sched_domain) {		\
-+	.span			= CPU_MASK_NONE,	\
-+	.parent			= NULL,			\
-+	.groups			= NULL,			\
-+	.min_interval		= 80,			\
-+	.max_interval		= 320,			\
-+	.busy_factor		= 320,			\
-+	.imbalance_pct		= 125,			\
-+	.cache_hot_time		= (10*1000000),		\
-+	.cache_nice_tries	= 1,			\
-+	.per_cpu_gain		= 100,			\
-+	.flags			= SD_BALANCE_EXEC	\
-+				| SD_BALANCE_CLONE	\
-+				| SD_WAKE_BALANCE,	\
-+	.last_balance		= jiffies,		\
-+	.balance_interval	= 10,			\
-+	.nr_balance_failed	= 0,			\
-+}
-+#endif
-+
- /*
-  * This is the mechanism for creating a new kernel thread.
-  *
-===== include/asm-ppc64/processor.h 1.48 vs edited =====
---- 1.48/include/asm-ppc64/processor.h	2004-07-26 15:13:12 -07:00
-+++ edited/include/asm-ppc64/processor.h	2004-08-13 10:37:19 -07:00
-@@ -628,6 +628,24 @@
- 
- #ifdef CONFIG_SCHED_SMT
- #define ARCH_HAS_SCHED_DOMAIN
-+#define SD_NODE_INIT (struct sched_domain) {		\
-+	.span			= CPU_MASK_NONE,	\
-+	.parent			= NULL,			\
-+	.groups			= NULL,			\
-+	.min_interval		= 8,			\
-+	.max_interval		= 32,			\
-+	.busy_factor		= 32,			\
-+	.imbalance_pct		= 125,			\
-+	.cache_hot_time		= (10*1000000),		\
-+	.cache_nice_tries	= 1,			\
-+	.per_cpu_gain		= 100,			\
-+	.flags			= SD_BALANCE_EXEC	\
-+				| SD_BALANCE_CLONE	\
-+				| SD_WAKE_BALANCE,	\
-+	.last_balance		= jiffies,		\
-+	.balance_interval	= 1,			\
-+	.nr_balance_failed	= 0,			\
-+}
- #define ARCH_HAS_SCHED_WAKE_IDLE
- #endif
- 
-===== include/asm-x86_64/processor.h 1.36 vs edited =====
---- 1.36/include/asm-x86_64/processor.h	2004-06-27 00:19:26 -07:00
-+++ edited/include/asm-x86_64/processor.h	2004-08-13 10:37:36 -07:00
-@@ -458,6 +458,24 @@
- 
- #ifdef CONFIG_SCHED_SMT
- #define ARCH_HAS_SCHED_DOMAIN
-+#define SD_NODE_INIT (struct sched_domain) {		\
-+	.span			= CPU_MASK_NONE,	\
-+	.parent			= NULL,			\
-+	.groups			= NULL,			\
-+	.min_interval		= 8,			\
-+	.max_interval		= 32,			\
-+	.busy_factor		= 32,			\
-+	.imbalance_pct		= 125,			\
-+	.cache_hot_time		= (10*1000000),		\
-+	.cache_nice_tries	= 1,			\
-+	.per_cpu_gain		= 100,			\
-+	.flags			= SD_BALANCE_EXEC	\
-+				| SD_BALANCE_CLONE	\
-+				| SD_WAKE_BALANCE,	\
-+	.last_balance		= jiffies,		\
-+	.balance_interval	= 1,			\
-+	.nr_balance_failed	= 0,			\
-+}
- #define ARCH_HAS_SCHED_WAKE_IDLE
- #endif
- 
-===== include/linux/sched.h 1.228 vs edited =====
---- 1.228/include/linux/sched.h	2004-07-28 21:58:54 -07:00
-+++ edited/include/linux/sched.h	2004-08-13 10:06:05 -07:00
-@@ -17,6 +17,7 @@
- #include <asm/system.h>
- #include <asm/semaphore.h>
- #include <asm/page.h>
-+#include <asm/processor.h>
- #include <asm/ptrace.h>
- #include <asm/mmu.h>
- 
-@@ -654,6 +655,7 @@
- }
- 
- #ifdef CONFIG_NUMA
-+#ifndef ARCH_HAS_SCHED_DOMAIN
- /* Common values for NUMA nodes */
- #define SD_NODE_INIT (struct sched_domain) {		\
- 	.span			= CPU_MASK_NONE,	\
-@@ -673,6 +675,7 @@
- 	.balance_interval	= 1,			\
- 	.nr_balance_failed	= 0,			\
- }
-+#endif
- #endif
- 
- extern void cpu_attach_domain(struct sched_domain *sd, int cpu);
-===== kernel/sched.c 1.319 vs edited =====
---- 1.319/kernel/sched.c	2004-08-02 01:00:40 -07:00
-+++ edited/kernel/sched.c	2004-08-13 10:59:53 -07:00
-@@ -1826,10 +1826,8 @@
- 	for_each_domain(busiest_cpu, sd)
- 		if (cpu_isset(busiest->push_cpu, sd->span))
- 			break;
--	if (!sd) {
--		WARN_ON(1);
-+	if (!sd)
- 		return;
--	}
- 
-  	group = sd->groups;
- 	while (!cpu_isset(busiest_cpu, group->cpumask))
 
---Boundary-00=_oOQHBrWSHZUr5Zz--
+This should better be handled in a separate function in the same source
+file as the rest of the ROM handling code.
+
+Also, what about ROMs in the other header types? Wouldn't it be better to
+scan all resources for the COPY flag instead?
+
+ #define PCI_SUBSYSTEM_ID	0x2e  
+ #define PCI_ROM_ADDRESS		0x30	/* Bits 31..11 are address, 10..1 reserved */
+ #define  PCI_ROM_ADDRESS_ENABLE	0x01
++#define  PCI_ROM_SHADOW		0x02	/* resource flag, ROM is copy at C000:0 */
++#define  PCI_ROM_COPY		0x04	/* resource flag, ROM is alloc'd copy */
+ #define PCI_ROM_ADDRESS_MASK	(~0x7ffUL)
+
+This does not belong here! This part of pci.h describes the configuration
+space, not stuff internal to the kernel. Better introduce a new resource
+flag in <linux/ioport.h>.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"Oh no, not again!"  -- The bowl of petunias

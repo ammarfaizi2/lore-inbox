@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316792AbSGHFcm>; Mon, 8 Jul 2002 01:32:42 -0400
+	id <S316794AbSGHGC2>; Mon, 8 Jul 2002 02:02:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316794AbSGHFcl>; Mon, 8 Jul 2002 01:32:41 -0400
-Received: from iproxy1.ericsson.dk ([213.159.160.68]:26793 "EHLO
-	iproxy1.ericsson.dk") by vger.kernel.org with ESMTP
-	id <S316792AbSGHFck>; Mon, 8 Jul 2002 01:32:40 -0400
-Message-ID: <3D292464.3040400@fabbione.net>
-Date: Mon, 08 Jul 2002 07:34:28 +0200
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-X-Accept-Language: en
+	id <S316795AbSGHGC1>; Mon, 8 Jul 2002 02:02:27 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:8711 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S316794AbSGHGC1>; Mon, 8 Jul 2002 02:02:27 -0400
+Date: Mon, 8 Jul 2002 16:04:48 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Andi Kleen <ak@suse.de>
+cc: Matthew Wilcox <willy@debian.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] simplify networking fcntl
+In-Reply-To: <p73d6tzwkap.fsf@oldwotan.suse.de>
+Message-ID: <Mutt.LNX.4.44.0207081556460.25873-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-To: Riley Williams <rhw@InfraDead.Org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre10 DevFS + LVM OOPS
-References: <Pine.LNX.4.21.0207072338030.9595-100000@Consulate.UFP.CX>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams wrote:
+On 7 Jul 2002, Andi Kleen wrote:
 
->Hi Fabio.
->
->  
->
->>this happend creating a new a lv with the command lvcreate -L512M
->>-ntest system It did 3 times in a row then it worked again. What was
->>strange is that I was in one dir and unfortunalty I don't remember
->>which and it was crashing. I changed dir and then it was working. In
->>the first instance I didn't thought about taking notes but atleast I
->>have a full trace (the machine didn't hang or reboot... it is still
->>alive 100%).
->>    
->>
->
->This may be completely off-track but I've seen it cause wierd problems
->in the past, so worth checking - was the directory you were in when the
->machine crashed one that still existed as far as the file system was
->concerned?
->
-Im fairly sure it is still there because I didn't made any
-change in the filesystem (in terms of mv rm etc.) but
-I will give it a try later since Im not close to the box
-right now and a possible crash from remote is not really
-a good idea ;)
+> 
+> I believe James Morris did this (clean up network fcntl) already in a more 
+> complex patchkit that also cleans up the SIGIO/SIGURG sending. 
+> 
 
-Fabio
+This is almost ready, I just need to complete a couple of higher priority 
+tasks before incorporating some further suggestions and finalizing the 
+patch (may be a week or so until I can get back to it).
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
 
 

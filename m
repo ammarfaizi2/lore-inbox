@@ -1,107 +1,245 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266691AbRGIIvp>; Mon, 9 Jul 2001 04:51:45 -0400
+	id <S266017AbRGIItz>; Mon, 9 Jul 2001 04:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbRGIIvg>; Mon, 9 Jul 2001 04:51:36 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:17424 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S266691AbRGIIvS>;
-	Mon, 9 Jul 2001 04:51:18 -0400
-Date: Mon, 9 Jul 2001 12:51:15 +0400
-To: linux@horizon.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's the status of kernel PNP?
-Message-ID: <20010709125115.A19087@orbita1.ru>
-In-Reply-To: <20010709105756.A18230@orbita1.ru> <20010709073410.1567.qmail@science.horizon.com>
+	id <S266691AbRGIItq>; Mon, 9 Jul 2001 04:49:46 -0400
+Received: from mail.2d3d.co.za ([196.14.185.200]:49544 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S266017AbRGIItg>;
+	Mon, 9 Jul 2001 04:49:36 -0400
+Date: Mon, 9 Jul 2001 10:50:44 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: msync() bug
+Message-ID: <20010709105044.A29658@crystal.2d3d.co.za>
+Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010709073410.1567.qmail@science.horizon.com>; from linux@horizon.com on Mon, Jul 09, 2001 at 07:34:10AM -0000
-X-Uptime: 11:04am  up 9 days, 17:59,  2 users,  load average: 0.00, 0.00, 0.00
-X-Uname: Linux orbita1.ru 2.2.20pre2 
-From: pazke@orbita1.ru
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.2 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 10:45am  up 10 days, 22:37,  9 users,  load average: 0.16, 0.06, 0.01
+X-Edited-With-Muttmode: muttmail.sl - 2000-11-20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---DocE+STaALJfprDB
+--LyciRD1jyfeSSjG0
+Content-Type: multipart/mixed; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+
+
+--VS++wcV0S1rZb1Fb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 09, 2001 at 07:34:10AM -0000, linux@horizon.com wrote:
-> > Please provide more detailed hardware description and a output of
-> > 'cat /proc/isapnp'.  IMHO this problem can be solved easily.
->=20
-> Thank you for being so soothing.  As you could probably notice, I was a b=
-it
-> frustrated.
->=20
-> On the first machine, with the modem (note that I ran isapnp manually, si=
-nce
-> this modem is my net connection!):
->=20
+Hi!
 
-> Card 1 'MOT15f0:Motorola VoiceSURFR 56K Modem' PnP version 1.0
->   Logical device 0 'MOT15f0:Unknown'
->     Supported registers 0x2
->     Compatible device MOT15f0
->     Device is active
->     Active port 0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff
-		  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		   =20
-Use of isapnptools package mixed with kernel 2.4.x ISA PNP subsystem is ask=
-ing=20
-for trouble. Move /etc/isapnp.conf file to some other place and try to rebo=
-ot.
+I was preparing some lecture last night and stumbled onto this bug. Maybe
+some of you can shed some light on it.
 
-[SNIP]
+Basically, I just memory map /dev/mem at 0xb8000 (text mode - yes I know you
+shouldn't do this, but it was to illustrate something), reads 4k, changes it
+writes it back.
 
-> isapnp: Scanning for PnP cards...
-> isapnp: Card 'Motorola VoiceSURFR 56K Modem'
-> isapnp:   Device 'Unknown'
-> isapnp: 1 Plug & Play card detected total
-> PnP: PNP BIOS installation structure at 0xc00fdbd0
-> PnP: PNP BIOS version 1.0, entry at f0000:d20e, dseg at f0000
-> Linux NET4.0 for Linux 2.4
-> Based upon Swansea University Computer Society NET3.039
-> Initializing RT netlink socket
-> apm: BIOS version 1.1 Flags 0x03 (Driver version 1.14)
-> Starting kswapd v1.8
-> parport0: PC-style at 0x378, irq 7 [PCSPP(,...)]
-> matroxfb: Matrox Millennium (PCI) detected
-> matroxfb: 640x480x8bpp (virtual: 640x13081)
-> matroxfb: framebuffer at 0xFE000000, mapped to 0xc6807000, size 8388608
-> Console: switching to colour frame buffer device 80x30
-> fb0: MATROX VGA frame buffer device
-> pty: 256 Unix98 ptys configured
-> Serial driver version 5.05b (2001-05-03) with MANY_PORTS SHARE_IRQ SERIAL=
-_PCI ISAPNP enabled
-> ttyS00 at 0x03f8 (irq =3D 4) is a 16550A
-> ttyS01 at 0x02f8 (irq =3D 3) is a 16550A
-> ttyS02 at port 0x03e8 (irq =3D 5) is a 16550A
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Now everything works fine unless I do an msync() in which case I get an oop=
+s:
 
-Hmm, looks strange to me, it seems that serial driver found your modem and =
-configured
-it as /dev/ttyS2. Did you try to test it with minicom for example ?
+------------< snip <------< snip <------< snip <------------
+root@oasis:~/tuesday-clug-talk/text-mode# ./text-mode
+Unable to handle kernel NULL pointer dereference at virtual address 00000008
+ printing eip:
+ c011e752
+ *pde =3D 00000000
+ Oops: 0000
+ CPU:    0
+ EIP:    0010:[<c011e752>]
+ EFLAGS: 00010246
+ eax: c10030f0   ebx: c10030f0   ecx: 00000000   edx: c10030f0
+ esi: 00017000   edi: cc75d404   ebp: cc7cf05c   esp: cc75ff38
+ ds: 0018   es: 0018   ss: 0018
+ Process text-mode (pid: 516, stackpage=3Dcc75f000)
+ Stack: 00417000 c0120515 c10030f0 00000004 ccddf1a0 40018000 00000000 4001=
+7000
+        cc75d404 40417000 cc75e000 00018000 40000000 00018000 40000000 0000=
+0000
+	    40018000 c0120627 cceed420 40017000 00001000 00000004 cceed420 40017000
+Call Trace: [<c0120515>] [<c0120627>] [<c012072d>] [<c0106d6b>]
+
+Code: 8b 51 08 89 42 04 89 10 8d 51 08 89 50 04 89 41 08 8b 41 20
+Segmentation fault
+root@oasis:~/tuesday-clug-talk/text-mode#
+root@oasis:~# cat /proc/ksyms | grep c011f
+c011f000 ___wait_on_page_Rf9de9e1d
+c011fb74 generic_file_read_Reaf528e4
+c011f614 do_generic_file_read_Rc634b32a
+c011f1d8 __find_lock_page_R31595861
+c011ff68 filemap_nopage_R50c6d0e7
+c011f154 lock_page_R7c236ed9
+root@oasis:~# cat /proc/ksyms | grep c0120
+c012057c generic_file_mmap_Rf655e8fd
+c0120368 filemap_sync_R86ba6830
+root@oasis:~# cat /proc/ksyms | grep c0106
+root@oasis:~# cat /proc/ksyms | grep c0105
+c01051bc machine_real_restart_R3da1b07a
+c01055ac dump_thread_Rae90b20c
+c01053fc kernel_thread_R7e9ebb05
+c0105a60 __down_failed
+c0105a6c __down_failed_interruptible
+c0105a78 __down_failed_trylock
+c0105a84 __up_wakeup
+c0105aac __down_write_failed
+c0105a90 __down_read_failed
+c0105cd0 __rwsem_wake
+c0105840 get_wchan_R280eab06
+c0105110 disable_hlt_R794487ee
+c0105118 enable_hlt_R9c7077bd
+c0105264 machine_restart_Re6e3ef70
+c01052e4 machine_halt_R9aa32630
+c01052e8 machine_power_off_R091c824a
+root@oasis:~# cat /proc/ksyms | grep c011e
+c011e1b4 do_brk_R9eecde16
+c011e778 invalidate_inode_pages_R93da71b9
+c011e98c truncate_inode_pages_R721e7180
+c011eb28 generic_buffer_fdatasync_Ra1c05088
+------------< snip <------< snip <------< snip <------------
+
+So call trace translates to something like:
+
+filemap_nopage(), generic_file_mmap(), __down_failed_interruptible()
+
+and we were somewhere in do_brk() when it oopsed.
+
+Any ideas why this happened? Also, if I don't use msync() the problem goes
+away so my guess is something's wrong with the msync() system call.
+
+I've attached the small C program that caused this. Also, I can only get it
+to oops once (after that I have to reboot again to get it to oops).
 
 --=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---DocE+STaALJfprDB
+
+Regards
+ Abraham
+
+Best of all is never to have been born.  Second best is to die soon.
+
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
+
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Antree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
+
+
+--VS++wcV0S1rZb1Fb
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="bug.main.c"
+
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <stdio.h>
+#include <string.h>
+
+/* change to 0xb000 for monochrome displays */
+#define TEXT_OFFSET		0xb8000
+#define TEXT_LENGTH		(80 * 25 * 2)	// = 4000
+
+#define ATTR_OFF        0	/* All attributes off */
+#define ATTR_BOLD       1	/* Bold On */
+#define ATTR_DIM        2	/* Dim (Is this really in the ANSI standard? */
+#define ATTR_UNDERLINE  4	/* Underline (Monochrome Display Only */
+#define ATTR_BLINK      5	/* Blink On */
+#define ATTR_REVERSE    7	/* Reverse Video On */
+#define ATTR_INVISIBLE  8	/* Concealed On */
+
+#define COLOR_BLACK     0	/* Black */
+#define COLOR_RED       1	/* Red */
+#define COLOR_GREEN     2	/* Green */
+#define COLOR_YELLOW    3	/* Yellow */
+#define COLOR_BLUE      4	/* Blue */
+#define COLOR_MAGENTA   5	/* Magenta */
+#define COLOR_CYAN      6	/* Cyan */
+#define COLOR_WHITE     7	/* White */
+
+static const char *device = "/dev/mem";
+
+int main ()
+{
+   int i,fd;
+   unsigned char *text,*s,*d;
+   char buf[TEXT_LENGTH],tmp[TEXT_LENGTH];
+
+   /*
+	* Map the text memory to something we can access
+	*/
+
+   if ((fd = open (device,O_RDWR | O_SYNC)) < 0)
+	 {
+		perror ("open()");
+		exit (1);
+	 }
+   text = mmap (NULL,TEXT_LENGTH,PROT_READ | PROT_WRITE,MAP_SHARED,fd,TEXT_OFFSET);
+   if (text == MAP_FAILED)
+	 {
+		perror ("mmap()");
+		exit (1);
+	 }
+
+   /*
+	* Do the tricks
+	*/
+
+   /* copy entire screen to temp buf */
+   memcpy (buf,text,TEXT_LENGTH);
+
+   /* flip buf upside-down */
+//   memcpy (tmp,buf,TEXT_LENGTH);
+//   for (i = 0, s = buf, d = tmp + TEXT_LENGTH - 80*2; i < 25/2; i++, s += 80*2, d -= 80*2)
+//	 memcpy (d,s,80*2);
+//   memcpy (buf,tmp,TEXT_LENGTH);
+
+   /* set color to bright cyan */
+   for (i = 1; i < TEXT_LENGTH; i += 2) buf[i] = /*COLOR_CYAN*/5;
+
+   /* copy buf to screen */
+   memcpy (text,buf,TEXT_LENGTH);
+   msync (text,TEXT_LENGTH,MS_SYNC);
+
+   /*
+	* Clean up and exit
+	*/
+
+   munmap (text,TEXT_LENGTH);
+   close (fd);
+   exit (0);
+}
+
+
+--VS++wcV0S1rZb1Fb--
+
+--LyciRD1jyfeSSjG0
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+Version: GnuPG v1.0.4 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE7SXCDBm4rlNOo3YgRAtWkAJ9oAuslCFbXx7uM7OxcgHOdg4omsACfXef0
-xCXtCyRNqqeN3hhFFaZ4Zsc=
-=40kM
+iD8DBQE7SXBkzNXhP0RCUqMRAlaWAJ0XL+k1HC11DPlM0fBNh2l+jcfyXgCdH9B8
+XnAxK9nZgQw9C+KNMiTyRo0=
+=Qa7o
 -----END PGP SIGNATURE-----
 
---DocE+STaALJfprDB--
+--LyciRD1jyfeSSjG0--

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVC0XRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVC0Xhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbVC0XRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 18:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVC0XRL
+	id S261618AbVC0Xhc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 18:37:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVC0Xhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 18:17:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:2522 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261531AbVC0XRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 18:17:03 -0500
-Date: Sun, 27 Mar 2005 15:09:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Aaron Gyes <floam@sh.nu>
-Cc: Adrian Bunk <bunk@stusta.de>,
-       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050327230955.GA32749@kroah.com>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <1111913399.6297.28.camel@laptopd505.fenrus.org> <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com> <20050327180417.GD3815@gallifrey> <20050327183522.GM4285@stusta.de> <1111951014.9831.4.camel@localhost>
+	Sun, 27 Mar 2005 18:37:32 -0500
+Received: from userf193.dsl.pipex.com ([62.188.53.193]:24756 "HELO
+	mail.ezplanet.net") by vger.kernel.org with SMTP id S261618AbVC0Xh0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 18:37:26 -0500
+Subject: imps2 mouse driver and bug 2082
+From: Mauro Mozzarelli <mauro@ezplanet.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: EzPlanet
+Date: Sun, 27 Mar 2005 23:37:22 +0000
+Message-Id: <1111966642.5789.7.camel@helios.ezplanet.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111951014.9831.4.camel@localhost>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.2 (2.0.2-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 27, 2005 at 11:16:54AM -0800, Aaron Gyes wrote:
-> > And then the user want to upgrade the 2.0 kernel that shipped with this 
-> > box although the company that made the hardware went bankrupt some years 
-> > ago.
-> > 
-> > If the user has the source of the driver, he can port the driver or hire 
-> > someone to port the driver (this "obscure piece of hardware" might also 
-> > be an expensive piece of hardware).
-> 
-> So what? Sure, GPL'd drivers are easier for an end-user in that case.
-> What does that have to do with law? What about what's better for the
-> company that made the device? Should NVIDIA be forced to give up their
-> secrets to all their competitors because some over zealous developers
-> say so? Should the end-users of the current drivers be forced to lose
-> out on features such as sysfs and udev compatability?
+The mouse driver, re-developed for kernel 2.6, ever since the earliest
+2.6 release lost the ability to reset a broken link with an IMPS2 mouse
+(this happens when disconnecting the mouse plug either physically or
+through a "non imps2" KVM switch). The result is that the mouse can no
+longer be controlled, with the only solution being a RE-BOOT!
 
-It's not zealotry, it's called being compliant with the license of the
-kernel.  It's as simple as that.  
+This issue has been filed as bug 2082
+(http://bugme.osdl.org/show_bug.cgi?id=2082) . A fix was posted for
+2.6.8, but this patch never made its way into the kernel main stream.
+"Vojtech", author of the 2.6 mouse driver, keeps modifying his code
+version after version, therefore breaking compatibility with the posted
+patch. I adapted the patch for 2.6.9 and 2.6.10 (there are now three
+versions for 2.6.8, 2.6.9 and 2.6.10). Kernel 2.6.11(.6) was released
+recently, still with the same bug, and would require further adaptation
+of the posted patch.
 
-If you ignore the license, you will suffer the consequences of it, just
-like if you ignore the license of any closed source chunk of software.
-Would you expect the owner of that software to turn a blind eye toward
-violators?
+I was wondering if some business related priority could be set for this
+issue.
 
-greg k-h
+Given that most Linux deployments are in server farms, where boxes
+share a console attached to a KVM that might good enough, but not
+properly supporting IMPS2, please, could we include this patch in the
+kernel main stream before adding support for any new mouse device that
+hardly anyone running a server would be interested in?
+
+Mauro
+
+

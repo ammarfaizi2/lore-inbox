@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVBGTqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVBGUto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVBGTqL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 14:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVBGTpi
+	id S261171AbVBGUto (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 15:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBGUto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 14:45:38 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:30375 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261262AbVBGTdP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:33:15 -0500
-Date: Mon, 7 Feb 2005 13:32:48 -0600
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>
-Subject: [PATCH] BSD Secure Levels: memory alloc failure check, 2.6.11-rc2-mm1 (4/8)
-Message-ID: <20050207193248.GC834@halcrow.us>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20050207192108.GA776@halcrow.us>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="uXxzq0nDebZQVNAZ"
-Content-Disposition: inline
-In-Reply-To: <20050207192108.GA776@halcrow.us>
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 7 Feb 2005 15:49:44 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:36228 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261171AbVBGUtl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 15:49:41 -0500
+X-Qmail-Scanner-Toxic-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-Qmail-Scanner-Toxic-Rcpt-To: reiser@namesys.com,linux-kernel@vger.kernel.org
+X-Qmail-Scanner-Toxic: 1.24st (Clear:RC:1(213.238.100.58):. Processed in 0.146998 secs Process 11570)
+Date: Mon, 7 Feb 2005 21:59:57 +0100
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Mailer: The Bat! (v3.0.1.33) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <1959057509.20050207215957@dns.toxicfilms.tv>
+To: Hans Reiser <reiser@namesys.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re[2]: 2.6.11-rc3-mm1 bad scheduling while atomic + lockup
+In-Reply-To: <4207CD63.1080802@namesys.com>
+References: <1865944987.20050207081532@dns.toxicfilms.tv>
+ <4207CD63.1080802@namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Hans,
 
---uXxzq0nDebZQVNAZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Monday, February 7, 2005, 9:19:47 PM, you wrote:
 
-This is the fourth in a series of eight patches to the BSD Secure
-Levels LSM.  It adds a check for a memory allocation failure
-condition.  Thanks to Vesa-Matti J Kari for pointing out this problem.
+> Maciej Soltysiak wrote:
 
-Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
+>>)
+>>
+>>Feb  6 17:07:47 dns kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>>Feb  6 17:07:47 dns kernel: hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
+>>  
+>>
+> this means bad hard drive, or at least a bad sector on it.
+Well, I have reiser4 on this drive with noncritical data which is rather
+not used anyway.
+But please note that, the process generating the oops (as long as I am
+seeing this right) is something called swapper:
 
---uXxzq0nDebZQVNAZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="seclvl_mem_alloc_check.patch"
+scheduling while atomic: swapper/0x00010001/0
 
-Index: linux-2.6.11-rc2-mm1-modules/security/seclvl.c
-===================================================================
---- linux-2.6.11-rc2-mm1-modules.orig/security/seclvl.c	2005-02-03 15:37:26.231252048 -0600
-+++ linux-2.6.11-rc2-mm1-modules/security/seclvl.c	2005-02-03 15:39:35.786556648 -0600
-@@ -310,7 +310,7 @@
- static int
- plaintext_to_sha1(unsigned char *hash, const char *plaintext, int len)
- {
--	char *pgVirtAddr;
-+	char *pg_virt_addr;
- 	struct crypto_tfm *tfm;
- 	struct scatterlist sg[1];
- 	if (len > PAGE_SIZE) {
-@@ -327,16 +327,20 @@
- 	}
- 	// Just get a new page; don't play around with page boundaries
- 	// and scatterlists.
--	pgVirtAddr = (char *)__get_free_page(GFP_KERNEL);
--	sg[0].page = virt_to_page(pgVirtAddr);
-+	pg_virt_addr = (char *)__get_free_page(GFP_KERNEL);
-+	if (!pg_virt_addr) {
-+		seclvl_printk(0, KERN_ERR "%s: Out of memory\n", __FUNCTION__);
-+		return -ENOMEM;
-+	}	
-+	sg[0].page = virt_to_page(pg_virt_addr);
- 	sg[0].offset = 0;
- 	sg[0].length = len;
--	strncpy(pgVirtAddr, plaintext, len);
-+	strncpy(pg_virt_addr, plaintext, len);
- 	crypto_digest_init(tfm);
- 	crypto_digest_update(tfm, sg, 1);
- 	crypto_digest_final(tfm, hash);
- 	crypto_free_tfm(tfm);
--	free_page((unsigned long)pgVirtAddr);
-+	free_page((unsigned long)pg_virt_addr);
- 	return 0;
- }
- 
+My swap partition is not on hdc, it is on hda, which does not report
+bad crc and any other dma related errors, or any for that matter.
 
---uXxzq0nDebZQVNAZ--
+The same machine runs on 2.6.10-ac10 + reiser-2.6.10 patch well or
+at least it does not trigger these oopses.
+
+Only some still not tracked down problems with terrible swap eating :-(
+But that's a different story.
+
+Regards,
+Maciej
+
+

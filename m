@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132563AbRDOBQd>; Sat, 14 Apr 2001 21:16:33 -0400
+	id <S132564AbRDOBgQ>; Sat, 14 Apr 2001 21:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132564AbRDOBQO>; Sat, 14 Apr 2001 21:16:14 -0400
-Received: from sitebco-home-5-17.urbanet.ch ([194.38.85.209]:42800 "EHLO
-	vulcan.alphanet.ch") by vger.kernel.org with ESMTP
-	id <S132563AbRDOBQE>; Sat, 14 Apr 2001 21:16:04 -0400
-Date: Sun, 15 Apr 2001 03:16:01 +0200
-From: Marc SCHAEFER <schaefer@alphanet.ch>
-Message-Id: <200104150116.DAA30668@vulcan.alphanet.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SCSI tape corruption problem
-Newsgroups: alphanet.ml.linux.kernel
-In-Reply-To: <Pine.LNX.4.31.0104142124390.1307-100000@eris.discordia.loc>
-Organization: ALPHANET NF -- Not for profit telecom research
-X-Newsreader: TIN [UNIX 1.3 unoff BETA 970705; i586 Linux 2.0.38]
+	id <S132565AbRDOBgG>; Sat, 14 Apr 2001 21:36:06 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:50550 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S132564AbRDOBfx>; Sat, 14 Apr 2001 21:35:53 -0400
+Date: Sat, 14 Apr 2001 21:35:46 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: nicholas@petreley.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb-uhci.c problems in latest kernels?
+Message-ID: <20010414213546.A1590@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.31.0104142124390.1307-100000@eris.discordia.loc> you wrote:
-> ... still, I've investigated on this because amverify gave me a ton of
-> crc errors... (I REALLY hope that amanda uses proper blocking :)
+> usb-uhci.c: interrupt, status 3, frame# 1876 
 
-yes, it does.
+This is a known problem, here is the discussion that I initiated
+on linux-usb-devel:
 
-This really looks like a st problem, or kernel. Or host adapter, or :)
+ http://marc.theaimsgroup.com/?t=98609508500001&w=2&r=1
 
-I have to try 2.4.x soon. Problem is for me 2.2.x is enough :)
+The right fix is to comment that printout out.
+In fact, that is what I commited for Red Hat 7.1 release.
+
+Some people suggest to switch to uhci instead of usb-uhci,
+which helps precisely because it does not have a corresponding
+printk.
+
+-- Pete

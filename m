@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274758AbRJDPta>; Thu, 4 Oct 2001 11:49:30 -0400
+	id <S276118AbRJDP4L>; Thu, 4 Oct 2001 11:56:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275120AbRJDPtV>; Thu, 4 Oct 2001 11:49:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10771 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274758AbRJDPtQ>; Thu, 4 Oct 2001 11:49:16 -0400
-Date: Thu, 4 Oct 2001 08:49:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Security question: "Text file busy" overwriting executables but
- not shared libraries?
-In-Reply-To: <m1n137zbyo.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33.0110040842320.8350-100000@penguin.transmeta.com>
+	id <S276480AbRJDP4B>; Thu, 4 Oct 2001 11:56:01 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:50111 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S276248AbRJDPzp>;
+	Thu, 4 Oct 2001 11:55:45 -0400
+Message-ID: <3BBC8692.9F48DA85@candelatech.com>
+Date: Thu, 04 Oct 2001 08:56:02 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jamal <hadi@cyberus.ca>
+CC: Simon Kirby <sim@netnation.com>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.GSO.4.30.0110040742191.9341-100000@shell.cyberus.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jamal wrote:
+> 
+> On Wed, 3 Oct 2001, Ben Greear wrote:
+> 
+> > The tulip driver only started working for my DLINK 4-port NIC after
+> > about 2.4.8, and last I checked the ZYNX 4-port still refuses to work,
+> > so I wouldn't consider it a paradigm of stability and grace quite yet.
+> 
+> The tests in www.cyberus.ca/~hadi/247-res/ were done with 4-port znyx
+> cards using 2.4.7.
+> What kind of problems are you having? Maybe i can help.
 
-On 4 Oct 2001, Eric W. Biederman wrote:
->
-> First what user space really wants is the MAP_COPY.  Which is
-> MAP_PRIVATE with the guarantee that they don't see anyone else's changes.
+Mostly problems with auto-negotiation it seems.  Earlier 2.4 kernels
+just would never go 100bt/FD.  Later (broken) versions would claim to
+be 100bt/FD, but they still showed lots of collisions and frame errors.
 
-Which is a completely idiotic idea, and which is only just another example
-of how absolutely and stunningly _stupid_ Hurd is.
+I'll try the ZYNX on the latest kernel in the next few days and let you
+know what I find...
 
-The thing with MAP_COPY is that how do you efficiently _detect_ somebody
-elses changes on a page that you haven't even read in yet?
+> My point is that the API exists. Driver owners could use it; this
+> discussion seems to have at least helped to point in the existence of the
+> API. Alexey had the hardware flow control in there since 2.1.x .., us
+> that at least. In my opinion, Ingos patch is radical enough to be allowed
+> in when we are approaching stability. And it is a lazy way of solving the
+> problem
 
-So you have a few choices, all bad:
+The API has been there since 2.1.x, and yet few drivers support it?  I
+can see why Ingo decided to fix the problem generically.  I think it would
+be great if his code printed a log message upon trigger that basically said:
+"You should get yourself a NAPI enabled driver that does flow-control if
+possible."  That may give the appropriate visibility to the issue and let
+the driver writers improve their drivers accordingly...
 
- - immediately reading in everything, basically turning the mmap() into a
-   read. Obviously a bad idea.
+Ben
 
- - mark the inode as a "copy" inode, and whenever somebody writes to it,
-   you not only make sure that you do copy-on-write on the page cache page
-   (which, btw, is pretty much impossible - how did you intend to find all
-   the other _non_COPY_ users that _want_ coherency).
+> 
+> cheers,
+> jamal
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-   You also have to make sure that if somebody changes the page, you have
-   to read in the old contents first (not normally needed for most
-   changes that write over at least a full block), but you also have to
-   save the old page somewhere so that the mapping can use it if it faults
-   it in later. And how the hell do you do THAT? Especially as you can
-   have multiple generations of inodes with different sets of "MAP_COPY"
-   on different contents..
-
-   In short, now you need filesystem versioning at a per-page level etc.
-
-Trust me. The people who came up with MAP_COPY were stupid. Really. It's
-an idiotic concept, and it's not worth implementing.
-
-And this all for what is a administration bug in the first place.
-
-In short: just say NO TO DRUGS, and maybe you won't end up like the Hurd
-people.
-
-		Linus
-
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

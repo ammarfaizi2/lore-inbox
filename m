@@ -1,52 +1,126 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSEPM4t>; Thu, 16 May 2002 08:56:49 -0400
+	id <S312576AbSEPNJu>; Thu, 16 May 2002 09:09:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSEPM4s>; Thu, 16 May 2002 08:56:48 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:32295 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312560AbSEPM4r>; Thu, 16 May 2002 08:56:47 -0400
-Date: Thu, 16 May 2002 14:56:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa3
-Message-ID: <20020516125641.GI1025@dualathlon.random>
-In-Reply-To: <20020516020134.GC1025@dualathlon.random> <Pine.LNX.4.44L.0205152303500.32261-100000@imladris.surriel.com> <20020516023238.GE1025@dualathlon.random> <20020516093630.B5540@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S312581AbSEPNJt>; Thu, 16 May 2002 09:09:49 -0400
+Received: from dc-mx13.cluster1.charter.net ([209.225.8.23]:48545 "EHLO
+	dc-mx13.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S312576AbSEPNJs>; Thu, 16 May 2002 09:09:48 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Kernel PCMCIA/CardBus on a Tecra 8200
+From: Norman Walsh <ndw@nwalsh.com>
+X-URL: http://nwalsh.com/
+Date: Thu, 16 May 2002 09:09:35 -0400
+Message-ID: <874rh8jl2o.fsf@nwalsh.com>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.1 (i686-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 16, 2002 at 09:36:30AM +0100, Russell King wrote:
-> On Thu, May 16, 2002 at 04:32:38AM +0200, Andrea Arcangeli wrote:
-> > On Wed, May 15, 2002 at 11:06:51PM -0300, Rik van Riel wrote:
-> > > --- snip from linuxrc ----
-> > > mount --ro -t $rootfs $rootdev /sysroot
-> > > pivot_root /sysroot /sysroot/initrd
-> > > ------
-> > > 
-> > > This way you can specify both the root fs and - if wanted -
-> > > special mount options to the root fs. Then you pivot_root(2)
-> > > to move the root fs to / and the (old) initrd to /initrd.
-> > 
-> > both lines are completly superflous, very misleading as well. I
-> > recommend to drop such two lines from all the full blown bug-aware
-> > linuxrc out there (of course after you apply the ordering fix to the
-> > kernel).
-> 
-> Have you thought about reading Documentation/initrd.txt and following
-> the described method?  (last modified December 2000 according to the
-> comments and the mtime on the file).
+I'm having no luck getting kernel PCMCIA/CardBus support working on my
+Toshiba Tecra 8200 laptop. My conclusion that it's a kernel issue (because
+pcmcia-cs works fine if I disable kernel PCMCIA) may be in error. (I need
+kernel PCMCIA/CardBus support because that's what the IEEE1394 drivers
+require and I'm hoping to use, um, an IEEE1394 driver ;-)
 
-I didn't noticed the API changed in the docs, so my suggestion of
-yesterday to remove such two lines is wrong sorry. I was only reading
-the kernel code and I was using my own old debugging initrd were I could
-reproduce the ext3 problem. Interestingly there's no way to guess the
-new API by only reading the kernel code like I was doing.
+lspci -vv reports
 
-Andrea
+02:0c.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
+	Subsystem: Lucent Technologies: Unknown device ab01
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at f7d00000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=02, secondary=03, subordinate=03, sec-latency=176
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt- PostWrite+
+	16-bit legacy interface ports at 0001
+
+02:0d.0 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (rev 31)
+	Subsystem: Toshiba America Info Systems: Unknown device 0001
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at f7d01000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=02, secondary=04, subordinate=04, sec-latency=0
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+02:0d.1 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (rev 31)
+	Subsystem: Toshiba America Info Systems: Unknown device 0001
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin B routed to IRQ 11
+	Region 0: Memory at f7d02000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=02, secondary=05, subordinate=05, sec-latency=0
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+But I've been told that the bridge is in fact a ToPIC100 and that some mapping file
+is apparently out-of-date. I'm not sure.
+
+Anyway, with 2.4.18 (of my own construction) on a Debian (woody) box
+with Kernel PCMCIA/CardBus support, booting reports
+
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+PCI: Enabling device 02:0c.0 (0000 -> 0002)
+PCI: Found IRQ 11 for device 02:0c.0
+PCI: Sharing IRQ 11 with 01:00.0
+PCI: Sharing IRQ 11 with 02:0d.0
+PCI: Enabling device 02:0d.0 (0000 -> 0002)
+PCI: Found IRQ 11 for device 02:0d.0
+PCI: Sharing IRQ 11 with 01:00.0
+PCI: Sharing IRQ 11 with 02:0c.0
+PCI: Enabling device 02:0d.1 (0000 -> 0002)
+PCI: Found IRQ 11 for device 02:0d.1
+PCI: Sharing IRQ 11 with 00:1f.2
+PCI: Sharing IRQ 11 with 02:07.0
+Yenta IRQ list 0000, PCI irq11
+Socket status: 30000011
+Yenta IRQ list 04b8, PCI irq11
+Socket status: 30000007
+Yenta IRQ list 04b8, PCI irq11
+Socket status: 30000007
+
+which looks ok (to my naive eyes). But when booting finishes and I run
+'cardctl ident' (from pcmcia-cs 3.1.33, I suppose), I get:
+
+Socket 0:
+cs: warning: no high memory space available!
+cs: unable to map card memory!
+Socket 1:
+cs: unable to map card memory!
+Socket 2:
+cs: unable to map card memory!
+
+That happens the first time. If I run cardctl ident again, it just
+says "no product info available" for all three slots. (The 8200 has a
+builtin wifi, so there's always something in slot 0.)
+
+Building PCMCIA/CardBus into the kernel (instead of modules) doesn't
+change anything.
+
+I'm looking for hints or suggestions. I'm happy to hack about in the
+kernel and provide more debugging info, if that'll help.
+
+                                        Be seeing you,
+                                          norm
+
+P.S. Jonathan Buzzard has the same model laptop and it works for him,
+so it seems reasonable to assume I'm being an idiot, but I'd be ever
+so grateful if someone could give me a clue about precisely what kind
+of idiot I'm being in this case :-)
+
+-- 
+Norman Walsh <ndw@nwalsh.com> | Impatient people always arrive too
+http://nwalsh.com/            | late.--Jean Dutourd

@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317667AbSFRXJe>; Tue, 18 Jun 2002 19:09:34 -0400
+	id <S317665AbSFRXSL>; Tue, 18 Jun 2002 19:18:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317668AbSFRXJd>; Tue, 18 Jun 2002 19:09:33 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:19438 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317667AbSFRXJb>; Tue, 18 Jun 2002 19:09:31 -0400
-Date: Wed, 19 Jun 2002 01:09:25 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: jt@hpl.hp.com
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.22 broke kernel modular Pcmcia ?
-In-Reply-To: <20020618150206.A7868@bougret.hpl.hp.com>
-Message-ID: <Pine.NEB.4.44.0206190107180.10290-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317668AbSFRXSK>; Tue, 18 Jun 2002 19:18:10 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:30447 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317665AbSFRXSK>;
+	Tue, 18 Jun 2002 19:18:10 -0400
+Message-ID: <3D0FBF99.C0A8AD5B@mvista.com>
+Date: Tue, 18 Jun 2002 16:17:45 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Replace timer_bh with tasklet
+References: <Pine.LNX.4.44.0206172104450.1164-100000@home.transmeta.com> <3D0F76E4.AC6EA257@mvista.com> <20020619004652.D2079@linux-m68k.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Jean Tourrilhes wrote:
-
-> 	Hi,
-
-Hi Jean,
-
-> 	I had a quick look in the archive and didn't find a report of
-> this problem :
-> --------------------------------
-> Starting PCMCIA services: /lib/modules/2.5.22/kernel/drivers/pcmcia/pcmcia_core.o: unresolved symbol pci_bus_type
-> --------------------------------
-> 	Sorry if it's a duplicate...
-
-the mail below with a patch was sent a few hours ago.
-
-> 	Jean
-
-cu
-Adrian
-
-
-
-Date: Tue, 18 Jun 2002 18:01:24 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linus Torvalds <torvalds@transmeta.com>, mochel@osdl.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] export pci_bus_type to modules.
-
-Hi,
-
-The attached patch (against the BK head, which wasn't yet updated to
-2.5.22 btw) exports the pci_bus_type symbol to modules, needed by
-(at least) the recent changes in pcmcia/cardbus.c.
-
-Stelian.
-
-===== drivers/pci/pci-driver.c 1.14 vs edited =====
---- 1.14/drivers/pci/pci-driver.c	Sun Jun  9 01:07:49 2002
-+++ edited/drivers/pci/pci-driver.c	Tue Jun 18 17:53:41 2002
-@@ -210,3 +210,4 @@
- EXPORT_SYMBOL(pci_register_driver);
- EXPORT_SYMBOL(pci_unregister_driver);
- EXPORT_SYMBOL(pci_dev_driver);
-+EXPORT_SYMBOL(pci_bus_type);
-
+Richard Zidlicky wrote:
+> 
+> On Tue, Jun 18, 2002 at 11:07:32AM -0700, george anzinger wrote:
+> 
+> >
+> > I reasoned that the timers, unlike most other I/O, directly drive the system.
+> > For example, the time slice is counted down by the timer BH.  By pushing the
+> > timer out to ksoftirqd, running at nice 19, you open the door to a compute
+> > bound task running over its time slice (admittedly this should be caught on
+> > the next interrupt).
+> 
+> I have had some problems with timers delayed up to 0.06s in 2.4 kernels,
+> could that be this problem?
+> 
+It could be.  Depends on what was going on at the time.  In most cases, however,
+the next interrupt should cause a call to softirq and thus run the timer list.  This
+would seem to indicate at 20ms delay at most (first call busys softirq thru a 10ms tick
+followed by recovery at the next tick).
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
-
-
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262684AbRE3Jim>; Wed, 30 May 2001 05:38:42 -0400
+	id <S262685AbRE3Jpw>; Wed, 30 May 2001 05:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262685AbRE3Jid>; Wed, 30 May 2001 05:38:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:63243 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262684AbRE3JiT>;
-	Wed, 30 May 2001 05:38:19 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 4 security holes in 2.4.4-ac8
-In-Reply-To: <15124.10785.10143.242660@pizda.ninka.net.suse.lists.linux.kernel> <200105292316.QAA00305@csl.Stanford.EDU.suse.lists.linux.kernel> <15124.12421.609194.476097@pizda.ninka.net.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 30 May 2001 11:38:13 +0200
-In-Reply-To: "David S. Miller"'s message of "30 May 2001 01:33:41 +0200"
-Message-ID: <oupn17vp46y.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S262692AbRE3Jpm>; Wed, 30 May 2001 05:45:42 -0400
+Received: from [204.177.156.37] ([204.177.156.37]:37056 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S262685AbRE3Jp0>; Wed, 30 May 2001 05:45:26 -0400
+Date: Wed, 30 May 2001 10:43:33 +0100 (BST)
+From: Mark Hemment <markhe@veritas.com>
+To: Jens Axboe <axboe@kernel.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 4GB I/O, cut three
+In-Reply-To: <20010529160704.N26871@suse.de>
+Message-ID: <Pine.LNX.4.21.0105301022410.7153-100000@alloc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+Hi Jens,
 
-> Dawson Engler writes:
->  > Is there any way to automatically find these?  E.g., is any routine
->  > with "asmlinkage" callable from user space?
+  I ran this (well, cut-two) on a 4-way box with 4GB of memory and a
+modified qlogic fibre channel driver with 32disks hanging off it, without
+any problems.  The test used was SpecFS 2.0
+
+  Peformance is definitely up - but I can't give an exact number, as the
+run with this patch was compiled with no-omit-frame-pointer for debugging
+any probs.
+
+  I did change the patch so that bounce-pages always come from the NORMAL
+zone, hence the ZONE_DMA32 zone isn't needed.  I avoided the new zone, as
+I'm not 100% sure the VM is capable of keeping the zones it already has
+balanced - and adding another one might break the camels back.  But as the
+test box has 4GB, it wasn't bouncing anyway.
+
+Mark
+
+
+On Tue, 29 May 2001, Jens Axboe wrote:
+> Another day, another version.
 > 
-> This is only universally done in generic and x86 specific code,
-> other ports tend to forget asmlinkage simply because most ports
-> don't need it.
+> Bugs fixed in this version: none
+> Known bugs in this version: none
+> 
+> In other words, it's perfect of course.
+> 
+> Changes:
+> 
+> - Added ide-dma segment coalescing
+> - Only print highmem I/O enable info when HIGHMEM is actually set
+> 
+> Please give it a test spin, especially if you have 1GB of RAM or more.
+> You should see something like this when booting:
+> 
+> hda: enabling highmem I/O
+> ...
+> SCSI: channel 0, id 0: enabling highmem I/O
+> 
+> depending on drive configuration etc.
+> 
+> Plea to maintainers of the different architectures: could you please add
+> the arch parts to support this? This includes:
+> 
+> - memory zoning at init time
+> - page_to_bus
+> - pci_map_page / pci_unmap_page
+> - set_bh_sg
+> - KM_BH_IRQ (for HIGHMEM archs)
+> 
+> I think that's it, feel free to send me questions and (even better)
+> patches.
 
-Even i386 doesn't need it because the stack frame happens to have the
-right order of the arguments at the right position. Just you can get into 
-weird bugs when any function modifies their argument because it'll be still 
-modified after syscall restart but only depending if the compiler used a 
-temporary register or not.
-
--Andi

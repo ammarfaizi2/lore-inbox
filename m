@@ -1,58 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272441AbTGZIhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 04:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272442AbTGZIhQ
+	id S272442AbTGZIjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 04:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272444AbTGZIjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 04:37:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15521 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272441AbTGZIhP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 04:37:15 -0400
-Date: Sat, 26 Jul 2003 01:53:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Balram Adlakha <b_adlakha@softhome.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs_remove call when not using devfs 2.6.0-test1
-Message-Id: <20030726015326.41b21ae4.akpm@osdl.org>
-In-Reply-To: <20030724184301.GA7044@localhost.localdomain>
-References: <20030724184301.GA7044@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 26 Jul 2003 04:39:09 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:19721 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S272442AbTGZIjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 04:39:04 -0400
+Subject: Re: Random Oopses on 2.6.0-test1-mm2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Apurva Mehta <apurva@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030726071801.GB1358@home.woodlands>
+References: <20030726071801.GB1358@home.woodlands>
+Content-Type: multipart/mixed; boundary="=-LpPfWSyatzZkTSFM0sD/"
+Message-Id: <1059209649.577.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.3.99 
+Date: Sat, 26 Jul 2003 10:54:10 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balram Adlakha <b_adlakha@softhome.net> wrote:
->
-> I get the following when I remove the OSS emu10k1 module:
->                                                                                 
->  Call Trace:
-> [<c018e261>] devfs_remove+0x9e/0xa0
-> [<c013898a>] unmap_vmas+0xcb/0x214
-> [<d29e3e2d>] oss_cleanup+0x2b/0xed [sound]
-> [<c0129c1e>] sys_delete_module+0x152/0x1a8
-> [<c0130064>] generic_file_aio_write_nolock+0x8a7/0xa6a
-> [<c013be3c>] sys_munmap+0x57/0x75
-> [<c0108f81>] sysenter_past_esp+0x52/0x71
->                                                                                 
-> I'm not using devfs so it should not happen.
 
-Does this fix it?
+--=-LpPfWSyatzZkTSFM0sD/
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-diff -puN sound/oss/soundcard.c~soundcard-devfs-fix sound/oss/soundcard.c
---- 25/sound/oss/soundcard.c~soundcard-devfs-fix	2003-07-26 01:52:55.000000000 -0700
-+++ 25-akpm/sound/oss/soundcard.c	2003-07-26 01:52:59.000000000 -0700
-@@ -592,7 +592,7 @@ static void __exit oss_cleanup(void)
- 	int i, j;
- 
- 	for (i = 0; i < sizeof (dev_list) / sizeof *dev_list; i++) {
--		devfs_remove("snd/%s", dev_list[i].name);
-+		devfs_remove("sound/%s", dev_list[i].name);
- 		if (!dev_list[i].num)
- 			continue;
- 		for (j = 1; j < *dev_list[i].num; j++)
+On Sat, 2003-07-26 at 09:18, Apurva Mehta wrote:
+> Hi, 
+> 
+> I get random oopses while using 2.6.0-test1-mm2. I have attached the
+> oops message and also the ksymoops output. I get the same behaviour
+> with the 08int patch applied also. The OOPs message attached was
+> obtained on a 2.6.0-test1-mm2-08int.
+
+Please, try the following patch...
+
+--=-LpPfWSyatzZkTSFM0sD/
+Content-Disposition: attachment; filename=ext3-inode.patch
+Content-Type: text/x-patch; name=ext3-inode.patch; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
+
+diff -puN fs/ext3/inode.c~ext3_getblk-race-fix-fix fs/ext3/inode.c
+--- 25/fs/ext3/inode.c~ext3_getblk-race-fix-fix	2003-07-19 22:59:50.000000000 -0700
++++ 25-akpm/fs/ext3/inode.c	2003-07-19 23:07:42.000000000 -0700
+@@ -936,19 +936,17 @@ struct buffer_head *ext3_getblk(handle_t
+ 			   ext3_get_block instead, so it's not a
+ 			   problem. */
+ 			lock_buffer(bh);
+-			if (!buffer_uptodate(bh)) {
+-				BUFFER_TRACE(bh, "call get_create_access");
+-				fatal = ext3_journal_get_create_access(handle, bh);
+-				if (!fatal) {
+-					memset(bh->b_data, 0,
+-							inode->i_sb->s_blocksize);
+-					set_buffer_uptodate(bh);
+-				}
++			BUFFER_TRACE(bh, "call get_create_access");
++			fatal = ext3_journal_get_create_access(handle, bh);
++			if (!fatal && !buffer_uptodate(bh)) {
++				memset(bh->b_data, 0, inode->i_sb->s_blocksize);
++				set_buffer_uptodate(bh);
+ 			}
+ 			unlock_buffer(bh);
+ 			BUFFER_TRACE(bh, "call ext3_journal_dirty_metadata");
+ 			err = ext3_journal_dirty_metadata(handle, bh);
+-			if (!fatal) fatal = err;
++			if (!fatal)
++				fatal = err;
+ 		} else {
+ 			BUFFER_TRACE(bh, "not a new buffer");
+ 		}
 
 _
+
+
+--=-LpPfWSyatzZkTSFM0sD/--
 

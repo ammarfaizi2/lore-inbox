@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbTLABEN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 20:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbTLABEN
+	id S262750AbTLABGc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 20:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTLABGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 20:04:13 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:1429 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262705AbTLABEL (ORCPT
+	Sun, 30 Nov 2003 20:06:32 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:54422 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S262750AbTLABGa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 20:04:11 -0500
+	Sun, 30 Nov 2003 20:06:30 -0500
 X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
 From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
+To: linux-xfs@oss.sgi.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v4.3 is available for kernel 2.4.23 
-Date: Mon, 01 Dec 2003 12:04:06 +1100
-Message-ID: <2594.1070240646@kao2.melbourne.sgi.com>
+Subject: Announce: XFS split patches for 2.4.23
+Date: Mon, 01 Dec 2003 12:06:25 +1100
+Message-ID: <2663.1070240785@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,43 +24,24 @@ Hash: SHA1
 
 Content-Type: text/plain; charset=us-ascii
 
-ftp://oss.sgi.com/projects/kdb/download/v4.3/
+ftp://oss.sgi.com/projects/xfs/download/patches/2.4.23.  
 
-Current versions are kdb-v4.3-2.4.23-common-1.bz2,
-kdb-v4.3-2.4.23-i386-1.bz2.  Other platforms will follow as they get
-updated to 2.4.23.  This is just a maintenance version to sync with
-kernel 2.4.23.  Changelog extracts since 2.4.22.
+For some time the XFS group have been producing split patches for XFS,
+separating the core XFS changes from additional patches such as kdb,
+acl, dmapi.  The split patches are released to the world with the hope
+that developers and distributors will find them useful.
 
-common
-
-2003-12-01 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.3-2.4.23-common-1.
-
-2003-11-11 Keith Owens  <kaos@sgi.com>
-
-	* Make KDB for USB keyboards build.  Peter T. Breuer.
-	* Do not use USB keyboard if it has not been probed.
-	* kdb v4.3-2.4.23-common-1.
-
-
-i386
-
-2003-12-01 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.3-2.4.23-i386-1.
-
-2003-11-11 Keith Owens  <kaos@sgi.com>
-
-	* Do not use USB keyboard if it has not been probed.
-	* kdb v4.3-2.4.23-i386-1.
+Read the README in each directory very carefully, the split patch
+format has changed over a few kernel releases.  Any questions that are
+covered by the README will be ignored.  There is even a 2.4.24/README
+for the terminally impatient :).
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 Comment: Exmh version 2.1.1 10/15/1999
 
-iD8DBQE/ypOGi4UHNye0ZOoRAryXAKDtYJXKTsYV3TQRO7psxZRJQ3ik9wCgnQCu
-n4UIG3aNr8AGqzXjCBkoyjg=
-=GBxy
+iD8DBQE/ypQRi4UHNye0ZOoRAuCrAKCBsTaF2+HnSkFAoDOpcdaZgC70agCfbv60
+b7mjlxoJfo5lJgbQ3C2o0iY=
+=K+j2
 -----END PGP SIGNATURE-----
 

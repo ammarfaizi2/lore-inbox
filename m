@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVCXJyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbVCXJ5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbVCXJyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 04:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVCXJyQ
+	id S262756AbVCXJ5j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 04:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVCXJ5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 04:54:16 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:42959 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S262753AbVCXJyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 04:54:12 -0500
-Message-ID: <42428FCE.7070901@qazi.f2s.com>
-Date: Thu, 24 Mar 2005 10:00:46 +0000
-From: Asfand Yar Qazi <ay1204@qazi.f2s.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041010
-X-Accept-Language: en-gb, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: How's the nforce4 support in Linux?
-References: <3LwFC-4Ko-15@gated-at.bofh.it> <3LwYW-4Xx-11@gated-at.bofh.it> <3LwYZ-4Xx-25@gated-at.bofh.it>
-In-Reply-To: <3LwYZ-4Xx-25@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Mar 2005 04:57:38 -0500
+Received: from mailout1.samsung.com ([203.254.224.24]:53727 "EHLO
+	mailout1.samsung.com") by vger.kernel.org with ESMTP
+	id S262756AbVCXJ5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 04:57:36 -0500
+Date: Thu, 24 Mar 2005 18:56:17 +0900
+From: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: [PATCH] the nommu support for ARM linux 2.6.10
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk,
+       uClinux development list <uclinux-dev@uclinux.org>,
+       CE Linux Developers List <celinux-dev@tree.celinuxforum.org>
+Cc: rmk@arm.linux.org.uk
+Message-id: <0IDU00M02OZXJG@mmp1.samsung.com>
+Organization: Samsung Electronics Co.,Ltd.
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Thread-index: AcUwV7i2VXLKJ/ckQjSLot1EE1hS4g==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>* "hardware firewall" -- sounds silly.  Pretty sure Linux doesn't support
->>it in any case.
->>
-> 
-> 
-> probably just one of those things implemented in the binary drivers in
-> software, just like the "hardware" IDE raid is most of the time (3ware
-> being the positive exception there)
-> 
+Hi all,
+ 
+I'm glad to release the first MPU and NO-MMU support patch for ARM linux
+2.6.10 at :
+http://opensrc.sec.samsung.com/download/linux-2.6.10-hsc0.patch.gz
 
-http://www.neoseeker.com/Articles/Hardware/Previews/nvnforce4/3.html
+Previously, it was released as "armnommu" architecture which was called
+uClinux/ARM and now is merged with "arm" architecture. You can select the
+memory management type "MMU" for linux and "MPU" / "NONE" for uClinux at the
+kernel configuration menu. Currently, the ATMEL, S5C7375, S3C24A0 platform
+is tested.
 
-You're right there - some semi-hardware support combined with drivers 
-apparently result in lower CPU usage that software firewalls.  Apparently.
+I'm working on 2.6.11.5 patch, and it will be provided soon.
+ 
+It would be great if you give me some suggestions.
+ 
+Best Regards,
+Hyok
 
-Actually, these people like it:
-http://www.bjorn3d.com/read.php?cID=712&pageID=1096
-
-However one feature that you can't laugh at is the fact that it can be 
-made to block packets in the span of time between the OS being loaded 
-up, and the "real" firewall coming up.  This small time span 
-theoretically leaves the PC vulnerable, so I think this is the only 
-use for "ActiveAmor Firewall".
-
-However, this doesn't answer my original question (which I suppose I 
-should have made clearer): can I get SATA II NCQ support in Linux with 
-an nForce 4 chipset?
-
+----
+HYOK S. CHOI
+Digital Media R&D Center, Samsung Electronics Co.,Ltd.
+tel: +82-31-200-8594/5723  fax: +82-31-200-3427
+e-mail: hyok.choi@samsung.com
+[Linux 2.6 MPU/noMMU Kernel Maintainer] http://opensrc.sec.samsung.com
 

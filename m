@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVCUO6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVCUO7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbVCUO6P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 09:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVCUO6P
+	id S261821AbVCUO7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 09:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVCUO7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 09:58:15 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:38836 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261819AbVCUO6M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 09:58:12 -0500
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11.2][RFC] printk with anti-cluttering-feature
-References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 21 Mar 2005 15:58:10 +0100
-In-Reply-To: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> (Bodo Eggert's
- message of "Sun, 20 Mar 2005 05:37:20 +0100 (CET)")
-Message-ID: <m1is3l3v25.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Mar 2005 09:59:24 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:36306 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261821AbVCUO7C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 09:59:02 -0500
+Subject: Re: pwc driver in -mm kernels
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Norbert Preining <preining@logic.at>
+Cc: Andrew Morton <akpm@osdl.org>, Luc Saillard <luc@saillard.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050319130424.GB3316@gamma.logic.tuwien.ac.at>
+References: <20050319130424.GB3316@gamma.logic.tuwien.ac.at>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1111416966.14877.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 21 Mar 2005 14:56:08 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <7eggert@gmx.de> writes:
->
-> atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
->  (I'm using a keyboard switch and a IBM PS/2 keyboard)
+On Sad, 2005-03-19 at 13:04, Norbert Preining wrote:
+> Hi Andrew, hi Luc!
+> 
+> I just realized that there is now the pwc driver back in -mm kernels,
+> but interestingly not the one from Luc, or at least not the last
+> published one (10.0.6). and wanted to ask if there is a specific reason
+> for this?
 
-This one should be just taken out. It is as far as I can figure out
-completely useless and happens on most machines.
-
--Andi
+I pushed the tested one as a starting point. May have been the wrong
+decision but it's my fault if so
 

@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUEKCAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUEKCOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUEKCAH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 22:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUEKCAH
+	id S261405AbUEKCOg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 22:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUEKCOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 22:00:07 -0400
-Received: from waste.org ([209.173.204.2]:9354 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261234AbUEKCAB (ORCPT
+	Mon, 10 May 2004 22:14:36 -0400
+Received: from hera.kernel.org ([63.209.29.2]:61389 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261405AbUEKCOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 22:00:01 -0400
-Date: Mon, 10 May 2004 20:59:51 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040511015951.GO5414@waste.org>
-References: <20040510024506.1a9023b6.akpm@osdl.org> <20040510223755.A7773@infradead.org> <20040510150203.3257ccac.akpm@osdl.org> <20040510231146.GA5168@taniwha.stupidest.org> <20040510163317.Y22989@build.pdx.osdl.net>
+	Mon, 10 May 2004 22:14:34 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: AMD64 and RAID6
+Date: Tue, 11 May 2004 02:13:47 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c7pcsr$u4e$1@terminus.zytor.com>
+References: <409D1D86.6050907@clanhk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040510163317.Y22989@build.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1084241627 30863 127.0.0.1 (11 May 2004 02:13:47 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 11 May 2004 02:13:47 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 04:33:17PM -0700, Chris Wright wrote:
-> * Chris Wedgwood (cw@f00f.org) wrote:
-> > On Mon, May 10, 2004 at 03:02:03PM -0700, Andrew Morton wrote:
-> > 
-> > > Capabilities are broken and don't work.  Nobody has a clue how to
-> > > provide the required services with SELinux and nobody has any code
-> > > and we need the feature *now* before vendors go shipping even more
-> > > ghastly stuff.
-> > 
-> > eh? magic groups are nasty...  and why is this needed?  can't
-> > oracle/whatever just run with a wrapper to give the capabilities out
-> > as required until a better solution is available
+Followup to:  <409D1D86.6050907@clanhk.org>
+By author:    "J. Ryan Earl" <heretic@clanhk.org>
+In newsgroup: linux.dev.kernel
+>
+> I noticed the following in my dmesg:
 > 
-> I agree.  I have a patch that at least fixes this bit of capabilities
-> (currently, what you suggest doesn't work right), which could easily be
-> dusted off and resent.
+> raid5: measuring checksumming speed
+>   generic_sse:  6604.000 MB/sec
+> raid5: using function: generic_sse (6604.000 MB/sec)
+> raid6: int64x1   1847 MB/s
+> raid6: int64x2   2753 MB/s
+> raid6: int64x4   2878 MB/s
+> raid6: int64x8   1902 MB/s
+> raid6: sse2x1    1015 MB/s
+> raid6: sse2x2    1488 MB/s
+> raid6: sse2x4    1867 MB/s
+> raid6: using algorithm sse2x4 (1867 MB/s)
+> md: raid6 personality registered as nr 8
+> md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
 > 
-> And while we're at it, it would be nice to have the working bits of
-> memlock rlimits going.  At least the mlock() users would get some help
-> (i.e. gpg).
+> Why doesn't RAID6 use the int64x4 algorithm in this situation?  What is 
+> the motivation of setting the 'prefer field' on the sse algorithms and 
+> not on the integer based algorithms?
+> 
 
-mlock() rlimits make sense independent of Oracle. There are a number
-of things (realtime, security, iscsi) that might make good use of
-small amounts of locked memory.
+The SSE algorithms are non-cache-polluting.  This makes them slightly
+slower, but avoids slowing the rest of the machine down as much.
 
-> Another bit I could resend (removing the broken shm bits,
-> of course).  It's just those pesky shm segs having their own lifecycle
-> which breaks the hugetlb and SHM_LOCK attempts to use memlock rlimits.
-
-They have a lifecycle like files (they live on a filesystem, after
-all), which is why I suggest we need quota there. Again, something
-that has sensible uses independent of Oracle.
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+	-hpa

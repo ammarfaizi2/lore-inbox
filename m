@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135766AbRDZRj7>; Thu, 26 Apr 2001 13:39:59 -0400
+	id <S135794AbRDZRrl>; Thu, 26 Apr 2001 13:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135794AbRDZRjk>; Thu, 26 Apr 2001 13:39:40 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:36104 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S135799AbRDZRjf>; Thu, 26 Apr 2001 13:39:35 -0400
-Date: Thu, 26 Apr 2001 11:33:03 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-Cc: Feng Xian <fxian@fxian.jukie.net>, linux-kernel@vger.kernel.org,
-        Feng Xian <fxian@chrysalis-its.com>
-Subject: Re: __alloc_pages: 4-order allocation failed
-Message-ID: <20010426113303.A16399@vger.timpanogas.org>
-In-Reply-To: <20010426001539.A14115@vger.timpanogas.org> <Pine.LNX.4.30.0104261942160.16238-100000@fs131-224.f-secure.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.30.0104261942160.16238-100000@fs131-224.f-secure.com>; from szaka@f-secure.com on Thu, Apr 26, 2001 at 08:00:12PM +0200
+	id <S133004AbRDZRrV>; Thu, 26 Apr 2001 13:47:21 -0400
+Received: from ravage.rit.edu ([129.21.2.220]:19584 "HELO ravage.unixthugs.org")
+	by vger.kernel.org with SMTP id <S135799AbRDZRrK>;
+	Thu, 26 Apr 2001 13:47:10 -0400
+Message-ID: <3AE85F24.1010208@suse.com>
+Date: Thu, 26 Apr 2001 13:47:16 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8.1) Gecko/20010326
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Reiserfs List <reiserfs-list@namesys.com>
+Subject: [PATCH/URL] Endian Safe ReiserFS
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 26, 2001 at 08:00:12PM +0200, Szabolcs Szakacsits wrote:
-> 
-> On Thu, 26 Apr 2001, Jeff V. Merkey wrote:
 
-The request should fail after two or three attempts rather than hang
-the entire system waiting for memory.
+   I've just completed my port of ReiserFS to be endian safe. The patch 
+has been tested successfully on x86 (UP/SMP), ppc (UP/SMP), and 
+UltraSparc (UP). I've received reports that it also works successfully 
+on mips (UP).
 
-Jeff
+   The patch preserves the little-endian disk format, so a disk can be 
+moved across architectures. The on-disk format has not been altered, so 
+the code can be patched in without disruption to users with existing 
+reiserfs filesystems (like myself :)). There are no VFS changes.
 
-> 
-> > I am seeing this as well on 2.4.3 with both _get_free_pages() and
-> > kmalloc().  In the kmalloc case, the modules hang waiting
-> > for memory.
-> 
-> One possible source of this hang is due to the change below in
-> 2.4.3, non GPF_ATOMIC and non-recursive allocations (PF_MEMALLOC is set)
-> will loop until the requested continuous memory is available.
-> 
-> 	Szaka
-> 
-> diff -u --recursive --new-file v2.4.2/linux/mm/page_alloc.c
-> linux/mm/page_alloc.c--- v2.4.2/linux/mm/page_alloc.c        Sat Feb  3
-> 19:51:32 2001
-> +++ linux/mm/page_alloc.c       Tue Mar 20 15:05:46 2001
-> @@ -455,8 +455,7 @@
->                         memory_pressure++;
->                         try_to_free_pages(gfp_mask);
->                         wakeup_bdflush(0);
-> -                       if (!order)
-> -                               goto try_again;
-> +                       goto try_again;
->                 }
->         }
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+   Due to the patches affecting all of ReiserFS, the patch is quite 
+large (180K), and so in the interests of preserving bandwidth for 
+everyone, I've decided to post a URL to the patch instead.
+
+   The patch can be found at: 
+http://penguinppc.org/~jeffm/releases/endian-safe-reiserfs-for-2.4.4-pre7.final.bz2
+
+   More information, including the endian safe utiltities, can be found 
+at http://penguinppc.org/~jeffm.
+
+   -Jeff
+

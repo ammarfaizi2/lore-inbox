@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbSLAJZO>; Sun, 1 Dec 2002 04:25:14 -0500
+	id <S261573AbSLAJ3b>; Sun, 1 Dec 2002 04:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSLAJZO>; Sun, 1 Dec 2002 04:25:14 -0500
-Received: from louise.pinerecords.com ([212.71.160.16]:19723 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S261568AbSLAJZN>; Sun, 1 Dec 2002 04:25:13 -0500
-Date: Sun, 1 Dec 2002 10:32:34 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-ac1
-Message-ID: <20021201093234.GC22272@louise.pinerecords.com>
-References: <20021130183456.GJ18259@louise.pinerecords.com> <200212010201.gB1210d11940@devserv.devel.redhat.com>
+	id <S261574AbSLAJ3b>; Sun, 1 Dec 2002 04:29:31 -0500
+Received: from tmailm1.svr.pol.co.uk ([195.92.193.20]:42260 "EHLO
+	tmailm1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S261573AbSLAJ3a>; Sun, 1 Dec 2002 04:29:30 -0500
+Subject: 2.4.20 DRM/DRI issue with Radeon
+From: Andy Jefferson <andy@ajsoft.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 01 Dec 2002 09:36:13 +0000
+Message-Id: <1038735373.2617.12.camel@monster.ajsoft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212010201.gB1210d11940@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >  	drive->using_dma = 1;
-> > >  	ide_toggle_bounce(drive, 1);
-> > > +	printk(KERN_INFO "%s: DMA enabled\n", drive->name);
-> > >  	return HWIF(drive)->ide_dma_host_on(drive);
-> > >  }
-> > 
-> > with the above applied:
-> 
-> Better I think that via drivers turn DMA off -quietly-
+In the 2.4.20 kernel changelog I see comments about having consistent
+DRM modules with XFree4.2.0. I have a Radeon Mobility M6 LY in a Dell
+laptop and would like to get DRI working. Whenever I use any 2.4.*
+(including 2.4.20) kernel I get the following messages in
+/var/log/XFree86.0.log, and DRM is not enabled. Is this supposed to be
+working in 2.4.20 ? I am using a Mandrake 8.2 system (except for the
+kernel).
 
-This isn't just via but possibly all drivers
-that call ide-iops.c::ide_config_drive_speed() --
 
-arm/icside.c pci/aec62xx.c pci/alim15x3.c pci/amd74xx.c pci/cmd64x.c
-pci/cs5530.c pci/hpt34x.c pci/hpt366.c pci/it8172.c pci/nvidia.c
-pci/pdc202xx_new.c pci/pdc202xx_old.c pci/piix.c pci/sc1200.c
-pci/serverworks.c pci/siimage.c pci/sis5513.c pci/sl82c105.c
-pci/slc90e66.c pci/via82cxxx.c
+(II) RADEON(0): [drm] loaded kernel module for "radeon" driver
+(II) RADEON(0): [drm] created "radeon" driver at busid "PCI:1:0:0"
+(II) RADEON(0): [drm] added 8192 byte SAREA at 0xd1bb1000
+(II) RADEON(0): [drm] mapped SAREA 0xd1bb1000 to 0x40026000
+(II) RADEON(0): [drm] framebuffer handle = 0xe0000000
+(II) RADEON(0): [drm] added 1 reserved context for kernel
+(EE) RADEON(0): [dri] RADEONDRIScreenInit failed because of a version
+mismatch.
+[dri] radeon.o kernel module version is 1.1.1 but version 1.2.x is
+needed.
+[dri] see http://gatos.sf.net/ for an updated module
+[dri] Disabling DRI.
+(EE) RADEON(0): [drm] failed to remove DRM signal handler
+(II) RADEON(0): [drm] removed 1 reserved context for kernel
 
-The following bit kills the noise:
-
-diff -urN linux-2.4.20-ac1/drivers/ide/ide-iops.c linux-2.4.20-ac1.x/drivers/ide/ide-iops.c
---- linux-2.4.20-ac1/drivers/ide/ide-iops.c	2002-12-01 10:23:29 +0100
-+++ linux-2.4.20-ac1.x/drivers/ide/ide-iops.c	2002-12-01 10:16:00 +0100
-@@ -891,7 +891,7 @@
- 	if (speed >= XFER_SW_DMA_0)
- 		hwif->ide_dma_host_on(drive);
- 	else
--		hwif->ide_dma_off(drive);
-+		hwif->ide_dma_off_quietly(drive);
- #endif /* (CONFIG_BLK_DEV_IDEDMA) && !(CONFIG_DMA_NONPCI) */
- 
- 	switch(speed) {
-
---
-Tomas Szepe <szepe@pinerecords.com>
+Thx
+-- 
+Andy

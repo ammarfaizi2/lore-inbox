@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130032AbRACV7s>; Wed, 3 Jan 2001 16:59:48 -0500
+	id <S130140AbRACV7u>; Wed, 3 Jan 2001 16:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130140AbRACV7i>; Wed, 3 Jan 2001 16:59:38 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:37615 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S130111AbRACV7W>; Wed, 3 Jan 2001 16:59:22 -0500
-Date: Wed, 3 Jan 2001 15:59:21 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010103225505.R32185@athlon.random>
-In-Reply-To: <20010103210714Z129267-457+17@vger.kernel.org> <20010103210714Z129267-457+17@vger.kernel.org> 
-	; from ttabi@interactivesi.com on Wed, Jan 03, 2001 at 03:07:03PM -0600
-Subject: Re: Should page->count ever be -1?
-X-Mailer: The Polarbar Mailer; version=1.19; build=71
-Message-Id: <20010103215929Z130111-458+21@vger.kernel.org>
+	id <S130111AbRACV7j>; Wed, 3 Jan 2001 16:59:39 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:26125 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S130032AbRACV7V>; Wed, 3 Jan 2001 16:59:21 -0500
+Date: Wed, 3 Jan 2001 22:57:04 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Dan Aloni <karrde@callisto.yi.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, mark@itsolve.co.uk
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking bug exploits
+Message-ID: <20010103225704.W888@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org>; from karrde@callisto.yi.org on Wed, Jan 03, 2001 at 11:13:31PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Andrea Arcangeli <andrea@suse.de> on Wed, 3 Jan 2001
-22:55:05 +0100
-
-
-> > from page_alloc.c (this is 2.2.18pre15).  It appears that page->count is
-> > already zero when this code is executed, and after it's executed, page->count
-> > becomes -1 (or more accurately, 0xFFFFFFFF).  Is this acceptable, or is it an
-> > error condition?
+On Wed, Jan 03, 2001 at 11:13:31PM +0200, Dan Aloni wrote:
+> It is known that most remote exploits use the fact that stacks are
+> executable (in i386, at least).
 > 
-> It's an error condition. Make sure you marked the page as reserved in the mmap
-> callback if it's not an mmio region outside RAM.
+> On Linux, they use INT 80 system calls to execute functions in the kernel
+> as root, when the stack is smashed as a result of a buffer overflow bug in
+> various server software.
+> 
+> This preliminary, small patch prevents execution of system calls which
+> were executed from a writable segment. It was tested and seems to work,
+> without breaking anything. It also reports of such calls by using printk.
 
-I mark the page as reserved when I call ioremap and then unmark it after
-ioremap returns, but iounmap will fail if it's still reserved (the same line of
-code also checks the reserved bit):
+Cool.
 
- 	if (!PageReserved(page) && atomic_dec_and_test(&page->count)) {
-            ^^^^^^^^^^^^^^^^^^^
+> --- linux/arch/i386/kernel/process.c	Wed Jan  3 22:57:42 2001
+> +++ linux/arch/i386/kernel/process.c	Wed Jan  3 22:57:55 2001
+> @@ -765,3 +765,8 @@
+>  }
+>  #undef last_sched
+>  #undef first_sched
+> +
+> +void print_bad_syscall(struct task_struct *task)
+> +{
+> +	printk("process %s (%d) tried to syscall from an executable segment!\n", task->comm, task->pid);
+                                                         ^^^^^^^^^^
+I suppose this should read "writable"...
 
-Is this what you're saying?
+> +}
 
-iounmap just calls vfree, which does all the work.  However, I'm confused at
-this code in vfree:
 
-	vmfree_area_pages(VMALLOC_VMADDR(tmp->addr), tmp->size);
-	kfree(tmp);
-
-What's the difference between vmfree_area_pages and kfree?
-
+Erik
 
 -- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

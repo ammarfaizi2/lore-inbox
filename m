@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269452AbRHGVJu>; Tue, 7 Aug 2001 17:09:50 -0400
+	id <S269438AbRHGVJA>; Tue, 7 Aug 2001 17:09:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269457AbRHGVJb>; Tue, 7 Aug 2001 17:09:31 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:28942 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S269452AbRHGVJZ>;
-	Tue, 7 Aug 2001 17:09:25 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: encrypted swap
-Date: 7 Aug 2001 21:06:10 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9kpl82$iao$1@abraham.cs.berkeley.edu>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C9A8@mail0.myrio.com> <Pine.LNX.4.33L2.0108072212590.18776-100000@spiral.extreme.ro>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 997218370 18776 128.32.45.153 (7 Aug 2001 21:06:10 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 7 Aug 2001 21:06:10 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S269451AbRHGVIu>; Tue, 7 Aug 2001 17:08:50 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:956
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S269438AbRHGVIi>; Tue, 7 Aug 2001 17:08:38 -0400
+Date: Tue, 7 Aug 2001 14:08:47 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x IP aliase max eth0:16 (16 aliases), where to change?
+In-Reply-To: <20010807134830.B22821@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.33.0108071406100.17919-100000@kobayashi.soze.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Podeanu  wrote:
->If its going to be stolen while its offline, you
->can have your shutdown scripts blank the swap partition [...]
+On Tue, 7 Aug 2001, Mike Fedyk wrote:
 
-Erasing data, once written, is deceptively difficult.
-See Peter Gutmann's excellent paper on the subject at
-http://www.usenix.org/publications/library/proceedings/sec96/gutmann.html
+> I would stop using the ifconfig aliases now, and start using the iproute
+> (ip) command that was introduced with the 2.2 kernels.
 
-It turns out that the easiest way to solve this problem is to make sure
-you only ever write to the swap partition in encrypted form, and then when
-you want to erase it securely, just throw away the key used to encrypt it.
-(You have to securely erase this key, but it is much easier to erase
-this key securely, because it is shorter and because you can arrange
-that it only resides in RAM.)
+Plus such aliases are much less ugly.  Deleting one will never delete all
+others, and maintenence doesn't rely on knowing the alias number of a
+particular ip address.
 
-It is critical that you choose a new encryption key each time you boot.
-(Requiring users to enter in passphrases manually is unlikely to work well.)
+however, afaict, ip provides no way to force link type, and some other
+link-layer settings also seem to be missing.
+
+
+justin
+

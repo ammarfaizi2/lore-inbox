@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318134AbSHLPl1>; Mon, 12 Aug 2002 11:41:27 -0400
+	id <S318136AbSHLPii>; Mon, 12 Aug 2002 11:38:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318138AbSHLPl0>; Mon, 12 Aug 2002 11:41:26 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:62213 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318134AbSHLPl0>; Mon, 12 Aug 2002 11:41:26 -0400
-Date: Mon, 12 Aug 2002 16:45:12 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+	id <S318138AbSHLPii>; Mon, 12 Aug 2002 11:38:38 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:59829 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318136AbSHLPih>;
+	Mon, 12 Aug 2002 11:38:37 -0400
+Date: Mon, 12 Aug 2002 19:41:12 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
        Alexandre Julliard <julliard@winehq.com>,
        Luca Barbieri <ldb@ldb.ods.org>
-Subject: Re: [patch] tls-2.5.31-D7
-Message-ID: <20020812164512.A8292@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Julliard <julliard@winehq.com>,
-	Luca Barbieri <ldb@ldb.ods.org>
-References: <Pine.LNX.4.44.0208121858280.21637-100000@localhost.localdomain> <Pine.LNX.4.44.0208121920250.22188-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208121920250.22188-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Aug 12, 2002 at 07:24:25PM +0200
+Subject: Re: [patch] tls-2.5.31-D5
+In-Reply-To: <20020812112155.S1596@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0208121939260.22188-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 07:24:25PM +0200, Ingo Molnar wrote:
-> the attached patch does this:
-> 
->  - there are now 4 freely usable TLS entries, amongst them 0x40 for Wine
-> 
->  - the 3 APM segments fit into the hole at the end of the kernel
->    descriptor area exactly => no GDT size increase.
-> 
->  - the ->private_tls code is gone - unconditional inline copies are more
->    robust and faster as well.
-> 
-> Plus the APM code needs Stephen's fix. I think this is the best approach
-> we had so far. Any objections?
 
-Patch looks good so far, but _please_ rename struct modify_ldt_ldt_s to
-something more sensible. (yes, I know it existed before, but with this
-patch the name is even more stupid than before)
+On Mon, 12 Aug 2002, Jakub Jelinek wrote:
+
+> As each supported TLS entry has its context-switch time cost, I think we
+> should stay at 2 supported TLS entries.
+
+4 are almost as good - and they also solve the 0x40 problem.
+
+> My understanding was that the GDT patches were written to optimize the
+> common case (all threaded apps using LDT and with the advent of __thread
+> support causing every single application to use LDT), with 2 TLS entries
+> where one is for libc/libpthread and the other one is for application
+> usage I think it is enough for 99.9% of apps. In the rare case someone
+> needs more, there is still LDT which offers 8192 entries.
+
+well, i think i have to agree ... if it wasnt for Wine's 0x40 descriptor.  
+But it certainly does not come free. We could have 3 TLS entries (0x40
+will be the last entry), and the copying cost is 9 cycles. (compared to 6
+cycles in the 2 entries case.) Good enough?
+
+	Ingo
 

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQKURbU>; Tue, 21 Nov 2000 12:31:20 -0500
+	id <S129231AbQKURdL>; Tue, 21 Nov 2000 12:33:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQKURbK>; Tue, 21 Nov 2000 12:31:10 -0500
-Received: from cs.rice.edu ([128.42.1.30]:11511 "EHLO cs.rice.edu")
-	by vger.kernel.org with ESMTP id <S129150AbQKURa4>;
-	Tue, 21 Nov 2000 12:30:56 -0500
-From: Bradley Broom <broom@rice.edu>
-To: malte@cornils.net
-Subject: Re: tmscsim driver on test11-pre7 stops working when starting X
-Date: Tue, 21 Nov 2000 10:38:25 -0600
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
+	id <S129735AbQKURdB>; Tue, 21 Nov 2000 12:33:01 -0500
+Received: from emmi.physik.TU-Berlin.DE ([130.149.160.103]:31502 "EHLO
+	emmi.physik.TU-Berlin.DE") by vger.kernel.org with ESMTP
+	id <S129231AbQKURcl>; Tue, 21 Nov 2000 12:32:41 -0500
+Date: Tue, 21 Nov 2000 18:02:38 +0100 (CET)
+From: Vitali Lieder <vitali@physik.TU-Berlin.DE>
+To: linux-kernel@vger.kernel.org
+Subject: NVdriver-problem with 2.4.0-test11
+Message-ID: <Pine.BSF.4.05.10011211750470.8952-100000@rosa.physik.TU-Berlin.DE>
 MIME-Version: 1.0
-Message-Id: <00112111010501.13138@dustbin.cs.rice.edu>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I had a very similar problem testing the prepatch immediately before
-test11 was released. I was running X but don't know if that's significant.
+Hallo!
 
-Hardware: tekram DC-390 controller, nvidia MX II card, XFree4.0.1, FIC-503+ MB,
-AMD K6-III /400 processor, 128 Mbyte ram, 2 ne2k compatible nics, sb16.
+With new 2.4.0-test11 kernel i have the problem with NVdriver-0.95:
 
-I got similar error messages at the start (the Status of last IRQ line was the
-same), but in my case the kernel kept looping, resetting the SCSI bus etc. etc.
-all to no avail. Eventually I pressed the reset button.
+depmod: *** unresolved symbols in /lib/modules/2.4.0-test11/video/NVdriver
 
-Upon reboot, I'd lost the partition table and so couldn't boot.  I thought the
-disk had gone, but it's actually OK. I'm now trying to find my old file systems
-... (and I'll write down the partition table when I do).
+/lib/modules/2.4.0-test11/video/Nvdriver:unresolved symbol in put_module_symbol
+/lib/modules/2.4.0-test11/video/NVdriver:unresolved symbol in get_module_symbol
 
-I'm not subscribed to the list, so please cc me on any replies. I'm happy to
-provide any additonal info, but I can't run anymore tests until I recover my
-disk contents.
+Please, could you explain me, how i can find in patch the #define's lines
+with this symbols, that was cleaned from kernel, so that i can place that
+lines by myself in future.
 
-Regards,
-Bradley.
+Thank you !
 
--- 
-Bradley Broom                              
-Research Scientist,
-Center for High Performance Software, Rice University.
-Email: broom@rice.edu, Phone: 713-348-6220
+vitali@physik.tu-berlin.de 
+                           or
+lieder.cs.tu-berlin.de
+
+Thanks.
+
+  
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

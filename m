@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282845AbRLGPww>; Fri, 7 Dec 2001 10:52:52 -0500
+	id <S282693AbRLGP4n>; Fri, 7 Dec 2001 10:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282844AbRLGPwm>; Fri, 7 Dec 2001 10:52:42 -0500
-Received: from speech.braille.uwo.ca ([129.100.109.30]:5580 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S282693AbRLGPwc>; Fri, 7 Dec 2001 10:52:32 -0500
+	id <S282843AbRLGP4d>; Fri, 7 Dec 2001 10:56:33 -0500
+Received: from sushi.toad.net ([162.33.130.105]:25515 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S282693AbRLGP4V>;
+	Fri, 7 Dec 2001 10:56:21 -0500
+Subject: Re: IDE hotswap still broken in 2.4.17pre2...
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.1pre6 vt_kern.h a small patch take 2
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 07 Dec 2001 10:52:29 -0500
-In-Reply-To: <1007590378.24135.2.camel@dap>
-Message-ID: <x7wuzzjade.fsf_-_@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 07 Dec 2001 10:57:16 -0500
+Message-Id: <1007740637.2034.4.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux/include/linux/vt_kern.h~	Wed Dec  5 10:12:17 2001
-+++ linux/include/linux/vt_kern.h	Wed Dec  5 10:45:20 2001
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/tty.h> /* needed for MAX_NR_CONSOLES */
- #include <linux/vt.h>
- #include <linux/kd.h>
- 
+This has never worked for me when I have tried it.
 
--- 
+Attempts to "hdparm -R" and "hdparm -U" repeatedly
+always eventually crash the kernel ... sometimes after
+three or four iterations.
 
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
+
+

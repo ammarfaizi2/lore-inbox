@@ -1,67 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130290AbRAWV5b>; Tue, 23 Jan 2001 16:57:31 -0500
+	id <S131191AbRAWV6l>; Tue, 23 Jan 2001 16:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbRAWV5V>; Tue, 23 Jan 2001 16:57:21 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:12298 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129811AbRAWV5E>;
-	Tue, 23 Jan 2001 16:57:04 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: f5ibh <f5ibh@db0bm.ampr.org>
-Date: Tue, 23 Jan 2001 22:54:06 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: display problem with matroxfb
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <136DEFAC3E11@vcnet.vc.cvut.cz>
+	id <S129983AbRAWV6b>; Tue, 23 Jan 2001 16:58:31 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:50005
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129811AbRAWV62>; Tue, 23 Jan 2001 16:58:28 -0500
+Date: Tue, 23 Jan 2001 22:58:12 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-apus-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] drivers/scsi/53c7xx.c error handling and cleanup (241p9)
+Message-ID: <20010123225812.B607@jaquet.dk>
+In-Reply-To: <20010123002736.D602@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010123002736.D602@jaquet.dk>; from rasmus@jaquet.dk on Tue, Jan 23, 2001 at 12:27:36AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jan 01 at 21:34, f5ibh wrote:
-> 
-> After booting and having the display shifted to the middle of the screen, I've
+On Tue, Jan 23, 2001 at 12:27:36AM +0100, Rasmus Andersen wrote:
 
-Stop. Do you see right portion of screen in left, left portion in right,
-with black column in between, or is picture only shifted, without
-wraparound? I thought that you see wrapped display...
+Hi again.
 
-> played a bit with fbset and the -left, -right, -move, -match options. After a
-> while I got an 'acceptable' picture (some pixels missing on the left). At this
-> point, fbset -s  give me the following :
-> 
-> mode "640x480-60"
->     # D: 25.176 MHz, H: 31.628 kHz, V: 60.243 Hz
->     geometry 640 480 640 480 8
->     timings 39721 50 10 32 11 96 2
->     accel true
->     rgba 8/0,8/0,8/0,0/0
-> endmode
+I completely messed up a large part of the patches posted yesterday due
+to lack of sleep and being clinically braindead (the compile test was
+run in the wrong tree...).
 
-Are you sure that it is source of problem? Default matroxfb settings
-for 640x480 is 'timmings 39721 48 16 33 10 96 2' - As horizontal position
-is in multiple of 8, I cannot understand, how moving picture one column
-(8 pixels) right(!) (and even worse - there is no rounding in code,
-so you only changed right screen margin from 16 to 8 - this should
-move picture even more to right side of screen) and one scanline up could 
-make so drastical change...
+So I'll be posting some new patches that actually compiles (knock on
+wood). I apologise for the unnecessary mails :(
 
-> How can I pass the parameters at boot time ? 
-> I've tried :
-> video=matrox:vesa:0x301,pixclock:39721,left:50,right:10,upper:32,lower:11,hslen:96,vslen:2
-> ... without any success...
+(Thanks goes to Bill Wendling for bringing my attention to this one.)
 
-After boot look at /proc/cmdline. If it is cutted at column 64 (or 79),
-you have to upgrade your LILO. RedHat6.2 uses LILO with this dumb limitation.
-Also, you do not have to specify vesa,pixclock,hslen and vslen, as you leave
-them on defaults. So 'video=matrox:left:50,right:10,upper:32,lower:11'
-should work... But I think that only 'right:' really matters.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
+--- linux-ac10-clean/drivers/scsi/53c7xx.c	Sun Nov 12 04:01:11 2000
++++ linux-ac10/drivers/scsi/53c7xx.c	Tue Jan 23 21:25:18 2001
+@@ -1077,19 +1077,18 @@
+     {
+ 	printk("scsi%d : IRQ%d not free, detaching\n",
+ 		host->host_no, host->irq);
+-	scsi_unregister (host);
+-	return -1;
++	goto err_unregister;
+     } 
+ 
+     if ((hostdata->run_tests && hostdata->run_tests(host) == -1) ||
+         (hostdata->options & OPTION_DEBUG_TESTS_ONLY)) {
+     	/* XXX Should disable interrupts, etc. here */
+-	scsi_unregister (host);
+-    	return -1;
++	goto err_free_irq;
+     } else {
+ 	if (host->io_port)  {
+ 	    host->n_io_port = 128;
+-	    request_region (host->io_port, host->n_io_port, "ncr53c7xx");
++	    if (!request_region (host->io_port, host->n_io_port, "ncr53c7xx"))
++		goto err_free_irq;
+ 	}
+     }
+     
+@@ -1098,6 +1097,12 @@
+ 	hard_reset (host);
+     }
+     return 0;
++
++ err_free_irq:
++    free_irq(host->irq,  NCR53c7x0_intr);
++ err_unregister:
++    scsi_unregister(host);
++    return -1;
+ }
+ 
+ /* 
+@@ -1206,8 +1211,11 @@
+     size += 256;
+ #endif
+     /* Size should be < 8K, so we can fit it in two pages. */
+-    if (size > 8192)
+-      panic("53c7xx: hostdata > 8K");
++    if (size > 8192) {
++      printk(KERN_ERR "53c7xx: hostdata > 8K\n");
++      return -1;
++    }
++
+     instance = scsi_register (tpnt, 4);
+     if (!instance)
+     {
+@@ -3091,8 +3099,10 @@
+ #endif
+ /* FIXME: for ISA bus '7xx chips, we need to or GFP_DMA in here */
+ 
+-        if (size > 4096)
+-            panic ("53c7xx: allocate_cmd size > 4K");
++        if (size > 4096) {
++            printk (KERN_ERR "53c7xx: allocate_cmd size > 4K\n");
++	    return NULL;
++	}
+         real = get_free_page(GFP_ATOMIC);
+         if (real == 0)
+         	return NULL;
 
+-- 
+        Rasmus(rasmus@jaquet.dk)
+
+Are they taking DDT?
+                -- Vice President Dan Quayle asking doctors at a Manhattan
+                   AIDS clinic about their treatments of choice, 4/30/92
+                   (reported in Esquire, 8/92, and NY Post early May 92)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

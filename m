@@ -1,36 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316106AbSGRG42>; Thu, 18 Jul 2002 02:56:28 -0400
+	id <S316339AbSGRG4S>; Thu, 18 Jul 2002 02:56:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316477AbSGRG42>; Thu, 18 Jul 2002 02:56:28 -0400
-Received: from [164.164.94.65] ([164.164.94.65]:266 "EHLO
-	sindhu_pr.mbplindia.com") by vger.kernel.org with ESMTP
-	id <S316106AbSGRG41>; Thu, 18 Jul 2002 02:56:27 -0400
-From: "AbhinandanPatil" <abhipatil@mbplindia.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: sk_buff
-Date: Thu, 18 Jul 2002 12:32:33 -0700
-Message-ID: <51A836284489D611B1AC00D0B7B179E7A408@SINDHU_PR>
+	id <S316477AbSGRG4S>; Thu, 18 Jul 2002 02:56:18 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31736 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S316339AbSGRG4R>;
+	Thu, 18 Jul 2002 02:56:17 -0400
+Message-ID: <3D366732.AFEDDC97@mvista.com>
+Date: Wed, 17 Jul 2002 23:58:58 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: irfan_hamid@softhome.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: cli()/sti() clarification
+References: <courier.3D365FDC.0000712F@softhome.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello all,
+irfan_hamid@softhome.net wrote:
+> 
+> Hi,
+> 
+> I added two system calls, blockintr() and unblockintr() to give cli()/sti()
+> control to userland programs (yes I know its not advisable) but I only want
+> to do it as a test. My test program looks like this:
+> 
+>         blockintr();
+>         /* Some long calculations */
+>         unblockintr();
+> 
+> The problem is that if I press Ctrl+C during the calculation, the program
+> terminates. So I checked the _syscallN() and __syscall_return() macros to
+> see if they explicitly call sti() before returning to userspace, but they
+> dont.
+> 
+> Reading the lkml archives, I found that cli() disables only the interrupts,
+> exceptions are allowed, so it makes sense that the SIGINT was delivered, but
+> if thats the case, then how come the SIGINT was delivered from the Ctrl+C?
+> Doesnt this mean that the SIGINT signal was generated as a result of the
+> keyboard interrupt?
+> 
+> I know I am missing something here, would appreciate if someone could point
+> me in the right direction.
 
-     where can i get the details of sk_buff structure.
-i want the details of each member in this buffer.
+Return from sys to user space is done by executing a "iret"
+instruction.  In addition to picking up the return address
+and segment it pick up EFLAGS which will contain the
+interrupt flag as it was saved when the system call was
+made...
+> 
+> Regards,
+> Irfan Hamid.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-please reply me, put me in cc
-
-Thanks in advance
-
-Abhi
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

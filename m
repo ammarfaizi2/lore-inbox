@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290782AbSAYSpq>; Fri, 25 Jan 2002 13:45:46 -0500
+	id <S290784AbSAYSq4>; Fri, 25 Jan 2002 13:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290779AbSAYSph>; Fri, 25 Jan 2002 13:45:37 -0500
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:22288 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S290783AbSAYSp0>; Fri, 25 Jan 2002 13:45:26 -0500
-Date: Fri, 25 Jan 2002 12:23:39 +0000
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-Message-ID: <20020125122339.A1714@sackman.co.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0201232018530.2202-100000@infcip10.uni-trier.de> <E16TZhr-00049f-00@mxng04.kundenserver.de> <20020124125914.0B3ED13D1@shrek.lisa.de> <1011882217.22707.19.camel@psuedomode>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <1011882217.22707.19.camel@psuedomode>; from ed.sweetman@wmich.edu on Thu, Jan 24, 2002 at 09:23:32AM -0500
-From: matthew@sackman.co.uk (Matthew Sackman)
+	id <S290783AbSAYSql>; Fri, 25 Jan 2002 13:46:41 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:5638 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S290779AbSAYSpy>; Fri, 25 Jan 2002 13:45:54 -0500
+Date: Fri, 25 Jan 2002 10:45:47 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: [PATCH] screen_base now in struct fb_info
+Message-ID: <Pine.LNX.4.10.10201251042280.557-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 24, 2002 at 09:23:32AM -0500, Ed Sweetman wrote:
-> 
-> > I thought, ntpd would take care of the RTC:
-> 
-> It doesn't.  init scripts on boot sync the date to the rtc, if your date
-> isn't near what it should be then ntp wont work.  It has to at least be
-> close then run date --systohc or something like that. 
 
-Which is why it's a good idea to have ntpdate run on startup to get the
-clock sync'd to one ntp server and then that will guarentee that ntpd will
-start up happily and be happy etc.
+I moved screen_base from struct display to struct fb_info. This is for teh
+further seperation of the fbdev layer from fbcon to make the code smaller
+and cleaner. The patch is pretty big. It is against Dave jones 2.5.2-dj5
+tree. Please try it out. I like to submit a patch that works perfect. 
 
-Matthew
 
--- 
+http://www.transvirtual.com/~jsimmons/screen_base.diff
 
-Matthew Sackman
-Nottingham
-England
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
 
-BOFH Excuse Board:
-excessive collisions & not enough packet ambulances

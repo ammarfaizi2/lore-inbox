@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbUBKBRF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 20:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbUBKBRE
+	id S263607AbUBKBRM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 20:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbUBKBRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 20:17:04 -0500
-Received: from mail.kroah.org ([65.200.24.183]:5068 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263618AbUBKBQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 20:16:15 -0500
-Date: Tue, 10 Feb 2004 17:16:00 -0800
-From: Greg KH <greg@kroah.com>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040211011559.GA2153@kroah.com>
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <40291A73.7050503@nortelnetworks.com> <20040210192456.GB4814@tinyvaio.nome.ca> <40293508.1040803@nortelnetworks.com> <40293AF8.1080603@backtobasicsmgmt.com> <20040210203900.GA18263@ti19.telemetry-investments.com>
+	Tue, 10 Feb 2004 20:17:12 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:5791 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263607AbUBKBPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 20:15:44 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Linux Kern <linux-kernel@vger.kernel.org>
+Date: Wed, 11 Feb 2004 12:15:41 +1100
+Subject: Re: [TRIVIAL patch] 2.6.2-rc2 Remove compile warnings from timer.o
+Message-ID: <20040211011541.GE15247@cse.unsw.EDU.AU>
+References: <20040211003913.GC15247@cse.unsw.EDU.AU> <20040210165534.3bdc22e3.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040210203900.GA18263@ti19.telemetry-investments.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040210165534.3bdc22e3.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 03:39:00PM -0500, Bill Rugolsky Jr. wrote:
-> On Tue, Feb 10, 2004 at 01:11:36PM -0700, Kevin P. Fleming wrote:
-> > devfs is "single-instance": it can be mounted during initrd/initramfs 
-> > processing, then remounted after pivot_root without losing its contents
-> > 
-> > Granted, I'm sure someone can come up with a single-instance ramfs 
-> > filesystem that can be used for udev, but today it does not exist.
->  
-> mount --move olddir newdir
 
-Doesn't work for what we want here:
+On Tue, 10 Feb 2004, Andrew Morton wrote:
 
-	$ mkdir /tmp/a /tmp/b
-	$ mount -t ramfs none /tmp/a
-	$ touch /tmp/a/foo
-	$ mount --move /tmp/a /tmp/b
-	$ ls /tmp/b
-	foo
-	$ umount /tmp/a
-	$ ls /tmp/b
-	$ 
+> You should lose the ifdefs.  Just do:
+> 
+> 	if (SHIFT_SCALE <= (SHIFT_USEC + SHIFT_HZ)) {
+> 		if (ltemp < 0)
+> 			time_adj -= -ltemp >>
+> 				(SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
+> 		else
+> 			time_adj += ltemp >>
+> 				(SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
+> 	}
+> 	...
+> 
+> because
+> 
+> a) It is not revolting and
+> 
+> b) The compiler checks the unused code for you, then throws it away.
+> 
+However this does not remove the compile warnings.
 
-Hm, not nice :(
+Darren
 
-thanks,
-
-greg k-h
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

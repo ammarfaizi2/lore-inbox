@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129228AbQKXAJn>; Thu, 23 Nov 2000 19:09:43 -0500
+        id <S131385AbQKXAJy>; Thu, 23 Nov 2000 19:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131389AbQKXAJe>; Thu, 23 Nov 2000 19:09:34 -0500
-Received: from 13dyn232.delft.casema.net ([212.64.76.232]:61963 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S129228AbQKXAJW>; Thu, 23 Nov 2000 19:09:22 -0500
-Message-Id: <200011232339.AAA02164@cave.bitwizard.nl>
-Subject: Re: PROBLEM: Cruft mounting option incorrect in ISOFS code
-In-Reply-To: <200011231818.KAA18647@falcon.csc.calpoly.edu> from Ben Fennema
- at "Nov 23, 2000 10:18:13 am"
-To: Ben Fennema <bfennema@falcon.csc.calpoly.edu>
-Date: Fri, 24 Nov 2000 00:39:15 +0100 (MET)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Peel Jeffery S <jeffery.s.peel@intel.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+        id <S131403AbQKXAJo>; Thu, 23 Nov 2000 19:09:44 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:3590 "EHLO havoc.gtf.org")
+        by vger.kernel.org with ESMTP id <S131385AbQKXAJ2>;
+        Thu, 23 Nov 2000 19:09:28 -0500
+Message-ID: <3A1DAAAD.28786302@mandrakesoft.com>
+Date: Thu, 23 Nov 2000 18:39:25 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Bernd Eckenfels <ecki@lina.inka.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: beware of dead string constants
+In-Reply-To: <E13z5nt-0007ig-00@calista.inka.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Fennema wrote:
-> Rogier Wolff wrote:
-> > 
-> > Alan Cox wrote:
-> > > > under 1 gig in size.  You can exhibit the problem by mounting the dvd movie
-> > > > "The World is Not Enough" as it contains a video_ts.vob which is larger than
-> > > > 1 gigabyte.  You will see that most of the file lengths are incorrect due to
-> > > > the "cruft mounting option" hacking off the high order byte.  There are
-> > > > certainly many more movies out there that exhibit this problem so it would
-> > > > be a good thing for someone to fix.
-> >  
-> > > The cruft thing is correct in itself. The size being 4Gb is trivial
-> > > to change providing someone can provide a reference to the standards
-> > > that say its ok.  So is the limit 4Gig, who documents it ?
-> > 
-> > Page 137 of DVD Demystified by Jim Taylor says:
-> > 
-> >   - Individual files must be less than or equal to 1 gigabyte in length.
+Bernd Eckenfels wrote:
 > 
-> The maximum size of a single UDF extent is 2^30-1
-> For DVD Video, the data of each file shall be recorded in a single extent.
+> In article <14874.25691.629724.306563@wire.cadcamlab.org> you wrote:
+> > This is mostly a heads-up to say that in this regard gcc is not ready
+> > for prime time, so we really can't get away with using if() as an ifdef
+> > yet, at least not without penalty.
+> 
+> Humm.. whats the Advantage of this?
 
-Hmm. Then the "or equal to" part is "wrong"... 
+Advantage of what?
 
-Yes, My dvd demystified book also says that it needs to be one extent.
+If you mean preferring 'if ()' over 'ifdef'... Linus.  :)  And I agree
+with him:  code looks -much- more clean without ifdefs.  And the
+compiler should be smart enough to completely eliminate code inside an
+'if (0)' code block.
 
-				Roger. 
+	Jeff
+
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUHXH2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUHXH3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUHXH2O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 03:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266661AbUHXH2N
+	id S266631AbUHXH3x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 03:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266661AbUHXH2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 03:28:13 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:9913 "EHLO
+	Tue, 24 Aug 2004 03:28:36 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:55993 "EHLO
 	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S266615AbUHXH1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 03:27:17 -0400
-Message-ID: <043101c489ab$bf6fe1d0$f97d220a@linux.bs1.fc.nec.co.jp>
+	id S266631AbUHXH1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 03:27:55 -0400
+Message-ID: <043201c489ab$c16fd080$f97d220a@linux.bs1.fc.nec.co.jp>
 From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: "James Morris" <jmorris@redhat.com>
-Cc: "Stephen Smalley" <sds@epoch.ncsc.mil>,
+To: <paulmck@us.ibm.com>
+Cc: "James Morris" <jmorris@redhat.com>,
+       "Stephen Smalley" <sds@epoch.ncsc.mil>,
        "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
        "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
-References: <Xine.LNX.4.44.0408201052160.22200-100000@dhcp83-76.boston.redhat.com>
+References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com> <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp> <20040820201914.GA1244@us.ibm.com>
 Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-Date: Tue, 24 Aug 2004 16:27:01 +0900
+Date: Tue, 24 Aug 2004 16:27:05 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="ISO-8859-1"
@@ -29,60 +30,105 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James, Thanks for your comments.
+Hi Paul, Thanks for your comments.
 
-> Do you have figures for 1 and 2 CPU?
+> A few comments interspersed for the larger patch (look for empty lines).
+> I am missing why some of the list insertions and deletions are SMP safe.
 
-The results of 1CPU and 2CPU  are following:  (2.6.8.1-RCU by take2 patch)
-[write() to files on tmpfs Loop=500000 Parallel=<Num of CPU>]
-                 -- 1CPU-- -- 2CPU-- -- 4CPU-- -- 8CPU-- --16CPU-- --32CPU--
-2.6.8.1(disable)    8.2959    8.0430    8.0158    8.0183    8.0146    8.0037
-2.6.8.1(enable)    11.8427   14.0358   78.0957  319.0451 1322.0313  too long
-2.6.8.1.rwlock     11.2485   13.8688   20.0100   49.0390   90.0200  177.0533
-2.6.8.1.rcu        11.3435   11.3319   11.0464   11.0205   11.0372   11.0496
+Sorry, some of them were my bug.
 
-
-> Also, can you run some more benchmarks, e.g. lmbench, unixbench, dbench 
-> etc?
-
-The results of unixbench and dbench are following:
-
-o UNIXbench
-
-* INDEX value comparison
-                                       2.6.8.1   2.6.8.1   2.6.8.1   2.6.8.1
-                                     (Disable)  (Enable)  (rwlock)     (RCU)
-Dhrystone 2 using register variables    268.9     268.8     269.2     269.0
-Double-Precision Whetstone               94.2      94.2      94.2      94.2
-Execl Throughput                        388.3     379.0     377.8     377.9
-File Copy 1024 bufsize 2000 maxblocks   606.6     526.6     515.6     504.8
-File Copy 256 bufsize 500 maxblocks     508.9     417.0     410.4     395.2
-File Copy 4096 bufsize 8000 maxblocks   987.1     890.4     876.0     857.9
-Pipe Throughput                         525.1     406.4     404.5     408.8
-Process Creation                        321.2     317.8     315.9     316.3
-Shell Scripts (8 concurrent)           1312.8    1276.2    1278.8    1282.8
-System Call Overhead                    467.1     468.7     464.1     467.2
-                                    ========================================
-     FINAL SCORE                        445.8     413.2     410.1     407.7
-
-
-o dbench [ 4 processes run parallely on 4-CPUs / 10 times trials ]
-                  ---- mean ----  - STD -
-2.6.8.1(disable)  860.249 [MB/s]   44.683
-2.6.8.1(enable)   714.254 [MB/s]   32.359
-2.6.8.1(+rwlock)  767.904 [MB/s]   27.968
-2.6.8.1(+RCU)     830.678 [MB/s]   16.352
-
-
-> > > + hvalue = atomic_inc_return(&avc_cache.lru_hint) % AVC_CACHE_SLOTS;
+> > + if (spin_trylock(&avc_cache.slots_lock[hvalue])) {
+> > + list_for_each_rcu(pos, &avc_cache.slots[hvalue]) {
 > 
-> atomic_inc_return() is not implemented on ia32 or x86-64.  Is there a 
-> workaround, or do we need to implement it?  (Andi Kleen suggested using 
-> the xadd instruction and altinstructions for i386).
+> Since we are holding the lock, the list cannot change, and the _rcu()
+> is not needed.  Right?
 
-Oops!
-In IA-32 or x86_64, can anybady implement atomic_inc_return()?
-If it can not, I'll try to make alternative macros or inline functions.
+No, only insert/update/delete paths must hold the lock.
+The _rcu suffix is necessary since read-only path does not hold the lock.
+(It was my bug the inserting path did not hold the lock.)
+
+> > + node = list_entry(pos, struct avc_node, list);
+> 
+> Why not just do:
+> 
+> list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
+> 
+> rather than having the separate list_entry().
+
+Your suggestion is better. I fixed it.
+
+> > + if (org) {
+> > + if (!new) {
+> 
+> If we run out of memory, we silently delete the node that we were
+> wanting to update?  Is this really what you want?
+> 
+> OK, OK, given that the "C" in "AVC" stands for "cache", I guess that
+> deleting the element does indeed make sense...
+
+Indeed, I thought it is pretty rough, and fixed avc_insert().
+Now, kmalloc() is unecessary in avc_insert().
+Therefore, the updating always succeeds.
+(But pretty more memory is required.)
+
+> > + switch (event) {
+> > + case AVC_CALLBACK_GRANT:
+> > + new->ae.avd.allowed |= perms;
+> 
+> This is a 32-bit field, and is protected by a lock.  Therefore, only
+> one update should be happening at a time.  This field is 32-bit aligned
+> (right?), and so the write that does the update will appear atomic to
+> readers.  Only one of the the updates happens in a given call.
+
+Is it about "new->ae.avd.allowed |= perms;" ?
+No others can refer the 'new', since the 'new' is the duplicated entry
+of the 'org'. It is safe irrespective of the lock held or unheld.
+
+In addition, the problem which had its roots in avc_insert()
+was solved by the take2 patch.
+
+> o There is some bizarre CPU out there that does not do
+> atomic 32-bit writes (but this would break all sorts of
+> stuff).
+> 
+> o Consecutive changes might give a slow reader the incorrect
+> impression that permissions are wide open.  One way to take
+> care of this would be to force a grace period between each
+> change.  One way to do this would be to set a bit indicating
+> an update, and have the call_rcu() clear it.  When getting
+> ready to update, if the bit is still set, block until the
+> bit is cleared.  This would guarantee that a given reader
+> would see at most one update.
+> 
+> But this would require considerable code restructuring, since
+> this code is still under an rcu_read_lock().  But putting
+> forward the thought anyway in case it is helpful.
+> 
+> If updates are -really- rare, a simple way to make this happen
+> would be to protect the updates with a sema_t, and just do
+> an unconditional synchronize_kernel() just before releasing
+> the sema_t.
+> 
+> Since the current code permits readers to see changes to
+> several different nodes, a single synchronize_kernel() should
+> suffice.
+
+> > + list_del_rcu(&node->list);
+> 
+> I don't see what prevents multiple list_del_rcu()s from executing in
+> parallel, mangling the list.  Is there some higher-level lock?
+> If so, why do we need RCU protecting the list?
+
+I agree, and fixed it.
+
+> > + rcu_read_lock();
+> > + node = avc_insert(ssid,tsid,tclass,&entry);
+> 
+> I don't see what prevents two copies of avc_insert from running in parallel.
+> Seems like this would trash the lists.  Or, if there is a higher-level lock
+> that I am missing, why do we need RCU protecting the lists?
+
+I agree, and fixed it.
 
 Thanks.
 --------

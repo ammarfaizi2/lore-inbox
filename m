@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbTKCEsI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 23:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTKCEsI
+	id S261892AbTKCEmC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 23:42:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTKCEmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 23:48:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11495 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261898AbTKCEsD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 23:48:03 -0500
-Date: Sun, 2 Nov 2003 20:45:56 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Bradley Chapman <kakadu_croc@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What do frame pointers do?
-Message-Id: <20031102204556.0c5b377a.rddunlap@osdl.org>
-In-Reply-To: <20031102170029.59013.qmail@web40908.mail.yahoo.com>
-References: <20031102170029.59013.qmail@web40908.mail.yahoo.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 2 Nov 2003 23:42:02 -0500
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:7588 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S261892AbTKCEl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 23:41:59 -0500
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="Big5"
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 1.2  (F2.71; T1.001; A1.51; B2.12; Q2.03)
+From: "CN" <cnliou9@fastmail.fm>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 02 Nov 2003 20:41:55 -0800
+X-Sasl-Enc: 8p9OrLBiaTYGuujIlqKsVg 1067834515
+Subject: Re: kernel: i8253 counting too high! resetting..
+References: <20031029075010.596C57A6C6@smtp.us2.messagingengine.com>
+  <20031030171235.GA59683@teraz.cwru.edu>
+  <20031031050439.E03B17E2B8@smtp.us2.messagingengine.com>
+  <200310310040.19519.gene.heskett@verizon.net> <20031031063636.GA61826@teraz.cwru.edu>
+In-Reply-To: <20031031063636.GA61826@teraz.cwru.edu>
+Message-Id: <20031103044155.8D0067DF67@server2.messagingengine.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Nov 2003 09:00:29 -0800 (PST) Bradley Chapman <kakadu_croc@yahoo.com> wrote:
+On Fri, 31 Oct 2003 06:36:36 +0000, "Dan Bernard" <djb29@cwru.edu> said:
+> ALi M1542 chipset is probably not too different from mine.  That's good,
+> because if it were not ALi, then this would be much more complicated.
+> 
+> The main problem here is not any kind of malfunction, but simply a
+> component or group of components performing slightly below what is
+> expected, and the software therefore generates unnecessary noise.
+> 
+> I do not try to tweak any settings with hdparm unless something is
+> broken.
+> However, it looks like that may be your best bet in this particular case.
+> I shall just continue putting up with the warnings for now.
+> 
+> Still, if anyone gets these warnings without ALi chipsets, please do
+> tell.
 
-| What exactly is the purpose of a frame pointer? As far back as I can remember, 2.4
-| and 2.6 kernels have supported something called a frame pointer, which slows down
-| the kernel slightly but supposedly outputs 'very useful debugging information.'
-| Unfortunately, it doesn't really explain what they are, and for the past few months,
-| I haven't seen any hacker gods asking for CONFIG_FRAME_POINTER=y, except for Russell
-| King, who wants them compiled for ARM processors for some reason (I grepped the
-| kernel source looking for answers and found a comment which implied this).
-| 
-| Does anyone know where I can find a good explanation of what they are and what they
-| do?
+I'm sorry for the late follow up as I lost Internet connection during the
+period of OS reinstallation. The following symptom I have newly noticed
+is a follow up to my first post in this thread.
 
-Frame pointers enable more deterministic back tracing of the stack,
-which can be helpful for tracking down bugs.  I build with
-CONFIG_FRAME_POINTER enabled all of the time.
+As reported in my first message, the box running kernel 2.4.22 and
+Fjuitsu HD generated i8253 message while the other box running 2.4.20 and
+Maxtor did not. During the past 3 days I wiped out everything from the HD
+and reinstalled Debian woody on to the "normal" box (with Maxtor) and
+rebuilt the kernel to 2.4.22. This used-to-be normal box started to
+generate the i8253 message since then.
 
-Note, however, that current 2.6.x Makefile does not allow frame pointers
-to be used with gcc 2.96 since it has some known problems with code generation
-when using frame pointers.
+Then I downgraded both boxes to kernel 2.4.20. Now both boxes are running
+woody and kernel 2.4.20 on identical hardware exept HD's and RAM's. Well,
+both boxes completely stop the i8253 message since the OS downgrade :). I
+don't have any knowledge regarding the technical details but I think
+reporting this "history" to this list should be a good idea.
 
-There is a little discussion of frame pointers in the Intel
-IA-32 Intel® Architecture Software Developer;s Manual Volume 1:
-Basic Architecture
-and
-IA-32 Intel® Architecture Software Developer's Manual Volume 2:
-Instruction Set Reference,
-which are downloadable as .pdf files from developer.intel.com.
+Best Regards,
+CN
 
---
-~Randy
+-- 
+http://www.fastmail.fm - Send your email first class

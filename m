@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290054AbSAWUXO>; Wed, 23 Jan 2002 15:23:14 -0500
+	id <S290025AbSAWU3E>; Wed, 23 Jan 2002 15:29:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290059AbSAWUXH>; Wed, 23 Jan 2002 15:23:07 -0500
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:65453 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S290054AbSAWUWu>; Wed, 23 Jan 2002 15:22:50 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Timothy Covell <timothy.covell@ashavan.org>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-Date: Wed, 23 Jan 2002 21:22:41 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0201232021440.2202-100000@infcip10.uni-trier.de>
-In-Reply-To: <Pine.LNX.4.40.0201232021440.2202-100000@infcip10.uni-trier.de>
+	id <S290047AbSAWU2y>; Wed, 23 Jan 2002 15:28:54 -0500
+Received: from ida.rowland.org ([192.131.102.52]:58628 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id <S290025AbSAWU2s>;
+	Wed, 23 Jan 2002 15:28:48 -0500
+Date: Wed, 23 Jan 2002 15:28:46 -0500 (EST)
+From: Alan Stern <stern@rowland.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Daemonize() should re-parent its caller
+In-Reply-To: <3C4F1325.C65001EE@zip.com.au>
+Message-ID: <Pine.LNX.4.33L2.0201231522450.1300-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020123202258Z290054-13996+10694@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 23. January 2002 20:24, Daniel Nofftz wrote:
-> On Thu, 24 Jan 2002, Timothy Covell wrote:
-> > Hey, don't get me wrong.  I'm all for power-saving.  That's
-> > why I own a Via C3 based system.   The Via C3 works
-> > great as an NFS server and draws 12 Watts max (avg.
-> > is 6 watts).   For just email and web browsing, I'd definitely
-> > recommend it.   I'd also recommend it for a small firewall/router
-> > system.   However, for A/V apps and heavy compiling, it's
-> > definitely not the way to go [BeOS C3 can handle one
-> > A/V app at a time, but not several].
+On Wed, 23 Jan 2002, Andrew Morton wrote:
+
+> Alan Stern wrote:
 > >
+> > Consider the question: what happens when a kernel thread dies?  For
+> > the most part this doesn't come up, since most kernel threads stay
+> > alive as long as the system is up.  But when a kernel thread dies, the
+> > same thing happens as with any other thread: it becomes a zombie, and
+> > its exit_signal (if any) is posted to its parent.
 > >
-> > If the patch is really the way to go, then we should get it
-> > put into the main distribution.  But if it is going to hurt
-> > my performance, then I'd be happy to stick with vanilla
-> > kapmd (hlt based) power saving.
+> > ...
+> >
+> > But a more elegant and economical solution is to have the daemonize()
+> > routine automatically re-parent its caller to be a child of init
+> > (assuming the caller's parent isn't init already).  At the same time,
+> > the caller's exit_signal should be set to SIGCHLD.  This would
+> > definitely solve the problem, and it is unlikely to introduce any
+> > incompatibilities with existing code.
+> >
 >
-> eenabling the discconect function causes a performance drop of about 2-3 %
-> as far as i heared ...
+> Yes.   There's a function in the 2.4 series called reparent_to_init()
+> whch does this.  Typically a kernel thread will call that immediately
+> after calling daemonize().  It _should_ solve any problem which you're
+> observing.  Could you please test that, and if it fixes the problem
+> which you're seeing, send a patch to the USB maintainers?
+>
+> Perhaps we should unconditionally call reparent_to_init() from within
+> daemonize().  I wimped out on doing that because of the possibility
+> of strangely breaking something.
+>
+> Really, an audit of all callers of kernel_thread() is needed, and
+> most of them should would end up using reparent_to_init().  Difficult
+> to do in the 2.4 context, so we should only do this when and where
+> problems are demonstrated.
+>
+> (But you Cc'ed Alan.  Are you using 2.2.x?)
 
-If not smaller. Read the VCool doku.
+Andrew:
 
-> but this patch is only for athlon
+Thanks for your help.  I wasn't aware of the existence of
+reparent_to_init() -- I wish I knew of some way to find out about all
+these little things that get added and changed in various versions of the
+kernel.  Anyway, I'll check it out, and if it works I'll send a patch to
+the USB and the SCSI maintainers.
 
-Athlon and Duron
+(In fact, I'm using both 2.2 and 2.4.  I Cc'ed Alan Cox because it was
+suggested that he would be interested, as the original proposer of
+daemonize() -- I don't know if that's true or no.  If you're not
+interested, Alan, I apologize for bothering you.)
 
-> processors on an board with via chipset ...
+Alan Stern
 
-AMD 750/760/maybe MP/MPX, SiS, Ali, Nvidia (?), etc.
 
-> nothing to do with a via c3 cpu :)
-> what the patch does is that it make the idle calls take effect on this
-> combination of chipset and cpu ...
-
-YES. Without bus disconnet _NO_ real "idle" (cool CPU's).
-
--Dieter

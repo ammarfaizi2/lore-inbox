@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbSKYJmM>; Mon, 25 Nov 2002 04:42:12 -0500
+	id <S262796AbSKYJwi>; Mon, 25 Nov 2002 04:52:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSKYJmL>; Mon, 25 Nov 2002 04:42:11 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:55051 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S262789AbSKYJmK>;
-	Mon, 25 Nov 2002 04:42:10 -0500
-Date: Mon, 25 Nov 2002 12:48:28 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Pavel Jan?k <Pavel@Janik.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI serial card with PCI 9052?
-Message-ID: <20021125094828.GA6016@pazke.ipt>
-Mail-Followup-To: Pavel Jan?k <Pavel@Janik.cz>,
-	linux-kernel@vger.kernel.org
-References: <m3smxx1aaf.fsf@Janik.cz> <20021120095618.GB319@pazke.ipt> <m3fztrcinh.fsf@Janik.cz> <20021124114307.A25408@flint.arm.linux.org.uk> <m3vg2naupr.fsf@Janik.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Content-Disposition: inline
-In-Reply-To: <m3vg2naupr.fsf@Janik.cz>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.2.17
+	id <S262803AbSKYJwi>; Mon, 25 Nov 2002 04:52:38 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36618
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262796AbSKYJwh>; Mon, 25 Nov 2002 04:52:37 -0500
+Date: Mon, 25 Nov 2002 01:58:31 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Robert Love <rml@tech9.net>
+cc: paul_wu@wnexus.com.tw, Tommy Reynolds <reynolds@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Which embedded linux is better for being a router? eCos? uclinux?
+In-Reply-To: <1038191030.776.67.camel@phantasy>
+Message-ID: <Pine.LNX.4.10.10211250156130.13936-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What do you have in the way for x86 environments and where is the legalise
+for indemnification?  The latter part can be negated if the offerings are
+not Linux based.
 
-Hi,=20
+Andre Hedrick
+LAD Storage Consulting Group
 
-patch looks good, but here is yet another thing to test.
-We need to know base baudrate of this card. I failed to find=20
-HT6552 datasheet on Holtek site, so we need another experiment.
+On 24 Nov 2002, Robert Love wrote:
 
-You can test it this way:
+> On Sun, 2002-11-24 at 20:01, paul_wu@wnexus.com.tw wrote:
+> 
+> > CPU will be MIPS. Does uclinux support multi-processes? Or there
+> > is 3rd choice for such embedded Linux?
+> 
+> You do not need any special version of Linux.  Your chip has an MMU and
+> all the other normal bits.  Just compile up a stock kernel and
+> user-land.
+> 
+> If you want an already-done distribution, there are a few out there -
+> google around.  Commercial offerings are available from MontaVista, Red
+> Hat, etc, too.
+> 
+> 	Robert Love
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-1) connect one port of this card with normal serial port or any=20
-   serial device with known baudrate;
-2) test data transfer, if it fails try to set lower speed on PCI card's por=
-t.
-3) if you found needed speed, calculate base baudrate
- <base baudrate> =3D (<speed of normal port> / <speed of PCI card port>) * =
-115200
-
-Good luck.
-
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
-
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE94fHsBm4rlNOo3YgRAj0sAJ99Ao9vAuG7vOtqxXya3reNTkW5ZgCfUEp5
-/2Vpg/4rqk9lqBKpk2FT9JM=
-=CztE
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--

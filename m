@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267363AbTACAwk>; Thu, 2 Jan 2003 19:52:40 -0500
+	id <S267357AbTACAmH>; Thu, 2 Jan 2003 19:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbTACAwk>; Thu, 2 Jan 2003 19:52:40 -0500
-Received: from bitmover.com ([192.132.92.2]:48549 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S267363AbTACAwj>;
-	Thu, 2 Jan 2003 19:52:39 -0500
-Date: Thu, 2 Jan 2003 17:01:07 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Thomas Ogrisegg <tom@rhadamanthys.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       lm@bitmover.com
-Subject: Re: [PATCH] TCP Zero Copy for mmapped files
-Message-ID: <20030103010107.GB6416@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Thomas Ogrisegg <tom@rhadamanthys.org>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	lm@bitmover.com
-References: <20021230012937.GC5156@work.bitmover.com> <1041489421.3703.6.camel@rth.ninka.net> <20030102221210.GA7704@window.dhis.org> <20030102.151346.113640740.davem@redhat.com> <20030103004543.GA12399@window.dhis.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030103004543.GA12399@window.dhis.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S267359AbTACAmH>; Thu, 2 Jan 2003 19:42:07 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:1604 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S267357AbTACAmF>;
+	Thu, 2 Jan 2003 19:42:05 -0500
+Date: Thu, 02 Jan 2003 19:50:03 -0500
+From: Jerry McBride <mcbrides9@comcast.net>
+Subject: mkfs help, please.
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Message-id: <0H84002VD4UUI0@mtaout07.icomcast.net>
+Organization: TEAM LINUX
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.8.8claws (GTK+ 1.2.8; i586-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-message-flag: Join the Wave and install Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It might be a bit difficult to convert all applications to
-> sendfile. Especially those for which you don't have the
-> source code.
 
-And the list of applications which do
+I'm setting up a new computer with a 60gig maxtor. I'd like a 100meg /boot at
+the very top of the disk to get around 1024 cylinder bios restriction with out
+have to do anything special. This has to be as vanilla as possible.
 
-	sock = socket(...);
-	map = mmap(...);
-	write(sock, map, bytes);
+After fdisking the disk the way I want it, when I try to mkfs.ext2 the first
+partition I get this message: mkfs.ext2: Attempt to write block from
+filesystem resulted in short write zeroing block 262576 at end of filesystem
 
-are?  There are not very many that I know of and if you look carefully
-at the bandwidth graphs in LMbench you'll see why.  There is a cross
-over point where mmap becomes cheaper but it used to be around 16-64K.
-I don't know what it is now, I doubt it's moved much.  I can check if
-you really want.
+In all my time on linux, I've never seen this one before. Any tips? The
+partition giving this message is the first primary, 256meg on that drive. I've
+tried specifying no reserve, blocksize=1024 and no change with the message.
+
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+******************************************************************************
+                     Registered Linux User Number 185956
+          http://groups.google.com/groups?hl=en&safe=off&group=linux
+             Join me in chat at #linux-users on irc.freenode.net
+     7:30pm  up 40 days, 21:09, 10 users,  load average: 0.76, 1.06, 1.15

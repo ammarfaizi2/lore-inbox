@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbUAEAXK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 19:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbUAEAXK
+	id S265815AbUAEA0K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 19:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265816AbUAEA0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 19:23:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19688 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265812AbUAEAXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 19:23:08 -0500
-Date: Sun, 4 Jan 2004 16:23:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: ornati@lycos.it, gandalf@wlug.westbo.se, linuxram@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Buffer and Page cache coherent? was: Strange IDE performance
- change in 2.6.1-rc1 (again)
-Message-Id: <20040104162301.5c113246.akpm@osdl.org>
-In-Reply-To: <20040104234523.GX1882@matchmail.com>
-References: <200401021658.41384.ornati@lycos.it>
-	<20040102213228.GH1882@matchmail.com>
-	<1073082842.824.5.camel@tux.rsn.bth.se>
-	<200401031213.01353.ornati@lycos.it>
-	<20040103144003.07cc10d9.akpm@osdl.org>
-	<20040104171545.GR1882@matchmail.com>
-	<20040104141030.02fbcce5.akpm@osdl.org>
-	<20040104232231.GV1882@matchmail.com>
-	<20040104153258.0408a197.akpm@osdl.org>
-	<20040104234523.GX1882@matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jan 2004 19:26:10 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:32221 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265815AbUAEA0H convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 19:26:07 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [2.6.0-mm2] e100 driver hangs after period of moderate receive load
+Date: Sun, 4 Jan 2004 16:25:51 -0800
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD97@orsmsx402.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6.0-mm2] e100 driver hangs after period of moderate receive load
+Thread-Index: AcPQUuv2RSkITeYjRJ6QT2gvunzrYgCz2rTQ
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "Lennert Buytenhek" <buytenh@gnu.org>,
+       "Thomas Molina" <tmolina@cablespeed.com>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 05 Jan 2004 00:25:52.0237 (UTC) FILETIME=[79CD91D0:01C3D322]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> So in what way is the buffer cache coherent with the pagecache?
+Lennert Buytenhek wrote:
+> Make sure you have slab debugging enabled to see if you also 
+> get the slab corruption messages, and then hit the machine 
+> with anything above 50000 packets per second.  pktgen from a 
+> different machine on the same subnet works nicely for that.  
+> I doubt that downloading a Red Hat iso would give you a load 
+> anywhere near that.
 > 
+> Oh, do you have an SMP box?  This was on a 2-way (4-way HT) 
+> SMP box.  Not sure if that matters here.
+> 
+> I'm just about to try 2.6.0-mm2 without NAPI.
 
-There is no "buffer cache" in Linux.  There is a pagecache for /etc/passwd
-and there is a pagecache for /dev/hda1.  They are treated pretty much
-identically.  The kernel attaches buffer_heads to those pagecache pages
-when needed - generally when it wants to deal with individual disk blocks.
+Ok, I've repro'd this (w/ and w/o NAPI, but w/o is much harder).  I
+wasted a bunch of time having both page alloc debugging and slab
+debugging on.  Seems one masks the other.  (Jeff warned me!)  In any
+case, what I know so far is the problem happens when HW runs out of Rx
+resources, and SW tries to resume the receiver after supplying new
+resources.  Somehow HW is scribbling on resources already given back to
+the OS.  It's something about the list management in this new e100.
+eepro100 and legacy e100 work fine.  Investigation continuing...
 
->  Any progress on that pagecache coherent block relocation patch you had for
->  ext3? :)
-
-No.
+-scott

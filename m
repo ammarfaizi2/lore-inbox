@@ -1,110 +1,100 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313299AbSEYDnA>; Fri, 24 May 2002 23:43:00 -0400
+	id <S313307AbSEYDsX>; Fri, 24 May 2002 23:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313307AbSEYDm7>; Fri, 24 May 2002 23:42:59 -0400
-Received: from 64-166-72-142.ayrnetworks.com ([64.166.72.142]:36744 "EHLO 
-	ayrnetworks.com") by vger.kernel.org with ESMTP id <S313299AbSEYDm6>;
-	Fri, 24 May 2002 23:42:58 -0400
-Date: Fri, 24 May 2002 20:41:30 -0700
-From: William Jhun <wjhun@ayrnetworks.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Functions to complement pci_dma_sync_{single,sg}(). (was: Re: Possible discrepancy regarding streaming DMA mappings in DMA-mapping.txt?)
-Message-ID: <20020524204130.A17401@ayrnetworks.com>
-In-Reply-To: <20020523162425.G7205@ayrnetworks.com> <20020523.225927.132611174.davem@redhat.com> <20020524104345.J7205@ayrnetworks.com> <20020524.104209.31440798.davem@redhat.com>
-Mime-Version: 1.0
+	id <S313314AbSEYDsW>; Fri, 24 May 2002 23:48:22 -0400
+Received: from relay02.valueweb.net ([216.219.253.236]:12303 "EHLO
+	relay02.valueweb.net") by vger.kernel.org with ESMTP
+	id <S313307AbSEYDsV>; Fri, 24 May 2002 23:48:21 -0400
+Message-ID: <3CEF0911.425C00E7@opersys.com>
+Date: Fri, 24 May 2002 23:46:25 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
+        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
+        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <Pine.LNX.4.44.0205242020010.4051-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 10:42:09AM -0700, David S. Miller wrote:
-> I see what your problem is, the interfaces were designed such
-> that the CPU could read the data.  It did not consider writes.
+
+Linus Torvalds wrote:
+> On Fri, 24 May 2002, Karim Yaghmour wrote:
+> > This is incorrect, see below.
 > 
-> It was designed to handle a case like a networking driver where
-> a receive packet is inspected before we decide whether we accept the
-> packet or just give it back to the card.
+> This is _correct_.
 > 
-> Feel free to design the "cpu writes, back to device ownership"
-> interfaces and submit a patch :-)
+> The fact that under RTAI it isn't the case does not change the fact that
+> under RTLinux it _is_.
 
-Here is a patch to demonstrate which calls I'd like added. I'll send a
-similar one to linux-mips if this interface looks ok...
+Fine, but aren't you the least bit interested in seing how it is done in 
+the other real-time Linux implementation?
 
-This patch adds two functions, pci_dma_prep_single() and
-pci_dma_prep_sg(), for a driver to relinquish a buffer to a PCI device
-after having gained "ownership" via pci_dma_sync_*().  Essentially,
-they should do whatever pci_map_*() does to prepare the buffer for
-being accessed by the device, except for the mapping itself (e.g.
-flush cache lines, copy to a bounce buffer if direction is
-PCIDMA_TO_DEVICE, etc).
+> > I'm sorry, but I'm missing the point here about visualization tools.
+> > Such tools are not part of any of the real-time Linux community's
+> > concerns.
+> 
+> With RTLinux, you have to split the app up into the "hard realtime" part
+> (which ends up being in kernel space) and the "rest".
+> 
+> Which is, in my opinion, the only sane way to handle hard realtime. No
+> confusion about priority inversions, no crap. Clear borders between what
+> is "has to happen _now_" and "this can do with the regular soft realtime".
 
-This is useful if one wants to use a buffer for making repeated DMA
-transfers into a device without having to unmap the buffer. In such a
-case, a typical usage would be:
+There are no priority inversions in the case of RTAI hard-real-time processes
+either. They get scheduled exactly as other real-time processes and they
+can have priority even over real-time tasks within modules.
 
-	1) Take a buffer that is "owned" by the PCI device
-	2) pci_dma_sync_single(...., PCIDMA_TO_DEVICE); buffer is
-	   now owned by the driver
-	3) Write into the buffer
-	4) pci_dma_prep_single(...., PCIDMA_TO_DEVICE);
-	5) Perform DMA transfer
-	6) goto 1)
+Moreover, I would like to point out that many real-time developers like
+to have memory protection for their tasks. Hard-real-time in the kernel
+with RTLinux isn't possible. Hard-real-time in user-space with RTAI
+is.
 
-Thanks,
-William
+There is no reason that what happens _now_ shouldn't have memory protection
+and what happens later should.
 
---
-Index: include/asm-i386/pci.h
-===================================================================
-RCS file: /vger/linux/include/asm-i386/pci.h,v
-retrieving revision 1.16.2.2
-diff -c -r1.16.2.2 pci.h
-*** include/asm-i386/pci.h	24 Jan 2002 13:38:58 -0000	1.16.2.2
---- include/asm-i386/pci.h	25 May 2002 03:24:56 -0000
-***************
-*** 209,214 ****
---- 209,247 ----
-  	flush_write_buffers();
-  }
-  
-+ /*
-+  * Prepare buffer for a DMA transfer after driver temporarily
-+  * re-claimed it with pci_dma_sync_*().
-+  *
-+  * In essence, this "returns" the buffer to the PCI device.
-+  */
-+ static inline void pci_dma_prep_single(struct pci_dev *hwdev,
-+ 				       dma_addr_t dma_handle,
-+ 				       size_t size, int direction)
-+ {
-+ 	if (direction == PCI_DMA_NONE)
-+ 		BUG();
-+ 
-+ 	flush_write_buffers();
-+ }
-+ 
-+ /*
-+  * Prepare buffer for a DMA transfer after driver temporarily
-+  * re-claimed it with pci_dma_sync_*().
-+  *
-+  * The same as pci_dma_prep_single but for a scatter-gather list,
-+  * same rules and usage.
-+  */
-+ static inline void pci_dma_prep_sg(struct pci_dev *hwdev,
-+ 				   struct scatterlist *sg,
-+ 				   int nelems, int direction)
-+ {
-+ 	if (direction == PCI_DMA_NONE)
-+ 		BUG();
-+ 
-+ 	flush_write_buffers();
-+ }
-+ 
-  /* Return whether the given PCI device DMA address mask can
-   * be supported properly.  For example, if your device can
-   * only drive the low 24-bits during PCI bus mastering, then
+> Your claim was that RTLinux made realtime hard to do with licensing
+> concerns. MY claim is that if you actually were to use RTLinux, you
+> wouldn't _have_ any licensing concerns: the kernel module would have to be
+> GPL (both because the kernel wants it that way _and_ because you get the
+> liences to the patent that way), and the user-level code that uses
+> whatever data the RT module produces is no longer hard realtime at all.
 
+Sure. I'm not contesting the merits of using GPL modules. True, this
+is the best way to go. However, not everyone has this option and my
+claim is that this is one of the facts that is putting Linux out in the
+cold in front of the competition in regards to rt.
+
+That said, I wouldn't be using RTLinux, I'd be using RTAI to implement
+both the collection and visualization tasks in user-space. The separation
+between what's hard-rt and what's soft-rt could then be done either on
+a process basis or even separate C files within the same program.
+
+Again, why should hard-rt tasks not use memory protection when they can?
+
+> Clean separation, both from a license standpoint _and_ from a purely
+> technical standpoint.
+
+Again, from a purely technical standpoint, there are many advantages in
+having the hard-rt tasks in user-space. As for the licensing standpoint,
+the issues "should" also be very clear: since the hard-rt tasks are in
+user-space, then they are covered by the GPL-exclusion put in place in
+the Linux kernel.
+
+I say "should" because nothing is clear in the current situation and
+this is pivotal in developers' decision to use or not to use Linux.
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263008AbSJBJQV>; Wed, 2 Oct 2002 05:16:21 -0400
+	id <S263016AbSJBJOc>; Wed, 2 Oct 2002 05:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263010AbSJBJQV>; Wed, 2 Oct 2002 05:16:21 -0400
-Received: from tml.hut.fi ([130.233.44.1]:17680 "EHLO tml-gw.tml.hut.fi")
-	by vger.kernel.org with ESMTP id <S263008AbSJBJQU>;
-	Wed, 2 Oct 2002 05:16:20 -0400
-Date: Wed, 2 Oct 2002 12:21:11 +0300
-From: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
-To: davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] Mobile IPv6 for 2.5.40 (request for kernel inclusion)
-Message-ID: <20021002092111.GB17010@morphine.tml.hut.fi>
+	id <S263019AbSJBJOc>; Wed, 2 Oct 2002 05:14:32 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:11539 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S263016AbSJBJOb>; Wed, 2 Oct 2002 05:14:31 -0400
+Date: Wed, 02 Oct 2002 18:20:06 +0900 (JST)
+Message-Id: <20021002.182006.1021932192.yoshfuji@wide.ad.jp>
+To: linux_4ever@yahoo.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18+IPv6+IPV6_ADDRFORM
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <20021001163221.73061.qmail@web9607.mail.yahoo.com>
+References: <20021001163221.73061.qmail@web9607.mail.yahoo.com>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on XEmacs 21.4.6 (Common Lisp)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Dave, Alexey, and all,
+In article <20021001163221.73061.qmail@web9607.mail.yahoo.com> (at Tue, 1 Oct 2002 09:32:21 -0700 (PDT)), Steve G <linux_4ever@yahoo.com> says:
 
-I am part of the MIPL Mobile IPv6 for Linux Team at Helsinki
-University of Technology, and we have been working on an
-implementation of Mobility Support in IPv6 specification for the past
-3 years.  Now the code has matured to the point, that we feel
-confident enough to ask for kernel inclusion.
+> According to it, calling getsockopt() with level
+> IPPROTO_IPV6 and option IPV6_ADDRFORM should get the
+> option value. However, I get a socket error. I changed
+> the level to IPPROTO_IP and the call goes through, but
+> Richard Stevens' book states that AF_INET or AF_INET6
+> should be returned rather than 0 or 1.
+> 
+> 1) should the level really be IPPROTO_IPV6?
+> 2) do other platforms use IPPROTO_IP to retrieve this
+> option or said another way, is the behavior observed
+> in Linux portable?
+> 3) should the returned value be 0 & 1 or AF_INET &
+> AF_INET6?
+> 4) Is this a deprecated option and likely to be
+> dropped?
 
-Our implementation has been to several interop and conformance testing
-events, and has proven to be very compliant and to interoperate with
-all major vendors' implementations.  Code has been tested on several
-UP and SMP configurations, and performs quite well.
+IPV6_ADDRFORM is deprecated.
+I believe that it should be removed.
 
-Implementation consists of two kernel modules, changes to IPv6 stack,
-and userspace configuration tools.  First module provides support for
-6over6 (IPv6 in IPv6) tunneling.  Second module is the Mobile IPv6
-module, and adds support for Mobile IPv6 Correspondent Node, Mobile
-Node, and Home Agent.  IPv6 stack has been modified to provide some
-MIPv6 mandated features as well as hooks to our module.
 
-Latest code for 2.5 series can be pulled from our public BitKeeper
-repository (parent is http://linux.bkbits.net/linux-2.5): 
-	bk://bk.mipl.mediapoli.com/linux25-mipl
+> Also, the Sus v3, states there is a socket option:
+> level IPPROTO_IPV6, option IPV6_V6ONLY...will this be
+> supported in 2.4 or 2.6? A grep -r doesn't get any
+> hits from /usr/include.
 
-Diff against latest BK bits can be downloaded from:
-	http://www.mipl.mediapoli.com/download/linux-2.5+mipv6.diff
-
-Latest userspace tools are found at:
-	bk://bk.mipl.mediapoli.com/mipv6-tools
-
-More information of the project can be found at our website:
-	http://www.mipl.mediapoli.com/
-
-The team continues the development work to have fully RFC compliant
-(when the specification moves to RFC) implementation of Mobile IPv6 in
-the Linux kernel, as well as work on improving the code.
-
-On behalf of the MIPL Team,
-
-Antti Tuominen
+We, USAGI Project, have implementation for it,
+and we are about to contribute it here.
 
 -- 
-Antti J. Tuominen, Gyldenintie 8A 11, 00200 Helsinki, Finland.
-Research assistant, Institute of Digital Communications at HUT
-work: ajtuomin@tml.hut.fi; home: tuominen@iki.fi
-
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316204AbSHaXuf>; Sat, 31 Aug 2002 19:50:35 -0400
+	id <S317341AbSIAAD6>; Sat, 31 Aug 2002 20:03:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317341AbSHaXuf>; Sat, 31 Aug 2002 19:50:35 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:16885 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S316204AbSHaXuf>; Sat, 31 Aug 2002 19:50:35 -0400
-Date: Sat, 31 Aug 2002 16:50:41 -0700
-From: Chris Wright <chris@wirex.com>
-To: Gabor Kerenyi <wom@tateyama.hu>
-Cc: linux-kernel@vger.kernel.org, Chris Wright <chris@wirex.com>
-Subject: Re: extended file permissions based on LSM
-Message-ID: <20020831165041.C11165@figure1.int.wirex.com>
-Mail-Followup-To: Gabor Kerenyi <wom@tateyama.hu>,
-	linux-kernel@vger.kernel.org, Chris Wright <chris@wirex.com>
-References: <200208310616.04709.wom@tateyama.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200208310616.04709.wom@tateyama.hu>; from wom@tateyama.hu on Sat, Aug 31, 2002 at 06:16:04AM +0200
+	id <S317398AbSIAAD6>; Sat, 31 Aug 2002 20:03:58 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:62994 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id <S317341AbSIAAD5>; Sat, 31 Aug 2002 20:03:57 -0400
+Date: Sat, 31 Aug 2002 19:07:34 -0500 (CDT)
+Message-Id: <200209010007.g8107Yt38476@sullivan.realtime.net>
+From: Milton Miller <miltonm@bga.com>
+Cc: linux-kernel@vger.kernel.org
+To: Terry Barnaby <terry@beam.ltd.uk>
+Subject: Re: Linux kernel lockup with BVM SCSI controller on MCPN765 PPC board
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Gabor Kerenyi (wom@tateyama.hu) wrote:
-> Hi!
-> 
-> I'm looking around the LSM module and I know it has got some
-> functions for the filesystem part. Well, it looks good, but the
-> permission thing is not enough. In fact it's enough to check
-> the permission of an inode, but I'd like to check permissions
-> for a dentry AND its inode at the same place and time.
+In-Reply-To=<3D6F4A3A.50806@beam.ltd.uk>
 
-We are anticipating VFS changes that include passing a dentry/vfsmount
-pair to the permission check.  This gives you both the inode as well as
-the point in the tree the user is accessing the inode.
+We have been using the sym63c8xx_2 driver in 2.5 since it came out with
+1010-66 chips using ppc64 kernels and haven't seen problems (its the
+standard scsi controller in the IBM p690).   We use the driver in 32 bit
+addressing mode (CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE 0) because we
+only use 32 bit addresses with our IO translations.  (Error recovery was
+broken until recently in 2.5 because of the locking changes, but you got
+a printk there, it was just a software deadlock).
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+You said you appeared to be serial_console_write, I guess this is from
+some kind of JTAG or BDM tool?   Can you find the string that its trying
+to print?   Sounds like your pci bus may be hanging, have you tried to
+probe there?
+
+milton

@@ -1,74 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUJBEfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267251AbUJBE5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUJBEfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 00:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUJBEff
+	id S267251AbUJBE5u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 00:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUJBE5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 00:35:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25068 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267278AbUJBEfZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 00:35:25 -0400
-Date: Sat, 2 Oct 2004 00:08:57 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-mm@kvack.org, akpm@osdl.org, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
-Message-ID: <20041002030857.GB4635@logos.cnet>
-References: <20041001182221.GA3191@logos.cnet> <415E12A9.7000507@cyberone.com.au>
+	Sat, 2 Oct 2004 00:57:50 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:47751 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S267251AbUJBE5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 00:57:46 -0400
+Date: Sat, 2 Oct 2004 14:57:25 +1000
+From: CaT <cat@zip.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: promise controller resource alloc problems with ~2.6.8
+Message-ID: <20041002045725.GC1049@zip.com.au>
+References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org> <20040930233048.GC7162@zip.com.au> <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org> <20041001103032.GA1049@zip.com.au> <Pine.LNX.4.58.0410010731560.2403@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="+HP7ph2BbKc20aGI"
 Content-Disposition: inline
-In-Reply-To: <415E12A9.7000507@cyberone.com.au>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.58.0410010731560.2403@ppc970.osdl.org>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 02, 2004 at 12:30:01PM +1000, Nick Piggin wrote:
-> 
-> 
-> Marcelo Tosatti wrote:
-> 
-> >
-> >With such a thing in place we can build a mechanism for kswapd 
-> >(or a separate kernel thread, if needed) to notice when we are low on 
-> >high order pages, and use the coalescing algorithm instead blindly 
-> >freeing unique pages from LRU in the hope to build large physically 
-> >contiguous memory areas.
-> >
-> >Comments appreciated.
-> >
-> >
-> 
-> Hi Marcelo,
-> Seems like a good idea... even with regular dumb kswapd "merging",
-> you may easily get stuck for example on systems without swap...
-> 
-> Anyway, I'd like to get those beat kswapd patches in first. Then
-> your mechanism just becomes something like:
-> 
->    if order-0 pages are low {
->        try to free memory
->    }
->    else if order-1 or higher pages are low {
->         try to coalesce_memory
->         if that fails, try to free memory
->    }
 
-Hi Nick!
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I understand that kswapd is broken, and it needs to go into the page reclaim path 
-to free pages when we are out of high order pages (what your 
-"beat kswapd" patches do and fix high-order failures by doing so), but 
-Linus's argument against it seems to be that "it potentially frees too much pages" 
-causing harm to the system. He also says this has been tried in the past, 
-with not nice results.
+On Fri, Oct 01, 2004 at 07:34:34AM -0700, Linus Torvalds wrote:
+> > BTW. I just realised (and I apologise for not doing so earlier) that I'm
+> > not using ACPI on this box.
+> 
+> For you, the bigger patch shouldn't have made any difference. But it's 
+> needed for some other people who have BIOS'es that mark PCI regions as 
+> being reserved for the motherboard, and they get resource conflicts 
+> otherwise (resource conflicts that largely go away with 
+> "insert_resource()", but if we want to change that to "request_resource()" 
+> then that other patch is needed).
 
-And that is why its has not been merged into mainline.
+Aha.
 
-Is my interpretation correct?
+> Can you send me your ioports from 2.6.9-rc3 _with_ the 
+> "request_resource()" change..
 
-But right, kswapd needs to get fixed to honour high order
-pages.
+Diff says that the file is thesame as the one without patch+change
+that doesn't work.
 
+Attached none-the-less.
+
+-- 
+    Red herrings strewn hither and yon.
+
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ioports.2.6.9-rc3"
+
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+1000-107f : 0000:00:0e.0
+  1000-107f : 0000:00:0e.0
+1080-10bf : 0000:00:0d.0
+  10a0-10af : 0000:00:14.1
+    10a0-10a7 : ide0
+    10a8-10af : ide1
+10c0-10df : 0000:00:14.2
+10f0-10f7 : 0000:00:0d.0
+10f8-10ff : 0000:00:0d.0
+1400-14ff : 0000:00:0f.0
+  1400-14ff : tulip
+1800-1803 : 0000:00:0d.0
+1804-1807 : 0000:00:0d.0
+f800-f83f : 0000:00:14.3
+fc00-fc1f : 0000:00:14.3
+
+--+HP7ph2BbKc20aGI--

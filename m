@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313928AbSDQCer>; Tue, 16 Apr 2002 22:34:47 -0400
+	id <S314027AbSDQClL>; Tue, 16 Apr 2002 22:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314027AbSDQCeq>; Tue, 16 Apr 2002 22:34:46 -0400
-Received: from linuxfromscratch.org ([198.186.203.81]:62221 "EHLO
-	linuxfromscratch.org") by vger.kernel.org with ESMTP
-	id <S313928AbSDQCeq>; Tue, 16 Apr 2002 22:34:46 -0400
-Date: Tue, 16 Apr 2002 22:35:54 -0400
-From: Gerard Beekmans <gerard@linuxfromscratch.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org,
-        Martin Dalecki <dalecki@evision-ventures.com>
-Subject: Re: make xconfig fails in 2.5.8 kernel, trivial change to fix it
-Message-ID: <20020417023554.GB765@gwaihir.linuxfromscratch.org>
-In-Reply-To: <20020416224524.GA5651@gwaihir.linuxfromscratch.org> <Pine.LNX.4.10.10204161902220.11230-100000@master.linux-ide.org>
+	id <S314030AbSDQClK>; Tue, 16 Apr 2002 22:41:10 -0400
+Received: from eriador.apana.org.au ([203.14.152.116]:64267 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S314027AbSDQClK>; Tue, 16 Apr 2002 22:41:10 -0400
+Date: Wed, 17 Apr 2002 12:40:58 +1000
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+Message-ID: <20020417024058.GA24483@gondor.apana.org.au>
+In-Reply-To: <20020416222156.GB20464@turbolinux.com> <E16xba3-0005tw-00@gondolin.me.apana.org.au> <20020416225631.GD20464@turbolinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
-Organization: Linux From Scratch
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 07:04:32PM -0700, Andre Hedrick wrote:
-> I am sorry I can not answer you questions about 2.5, since there is a new
-> maintainer.  I am sure he can resolve your 2.5 issue proper.
+On Tue, Apr 16, 2002 at 04:56:31PM -0600, Andreas Dilger wrote:
+> 
+> Er, because the 'tick' is a valid count of the actual time that the
+> system has been running, while the "boot time" is totally meaningless.
+> What if the system has no RTC, or the RTC is wrong until later in the
+> boot sequence when it can be set by the user/ntpd?  What if you pass
+> daylight savings time?  Does your uptime increase/decrease by an hour?
 
-That file config.in had your name and email address in the headers. You may
-want to have that removed?
+Tick is the number of timer interrupts that you've collected, which
+may or may not be exactly 100Hz.  In fact, after 400 days of operation,
+the deviation from true time is likely to be above 1 hour.
 
+Anyway, you don't need the RTC since you can always fall back to the
+system clock which is no worse than before.  However, if you do have
+an accurate clock source then this is much better than using the tick.
 
+If you use ntpd, then you can simply record the time on a server that
+you trust, and use the tick reading at that point in time to deduce
+the boot time.
 -- 
-Gerard Beekmans
-www.linuxfromscratch.org
-
--*- If Linux doesn't have the solution, you have the wrong problem -*-
+Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

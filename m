@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbTISJIC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 05:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTISJIC
+	id S261437AbTISJLP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 05:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbTISJLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 05:08:02 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:7345 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261421AbTISJIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 05:08:00 -0400
-Subject: Re: vmalloc and DMA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stevie-O <oliver@klozoff.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F6A61E9.1060407@klozoff.com>
-References: <3F6A61E9.1060407@klozoff.com>
-Content-Type: text/plain
+	Fri, 19 Sep 2003 05:11:14 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:29870 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261437AbTISJLN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 05:11:13 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1063962334.18308.4.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Fri, 19 Sep 2003 10:05:34 +0100
+Message-ID: <16234.51231.312249.132103@gargle.gargle.HOWL>
+Date: Fri, 19 Sep 2003 11:10:55 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       rob@landley.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Make modules_install doesn't create /lib/modules/$version
+In-Reply-To: <1063950080.5491.10.camel@workshop.saharacpt.lan>
+References: <20030919024455.834992C0F1@lists.samba.org>
+	<1063950080.5491.10.camel@workshop.saharacpt.lan>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-09-19 at 02:54, Stevie-O wrote:
-> I need to treat a large number of pages (about 128) as continuous. 
+Martin Schlemmer writes:
+ > On Fri, 2003-09-19 at 04:25, Rusty Russell wrote:
+ > > In message <20030918091511.276309a6.rddunlap@osdl.org> you write:
+ > > > On Thu, 18 Sep 2003 03:21:40 -0400 Rob Landley <rob@landley.net> wrote:
+ > > > 
+ > > > | I've installed -test3, -test4, and now -test5, and each time make 
+ > > > | modules_install died with the following error:
+ > > > | 
+ > > > | Kernel: arch/i386/boot/bzImage is ready
+ > > > | sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage System.map ""
+ > > > | /lib/modules/2.6.0-test5 is not a directory.
+ > > 
+ > > Looks like arch/i386/boot/install.sh is calling ~/bin/installkernel or
+ > > /sbin/installkernel, which is not creating the directory.
+ > > 
+ > > Should depmod create the directory?  It can, of course, but AFAICT the
+ > > old one didn't.
+ > > 
+ > > Maybe a RedHat issue?
+ > > 
+ > 
+ > Likely, it works fine here with the one we are using
+ > from debianutils.
 
-Continuous to whom ?
+So how come it's never been a problem on my RH boxes?
+(Currently RH9 + module-init-tools but none of Arjan's .rpms)
 
-> (2) Is it appropriate to vmalloc_32(512<<10) and then grab the underlying 
-> addresses for DMA?
-> (3) If it *is* appropriate, what's the proper way to get to those underlying 
-> addresses? I saw a virt_to_page macro somewhere...
+I basically do
+make bzImage modules |& tee /tmp/log
+grep Warning /tmp/log
+su
+make modules_install
+make install
 
-If you use the pci_alloc interfaces you'll get what you want except for
-them not being fake contiguous to the kernel. You can still make them 
-contiguous to user space.
-
+Creating the /lib/modules/<version> directory is the kernel's
+job, not installkernel (it's never done that before).

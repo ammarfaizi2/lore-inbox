@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317443AbSGENZS>; Fri, 5 Jul 2002 09:25:18 -0400
+	id <S317444AbSGENcJ>; Fri, 5 Jul 2002 09:32:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317444AbSGENZR>; Fri, 5 Jul 2002 09:25:17 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:10765 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S317443AbSGENZR>;
-	Fri, 5 Jul 2002 09:25:17 -0400
-Date: Fri, 5 Jul 2002 15:27:49 +0200 (CEST)
-From: venom@sns.it
-To: Jens Axboe <axboe@suse.de>
+	id <S317446AbSGENcI>; Fri, 5 Jul 2002 09:32:08 -0400
+Received: from h209-71-227-55.gtconnect.net ([209.71.227.55]:54790 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S317444AbSGENcH>;
+	Fri, 5 Jul 2002 09:32:07 -0400
+Date: Fri, 5 Jul 2002 09:34:41 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Christian Berger <christian@berger-online.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-In-Reply-To: <20020705104037.GM1007@suse.de>
-Message-ID: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
+Subject: Re: your mail
+In-Reply-To: <1025858852.1154.0.camel@Rechner1.berger-online.de>
+Message-ID: <Pine.LNX.4.44.0207050934160.29244-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002, Jens Axboe wrote:
+Right command wrong email address.  You need to send that to
+majordomo@vger.kernel.org
 
-> Date: Fri, 5 Jul 2002 12:40:37 +0200
-> From: Jens Axboe <axboe@suse.de>
-> To: venom@sns.it
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: IBM Desktar disk problem?
+
+
+On 5 Jul 2002, Christian Berger wrote:
+
+> Date: 05 Jul 2002 10:47:32 +0200
+> From: Christian Berger <christian@berger-online.de>
+> To: linux-kernel@vger.kernel.org
 >
-> On Fri, Jul 05 2002, venom@sns.it wrote:
-> >
-> > HI,
-> > I was trying kernel 2.5 with TCQ enabled.
-> > I tried it on three Desktar disk (manufactured in Thailand
-> > in february 2001) model dtla 305020.
-> >
-> > All three disk died after some week, without
-> > any signal of being dying.
-> > I was starting to suspect about an HW problem.
-> >
-> > With 2.4 kernels, no tcq, they could work
-> > without any problem for almost 8 months, but now,
-> > I moved those disk to test systems to test tcq support
-> > and all died badly. This is not an heat problem, since
-> > thay staty in a CED conditioned at 18C.
+> unsubscribe linux-kernel
 >
-> This is a puzzling report. I wouldn't recommend that anyone use tcq in
-> 2.5 actually, since even I do not know what state it is currently in. I
-> would seriously recommend 2.4 + tcq patches instead.
 >
-> That said, are your disks completely dead now? As in they do not work
-> with a regular 2.4 kernel anymore?!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Right now they are good just for the trash box.
-There is no way they could work, and I listen a noisy
-tic-tac frrr tic-tac from the head of the disks...
+--
+Gerhard Mack
 
+gmack@innerfire.net
 
-I would think to an HW problem, but why all three together?
-and why exacly when I tested tcq?
-
-
-
+<>< As a computer I find your faith in technology amusing.
 

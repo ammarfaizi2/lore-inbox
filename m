@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVBOQHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVBOQIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVBOQHf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 11:07:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVBOQHe
+	id S261766AbVBOQIj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 11:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVBOQHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 11:07:34 -0500
-Received: from postman.ripe.net ([193.0.0.199]:36535 "EHLO postman.ripe.net")
-	by vger.kernel.org with ESMTP id S261770AbVBOQHQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 11:07:16 -0500
-Message-ID: <42121E5B.2010503@colitti.com>
-Date: Tue, 15 Feb 2005 17:07:55 +0100
-From: Lorenzo Colitti <lorenzo@colitti.com>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
+	Tue, 15 Feb 2005 11:07:46 -0500
+Received: from centaur.culm.net ([83.16.203.166]:22026 "EHLO centaur.culm.net")
+	by vger.kernel.org with ESMTP id S261769AbVBOQGu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 11:06:50 -0500
+From: Witold Krecicki <adasi@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: sil_blacklist - are all those entries necessary?
+Date: Tue, 15 Feb 2005 17:06:04 +0100
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-To: s0348365@sms.ed.ac.uk
-Cc: Pavel Machek <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
-References: <20050214211105.GA12808@elf.ucw.cz> <200502150605.11683.s0348365@sms.ed.ac.uk> <4211E729.1090305@colitti.com> <200502151317.15633.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200502151317.15633.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RIPE-Spam-Level: 
-X-RIPE-Spam-Tests: ALL_TRUSTED,BAYES_00
-X-RIPE-Spam-Status: N 0.120259 / -5.9
-X-RIPE-Signature: 4db30108bcfd119583b25cb61e4664fa
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502151706.04846.adasi@kernel.pl>
+X-Spam-Score: -4.9 (----)
+X-Scan-Signature: c42221d957bd9275d9a0590d6045215c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
->>.config attached.
-> 
-> As recommended elsewhere in this thread, I'm not using any sort of framebuffer 
-> driver, but vesafb IS compiled in (but no vga= option is present). Does it 
-> need to be compiled out completely?
-
-I don't remember, maybe you can deduce it from the .config I sent?
-
-> I have acpi_sleep=s3_bios on cmdline. I am not using swsusp2 (and I can't see 
-> how this is at all related to software suspend).
-
-It works with or without swsusp2.
-
-> Perhaps it is the machine BIOS. Which version do you have?
-
-I think it's vF.0F from July 2004.
-
-
-Cheers,
-Lorenzo
+in sata_sil.c there is:
+sil_blacklist [] = {
+        { "ST320012AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST330013AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST340017AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST360015AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST380023AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST3120023AS",        SIL_QUIRK_MOD15WRITE },
+        { "ST3160023AS",        SIL_QUIRK_MOD15WRITE },
+        { "ST3120026AS",        SIL_QUIRK_MOD15WRITE },
+        { "ST340014ASL",        SIL_QUIRK_MOD15WRITE },
+        { "ST360014ASL",        SIL_QUIRK_MOD15WRITE },
+        { "ST380011ASL",        SIL_QUIRK_MOD15WRITE },
+        { "ST3120022ASL",       SIL_QUIRK_MOD15WRITE },
+        { "ST3160021ASL",       SIL_QUIRK_MOD15WRITE },
+        { "Maxtor 4D060H3",     SIL_QUIRK_UDMA5MAX },
+        { }
+};
+I've got ST3120026AS and I've been using it with SIL3112 without this hack for 
+a long time - without any negative effects. The same impression on 
+ST3200822AS - is there any way to check if it is REALLY necessary? 15MB/s is 
+not what I'd expect on SATA...
+-- 
+Witold Krêcicki (adasi) adasi [at] culm.net
+GPG key: 7AE20871
+http://www.culm.net

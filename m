@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVBNQsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVBNQu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVBNQsf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 11:48:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVBNQsf
+	id S261482AbVBNQu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 11:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVBNQu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 11:48:35 -0500
-Received: from smtpout3.uol.com.br ([200.221.4.194]:62670 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261482AbVBNQsO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 11:48:14 -0500
-Date: Mon, 14 Feb 2005 14:48:10 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: How to get the maximum output from dmesg command
-Message-ID: <20050214164810.GA12738@ime.usp.br>
-Mail-Followup-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-	linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-References: <4EE0CBA31942E547B99B3D4BFAB3481134E2AE@mail.esn.co.in> <20050214161950.GA10253@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050214161950.GA10253@DervishD>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Feb 2005 11:50:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41131 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261482AbVBNQuS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 11:50:18 -0500
+Date: Mon, 14 Feb 2005 11:50:01 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Kurt Garloff <garloff@suse.de>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>,
+       Andreas Gruenbacher <agruen@suse.de>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [PATCH] 5/5: LSM hooks rework
+In-Reply-To: <20050213211238.GM27893@tpkurt.garloff.de>
+Message-ID: <Xine.LNX.4.44.0502141143420.24807-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srinivas G. <srinivasg@esntechnologies.co.in> wrote:
-> How to get maximum output from dmesg command? 
-> I am unable to see all my debug messages after loading my driver. 
-> I think there is a restriction in displaying the dmesg output. 
+On Sun, 13 Feb 2005, Kurt Garloff wrote:
 
-There is indeed.
+>  /* Condition for invocation of non-default security_op */
+>  #define COND_SECURITY(seop, def) 	\
+> -	(likely(security_ops == &capability_security_ops))? def: security_ops->seop
+> +	(unlikely(security_enabled))? security_ops->seop: def
 
-> I saw in printk.c file under source directory. There I found LOG_BUF_LEN
-> is 16384.
+So this will cause a false unlikely() for every single SELinux hook,
+again.  This was rejected last year.  The thread you pointed to has some
+discussion of dealing with the problematic ia64 case, although there's no
+evidence in these patches that anything has progressed in that area since
+then.
 
-Sorry if this is obvious, but have you considered using the -s option of
-dmesg?
 
-
-Hope I understood it correctly, Rogério.
-
+- James
 -- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+James Morris
+<jmorris@redhat.com>
+
+
+

@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbUKSVn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbUKSVpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbUKSVn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:43:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbUKSVnZ
+	id S261596AbUKSVpz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 16:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUKSVpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:43:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:3214 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261594AbUKSVmS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:42:18 -0500
-Date: Fri, 19 Nov 2004 13:32:32 -0800
-From: Greg KH <greg@kroah.com>
-To: brking@us.ibm.com
-Cc: paulus@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST
-Message-ID: <20041119213232.GB13259@kroah.com>
-References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 19 Nov 2004 16:45:54 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21236 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261596AbUKSVnf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:43:35 -0500
+Message-ID: <419E6900.5070001@mvista.com>
+Date: Fri, 19 Nov 2004 14:43:28 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm <akpm@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>, linuxppc-embedded@ozlabs.org
+Subject: [PATCH][PPC32] Marvell host bridge support (mv64x60)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 02:23:22PM -0600, brking@us.ibm.com wrote:
-> -static inline int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
-> -{
-> -	return pci_bus_read_config_byte (dev->bus, dev->devfn, where, val);
-> -}
+This patch adds core support for a line of host bridges from Marvell 
+(formerly Galileo).  This code has been tested with a GT64260a, 
+GT64260b, MV64360, and MV64460.  Patches for platforms that use these 
+bridges will be sent separately.
 
-Well, as much as I despise this patch, you should at least get it
-correct :)
+The patch is rather large so a link is provided.
 
-You need to block the pci_bus_* functions too, otherwise the parts of
-the kernel that use them will stomp all over your device, right?
+Signed-off-by: Mark A. Greer <mgreer@mvista.com>
+--
 
-thanks,
+ftp://source.mvista.com/pub/mgreer/mv64x60.patch
 
-greg k-h

@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVBUQrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVBUQxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbVBUQrU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 11:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVBUQrU
+	id S262033AbVBUQxG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 11:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVBUQxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 11:47:20 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:31177 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262035AbVBUQrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 11:47:05 -0500
-Message-ID: <4219CA64.8020402@comcast.net>
-Date: Mon, 21 Feb 2005 11:47:48 +0000
-From: Doug McLain <nostar@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040618
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 21 Feb 2005 11:53:05 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:59750 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262033AbVBUQxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 11:53:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=M+998Z/UPabpTKi6zios4PrAEnZ+7TFog7yXTDqmiOQBZyxyamD8HWQrr5MGK8LMwfBu2XGBAZwMbrskrtiDNmBe8n34i/pY8yb/nqBV09gto90MiQ9RLM2DsNwpGBSe60oaG/dEBpEtF5+Fj2E3RrAWHBZqdxeRxWMotEYJRBU=
+Message-ID: <9e47339105022108527e3c679d@mail.gmail.com>
+Date: Mon, 21 Feb 2005 11:52:27 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Jeff Garzik <jgarzik@pobox.com>
-CC: PALFFY Daniel <dpalffy-lists@rainstorm.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: sata_sil data corruption
-References: <Pine.LNX.4.58.0412281319001.5054@rainstorm.org> <421778E4.8060705@pobox.com> <Pine.LNX.4.58.0502211219250.23186@rainstorm.org> <4219A3AD.1000002@comcast.net> <421A0990.7070506@pobox.com> <4219C543.8030903@comcast.net> <20050221162923.GA29621@havoc.gtf.org>
-In-Reply-To: <20050221162923.GA29621@havoc.gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Problem: how to sequence reset of PCI hardware
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       fbdev <linux-fbdev-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <42199DD9.10807@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <9e47339105022023242e2fd9ce@mail.gmail.com>
+	 <42199DD9.10807@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-Been there done that, all on this list actually.  Bios upgrade, bios 
-reset, new cable, different drive, correct functionality in windows, and 
-now the drive and cable ahave found their home in my other PC, a kt600 
-board using the sata_via driver, where it works flawlessly.  I'm not 
-even interested in using the sata interface on this machine anymore, but 
-I still try to make an effort whenever possible to contribute byt 
-reporting bugs.  So many people with so many different hardware 
-combinations, sometimes it takes the right combination of 
-hardware/software to reveal a bug.  That being said, if you want to 
-investigate further, I can provide any information you want. If you want 
-to ignore it, thats fine too.  Evidence strongly leans towards a driver 
-bug though.
+On Mon, 21 Feb 2005 03:37:45 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> You either need to execute the video BIOS to initialize the hardware
+> registers, or initialize the hardware registers themselves.
 
-I also noticed that I get oops now sometimes even with no drive 
-attatched at all
+That is what the user mode reset program does.
 
-What is a blacklist entry?  A combination of drive/controller that is 
-determined to be incompatable together? I would assume for a drive to 
-make it to a blacklists it would have to be incompatable regardless of 
-OS right?  The drive in question is a WD2000JD
+The problem is, how do I get it to run before calling the device's
+probe function? Most of the framebuffer drivers assume that the
+hardware has already been reset in their probe code.
 
-Doug
+
 > 
-> In this case, the bug _reports_ are hard to find.
+>         Jeff
 > 
-> Each case with sata_sil is either solved with a BIOS update, a
-> blacklist entry, or new cables.  Just read through bugzilla.kernel.org.
-> 
-> 	Jeff
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
 
 
 -- 
-http://nostar.net/
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVAUMD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVAUMDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262343AbVAUMD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 07:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVAUMD2
+	id S262345AbVAUMDv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 07:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVAUMDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 07:03:28 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:29312 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262343AbVAUMDZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 07:03:25 -0500
-Message-ID: <41F0F07B.3040805@iinet.com.au>
-Date: Fri, 21 Jan 2005 23:07:23 +1100
-From: Rodney McDonell <rodney@iinet.com.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kern:2.6.8, no cpufreq in sysfs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jan 2005 07:03:50 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:3459 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262345AbVAUMDr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 07:03:47 -0500
+Date: Fri, 21 Jan 2005 13:03:25 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@cpushare.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: seccomp for 2.6.11-rc1-bk8
+Message-ID: <20050121120325.GA2934@elte.hu>
+References: <20050121100606.GB8042@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050121100606.GB8042@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/sys/devices/system/cpu/cpu0/cpufreq does not exist.
 
-kernel config -->
-http://pods.dzite.com/4thegeeks/
+* Andrea Arcangeli <andrea@cpushare.com> wrote:
 
-My kernel config file is named cpufreq.txt. The other file is the 
-README.Debian file found in the kernel-source doc directory. As you can 
-see, it only patches, non-free stuff and firmware mainly.
+> This is the seccomp patch ported to 2.6.11-rc1-bk8, that I need for
+> Cpushare (until trusted computing will hit the hardware market). 
+> [...]
 
-I've looked at changelogs for 2.6.9 and 2.6.10 and whilst they helped me 
-correct a previous error, this problem remains.
+why do you need any kernel code for this? This seems to be a limited
+ptrace implementation: restricting untrusted userspace code to only be
+able to exec read/write/sigreturn.
 
-/etc/fstab does not contain an sysfs entry, however, /etc/mtab does :) 
-I'm guessing this is a debian thing, because i've seen forums all over 
-the web where apparently you have to have an entry in fstab. Looks like 
-i dont need one. Maybe an old feature?
+So this patch, unless i'm missing something, duplicates in essence what
+ptrace can do already here and today, on any Linux box, on any CPU. You
+can implement your client based on ptrace alone, just like UML does it -
+and UML has much more complex needs than secure isolation.
 
+ptrace ought to be perfectly fine for this, it traps every attempt to do
+something privileged. [ptrace had its share of security problems but
+_not_ many (if any at all) security problems that allowed a ptrace
+client to _break out_ of a ptrace jail.]
+
+	Ingo

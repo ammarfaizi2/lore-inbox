@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268077AbRG2Qtm>; Sun, 29 Jul 2001 12:49:42 -0400
+	id <S268094AbRG2RLo>; Sun, 29 Jul 2001 13:11:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268090AbRG2Qtd>; Sun, 29 Jul 2001 12:49:33 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:56997 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S268077AbRG2QtR>;
-	Sun, 29 Jul 2001 12:49:17 -0400
-Message-ID: <3B643EA7.46D3F671@mandrakesoft.com>
-Date: Sun, 29 Jul 2001 12:49:43 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S268096AbRG2RLf>; Sun, 29 Jul 2001 13:11:35 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:48909 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268094AbRG2RLW>; Sun, 29 Jul 2001 13:11:22 -0400
+Date: Sun, 29 Jul 2001 10:07:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+cc: Andrea Arcangeli <andrea@suse.de>, <maxk@qualcomm.com>,
+        <linux-kernel@vger.kernel.org>, <mingo@redhat.com>, <davem@redhat.com>
+Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
+In-Reply-To: <200107282328.DAA01045@mops.inr.ac.ru>
+Message-ID: <Pine.LNX.4.33.0107291002570.8151-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Peter Gordon <peter@valor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.7 DAC960.c won't compile
-In-Reply-To: <3B64044F.65B208C2@valor.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This was fixed by Jens in 2.4.8-pre2.
--- 
-Jeff Garzik      | "Mind if I drive?" -Sam
-Building 1024    | "Not if you don't mind me clawing at the dash
-MandrakeSoft     |  and shrieking like a cheerleader." -Max
+
+On Sun, 29 Jul 2001, Alexey Kuznetsov wrote:
+>
+> Before falling to euforia, the last question:
+> Is Ingo really happy with this? He blamed about latency,
+> it is not better than in 2.4.5 (with cpu_idle fix) :-)
+
+I think the latency issue was really the fact that we weren't always
+running softirqs in a timely fashion after they had been disabled by a
+"disable_bh()". That is fixed with the new softirq stuff, regardless of
+the other issues.
+
+But it would be good to have some specweb runs etc done to verify.
+
+Ingo?
+
+		Linus
+

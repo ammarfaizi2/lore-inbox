@@ -1,73 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbTLQN13 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 08:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264314AbTLQN13
+	id S264398AbTLQODS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 09:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTLQODR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 08:27:29 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:7079 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S261406AbTLQN10 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 08:27:26 -0500
+	Wed, 17 Dec 2003 09:03:17 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:61569 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264398AbTLQODO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 09:03:14 -0500
+Date: Wed, 17 Dec 2003 15:03:04 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: George Anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <3FDF7ED3.5020802@mvista.com>
+Message-ID: <Pine.LNX.4.55.0312171410190.7484@jurand.ds.pg.gda.pl>
+References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
+ <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com>
+ <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl> <3FDE2AC6.30902@mvista.com>
+ <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl> <3FDF4060.30303@mvista.com>
+ <Pine.LNX.4.55.0312162141070.8262@jurand.ds.pg.gda.pl> <3FDF7ED3.5020802@mvista.com>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16352.22968.706710.576954@gargle.gargle.HOWL>
-Date: Wed, 17 Dec 2003 08:27:20 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: [patch] qla1280 crash fix in error handling
-X-Mailer: VM 7.03 under Emacs 21.2.1
-From: Jes Sorensen <jes@trained-monkey.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 16 Dec 2003, George Anzinger wrote:
 
-The following patch fixes a big in the qla1280 driver where it would
-leave a pointer to an on the stack completion event in a command
-structure if qla1280_mailbox_command fails. The result is that the
-interrupt handler later tries to complete() garbage on the stack. The
-mailbox command can fail if a device on the bus decides to lock up etc.
+> How confusing :(  Could you give me some idea how this works?  I have tried 
+> disable_irq(0) and, as best as I can tell, it does not do the trick.  The 
+> confusion I have is understanding where in the chain of hardware each of these 
+> thing is taking place.
 
-Patch relative to 2.6.0-test11 but should apply to the current BK tree
-as well.
+ Well, strange -- it should mask the timer interrupt.  But I've never 
+tried that and have proposed based on a source study only -- perhaps it 
+needs to be further investigated.
 
-Cheers,
-Jes
+> For example, it would be "nice" if I could just turn off the PIT interrupt line 
+> so that both the NMI (PIT generated) and the PIT interrupt would be put on hold. 
 
---- linux-2.6.0-test11/drivers/scsi/orig/qla1280.c	Wed Dec 17 05:14:18 2003
-+++ linux-2.6.0-test11/drivers/scsi/qla1280.c	Wed Dec 17 05:20:02 2003
-@@ -16,9 +16,13 @@
- * General Public License for more details.
- *
- ******************************************************************************/
--#define QLA1280_VERSION      "3.23.37"
-+#define QLA1280_VERSION      "3.23.37.1"
- /*****************************************************************************
-     Revision History:
-+    Rev  3.23.37.1 December 17, 2003, Jes Sorensen
-+	- Delete completion queue from srb if mailbox command failed to
-+	  to avoid qla1280_done completeting qla1280_error_action's
-+	  obsolete context
-     Rev  3.23.37 October 1, 2003, Jes Sorensen
- 	- Make MMIO depend on CONFIG_X86_VISWS instead of yet another
- 	  random CONFIG option
-@@ -1464,8 +1468,15 @@
- 	/* If we didn't manage to issue the action, or we have no
- 	 * command to wait for, exit here */
- 	if (result == FAILED || handle == NULL ||
--	    handle == (unsigned char *)INVALID_HANDLE)
-+	    handle == (unsigned char *)INVALID_HANDLE) {
-+		/*
-+		 * Clear completion queue to avoid qla1280_done() trying
-+		 * to complete the command at a later stage after we
-+		 * have exited the current context
-+		 */
-+		sp->wait = NULL;
- 		goto leave;
-+	}
- 
- 	/* set up a timer just in case we're really jammed */
- 	init_timer(&timer);
+ The counter gate of the 8254 chip is designed to do just that -- it's a
+pity it's hardwired, but I can understand another SSI TTL latch of a
+dubious utility was just too costly for the original PC in 1981.
+
+>   Your answer seems to indicate that disable_irq() is working down stream from 
+> where the NMI signal is connected to the PIT interrupt line, so we need to turn 
+> of the NMI as well.  A picture would be nice here :)
+
+ I'll try my best:
+
+ +------+ OUT0                                INTIN2 +--------+
+ | 8254 +--+-----------------------------------------+        |
+ +------+  |                                         |  I/O   |
+           | IR0 +------+ INT +------+        INTIN0 |  APIC  |
+           +-----+ 8259 +-----+ glue +-+-------------+        |
+                 +------+     +------+ |             +---++---+
+                                       |                 ||
+                                       |                 ||
+                                       |                 ||
+                           +-----------+---------+-...   ||
+                           |                     |       ||
+        +--------+         |  +--------+         |       ||
+        | CPU #0 |         |  | CPU #1 |         |       ||
+        +--------+         |  +--------+         |       ||
+        |        | LINT0   |  |        | LINT0   | ...   ||
+        | local  +---------+  | local  +---------+       ||
+        | APIC   |            | APIC   |                 ||
+        |        |            |        |                 ||
+        +---++---+            +---++---+                 ||
+            ||                    ||                     ||
+            || inter-APIC bus     ||                     ||
+            ++====================++===============...===++
+
+The system is a traditional i82489DX/Pentium/P6-style virtual-wire setup
+with a serial inter-APIC bus and a full MP-spec feature set.  More limited
+systems may miss the OUT0->INTIN2 line and/or one or more of the
+INT->INTIN0 or INT->LINT0 -- there needs to be only one.  If any INT->sth
+connections are missing then either the INT->LINT0 one for the bootstrap
+processor (BSP) or the INT->LINT0 has to exist; other are optional.
+
+ For the system above the path for the 8254 timer interrupt is via INTIN2
+and the inter-APIC bus as a LoPri APIC interrupt.  The path for the NMI
+watchdog is via the 8259 reconfigured to pass IR0 transparently to INT and
+then LINT0 inputs of all processors, reconfigured for a NMI APIC
+interrupt.  Some glue at the INT output may prevent the NMI watchdog from
+working -- the LINT0 inputs may not toggle back and forth.
+
+ If the OUT0->INTIN2 line is missing, the path for the 8254 timer
+interrupt is via the 8259 reconfigured to pass IR0 transparently to INT,
+then INTIN0 and the inter-APIC bus as a LoPri APIC interrupt.  The path
+for the NMI watchdog is also via the 8259 and then LINT0 inputs of all
+processors, reconfigured for a NMI APIC interrupt.  Again, some glue at
+the INT output may prevent this set up from working, but if it does work,
+then both the timer interrupt and the NMI watchdog do -- I've not heard of
+a system having different glue logic for INTIN0 and LINT0.
+
+ If the above variant does not work, as a last resort, the path for the
+8254 timer interrupt is via the 8259 reconfigured back into its usual mode
+and then LINT0 of the BSP reconfigured for an ExtINTA APIC interrupt.  
+Additionally, since at this point the glue logic has probably already
+locked up due to the messing done above, a few artiffical sets of double
+INTA cycles are sent to the system bus using the RTC chip and INTIN8
+reconfigured temporarily to send ExtINTA APIC interrupts via the
+inter-APIC bus.
+
+ I do hope a thorough read of the description will make the available
+variants clear.  The I/O APIC input numbers may differ but so far they are
+almost always as noted above.
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

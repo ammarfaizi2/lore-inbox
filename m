@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261771AbREPSMS>; Wed, 16 May 2001 14:12:18 -0400
+	id <S261288AbREPSN1>; Wed, 16 May 2001 14:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261288AbREPSL5>; Wed, 16 May 2001 14:11:57 -0400
-Received: from penguin.roanoke.edu ([199.111.154.8]:34057 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S261801AbREPSLz>; Wed, 16 May 2001 14:11:55 -0400
-Message-ID: <3B02C5BF.E6D7DBEE@linuxjedi.org>
-Date: Wed, 16 May 2001 14:23:59 -0400
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Christoph Rohland <cr@sap.com>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rootfs (part 1)
-In-Reply-To: <Pine.LNX.4.21.0105161055270.4738-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261989AbREPSNR>; Wed, 16 May 2001 14:13:17 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:22283 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S261288AbREPSNL>; Wed, 16 May 2001 14:13:11 -0400
+Message-Id: <200105161812.f4GICXU70851@aslan.scsiguy.com>
+To: Massimo Dal Zotto <dz@cs.unitn.it>
+cc: alan@redhat.com, linux-kernel@vger.kernel.org, tmm@image.dk
+Subject: Re: [PATCH] move aic7xxx ld in drivers/scsi/Makefile 
+In-Reply-To: Your message of "Wed, 16 May 2001 14:05:16 +0200."
+             <200105161205.OAA13638@nikita.dz.net> 
+Date: Wed, 16 May 2001 12:12:33 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> What the hell are you doing? Compiling with debugging or something?
+>Hi,
+>
+>while examining the makefiles of kernel-2.4.4 I noticed that the top Makefile
+>contains a specific reference to the aic7xxx driver which should IMHO be
+>referenced only by the drivers/scsi/Makefile.
 
-I'll bet he's using a rootkit 'ls' that shows file sizes in bits.
-;-)
+This was changed post v6.1.5 of the aic7xxx driver.  Apply the latest
+patch for 2.4.4 from here:
 
-regards,
-	David
+http://people.FreeBSD.org/~gibbs/linux/
 
--- 
-David L. Parsley
-Network Administrator, Roanoke College
-"If I have seen further it is by standing on ye shoulders of
-Giants."
---Isaac Newton
+and see if this is satisfactory.
+
+--
+Justin

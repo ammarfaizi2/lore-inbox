@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131055AbRABM0l>; Tue, 2 Jan 2001 07:26:41 -0500
+	id <S131056AbRABMal>; Tue, 2 Jan 2001 07:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131113AbRABM0b>; Tue, 2 Jan 2001 07:26:31 -0500
-Received: from firebird.planetinternet.be ([195.95.34.5]:5646 "EHLO
-	firebird.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S131077AbRABM0U>; Tue, 2 Jan 2001 07:26:20 -0500
-Date: Tue, 2 Jan 2001 12:55:45 +0100
-From: Kurt Roeckx <Q@ping.be>
-To: Gerold Jury <geroldj@grips.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Happy new year^H^H^H^Hkernel..
-Message-ID: <20010102125545.A8981@ping.be>
-In-Reply-To: <Pine.LNX.4.10.10012311205020.1210-100000@penguin.transmeta.com> <3A514236.2000801@grips.com>
+	id <S131093AbRABMab>; Tue, 2 Jan 2001 07:30:31 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:26378 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131056AbRABMaU>;
+	Tue, 2 Jan 2001 07:30:20 -0500
+Date: Tue, 2 Jan 2001 12:59:24 +0100
+From: Andi Kleen <ak@suse.de>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: "David S. Miller" <davem@redhat.com>, grundler@cup.hp.com,
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        parisc-linux@thepuffingroup.com
+Subject: Re: [PATCH] move xchg/cmpxchg to atomic.h
+Message-ID: <20010102125924.A9538@gruyere.muc.suse.de>
+In-Reply-To: <200101020811.AAA26525@milano.cup.hp.com> <200101020903.BAA14334@pizda.ninka.net> <20010102112242.A7040@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <3A514236.2000801@grips.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010102112242.A7040@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Tue, Jan 02, 2001 at 11:22:42AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2001 at 03:51:34AM +0100, Gerold Jury wrote:
-> The ISDN changes for the HISAX drivers
-> that came in since test12 have introduced a bug that causes a 
-> AIEE-something and a complete kernel hang when i hangup the isdn line.
-> I have reversed the patch for all occurences of INIT_LIST_HEAD in the 
-> isdn patch part and it works for me now.
+On Tue, Jan 02, 2001 at 11:22:42AM +0000, Matthew Wilcox wrote:
+> On Tue, Jan 02, 2001 at 01:03:48AM -0800, David S. Miller wrote:
+> > If you require an external agent (f.e. your spinlock) because you
+> > cannot implement xchg with a real atomic sequence, this breaks the
+> > above assumptions.
 > 
-> The relevant part is attached. Please back it out for 2.4.0.
+> We really can't.  We _only_ have load-and-zero.  And it has to be 16-byte
+> aligned.  xchg() is just not something the CPU implements.
 
-I'm using the hisax driver too (build in), and it works perfectly
-for me.
+The network code relies on the reader-xchg semantics David described in 
+several places.
 
-
-Kurt
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

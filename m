@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUFLNsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUFLNuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264788AbUFLNsM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 09:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264791AbUFLNsL
+	id S264781AbUFLNuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 09:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUFLNuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 09:48:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12423 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264788AbUFLNsC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 09:48:02 -0400
-Date: Sat, 12 Jun 2004 06:47:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?ISO-8859-1?Q?Dominik_Stra=DFer?= <einmal_rupert@gmx.de>
-cc: Russell Leighton <russ@elegant-software.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: Using getpid() often, another way? [was Re: clone() <-> getpid()
- bug in 2.6?]
-In-Reply-To: <40CAC9BE.6050400@gmx.de>
-Message-ID: <Pine.LNX.4.58.0406120645420.2903@evo.osdl.org>
-References: <40C1E6A9.3010307@elegant-software.com>
- <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> <40C32A44.6050101@elegant-software.com>
- <40C33A84.4060405@elegant-software.com> <Pine.LNX.4.58.0406061013250.7010@ppc970.osdl.org>
- <40CAC9BE.6050400@gmx.de>
+	Sat, 12 Jun 2004 09:50:18 -0400
+Received: from mail2.asahi-net.or.jp ([202.224.39.198]:50612 "EHLO
+	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
+	id S264781AbUFLNuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 09:50:09 -0400
+Message-ID: <40CB0A0A.1010104@ThinRope.net>
+Date: Sat, 12 Jun 2004 22:50:02 +0900
+From: Kalin KOZHUHAROV <kalin@ThinRope.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: bg, en, ja, ru, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: timer + fpu stuff locks my console race
+References: <1404.83.109.11.80.1087046920.squirrel@nepa.nlc.no>
+In-Reply-To: <1404.83.109.11.80.1087046920.squirrel@nepa.nlc.no>
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+stian@nixia.no wrote:
+> Forgot to update the diff file after I fixed some bogus stuff. This patch
+> file compiles. Please report if it works or not for 2.4.26 (I'm lacking
+> that damn Internett connection on my linux box). So much for vaccation.
+> 
+> Stian Skjelstad
+> 
+> diff -ur linux-2.4.26/kernel/signal.c linux-2.4.26-fpuhotfix/kernel/signal.c
+> --- linux-2.4.26/kernel/signal.c        2004-02-18 14:36:32.000000000 +0100
+> +++ linux-2.4.26-fpuhotfix/kernel/signal.c      2004-06-12
+> 15:26:10.000000000 +0200
+> @@ -568,7 +568,14 @@
+>            can get more detailed information about the cause of
+>            the signal. */
+>         if (sig < SIGRTMIN && sigismember(&t->pending.signal, sig))
+> +       {
+> +               if (sig==8)
+> +               {
+> +                       printk("Attempt to exploit known bug, process=%s
+> pid=%d uid=%d\n", t->comm, t->pid, t->uid);
+> +                       do_exit(0);
+> +               }
+>                 goto out;
+> +       }
+> 
+>         ret = deliver_signal(sig, info, t);
+>  out:
 
+Does this work for 2.6.{6,7} ?
 
-On Sat, 12 Jun 2004, Dominik Straßer wrote:
->
-> I am facing the following problem:
-> I want to sum up the time spent in the main thread + all threads that 
-> ever existed.
-> getrusage dosn't work (and didn't do so in pre-NPTL-times) as the time 
-> spent in threads is not taken into account.
+Kalin.
 
-Hmm.. That's likely a bug. It definitely should work, but I guess the 
-self-reaping ends up meaning that the time never gets percolated to the 
-parent any more.
-
-Ingo, any comments/ideas?
-
-> To work around this problem I created a map pid->time used which used 
-> getpid in the pre-NPTL-time and looked up the time in /proc/<pid>. As 
-> this doesn't work with NPTL, changed it to use the gettid syscall as I 
-> didn't find a saner way.
-
-Changing it to gettid sounds like the right thing to do, but I also think 
-that you shouldn't _need_ to do things like this.
-
-		Linus
+-- 
+||///_ o  *****************************
+||//'_/>     WWW: http://ThinRope.net/
+|||\/<" 
+|||\\ ' 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

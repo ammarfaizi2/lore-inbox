@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292708AbSBYQdL>; Mon, 25 Feb 2002 11:33:11 -0500
+	id <S289833AbSBYQhc>; Mon, 25 Feb 2002 11:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291957AbSBYQcv>; Mon, 25 Feb 2002 11:32:51 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:22946 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S292708AbSBYQcq>; Mon, 25 Feb 2002 11:32:46 -0500
-Date: Mon, 25 Feb 2002 11:32:40 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rusty Russell <rusty@rustcorp.com.au>, mingo@elte.hu,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-Message-ID: <20020225113239.A11675@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0202250808150.3268-100000@home.transmeta.com> <E16fOAO-0005Ml-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16fOAO-0005Ml-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 25, 2002 at 04:39:56PM +0000
+	id <S291962AbSBYQhW>; Mon, 25 Feb 2002 11:37:22 -0500
+Received: from quechua.inka.de ([212.227.14.2]:14644 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S289833AbSBYQhJ>;
+	Mon, 25 Feb 2002 11:37:09 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
+In-Reply-To: <Pine.LNX.4.33.0202141817300.14384-100000@penguin.transmeta.com> <3C6CBB05.5010001@evision-ventures.com>
+Organization: private Linux site, southern Germany
+Date: Mon, 25 Feb 2002 17:24:36 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E16fNvY-0004Qj-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 04:39:56PM +0000, Alan Cox wrote:
-> _alloca
-> mmap
-> 
-> Still fits on the stack 8)
+> The idal solution would be some kind of stripped down C++ for some of
+> those problems...
+> No rtti, no templates, no exceptions, no additional cruft requirng back
+> behind you runtime
+> support for the language, but just plain simple direct struct
+> inheritance kind off ;-).
 
-Are we sure that forcing semaphore overhead to the size of a page is a 
-good idea?  I'd much rather see a sleep/wakeup mechanism akin to wait 
-queues be exported by the kernel so that userspace can implement a rich 
-set of locking functions on top of that in whatever shared memory is 
-being used.
+I have a preprocessor for that. It's part of my squid-filters package
+but could be generally useful as well.
 
-		-ben
+<URL:http://sites.inka.de/~bigred/devel/squid-filter.html>
+
+Olaf
+

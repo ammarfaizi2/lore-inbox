@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270457AbRHHLjJ>; Wed, 8 Aug 2001 07:39:09 -0400
+	id <S270455AbRHHLk2>; Wed, 8 Aug 2001 07:40:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270462AbRHHLi7>; Wed, 8 Aug 2001 07:38:59 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:34285 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S270455AbRHHLiy>;
-	Wed, 8 Aug 2001 07:38:54 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 8 Aug 2001 11:38:31 GMT
-Message-Id: <200108081138.LAA33721@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: [RFC][PATCH] parser for mount options
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S270458AbRHHLkS>; Wed, 8 Aug 2001 07:40:18 -0400
+Received: from ns.caldera.de ([212.34.180.1]:30899 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S270455AbRHHLkI>;
+	Wed, 8 Aug 2001 07:40:08 -0400
+Date: Wed, 8 Aug 2001 13:39:29 +0200
+Message-Id: <200108081139.f78BdTH11980@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: cate@math.ethz.ch (Giacomo Catenazzi)
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        kaos@ocs.com.au
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is  available.
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3B712392.A7CFEEC9@math.ethz.ch>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Alexander Viro <viro@math.psu.edu>
+In article <3B712392.A7CFEEC9@math.ethz.ch> you wrote:
+> BTW we cannot ship the generated file without the source files,
+> because of GPL.
 
-    On Tue, 7 Aug 2001 Andries.Brouwer@cwi.nl wrote:
+That's wrong.
 
-    >     while (more_tokens) {
-    >         t = type_of_next_token();
-    >         switch (t) {
-    >         case ...
-    >         }
-    >     }
-    > 
-    > where the type_of_next_token() does the parsing, and the switch
-    > does the assigning. Much more code. Much uglier - but tastes differ.
+	Christoph
 
-    I would agree, if in all cases it was about assigning a single value.
-    It isn't.
-
-It was for 1.3.61. What cases have we now that are more complicated?
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

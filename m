@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129632AbRAQIgi>; Wed, 17 Jan 2001 03:36:38 -0500
+	id <S129669AbRAQIhS>; Wed, 17 Jan 2001 03:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbRAQIg2>; Wed, 17 Jan 2001 03:36:28 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:17426 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S129632AbRAQIgN>; Wed, 17 Jan 2001 03:36:13 -0500
-Date: Wed, 17 Jan 2001 09:36:07 +0100 (CET)
-From: Boszormenyi Zoltan <zboszor@externet.hu>
-To: riel@nl.linux.org
-cc: linux-kernel@vger.kernel.org
-Subject: 2.4.0-vmpatch-15.1 still no go
-In-Reply-To: <Pine.LNX.4.02.10101091023170.22614-100000@prins.externet.hu>
-Message-ID: <Pine.LNX.4.02.10101170931540.20262-100000@prins.externet.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130036AbRAQIhI>; Wed, 17 Jan 2001 03:37:08 -0500
+Received: from 24dyn201.com21.casema.net ([213.17.94.201]:25350 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S129669AbRAQIgz>;
+	Wed, 17 Jan 2001 03:36:55 -0500
+Date: Wed, 17 Jan 2001 09:35:59 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 error messages
+Message-ID: <20010117093558.B3707@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3A650B5B.EE1CCB07@corp124.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <3A650B5B.EE1CCB07@corp124.com>; from kostas@corp124.com on Tue, Jan 16, 2001 at 07:02:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Boszormenyi Zoltan wrote:
+On Tue, Jan 16, 2001 at 07:02:52PM -0800, Kostas Nikoloudakis wrote:
 
-> Hi!
+> The machine is running under heavy CPU + memory + network load.
+> It seems that the card has problems finding the required resources.
+> Is there a way to "guarantee" that the card will have the necessary
+> resources even at high loads?
 > 
-> PF_RSSTRIM is not declared anywhere either in the linux-2.4.0 sources
-> or in the 2.4.0-vmbigpatch.
+> I'm using kernel version 2.2.14.
 
-[zozo@localhost kernel]$ tar xIf linux-2.4.0.tar.bz2
-[zozo@localhost kernel]$ cd linux
-[zozo@localhost linux]$ cat ../patches/2.4.0/2.4.0-vmpatch-15.1 | patch -p1
-patching file `kernel/sysctl.c'
-patching file `kernel/fork.c'
-patching file `mm/filemap.c'
-patching file `mm/memory.c'
-patching file `mm/page_alloc.c'
-patching file `mm/swap.c'
-patching file `mm/vmscan.c'
-patching file `include/linux/sysctl.h'
-patching file `include/linux/swap.h'
-patching file `include/linux/mm.h'
-patching file `Documentation/sysctl/vm.txt'
-[zozo@localhost linux]$ find . -type f | xargs grep PF_RSSTRIM
-./mm/vmscan.c:		if (mm->rss > rss_limit && !(p->flags & PF_RSSTRIM)) {
-./mm/vmscan.c:			p->flags |= PF_RSSTRIM;
-./mm/vmscan.c:		p->flags &= ~PF_RSSTRIM;	
-[zozo@localhost linux]$
+Try using 2.2.18 - lots of work has been done to get the eepro100 working
+properly.
 
 Regards,
-Zoltan Boszormenyi
 
+bert hubert
+
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130476AbRACXsE>; Wed, 3 Jan 2001 18:48:04 -0500
+	id <S129324AbRACXvY>; Wed, 3 Jan 2001 18:51:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRACXry>; Wed, 3 Jan 2001 18:47:54 -0500
-Received: from [206.112.108.255] ([206.112.108.255]:24559 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S129267AbRACXrk>; Wed, 3 Jan 2001 18:47:40 -0500
-From: brian@worldcontrol.com
-Date: Wed, 3 Jan 2001 15:55:40 -0800
-To: linux-kernel@vger.kernel.org
-Subject: soffice, 2.2.18, cpu 97% idle, loadavg 6.05
-Message-ID: <20010103155540.A6026@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.5i
+	id <S130476AbRACXvP>; Wed, 3 Jan 2001 18:51:15 -0500
+Received: from innerfire.net ([208.181.73.33]:48133 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S129324AbRACXvK>;
+	Wed, 3 Jan 2001 18:51:10 -0500
+Date: Wed, 3 Jan 2001 15:54:35 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Dan Hollis <goemon@anime.net>
+cc: Dan Aloni <karrde@callisto.yi.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>, mark@itsolve.co.uk
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
+ bug exploits
+In-Reply-To: <Pine.LNX.4.30.0101031528180.32282-100000@anime.net>
+Message-ID: <Pine.LNX.4.10.10101031553090.2746-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux 2.2.18 with VM-global patch
-128MB RAM
-AMD K6-3/366
-Star Office 5.2
+On Wed, 3 Jan 2001, Dan Hollis wrote:
 
-I exiting StarOffice, and a little later noticed my loadavg display
-widget was showing a high load average. top reports it at 6.
+> On Thu, 4 Jan 2001, Dan Aloni wrote:
+> > Anyway, while it is agreed that you can't completely eliminate exploits,
+> > it is recommended that, it should be at least harder to create them, maybe
+> > it can even minimize the will to write them.
+> 
+> The argument against these sort of protection mechanisms seems to be "well
+> its not perfect, so we shouldnt have it at all".
+> 
+> Lets use that argument against uid/gid then. Since it's impossible to
+> protect against exploits, let's dispose of uid/gid entirely and run
+> everything as root ;-)
+> 
+> "stack guarding is a false sense of security". Well, so is ipchains, so
+> lets discard that as well...?
+> 
+> Really, these arguments cut both ways. If you are going to argue against
+> something because it's not perfect, you should be aware that you're
+> arguing against other kernel protection mechanisms also.
+> 
 
-Poking about, I found all the soffice.bin processes still hanging
-around.
+Your comparing actual security with stack guarding? Stack guarding mearly
+makes the attack diffrent.. rootkits are already available to defeat it.
 
-Looking with top, all the soffice.bin processes are in the 'D N' state.
-In top's 'no idle' mode they are listed.
+	Gerhard
 
-The CPU is hanging around 97% idle, the loadavg has been sitting
-at 6+ for almost 15 minutes.  It seems likely this state will
-continue forever.
 
-I tried a 'kill' on all the soffice.bin process and there was
-no change.  a 'kill -9' also had no effect.
 
-What is going on?
+--
+Gerhard Mack
 
-Shouldn't I be able to tear down the processes?
+gmack@innerfire.net
 
-Here is status on the soffice.bin process with the lowest PID:
+<>< As a computer I find your faith in technology amusing.
 
-# cat /proc/5294/status
-Name:   soffice.bin
-State:  D (disk sleep)
-Pid:    5294
-PPid:   775
-Uid:    101     101     101     101
-Gid:    101     101     101     101
-Groups: 101 0 10 228 229 500 
-VmSize:   103600 kB
-VmLck:         0 kB
-VmRSS:     49588 kB
-VmData:    13008 kB
-VmStk:      1104 kB
-VmExe:        88 kB
-VmLib:     73604 kB
-SigPnd: 0000000000004100
-SigBlk: 0000000080000000
-SigIgn: 8000000000001000
-SigCgt: 00000003bfc064ff
-CapInh: 0000000000000000
-CapPrm: 0000000000000000
-CapEff: 0000000000000000
-
-Thanks,
-
--- 
-Brian Litzinger <brian@worldcontrol.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

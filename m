@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263347AbTI2NZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 09:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTI2NZY
+	id S263344AbTI2NX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 09:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbTI2NX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 09:25:24 -0400
-Received: from petasus.isw.intel.com ([192.55.37.196]:60150 "EHLO
-	petasus.isw.intel.com") by vger.kernel.org with ESMTP
-	id S263347AbTI2NZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 09:25:18 -0400
-Date: Mon, 29 Sep 2003 15:25:19 +0200 (CEST)
-From: Artur Klauser <Artur.Klauser@computer.org>
-To: linux-kernel@vger.kernel.org
-cc: Artur Klauser <Artur.Klauser@computer.org>
-Subject: div64.h:do_div() bug
-Message-ID: <Pine.LNX.4.51.0309291503030.7947@enm.xynhfre.bet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Sep 2003 09:23:59 -0400
+Received: from iucha.net ([209.98.146.184]:5697 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S263344AbTI2NX4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 09:23:56 -0400
+Date: Mon, 29 Sep 2003 08:23:55 -0500
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test6
+Message-ID: <20030929132355.GA1206@iucha.net>
+Mail-Followup-To: Jaroslav Kysela <perex@suse.cz>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.4i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've found that a bug in asm-arm/div64.h:do_div() is preventing correct
-conversion of timestamps in smbfs (and probably ntfs as well) from NT to
-Unix format. I'll post a patch that fixes the bug, but I think it is also
-present in other architectures - at least SPARC, SH, and CRIS look
-suspicious.
 
-If people with access to these architectures could run the following small 
-test and let me know the outcome, I can fix it there too - thanks.
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-//-----------------------------------------------------------------------------
-#define __KERNEL__
-#include <asm/types.h> // get kernel definition of u64, u32
-#undef __KERNEL__
-#include <asm/div64.h> // get definition of do_div()
-#include <stdio.h>
+On Sat, Sep 27, 2003 at 06:27:35PM -0700, Linus Torvalds wrote:
+>=20
+[snip]
+> arm, s390, ia64, x86-64, and ppc64 updates. USB, pcmcia and i2c stuff. An=
+d=20
+> a fair amount of janitorial.
 
-main () {
-  union {
-    u64 n64;
-    u32 n32[2];
-  } in, out;
+I can no longer select my soundcard: In test5 it was configured by
+CONFIG_SND_CS46XX! This option is no longer available in test6 (make
+menuconfig does not offer me the opportunity).
 
-  in.n32[0] = 1;
-  in.n32[1] = 1;
-  out = in;
+It happened between test5-bk11 (option set/module build) and bk13
+(option not available).
 
-  do_div(out.n64, 1);
+Please, give my sound option back!
+florin
 
-  if (in.n64 != out.n64) {
-    printf("FAILURE: asm/div64.h:do_div() is broken for 64-bit dividends\n");
-    exit(1);
-  } else {
-    printf("Congratulations: asm/div64.h:do_div() handles 64-bit dividends\n");
-  }
-  return 0;
-}
-//-----------------------------------------------------------------------------
+--=20
+
+Don't question authority: they don't know either!
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/eDJrNLPgdTuQ3+QRApi6AJ4kzcS+XiwCDU+5yNSZiRnYPJQZlACfXvZc
+lB/DpoaJxe3bINE+vonZqh8=
+=k1uC
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--

@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbULABiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbULABfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbULABiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 20:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbULABfu
+	id S261165AbULABfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 20:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbULABef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 20:35:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59566 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261157AbULABec (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 20:34:32 -0500
-Date: Tue, 30 Nov 2004 17:23:54 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: gregkh <greg@kroah.com>, ak@suse.de
-Subject: [PATCH] PCI/x86-64: build with PCI=n
-Message-Id: <20041130172354.2bd60e89.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 30 Nov 2004 20:34:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54958 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261192AbULABeH (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 20:34:07 -0500
+Date: Tue, 30 Nov 2004 17:33:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: nickpiggin@yahoo.com.au, nikita@clusterfs.com,
+       Linux-Kernel@vger.kernel.org, AKPM@osdl.org, linux-mm@kvack.org
+Subject: Re: [PATCH]: 1/4 batch mark_page_accessed()
+Message-Id: <20041130173323.0b3ac83d.akpm@osdl.org>
+In-Reply-To: <20041130162956.GA3047@dmt.cyclades>
+References: <16800.47044.75874.56255@gargle.gargle.HOWL>
+	<20041126185833.GA7740@logos.cnet>
+	<41A7CC3D.9030405@yahoo.com.au>
+	<20041130162956.GA3047@dmt.cyclades>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> Because the ordering of LRU pages should be enhanced in respect to locality, 
+>  with the mark_page_accessed batching you group together tasks accessed pages 
+>  and move them at once to the active list. 
+> 
+>  You maintain better locality ordering, while decreasing the precision of aging/
+>  temporal locality.
+> 
+>  Which should enhance disk writeout performance.
 
-Fix (most of) x64-64 kernel build for CONFIG_PCI=n.  Fixes these 2 errors:
+I'll buy that explanation.  Although I'm a bit sceptical that it is
+measurable.
 
-1. arch/x86_64/kernel/built-in.o(.text+0x8186): In function `quirk_intel_irqbalance':
-: undefined reference to `raw_pci_ops'
-
-Kconfig change:
-2. arch/x86_64/kernel/pci-gart.c:194: error: `pci_bus_type' undeclared (first use in this function)
-
-Still does not fix this one:
-drivers/built-in.o(.text+0x3dcd8): In function `pnpacpi_allocated_resource':
-: undefined reference to `pcibios_penalize_isa_irq'
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-
-diffstat:=
- arch/i386/kernel/quirks.c |    3 ++-
- arch/x86_64/Kconfig       |    1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
-diff -Naurp ./arch/i386/kernel/quirks.c~config_pci ./arch/i386/kernel/quirks.c
---- ./arch/i386/kernel/quirks.c~config_pci	2004-11-15 10:01:58.430206024 -0800
-+++ ./arch/i386/kernel/quirks.c	2004-11-16 11:24:25.204385552 -0800
-@@ -1,10 +1,11 @@
- /*
-  * This file contains work-arounds for x86 and x86_64 platform bugs.
-  */
-+#include <linux/config.h>
- #include <linux/pci.h>
- #include <linux/irq.h>
- 
--#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_SMP)
-+#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_SMP) && defined(CONFIG_PCI)
- 
- void __devinit quirk_intel_irqbalance(struct pci_dev *dev)
- {
-diff -Naurp ./arch/x86_64/Kconfig~config_pci ./arch/x86_64/Kconfig
---- ./arch/x86_64/Kconfig~config_pci	2004-11-15 10:01:58.985121664 -0800
-+++ ./arch/x86_64/Kconfig	2004-11-16 10:50:00.987194264 -0800
-@@ -306,6 +306,7 @@ config NR_CPUS
- 
- config GART_IOMMU
- 	bool "IOMMU support"
-+	depends on PCI
- 	help
- 	  Support the K8 IOMMU. Needed to run systems with more than 4GB of memory
- 	  properly with 32-bit PCI devices that do not support DAC (Double Address
+Was that particular workload actually performing significant amounts of
+writeout in vmscan.c?  (We should have direct+kswapd counters for that, but
+we don't.  /proc/vmstat:pgrotated will give us an idea).
 
 
----
+>  On the other hand, without batching you mix the locality up in LRU - the LRU becomes 
+>  more precise in terms of "LRU aging", but less ordered in terms of sequential 
+>  access pattern.
+> 
+>  The disk IO intensive reaim has very significant gain from the batching, its
+>  probably due to the enhanced LRU ordering (what Nikita says).
+> 
+>  The slowdown is probably due to the additional atomic_inc by page_cache_get(). 
+> 
+>  Is there no way to avoid such page_cache_get there (and in lru_cache_add also)?
+
+Not really.  The page is only in the pagevec at that time - if someone does
+a put_page() on it the page will be freed for real, and will then be
+spilled onto the LRU.  Messy.

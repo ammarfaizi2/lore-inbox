@@ -1,108 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131820AbRDCOPf>; Tue, 3 Apr 2001 10:15:35 -0400
+	id <S131899AbRDCO1I>; Tue, 3 Apr 2001 10:27:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131899AbRDCOP0>; Tue, 3 Apr 2001 10:15:26 -0400
-Received: from rdu163-40-153.nc.rr.com ([24.163.40.153]:39434 "EHLO
-	kaitan.hacknslash.net") by vger.kernel.org with ESMTP
-	id <S131820AbRDCOPK>; Tue, 3 Apr 2001 10:15:10 -0400
-Date: Tue, 3 Apr 2001 10:14:24 -0400 (EDT)
-From: Jeff Layton <jtlayton@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: cannot compile 2.4.3 on SPARC
-Message-ID: <Pine.LNX.4.21.0104030949580.24433-100000@kaitan.hacknslash.net>
+	id <S131942AbRDCO05>; Tue, 3 Apr 2001 10:26:57 -0400
+Received: from mx1out.umbc.edu ([130.85.253.51]:36332 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S131899AbRDCO0u> convert rfc822-to-8bit;
+	Tue, 3 Apr 2001 10:26:50 -0400
+Date: Tue, 3 Apr 2001 10:26:06 -0400
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+cc: <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Bugreport: Kernel 2.4.x crash
+In-Reply-To: <20010403145219.A15009@wohnheim.fh-wedel.de>
+Message-ID: <Pine.SGI.4.31L.02.0104031023470.2331583-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm unable to compile 2.4.3 on SPARC architecture. I'm willing to test
-patches that fix this -- please email me with them directly for faster
-response.
+On Tue, 3 Apr 2001, [iso-8859-1] Jörn Engel wrote:
 
-Here's where it barfs:
+I don't necessarily believe its the hpt366, as you do. See below: (note:
+I've also had it running on a stock 2.4.2 kernel for a while)
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -m32 -pipe -mno-fpu
--fcall-used-g5 -fcall-used-g7    -c -o memory.o memory.c
-memory.c:183: macro `pmd_alloc' used with too many (3) args
-memory.c:204: macro `pte_alloc' used with too many (3) args
-memory.c:668: macro `pte_alloc' used with too many (3) args
-memory.c:693: macro `pmd_alloc' used with too many (3) args
-memory.c:748: macro `pte_alloc' used with too many (3) args
-memory.c:775: macro `pmd_alloc' used with too many (3) args
-memory.c:1263: macro `pmd_alloc' used with too many (3) args
-memory.c:1266: macro `pte_alloc' used with too many (3) args
-memory.c:1316: macro `pte_alloc' used with too many (3) args
-memory.c: In function `copy_page_range':
-memory.c:183: warning: passing arg 1 of `___f_pmd_alloc' from incompatible
-pointer type
-memory.c:183: warning: passing arg 2 of `___f_pmd_alloc' makes integer
-from pointer without a cast
-memory.c:204: warning: passing arg 1 of `___f_pte_alloc' from incompatible
-pointer type
-memory.c:204: warning: passing arg 2 of `___f_pte_alloc' makes integer
-from pointer without a cast
-memory.c: In function `zeromap_pmd_range':
-memory.c:668: warning: passing arg 1 of `___f_pte_alloc' from incompatible
-pointer type
-memory.c:668: warning: passing arg 2 of `___f_pte_alloc' makes integer
-from pointer without a cast
-memory.c: In function `zeromap_page_range':
-memory.c:693: warning: passing arg 1 of `___f_pmd_alloc' from incompatible
-pointer type
-memory.c:693: warning: passing arg 2 of `___f_pmd_alloc' makes integer
-from pointer without a cast
-memory.c: In function `remap_pmd_range':
-memory.c:748: warning: passing arg 1 of `___f_pte_alloc' from incompatible
-pointer type
-memory.c:748: warning: passing arg 2 of `___f_pte_alloc' makes integer
-from pointer without a cast
-memory.c: In function `remap_page_range':
-memory.c:775: warning: passing arg 1 of `___f_pmd_alloc' from incompatible
-pointer type
-memory.c:775: warning: passing arg 2 of `___f_pmd_alloc' makes integer
-from pointer without a cast
-memory.c: In function `handle_mm_fault':
-memory.c:1263: warning: passing arg 1 of `___f_pmd_alloc' from
-incompatible pointer type
-memory.c:1263: warning: passing arg 2 of `___f_pmd_alloc' makes integer
-from pointer without a cast
-memory.c:1266: warning: passing arg 1 of `___f_pte_alloc' from
-incompatible pointer type
-memory.c:1266: warning: passing arg 2 of `___f_pte_alloc' makes integer
-from pointer without a cast
-memory.c: In function `__pmd_alloc':
-memory.c:1288: warning: implicit declaration of function
-`pmd_alloc_one_fast'
-memory.c:1288: warning: assignment makes pointer from integer without a
-cast
-memory.c:1291: warning: implicit declaration of function `pmd_alloc_one'
-memory.c:1291: warning: assignment makes pointer from integer without a
-cast
-memory.c:1305: warning: implicit declaration of function `pgd_populate'
-memory.c: At top level:
-memory.c:1317: conflicting types for `___f_pte_alloc'
-/usr/src/linux/include/asm/pgalloc.h:125: previous declaration of
-`___f_pte_alloc'
-memory.c: In function `___f_pte_alloc':
-memory.c:1322: warning: implicit declaration of function
-`pte_alloc_one_fast'
-memory.c:1322: `address' undeclared (first use in this function)
-memory.c:1322: (Each undeclared identifier is reported only once
-memory.c:1322: for each function it appears in.)
-memory.c:1322: warning: assignment makes pointer from integer without a
-cast
-memory.c:1325: warning: implicit declaration of function `pte_alloc_one'
-memory.c:1325: warning: assignment makes pointer from integer without a
-cast
-memory.c:1339: warning: implicit declaration of function `pmd_populate'
-make[2]: *** [memory.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/mm'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/mm'
-make: *** [_dir_mm] Error 2
+> 00:08.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366
+> (rev 01)
+>         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+> <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 248 (2000ns min, 2000ns max), cache line size 08
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: I/O ports at 6100
+>         Region 1: I/O ports at 6200
+>         Region 4: I/O ports at 6300
+>
+> 00:08.1 Unknown mass storage controller: Triones Technologies, Inc. HPT366
+> (rev 01)
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+> <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 248 (2000ns min, 2000ns max), cache line size 08
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: I/O ports at 6400
+>         Region 1: I/O ports at 6500
+>         Region 4: I/O ports at 6600
+
+00:13.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366
+(rev
+01)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 8 min, 8 max, 120 set, cache line size 08
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at ac00 [size=8]
+        Region 1: I/O ports at b000 [size=4]
+        Region 4: I/O ports at b400 [size=256]
+        Expansion ROM at ea000000 [disabled] [size=128K]
+
+00:13.1 Unknown mass storage controller: Triones Technologies, Inc. HPT366
+(rev
+01)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 8 min, 8 max, 120 set, cache line size 08
+        Interrupt: pin B routed to IRQ 10
+        Region 0: I/O ports at b800 [size=8]
+        Region 1: I/O ports at bc00 [size=4]
+        Region 4: I/O ports at c000 [size=256]
+
+[root@geisha /root]# uptime
+ 10:25am  up 8 days, 21:17,  9 users,  load average: 0.00, 0.00, 0.00
+[root@geisha /root]# uname -a
+Linux geisha 2.4.2-ac20 #6 SMP Sat Mar 24 23:40:02 EST 2001 i686 unknown
 
 --
-Jeff Layton (jtlayton@bigfoot.com)
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287798AbSAHUTp>; Tue, 8 Jan 2002 15:19:45 -0500
+	id <S288284AbSAHUWZ>; Tue, 8 Jan 2002 15:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288279AbSAHUTg>; Tue, 8 Jan 2002 15:19:36 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:1036 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287798AbSAHUTU>; Tue, 8 Jan 2002 15:19:20 -0500
-Message-ID: <3C3B5305.267EFC14@zip.com.au>
-Date: Tue, 08 Jan 2002 12:13:57 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <20020108030431.0099F38C58@perninha.conectiva.com.br> <Pine.LNX.4.21.0201081153160.19178-100000@freak.distro.conectiva>
+	id <S288285AbSAHUWP>; Tue, 8 Jan 2002 15:22:15 -0500
+Received: from holomorphy.com ([216.36.33.161]:6105 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S288284AbSAHUWG>;
+	Tue, 8 Jan 2002 15:22:06 -0500
+Date: Tue, 8 Jan 2002 12:19:53 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, riel@surriel.com, mjc@kernel.org,
+        bcrl@redhat.com, akpm@zip.com.au, phillips@bonn-fries.net
+Subject: Re: hashed waitqueues
+Message-ID: <20020108121953.L10391@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+	riel@surriel.com, mjc@kernel.org, bcrl@redhat.com, akpm@zip.com.au,
+	phillips@bonn-fries.net
+In-Reply-To: <20020108102037.J10391@holomorphy.com> <Pine.LNX.4.21.0201081906400.1683-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.21.0201081906400.1683-100000@localhost.localdomain>; from hugh@veritas.com on Tue, Jan 08, 2002 at 07:20:27PM +0000
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> > Andrew Morten`s read-latency.patch is a clear winner for me, too.
-> 
-> AFAIK Andrew's code simply adds schedule points around the kernel, right?
-> 
-> If so, nope, I do not plan to integrate it.
+On Tue, 8 Jan 2002, William Lee Irwin III wrote:
+>> I need to start benching this stuff.
 
-I haven't sent it to you yet :)  It improves the kernel.  That's
-good, isn't it?  (There are already forty or fifty open-coded
-rescheduling points in the kernel.  That patch just adds the
-missing (and most important) ten).  
+On Tue, Jan 08, 2002 at 07:20:27PM +0000, Hugh Dickins wrote:
+> Why is all this sophistication needed for hashing pages to wait queues?
+> I understand that you should avoid a stupid hash (such as one where all
+> pages end up on the same wait queue), and I understand why a cache needs
+> a well-chosen hash, and I understand why shift is preferred to multiply;
+> but I don't get why so much discussion of the precise hash for choosing
+> the wait queue of a page: aren't the waits rare, and the pages mostly
+> well-distributed anyway?
 
-BTW, with regard to the "preempt and low-lat improve disk throughput"
-argument.  I have occasionally seen small throughput improvements,
-but I think these may be just request-merging flukes.  Certainly
-they were very small.
+All this "sophistication" boils down to a single number, perhaps a single
+#define. I'd at least like to put some thought into it, at the very least
+as due diligence. And also I want to be able to answer the question of
+"Where did the number come from?"
 
-The one area where it sometimes makes a huuuuuge throughput
-improvement is software RAID.
+It doesn't really require that much effort, either. The non-bitsparse
+golden ratio prime was just looked up in Chuck Lever's paper, and the
+criteria I'm using to determine potentially useful bitsparse factors
+(aside from sparsity itself) are largely from Knuth, who (paraphrasing)
+says the important characteristic is the first several terms in the
+continued fraction expansion of p/w, where w is the wordsize.
 
-Much of the VM and dirty buffer writeout code assumes that
-submit_bh() starts I/O.  Guess what?  RAID's submit_bh()
-sometimes *doesn't* start I/O.  Because the IO is started
-by a different thread.
+And the sieving "algorithm" is just me asking a couple of people how
+they'd do it, and the sieve took well under a minute to run, and maybe
+5 or 10 minutes to write.
 
-With the Riel VM I had a test case in which software RAID
-completely and utterly collapsed because of this.  The machine
-was spending huge amounts of time spinning in page_launder(), madly
-submitting I/O, but never yielding, so the I/O wasn't being started.
+And if it doesn't matter to you, please remember anyway that when I
+wrote my hash functions I did put some thought into it.
 
--aa VM has an open-coded yield in shrink_cahce() which prevents
-that particular collapse.  But I had a report yesterday that
-the mini-ll patch triples throughput on a complex RAID stack in
-2.4.17.  Same reason.
 
-Arguably, this is a RAID problem - raidN_make_request() should
-be yielding.  But it's better to do this in one nice, single,
-reviewable place - submit_bh().  However that won't prevent
-wait_for_buffers() from starving the raid thread.
-
-RAID is not alone.  ksoftirqd, keventd and loop_thread() also
-need reasonably good response times.
-
-But given the number of people who have been providing feedback
-on this patch, and on the disk-read-latency patch, none of this
-is going anywhere, and mine will be the only Linux machines which
-don't suck.  (Takes ball, goes home).
-
--
+Thanks,
+Bill

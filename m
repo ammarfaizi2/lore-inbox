@@ -1,169 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUIPLDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUIPLHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267926AbUIPLDe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 07:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUIPLDd
+	id S267918AbUIPLHi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 07:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267936AbUIPLHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 07:03:33 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:4829 "EHLO
+	Thu, 16 Sep 2004 07:07:37 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:46304 "EHLO
 	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S267939AbUIPLBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 07:01:45 -0400
-Subject: Suspend2 Merge: e820 table support.
+	id S267935AbUIPLEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 07:04:42 -0400
+Subject: [PATCH] Suspend2 Merge: Get module list.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
-To: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@digeo.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1095332590.3324.166.camel@laptop.cunninghams>
+Message-Id: <1095332772.3855.170.camel@laptop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 16 Sep 2004 21:03:11 +1000
+Date: Thu, 16 Sep 2004 21:06:12 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi again.
 
-This patch adds support for the e820 table for swsusp and Suspend2. It
-does so by setting the NoSave flag for unsavable pages at boot time.
+This patch adds support for getting a list of currently loaded modules.
+It's used in displaying debugging info:
+
+
+> Please include the following information in bug reports:
+> - SWSUSP core    : 2.0.0.107
+> - Kernel Version : 2.4.27
+> - Version spec.  : 2.0.1
+> - Compiler vers. : 3.3
+> - Modules loaded : ppp_mppe ppp_deflate zlib_inflate zlib_deflate
+> bsd_comp ltmodem_cs ds i82365 pcmcia_core maestro3 ac97_codec
+> soundcore ftdi_sio visor usbserial printer usb-uhci usbcore Mvnetd
+> Mvnet Mvnetint Mvw Mvmouse Mvkbd Mvgic Mvdsp Mserial Mmpip Mmerge
+> mki-adapter i830 agpgart parport_pc lp parport ide-cd cdrom floppy
+> ipt_LOG ipt_state ipt_MASQUERADE iptable_nat ip_conntrack
+> ipt_multiport ipt_REJECT iptable_filter ip_tables ppp_async
+> ppp_generic slhc af_packet omnibook battery button eepro100 mii rtc
+> unix suspend_swap suspend_block_io suspend_lzf suspend_bootsplash
+> suspend_text suspend_core
+> - Attempt number : 1
+> - Parameters     : 0 2816 0 0 0 128
+> - Limits         : 161664 pages RAM. Initial boot: 156425.
+> - Overall expected compression percentage: 0.
+> - LZF Compressor enabled.
+>   Compressed 340914176 bytes into 187258858 (45 percent compression).
+> - Swapwriter active.
+>   Swap available for image: 172688 pages.
+> - Debugging compiled in.
+> - Preemptive kernel.
+> - I/O speed: Write 28 MB/s, Read 49 MB/s.
+> [root@laptop current-2.6.9-rc2-patches]#
+
+(I'm using 2.4 because there's no 2.6 pcmcia_cs ltmodem driver yet :>).
 
 Regards,
 
 Nigel
 
-diff -ruN linux-2.6.9-rc1/arch/i386/mm/init.c software-suspend-linux-2.6.9-rc1-rev3/arch/i386/mm/init.c
---- linux-2.6.9-rc1/arch/i386/mm/init.c	2004-09-07 21:58:22.000000000 +1000
-+++ software-suspend-linux-2.6.9-rc1-rev3/arch/i386/mm/init.c	2004-09-09 19:36:24.000000000 +1000
-@@ -27,6 +27,9 @@
- #include <linux/slab.h>
- #include <linux/proc_fs.h>
- #include <linux/efi.h>
-+#ifdef CONFIG_SOFTWARE_SUSPEND2
-+#include <linux/suspend-common.h>
-+#endif
- 
- #include <asm/processor.h>
- #include <asm/system.h>
-@@ -264,12 +267,19 @@
- {
- 	if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
- 		ClearPageReserved(page);
-+#ifdef CONFIG_SOFTWARE_SUSPEND2
-+		ClearPageNosave(page);
-+#endif
- 		set_bit(PG_highmem, &page->flags);
- 		set_page_count(page, 1);
- 		__free_page(page);
- 		totalhigh_pages++;
--	} else
-+	} else {
- 		SetPageReserved(page);
-+#ifdef CONFIG_SOFTWARE_SUSPEND2
-+		SetPageNosave(page);
-+#endif
-+	}
+diff -ruN linux-2.6.9-rc1/kernel/module.c software-suspend-linux-2.6.9-rc1-rev3/kernel/module.c
+--- linux-2.6.9-rc1/kernel/module.c	2004-09-07 21:59:00.000000000 +1000
++++ software-suspend-linux-2.6.9-rc1-rev3/kernel/module.c	2004-09-09 19:36:24.000000000 +1000
+@@ -2146,6 +2146,33 @@
+ 	printk("\n");
  }
  
- #ifndef CONFIG_DISCONTIGMEM
-@@ -347,7 +357,7 @@
- #endif
- }
- 
--#if defined(CONFIG_PM_DISK) || defined(CONFIG_SOFTWARE_SUSPEND)
-+#if defined(CONFIG_PM_DISK) || defined(CONFIG_SOFTWARE_SUSPEND) || defined(CONFIG_SOFTWARE_SUSPEND2)
- /*
-  * Swap suspend & friends need this for resume because things like the intel-agp
-  * driver might have split up a kernel 4MB mapping.
-@@ -567,6 +577,7 @@
- 	int codesize, reservedpages, datasize, initsize;
- 	int tmp;
- 	int bad_ppro;
-+	void * addr;
- 
- #ifndef CONFIG_DISCONTIGMEM
- 	if (!mem_map)
-@@ -597,12 +608,29 @@
- 	totalram_pages += __free_all_bootmem();
- 
- 	reservedpages = 0;
--	for (tmp = 0; tmp < max_low_pfn; tmp++)
--		/*
--		 * Only count reserved RAM pages
--		 */
--		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
--			reservedpages++;
-+	addr = __va(0);
-+	for (tmp = 0; tmp < max_low_pfn; tmp++, addr += PAGE_SIZE) {
-+		if (page_is_ram(tmp)) {
-+			/*
-+			 * Only count reserved RAM pages
-+			 */
-+			if (PageReserved(mem_map+tmp))
-+				reservedpages++;
-+#ifdef CONFIG_SOFTWARE_SUSPEND2
-+			/*
-+			 * Mark nosave pages
-+			 */
-+			if (addr >= (void *)&__nosave_begin && addr < (void *)&__nosave_end)
-+				SetPageNosave(mem_map+tmp);
-+		} else
-+			/*
-+			 * Non-RAM pages are always nosave
-+			 */
-+			SetPageNosave(mem_map+tmp);
-+#else
-+		}
-+#endif
-+	}
- 
- 	set_highmem_pages_init(bad_ppro);
- 
-@@ -701,6 +729,9 @@
- 	addr = (unsigned long)(&__init_begin);
- 	for (; addr < (unsigned long)(&__init_end); addr += PAGE_SIZE) {
- 		ClearPageReserved(virt_to_page(addr));
-+#ifdef CONFIG_SOFTWARE_SUSPEND2
-+		ClearPageNosave(virt_to_page(addr));
-+#endif
- 		set_page_count(virt_to_page(addr), 1);
- 		free_page(addr);
- 		totalram_pages++;
-@@ -715,9 +746,15 @@
- 		printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
- 	for (; start < end; start += PAGE_SIZE) {
- 		ClearPageReserved(virt_to_page(start));
-+#ifdef CONFIG_SOFTWARE_SUSPEND2
-+		ClearPageNosave(virt_to_page(start));
-+#endif
- 		set_page_count(virt_to_page(start), 1);
- 		free_page(start);
- 		totalram_pages++;
- 	}
- }
- #endif
++#define MODLIST_SIZE 4096
 +
-+/* Exported for Software Suspend 2 */
-+EXPORT_SYMBOL(highstart_pfn);
-diff -ruN linux-2.6.9-rc1/mm/bootmem.c software-suspend-linux-2.6.9-rc1-rev3/mm/bootmem.c
---- linux-2.6.9-rc1/mm/bootmem.c	2004-09-07 21:59:01.000000000 +1000
-+++ software-suspend-linux-2.6.9-rc1-rev3/mm/bootmem.c	2004-09-09 19:36:24.000000000 +1000
-@@ -275,6 +275,7 @@
- 				if (v & m) {
- 					count++;
- 					ClearPageReserved(page);
-+					ClearPageNosave(page);
- 					set_page_count(page, 1);
- 					__free_page(page);
- 				}
-@@ -295,6 +296,7 @@
- 	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
- 		count++;
- 		ClearPageReserved(page);
-+		ClearPageNosave(page);
- 		set_page_count(page, 1);
- 		__free_page(page);
- 	}
++void print_module_list(void)
++{
++	static char modlist[MODLIST_SIZE];
++	struct module *mod;
++	int pos = 0;
++
++	list_for_each_entry(mod, &modules, list)
++		if (mod->name)
++			pos += snprintf(modlist+pos, MODLIST_SIZE-pos-1, 
++					"%s ", mod->name);
++	printk("%s\n",modlist);
++}
++
++int print_module_list_to_buffer(char * buffer, int size)
++{
++	struct module *mod;
++	int pos = 0;
++
++	list_for_each_entry(mod, &modules, list)
++		if (mod->name)
++			pos += snprintf(buffer+pos, size-pos-1, 
++					"%s ", mod->name);
++	return pos;
++}
++
+ #ifdef CONFIG_MODVERSIONS
+ /* Generate the signature for struct module here, too, for modversions. */
+ void struct_module(struct module *mod) { return; }
+@@ -2157,3 +2184,6 @@
+ 	return subsystem_register(&module_subsys);
+ }
+ __initcall(modules_init);
++
++/* For Suspend2 */
++EXPORT_SYMBOL(print_module_list_to_buffer);
 
 -- 
 Nigel Cunningham

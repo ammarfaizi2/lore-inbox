@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292592AbSCDRiL>; Mon, 4 Mar 2002 12:38:11 -0500
+	id <S292601AbSCDRlv>; Mon, 4 Mar 2002 12:41:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292589AbSCDRh5>; Mon, 4 Mar 2002 12:37:57 -0500
-Received: from klee.iskp.uni-bonn.de ([131.220.220.7]:45839 "EHLO
-	klee.iskp.uni-bonn.de") by vger.kernel.org with ESMTP
-	id <S292603AbSCDRgr> convert rfc822-to-8bit; Mon, 4 Mar 2002 12:36:47 -0500
-Message-Id: <200203041736.g24HaYv25738@klee.iskp.uni-bonn.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Harald van Pee <pee@iskp.uni-bonn.de>
-Organization: Uni-Bonn
+	id <S292594AbSCDRkf>; Mon, 4 Mar 2002 12:40:35 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:64649 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S292589AbSCDRjj>;
+	Mon, 4 Mar 2002 12:39:39 -0500
+Date: Mon, 4 Mar 2002 18:39:31 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
 To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Subject: Re: 3Ware Hard Bus Hang 2.4.18 > 220 MB/S
-Date: Mon, 4 Mar 2002 18:36:33 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200203041706.g24H6Kv25543@klee.iskp.uni-bonn.de> <20020304103847.A31515@vger.timpanogas.org>
-In-Reply-To: <20020304103847.A31515@vger.timpanogas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Gigabit Performance 2.4.19-preX - Excessive locks, calls, waits
+In-Reply-To: <20020304001223.A29448@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0203041830020.12740-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 March 2002 18:38, Jeff V. Merkey wrote:
-> Problem seems specific to the SuperMicro motherboard + 3Ware.
->
-Because this is the same configuration which I will buy
-(the very similar means I need only three but 4 3ware cards, and I have the 
-option to buy a netgear card)
-this doesn't help me.
+Hi Jeff,
 
-Such systems are used at DESY in Hamburg 
-with no problems 
-(www.desy.de/unix/linux/delfi/delfi.html)
-and therefore I want to know if the rate, firmware or the kernel or driver 
-version makes the difference.
+Have you tried the NAPI patch and the NAPI'fied e1000 driver?
+I'm not sure how far the development has come but I know it improves
+performance quite a bit versus the regular e1000 driver.
 
-Regards
-Harald
+You'll find it here:
+ftp://robur.slu.se/pub/Linux/net-development/NAPI/
+
+kernel/napi-patch-ank is the NAPI patch, you need to change
+the get_fast_time() call to do_gettimeofday() for it to compile.
+
+e1000/ is the NAPI'fied e1000 driver, the latest release is from Jan 29
+but there is a document that describes how you checkout the latest version
+via cvs.
+
+I've never tried the e1000 NAPI driver since I don't have one of these
+boards but I use the tulip NAPI driver a lot here and it works great,
+impressive performance.
+
+I hope you get better performance.
+
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
+

@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbUCVGlw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 01:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUCVGlv
+	id S261746AbUCVHFT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 02:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUCVHFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 01:41:51 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57286 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261790AbUCVGls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 01:41:48 -0500
-Date: Mon, 22 Mar 2004 01:41:53 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, olh@suse.de
-Subject: [PATCH][2.6-mm] defer free_initmem() if we have no /init
-Message-ID: <Pine.LNX.4.58.0403220132060.28727@montezuma.fsmlabs.com>
+	Mon, 22 Mar 2004 02:05:18 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:13988
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261746AbUCVHFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 02:05:14 -0500
+Message-ID: <405E900C.2070502@redhat.com>
+Date: Sun, 21 Mar 2004 23:04:44 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040321
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Drop O_LARGEFILE from F_GETFL for POSIX compliance
+References: <20040322051318.597ad1f9.ak@suse.de>	<20040321213944.2fdb980d.akpm@osdl.org> <20040322071425.3cd57aca.ak@suse.de>
+In-Reply-To: <20040322071425.3cd57aca.ak@suse.de>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the absence of /init and other nice boot goodies, we fall through to
-prepare_namespace() so we shall require initmem to complete boot.
+Andi Kleen wrote:
 
-Freeing 1nunedlketo lamdlo y:r3elkpfgeeg
-equest at virtual address c06c22a0
- printing eip:
-c06c22a0
-*pde = 00757027
-Oops: 0000 [#1]
-PREEMPT SMP DEBUG_PAGEALLOC
-CPU:    1
-EIP:    0060:[<c06c22a0>]    Not tainted VLI
-EFLAGS: 00010213   (2.6.5-rc2-mm1)
-EIP is at prepare_namespace+0x0/0xd0
-eax: 00000002   ebx: 00000000   ecx: c060b2c0   edx: c060b300
-esi: 00000001   edi: 00000000   ebp: dff8ffec   esp: dff8ffd4
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=dff8f000 task=dff1fa50)
-Stack: c0103235 00000000 00000000 0000007b c0103170 00000000 00000000 c01051f5
-       00000000 00000000 00000000
-Call Trace:
- [<c0103235>] init+0xc5/0x190
- [<c0103170>] init+0x0/0x190
- [<c01051f5>] kernel_thread_helper+0x5/0x10
+> No, because O_LARGEFILE is not part of POSIX :-) (they use open64 etc.)
 
-Code:  Bad EIP value.
- <0>Kernel panic: Attempted to kill init!
+What are you talking about?  Neither O_LARGEFILE nor open64 is in POSIX.
+ But both are in the LFS extensions.
 
-Index: linux-2.6.5-rc2-mm1/init/main.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.5-rc2-mm1/init/main.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 main.c
---- linux-2.6.5-rc2-mm1/init/main.c	21 Mar 2004 17:02:18 -0000	1.1.1.1
-+++ linux-2.6.5-rc2-mm1/init/main.c	21 Mar 2004 20:54:19 -0000
-@@ -586,8 +586,8 @@ static int free_initmem_on_exec_helper(v
- 	char c;
+This whole change seems dubious at best.  Who has argued that
+O_LARGEFILE mustn't be returned?  I do not agree at all.  If the test
+suite checks this the author must defend the position.
 
- 	sys_close(fd[1]);
--	sys_read(fd[0], &c, 1);
--	free_initmem();
-+	if (sys_read(fd[0], &c, 1) > 0)
-+		free_initmem();
- 	return 0;
- }
+I suggest to not make any changes.  It is perfectly OK to define new O_
+flags and the open() specification does not require that none of them
+must set implicitly.
 
-@@ -596,7 +596,7 @@ static void free_initmem_on_exec(void)
- 	int fd[2];
 
- 	do_pipe(fd);
--       kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
-+	kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
-
- 	sys_dup2(fd[1], 255);   /* to get it out of the way */
- 	sys_close(fd[0]);
-@@ -643,6 +643,7 @@ static int init(void * unused)
- 	run_init_process("/init");
-
- 	prepare_namespace();
-+	free_initmem();
-
- 	if (sys_open("/dev/console", O_RDWR, 0) < 0)
- 		printk("Warning: unable to open an initial console.\n");
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

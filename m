@@ -1,112 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTIPVTU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 17:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbTIPVTU
+	id S262506AbTIPVUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 17:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbTIPVUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 17:19:20 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:43683 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S262499AbTIPVTS convert rfc822-to-8bit
+	Tue, 16 Sep 2003 17:20:21 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:26532 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262506AbTIPVUS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 17:19:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Richard J Moore <rasman@uk.ibm.com>
-Organization: Linux Technoilogy Centre - RAS team
-Subject: Fwd: Re: Kernel NMI error
-Date: Tue, 16 Sep 2003 22:14:13 +0000
-User-Agent: KMail/1.4.1
-To: "msrinath" <msrinath@bplitl.com>
-Cc: "Linux Kernel Mailing List " <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309162214.13839.rasman@uk.ibm.com>
+	Tue, 16 Sep 2003 17:20:18 -0400
+Subject: Re: [PATCH] use seq_lock for monotonic time
+From: john stultz <johnstul@us.ibm.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030916140001.7027d6e5.shemminger@osdl.org>
+References: <20030916102706.26bc4516.shemminger@osdl.org>
+	 <20030916115935.64ebce3d.akpm@osdl.org>
+	 <20030916140001.7027d6e5.shemminger@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1063747070.26723.15.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Sep 2003 14:17:51 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NMI can occur for a number fo reasons:
+On Tue, 2003-09-16 at 14:00, Stephen Hemminger wrote:
+> On Tue, 16 Sep 2003 11:59:35 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > 
+> > So timer_cyclone and timer_hpet need the same change?
+> 
+> Yes.
 
-I/O check from a card
-Parity error from memory
-DMA timeout
-Watchdog timer expiry
-INT 2  instruction
+The cyclone bits match those I was testing to send. 
+Looks good.
 
-To investigate this further you need to look back though your Syslog for any
-messages that might indicate intmittant h/w related errors or watchdog
-reports.
+thanks
+-john
 
-One way to cause an intermittent NMI is by having power management enabled
-with devices that don't support it. They see the world caving in when power
-goes away and sometimes generate an NMI. If you're in a power saving process
-then you have probably switched to System Management Mode, in which case the
-NMI will be held pending the processor returning from SMM.
-
-Do you have a crash dump associtated with this problem?
-
---
-Richard J Moore
-IBM Linux Technology Centre
-
-On Tue 16 September 2003 11:38 am, msrinath wrote:
-> Hello Everybody,
->
-> Can anyone help me on this?
->
-> Recently one of our servers running RedHat linux 7.2 with 2.4.7-10 SMP
-> kernel generated the following log and the system rebooted. This system has
-> 2 CPUs.
->
-> Sep 16 01:34:24 cbesc ftpd[30753]: FTP LOGIN FROM 16.128.157.7
-> [16.128.157.7], scuser
-> Sep 16 01:36:48 cbesc ftpd[30753]: FTP session closed
-> Sep 16 01:54:30 cbesc kernel: Uhhuh. NMI received for unknown reason 35.
-> Sep 16 01:54:30 cbesc kernel: Dazed and confused, but trying to continue
-> Sep 16 01:54:30 cbesc kernel: Do you have a strange power saving mode
-> enabled?
-> Sep 16 01:54:30 cbesc kernel: eth0: card reports no resources.
-> Sep 16 01:58:09 cbesc syslogd 1.4.1: restart.
-> Sep 16 01:58:09 cbesc syslog: syslogd startup succeeded
->
-> This is the first time we have faced this problem. The ethernet card used
-> is intel eepro 100. The details are shown below.
->
-> Sep 16 07:33:53 cbesc kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
-> http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-> Sep 16 07:33:53 cbesc kernel: eepro100.c: $Revision: 1.36 $ 2000/11/17
-> Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
-> Sep 16 07:33:53 cbesc kernel: eth0: Intel Corporation 82557 [Ethernet Pro
-> 100], 00:A0:C9:A0:B7:71, IRQ 16.
-> Sep 16 07:33:53 cbesc kernel:   Receiver lock-up bug exists -- enabling
-> work-around.
-> Sep 16 07:33:53 cbesc kernel:   Board assembly 668081-004, Physical
-> connectors present: RJ45
-> Sep 16 07:33:53 cbesc kernel:   Primary interface chip i82555 PHY #1.
-> Sep 16 07:33:54 cbesc kernel:   General self-test: passed.
-> Sep 16 07:33:54 cbesc kernel:   Serial sub-system self-test: passed.
-> Sep 16 07:33:54 cbesc kernel:   Internal registers self-test: passed.
-> Sep 16 07:33:54 cbesc kernel:   ROM checksum self-test: passed
-> (0x3c15c8f1). Sep 16 07:33:54 cbesc kernel:   Receiver lock-up workaround
-> activated.
->
->
-> Please let me know why this happened and whether it indicates any hardware
-> problem in the system.
->
-> Please send a CC to my email address, since I have not subscribed to the
-> list.
->
-> Thanks & Regards,
->
-> - Srinath.
-
--------------------------------------------------------
-
---
-Richard J Moore
-IBM Linux Technology Centre
-
--------------------------------------------------------
-
--- 
-Richard J Moore
-IBM Linux Technology Centre

@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262365AbSJOLFD>; Tue, 15 Oct 2002 07:05:03 -0400
+	id <S262369AbSJOLOV>; Tue, 15 Oct 2002 07:14:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262368AbSJOLFD>; Tue, 15 Oct 2002 07:05:03 -0400
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:17391 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S262365AbSJOLFC>; Tue, 15 Oct 2002 07:05:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.41-mm3
-Date: Fri, 11 Oct 2002 08:37:12 -0400
-User-Agent: KMail/1.4.3
-References: <3DA683F4.944DFC11@digeo.com>
-In-Reply-To: <3DA683F4.944DFC11@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210110837.12089.tomlins@cam.org>
+	id <S262382AbSJOLOV>; Tue, 15 Oct 2002 07:14:21 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:21888 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262369AbSJOLOU>;
+	Tue, 15 Oct 2002 07:14:20 -0400
+Date: Tue, 15 Oct 2002 12:20:58 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Radez <rob@osinvestor.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Watchdog drivers
+Message-ID: <20021015112058.GA8973@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Wim Van Sebroeck <wim@iguana.be>, Rob Radez <rob@osinvestor.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <20021014130441.GA528@suse.de> <20021013234308.P23142@flint.arm.linux.org.uk> <Pine.LNX.4.33L2.0210131615480.22520-100000@dragon.pdx.osdl.net> <20021013215726.P16698@osinvestor.com> <20021014101209.A18123@medelec.uia.ac.be> <20021014122239.GA29240@suse.de> <20021014144158.A19209@medelec.uia.ac.be> <15236.1034674538@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15236.1034674538@passion.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Oct 15, 2002 at 10:35:38AM +0100, David Woodhouse wrote:
+ > 
+ > davej@codemonkey.org.uk said:
+ > >  They remain character devices, so drivers/char/watchdog/  gets my
+ > > vote. Any nay-sayers ? 
+ > 
+ > By that logic, we should have only drivers/{net,char,block}.
 
-I get this opps just after boot - the box was sitting waiting for me to login 
-and start X.  Nothing unsual in the boot log - same config I have been using
+Suits me 8-)
+Though a drivers/bus/ would make sense too for things like pci, sbus, 
+and friends, but that kind of thing can wait until 2.7 I think 8-)
+To get back to the point, drivers/ seems cluttered, and as the
+objective is decluttering drivers/char/ removing a dozen files, and
+replacing them with a single directory in that dir just seems better
+than adding an extra dir in drivers/ to me, but then again, I could
+be out of my tiny little mind.
 
--------------
-oscar login: Unable to handle kernel paging request at virtual address 8978408f
- printing eip:
-c012b364
-*pde = 00000000
-Oops: 0002
-af_packet snd-seq-midi snd-seq-oss snd-seq-midi-event snd-seq snd-pcm-oss snd-mixer-oss snd-cs46xx snd-pcm snd-timer snd-rawmidi snd-seq-device snd-ac97-codec snd soundcore gameport softdog matroxfb_base matroxfb_g450 matroxfb_DAC1064 g450_pll matroxfb_accel matroxfb_misc fbcon-cfb16 fbcon-cfb8 fbcon-cfb24 fbcon-cfb32 mga agpgart pppoe pppox ipchains msdos fat sd_mod floppy dummy bsd_comp ppp_generic slhc parport_pc lp parport ipip smbfs binfmt_aout autofs4 cdrom via-rhine mii tulip crc32 usb-storage scsi_mod hid pl2303 usbserial  
-CPU:    0
-EIP:    0060:[<c012b364>]    Not tainted
-EFLAGS: 00010012
-EIP is at free_block+0x50/0xe4
-eax: 8978408b   ebx: dc2ad240   ecx: dc2bd000   edx: 558ba445
-esi: dffec21c   edi: 00000004   ebp: dffec228   esp: c0295eec
-ds: 0068   es: 0068   ss: 0068
-Process swapper (pid: 0, threadinfo=c0294000 task=c02596c0)
-Stack: 00000008 c173a400 c173a410 dffec21c c0295f18 c173a420 c012b86e dffec21c 
-       c173a410 00000008 c0353b1c c0294000 c02ab480 00000000 dffec408 c0294000 
-       dffec288 c011b6ef 00000000 00000000 c032fc60 fffffffe c032fc60 c012b7ec 
-Call Trace:
- [<c012b86e>] reap_timer_fnc+0x82/0x478
- [<c011b6ef>] run_timer_tasklet+0xe7/0x130
- [<c012b7ec>] reap_timer_fnc+0x0/0x478
- [<c01187e8>] tasklet_hi_action+0x3c/0x60
- [<c011860b>] do_softirq+0x5b/0xac
- [<c0108560>] do_IRQ+0xfc/0x114
- [<c01052e0>] default_idle+0x0/0x28
- [<c0105000>] stext+0x0/0x50
- [<c01070e8>] common_interrupt+0x18/0x20
- [<c01052e0>] default_idle+0x0/0x28
- [<c0105000>] stext+0x0/0x50
- [<c0105303>] default_idle+0x23/0x28
- [<c0105374>] cpu_idle+0x28/0x38
- [<c010504d>] stext+0x4d/0x50
+		Dave
 
-Code: 89 50 04 89 02 2b 59 0c 89 d8 31 d2 f7 76 30 89 c3 8b 41 14 
- <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-
-Hope this helps,
-Ed Tomlinson
- 
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,104 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265424AbUFVTEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUFVS2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265424AbUFVTEn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 15:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbUFVTC1
+	id S265154AbUFVS2S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 14:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUFVSUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:02:27 -0400
-Received: from fujitsu1.fujitsu.com ([192.240.0.1]:14516 "EHLO
-	fujitsu1.fujitsu.com") by vger.kernel.org with ESMTP
-	id S265359AbUFVTA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:00:57 -0400
-Date: Tue, 22 Jun 2004 12:00:33 -0700
-From: Yasunori Goto <ygoto@us.fujitsu.com>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-Subject: Merging Nonlinear and Numa style memory hotplug
-Cc: Linux-Node-Hotplug <lhns-devel@lists.sourceforge.net>,
-       linux-mm <linux-mm@kvack.org>
-Message-Id: <20040622114733.30A6.YGOTO@us.fujitsu.com>
+	Tue, 22 Jun 2004 14:20:00 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:15689 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S265045AbUFVRxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 13:53:47 -0400
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Question on using MSI in PCI driver
+X-Message-Flag: Warning: May contain useful information
+References: <C7AB9DA4D0B1F344BF2489FA165E5024057E4E7B@orsmsx404.amr.corp.intel.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 22 Jun 2004 10:49:32 -0700
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024057E4E7B@orsmsx404.amr.corp.intel.com> (Tom
+ L. Nguyen's message of "Tue, 22 Jun 2004 08:24:02 -0700")
+Message-ID: <52llifo53n.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-2022-JP"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.02
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 22 Jun 2004 17:49:32.0694 (UTC) FILETIME=[4650C360:01C45881]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Tom> The PCI 3.0 specification has implementation notes that MMIO
+    Tom> address space for a device's MSI-X structure should be
+    Tom> isolated so that the software system can set different page
+    Tom> for controlling accesses to the MSI-X structure. The
+    Tom> implementation of MSI patch requires the PCI subsystem, not a
+    Tom> device driver, to maintain full control of the MSI-X
+    Tom> table/MSI-X PBA and MMIO address space of the MSI-X
+    Tom> table/MSI-X PBA. A device driver is prohibited from
+    Tom> requesting the MMIO address space of the MSI-X table/MSI-X
+    Tom> PBA. Otherwise, the PCI subsystem will fail enabling MSI-X on
+    Tom> its hardware device when it calls the function
+    Tom> pci_enable_msi().
 
-Hello.
+Thanks.  I guess for the time being I will have to split up my request
+region calls.
 
-I made merging patches between Nonlinear and Node style
-memory hotplug code. I hope that this patches will work
-for both of SMP style memory hotplug and NUMA style memory 
-hotplug.
-The patches is here.
-  http://osdn.dl.sourceforge.net/sourceforge/lhms/20040621.tgz
+Do you think the msi subsystem should use a different name for the
+MSI-X memory region ("MSI-X iomap Failure" seems very strange to me).
 
-These patches are for Linux 2.6.5.
-
-Please comment.
-
-Bye.
-
-------------------
-Note: 
- These patches base is Takahashi-san and Iwamoto-san's patches.
- and this includes nonlinear's code.
- Modifications from them are ...
-  - CONFIG definition was divided like this
-           CONFIG_HOTPLUG_MEMORY   (common part)
-           CONFIG_HOTPLUG_MEMORY_OF_NODE (only node style hotplug)
-           CONFIG_HOTPLUG_MEMORY_NONLINAR (only mem_section style 
-					   hotplug)
-  - Some of strucure's member are added to mem_section[] to 
-    unify between nonlinear and node style hotplug.
-  - Basic implementation mem_section's hotremove. (See below.)
-  - Using NUMA code of build_zonelist() for NUMA style 
-    memory hotplug.
-  - Code cleaned up Memory hotadd for NUMA style.
-    
-  Following is remain issue.
-    - Hotremovable attribute is vague concept in these patches.
-      I don't have suitable solution for it yet.
-    - Memory hot-add for memsection.
-    - rmap is changed in 2.6.7. These patches should 
-      reflect the changes.
-  
-  These patches are trial. So, system down might occur.
-  (Especially, after nonlinear hot-removing code execution.)
-
--------------------------------------------------
-About hotremove for mem_section 
-(Using PG_booked)
-
-Hot-remove needs 3 features.
-  1. Prohibition reallocation in the removing area against
-     page allocator.
-  2. Page migration from removing area
-  3. System repeats 2. until freeing all of the memory in the area.
-     So, system has to know all of memory freed.
-
-1. and 3. have problem for memsection hot-remove.
-In Node removing case, system could avoid reallocation
-by removing zone from zone_list. But its way can’t be used 
-for memsection. System could count freed page by using free_pages
-in the zone. But, it will has to know freed area
-in the 'removing memsection'.
-  
-Takahashi-san proposed me that it use PG_book in the page flag 
-for prohibition of reallocation in the mem_section. (This flag was
-used for reservation of destination of huge-page's migration in
-these patches.)
-  - System doesn’t allocate booked pages.
-  - System doesn’t return the page to per_cpu_page,
-    return it to buddy allocator immediately.
-  - When all pages in the section are booked and freed,
-    system can find that the section can remove.
-
-
-
--- 
-Yasunori Goto <ygoto at us.fujitsu.com>
-
-
+ - Roland

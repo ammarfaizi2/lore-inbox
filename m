@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264210AbSJNKZp>; Mon, 14 Oct 2002 06:25:45 -0400
+	id <S263571AbSJNKno>; Mon, 14 Oct 2002 06:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264610AbSJNKZp>; Mon, 14 Oct 2002 06:25:45 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:61191 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S264210AbSJNKZp>; Mon, 14 Oct 2002 06:25:45 -0400
-Date: Mon, 14 Oct 2002 12:25:27 +0200
-From: DervishD <raul@pleyades.net>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] mmap.c (do_mmap_pgoff), against 2.4.19 and 2.4.20-pre10
-Message-ID: <20021014102527.GD96@DervishD>
-References: <20021014093622.GA96@DervishD> <20021014110947.B32186@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021014110947.B32186@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+	id <S264611AbSJNKno>; Mon, 14 Oct 2002 06:43:44 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:58270 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S263571AbSJNKnn>;
+	Mon, 14 Oct 2002 06:43:43 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200210141045.OAA10901@sex.inr.ac.ru>
+Subject: Re: [PATCH] zerocopy NFS for 2.5.36
+To: davem@redhat.com (David S. Miller)
+Date: Mon, 14 Oct 2002 14:45:33 +0400 (MSD)
+Cc: neilb@cse.unsw.edu.au, taka@valinux.co.jp, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+In-Reply-To: <20021013.231534.08939486.davem@redhat.com> from "David S. Miller" at Oct 13, 2 11:15:34 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Russell :))
+Hello!
 
->        If the recipient is supposed to use the -pN option, do not
->        send output that looks like this:
-> 
->           diff -Naur v2.0.29/prog/README prog/README
->           --- v2.0.29/prog/README   Mon Mar 10 15:13:12 1997
->           +++ prog/README   Mon Mar 17 14:58:22 1997
+> Alexey is working on this, or at least he was. :-)
+> (Alexey this is about the UDP cork changes)
 
-    Sorry, was a typo, you're right...
+I took two patches of the batch:
 
-> Also, you should generate the patches without the "/usr/src/" prefix.
-> So it should look like this:
-> --- linux/mm/mmap.c.orig	2002-10-14 11:16:40.000000000 +0200
-> +++ linux/mm/mmap.c	2002-10-14 11:19:32.000000000 +0200
+va10-hwchecksum-2.5.36.patch
+va11-udpsendfile-2.5.36.patch
 
-    I did it on purpose, but you're right, the prefix is useless and
-can cause problems. I'll resend.
+I did not worry about the rest i.e. sunrpc/* part.
 
-    Thanks for your warning :))
-    Raúl
+Alexey

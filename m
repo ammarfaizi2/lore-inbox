@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280197AbRJaNbq>; Wed, 31 Oct 2001 08:31:46 -0500
+	id <S280203AbRJaNfQ>; Wed, 31 Oct 2001 08:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280214AbRJaNbh>; Wed, 31 Oct 2001 08:31:37 -0500
-Received: from dns.irisa.fr ([131.254.254.2]:13516 "HELO dns.irisa.fr")
-	by vger.kernel.org with SMTP id <S280211AbRJaNbX>;
-	Wed, 31 Oct 2001 08:31:23 -0500
-Date: Wed, 31 Oct 2001 14:31:59 +0100
-From: DINH Viet Hoa <Viet-Hoa.Dinh@irisa.fr>
-To: linux-kernel@vger.kernel.org
-Subject: current->addr_limit
-Message-Id: <20011031143159.0bdc0981.vdinh@irisa.fr>
-Organization: IRISA
-X-Mailer: Sylpheed version 0.6.4claws12 (GTK+ 1.2.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S280199AbRJaNfG>; Wed, 31 Oct 2001 08:35:06 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:50181 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S280202AbRJaNez>;
+	Wed, 31 Oct 2001 08:34:55 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110311334.QAA01756@ms2.inr.ac.ru>
+Subject: Re: iptables and tcpdump
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Wed, 31 Oct 2001 16:34:32 +0300 (MSK)
+Cc: davem@redhat.com, fokkensr@linux06.vertis.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20011031172835.4f0c0ed2.rusty@rustcorp.com.au> from "Rusty Russell" at Oct 31, 1 05:28:35 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When changing current->addr_limit through the macros 
-get_fs() and set_fs() in the kernel or in a kernel thread,
-do we need to lock anything to prevent anything else
-from accessing our custom value of current->addr_limit ?
+Hello!
 
-thanks.
+> Agreed.  The 2.2 masq code didn't do this, and hence the "don't tcpdump on masq host"
+> recommendation.
 
--- 
-DINH Viêt Hoà, ingénieur associé, projet PARIS
-IRISA-INRIA, Campus de Beaulieu, 35042 Rennes cedex, France
-Tél: +33 (0) 2 99 84 75 98, Fax: +33 (0) 2 99 84 25 28
+Paul, it is very possible that I smoke/drunk something wrong
+and saw this in dreams, but I really remember that this bug
+has been fixed in some 2.1.x. :-)
+
+Only function is different: that time skb_unshare() did some
+unitelligible thing and was used only by AX.25 for an unknown purpose.
+So, the function which does the work was called skb_cow().
+
+Alexey

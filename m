@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129884AbRARAiS>; Wed, 17 Jan 2001 19:38:18 -0500
+	id <S129878AbRARAj2>; Wed, 17 Jan 2001 19:39:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130077AbRARAiJ>; Wed, 17 Jan 2001 19:38:09 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:5615 "EHLO
+	id <S130287AbRARAjI>; Wed, 17 Jan 2001 19:39:08 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:9711 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129884AbRARAh7>; Wed, 17 Jan 2001 19:37:59 -0500
-Date: Thu, 18 Jan 2001 08:15:50 +1100 (EST)
+	id <S130077AbRARAi7>; Wed, 17 Jan 2001 19:38:59 -0500
+Date: Thu, 18 Jan 2001 01:05:43 +1100 (EST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@localhost.localdomain>
-To: Vlad Bolkhovitine <vladb@sw.com.sg>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: mmap()/VM problem in 2.4.0
-In-Reply-To: <3A5EFB40.6080B6F3@sw.com.sg>
-Message-ID: <Pine.LNX.4.31.0101180814080.31432-100000@localhost.localdomain>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, <migo@elte.hu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <20010110084235.A365@caldera.de>
+Message-ID: <Pine.LNX.4.31.0101180104050.31432-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.31.0101180814082.31432@localhost.localdomain>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Vlad Bolkhovitine wrote:
+On Wed, 10 Jan 2001, Christoph Hellwig wrote:
 
-> You can see, mmap() read performance dropped significantly as
-> well as read() one raised. Plus, "interactivity" of 2.4.0 system
-> was much worse during mmap'ed test, than using read()
-> (everything was quite smooth here). 2.4.0-test7 was badly
-> interactive in both cases.
+> Simple.  Because I stated before that I DON'T even want the
+> networking to use kiobufs in lower layers.  My whole argument is
+> to pass a kiovec into the fileop instead of a page, because it
+> makes sense for other drivers to use multiple pages,
 
-Could have to do with page_launder() ... I'm working on
-streaming mmap() performance here and have been working
-on this for a week now (amongst other things).
+Now wouldn't it be great if we had one type of data
+structure that would work for both the network layer
+and the block layer (and v4l, ...)  ?
 
-I'll clean up my code soon and will make it available on
-my home page asap. When we're certain it works I'll submit
-some of it to Linus.
+If we constantly need to convert between zerocopy
+metadata type, I'm sure we'll lose most of the performance
+gain we started this whole idea for in the first place.
 
-regards,
+cheers,
 
 Rik
 --

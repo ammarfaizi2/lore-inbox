@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266905AbUJONOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUJONS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbUJONOY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 09:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUJONOY
+	id S267259AbUJONS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 09:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267304AbUJONS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 09:14:24 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:57999 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S266905AbUJONOX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 09:14:23 -0400
-Message-ID: <416FCD3E.8010605@drzeus.cx>
-Date: Fri, 15 Oct 2004 15:14:38 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
-X-Accept-Language: en-us, en
+	Fri, 15 Oct 2004 09:18:27 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:990 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S267259AbUJONS0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 09:18:26 -0400
+Date: Fri, 15 Oct 2004 14:15:07 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: __attribute__((unused))
+In-Reply-To: <20041015123300.GA12530@janus>
+Message-ID: <Pine.LNX.4.58L.0410151412510.11787@blysk.ds.pg.gda.pl>
+References: <20041014220243.B28649@flint.arm.linux.org.uk> <20041015123300.GA12530@janus>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Tasklet usage?
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My driver needs to spend a lot of time inside the interrupt handler 
-(draining a FIFO). I suspect this might cause problems blocking other 
-interrupt handlers so I was thinking about moving this into a tasklet.
-Not being to familiar with tasklets, a few questions pop up.
+On Fri, 15 Oct 2004, Frank van Maarseveen wrote:
 
-* Will a tasklet scheduled from the interrupt handler be executed as 
-soon as interrupt handling is done?
-* Can tasklets be preempted?
-* If a tasklet gets scheduled while running, will it be executed once 
-more? (Needed if I get another FIFO interrupt while the tasklet is just 
-exiting).
+> This makes sense, assuming the gcc info pages are correct:
+> `unused'
+>      This attribute, attached to a function, means that the function is
+>      meant to be possibly unused.  GCC will not produce a warning for
+>      this function.  GNU C++ does not currently support this attribute
+>      as definitions without parameters are valid in C++.
+> 
+> `used'
+>      This attribute, attached to a function, means that code must be
+>      emitted for the function even if it appears that the function is
+>      not referenced.  This is useful, for example, when the function is
+>      referenced only in inline assembly.
+> 
+> So, a function could be "used" and "unused" at the same time:
+> 
+> 	unused -> don't warn
+> 	used -> don't discard
 
-The FIFO is a bit small so time is of the essence. That's why this 
-routine is in the interrupt handler to begin with.
+ Except that "used" already implies no warning as it makes the function 
+not unused anymore.
 
-Rgds
-Pierre Ossman
+  Maciej

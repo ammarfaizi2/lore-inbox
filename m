@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbTDRR6c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 13:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTDRR6c
+	id S263185AbTDRSEP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 14:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbTDRSEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 13:58:32 -0400
-Received: from paiol.terra.com.br ([200.176.3.18]:10732 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP id S263178AbTDRR6b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 13:58:31 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-Organization: Ozzmosis Corp.
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Subject: Re: [patch] VMnet/VMware workstation 4.0
-Date: Fri, 18 Apr 2003 15:10:36 -0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <D79F957BFD@vcnet.vc.cvut.cz>
-In-Reply-To: <D79F957BFD@vcnet.vc.cvut.cz>
+	Fri, 18 Apr 2003 14:04:15 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:61412 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S263185AbTDRSEO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 14:04:14 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200304181510.36372.lucasvr@gobolinux.org>
+Message-ID: <16032.16617.632481.857276@napali.hpl.hp.com>
+Date: Fri, 18 Apr 2003 11:16:09 -0700
+To: David Brownell <david-b@pacbell.net>
+Cc: Greg KH <greg@kroah.com>, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+       linux-ia64@linuxia64.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: USB deadlock in v2.5.67
+In-Reply-To: <3EA01DF0.9080305@pacbell.net>
+References: <200304180202.h3I227mw032608@napali.hpl.hp.com>
+	<20030418045006.GB1813@kroah.com>
+	<3EA01DF0.9080305@pacbell.net>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, there are distributions and a lot of "end-users" around using devfs. 
-About 2.2.x: I think only putting #ifdef CONFIG_DEVFS_FS before defining the 
-'static devfs_handle_t devfs_handle' can fix the problem. Can you test that?
+>>>>> On Fri, 18 Apr 2003 08:46:56 -0700, David Brownell <david-b@pacbell.net> said:
 
-The patches I sent are also available on 
-http://cscience.org/~lucasvr/patches/vmnet-only-3.2.patch and 
-http://cscience.org/~lucasvr/patches/vmnet-only-4.0.patch .
+  David> Seems to be a different problem.  The patch below should
+  David> resolve the keyboard problem -- just reorders two lines so
+  David> the lock isn't held after the device's records get deleted,
+  David> so the order is what it should always have been.
 
-Lucas
+With the patch applied, I can now add/remove USB keyboards without
+crashing the kernel.
 
+Thanks!
 
-On Thursday 17 April 2003 15:12, Petr Vandrovec wrote:
-> On 17 Apr 03 at 13:48, Lucas Correia Villa Real wrote:
-> > Is there a "correct" place at vmware.com to send these patches? I tryied
-> > sending it to feature-request@vmware.com, but I got no response from
-> > them.
-> >
-> > Anyway, below follows the patch providing support to devfs on the vmnet
-> > driver for vmware workstation 4.0.
->
-> You can send them to me if you do not trust feature-request...
->
-> Proble with your patch is that it does not look like that it will
-> build on 2.2.x without complaints, but I can fix that. More important
-> question to me is: do people really use devfs?
->
-> And if change will not make into next WS release, I can always distribute
-> it from my site.
->                                                 Petr Vandrovec
+	--david
 

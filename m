@@ -1,28 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUHVL5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266695AbUHVMBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUHVL5t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 07:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUHVL5s
+	id S266695AbUHVMBP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 08:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUHVMBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 07:57:48 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:14807 "EHLO
+	Sun, 22 Aug 2004 08:01:14 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:14552 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266679AbUHVL5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 07:57:43 -0400
+	id S266695AbUHVMBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 08:01:10 -0400
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Sun, 22 Aug 2004 13:56:44 +0200
-To: schilling@fokus.fraunhofer.de, der.eremit@email.de
+Date: Sun, 22 Aug 2004 14:00:08 +0200
+To: schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <412889FC.nail9MX1X3XW5@burner>
-References: <2ptdY-42Y-55@gated-at.bofh.it>
- <2uPdM-380-11@gated-at.bofh.it> <2uUwL-6VP-11@gated-at.bofh.it>
- <2uWfh-8jo-29@gated-at.bofh.it> <2uXl0-Gt-27@gated-at.bofh.it>
- <2vge2-63k-15@gated-at.bofh.it> <2vgQF-6Ai-39@gated-at.bofh.it>
- <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
- <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
- <412770EA.nail9DO11D18Y@burner>
-In-Reply-To: <412770EA.nail9DO11D18Y@burner>
+Message-ID: <41288AC8.nail9MX2N76J9@burner>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+ <d577e5690408190004368536e9@mail.gmail.com>
+ <4124A024.nail7X62HZNBB@burner> <4124BA10.6060602@bio.ifi.lmu.de>
+ <1092925942.28353.5.camel@localhost.localdomain>
+ <4125E5B9.nail8LD2EG3NM@burner>
+ <1093001143.30940.23.camel@localhost.localdomain>
+ <41260675.nail8LDG1UIJL@burner>
+ <1093009555.30941.48.camel@localhost.localdomain>
+ <4127436A.nail9BA11B882@burner>
+ <1093171538.24341.24.camel@localhost.localdomain>
+In-Reply-To: <1093171538.24341.24.camel@localhost.localdomain>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -30,47 +33,19 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me give some additional remarks to clear up things:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-
-> Pascal Schmidt <der.eremit@email.de> wrote:
-
-> > The previous Linux implementation allowed users with *read* access
-> > to the device to send arbitrary SG_IO commands. Giving read permission
+> Your mail was not delivered.
 >
-> This is of course a kernel bug - but it could be easily fixed.
-> My scg driver for SunOS requires write permissions since it has been
-> created in August 1986.
+> Reason: entry found in the distributed idiots database
 
-Not checking for Write access permissions at this place is a typical mistake
-made by novice programmers, so I never thought this could be in Linux.....
+You repeatedly not send useful replies.
 
+So either you are missing technical competence, you are missing the needed
+discussion culture or you are a troll that has fun with stealing other people's 
+time.
 
-> > to normal users is quite common, to allow them to run isosize or play
-> > their freshly burned SVCDs with mplayer.
->
-> So changing the kernel to require write permissions would be a simple fix that
-> would help without breaking cdrtools as libscg of course opens the devices with 
-> O_RDWR.
-
-If Linux still noes not check for write permissions, I would consider there is 
-still a bug.
-
-If there is a list of "aparently safe" SCSI commands that are allowed to be 
-executed, then there is another bug in Linux. The only SCSI command that could 
-be called safe if Test Unit Ready and even this only if not send more then once 
-every few seconds.
-
-There are several SCSI commands that look safe but would result in coasters
-if issued while a CD or DVD is written.
-
-Conclusion: It makes no sense to start implementing a fine grained security 
-model before basic secutity has been done correctly.
-
-The best immediate fix for the problem is to just check for read & write 
-permissions on the file descriptor and otherwise revert to how it has been
-before 2.6.8.
+Either become reasonable or be pepared to be treated as a troll.
 
 Jörg
 

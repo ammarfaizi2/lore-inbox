@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286186AbRLZJXJ>; Wed, 26 Dec 2001 04:23:09 -0500
+	id <S286189AbRLZJ2j>; Wed, 26 Dec 2001 04:28:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286187AbRLZJW7>; Wed, 26 Dec 2001 04:22:59 -0500
-Received: from unicef.org.yu ([194.247.200.148]:59661 "EHLO unicef.org.yu")
-	by vger.kernel.org with ESMTP id <S286186AbRLZJWs>;
-	Wed, 26 Dec 2001 04:22:48 -0500
-Date: Wed, 26 Dec 2001 10:22:28 +0100 (CET)
-From: Davidovac Zoran <zdavid@unicef.org.yu>
-To: Robert Jameson <rj@open-net.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: CDROM stop's working 15mins after being mounted
-In-Reply-To: <20011226034203.5889d583.rj@open-net.org>
-Message-ID: <Pine.LNX.4.33.0112261013330.27733-100000@unicef.org.yu>
+	id <S286190AbRLZJ23>; Wed, 26 Dec 2001 04:28:29 -0500
+Received: from 217-125-101-55.uc.nombres.ttd.es ([217.125.101.55]:1992 "EHLO
+	jep.dhis.org") by vger.kernel.org with ESMTP id <S286189AbRLZJ2S>;
+	Wed, 26 Dec 2001 04:28:18 -0500
+Message-ID: <3C299823.57DD8C4A@jep.dhis.org>
+Date: Wed, 26 Dec 2001 10:28:03 +0100
+From: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
+Reply-To: jlladono@pie.xtec.es
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
+X-Accept-Language: ca, en, es
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eric Lammerts <eric@lammerts.org>
+CC: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernels, big ide disks and old bios
+In-Reply-To: <Pine.LNX.4.43.0112252340390.16675-100000@ally.lammerts.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Dec 2001, Robert Jameson wrote:
+Eric Lammerts wrote:
 
-> Hi, I recently noticed with 2.4.17 using scsi cdrom emulation my cdrom stop's functioning after monunting it, (and reading from it). I think hafta umount and remount it, I didnt see these problems with 2.4.16, has anyone else had this problem?
-> --
+> The kernel part is already there in Andre Hedrick's IDE-patches for
+> 2.2.x and 2.4.x. I don't know why it's not in standard 2.4.x.
 
-I have no problem with  using scsi cdrom emulation ,
-using teac 58E RW and ide-scsi emulation.
-
-Only problem I found is when writing TOC (within cdrecord)
-I have to wait until it finished (I cannot even change console)
-to be more strange, I have that problem only at work
-PIII 500Mhz with TEAC 58E but on
-PII 633Mhz with TEAC 54E and PPRO 200Mhz with TEAC 58E I haven't
-that problem. Note that was for 2.4.14-17
-
-With kernel 2.2.19 there is no such behaviur.
+suppose first references are to 2.2.x and 2.3.x.
 
 
-Regards,
+>
+> Patch below is for 2.4.x, extracted from Andre's code. Works For Me(tm).
 
- Zoran
+patch rejected for 2.4.17 kernel. Not Working For Me :-(
+
+
+
+--
+Salutacions...Josep
+http://www.geocities.com/SiliconValley/Horizon/1065/
+--
+
+
 

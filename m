@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264122AbTEORSj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 13:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTEORSj
+	id S264126AbTEORVb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 13:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTEORVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 13:18:39 -0400
-Received: from 12-250-182-80.client.attbi.com ([12.250.182.80]:19978 "EHLO
-	sonny.eddelbuettel.com") by vger.kernel.org with ESMTP
-	id S264122AbTEORSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 13:18:38 -0400
-Date: Thu, 15 May 2003 12:31:28 -0500
-From: Dirk Eddelbuettel <edd@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Tyan 2466 SMP lock with 2.4.21-rc1, HIGHMEM + heavy disk i/o
-Message-ID: <20030515173128.GA10318@sonny.eddelbuettel.com>
-References: <20030501135228.GA19643@sonny.eddelbuettel.com> <20030510134215.GA16397@sonny.eddelbuettel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030510134215.GA16397@sonny.eddelbuettel.com>
-User-Agent: Mutt/1.3.28i
+	Thu, 15 May 2003 13:21:31 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:50092 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264126AbTEORV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 13:21:28 -0400
+Date: Thu, 15 May 2003 10:34:42 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
+In-Reply-To: <Pine.LNX.4.50.0305150355210.19782-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0305151031210.9816-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, May 10, 2003 at 08:42:15AM -0500, Dirk Eddelbuettel wrote:
-> 
-> System:
->   Tyan 2466 MPX board, 2 Athlon 1800MP, bios 1.01 from March 2002
->   1 gb ram, ibm + maxtor ide disks, ide cdrom + cdrw 
->   ati rage 128, sb pci 128, on-board 3c905 nic, ps/2 mouse
->   no other cards
->   hardware configuration unaltered since June of last year
-> 
-> Enabling or disabling the HIGHME patch is enough to trigger/suppress
-> hard locking.  When HIGHMEM is enabled, locking occurs very easily when
-> trying to copy a (cloop-mounted) Knoppix image, or even when compiling
-> a kernel.
+> Pat what do you say to some late shutdown callbacks? I'll drop you a 
+> patch sometime tommorrow.
 
-As a follow-up, 2.4.21-rc2 looks fine so far. The only other change was to
-enable support the proper mobo i/o chipset, which I should have done earlier.
+Bah. It would work, but it's a hack. We'll get caught in a game similar to 
+the leap-frogging initcalls. In fact, we could just get really twisted and 
+define various levels of exitcalls. [ Or, do them implicitly with some 
+linkser-section-fu by calling the modules' exit functions in the reverse 
+order in which they were initialized, but that's another story. ]
 
-Dirk
+I just think that system level devices need to be treated specially in 
+every case. They just don't work as normal devices because of the ordering 
+issue. We can keep a separate list of them and deal with them explicitly 
+after regular devices. It's not that bad of a change, but will take a few 
+days, unless someone wants to take a stab at it..
 
-> I run fairly stock kernels (from Debian kernel source packages) with the 
-> win4lin patch as the only external patch.  ACPI is disabled. Disk access is
-> not tuned in any way, DMA gets enabled by default. 
-> 
-> Dirk
-> 
-> -- 
-> Don't drink and derive. Alcohol and algebra don't mix.
 
--- 
-Don't drink and derive. Alcohol and algebra don't mix.
+	-pat
+
+

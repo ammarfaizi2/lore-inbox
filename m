@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbUDEN5T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 09:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbUDEN5T
+	id S262542AbUDEN63 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 09:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUDEN62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 09:57:19 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:36762 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262509AbUDEN5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 09:57:17 -0400
-Date: Mon, 5 Apr 2004 09:44:41 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Marcel Lanz <marcel.lanz@ds9.ch>
-Subject: Re: [PANIC] ohci1394 & copy large files
-Message-ID: <20040405134440.GA13168@phunnypharm.org>
-References: <20040404141600.GB10378@ds9.ch> <20040404141339.GW13168@phunnypharm.org> <200404050003.13758.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404050003.13758.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 5 Apr 2004 09:58:28 -0400
+Received: from [151.39.82.11] ([151.39.82.11]:52704 "HELO abbeynet.it")
+	by vger.kernel.org with SMTP id S262542AbUDEN60 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 09:58:26 -0400
+Message-ID: <407165FF.903@abbeynet.it>
+Date: Mon, 05 Apr 2004 15:58:23 +0200
+From: Marco Fais <marco.fais@abbeynet.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.4.2) Gecko/20040308
+X-Accept-Language: it, en, en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
+References: <406D3E8F.20902@abbeynet.it>	<20040402153628.4a09d979.akpm@osdl.org>	<4071394A.1060007@abbeynet.it> <20040405035606.0b470efb.akpm@osdl.org>
+In-Reply-To: <20040405035606.0b470efb.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.24.0.7; VDF: 6.24.0.86; host: abbeynet.it)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 12:03:10AM -0500, Dmitry Torokhov wrote:
-> On Sunday 04 April 2004 09:13 am, Ben Collins wrote:
-> > On Sun, Apr 04, 2004 at 04:16:00PM +0200, Marcel Lanz wrote:
-> > > Since 2.6.4 and still in 2.6.5 I get regurarly a Kernel panic if I try
-> > > to backup large files (10-35GB) to an external attached disc (200GB/JFS) via ieee1394/sbp2.
-> > > 
-> > > Has anyone similar problems ?
-> > 
-> > Known issue, fixed in our repo. I still need to sync with Linus once I
-> > iron one more issue and merge some more patches.
-> > 
-> 
-> I have some concerns that it is completely fixed in your tree - there is still
-> a race - if hpsb_packet_received arrives before hosb_packet_sent then there is
-> a chance that the code will try to put the same packet in the completion queue
-> twice. With SVN tree it will cause kernel BUG in skb code, in BK tree kernel
-> will just oops.
-> 
-> I wonder what was the reason to convert the code to abuse skbs aside for using
-> skbs queues and their locking?
-> 
-> Anyway, below is a backport of my patch from SVN to BK tree, I would like to
-> know if it works for others...
+Hola Andrew!
 
-That's the other problem I was talking about. I'm reviewing your patch
-today.
+Andrew Morton ha scritto:
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+>>There are any workarounds for this, until the problem is corrected?
+> This will probably make it go away.
+> 
+> --- linux-2.4.26-rc1/drivers/net/8139too.c	2004-03-27 22:06:18.000000000 -0800
+> +++ 24/drivers/net/8139too.c	2004-04-05 03:54:50.478692968 -0700
+> @@ -983,7 +983,7 @@ static int __devinit rtl8139_init_one (s
+>  	 * through the use of skb_copy_and_csum_dev we enable these
+>  	 * features
+>  	 */
+> -	dev->features |= NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA;
+> +	dev->features |= NETIF_F_SG | NETIF_F_HIGHDMA;
+>  
+>  	dev->irq = pdev->irq;
+
+Unfortunately, this doesn't solve the problem. Seems that the panic it's 
+triggered a little later (1-2 minutes instead of a few seconds), but 
+anyway I have a kernel panic every time, also with this patch.
+
+The oops tracing looks very similar to the one I've posted on the 
+linux-kernel list.
+
+Thank you Andrew, bye!
+

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265769AbTL3Lnf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 06:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbTL3Lnf
+	id S263796AbTL3Lm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 06:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265754AbTL3Lm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 06:43:35 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10252 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265769AbTL3Ln3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 06:43:29 -0500
-Date: Tue, 30 Dec 2003 11:43:24 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>
-Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
-Message-ID: <20031230114324.A1632@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Ingo Molnar <mingo@redhat.com>
-References: <20031005171055.A21478@flint.arm.linux.org.uk> <20031228174622.A20278@flint.arm.linux.org.uk> <20031228182545.B20278@flint.arm.linux.org.uk> <Pine.LNX.4.58.0312281248190.11299@home.osdl.org>
+	Tue, 30 Dec 2003 06:42:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22240 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263796AbTL3Lm0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 06:42:26 -0500
+Date: Tue, 30 Dec 2003 03:42:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+       Nick Piggin <piggin@cyberone.com.au>, Jens Axboe <axboe@suse.de>
+Subject: Re: System hangs after echo value >
+ /sys/block/dm-0/queue/nr_requests
+Message-Id: <20031230034239.27950054.akpm@osdl.org>
+In-Reply-To: <20031229130055.GA30647@cistron.nl>
+References: <20031229130055.GA30647@cistron.nl>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0312281248190.11299@home.osdl.org>; from torvalds@osdl.org on Sun, Dec 28, 2003 at 12:49:21PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 12:49:21PM -0800, Linus Torvalds wrote:
-> On Sun, 28 Dec 2003, Russell King wrote:
-> > 
-> > Would it be possible to switch LDT/GDT to whatever the APM BIOS expects
-> > just before calling the APM BIOS to suspend/hibernate, and restore them
-> > to whatever Linux requires after the APM BIOS returns from resume?
-> 
-> Possible, yes. But it would help a lot to know what's wrong with the 
-> current segments - we did leave most of them with exactly the same layout 
-> as before, and I thought we explicitly left the ones that APM cares about 
-> that way..
+Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>
+> If you echo a value (any value; for example the default 128) to
+> /sys/block/dm-0/queue/nr_requests the shell you are in hangs.
+> After about 5 seconds, the whole system hangs 100%.
 
-With thanks to Arjan, I think we've proven that this is not the change
-which is causing the problem by testing various Red Hat and Fedora 2.4
-kernels on the machine (which have various 2.6 NPTL backports.)
+hm, nice.  It does the same thing for /sys/block/md0/queue/nr-requests.
 
-I'm now back to being completely out of my depth on this issue; a 2.4
-kernel booted through to init=/bin/bash suspends, but a 2.6 kernel
-with the same hardware support booted to the same point refuses to
-suspend via APM.
+With CONFIG_DEBUG_SPINLOCK enabled we go BUG in __wake_up():
 
-I think I'm going to have to resort to a binary search of the 2.5
-kernel series to find out exactly what broke and when.
+Program received signal SIGTRAP, Trace/breakpoint trap.
+__wake_up (q=0xcf299e90, mode=3, nr_exclusive=1) at include/asm/spinlock.h:137
+137                     BUG();
+(gdb) bt
+#0  __wake_up (q=0xcf299e90, mode=3, nr_exclusive=1) at include/asm/spinlock.h:137
+#1  0xc02cc847 in queue_requests_store (q=0xcf299df8, page=0xe <Address 0xe out of bounds>, count=14)
+    at drivers/block/ll_rw_blk.c:2843
+#2  0xc02cc907 in queue_attr_store (kobj=0xcf299f68, attr=0xe, page=0xe <Address 0xe out of bounds>, 
+    length=14) at drivers/block/ll_rw_blk.c:2892
+#3  0xc01aa84f in flush_write_buffer (file=0xe, buffer=0xc0456100, count=14) at fs/sysfs/file.c:205
+#4  0xc01aa8ac in sysfs_write_file (file=0xc0493550, buf=0xe <Address 0xe out of bounds>, count=2, 
+    ppos=0xc851cf84) at fs/sysfs/file.c:233
+#5  0xc016f458 in vfs_write (file=0xc0493550, buf=0x80b2d00 "128\n", count=4, pos=0xc851cf84)
+    at fs/read_write.c:257
+#6  0xc016f55e in sys_write (fd=14, buf=0xe <Address 0xe out of bounds>, count=14) at fs/read_write.c:293
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+Where queue_requests_store() does wake_up(&rl->wait[READ]);
+
+It looks like nobody has called blk_init_queue() for this queue and the
+waitqueue head is uninitialised.
+
+No md was in use on this machine: it was simply enabled in kernel config.

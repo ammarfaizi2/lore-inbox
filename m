@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbULVUSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbULVU2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbULVUSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 15:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbULVUSJ
+	id S262031AbULVU2t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 15:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbULVU2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 15:18:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61878 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262019AbULVUSG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 15:18:06 -0500
-Message-ID: <41C9D679.70209@pobox.com>
-Date: Wed, 22 Dec 2004 15:18:01 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Edward Broustinov <edichka@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Can't activate dma on ide/sata under 2.6.5/9 + Intel E7520 chipset
-References: <1103708275.570197.31660@z14g2000cwz.googlegroups.com>	 <20041222094014.B5A1E5F727@attila.bofh.it> <641bfad604122201527736eca6@mail.gmail.com>
-In-Reply-To: <641bfad604122201527736eca6@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Dec 2004 15:28:49 -0500
+Received: from gprs214-153.eurotel.cz ([160.218.214.153]:34178 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262031AbULVU2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 15:28:46 -0500
+Date: Wed, 22 Dec 2004 21:28:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: hugang@soulinfo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two stage V2.]
+Message-ID: <20041222202831.GB7051@elf.ucw.cz>
+References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <1103585300.26640.47.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103585300.26640.47.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edward Broustinov wrote:
-> Hi,
-> hdparm -d1 /dev/hda (or /dev/sda) returns "HDIO_SET_DMA failed:
-> Operation not permitted" on both disks. 
-> Is it possible that there's no (full?) support for ICH5-R in those kernels?
-> The motherboard is Intel SE7520BD2, exact kernel versions which were
-> tried are:
-> 2.6.9-1.667smp #1 SMP Tue Nov 2 15:09:11 EST 2004 x86_64 x86_64 x86_64
-> GNU/Linux (FC3 64bit)
-> 2.6.5-1.358smp #1 SMP Sat May 8 09:28:14 EDT 2004 x86_64 x86_64 x86_64
-> GNU/Linux (FC2 64bit)
+Hi!
+
+> On Sat, 2004-11-20 at 11:30, Pavel Machek wrote:
+> > --- clean/Documentation/power/devices.txt	2004-11-03 01:23:03.000000000 +0100
+> > +++ linux/Documentation/power/devices.txt	2004-11-03 02:16:40.000000000 +0100
+> > @@ -141,3 +141,82 @@
+> >  The driver core will not call any extra functions when binding the
+> >  device to the driver. 
+> >  
+> > +pm_message_t meaning
+> > +
+> > +pm_message_t has two fields. event ("major"), and flags.  If driver
+> > +does not know event code, it aborts the request, returning error. Some
+> > +drivers may need to deal with special cases based on the actual type
+> > +of suspend operation being done at the system level. This is why
+> > +there are flags.
+> > +
 > 
-> 2.4.21/22 (RH9) and 2.6.7* (AS3.0) do not show this problem on the board.
-> 
-> Does anybody have any idea/patch/hack?
+> I don't know how I managed to miss this before, but I think it's
+> definitely a step in the right direction. I do wonder, though, if we're
+> going about this whole thing in a peacemeal approach. I feel like the
+> whole issue of power state management on the system wide and driver
+> level are being treated as two separate issues. Is it just me?
 
-If you are using libata (/dev/sdX), then DMA is unconditionally enabled.
+Well, we are starting with small steps... And since nobody knows how
+to do one-device-suspend properly, we started with fixing system
+suspend first.
 
-	Jeff
-
-
-
+Passing structure instead of u32 should make one-device-suspend easier
+in future... Hopefully.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316579AbSE3LIw>; Thu, 30 May 2002 07:08:52 -0400
+	id <S316584AbSE3LJv>; Thu, 30 May 2002 07:09:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316580AbSE3LIv>; Thu, 30 May 2002 07:08:51 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:23537 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316579AbSE3LIu>; Thu, 30 May 2002 07:08:50 -0400
-Subject: Re: PCI - docos/where to start?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dan Creswell <dan@dcrdev.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CF5E6E8.40509@dcrdev.demon.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 30 May 2002 13:12:30 +0100
-Message-Id: <1022760750.4124.349.camel@irongate.swansea.linux.org.uk>
+	id <S316585AbSE3LJv>; Thu, 30 May 2002 07:09:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:35081 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316584AbSE3LJs>;
+	Thu, 30 May 2002 07:09:48 -0400
+Date: Thu, 30 May 2002 13:09:47 +0200
+From: Dave Jones <davej@suse.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] intel-x86 model config cleanup
+Message-ID: <20020530130947.J26821@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020530021159.B26821@suse.de> <200205300243.g4U2hIZ369399@saturn.cs.uml.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-30 at 09:46, Dan Creswell wrote:
-> I've got a new laptop here with a chipset that isn't currently properly 
-> identified/configured by linux (it's Intel 845MP based - specifically, 
-> Linux doesn't recognise the ISA bridge component which controls sound 
-> card etc.).
-> 
-> I'd like to fix this up myself so I was wondering if someone could give 
-> me some pointers to bits of kernel code/documentation I should be 
-> looking at before undertaking this work?
+On Wed, May 29, 2002 at 10:43:18PM -0400, Albert D. Cahalan wrote:
+ > No, it's like this:
+ > I want one kernel. I have a Pentium-MMX and a Pentium Pro.
+ > I don't need support for a 386, 486, Athlon, or Xeon.
+ > 
+ > It's also like this:
+ > 
+ > We have a lab full of Athlon and Pentium III boxes.
+ > There's not a Pentium 4 in sight, and no Pentium II
+ > either. It's too much work to manage multiple kernels;
+ > every box must boot from the same disk image.
 
-I pushed the ICH4 (845) audio patch to Marcelo yesterday. It's in the
--ac tree. Basically it just adds PCI identifiers
+Ok, I think I see what you're getting at. Instead of a multi-list
+giving one result, you'd like to tick every box that kernel is
+going run on, and have it spit out CONFIG_Mxxx for each of those
+processors.
 
+It's doable, and it keeps things like vendor kernels possible
+(they just select all CPUs), it's probably quite a bit of work
+though.
+
+The trickiest bit is getting the Makefile right to choose
+the lowest-chosen-denominator in the list for its gcc options, and that's
+probably not that hard, just a few extra ifdefs in an already ifdef heavy area.
+Other than that, dealing with the cases like "this cpu has TSC" "this
+doesn't" and "this has this bug" "this doesn't have this bug" need to be
+done too, but thats again, just a few more ifdefs away..
+
+    Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,80 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265843AbUBJQW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 11:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265948AbUBJQW6
+	id S265971AbUBJQMg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 11:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUBJQMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 11:22:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27801 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265843AbUBJQWv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 11:22:51 -0500
-Date: Tue, 10 Feb 2004 08:25:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Chua <jchua@fedex.com>
-Cc: jeffchua@silk.corp.fedex.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warning: `__attribute_used__' redefined
-Message-Id: <20040210082514.04afde4a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
-References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
-	<20040209225336.1f9bc8a8.akpm@osdl.org>
-	<Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 10 Feb 2004 11:12:35 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7394 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265971AbUBJQM2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 11:12:28 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.3-rc2
+Date: Tue, 10 Feb 2004 17:17:14 +0100
+User-Agent: KMail/1.5.3
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org> <Pine.GSO.4.58.0402101352320.2261@waterleaf.sonytel.be> <200402101558.59344.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200402101558.59344.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402101717.14934.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua <jchua@fedex.com> wrote:
->
-> ...
-> Here's output of "gcc -H sig.c" gcc 2.95.3  glibc 2.2.5  linux 2.6.3-rc2
-> 
-> 
-> /usr/include/signal.h
->  /usr/include/features.h
->   /usr/include/sys/cdefs.h
->   /usr/include/gnu/stubs.h
->  /usr/include/bits/sigset.h
->  /usr/include/bits/types.h
->   /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
->   /usr/include/bits/pthreadtypes.h
->    /usr/include/bits/sched.h
->  /usr/include/bits/signum.h
->  /usr/include/time.h
->  /usr/include/bits/siginfo.h
->   /usr/include/bits/wordsize.h
->  /usr/include/bits/sigaction.h
->  /usr/include/bits/sigcontext.h
->   /usr/include/asm/sigcontext.h
->    /usr/include/linux/compiler.h
->     /usr/include/linux/compiler-gcc2.h
->      /usr/include/linux/compiler-gcc.h
-> In file included from /usr/include/linux/compiler.h:18,
->                  from /usr/include/asm/sigcontext.h:4,
->                  from /usr/include/bits/sigcontext.h:28,
->                  from /usr/include/signal.h:307,
->                  from sig.c:1:
-> /usr/include/linux/compiler-gcc2.h:21: warning: `__attribute_used__' redefined
 
-ah, thanks.
+> It fails with `unterminated `#if' conditional'.
 
-Like this?
+Please pass me brown paper bag...
 
---- 25/include/asm-i386/sigcontext.h~sigcontext-include-fix	2004-02-10 08:23:47.000000000 -0800
-+++ 25-akpm/include/asm-i386/sigcontext.h	2004-02-10 08:24:18.000000000 -0800
-@@ -1,7 +1,9 @@
- #ifndef _ASMi386_SIGCONTEXT_H
- #define _ASMi386_SIGCONTEXT_H
+[PATCH] fix build for CONFIG_BLK_DEV_IDEDMA=n
+
+"fix duplication of DMA {black,white}list in icside.c" patch broke it.
+
+Noticed by Geert Uytterhoeven <geert@linux-m68k.org>.
+
+ linux-2.6.3-rc2-root/include/linux/ide.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN include/linux/ide.h~ide_release_dma_fix include/linux/ide.h
+--- linux-2.6.3-rc2/include/linux/ide.h~ide_release_dma_fix	2004-02-10 16:30:48.085986376 +0100
++++ linux-2.6.3-rc2-root/include/linux/ide.h	2004-02-10 16:35:38.959766840 +0100
+@@ -1626,6 +1626,7 @@ extern int __ide_dma_count(ide_drive_t *
+ extern int __ide_dma_verbose(ide_drive_t *);
+ extern int __ide_dma_lostirq(ide_drive_t *);
+ extern int __ide_dma_timeout(ide_drive_t *);
++#endif /* CONFIG_BLK_DEV_IDEDMA_PCI */
  
-+#ifdef __KERNEL__
- #include <linux/compiler.h>
-+#endif
+ #ifdef CONFIG_BLK_DEV_IDE_TCQ
+ extern int __ide_dma_queued_on(ide_drive_t *drive);
+@@ -1634,13 +1635,12 @@ extern ide_startstop_t __ide_dma_queued_
+ extern ide_startstop_t __ide_dma_queued_write(ide_drive_t *drive);
+ extern ide_startstop_t __ide_dma_queued_start(ide_drive_t *drive);
+ #endif
++#endif /* CONFIG_BLK_DEV_IDEDMA */
  
- /*
-  * As documented in the iBCS2 standard..
+-#else
++#ifndef CONFIG_BLK_DEV_IDEDMA_PCI
+ static inline void ide_release_dma(ide_hwif_t *drive) {;}
+ #endif
+ 
+-#endif /* CONFIG_BLK_DEV_IDEDMA */
+-
+ extern int ide_hwif_request_regions(ide_hwif_t *hwif);
+ extern void ide_hwif_release_regions(ide_hwif_t* hwif);
+ extern void ide_unregister (unsigned int index);
 
 _
 

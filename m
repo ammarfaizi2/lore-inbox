@@ -1,40 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261449AbTC0WkE>; Thu, 27 Mar 2003 17:40:04 -0500
+	id <S261424AbTC0Wj7>; Thu, 27 Mar 2003 17:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261454AbTC0WkE>; Thu, 27 Mar 2003 17:40:04 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:49656 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261449AbTC0WkD>;
-	Thu, 27 Mar 2003 17:40:03 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 27 Mar 2003 23:51:14 +0100 (MET)
-Message-Id: <UTC200303272251.h2RMpEr03699.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com
-Subject: [PATCH] make redirect static
-Cc: linux-kernel@vger.kernel.org
+	id <S261449AbTC0Wj7>; Thu, 27 Mar 2003 17:39:59 -0500
+Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:3169 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261424AbTC0Wj5>;
+	Thu, 27 Mar 2003 17:39:57 -0500
+Message-ID: <3E83805B.7040002@acm.org>
+Date: Thu, 27 Mar 2003 16:51:07 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Yet another IPMI fix
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig439F0876C66DB2E98C455462"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c	Tue Mar 25 04:54:31 2003
-+++ b/drivers/char/tty_io.c	Thu Mar 27 23:05:09 2003
-@@ -136,7 +136,7 @@
-  * redirect is the pseudo-tty that console output
-  * is redirected to if asked by TIOCCONS.
-  */
--struct tty_struct * redirect;
-+static struct tty_struct *redirect;
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig439F0876C66DB2E98C455462
+Content-Type: multipart/mixed;
+ boundary="------------000208020708000201000808"
+
+This is a multi-part message in MIME format.
+--------------000208020708000201000808
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Linus,
+
+Wouldn't you know I would find another bug right after I sent you a 
+patch.  This patch fixes a problem with the state machine getting stuck 
+in a certain error condition.
+
+Please apply.
+
+Thanks,
+
+-Corey
+
+--------------000208020708000201000808
+Content-Type: text/plain;
+ name="linix-ipmi-kcs-sm.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linix-ipmi-kcs-sm.diff"
+
+--- linux.orig/drivers/char/ipmi/ipmi_kcs_sm.c	Tue Jan 14 11:16:10 2003
++++ linux-main/drivers/char/ipmi/ipmi_kcs_sm.c	Thu Mar 27 16:46:03 2003
+@@ -468,7 +468,7 @@
+ 		break;
+ 			
+ 	case KCS_HOSED:
+-		return KCS_SM_HOSED;
++		break;
+ 	}
  
- static void initialize_tty_struct(struct tty_struct *tty);
- 
-diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/tty.h b/include/linux/tty.h
---- a/include/linux/tty.h	Tue Mar 18 11:48:23 2003
-+++ b/include/linux/tty.h	Thu Mar 27 23:14:31 2003
-@@ -342,7 +342,6 @@
- extern void tty_write_flush(struct tty_struct *);
- 
- extern struct termios tty_std_termios;
--extern struct tty_struct * redirect;
- extern struct tty_ldisc ldiscs[];
- extern int fg_console, last_console, want_console;
- 
+ 	if (kcs->state == KCS_HOSED) {
+
+--------------000208020708000201000808--
+
+--------------enig439F0876C66DB2E98C455462
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+g4BfIXnXXONXERcRAqaXAJwM9EogGfBUr2IKA9MsuHSyo5wUXQCdHd81
+brB52411AEo5GHVU0l86ZuQ=
+=jRz2
+-----END PGP SIGNATURE-----
+
+--------------enig439F0876C66DB2E98C455462--
+

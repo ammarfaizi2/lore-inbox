@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbSCFXUz>; Wed, 6 Mar 2002 18:20:55 -0500
+	id <S285352AbSCFXZP>; Wed, 6 Mar 2002 18:25:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285352AbSCFXUq>; Wed, 6 Mar 2002 18:20:46 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20687 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284933AbSCFXUb>; Wed, 6 Mar 2002 18:20:31 -0500
-Date: Wed, 6 Mar 2002 18:20:27 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Jeff Dike <jdike@karaya.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-Message-ID: <20020306182026.F866@redhat.com>
-In-Reply-To: <3C84F449.8090404@zytor.com> <E16idH7-0002zc-00@starship.berlin> <20020306113632.A22933@redhat.com> <E16ikc5-00032P-00@starship.berlin>
+	id <S285720AbSCFXZF>; Wed, 6 Mar 2002 18:25:05 -0500
+Received: from mnh-1-11.mv.com ([207.22.10.43]:39435 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S285352AbSCFXYv>;
+	Wed, 6 Mar 2002 18:24:51 -0500
+Message-Id: <200203062326.SAA05223@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Malcolm Beattie <mbeattie@clueful.co.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Wed, 06 Mar 2002 21:27:00 GMT."
+             <20020306212700.A16144@clueful.co.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16ikc5-00032P-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Mar 07, 2002 at 12:14:15AM +0100
+Date: Wed, 06 Mar 2002 18:26:04 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 12:14:15AM +0100, Daniel Phillips wrote:
-> On March 6, 2002 05:36 pm, Benjamin LaHaise wrote:
-> > On Wed, Mar 06, 2002 at 04:24:17PM +0100, Daniel Phillips wrote:
-> > > On March 6, 2002 04:24 pm, Benjamin LaHaise wrote:
-> > > > On Wed, Mar 06, 2002 at 03:59:22PM +0100, Daniel Phillips wrote:
-> > > > > Suppose you have 512 MB memory and an equal amount of swap.  You start 8
-> > > > > umls with 64 MB each.  With your and Peter's suggestion, the system always
-> > > > > goes into swap.  Whereas if the memory is only allocated on demand it
-> > > > > probably doesn't.
-> > > > 
-> > > > As I said previously, going into swap is preferable over randomly killing 
-> > > > new tasks under heavy load.
-> > > 
-> > > Huh?  In the example I gave, you will never oom but with your suggestion, you
-> > > will always go needlessly go into swap.  I'm suprised that you and Peter are
-> > > aguing in favor of wasting resources.
-> > 
-> > I'm arguing in favour of predictable behaviour.  Stability and reliability 
-> > are more important than a bit of swap space.
-> 
-> That's the same argument that says memory overcommit should not be allowed.
+mbeattie@clueful.co.uk said:
+> A "quich hack" that turns out to have rather useful, fun properties is
+> to have a little device driver (can be a module) which stores
+> "negative pages" in the page cache by allocating page cache pages for
+> the device's inode and then invoking the CP "release page" call
+> mentioned above. 
 
-Go back in the thread: I suggested making it an option that the user has to 
-turn on to allow his foot to be shot.  Remember: the common case in the kernel 
-is to be using all memory.
+Yeah, I was thinking about something like that.  It's unclear how it should
+figure out how much memory to grab, though.  You'd have to get some idea
+how desperate the host is for memory and balance that off against how 
+desperate the VM is.
 
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+And you want to avoid doing things that just aggravate the host's situation,
+i.e. if it is swapping its brains out, you want the VM to just drop some
+clean pages and you definitely don't want it swapping dirty ones and add
+to the host's IO load.
+
+>  However, closer
+> integration with the main mm system is the "proper" way to do it (but
+> depends on stuff like the latency, overheads and information shared
+> with CP so is a little more than an afternoon hack.)
+
+Yup.
+
+Is any of your (you or IBM in general) thinking on this written down publically
+anywhere?
+
+				Jeff
+

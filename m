@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284558AbRLESnQ>; Wed, 5 Dec 2001 13:43:16 -0500
+	id <S284560AbRLESs4>; Wed, 5 Dec 2001 13:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284554AbRLESnG>; Wed, 5 Dec 2001 13:43:06 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:1771 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S284543AbRLESmy>;
-	Wed, 5 Dec 2001 13:42:54 -0500
-Date: Wed, 5 Dec 2001 19:42:46 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: raw devices & software raid
-Message-ID: <20011205194245.A2145@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200112051106.fB5B6VQ24498@mail.swissonline.ch>
+	id <S284539AbRLESsr>; Wed, 5 Dec 2001 13:48:47 -0500
+Received: from net24-164-102-119.neo.rr.com ([24.164.102.119]:20107 "EHLO
+	nova.qfire.net") by vger.kernel.org with ESMTP id <S284560AbRLESsi>;
+	Wed, 5 Dec 2001 13:48:38 -0500
+From: James Cassidy <jcassidy@nova.qfire.net>
+Date: Wed, 5 Dec 2001 13:48:27 -0500
+To: Daniel Gryniewicz <dang@fprintf.net>
+Cc: John Clemens <john@deater.net>, cory.bell@usa.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-ID: <20011205134827.A10335@qfire.net>
+In-Reply-To: <1007541620.2340.2.camel@localhost.localdomain> <Pine.LNX.4.33.0112051127390.27471-100000@pianoman.cluster.toy> <20011205115450.6c66664d.dang@fprintf.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200112051106.fB5B6VQ24498@mail.swissonline.ch>
+In-Reply-To: <20011205115450.6c66664d.dang@fprintf.net>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 05 December 2001, at 12:06:11 +0100,
-LLX wrote:
 
-> i want to create a raid devices with raid 
-> level 0 that does raw i/o. 
+	When ACPI hung on boot did you have APIC/IO-APIC compiled into
+your kernel? I found when I compiled in APIC/IO-APIC on my Compaq presario
+laptop it would hang on bootup also. Appears to get stuck when writing
+out to a IO-Port.
+
+						-- James (QFire)
+
+> I have an N5415, and am using your k7 patch (thanks much!).  I don't use USB,
+> so I didn't try or comment on your patch.  However, I was never able to get
+> ACPI to work.  If I compiled it in without APM compiled in, it always hung on
+> boot.  So, I have only APM, which doesn't even show the battery life
+> correctly.  Whether or not I can suspend, knowing battery life would be an
+> improvement.  Is there something special I have to do to get ACPI to work? 
+> (I'm currently using 2.4.13-ac7-preempt-k7, but I've tried 2.4.1[56] also, as
+> well as many earlier kernels.)
 > 
-Check this:
-http://www.suse.com/en/support/oracle/docs/lvm_whitepaper.pdf
-
-It is about LVM, but RAID should also work with respect to raw I/O.
-
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
-
+> Daniel
+> --- 
+> Recursion n.:
+>         See Recursion.
+>                         -- Random Shack Data Processing Dictionary
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbTJRGov (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 02:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbTJRGov
+	id S261460AbTJRGqs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 02:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTJRGqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 02:44:51 -0400
-Received: from rth.ninka.net ([216.101.162.244]:46983 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261429AbTJRGot (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 02:44:49 -0400
-Date: Fri, 17 Oct 2003 23:44:39 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
-Subject: Re: [PATCH][2.6] fix compilation w/o CONFIG_XFRM
-Message-Id: <20031017234439.11559b32.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.53.0310180226360.2831@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.53.0310180226360.2831@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Oct 2003 02:46:47 -0400
+Received: from mail3.cc.huji.ac.il ([132.64.1.21]:18919 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S261460AbTJRGqV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 02:46:21 -0400
+Message-ID: <3F90E1B5.3020609@mscc.huji.ac.il>
+Date: Sat, 18 Oct 2003 08:46:13 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030913 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kernel recommandation please!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi dear kernel-list,
+I just bought a new computer Athlon XP 2500+ Barton (512 K)...dual 
+channel bla bla
+What kernel would you recommend for this cpu?
+Currently I'm using 2.6-test6-mm4 on my Pentium2.
+Best regards
 
-Please post this and all other networking patches to the networking
-development list (netdev@oss.sgi.com), not here.
+-- 
+Liviu Voicu
+Assistant Programmer and network support
+Computation Center, Mount Scopus
+Hebrew University of Jerusalem
+Tel: 972(2)-5881253
+E-mail: "Liviu Voicu"<pacman@mscc.huji.ac.il>
 
-Thanks.
+/**
+ * cat /usr/src/linux/arch/i386/boot/bzImage > /dev/dsp
+ * ( and the voice of God will be heard! )
+ *
+ */
+
+Click here to see my GPG signature:
+----------------------------------
+	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
+
 

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265032AbTGGPcz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 11:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265036AbTGGPcz
+	id S265002AbTGGPb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 11:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbTGGPb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 11:32:55 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:16181 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S265032AbTGGPcw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 11:32:52 -0400
-Message-ID: <001601c3449f$1e49d5b0$0c00a8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: =?us-ascii?Q?Remi_Colinet?= <remi.colinet@wanadoo.fr>,
-       <linux-kernel@vger.kernel.org>
-References: <3F082BBB.6000705@wanadoo.fr>
-Subject: Re: 2.5.74 / oops with ppp_synctty and local_bh_enable
-Date: Mon, 7 Jul 2003 10:47:48 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 7 Jul 2003 11:31:56 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:6016 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S265002AbTGGPbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 11:31:55 -0400
+Date: Mon, 7 Jul 2003 17:46:28 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Cc: trond.myklebust@fys.uio.no
+Subject: opening symlinks with O_CREAT under latest 2.5.74
+Message-ID: <20030707154628.GA3220@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm using the Alcatel SpeedTouch modem. It is working fine. :-)
-> Meanwhile, when the pppd process is killed, the following oops appears.
-> ...
-> Jul  6 15:30:04 tigre01 kernel: Badness in local_bh_enable at
-kernel/softirq.c:109
-> Jul  6 15:30:04 tigre01 kernel: Call Trace:
-> Jul  6 15:30:04 tigre01 kernel:  [<c0129265>] local_bh_enable+0x85/0xa0
-> Jul  6 15:30:04 tigre01 kernel:  [<e982fe73>] ppp_sync_push+0xd3/0x280
-[ppp_synctty]
-> Jul  6 15:30:04 tigre01 kernel:  [<e982f768>] ppp_sync_wakeup+0x28/0x60
-[ppp_synctty]
-> Jul  6 15:30:04 tigre01 kernel:  [<c0226e32>] do_tty_hangup+0x492/0x560
+Hi,
+  couple of things stopped working on my box
+where I have /dev/vc/XX as symlinks to /dev/ttyXX, and some
+things use /dev/vc/XX and some /dev/ttyXX. After last update
+hour ago things which use /dev/vc/XX stopped working for
+non-root - they now fail with EACCES error if they attempt
+to redirect its input or output through '>' or '<>' bash
+redirection operators:
 
+$ touch /tmp/xx
+$ ln -s /tmp/xx yy
+$ cat > yy
+-bash: yy: Permission denied
 
-The problem is that do_tty_hangup() in tty_io.h calls the
-write wakeup callback with disabled interrupts. The
-notes in this function question the validity of disabling
-interrupts at that point. I'm not familiar enough with the
-locking issues for this function to comment.
+Strace says:
 
-At some point ppp_synctty.c was changed to use
-spin_lock_bh and spin_unlock_bh in the write wakeup callback.
-These macros complain when called with interrupts disabled.
+[pid  3268] open("yy", O_WRONLY|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = -1 EACCES (Permission denied)
 
-Perhaps changing ppp_synctty.c to use spin_lock_irqsave
-and spin_lock_irqrestore is the best fix.
+This command succeeds on kernel from thursday. Simillar problem is
+that
 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, www.microgate.com
+$ rm /tmp/xx
+$ ln -s /tmp/xx yy
+$ cat > yy
+-bash: yy: No such file or directory
+
+while it creates /tmp/xx file on older kernels.
+
+  Currently I suspect Trond's LOOKUP_CONTINUE change in 
+'[PATCH] Add open intent information to the 'struct nameidata', but I
+did not tried reverting it yet to find whether it is culprit or no. But
+other changes than these four from Trond looks completely innocent.
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
+
 

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUIPRXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268164AbUIPR2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268263AbUIPRXz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUIPRUN
+	id S268164AbUIPR2x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUIPR2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:20:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49634 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268263AbUIPRQZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 13:16:25 -0400
+	Thu, 16 Sep 2004 13:28:39 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:12229 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268334AbUIPR2U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 13:28:20 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: arjanv@redhat.com
 Subject: Re: 2.6.9-rc2-mm1
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Date: Thu, 16 Sep 2004 14:28:10 -0300
+User-Agent: KMail/1.7
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200409161345.56131.norberto+linux-kernel@bensa.ath.cx>
-References: <20040916024020.0c88586d.akpm@osdl.org>
-	 <200409161345.56131.norberto+linux-kernel@bensa.ath.cx>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Eh8OG53CY4tgyC5pyVl8"
-Organization: Red Hat UK
-Message-Id: <1095354962.2698.22.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Sep 2004 19:16:02 +0200
+References: <20040916024020.0c88586d.akpm@osdl.org> <200409161345.56131.norberto+linux-kernel@bensa.ath.cx> <1095354962.2698.22.camel@laptop.fenrus.com>
+In-Reply-To: <1095354962.2698.22.camel@laptop.fenrus.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409161428.10717.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
+> On Thu, 2004-09-16 at 18:45, Norberto Bensa wrote:
+> > Andrew Morton wrote:
+> > > +tune-vmalloc-size.patch
+> >
+> > This one of course breaks nvidia's binary driver; so nvidia users should
+> > do a "patch -Rp1" to revert it.
+>
+> eh why how ?? what evil stuff is nvidia doing this time ?
 
---=-Eh8OG53CY4tgyC5pyVl8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On modprobe it says: "__VMALLOC_RESERVE undefined symbol". I'm almost sure is 
+an #include thing, but since I know near to nothing about the kernel 
+internals, I prefer to revert the patch.
 
-On Thu, 2004-09-16 at 18:45, Norberto Bensa wrote:
-> Andrew Morton wrote:
-> > +tune-vmalloc-size.patch
->=20
-> This one of course breaks nvidia's binary driver; so nvidia users should =
-do a=20
-> "patch -Rp1" to revert it.
+Now I got this problem with vmware but I need a reboot to tell you the exact 
+message; if you are interested, I'll report later.
 
-eh why how ?? what evil stuff is nvidia doing this time ?
-
---=-Eh8OG53CY4tgyC5pyVl8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBScpSxULwo51rQBIRAoKAAJwJmG5SvQ8x/U6RHuU0xLO2DkuizgCbB0N7
-w3KHXtDIAKlASwaBqkE7Mqg=
-=8rP4
------END PGP SIGNATURE-----
-
---=-Eh8OG53CY4tgyC5pyVl8--
+Best regards,
+Norberto
 

@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUJDH0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUJDIMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268496AbUJDH0a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 03:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJDH0a
+	id S267553AbUJDIMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 04:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUJDIMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 03:26:30 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:5518 "EHLO midnight.suse.cz")
-	by vger.kernel.org with ESMTP id S268496AbUJDH02 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 03:26:28 -0400
-Date: Mon, 4 Oct 2004 09:26:12 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange 2.6.9-rc3 keyboard repeat behavior
-Message-ID: <20041004072612.GA2712@ucw.cz>
-References: <415C8D7F.3020505@pobox.com> <20041001071323.GA5779@ucw.cz> <4160CA56.3040703@pobox.com>
+	Mon, 4 Oct 2004 04:12:52 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:59268 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S267553AbUJDIMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 04:12:49 -0400
+Subject: Re: [PATCH] -mm swsusp: copy_page is harmfull
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1096847414.23142.42.camel@gaston>
+References: <200409292014.i8TKEhov023334@hera.kernel.org>
+	 <1096847414.23142.42.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1096877559.9064.45.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4160CA56.3040703@pobox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 04 Oct 2004 18:12:39 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 03, 2004 at 11:58:14PM -0400, Jeff Garzik wrote:
+Hi.
 
-> Vojtech Pavlik wrote:
-> >On Thu, Sep 30, 2004 at 06:49:35PM -0400, Jeff Garzik wrote:
-> >
-> >>After booting into 2.6.9-rc3 release kernel, I am seeing strange and 
-> >>annoying keyboard repeat behavior.
-> >>
-> >>If I hold down a single key, while in X, the character will repeat at 
-> >>the expected (2.6.9-rc2 and prior) rate... for 1 second.
-> >>
-> >>After 1 second, the keyboard repeat rate slows to half or more.
-> >>
-> >>Can we please fix this?  Config attached.
-> >
-> >
-> >How does it behave on the console? The problem is that X generates its
-> >own software autorepeat and ignores what the kernel feeds it. So I
-> >suppose this might be more a gettimeofday or scheduling problem than one
-> >with the input layer.
+On Mon, 2004-10-04 at 09:50, Benjamin Herrenschmidt wrote:
+> On Sat, 2004-09-25 at 10:27, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.1983.1.3, 2004/09/24 17:27:41-07:00, akpm@osdl.org
+> > 
+> > 	[PATCH] -mm swsusp: copy_page is harmfull
+> > 	
+> > 	From: Pavel Machek <pavel@ucw.cz>
+> > 	
+> > 	This is my fault from long time ago: copy_page can't be used for copying
+> > 	task struct, therefore we can't use it in swsusp.
 > 
+> Hi !
 > 
-> Confirmed, console keyboard repeat does not show this behavior.
+> Just curious, but why ?
 > 
-> However...  this behavior does goes away when I boot an earlier kernel.
- 
-Can you try to replace just the drivers/input sub-tree?
+> It would be useful to have this in platform code, I don't see why I couldn't
+> use copy_page() on ppc and I suspect it will be more efficient than memcpy
+> since it has specific optimisations due to the fact that we are known to be
+> fully aligned and the size of the copy is a constant aligned power of 2.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I think I can answer that one, seeing as Pavel seems to be asleep at the
+mo :>.
+
+On x86 at least (perhaps your platform is different), copy_page can
+resolve to different implementations. If you have 3D_NOW, the preempt
+count will be incremented prior to copying the page via a fpu_begin
+call. Sooner or later in doing the atomic copy of memory, you'll be
+copying the page containing the preempt count (the task struct) for the
+process doing the suspending. At that stage, you'll copy the preempt
+count being one too high, and at resume time it will still be one too
+high (we definitely can't use copy_page then). The simple solution would
+be to use copy_page and have something like
+
+#ifdef 3D_NOW
+	dec_preempt_count();
+#endif
+
+But I'm sure you'll agree that even if it's faster, it's less clear and
+uglier.
+
+Regards,
+
+Nigel
+

@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268336AbUIPP1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUIPP3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268336AbUIPP1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 11:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268348AbUIPP1e
+	id S268325AbUIPP3I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 11:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268322AbUIPP3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:27:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4481 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268268AbUIPP0q (ORCPT
+	Thu, 16 Sep 2004 11:29:07 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:21418 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S268365AbUIPP2m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:26:46 -0400
-Date: Thu, 16 Sep 2004 08:21:35 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>, mk+lkml@arm.linux.org.uk
-Cc: mgreer@mvista.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: review MPSC driver
-Message-Id: <20040916082135.7cde3b32.rddunlap@osdl.org>
-In-Reply-To: <20040916081017.GA2167@fs.tum.de>
-References: <20040915150247.37706f7c.rddunlap@osdl.org>
-	<20040915214301.53a68379.randy.dunlap@verizon.net>
-	<20040916081017.GA2167@fs.tum.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 16 Sep 2004 11:28:42 -0400
+Date: Thu, 16 Sep 2004 17:29:19 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Buddy Lucas <buddy.lucas@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-ID: <20040916152919.GG3146@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Buddy Lucas <buddy.lucas@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915153013.32e797c8.akpm@osdl.org> <20040916064320.GA9886@deep-space-9.dsnet> <20040916000438.46d91e94.akpm@osdl.org> <20040916104535.GA3146@crusoe.alcove-fr> <5d6b657504091608093b171e30@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5d6b657504091608093b171e30@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004 10:10:17 +0200 Adrian Bunk wrote:
+On Thu, Sep 16, 2004 at 05:09:51PM +0200, Buddy Lucas wrote:
 
-| On Wed, Sep 15, 2004 at 09:43:01PM -0700, Randy.Dunlap wrote:
-| > 
-| > | http://www.uwsg.iu.edu/hypermail/linux/kernel/0408.3/1549.html
-| > 
-| > Hi Mark,
-| >...
-| > 3.  + select SERIAL_CORE
-| >     + select SERIAL_CORE_CONSOLE
-| > 
-| > Please don't use "select".  Use "depends on" instead.
-| >...
-| 
-| That's a silly suggestion since none of these options are user visible.
+> > +       total = remaining = min(len, fifo->size - fifo->tail + fifo->head);
+> 
+> I could be mistaken (long day at the office ;-) but doesn't this fail after 
+> wrapping?
 
-and Russell King wrote about the same text:
-| This is actually (one of the few) correct uses of select.  These two
-| symbols are *not* user visible, and are derived from the configuration
-| settings of the hardware drivers.
+No, because the type is *unsigned* int. 
 
-Thanks for your comments.  Any other comments on the driver?
-
---
-~Randy
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>    

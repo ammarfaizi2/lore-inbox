@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271371AbTG2J7g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 05:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271373AbTG2J7g
+	id S271369AbTG2J6g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 05:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271371AbTG2J6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 05:59:36 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:28301 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S271371AbTG2J7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 05:59:32 -0400
-Date: Tue, 29 Jul 2003 11:58:58 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Kurt Wall <kwall@kurtwerks.com>,
-       Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6-test2: gcc-3.3.1 warning.
-Message-ID: <20030729095858.GB1286@louise.pinerecords.com>
-References: <1059396053.442.2.camel@lorien> <20030728225017.GJ32673@louise.pinerecords.com> <20030729002221.GD263@kurtwerks.com> <20030729045512.GM32673@louise.pinerecords.com> <20030729092857.GA28348@werewolf.able.es> <20030729093521.GA1286@louise.pinerecords.com> <20030729094820.GC28348@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030729094820.GC28348@werewolf.able.es>
-User-Agent: Mutt/1.4.1i
+	Tue, 29 Jul 2003 05:58:35 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:16900 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S271369AbTG2J6d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 05:58:33 -0400
+Date: Tue, 29 Jul 2003 11:58:20 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Michael Hunold <hunold@convergence.de>
+cc: linux-kernel@vger.kernel.org, <alan@lxorguk.ukuu.org.uk>,
+       <torvalds@osdl.org>
+Subject: Re: [PATCH 1/6] [DVB] Kconfig and Makefile updates
+In-Reply-To: <10594710302828@convergence.de>
+Message-ID: <Pine.LNX.4.44.0307291153340.717-100000@serv>
+References: <10594710302828@convergence.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [jamagallon@able.es]
-> 
-> > The latest prepatch for the stable Linux kernel tree is: 2.4.22-pre8
-> 
-> So what it this -------------------------------------------^^^^^^ ??
+Hi,
 
-Does your screen only have 63 columns?
+On Tue, 29 Jul 2003, Michael Hunold wrote:
 
-> If people talks to you about 2.4.22, sure you understand at the first
-> glance tyey talk about the -pre of 2.4.22.
+>  config VIDEO_SAA7146
+>          tristate
+> -        default y if DVB_AV7110=y || DVB_BUDGET=y || DVB_BUDGET_AV=y || VIDEO_MXB=y || VIDEO_DPC=y
+> -        default m if DVB_AV7110=m || DVB_BUDGET=m || DVB_BUDGET_AV=m || VIDEO_MXB=m || VIDEO_DPC=m
+> -        depends on VIDEO_DEV && PCI
+> +        default y if DVB_AV7110=y || DVB_BUDGET=y || DVB_BUDGET_AV=y || VIDEO_MXB=y || VIDEO_DPC=y || VIDEO_HEXIUM_ORION=y || VIDEO_HEXIUM_GEMINI=y
+> +        default m if DVB_AV7110=m || DVB_BUDGET=m || DVB_BUDGET_AV=m || VIDEO_MXB=m || VIDEO_DPC=m || VIDEO_HEXIUM_ORION=m || VIDEO_HEXIUM_GEMINI=m
+> +        depends on VIDEO_DEV && PCI && I2C
 
-Try submitting a bug report that reads "there's this and this problem
-in 2.4.22."  One of the first questions you are bound to be asked is
-"could you clarify the version you're seeing the problem with?"
+You can change this also into:
 
-> I hope you just use release kernels, -pres are only for Mandrake people ;)
+config VIDEO_SAA7146
+	def_tristate DVB_AV7110 || DVB_BUDGET || DVB_BUDGET_AV || \
+		     VIDEO_MXB || VIDEO_DPC || VIDEO_HEXIUM_ORION || \
+		     VIDEO_HEXIUM_GEMINI
+	depends on VIDEO_DEV && PCI && I2C
 
-Does Mandrake also ship "stable" distributions w/ kernels compiled using
-gcc 3.3-whatever or is that idiocy suse-specific?
+bye, Roman
 
-> I would understand you if it were a bug in the compiler, if it it cried
-> against obviously correct code, but it just says
-> that the assembler syntax is old and you should change it.
-
-So far I said nothing about the problem itself; all the time I'm merely
-trying to point out that it's dreadfully unreasonable to pretend that
-there's a gcc 3.3.1.
-
-> Linux 2.4.22-pre8-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.6mdk))
-
-Right.
-
--- 
-Tomas Szepe <szepe@pinerecords.com>

@@ -1,396 +1,407 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbSAHT4D>; Tue, 8 Jan 2002 14:56:03 -0500
+	id <S284979AbSAHT6n>; Tue, 8 Jan 2002 14:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284933AbSAHTzz>; Tue, 8 Jan 2002 14:55:55 -0500
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:19808 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S284732AbSAHTzq>; Tue, 8 Jan 2002 14:55:46 -0500
-Posted-Date: Tue, 8 Jan 2002 19:55:31 GMT
-Date: Tue, 8 Jan 2002 19:55:30 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Stepan Maseizik <st.mase@web.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: "shutdown -r now" (lilo, win98) (fwd)
-Message-ID: <Pine.LNX.4.21.0201081952090.7547-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285935AbSAHT6g>; Tue, 8 Jan 2002 14:58:36 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:13627 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S284979AbSAHT6a>; Tue, 8 Jan 2002 14:58:30 -0500
+Date: Tue, 8 Jan 2002 21:58:18 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: 2.2.21pre2 oops
+Message-ID: <20020108215818.J1331@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stepan.
+I got the following oops while stress testing 2.2.21pre2 and ide subsystem.
 
-Unfortunately, I'm not able to help with this. As a result, I've
-forwarded it to the Linux Kernel Developers mailing list for
-comment. Hopefully, somebody there can help...
+The kernel has ide, raid and e2compr patches applied. Of those ide and raid
+were in use at the time of oops - no e2compr'ed fs had been mounted after
+boot.
 
-Best wishes from Riley.
+It's noteworthy that I have done a LOT of testing with _very_ similar work
+loads on 2.2.20 + ide + raid + e2compr and have seen no oopses. The only
+difference between this kernel and the 2.2.20 one was the -pre2 patch.
 
----------- Forwarded message ----------
-Date: Tue, 8 Jan 2002 15:18:33 +0100
-From: Stepan Maseizik <st.mase@web.de>
-To: rhw@memalpha.cx
-Subject: PROBLEM: "shutdown -r now" (lilo, win98)
+So while this most likely is a merging error of my part, or just some
+incompability between the patches, I figured you might want to take a look.
 
-1. PROBLEM:     "shutdown -r now" problem (lilo,win98)
+When the oops happened, I was reading two IDE drives in raid0. This was
+essentially cat /dev/md0 > /dev/null kind of test to stress the Via KT133
+pci transfers.
 
-2. DESCRIPTION: When I try a "shutdown -r now" to start win98 (using lilo as
-                bootloader) the computer hangs a few seconds after the initial
-                win98 start-picture.  Horizontal white lines run across the
-                screen, the win98 startlogo is still visible.
-                A "shutdown -r now" rebooting linux works just fine!
-                A "shutdown -h now", restrating the computer and selcting
-                win98 from the lilo-menu works fine as well!
-                
-                I had a similar problem with suse-kernel 2.4.4. The only
-                difference: No runnig white lines across the screen. But I got
-                an error massage then that read "UNABLE TO CONTROL THE A20
-                LINE!" I have reported that problem to SuSE and they have
-                generated a bug report (so they said 11. jul 2001).
+Rootfs is on ide cdrom, the harddrives had no fs on them.
 
-3. Kywords:     rebooting win98, lilo?, A20 line error? 
+ksymoops 0.7c on i686 2.2.21pre2-ide+e2compr+raid.  Options
+used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.2.21pre2-ide+e2compr+raid+gibbs+patches/ (default)
+     -m ./System.map (specified)
 
-4. Kernel:	Linux version 2.4.16-4GB (root@Pentium.suse.de) (gcc version
-		2.95.3 20010315 (SuSE)) #1 Tue Dec 18 15:10:30 GMT 2001
+kmem_free: Bad obj addr (objp=c1a0c420, name=buffer_head)
 
-5. oops         -- 
-6. script       --
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+current->tss.cr3 = 00101000, %cr3 = 00101000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0120871>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 0000003d   ebx: c1a0c420   ecx: ffffffff   edx: 0000003c
+esi: cffef740   edi: 00000282   ebp: e82e0b92   esp: cffd5f68
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, process nr: 4, stackpage=cffd5000)
+Stack: c756dea0 c02bb728 c1a0c47c cffd5f80 c0126d35 cffef740 c1a0c420
+c1a0c420 
+       c756dea0 c012777b c1a0c420 c1a0c420 c02bb728 0000332f cffd4000
+00000030 
+       c011c6a7 c02bb728 00000030 00000004 00000005 00000030 0008e000
+c012150a 
+Call Trace: [<c0126d35>] [<c012777b>] [<c011c6a7>] [<c012150a>] [<c01eec2e>]
+[<c
+01215d3>] [<c0106000>] 
+       [<c010749f>] 
+Code: c7 05 00 00 00 00 00 00 00 00 eb 12 8d 76 00 56 53 68 3e ea 
 
-7. Environment
+>>EIP; c0120871 <kmem_cache_free+14d/174>   <=====
+Trace; c0126d35 <put_unused_buffer_head+21/4c>
+Trace; c012777b <try_to_free_buffers+3b/a4>
+Trace; c011c6a7 <shrink_mmap+103/160>
+Trace; c012150a <try_to_free_pages+26/8c>
+Trace; c01eec2e <tvecs+182e/31a0>
+Trace; c01215d3 <kswapd+63/98>
+Trace; c0106000 <get_options+0/74>
+Trace; c010749f <kernel_thread+23/30>
+Code;  c0120871 <kmem_cache_free+14d/174>
+00000000 <_EIP>:
+Code;  c0120871 <kmem_cache_free+14d/174>   <=====
+   0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
+Code;  c0120878 <kmem_cache_free+154/174>
+   7:   00 00 00 
+Code;  c012087b <kmem_cache_free+157/174>
+   a:   eb 12                     jmp    1e <_EIP+0x1e> c012088f
+<kmem_cache_fre
+e+16b/174>
+Code;  c012087d <kmem_cache_free+159/174>
+   c:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0120880 <kmem_cache_free+15c/174>
+   f:   56                        push   %esi
+Code;  c0120881 <kmem_cache_free+15d/174>
+  10:   53                        push   %ebx
+Code;  c0120882 <kmem_cache_free+15e/174>
+  11:   68 3e ea 00 00            push   $0xea3e
 
-7.1 Software:  output from ver_linux: 
+ kmem_free: Bad obj addr (objp=c1a0ca20, name=buffer_head)
 
------------------------------------------------------------------------
-Linux kurt 2.4.16-4GB #1 Tue Dec 18 15:10:30 GMT 2001 i686 unknown
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+current->tss.cr3 = 0f073000, %cr3 = 0f073000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0120871>]
+EFLAGS: 00010282
+eax: 0000003d   ebx: c1a0ca20   ecx: c02276e8   edx: 00000021
+esi: cffef740   edi: 00000282   ebp: e82e0b92   esp: cf74bc40
+ds: 0018   es: 0018   ss: 0018
+Process wrchk (pid: 690, process nr: 25, stackpage=cf74b000)
+Stack: c7af2d40 c02c2ff0 c1a0ca7c ffffff0a c0126d35 cffef740 c1a0ca20
+c1a0ca20 
+       c7af2d40 c012777b c1a0ca20 c1a0ca20 c02c2ff0 0000332f cf74a000
+00000005 
+       c011c6a7 c02c2ff0 00000005 0000000b 00000005 00000005 00000900
+c012150a 
+Call Trace: [<c0126d35>] [<c012777b>] [<c011c6a7>] [<c012150a>] [<c0121fb2>]
+[<c
+01275fc>] [<c012679e>] 
+       [<c012695a>] [<c0129ac1>] [<c0188f2d>] [<c0124ece>] [<c0108924>] 
+Code: c7 05 00 00 00 00 00 00 00 00 eb 12 8d 76 00 56 53 68 3e ea 
 
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.10.91.0.4
-util-linux             2.11b
-mount                  2.11b
-modutils               2.4.12
-e2fsprogs              1.19
-reiserfsprogs          3.x.0k-pre10
-pcmcia-cs              3.1.28
-PPP                    2.4.0
-isdn4k-utils           3.1pre1a
-Linux C Library        x    1 root     root      1341670 Dez 18 16:50 
-/lib/libc.so.6
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    1.04
-Sh-utils               2.0
-Modules Loaded         ppp_deflate bsd_comp ppp_async ppp_generic slhc 
-snd-pcm-oss snd-pcm-plugin snd-mixer-oss snd-seq-midi snd-seq-midi-event 
-snd-seq snd-card-ymfpci snd-ymfpci snd-pcm snd-ac97-codec snd-mixer snd-opl3 
-snd-hwdep snd-timer snd-mpu401-uart snd-rawmidi snd-seq-device snd soundcore 
-parport_pc lp parport mousedev hid input usb-uhci usbcore ipv6 ds i82365 
-pcmcia_core ipchains ide-scsi nls_iso8859-1 nls_cp437 reiserfs
---------------------------------------------------------------------------
+>>EIP; c0120871 <kmem_cache_free+14d/174>   <=====
+Trace; c0126d35 <put_unused_buffer_head+21/4c>
+Trace; c012777b <try_to_free_buffers+3b/a4>
+Trace; c011c6a7 <shrink_mmap+103/160>
+Trace; c012150a <try_to_free_pages+26/8c>
+Trace; c0121fb2 <__get_free_pages+9a/2ac>
+Trace; c01275fc <grow_buffers+3c/fc>
+Trace; c012679e <refill_freelist+a/38>
+Trace; c012695a <getblk+11e/144>
+Trace; c0129ac1 <block_read+2c1/4f4>
+Trace; c0188f2d <md_read+41/48>
+Trace; c0124ece <sys_read+ae/c4>
+Trace; c0108924 <system_call+34/38>
+Code;  c0120871 <kmem_cache_free+14d/174>
+00000000 <_EIP>:
+Code;  c0120871 <kmem_cache_free+14d/174>   <=====
+   0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
+Code;  c0120878 <kmem_cache_free+154/174>
+   7:   00 00 00 
+Code;  c012087b <kmem_cache_free+157/174>
+   a:   eb 12                     jmp    1e <_EIP+0x1e> c012088f
+<kmem_cache_fre
+e+16b/174>
+Code;  c012087d <kmem_cache_free+159/174>
+   c:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0120880 <kmem_cache_free+15c/174>
+   f:   56                        push   %esi
+Code;  c0120881 <kmem_cache_free+15d/174>
+  10:   53                        push   %ebx
+Code;  c0120882 <kmem_cache_free+15e/174>
+  11:   68 3e ea 00 00            push   $0xea3e
 
-7.2 Processor information (from /proc/cpuinfo):
+kmem_free: Bad obj addr (objp=c1a0c480, name=buffer_head)
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 3
-cpu MHz         : 159.355
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
-pat pse36 mmx fxsr sse
-bogomips        : 304.74
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+current->tss.cr3 = 0f97f000, %cr3 = 0f97f000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0120871>]
+EFLAGS: 00010282
+eax: 0000003d   ebx: c1a0c480   ecx: c02276e8   edx: 00000021
+esi: cffef740   edi: 00000282   ebp: e82e0b92   esp: cebbbc38
+ds: 0018   es: 0018   ss: 0018
+Process wrchk (pid: 795, process nr: 17, stackpage=cebbb000)
+Stack: c1a0c480 c02f0b80 c1a0c4dc c967df00 c0126d35 cffef740 c1a0c480
+c1a0c480 
+       c1a0c480 c012777b c1a0c480 c1a0c480 c02f0b80 0000332e cebba000
+00000005 
+       c011c6a7 c02f0b80 00000005 00000008 00000005 00000005 00000900
+c012150a 
+Call Trace: [<c0126d35>] [<c012777b>] [<c011c6a7>] [<c012150a>] [<c0121fb2>]
+[<c
+01275fc>] [<c012679e>] 
+       [<c012695a>] [<c012947d>] [<c012a7f6>] [<c012afc0>] [<c011af63>]
+[<c011af
+a4>] [<c0112e37>] [<c012bf7c>] 
+       [<c012c0ff>] [<c01424a5>] [<c012bf7c>] [<c012c0ff>] [<c012bd73>]
+[<c01256
+33>] [<c01ef8ad>] [<c01258f6>] 
+       [<c0188f75>] [<c0124fc9>] [<c0188f34>] [<c0108924>] 
+Code: c7 05 00 00 00 00 00 00 00 00 eb 12 8d 76 00 56 53 68 3e ea 
 
+>>EIP; c0120871 <kmem_cache_free+14d/174>   <=====
+Trace; c0126d35 <put_unused_buffer_head+21/4c>
+Trace; c012777b <try_to_free_buffers+3b/a4>
+Trace; c011c6a7 <shrink_mmap+103/160>
+Trace; c012150a <try_to_free_pages+26/8c>
+Trace; c0121fb2 <__get_free_pages+9a/2ac>
+Trace; c01275fc <grow_buffers+3c/fc>
+Trace; c012679e <refill_freelist+a/38>
+Trace; c012695a <getblk+11e/144>
+Trace; c012947d <block_write+1b5/538>
+Trace; c012a7f6 <read_exec+c2/13c>
+Trace; c012afc0 <search_binary_handler+60/120>
+Trace; c011af63 <do_anonymous_page+73/84>
+Trace; c011afa4 <do_no_page+30/c4>
+Trace; c0112e37 <update_process_times+5b/64>
+Trace; c012bf7c <do_follow_link+9c/a8>
+Trace; c012c0ff <lookup_dentry+177/200>
+Trace; c01424a5 <ext2_follow_link+5d/78>
+Trace; c012bf7c <do_follow_link+9c/a8>
+Trace; c012c0ff <lookup_dentry+177/200>
+Trace; c012bd73 <permission+27/2c>
+Trace; c0125633 <get_blkfops+1b/20>
+Trace; c01ef8ad <tvecs+24ad/31a0>
+Trace; c01258f6 <blkdev_open+32/40>
+Trace; c0188f75 <md_write+41/48>
+Trace; c0124fc9 <sys_write+e5/118>
+Trace; c0188f34 <md_write+0/48>
+Trace; c0108924 <system_call+34/38>
+Code;  c0120871 <kmem_cache_free+14d/174>
+00000000 <_EIP>:
+Code;  c0120871 <kmem_cache_free+14d/174>   <=====
+   0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
+Code;  c0120878 <kmem_cache_free+154/174>
+   7:   00 00 00 
+Code;  c012087b <kmem_cache_free+157/174>
+   a:   eb 12                     jmp    1e <_EIP+0x1e> c012088f
+<kmem_cache_fre
+e+16b/174>
+Code;  c012087d <kmem_cache_free+159/174>
+   c:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0120880 <kmem_cache_free+15c/174>
+   f:   56                        push   %esi
+Code;  c0120881 <kmem_cache_free+15d/174>
+  10:   53                        push   %ebx
+Code;  c0120882 <kmem_cache_free+15e/174>
+  11:   68 3e ea 00 00            push   $0xea3e
 
-7.3 Module information (from /proc/modules):
+kmem_free: Bad obj addr (objp=c1a0c300, name=buffer_head)
 
-ppp_deflate            39680   0 (autoclean)
-bsd_comp                4032   0 (autoclean)
-ppp_async               6144   0 (autoclean)
-ppp_generic            14760   0 (autoclean) [ppp_deflate bsd_comp ppp_async]
-slhc                    4432   0 (autoclean) [ppp_generic]
-snd-pcm-oss            18400   0 (autoclean)
-snd-pcm-plugin         14480   0 (autoclean) [snd-pcm-oss]
-snd-mixer-oss           4672   0 (autoclean) [snd-pcm-oss]
-snd-seq-midi            3136   0 (unused)
-snd-seq-midi-event      2800   0 [snd-seq-midi]
-snd-seq                38320   0 [snd-seq-midi snd-seq-midi-event]
-snd-card-ymfpci         4288   0
-snd-ymfpci             35936   0 [snd-card-ymfpci]
-snd-pcm                28960   0 [snd-pcm-oss snd-pcm-plugin snd-ymfpci]
-snd-ac97-codec         23488   0 [snd-ymfpci]
-snd-mixer              22568   0 [snd-mixer-oss snd-ymfpci snd-ac97-codec]
-snd-opl3                4256   0 [snd-card-ymfpci]
-snd-hwdep               3072   0 [snd-opl3]
-snd-timer               8128   0 [snd-seq snd-pcm snd-opl3]
-snd-mpu401-uart         2288   0 [snd-card-ymfpci]
-snd-rawmidi             9184   0 [snd-seq-midi snd-mpu401-uart]
-snd-seq-device          3740   0 [snd-seq-midi snd-seq snd-rawmidi]
-snd                    31072   1 [snd-pcm-oss snd-pcm-plugin snd-mixer-oss 
-snd-seq-midi snd-seq-midi-event sndsoundcore               3268   5 [snd]
-parport_pc             25192   1 (autoclean)
-lp                      5824   0 (autoclean)
-parport                22368   1 (autoclean) [parport_pc lp]
-mousedev                3872   0 (unused)
-hid                    17760   0 (unused)
-input                   3072   0 [mousedev hid]
-usb-uhci               20996   0 (unused)
-usbcore                47616   1 [hid usb-uhci]
-ipv6                  124608  -1 (autoclean)
-ds                      6816   2
-i82365                 23312   2
-pcmcia_core            43040   0 [ds i82365]
-ipchains               29640   0
-ide-scsi                7584   0
-nls_iso8859-1           2880   1 (autoclean)
-nls_cp437               4384   1 (autoclean)
-reiserfs              152096   2
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+current->tss.cr3 = 03620000, %cr3 = 03620000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0120871>]
+EFLAGS: 00010286
+eax: 0000003d   ebx: c1a0c300   ecx: c02276e8   edx: 00000021
+esi: cffef740   edi: 00000286   ebp: e82e0b92   esp: c5683d6c
+ds: 0018   es: 0018   ss: 0018
+Process sh (pid: 1892, process nr: 34, stackpage=c5683000)
+Stack: c2d31ea0 c031cb68 c1a0c35c 00000000 c0126d35 cffef740 c1a0c300
+c1a0c300 
+       c2d31ea0 c012777b c1a0c300 c1a0c300 c031cb68 0000332e c5682000
+00000013 
+       c011c6a7 c031cb68 00000013 00000002 00000005 00000013 00000ff2
+c012150a 
+Call Trace: [<c0126d35>] [<c012777b>] [<c011c6a7>] [<c012150a>] [<c0121fb2>]
+[<c
+012a580>] [<c012b1cc>] 
+       [<c0107923>] [<c0108924>] 
+Code: c7 05 00 00 00 00 00 00 00 00 eb 12 8d 76 00 56 53 68 3e ea 
 
+>>EIP; c0120871 <kmem_cache_free+14d/174>   <=====
+Trace; c0126d35 <put_unused_buffer_head+21/4c>
+Trace; c012777b <try_to_free_buffers+3b/a4>
+Trace; c011c6a7 <shrink_mmap+103/160>
+Trace; c012150a <try_to_free_pages+26/8c>
+Trace; c0121fb2 <__get_free_pages+9a/2ac>
+Trace; c012a580 <copy_strings+114/1c0>
+Trace; c012b1cc <do_execve+14c/224>
+Trace; c0107923 <sys_execve+2f/58>
+Trace; c0108924 <system_call+34/38>
+Code;  c0120871 <kmem_cache_free+14d/174>
+00000000 <_EIP>:
+Code;  c0120871 <kmem_cache_free+14d/174>   <=====
+   0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
+Code;  c0120878 <kmem_cache_free+154/174>
+   7:   00 00 00 
+Code;  c012087b <kmem_cache_free+157/174>
+   a:   eb 12                     jmp    1e <_EIP+0x1e> c012088f
+<kmem_cache_fre
+e+16b/174>
+Code;  c012087d <kmem_cache_free+159/174>
+   c:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0120880 <kmem_cache_free+15c/174>
+   f:   56                        push   %esi
+Code;  c0120881 <kmem_cache_free+15d/174>
+  10:   53                        push   %ebx
+Code;  c0120882 <kmem_cache_free+15e/174>
+  11:   68 3e ea 00 00            push   $0xea3e
 
-7.4 Loaded driver and hardware information 
+kmem_free: Bad obj addr (objp=c1a0cba0, name=buffer_head)
 
-/proc/ioports: 
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+current->tss.cr3 = 03620000, %cr3 = 03620000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0120871>]
+EFLAGS: 00010286
+eax: 0000003d   ebx: c1a0cba0   ecx: c02276e8   edx: 00000021
+esi: cffef740   edi: 00000286   ebp: e82e0b92   esp: c5683d6c
+ds: 0018   es: 0018   ss: 0018
+Process sh (pid: 1912, process nr: 34, stackpage=c5683000)
+Stack: c1a0cba0 c031cd70 c1a0cbfc 00000000 c0126d35 cffef740 c1a0cba0
+c1a0cba0 
+       c1a0cba0 c012777b c1a0cba0 c1a0cba0 c031cd70 0000332f c5682000
+00000013 
+       c011c6a7 c031cd70 00000013 0000001a 00000005 00000013 00000ff2
+c012150a 
+Call Trace: [<c0126d35>] [<c012777b>] [<c011c6a7>] [<c012150a>] [<c0121fb2>]
+[<c
+012a580>] [<c012b1cc>] 
+       [<c0107923>] [<c0108924>] 
+Code: c7 05 00 00 00 00 00 00 00 00 eb 12 8d 76 00 56 53 68 3e ea 
 
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-0378-037a : parport0
-03c0-03df : vesafb
-03e8-03ef : serial(auto)
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0cf8-0cff : PCI conf1
-1040-105f : PCI device 8086:7113
-8000-803f : PCI device 8086:7113
-fc40-fc7f : PCI device 1073:0010
-fc40-fc7f : YMF744 legacy
-fcc0-fcdf : PCI device 8086:7112
-fcc0-fcdf : usb-uhci
-fce0-fce7 : PCI device 14f1:2443
-fcec-fcef : PCI device 1073:0010
-fcf0-fcff : PCI device 8086:7111
-fcf0-fcf7 : ide0
-fcf8-fcff : ide1
+>>EIP; c0120871 <kmem_cache_free+14d/174>   <=====
+Trace; c0126d35 <put_unused_buffer_head+21/4c>
+Trace; c012777b <try_to_free_buffers+3b/a4>
+Trace; c011c6a7 <shrink_mmap+103/160>
+Trace; c012150a <try_to_free_pages+26/8c>
+Trace; c0121fb2 <__get_free_pages+9a/2ac>
+Trace; c012a580 <copy_strings+114/1c0>
+Trace; c012b1cc <do_execve+14c/224>
+Trace; c0107923 <sys_execve+2f/58>
+Trace; c0108924 <system_call+34/38>
+Code;  c0120871 <kmem_cache_free+14d/174>
+00000000 <_EIP>:
+Code;  c0120871 <kmem_cache_free+14d/174>   <=====
+   0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
+Code;  c0120878 <kmem_cache_free+154/174>
+   7:   00 00 00 
+Code;  c012087b <kmem_cache_free+157/174>
+   a:   eb 12                     jmp    1e <_EIP+0x1e> c012088f
+<kmem_cache_fre
+e+16b/174>
+Code;  c012087d <kmem_cache_free+159/174>
+   c:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0120880 <kmem_cache_free+15c/174>
+   f:   56                        push   %esi
+Code;  c0120881 <kmem_cache_free+15d/174>
+  10:   53                        push   %ebx
+Code;  c0120882 <kmem_cache_free+15e/174>
+  11:   68 3e ea 00 00            push   $0xea3e
 
+kmem_free: Bad obj addr (objp=c1a0cb40, name=buffer_head)
 
-/proc/iomem:
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+current->tss.cr3 = 03620000, %cr3 = 03620000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0120871>]
+EFLAGS: 00010282
+eax: 0000003d   ebx: c1a0cb40   ecx: c02276e8   edx: 00000021
+esi: cffef740   edi: 00000282   ebp: e82e0b92   esp: c5683d6c
+ds: 0018   es: 0018   ss: 0018
+Process sh (pid: 1915, process nr: 34, stackpage=c5683000)
+Stack: c1a0c000 c031cde8 c1a0cb9c 00000000 c0126d35 cffef740 c1a0cb40
+c1a0cb40 
+       c1a0c000 c012777b c1a0cb40 c1a0cb40 c031cde8 0000332d c5682000
+00000013 
+       c011c6a7 c031cde8 00000013 00000020 00000005 00000013 00000ff2
+c012150a 
+Call Trace: [<c0126d35>] [<c012777b>] [<c011c6a7>] [<c012150a>] [<c0121fb2>]
+[<c
+012a580>] [<c012b1cc>] 
+       [<c0107923>] [<c0108924>] 
+Code: c7 05 00 00 00 00 00 00 00 00 eb 12 8d 76 00 56 53 68 3e ea 
 
-00000000-0009f7ff : System RAM
-0009f800-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-0ffeffff : System RAM
-00100000-00242cd7 : Kernel code
-00242cd8-002a27eb : Kernel data
-0fff0000-0ffff7ff : ACPI Tables
-0ffff800-0fffffff : ACPI Non-volatile Storage
-10000000-10000fff : PCI device 1180:0478
-10000000-10000fff : i82365
-10001000-10001fff : PCI device 1180:0478
-10001000-10001fff : i82365
-40000000-40ffffff : PCI device 8086:7190
-fd000000-fdffffff : PCI Bus #01
-fd000000-fdffffff : PCI device 10c8:0025
-fd000000-fd2effff : vesafb
-fe800000-fecfffff : PCI Bus #01
-fe800000-febfffff : PCI device 10c8:0025
-fec00000-fecfffff : PCI device 10c8:0025
-fede0000-fedeffff : PCI device 14f1:2443
-fedf0000-fedf7fff : PCI device 1073:0010
-fedff000-fedff7ff : PCI device 104d:8039
-fedffc00-fedffdff : PCI device 104d:8039
-fff80000-ffffffff : reserved
-
-7.5 PCI information (lspci -vvv)
-
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 
-03)
-	Subsystem: Sony Corporation: Unknown device 806f
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort+ >SERR- <PERR-
-	Latency: 64
-	Region 0: Memory at 40000000 (32-bit, prefetchable) [size=16M]
-	Capabilities: [a0] AGP version 1.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 
-03) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 128
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-	I/O behind bridge: 0000f000-00000fff
-	Memory behind bridge: fe800000-fecfffff
-	Prefetchable memory behind bridge: fd000000-fdffffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B+
-
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) (prog-if 
-80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 64
-	Region 4: I/O ports at fcf0 [size=16]
-
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 
-00 [UHCI])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin D routed to IRQ 9
-	Region 4: I/O ports at fcc0 [size=32]
-
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 03)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 9
-
-00:08.0 FireWire (IEEE 1394): Sony Corporation CXD3222 i.LINK Controller (rev 
-02) (prog-if 10 [OHCI])
-	Subsystem: Sony Corporation: Unknown device 8071
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fedff000 (32-bit, non-prefetchable) [disabled] [size=2K]
-	Region 1: Memory at fedffc00 (32-bit, non-prefetchable) [disabled] [size=512]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 Multimedia audio controller: Yamaha Corporation YMF-744B [DS-1S Audio 
-Controller] (rev 02)
-	Subsystem: Sony Corporation: Unknown device 8072
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 64 (1250ns min, 6250ns max)
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fedf0000 (32-bit, non-prefetchable) [size=32K]
-	Region 1: I/O ports at fc40 [size=64]
-	Region 2: I/O ports at fcec [size=4]
-	Capabilities: [50] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0a.0 Communication controller: CONEXANT: Unknown device 2443 (rev 01)
-	Subsystem: Sony Corporation: Unknown device 8075
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fede0000 (32-bit, non-prefetchable) [disabled] [size=64K]
-	Region 1: I/O ports at fce0 [disabled] [size=8]
-	Capabilities: [40] Power Management version 2
-		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0c.0 CardBus bridge: Ricoh Co Ltd RL5c478 (rev 80)
-	Subsystem: Sony Corporation: Unknown device 8073
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 168
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
-	Memory window 0: 00000000-00000000
-	Memory window 1: 00000000-00000000
-	I/O window 0: 00000000-00000003
-	I/O window 1: 00000000-00000003
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
-	16-bit legacy interface ports at 0001
-
-00:0c.1 CardBus bridge: Ricoh Co Ltd RL5c478 (rev 80)
-	Subsystem: Sony Corporation: Unknown device 8073
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 168
-	Interrupt: pin B routed to IRQ 9
-	Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
-	Memory window 0: 00000000-00000000
-	Memory window 1: 00000000-00000000
-	I/O window 0: 00000000-00000003
-	I/O window 1: 00000000-00000003
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
-	16-bit legacy interface ports at 0001
-
-01:00.0 VGA compatible controller: Neomagic Corporation: Unknown device 0025 
-(rev 30) (prog-if 00 [VGA])
-	Subsystem: Sony Corporation: Unknown device 80a2
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B+
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 128 (4000ns min, 63750ns max)
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fd000000 (32-bit, prefetchable) [size=16M]
-	Region 1: Memory at fe800000 (32-bit, non-prefetchable) [size=4M]
-	Region 2: Memory at fec00000 (32-bit, non-prefetchable) [size=1M]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+>>EIP; c0120871 <kmem_cache_free+14d/174>   <=====
+Trace; c0126d35 <put_unused_buffer_head+21/4c>
+Trace; c012777b <try_to_free_buffers+3b/a4>
+Trace; c011c6a7 <shrink_mmap+103/160>
+Trace; c012150a <try_to_free_pages+26/8c>
+Trace; c0121fb2 <__get_free_pages+9a/2ac>
+Trace; c012a580 <copy_strings+114/1c0>
+Trace; c012b1cc <do_execve+14c/224>
+Trace; c0107923 <sys_execve+2f/58>
+Trace; c0108924 <system_call+34/38>
+Code;  c0120871 <kmem_cache_free+14d/174>
+00000000 <_EIP>:
+Code;  c0120871 <kmem_cache_free+14d/174>   <=====
+   0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
+Code;  c0120878 <kmem_cache_free+154/174>
+   7:   00 00 00 
+Code;  c012087b <kmem_cache_free+157/174>
+   a:   eb 12                     jmp    1e <_EIP+0x1e> c012088f
+<kmem_cache_fre
+e+16b/174>
+Code;  c012087d <kmem_cache_free+159/174>
+   c:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0120880 <kmem_cache_free+15c/174>
+   f:   56                        push   %esi
+Code;  c0120881 <kmem_cache_free+15d/174>
+  10:   53                        push   %ebx
+Code;  c0120882 <kmem_cache_free+15e/174>
+  11:   68 3e ea 00 00            push   $0xea3e
 
 
 
-7.6 SCSI information (from /proc/scsi/ide-scsi)
+3 warnings issued.  Results may not be reliable.
 
-SCSI host adapter emulation for IDE ATAPI devices
+ 
+-- v --
 
-
-       
-        
-
-8. The computer is a Sony PCG-F707 notebook. 
-   This is my very first bug report. I hope I got the right maintainer and the
-   report contains all that is needed. Thanks for your work on the kernel!!
-
-Regards,
-Stephan Maseizik
-
+v@iki.fi

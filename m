@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313982AbSDQAWy>; Tue, 16 Apr 2002 20:22:54 -0400
+	id <S313983AbSDQA1y>; Tue, 16 Apr 2002 20:27:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313983AbSDQAWx>; Tue, 16 Apr 2002 20:22:53 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29709 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313982AbSDQAWw>; Tue, 16 Apr 2002 20:22:52 -0400
+	id <S313984AbSDQA1x>; Tue, 16 Apr 2002 20:27:53 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:21163 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S313983AbSDQA1x>; Tue, 16 Apr 2002 20:27:53 -0400
+Date: Tue, 16 Apr 2002 20:27:52 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Why HZ on i386 is 100 ?
-Date: 16 Apr 2002 17:22:28 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a9if84$1jp$1@cesium.transmeta.com>
-In-Reply-To: <1018964120.13527.37.camel@pc-16.office.scali.no> <E16xTTd-0008Va-00@the-village.bc.nu>
+Subject: Cannot compile 2.4.19-pre7 with APIC without IOAPIC
+Message-ID: <Pine.LNX.4.44.0204162016010.2155-100000@marabou.research.att.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E16xTTd-0008Va-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> > I seem to recall from theory that the 100HZ is human dependent. Any
-> > higher and you would begin to notice delays from you input until
-> > whatever program you're talking to responds. 
-> 
-> Ultimately its because Linus pulled that number out of a hat about ten years
-> ago. For some workloads 1KHz is much better, for others like giant number
-> crunching people actually drop it down to about 5..
-> 
+Hello!
 
-Hardly so.  100 Hz was standard on most commercial Unices around the
-time the first Linux was done...
+I'm getting this error when compiling 2.4.19-pre7:
 
-	-hpa
+init/main.o: In function `smp_init':
+init/main.o(.text.init+0x5e1): undefined reference to `skip_ioapic_setup'
+arch/i386/kernel/kernel.o: In function `broken_pirq':
+arch/i386/kernel/kernel.o(.text.init+0x3427): undefined reference to 
+`skip_ioapic_setup'
+
+Processor is AMD K7, SMP is disabled, APIC is enabled, IOAPIC is disabled.
+
+It turns out that skip_ioapic_setup is defined in 
+arch/i386/kernel/io_apic.c, which is only compiled when CONFIG_X86_IO_APIC 
+is defined, but it's used in init/main.c if SMP is disabled and APIC is 
+enabled.
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Regards,
+Pavel Roskin
+

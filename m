@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263829AbTDUMLd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 08:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTDUMLd
+	id S263833AbTDUMSm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 08:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTDUMSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 08:11:33 -0400
-Received: from [24.206.178.254] ([24.206.178.254]:29582 "EHLO brianandsara.net")
-	by vger.kernel.org with ESMTP id S263829AbTDUMLb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 08:11:31 -0400
-From: Brian Jackson <brian@mdrx.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sooner 2.4.21-pre8
-Date: Mon, 21 Apr 2003 07:24:32 -0500
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.55.0304210823230.944@boston.corp.fedex.com> <200304202352.06128.brian@mdrx.com> <20030421010743.5309f585.arashi@yomerashi.yi.org>
-In-Reply-To: <20030421010743.5309f585.arashi@yomerashi.yi.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Apr 2003 08:18:42 -0400
+Received: from angband.namesys.com ([212.16.7.85]:28041 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP id S263833AbTDUMSl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 08:18:41 -0400
+Date: Mon, 21 Apr 2003 16:30:39 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: "[PATCH] devfs: switch over ubd to ->devfs_name" breaks ubd/sysfs
+Message-ID: <20030421163039.A7965@namesys.com>
+References: <20030421155530.A7544@namesys.com> <20030421141845.A25822@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304210724.32437.brian@mdrx.com>
+In-Reply-To: <20030421141845.A25822@lst.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I meant the -bkN snapshots, but I can only seem to find them for Linus' tree. 
-So if we want to use the cvs repository, we need to 
+Hello!
 
-$ cvs rdiff -u -D 11/28/2002 -D now linux-2.4
+On Mon, Apr 21, 2003 at 02:18:45PM +0200, Christoph Hellwig wrote:
+> >    The "[PATCH] devfs: switch over ubd to ->devfs_name" patch that was included into 2.5.68,
+> >    have broken UML's ubd/sysfs interaction.
+> >    Sysfs is very upset when something tries to register several devices with 
+> >    same name, so I was forced to use following patch.
+> >    If this is wrong, then please explain to me why, and suggest the correct way of handling
+> >    this situation.
+> Patch looks okay to me.  But I'm still a bit confused about all
+> that fake_major stuff.  Someone care to explain it?
 
-(I show 11-28 for 2.4.20's release, at least that's when he sent the email)
+fake major is easy, it allows you to register ubd device on two majors.
+This is useful e.g. for installing distros inside of UML.
+Distro installers are tend to look for IDE disk on major 3, for example.
+Then if you boot with ubd=3, installer will find the disk ;)
 
-seems easy enough.
+Actually the patch consits of two parts, as there might be more than one
+ubd device, we need to name them differently.
 
---Brian Jackson
+Actually I just see that if one enables fake major stuff, the sysfs will still
+be upset, as names for both UBD_MAJOR and fake_major would be the same.
 
-On Monday 21 April 2003 01:07 am, Matt Reppert wrote:
-> On Sun, 20 Apr 2003 23:52:05 -0500
->
-> Brian Jackson <brian@mdrx.com> wrote:
-> > Isn't there a place to get frequent bk snapshots, or is that only Linus'
-> > tree?
->
-> export CVSROOT=:pserver:anonymous@kernel.bkbits.net:/home/cvs
->
-> And you now have read access to up-to-date CVS "mirrors" of whatever's in
-> bk. The module names are 'linux-2.4' and 'linux-2.5'.
->
-> Matt
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+So perhaps fillowing patch should be used.
 
+Bye,
+    Oleg
+
+===== arch/um/drivers/ubd_kern.c 1.32 vs edited =====
+--- 1.32/arch/um/drivers/ubd_kern.c	Sun Apr 20 01:17:05 2003
++++ edited/arch/um/drivers/ubd_kern.c	Mon Apr 21 16:29:21 2003
+@@ -494,8 +494,13 @@
+ 	disk->first_minor = unit << UBD_SHIFT;
+ 	disk->fops = &ubd_blops;
+ 	set_capacity(disk, size / 512);
+-	sprintf(disk->disk_name, "ubd");
+-	sprintf(disk->devfs_name, "ubd/disc%d", unit);
++	if ( major == MAJOR_NR ) {
++		sprintf(disk->disk_name, "ubd%d", unit);
++		sprintf(disk->devfs_name, "ubd/disc%d", unit);
++	} else {
++		sprintf(disk->disk_name, "ubd_fake%d", unit);
++		sprintf(disk->devfs_name, "ubd_fake/disc%d", unit);
++	}
+ 
+ 	disk->private_data = &ubd_dev[unit];
+ 	disk->queue = &ubd_queue;
+@@ -527,7 +532,7 @@
+ 	if(err) 
+ 		return(err);
+  
+-	if(fake_major)
++	if(fake_major != MAJOR_NR)
+ 		ubd_new_disk(fake_major, dev->size, n, 
+ 			     &fake_gendisk[n]);
+ 

@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVAWR0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVAWRba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVAWR0t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 12:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVAWR0t
+	id S261334AbVAWRba (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 12:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVAWRba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 12:26:49 -0500
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:9964 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261333AbVAWR0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 12:26:47 -0500
-Date: Sun, 23 Jan 2005 12:26:47 -0500
-From: sean <seandarcy@hotmail.com>
-Subject: Re: Linux 2.6.11-rc2
-In-reply-to: <1106440494.20995.44.camel@tux.rsn.bth.se>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <41F3DE57.3040008@hotmail.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050109
- Fedora/1.7.5-3
-References: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org>
- <20050121223247.65c544f8@laptop.hypervisor.org>
- <1106402669.20995.23.camel@tux.rsn.bth.se> <41F2E7BB.2050405@hotmail.com>
- <1106440494.20995.44.camel@tux.rsn.bth.se>
+	Sun, 23 Jan 2005 12:31:30 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:36051 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261334AbVAWRbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 12:31:24 -0500
+Message-ID: <41F3DFF5.9050806@upb.de>
+Date: Sun, 23 Jan 2005 18:33:41 +0100
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 more picky about IDE drives than 2.4 ?
+References: <csv3ss$a4m$1@sea.gmane.org> <58cb370e0501230850185b007f@mail.gmail.com>
+In-Reply-To: <58cb370e0501230850185b007f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch worked. Or at least it built.
-
-Thanks for the quick response.
-
-sean
-
-Martin Josefsson wrote:
-
-
-> Try this patch:
+>>i have many problems with kernel 2.6.10 since it won't run stable with
+>>an IDE-device. It's an internal IDE-RAID subsystem. The DMA is
+>>frequently disabled, and even writes/reads fail and the kernel reports
+>>I/O-Errors for many sectors. The RAID-device doesn't report any errors
+>>it it's own event-log. You can have a closer look at the error-messages
+>>below.
+>>
+>>I'm mailing to the LKML, since i haven't been abled to reproduce the
+>>problem with a kernel 2.4 bases system, but it randomly happens with 2.6
+>>kernels. Let's take the latest Knoppix as an example (it comes with both
+>>kernels):
+>>- if i boot kernel 2.4, i can stress test the harddisk as much as i
+>>want. the kernel does report any problem and it doesn't disable DMA well
+>>- if i boot kernel 2.6, after a while, there are the error-message below
+>>in the log. "hdparm -k1" doesn't help, the kernel will disable DMA mode.
+>>There was a also a bigger problems for two times now, where the kernel
+>>refused to write to the devide, due to the I/O-Errors below. I'm very
+>>sad, that i haven't the log-lines prior to the I/O-Errors.
 > 
-> diff -X dontdiff.ny -urNp linux-2.6.11-rc2.orig/include/linux/netfilter_ipv4/ip_conntrack_tftp.h linux-2.6.11-rc2/include/linux/netfilter_ipv4/ip_conntrack_tftp.h
-> --- linux-2.6.11-rc2.orig/include/linux/netfilter_ipv4/ip_conntrack_tftp.h	2005-01-22 15:23:45.000000000 +0100
-> +++ linux-2.6.11-rc2/include/linux/netfilter_ipv4/ip_conntrack_tftp.h	2005-01-23 01:31:25.000000000 +0100
-> @@ -13,7 +13,7 @@ struct tftphdr {
->  #define TFTP_OPCODE_ACK		4
->  #define TFTP_OPCODE_ERROR	5
->  
-> -unsigned int (*ip_nat_tftp_hook)(struct sk_buff **pskb,
-> +extern unsigned int (*ip_nat_tftp_hook)(struct sk_buff **pskb,
->  				 enum ip_conntrack_info ctinfo,
->  				 struct ip_conntrack_expect *exp);
+> You didn't give any information about your hardware (controller type,
+> drives used etc).  Please read REPORTING-BUGS in the kernel source
+> directory.  Also please find last working kernel version (2.5 or 2.6).
 
+The hardware used was a Intel 440GX Chipset (PIIX southbridge, max 
+UDMA33), and a Sis 755 (SiS964 soutbridge, max UDMA133). The drive is an 
+EasyRAID R5A.
 
+http://www.easyraid.com/index.php?Products:easyRAID_R5A
+
+>>I testes the RAID-subsystem with two different PC-systems. Always the
+>>same result: 2.4 works, 2.6 does not. It's hard for me to reproduce the
+>>Errors through. I'm still writing an application to reliably reproduce
+>>them :-( Does anybody know a good stress-test perhaps? Sequential
+>>reading doesn't seem to do the trick.
+>>
+>>What changes have been applied to the IDE subsystem from kernel 2.4 to
+>>kernel 2.6? What may cause this different behaviour? What does
+>>"status=0x51" mean? And why is "error=0x00" although the Error-Bit in
+>>the status-byte has been set. (i guess this is what status=0x51 means).
+>>
+>>How can the behaviour of kernel 2.6 be reverted to the behaviour of
+>>kernel 2.4? I already tried "hda=nowerr" in the append-line, but it
+>>doesn't help either. Is it a Bug of kernel 2.6, or should i smash the
+>>manufactures doors, to make them release a firmware-update of the
+>>RAID-subsystem since it reports strange values to the OS?
+> 
+> Dunno, I don't have a magic ball... ;)
+
+So i guess you will not know The R5A, and the Problems of Kernel 2.6 
+seems to be controller independant (Intel and SiS testen).

@@ -1,100 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267251AbUJBE5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUJBFOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267251AbUJBE5u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 00:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUJBE5u
+	id S267283AbUJBFOL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 01:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUJBFOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 00:57:50 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:47751 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S267251AbUJBE5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 00:57:46 -0400
-Date: Sat, 2 Oct 2004 14:57:25 +1000
-From: CaT <cat@zip.com.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-Subject: Re: promise controller resource alloc problems with ~2.6.8
-Message-ID: <20041002045725.GC1049@zip.com.au>
-References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org> <20040930233048.GC7162@zip.com.au> <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org> <20041001103032.GA1049@zip.com.au> <Pine.LNX.4.58.0410010731560.2403@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410010731560.2403@ppc970.osdl.org>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 2 Oct 2004 01:14:11 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6003 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S267283AbUJBFOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 01:14:05 -0400
+Date: Sat, 02 Oct 2004 01:13:54 -0400
+From: Andre Bonin <kernel@bonin.ca>
+Subject: Module building oddities with <module>-objs under Kernel 2.6.8.1
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <415E3912.3000900@bonin.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2)
+ Gecko/20040803
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey all,
+I have a simple module in datasim.c and several service functions in 
+another file status.c
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The module compiles fine (no warnings) with the following Makefile, but 
+the printk function doesn't seem to output anything.  The output doesn't 
+show with dmesg, tail -f /var/message and everything else I tried.
 
-On Fri, Oct 01, 2004 at 07:34:34AM -0700, Linus Torvalds wrote:
-> > BTW. I just realised (and I apologise for not doing so earlier) that I'm
-> > not using ACPI on this box.
-> 
-> For you, the bigger patch shouldn't have made any difference. But it's 
-> needed for some other people who have BIOS'es that mark PCI regions as 
-> being reserved for the motherboard, and they get resource conflicts 
-> otherwise (resource conflicts that largely go away with 
-> "insert_resource()", but if we want to change that to "request_resource()" 
-> then that other patch is needed).
+The same code works fine if copy-pasted inside the datasim.c module (and 
+not compiled using datasim-objs: in the makefile).  It also works fine 
+if i do the ugly thing of (*shudder*)  #include "status.c"
 
-Aha.
+/usr/bin/nm datasim.ko yields "U    printk".
 
-> Can you send me your ioports from 2.6.9-rc3 _with_ the 
-> "request_resource()" change..
+I know the entry points get called properly because the module is 
+loaded, and functions after the printk's that set up sysfs attributes 
+are successfull (and appear under sysfs).
 
-Diff says that the file is thesame as the one without patch+change
-that doesn't work.
+I find it odd that if i compile with the datasim-objs stuff that i can't 
+view the printk, but if i comment it out and do #include "datasim.c" it 
+works fine. 
 
-Attached none-the-less.
+Thanks
 
--- 
-    Red herrings strewn hither and yon.
+Here is the Makefile.
+----------------------------------------------------
+KDIR         := /usr/src/linux
+PWD          := $(shell pwd)
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ioports.2.6.9-rc3"
+obj-m        += datasim.o
+datasim-objs := status.o
 
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial
-0376-0376 : ide1
-0378-037a : parport0
-037b-037f : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial
-0cf8-0cff : PCI conf1
-1000-107f : 0000:00:0e.0
-  1000-107f : 0000:00:0e.0
-1080-10bf : 0000:00:0d.0
-  10a0-10af : 0000:00:14.1
-    10a0-10a7 : ide0
-    10a8-10af : ide1
-10c0-10df : 0000:00:14.2
-10f0-10f7 : 0000:00:0d.0
-10f8-10ff : 0000:00:0d.0
-1400-14ff : 0000:00:0f.0
-  1400-14ff : tulip
-1800-1803 : 0000:00:0d.0
-1804-1807 : 0000:00:0d.0
-f800-f83f : 0000:00:14.3
-fc00-fc1f : 0000:00:14.3
+all:
+    $(MAKE) -C $(KDIR) SUBDIRS=$(PWD)
 
---+HP7ph2BbKc20aGI--
+clean:
+    rm -rf *.o
+    rm -rf *.ko
+    rm -rf *.mod.c
+    rm -rf .datasim*
+    rm -rf .built-in.o.cmd
+    rm -rf *~
+    rm -rf *.cache
+    sudo rm -rf .tmp_versions
+install:
+    sudo /sbin/insmod datasim.ko
+uninstall:
+    sudo /sbin/rmmod datasim.ko
+TAGS:
+    etags *.c   
+
+
+
+
+

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262941AbTC0OC7>; Thu, 27 Mar 2003 09:02:59 -0500
+	id <S262939AbTC0OBI>; Thu, 27 Mar 2003 09:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262942AbTC0OC7>; Thu, 27 Mar 2003 09:02:59 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:26382 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S262941AbTC0OC6>; Thu, 27 Mar 2003 09:02:58 -0500
-Date: Thu, 27 Mar 2003 14:56:20 +0100
-From: DervishD <raul@pleyades.net>
-To: Jan Knutar <jk@fornax.tk>
-Cc: lkml <linux-kernel@vger.kernel.org>
+	id <S262940AbTC0OBI>; Thu, 27 Mar 2003 09:01:08 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:43140 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S262939AbTC0OBH>; Thu, 27 Mar 2003 09:01:07 -0500
+Date: Thu, 27 Mar 2003 15:12:15 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Bas Vermeulen <bvermeul@blackstar.nl>
+Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.21-pre6
-Message-ID: <20030327135620.GA3582@DervishD>
-References: <Pine.GSO.4.21.0303271140160.26358-100000@vervain.sonytel.be> <03032714015400.14109@polaris>
+Message-ID: <20030327141215.GA25094@wohnheim.fh-wedel.de>
+References: <E18yVqr-0004gQ-00@roos.tartu-labor> <Pine.LNX.4.33.0303271144400.27475-100000@devel.blackstar.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <03032714015400.14109@polaris>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+In-Reply-To: <Pine.LNX.4.33.0303271144400.27475-100000@devel.blackstar.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Jan :)
+On Thu, 27 March 2003 11:45:18 +0100, Bas Vermeulen wrote:
+> On Thu, 27 Mar 2003, Meelis Roos wrote:
+> > 
+> > HDLC started generating warnings in some -pre and they are still there:
+> > 
+> > /oma/compile/linux-2.4/include/linux/modules/hdlc.ver:3: warning: `__ver_register_hdlc_device' redefined
+> > /oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:3: warning: this is the location of the previous definition
+> > /oma/compile/linux-2.4/include/linux/modules/hdlc.ver:5: warning: `__ver_unregister_hdlc_device' redefined
+> > /oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:5: warning: this is the location of the previous definition
+> 
+> Try copying .config away, make mrproper, then the normal routine.
+> That should fix things for you.
 
- Jan Knutar dixit:
-> > Is IDE in 2.4.x and 2.5.x now more or less in sync?
-> Hm, can we ever expect to get cd burning in 2.4.x on ide without 
-> locking up the other device on the channel?
+Well, if more that make dep is needed, doesn't this point to a bug in
+Config.in and/or Makefile? ;)
 
-    I have a VIA motherboard (686b) and I can read a CD while I burn
-another in the cdwriter, both in the same IDE channel :?? Certainly
-the burning speeds goes down to 10x or less instead of the usual 12x.
+I agree, those have less impact, but they should get fixed as well.
 
-    My kernel is 2.4.18, BTW.
-
-    Raúl Núñez de Arenas Coronado
+Jörn
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://www.pleyades.net/~raulnac
+Courage is not the absence of fear, but rather the judgement that
+something else is more important than fear.
+-- Ambrose Redmoon

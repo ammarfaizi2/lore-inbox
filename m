@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbUKDGfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbUKDGiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbUKDGfr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 01:35:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbUKDGfr
+	id S262098AbUKDGiY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 01:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbUKDGiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 01:35:47 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:21917 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262088AbUKDGfg (ORCPT
+	Thu, 4 Nov 2004 01:38:24 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:35229 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262095AbUKDGiK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 01:35:36 -0500
-Date: Thu, 4 Nov 2004 15:35:32 +0900
+	Thu, 4 Nov 2004 01:38:10 -0500
+Date: Thu, 4 Nov 2004 15:38:06 +0900
 From: Tejun Heo <tj@home-tj.org>
 To: rusty@rustcorp.com.au, mochel@osdl.org, greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.10-rc1 0/15] driver-model: per-device parameter, round 3
-Message-ID: <20041104063532.GA24566@home-tj.org>
+Subject: [PATCH 2.6.10-rc1 1/15] driver-model: param_array_set num field fix
+Message-ID: <20041104063806.GA24890@home-tj.org>
+References: <20041104063532.GA24566@home-tj.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041104063532.GA24566@home-tj.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, guys.
+ dp_01_param_array_bug.patch
 
- This is the third round of devparam patches.  I think it's mostly
-ready now.  Changes from the last round include
+ This is the 1st patch of 15 patches for devparam.
 
- 1. vector is gone.  BTW, I found out that implementing simple
-vector-like thing inside devparam looked quite okay.  I actually like
-this way better now.  :-)
-
- 2. KPARAM_NO_RANGE added.  Unfortunately, macros still need to use
-explicit 1, 0 as KPARAM_NO_RANGE is recognized as one argument rather
-than two for macros.  However, all those macros are right under the
-definition of its ranged counterpart, so I don't think it will cause
-any confusion.
-
- 3. DEFINE_DEVICE_PARAMSET_NS() added.  This macros accepts one
-additional argument - @Namespace.  All parameters defined inside this
-macro are assumed to have dot-appened @Namespace as their prefix.
-Please read Documentation/devparam.txt for more details.
-
- 4. parameters subdirectory handling fixed and improved.  Also,
-parameters subdirectory isn't created when no devparam is used.
+ This patches fixes param_array_set() to not use arr->max as nump
+argument of param_array.  If arr->max is used as nump and the
+configuration variable is exported writeable in the syfs, the size of
+the array will be limited by the smallest number of elements
+specified.  One side effect is that as the actual number of elements
+is not recorded anymore when nump is NULL, all elements should be
+printed when referencing the corresponding sysfs node.  I don't think
+that will cause any problem.
 
 
- Regarding the last posting, Rusty, parameters subdirectory rename is
-not really a user-visible breakage.  It hasn't seen the light of day,
-yet.  I was talking about parameters subdirectory under the device's
-sysfs node.
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
- I'm also posting another set of patches for device manual attach.
-This was what I was aiming for from the start.  This basically dumps
-device-driver association management to user-space and allows
-user-space to specify the driver to attach to and what arguments to
-use when attaching.  I'll write more about it when I post the patches.
 
- Whether manualattach is accepted or not, manualattach at least will
-show that devparam implements per-device parameter which can be
-specified dynamically while maintaining backward compatibility (No
-user-visible breakage!).
-
- All patches are against a freshly updated Linus bk tree and as
-before, the updated document and dptest module source codes are at
-
-http://home-tj.org/devparam/devparam.txt
-http://home-tj.org/devparam/dptest.tar.gz
-
- Also, all patches are available at the following URL.
-
-http://home-tj.org/devparam/20041104/
-
- I believe inssues are mostly resolved and devparam is ready to be
-tested now.  Please consider accepting it or tell me what you guys
-dislike.  I'll fix'em ASAP.  :-)
-
- Thanks.
-
--- 
-tejun
-
+Index: linux-export/kernel/params.c
+===================================================================
+--- linux-export.orig/kernel/params.c	2004-11-04 10:25:51.000000000 +0900
++++ linux-export/kernel/params.c	2004-11-04 11:04:07.000000000 +0900
+@@ -305,9 +305,10 @@ int param_array(const char *name,
+ int param_array_set(const char *val, struct kernel_param *kp)
+ {
+ 	struct kparam_array *arr = kp->arg;
++	unsigned int t;
+ 
+ 	return param_array(kp->name, val, 1, arr->max, arr->elem,
+-			   arr->elemsize, arr->set, arr->num ?: &arr->max);
++			   arr->elemsize, arr->set, arr->num ?: &t);
+ }
+ 
+ int param_array_get(char *buffer, struct kernel_param *kp)

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291711AbSBTJ3J>; Wed, 20 Feb 2002 04:29:09 -0500
+	id <S291716AbSBTJ7R>; Wed, 20 Feb 2002 04:59:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291707AbSBTJ27>; Wed, 20 Feb 2002 04:28:59 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:57866 "HELO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with SMTP
-	id <S287831AbSBTJ2v>; Wed, 20 Feb 2002 04:28:51 -0500
-Date: Wed, 20 Feb 2002 10:28:50 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: =?iso-8859-2?Q?Rok_Pape=BE?= <rok.papez@kiss.uni-lj.si>, mylinuxk@yahoo.ca,
-        linux-kernel@vger.kernel.org
-Subject: Re: Communication between two kernel modules
-Message-ID: <20020220102850.A4467@artax.karlin.mff.cuni.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	=?iso-8859-2?Q?Rok_Pape=BE?= <rok.papez@kiss.uni-lj.si>,
-	mylinuxk@yahoo.ca, linux-kernel@vger.kernel.org
-In-Reply-To: <20020218173229.47247.qmail@web14907.mail.yahoo.com> <02021819300201.00953@strader.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <02021819300201.00953@strader.home>; from rok.papez@kiss.uni-lj.si on Mon, Feb 18, 2002 at 07:30:02PM +0100
+	id <S291717AbSBTJ7G>; Wed, 20 Feb 2002 04:59:06 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:516 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S291716AbSBTJ6y>; Wed, 20 Feb 2002 04:58:54 -0500
+Date: Wed, 20 Feb 2002 10:58:48 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Tom Holroyd <tomh@po.crl.go.jp>
+cc: Andreas Schwab <schwab@suse.de>,
+        kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown HZ value! (1908) Assume 1024.
+In-Reply-To: <Pine.LNX.4.44.0202201101080.1972-100000@holly.crl.go.jp>
+Message-ID: <Pine.LNX.4.33.0202201055010.708-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Hi, how can I call some kind of APIs from kernel mode,
-> > such as open, ioctl and close? Because I need to use
-> > some services of another kernel module from my kernel
-> > module and I have no source code of the module which
-> > provides the services. Now I can only access the
-> > module in user space using the open, ioctl and close
-> > APIs. Can I do the same thing in my kernel module?
-> Create a user-space app that will ioctl into your driver and wait for 
-> requests. When your module needs to call the other module it delivers request 
-> to the user-space app wich in turn calls the other module and returns results 
-> via another ioctl call.
+On Wed, 20 Feb 2002, Tom Holroyd wrote:
+
+> > |> 	jif * smp_num_cpus - (user + nice + system)
+> >
+> > Changing the line to this:
+> >
+> >  	jif * smp_num_cpus - user - nice - system
+> >
+> > should avoid the overflow.
 > 
-> Take care not to deadlock.. In user space app use fork() or threads and 
-> handle module requests async...
+> True.  It still might be a good idea to make them longs, though,
+> because they are really totals of all the CPUs, as in:
+>                 user += kstat.per_cpu_user[cpu];
 > 
-> Be ready to handle an event when your user-space app unexpectedly dies.
+> Now ultimately, kstat.per_cpu_user[cpu] will overflow, and I don't
+> know what to do about that, but making user, nice, and system unsigned
+> long will at least allow SMP systems to last a little while longer.
+> (Actually I don't know why Procps needs these values at all -- the
+> claim in the code is that all of this is just to compute the HZ value,
+> which is presumably needed to be able to interpret jiffies.  It'd be a
+> lot simpler just to have /proc/stat export the HZ value directly.)
+> 
 
-Seems way too complicated to me. You can do everything from kernel.
-You probably shouldn't use file handles in kernel, but you can use
-file structure. Just open via filp_open, ioctl via ->f_op->ioctl
-and close via filp_close (it will fput the structure).
+I'd still prefer to export only 32 bit of user, nice, and system. This 
+way they overflow in a clearly defined way - the 32 bits we export are
+exact, only the higher bits are missing. 
 
-You have to be in process context, either your ioctl handler or kernel
-thread would do.
+Tim
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>

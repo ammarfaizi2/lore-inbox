@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUJXN3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbUJXNbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbUJXN3p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbUJXNWi
+	id S261477AbUJXNbO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbUJXNaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:22:38 -0400
-Received: from holomorphy.com ([207.189.100.168]:6355 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261476AbUJXNVl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:21:41 -0400
-Date: Sun, 24 Oct 2004 06:21:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: [PATCH] Fix incorrect kunmap_atomic in pktcdvd
-Message-ID: <20041024132128.GQ17038@holomorphy.com>
-References: <m3wtxhibo9.fsf@telia.com> <20041024032546.52314e23.akpm@osdl.org> <m3oeisz7uh.fsf@telia.com> <20041024041827.664845da.akpm@osdl.org>
+	Sun, 24 Oct 2004 09:30:08 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:22546 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261477AbUJXN1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 09:27:39 -0400
+Date: Sun, 24 Oct 2004 15:33:33 +0200
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+Message-ID: <20041024133333.GA16901@hh.idb.hist.no>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <20041023030356.GA5005@animx.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20041024041827.664845da.akpm@osdl.org>
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041023030356.GA5005@animx.eu.org>
 User-Agent: Mutt/1.5.6+20040722i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->> Why was the interface made different from kmap()/kunmap() in the first
->> place? Wouldn't it have made more sense to let kunmap_atomic() take a
->> page pointer as the first parameter?
+On Fri, Oct 22, 2004 at 11:03:56PM -0400, Wakko Warner wrote:
+> > The fact is, Linux naming has always sucked. Well, at least the versioning 
+> > I've used. Others tend to be more organized. Me, I'm the "artistic" type, 
+> > so I sometimes try to do something new, and invariably stupid. 
+> 
+> Given that the versioning was supposedly <major>.<minor>.<patchlevel> and
+> the difference between 2.4 and 2.6 was substantial, why not just bump
+> <major> instead of the minor.  Then we'd have 3.0, 3.1, 4.0, 4.1.1 (for
+> stupid mistakes).  Isn't it time we move off the 2.x series and start
+> thinking of the 3.x series?
 
-On Sun, Oct 24, 2004 at 04:18:27AM -0700, Andrew Morton wrote:
-> No, kmap-atomic() maps a single page into the CPU's address space by making
-> a pte point at the page.  To unmap that page we need to get at the pte, not
-> at the page.  If kmap_atomic() were to take a pageframe address we'd need
-> to search the whole fixmap space for the corresponding page - a reverse
-> lookup.
+Yes - lets stick to fewer numbers.  They can count faster, instead
+of having a long string of them.  I hope linux doesn't
+end up like X. "X11R6.8.1" The "X" itself is a counter, although
+it is understandable if it never increments to "Y".  But
+that "11" doesn't change much, and then there are three more numbers. :-/
 
-I don't recall anything truly ancient, but fixmap indices should be
-enough to recover the virtual address and pte. I think the virtual
-address is primarily for checking purposes. The same kind of check
-could be done by checking the pfn derived from the page structure
-against the contents of the pte at the fixmap index, but I suspect
-more damage would ensue from changing the calling convention than
-aligning it with common expectations.
+I think two numbers are enough. If "4.1" was a scre-up, release
+"4.2" instead of a "4.1.1".  People shouldn�'t try to readtoo
+much information from the number structure - there are logs, docs and
+websites for that.
 
+Helge Hafting
 
--- wli

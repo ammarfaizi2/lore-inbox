@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261899AbSJIULL>; Wed, 9 Oct 2002 16:11:11 -0400
+	id <S261894AbSJIUMB>; Wed, 9 Oct 2002 16:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261903AbSJIULL>; Wed, 9 Oct 2002 16:11:11 -0400
-Received: from blueberrysolutions.com ([195.165.170.195]:11413 "EHLO
-	blueberrysolutions.com") by vger.kernel.org with ESMTP
-	id <S261899AbSJIULK>; Wed, 9 Oct 2002 16:11:10 -0400
-Date: Wed, 9 Oct 2002 23:16:44 +0300 (EEST)
-From: Tony Glader <Tony.Glader@blueberrysolutions.com>
-X-X-Sender: teg@blueberrysolutions.com
-To: Chris Wright <chris@wirex.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: capable()-function
-In-Reply-To: <20021009121615.B25392@figure1.int.wirex.com>
-Message-ID: <Pine.LNX.4.44.0210092314260.785-100000@blueberrysolutions.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S261903AbSJIUMB>; Wed, 9 Oct 2002 16:12:01 -0400
+Received: from waste.org ([209.173.204.2]:50908 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S261894AbSJIUL7>;
+	Wed, 9 Oct 2002 16:11:59 -0400
+Date: Wed, 9 Oct 2002 15:17:29 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, "David S. Miller" <davem@redhat.com>,
+       willy@debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Second round of ioctl cleanups
+Message-ID: <20021009201728.GL21400@waste.org>
+References: <20021009133337.Y18545@parcelfarce.linux.theplanet.co.uk> <20021009.053139.92842849.davem@redhat.com> <3DA4633B.26F0C33A@digeo.com> <1034186664.1971.80.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1034186664.1971.80.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Oct 2002, Chris Wright wrote:
-
-> You could dump something like this before the capable() call:
+On Wed, Oct 09, 2002 at 07:04:24PM +0100, Alan Cox wrote:
+> On Wed, 2002-10-09 at 18:11, Andrew Morton wrote:
+> > Maybe we should do something like:
+> > 
+> > * Contributions by:
+> > *     John Doe        (12/95)
 > 
-> printk(KERN_DEBUG "%s:(%d) eff: 0x%x\n", current->comm, current->pid,
-> 						cap_t(current->cap_effective));
+> Can I suggest "Gonetributions" ?
+> 
+> Such a file would be good, but it perhaps belongs in one central place
+> rather than cluttering up the entire source tree. Certainly I have no
+> problems with my Gonetributions in the networking vanishing into
+> 
+> Documentation/historical-changes
 
-Ok. I got following result:
-
-ÿÿ:(12290) eff: 0x0
-
-Is the eff-value current capabilities? Why it is zero? The task who called 
-it (cardmgr) was owned by root.
+Or alternately they could just be filed in www.kernel.org/pub/kernel/*
+and Google?
 
 -- 
-* Tony Glader 
-
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

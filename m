@@ -1,29 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268093AbTCCAhF>; Sun, 2 Mar 2003 19:37:05 -0500
+	id <S268139AbTCCApC>; Sun, 2 Mar 2003 19:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268125AbTCCAhF>; Sun, 2 Mar 2003 19:37:05 -0500
-Received: from sheridan.uel.ac.uk ([161.76.9.2]:47758 "EHLO sheridan.uel.ac.uk")
-	by vger.kernel.org with ESMTP id <S268093AbTCCAhF>;
-	Sun, 2 Mar 2003 19:37:05 -0500
-Date: Mon, 3 Mar 2003 00:47:28 +0000
-From: nickn <nickn@www0.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-Message-ID: <20030303004728.GA5856@www0.org>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com>
+	id <S268150AbTCCApC>; Sun, 2 Mar 2003 19:45:02 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:17159 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S268139AbTCCApB>; Sun, 2 Mar 2003 19:45:01 -0500
+Date: Sun, 2 Mar 2003 19:53:59 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: andrea@e-mind.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: BitBucket: GPL-ed BitKeeper clone
+Message-ID: <20030303005359.GG458@phunnypharm.org>
+References: <20030226200208.GA392@elf.ucw.cz> <20030302050420.GA22169@phunnypharm.org> <20030302051010.GB22169@phunnypharm.org> <20030302235318.GB319@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E623B9A.8050405@pobox.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030302235318.GB319@elf.ucw.cz>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 02, 2003 at 12:12:58PM -0500, Jeff Garzik wrote:
-> My counter-question is, why not improve an _existing_ open source SCM to 
-> read and write BitKeeper files?  Why do we need yet another brand new 
-> project?
+On Mon, Mar 03, 2003 at 12:53:18AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > > I've created little project for read-only (for now ;-) bitkeeper
+> > > > clone. It is available at www.sf.net/projects/bitbucket (no tar balls,
+> > > > just get it fresh from CVS).
+> > > 
+> > > In case it may be of some help, here's a script that is the result of my
+> > > own reverse engineering of the bitkeeper SCCS files. It can output a
+> > > diff, almost exactly the same as BitKeeper's gnupatch output from a
+> > > BitKeeper repo.
+> > 
+> > Might aswell supply my hacked sccsdiff script aswell.
+> 
+> There's a problem with this: it changes CSSC, and its GNU (read: needs
+> copyright assignment to apply changes). I can't really push your
+> changes to CSSC :-(. [What I can do is add .diff file into
+> bitbucket...]
 
-Or improve BK to export and import on demand of an existing open source SCM.
+I'm putting my changes to CSSC into the public domain. The FSF can do
+whatever it wants.
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

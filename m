@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTIHA6C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 20:58:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTIHA6C
+	id S261825AbTIHBHR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 21:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTIHBHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 20:58:02 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:59316 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261823AbTIHA6A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 20:58:00 -0400
-Date: Sun, 7 Sep 2003 17:57:49 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>,
-       Giuliano Pochini <pochini@shiny.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scaling noise
-Message-ID: <20030908005749.GA24714@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Larry McVoy <lm@bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Brown, Len" <len.brown@intel.com>,
-	Giuliano Pochini <pochini@shiny.it>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay> <20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay> <20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay> <20030904010653.GD5227@work.bitmover.com> <m11xusnvqc.fsf@ebiederm.dsl.xmission.com> <20030907230729.GA19380@work.bitmover.com> <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Sun, 7 Sep 2003 21:07:13 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:11157 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261825AbTIHBHL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 21:07:11 -0400
+Date: Mon, 8 Sep 2003 03:06:55 +0200 (MEST)
+Message-Id: <200309080106.h8816tVf024134@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.6.0 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 05:47:04PM -0600, Eric W. Biederman wrote:
-> I have already built a 2304 cpu machine and am working on a 2900+ cpu
-> machine.  
+Version 2.6.0 of perfctr, the Linux/x86 performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-That's not "a machine" that's ~1150 machines on a network.  This business
-of describing a bunch of boxes on a network as "a machine" is nonsense.
+This is the new stable series of perfctr. The main feature
+changes since the previous stable series, perfctr-2.4, are:
 
-Don't get me wrong, I love clusters, in fact, I think what you are doing
-is great.  It doesn't screw up the OS, it forces the OS to stay lean and
-mean.  Goodness.
+* Added support for 2.6 kernels and 64-bit AMD64 kernels.
+* Added support for AMD64, Pentium-M, and VIA Nehemiah processors.
+* 64-bit AMD64 kernels work with 32-bit x86 user-space binaries.
+* Much improved support for binary compatibility between different
+  versions of the driver and user-space.
+* Improved layout of counter state objects. Fewer cache lines are
+  touched at counter suspend/resume/sample operations.
+* More robust Pentium 4 support, especially for hyper-threaded P4s.
+* Extended cascading should work on P4 Model 2 CPUs.
+* The library contains data structures with event set and
+  unit mask descriptions. (Complete except for P4.)
+* Support for kernels older than 2.4.16 has been dropped.
+	
+Many people still use perfctr-2.4 because they also use PAPI
+(http://icl.cs.utk.edu/projects/papi/). I've made a separate
+patch available, patch-papi-2.3.4-perfctr-2.6, which applies
+to the current PAPI release and allows it to work also with
+perfctr-2.6.
 
-All the CC cluster stuff is about making sure that the SMP fanatics don't
-screw up the OS for you.  We're on the same side.  Try not to be so rude
-and have a bit more vision.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Changes from 2.6.0-pre5:
+
+Version 2.6.0, 2003-09-08
+- The driver now kills a process' performance counters if the
+  process migrates to a forbidden CPU. This ensures that unsafe
+  changes to a process' CPU affinity mask don't break the driver,
+  the hardware state, or other processes. (This is an issue on
+  hyper-threaded P4s only.)
+- A bug fix in perfctr-2.6.0-pre3 broke compiling the driver
+  non-modular in modular 2.4 kernels. Corrected that problem.
+
+/ Mikael Pettersson

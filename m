@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293338AbSCTVvH>; Wed, 20 Mar 2002 16:51:07 -0500
+	id <S312236AbSCTVw0>; Wed, 20 Mar 2002 16:52:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312236AbSCTVut>; Wed, 20 Mar 2002 16:50:49 -0500
-Received: from imladris.infradead.org ([194.205.184.45]:51725 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S312235AbSCTVug>;
-	Wed, 20 Mar 2002 16:50:36 -0500
-Date: Wed, 20 Mar 2002 21:46:07 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christoph Hellwig <hch@suse.de>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@conectiva.com.br>,
-        Dave McCracken <dmccr@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et al
-Message-ID: <20020320214607.A6363@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	Andrea Arcangeli <andrea@suse.de>, Christoph Hellwig <hch@suse.de>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Hugh Dickins <hugh@veritas.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Dave McCracken <dmccr@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <127930000.1016651345@flay> <20020320212341.M4268@dualathlon.random> <20020320203520.A2003@infradead.org> <20020320223425.P4268@dualathlon.random>
+	id <S312235AbSCTVwH>; Wed, 20 Mar 2002 16:52:07 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38643
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S293249AbSCTVv6>; Wed, 20 Mar 2002 16:51:58 -0500
+Date: Wed, 20 Mar 2002 13:53:05 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre3-ac4
+Message-ID: <20020320215305.GB29857@matchmail.com>
+Mail-Followup-To: Pozsar Balazs <pozsy@sch.bme.hu>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu> <Pine.GSO.4.30.0203201846120.18826-100000@balu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 20, 2002 at 10:34:25PM +0100, Andrea Arcangeli wrote:
-> > The problem is not the 4GB ZONE_NORMAL but the ~1GB KVA space.
+On Wed, Mar 20, 2002 at 06:47:39PM +0100, Pozsar Balazs wrote:
 > 
-> Then you misunderstood what's the zone-normal, the zone normal is 800M
-> in size not 4GB.
-
-No, it was braino when writing.
-
-> The 1GB of KVA is what constraint the size of the zone
-> normal to 800M. We're talking about the same thing, just looking at it
-> from different point of views.
-
-Okay agreed now after the 'reminder'.
-
-> > UnixWare/OpenUnix had huge problems getting all kernel structs for managing
-> > 16GB virtual into that - on the other hand their struct page is more
-> > then twice as big as ours..
+> > Linux 2.4.19pre3-ac4
+> > o	Test improved OOM handler for rmap		(Rik van Riel)
 > 
-> We do pretty well with pte-highmem, there is some other bit that will be
-> better to optimize, but nothing major.
+> Which rmap is in 2.4.19pre3-ac4 ?
 
-One major area to optimize are the kernel stacks I think.
+Probably rmap12h since that's the one that does the above...

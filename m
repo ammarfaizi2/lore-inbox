@@ -1,64 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbTJ3Nox (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 08:44:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTJ3Nox
+	id S262458AbTJ3Nri (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 08:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTJ3Nri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 08:44:53 -0500
-Received: from karpfen.mathe.tu-freiberg.de ([139.20.24.195]:42114 "EHLO
-	karpfen.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id S262491AbTJ3Nov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 08:44:51 -0500
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [2.6.0-test9] alsa intel8x0: scattered sound playback
-Date: Thu, 30 Oct 2003 14:44:24 +0100
-User-Agent: KMail/1.5.3
-References: <slrnbpvkdj.845.christian.kapeller@campus14.panorama.sth.ac.at>
-In-Reply-To: <slrnbpvkdj.845.christian.kapeller@campus14.panorama.sth.ac.at>
-MIME-Version: 1.0
+	Thu, 30 Oct 2003 08:47:38 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:45554 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262458AbTJ3Nre
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 08:47:34 -0500
 Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310301444.24606.dreher@math.tu-freiberg.de>
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Scott Robert Ladd <coyote@coyotegulch.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Things that Longhorn seems to be doing right
+Date: Thu, 30 Oct 2003 07:46:52 -0600
+X-Mailer: KMail [version 1.2]
+Cc: Erik Andersen <andersen@codepoet.org>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org
+References: <3F9F7F66.9060008@namesys.com> <20031030015212.GD8689@thunk.org> <3FA08C42.6050107@coyotegulch.com>
+In-Reply-To: <3FA08C42.6050107@coyotegulch.com>
+MIME-Version: 1.0
+Message-Id: <03103007465200.23446@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mittwoch, 29. Oktober 2003 15:41 wrote Christian Kapeller:
-
-> Since i'm running the 2.6.0 (2.6.0-test9-bk1 currently) kernel i
-> encounter problems with alsa sound playback.
+On Wednesday 29 October 2003 21:57, Scott Robert Ladd wrote:
+> Theodore Ts'o wrote:
+> > Keep in mind that just because Windows does thing a certain way
+> > doesn't mean we have to provide the same functionality in exactly the
+> > same way.
 >
-
+> Very true. Linux is best defined by those who proactively implement
+> powerful ideas.
 >
-> The sound is very scatterd and parts of the playback are repeated
-> sometims. Stopping the playback and starting it again, fixes it -
-> somtimes, and if then only for a couple of seconds.
-
-I can confirm this partly. 
-Yesterday, playwave gave a scattered sound (skips and many repeated
-sounds). Today playwave works. I could not get xmms working
-(neither yesterday nor today). This is 2.6.0-test9.
-
-xmms was fine in test5, running at half speed in test6 and test7, 
-fine in test8, broken in test9.
-
-
-But I did not get the following messages:
-
-> /var/log/kern.log shows the following error messages:
+> That doesn't mean, however, that the folks in Redmond can't come up with
+> an interesting and useful idea that we might just want to consider.
 >
-> ----
-> Oct 28 18:18:08 xxxxxxxx kernel: ALSA sound/core/pcm_lib.c:155:
-> Unexpected hw_pointer value (stream = 0, delta: -1314, max jitter =
-> 8192): wrong interrupt acknowledge? Oct 28 18:18:08 xxxxxxxx kernel:
-> ALSA sound/core/pcm_lib.c:155: Unexpected hw_pointer value (stream =
-> 0, delta: -1024, max jitter = 8192): wrong interrupt acknowledge? Oct
-> 28 18:19:29 xxxxxxxx kernel: ALSA sound/core/pcm_lib.c:155: Unexpected
-> hw_pointer value (stream = 0, delta: -1084, max jitter = 8192): wrong
-> interrupt acknowledge? Oct 28 18:19:29 xxxxxxxx kernel: ALSA
-> sound/core/pcm_lib.c:155: Unexpected hw_pointer value (stream = 0,
-> delta: -1024, max jitter = 8192): wrong interrupt acknowledge? --
+> > Also keep in mind that Microsoft very deliberately blurs what they do
+> > in their "kernel" versus what they provide via system libraries
+> > (i.e., API's provided via their DLL's, or shared libraries).
+>
+> Any database-style file system should be implemented in a modular
+> fashion, just like current Linux file systems.
+>
+[snip]
+> > Fortunately, I have enough faith in Linus Torvalds' taste that I'm
+> > not particularly worried what would happen if someone were to send
+> > him a patch that attempted to cram MySQL or Postgres into the guts of
+> > the Linux kernel....  although I would like to watch when someone
+> > proposes such a thing!
+>
+> MySQL wouldn't need to be shoved into the kernel; a small, fast database
+> engine (one of my professional specialities, BTW) could provide metadata
+> services in a file system module. SQL is a bloated pig; an effective
+> file system needs to be both useful and efficient, leading me to think
+> that we should consider a more succinct query mechanism for any
+> metadata-based file system.
 
-Michael
+Umm... keep in mind that every system that has a in-kernel database system
+has tanked. Remember PIC systems? How about MUMPS?
+
+The closest thing to this that hasn't died (quite?) has been the VMS
+datatrieve facility. But even that wasn't in the kernel proper, it was
+a layered facility added to the DCL user API that was accessable to
+applications. It basicly provided multiple ISAM support to read/write.
+And no, the files were not portable... they had to be converted to normal
+RMS files/stream files first; and you lost the keys when you did.
+
+The problem with the database system (anywhere) is that it is absolutely
+horrible for I/O throughput. Having to reference schemas, multiple key
+hashing, even key identification all takes multiple I/O operations to do.
+Not to mention the duplications caused by having to store the results in
+addition to storing the raw data.
+
+And you no longer get to do a simple "read" of data. You have to completely
+drop the concept of "data stream" and data portability. If you DO keep the
+original semantics of a file, then you double/triple the data I/O (once for
+the data, once for the keys, and once for the correlation/compound keys).
+Then you have to deal with the huge amount of metadata that maintains the
+above. On top of that, you also have to include a general purpose locking
+facility (NOT advisory either) or you WILL get a corrupted data file with
+only one writer (do a "tail -f" on a file, and the file gets corrupted during
+updates to the keys or base data).
+
+The last time I saw this amount of crap/problems was with a Clearcase file
+system (couldn't even back the system up).
+
+If you REALLY want to test this, make it a user mode NFS server, and mount
+it through a loopback.
+
+I think it would be more usefull to have file migration support added to the
+current metadata (extra index, extra modes, compressed data, compressed date,
+migrated date, unmigrated date, migration expiration date... possible with
+XFS maybe. and only a little more changes needed...).

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261797AbREVOdn>; Tue, 22 May 2001 10:33:43 -0400
+	id <S261790AbREVOdn>; Tue, 22 May 2001 10:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261778AbREVOde>; Tue, 22 May 2001 10:33:34 -0400
+	id <S261793AbREVOdf>; Tue, 22 May 2001 10:33:35 -0400
 Received: from humbolt.nl.linux.org ([131.211.28.48]:4619 "EHLO
 	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S261790AbREVOdS>; Tue, 22 May 2001 10:33:18 -0400
+	id <S261796AbREVOdV>; Tue, 22 May 2001 10:33:21 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: Oliver Xymoron <oxymoron@waste.org>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
-Date: Mon, 21 May 2001 22:14:30 +0200
+To: Keith Owens <kaos@ocs.com.au>, John Stoffel <stoffel@casc.com>
+Subject: Re: Background to the argument about CML2 design philosophy
+Date: Tue, 22 May 2001 11:24:54 +0200
 X-Mailer: KMail [version 1.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0105211155530.17263-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.30.0105211155530.17263-100000@waste.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2436.990493144@kao2.melbourne.sgi.com>
+In-Reply-To: <2436.990493144@kao2.melbourne.sgi.com>
 MIME-Version: 1.0
-Message-Id: <01052122143002.06233@starship>
+Message-Id: <01052211245404.06233@starship>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 May 2001 19:16, Oliver Xymoron wrote:
-> What I'd like to see:
+On Tuesday 22 May 2001 02:59, Keith Owens wrote:
 >
-> - An interface for registering an array of related devices (almost
-> always two: raw and ctl) and their legacy device numbers with a
-> single userspace callout that does whatever /dev/ creation needs to
-> be done. Thus, naming and permissions live in user space. No "device
-> node is also a directory" weirdness...
+> # Not a real dependency, this checks for hand editing of .config.
+> $(KBUILD_OBJTREE)include/linux/autoconf.h: $(KBUILD_OBJTREE).config
+>         @echo Your .config is newer than include/linux/autoconf.h,
+> this should not happen. @echo Always run make one of
+> "{menu,old,x}config" after manually updating .config. @/bin/false
 
-Could you be specific about what is weird about it?
+Ahem.  What is wrong with revalidating it automatically?  *Then* if there's a
+problem, bother the user.
 
-> ...which is overkill in the vast majority of cases.
+"No news is good news".
 
 --
 Daniel

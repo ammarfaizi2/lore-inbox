@@ -1,68 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266666AbUGQBE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUGQBV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266666AbUGQBE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 21:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266667AbUGQBE1
+	id S266669AbUGQBV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 21:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUGQBV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 21:04:27 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60830 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266666AbUGQBEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 21:04:25 -0400
-Subject: Re: XRUN traces
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040713235655.263ce5f3.akpm@osdl.org>
-References: <1089758294.2747.4.camel@mindpipe>
-	 <20040713161004.37a4654e.akpm@osdl.org> <1089787542.3360.11.camel@mindpipe>
-	 <20040713235655.263ce5f3.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1090026275.2852.19.camel@mindpipe>
+	Fri, 16 Jul 2004 21:21:26 -0400
+Received: from holomorphy.com ([207.189.100.168]:61872 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266669AbUGQBVW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 21:21:22 -0400
+Date: Fri, 16 Jul 2004 18:19:36 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Chris Wright <chrisw@osdl.org>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com
+Subject: Re: [RFC] Lock free fd lookup
+Message-ID: <20040717011936.GK3411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Keith Owens <kaos@ocs.com.au>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	Chris Wright <chrisw@osdl.org>,
+	Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+References: <20040716062732.GG3411@holomorphy.com> <903.1090025759@ocs3.ocs.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 16 Jul 2004 21:04:36 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <903.1090025759@ocs3.ocs.com.au>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-14 at 02:56, Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> > This is the only one I am still seeing that does not involve
-> >  get_user_pages().  I am seeing quite a lot with get_user_pages, but very
-> >  few of these:
-> 
-> get_user_pages() shold be fixed in rc1-mm1.  But that kernel is busted, so
-> wait until I have a fix.
-> 
-> 
+On Thu, 15 Jul 2004 23:27:32 -0700, William Lee Irwin III wrote:
+>> The gist of all this is that busywait-free atomic updates are only
+>> implementable for data structures that don't link through the object
+>> but rather maintain an external index with a single pointer to elements
+>> needing updates, like radix trees, B+ trees, arrays of pointers, and
+>> open-addressed hashtables.
 
-With 2.6.8-rc1-mm1, when I have started a jackd process in the playback
-direction, and launch another in the capture direction, I can reliably
-trigger a ~150ms XRUN in the first process.  The duration of the XRUN 
-is exactly the same each time, it is probably a funciton of the amount
-of memory being mlockall()'ed.
+On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
+> There are algorithms for busywait-free (lock free) traversal and
+> concurrent update of lists and structures that contain embedded
+> pointers.  I once had to implement one on an O/S where the user space
+> to kernel wait/alarm semantics could not satisfy the timing
+> requirements of the calling code (don't ask).
 
-Otherwise this kernel seems pretty good.
+Yes. I had in mind only RCU-based algorithms. Throwing more machinery at
+the problem may get further.
 
-Jul 16 20:57:29 mindpipe kernel: ALSA /home/rlrevell/cvs/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D2c
-Jul 16 20:57:29 mindpipe kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
-Jul 16 20:57:29 mindpipe kernel:  [__crc_totalram_pages+115469/3518512] snd_pcm_period_elapsed+0x2c7/0x400 [snd_pcm]
-Jul 16 20:57:29 mindpipe kernel:  [__crc_totalram_pages+180567/3518512] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
-Jul 16 20:57:29 mindpipe kernel:  [handle_IRQ_event+51/96] handle_IRQ_event+0x33/0x60
-Jul 16 20:57:29 mindpipe kernel:  [do_IRQ+165/368] do_IRQ+0xa5/0x170
-Jul 16 20:57:29 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Jul 16 20:57:29 mindpipe kernel:  [__alloc_pages+167/816] __alloc_pages+0xa7/0x330
-Jul 16 20:57:29 mindpipe kernel:  [do_anonymous_page+96/384] do_anonymous_page+0x60/0x180
-Jul 16 20:57:29 mindpipe kernel:  [do_no_page+78/784] do_no_page+0x4e/0x310
-Jul 16 20:57:29 mindpipe kernel:  [handle_mm_fault+193/368] handle_mm_fault+0xc1/0x170
-Jul 16 20:57:29 mindpipe kernel:  [get_user_pages+337/960] get_user_pages+0x151/0x3c0
-Jul 16 20:57:29 mindpipe kernel:  [make_pages_present+104/144] make_pages_present+0x68/0x90
-Jul 16 20:57:29 mindpipe kernel:  [mlock_fixup+141/176] mlock_fixup+0x8d/0xb0
-Jul 16 20:57:29 mindpipe kernel:  [do_mlockall+112/144] do_mlockall+0x70/0x90
-Jul 16 20:57:29 mindpipe kernel:  [sys_mlockall+150/160] sys_mlockall+0x96/0xa0
-Jul 16 20:57:29 mindpipe kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
 
-Lee
+On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
+> The beauty of these lockfree algorithms on large structures is that
+> nothing ever stalls indefinitely.  If the underlying SMP cache hardware
+> is fair, everything running a lockfree list will make progress.  These
+> algorithms do not suffer from reader vs. writer starvation.
 
+That's a large assumption. NUMA hardware typically violates it.
+
+
+On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
+> The downside is that the algorithms rely on an extra sequence field per
+> word.  They copy out the structure, modify the local copy, write back
+> with an update of sequence field.  Writing back detects if any other
+> update has invalidated the current structure, at which point the second
+> update is discarded and the writer redrives its update.  Readers are
+> guaranteed to see a consistent view of the copy, even if the master
+> structure is being updated at the same time as it is being read.
+
+I would classify this as "ticket-based".
+
+
+On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
+> Bottom line, it can be done but ...
+> * The structure size doubles with the addition of the sequence fields.
+> * The hardware must support cmpxchg on the combination of the sequence
+>   field and the data word that it protects.  LL/SC can be used instead
+>   of cmpxchg if the hardware supports LL/SC.
+> * If the hardware only supports cmpxchg4 then the sequence field is
+>   restricted to 2 bytes, which increases the risk of wraparound.  If an
+>   update is delayed for exactly the wraparound interval then the data
+>   may be corrupted, that is a standard risk of small sequence fields.
+> * The extra copy out just to read a structure needs more memory
+>   bandwidth, plus local allocation for the copy.
+> * The internal code of the API to traverse a list containing lockfree
+>   structures is pretty messy, although that is hidden from the caller.
+> * All writers must preserve enough state to redrive their update from
+>   scratch if a concurrent update has changed the same structure.  Note,
+>   only the curent structure, not the rest of the list.
+> * It requires type stable storage.  That is, once a data area has been
+>   allocated to a particular structure type, it always contains that
+>   structure type, even when it has been freed from the list.  Each list
+>   requires its own free pool, which can never be returned to the OS.
+
+The last of these is particularly lethal.
+
+
+On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
+> Nice research topics, but not suitable for day to day work.  I only
+> used the lockfree algorithms because I could not find an alternative on
+> that particular OS.  I am not sure that the Linux kernel has any
+> problems that require the additional complexity.
+> For some light reading, the code I implemented was based on Practical
+> Implementations of Non-Blocking Synchronization Primitives by Mark Moir
+> http://research.sun.com/scalable/Papers/moir-podc97.ps.  Note that page
+> 6, line 6 has an error.  Replace "y := z" with "y := addr->data[i];".
+> I implemented a completely lockfree 2-3-4 tree with embedded pointers
+> using Moir's algorithm.  The implementation allowed multiple concurrent
+> readers and writers.  It even allowed concurrent list insert, delete
+> and rebalancing, while the structures on the were being read and
+> updated.
+
+Thanks. That may come in handy later.
+
+On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
+> 2-3-4 trees are self balancing, which gave decent lookup performance.
+> Since red-black trees are logically equivalent to 2-3-4 trees it should
+> be possible to use lockfree red-black trees.  However I could not come
+> up with a lockfree red-black tree, mainly because an read-black insert
+> requires atomic changes to multiple structures.  The 2-3-4 tree only
+> needs atomic update to one structure at a time.
+
+This actually appears to confirm my earlier assertion about the linkage
+of the data structure. Is this conclusion what you had in mind?
+
+
+-- wli

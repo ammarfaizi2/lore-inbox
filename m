@@ -1,79 +1,219 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317736AbSFLQwN>; Wed, 12 Jun 2002 12:52:13 -0400
+	id <S317742AbSFLQ7w>; Wed, 12 Jun 2002 12:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317742AbSFLQwM>; Wed, 12 Jun 2002 12:52:12 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51719 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317736AbSFLQwK> convert rfc822-to-8bit; Wed, 12 Jun 2002 12:52:10 -0400
-Date: Wed, 12 Jun 2002 09:52:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-        <frankeh@watson.ibm.com>
-Subject: Re: [PATCH] Futex Asynchronous Interface
-In-Reply-To: <3D0776EE.4040701@loewe-komp.de>
-Message-ID: <Pine.LNX.4.44.0206120946100.22189-100000@home.transmeta.com>
+	id <S317743AbSFLQ7v>; Wed, 12 Jun 2002 12:59:51 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:10400 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317742AbSFLQ7t>;
+	Wed, 12 Jun 2002 12:59:49 -0400
+Date: Wed, 12 Jun 2002 18:57:34 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Mike Kravetz <kravetz@us.ibm.com>,
+        Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: [patch] switch_mm()'s desire to run without the rq lock
+In-Reply-To: <20020612.045414.105100110.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0206121551190.10732-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g5CGpmj08390
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Wed, 12 Jun 2002, David S. Miller wrote:
 
+> There is nothing weird about holding page_table_lock during switch_mm, I
+> can imagine many other ports doing it especially those with TLB pids
+> which want to optimize SMP tlb/cache flushes.
 
-On Wed, 12 Jun 2002, Peter Wächtler wrote:
->
-> For the uncontended case: their is no blocked process...
+as far as i can see only Sparc64 does it. And switch_mm() (along with
+switch_to()) is a very scheduler-internal thing, we dont really (and must
+not) do anything weird in it.
 
-Wrong.
+> I think changing vmscan.c to not call wakeup is the wrong way to go
+> about this.  I thought about doing that originally, but it looks to be
+> 100 times more difficult to implement (and verify) than the scheduler
+> side fix.
 
-The process that holds the lock can die _before_ it gets contended.
+okay, understood.
 
-When another thread comes in, it now is contended, but the kernel doesn't
-know about anything.
+here is a solution that allows us to eat and have the pudding at once.  
+(patch attached, against Linus' latest BK tree):
 
-> One (or more) process is blocked in a waitqueue in the kernel - waiting
-> for a futex to be released.
->
-> The lock holder crashes - say with SIGSEGV.
+- i've extended the scheduler context-switch mechanism with the following
+  per-arch defines:
 
-The lock holder may have crashed long before the waiting process even
-started waiting.
+	prepare_arch_schedule(prev_task);
+	finish_arch_schedule(prev_task);
+	prepare_arch_switch(rq);
+	finish_arch_switch(rq);
 
-Besides, the kernel only knows about those processes that see contention.
-Even if the contention happened _before_ the lock holder crashed, the
-kernel doesn't know about the lock holder itself - it only knows about the
-process that caused the contention. The kernel will get to know about the
-lock holder only when it tris to resolve the contention, and since that
-one has crashed, that will never happen.
+- plus switch_to() takes 3 parameters again:
 
-> I know that the kernel can't do anything about the aborted critical section.
-> But the waiters should be "freed" - and now we can discuss if we kill them
-> or report an error and let them deal with that.
+	switch_to(prev, next, last);
 
-The waiters should absolutely _not_ be freed. There's nothign they can do
-about it. The data inside the critical region is no longer valid, and
+- schedule_tail() has the 'prev' task parameter again, it must be passed
+  over in switch_to() and passed in to the fork() startup path.
 
-> Can't be done? I don't think that this would add a performance hit
-> since it's only done on exit (and especially "abnormal" exit).
+architectures that need to unlock the runqueue before doing the switch can
+do the following:
 
-But the point is not that it would be a performance hit on "exit()", but
-that WE DON'T TRACK THE LOCKS in the kernel in the first place.
+ #define prepare_arch_schedule(prev)             task_lock(prev)
+ #define finish_arch_schedule(prev)              task_unlock(prev)
+ #define prepare_arch_switch(rq)                 spin_unlock(&(rq)->lock)
+ #define finish_arch_switch(rq)                  __sti()
 
-Right now the kernel does _zero_ work for a lock that isn't contended. It
-doesn't know _anything_ about the process that got the lock initially.
+this way the task-lock makes sure that a task is not scheduled on some
+other CPU before the switch-out finishes, but the runqueue lock is
+dropped. (Local interrupts are kept disabled in this variant, just to
+exclude things like TLB flushes - if that matters.)
 
-Any amount of tracking would be _extremely_ expensive. Right now getting
-an uncontended lock is about 15 CPU cycles in user space.
+architectures that can hold the runqueue lock during context-switch can do
+the following simplification:
 
-Tryin to tell the kernel about gettign that lock takes about 1us on a P4
-(system call overhead), ie we're talking 18000 cycles. 18 THOUSAND cycles
-minimum. Compared to the current 15 cycles. That's more than three orders
-of magnitude slower than the current code, and you just lost the whole
-point of doing this all in user space in the first place.
+ #define prepare_arch_schedule(prev)             do { } while(0)
+ #define finish_arch_schedule(prev)              do { } while(0)
+ #define prepare_arch_switch(rq)                 do { } while(0)
+ #define finish_arch_switch(rq)                  spin_unlock_irq(&(rq)->lock)
 
-		Linus
+further optimizations possible in the 'simple' variant:
+
+- an architecture does not have to handle the 'last' parameter in
+  switch_to() if the 'prev' parameter is unused in finish_arch_schedule().  
+  This way the inlined return value of context_switch() too gets optimized
+  away at compile-time.
+
+- an architecture does not have to pass the 'prev' pointer to
+  schedule_tail(), if the 'prev' parameter is unused in
+  finish_arch_schedule().
+
+the x86 architecture makes use of these optimizations.
+
+Via this solution we have a reasonably flexible context-switch setup which
+falls back to the current (faster) code on x86, but on other platforms the
+runqueue lock can be dropped before doing the context-switch as well.
+
+	Ingo
+
+NOTE: i have coded and tested the 'complex' variant on x86 as well to make
+      sure it works for you on Sparc64 - but since x86's switch_mm() is
+      not too subtle it can use the simpler variant. [ The following
+      things had to be done to make x86 arch use the complex variant: the
+      4 complex macros have to be used in system.h, entry.S has to
+      'pushl %ebx' and 'addl $4, %esp' around the call to schedule_tail(),
+      and switch_to() had to be reverted to the 3-parameter variant
+      present in the 2.4 kernels.
+
+NOTE2: prepare_to_switch() functionality has been moved into the
+       prepare_arch_switch() macro.
+
+NOTE3: please use macros for prepare|finish_arch_switch() so that we can
+       keep the scheduler data structures internal to sched.c.
+
+--- linux/arch/i386/kernel/entry.S.orig	Wed Jun 12 16:53:02 2002
++++ linux/arch/i386/kernel/entry.S	Wed Jun 12 17:47:18 2002
+@@ -193,6 +193,7 @@
+ 
+ ENTRY(ret_from_fork)
+ #if CONFIG_SMP || CONFIG_PREEMPT
++	# NOTE: this function takes a parameter but it's unused on x86.
+ 	call schedule_tail
+ #endif
+ 	GET_THREAD_INFO(%ebx)
+--- linux/include/asm-i386/system.h.orig	Wed Jun 12 16:03:37 2002
++++ linux/include/asm-i386/system.h	Wed Jun 12 18:36:34 2002
+@@ -11,9 +11,12 @@
+ struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
+ extern void FASTCALL(__switch_to(struct task_struct *prev, struct task_struct *next));
+ 
+-#define prepare_to_switch()	do { } while(0)
++#define prepare_arch_schedule(prev)		do { } while(0)
++#define finish_arch_schedule(prev)		do { } while(0)
++#define prepare_arch_switch(rq)			do { } while(0)
++#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
+ 
+-#define switch_to(prev,next) do {					\
++#define switch_to(prev,next,last) do {					\
+ 	asm volatile("pushl %%esi\n\t"					\
+ 		     "pushl %%edi\n\t"					\
+ 		     "pushl %%ebp\n\t"					\
+--- linux/kernel/sched.c.orig	Wed Jun 12 15:47:30 2002
++++ linux/kernel/sched.c	Wed Jun 12 18:15:06 2002
+@@ -451,19 +451,18 @@
+ }
+ 
+ #if CONFIG_SMP || CONFIG_PREEMPT
+-asmlinkage void schedule_tail(void)
++asmlinkage void schedule_tail(task_t *prev)
+ {
+-	spin_unlock_irq(&this_rq()->lock);
++	finish_arch_switch(this_rq());
++	finish_arch_schedule(prev);
+ }
+ #endif
+ 
+-static inline void context_switch(task_t *prev, task_t *next)
++static inline task_t * context_switch(task_t *prev, task_t *next)
+ {
+ 	struct mm_struct *mm = next->mm;
+ 	struct mm_struct *oldmm = prev->active_mm;
+ 
+-	prepare_to_switch();
+-
+ 	if (unlikely(!mm)) {
+ 		next->active_mm = oldmm;
+ 		atomic_inc(&oldmm->mm_count);
+@@ -477,7 +476,9 @@
+ 	}
+ 
+ 	/* Here we just switch the register state and the stack. */
+-	switch_to(prev, next);
++	switch_to(prev, next, prev);
++
++	return prev;
+ }
+ 
+ unsigned long nr_running(void)
+@@ -823,6 +824,7 @@
+ 	rq = this_rq();
+ 
+ 	release_kernel_lock(prev, smp_processor_id());
++	prepare_arch_schedule(prev);
+ 	prev->sleep_timestamp = jiffies;
+ 	spin_lock_irq(&rq->lock);
+ 
+@@ -878,23 +880,20 @@
+ 	if (likely(prev != next)) {
+ 		rq->nr_switches++;
+ 		rq->curr = next;
+-		context_switch(prev, next);
+-
+-		/*
+-		 * The runqueue pointer might be from another CPU
+-		 * if the new task was last running on a different
+-		 * CPU - thus re-load it.
+-		 */
+-		mb();
++	
++		prepare_arch_switch(rq);
++		prev = context_switch(prev, next);
++		barrier();
+ 		rq = this_rq();
+-	}
+-	spin_unlock_irq(&rq->lock);
++		finish_arch_switch(rq);
++	} else
++		spin_unlock_irq(&rq->lock);
++	finish_arch_schedule(prev);
+ 
+ 	reacquire_kernel_lock(current);
+ 	preempt_enable_no_resched();
+ 	if (test_thread_flag(TIF_NEED_RESCHED))
+ 		goto need_resched;
+-	return;
+ }
+ 
+ #ifdef CONFIG_PREEMPT
+
 

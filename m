@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSKHNkE>; Fri, 8 Nov 2002 08:40:04 -0500
+	id <S261973AbSKHNop>; Fri, 8 Nov 2002 08:44:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbSKHNkE>; Fri, 8 Nov 2002 08:40:04 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:16600 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261963AbSKHNkD>;
-	Fri, 8 Nov 2002 08:40:03 -0500
-Date: Fri, 8 Nov 2002 14:46:40 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-cc: Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: [PATCH] SCSI on non-ISA systems
-Message-ID: <Pine.GSO.4.21.0211081443590.23267-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261978AbSKHNop>; Fri, 8 Nov 2002 08:44:45 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:53170 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261973AbSKHNoo>;
+	Fri, 8 Nov 2002 08:44:44 -0500
+Subject: [ANNOUNCE] LTP-20021107
+From: Jeff Martin <ffej@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Nov 2002 07:50:07 -0600
+Message-Id: <1036763407.12885.4.camel@bfe.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The Linux Test Project test suite LTP-20021107.tgz has been released.
+Visit our website (http://ltp.sourceforge.net) to download the latest
+version of the testsuite, and for information on test results on
+pre-releases, release candidates & stable releases of the kernel. There
+is also a list of test cases that are expected to fail, please find
+the list at (http://ltp.sourceforge.net/expected-errors.php)
 
-Since 2.5.31, the compilation of kernel/dma.c is conditional on
-CONFIG_GENERIC_ISA_DMA. However, drivers/scsi/hosts.c unconditionally calls
-free_dma(), which breaks machines with SCSI that don't have ISA.
+We encourage the community to post results, patches, or new tests on our
+mailing list, and to use the CVS bug tracking facility to report
+problems that you might encounter. More details available at our
+web-site.
 
-Please apply!
 
---- linux-2.5.46/drivers/scsi/hosts.c	Thu Oct 31 10:15:33 2002
-+++ linux-m68k-2.5.46/drivers/scsi/hosts.c	Fri Nov  8 14:27:59 2002
-@@ -27,6 +27,7 @@
-  *  hosts currently present in the system.
-  */
- 
-+#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/blk.h>
- #include <linux/kernel.h>
-@@ -98,8 +99,10 @@
- {
- 	if (shost->irq)
- 		free_irq(shost->irq, NULL);
-+#ifdef CONFIG_GENERIC_ISA_DMA
- 	if (shost->dma_channel != 0xff)
- 		free_dma(shost->dma_channel);
-+#endif
- 	if (shost->io_port && shost->n_io_port)
- 		release_region(shost->io_port, shost->n_io_port);
- }
+Change Log
+------------
+- Added "setdomainname01", "setdomainname02",     ( Saji Kumar )
+  and "setdomainname03" to "syscalls" runtest file
+- Added "sethostname01", "sethostname02",         ( Suresh Babu )
+  and "sethostname03" to "syscalls" runtest file
+- Fixed bug introduced in "fsstress.c"     ( Andi Kleen, Andrew Morton )
+- Fix "chdir03.c" to remove unintentional \n in   ( Paul Larson )
+  the directory name
+- Added code to remove the tmp test dir           ( Robbie Williamson )
+  in "fcntl11.c"
+- fix for "shmctl01.c" to get rid of the shmdt    ( Manfred Spraul )
+  failures in "shmctl01"
+- Fix for "readdir01" slightly incorrect errno    ( Paul Larson )
+  handling
+- Back out "readv01", "readv02" changes to        ( Paul Larson )
+  expect EINVAL when count==0.  Kernel is going
+  to keep the old behaviour.
+- Fix for "waitpid02". uses undefined div by      ( Paul Larson )
+  0 behaviour
+- Revert "writev01.c" back to not expect EINVAL   ( Paul Larson )
+  when count==0
+- Fix for "mc_commo". Changed a 'ps -ef' command  ( Robbie Williamson )
+  to 'ps -ewf' to ensure that a grep finds the
+  info it needs.
+- Fix in mc_member. Corrected typo causing false  ( Robbie Williamson )
+  pass. Found by Li Ge 
+- Fix in "tcpdump01". Removed erroneous INTERFACE ( Robbie Williamson )
+  declaration.
+- Fix tools/ltprun to use the new runalltests     ( William Jay Huie )
+  semantics
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

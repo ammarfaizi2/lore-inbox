@@ -1,206 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261246AbSIZECq>; Thu, 26 Sep 2002 00:02:46 -0400
+	id <S262156AbSIZEK2>; Thu, 26 Sep 2002 00:10:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262142AbSIZECq>; Thu, 26 Sep 2002 00:02:46 -0400
-Received: from packet.digeo.com ([12.110.80.53]:36824 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261246AbSIZECo>;
-	Thu, 26 Sep 2002 00:02:44 -0400
-Message-ID: <3D928813.7EAD7F3C@digeo.com>
-Date: Wed, 25 Sep 2002 21:07:47 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 1/4] prepare_to_wait/finish_wait sleep/wakeup API
+	id <S262163AbSIZEK2>; Thu, 26 Sep 2002 00:10:28 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:48905 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262156AbSIZEK0>;
+	Thu, 26 Sep 2002 00:10:26 -0400
+Date: Wed, 25 Sep 2002 21:14:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Matt_Domsch@Dell.com
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: devicefs requests
+Message-ID: <20020926041422.GA1733@kroah.com>
+References: <20BF5713E14D5B48AA289F72BD372D68C1E8C2@AUSXMPC122.aus.amer.dell.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Sep 2002 04:07:48.0341 (UTC) FILETIME=[46524A50:01C26512]
+Content-Disposition: inline
+In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68C1E8C2@AUSXMPC122.aus.amer.dell.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 25, 2002 at 10:48:31PM -0500, Matt_Domsch@Dell.com wrote:
+> > Um, what 64-bit unique id?  USB devices do not have such a thing.
+> 
+> The EDD spec (http://www.t13.org/docs2002/d1572r0.pdf - T13 committee
+> project 1572D BIOS Enhanced Disk Drive Services - 3) says:
+> USB identifier:  64-bit Serial Number as defined in the USB Mass Storage
+> specifications
 
+Ah, but that's a USB storage identifier, not a USB identifier.  The usb
+device structure does not contain this field, nor will it ever, sorry.
 
-It's worth a whopping 2% on spwecweb on an 8-way.  Which is faintly
-surprising because __wake_up and other wait/wakeup functions are not
-apparent in the specweb profiles which I've seen.
+It seems that this spec is oriented toward storage devices.  The USB
+device structure if for all types of devices.
 
+> I assume that they mean the USB Mass Storage spec v1.0
+> (http://www.usb.org/developers/data/devclass/usbmassbulk_10.pdf) section
+> 4.1.1 - Serial Number, which is 12-16 bytes long.  drivers/usb/storage/usb.c
+> turns that into a 16-byte GUID in storage_probe().  I hadn't gotten so far
+> as to see that these two specs don't agree for USB - I'd been looking at the
+> IDE and SCSI descriptions so far.  It wouldn't be the first time the EDD
+> spec needed editing, and given that few (if any) BIOSs yet implement it
+> apart from SCSI, is reason for the confusion.
 
+The majority of USB devices do not support serial numbers, as that field
+was made optional in the spec.  Even if it was required, it's a string
+field, not a 64 bit number :(
 
-The main objective of this is to reduce the CPU cost of the wait/wakeup
-operation.  When a task is woken up, its waitqueue is removed from the
-waitqueue_head by the waker (ie: immediately), rather than by the woken
-process.
+> I don't think Dell has a T13 committee representative right now, but I'll
+> see if we have a process for getting this cleared up through official
+> channels.  As I'm not a USB expert, would you care to comment on the right
+> way to handle this (i.e. instead of a 64-bit serial number, use the 16-byte
+> GUID)?
 
-This means that a subsequent wakeup does not need to revisit the
-just-woken task.  It also means that the just-woken task does not need
-to take the waitqueue_head's lock, which may well reside in another
-CPU's cache.
+Um, what do you mean, "right way"?  All USB devices do not have any such
+serial number.  Only a very small minority of devices contain a kind of
+serial number, and that field is a string (and often times it is not
+even unique, unfortunately.)
 
-I have no decent measurements on the effect of this change - possibly a
-20-30% drop in __wake_up cost in Badari's 40-dds-to-40-disks test (it
-was the most expensive function), but it's inconclusive.  And no
-quantitative testing of which I am aware has been performed by
-networking people.
+As for USB storage devices, I don't know if they all contain serial
+numbers that are unique, you might want to go ask the author of the
+usb-storage driver, Matt Dharm.
 
-The API is very simple to use (Linus thought it up):
+What are you trying to walk all of the USB devices for?  What would you
+do if you found a USB mass storage device that matched something in the
+EDD tables?
 
-my_func(waitqueue_head_t *wqh)
-{
-	DEFINE_WAIT(wait);
+thanks,
 
-	prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
-	if (!some_test)
-		schedule();
-	finish_wait(wqh, &wait);
-}
-
-or:
-
-	DEFINE_WAIT(wait);
-
-	while (!some_test_1) {
-		prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
-		if (!some_test_2)
-			schedule();
-		...
-	}
-	finish_wait(wqh, &wait);
-
-You need to bear in mind that once prepare_to_wait has been performed,
-your task could be removed from the waitqueue_head and placed into
-TASK_RUNNING at any time.  You don't know whether or not you're still
-on the waitqueue_head.
-
-Running prepare_to_wait() when you're already on the waitqueue_head is
-fine - it will do the right thing.
-
-Running finish_wait() when you're actually not on the waitqueue_head is
-fine.
-
-Running finish_wait() when you've _never_ been on the waitqueue_head is
-fine, as ling as the DEFINE_WAIT() macro was used to initialise the
-waitqueue.
-
-You don't need to fiddle with current->state.  prepare_to_wait() and
-finish_wait() will do that.  finish_wait() will always return in state
-TASK_RUNNING.
-
-There are plenty of usage examples in vm-wakeups.patch and
-tcp-wakeups.patch.
-
-
-
-
- include/linux/wait.h |   26 ++++++++++++++++++++++++++
- kernel/fork.c        |   46 ++++++++++++++++++++++++++++++++++++++++++++++
- kernel/ksyms.c       |    4 ++++
- 3 files changed, 76 insertions(+)
-
---- 2.5.38/include/linux/wait.h~prepare_to_wait	Wed Sep 25 20:15:20 2002
-+++ 2.5.38-akpm/include/linux/wait.h	Wed Sep 25 20:15:20 2002
-@@ -119,6 +119,32 @@ static inline void __remove_wait_queue(w
- 		_raced;						\
- 	})
- 
-+/*
-+ * Waitqueue's which are removed from the waitqueue_head at wakeup time
-+ */
-+void FASTCALL(prepare_to_wait(wait_queue_head_t *q,
-+				wait_queue_t *wait, int state));
-+void FASTCALL(prepare_to_wait_exclusive(wait_queue_head_t *q,
-+				wait_queue_t *wait, int state));
-+void FASTCALL(finish_wait(wait_queue_head_t *q, wait_queue_t *wait));
-+int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync);
-+
-+#define DEFINE_WAIT(name)						\
-+	wait_queue_t name = {						\
-+		.task		= current,				\
-+		.func		= autoremove_wake_function,		\
-+		.task_list	= {	.next = &name.task_list,	\
-+					.prev = &name.task_list,	\
-+				},					\
-+	}
-+
-+#define init_wait(wait)							\
-+	do {								\
-+		wait->task = current;					\
-+		wait->func = autoremove_wake_function;			\
-+		INIT_LIST_HEAD(&wait->task_list);			\
-+	} while (0)
-+	
- #endif /* __KERNEL__ */
- 
- #endif
---- 2.5.38/kernel/fork.c~prepare_to_wait	Wed Sep 25 20:15:20 2002
-+++ 2.5.38-akpm/kernel/fork.c	Wed Sep 25 20:15:20 2002
-@@ -103,6 +103,52 @@ void remove_wait_queue(wait_queue_head_t
- 	spin_unlock_irqrestore(&q->lock, flags);
- }
- 
-+void prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state)
-+{
-+	unsigned long flags;
-+
-+	__set_current_state(state);
-+	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	if (list_empty(&wait->task_list))
-+		__add_wait_queue(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+
-+void
-+prepare_to_wait_exclusive(wait_queue_head_t *q, wait_queue_t *wait, int state)
-+{
-+	unsigned long flags;
-+
-+	__set_current_state(state);
-+	wait->flags |= WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	if (list_empty(&wait->task_list))
-+		__add_wait_queue_tail(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+
-+void finish_wait(wait_queue_head_t *q, wait_queue_t *wait)
-+{
-+	unsigned long flags;
-+
-+	__set_current_state(TASK_RUNNING);
-+	if (!list_empty(&wait->task_list)) {
-+		spin_lock_irqsave(&q->lock, flags);
-+		list_del_init(&wait->task_list);
-+		spin_unlock_irqrestore(&q->lock, flags);
-+	}
-+}
-+
-+int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync)
-+{
-+	int ret = default_wake_function(wait, mode, sync);
-+
-+	if (ret)
-+		list_del_init(&wait->task_list);
-+	return ret;
-+}
-+
- void __init fork_init(unsigned long mempages)
- {
- 	/* create a slab on which task_structs can be allocated */
---- 2.5.38/kernel/ksyms.c~prepare_to_wait	Wed Sep 25 20:15:20 2002
-+++ 2.5.38-akpm/kernel/ksyms.c	Wed Sep 25 20:15:20 2002
-@@ -400,6 +400,10 @@ EXPORT_SYMBOL(irq_stat);
- EXPORT_SYMBOL(add_wait_queue);
- EXPORT_SYMBOL(add_wait_queue_exclusive);
- EXPORT_SYMBOL(remove_wait_queue);
-+EXPORT_SYMBOL(prepare_to_wait);
-+EXPORT_SYMBOL(prepare_to_wait_exclusive);
-+EXPORT_SYMBOL(finish_wait);
-+EXPORT_SYMBOL(autoremove_wake_function);
- 
- /* completion handling */
- EXPORT_SYMBOL(wait_for_completion);
-
-.
+greg k-h

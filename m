@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264886AbTAUGAq>; Tue, 21 Jan 2003 01:00:46 -0500
+	id <S263837AbTAUGG4>; Tue, 21 Jan 2003 01:06:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264715AbTAUGAp>; Tue, 21 Jan 2003 01:00:45 -0500
-Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:6784 "EHLO
+	id <S265051AbTAUGG4>; Tue, 21 Jan 2003 01:06:56 -0500
+Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:11648 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id <S263991AbTAUGAo>; Tue, 21 Jan 2003 01:00:44 -0500
-Subject: Re: [2.5 patch] MegaRAID driver: remove kernel 2.0 and 2.2 code
+	id <S263837AbTAUGGz>; Tue, 21 Jan 2003 01:06:55 -0500
+Subject: Re: [PATCH][2.5] smp_call_function_mask
 From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: groudier@free.fr, linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030118162243.GF10647@fs.tum.de>
-References: <20030118162243.GF10647@fs.tum.de>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1043117030.13113.15.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1043104744.12609.2.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 21 Jan 2003 02:43:51 +0000
+Date: 20 Jan 2003 23:19:05 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-18 at 16:22, Adrian Bunk wrote:
-> The patch below removes obsolete #if'd code for kernel 2.0 and 2.2 from
-> drivers/scsi/megaraid.{h,c} (this includes the expansion of some
-> #define's that were definded differently for different kernel versions).
-> 
-> I've tested the compilation with 2.5.59.
+On Fri, 2003-01-17 at 05:18, Zwane Mwaikambo wrote:
+> +	/* Wait for response */
+> +	while (atomic_read(&data.started) != num_cpus)
+> +		barrier();
 
-AMI still issue 2.2 versions of this driver so its probably excessive
-(AMI ? -- LSI now I guess)
+Only old old intel x86 that does -bad- things as it
+generates a lot of bus locked cycles. Better to do
+
+	while(atomic_read(&data.started) != num_cpus)
+		while(data.started.value != num_cpus)
+		{
+			barrier();
+			cpu_relax();
+		}
+
+I would think ?
 

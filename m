@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSAMT4Y>; Sun, 13 Jan 2002 14:56:24 -0500
+	id <S288059AbSAMUCE>; Sun, 13 Jan 2002 15:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288059AbSAMT4O>; Sun, 13 Jan 2002 14:56:14 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31809 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S288051AbSAMT4L>; Sun, 13 Jan 2002 14:56:11 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initramfs buffer spec -- second draft
-In-Reply-To: <a1oqmm$is3$1@cesium.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 Jan 2002 12:53:26 -0700
-In-Reply-To: <a1oqmm$is3$1@cesium.transmeta.com>
-Message-ID: <m1ofjyqb7t.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288060AbSAMUBy>; Sun, 13 Jan 2002 15:01:54 -0500
+Received: from zero.tech9.net ([209.61.188.187]:13074 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288059AbSAMUBu>;
+	Sun, 13 Jan 2002 15:01:50 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: jogi@planetzork.ping.de, Ed Sweetman <ed.sweetman@wmich.edu>,
+        Andrea Arcangeli <andrea@suse.de>, yodaiken@fsmlabs.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C41E415.9D3DA253@zip.com.au>
+In-Reply-To: <20020113184249.A15955@planetzork.spacenet>,
+	<E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy>
+	<20020112121315.B1482@inspiron.school.suse.de>
+	<20020112160714.A10847@planetzork.spacenet>
+	<20020112095209.A5735@hq.fsmlabs.com>
+	<20020112180016.T1482@inspiron.school.suse.de>
+	<005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> 
+	<20020113184249.A15955@planetzork.spacenet>
+	<1010946178.11848.14.camel@phantasy>  <3C41E415.9D3DA253@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 13 Jan 2002 15:04:35 -0500
+Message-Id: <1010952276.12125.59.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+On Sun, 2002-01-13 at 14:46, Andrew Morton wrote:
 
-> This is an update to the initramfs buffer format spec I posted
-> earlier.  The changes are as follows:
+> I can't say that I have ever seen any significant change in throughput
+> of anything with any of this stuff.
 
-Comments.  Endian issues are not specified, is the data little, big
-or vax endian?
+I can send you some numbers.  It is typically 5-10% throughput increase
+under load.  Obviously this work won't help a single task on a single
+user system.  But things like (ack!) dbench 16 show a marked
+improvement.
 
-What is the point of alignment?  If the data starts as 4 byte aligned,
-the 6 byte magic string guarantees the data will be only 2 byte
-aligned.  This isn't good for 32 or 64 bit architectures.
+> Benchmarks are well and good, but until we have a solid explanation for
+> the throughput changes which people are seeing, it's risky to claim
+> that there is a general benefit.
 
-I do like having a c_magic that at least allows us to change things
-in the future if necessary.
+I have an explanation.  We can schedule quicker off a woken task.  When
+an event occurs that allows an I/O-blocked task to run, its time-to-run
+is shorter.  Same event/response improvement that helps interactivity.
 
-Eric
+	Robert Love
+

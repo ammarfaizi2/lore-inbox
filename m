@@ -1,75 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbTHTMuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 08:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbTHTMuJ
+	id S261922AbTHTMxs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 08:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbTHTMxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 08:50:09 -0400
-Received: from ns.indranet.co.nz ([210.54.239.210]:60873 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S261917AbTHTMuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 08:50:04 -0400
-Date: Thu, 21 Aug 2003 00:49:52 +1200
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Connection tracking for IPSec
-Message-ID: <23600000.1061383792@ijir>
-In-Reply-To: <1061378568.668.9.camel@teapot.felipe-alfaro.com>
-References: <1061378568.668.9.camel@teapot.felipe-alfaro.com>
-X-Mailer: Mulberry/3.1.0b4 (Linux/x86)
+	Wed, 20 Aug 2003 08:53:47 -0400
+Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:35484
+	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
+	with ESMTP id S261922AbTHTMxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 08:53:42 -0400
+X-Mailbox-Line: From galia@st-peter.stw.uni-erlangen.de  Wed Aug 20 14:53:39 2003
+Message-ID: <1061384019.3f436f531a333@secure.st-peter.stw.uni-erlangen.de>
+Date: Wed, 20 Aug 2003 14:53:39 +0200
+From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6 test3-bk7 & -mm3 : HPT374 - cable missdetection, lock-ups
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
+
+first test run of 2.6 on Epox 8k9a3+ VIA KT400 VT8235, 
+HPT374 and 4 IBM Deskstar GXP120 80Gb on each chanel as master
+Mandrake-cooker gcc-3.3.1
+
+the 3rd and the 4th chanel of the HPT374 are saying that the used cable
+is 40 wires, so it forces the drives in UDMA33 which i think causes the lock-
+ups several seconds after booting in runlevel 1
+
+tried  enabling "ignore word94 validation bits", didn't change anything
+
+any hints ?
 
 
---On Wednesday, August 20, 2003 01:22:49 PM +0200 Felipe Alfaro Solana 
-<felipe_alfaro@linuxmail.org> wrote:
+no dmesg or logs available because of the hard lock-ups
 
-> Hi all!
->
-> I'm starting with IPSec right now. To make it work, I must open up
-> protocols 50 and 51 to pass across my Linux firewalls, but I want to use
-> connection tracking much like I do when not using IPSec.
->
-> For example,
->
-> iptables -A INPUT -m state --state RELATED,ESTABLISHED
+.configs from test3-bk7 & test3-mm3
+cp -a /proc/ide & /sys 
+are at http://varna.demon.co.uk/~svetlio/2.6test3bk7/
 
-Hmm.  You can't do this if the end host does the ESP (AH is another 
-matter).  Ever.  If the ESP is working, the router can't tell what is 
-inside the packet; this is the whole point of IPSEC.  If you want this 
-functionality, you can only provide it on the end host, or else do the 
-IPSEC on the router.
+svetljo
 
-> When using IPSec, if I open up protocols 50 and 51, all IPSec-protected
-> traffic passes through the firewall, but it's not checked against the
-> connection tracking module. How can I configure iptables so an
-> IPSec-protected packet, after being classified as IP protocol 50 or 51,
-> loop back one more time to pass through the connection tracking module?
+PS.
 
-You can't, by design of IPSEC.  However, you do have a couple of options:
+please CC me as i'm not subscribed to the list
 
-1) let through IPSEC only for hosts you trust
-2) for hosts you must firewall at the router, do the IPSEC there too, and 
-do not allow those hosts to use IPSEC.
+/proc/ide/hpt366 2.4.22rc2
+-------------------------
+Controller: 0
+Chipset: HPT374
+--------------- Primary Channel --------------- Secondary Channel --------------
+Enabled:        yes                             yes
+Cable:          ATA-66                          ATA-66
 
-These aren't exclusive.
+--------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
+DMA capable:    yes              no             yes               no 
+Mode:           UDMA             off            UDMA              off 
 
->
-> I don't want to set up IPSec to get addititional protection by using AH
-> and ESP and then let any machine talking IPSec pass entirely through my
-> firewall ignoring the rest of rules.
->
-> Thanks!
+Controller: 1
+Chipset: HPT374
+--------------- Primary Channel --------------- Secondary Channel --------------
+Enabled:        yes                             yes
+Cable:          ATA-66                          ATA-66
 
-You're welcome.
+--------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
+DMA capable:    yes              no             yes               no 
+Mode:           UDMA             off            UDMA              off 
 
-Andrew
 
+/proc/ide/hpt366 2.6 test3-bk7
+----------------------------------
+
+Controller: 0
+Chipset: HPT374
+--------------- Primary Channel --------------- Secondary Channel --------------
+Enabled:        yes                             yes
+Cable:          ATA-66                          ATA-66
+
+--------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
+DMA capable:    yes              no             yes               no 
+Mode:           UDMA             off            UDMA              off 
+
+Controller: 1
+Chipset: HPT374
+--------------- Primary Channel --------------- Secondary Channel --------------
+Enabled:        yes                             yes
+Cable:          ATA-33                          ATA-33
+
+--------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
+DMA capable:    yes              no             yes               no 
+Mode:           UDMA             off            UDMA              off 
+
+
+
+
+
+-- 
 
 

@@ -1,49 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265423AbTAWRRx>; Thu, 23 Jan 2003 12:17:53 -0500
+	id <S265477AbTAWRYF>; Thu, 23 Jan 2003 12:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbTAWRRw>; Thu, 23 Jan 2003 12:17:52 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:50450 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S265423AbTAWRRw>; Thu, 23 Jan 2003 12:17:52 -0500
-Date: Thu, 23 Jan 2003 18:26:50 +0100
-From: DervishD <raul@pleyades.net>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Tom Sanders <developer_linux@yahoo.com>, redhat-list@redhat.com,
-       linux-kernel@vger.kernel.org, redhat-devel-list@redhat.com
-Subject: Re: Linux application level timers?
-Message-ID: <20030123172650.GA104@DervishD>
-References: <20030122221703.42913.qmail@web9806.mail.yahoo.com> <3E301833.8030103@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E301833.8030103@nortelnetworks.com>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S265480AbTAWRYF>; Thu, 23 Jan 2003 12:24:05 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:38046 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S265477AbTAWRYE>; Thu, 23 Jan 2003 12:24:04 -0500
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: no version magic, tainting kernel.
+Date: Thu, 23 Jan 2003 18:32:59 +0100
+User-Agent: KMail/1.4.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
+References: <200301231459.22789.schlicht@uni-mannheim.de> <20030123165256.GA1092@mars.ravnborg.org>
+In-Reply-To: <20030123165256.GA1092@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3"
+Message-Id: <200301231832.59942.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Chris and Tom :))
 
-> >Which Linux timer facility can be used for this?
-> I used setitimer for a similar task.  Since you can only have one timer 
-> going at any given time, I set up a linked list of timing events, with 
-> each event's timeout expressed as a delta from the previous event.
+--------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-    Tom, if you're interested, I coded a timer multiplexor for Linux
-(user space, I mean) a time ago, and although it hasn't been released
-yet, has been in use for a year in The Puto Amo Window Manager, so I
-think it is pretty stable. It's GPL'd, but not released yet because
-it lacks documentation by now and I want to change a couple of
-things.
+Thanks for your answers!
 
-    If you want, I can attach you the code (is pretty simple), or
-even better, you can go to www.pleyades.net/~pawm, download the
-window manager and pick the code from there (is a bit more updated
-that mine, since has a couple of contributions). The file is called
-timux.[c,h], and needs too the file chain.c for the data container.
-Just let me know. And count on any help you need with TiMux ;))
+I did not compile my module with a kernel Makefile, I used the very small and 
+simple one attatched to this mail. So it seems I miss something when the 
+module is linked and I have to know what I have to link to the module or 
+which header-file I have to include...
 
-    Raúl
+For me it seems link I have to link the init/vermagic.c file to my module, but 
+how would this be possible if only the kernel includes were available??
+I think only these should be needed to compile a module...
+
+  Thomas Schlichter
+
+
+Am Donnerstag, 23. Januar 2003 17:29 schrieb Randy.Dunlap:
+> Did you rebuild the module with a 2.5.59 Makefile?
+>
+>
+> Yes, it's a 2.5.59 change according to the Changelog at kernel.org:
+>
+> <QUOTE>
+> <kai@tp1.ruhr-uni-bochum.de>
+> Module Sanity Check
+>
+> This patch, based on Rusty's implementation,
+> adds a special section to vmlinux and all modules, which
+> contain the kernel version string, values of some
+> particularly important config options (SMP,preempt,proc
+> family) and the gcc version.
+>
+> When inserting a module, the version string is checked against the
+> kernel version string and loading is rejected if they don't match.
+>
+> The version string is actually added to the modules during the final
+> .ko generation, so that a changed version string does only cause relinking,
+> not recompilation, which is a major performance improvement over the old
+> 2.4 way of doing things.
+> </QUOTE>
+
+
+Am Donnerstag, 23. Januar 2003 17:52 schrieb Sam Ravnborg:
+> What command did you use to build your module?
+> If you did no use:
+> make -C path/to/kernel/src SUBDIRS=$PWD modules
+>
+> chances are big you did not compile the module correct.
+> This requires the Makefile to look like any other kernel (kbuild) makefile.
+>
+> 	Sam
+
+--------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3
+Content-Type: text/x-makefile;
+  charset="iso-8859-1";
+  name="Makefile"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="Makefile"
+
+# get current release for include path
+RELEASE   = $(shell uname -r)
+
+# set compile flags, defines and include directory
+CFLAGS    = -Wall -O2 -fno-common
+INCLUDES  = -I/lib/modules/$(RELEASE)/build/include
+DEFINES   = -D__KERNEL__ -DMODULE -DKBUILD_MODNAME="tlbstat"
+
+all: tlbstat.o
+
+tlbstat.o: tlbstat.c
+	gcc -c $(CFLAGS) $(INCLUDES) $(DEFINES) $<
+
+clean:
+	rm -f tlbstat.o *~ core
+
+
+--------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3--
+

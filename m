@@ -1,54 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131775AbRCUVCz>; Wed, 21 Mar 2001 16:02:55 -0500
+	id <S131791AbRCUVMf>; Wed, 21 Mar 2001 16:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131776AbRCUVCp>; Wed, 21 Mar 2001 16:02:45 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64917 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131775AbRCUVCh>;
-	Wed, 21 Mar 2001 16:02:37 -0500
-Date: Wed, 21 Mar 2001 16:01:54 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: James Lewis Nance <jlnance@intrex.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlock usage - ext2_get_block, lru_list_lock
-In-Reply-To: <20010321131559.A28454@bessie.dyndns.org>
-Message-ID: <Pine.GSO.4.21.0103211513330.739-100000@weyl.math.psu.edu>
+	id <S131793AbRCUVMZ>; Wed, 21 Mar 2001 16:12:25 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47376 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131791AbRCUVMW>; Wed, 21 Mar 2001 16:12:22 -0500
+Subject: Re: Q: "kapm-idled" and CPU usage
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Wed, 21 Mar 2001 21:14:28 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        gc@mandrakesoft.com (Guillaume Cottenceau)
+In-Reply-To: <3AB50177.47489C00@mandrakesoft.com> from "Jeff Garzik" at Mar 18, 2001 01:41:59 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14fpw7-00012U-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Several months ago, kapmd was renamed to kapm-idled in an attempt to
+> signal users that it was a special process, and that its CPU time wasn't
+> "real CPU time."  This hasn't silenced the bug reports and confusion.
 
-
-On Wed, 21 Mar 2001, James Lewis Nance wrote:
-
-> On Wed, Mar 21, 2001 at 12:16:47PM -0500, Alexander Viro wrote:
-> 
-> > Obext2: <plug>
-> > Guys, help with testing directories-in-pagecache patch. It works fine
-> > here and I would really like it to get serious beating.
-> > Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch-b-S2.gz (against
-> > 2.4.2, but applies to 2.4.3-pre* too).
-> > </plug>
-> 
-> I would love to test this patch, but I really dont want it touching my other
-> ext2 file systems (like /).  I assume it would be possible to copy the ext2
-> code over to something like linux/fs/extnew, patch that, and then mount my
-> scratch partitions as extnew.  I can try an cook something like this up, but
-> I thought you might already have it, so I am posting here to see.
-
-cp -a fs/ext{2,69}
-cp -a include/linux/ext{2,69}_fs.h
-cp -a include/linux/ext{2,69}_fs_i.h
-cp -a include/linux/ext{2,69}_fs_sb.h
-for i in fs/ext69/* include/linux/ext69*; do
-	vi '-cse ext|%s/(ext|EXT)2/\169/g|x' $i;
-done
-vi '-c/EXT/|y|pu|s/2/69/|s/Second/FUBAR/|x' fs/Config.in
-vi '-c/ext2/|y|pu|s/ext2/ext69/g|//|y|pu|&g|//|y|pu|&g|//|y|pu|&g|x' include/linux/fs.h
-
-had done the trick last time I needed something like that, but that was long
-time ago...
-							Cheers,
-									Al
-
+And instrumenting the number of calls to the apm idle function I am
+not convinced that apm idle is working for all laptops as other people have
+claimed.

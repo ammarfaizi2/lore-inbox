@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbUBWPiT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 10:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbUBWPiT
+	id S261937AbUBWPlh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 10:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbUBWPlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 10:38:19 -0500
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:52996
-	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S261934AbUBWPiP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 10:38:15 -0500
-Subject: Re: Fw: Client looses NFS handle (kernel 2.6.3)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Willy Weisz <weisz@vcpc.univie.ac.at>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Kurt Rabitsch <kurt@vcpc.univie.ac.at>
-In-Reply-To: <4039FCF8.20008@vcpc.univie.ac.at>
-References: <20040221214345.6533eb68.akpm@osdl.org>
-	 <1077444724.2944.10.camel@nidelv.trondhjem.org>
-	 <4039FCF8.20008@vcpc.univie.ac.at>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1077550686.3890.1.camel@nidelv.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 23 Feb 2004 07:38:07 -0800
+	Mon, 23 Feb 2004 10:41:37 -0500
+Received: from smtp-out7.blueyonder.co.uk ([195.188.213.10]:21263 "EHLO
+	smtp-out7.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261939AbUBWPjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 10:39:37 -0500
+Message-ID: <403A1EB3.70901@blueyonder.co.uk>
+Date: Mon, 23 Feb 2004 15:39:31 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.3-mm3 smbfs compile error
+References: <4039A9EE.8040801@blueyonder.co.uk> <20040223011249.2fa12002.akpm@osdl.org>
+In-Reply-To: <20040223011249.2fa12002.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Feb 2004 15:39:32.0582 (UTC) FILETIME=[3B842060:01C3FA23]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 23/02/2004 klokka 05:15, skreiv Willy Weisz:
-> Dear Trond,
-> 
-> thank you for the fast reply. I chose the first solution (unsetting 
-> CONFIG_SECURITY)
-> as I don't have local security modules anyhow. and our problem disapeared.
-> 
-> Is there any reason to nevertheless install your patch?
+Andrew Morton wrote:
 
-No: the patch solves just the one problem.
+>Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+>  
+>
+>>  CC [M]  fs/smbfs/inode.o
+>>fs/smbfs/inode.c: In function `smb_fill_super':
+>>fs/smbfs/inode.c:554: warning: comparison is always false due to limited 
+>>range of data type
+>>fs/smbfs/inode.c:555: warning: comparison is always false due to limited 
+>>range of data type
+>>  CC [M]  fs/smbfs/file.o
+>>fs/smbfs/file.c:284: error: redefinition of `smb_file_sendfile'
+>>fs/smbfs/file.c:263: error: `smb_file_sendfile' previously defined here
+>>fs/smbfs/file.c:263: warning: `smb_file_sendfile' defined but not used
+>>make[2]: *** [fs/smbfs/file.o] Error 1
+>>make[1]: *** [fs/smbfs] Error 2
+>>make: *** [fs] Error 2
+>>    
+>>
+>
+>It's OK here.   Probably something went wrong in the patching process.
+>
+>  
+>
+Thanks, after make mrproper I got the same error. A new 2.6.3 tree and 
+mm3 patch is OK.
+Regards
+Sid.
 
-Cheers,
-  Trond
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
+

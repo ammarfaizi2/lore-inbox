@@ -1,77 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUKCUrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbUKCUzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUKCUrc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 15:47:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbUKCUpG
+	id S261876AbUKCUzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 15:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUKCUwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 15:45:06 -0500
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:47099 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S261866AbUKCUma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 15:42:30 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFB0917CE0.7B8A1BDB-ON86256F41.006FCA71@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Wed, 3 Nov 2004 14:40:44 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/03/2004 02:40:54 PM
+	Wed, 3 Nov 2004 15:52:50 -0500
+Received: from expredir3.cites.uiuc.edu ([128.174.5.186]:24964 "EHLO
+	expredir3.cites.uiuc.edu") by vger.kernel.org with ESMTP
+	id S261871AbUKCUsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 15:48:38 -0500
+From: Tom Felker <tfelker2@uiuc.edu>
+To: gene.heskett@verizon.net
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Wed, 3 Nov 2004 14:48:38 -0600
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200411030751.39578.gene.heskett@verizon.net>
+In-Reply-To: <200411030751.39578.gene.heskett@verizon.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411031448.38110.tfelker2@uiuc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I reran my tests on -T3 to see if the same symptoms I saw with -V0.7.7
-were present with the older (preempt, not RT) patches.
+On Wednesday 03 November 2004 06:51 am, Gene Heskett wrote:
+> Greetings;
+>
+> I thought I'd get caught up on -bkx kernels and made a -bk8 just now.
+>
+> But I'd tried to run gnomeradio earlier to listen to the elections,
+> but it failed leaving to run, as did tvtime then too, claiming it
+> couldn't get a lock on /dev/video0, and gnomeradio apparently left a
+> lock on alsasound that prevented the normal gracefull shutdown by
+> locking up the shutdown on the "stopping alsasound" line.  So I had
+> to use the hardware reset.
+>
+> I'd tried to kill the zombie earlier but couldn't.
+>
+> Isn't there some way to clean up a &^$#^#@)_ zombie?
 
-> - whenever the real time test was active, responses to ping from another
->system would basically stop until the real time test was done. In one case
->about 25 ping packets were returned after a huge delay. From that, it
->appears they were received but the return was delayed.
-Same with -T3. What's really odd is that it stopped during the network
-tests as well; may indicate that the network tests don't actually run
-during the real time audio test. Hmm. Will modify the stress_neti and
-stress_neto scripts I use to dump after each file transfer & see if
-this is true or not. That certainly was not the case on 2.4 kernels
-so this looks like a serious regression.
+Ok, let me try to explain what probably happened.
 
-> - cat /proc/interrupts showed that LOC was increasing on both CPU's
->during the tests.
-Did not check this, but I wasn't seeing the severe lockups of the display
-on -T3 either. Yes - it is sometimes slow to update, but not stopping
-display updates for extended periods.
+First, terminology.  When one process wants to be come two processes, it 
+fork()s.  One process is the parent, and one it the child.  The child usually 
+exec()s to become a different program.  The parent sometimes wants to know 
+when the child ends and whether it succeeded.  Thus, the wait() system calls.  
+The parent can either check whether a child died, or go to sleep until one 
+does.  When the parent is awaken, it's told which child died and what the 
+child's exit status was (usually 0 for success).  But if the child dies 
+before the parent wait()s, the kernel must keep a record of which child died 
+and what its exit status was, and it can't reassign the late child's PID yet.  
+This record is a "zombie," and shows up under top or ps with the 'Z' state.  
+Zombies do _not_ hold open files, memory, or resources of any kind.
 
-> - the scheduler seems to prefer run my cpu_burn (nice'd) task instead
->of updating the X display, doing the latency timing checks, ping
-responses,
->and anything else that does useful work.
-To some extent, I see this symptom too. I watched the system with top
-during the network and disk tests and it would stop updating for several
-seconds (should be one second updates) during the test (and usually show
-cpu_burn at > 90% CPU), then do a flurry of updates, and then sometimes
-settle down to the one per second update for several seconds in a row.
+That's the technical definition of a zombie, which I'm telling you because 
+that's probably not your situation:  I assume you used "zombie" as an 
+informal term for a process that you can't kill.  Your problem is a process 
+in uninterruptible sleep (the "D" state).
 
-> - the disk write test was REALLY SLOW, perhaps hundreds of Kbytes per
->second instead of what I normally see. I took much longer than the real
->time audio test. I checked with top and noticed that "fam" was taking
->near 100% of CPU time. I closed my konqueror window (just happened to be
->looking at my test directory) and fam usage went away and the disk writes
->sped up considerably.
-This was much less severe in -T3. What I saw was that fam would show up
-for several seconds and then disappear from the top list for several
-seconds. The disk transfer speed also appeared to be much faster on -T3
-than -V0.7.7 when fam was active. (based on how much clock time the
-test took to perform)
+When a process executing in userspace wants information from a device, like a 
+disk or TV capture card, it calls read(), and context switches into kernel 
+space.  Usually, it will take a moment for the data to be available from the 
+device, so the process gets put on a wait queue so other processes can run.  
+Obviously nothing is deallocated, because everyone expects the process will 
+get it's data and proceed as normal.  When the device has the data, it 
+interrupts the CPU, and the kernel figures out who wanted the data and puts 
+them on the run queue.
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+When a process is on a wait queue waiting for data from a device (the D 
+state), it's impossible to kill.  This is because otherwise, when the 
+interrupt did come, the structures associated with the process would have 
+been freed, and the kernel would crash.  It would require an incredible 
+amount of innefficient bookkeeping to avoid this, and it's unnecessary 
+because normally, the data request will finish (successfully or not), and the 
+process will be woken up, or if it was sent SIGKILL, it will be killed.
 
+Long story short, what happened was, some faulty hardware or some buggy 
+driver, probably associated with the capture card, had a problem and left the 
+process in D state.  Thus, it couldn't be killed, and since it had /dev/video 
+open, tvtime couldn't run and failed gracefully, and because it held /dev/dsp 
+open, and couldn't be killed as the init scripts would normally do in that 
+situation, the audio drivers couldn't be unloaded and the boot process hung.
+
+So give us a bunch of information about what hardware you're using, output of 
+dmesg, and steps to reproduce the driver bug (if it is that).
+-- 
+Tom Felker, <tcfelker@mtco.com>
+<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
+
+If you have to design something and control freaks are involved, give them 
+plenty of knobs, but don't connect them to anything important.

@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268836AbUI3IUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269024AbUI3Ick@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268836AbUI3IUp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 04:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268955AbUI3IUp
+	id S269024AbUI3Ick (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 04:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268955AbUI3Ick
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 04:20:45 -0400
-Received: from cantor.suse.de ([195.135.220.2]:9903 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268836AbUI3IUo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 04:20:44 -0400
-Date: Thu, 30 Sep 2004 10:20:42 +0200
-From: Olaf Hering <olh@suse.de>
-To: David Gibson <david@gibson.dropbear.id.au>,
-       Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PPC64] Improved VSID allocation algorithm
-Message-ID: <20040930082042.GA27980@suse.de>
-References: <20040913041119.GA5351@zax> <20040929194730.GA6292@suse.de> <20040930064037.GA3167@krispykreme.ozlabs.ibm.com> <20040930070151.GG21889@zax> <20040930080510.GH21889@zax>
+	Thu, 30 Sep 2004 04:32:40 -0400
+Received: from alephnull.demon.nl ([212.238.201.82]:50873 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S269063AbUI3Ici
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 04:32:38 -0400
+Date: Thu, 30 Sep 2004 10:32:36 +0200
+From: Lennert Buytenhek <buytenh@wantstofly.org>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, dsaxena@plexity.net,
+       linux-kernel@vger.kernel.org, herbertb@cs.vu.nl
+Subject: Re: strange NFS problems (ARM client, x86 server)
+Message-ID: <20040930083236.GA32262@xi.wantstofly.org>
+References: <20040929082307.GA19666@xi.wantstofly.org> <20040929203347.GD21770@thundrix.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040930080510.GH21889@zax>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20040929203347.GD21770@thundrix.ch>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Sep 30, David Gibson wrote:
-> changing VSID_MULTIPLIER in include/asm-ppc64/mmu.h to 200730139,
-> instead of the current value.  According to my hash simulator that
-> should fix the problem for you (and work out to larger amounts of RAM,
-> too).
+On Wed, Sep 29, 2004 at 10:33:47PM +0200, Tonnerre wrote:
 
-Yes, that number works, tested on rc2 + the vsid patch.
+> Salut,
 
--- 
-USB is for mice, FireWire is for men!
+Hi,
 
-sUse lINUX ag, nÜRNBERG
+
+> > chdir("")                               = -1 ENOENT (No such file or directory)
+> 
+> Interestingly,  rpm requested an  empty chdir.  This narrows  down the
+> problem.
+
+I don't think it does, as the second invocation of RPM (after cd 'pwd')
+also does this, but works fine.
+
+
+> The following miniapp should be able to reproduce the problem:
+> 
+> cat << EOT > blah.c
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <unistd.h>
+> 
+> int main(void) {
+> 	if (chdir("")) {
+> 		perror("chdir");
+> 		exit(1);
+> 	}
+> 	exit(0);
+> }
+> EOT
+
+'current directory' is per-process state.  You'll end up changing the
+current directory in the child process, but not the parent.
+
+
+--L

@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263219AbUDUA1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUDUA01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263219AbUDUA1P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 20:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbUDUA1P
+	id S264514AbUDUA01 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 20:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbUDUA01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 20:27:15 -0400
-Received: from vlan400-082-019.maconline.McMaster.CA ([130.113.82.19]:60563
-	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
-	id S263219AbUDUA1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 20:27:11 -0400
-Subject: holding a reference on an inode?
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1082507296.3133.4.camel@vertex>
+	Tue, 20 Apr 2004 20:26:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13742 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264514AbUDUA0Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 20:26:24 -0400
+Date: Tue, 20 Apr 2004 17:26:22 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Zack Brown <zbrown@tumblerings.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: matching "Cset exclude" changelog entries to the changelog entries they revert.
+Message-ID: <20040420172622.K22989@build.pdx.osdl.net>
+References: <20040421001236.GA16901@tumblerings.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 20 Apr 2004 20:28:16 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040421001236.GA16901@tumblerings.org>; from zbrown@tumblerings.org on Tue, Apr 20, 2004 at 05:12:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+* Zack Brown (zbrown@tumblerings.org) wrote:
+> for instance, "Cset exclude: davej@suse.de|ChangeSet|20020403195622" is in
+> 2.5.8-pre2, as the full text of the changelog entry.
 
-I am writing a kernel module, and I would like to allow user space to
-hand me a FILE, and then for my kernel module to keep a reference on its
-inode regardless what the user space program does with the FILE. 
+bk prs -r"davej@suse.de|ChangeSet|20020403195622" -hnd:REV: ChangeSet
 
-1) Is this good practice?
-2) How do I get notified when the filesystem the inode is on is being   
-unmounted so I can release my reference? So that I don't block the
-unmount.
+That will give you the rev from that key in the Cset exclude message.
 
-
-I am not subscribed so please CC on my replies. 
-
-Thank you.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

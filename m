@@ -1,89 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264689AbSIQXlu>; Tue, 17 Sep 2002 19:41:50 -0400
+	id <S264698AbSIQXrM>; Tue, 17 Sep 2002 19:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264698AbSIQXlu>; Tue, 17 Sep 2002 19:41:50 -0400
-Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:264 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S264689AbSIQXls>;
-	Tue, 17 Sep 2002 19:41:48 -0400
-Subject: Re: [Linux-usb-users] Re: Problems accessing USB Mass Storage
-From: Mark C <gen-lists@blueyonder.co.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, Thomas Dodd <ted@cypress.com>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: linux-usb-users <linux-usb-users@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L2.0209171627330.14033-100000@dragon.pdx.osdl.net>
-References: <Pine.LNX.4.33L2.0209171627330.14033-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 18 Sep 2002 00:46:48 +0100
-Message-Id: <1032306409.1141.28.camel@stimpy.angelnet.internal>
+	id <S264699AbSIQXrM>; Tue, 17 Sep 2002 19:47:12 -0400
+Received: from ns.suse.de ([213.95.15.193]:45330 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S264698AbSIQXrM>;
+	Tue, 17 Sep 2002 19:47:12 -0400
+Date: Wed, 18 Sep 2002 01:52:09 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: johnstul@us.ibm.com, jamesclv@us.ibm.com, ak@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       anton.wilson@camotion.com
+Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
+Message-ID: <20020918015209.B31263@wotan.suse.de>
+References: <200209171555.52872.jamesclv@us.ibm.com> <20020917.161215.03597459.davem@redhat.com> <1032305535.7481.204.camel@cog> <20020917.163246.113965700.davem@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020917.163246.113965700.davem@redhat.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-18 at 00:29, Randy.Dunlap wrote:
-> On 18 Sep 2002, Mark C wrote:
+On Tue, Sep 17, 2002 at 04:32:46PM -0700, David S. Miller wrote:
+>    From: john stultz <johnstul@us.ibm.com>
+>    Date: 17 Sep 2002 16:32:15 -0700
+>    
+>    Additionally, where is this system tick thing? You make it sound like
+>    its a register in the cpu, and while the Ultra-III may have one, I'm
+>    unaware of a system/bus tick register on intel chips. Is it in some
+>    semi-documented MSR?
 > 
-> | On Wed, 2002-09-18 at 00:09, Randy.Dunlap wrote:
-> |
-> | > Have you tried Rogier's 'seek' program yet?
-> |
-> | Yes, but I think I'm getting the whole syntax wrong.
+> It's in a register on Ultra-III.  The whole point of this
+> conversation, if you read my initial postings, is that
+> "this should have been specified in the x86 architecture"
 > 
-> maybe so.  he had (...) parens around the command and you don't.
-> the parens are important there.
+> I know full well it isn't currently :-)
 
-Running:
-[root@stimpy mark]# (seek 0x100000;dd of=secondpart) < /dev/sda
-dd: reading `standard input': Input/output error
-0+0 records in
-0+0 records out
+Sorry, it's wrong. The x86 architecture has several such registers
+(apic timers, 8253 timer, HPET [Microsoft requires this for new 
+hardware that will be w*s certified]) 
+They just all suck on various systems or in general. HPET is ok, 
+but still not widespread enough.
 
-
-Heres the dmesg output:
-
- I/O error: dev 08:00, sector 2048
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command ALLOW_MEDIUM_REMOVAL (6 bytes)
-usb-storage: 1e 00 00 00 00 00 12 c0 70 ca 86 c4
-usb-storage: Bulk command S 0x43425355 T 0x5b Trg 0 LUN 0 L 0 F 0 CL 6
-usb-storage: Bulk command transfer result=0
-usb-storage: Attempting to get CSW...
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x5b R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-
-I think This is really taking up too many peoples personal time now,
-So I'm going to purchase a Smart card reader and try to use that instead
-(yes One I know Linux supports :-)).
-
-I decided at the start if this week, to learn C, now I have a goal, I'm
-going to get this camera working, if its the last thing I do (is its
-possible at all).
-
-Along the way I should gain a whole lot more knowledge into how the
-kernel interacts with devices ( yes I know there is a lot to learn
-before I start playing around with writing drivers, but this a target to
-head for)
-
-Once again I would like to thank everybody for the time and effort they
-have put into this, Its really appreciated.
-
-I anyone feels I'm just dropping this and wishes to get this cracked,
-them I will be more than willing to carry on trying.
-
-Cheers
-
-Mark
- 
-
--- 
----
-To steal ideas from one person is plagiarism;
-to steal from many is research.
+-Andi
 

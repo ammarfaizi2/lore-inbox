@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbRAJDtR>; Tue, 9 Jan 2001 22:49:17 -0500
+	id <S129826AbRAJDvi>; Tue, 9 Jan 2001 22:51:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129826AbRAJDtH>; Tue, 9 Jan 2001 22:49:07 -0500
-Received: from colorfullife.com ([216.156.138.34]:19723 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129764AbRAJDs5>;
-	Tue, 9 Jan 2001 22:48:57 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0: ieee1394: got invalid ack 3 from node 65473 (tcode 4)
-Message-ID: <979098522.3a5bdb9aa7a72@ssl.local>
-Date: Wed, 10 Jan 2001 04:48:42 +0100 (CET)
-From: Wolfgang Spraul <wspraul@q-ag.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 131.99.21.40
+	id <S131861AbRAJDv2>; Tue, 9 Jan 2001 22:51:28 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:48646 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129826AbRAJDvJ>; Tue, 9 Jan 2001 22:51:09 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Allen Unueco <allen@premierweb.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
+In-Reply-To: Your message of "Tue, 09 Jan 2001 19:27:24 -0800."
+             <3A5BD69C.1B2602C6@premierweb.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 10 Jan 2001 14:50:55 +1100
+Message-ID: <25905.979098655@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Incompatibility with "Sarotech FHD-352F/U Rev 1.0"
+On Tue, 09 Jan 2001 19:27:24 -0800, 
+Allen Unueco <allen@premierweb.com> wrote:
+>Also where did get_module_symbol() and put_module_symbol() go?
 
-Using an external IDE drive in the Sarotech FireWire enclosure fails, even
-though the Sarotech unit works with Win2K and other SBP2 drives work for me
-(with Linux).
+http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg08791.html
+http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg11497.html
 
-I'm using 2.4.0 together with sbp2_1394_122300.tar.gz.
-ACK code 3 is not even mentioned in ieee1394.h.
-
-I understand that the SBP2 driver is not (yet) included, but it will be shortly.
-Also, I guess the same problem applies to raw1394.o together with the Sarotech
-enclosure.
-Wolfgang
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

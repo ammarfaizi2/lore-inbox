@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269574AbUJFX1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269596AbUJFX1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269574AbUJFX1w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 19:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269634AbUJFXZ6
+	id S269596AbUJFX1v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 19:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269574AbUJFX0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:25:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61127 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269574AbUJFXW0 (ORCPT
+	Wed, 6 Oct 2004 19:26:08 -0400
+Received: from hera.kernel.org ([63.209.29.2]:38295 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S269596AbUJFXUc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:22:26 -0400
-Subject: Re: Probable module bug in linux-2.6.5-1.358
+	Wed, 6 Oct 2004 19:20:32 -0400
+To: linux-kernel@vger.kernel.org
 From: Stephen Hemminger <shemminger@osdl.org>
-To: "Richard B.Johnson" <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
-Content-Type: text/plain
+Subject: Re: Probable module bug in linux-2.6.5-1.358
+Date: Wed, 06 Oct 2004 16:20:33 -0700
 Organization: Open Source Development Lab
-Date: Wed, 06 Oct 2004 16:22:04 -0700
-Message-Id: <1097104924.26149.5.camel@localhost.localdomain>
+Message-ID: <1097104833.26149.3.camel@localhost.localdomain>
+References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1097104824 23122 172.20.1.60 (6 Oct 2004 23:20:24 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 6 Oct 2004 23:20:24 +0000 (UTC)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTJSQAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 12:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTJSQAL
+	id S261974AbTJSQFK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 12:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTJSQFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 12:00:11 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44030 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261916AbTJSQAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 12:00:06 -0400
-Date: Sun, 19 Oct 2003 17:59:59 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Sun, 19 Oct 2003 12:05:10 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:7552 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S261974AbTJSQFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 12:05:04 -0400
+Message-ID: <3F92B62C.8020602@softhome.net>
+Date: Sun, 19 Oct 2003 18:05:00 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <fletch@aracnet.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <20031019155958.GA23191@fs.tum.de>
-References: <20031018105733.380ea8d2.akpm@osdl.org> <668910000.1066578207@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <668910000.1066578207@[10.10.2.4]>
-User-Agent: Mutt/1.4.1i
+References: <I2Ue.7PG.3@gated-at.bofh.it> <I2Ue.7PG.5@gated-at.bofh.it> <I2Ue.7PG.7@gated-at.bofh.it> <I2Ue.7PG.9@gated-at.bofh.it> <I2Ue.7PG.11@gated-at.bofh.it> <I2Ue.7PG.13@gated-at.bofh.it> <I2Ue.7PG.1@gated-at.bofh.it> <ImzK.4TR.25@gated-at.bofh.it> <ImzK.4TR.23@gated-at.bofh.it> <InYQ.6OJ.21@gated-at.bofh.it>
+In-Reply-To: <InYQ.6OJ.21@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 19, 2003 at 08:43:27AM -0700, Martin J. Bligh wrote:
->...
-> So why are we changing it then? ;-) We don't seem to have much evidence
-> either way. What are the distros doing?
+Martin J. Bligh wrote:
+> 
+> But if someone with a small cache would actually *measure* the damned 
+> thing, I'd be more impressed ... I've never seen that, but perhaps
+> I just missed it. 
+> 
+> Point is the same either way though ... we shouldn't unconditionally
+> optimise for *anyone's* system. If it's faster on all systems that anyone
+> can be bothered to measure, great. If it's faster on some, and slower on
+> others, a config option seems more appropriate, defaulting to the majority
+> of users.
+> 
 
-The exact speed differences need measurements and it might be that
-depending on the gcc version and hardware the one or the other is 
-faster.
+   The thing is, that in fact kernel optimization is not that important.
 
-I doubt it would make a noticalble difference in either direction for an
-average user who runs Mozilla under KDE. -O2 is IMHO the better default 
-since it's well tested through different gcc versions.
+   The goal of kernel is to provide framework for applications to the 
+job well. I wasn't doing any kernels measurements - since kernel docs 
+are saying that -O2 is the standard. And it is really hard to measure 
+kernel only perfomance. (And it is rather pointless - I'm not going to 
+sell linux kernel ;-)))
 
-The more important point is that -Os code is significantely smaller 
-which is important for some applications (e.g. a router-on-a-floppy or 
-small embedded systems).
+   But indeed I was testing my application on embedded system with 16K 
+L1 cache. Results were pretty predictable: gcc 2.95.3 + -Os was giving 
+some (around 2-3%) performance improvements, while 2.95.3 + -O[23] and 
+3.2.3 with any optimization were giving aprox. the same times. (App is 
+bloated with third-party libraries, C++ and threads. Save God I have 
+killed all exceptions - they were really really really slow on target 
+system.)
 
-> M.
-
-cu
-Adrian
+   But on other side - since embedded systems are not that overclocked 
+as high-end toys - cache miss is not that painful. As of docs, NatSemi 
+Geode@266MHz cache miss costs exactly 266/66 == 4 cycles.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--
+   "... and for $64000 question, could you get yourself vaguely
+      familiar with the notion of on-topic posting?"
+				-- Al Viro @ LKML
 

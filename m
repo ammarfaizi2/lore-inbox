@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbTJDOet (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 10:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTJDOes
+	id S262098AbTJDO4c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 10:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTJDO4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 10:34:48 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:15509 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262060AbTJDOer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 10:34:47 -0400
-Date: Sat, 04 Oct 2003 07:32:38 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Oeser <ioe-lkml@rameria.de>, Russell King <rmk@arm.linux.org.uk>
-cc: Andi Kleen <ak@muc.de>, Joe Korty <joe.korty@ccur.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: mlockall and mmap of IO devices don't mix
-Message-ID: <19820000.1065277957@[10.10.2.4]>
-In-Reply-To: <200310041202.08742.ioe-lkml@rameria.de>
-References: <CFYv.787.23@gated-at.bofh.it> <20031004091703.GB23306@colin2.muc.de> <20031004102221.A18928@flint.arm.linux.org.uk> <200310041202.08742.ioe-lkml@rameria.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 4 Oct 2003 10:56:32 -0400
+Received: from mail.midmaine.com ([66.252.32.202]:28345 "HELO
+	mail.midmaine.com") by vger.kernel.org with SMTP id S262098AbTJDO4b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 10:56:31 -0400
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CMD680, kernel 2.4.21, and heartache (fwd)
+X-Eric-Conspiracy: There Is No Conspiracy
+References: <Pine.GSO.4.21.0310040757010.6486-100000@dirac.phys.uwm.edu>
+From: Erik Bourget <erik@midmaine.com>
+Date: Sat, 04 Oct 2003 10:55:28 -0400
+In-Reply-To: <Pine.GSO.4.21.0310040757010.6486-100000@dirac.phys.uwm.edu> (Bruce
+ Allen's message of "Sat, 4 Oct 2003 08:06:32 -0500 (CDT)")
+Message-ID: <87he2paw7z.fsf@loki.odinnet>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > pfn_valid is useless, it doesn't handle all IO holes on x86 for examples.
->> 
->> Sounds like pfn_valid() is buggy on x86.  It's supposed to definitively
->> indicate whether the PFN is a valid page of ram (and has a valid struct
->> page entry.)  If it doesn't do that, the architecture implementation is
->> wrong.
-> 
-> Looks like it. But it also has to be fast (see include/asm-i386/mmzone.h) 
-> and doesn't even hide the holes in NUMA machines. 
+Bruce Allen <ballen@gravity.phys.uwm.edu> writes:
 
-There are no holes between nodes for any i386 NUMA machines at the moment,
-and we don't free back the struct pages for internal holes yet. So we have
-pfn_valid set up for i386 such that there's a valid struct page if pfn_valid
-is true.
- 
-> We had a page_is_ram() for this somewhere. I don't know, why this is
-> gone. It would be useful in other places as well.
-> 
-> If the page_is_ram() test could be done using the vma only now, this
-> would be even better and should be called vma_is_ram() to generalize
-> these corner cases (today and in the future) and make more
-> clear what these kind of tests want to do.
+>> Yeah, it says 196, and that's bizarre.  196 whats?  From looking at other
+>> example output, the '1441854' number is usually the true deg. C of the
+>> machine.  But I'm reasonably sure that it's not at a million and a half
+>> centigrade.
+>
+> You need to use a more recent version of smartctl -- one with better
+> documentation and clearer output.  Get smartmontools 5.1-18 from
+> http://smartmontools.sourceforge.net/ and read the documentation. Don't
+> use the 5.19 release -- it's flawed.
+>
+> This should answer your questions. If not, post the output from (the
+> smartmontools 5.1-18 version of) smartctl -a and I'll comment.
+>
+> [Regarding the temperature, the Drive ID string in your output was:
+> Device: IC35L120AVV207-0 which is an IBM/Hitachi drive, not a Samsung
+> drive as you stated in your original post.  If so, the drive stores three
+> temperatures internally in six bytes.  smartmontools will display all
+> three temperatures (current, lifetime min and lifetime max).  The outdated
+> version of smartctl that you are using simply prints the bottom four of
+> the six bytes -- hence the very large number] .
 
-page_is_ram is defined in arch/i386/mm/init.c:
+Right you are.  I'm sorry, I thought they were Samsungs at first, saw
+otherwise after that post, figured it wasn't a major point of contention.
+But, IBM --- doesn't their hard drive division not exist anymore because of
+massive failures?
 
-static inline int page_is_ram(unsigned long pagenr)
-{
-        int i;
+- Erik
 
-        for (i = 0; i < e820.nr_map; i++) {
-                unsigned long addr, end;
-
-                if (e820.map[i].type != E820_RAM)       /* not usable memory */
-                        continue;
-                /*
-                 *      !!!FIXME!!! Some BIOSen report areas as RAM that
-                 *      are not. Notably the 640->1Mb area. We need a sanity
-                 *      check here.
-                 */
-                addr = (e820.map[i].addr+PAGE_SIZE-1) >> PAGE_SHIFT;
-                end = (e820.map[i].addr+e820.map[i].size) >> PAGE_SHIFT;
-                if  ((pagenr >= addr) && (pagenr < end))
-                        return 1;
-        }
-        return 0;
-}
-
-However, we probably want a runtime one that checks some aspect of
-the struct page itself to see whether it's a valid memory page or not.
-
-I believe it's useful to have the faster and slower tests still.
-Most things using pfn_valid seem to be doing it before a pfn_to_page
-translation to check it's safe, and we still seem to have that correct.
-pfn_has_struct_page or something might be a better name, but still.
-
-M.

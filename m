@@ -1,63 +1,55 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154008AbQDDQ3r>; Tue, 4 Apr 2000 12:29:47 -0400
-Received: by vger.rutgers.edu id <S154346AbQDDQZ1>; Tue, 4 Apr 2000 12:25:27 -0400
-Received: from ix.netcorps.com ([207.1.125.106]:61972 "EHLO ix.netcorps.com") by vger.rutgers.edu with ESMTP id <S153994AbQDDQSo>; Tue, 4 Apr 2000 12:18:44 -0400
-Message-ID: <38EA14F4.DED528F6@timpanogas.com>
-Date: Tue, 04 Apr 2000 10:14:44 -0600
-From: "Jeff V. Merkey" <jmerkey@timpanogas.com>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
+Received: by vger.rutgers.edu via listexpand id <S154159AbQDEBgZ>; Tue, 4 Apr 2000 21:36:25 -0400
+Received: by vger.rutgers.edu id <S154175AbQDEBgF>; Tue, 4 Apr 2000 21:36:05 -0400
+Received: from h08005a360ca1.ne.mediaone.net ([24.128.40.44]:61763 "EHLO dns.datapower.com") by vger.rutgers.edu with ESMTP id <S154165AbQDEBeE>; Tue, 4 Apr 2000 21:34:04 -0400
+Date: Tue, 4 Apr 2000 21:40:15 -0400
+From: lk@datapower.com
+Message-Id: <200004050140.VAA13583@dns.datapower.com>
 To: linux-kernel@vger.rutgers.edu
-Subject: Recomended Page Cache Enhancement for 2.4
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: ANN: [LhD] Linux Hardware Database Relaunch
+Cc: lhdadmin@datapower.com
 Sender: owner-linux-kernel@vger.rutgers.edu
 
 
+The Linux Hardware Database is basically an effort to cut down on
+"is X supported by the Linux kernel?" posts. We are announcing it
+here for this reason, although the site is already pretty well known.
+We would also like feedback from the linux-kernel membership, and perhaps
+even some involvement from driver authors or maintainers.
 
-Something the Windows 2000 IFS allows you to do that we exploit in NWFS
-on Windows 2000 File System is map the extents for a file as lists of
-contiguous sector runs.  These runs get stored in MDL lists that are
-chained off the VM Cache Manager in Windows 2000.  When the cache
-manager pushes a group of dirty pages onto the disk, it references these
-lists, and if any of them are contingous runs of sectors (for example,
-multiple pages may all reside in continguous sectors i.e. 100K of dirty
-pages may all start at sector x and run fully contiguous to x + size of
-the entire device).  They have a method of being able to pass these
-lists to the drivers and the driver will issue a single I/O request for
-all of these sectors (some controllers can take a request for 1000+
-sectors at one time, and do them in one I/O).  NTFS gets very high
-performance using this technique, and from what I have seen in 2.4, this
-would seem to be the only remaining implementation difference between
-the two implementations of NT Cache Manager vs. Linux 2.4 VFS and Page
-Cache, and explains why Windows 2000 is still slightly faster in some
-configuratins than Linux in benchmark testing.  
+Linux Hardware Database (http://www.linhardware.com) has been
+relaunched. LhD is a site for Linux hardware information that provides: 
+ 
+* User ratings of compatibility and performance
+* Workarounds for a product from other users
+* Linux driver information
+* Resources helpful in setting up a product
+* Actual product specs
+ 
+all tied to well-described product records in a relational database. This makes it easier for users to find information about the precise PC compoment they own without wading through many search hits.
+ 
+Come to LhD to:
+* Share your experience with others by rating the hardware you use * Get help in setting up your PC hardware with Linux
+* Find which components to buy for your next Linux box
+ 
+There have been several relaunches in the past two months, and this is the culmination of them. We are really looking forward to some feedback from the community.
+ 
+New features include:
+* A new much more readable and printable look
+* Improved usability: sortable colums, more informative displays, shop links, and other details
+* Comment-only postings that can be made without logging in
+* More data!
+ 
+--
+LhD Administrator
+Linux Hardware Database
+http://www.linhardware.com
 
-In NWFILE.C, line 1364 and line 1488 are two functions that the W2K IFS
-calls to obtain run information for a file in NWFS.  The page cache in
-linux seems very close.  What would be interesing (and would boost page
-cache performance), would be for the VFS page cache interface to support
-getting large runs for multiple dirty pages that are contiguous in a
-file (since they will probably be contiguous on a disk -- we use a 64K
-cluster size, which is always 16 contiguous pages, a file allocates
-clusters or chunks of 16 pages, if striping is not enabled, clusters can
-also span and be contiguous as well).
 
-What would be involved is the ability for the page cache to ask for
-contiguous runs for multiple page writes (i.e. if the page cache knows
-it is writing multiple contiguous pages, call the VFS in the file system
-to see if they are also sequential on the disk, and send them as a
-single I/O requests to the driver, or allow the VFS to do so within the
-file system -- this is what W2K does).    
 
-I believe these optimizations will increase the performance of all the
-File Systems in Linux (and NWFS) and bring Linux FS performance on par
-with W2K in those configuration where NTFS is slightly faster than
-Linux. 
 
-Jeff
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

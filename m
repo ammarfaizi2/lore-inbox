@@ -1,63 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263835AbSIUFoD>; Sat, 21 Sep 2002 01:44:03 -0400
+	id <S275381AbSIUGHR>; Sat, 21 Sep 2002 02:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275381AbSIUFoD>; Sat, 21 Sep 2002 01:44:03 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:51981 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263835AbSIUFoC>;
-	Sat, 21 Sep 2002 01:44:02 -0400
-Date: Fri, 20 Sep 2002 22:48:40 -0700
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Brad Hards <bhards@bigpond.net.au>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
-Message-ID: <20020921054840.GD26558@kroah.com>
-References: <200207180950.42312.duncan.sands@wanadoo.fr> <E17rwAI-0000vM-00@starship> <20020919164924.GB15956@kroah.com> <200209200656.23956.bhards@bigpond.net.au> <20020919230643.GD18000@kroah.com> <3D8B884A.7030205@pacbell.net> <20020920231112.GC24813@kroah.com> <3D8BDF9A.305@pacbell.net> <20020921033137.GA26017@kroah.com> <3D8BEE51.1020304@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D8BEE51.1020304@pacbell.net>
-User-Agent: Mutt/1.4i
+	id <S275554AbSIUGHR>; Sat, 21 Sep 2002 02:07:17 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:11179 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP
+	id <S275381AbSIUGHP>; Sat, 21 Sep 2002 02:07:15 -0400
+Message-ID: <3D8C0DA4.D801C523@verizon.net>
+Date: Fri, 20 Sep 2002 23:11:48 -0700
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [patch-2.4.19] add/cleanup kernel-parameters.txt
+Content-Type: multipart/mixed;
+ boundary="------------7A081D19CFFC174A30A3230E"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out001.verizon.net from [4.64.197.173] at Sat, 21 Sep 2002 01:12:16 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 08:58:09PM -0700, David Brownell wrote:
-> Greg KH wrote:
-> >On Fri, Sep 20, 2002 at 07:55:22PM -0700, David Brownell wrote:
-> >
-> >>How about a facility to create the character (or block?) special file
-> >>node right there in the driverfs directory?  Optional of course.
-> >
-> >
-> >No, Linus has stated that this is not ok to do.  See the lkml archives
-> >for the whole discussion about this.
-> 
-> I suspected that'd be the case.  Some pointer into the archives
-> would be good, though I'd suspect the basic summary is that it'd
-> be too much like devfs that way.  Did the same statement apply to
-> adding some file that wasn't a device special file?  That kind
-> of solution moves in the "no majors/minors" direction, which I
-> thought was the general goal.  Leaves a naming policy debate,
-> but one that ought to be more managable (say, with devlabel).
+This is a multi-part message in MIME format.
+--------------7A081D19CFFC174A30A3230E
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-All naming policies are moving to userspace.  It will not be a kernel
-issue.
 
-> Though I guess my original reaction still stands then:  I don't
-> much want to care about major/minor numbers, so why not just leave
-> them out in favor of whatever better solution is the goal?  Save
-> everyone the intermediate steps!
+Hi-
 
-No, we need the major/minor number to be in driverfs.  That way the
-userspace program (that's running the naming policy) can look at
-driverfs to see what devices are present, what the major/minor number of
-the device is, what type of device it is, and then create the /dev node
-for the device, based on that information.
+I began by wanting to see "mem=exactmap" listed in
+Documentation/kernel-parameters.txt, and then it just
+grew from there.
 
-We are slowly getting there, and I don't see any intermediate steps
-along the way (meaning ones that get ripped out later.)
+Change summary:
+ kernel-parameters.txt |   32 ++++++++++++++++++++++++--------
+ 1 files changed, 24 insertions(+), 8 deletions(-)
 
-thanks,
+. add IP_PNP kernel parameter category (was just "PNP")
 
-greg k-h
+. change occurrences of "ix86" to "IA-32" (not that I care,
+  but the file says that IA-32 is for i386 family stuff)
+
+. [ARM only] change "keep_initrd" to "keepinitrd" as used in
+  source code
+
+. add some missing kernel parameters
+
+. add "mem=exactmap"
+
+Patch is against 2.4.19, but 2.4.20-pre7 and same-ac don't
+contain any changes to Documentation/kernel-parameters.txt.
+
+Comments or corrections before I ask Marcelo to apply it?
+
+Thanks,
+~Randy
+--------------7A081D19CFFC174A30A3230E
+Content-Type: text/plain; charset=us-ascii;
+ name="kparam-doc-2419.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kparam-doc-2419.patch"
+
+--- linux-2419/Documentation/kernel-parameters.txt.xmap	Fri Aug  2 17:39:42 2002
++++ linux-2419/Documentation/kernel-parameters.txt	Fri Sep 20 22:50:22 2002
+@@ -23,6 +23,7 @@
+ 	HW	Appropriate hardware is enabled.
+ 	IA-32	IA-32 aka i386 architecture is enabled.
+ 	IA-64	IA-64 architecture is enabled.
++	IP_PNP	IP DCHP, BOOTP, or RARP is enabled.
+ 	ISAPNP  ISA PnP code is enabled.
+ 	ISDN	Appropriate ISDN support is enabled.
+ 	JOY 	Appropriate joystick support is enabled.
+@@ -251,7 +252,7 @@
+ 
+ 	initrd=		[BOOT] Specify the location of the initial ramdisk. 
+ 
+-	ip=		[PNP]
++	ip=		[IP_PNP]
+ 
+ 	isapnp=		[ISAPNP] Specify RDP, reset, pci_scan and verbosity.
+ 
+@@ -273,10 +274,14 @@
+  
+ 	kbd-reset	[VT]
+ 
+-	keep_initrd	[HW, ARM]
++	keepinitrd	[HW, ARM]
+ 
+ 	load_ramdisk=	[RAM] List of ramdisks to load from floppy.
+ 
++	lockd.udpport=	[NFS]
++
++	lockd.tcpport=	[NFS]
++
+ 	logi_busmouse=	[HW, MOUSE]
+ 
+ 	lp=0		[LP]	Specify parallel ports to use, e.g,
+@@ -313,7 +318,7 @@
+ 
+ 	max_scsi_luns=	[SCSI]
+ 
+-	mca-pentium	[BUGS=ix86]
++	mca-pentium	[BUGS=IA-32]
+ 
+ 	mcd=		[HW,CD]
+ 
+@@ -327,6 +332,11 @@
+ 
+ 	megaraid=	[HW,SCSI]
+  
++	mem=exactmap	[KNL,BOOT,IA-32] enable setting of an exact
++			e820 memory map, as specified by the user.
++			Such mem=exactmap lines can be constructed
++			based on BIOS output or other requirements.
++
+ 	mem=nn[KMG]	[KNL,BOOT] force use of a specific amount of
+ 			memory; to be used when the kernel is not able
+ 			to see the whole system memory or for test.
+@@ -359,9 +369,9 @@
+ 
+ 	nfsroot=	[NFS] nfs root filesystem for disk-less boxes.
+ 
+-	nmi_watchdog=	[KNL,BUGS=ix86] debugging features for SMP kernels.
++	nmi_watchdog=	[KNL,BUGS=IA-32] debugging features for SMP kernels.
+ 
+-	no387		[BUGS=ix86] Tells the kernel to use the 387 maths
++	no387		[BUGS=IA-32] Tells the kernel to use the 387 maths
+ 			emulation library even if a 387 maths coprocessor
+ 			is present.
+ 
+@@ -379,7 +389,9 @@
+ 
+ 	nohlt		[BUGS=ARM]
+  
+-	no-hlt		[BUGS=ix86]
++	no-hlt		[BUGS=IA-32] Tells the kernel that the hlt
++			instruction doesn't work correctly and not to
++			use it.
+ 
+ 	noht		[SMP,IA-32] Disables P4 Xeon(tm) HyperThreading.
+ 
+@@ -396,7 +408,7 @@
+ 
+ 	nosync		[HW, M68K] Disables sync negotiation for all devices.
+ 
+-	notsc           [BUGS=ix86] Disable Time Stamp Counter
++	notsc           [BUGS=IA-32] Disable Time Stamp Counter
+ 
+ 	nowb		[ARM]
+  
+@@ -504,7 +516,7 @@
+ 	ramdisk_start=	[RAM] Starting block of RAM disk image (so you can
+ 			place it after the kernel image on a boot floppy).
+ 
+-	reboot=		[BUGS=ix86]
++	reboot=		[BUGS=IA-32]
+ 
+ 	reserve=	[KNL,BUGS] force the kernel to ignore some iomem area.
+ 
+@@ -513,6 +525,10 @@
+ 	ro		[KNL] Mount root device read-only on boot.
+ 
+ 	root=		[KNL] root filesystem.
++
++	rootflags=	[KNL] set root filesystem mount option string
++
++	rootfstype=	[KNL] set root filesystem type
+ 
+ 	rw		[KNL] Mount root device read-write on boot.
+ 
+
+--------------7A081D19CFFC174A30A3230E--
+

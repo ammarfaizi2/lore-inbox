@@ -1,77 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUCVGOc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 01:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUCVGOc
+	id S261757AbUCVGQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 01:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUCVGQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 01:14:32 -0500
-Received: from ns.suse.de ([195.135.220.2]:40416 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261752AbUCVGOa (ORCPT
+	Mon, 22 Mar 2004 01:16:27 -0500
+Received: from [198.247.175.96] ([198.247.175.96]:6565 "EHLO jethro.hick.org")
+	by vger.kernel.org with ESMTP id S261757AbUCVGQS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 01:14:30 -0500
-Date: Mon, 22 Mar 2004 07:14:25 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Drop O_LARGEFILE from F_GETFL for POSIX compliance
-Message-Id: <20040322071425.3cd57aca.ak@suse.de>
-In-Reply-To: <20040321213944.2fdb980d.akpm@osdl.org>
-References: <20040322051318.597ad1f9.ak@suse.de>
-	<20040321213944.2fdb980d.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Mar 2004 01:16:18 -0500
+Date: Mon, 22 Mar 2004 00:14:56 -0600 (CST)
+From: Matt Miller <mmiller@hick.org>
+To: linux-kernel@vger.kernel.org
+cc: mmiller@hick.org
+Subject: Re: [PATCH] 2.6: mmap complement, fdmap
+In-Reply-To: <20040322053025.GR31500@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0403212346330.24801@jethro.hick.org>
+References: <Pine.LNX.4.58.0403212157110.31106@jethro.hick.org>
+ <20040322053025.GR31500@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Mar 2004 21:39:44 -0800
-Andrew Morton <akpm@osdl.org> wrote:
-
-> Andi Kleen <ak@suse.de> wrote:
+> On Sun, Mar 21, 2004 at 10:43:07PM -0600, Matt Miller wrote:
+> > 	``flags'' can be one of O_RDONLY, O_WRONLY, or O_RDWR.
 > >
-> > 
-> > On 64bit architectures open() sets O_LARGEFILE implicitely. This causes the LSB
-> > testsuite to fail, which checks that F_GETFL only returns the flags set by 
-> > a previous open.
-> > 
-> > According to the POSIX standards gurus the Linux behaviour is not compliant.
-> > 
-> > This patch fixes this by just not reporting O_LARGEFILE in F_GETFL.
-> > 
-> > This has been in several shipping SuSE releases and the x86-64.org CVS
-> > treee for a long time, so is unlikely to break anything.
-> > 
-> > -Andi
-> > 
-> > diff -burpN -X ../KDIFX linux-2.4.26-pre5/fs/fcntl.c linux-merge/fs/fcntl.c
-> > --- linux-2.4.26-pre5/fs/fcntl.c	2004-01-13 10:29:17.000000000 +0100
-> > +++ linux-merge/fs/fcntl.c	2003-10-23 15:40:52.000000000 +0200
-> > @@ -271,7 +271,7 @@ static long do_fcntl(unsigned int fd, un
-> >  			set_close_on_exec(fd, arg&1);
-> >  			break;
-> >  		case F_GETFL:
-> > -			err = filp->f_flags;
-> > +			err = filp->f_flags & ~O_LARGEFILE;
-> >  			break;
-> >  		case F_SETFL:
-> >  			lock_kernel();
-> 
-> eh?   If the application on a 64-bit box does
-> 
-> 	open("foo", O_LARGEFILE|O_RDWR);
-> 
-> then a subsequent F_GETFL will now return just O_RDWR, will it not?  So
-> it's still posixly incorrect?
+> > I have verified functionality on ia32 and sparc as these are the only
+> > architectures I currently have some type of access to.  To test, start the
+> > kernel configuration process and go under File systems/Pseudo filesystems
+> > and select this option:
+> >
+> > 	[*] Virtual memory file descriptor mapping support
+> >
+> > Please let me know about any and all suggestions/bugs/flames.  I tried to
+>
+> *boggle*
+>
+> a) what the hell for?
 
-No, because O_LARGEFILE is not part of POSIX :-) (they use open64 etc.)
+It's targetted mainly as a performance enhancer.  Some of the specific
+scenarios where it would be useful are:
+
+a) When one cannot afford to take the performance hit of synchronizing
+   a memory range to disk due to disk size limitations or speed
+   requirements.
+b) Some things can benefit from the ability to interface with memory as a
+   file.
+
+The specific reason for implementing this was to allow for loading dynamic
+libraries in the context of a process without having to write them to
+disk.
+
+> b) what happens if I pass such descriptor to another task?
+
+Indeed, this use-case is broken.  I for one think that the ability to pass
+the fdmap'd descriptor to another task should be disallowed, and as such
+I'll look into adding support to block it from happening.  What do you
+think?  Adding support for this brings about odd scenarios due to the
+requirement that the file descriptor be treated like an actual file.  For
+instance, if one were to pass the descriptor opened with O_RDWR to another
+task, changes to the file descriptor in the other task should be reflected
+upon the memory range in the original task.  Or should it?
+
+> c) what happens if I mmap that sucker on the source range of addresses?
+
+Good point.  I'll fix this by prohibiting mmap'ing to an address that
+is within the range of memory that the file descriptor is associated with.
+
+> d) same for loops made of more than one of those...
+
+This should be corrected by the response to C.
 
 
-> I think open() needs to set O_KERNEL_LARGEFILE, and we mask that off in
-> F_GETFL, and test for (O_LARGEFILE|O_KERNEL_LARGEFILE) everywhere.
+Thanks for the feedback.
 
-
-That would be the best solution, agreed But it would be a lot more intrusive
-because all file systems need to be audited and fixed.
-
--Andi 
+Matt

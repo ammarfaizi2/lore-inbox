@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274872AbRJBAoK>; Mon, 1 Oct 2001 20:44:10 -0400
+	id <S275750AbRJBBH5>; Mon, 1 Oct 2001 21:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275745AbRJBAnu>; Mon, 1 Oct 2001 20:43:50 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:5812 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S274872AbRJBAnk>;
-	Mon, 1 Oct 2001 20:43:40 -0400
-Date: Mon, 1 Oct 2001 20:41:20 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: <linux-kernel@vger.kernel.org>
-cc: <kuznet@ms2.inr.ac.ru>, Robert Olsson <Robert.Olsson@data.slu.se>,
-        Ingo Molnar <mingo@elte.hu>, <netdev@oss.sgi.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Message-ID: <Pine.GSO.4.30.0110012018430.27922-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275752AbRJBBHr>; Mon, 1 Oct 2001 21:07:47 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:54789 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S275753AbRJBBHa>; Mon, 1 Oct 2001 21:07:30 -0400
+Date: Mon, 1 Oct 2001 22:35:40 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
+Message-ID: <20011001223540.B19559@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3.0.6.32.20011001203320.02381600@pop.tiscalinet.it> <Pine.LNX.4.33L.0110011604310.4835-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0110011604310.4835-100000@imladris.rielhome.conectiva>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 01 Oct 2001, Rik van Riel wrote:
 
->The new mechanizm:
->
->- the irq handling code has been extended to support 'soft mitigation',
->  ie. to mitigate the rate of hardware interrupts, without support from
->  the actual hardware. There is a reasonable default, but the value can
->  also be decreased/increased on a per-irq basis via
-> /proc/irq/NR/max_rate.
+> I'm not sure either, since qsort doesn't really have much
+> locality of reference but just walks all over the place.
+> 
+> This is direct contrast with the basic assumption on which
+> VM and CPU caches are built ;)
+> 
+> I wonder how eg. merge sort would perform ...
 
-I am sorry, but this is bogus. There is no _reasonable value_. Reasonable
-value is dependent on system load and has never been and never
-will be measured by interupt rates. Even in non-work conserving schemes
-There is already a feedback system that is built into 2.4 that
-measures system load by the rate at which the system processes the backlog
-queue. Look at netif_rx return values. The only driver that utilizes this
-is currently the tulip. Look at the tulip code.
-This in conjuction with h/ware flow control should give you sustainable
-system.
-[Granted that mitigation is a hardware specific solution; the scheme we
-presented at the kernel summit is the next level to this and will be
-non-dependednt on h/ware.]
+Just rip it off NetBSD and there you go. (FreeBSD's breaks on machines
+like SPARC, NetBSD's does not.)
 
->(note that in case of shared interrupts, another 'innocent' device might
->stay disabled for some short amount of time as well - but this is not an
->issue because this mitigation does not make that device inoperable, it
->just delays its interrupt by up to 10 msecs. Plus, modern systems have
->properly distributed interrupts.)
-
-This is a _really bad_ idea. not just because you are punishing other
-devices.
-Lets take network devices as examples: we dont want to disable interupts;
-we want to disable offending actions within the device. For example, it is
-ok to disable/mitigate receive interupts because they are overloading the
-system but not transmit completion because that will add to the overall
-latency.
-
-cheers,
-jamal
-
-
-PS: we have been testing what was presented at the kernel summit for the
-last few months with very promising results. Both on live and setups which
-are experimental where data is generated at very high rates with hardware
-traffic generators
-
+http://www.de.freebsd.org/cgi/cvsweb.cgi/basesrc/lib/libc/stdlib/merge.c?rev=1.10&cvsroot=netbsd

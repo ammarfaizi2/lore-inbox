@@ -1,186 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314420AbSDRSz5>; Thu, 18 Apr 2002 14:55:57 -0400
+	id <S314429AbSDRS5w>; Thu, 18 Apr 2002 14:57:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314422AbSDRSz4>; Thu, 18 Apr 2002 14:55:56 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:3568 "EHLO e33.esmtp.ibm.com")
-	by vger.kernel.org with ESMTP id <S314420AbSDRSzz>;
-	Thu, 18 Apr 2002 14:55:55 -0400
-Message-Id: <200204181851.g3IIp6O03097@w-gaughen.des.beaverton.ibm.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Christoph Hellwig <hch@infradead.org>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] modularization of mem_init() for 2.4.19pre7 
-In-Reply-To: Message from Christoph Hellwig <hch@infradead.org> 
-   of "Thu, 18 Apr 2002 19:28:29 BST." <20020418192829.A14979@infradead.org> 
-Mime-Version: 1.0
+	id <S314428AbSDRS5v>; Thu, 18 Apr 2002 14:57:51 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:40465 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S314425AbSDRS5t>; Thu, 18 Apr 2002 14:57:49 -0400
+Message-ID: <3CBF1722.EDA8631F@zip.com.au>
+Date: Thu, 18 Apr 2002 11:57:38 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Peloquin <peloquin@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Bio pool & scsi scatter gather pool usage
+In-Reply-To: <OFA8584441.22F71259-ON85256B9F.00627FAA@pok.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 18 Apr 2002 11:51:06 -0700
-From: Patricia Gaughen <gone@us.ibm.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Peloquin wrote:
+> 
+> ...
+> > Tell me why this won't work?
+> 
+> This would require the BIO assembly code to make at least one
+> call to find the current permissible BIO size at offset xyzzy.
+> Depending on the actual IO size many foo_max_bytes calls may
+> be required. Envision the LVM or RAID case where physical
+> extents or chunks sizes can be as small as 8Kb I believe. For
+> a 64Kb IO, its conceivable that 9 calls to foo_max_bytes may
+> be required to package that IO into permissibly sized BIOs.
 
-  > On Thu, Apr 18, 2002 at 11:17:22AM -0700, Patricia Gaughen wrote:
-  > > -void __init mem_init(void)
-  > > +void __init init_one_highpage(struct page *page, int pfn, int bad_ppro)
-  > > +{
-  > > +	if (!page_is_ram(pfn)) {
-  > > +		SetPageReserved(page);
-  > > +		return;
-  > > +	}
-  > > +	
-  > > +	if (bad_ppro && page_kills_ppro(pfn))
-  > > +	{
-  > > +		SetPageReserved(page);
-  > > +		return;
-  > > +	}
-  > 
-  > I'd suggest to stay with one coding style.  Prefferedly that would be
-  > the one in Documentation/CodingStyle.
+True.  But probably the common case is not as bad as that, and
+these repeated calls are probably still cheaper than allocating
+and populating the redundant top-level BIO.
 
-whoops!  thanks for catching that.
+Also, the top-level code can be cache-friendly.  The bad way
+to write it would be to do:
 
-  > 
-  > > +
-  > > +	reservedpages = 0;
-  > > +	for (pfn = 0; pfn < max_low_pfn; pfn++)
-  > > +		/*
-  > > +		 * Only count reserved RAM pages
-  > > +		 */
-  > > +		if (page_is_ram(pfn) && PageReserved(mem_map+pfn))
-  > > +			reservedpages++;
-  > 
-  > Adding braces around this hughe loop body would make it a little
-  > more readable..
+	while (more to send) {
+		maxbytes = bio_max_bytes(block);
+		build_and_send_a_bio(block, maxbytes);
+		block += maxbytes / whatever;
+	}
 
-I agree, new patch attached.
+That creates long code paths and L1 cache thrashing.  Kernel
+tends to do that rather a lot in the IO paths.
 
-  > 
-  > Besides these minor style nitpicks the pages look good to me.
-  > 
-  > BTW: Where is the NUMA code that builds ontop of this?
+The good way is:
 
-an out of date version of my patch is available at:
+	int maxbytes[something];
+	int i = 0;
 
-http://www-124.ibm.com/developer/opensource/linux/patches/?patch_id=320
+	while (more_to_send) {
+		maxbytes[i] = bio_max_bytes(block);
+		block += maxbytes[i++] / whatever;
+	}
+	i = 0;
+	while (more_to_send) {
+		build_and_send_a_bio(block, maxbytes[i]);
+		block += maxbytes[i++] / whatever;
+	}
 
-I will be submitting the new and improved version soon.  :-) 
-
-Thanks,
-Pat
+if you get my drift.  This way the computational costs of
+the second and succeeding bio_max_bytes() calls are very
+small.
 
 
--- 
-Patricia Gaughen (gone@us.ibm.com)
-IBM Linux Technology Center
-http://www.ibm.com/linux/ltc/
+One thing which concerns me about the whole scheme at
+present is that the uncommon case (volume managers, RAID,
+etc) will end up penalising the common case - boring
+old ext2 on boring old IDE/SCSI.
 
---- linux-2.4.19pre7/arch/i386/mm/init.c	Tue Apr 16 15:07:03 2002
-+++ linux-2.4.19pre7-cleanup/arch/i386/mm/init.c	Thu Apr 18 11:41:10 2002
-@@ -444,18 +444,58 @@
- 	return 0;
- }
- 	
--void __init mem_init(void)
-+void __init init_one_highpage(struct page *page, int pfn, int bad_ppro)
-+{
-+	if (!page_is_ram(pfn)) {
-+		SetPageReserved(page);
-+		return;
-+	}
-+	
-+	if (bad_ppro && page_kills_ppro(pfn)) {
-+		SetPageReserved(page);
-+		return;
-+	}
-+	
-+	ClearPageReserved(page);
-+	set_bit(PG_highmem, &page->flags);
-+	atomic_set(&page->count, 1);
-+	__free_page(page);
-+	totalhigh_pages++;
-+}
-+
-+static int __init mem_init_free_pages(void)
- {
- 	extern int ppro_with_ram_bug(void);
-+	int bad_ppro, reservedpages, pfn;
-+
-+	bad_ppro = ppro_with_ram_bug();
-+
-+	/* this will put all low memory onto the freelists */
-+	totalram_pages += free_all_bootmem();
-+
-+	reservedpages = 0;
-+	for (pfn = 0; pfn < max_low_pfn; pfn++) {
-+		/*
-+		 * Only count reserved RAM pages
-+		 */
-+		if (page_is_ram(pfn) && PageReserved(mem_map+pfn))
-+			reservedpages++;
-+	}
-+#ifdef CONFIG_HIGHMEM
-+	for (pfn = highend_pfn-1; pfn >= highstart_pfn; pfn--)
-+		init_one_highpage((struct page *) (mem_map + pfn), pfn, bad_ppro);
-+	totalram_pages += totalhigh_pages;
-+#endif
-+	return reservedpages;
-+}
-+
-+void __init mem_init(void)
-+{
- 	int codesize, reservedpages, datasize, initsize;
--	int tmp;
--	int bad_ppro;
- 
- 	if (!mem_map)
- 		BUG();
- 	
--	bad_ppro = ppro_with_ram_bug();
+Right now, BIO_MAX_SECTORS is only 64k, and IDE can
+take twice that.  I'm not sure what the largest
+request size is for SCSI - certainly 128k.
+
+Let's not create any designed-in limitations at this
+stage of the game.
+
 -
- #ifdef CONFIG_HIGHMEM
- 	highmem_start_page = mem_map + highstart_pfn;
- 	max_mapnr = num_physpages = highend_pfn;
-@@ -468,37 +508,8 @@
- 	/* clear the zero-page */
- 	memset(empty_zero_page, 0, PAGE_SIZE);
- 
--	/* this will put all low memory onto the freelists */
--	totalram_pages += free_all_bootmem();
--
--	reservedpages = 0;
--	for (tmp = 0; tmp < max_low_pfn; tmp++)
--		/*
--		 * Only count reserved RAM pages
--		 */
--		if (page_is_ram(tmp) && PageReserved(mem_map+tmp))
--			reservedpages++;
--#ifdef CONFIG_HIGHMEM
--	for (tmp = highstart_pfn; tmp < highend_pfn; tmp++) {
--		struct page *page = mem_map + tmp;
-+	reservedpages = mem_init_free_pages();
- 
--		if (!page_is_ram(tmp)) {
--			SetPageReserved(page);
--			continue;
--		}
--		if (bad_ppro && page_kills_ppro(tmp))
--		{
--			SetPageReserved(page);
--			continue;
--		}
--		ClearPageReserved(page);
--		set_bit(PG_highmem, &page->flags);
--		atomic_set(&page->count, 1);
--		__free_page(page);
--		totalhigh_pages++;
--	}
--	totalram_pages += totalhigh_pages;
--#endif
- 	codesize =  (unsigned long) &_etext - (unsigned long) &_text;
- 	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
- 	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
-
-
-

@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287317AbSAPTVq>; Wed, 16 Jan 2002 14:21:46 -0500
+	id <S287208AbSAPTV4>; Wed, 16 Jan 2002 14:21:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287299AbSAPTVb>; Wed, 16 Jan 2002 14:21:31 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:20715 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S287283AbSAPTVM>; Wed, 16 Jan 2002 14:21:12 -0500
+	id <S287289AbSAPTVm>; Wed, 16 Jan 2002 14:21:42 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:39143 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S287205AbSAPTVZ>; Wed, 16 Jan 2002 14:21:25 -0500
 From: Hans-Christian Armingeon <linux.johnny@gmx.net>
 To: linux-kernel@vger.kernel.org
 Subject: kernel BUG at slab.c:815!
-Date: Wed, 16 Jan 2002 21:22:18 +0100
+Date: Wed, 16 Jan 2002 21:21:50 +0100
 X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_6LS1VXF78H8J7TUL5R0F"
-Message-ID: <16QvcF-0E07OqC@fmrl02.sul.t-online.com>
+  boundary="------------Boundary-00=_EKS1Z8KC3C93R24IKWKR"
+Message-ID: <16Qvbw-0AB5F2C@fmrl02.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_6LS1VXF78H8J7TUL5R0F
+--------------Boundary-00=_EKS1Z8KC3C93R24IKWKR
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 8bit
@@ -88,9 +88,7 @@ but that's another issue...
 Thanks in advance,
 
 Johnny
-
-
---------------Boundary-00=_6LS1VXF78H8J7TUL5R0F
+--------------Boundary-00=_EKS1Z8KC3C93R24IKWKR
 Content-Type: text/plain;
   charset="iso-8859-1";
   name="kernel-2.4.18-pre4"
@@ -639,4 +637,4 @@ dApDT05GSUdfREVCVUdfU0xBQj15CkNPTkZJR19ERUJVR19JT1ZJUlQ9eQpDT05GSUdfTUFHSUNf
 U1lTUlE9eQpDT05GSUdfREVCVUdfU1BJTkxPQ0s9eQpDT05GSUdfREVCVUdfQlVHVkVSQk9TRT15
 Cg==
 
---------------Boundary-00=_6LS1VXF78H8J7TUL5R0F--
+--------------Boundary-00=_EKS1Z8KC3C93R24IKWKR--

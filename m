@@ -1,32 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVCXAdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVCXAhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVCXAdF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 19:33:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVCXAdE
+	id S262298AbVCXAhd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 19:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbVCXAhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 19:33:04 -0500
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:17052 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262268AbVCXAdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 19:33:03 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: Redirecting output
-To: "shafa.hidee" <shafa.hidee@gmail.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 23 Mar 2005 15:21:24 +0100
-References: <fa.hseagm2.1l76c0o@ifi.uio.no>
-User-Agent: KNode/0.7.7
+	Wed, 23 Mar 2005 19:37:33 -0500
+Received: from skora.net ([62.141.41.44]:3713 "EHLO skora.net")
+	by vger.kernel.org with ESMTP id S262298AbVCXAh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 19:37:28 -0500
+To: Roger Luethi <rl@hellgate.ch>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] via-rhine.c, wol-bugfix, Kernel 2.6.11.5
+From: Thomas Skora <thomas@skora.net>
+Date: Thu, 24 Mar 2005 01:37:55 +0100
+Message-ID: <87psxp6fq4.fsf@powers.localnet>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DE6je-00047z-Gl@be1.7eggert.dyndns.org>
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shafa.hidee <shafa.hidee@gmail.com> wrote:
+--=-=-=
 
->      I have created a dummy module for learning device driver in linux. I
-> want to redirect the standard output of printk to my xterm. But by default
-> it is redirected to tty.
+Hello!
 
-tail -f /var/log/syslog (or /var/log/messages)
+The via-rhine driver in the actual kernel release 2.6.11.5 resets
+wake-on-lan-settings of the chip. This leads to the fact, that wol is
+disabled after the first reboot. I've attached a little patch, that
+fixes the problem.
+
+Thomas Skora
+
+
+--=-=-=
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=patch-via-wol
+Content-Transfer-Encoding: base64
+
+LS0tIGxpbnV4LTIuNi4xMS41L2RyaXZlcnMvbmV0L3ZpYS1yaGluZS5jLm9yaWcJMjAwNS0wMy0y
+NCAwMDo1NDoxNi4wMDAwMDAwMDAgKzAxMDAKKysrIGxpbnV4LTIuNi4xMS41L2RyaXZlcnMvbmV0
+L3ZpYS1yaGluZS5jCTIwMDUtMDMtMjQgMDA6NTQ6MTYuMDAwMDAwMDAwICswMTAwCkBAIC01NDIs
+NyArNTQyLDcgQEAgc3RhdGljIHZvaWQgcmhpbmVfcG93ZXJfaW5pdChzdHJ1Y3QgbmV0XwogCiAJ
+aWYgKHJwLT5xdWlya3MgJiBycVdPTCkgewogCQkvKiBNYWtlIHN1cmUgY2hpcCBpcyBpbiBwb3dl
+ciBzdGF0ZSBEMCAqLwotCQlpb3dyaXRlOChpb3JlYWQ4KGlvYWRkciArIFN0aWNreUhXKSAmIDB4
+RkUsIGlvYWRkciArIFN0aWNreUhXKTsKKwkJaW93cml0ZTgoaW9yZWFkOChpb2FkZHIgKyBTdGlj
+a3lIVykgJiAweEZDLCBpb2FkZHIgKyBTdGlja3lIVyk7CiAKIAkJLyogRGlzYWJsZSAiZm9yY2Ug
+UE1FLWVuYWJsZSIgKi8KIAkJaW93cml0ZTgoMHg4MCwgaW9hZGRyICsgV09MY2dDbHIpOwo=
+--=-=-=--

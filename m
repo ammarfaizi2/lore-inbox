@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313309AbSDOVry>; Mon, 15 Apr 2002 17:47:54 -0400
+	id <S313314AbSDOWEz>; Mon, 15 Apr 2002 18:04:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313311AbSDOVrx>; Mon, 15 Apr 2002 17:47:53 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:18449 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S313309AbSDOVrw>;
-	Mon, 15 Apr 2002 17:47:52 -0400
-Date: Mon, 15 Apr 2002 18:47:31 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, <wli@holomorphy.com>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0204151838020.1960-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313315AbSDOWEy>; Mon, 15 Apr 2002 18:04:54 -0400
+Received: from f80.law9.hotmail.com ([64.4.9.80]:5641 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S313314AbSDOWEy>;
+	Mon, 15 Apr 2002 18:04:54 -0400
+X-Originating-IP: [139.95.254.33]
+From: "Anupama Gujran" <anu_gujran@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: General Questions
+Date: Mon, 15 Apr 2002 15:04:48 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F80FGwQ21ju2iDL6e5f00004163@hotmail.com>
+X-OriginalArrivalTime: 15 Apr 2002 22:04:48.0506 (UTC) FILETIME=[8F31F5A0:01C1E4C9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Apr 2002, Linus Torvalds wrote:
 
-> Which requires the user to use something like
->
-> 	for_each_zone(zone) {
-> 		...
-> 	} end_zone;
+1. In tcp_prequeue, why does the bh queue the packet in the prequeue and 
+exits if ucopy.memory < socket's rcvbuf?
+What is the relavence between the two?
 
-You just pinpointed the reason we didn't do what you wrote down ;)
+2. TCP_CHECK_TIMER is a macro which is defined as follows
 
-We can change the code to your liking, though.
+#define TCP_CHECK_TIMER(sk) do { } while (0);
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+What is the meaning of this statement? i.e., purpose of this dummy loop.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Your reply will be appreciated.
+
+Thank you.
+Anu
+
+
+
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

@@ -1,106 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315431AbSF0TyQ>; Thu, 27 Jun 2002 15:54:16 -0400
+	id <S315806AbSF0UE6>; Thu, 27 Jun 2002 16:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315300AbSF0TyP>; Thu, 27 Jun 2002 15:54:15 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:53257 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S293680AbSF0TyN>; Thu, 27 Jun 2002 15:54:13 -0400
-Date: Thu, 27 Jun 2002 16:01:06 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrew Morton <akpm@zip.com.au>, Christoph Rohland <cr@sap.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] shm_destroy lock hang
-In-Reply-To: <Pine.LNX.4.21.0206272007480.2791-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0206271558330.11719-100000@freak.distro.conectiva>
+	id <S315883AbSF0UE5>; Thu, 27 Jun 2002 16:04:57 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:10633 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S315806AbSF0UEz>;
+	Thu, 27 Jun 2002 16:04:55 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200206272005.AAA16804@sex.inr.ac.ru>
+Subject: Re: Fragment flooding in 2.4.x/2.5.x
+To: trond.myklebust@fys.uio.no (Trond Myklebust)
+Date: Fri, 28 Jun 2002 00:05:08 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200206271900.22602.trond.myklebust@fys.uio.no> from "Trond Myklebust" at Jun 27, 2 07:00:22 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Hi,
+> > Did you not solve this problem using right write_space?
+> 
+> Sure, I can add specific checks for (atomic_read(&sk->wmem_alloc) < 
+> sk->sndbuf) in the RPC layer,
 
-Just please avoid doing that locking nastyness:
+But it is there now.
 
-function() {
-unlock();
-}
+static void
+udp_write_space(struct sock *sk)
+{
+	struct rpc_xprt *xprt;
+
+	if (!(xprt = xprt_from_sock(sk)))
+		return;
+	if (xprt->shutdown)
+		return;
+
+	/* Wait until we have enough socket memory. */
+	if (sock_writeable(sk))
+		return;
+
+So, I do not understand what you speak about.
 
 
-lock();
-if (something)
-	function();
-else
-	unlock();
+
+>		    	 Sending partial messages isn't a feature 
+> that sounds like it would be particularly useful for any other applications 
+> either.
+
+The thing, which is really useless, is that your patch preparing skbs
+and dropping them in the next line. With the same success you could
+trigger BUG() there. :-) Right application just should not reach
+this condition.
+
+Anyway, I have to repeat:
+
+>>Better way exists. Just use forced sock_wmalloc instead of
+>>sock_alloc_send_skb on non-blocking send of all the fragments
+>>but the first.
 
 
-For this case its OK, but please avoid that.
+> However what if the actual call to alloc_skb() fails?
 
-On Thu, 27 Jun 2002, Hugh Dickins wrote:
+The same as if it would be lost by network.
 
-> Martin reported "Bug with shared memory" to LKML 14 May: hang due to
-> schedule in truncate_list_pages called from .... shm_destroy holding
-> the shm_lock spinlock.  shm_destroy needs that lock for shm_rmid, but
-> it can be safely unlocked once link from id to shp has been removed.
-> Patch against 2.4.19-rc1 or -pre10-ac2, applies at offset to 2.5.24.
->
-> --- 2.4.19-rc1/ipc/shm.c	Mon Jun 24 19:14:58 2002
-> +++ linux/ipc/shm.c	Thu Jun 27 19:34:51 2002
-> @@ -117,12 +117,14 @@
->   *
->   * @shp: struct to free
->   *
-> - * It has to be called with shp and shm_ids.sem locked
-> + * It has to be called with shp and shm_ids.sem locked,
-> + * but returns with shp unlocked and freed.
->   */
->  static void shm_destroy (struct shmid_kernel *shp)
->  {
->  	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
->  	shm_rmid (shp->id);
-> +	shm_unlock(shp->id);
->  	shmem_lock(shp->shm_file, 0);
->  	fput (shp->shm_file);
->  	kfree (shp);
-> @@ -150,8 +152,8 @@
->  	if(shp->shm_nattch == 0 &&
->  	   shp->shm_flags & SHM_DEST)
->  		shm_destroy (shp);
-> -
-> -	shm_unlock(id);
-> +	else
-> +		shm_unlock(id);
->  	up (&shm_ids.sem);
->  }
->
-> @@ -511,11 +513,9 @@
->  			shp->shm_flags |= SHM_DEST;
->  			/* Do not find it any more */
->  			shp->shm_perm.key = IPC_PRIVATE;
-> +			shm_unlock(shmid);
->  		} else
->  			shm_destroy (shp);
-> -
-> -		/* Unlock */
-> -		shm_unlock(shmid);
->  		up(&shm_ids.sem);
->  		return err;
->  	}
-> @@ -653,7 +653,8 @@
->  	if(shp->shm_nattch == 0 &&
->  	   shp->shm_flags & SHM_DEST)
->  		shm_destroy (shp);
-> -	shm_unlock(shmid);
-> +	else
-> +		shm_unlock(shmid);
->  	up (&shm_ids.sem);
->
->  	*raddr = (unsigned long) user_addr;
->
-
+Alexey

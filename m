@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268278AbRGWQCg>; Mon, 23 Jul 2001 12:02:36 -0400
+	id <S268279AbRGWQB4>; Mon, 23 Jul 2001 12:01:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268281AbRGWQCb>; Mon, 23 Jul 2001 12:02:31 -0400
-Received: from archive.osdlab.org ([65.201.151.11]:45220 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S268280AbRGWQCO>;
-	Mon, 23 Jul 2001 12:02:14 -0400
-Message-ID: <3B5C4A0A.BC9E32FA@osdlab.org>
-Date: Mon, 23 Jul 2001 09:00:10 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
+	id <S268275AbRGWQBq>; Mon, 23 Jul 2001 12:01:46 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:7946 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S268279AbRGWQBb>; Mon, 23 Jul 2001 12:01:31 -0400
+Date: Mon, 23 Jul 2001 18:01:31 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Jaime Alexandre Bastos <JaimeAlex@DATINFOR.pt>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: RedHat 7.1 - Network messages
+In-Reply-To: <5D478FF55EA3D311ACBF00062938832FFE51@DATPT01>
+Message-ID: <Pine.LNX.4.30.0107231733020.7789-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problem: Large file I/O waits (almost) forever
-In-Reply-To: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi-
+On Mon, 23 Jul 2001, Jaime Alexandre Bastos wrote:
 
-This sounds like something that was noticed at Intel a couple
-of months ago.  I believe that Linus made a patch for it
-in 2.4.7.  I'll be trying that out today or tomorrow with
-some large files.
+> hi guys
+> I have got a Pentium Celeron, 64Mb RAM, IDE Disk, 2 D-LINK FX-530 PCI
+> Network´s installed with Linux RedHat 7.1 working as a firewall.
+> I made a new kernel, and now I usually get some messages from the kernel
+           ^^^^^^^^^^
+So which version are you using now?
 
-The problem observed at Intel was in linux/fs/buffer.c.
-The dirty buffer list is scanned Buffers^2 times (with a
-lock) for each dirty buffer (or something like that; I'm not
-sure of the details), so the larger the file and dirty buffers,
-the longer each write took.
+And which version of the DFE530-TX (not FX, I believe?) do you have?
+The kernel output when it detects the cards (dmesg) or lspci output would 
+answer that.
 
-~Randy
+> which repeats a lot of times while the system is working.
+> The messages are:
+> 
+> Jul 23 09:14:13 datdnn kernel: eth0: Oversized Ethernet frame spanned
+> multiple buffers, entry 0xe length 0 status 00000600!
+> Jul 23 09:14:13 datdnn kernel: eth0: Oversized Ethernet frame c37740e0 vs
+> c37740e0.
+> Jul 23 09:14:13 datdnn kernel: eth1: Oversized Ethernet frame spanned
+> multiple buffers, entry 0x2 length 0 status 00000600!
+> Jul 23 09:14:13 datdnn kernel: eth1: Oversized Ethernet frame c382c020 vs
+> c382c020.
 
-Martin Wilck wrote:
+If you can figure out what is causing the messages I'd be interested to
+know. Perhaps you can play with how your network looks, or examine network
+traffic and see if there is some pattern (eg it only happens when machine
+foo sends stuff to machine bar).
+
+It's quite possible that the above warnings generate the errors below. But
+I don't know what is going on.
+
+> Jul 19 11:20:32 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Jul 19 11:20:32 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
+> status 782d, resetting...
 > 
-> Hi,
-> 
-> I just came across the following phenomenon and would like to inquire
-> whether it's a feature or a bug, and what to do about it:
-> 
-> I have run our "copy-compare" test during the weekend to test I/O
-> stability on a IA64 server running 2.4.5. The test works by generating
-> a collection of binary files with specified lengths, copying them between
-> different directories, and checking the result a) by checking the
-> predefined binary patterns and b) by comparing source and destination with cmp.
-> 
-> In order to avoid testing only the buffer cache (system has 8GB memory), I
-> used exponentially growing file sizes fro 1kb up to 2GB. The
-> copy/test/compare cycle for each file size was run 1024 times, tests
-> for different file sizes were run simultaneously.
-> 
-> As expected, tests for smaller files run faster than tests for larger
-> ones. However, I observed that the very big files (1 GB and 2GB) hardly
-> proceeded at all while the others were running. When I came back
-> after the weekend, all tests except these two had completed (1024 times
-> each), the 1GB test had completed ~500 times, and the 2GB test had not
-> even completed once. After I killed the 1GB job, 2GB started to run again
-> (i.e. it wasn't dead, just sleeping deeply). Apparently the block requests
-> scheduled for I/O by the processes operating on the large file had to
-> "yield" to other processes over and over again before being submitted.
-> 
-> I think this is a dangerous behaviour, because the test situation is
-> similar to a real-world scenario where applications (e.g. a data
-> base) are doing a lot of small-file I/O while a background process is
-> trying to do a large backup. If the system behaved similar then, it would
-> mean that the backup would take (almost) forever unless database activity
-> would cease.
-> 
-> Any comments/suggestions?
-> 
-> Regards,
-> Martin
-> 
-> PS: I am not subscribed to LK, but I'm reading the archives regularly.
+> Please, I would like to know if this messages means everything bad in terms
+> of fine function of the system and if so, what I should do to resolve the
+> problem.
+> I have the idea that specially when the last messages appear the system lose
+> communication. 
+> Sometimes I have to power off the system to get it fine again.
+
+2.4.3 should be better than earlier versions, as that driver actually
+resets the card when it gets "transmit timed out". There are some other
+minor changes too from 2.4.3 to 2.4.7, so it could be worth testing the 
+latest.
+
+/Urban
+

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129320AbRBKVjR>; Sun, 11 Feb 2001 16:39:17 -0500
+	id <S129766AbRBKVt3>; Sun, 11 Feb 2001 16:49:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129766AbRBKVjI>; Sun, 11 Feb 2001 16:39:08 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54542 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129320AbRBKViw>;
-	Sun, 11 Feb 2001 16:38:52 -0500
-Date: Sun, 11 Feb 2001 22:38:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Olsen <alan@clueserver.org>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-        Rogerio Brito <rbrito@iname.com>
-Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't work)
-Message-ID: <20010211223817.M16362@suse.de>
-In-Reply-To: <20010211174707.I16362@suse.de> <Pine.LNX.4.10.10102111220160.22754-100000@clueserver.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10102111220160.22754-100000@clueserver.org>; from alan@clueserver.org on Sun, Feb 11, 2001 at 12:21:43PM -0800
+	id <S130103AbRBKVtK>; Sun, 11 Feb 2001 16:49:10 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:22800 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S129766AbRBKVtI>; Sun, 11 Feb 2001 16:49:08 -0500
+Message-ID: <3A870130.8A0FCBCC@namesys.com>
+Date: Mon, 12 Feb 2001 00:16:32 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Adrian Phillips <a.phillips@dnmi.no>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <E14S01O-0004Su-00@the-village.bc.nu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 11 2001, Alan Olsen wrote:
-> > It's no news that vendors only implement what they want to. New
-> > cd-r/w and dvd drives are not required to implement this command,
-> > so it may not work there either.
+Alan Cox wrote:
 > 
-> Take a look at the code for cdparanoia or one of the other MP3 ripping
-> programms. Slowing down the drive is a standard feature for that type of
-> program.  (Reduces errors when pulling audio tracks off the disc.)
+> > LADDIS is the industry standard benchmark for NFS.  It crashes for ReiserFS and
+> > NFS.  We can't afford to buy it, as it is proprietary software.  Once Nikita has
+> > finished testing his changes, we will ask someone to test it for us though.
+> >
+> 
+> Do you know if the connectathon test suites show the problem?
 
-One would think that you have taken a look at the cdparanoia
-source before posting something like this. Guess what it does to
-control speed? Reread my message, you totally missed the point.
+Not the slightest idea.  Is the connectathon test suite something that stresses
+the FS heavily?  If so, we can always add it to our stable, whether or not it
+stresses this particular bug.
 
--- 
-Jens Axboe
-
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

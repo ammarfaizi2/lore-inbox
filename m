@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312681AbSCZShI>; Tue, 26 Mar 2002 13:37:08 -0500
+	id <S312691AbSCZSjI>; Tue, 26 Mar 2002 13:39:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312684AbSCZSg6>; Tue, 26 Mar 2002 13:36:58 -0500
-Received: from 209-VALL-X7.libre.retevision.es ([62.83.213.209]:34823 "EHLO
+	id <S312684AbSCZSi6>; Tue, 26 Mar 2002 13:38:58 -0500
+Received: from 209-VALL-X7.libre.retevision.es ([62.83.213.209]:36871 "EHLO
 	ragnar-hojland.com") by vger.kernel.org with ESMTP
-	id <S312681AbSCZSgn>; Tue, 26 Mar 2002 13:36:43 -0500
-Date: Tue, 26 Mar 2002 19:35:49 +0100
+	id <S312691AbSCZSio>; Tue, 26 Mar 2002 13:38:44 -0500
+Date: Tue, 26 Mar 2002 19:38:08 +0100
 From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
-To: Mark <mark@bish.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: C-Media 8738 sound driver + A7M266-D problems.
-Message-ID: <20020326193549.A2476@ragnar-hojland.com>
-In-Reply-To: <Pine.LNX.4.43.0203182216260.32113-100000@bish.net>
+To: Sander Storms <s.storms@technology.asb.nl>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: C-Media 8783 driver
+Message-ID: <20020326193808.A2539@ragnar-hojland.com>
+In-Reply-To: <C159F0A1CD3ED411A8A600508B556292091B25@mx-int.technology.asb.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -23,17 +23,13 @@ X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 18, 2002 at 10:23:32PM -0500, Mark wrote:
-> 
-> I have a dual AMD board that has the 8738 onboard.  I compile 2.4.18 and
-> pass it the '6 speaker' selection which should push the Rear speaker
-> signal out the Line In connector and the Center Speaker Out/ Sub-woofer
-> signal out the Mic In connector.  This does not happen.  I've tried this
-> as a module and passing the params on the command line as well as
-> compiling it directly into the kernel.  Am I missing something (very
-> likely) or is this a known situation that I just have to deal with?
+On Fri, Mar 22, 2002 at 02:15:19PM +0100, Sander Storms wrote:
+> Does anyone know a descent driver for the C-Media 8783?
+> The current driver included in kernel 2.4.18 does work correctly, except for
+> the FM-chip and the Midi-output.
 
-You could try version 2.75a from http://download.asus.com.tw/mb_dl_menu.asp
+In case you haven't seen my previous email, Asus has a linux driver at their
+.tw page (http://download.asus.com.tw/mb_dl_menu.asp)
 
 -- 
 ____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP

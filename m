@@ -1,149 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVAOOjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVAOOnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVAOOjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 09:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbVAOOjZ
+	id S262287AbVAOOnd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 09:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVAOOnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 09:39:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59104 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262285AbVAOOjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 09:39:12 -0500
-Date: Sat, 15 Jan 2005 09:43:09 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.29-rc2
-Message-ID: <20050115114309.GA7397@logos.cnet>
-References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de> <20050115052050.GF4274@stusta.de>
+	Sat, 15 Jan 2005 09:43:33 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:9604 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262287AbVAOOna (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 09:43:30 -0500
+Date: Sat, 15 Jan 2005 15:43:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       paul@linuxaudiosystems.com, arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050115144302.GG10114@elte.hu>
+References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org> <20050107221059.GA17392@infradead.org> <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us> <20050111212139.GA22817@elte.hu> <87ekgnwaqx.fsf@sulphur.joq.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050115052050.GF4274@stusta.de>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <87ekgnwaqx.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Adrian!
+* Jack O'Quin <joq@io.com> wrote:
 
-On Sat, Jan 15, 2005 at 06:20:50AM +0100, Adrian Bunk wrote:
-> On Fri, Jan 14, 2005 at 11:55:55PM +0100, Steffen Moser wrote:
-> 
-> >...
-> >  - fsa01 (problem occurs):
-> >...
-> >  | modutils               2.4.5
-> >...
-> >  - gateway (no problem):
-> >...
-> >  | modutils               2.4.12
-> >....
-> 
-> OK, this seems to be the problem:
-> modutils before 2.4.10 don't know about EXPORT_SYMBOL_GPL.
-> 
-> Please upgrade modutils on fsa01 and report whether it fixes the 
-> problem.
+> --- kernel/sched.c~	Fri Dec 24 15:35:24 2004
+> +++ kernel/sched.c	Wed Jan 12 23:48:49 2005
+> @@ -95,7 +95,7 @@
+>  #define MAX_BONUS		(MAX_USER_PRIO * PRIO_BONUS_RATIO / 100)
+>  #define INTERACTIVE_DELTA	  2
+>  #define MAX_SLEEP_AVG		(DEF_TIMESLICE * MAX_BONUS)
+> -#define STARVATION_LIMIT	(MAX_SLEEP_AVG)
+> +#define STARVATION_LIMIT	0
+>  #define NS_MAX_SLEEP_AVG	(JIFFIES_TO_NS(MAX_SLEEP_AVG))
+>  #define CREDIT_LIMIT		100
 
-Yes, thats the right solution - however I think it might be worth to have 
-the non-GPL versions. Several old distros ship modutils older than 2.4.10
-- eg SuSE Linux 7.1 (Oct 2001).
+could you try the patch below? The above patch wasnt enough. With the
+patch below we turn off the starvation limits for nice --20 tasks only. 
+This is still a hack only. If we cannot make nice --20 perform like
+RT-prio-1 then there's some problem with SCHED_OTHER scheduling.
 
-> If this was the problem, the patch below should be sufficient
-> (modutils 2.4.10 isn't a very strong dependency - even Debian stable 
-> ships 2.4.15).
-> 
-> 
-> <--  snip  -->
-> 
-> 
-> For support of EXPORT_SYMBOL_GPL, at least modutils 2.4.10 is required.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.4.29-rc2-full/Documentation/Changes.old	2005-01-15 06:17:46.000000000 +0100
-> +++ linux-2.4.29-rc2-full/Documentation/Changes	2005-01-15 06:18:26.000000000 +0100
-> @@ -52,7 +52,7 @@
->  o  Gnu make               3.77                    # make --version
->  o  binutils               2.9.1.0.25              # ld -v
->  o  util-linux             2.10o                   # fdformat --version
-> -o  modutils               2.4.2                   # insmod -V
-> +o  modutils               2.4.10                  # insmod -V
->  o  e2fsprogs              1.25                    # tune2fs
->  o  jfsutils               1.0.12                  # fsck.jfs -V
->  o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
-> @@ -156,11 +156,8 @@
->  Modutils
->  --------
->  
-> -Upgrade to recent modutils to fix various outstanding bugs which are
-> -seen more frequently under 2.4.x, and to enable auto-loading of USB
-> -modules.  In addition, the layout of modules under
-> -/lib/modules/`uname -r`/ has been made more sane.  This change also
-> -requires that you upgrade to a recent modutils.
-> +Upgrade to recent modutils is required for support of
-> +EXPORT_SYMBOL_GPL.
->  
->  Mkinitrd
->  --------
+	Ingo
 
-Yes, this is change is interesting. I propose the following, with Arjan's comment
-suggestion and yours 2.4.2/2.4.10 change.
-
---- drivers/char/tty_io.c.orig	2005-01-15 11:28:49.116993816 -0200
-+++ drivers/char/tty_io.c	2005-01-15 11:33:45.063003184 -0200
-@@ -718,7 +718,12 @@
- 	wake_up_interruptible(&tty->write_wait);
- }
+--- linux/kernel/sched.c.orig
++++ linux/kernel/sched.c
+@@ -2245,10 +2245,10 @@ EXPORT_PER_CPU_SYMBOL(kstat);
+  * if a better static_prio task has expired:
+  */
+ #define EXPIRED_STARVING(rq) \
+-	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
++	((task_nice(current) > -20) && ((STARVATION_LIMIT && ((rq)->expired_timestamp && \
+ 		(jiffies - (rq)->expired_timestamp >= \
+ 			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
+-			((rq)->curr->static_prio > (rq)->best_expired_prio))
++			((rq)->curr->static_prio > (rq)->best_expired_prio)))
  
--EXPORT_SYMBOL_GPL(tty_wakeup);
-+/*
-+ * tty_wakeup/tty_ldisc_flush are actually _GPL exports but we can't do 
-+ * that in 2.4 for modutils compat reasons.
-+ */
-+EXPORT_SYMBOL(tty_wakeup);
-+
- 
- void tty_ldisc_flush(struct tty_struct *tty)
- {
-@@ -730,7 +735,12 @@
- 	}
- }
- 
--EXPORT_SYMBOL_GPL(tty_ldisc_flush);
-+
-+/*
-+ * tty_wakeup/tty_ldisc_flush are actually _GPL exports but we can't do 
-+ * that in 2.4 for modutils compat reasons.
-+ */
-+EXPORT_SYMBOL(tty_ldisc_flush);
- 
- void do_tty_hangup(void *data)
- {
---- Documentation/Changes.orig	2005-01-15 11:26:42.221284896 -0200
-+++ Documentation/Changes	2005-01-15 11:27:50.330930656 -0200
-@@ -52,7 +52,7 @@
- o  Gnu make               3.77                    # make --version
- o  binutils               2.9.1.0.25              # ld -v
- o  util-linux             2.10o                   # fdformat --version
--o  modutils               2.4.2                   # insmod -V
-+o  modutils               2.4.10                   # insmod -V
- o  e2fsprogs              1.25                    # tune2fs
- o  jfsutils               1.0.12                  # fsck.jfs -V
- o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
-@@ -159,8 +159,8 @@
- Upgrade to recent modutils to fix various outstanding bugs which are
- seen more frequently under 2.4.x, and to enable auto-loading of USB
- modules.  In addition, the layout of modules under
--/lib/modules/`uname -r`/ has been made more sane.  This change also
--requires that you upgrade to a recent modutils.
-+/lib/modules/`uname -r`/ has been made more sane, and EXPORT_SYMBOL_GPL 
-+also requires that you upgrade to a recent modutils.
- 
- Mkinitrd
- --------
-
-
-
+ /*
+  * Do the virtual cpu time signal calculations.

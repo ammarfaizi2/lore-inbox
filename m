@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129054AbQJ3MmE>; Mon, 30 Oct 2000 07:42:04 -0500
+	id <S129091AbQJ3Mqz>; Mon, 30 Oct 2000 07:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbQJ3Mly>; Mon, 30 Oct 2000 07:41:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31040 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129054AbQJ3Mlf>; Mon, 30 Oct 2000 07:41:35 -0500
-Subject: Re: / on ramfs, possible?
-To: aer-list@mailandnews.com (Anders Eriksson)
-Date: Mon, 30 Oct 2000 12:42:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200010300727.IAA12250@hell.wii.ericsson.net> from "Anders Eriksson" at Oct 30, 2000 08:27:31 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129215AbQJ3Mqp>; Mon, 30 Oct 2000 07:46:45 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:46092 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129091AbQJ3Mqh>;
+	Mon, 30 Oct 2000 07:46:37 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "J . A . Magallon" <jamagallon@able.es>
+cc: Linux Kernel Developer <linux_developer@hotmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17 
+In-Reply-To: Your message of "Mon, 30 Oct 2000 13:00:06 BST."
+             <20001030130006.B1555@werewolf.cps.unizar.es> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13qEHB-0006po-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 30 Oct 2000 23:46:30 +1100
+Message-ID: <3626.972909990@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I want my / to be a ramfs filesystem. I intend to populate it from an 
-> initrd image, and then remount / as the ramfs filesystem. Is that at 
-> all possible? The way I see it the kernel requires / on a device 
-> (major,minor) or nfs.
-> 
-> Am I out of luck using ramfs as /? If it's easy to fix, how do I fix it?
+On Mon, 30 Oct 2000 13:00:06 +0100, 
+"J . A . Magallon" <jamagallon@able.es> wrote:
+>And what about struct fields ? It is the same. If you change the name of a field
+>permanently, you have to modify the C source that uses it. But names are not
+>important for binary compatability, so you can make things like:
+>struct data {
+>	int field1;
+>#ifndef __cplusplus
+>	double 	new;
+>	int	class;
+>#else
+>	double	dnew;
+>	int	klass;
+>#endif
+>};
 
-Firstly make sure you get the patches that make ramfs work if they arent all
-yet applied, then build your initrd that populates it on boot. Now you can
-make use of the pivot_root() syscall (you may need to generate your own 
-syscall wrapper for that one as its very new). That lets you flip your root
-and initrd around
+Names *are* important for binary compatibilty on modules.  If you
+compile with symbol versions, the field names within a structure are
+included in the checksum that is generated for the overall structure.
+If you declare different names depending on compile time options then
+genksyms says that they are different structure definitions, you will
+get a mismatch on the checksum of exported symbols and will not be able
+to load the modules.
+
+There is also the less important problem of confusing debuggers.  The
+data that is saved when you compile with -g will be different in
+various modules, a possible source of confusion.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,192 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315629AbSEIHlm>; Thu, 9 May 2002 03:41:42 -0400
+	id <S315630AbSEIHnk>; Thu, 9 May 2002 03:43:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315630AbSEIHll>; Thu, 9 May 2002 03:41:41 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:32189 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S315629AbSEIHlj>;
-	Thu, 9 May 2002 03:41:39 -0400
-Date: Thu, 9 May 2002 17:40:09 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Directory Notification Fix
-Message-Id: <20020509174009.6724cad5.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S315631AbSEIHnj>; Thu, 9 May 2002 03:43:39 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:54025 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315630AbSEIHni>; Thu, 9 May 2002 03:43:38 -0400
+Date: Thu, 9 May 2002 17:45:50 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: pazke@orbita1.ru, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] __init and friends support for loadable modules
+Message-Id: <20020509174550.79d08e5b.rusty@rustcorp.com.au>
+In-Reply-To: <9276.1020866527@ocs3.intra.ocs.com.au>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Thu, 09 May 2002 00:02:07 +1000
+Keith Owens <kaos@ocs.com.au> wrote:
 
-The patch below fixes directory notification so that notifications
-get cancelled when a process exits.  This make dnotify MUCH more stable
-and usable :-)
+> On Wed, 8 May 2002 14:29:33 +0400, 
+> Andrey Panin <pazke@orbita1.ru> wrote:
+> >attached patch adds support for	freeing .init sections of loadable modules
+> >after init_module() function exits. Modutils have support for this since 19=
+> >98,
+> >but kernel support didn't exist.
+> 
+> The main reason I have not done this myself is the interaction between
+> freeing code areas and the exception and unwind tables.  When you free
+> code, you should remove or nullify the related unwind and exception
+> entries.  Another module could be loaded into the area that used to
+> contain init code and it would then be mapped by the first module's
+> tables, oops.
 
-Please apply.
+Excellent catch, Keith.  I missed this in my current implementation, and
+will have to patch the exception tables in the init release callback.  I
+also get around this because I allow archs to refuse to have separate
+init and core sections if they want.
 
--- 
+BTW, I just got ppc64 in-kernel relocations working.  I am starting on
+ia64, in the theory that if you can do ia64, you can do anything.
+
 Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.4.19-pre8/fs/dnotify.c 2.4.19-pre8-sfr/fs/dnotify.c
---- 2.4.19-pre8/fs/dnotify.c	Fri May  3 17:36:23 2002
-+++ 2.4.19-pre8-sfr/fs/dnotify.c	Thu May  9 16:58:56 2002
-@@ -38,60 +38,74 @@
- 	inode->i_dnotify_mask = new_mask;
- }
- 
-+void dnotify_flush(struct file *filp, fl_owner_t id)
-+{
-+	struct dnotify_struct *dn;
-+	struct dnotify_struct **prev;
-+	struct inode *inode;
-+
-+	inode = filp->f_dentry->d_inode;
-+	if (!S_ISDIR(inode->i_mode))
-+		return;
-+	write_lock(&dn_lock);
-+	prev = &inode->i_dnotify;
-+	while ((dn = *prev) != NULL) {
-+		if ((dn->dn_owner == id) && (dn->dn_filp == filp)) {
-+			*prev = dn->dn_next;
-+			redo_inode_mask(inode);
-+			kmem_cache_free(dn_cache, dn);
-+			break;
-+		}
-+		prev = &dn->dn_next;
-+	}
-+	write_unlock(&dn_lock);
-+}
-+
- int fcntl_dirnotify(int fd, struct file *filp, unsigned long arg)
- {
--	struct dnotify_struct *dn = NULL;
-+	struct dnotify_struct *dn;
- 	struct dnotify_struct *odn;
- 	struct dnotify_struct **prev;
- 	struct inode *inode;
--	int turning_off = (arg & ~DN_MULTISHOT) == 0;
-+	fl_owner_t id = current->files;
- 
--	if (!turning_off && !dir_notify_enable)
-+	if ((arg & ~DN_MULTISHOT) == 0) {
-+		dnotify_flush(filp, id);
-+		return 0;
-+	}
-+	if (!dir_notify_enable)
- 		return -EINVAL;
- 	inode = filp->f_dentry->d_inode;
- 	if (!S_ISDIR(inode->i_mode))
- 		return -ENOTDIR;
--	if (!turning_off) {
--		dn = kmem_cache_alloc(dn_cache, SLAB_KERNEL);
--		if (dn == NULL)
--			return -ENOMEM;
--	}
-+	dn = kmem_cache_alloc(dn_cache, SLAB_KERNEL);
-+	if (dn == NULL)
-+		return -ENOMEM;
- 	write_lock(&dn_lock);
- 	prev = &inode->i_dnotify;
--	for (odn = *prev; odn != NULL; prev = &odn->dn_next, odn = *prev)
--		if ((odn->dn_owner == current->files) && (odn->dn_filp == filp))
--			break;
--	if (odn != NULL) {
--		if (turning_off) {
--			*prev = odn->dn_next;
--			redo_inode_mask(inode);
--			dn = odn;
--			goto out_free;
-+	while ((odn = *prev) != NULL) {
-+		if ((odn->dn_owner == id) && (odn->dn_filp == filp)) {
-+			odn->dn_fd = fd;
-+			odn->dn_mask |= arg;
-+			inode->i_dnotify_mask |= arg & ~DN_MULTISHOT;
-+			kmem_cache_free(dn_cache, dn);
-+			goto out;
- 		}
--		odn->dn_fd = fd;
--		odn->dn_mask |= arg;
--		inode->i_dnotify_mask |= arg & ~DN_MULTISHOT;
--		goto out_free;
-+		prev = &odn->dn_next;
- 	}
--	if (turning_off)
--		goto out;
- 	filp->f_owner.pid = current->pid;
- 	filp->f_owner.uid = current->uid;
- 	filp->f_owner.euid = current->euid;
--	dn->dn_magic = DNOTIFY_MAGIC;
- 	dn->dn_mask = arg;
- 	dn->dn_fd = fd;
- 	dn->dn_filp = filp;
--	dn->dn_owner = current->files;
-+	dn->dn_owner = id;
- 	inode->i_dnotify_mask |= arg & ~DN_MULTISHOT;
- 	dn->dn_next = inode->i_dnotify;
- 	inode->i_dnotify = dn;
- out:
- 	write_unlock(&dn_lock);
- 	return 0;
--out_free:
--	kmem_cache_free(dn_cache, dn);
--	goto out;
- }
- 
- void __inode_dir_notify(struct inode *inode, unsigned long event)
-@@ -104,11 +118,6 @@
- 	write_lock(&dn_lock);
- 	prev = &inode->i_dnotify;
- 	while ((dn = *prev) != NULL) {
--		if (dn->dn_magic != DNOTIFY_MAGIC) {
--		        printk(KERN_ERR "__inode_dir_notify: bad magic "
--				"number in dnotify_struct!\n");
--		        goto out;
--		}
- 		if ((dn->dn_mask & event) == 0) {
- 			prev = &dn->dn_next;
- 			continue;
-diff -ruN 2.4.19-pre8/fs/open.c 2.4.19-pre8-sfr/fs/open.c
---- 2.4.19-pre8/fs/open.c	Fri May  3 17:36:24 2002
-+++ 2.4.19-pre8-sfr/fs/open.c	Thu May  9 16:09:05 2002
-@@ -857,7 +857,7 @@
- 		retval = filp->f_op->flush(filp);
- 		unlock_kernel();
- 	}
--	fcntl_dirnotify(0, filp, 0);
-+	dnotify_flush(filp, id);
- 	locks_remove_posix(filp, id);
- 	fput(filp);
- 	return retval;
-diff -ruN 2.4.19-pre8/include/linux/dnotify.h 2.4.19-pre8-sfr/include/linux/dnotify.h
---- 2.4.19-pre8/include/linux/dnotify.h	Fri May  3 17:36:36 2002
-+++ 2.4.19-pre8-sfr/include/linux/dnotify.h	Thu May  9 16:59:47 2002
-@@ -1,12 +1,11 @@
- /*
-  * Directory notification for Linux
-  *
-- * Copyright 2000 (C) Stephen Rothwell
-+ * Copyright (C) 2000,2002 Stephen Rothwell
-  */
- 
- struct dnotify_struct {
- 	struct dnotify_struct *	dn_next;
--	int			dn_magic;
- 	unsigned long		dn_mask;	/* Events to be notified
- 						   see linux/fcntl.h */
- 	int			dn_fd;
-@@ -14,9 +13,8 @@
- 	fl_owner_t		dn_owner;
- };
- 
--#define DNOTIFY_MAGIC	0x444E4F54
--
- extern void __inode_dir_notify(struct inode *, unsigned long);
-+extern void dnotify_flush(struct file *filp, fl_owner_t id);
- extern int fcntl_dirnotify(int, struct file *, unsigned long);
- 
- static inline void inode_dir_notify(struct inode *inode, unsigned long event)
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

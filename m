@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313304AbSD3MiU>; Tue, 30 Apr 2002 08:38:20 -0400
+	id <S313307AbSD3MqG>; Tue, 30 Apr 2002 08:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313307AbSD3MiT>; Tue, 30 Apr 2002 08:38:19 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:48399 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S313304AbSD3MiR>; Tue, 30 Apr 2002 08:38:17 -0400
-Message-Id: <200204301210.g3UC9qX02863@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: David Woodhouse <dwmw2@infradead.org>,
-        "Wanghong Yuan" <wyuan1@ews.uiuc.edu>
-Subject: Re: How to enable printk
-Date: Tue, 30 Apr 2002 15:12:14 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001001c1ef3d$890a6d50$e6f7ae80@ad.uiuc.edu> <20020428.204911.63038910.davem@redhat.com> <29915.1020080236@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S313312AbSD3MqF>; Tue, 30 Apr 2002 08:46:05 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:6661 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313307AbSD3MqF>; Tue, 30 Apr 2002 08:46:05 -0400
+Date: Tue, 30 Apr 2002 13:45:57 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: devfs: BKL *not* taken while opening devices
+Message-ID: <20020430134557.C26943@flint.arm.linux.org.uk>
+In-Reply-To: <20020429141301.B16778@flint.arm.linux.org.uk> <3CCD672E.5040005@us.ibm.com> <3CCD811E.8689F4B0@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 April 2002 09:37, David Woodhouse wrote:
-> wyuan1@ews.uiuc.edu said:
-> >  It may be a simple question. But I cannot see the result of printk in
-> > console like the following. Do i need to enable it somewhere? Thanks
->
-> You didn't give a priority, so it will have defaulted to KERN_WARNING.
->
-> Some distributions disable the logging of KERN_WARNING messages to the
-> console, which seems to be a very silly thing to do.
+On Mon, Apr 29, 2002 at 06:21:34PM +0100, Arjan van de Ven wrote:
+> I'm not convinced of that. It's not nearly a critical path and it's
+> better to get even the "dumb" drivers safe than to risk having big
+> security holes in there for years to come.
 
-It is not silly as long as kernel continues to log tons of normal stuff
-as warnings.
+Would it be worth dropping a  BUG_ON(!kernel_locked()) in tty_open() to
+catch this type of error?  The tty code heavily relies on the BKL.
 
-> file a bug report.
+This way, such locking problems would get caught early, since everyone
+uses the tty code during boot, right?
 
-Here it is:
-There are way too many printks without a log level!
---
-vda
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

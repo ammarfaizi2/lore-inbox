@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbTFPLzc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 07:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTFPLzb
+	id S263802AbTFPL7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 07:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTFPL7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 07:55:31 -0400
-Received: from p164.ats40.donpac.ru ([217.107.128.164]:53202 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S263775AbTFPLza (ORCPT
+	Mon, 16 Jun 2003 07:59:16 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:44693 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263802AbTFPL7N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 07:55:30 -0400
-Date: Mon, 16 Jun 2003 16:09:12 +0400
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: irq consolidation
-Message-ID: <20030616120912.GA11652@pazke>
-Mail-Followup-To: Anton Blanchard <anton@samba.org>,
-	linux-kernel@vger.kernel.org
-References: <20030607040515.GB28914@krispykreme> <20030607044803.GE28914@krispykreme> <20030607101848.A22665@flint.arm.linux.org.uk> <20030612113405.GH1195@krispykreme>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
-Content-Disposition: inline
-In-Reply-To: <20030612113405.GH1195@krispykreme>
-User-Agent: Mutt/1.5.4i
-From: Andrey Panin <pazke@donpac.ru>
-X-Spam-Score: -1.0 (-)
+	Mon, 16 Jun 2003 07:59:13 -0400
+Date: Mon, 16 Jun 2003 14:12:45 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ian Molton <spyro@f2s.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: FRAMEBUFFER policy
+In-Reply-To: <20030616020012.3f2d27dd.spyro@f2s.com>
+Message-ID: <Pine.GSO.4.21.0306161411410.15789-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Jun 2003, Ian Molton wrote:
+> What is the policy as regards linux framebuffer drivers when presented
+> with a mode they cannot handle.
+> 
+> eg, suppose a driver can only handle even numbers of pixels and a
+> request is made for a mode with 639 pixels - should it allocate a 640
+> pixel wide mode?
+> 
+> or should it extend the height of a mode to allow hardware scrolling in
+> multiples of the font height?
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If you pass a mode that cannot be handled, the driver must try to round up some
+values to make it work. If that's not possible, an error is returned.
 
-On 163, 06 12, 2003 at 09:34:06PM +1000, Anton Blanchard wrote:
->=20
-> > I believe Andrey's IRQ consolidation provides a single flat IRQ
-> > structure.  Unfortunately, this doesn't reflect the reality that we
-> > have on many ARM platforms - it remains the case that we need to
-> > decode IRQs on a multi-level basis.
->=20
-> Yes its still a flat structure. On ppc32/64 we offset the interrupts on
-> the main controller to provide a space for ISA interrupts to go. Not
-> great but it works for us.
+Gr{oetje,eeting}s,
 
-May be I missed the point, but it isn't flat.
+						Geert
 
-You can define HAVE_ARCH_IRQ_DESC and provide your own irq_desc(irq)
-function which will translate irq number to the corresponding=20
-irq_desc_t structure. You are free to implement any irq mappings
-behind the irq_desc(). NR_IRQS is used only as maximal irq number.
-So what is the problem ?
-=20
-> One thing Paul suggested was to have a flag to mark an interrupt as a
-> cascade in the irq descriptor. If its set then we also provide a
-> get_irq() method (perhaps stashed away in the ->action field). That gives
-> us nested interrupt handling in generic code. (assuming you can
-> partition your irq numbers somehow)
->=20
-> Anton
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+7bNoby9O0+A2ZecRAsA5AKCA4rJBVWpl/AaDcBfCtarpmsMsWACfQgPP
-1HAQ/x5TKmDhxbN+Nzbm9r8=
-=Z0Wk
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--

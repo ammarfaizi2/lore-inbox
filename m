@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130443AbRAGLRO>; Sun, 7 Jan 2001 06:17:14 -0500
+	id <S130036AbRAGLWO>; Sun, 7 Jan 2001 06:22:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130484AbRAGLRE>; Sun, 7 Jan 2001 06:17:04 -0500
-Received: from yoda.planetinternet.be ([195.95.30.146]:29963 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S130443AbRAGLQy>; Sun, 7 Jan 2001 06:16:54 -0500
-Date: Sun, 7 Jan 2001 12:16:33 +0100
-From: Kurt Roeckx <Q@ping.be>
-To: Brett <bpemberton@dingoblue.net.au>
-Cc: Matthias Juchem <juchem@uni-mannheim.de>,
-        Ulrich Drepper <drepper@cygnus.com>, linux-kernel@vger.kernel.org
+	id <S130368AbRAGLWF>; Sun, 7 Jan 2001 06:22:05 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:2923 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S130036AbRAGLVt>; Sun, 7 Jan 2001 06:21:49 -0500
+Date: Sun, 7 Jan 2001 03:21:36 -0800 (PST)
+From: David Ford <david+nospam@killerlabs.com>
+Reply-To: David Ford <david+validemail@killerlabs.com>
+To: Matthias Juchem <juchem@uni-mannheim.de>
+cc: Brett <bpemberton@dingoblue.net.au>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] new bug report script
-Message-ID: <20010107121633.A6815@ping.be>
-In-Reply-To: <Pine.LNX.4.30.0101070858400.7104-100000@gandalf.math.uni-mannheim.de> <Pine.LNX.4.21.0101072041380.12767-100000@tae-bo.generica.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <Pine.LNX.4.21.0101072041380.12767-100000@tae-bo.generica.dyndns.org>
+In-Reply-To: <Pine.LNX.4.30.0101071040250.7104-100000@gandalf.math.uni-mannheim.de>
+Message-ID: <Pine.LNX.4.10.10101070248180.4173-100000@Huntington-Beach.Blue-Labs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2001 at 08:43:12PM +1100, Brett wrote:
-> 
-> Taking a guess here....
-> 
-> strings /lib/libc* | grep "release version"
-> 
-> I'm not sure how reliable this method is either :)
+On Sun, 7 Jan 2001, Matthias Juchem wrote:
+> I guess if you use a development version the above returns nothing. If I'm
+> right, a pre-release libc was recommended for use with 2.2.0 (I'm not
+> sure).
 
-That returns nothing here.
+Here is a random idea.
 
-I do find this in it:
-"@(#) The Linux C library 5.4.46"
+get the pathname of the library(ies) then this sed expression:
+
+sed \
+ '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' \
+ /lib/libc.so.6
+
+For me it returns either 5.4.46 or 2.2 depending on what filename is fed to it.
 
 
-Kurt
+exp: the first regexp heavily filters the input data for the second so
+significantly less cpu is spent for the real matching.
+
+/C [lL]ibrary /!d  -- match example: "C Library "
+
+match #1:	[^0-9]*
+  match everything until we hit a digit
+match #2:	\([0-9.]*\)
+  match all digits and '.' and use pattern space #1
+match #3:	.*
+  match the remainder
+
+We're left with pattern space #1 holding the assumed library version number.
+
+This is done with sed version GNU 3.02.80, some versions differ, buyer beware.
+
+$ sed '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' /lib/libc.so.6
+2.2
+$ sed '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' /lib/libc.so.5
+5.4.46
+$ 
+
+
+-d
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130683AbQKGAk1>; Mon, 6 Nov 2000 19:40:27 -0500
+	id <S130674AbQKGAog>; Mon, 6 Nov 2000 19:44:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130684AbQKGAkQ>; Mon, 6 Nov 2000 19:40:16 -0500
-Received: from innerfire.net ([208.181.73.33]:62983 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S130683AbQKGAkK>;
-	Mon, 6 Nov 2000 19:40:10 -0500
-Date: Mon, 6 Nov 2000 16:42:00 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-cc: linux-kernel@vger.kernel.org
+	id <S130662AbQKGAo1>; Mon, 6 Nov 2000 19:44:27 -0500
+Received: from navy.csi.cam.ac.uk ([131.111.8.49]:32688 "EHLO
+	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130212AbQKGAoH>; Mon, 6 Nov 2000 19:44:07 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, jas88@cam.ac.uk (James A. Sutherland)
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <00110700362203.00940@dax.joh.cam.ac.uk>
-Message-ID: <Pine.LNX.4.10.10011061640330.31249-100000@innerfire.net>
+Date: Tue, 7 Nov 2000 00:38:54 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: goemon@anime.net (Dan Hollis), dwmw2@infradead.org (David Woodhouse),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E13swbR-0006pk-00@the-village.bc.nu>
+In-Reply-To: <E13swbR-0006pk-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00110700431704.00940@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000, James A. Sutherland wrote:
-
-> On Mon, 06 Nov 2000, Gerhard Mack wrote:
-> > Sure .. lets see you start a laptop in class or buisness meeting and have
-> > everyone turn to look at you wondering why your laptop let off an ear
-> > piercing shreak because the hardware defaults to all settings max.
+On Tue, 07 Nov 2000, Alan Cox wrote:
+> > changing settings. If I plug in a hotplug soundcard and load the driver, I do
+> > NOT want the driver to decide to set some settings. If I want settings set,
+> > I'll do it myself (or have a script to do it).
 > 
-> That only happens if the driver is stupid enough to try guessing "correct"
-> volume settings. If it leaves well alone until it KNOWS the correct settings,
-> there is no ear piercing shriek. Nor is there any break in the sound if you
-> were listening to something from the mixer.
+> How about if your stuff is already nicely set up and you remove then replug
+> a device,
+
+When I plug it in and modprobe is triggered to load the driver, a script then
+runs to feed the device appropriate configuration info. Since the driver only
+resets the hardware when it is given the correct configuration, there's no
+problem.
+
+> or remove and swap for an identical replacement part. Most people then
+> want the configuration preserved.
+
+Hmm... define "identical". I take a laptop home, use a USB NIC to talk to my
+LAN at home (using NAT) with a 192.168.* address. Then I take it elsewhere and
+use the same model of NIC on the college LAN. All of a sudden, I get myself
+banging on the door complaining about misconfigured NICs :-)
+   
+> And guess what the simple modutils solution using an ELF section solves that
+> too Want to go to default configuration ?
 > 
-> > And you will _STILL_ have that shriek for 1/2 - 1 second before the
-> > userspace app loads.
+> 	rm /var/run/modules/eth0.data
 > 
-> Wrong. The userspace app is the one triggering the device init, when it gives
-> the sound driver the correct volume settings. There is no half second delay.
-> 
-> > And no we couldn't unplug either the mike or the speakers since they come
-> > embedded in the laptop's case. 
-> > 
-> > I don't see in any of your trolling an answer for this problem.
-> 
-> It isn't trolling, and there is a perfectly simple answer, as I have already
-> explained.
-> 
+> or wrap it in a GUI.
 
-And if I don't use modules?
+That sounds a lot like what I've been advocating all along, if that file is
+created/updated by a script when eth0's driver is unloaded, then fed back to
+eth0 on load.
 
-	Gerhard
+> [BTW windows gets the USB speaker state management right, seems they store all
+> the module persistent data in the registry!]
+
+Yes, that's what we need. A registry, so configuration problems can be
+persistent across boots, and even reinstallations... ;-)
 
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315331AbSEAHd5>; Wed, 1 May 2002 03:33:57 -0400
+	id <S315339AbSEAHwo>; Wed, 1 May 2002 03:52:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315332AbSEAHd4>; Wed, 1 May 2002 03:33:56 -0400
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:30476 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S315331AbSEAHd4>; Wed, 1 May 2002 03:33:56 -0400
-Date: Wed, 1 May 2002 00:31:43 -0700 (PDT)
-From: Miles Lane <miles@megapathdsl.net>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.11 + framebuffer compile patch -- OOPS in blk_get_readahead+a/60
-Message-ID: <Pine.LNX.4.44.0205010027520.2042-100000@turbulence.megapathdsl.net>
+	id <S315341AbSEAHwo>; Wed, 1 May 2002 03:52:44 -0400
+Received: from vt.fermentas.lt ([193.219.56.32]:13700 "EHLO vt.fermentas.lt")
+	by vger.kernel.org with ESMTP id <S315339AbSEAHwn>;
+	Wed, 1 May 2002 03:52:43 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: vt <vt@vt.fermentas.lt>
+Reply-To: vt@vt.fermentas.lt
+Organization: myself
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.11 and smbfs 
+Date: Wed, 1 May 2002 09:52:12 +0200
+X-Mailer: KMail [version 1.4]
+X-Message: There is no virus in this message
+X-Apparently-From: Alpha Centauri
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200205010952.12972.vt@vt.fermentas.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
-> Can you try it again with the lastest patch from my URL. 
-> I just tested it and it worked?
-> 
-> http://www.transvirtual.com/~jsimmons/fbdev_fixs.diff
+the same problem here (2.5.12+fb patch).
 
-Thanks James.  You latest patch works great.
-Please submit it to Linus for 2.5.13.
+dmesg says:
 
-Cheers,
-	Miles
-
+smb_retry: successful, new pid=427, generation=2
+smb_request: result -104, setting invalid
+smb_retry: successful, new pid=430, generation=2
+smb_proc_readdir_long: name=\, result=-2, rcls=1, err=2
 

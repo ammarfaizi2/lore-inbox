@@ -1,97 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269833AbUJGNAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269802AbUJGNAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269833AbUJGNAl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 09:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUJGM5h
+	id S269802AbUJGNAr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 09:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269815AbUJGM43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 08:57:37 -0400
-Received: from science.horizon.com ([192.35.100.1]:27698 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S269697AbUJGMtK
+	Thu, 7 Oct 2004 08:56:29 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:41373 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269714AbUJGMxe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 08:49:10 -0400
-Date: 7 Oct 2004 12:49:09 -0000
-Message-ID: <20041007124909.12995.qmail@science.horizon.com>
-From: linux@horizon.com
-To: aeb@cwi.nl, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: UDP recvmsg blocks after select(), 2.6 bug?
-Cc: cfriesen@nortelnetworks.com
+	Thu, 7 Oct 2004 08:53:34 -0400
+Date: Thu, 7 Oct 2004 13:53:14 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@hibernia.jakma.org
+To: Martijn Sipkema <martijn@entmoot.nl>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+In-Reply-To: <001601c4ac72$19932760$161b14ac@boromir>
+Message-ID: <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org>
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
+ <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
+ <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
+ <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com>
+ <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How about the following?  Should I make a similar addition to
-poll(2)?
+On Thu, 7 Oct 2004, Martijn Sipkema wrote:
 
-Legalese:
-These changes are works of original authorship.
-These changes are hereby released into the public domain; copyright abandoned.
+> That there is time between the select() and recvmsg() calls is not 
+> the issue; the data is only checked in the call to recvmsg(). 
+> Actually the longer the time between select() and recvmsg(), the 
+> larger the probability that valid data has been received.
 
---- man2/select.2.old	2004-10-07 07:58:46.000000000 -0400
-+++ man2/select.2	2004-10-07 08:38:24.000000000 -0400
-@@ -170,7 +170,7 @@
- .IR sigmask ,
- avoiding the race.)
- Since Linux today does not have a
--.IR pselect ()
-+.BR pselect ()
- system call, the current glibc2 routine still contains this race.
- .SS "The timeout"
- The time structures involved are defined in
-@@ -291,6 +291,18 @@
-     return 0;
- }
- .fi
-+.SH BUGS
-+.B pselect
-+is currently emulated with a user-space wrapper that has a race condition.
-+For reliable (and more portable) signal trapping, use the self-pipe trick.
-+(Where a signal handler writes to a pipe whose other end is read by the
-+main loop.)
-+
-+.B select
-+and
-+.B pselect
-+permit blocking file descritprs in the fd_sets, even though
-+there is no valid reason for a program to do this.
- .SH "CONFORMING TO"
- 4.4BSD (the
- .B select
-@@ -315,6 +327,39 @@
- .I fd
- to be a valid file descriptor.
- 
-+When
-+.B select
-+indicates that a file descriptor is ready, this is only a strong hint,
-+not a guarantee, that a read or write is possible without blocking.
-+For this reason, the associated file descriptors must always be in
-+non-blocking mode (see
-+.BR fcntl (2))
-+in a correct program.  Reasons why the I/O could block include:
-+.TP
-+(i)
-+Another process may have performed I/O on the
-+.I fd
-+in the meantime.
-+.TP
-+(ii)
-+Some needed kernel buffer space may have been consumed for reasons
-+totally unrelated to this I/O, or
-+.TP
-+(iii)
-+Since 2.4.x, Linux has overlapped UDP checksum verification with
-+copying to user-space.  If a UDP packet arrives,
-+.B select
-+will indicate that data is ready, but during the read, if the checksum is
-+bad, the packet will disappear and (if no subsequent packet with a
-+valid checksum is waiting) the read will indicate that no data is available.
-+.PP
-+In general, it is legal for
-+.B select
-+to make some optimistic assumptions, subject to later verification by the
-+subsequent I/O, as long as this does not result in a busy-loop where
-+.B select
-+is stuck thinking data is ready when it is not.
-+
- Concerning the types involved, the classical situation is that
- the two fields of a struct timeval are longs (as shown above),
- and the struct is defined in
+But it is the issue.
+
+Much can change between the select() and recvmsg - things outside of 
+kernel control too, and it's long been known.
+
+> But the standard clearly says otherwise.
+
+Standards can have bugs too.
+
+It's not healthy to take a corner-case situation from the standard on 
+select() and apply it globally to all IO. (not in my mind anyway, 
+whatever the standard says).
+
+> Perhaps select()'s perception of state should be made to take possible
+> corruption into account.
+
+You'll /still/ run into problems, on other platforms too. Set socket 
+to O_NONBLOCK and deal with it ;)
+
+> Why would the POSIX standard say recvmsg() should not block if
+> it did not intend it to be used in that way?
+
+POSIX_ME_HARDER? ;)
+
+> Wrong. IMHO it is not exactly a good thing to not be compliant on 
+> such basic functionality.
+
+Like I said, to my mind, any sane app should try avoiding assumption 
+that kernel state remains same between select() and read/write - and 
+O_NONBLOCK exists to deal nicely with the situation.
+
+You really shouldnt assume select state is guaranteed not to change 
+by time you get round to doing IO. It's not safe, and not just on 
+Linux - whatever POSIX says.
+
+> --ms
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+"An ounce of prevention is worth a pound of purge."

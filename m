@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUEZJyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265399AbUEZJ66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUEZJyG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 05:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbUEZJyG
+	id S265399AbUEZJ66 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 05:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265400AbUEZJ66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 05:54:06 -0400
-Received: from cantor.suse.de ([195.135.220.2]:23260 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265395AbUEZJxz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 05:53:55 -0400
-Date: Wed, 26 May 2004 11:53:51 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: very low performance on SCSI disks if device node is in tmpfs
-Message-ID: <20040526095351.GC28430@suse.de>
-References: <20040525184732.GB26661@suse.de> <20040525144836.1af59a96.akpm@osdl.org> <20040525145923.68af0ad8.akpm@osdl.org> <20040525154107.053b9ef6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040525154107.053b9ef6.akpm@osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Wed, 26 May 2004 05:58:58 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:45671 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265399AbUEZJ65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 05:58:57 -0400
+Message-ID: <40B46A57.4050209@yahoo.com.au>
+Date: Wed, 26 May 2004 19:58:47 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: orders@nodivisions.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <40B4667B.5040303@nodivisions.com>
+In-Reply-To: <40B4667B.5040303@nodivisions.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, May 25, Andrew Morton wrote:
-
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > Everything there is consistent with "not doing readahead".
-> >
+Anthony DiSante wrote:
+> Nick Piggin wrote:
+> 
+>> The VM doesn't always get it right, and to make matters worse, desktop
+>> users don't appreciate their long running jobs finishing earlier, but
+>> *hate* having to wait a few seconds for a window to appear if it hasn't
+>> been used for 24 hours.
 > 
 > 
+> Come on, that is quite an exaggeration.  It can happen in a span of 
+> minutes -- after rsyncing a dir to a backup dir, for example, which 
+> fills ram rather quickly with cache I'll never use again.  Or after 
+> configuring and compiling a package, which does the same thing.
 > 
-> We need to set file->f_ra _after_ calling blkdev_open(), when inode->i_mapping
-> points at the right thing.  And we need to get it from
-> inode->i_mapping->host->i_mapping too, which represents the underlying device.
 
-That fixed it, thanks for the patch and the award!
-I will take the patch and pass the award to the guy who found the bug.
+rsync is something known to break the VM's use-once heuristics.
+I'm looking at that.
 
--- 
-USB is for mice, FireWire is for men!
+> As you said, the VM doesn't, in fact, always get it right.  If 512MB 
+> worked before when it was half swap, 512MB of pure ram will work too, 
+> only faster.  I don't see how adding more swap at that point could 
+> increase performance unless you are keeping your ram full of non-cached 
+> pages, and that's never the case for me -- my ram is almost always half 
+> cached pages.
+> 
 
-sUse lINUX ag, nÜRNBERG
+It can.

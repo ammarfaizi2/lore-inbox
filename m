@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318165AbSIJVz6>; Tue, 10 Sep 2002 17:55:58 -0400
+	id <S318169AbSIJV7c>; Tue, 10 Sep 2002 17:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318166AbSIJVz6>; Tue, 10 Sep 2002 17:55:58 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:51447 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S318165AbSIJVz5>; Tue, 10 Sep 2002 17:55:57 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1031689089.31554.132.camel@irongate.swansea.linux.org.uk> 
-References: <1031689089.31554.132.camel@irongate.swansea.linux.org.uk>  <Pine.LNX.4.44L.0209101626350.1519-100000@duckman.distro.conectiva> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 10 Sep 2002 23:00:02 +0100
-Message-ID: <4744.1031695202@redhat.com>
+	id <S318170AbSIJV7b>; Tue, 10 Sep 2002 17:59:31 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36873 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318169AbSIJV73>; Tue, 10 Sep 2002 17:59:29 -0400
+Date: Tue, 10 Sep 2002 17:52:56 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+       david-b@pacbell.net, mdharm-kernel@one-eyed-alien.net, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+In-Reply-To: <20020910193228.GL31597@waste.org>
+Message-ID: <Pine.LNX.3.96.1020910173301.8675A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Sep 2002, Oliver Xymoron wrote:
 
-alan@lxorguk.ukuu.org.uk said:
->  There is a patch for this. However its fairly useless since all the
-> users are in X11 and while -ac will give you morse as well thats not
-> terribly friendly.
+> Which still leaves the question, does it really make sense for
+> FATAL/BUG to forcibly kill the machine? If the bug is truly fatal,
+> presumably the machine kills itself in short order anyway, otherwise
+> we might have a shot at recording the situation. A more useful
+> distinction might be in terms of risk of damaging filesystems (or perhaps
+> hardware) if we continue, something like BROKEN/DANGEROUSLY_BROKEN.
 
-> There are some real mode patches that try and get you back into a sane
-> video mode and dump you into a saner environment.
+And that's the heart of the thing, if continuing is likely to trash
+filesystem or (unlikely) damage hardware, then the system should go down
+RIGHT NOW.
 
-Why change video mode? As long as X told the kernel what it's doing, we 
-know how to drive a linear framebuffer and in fact a few other types of 
-framebuffers. In the 'oh shit' case we could at least _attempt_ to spew our 
-dying splutter onto the screen.
+I've often wondered if it wouldn't be better to allow the user to provide
+a partition for oops use, where the kernel could write kmen and a few
+chosen other bit of information. Get all the oops output formatting code
+out of the kernel. Then the user could run tools like ksymoops against the
+oops after reboot, and a small utility could wrap and compress the oops,
+symbols table, config, etc, for future use by the user or developer. 
 
---
-dwmw2
+I've sent a fair number of crash dumps of AIX to IBM, seems a good idea.
+And developers could have personal tools, archetecture dependent tools,
+ksysoops could be enhanced after the fact.
 
+If it would help with a nasty bug I'd put all that and the kernel source I
+used, the module tree, etc, on a CD and send it. Whatever helps solve the
+problem. Too often the output is lost on the console and not written
+anywhere recoverable.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

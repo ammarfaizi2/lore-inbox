@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317049AbSFAUL2>; Sat, 1 Jun 2002 16:11:28 -0400
+	id <S317051AbSFAUOd>; Sat, 1 Jun 2002 16:14:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317048AbSFAUL1>; Sat, 1 Jun 2002 16:11:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27398 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317049AbSFAULX>;
-	Sat, 1 Jun 2002 16:11:23 -0400
-Message-ID: <3CF92B1D.E466B743@zip.com.au>
-Date: Sat, 01 Jun 2002 13:14:21 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
+	id <S317055AbSFAUOc>; Sat, 1 Jun 2002 16:14:32 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:31668 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S317051AbSFAUOb>;
+	Sat, 1 Jun 2002 16:14:31 -0400
+Date: Sat, 1 Jun 2002 16:14:24 -0400
+From: Jeff Garzik <garzik@gtf.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
         lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 9/16] direct-to-BIO writeback for writeback-mode ext3
-In-Reply-To: <3CF88903.E253A075@zip.com.au> <20020601191514.GA7905@turbolinux.com>
+Subject: Re: [patch 10/16] give swapper_space a set_page_dirty a_op
+Message-ID: <20020601161424.A4535@gtf.org>
+In-Reply-To: <3CF88908.179B10BF@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Sat, Jun 01, 2002 at 01:42:48AM -0700, Andrew Morton wrote:
 > 
-> On Jun 01, 2002  01:42 -0700, Andrew Morton wrote:
-> > Turn on direct-to-BIO writeback for ext3 in data=writeback mode.
 > 
-> A minor note on this (especially minor since I believe data=journal
-> doesn't even work in 2.5), but you should probably also change the
-> address ops in ext3/ioctl.c if you enable/disable per-inode data
-> journaling.
+> Give swapper_space a ->set_page_dirty() address_space_operation.
 
-hrm.  Actually, changing journalling mode against a file while
-modifications are happening against it is almost certain to explode
-if the timing is right.  ISTR that we have seen bug reports against
-this on ext3-users.  This is just waaaay too hard to do.
+Remember that we don't need swapper_space at all?
 
-But we can fix it by doing the opposite: create three separate
-a_ops instances, one for each journalling mode.  Assign it at
-new_inode/read_inode time.
+All the underlying inodes have their own address spaces, and the
+SWP_ENTRY tells us what we need to know, to find the underlying address
+spaces.
 
-This way, we don't have to do the `ext3_should_journal_data()'
-tests all over the place and we just don't care if someone diddles
-the journalling mode while the file is otherwise in use.
+swapper_space is just a master address space that overlays the
+underlying multiple address spaces.  We can just look directly at the
+underlying ones...
 
-Another one for my todo list..
+	Jeff
 
--
+
+

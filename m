@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbTFAE2j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 00:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTFAE2j
+	id S261222AbTFAEbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 00:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbTFAEbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 00:28:39 -0400
-Received: from waste.org ([209.173.204.2]:19868 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261216AbTFAE2i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 00:28:38 -0400
-Date: Sat, 31 May 2003 23:41:57 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: john@grabjohn.com
+	Sun, 1 Jun 2003 00:31:42 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:57951 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261222AbTFAEbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 00:31:41 -0400
+Date: Sat, 31 May 2003 21:45:20 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Tom Sightler <ttsig@tuxyturvy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
-Message-ID: <20030601044157.GK23715@waste.org>
-References: <200305311606.h4VG6L8f000816@81-2-122-30.bradfords.org.uk>
+Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
+Message-Id: <20030531214520.5b7facf4.akpm@digeo.com>
+In-Reply-To: <1054441433.1722.33.camel@iso-8590-lx.zeusinc.com>
+References: <1054441433.1722.33.camel@iso-8590-lx.zeusinc.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305311606.h4VG6L8f000816@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Jun 2003 04:45:04.0235 (UTC) FILETIME=[9176A3B0:01C327F8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 31, 2003 at 05:06:21PM +0100, john@grabjohn.com wrote:
+Tom Sightler <ttsig@tuxyturvy.com> wrote:
+>
+> I simply reniced this process to -10 and
+>  everything started working fine.  Upon looking a little further it
+>  seemed that the kernel was dynamically boosting the priority of the
+>  process much higher than it probably should be, in the end, not leaving
+>  enough CPU for playing the sounds without skipping.
 
-> Having said that, I hate code that is indented. Am I the only person
-> who mentally counts, "in, in, in, out", etc, when reading code?
+Yes, it seems that too many real-world applications are accidentally
+triggering this problem.
 
-Yes.
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+Could you please run an strace of the boosted process, find out what it is
+doing to get itself boosted in this manner?  Wait until things are in
+steady state and the process is boosted, then run `strace -tt <pid>' so we
+see the timing info.
+
+
+Thanks.

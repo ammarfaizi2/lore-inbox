@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270873AbTGNVIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 17:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270870AbTGNVGY
+	id S270855AbTGNVDG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 17:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270846AbTGNVBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 17:06:24 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:32187 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S270868AbTGNVFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 17:05:19 -0400
-Subject: Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's - all needed rpms
-	installed)
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: arjanv@redhat.com
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058210139.5981.6.camel@laptop.fenrus.com>
-References: <1058196612.3353.2.camel@aurora.localdomain>
-	 <3F12FF53.7060708@pobox.com>  <1058210139.5981.6.camel@laptop.fenrus.com>
+	Mon, 14 Jul 2003 17:01:03 -0400
+Received: from janus.zeusinc.com ([205.242.242.161]:18985 "EHLO
+	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id S270844AbTGNVAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 17:00:22 -0400
+Subject: Re: airo_cs load error
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Ritz Daniel <daniel.ritz@alcatel.ch>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'MatthewK@hsius.com'" <MatthewK@hsius.com>
+In-Reply-To: <33A932AD8C46D411A30F00508BACE9A3028758D8@exzh003.alcatel.ch>
+References: <33A932AD8C46D411A30F00508BACE9A3028758D8@exzh003.alcatel.ch>
 Content-Type: text/plain
-Message-Id: <1058217601.4441.1.camel@aurora.localdomain>
+Message-Id: <1058217065.1714.5.camel@iso-8590-lx.zeusinc.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-2) 
-Date: 14 Jul 2003 17:20:02 -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 17:13:48 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-14 at 15:15, Arjan van de Ven wrote:
-> On Mon, 2003-07-14 at 21:06, Jeff Garzik wrote:
-> > Trever L. Adams wrote:
-> > > OK, I now get past the initialization of the 3c920.  However, now it
-> > > hangs (sak enabled, sak doesn't work... completely dead) when eth0 tries
-> > > to come up.  I have IPv6 enabled (the router does 6to4, this isn't the
-> > > router), I don't believe I have any firewall stuff on this box, it does
-> > > dhcp for IPv4 address and ntp time.
+On Mon, 2003-07-14 at 09:21, Ritz Daniel wrote:
+> >@@ -4838,7 +4850,7 @@
+> > 	readCapabilityRid(local, &cap_rid);
 > > 
-> > 
-> > hmmm... do you have the latest modutils installed?
+> > 	dwrq->length = sizeof(struct iw_range);
+> >-	memset(range, 0, sizeof(*range));
+> >+	memset(range, 0, sizeof(range));
+> > 	range->min_nwid = 0x0000;
+> > 	range->max_nwid = 0x0000;
+> > 	range->num_channels = 14;
 > 
-> of course he has; the kernel rpm requires: a good version.
+> this is wrong, sizeof(*range) is correct.
+> 
+> btw. the driver is broken anyway, transmit can kill keventd.
+> (see reports on sf.net, redhat-bugzilla, list-archive)
+> i'm fixing it, currently testing a 2.4 patch, 2.6-test
+> patch follows as soon as 2.4 is ok again.
 
-More than that, I have been updating against rawhide and your stuff
-since I started messing with your kernel rpms.  So, if you have it
-uploaded to either of those and my system is using that functionality
-(which modutils is obviously one of those), then I am running that
-software.
+Yep, I somehow sent out an incorrect diff that had some things reversed
+that shouldn't have been.  I've been working on cleaner version that has
+a few more fixes but have just been too swamped with other things to get
+it done.  Sounds like you're working on the same thing so I'll put mine
+on hold for a while.
 
-I did get a version of 2.5.x to work, but I think that was back around
-2.5.46 or something like that.  I had too many problems with Gnome back
-then and so went back to 2.4.x.  Those have been fixed, so now I am
-trying to help with testing.
+Later,
+Tom
 
-Trever
---
-"Love is friendship set on fire." -- French Proverb
 

@@ -1,45 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbVCDTuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263021AbVCDTsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbVCDTuy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 14:50:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbVCDTto
+	id S263021AbVCDTsX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 14:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbVCDTsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 14:49:44 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:11665 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263022AbVCDTpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 14:45:49 -0500
-Date: Fri, 4 Mar 2005 13:45:39 -0600
-From: "Christopher R. Hertel" <crh@ubiqx.mn.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Steve French <sfrench@us.ibm.com>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Luca Tettamanti <kronos@kronoz.cjb.net>,
-       samba-technical <samba-technical@lists.samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Domen Puncer <domen@coderock.org>
-Subject: Re: [PATCH] whitespace cleanups for fs/cifs/file.c
-Message-ID: <20050304194539.GM28979@Favog.ubiqx.mn.org>
-References: <Pine.LNX.4.62.0503041807060.2794@dragon.hygekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0503041807060.2794@dragon.hygekrogen.localhost>
-X-Organization: ubiqx development, uninq.
-X-URL: http://www.ubiqx.org/
-X-Read-My-Book: [ISBN: 013047116X] http://www.ubiqx.org/cifs/
-User-Agent: Mutt/1.5.6i
+	Fri, 4 Mar 2005 14:48:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:920 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263027AbVCDT3j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 14:29:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=dI06Em6Yqtxm6qy1y9xmfBvQnjS+8EXHhRsKTwtBw17ManGRYfFxn/VKDXHq9JGeqaiE3RWu5Y35p92R16jIdxwIq97COQA+SUQ04cxRJjk+ytz9W1P7mDAMXKfiDccEIV5TXLxLhZaof9E7BcmNrKGqstO6lLojbtj8biHfJWc=
+Message-ID: <4228B6FA.6040606@gmail.com>
+Date: Fri, 04 Mar 2005 20:28:58 +0100
+From: Paolo <paoloc@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: greg@kroah.com
+CC: chrisw@osdl.org, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11.1
+X-Enigmail-Version: 0.90.1.1
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would guess that Steve is at Connectathon...  Might be a while before he 
-has time to catch up on these threads.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Chris -)-----
+| For those of you who haven't waded through the huge "RFD: Kernel release
+| numbering" thread on lkml to realize that we are now going to start
+| putting out 2.6.x.y releases, here's the summary:
+|
+| 	A few of us $suckers will be trying to maintain a 2.6.x.y set of
+| 	releases that happen after 2.6.x is released.  It will contain
+| 	only a set of bugfixes and security fixes that meet a strict set
+| 	of guidelines, as defined by Linus at:
+| 		http://article.gmane.org/gmane.linux.kernel/283396
+|
+| Chris Wright and I are going to start working on doing this work, we
+| will have a <SOME_ALIAS>@kernel.org to post these types of bug fixes to,
+| and a set of people we bounce the patches off of to test for "smells
+| good" validation.  We will also have a bk-commits type mailing list for
+| those who want to watch the patches flow in, and a bk tree from which
+| changsets can be pulled from.
+|
+| Chris and I will be hashing all of the details out next Tuesday, and
+| hopefully all the infrastructure will be in place soon.  When that
+| happens, we will post the full details on how all of this is going to
+| work.  In the meantime, feel free to CC: me and Chris on patches that
+| everyone thinks should go into the 2.6.11.y releases.
+|
+| But right now, Chris is on a plane, and we don't have the email alias
+| set up, or the proper permissions set up on kernel.org to push changes
+| into the v2.6 directory, but we have a few bugs that are needing to be
+| fixed in the 2.6.11 release.  And since our mantra is, "release early
+| and often", here's the first release.
 
--- 
-"Implementing CIFS - the Common Internet FileSystem" ISBN: 013047116X
-Samba Team -- http://www.samba.org/     -)-----   Christopher R. Hertel
-jCIFS Team -- http://jcifs.samba.org/   -)-----   ubiqx development, uninq.
-ubiqx Team -- http://www.ubiqx.org/     -)-----   crh@ubiqx.mn.org
-OnLineBook -- http://ubiqx.org/cifs/    -)-----   crh@ubiqx.org
+First of all, congratulation.
+I really think this will be a great improvement to the development process.
+
+I couldn't agree more with this decision, it's really what I suggested a
+few months ago:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109882220123966&w=2
+
+Out of curiosity, are you going to include the -as branch ?
+
+		Paolo
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (MingW32)
+
+iD8DBQFCKLb6xcZDms2c3jQRAkmBAJ9fNXkoo+ATm2wezsRyQzrRxh6siACdFzVo
+0cllOTLr40ALnK2S3VJENa0=
+=jWOp
+-----END PGP SIGNATURE-----

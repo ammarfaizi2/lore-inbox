@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVBUW4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVBUW5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbVBUW4e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 17:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVBUW4e
+	id S262172AbVBUW5T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 17:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVBUW5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 17:56:34 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:60887 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262170AbVBUW40 (ORCPT
+	Mon, 21 Feb 2005 17:57:19 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:20693 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262172AbVBUW5G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 17:56:26 -0500
-Message-ID: <421A6856.3030604@sgi.com>
-Date: Mon, 21 Feb 2005 17:01:42 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: mort@wildopensource.com, pj@sgi.com, linux-kernel@vger.kernel.org,
-       hilgeman@sgi.com
-Subject: Re: [PATCH/RFC] A method for clearing out page cache
-References: <20050214154431.GS26705@localhost>	<20050214193704.00d47c9f.pj@sgi.com>	<20050221192721.GB26705@localhost>	<20050221134220.2f5911c9.akpm@osdl.org>	<421A607B.4050606@sgi.com> <20050221144108.40eba4d9.akpm@osdl.org>
-In-Reply-To: <20050221144108.40eba4d9.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Feb 2005 17:57:06 -0500
+Date: Mon, 21 Feb 2005 23:57:02 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: James Simmons <jsimmons@pentafluge.infradead.org>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, Pavel Machek <pavel@suse.cz>,
+       Vojtech Pavlik <vojtech@suse.cz>, Oliver Neukum <oliver@neukum.org>,
+       Richard Purdie <rpurdie@rpsys.net>, Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6: drivers/input/power.c is never built
+Message-ID: <20050221225702.GO6722@wiggy.net>
+Mail-Followup-To: James Simmons <jsimmons@www.infradead.org>,
+	Nigel Cunningham <ncunningham@cyclades.com>,
+	James Simmons <jsimmons@pentafluge.infradead.org>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
+	Oliver Neukum <oliver@neukum.org>,
+	Richard Purdie <rpurdie@rpsys.net>, Adrian Bunk <bunk@stusta.de>,
+	Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <047401c515bb$437b5130$0f01a8c0@max> <20050218213801.GA3544@ucw.cz> <20050218233148.GA1628@elf.ucw.cz> <200502182158.34910.dtor_core@ameritech.net> <1108794519.4098.24.camel@desktop.cunningham.myip.net.au> <Pine.LNX.4.56.0502211810360.13423@pentafluge.infradead.org> <20050221183413.GG6722@wiggy.net> <Pine.LNX.4.56.0502212137090.16017@pentafluge.infradead.org> <1109026236.8475.2.camel@desktop.cunningham.myip.net.au> <Pine.LNX.4.56.0502212251540.17645@pentafluge.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0502212251540.17645@pentafluge.infradead.org>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Ray Bryant <raybry@sgi.com> wrote:
+Previously James Simmons wrote:
+> DBUS isthe future. I just wish they had  programing howto for the average 
+> joe to write apps for it.
 
->>
->>We did it this way because it was easier to get it into SLES9 that way.
->>But there is no particular reason that we couldn't use a system call.
->>It's just that we figured adding system calls is hard.
-> 
-> 
-> aarggh.  This is why you should target kernel.org kernels first.  Now we
-> risk ending up with poor old suse carrying an obsolete interface and
-> application developers have to be able to cater for both interfaces.
-> 
+The docs are good enough in my experience, there just seems to be a gap
+between the docs and the code. Strangely enough in this case there are
+documented API bits that are not implemented instead of the other way
+around as usual.
 
-I agree, but time-to-market decisions overrode that.  Anyway, everyone
-uses a program called "bcfree" to actually do the buffer-cache freeing,
-so changing the interface is not as bad as all that.
+Wichert.
 
-Let us put something together along these lines and we will get back to you.
-
-Thanks,
 -- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131245AbRAUSEG>; Sun, 21 Jan 2001 13:04:06 -0500
+	id <S131806AbRAUSFF>; Sun, 21 Jan 2001 13:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131806AbRAUSD4>; Sun, 21 Jan 2001 13:03:56 -0500
-Received: from mail-smtp.socket.net ([216.106.1.32]:4623 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131245AbRAUSDo>; Sun, 21 Jan 2001 13:03:44 -0500
-Date: Sun, 21 Jan 2001 12:05:12 -0600
-From: "Gregory T. Norris" <haphazard@socket.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.0 CDROM problem, ILLEGAL REQUEST
-Message-ID: <20010121120512.A22848@glitch.snoozer.net>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+	id <S131739AbRAUSEq>; Sun, 21 Jan 2001 13:04:46 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:30477 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S131574AbRAUSEl>; Sun, 21 Jan 2001 13:04:41 -0500
+Date: Sun, 21 Jan 2001 13:09:53 -0500
+From: Chris Mason <mason@suse.com>
+To: Gregory Maxwell <greg@linuxpower.cx>, Shawn Starr <Shawn.Starr@Home.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.x and 2.4.1-preX - Higher latency then 2.2.x
+ kernels?
+Message-ID: <186870000.980100593@tiny>
+In-Reply-To: <20010120145924.A22169@xi.linuxpower.cx>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Operating-System: Linux glitch 2.4.0 #1 SMP Mon Jan 15 20:34:07 CST 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-When playing audio CDs under kernel 2.4.0, syslog is showing the
-following message repeatedly:
+On Saturday, January 20, 2001 02:59:24 PM -0500 Gregory Maxwell
+<greg@linuxpower.cx> wrote:
 
-     sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+> On Sat, Jan 20, 2001 at 02:50:16PM -0500, Shawn Starr wrote: 
+>> It just seems that since using 2.4 ive noticed my poor Pentium 200Mhz
+>> slow down whether being in X or otherwise. It just seems that the system
+>> is sluggish.
+>> 
+>> I am using the new ReiserFS filesystem and I do know its still in heavy
+>> development perhaps my latency is due to this (?)
+> 
+> Reiserfs uses much more complex data structures then ext2 (trees..). I
+> don't think that latency has ever been a design criteria and all of the
+> benchmarks they use are pretty much pure throughput tests.
+> 
+> So it wouldn't be really surprising if reiserfs had very bad latency. You
+> should apply the timepegs patch and profile your kernel latency to see
+> where it's coming from.
 
-The command line utility cdplay seems to only cause this occasionally,
-when I start playing a CD or skip to a different track, while gnome's
-gtcd will generate it every few seconds... presumably gtcd is regularly
-querying the drive.
+I'm actually very interested in fixing any latency problems.  If you do
+these tests, please send the results along.
 
-I'm pretty sure that this wasn't occurring under the 2.4.0-testX
-kernels, but I haven't verified this as they aren't currently
-installed.
-
-The system is a dual PIII 600 (i840) with 512MB.  The CDROM is an
-internal Plextor PX-20TS, connected to an Adaptec 2940UW (PCI).  SCSI
-support (including the aic7xxx driver) is compiled directly into the
-kernel, while CDROM support is built as a module.  The only kernel
-patch applied is version 2.4.0.3 of the crypto patch from
-<http://www.kernel.org/pub/linux/kernel/crypto/v2.4/>.
-
-Suggestions and/or pointers would be most appreciated.  Thanx!
-
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6ayTYgrEMyr8Cx2YRAqDNAJ9KuO7XgpjI4zV/DESOonjclIYbHgCfaeA7
-dLJqipR02UxPwUi/qnSiD9w=
-=pcIY
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
+-chris
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

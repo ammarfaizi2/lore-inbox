@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267261AbTAAQLh>; Wed, 1 Jan 2003 11:11:37 -0500
+	id <S267263AbTAAQQz>; Wed, 1 Jan 2003 11:16:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267263AbTAAQLh>; Wed, 1 Jan 2003 11:11:37 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:15188 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S267261AbTAAQLg>; Wed, 1 Jan 2003 11:11:36 -0500
-Subject: Re: ide harddisk freeze WDC WD1800JB vs VIA VT8235
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Mark Rutherford <mark@justirc.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E13107E.3D579F3@justirc.net>
-References: <1041435181.983.76.camel@sun>  <3E13107E.3D579F3@justirc.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041437870.961.87.camel@sun>
+	id <S267265AbTAAQQz>; Wed, 1 Jan 2003 11:16:55 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:29631 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267263AbTAAQQz>; Wed, 1 Jan 2003 11:16:55 -0500
+Date: Wed, 1 Jan 2003 17:25:19 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [RFC] top-level config menu dependencies
+Message-ID: <20030101162519.GF15200@louise.pinerecords.com>
 Mime-Version: 1.0
-Date: 01 Jan 2003 17:17:51 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-01 at 16:59, Mark Rutherford wrote:
-> Q: are you using cables with a slave connector, but its not in use?
-> I had this problem, with this chipset and it turned out that it didnt like
-> having
-> a long 80 wire cable with a loose connector
-> I got a round cable with just 2 connectors, 1 for the board and 1 for the
-> drive....
-> never locked again.
-> I thought it to be strange as well.
-> but with my setup it happened more frequently, say once every 2-3 hours.
-> hope this is of any help.
+Hi,
 
-Thanks for your answer.
+It has been a long-time tradition that no "real tunable options" are
+present in the top level of the kernel config menu.  I reckon this has
+to do with an inherent limitation of the original config subsystem.
 
-Indeed these cables have slave connectors (which are unused). I tried a
-round cable and 2 different non-round ones... I also went down to udma4
-(==udma66)... no use..
+While converting the way submenus appear in menuconfig depending on
+their main, parent config option, I stumbled upon certain subsystems
+(such as MTD or IrDA) that should clearly have an on/off switch directly
+in the main menu so that one doesn't have to enter the corresponding
+submenus to even see if they're enabled or disabled.
 
-I am not sure whether the harddisk should cold-freeze... 
+Since the new kernel configurator would have no problems with such
+a setup, I'm posting this RFC to get the general opinion on whether
+this should be carried on with.  I'm willing to create and send in
+the patches.
 
-Soeren.
-
+Regards,
+-- 
+Tomas Szepe <szepe@pinerecords.com>

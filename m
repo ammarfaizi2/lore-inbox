@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290020AbSA3QZG>; Wed, 30 Jan 2002 11:25:06 -0500
+	id <S289473AbSA3Q16>; Wed, 30 Jan 2002 11:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290014AbSA3QYA>; Wed, 30 Jan 2002 11:24:00 -0500
-Received: from chakra.spb.cityline.ru ([212.46.192.29]:52491 "EHLO
-	chakra.spb.cityline.ru") by vger.kernel.org with ESMTP
-	id <S289987AbSA3QWo>; Wed, 30 Jan 2002 11:22:44 -0500
-Date: Wed, 30 Jan 2002 19:25:36 +0300
-From: Wartan Hachaturow <wart@softhome.net>
-To: linux-kernel@vger.kernel.org
-Subject: Console driver behaviour?
-Message-ID: <20020130162536.GA12421@mojo.spb.ru>
-Reply-To: wart@softhome.net
+	id <S290032AbSA3Q1D>; Wed, 30 Jan 2002 11:27:03 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:46292 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S290010AbSA3QZq>;
+	Wed, 30 Jan 2002 11:25:46 -0500
+Date: Wed, 30 Jan 2002 11:25:44 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: "'Chris Ricker'" <kaboom@gatech.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: ANOTHER modest proposal -- We need a documentation package
+Message-ID: <20020130112544.B21325@havoc.gtf.org>
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2B2B@ottonexc1.ottawa.loran.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2B2B@ottonexc1.ottawa.loran.com>; from dana.lacoste@peregrine.com on Wed, Jan 30, 2002 at 07:03:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wed, Jan 30, 2002 at 07:03:05AM -0800, Dana Lacoste wrote:
+> Take linux/Documentation and split it into a separate package.
+> that way Linus doesn't need to care about documentation, it can
+> be maintained separately.  Having documentation packages co-released
+> with the kernel, but separately maintained would fix this problem,
+> would it not?
 
-How can I determine that the program is run via ssh or on
-a headless box?
-The problem is with Linux Console Tools. It tries opening 
-/dev/tty, /dev/tty0 and /dev/console respectively upon the 
-start, and it fails on ssh'ed or headless boxes. Is there 
-any way to catch the situation? I've thought that open should
-return ENODEV in these cases, but it doesn't..
+Alas this would simply make it more difficult for me to update things.
+For example I update Documentation/networking/8139too.txt each time
+there is a corresponding update to drivers/net/8139too.c.  Having to go
+from current situation to patching two totally separate trees would be a
+PITA and regression from current workflow.
 
--- 
-Regards, Wartan.
-"Computers are not intelligent. They only think they are."
+	Jeff
+
+
+

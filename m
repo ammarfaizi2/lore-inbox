@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSIEG1D>; Thu, 5 Sep 2002 02:27:03 -0400
+	id <S316578AbSIEG0l>; Thu, 5 Sep 2002 02:26:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317102AbSIEG1D>; Thu, 5 Sep 2002 02:27:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:64741 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317096AbSIEG1C>;
-	Thu, 5 Sep 2002 02:27:02 -0400
-Date: Wed, 04 Sep 2002 23:24:25 -0700 (PDT)
-Message-Id: <20020904.232425.10994370.davem@redhat.com>
-To: bof@bof.de
-Cc: rusty@rustcorp.com.au, ak@suse.de, laforge@gnumonks.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: ip_conntrack_hash() problem
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020905082128.D19551@oknodo.bof.de>
-References: <20020904152626.A11438@wotan.suse.de>
-	<20020905044436.0772A2C0DF@lists.samba.org>
-	<20020905082128.D19551@oknodo.bof.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317096AbSIEG0l>; Thu, 5 Sep 2002 02:26:41 -0400
+Received: from holomorphy.com ([66.224.33.161]:30633 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316578AbSIEG0k>;
+	Thu, 5 Sep 2002 02:26:40 -0400
+Date: Wed, 4 Sep 2002 23:22:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, riel@surriel.com
+Subject: Re: statm_pgd_range() sucks!
+Message-ID: <20020905062228.GA888@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, riel@surriel.com
+References: <20020830015814.GN18114@holomorphy.com> <3D6EDDC0.F9ADC015@zip.com.au> <20020905032035.GY888@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020905032035.GY888@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Patrick Schaaf <bof@bof.de>
-   Date: Thu, 5 Sep 2002 08:21:28 +0200
+On Thu, Aug 29, 2002 at 07:51:44PM -0700, Andrew Morton wrote:
+>> BTW, Rohit's hugetlb patch touches proc_pid_statm(), so a diff on -mm3
+>> would be appreciated.
 
-   B) I despise the (1 << ...htable_bits) construct, used in several places.
-      It's nothing but obfuscation. Please reinstate ...htable_size, and
-      use that, the code will be more readable.
+On Wed, Sep 04, 2002 at 08:20:35PM -0700, William Lee Irwin III wrote:
+> I lost track of what the TODO's were but this is of relatively minor
+> import, and I lagged long enough this is against 2.5.33-mm2:
 
-You despise, but the processor doesn't.  Less data loads
-means the code goes faster.
+doh! I dropped a line merging by hand and broke VSZ
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+on top of the prior one:
+
+
+diff -u linux-wli/fs/proc/array.c linux-wli/fs/proc/array.c
+--- linux-wli/fs/proc/array.c		2002-09-02 23:37:17.000000000 -0700
++++ linux-wli/fs/proc/array.c		2002-09-02 23:37:17.000000000 -0700
+@@ -409,6 +409,7 @@
+ 	resident = mm->rss;
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		int pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
++		size += pages;
+ 		if (is_vm_hugetlb_page(vma)) {
+ 			if (!(vma->vm_flags & VM_DONTCOPY))
+ 				shared += pages;

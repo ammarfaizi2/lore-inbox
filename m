@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262005AbSIYVFp>; Wed, 25 Sep 2002 17:05:45 -0400
+	id <S262001AbSIYVFY>; Wed, 25 Sep 2002 17:05:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262016AbSIYVFp>; Wed, 25 Sep 2002 17:05:45 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:8488 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S262005AbSIYVFm>; Wed, 25 Sep 2002 17:05:42 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DEC2@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: ACPI: kill extra whitespace
-Date: Wed, 25 Sep 2002 14:10:38 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S261973AbSIYVFY>; Wed, 25 Sep 2002 17:05:24 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:12783 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262001AbSIYVFX>; Wed, 25 Sep 2002 17:05:23 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 25 Sep 2002 15:08:24 -0600
+To: Dave Jones <davej@codemonkey.org.uk>, tytso@mit.edu,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020925210824.GH22795@clusterfs.com>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, tytso@mit.edu,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <20020925204101.GA5420@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020925204101.GA5420@suse.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@ucw.cz] 
-> Hi!
+On Sep 25, 2002  21:41 +0100, Dave Jones wrote:
+> On Wed, Sep 25, 2002 at 04:03:44PM -0400, tytso@mit.edu wrote:
 > 
-> Tiny patch..
-> 							Pavel
+>  > This patch significantly increases the speed of using large directories.
+>  > Creating 100,000 files in a single directory took 38 minutes without
+>  > directory indexing... and 11 seconds with the directory indexing turned on.
 > 
-> --- clean/include/linux/acpi.h	2002-09-22 
-> 23:47:01.000000000 +0200
-> +++ linux-swsusp/include/linux/acpi.h	2002-09-22 
-> 23:53:34.000000000 +0200
-> @@ -365,9 +365,7 @@
->  extern int acpi_mp_config;
->  
->  #else
-> -
->  #define acpi_mp_config	0
-> -
->  #endif
+> Just curious.. what measurable overhead (if any) is there of indexing
+> dirs with smaller numbers of files vs non-indexed ?
+> If so, where would be the break-even point ?
 
-Pavel,
+No overhead at all for directories 1 block in size.  The htree code uses
+the existing "search leaf block" code for such a directory directly.
+For directories > 1 block in size, you have the index (1 block
+overhead), but also the benefit that you are only searching 1/N of the
+blocks for an entry (the leaf block searching code remains the same,
+just the "which block to search" code is activated.
 
-I was deliberate in my use of the enter key when adding that code. That's
-the way the rest of the file looks. Please leave it.
+So, in summary, htree is never slower than an un-indexed directory, so
+there is never really a time when you wouldn't want to use it.
 
-Thanks -- Regards -- Andy
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

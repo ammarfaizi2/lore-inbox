@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268831AbUJUNQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270676AbUJUNQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268831AbUJUNQE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 09:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268526AbUJTPxF
+	id S270676AbUJUNQA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 09:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUJUNOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:53:05 -0400
-Received: from gprs214-106.eurotel.cz ([160.218.214.106]:49537 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268446AbUJTPrh (ORCPT
+	Thu, 21 Oct 2004 09:14:03 -0400
+Received: from mail.charite.de ([160.45.207.131]:19908 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S268655AbUJUNNN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:47:37 -0400
-Date: Wed, 20 Oct 2004 17:47:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: M?ns Rullg?rd <mru@mru.ath.cx>
-Cc: "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-Message-ID: <20041020154718.GD26439@elf.ucw.cz>
-References: <3ACA40606221794F80A5670F0AF15F8405D3BF5B@pdsmsx403> <20041018114109.GC4400@openzaurus.ucw.cz> <yw1xekjt4fa8.fsf@mru.ath.cx>
+	Thu, 21 Oct 2004 09:13:13 -0400
+Date: Thu, 21 Oct 2004 15:13:11 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-ac1 doesn't compile
+Message-ID: <20041021131311.GT17874@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20041021125154.GL17874@charite.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <yw1xekjt4fa8.fsf@mru.ath.cx>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041021125154.GL17874@charite.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
 
-> >> >> ... and lose all the benefits of HZ=1000.  What would happen if one
-> >> >> were to set HZ to a higher value, like 10000?
-> >> 
-> >> There is a similar issue filed on :
-> >> http://bugzilla.kernel.org/show_bug.cgi?id=3406
-> >> 
-> >
-> > He he, someone should write a driver to play music on
-> > those capacitors....
-> 
-> Why not?  They used to have special files that played music on the
-> printer when printed.
+> drivers/usb/core/hcd.c:132: error: parse error before '>>' token
+> drivers/usb/core/hcd.c:132: error: initializer element is not constant
 
-Yes, it would be nice... to scare people :-). Also with such piece of
-software it would be rather easy to tell if given mainboard is junk.
+Adrian's patch fixes this
 
-								Pavel
+--- linux-2.6.9-ac1-full/Makefile.old
++++ linux-2.6.9-ac1-full/Makefile
+@@ -1,7 +1,7 @@                    
+ VERSION = 2                 
+ PATCHLEVEL = 6                    
+-SUBLEVEL = 9-ac1                      
+-EXTRAVERSION =                    
++SUBLEVEL = 9                  
++EXTRAVERSION = -ac1                         
+ NAME=AC 1               
+     
+# *DOCUMENTATION*                       
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                                   AIM.  ralfpostfix

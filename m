@@ -1,49 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUEaG3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUEaHAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbUEaG3w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 02:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUEaG3w
+	id S262380AbUEaHAc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 03:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUEaHAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 02:29:52 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:15233 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262103AbUEaG3u (ORCPT
+	Mon, 31 May 2004 03:00:32 -0400
+Received: from nacho.alt.net ([207.14.113.18]:56731 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S262380AbUEaHA3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 02:29:50 -0400
-Date: Mon, 31 May 2004 08:30:13 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org,
-       Sau Dan Lee <danlee@informatik.uni-freiburg.de>, tuukkat@ee.oulu.fi
-Subject: Re: SERIO_USERDEV patch for 2.6
-Message-ID: <20040531063013.GB268@ucw.cz>
-References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <200405301116.31356.dtor_core@ameritech.net> <20040530205119.GD1971@ucw.cz> <200405301850.49219.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405301850.49219.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 31 May 2004 03:00:29 -0400
+Date: Mon, 31 May 2004 00:00:25 -0700 (PDT)
+To: Rik van Riel <riel@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: crashes in prune_icache() in 2.4.26
+In-Reply-To: <Pine.LNX.4.44.0405302141360.12337-100000@nacho.alt.net>
+Message-ID: <Pine.LNX.4.44.0405302345250.12337-100000@nacho.alt.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
+From: Chris Caputo <ccaputo@alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 30, 2004 at 06:50:48PM -0500, Dmitry Torokhov wrote:
+[CC'ed lkml in case anyone else wants to take a shot.]
 
-> > > But in the meantime marking several ports raw will allow most of the users
-> > > use old means of communicating with their pointing devices without too
-> > > much effort.
-> > 
-> > It'd be good to find out what devices we don't support yet (I know of
-> > ALPS, which we have a patch pending for and IBM TouchPoints), too. 
-> > 
+A little more info...  I added some printk's to the function to highlight
+the input value of parameter 'goal' and also to show where the function
+was returning.
+
+My understanding is these printk's all happened in rapid succession:
+
+    entry > prune_icache(goal = 92370)
+    exit < prune_icache() at if (goal <= 0)
+
+  Above the function completed without entering the CONFIG_HIGHMEM while
+  loop.
+
+    entry > prune_icache(goal = 94037)
+    exit < prune_icache() - end of function
+
+  Above the function went through the CONFIG_HIGHMEM while loop.  This was
+  the first time this happened since boot, after a number of 
+  prune_icache() calls that had returned prior to the CONFIG_HIGHMEM while 
+  loop.
+
+    entry > prune_icache(goal = 98609)
+    Unable to handle kernel NULL pointer dereference at virtual address 00000004
+
+  The final printk above shows the function being entered and then hitting
+  the NULL dereference.
+
+Chris
+
+On Sun, 30 May 2004, Chris Caputo wrote:
+> Hi.  I have been experiencing a number of crashes in fs/inode.c's
+> prune_icache() function.  I found on linux.bkbits.net that you made the
+> most recent major change to this function back in January.  With that in
+> mind I hope it is okay to write directly to you.
 > 
-> Sau Dan Lee's Lifebook touchscreen ;) The data processing seems to be
-> trivial, but I don't have any idea how to detect it. And without being
-> able to explicitly control binding for a specific serio port its hard
-> to do drivers for hardware that we can't autodetect. We just have to
-> assume that device behind a port is of specific type and when there
-> are many ports its usually wrong.
+> I have experienced two kinds of crashes with this function.
+> 
+> The first is in the older part of the code.  Basically the inode_unused 
+> list is somehow getting corrupt and when it does an Oops happens at:
+> 
+>     entry = entry->prev;   (line 808 of the 2.4.26 fs/inode.c)
+> 
+> I haven't yet figured out how it is getting corrupt so any tips welcome.
+> 
+> A second problem I have seen is that my system has gotten into an infinite
+> loop in the while loop in the CONFIG_HIGHMEM part of the prune_icache()
+> code.  I haven't yet figured out why.  But I am curious about the code at 
+> the beginning of the loop:
+> 
+>         while (goal-- > 0) {
+>                 if (list_empty(&inode_unused_pagecache))
+>                         break;
+>                 entry = inode_unused_pagecache.prev;
+>                 list_del(entry);
+>                 list_add(entry, &inode_unused_pagecache);
+> 
+> Is the intent of the last 3 lines to remove the entry from the end of the
+> linked-list and then add it to the front, as a way of traversing the list?  
+> Or is it intended that the add be an add to the inode_unused list as
+> opposed to the inode_unused_pagecache list?
+> 
+> I'd love to figure out the problems I am experiencing, so any advice on
+> how to proceed is welcome.  The bug happens every few days on our main
+> fileserver and I have been able to reproduce it on a test fileserver too.
+> 
+> Chris
 
-Conclusion: We need sysfs, and we need it soon.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+

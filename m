@@ -1,99 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbUJ0IKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUJ0IVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262326AbUJ0IKu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 04:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUJ0IKu
+	id S262328AbUJ0IVf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 04:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUJ0IVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 04:10:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:27536 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262326AbUJ0IKe (ORCPT
+	Wed, 27 Oct 2004 04:21:34 -0400
+Received: from ozlabs.org ([203.10.76.45]:29134 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262328AbUJ0IV1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 04:10:34 -0400
-Date: Wed, 27 Oct 2004 10:10:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Wed, 27 Oct 2004 04:21:27 -0400
+Date: Wed, 27 Oct 2004 18:20:03 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
 To: Andrew Morton <akpm@osdl.org>
-Cc: karim@opersys.com, paulmck@us.ibm.com, linux-kernel@vger.kernel.org,
-       rpm@xenomai.org
-Subject: Re: [RFC][PATCH] Restricted hard realtime
-Message-ID: <20041027081044.GA14451@elte.hu>
-References: <20041023194721.GB1268@us.ibm.com> <417F12F1.5010804@opersys.com> <20041026212956.4729ce98.akpm@osdl.org>
+Cc: James Cloos <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
+Subject: Re: MAP_SHARED bizarrely slow
+Message-ID: <20041027082003.GL1676@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, James Cloos <cloos@jhcloos.com>,
+	linux-kernel@vger.kernel.org
+References: <20041027064527.GJ1676@zax> <m3u0sgiq0b.fsf@lugabout.cloos.reno.nv.us> <20041027010659.15ec7e90.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041026212956.4729ce98.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041027010659.15ec7e90.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 27, 2004 at 01:06:59AM -0700, Andrew Morton wrote:
+> James Cloos <cloos@jhcloos.com> wrote:
+> >
+> > >>>>> "David" == David Gibson <david@gibson.dropbear.id.au> writes:
+> > 
+> > David> http://www.ozlabs.org/people/dgibson/maptest.tar.gz
+> > 
+> > David> On a number of machines I've tested - both ppc64 and x86 - the
+> > David> SHARED version is consistently and significantly (50-100%)
+> > David> slower than the PRIVATE version.
+> > 
+> > Just gave it a test on my laptop and server.  Both are p3.  The
+> > laptop is under heavier mem pressure; the server has just under
+> > a gig with most free/cache/buff.  Laptop is still running 2.6.7
+> > whereas the server is bk as of 2004-10-24.
+> > 
+> > Buth took about 11 seconds for the private and around 30 seconds
+> > for the shared tests.
+> > 
+> 
+> I get the exact opposite, on a P4:
+> 
+> vmm:/home/akpm/maptest> time ./mm-sharemmap 
+> ./mm-sharemmap  10.81s user 0.05s system 100% cpu 10.855 total
+> vmm:/home/akpm/maptest> time ./mm-sharemmap
+> ./mm-sharemmap  11.04s user 0.05s system 100% cpu 11.086 total
+> vmm:/home/akpm/maptest> time ./mm-privmmap 
+> ./mm-privmmap  26.91s user 0.02s system 100% cpu 26.903 total
+> vmm:/home/akpm/maptest> time ./mm-privmmap
+> ./mm-privmmap  26.89s user 0.02s system 100% cpu 26.894 total
+> vmm:/home/akpm/maptest> uname -a
+> Linux vmm 2.6.10-rc1-mm1 #14 SMP Tue Oct 26 23:23:23 PDT 2004 i686 i686 i386 GNU/Linux
 
-* Andrew Morton <akpm@osdl.org> wrote:
+How very odd.  I've now understood what was happening (see other
+post), but I'm not sure what could reverse the situation.  Can you
+download the test tarball again - I've put up an updated version which
+pretouches the pages and gives some extra info.  Running it both with
+and without pretouch would be interesting (#if 0/1 in matmul.h to
+change).
 
-> I have a sneaking suspicion that the day will come when we get nice
-> sub-femtosecond latencies in all the trivial benchmarks [...]
+> It's all user time so I can think of no reason apart from physical page
+> allocation order causing additional TLB reloads in one case.  One is using
+> anonymous pages and the other is using shmem-backed pages, although I can't
+> think why that would make a difference.
+> 
+> 
+> Let's back out the no-buddy-bitmap patches:
+> 
+> vmm:/home/akpm/maptest> time ./mm-sharemmap 
+> ./mm-sharemmap  12.01s user 0.06s system 99% cpu 12.087 total
+> vmm:/home/akpm/maptest> time ./mm-sharemmap
+> ./mm-sharemmap  12.56s user 0.05s system 100% cpu 12.607 total
+> vmm:/home/akpm/maptest> time ./mm-privmmap 
+> ./mm-privmmap  26.74s user 0.03s system 99% cpu 26.776 total
+> vmm:/home/akpm/maptest> time ./mm-privmmap
+> ./mm-privmmap  26.66s user 0.02s system 100% cpu 26.674 total
+> 
+> much the same.
+> 
+> Backing out "[PATCH] tweak the buddy allocator for better I/O merging" from
+> June 24 makes no difference.
+> 
 
-with -RT-V0.3 i get lower than 20 usec _maximum_ latencies during
-'./hackbench 20'. (the average latency is 1 usec) So while i'm not yet
-in the sub-femtosecond category, things are looking pretty good in
-PREEMPT_REALTIME land :)
-
-> [...] but it turns out that the realtime processes won't be able to
-> *do* anything useful because whenever they perform syscalls, those
-> syscalls end up taking long-held locks.
-
-this is not really a problem for the following reason: the spinlock
-lock-breaks i am doing for !PREEMPT_REALTIME are exactly the kind of
-latencies that could interact with a hard-RT task. What becomes a
-latency reducer for the normal SMP or desktop kernel is _the_ latency
-guarantee for using arbitrary kernel services in the PREEMPT_REALTIME
-model.
-
-another step is to make kernel subsystems have constant overhead (O(1)),
-i'd say that's mostly true already today, and it's increasingly becoming
-true in the future.
-
-also, RT applications rarely hit the really complex kernel subsystems
-because 'complex' often means 'has the potential for IO' - on any
-hard-RT OS. So what is important are two factors:
-
- 1) preempt to the RT app immediately
-
- 2) do not create locking interactions between a tasks that use 
-    'isolated resources'
-
-#1 is quite good in PREEMPT_REALTIME, and even #2 is largely true for 
-it. But RT apps will try to stay isolated anyway, they do an mlockall()
-and use simple syscalls.
-
-note that #2 means: 'no big locks', which is a natural scalability
-desire anyway.
-
-> Which does lead me to suggest that we need to identify the target
-> application areas for Ingo's current work and confirm that those
-> applications are seeing the results which they require.  Empirical
-> results from the field do seem to indicate success, but I doubt if
-> they're sufficiently comprehensive.
-
-with the -V series of PREEMPT_REALTIME the 'preemption latency' target
-is easy to meet, because in essence everything except the core scheduler
-and the irq redirection code is preemptible :)
-
-E.g. the innermost loop of the IDE hardirq is preemptible, the innermost
-loop of kswapd is preemptible and PREEMPT_REALTIME can preempt the
-pagefault handler and the mouse handler - name any code and it's
-preemptible.
-
-the API latency target is not a big issue because the 'locking
-independence' requirement (#2 above) directly corresponds to 'good
-scalability on SMP and NUMA'. So anytime we improve high-end scalability
-we often will also improve the API-latencies of PREEMPT_REALTIME!
-
-(of course this is a much simplified reasoning ignoring a few issues.)
-
-	Ingo
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267888AbUGWSzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267894AbUGWS5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267888AbUGWSzP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 14:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267889AbUGWSzO
+	id S267894AbUGWS5r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 14:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUGWS5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 14:55:14 -0400
-Received: from waste.org ([209.173.204.2]:56448 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S267888AbUGWSzG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 14:55:06 -0400
-Date: Fri, 23 Jul 2004 13:55:04 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] ketchup 0.8
-Message-ID: <20040723185504.GJ18675@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Jul 2004 14:57:47 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:30368 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S267894AbUGWS5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 14:57:06 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: linux-kernel@vger.kernel.org
+Subject: [RFC]: CONFIG_UNSUPPORTED (was: Re: [PATCH] delete devfs)
+Date: Fri, 23 Jul 2004 21:06:40 +0200
+User-Agent: KMail/1.5
+References: <20040721141524.GA12564@kroah.com> <20040722064952.GC20561@kroah.com> <20040722091335.A17187@home.com>
+In-Reply-To: <20040722091335.A17187@home.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Message-Id: <200407232106.41065.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ketchup is a script that automatically patches between kernel
-versions, downloading and caching patches as needed, and automatically
-determining the latest versions of several trees. Available at:
+Hi listmembers,
 
- http://selenic.com/ketchup/ketchup-0.8
+I'm not a kernel developer, but recently I've been testing many development 
+(ie. -mm and -rc) kernels and I run a network containing quite a lot of Linux 
+boxes, so I'm involved (a little) in the kernel development or at least I'm 
+affected by it to some extent.  Anyway, I have an idea that I think you may 
+find interesting.
 
-New in this version by popular demand:
+1. Background
 
-- falls back to .gz files if .bz2 files aren't available
-- can find BK snapshots in old/ directories
-  (aka the jgarzik memorial hack)
-- option to rename directories to linux-<v> after update
-- can read default options from KETCHUP_OPTS
+There apparently is some code in the kernel tree that is buggy and not 
+maintained by anyone.  The recent attempts to remove some parts of it (devfs, 
+cryptoloop) have been opposed, as it turns out that they are still in use.
 
-Example usage:
+OTOH, because this code is present in the mainline kernel, the users of the 
+kernel can expect that the code will be supported by kernel developers, which 
+is not correct.  Therefore the code should be removed from the kernel, so 
+that it's not used by any new users who may expect it to be supported (there 
+are many other reasons for removing it, but this one alone is sufficient, 
+IMHO).
 
- $ ketchup 2.6-mm
- 2.6.3-rc1-mm1 -> 2.6.5-mm4
- Applying 2.6.3-rc1-mm1.bz2 -R
- Applying patch-2.6.3-rc1.bz2 -R
- Applying patch-2.6.3.bz2
- Applying patch-2.6.4.bz2
- Applying patch-2.6.5.bz2
- Downloading 2.6.5-mm4.bz2
- Downloading 2.6.5-mm4.bz2.sign
- Verifying signature...
- gpg: Signature made Sat Apr 10 21:55:36 2004 CDT using DSA key ID 517D0F0E
- gpg: Good signature from "Linux Kernel Archives Verification Key
- <ftpadmin@kernel.org>"
- gpg:                 aka "Linux Kernel Archives Verification Key
- <ftpadmin@kernel.org>"
- owner.
- gpg: WARNING: This key is not certified with a trusted signature!
- gpg:          There is no indication that the signature belongs to the
- Primary key fingerprint: C75D C40A 11D7 AF88 9981  ED5B C86B A06A 517D 0F0E
- Applying 2.6.5-mm4.bz2
+Having said that, it is not very nice to pull rugs from under people in 
+general, so before the unmaintained code is removed from the kernel, its 
+current users should be given some time to accommodate to the upcoming 
+changes.  Therefore the unsupported code should be made clearly 
+distinguishable from the rest of the kernel code and documented as such, in 
+order to indicate to the users that it may be removed at any time.
 
---
-Mathematics is the supreme nostalgia of our time.
+2. Proposal
+
+I propose to introduce a new configuration option CONFIG_UNSUPPORTED, such 
+that if it is not set, the unmaintained/unsupported code will not be compiled 
+into the kernel.  Moreover,
+* IMO the option should not be set by default, which would require a user 
+action to include the unsupported code into the kernel,
+* IMO the option should be documented as to indicate that the code marked with 
+the help of it is not supported by kernel developers and may be removed from 
+the kernel at any time without notification.
+
+I think that this would be fair enough wrt. users, who would be able to learn 
+that the code is not maintained and may be removed at any time without 
+notification, and they should not expect to get any support ftom the kernel 
+developers wrt. this code, and it's generally not a good idea to file any bug 
+reports regarding this code, because the bugs in it will not be fixed anyway.
+
+OTOH, it would give the kernel developers a means to mark 
+unsupported/unmaintained code as such in advance, without harming any users 
+in the short run.
+
+Yours,
+rjw
+
+-- 
+Rafael J. Wysocki
+[tel. (+48) 605 053 693]
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

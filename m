@@ -1,83 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275264AbTHASWu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 14:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275265AbTHASWu
+	id S275269AbTHASfk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 14:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275270AbTHASfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 14:22:50 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:30119 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id S275264AbTHASWr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 14:22:47 -0400
-Date: Fri,  1 Aug 2003 20:22:24 +0200
-Message-Id: <HIYDPC$240D46505507B271EDAB12A969636BC8@libero.it>
-Subject: from riana
-MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "rianariana5555" <rianariana5555@libero.it>
-To: "rianariana5555" <rianariana5555@libero.it>
-X-XaM3-API-Version: 4.1 (B6)
-X-type: 0
-X-SenderIP: 193.220.188.5
+	Fri, 1 Aug 2003 14:35:40 -0400
+Received: from auto-matic.ca ([216.209.85.42]:46085 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S275269AbTHASfh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 14:35:37 -0400
+Date: Fri, 1 Aug 2003 14:34:50 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Stephen Anthony <stephena@cs.mun.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: What's the timeslice size for kernel 2.6.0-test2, IA32?
+Message-ID: <20030801183450.GC20001@mark.mielke.cc>
+References: <200308011404.46886.stephena@cs.mun.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308011404.46886.stephena@cs.mun.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Respectiful,  
+On Fri, Aug 01, 2003 at 02:04:46PM -0230, Stephen Anthony wrote:
+> It would be great if sleeps were 1ms accurate instead of 10ms.  It would 
+> make synchronization code a lot easier.
 
-I am obliged to confide in you with the hope that you
-will understand my plights and urgent need of your
-assistance and also the need to accord this
-communication the confidenciality it deserves.
+Doesn't this depend on what HZ you define for the kernel?
 
-My name is MISS RIANA MANE, the first daughter of
-General Ausmane Mane, the former chief of defence
-staff who was killed on November 17th 2000 allegedly
-for resisting arrest because of his role as rebel
-leaderin the 1998 rebellion in Guinea Bissau.
-As a result of sequent persecution by the present
-government of Guinea Bissau, I left with my mother
-to Abidjan-Cote d´Ivoire, with the certificate of
-deposit which was issued to my Father when he
-deposited 1 trunk boxes with a Security Company
-herein Abidjan.
+If you want 1ms sleep, just set HZ to 1000HZ+, and give your process a
+high priority?
 
-These boxes contain the sum of US$ 10 million but were
-declared to the security company officials as
-containing African art for export to a foreign
-partner for security reasons.
+mark
 
-I have visited the security company but was told that
-the deposit agreement required the presence of the
-foreign partner on whose behalf the consignment was
-deposited before any application for the clearance of
-the boxes will be considered. Therefore, I
-am contacting you to front you as the
-foreign partner to my late Father on whose behalf
-the consignment was deposited.Afterwards, this money shall be
-transferred to your private account for investment purposes with you as
-the general overseer. As soon as I receive your return
-mail indicating your willingness to assist me in this
-business, we shall discuss what shall be your
-percentage fee for your assistance.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-Thanks and allah bless
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-MISS RIANA MANE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                           http://mark.mielke.cc/
 

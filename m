@@ -1,1135 +1,224 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263549AbTD1Mmn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 08:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbTD1Mmn
+	id S263566AbTD1MrD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 08:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTD1MrC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 08:42:43 -0400
-Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:13065 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S263549AbTD1MmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 08:42:20 -0400
-Date: Mon, 28 Apr 2003 07:54:27 -0500
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] C99 initializers for drivers/media
-Message-ID: <20030428125426.GB14394@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 28 Apr 2003 08:47:02 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:23181 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263566AbTD1Mq4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 08:46:56 -0400
+Date: Mon, 28 Apr 2003 09:00:58 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Mark Grosberg <mark@nolab.conman.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Combined fork-exec syscall.
+In-Reply-To: <Pine.BSO.4.44.0304272207431.23296-100000@kwalitee.nolab.conman.org>
+Message-ID: <Pine.LNX.4.53.0304280855240.16444@chaos>
+References: <Pine.BSO.4.44.0304272207431.23296-100000@kwalitee.nolab.conman.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, 27 Apr 2003, Mark Grosberg wrote:
 
-Here is a set of patches for files in drivers/media that convert the
-files to use C99 initializers. The patches are against the current BK.
+>
+>
+> On Sun, 27 Apr 2003, Richard B. Johnson wrote:
+>
+> > You don't save anything but one system call time which is inconsequential
+> > compared to the time necessary to exec (load a file, etc). Also, it is
+> > worthless for anything except the most basic 'system()' or popen()
+>
+> Actually, my original proposal will work for popen and all sorts of piping
+> because of the file descriptor map. For example:
+>
+>    int   in[2], out[2];
+>    char *null_argv[] = { NULL };
+>    int   fmap[4];
+>    pid_t p;
+>
+>    pipe(in);
+>    pipe(out);
+>
+>    fmap[0] = in[0];                     /* STDIN  */
+>    fmap[1] = out[1];                    /* STDOUT */
+>    fmap[2] = open("/dev/null", O_RDWR); /* STDERR */
+>    fmap[3] = -1;                        /* end    */
+>
+>    p = nexec("/bin/cat",
+>              null_argv,
+>              NULL,
+>              filmap);
+>
+>
+> In this case you save the extra closes the child would have to do and you
+> save the dup's.
+>
+> > All it does is add kernel bloat and duplicate existing kernel code
+> > (both). Learn Unix instead of trying to make it VMS with spawn().
+>
+> Ahem, I happen to know Unix very well, thank you very much. Please read my
+> proposed API before flaming it out and assuming I know nothing of UNIX,
+> kernel development, or operating systems in general!
+>
+> Do you honestly think that just because I picked a name spawn() that
+> happens to be in VMS (and MS-DOS C compilers) that I am inexperienced to
+> Unix. Nope. I just happen to be a BSD user in general and don't frequent
+> LKML.... and now I remember WHY!
+>
+> And there _ARE_ issues this does solve as were already pointed out because
+> of the linear scan that must be made on the file descriptor array for the
+> close-on-exec flag (which this API could happily say it ignores since it
+> builds a _WHOLE_NEW file descriptor array).
+>
+> L8r,
+> Mark G.
 
-Art Haas
 
-===== drivers/media/dvb/frontends/alps_bsrv2.c 1.4 vs edited =====
---- 1.4/drivers/media/dvb/frontends/alps_bsrv2.c	Mon Apr  7 15:20:02 2003
-+++ edited/drivers/media/dvb/frontends/alps_bsrv2.c	Sun Apr 27 21:10:26 2003
-@@ -31,20 +31,21 @@
- 
- static
- struct dvb_frontend_info bsrv2_info = {
--	name: "Alps BSRV2",
--	type: FE_QPSK,
--	frequency_min: 950000,
--	frequency_max: 2150000,
--	frequency_stepsize: 250,           /* kHz for QPSK frontends */
--	frequency_tolerance: 29500,
--	symbol_rate_min: 1000000,
--	symbol_rate_max: 45000000,
--/*      symbol_rate_tolerance: ???,*/
--	notifier_delay: 50,                /* 1/20 s */
--	caps:   FE_CAN_INVERSION_AUTO |
--		FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
--		FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
--		FE_CAN_QPSK
-+	.name			= "Alps BSRV2",
-+	.type			= FE_QPSK,
-+	.frequency_min		= 950000,
-+	.frequency_max		= 2150000,
-+	.frequency_stepsize	= 250,  /* kHz for QPSK frontends */
-+	.frequency_tolerance	= 29500,
-+	.symbol_rate_min	= 1000000,
-+	.symbol_rate_max	= 45000000,
-+/*      .symbol_rate_tolerance	= ???,*/
-+	.notifier_delay		= 50, /* 1/20 s */
-+	.caps			= FE_CAN_INVERSION_AUTO |
-+				  FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 |
-+				  FE_CAN_FEC_3_4 | FE_CAN_FEC_5_6 |
-+				  FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
-+				  FE_CAN_QPSK,
- };
- 
- 
-@@ -75,7 +76,12 @@
- int ves1893_writereg (struct dvb_i2c_bus *i2c, u8 reg, u8 data)
- {
-         u8 buf [] = { 0x00, reg, data };
--	struct i2c_msg msg = { addr: 0x08, flags: 0, buf: buf, len: 3 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x08,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 3,
-+	};
- 	int err;
- 
-         if ((err = i2c->xfer (i2c, &msg, 1)) != 1) {
-@@ -93,8 +99,20 @@
- 	int ret;
- 	u8 b0 [] = { 0x00, reg };
- 	u8 b1 [] = { 0 };
--	struct i2c_msg msg [] = { { addr: 0x08, flags: 0, buf: b0, len: 2 },
--			   { addr: 0x08, flags: I2C_M_RD, buf: b1, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x08,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= 0x08,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 1,
-+		},
-+	};
- 
- 	ret = i2c->xfer (i2c, msg, 2);
- 
-@@ -109,7 +127,12 @@
- int sp5659_write (struct dvb_i2c_bus *i2c, u8 data [4])
- {
-         int ret;
--        struct i2c_msg msg = { addr: 0x61, flags: 0, buf: data, len: 4 };
-+        struct i2c_msg msg = {
-+		.addr	= 0x61,
-+		.flags	= 0,
-+		.buf	= data,
-+		.len	= 4,
-+	};
- 
-         ret = i2c->xfer (i2c, &msg, 1);
- 
-===== drivers/media/dvb/frontends/alps_tdlb7.c 1.3 vs edited =====
---- 1.3/drivers/media/dvb/frontends/alps_tdlb7.c	Mon Apr  7 15:20:02 2003
-+++ edited/drivers/media/dvb/frontends/alps_tdlb7.c	Sun Apr 27 21:15:17 2003
-@@ -72,21 +72,22 @@
- 
- static
- struct dvb_frontend_info tdlb7_info = {
--	name: "Alps TDLB7",
--	type: FE_OFDM,
--	frequency_min: 470000000,
--	frequency_max: 860000000,
--	frequency_stepsize: 166666,
-+	.name			= "Alps TDLB7",
-+	.type			= FE_OFDM,
-+	.frequency_min		= 470000000,
-+	.frequency_max		= 860000000,
-+	.frequency_stepsize	= 166666,
- #if 0
--    	frequency_tolerance: ???,
--	symbol_rate_min: ???,
--	symbol_rate_max: ???,
--	symbol_rate_tolerance: ???,
--	notifier_delay: 0,
-+    	.frequency_tolerance	= ???,
-+	.symbol_rate_min	= ???,
-+	.symbol_rate_max	= ???,
-+	.symbol_rate_tolerance	= ???,
-+	.notifier_delay		= 0,
- #endif
--	caps: FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
--	      FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
--	      FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64
-+	.caps			= FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 |
-+				  FE_CAN_FEC_3_4 | FE_CAN_FEC_5_6 |
-+				  FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
-+				  FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64,
- };
- 
- 
-@@ -94,7 +95,12 @@
- int sp8870_writereg (struct dvb_i2c_bus *i2c, u16 reg, u16 data)
- {
-         u8 buf [] = { reg >> 8, reg & 0xff, data >> 8, data & 0xff };
--	struct i2c_msg msg = { addr: 0x71, flags: 0, buf: buf, len: 4 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x71,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 4,
-+	};
- 	int err;
- 
-         if ((err = i2c->xfer (i2c, &msg, 1)) != 1) {
-@@ -112,8 +118,20 @@
- 	int ret;
- 	u8 b0 [] = { reg >> 8 , reg & 0xff };
- 	u8 b1 [] = { 0, 0 };
--	struct i2c_msg msg [] = { { addr: 0x71, flags: 0, buf: b0, len: 2 },
--			   { addr: 0x71, flags: I2C_M_RD, buf: b1, len: 2 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x71,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= 0x71,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 2,
-+		},
-+	};
- 
- 	ret = i2c->xfer (i2c, msg, 2);
- 
-@@ -128,7 +146,12 @@
- int sp5659_write (struct dvb_i2c_bus *i2c, u8 data [4])
- {
-         int ret;
--        struct i2c_msg msg = { addr: 0x60, flags: 0, buf: data, len: 4 };
-+        struct i2c_msg msg = {
-+		.addr	= 0x60,
-+		.flags	= 0,
-+		.buf	= data,
-+		.len	= 4,
-+	};
- 
-         ret = i2c->xfer (i2c, &msg, 1);
- 
-@@ -419,7 +442,12 @@
- int tdlb7_attach (struct dvb_i2c_bus *i2c)
- {
- 
--	struct i2c_msg msg = { addr: 0x71, flags: 0, buf: NULL, len: 0 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x71,
-+		.flags	= 0,
-+		.buf	= NULL,
-+		.len	= 0,
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-===== drivers/media/dvb/frontends/alps_tdmb7.c 1.3 vs edited =====
---- 1.3/drivers/media/dvb/frontends/alps_tdmb7.c	Mon Apr  7 15:20:02 2003
-+++ edited/drivers/media/dvb/frontends/alps_tdmb7.c	Sun Apr 27 21:19:43 2003
-@@ -32,22 +32,24 @@
- 
- static
- struct dvb_frontend_info tdmb7_info = {
--	name: "Alps TDMB7",
--	type: FE_OFDM,
--	frequency_min: 470000000,
--	frequency_max: 860000000,
--	frequency_stepsize: 166667,
-+	.name			= "Alps TDMB7",
-+	.type			= FE_OFDM,
-+	.frequency_min		= 470000000,
-+	.frequency_max		= 860000000,
-+	.frequency_stepsize	= 166667,
- #if 0
--    	frequency_tolerance: ???,
--	symbol_rate_min: ???,
--	symbol_rate_max: ???,
--	symbol_rate_tolerance: 500,  /* ppm */
--	notifier_delay: 0,
-+    	.frequency_tolerance	= ???,
-+	.symbol_rate_min	= ???,
-+	.symbol_rate_max	= ???,
-+	.symbol_rate_tolerance	= 500,  /* ppm */
-+	.notifier_delay		= 0,
- #endif
--	caps: FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
--	      FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
--	      FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 | 
--	      FE_CAN_CLEAN_SETUP | FE_CAN_RECOVER
-+	.caps			= FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 |
-+				  FE_CAN_FEC_3_4 | FE_CAN_FEC_5_6 |
-+				  FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
-+				  FE_CAN_QPSK | FE_CAN_QAM_16 |
-+				  FE_CAN_QAM_64 | FE_CAN_CLEAN_SETUP |
-+				  FE_CAN_RECOVER,
- };
- 
- 
-@@ -87,7 +89,12 @@
- {
- 	int ret;
- 	u8 buf [] = { reg, data };
--	struct i2c_msg msg = { addr: 0x43, flags: 0, buf: buf, len: 2 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x43,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 2,
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -107,8 +114,20 @@
- 	int ret;
- 	u8 b0 [] = { reg };
- 	u8 b1 [] = { 0 };
--	struct i2c_msg msg [] = { { addr: 0x43, flags: 0, buf: b0, len: 1 },
--			   { addr: 0x43, flags: I2C_M_RD, buf: b1, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x43,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x43,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 1,
-+		},
-+	};
-         
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -124,7 +143,12 @@
- static
- int pll_write (struct dvb_i2c_bus *i2c, u8 data [4])
- {
--	struct i2c_msg msg = { addr: 0x61, flags: 0, buf: data, len: 4 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x61,
-+		.flags	= 0,
-+		.buf	= data,
-+		.len	= 4,
-+	};
- 	int ret;
- 
- 	cx22700_writereg (i2c, 0x0a, 0x00);  /* open i2c bus switch */
-@@ -420,7 +444,12 @@
- static
- int tdmb7_attach (struct dvb_i2c_bus *i2c)
- {
--	struct i2c_msg msg = { addr: 0x43, flags: 0, buf: NULL, len: 0 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x43,
-+		.flags	= 0,
-+		.buf	= NULL,
-+		.len	= 0,
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-===== drivers/media/dvb/frontends/at76c651.c 1.1 vs edited =====
---- 1.1/drivers/media/dvb/frontends/at76c651.c	Tue Apr  8 11:39:31 2003
-+++ edited/drivers/media/dvb/frontends/at76c651.c	Sun Apr 27 21:22:37 2003
-@@ -94,7 +94,12 @@
- 
- 	int ret;
- 	u8 buf[] = { reg, data };
--	struct i2c_msg msg = { addr:0x1a >> 1, flags:0, buf:buf, len:2 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x1a >> 1,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 2,
-+	};
- 
- 	ret = i2c->xfer(i2c, &msg, 1);
- 
-@@ -116,8 +121,20 @@
- 	int ret;
- 	u8 b0[] = { reg };
- 	u8 b1[] = { 0 };
--	struct i2c_msg msg[] = { {addr: 0x1a >> 1, flags: 0, buf: b0, len:1},
--			  {addr: 0x1a >> 1, flags: I2C_M_RD, buf: b1, len:1} };
-+	struct i2c_msg msg[] = {
-+		{
-+			.addr	= 0x1a >> 1,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x1a >> 1,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 1
-+		},
-+	};
- 
- 	ret = i2c->xfer(i2c, msg, 2);
- 
-@@ -191,8 +208,12 @@
- {
- 
- 	int ret;
--	struct i2c_msg msg =
--	    { addr:0xc2 >> 1, flags:0, buf:(u8 *) & tw, len:sizeof (tw) };
-+	struct i2c_msg msg = {
-+		.addr	= 0xc2 >> 1,
-+		.flags	= 0,
-+		.buf	= (u8 *) &tw,
-+		.len	= sizeof(tw),
-+	};
- 
- 	at76c651_switch_tuner_i2c(i2c, 1);
- 
-===== drivers/media/dvb/frontends/grundig_29504-401.c 1.3 vs edited =====
---- 1.3/drivers/media/dvb/frontends/grundig_29504-401.c	Mon Apr  7 15:20:02 2003
-+++ edited/drivers/media/dvb/frontends/grundig_29504-401.c	Sun Apr 27 21:31:29 2003
-@@ -33,18 +33,19 @@
- 
- 
- struct dvb_frontend_info grundig_29504_401_info = {
--	name: "Grundig 29504-401",
--	type: FE_OFDM,
--/*	frequency_min: ???,*/
--/*	frequency_max: ???,*/
--	frequency_stepsize: 166666,
--/*      frequency_tolerance: ???,*/
--/*      symbol_rate_tolerance: ???,*/
--	notifier_delay: 0,
--	caps: FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 | 
--	      FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 |
--	      FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 |
--	      FE_CAN_MUTE_TS /*| FE_CAN_CLEAN_SETUP*/
-+	.name			= "Grundig 29504-401",
-+	.type			= FE_OFDM,
-+/*	.frequency_min		= ???,*/
-+/*	.frequency_max		= ???,*/
-+	.frequency_stepsize	= 166666,
-+/*      .frequency_tolerance	= ???,*/
-+/*      .symbol_rate_tolerance	= ???,*/
-+	.notifier_delay		= 0,
-+	.caps			= FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 |
-+				  FE_CAN_FEC_3_4 | FE_CAN_FEC_5_6 |
-+				  FE_CAN_FEC_7_8 | FE_CAN_QPSK |
-+				  FE_CAN_QAM_16 | FE_CAN_QAM_64 |
-+				  FE_CAN_MUTE_TS, /*| FE_CAN_CLEAN_SETUP*/
- };
- 
- 
-@@ -53,7 +54,12 @@
- {
- 	int ret;
- 	u8 buf [] = { reg, data };
--	struct i2c_msg msg = { addr: 0x55, flags: 0, buf: buf, len: 2 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x55,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 2,
-+	};
- 
- 	if ((ret = i2c->xfer (i2c, &msg, 1)) != 1)
- 		dprintk ("%s: write_reg error (reg == %02x) = %02x!\n",
-@@ -69,8 +75,20 @@
- 	int ret;
- 	u8 b0 [] = { reg };
- 	u8 b1 [] = { 0 };
--	struct i2c_msg msg [] = { { addr: 0x55, flags: 0, buf: b0, len: 1 },
--			   { addr: 0x55, flags: I2C_M_RD, buf: b1, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x55,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x55,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 1
-+		},
-+	};
- 
- 	ret = i2c->xfer (i2c, msg, 2);
- 
-@@ -85,7 +103,12 @@
- int tsa5060_write (struct dvb_i2c_bus *i2c, u8 data [4])
- {
- 	int ret;
--	struct i2c_msg msg = { addr: 0x61, flags: 0, buf: data, len: 4 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x61,
-+		.flags	= 0,
-+		.buf	= data,
-+		.len	= 4,
-+	};
- 
- 	if ((ret = i2c->xfer (i2c, &msg, 1)) != 1)
- 		dprintk ("%s: write_reg error == %02x!\n", __FUNCTION__, ret);
-@@ -269,7 +292,12 @@
- void reset_and_configure (struct dvb_i2c_bus *i2c)
- {
- 	u8 buf [] = { 0x06 };
--	struct i2c_msg msg = { addr: 0x00, flags: 0, buf: buf, len: 1 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x00,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 1,
-+	};
- 
- 	i2c->xfer (i2c, &msg, 1);
- }
-@@ -420,8 +448,20 @@
- {
- 	u8 b0 [] = { 0x1a };
- 	u8 b1 [] = { 0x00 };
--	struct i2c_msg msg [] = { { addr: 0x55, flags: 0, buf: b0, len: 1 },
--			   { addr: 0x55, flags: I2C_M_RD, buf: b1, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x55,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x55,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 1,
-+		},
-+	};
- 
- 	if (i2c->xfer (i2c, msg, 2) == 2)   /*  probably an EEPROM... */
- 		return -ENODEV;
-===== drivers/media/dvb/frontends/grundig_29504-491.c 1.3 vs edited =====
---- 1.3/drivers/media/dvb/frontends/grundig_29504-491.c	Mon Apr  7 15:20:02 2003
-+++ edited/drivers/media/dvb/frontends/grundig_29504-491.c	Sun Apr 27 21:26:48 2003
-@@ -35,22 +35,23 @@
- 
- static
- struct dvb_frontend_info grundig_29504_491_info = {
--	name: "Grundig 29504-491, (TDA8083 based)",
--	type: FE_QPSK,
--	frequency_min: 950000,     /* FIXME: guessed! */
--	frequency_max: 1400000,    /* FIXME: guessed! */
--	frequency_stepsize: 125,   /* kHz for QPSK frontends */
--/*      frequency_tolerance: ???,*/
--	symbol_rate_min: 1000000,   /* FIXME: guessed! */
--	symbol_rate_max: 45000000,  /* FIXME: guessed! */
--/*      symbol_rate_tolerance: ???,*/
--	notifier_delay: 0,
--	caps:	FE_CAN_INVERSION_AUTO |
--		FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
--		FE_CAN_FEC_4_5 | FE_CAN_FEC_5_6 | FE_CAN_FEC_6_7 |
--		FE_CAN_FEC_7_8 | FE_CAN_FEC_8_9 | FE_CAN_FEC_AUTO |
--		FE_CAN_QPSK |
--		FE_CAN_MUTE_TS | FE_CAN_CLEAN_SETUP
-+	.name			= "Grundig 29504-491, (TDA8083 based)",
-+	.type			= FE_QPSK,
-+	.frequency_min		= 950000,     /* FIXME: guessed! */
-+	.frequency_max		= 1400000,    /* FIXME: guessed! */
-+	.frequency_stepsize	= 125,   /* kHz for QPSK frontends */
-+/*      .frequency_tolerance	= ???,*/
-+	.symbol_rate_min	= 1000000,   /* FIXME: guessed! */
-+	.symbol_rate_max	= 45000000,  /* FIXME: guessed! */
-+/*      .symbol_rate_tolerance	= ???,*/
-+	.notifier_delay		= 0,
-+	.caps			= FE_CAN_INVERSION_AUTO |
-+				  FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 |
-+				  FE_CAN_FEC_3_4 | FE_CAN_FEC_4_5 |
-+				  FE_CAN_FEC_5_6 | FE_CAN_FEC_6_7 |
-+				  FE_CAN_FEC_7_8 | FE_CAN_FEC_8_9 |
-+				  FE_CAN_FEC_AUTO | FE_CAN_QPSK |
-+				  FE_CAN_MUTE_TS | FE_CAN_CLEAN_SETUP,
- };
- 
- 
-@@ -72,7 +73,12 @@
- {
- 	int ret;
- 	u8 buf [] = { reg, data };
--	struct i2c_msg msg = { addr: 0x68, flags: 0, buf: buf, len: 2 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x68,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 2,
-+	};
- 
-         ret = i2c->xfer (i2c, &msg, 1);
- 
-@@ -88,8 +94,20 @@
- int tda8083_readregs (struct dvb_i2c_bus *i2c, u8 reg1, u8 *b, u8 len)
- {
- 	int ret;
--	struct i2c_msg msg [] = { { addr: 0x68, flags: 0, buf: &reg1, len: 1 },
--			   { addr: 0x68, flags: I2C_M_RD, buf: b, len: len } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x68,
-+			.flags	= 0,
-+			.buf	= &reg1,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x68,
-+			.flags	= I2C_M_RD,
-+			.buf	= b,
-+			.len	= len,
-+		},
-+	};
- 
- 	ret = i2c->xfer (i2c, msg, 2);
- 
-@@ -116,7 +134,12 @@
- int tsa5522_write (struct dvb_i2c_bus *i2c, u8 data [4])
- {
- 	int ret;
--	struct i2c_msg msg = { addr: 0x61, flags: 0, buf: data, len: 4 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x61,
-+		.flags	= 0,
-+		.buf	= data,
-+		.len	= 4,
-+	};
- 
- 	ret = i2c->xfer (i2c, &msg, 1);
- 
-===== drivers/media/dvb/frontends/stv0299.c 1.1 vs edited =====
---- 1.1/drivers/media/dvb/frontends/stv0299.c	Tue Apr  8 11:39:32 2003
-+++ edited/drivers/media/dvb/frontends/stv0299.c	Sun Apr 27 21:05:29 2003
-@@ -54,21 +54,21 @@
- 
- static
- struct dvb_frontend_info uni0299_info = {
--	name: "STV0299/TSA5059/SL1935 based",
--	type: FE_QPSK,
--	frequency_min: 950000,
--	frequency_max: 2150000,
--	frequency_stepsize: 125,   /* kHz for QPSK frontends */
--	frequency_tolerance: M_CLK/2000,
--	symbol_rate_min: 1000000,
--	symbol_rate_max: 45000000,
--	symbol_rate_tolerance: 500,  /* ppm */
--	notifier_delay: 0,
--	caps: FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
--	      FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 |
--	      FE_CAN_QPSK |
--	      FE_CAN_FEC_AUTO | FE_CAN_INVERSION_AUTO |
--	      FE_CAN_CLEAN_SETUP
-+	.name			= "STV0299/TSA5059/SL1935 based",
-+	.type			= FE_QPSK,
-+	.frequency_min		= 950000,
-+	.frequency_max		= 2150000,
-+	.frequency_stepsize	= 125,   /* kHz for QPSK frontends */
-+	.frequency_tolerance	= M_CLK/2000,
-+	.symbol_rate_min	= 1000000,
-+	.symbol_rate_max	= 45000000,
-+	.symbol_rate_tolerance	= 500,  /* ppm */
-+	.notifier_delay		= 0,
-+	.caps			= FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 |
-+				  FE_CAN_FEC_3_4 | FE_CAN_FEC_5_6 |
-+				  FE_CAN_FEC_7_8 | FE_CAN_QPSK |
-+				  FE_CAN_FEC_AUTO | FE_CAN_INVERSION_AUTO |
-+				  FE_CAN_CLEAN_SETUP,
- };
- 
- 
-@@ -185,7 +185,12 @@
- {
- 	int ret;
- 	u8 buf [] = { reg, data };
--	struct i2c_msg msg = { addr: 0x68, flags: 0, buf: buf, len: 2 };
-+	struct i2c_msg msg = {
-+		.addr	= 0x68,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 2,
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -205,8 +210,20 @@
- 	int ret;
- 	u8 b0 [] = { reg };
- 	u8 b1 [] = { 0 };
--	struct i2c_msg msg [] = { { addr: 0x68, flags: 0, buf: b0, len: 1 },
--			   { addr: 0x68, flags: I2C_M_RD, buf: b1, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x68,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x68,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 1,
-+		},
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -223,8 +240,20 @@
- int stv0299_readregs (struct dvb_i2c_bus *i2c, u8 reg1, u8 *b, u8 len)
- {
-         int ret;
--        struct i2c_msg msg [] = { { addr: 0x68, flags: 0, buf: &reg1, len: 1 },
--                           { addr: 0x68, flags: I2C_M_RD, buf: b, len: len } };
-+        struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x68,
-+			.flags	= 0,
-+			.buf	= &reg1,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x68,
-+			.flags	= I2C_M_RD,
-+			.buf	= b,
-+			.len	= len,
-+		},
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -244,8 +273,20 @@
- 	u8 rpt1 [] = { 0x05, 0xb5 };  /*  enable i2c repeater on stv0299  */
- 	/* TSA5059 i2c-bus address */
- 	u8 addr = (ftype == PHILIPS_SU1278SH) ? 0x60 : 0x61;
--	struct i2c_msg msg [] = {{ addr: 0x68, flags: 0, buf: rpt1, len: 2 },
--			         { addr: addr, flags: 0, buf: data, len: 4 }};
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x68,
-+			.flags	= 0,
-+			.buf	= rpt1,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= addr,
-+			.flags	= 0,
-+			.buf	= data,
-+			.len	= 4,
-+		},
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -331,8 +372,20 @@
- 	u8 rpt1 [] = { 0x05, 0xb5 };
- 	u8 stat [] = { 0 };
- 
--	struct i2c_msg msg [] = {{ addr: 0x68, flags: 0, buf: rpt1, len: 2 },
--			  { addr: 0x60, flags: I2C_M_RD, buf: stat, len: 1 }};
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x68,
-+			.flags	= 0,
-+			.buf	= rpt1,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= 0x60,
-+			.flags	= I2C_M_RD,
-+			.buf	= stat,
-+			.len	= 1,
-+		},
-+	};
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -792,10 +845,34 @@
-         /* read the status register of TSA5059 */
- 	u8 rpt[] = { 0x05, 0xb5 };
-         u8 stat [] = { 0 };
--	struct i2c_msg msg1 [] = {{ addr: 0x68, flags: 0, buf: rpt,  len: 2 },
--                           { addr: 0x60, flags: I2C_M_RD, buf: stat, len: 1 }};
--	struct i2c_msg msg2 [] = {{ addr: 0x68, flags: 0, buf: rpt,  len: 2 },
--                           { addr: 0x61, flags: I2C_M_RD, buf: stat, len: 1 }};
-+	struct i2c_msg msg1 [] = {
-+		{
-+			.addr	= 0x68,
-+			.flags	= 0,
-+			.buf	= rpt,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= 0x60,
-+			.flags	= I2C_M_RD,
-+			.buf	= stat,
-+			.len	= 1,
-+		},
-+	};
-+	struct i2c_msg msg2 [] = {
-+		{
-+			.addr	= 0x68,
-+			.flags	= 0,
-+			.buf	= rpt,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= 0x61,
-+			.flags	= I2C_M_RD,
-+			.buf	= stat,
-+			.len	= 1,
-+		},
-+	};
- 
- 	if (i2c->xfer(i2c, msg1, 2) == 2) {
- 		type = PHILIPS_SU1278SH;
-===== drivers/media/dvb/frontends/ves1820.c 1.4 vs edited =====
---- 1.4/drivers/media/dvb/frontends/ves1820.c	Mon Apr  7 15:20:02 2003
-+++ edited/drivers/media/dvb/frontends/ves1820.c	Sun Apr 27 21:36:17 2003
-@@ -112,7 +112,12 @@
- {
- 	u8 addr = GET_DEMOD_ADDR(fe->data);
-         u8 buf[] = { 0x00, reg, data };
--	struct i2c_msg msg = { addr: addr, flags: 0, buf: buf, len: 3 };
-+	struct i2c_msg msg = {
-+		.addr	= addr,
-+		.flags	= 0,
-+		.buf	= buf,
-+		.len	= 3,
-+	};
- 	struct dvb_i2c_bus *i2c = fe->i2c;
-         int ret;
- 
-@@ -134,8 +139,20 @@
- 	u8 b0 [] = { 0x00, reg };
- 	u8 b1 [] = { 0 };
- 	u8 addr = GET_DEMOD_ADDR(fe->data);
--	struct i2c_msg msg [] = { { addr: addr, flags: 0, buf: b0, len: 2 },
--	                   { addr: addr, flags: I2C_M_RD, buf: b1, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= addr,
-+			.flags	= 0,
-+			.buf	= b0,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= addr,
-+			.flags	= I2C_M_RD,
-+			.buf	= b1,
-+			.len	= 1,
-+		},
-+	};
- 	struct dvb_i2c_bus *i2c = fe->i2c;
- 	int ret;
- 
-@@ -152,7 +169,12 @@
- int tuner_write (struct dvb_i2c_bus *i2c, u8 addr, u8 data [4])
- {
-         int ret;
--        struct i2c_msg msg = { addr: addr, flags: 0, buf: data, len: 4 };
-+        struct i2c_msg msg = {
-+		.addr	= addr,
-+		.flags	= 0,
-+		.buf	= data,
-+		.len	= 4,
-+	};
- 
-         ret = i2c->xfer (i2c, &msg, 1);
- 
-@@ -429,9 +451,19 @@
- int probe_tuner (struct dvb_i2c_bus *i2c)
- {
- 	static const
--	struct i2c_msg msg1 = { addr: 0x61, flags: 0, buf: NULL, len: 0 };
-+	struct i2c_msg msg1 = {
-+		.addr	= 0x61,
-+		.flags	= 0,
-+		.buf	= NULL,
-+		.len	= 0,
-+	};
- 	static const
--	struct i2c_msg msg2 = { addr: 0x62, flags: 0, buf: NULL, len: 0 };
-+	struct i2c_msg msg2 = {
-+		.addr	= 0x62,
-+		.flags	= 0,
-+		.buf	= NULL,
-+		.len	= 0,
-+	};
- 	int type;
- 
- 	if (i2c->xfer(i2c, &msg1, 1) == 1) {
-@@ -456,8 +488,20 @@
- {
- 	u8 b = 0xff;
- 	u8 pwm;
--	struct i2c_msg msg [] = { { addr: 0x50, flags: 0, buf: &b, len: 1 },
--			 { addr: 0x50, flags: I2C_M_RD, buf: &pwm, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x50,
-+			.flags	= 0,
-+			.buf	= &b,
-+			.len	= 1,
-+		},
-+		{
-+			.addr	= 0x50,
-+			.flags	= I2C_M_RD,
-+			.buf	= &pwm,
-+			.len	= 1,
-+		},
-+	};
- 
- 	i2c->xfer (i2c, msg, 2);
- 
-@@ -475,8 +519,20 @@
- {
- 	u8 b [] = { 0x00, 0x1a };
- 	u8 id;
--	struct i2c_msg msg [] = { { addr: 0x08, flags: 0, buf: b, len: 2 },
--	                   { addr: 0x08, flags: I2C_M_RD, buf: &id, len: 1 } };
-+	struct i2c_msg msg [] = {
-+		{
-+			.addr	= 0x08,
-+			.flags	= 0,
-+			.buf	= b,
-+			.len	= 2,
-+		},
-+		{
-+			.addr	= 0x08,
-+			.flags	= I2C_M_RD,
-+			.buf	= &id,
-+			.len	= 1,
-+		},
-+	};
- 
- 	if (i2c->xfer(i2c, msg, 2) == 2 && (id & 0xf0) == 0x70)
- 		return msg[0].addr;
-===== drivers/media/dvb/ttpci/av7110_ir.c 1.1 vs edited =====
---- 1.1/drivers/media/dvb/ttpci/av7110_ir.c	Mon Apr  7 15:20:06 2003
-+++ edited/drivers/media/dvb/ttpci/av7110_ir.c	Sun Apr 27 21:37:13 2003
-@@ -58,7 +58,7 @@
- 
- 
- static
--struct timer_list keyup_timer = { function: av7110_emit_keyup };
-+struct timer_list keyup_timer = { .function = av7110_emit_keyup };
- 
- 
- static
-===== drivers/media/video/bttv-cards.c 1.16 vs edited =====
---- 1.16/drivers/media/video/bttv-cards.c	Tue Mar 18 11:00:00 2003
-+++ edited/drivers/media/video/bttv-cards.c	Wed Apr  2 07:11:12 2003
-@@ -1173,7 +1173,7 @@
- 	.tuner_type     = -1,
- 	.pll            = PLL_28,
- 	.muxsel         = { 2 },
--	gpiomask:       0
-+	.gpiomask       = 0,
- },{
-         /* Tomasz Pyra <hellfire@sedez.iq.pl> */
-         .name           = "Prolink Pixelview PV-BT878P+ (Rev.4C,8E)",
-@@ -1260,7 +1260,7 @@
- },{
-         .name           = "Powercolor MTV878/ MTV878R/ MTV878F",
-         .video_inputs   = 3,
--        audio_inputs:   2, 
-+        .audio_inputs   = 2, 
- 	.tuner		= 0,
-         .svhs           = 2,
-         .gpiomask       = 0x1C800F,  // Bit0-2: Audio select, 8-12:remote control 14:remote valid 15:remote reset
-@@ -1300,7 +1300,7 @@
- },{
-         .name           = "Jetway TV/Capture JW-TV878-FBK, Kworld KW-TV878RF",
-         .video_inputs   = 4,
--        audio_inputs:   3, 
-+        .audio_inputs   = 3, 
-         .tuner          = 0,
-         .svhs           = 2,
-         .gpiomask       = 7,
-===== drivers/media/video/bttv-driver.c 1.27 vs edited =====
---- 1.27/drivers/media/video/bttv-driver.c	Thu Mar 13 08:26:40 2003
-+++ edited/drivers/media/video/bttv-driver.c	Wed Apr  2 07:10:09 2003
-@@ -2786,8 +2786,8 @@
- static struct video_device bttv_video_template =
- {
- 	.name     = "UNSET",
--	type:     VID_TYPE_CAPTURE|VID_TYPE_TUNER|VID_TYPE_OVERLAY|
--	          VID_TYPE_CLIPPING|VID_TYPE_SCALES,
-+	.type     = VID_TYPE_CAPTURE|VID_TYPE_TUNER|VID_TYPE_OVERLAY|
-+	            VID_TYPE_CLIPPING|VID_TYPE_SCALES,
- 	.hardware = VID_HARDWARE_BT848,
- 	.fops     = &bttv_fops,
- 	.minor    = -1,
-===== drivers/media/video/tvaudio.c 1.17 vs edited =====
---- 1.17/drivers/media/video/tvaudio.c	Thu Apr 24 06:11:51 2003
-+++ edited/drivers/media/video/tvaudio.c	Fri Apr 25 15:24:49 2003
-@@ -1319,7 +1319,7 @@
- 			     PIC16C54_MISC_SND_NOTMUTE},
- 		.inputmute  = PIC16C54_MISC_SND_MUTE,
- 	},
--	{ name: NULL } /* EOF */
-+	{ .name = NULL } /* EOF */
- };
- 
- 
-===== drivers/media/common/saa7146_video.c 1.1 vs edited =====
---- 1.1/drivers/media/common/saa7146_video.c	Mon Apr  7 15:16:30 2003
-+++ edited/drivers/media/common/saa7146_video.c	Sun Apr 27 20:51:13 2003
-@@ -365,41 +365,41 @@
- static
- struct v4l2_queryctrl controls[] = {
- 	{
--		id:            V4L2_CID_BRIGHTNESS,
--		name:          "Brightness",
--		minimum:       0,
--		maximum:       255,
--		step:          1,
--		default_value: 128,
--		type:          V4L2_CTRL_TYPE_INTEGER,
-+		.id		= V4L2_CID_BRIGHTNESS,
-+		.name		= "Brightness",
-+		.minimum	= 0,
-+		.maximum	= 255,
-+		.step		= 1,
-+		.default_value	= 128,
-+		.type		= V4L2_CTRL_TYPE_INTEGER,
- 	},{
--		id:            V4L2_CID_CONTRAST,
--		name:          "Contrast",
--		minimum:       0,
--		maximum:       127,
--		step:          1,
--		default_value: 64,
--		type:          V4L2_CTRL_TYPE_INTEGER,
-+		.id		= V4L2_CID_CONTRAST,
-+		.name		= "Contrast",
-+		.minimum	= 0,
-+		.maximum	= 127,
-+		.step		= 1,
-+		.default_value	= 64,
-+		.type		= V4L2_CTRL_TYPE_INTEGER,
- 	},{
--		id:            V4L2_CID_SATURATION,
--		name:          "Saturation",
--		minimum:       0,
--		maximum:       127,
--		step:          1,
--		default_value: 64,
--		type:          V4L2_CTRL_TYPE_INTEGER,
-+		.id		= V4L2_CID_SATURATION,
-+		.name		= "Saturation",
-+		.minimum	= 0,
-+		.maximum	= 127,
-+		.step		= 1,
-+		.default_value	= 64,
-+		.type		= V4L2_CTRL_TYPE_INTEGER,
- 	},{
--		id:            V4L2_CID_VFLIP,
--		name:          "Vertical flip",
--		minimum:       0,
--		maximum:       1,
--		type:          V4L2_CTRL_TYPE_BOOLEAN,
-+		.id		= V4L2_CID_VFLIP,
-+		.name		= "Vertical flip",
-+		.minimum	= 0,
-+		.maximum	= 1,
-+		.type		= V4L2_CTRL_TYPE_BOOLEAN,
- 	},{
--		id:            V4L2_CID_HFLIP,
--		name:          "Horizontal flip",
--		minimum:       0,
--		maximum:       1,
--		type:          V4L2_CTRL_TYPE_BOOLEAN,
-+		.id		= V4L2_CID_HFLIP,
-+		.name		= "Horizontal flip",
-+		.minimum	= 0,
-+		.maximum	= 1,
-+		.type		= V4L2_CTRL_TYPE_BOOLEAN,
- 	},
- };
- static
-===== drivers/media/common/saa7146_video.c 1.1 vs edited =====
---- 1.1/drivers/media/common/saa7146_video.c	Mon Apr  7 15:16:30 2003
-+++ edited/drivers/media/common/saa7146_video.c	Sun Apr 27 20:51:13 2003
-@@ -365,41 +365,41 @@
- static
- struct v4l2_queryctrl controls[] = {
- 	{
--		id:            V4L2_CID_BRIGHTNESS,
--		name:          "Brightness",
--		minimum:       0,
--		maximum:       255,
--		step:          1,
--		default_value: 128,
--		type:          V4L2_CTRL_TYPE_INTEGER,
-+		.id		= V4L2_CID_BRIGHTNESS,
-+		.name		= "Brightness",
-+		.minimum	= 0,
-+		.maximum	= 255,
-+		.step		= 1,
-+		.default_value	= 128,
-+		.type		= V4L2_CTRL_TYPE_INTEGER,
- 	},{
--		id:            V4L2_CID_CONTRAST,
--		name:          "Contrast",
--		minimum:       0,
--		maximum:       127,
--		step:          1,
--		default_value: 64,
--		type:          V4L2_CTRL_TYPE_INTEGER,
-+		.id		= V4L2_CID_CONTRAST,
-+		.name		= "Contrast",
-+		.minimum	= 0,
-+		.maximum	= 127,
-+		.step		= 1,
-+		.default_value	= 64,
-+		.type		= V4L2_CTRL_TYPE_INTEGER,
- 	},{
--		id:            V4L2_CID_SATURATION,
--		name:          "Saturation",
--		minimum:       0,
--		maximum:       127,
--		step:          1,
--		default_value: 64,
--		type:          V4L2_CTRL_TYPE_INTEGER,
-+		.id		= V4L2_CID_SATURATION,
-+		.name		= "Saturation",
-+		.minimum	= 0,
-+		.maximum	= 127,
-+		.step		= 1,
-+		.default_value	= 64,
-+		.type		= V4L2_CTRL_TYPE_INTEGER,
- 	},{
--		id:            V4L2_CID_VFLIP,
--		name:          "Vertical flip",
--		minimum:       0,
--		maximum:       1,
--		type:          V4L2_CTRL_TYPE_BOOLEAN,
-+		.id		= V4L2_CID_VFLIP,
-+		.name		= "Vertical flip",
-+		.minimum	= 0,
-+		.maximum	= 1,
-+		.type		= V4L2_CTRL_TYPE_BOOLEAN,
- 	},{
--		id:            V4L2_CID_HFLIP,
--		name:          "Horizontal flip",
--		minimum:       0,
--		maximum:       1,
--		type:          V4L2_CTRL_TYPE_BOOLEAN,
-+		.id		= V4L2_CID_HFLIP,
-+		.name		= "Horizontal flip",
-+		.minimum	= 0,
-+		.maximum	= 1,
-+		.type		= V4L2_CTRL_TYPE_BOOLEAN,
- 	},
- };
- static
--- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
- -- Theodore Roosevelt, Kansas City Star, 1918
+The Unix API provides execve(), fexecve(), execv(), execle(),
+execl(), execvp(), and execlp() for what you call 'exec'. So
+there is no 'fork and exec' as you state.
+
+The kernel provides one system call, execve(). All of the
+other functional changes are done with 'C' wrappers in the
+'C' runtime library. To make a generic fork-exec, would require
+that this code, or its functionality, be moved into the kernel.
+
+To save some processing time, most knowledgeable software
+engineers would use vfork(). This leaves the major time,
+the time necessary to load the new application into the
+new address space and begin its execution. This time could
+be tens of milliseconds or even hundreds if the application
+is on a CD, floppy, a disk that hasn't been accessed yet,
+or the network. In the usuall situation where processing
+must be performed between the fork() and the execve(), you
+can't use vfork().
+
+You can measure the time for a system call by executing
+getpid() or something similar. It is in the noise compared
+to the time necessary to execute a program. Further, we
+get to the situation where one can't even verify a supposed
+speed increase because the system call overhead is in the
+noise. Great, one can claim any improvement they want and
+it can't be verified. What will be verified, though, is
+the increase in size of the kernel.
+
+The following is a "simple popem()', about as minimal as
+you can get and have it work.
+
+
+ *   invocation as `/bin/sh -c COMMAND`. 0 reads 1 writes.
+ */
+FILE *popen(const char *command, const char *type)
+{
+    size_t i;
+    int fd2close;
+    struct sigaction sa;
+    char *args[NR_ARGS];
+    FILE *file;
+    if((command == NULL) || (type == NULL))
+    {
+        errno = EINVAL;
+        return NULL;
+    }
+    if(!((*type == (char)'r') || (*type == (char)'w')))
+    {
+        errno = EINVAL;
+        return NULL;
+    }
+    if((file = (FILE *) malloc(sizeof(FILE))) == NULL)
+    {
+        return file;
+    }
+    bzero(file, sizeof(FILE));
+    if(pipe(file->pfd))
+    {
+        free(file);
+        return NULL;
+    }
+    fd2close = 0xff;
+    if(*type == (char)'r')
+    {
+        file->fd = file->pfd[0];
+        fd2close = file->pfd[1];
+    }
+    else
+    {
+        file->fd = file->pfd[1];
+        fd2close = file->pfd[0];
+    }
+    i = 0;
+    args[i++] = "/bin/sh";
+    args[i++] = "-c";
+    args[i++] = strtok((char *)command, " ");
+    for(; i< NR_ARGS; i++)
+        if((args[i] = strtok(NULL, " ")) == NULL)
+            break;
+    for(i++; i < NR_ARGS; i++)
+        args[i] = NULL;
+    sigaction(SIGCHLD, NULL, &sa);     /* Save old */
+    signal(SIGCHLD, SIG_IGN);
+    switch((file->pid=fork()))
+    {
+    case 0:
+        if(*type == (char)'r')
+        {
+            dup2(file->pfd[1], STDOUT_FILENO);
+            (void)close(file->pfd[0]);
+        }
+        else
+        {
+            dup2(file->pfd[0], STDIN_FILENO);
+            (void)close(file->pfd[1]);
+        }
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
+        execve(args[0], args, __environ);
+        exit(EXIT_FAILURE);
+        break;
+    case -1:
+        (void)close(file->pfd[0]);
+        (void)close(file->pfd[1]);
+        free(file);
+        return NULL;
+    default:
+        break;
+    }
+    file->magic = POPEN;
+    sigaction(SIGCHLD, &sa, NULL);     /* Restore old */
+    (void)close(fd2close);
+    return file;
+}
+
+Clearly, some additional, non-generic, processing has to
+occur after the fork() and before execve(). For instance,
+in the parent it is mandatory that the file descriptor that
+is not being accessed by the parent be closed just as it
+is mandatory that the file descriptor that is not being
+accessed by the child be closed. Otherwise, a read from
+the file descriptor by the parent, will not error-out
+and return control to the parent when the child closes its
+end of the pipe. All these 'trivial little details' are
+necessary to have individual function calls work as a
+system. That's why Unix breaks these functions into little
+pieces (primitives) so the writer has control over the
+overall behavior of the complete system. Integration of
+these components into a monolythic conglomeration has
+always failed to provide increased functionality or
+performance, instead it simply reduces the number of
+lines of code necessary to be written and maintained.
+
+Reducing the number of lines of code may be a good thing.
+However, the proper place for that is in the 'C' library,
+not the kernel.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

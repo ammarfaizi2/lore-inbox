@@ -1,71 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264352AbRFHVke>; Fri, 8 Jun 2001 17:40:34 -0400
+	id <S264374AbRFHVuO>; Fri, 8 Jun 2001 17:50:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264347AbRFHVkY>; Fri, 8 Jun 2001 17:40:24 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38406 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264364AbRFHVkH>; Fri, 8 Jun 2001 17:40:07 -0400
-Date: Fri, 8 Jun 2001 17:04:33 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: John Stoffel <stoffel@casc.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Tobias Ringstrom <tori@unhappy.mine.nu>,
-        Jonathan Morton <chromi@cyberspace.org>, Shane Nay <shane@minirl.com>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <15137.15472.264539.290588@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.21.0106081701300.2422-100000@freak.distro.conectiva>
+	id <S264376AbRFHVuE>; Fri, 8 Jun 2001 17:50:04 -0400
+Received: from chia.umiacs.umd.edu ([128.8.120.111]:49654 "EHLO
+	chia.umiacs.umd.edu") by vger.kernel.org with ESMTP
+	id <S264374AbRFHVt6>; Fri, 8 Jun 2001 17:49:58 -0400
+Date: Fri, 8 Jun 2001 17:49:56 -0400 (EDT)
+From: Adam <adam@cfar.umd.edu>
+X-X-Sender: <adam@chia.umiacs.umd.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: oops question 
+Message-ID: <Pine.GSO.4.33.0106081749370.18152-200000@chia.umiacs.umd.edu>
+X-WEB: http://www.eax.com
+Content-Type-X: multipart/mixed; boundary="------------3897B7E0F65FF08A89ED6C92"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/Mixed; BOUNDARY="42009324-1186711121-992037975=:12366"
+Content-ID: <Pine.LNX.4.33.0106081747460.12366@eax.student.umd.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Fri, 8 Jun 2001, John Stoffel wrote:
+--42009324-1186711121-992037975=:12366
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33.0106081747461.12366@eax.student.umd.edu>
 
-> 
-> Marcelo> Now the stock kernel gives us crappy interactivity compared
-> Marcelo> to my patch.  (Note: my patch still does not gives me the
-> Marcelo> interactivity I want under high VM loads, but I hope to get
-> Marcelo> there soon).
-> 
-> This raises the important question, how can we objectively measure
-> interactive response in the kernel and relate it to the user's
-> perceived interactive response?  If we could come up with some sort of
-> testing system that would show us this, it would help alot, since we
-> could just have people run tests in a more automatic and repeatable
-> manner.
-> 
-> And I think it would also help us automatically tune the Kernel, since
-> it would have a knowledge of it's own performance.  
-> 
-> There is the problem in terms of some people want pure interactive
-> performance, while others are looking for throughput over all else,
-> but those are both extremes of the spectrum.  Though I suspect
-> raw throughput is the less wanted (in terms of numbers of systems)
-> than keeping interactive response good during VM pressure.
 
-And this raises a very very important point: raw throughtput wins
-enterprise-like benchmarks, and the enterprise people are the ones who pay
-most of hackers here. (including me and Rik)
+does the attached oops makes sense or it is just messed up?
 
-We have to be careful about that. 
+AFAICT the ksymoops is using right System.map, yet the stack
+trace does not seem to follow logical order. it is from 2.4.6-pre1
 
-> I have zero knowledge of how we could do this, but giving the kernel
-> some counters, even if only for use during debugging runs, which would
-> give us some objective feedback on performance would be a big win.
-> 
-> Having people just send in reports of "I ran X,Y,Z and it was slow"
-> doesn't help us, since it's so hard to re-create their environment so
-> you can run tests against it.
 
-Lets wait for some test system to be set up (eg the OSDL thing).
+for that matter is "defensive" programming the rule in kernel?
+this ops could be avoided if the net/ipv4/ipmr.c:ipmr_new_tunel()
+function was changed to check whether 'v' is null and if it is
+true then just return.
 
-Once thats done, I'm sure we will find out some way of doing it. 
+I did not submit this patch though since I couldn't figure how
+in the the first place code ended up there.
 
-Well, good weekend for you too. 
 
+-- 
+Adam
+http://www.eax.com      The Supreme Headquarters of the 32 bit registers
+
+
+
+--42009324-1186711121-992037975=:12366
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="oops.ksymoops"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0106081706150.12366@eax.student.umd.edu>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="oops.ksymoops"
+
+a3N5bW9vcHMgMi40LjAgb24gaTY4NiAyLjQuNi1wcmUxLXBhY2tldC4gIE9w
+dGlvbnMgdXNlZA0KICAgICAtViAoZGVmYXVsdCkNCiAgICAgLWsgL3Byb2Mv
+a3N5bXMgKGRlZmF1bHQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1
+bHQpDQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuNi1wcmUxLXBhY2tldC8g
+KGRlZmF1bHQpDQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi40LjYtcHJl
+MS1wYWNrZXQgKGRlZmF1bHQpDQoNCldhcm5pbmc6IFlvdSBkaWQgbm90IHRl
+bGwgbWUgd2hlcmUgdG8gZmluZCBzeW1ib2wgaW5mb3JtYXRpb24uICBJIHdp
+bGwNCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hlcyB0aGUga2VybmVsIGFu
+ZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcNCnJpZ2h0IG5vdyBhbmQgSSds
+bCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Igc3ltYm9sIHJl
+c29sdXRpb24uDQpJZiB0aGUgY3VycmVudCBrZXJuZWwgYW5kL29yIG1vZHVs
+ZXMgZG8gbm90IG1hdGNoIHRoZSBsb2csIHlvdSBjYW4gZ2V0DQptb3JlIGFj
+Y3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBrZXJuZWwgdmVyc2lv
+biBhbmQgd2hlcmUgdG8gZmluZA0KbWFwLCBtb2R1bGVzLCBrc3ltcyBldGMu
+ICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4NCg0KV2Fybmlu
+ZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wgX19WRVJTSU9O
+RURfU1lNQk9MKHNobWVtX2ZpbGVfc2V0dXApIG5vdCBmb3VuZCBpbiBTeXN0
+ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAo
+Y29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wgZG9fc29mdGlycV9S
+X192ZXJfZG9fc29mdGlycSBub3QgZm91bmQgaW4gU3lzdGVtLm1hcC4gIEln
+bm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFw
+cyk6IG1pc21hdGNoIG9uIHN5bWJvbCBwYXJ0aXRpb25fbmFtZSAgLCBrc3lt
+c19iYXNlIHNheXMgYzAxYjRhNTAsIFN5c3RlbS5tYXAgc2F5cyBjMDE1N2Nm
+MC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBh
+cmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIHRhc2tsZXRfaGlfc2NoZWR1
+bGVfUl9fdmVyX3Rhc2tsZXRfaGlfc2NoZWR1bGUgbm90IGZvdW5kIGluIFN5
+c3RlbS5tYXAuICBJZ25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5n
+IChjb21wYXJlX21hcHMpOiBrc3ltc19iYXNlIHN5bWJvbCB0YXNrbGV0X3Nj
+aGVkdWxlX1JfX3Zlcl90YXNrbGV0X3NjaGVkdWxlIG5vdCBmb3VuZCBpbiBT
+eXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KY3B1OiAw
+LCBjbG9ja3M6IDEwMDIzODgsIHNsaWNlOiAzMzQxMjkNCmNwdTogMSwgY2xv
+Y2tzOiAxMDAyMzg4LCBzbGljZTogMzM0MTI5DQpVbmFibGUgdG8gaGFuZGxl
+IGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2UgYXQgdmlydHVhbCBh
+ZGRyZXNzIDAwMDAwMDBjDQpjMDFmYmQyZA0KKnBkZSA9IDAwMDAwMDAwDQpP
+b3BzOiAwMDAwDQpDUFU6ICAgIDANCkVJUDogICAgMDAxMDpbPGMwMWZiZDJk
+Pl0NClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQgZWxmMzItaTM4
+NiAtYSBpMzg2DQpFRkxBR1M6IDAwMDEwMjQ2DQplYXg6IDAwMDAwMDAwICAg
+ZWJ4OiAwMDAwMDAwMCAgIGVjeDogMDAwMDAwMDAgICBlZHg6IDAwMDAwMTAw
+DQplc2k6IDA2YzcxYmJmICAgZWRpOiBjNzFiYmU0YyAgIGVicDogYzcxYmJl
+MTggICBlc3A6IGM3MWJiZTE4DQpkczogMDAxOCAgIGVzOiAwMDE4ICAgc3M6
+IDAwMTgNClByb2Nlc3MgZ2FpbSAocGlkOiAxOTE2MCwgc3RhY2twYWdlPWM3
+MWJiMDAwKQ0KU3RhY2s6IDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAw
+MDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIA0K
+ICAgICAgIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAw
+MDAwMDAwIDAwMDAwMDllIGM1ZTg3ODFlIGM2ZWQwNTQwIA0KICAgICAgIDAw
+MDAwMDAwIGM2YTM3MTQwIDAwMDAwMDEwIGNjODc0MTQ0IDAwMDAwMDAxIDAw
+MDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIA0KQ2FsbCBUcmFjZTogWzxjYzg3
+NDE0ND5dIFs8YzAxYmIyODE+XSBbPGMwMTMwNTg0Pl0gWzxjMDFkOGViZT5d
+IFs8YzAxNDE0ZDk+XSBbPGMwMWJhNmFmPl0gWzxjMDE0NzQzZD5dIA0KICAg
+ICAgIFs8YzAxYmIyZmQ+XSBbPGMwMWJiOTk0Pl0gWzxjMDEwNmZmZj5dIFs8
+YzAxMDAwMmI+XSANCkNvZGU6IDhiIDQzIDBjIDg5IDQ0IDI0IDMwIDhiIDQz
+IDA4IGM2IDQ0IDI0IDIwIDQ1IGM2IDQ0IDI0IDI5IDA0IA0KDQo+PkVJUDsg
+YzAxZmJkMmQgPGlwbXJfbmV3X3R1bm5lbCsyZC9mMD4gICA8PT09PT0NClRy
+YWNlOyBjYzg3NDE0NCA8W3R1bGlwXXR1bGlwX2ludGVycnVwdCs1ZDQvNzgw
+Pg0KVHJhY2U7IGMwMWJiMjgxIDxzeXNfcmVjdmZyb20rYTEvMTAwPg0KVHJh
+Y2U7IGMwMTMwNTg0IDxfX2FsbG9jX3BhZ2VzKzc0LzI3MD4NClRyYWNlOyBj
+MDFkOGViZSA8dGNwX3BvbGwrMmUvMTUwPg0KVHJhY2U7IGMwMTQxNGQ5IDxw
+aXBlX3BvbGwrMjkvNzA+DQpUcmFjZTsgYzAxYmE2YWYgPHNvY2tfcG9sbCsx
+Zi8zMD4NClRyYWNlOyBjMDE0NzQzZCA8ZG9fcG9sbGZkKzFkLzgwPg0KVHJh
+Y2U7IGMwMWJiMmZkIDxzeXNfcmVjdisxZC8zMD4NClRyYWNlOyBjMDFiYjk5
+NCA8c3lzX3NvY2tldGNhbGwrMTU0LzIwMD4NClRyYWNlOyBjMDEwNmZmZiA8
+c3lzdGVtX2NhbGwrMzcvM2M+DQpUcmFjZTsgYzAxMDAwMmIgPHN0YXJ0dXBf
+MzIrMmIvY2I+DQpDb2RlOyAgYzAxZmJkMmQgPGlwbXJfbmV3X3R1bm5lbCsy
+ZC9mMD4NCjAwMDAwMDAwIDxfRUlQPjoNCkNvZGU7ICBjMDFmYmQyZCA8aXBt
+cl9uZXdfdHVubmVsKzJkL2YwPiAgIDw9PT09PQ0KICAgMDogICA4YiA0MyAw
+YyAgICAgICAgICAgICAgICAgIG1vdiAgICAweGMoJWVieCksJWVheCAgIDw9
+PT09PQ0KQ29kZTsgIGMwMWZiZDMwIDxpcG1yX25ld190dW5uZWwrMzAvZjA+
+DQogICAzOiAgIDg5IDQ0IDI0IDMwICAgICAgICAgICAgICAgbW92ICAgICVl
+YXgsMHgzMCglZXNwLDEpDQpDb2RlOyAgYzAxZmJkMzQgPGlwbXJfbmV3X3R1
+bm5lbCszNC9mMD4NCiAgIDc6ICAgOGIgNDMgMDggICAgICAgICAgICAgICAg
+ICBtb3YgICAgMHg4KCVlYngpLCVlYXgNCkNvZGU7ICBjMDFmYmQzNyA8aXBt
+cl9uZXdfdHVubmVsKzM3L2YwPg0KICAgYTogICBjNiA0NCAyNCAyMCA0NSAg
+ICAgICAgICAgIG1vdmIgICAkMHg0NSwweDIwKCVlc3AsMSkNCkNvZGU7ICBj
+MDFmYmQzYyA8aXBtcl9uZXdfdHVubmVsKzNjL2YwPg0KICAgZjogICBjNiA0
+NCAyNCAyOSAwNCAgICAgICAgICAgIG1vdmIgICAkMHg0LDB4MjkoJWVzcCwx
+KQ0KDQoNCjYgd2FybmluZ3MgaXNzdWVkLiAgUmVzdWx0cyBtYXkgbm90IGJl
+IHJlbGlhYmxlLg0K
+--42009324-1186711121-992037975=:12366--

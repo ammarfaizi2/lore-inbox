@@ -1,82 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131472AbRCWWJr>; Fri, 23 Mar 2001 17:09:47 -0500
+	id <S131468AbRCWWGg>; Fri, 23 Mar 2001 17:06:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131474AbRCWWJg>; Fri, 23 Mar 2001 17:09:36 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:18697 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S131472AbRCWWJZ>; Fri, 23 Mar 2001 17:09:25 -0500
-Date: Sat, 24 Mar 2001 00:18:03 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
+	id <S131474AbRCWWG0>; Fri, 23 Mar 2001 17:06:26 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:20732 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131468AbRCWWGT>; Fri, 23 Mar 2001 17:06:19 -0500
+Message-ID: <3ABBC702.AC9C3C92@mvista.com>
+Date: Fri, 23 Mar 2001 13:58:26 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Paul Jakma <paulj@itg.ie>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+CC: Szabolcs Szakacsits <szaka@f-secure.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Stephen Clouse <stephenc@theiqgroup.com>,
         Guest section DW <dwguest@win.tue.nl>,
         Rik van Riel <riel@conectiva.com.br>,
         "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Prevent OOM from killing init
 In-Reply-To: <Pine.LNX.4.33.0103232026310.31380-100000@rossi.itg.ie>
-Message-ID: <Pine.LNX.4.30.0103232312440.13864-100000@fs131-224.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What happens if you just make swap VERY large?  Does the system thrash
+it self to a virtual standstill?  Is this a possible answer?  Supposedly
+you could then sneak in and blow away the bad guys manually ...
 
-On Fri, 23 Mar 2001, Paul Jakma wrote:
+George
+
+Paul Jakma wrote:
+> 
 > On Fri, 23 Mar 2001, Szabolcs Szakacsits wrote:
+> 
 > > About the "use resource limits!". Yes, this is one solution. The
 > > *expensive* solution (admin time, worse resource utilization, etc).
-
-Thanks for cutting out relevant parts that said how to increase user
-base and satisfaction keeping and using the existent possibility as
-well.
-
+> 
 > traditional user limits have worse resource utilisation? think what
 > kind of utilisation a guaranteed allocation system would have. instead
 > of 128MB, you'd need maybe a GB of RAM and many many GB of swap for
 > most systems.
-
-Nonsense hodgepodge. See and/or mesaure the impact. I sent numbers in my
-former email. You also missed non-overcommit must be _optional_ [i.e.
-you wouldn't be forced to use it ;)]. Yes, there are users and
-enterprises who require it and would happily pay the 50-100% extra swap
-space for the same workload and extra reliability.
-
+> 
+> some hopefully non-ranting points:
+> 
 > - setting up limits on a RH system takes 1 minute by editing
 > /etc/security/limits.conf.
-
-At every time you add/delete users, add/delete special apps, etc.
-Please note again, some people wants this way, some only for sometimes,
-and others really don't care because system guarantees for the admins
-they will always have the resources to take action [unfortunately this
-is not Linux].
-
+> 
 > - Rik's current oom killer may not do a good job now, but it's
 > impossible for it to do a /perfect/ job without implementing
 > kernel/esp.c.
-
-Rik's killer is quite fine at _default_. But there will be always people
-who won't like it [the bastards think humans can still make better
-decisions than machines]. Wouldn't it be win for both sides if you could
-point out, "Hey, if you don't like the default, use the
-/proc/sys/vm/oom_killer interface"? As I said before there are also
-such patch by Chris Swiedler and definitely not a huge, complex one.
-And these stupid threads could be forgotten for good and all.
-
+> 
 > - with limits set you will have:
 >  - /possible/ underutilisation on some workloads.
-
-Depends, guaranteed underutilisation or guaranteed extra unreliability
-fit the picture many times as well.
-
+>  - chance of hitting Rik's OOM killer reduced to almost nothing.
+> 
 > no matter how good or bad Rik's killer is, i'd much rather set limits
 > and just about /never/ have it invoked.
-
-Thanks for expressing your opinion but others [not necessarily me] have
-"occasionally" other one depending on the job what the box must do.
-
-	Szaka
-
-
+> 
+> more beancounting will make limits more useful (eg global?) and maybe
+> dists can start setting up some kind of limits by default at install
+> time based on the RAM installed and whether user selected
+> server/workstation/etc.. install.
+> 
+> Then hopefully we can be a little less concerned about how close Rik
+> gets to the impossible task of implementing esp.c.
+> 
+> >         Szaka
+> 
+> --paulj
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284775AbRLDAU4>; Mon, 3 Dec 2001 19:20:56 -0500
+	id <S284795AbRLDAUy>; Mon, 3 Dec 2001 19:20:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284793AbRLDAQx>; Mon, 3 Dec 2001 19:16:53 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20672 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284935AbRLCSfc>; Mon, 3 Dec 2001 13:35:32 -0500
-Date: Mon, 3 Dec 2001 11:34:57 -0700
-Message-Id: <200112031834.fB3IYvg23052@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199.2 available
+	id <S284840AbRLDASE>; Mon, 3 Dec 2001 19:18:04 -0500
+Received: from dsl-213-023-038-044.arcor-ip.net ([213.23.38.44]:47376 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284633AbRLCOvd>;
+	Mon, 3 Dec 2001 09:51:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Nathan Scott <nathans@sgi.com>
+Subject: Re: [RFC][PATCH] VFS interface for extended attributes
+Date: Mon, 3 Dec 2001 15:52:58 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Alexander Viro <viro@math.psu.edu>, Andi Kleen <ak@suse.de>,
+        Andreas Gruenbacher <ag@bestbits.at>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.21.0111121152410.14344-100000@moses.parsec.at> <E16Agdh-0000BS-00@starship.berlin> <20011203115400.F39338@wobbly.melbourne.sgi.com>
+In-Reply-To: <20011203115400.F39338@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16AuSr-0000HG-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199.2 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+On December 3, 2001 01:54 am, Nathan Scott wrote:
+> ...BTW, we have reworked the interfaces once more and
+> will send out the latest revision in the next couple of days -
+> it does away with commands and flags completely, except for this
+> one instance of flags in the set operation...
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+OK, well I can see some patterns emerging already:
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+long sys_getxattr(char *path, char *name, void *value, size_t size, int flags)
+long sys_setxattr(char *path, char *name, void *value, size_t size, int flags)
+long sys_listxattr(char *path, char *name, void *value, size_t size, int flags)
 
-This is against 2.4.17-pre2. Highlights of this release:
+long sys_fgetxattr(int fd, char *name, void *value, size_t size, int flags)
+long sys_fsetxattr(int fd, char *name, void *value, size_t size, int flags)
+long sys_flistxattr(int fd, char *name, void *value, size_t size, int flags)
 
-- Fixed bug in <devfsd_close>: was dereferencing freed pointer
+Why don't I see 'delxattr'?
 
-- Added process group check for devfsd privileges
+Why is there a need for separate 'path' and 'fd' variants?
 
-				Regards,
+<nit>Is there any other kind of 'attr' in the syscall interface?  Why not spell
+it 'attr' instead of 'xaddr'?  How about geta, seta, dela, lista?</nit>
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+The idea of attribute class (namespace) isn't explicitly accomodated.  I presume
+the intention is to encode the class as part of the attribute name and have the 
+filesystem or vfs parse it out.  Is that such a good idea?  Why not pass the 
+class explicitly and worry about the namespace parsing in user space?
+
+As far as listing attributes goes, is there ever a reason to list system and
+user attributes at the same time?  IOW, the listxattr call needs a class
+parameter too.  It doesn't name a 'name', at least if you accept my argument
+that the class should not be parsed inside the kernel.  There's no particular
+reason to force all the parameter lists to be the same is there?
+
+--
+Daniel

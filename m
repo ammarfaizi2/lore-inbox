@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265223AbUBAFqc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 00:46:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbUBAFqc
+	id S265221AbUBAFnG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 00:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbUBAFnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 00:46:32 -0500
-Received: from nevyn.them.org ([66.93.172.17]:39043 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S265223AbUBAFqb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 00:46:31 -0500
-Date: Sun, 1 Feb 2004 00:46:17 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Roland McGrath <roland@redhat.com>
+	Sun, 1 Feb 2004 00:43:06 -0500
+Received: from mail2.speakeasy.net ([216.254.0.202]:28056 "EHLO
+	mail2.speakeasy.net") by vger.kernel.org with ESMTP id S265221AbUBAFm6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 00:42:58 -0500
+Date: Sat, 31 Jan 2004 21:42:52 -0800
+Message-Id: <200402010542.i115gqbM026295@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Daniel Jacobowitz <dan@debian.org>
+X-Fcc: ~/Mail/linus
 Cc: Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@elte.hu>
 Subject: Re: More waitpid issues with CLONE_DETACHED/CLONE_THREAD
-Message-ID: <20040201054617.GA15373@nevyn.them.org>
-Mail-Followup-To: Roland McGrath <roland@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Ingo Molnar <mingo@elte.hu>
-References: <20040201051435.GA19421@nevyn.them.org> <200402010542.i115gqbM026295@magilla.sf.frob.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402010542.i115gqbM026295@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: Daniel Jacobowitz's message of  Sunday, 1 February 2004 00:14:35 -0500 <20040201051435.GA19421@nevyn.them.org>
+Emacs: it's all fun and games, until somebody tries to edit a file.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 31, 2004 at 09:42:52PM -0800, Roland McGrath wrote:
-> > I thought that a new group leader would be swapped in to that TID?  But
-> > I was always confused by the mechanics of that.
-> 
-> The group leader never changes.  The zombie group leader just sticks around
-> until there are no other threads in the group.  (The only exception here is
-> exec.)
+> I thought that a new group leader would be swapped in to that TID?  But
+> I was always confused by the mechanics of that.
 
-Ah, thanks, it was exec that I was thinking of.
-
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+The group leader never changes.  The zombie group leader just sticks around
+until there are no other threads in the group.  (The only exception here is
+exec.)

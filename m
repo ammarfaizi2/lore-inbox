@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269466AbSKEDcR>; Mon, 4 Nov 2002 22:32:17 -0500
+	id <S267063AbSKEDb2>; Mon, 4 Nov 2002 22:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276347AbSKEDcR>; Mon, 4 Nov 2002 22:32:17 -0500
-Received: from dp.samba.org ([66.70.73.150]:56517 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S276343AbSKEDcO>;
-	Mon, 4 Nov 2002 22:32:14 -0500
+	id <S276301AbSKEDb2>; Mon, 4 Nov 2002 22:31:28 -0500
+Received: from ns.suse.de ([213.95.15.193]:29715 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267063AbSKEDb0> convert rfc822-to-8bit;
+	Mon, 4 Nov 2002 22:31:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: What's left over.
+Date: Tue, 5 Nov 2002 04:38:01 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <20021031030143.401DA2C150@lists.samba.org> <20021031031954.56C772C156@lists.samba.org> <20021031062118.GA18007@tapu.f00f.org>
+In-Reply-To: <20021031062118.GA18007@tapu.f00f.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15815.15474.340596.779207@gargle.gargle.HOWL>
-Date: Tue, 5 Nov 2002 14:35:14 +1100
-From: Christopher Yeoh <cyeoh@samba.org>
-To: "Geoff Gustafson" <geoff@linux.co.intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Open POSIX Test Suite
-In-Reply-To: <016601c28464$6f6d1110$7fd40a0a@amr.corp.intel.com>
-References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com>
-	<15815.2399.566974.940599@gargle.gargle.HOWL>
-	<016601c28464$6f6d1110$7fd40a0a@amr.corp.intel.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211050438.01179.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2002/11/4 16:44-0800  Geoff Gustafson writes:
-> One issue is that this new project is primarily concerned with
-> testing parts of the spec that have not been fully supported in
-> Linux so far. These are the kind of things that are not included in
-> LSB yet, so they wouldn't be appropriate in LSB's test suite.
+On Thursday 31 October 2002 07:21, Chris Wedgwood wrote:
+> Don't get me wrong, I'm not against sane ACLs (POSIX ACLs are not) or
+> EAs [...]
 
-Actually we do include some areas that aren't yet in the LSB spec or
-fully supported by Linux (eg aio) in the LSB test suites we release -
-they just aren't run by default - but it is easy to enable them.
+POSIX ACLs are more complicated than what would be inherently necessary, if we 
+were in a situation where we could design from scratch. Unfortunately we are 
+not in that situation. I've heard dozens of people complain about POSIX ACLs 
+(and other kinds as well); nobody was able to come up with something truly 
+better so far.
 
-> utterly minimal. So far, each test case has its own main() function
-> and a bare minimum of surrounding code.  The idea is that when a bug
-> is found, this one .c file can be sent to the appropriate developer,
-> and without any learning curve, they have the ability to find their
-> bug. I don't think LKML wants to see TET code posted here. :)
+--Andreas.
 
-Yes, I agree TET does have a significant learning curve, and I do end
-up writing small test programs that don't include the TET stuff before
-sending off bug reports.
-
-I have however seen some advantages - It is nice when you get a test
-failure the report tells you exactly which part of the specification
-you're violating. Once you do understand the TET/vsxgen library calls
-testcases look much simpler - and if you're aiming for complete
-functionality coverage including all the tricky corner cases for
-various interfaces which can require quite a bit of setup code to get
-into the right situation I think you'll end up having to write helper
-libraries anyway.
-
-Chris
--- 
-cyeoh@au.ibm.com
-IBM OzLabs Linux Development Group
-Canberra, Australia

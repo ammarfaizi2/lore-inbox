@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272432AbTGaHhi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 03:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272434AbTGaHhi
+	id S272806AbTGaHix (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 03:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272807AbTGaHix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 03:37:38 -0400
-Received: from pd146.bielsko.sdi.tpnet.pl ([217.96.247.146]:41228 "EHLO
-	aquila.wombb.edu.pl") by vger.kernel.org with ESMTP id S272432AbTGaHhh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 03:37:37 -0400
-Date: Thu, 31 Jul 2003 09:37:11 +0200
-From: =?ISO-8859-2?B?UHJ6ZW15c7NhdyBTdGFuaXOzYXc=?= Knycz 
-	<zolw@wombb.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test2] [alpha] IDE as module - doesn't compile
-Message-Id: <20030731093711.10b840d4.zolw@wombb.edu.pl>
-Organization: RODN "WOM" =?ISO-8859-2?B?QmllbHNrby1CaWGzYQ==?=
-X-Mailer: Sylpheed version 0.8.2claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Thu, 31 Jul 2003 03:38:53 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:16322
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272806AbTGaHiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 03:38:51 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O10int for interactivity
+Date: Thu, 31 Jul 2003 17:43:17 +1000
+User-Agent: KMail/1.5.2
+Cc: Johoho <johoho@hojo-net.de>, wodecki@gmx.de, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+References: <200307280112.16043.kernel@kolivas.org> <20030728143545.1d989946.akpm@osdl.org> <3F28B8D5.4040600@cyberone.com.au>
+In-Reply-To: <3F28B8D5.4040600@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307311743.17370.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Jul 2003 16:36, Nick Piggin wrote:
+> Oh, and the process scheduler can definitely be a contributing factor.
+> Even if it looks like your process is getting enough cpu, if your
+> process doesn't get woken in less than 5ms after its read completes,
+> then AS will give up waiting for it.
 
-I see that still ide and ide-disk must be inside kernel, is there any
-possibility to compile it as module at axp ? :)
+This part interests me. It would seem that either 
+1. The AS scheduler should not bother waiting at all if the process is not 
+going to wake up in that time
+2. The process should be woken in that time to ensure the AS scheduler is not 
+wasting it's time waiting.
+or a combination of 1 and 2 depending on some heuristic deciding on how 
+important it is for 2 instead of 1.
 
--- 
-.----[ a d m i n at w o m b b dot e d u dot p l ]----.
-| Przemys³aw Stanis³aw Knycz,  djrzulf@jabber.gda.pl |
-| Net/Sys Administrator, PLD Developer,  RLU: 213344 |
-`------ "Linux - the choice of GNU generation" ------'
+No, I'm not planning on trying to implement either of these <insert usual 
+complaint about time and knowledge here>, but I thought I should at least 
+contribute my thoughts.
+
+Con
+

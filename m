@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261592AbSJDMrc>; Fri, 4 Oct 2002 08:47:32 -0400
+	id <S261604AbSJDMtO>; Fri, 4 Oct 2002 08:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261591AbSJDMrc>; Fri, 4 Oct 2002 08:47:32 -0400
-Received: from ns1.baby-dragons.com ([199.33.245.254]:42425 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S261589AbSJDMrX>; Fri, 4 Oct 2002 08:47:23 -0400
-Date: Fri, 4 Oct 2002 08:52:46 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid maillist <linux-raid@vger.kernel.org>
-Subject: Re: RAID backup
-In-Reply-To: <1033735943.31839.12.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0210040847360.16406-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261616AbSJDMtO>; Fri, 4 Oct 2002 08:49:14 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:32503 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261604AbSJDMtM>; Fri, 4 Oct 2002 08:49:12 -0400
+Subject: Re: export of sys_call_table
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Levon <levon@movementarian.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021004114247.GA98207@compsoc.man.ac.uk>
+References: <20021003153943.E22418@openss7.org>
+	<20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de>
+	<1033684027.1247.43.camel@phantasy> <20021003233504.GA20570@suse.de>
+	<20021003235022.GA82187@compsoc.man.ac.uk>
+	<mailman.1033691043.6446.linux-kernel2news@redhat.com>
+	<200210040403.g9443Vu03329@devserv.devel.redhat.com>
+	<20021003233221.C31444@openss7.org> 
+	<20021004114247.GA98207@compsoc.man.ac.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Oct 2002 14:02:32 +0100
+Message-Id: <1033736552.31839.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-10-04 at 12:42, John Levon wrote:
+> Btw, anybody know what the BKL is actually protecting against in
+> sys_nfsservctl ?
 
-	Hello Alan ,  I do not know about modern disk media .  But I had a
-	Seagate st501 drive that sat shelved for 5 years & put it back
-	into the micro-pdp11/23 & booted fine .  I ran that for ~ another
-	year for a small project I was involved in .  I would hope that
-	more modern media would have better shelf life than that even ?-)
-		Twyl ,  JimL
-
-On 4 Oct 2002, Alan Cox wrote:
-> On Fri, 2002-10-04 at 12:20, Alvin Oga wrote:
-> > we can build an 8-drive ( 120GB at $200ea )  or ( 160GB at $300>? each )
-> > 1U box...about 0.960 - 1.28 TB each backup server ( 1U ) for under $2,500 in parts
-> > +  cost of raid setup/testing is up to the user
-> > 	- am thinking the 1.6TB of storage for 10K lira(?) is too much
-> > i prefer disks to backup data.. so that its always a semi-warm backup
-> > ( tapes have always been way tooo slow to find a file and to restore
-
-> The problem with disks is you still have to archive them somewhere, and
-> they are bulky. I also dont know what studies are available on the
-> degradation of stored disk media over time.
-
-> Capacity is not a problem, 3ware do a 12 channel sata card, with maxtor
-> drives that comes in at 320x12 = 3.5Tb
-
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+rmmod while executing an nfs call
 

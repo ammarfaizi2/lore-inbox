@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280638AbRKNPXa>; Wed, 14 Nov 2001 10:23:30 -0500
+	id <S280648AbRKNPZL>; Wed, 14 Nov 2001 10:25:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280634AbRKNPXU>; Wed, 14 Nov 2001 10:23:20 -0500
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:15621 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S280635AbRKNPXI>;
-	Wed, 14 Nov 2001 10:23:08 -0500
-Date: Wed, 14 Nov 2001 07:25:56 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: fdutils.
-In-Reply-To: <Pine.GSO.3.96.1011114131910.9644C-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.10.10111140704310.9397-100000@innerfire.net>
+	id <S280647AbRKNPY5>; Wed, 14 Nov 2001 10:24:57 -0500
+Received: from sm10.texas.rr.com ([24.93.35.222]:14530 "EHLO sm10.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S280634AbRKNPYG>;
+	Wed, 14 Nov 2001 10:24:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marvin Justice <mjustice@austin.rr.com>
+Reply-To: mjustice@austin.rr.com
+To: Chris Meadors <clubneon@hereintown.net>
+Subject: Re:[OT] What Athlon chipset is most stable in Linux?
+Date: Wed, 14 Nov 2001 09:28:35 -0600
+X-Mailer: KMail [version 1.2]
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0111140823040.88-100000@rc.priv.hereintown.net>
+In-Reply-To: <Pine.LNX.4.40.0111140823040.88-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01111409283504.00746@bozo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Nov 2001, Maciej W. Rozycki wrote:
+On Wednesday 14 November 2001 07:27 am, Chris Meadors wrote:
+> Anyway, to keep this kinda kernel related.  How well supported are the
+> FireGL cards?  That is DRM wise, and of course X to go with that.
+>
+> -Chris
 
-> On Tue, 13 Nov 2001, Gerhard Mack wrote:
-> 
-> > >  You only confirm what I wrote -- hardly anyone uses floppies, so there is
-> > > no need to keep mechanical compatibility in devices -- a complete dump of
-> > > 1.44" FD support would be almost harmless.  Hence whether a Zip or a
-> > > LS-120 -- it doesn't really matter.  You need new media anyway. 
-> > 
-> > What an interesting thing to be reading as I'm reinstalling linux on a
-> > server using a combination of boot/root floppies and a network install.
-> 
->  Or a single Zip, LS-120, etc. medium...  Is that worse?
+Drivers are distributed pretty much the same way as nVidia, ie., as a binary 
+core along with the necessary wrappers to compile for new kernels, private 
+libGL.so, etc.  Aside from that, we've generally had pretty positive 
+experiences.
 
-Zip is best defined by it's total lack of quality, I can't keep those
-around for long before they either break or become unsupported when they
-release a larger drive and as much as I wish LS-120 was a standard
-feature.. it's not.
+These aren't quake cards; in fact the demo1 fps are  surprisingly low. In 
+serious OpenGL benchmarks, however,  
+(http://www.specbench.org/gpc/opc.static/opcview.htm ) they're currently the 
+fastest cards available for Linux by a long shot.
 
-I can't use CDs because I often need something custom.  Just try booting a  
-Dell PowerEdge using the standard Debian install CD, it won't work (needs
-custom patched kernel).  Removing floppy support would be a shafting of
-monumental proportions.
+I think FGL is what people at ILM, Dreamworks, Digital Domain etc. are using 
+at the moment in the gradual shift toward Linux on the artist's desktop. Not 
+cheap --- unless you've already forked over $16K for Maya ;-)
 
-As much as I hate floppies, I'm stuck with em.  I doubt I'm the only one
-either.
-
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+-- 
+Marvin Justice
+Software Developer
+BOXX Technologies, Inc.
+www.boxxtech.com
+512-235-6318 (V)
+512-835-0434 (F)

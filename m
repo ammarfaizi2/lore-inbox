@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129904AbQKSVHY>; Sun, 19 Nov 2000 16:07:24 -0500
+	id <S130148AbQKSVLY>; Sun, 19 Nov 2000 16:11:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130148AbQKSVHN>; Sun, 19 Nov 2000 16:07:13 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:14602 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129904AbQKSVHC>;
-	Sun, 19 Nov 2000 16:07:02 -0500
-From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
-Reply-To: Daniel Phillips <phillips@innominate.de>
-X-Newsgroups: innominate.list.linux.kernel
-Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
-Date: Sun, 19 Nov 2000 21:37:21 +0100
-Organization: innominate
-Distribution: local
-Message-ID: <news2mail-3A183A01.4F214A4F@innominate.de>
-In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil> <3A117311.8DC02909@holly-springs.nc.us> <news2mail-3A15ACE3.5BED2CA3@innominate.de> <20001118164021.A156@toy>
-Mime-Version: 1.0
+	id <S130265AbQKSVLO>; Sun, 19 Nov 2000 16:11:14 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:57730 "EHLO
+	mail.mirai.cx") by vger.kernel.org with ESMTP id <S130148AbQKSVLC>;
+	Sun, 19 Nov 2000 16:11:02 -0500
+Message-ID: <3A183ADA.C92B87BB@pobox.com>
+Date: Sun, 19 Nov 2000 12:40:58 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting Group
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-pre7 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Gianluca Anzolin <g.anzolin@inwind.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: XMMS not working on 2.4.0-test11-pre7
+In-Reply-To: <20001119150645.A732@fourier.home.intranet>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Trace: mate.bln.innominate.de 974666221 9141 10.0.0.90 (19 Nov 2000 20:37:01 GMT)
-X-Complaints-To: news@innominate.de
-To: Pavel Machek <pavel@suse.cz>
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> > Actually, I was planning on doing on putting in a hack to do something
-> > like that: calculate a checksum after every buffer data update and check
-> > it after write completion, to make sure nothing scribbled in the buffer
-> > in the interim.  This would also pick up some bad memory problems.
-> 
-> You might want to take  look to a patch with crc loop option.
-> 
-> It does verify during read, not during write; but that's even better because
-> that way you pick up problems in IO subsystem, too.
+Just a data point
 
-You would have to store the checksums on the filesystem then, or use a
-verify-after-write.  What I was talking about is a
-verify-the-buffer-didn't get scribbled.  I'd then trust the hardware to
-report a write failure.  Note that if something scribbles on your buffer
-between the time you put good data on it and when it gets transfered to
-disk, you can verify perfectly and still have a hosed filesystem.
+I'm listening to mp3s now via xmms, running 2.4.0-test11-pre7
 
-It was pointed out that you can't really do what I'm suggesting for
-mmaped file data, and there's some truth to that - but certainly the
-interval between when ->writepage gets called and when the actual buffer
-write happens can be secured in this way.  Doing this only for metadata
-is also a good idea because then the overhead would be close to nil and
-the basic fs integrity would be protected.
+# uname -r -s
+Linux 2.4.0-test11-pre7
+# rpm -q xmms
+xmms-1.2.3-0_helix_1
 
---
-Daniel
+the "flags/features" switch doesn't seem to hurt it:
+
+# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 8
+model name      : AMD-K6(tm) 3D processor
+stepping        : 12
+cpu MHz         : 451.000038
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+features        : fpu vme de pse tsc msr mce cx8 pge mmx syscall 3dnow
+k6_mtrr
+bogomips        : 901.12
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUHUX4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUHVAGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUHUX4B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 19:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHUX4B
+	id S261711AbUHVAGe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 20:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUHVAGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 19:56:01 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:40465 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261602AbUHUXz4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 19:55:56 -0400
-Date: Sun, 22 Aug 2004 00:55:56 +0100
-From: John Levon <levon@movementarian.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       jbarnes@sgi.com, anton@samba.org, phil.el@wanadoo.fr
-Subject: Re: [PATCH] improve OProfile on many-way systems
-Message-ID: <20040821235556.GA22619@compsoc.man.ac.uk>
-References: <20040821192630.GA9501@compsoc.man.ac.uk> <20040821135833.6b1774a8.akpm@osdl.org> <20040821232206.GC20175@compsoc.man.ac.uk> <20040821163628.10cfa049.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040821163628.10cfa049.akpm@osdl.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1ByfiG-000HyD-6n*tJljmT3NoG.*
+	Sat, 21 Aug 2004 20:06:33 -0400
+Received: from relay.pair.com ([209.68.1.20]:8208 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261711AbUHVAGb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 20:06:31 -0400
+X-pair-Authenticated: 66.190.51.173
+Message-ID: <4127E386.5000701@cybsft.com>
+Date: Sat, 21 Aug 2004 19:06:30 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
+References: <1092628493.810.3.camel@krustophenia.net>	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>	 <20040820195540.GA31798@elte.hu>  <20040821140501.GA4189@elte.hu> <1093125390.817.22.camel@krustophenia.net>
+In-Reply-To: <1093125390.817.22.camel@krustophenia.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 21, 2004 at 04:36:28PM -0700, Andrew Morton wrote:
+Lee Revell wrote:
+ > On Sat, 2004-08-21 at 10:05, Ingo Molnar wrote:
+ >
+ >>i've uploaded the -P7 patch:
+ >>
+ >>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P7
+ >>
+ >>Changes since -P6:
+ >>
+ >>- fixed the XFree86/X.org context-switch latency. (let me know if you
+ >>  see any weirdness like X not starting up while it did before.)
+ >>
+ >>- halved the pagevec size, to reduce the radix gang-lookup costs.
+ >>
+ >
+ >
+ > Great, this is a significant improvement.  Most of the worst case
+ > latencies (~150 usec) seem related to the TCP stack now, and a minor one
+ > (51 usec) in the ext3 journaling:
+ >
+ > http://krustophenia.net/testresults.php?dataset=2.6.8.1-P7
+ >
+ > Lee
+ >
 
-> Well yes, but it's not magic.
+I just posted a similar trace of ~4141 usec from P6 here:
 
-Absolutely. But since the vast majority of the bugs in oprofile kernel
-code are either identified or reported by kernel developers, it's really
-that audience that need to do testing beyond what I'm outfitted for.
+http://www.cybsft.com/testresults/2.6.8.1-P6/latency-trace1.txt
 
-For example a while ago wli walked right into an obvious bug on one of
-his machines that hadn't shown up during /any/ of my testing since the
-code was merged.
+This was part of a run from yesterday evening. After just rebooting, I
+too am seeing several of these. With the system not being hammered by
+the stress tests though, the max is only up to ~103 usec. I will be
+updating to P7 shortly.
 
-> One of my mental checkpoints before sending a patch to Linus is "has this
-> been sufficiently tested".  I don't know how to answer that in this case.
+kr
 
-Me neither. It would certainly be great to have a decent regression test
-suite for OProfile, but I don't have one other than the usual by-hand
-testing I do. Isn't there some STP thing or something at OSDL we can
-get people to try?
-
-> In fact I don't know how to answer that in a _lot_ of cases, but if I know
-> that people are using the feature in anger and we're sufficiently early in
-> the 2.6.x cycle then I'll assume that regressions will be picked up.
-
-I must admit I'm still not clear on when the equivalent of "early in the
-2.6.x cycle" is going to happen again... I have no idea when, if ever,
-call-graph OProfile would be suitable to merge.
-
-> Anyway.  My question was mainly a prod in the antonward direction ;)
-
-That'd be handy certainly...
-
-regards
-john

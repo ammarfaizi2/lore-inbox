@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286302AbRL0PYK>; Thu, 27 Dec 2001 10:24:10 -0500
+	id <S286297AbRL0PUu>; Thu, 27 Dec 2001 10:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286300AbRL0PYB>; Thu, 27 Dec 2001 10:24:01 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:8966 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S286294AbRL0PXy>;
-	Thu, 27 Dec 2001 10:23:54 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas___Coronado?= 
-	<raul@viadomus.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Out of Memory at 20GB of free memory ??
-Date: Thu, 27 Dec 2001 07:23:55 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBAEMAEEAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <E16JZGx-0000Lc-00@DervishD.viadomus.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S286294AbRL0PUl>; Thu, 27 Dec 2001 10:20:41 -0500
+Received: from fepE.post.tele.dk ([195.41.46.137]:64750 "EHLO
+	fepE.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S283777AbRL0PUf>; Thu, 27 Dec 2001 10:20:35 -0500
+Date: Thu, 27 Dec 2001 16:20:19 +0100
+From: Jens Axboe <axboe@suse.de>
+To: andersg@0x63.nu
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        lvm-devel@sistina.com
+Subject: Re: lvm in 2.5.1
+Message-ID: <20011227162019.C1730@suse.de>
+In-Reply-To: <20011227084304.GA26255@h55p111.delphi.afb.lu.se> <3C2AEADB.24BEFE94@zip.com.au> <20011227122520.GA2194@h55p111.delphi.afb.lu.se> <20011227135453.GA5803@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011227135453.GA5803@h55p111.delphi.afb.lu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of RaúlNúñez de
-> Arenas Coronado
-> Sent: Thursday, December 27, 2001 4:05 AM
+On Thu, Dec 27 2001, andersg@0x63.nu wrote:
+> -	int rw = bio_data_dir(bh);
+> +	int rw = bio_data_dir(bi);
+>  
+>  
+>  	down_read(&lv->lv_lock);
+> @@ -1151,7 +1154,7 @@
+>  
+>  	P_MAP("%s - lvm_map minor: %d  *rdev: %s  *rsector: %lu  size:%lu\n",
+>  	      lvm_name, minor,
+> -	      kdevname(bh->bi_dev),
+> +	      kdevname(bi->bi_dev),
+>  	      rsector_org, size);
+>  
+>  	if (rsector_org + size > lv->lv_size) {
+> @@ -1205,7 +1208,7 @@
+>  	 * we need to queue this request, because this is in the fast path.
+>  	 */
+>  	if (rw == WRITE || rw == WRITEA) {
+> -		if(_defer_extent(bh, rw, rdev_map,
+> +		if(_defer_extent(bi, rw, rdev_map,
+>  				 rsector_map, vg_this->pe_size)) {
 
-> >/proc/meminfo after the first process kill:
-> >        total:    used:    free:  shared: buffers:  cached:
-> >Mem:  33815060480 13490249728 20324810752        0 15745024 13089452032
->
->     This leads to a suggestion... How about aligning the top
-> indication with the numbers below (or even better, putting them in
-> different lines ;)))
->
->     Even with more than 99MB of RAM (quite usual these days), the top
-> line is misaligned and a little bit confusing.
->
->     I can make the necessary patch if anyone is interested.
->
->     Raúl
+You are tossing out read-ahead info here, you want to use bio_rw and not
+bio_data_dir. The former will pass back xA bits too, while bio_data_dir
+is strictly the data direction (strangely :-)
 
-My impression was that the top few lines of /proc/meminfo were being "phased
-out" in favor of the one-entry-per-line-in kB numbers below. If that is the
-case (and assuming we don't want to change that to KiB or something of that
-ilk :) perhaps what needs to change is not /proc/meminfo but "top".
---
-M. Edward Borasky
-znmeb@borasky-research.net
-http://www.borasky-research.net
+-- 
+Jens Axboe
 

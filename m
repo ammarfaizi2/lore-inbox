@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135548AbRAGWWR>; Sun, 7 Jan 2001 17:22:17 -0500
+	id <S135364AbRAGWW5>; Sun, 7 Jan 2001 17:22:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135364AbRAGWV5>; Sun, 7 Jan 2001 17:21:57 -0500
-Received: from daikokuya.demon.co.uk ([158.152.184.26]:1796 "EHLO
-	monkey.daikokuya.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S135304AbRAGWVt>; Sun, 7 Jan 2001 17:21:49 -0500
-Date: Sun, 7 Jan 2001 22:21:37 +0000
-To: richbaum@acm.org
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Fix compile warnings in 2.4.0
-Message-ID: <20010107222137.B14699@daikokuya.demon.co.uk>
-In-Reply-To: <3A589726.5449.291B75@localhost>
-Mime-Version: 1.0
+	id <S135304AbRAGWWs>; Sun, 7 Jan 2001 17:22:48 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:27155 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135658AbRAGWWd>; Sun, 7 Jan 2001 17:22:33 -0500
+Message-ID: <3A58EC10.4C99F976@transmeta.com>
+Date: Sun, 07 Jan 2001 14:22:08 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Cyrix III boot fix and bug report
+In-Reply-To: <E14FNek-0003Nt-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A589726.5449.291B75@localhost>; from baumr1@coral.indstate.edu on Sun, Jan 07, 2001 at 04:19:50PM -0500
-From: Neil Booth <neil@daikokuya.demon.co.uk>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rich Baum wrote:-
+Alan Cox wrote:
+> 
+> > (Could this code have been written by someone who was confused between
+> > MSR 0x80000001 and CPUID 0x80000001?)
+> 
+> It looks like thats what happened. The docs say it has 3dnow and mmx but
+> I think your diagnosis is correct
 
-> This patch should fix the rest of the warnings about #endif 
-> statements when using the 20001225 gcc snapshot.  Thanks to 
-> Keith Owens for providing a script to automate this process.  It got 
-> the job done sooner and found warnings to fix for non x86 platforms.
+Especially since it's bit 31 in EDX.  I don't think Cyrixi uses MSRs in
+the 0x8000xxxx range.  I bet this should have been CPUID.
 
-Unfortunately, the script also gets stuff it shouldn't, and in some
-cases adds comments within the comments, probably causing stuff to
-stop compiling altogether.  Some examples below.
+I suspect that that whole code should look more like this.  The MSR
+access shouldn't have any effect on the extended CPUID flags, so that
+shouldn't need to be there at all, unless there are Cyrix III's out there
+which fail to report it in CPUID.
 
-Neil.
+	-hpa
 
-> +#                endif	/* # */
+	case 6: /* Cyrix III */
+		rdmsr (0x1107, lo, hi);
+		lo |= (1<<1 | 1<<7);    /* Report CX8 & enable PGE */
+                wrmsr (0x1107, lo, hi);
 
-[....]
+		/* Update the feature flags to include just revealed ones */
+		c->x86_capability[0] = cpuid_edx(1);
 
->   * appropriate for an 030 or an 040.  This is useful for debugging purposes
-> - * and as such is enclosed in #ifdef MMU_PRINT/#endif clauses.
-> + * and as such is enclosed in #ifdef MMU_PRINT/#endif	/* clauses. */
->   *
+		get_model_name(c);
+		display_cacheinfo(c);
+                break;
 
-[...]
 
->   * is specifically for debugging and can be very useful.  It is surrounded by
-> - * #ifdef CONSOLE/#endif clauses so it doesn't have to ship in known-good
-> + * #ifdef CONSOLE/#endif	/* clauses so it doesn't have to ship in known-good */
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

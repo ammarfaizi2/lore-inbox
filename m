@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVCaAYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVCaA37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262684AbVCaAYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 19:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbVCaAYg
+	id S262464AbVCaA37 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 19:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbVCaA36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 19:24:36 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:23705 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262684AbVCaAYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 19:24:30 -0500
-Date: Wed, 30 Mar 2005 16:24:01 -0800
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: gregkh@suse.de
-Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Reading root bridge resources
-Message-ID: <20050330162401.A13356@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+	Wed, 30 Mar 2005 19:29:58 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7890 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262464AbVCaA3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 19:29:36 -0500
+Subject: 2.6.12-rc1-RT-V0.7.41-15: it_real_fn oops on boot in
+	run_timer_softirq
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 19:29:30 -0500
+Message-Id: <1112228970.19975.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
-A while back I had volunteered to write a patch that stores the
-resource ranges being decoded by root bridges for ACPI based 
-i386 and x86_64 systems. The thread at:
-http://sourceforge.net/mailarchive/message.php?msg_id=10604487
-has some context regarding this. The basic intent was to allow
-hot-plugged devices sitting directly under a root bridge (versus
-under a p2p bridge) to claim the correct resources. The current
-code in pci_scan_bus_parented() simply assigns ioport_resource
-and iomem_resource to each root bridge, even if it decodes a
-subset of those resources.
+Since 2.6.12-rc1-RT something I get this Oops on boot about 50% of the
+time.  It's clearly some kind of race because if I just reboot again it
+works.  Seems to happen shortly after ksoftirqd startup (maybe the first
+time we hit the timer softirq?).
 
-I did such a patch recently, and ran into problems while testing
-it. I made the changes in arch/i386, just like Matthew had done
-for arch/ia64. I found that ACPI firmware on some systems was
-not reporting the correct resources in the _CRS method per the 
-ACPI specification. On other systems, there were too many resource
-ranges to fit in the 4 slots available in the pci_bus structure. 
-Getting an inaccurate picture of root bridge resources broke 2 of
-my test systems, since some devices failed to claim resources at 
-boot time even though they were otherwise properly configured by
-BIOS. 
+This is (lazily) hand copied and incomplete, but hopefully is enough
+info...
 
-I am therefore inclined to just drop this patch. This may break
-hotplug on systems that support hotplug slots directly connected
-to the root bridge. If a slot is under a p2p bridge, we already
-read bridge bases correctly so this problem does not affect us.
-Note however that I was not able to find any such i386 or x86_64
-machine anyway. Does somebody have access to such a machine? Any 
-other suggestions?
+EIP is at it_real_fn+0x2f/0x70
+eax 0 ebx df9020f0  ecx 1 edx c0019b49
+esi 0 edi "       " ebp dffd5f44 esp  dffd5f34
+ds 7b es 7b ss 68 preempt 1
+process ksoftirqd/0, pid 2, tid dffd4000, task dffd1110
 
-Note that a similar patch went into 2.6.11-mm4'ish for ia64. I
-haven't heard of any breakage there, so apparently ia64 system
-firmware is better behaved.
+call trace
+ show_stack
+ show_registers
+ die
+ do_page_fault
+ error_code
+ run_timer_softirq
+ ___do_softirq
+ _do_softirq
+ ksoftirqd
+ kthread
+ kthread_helper
 
-Rajesh
+Lee
+

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262811AbTCRWMd>; Tue, 18 Mar 2003 17:12:33 -0500
+	id <S262772AbTCRWO3>; Tue, 18 Mar 2003 17:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262819AbTCRWMd>; Tue, 18 Mar 2003 17:12:33 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2564 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262811AbTCRWLy>;
-	Tue, 18 Mar 2003 17:11:54 -0500
-Date: Tue, 18 Mar 2003 21:28:58 +0100
+	id <S262837AbTCRWO2>; Tue, 18 Mar 2003 17:14:28 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:3588 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262772AbTCRWMB>;
+	Tue, 18 Mar 2003 17:12:01 -0500
+Date: Sat, 15 Mar 2003 23:12:14 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: mikpe@csd.uu.se, kernel list <linux-kernel@vger.kernel.org>,
-       torvalds@transmeta.com
-Subject: apic-to-drivermodel conversion
-Message-ID: <20030318202858.GA154@elf.ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>,
+       alan@redhat.com
+Subject: sys32_ioctl: kill code duplication
+Message-ID: <20030315221214.GA2102@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,796 +22,1744 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This converts apic code to use driver model. It is neccessary for S3
-when you are using apic. 
+This kills code duplication in sys32_ioctl. It should work on x86-64
+and sparc64; other architecture maintainers said that "anything that
+moves code out of arch/*/kernel/ioctl32.c is welcome" or similar.
+
+Linus, what is required to make it go in?
+
+Alan, would you be willing to let this be merged through you?
+
 								Pavel
 
-%patch
-Index: linux-quilt/arch/i386/kernel/apic.c
---- .pc/apic32/arch/i386/kernel/apic.c	2003-03-18 18:33:57.000000000 +0100
-+++ a/arch/i386/kernel/apic.c	2003-03-16 18:51:05.000000000 +0100
-@@ -10,6 +10,8 @@
-  *					for testing these extensively.
-  *	Maciej W. Rozycki	:	Various updates and fixes.
-  *	Mikael Pettersson	:	Power Management for UP-APIC.
-+ *	Pavel Machek and
-+ *	Mikael Pettersson	:	Converted to driver model.
-  */
- 
- #include <linux/config.h>
-@@ -23,6 +25,10 @@
- #include <linux/interrupt.h>
- #include <linux/mc146818rtc.h>
- #include <linux/kernel_stat.h>
-+#include <linux/delay.h>
-+#include <linux/slab.h>
-+#include <linux/device.h>
-+#include <linux/pm.h>
- 
- #include <asm/atomic.h>
- #include <asm/smp.h>
-@@ -77,7 +83,7 @@
- 	return maxlvt;
- }
- 
--void clear_local_APIC(void)
-+void clear_lapic(void)
- {
- 	int maxlvt;
- 	unsigned long v;
-@@ -143,7 +149,7 @@
- 		/*
- 		 * Do not trust the local APIC being empty at bootup.
- 		 */
--		clear_local_APIC();
-+		clear_lapic();
- 		/*
- 		 * PIC mode, enable APIC mode in the IMCR, i.e.
- 		 * connect BSP's local APIC to INT and NMI lines.
-@@ -169,11 +175,11 @@
+--- clean/arch/ia64/ia32/ia32_entry.S	2003-02-11 17:40:34.000000000 +0100
++++ linux/arch/ia64/ia32/ia32_entry.S	2003-03-06 22:12:04.000000000 +0100
+@@ -252,7 +252,7 @@
+ 	data8 sys_acct
+ 	data8 sys_umount	  /* recycled never used phys( */
+ 	data8 sys32_ni_syscall	  /* old lock syscall holder */
+-	data8 sys32_ioctl
++	data8 compat_sys_ioctl
+ 	data8 sys32_fcntl	  /* 55 */
+ 	data8 sys32_ni_syscall	  /* old mpx syscall holder */
+ 	data8 sys_setpgid
+--- clean/arch/ia64/ia32/ia32_ioctl.c	2003-02-11 17:40:34.000000000 +0100
++++ linux/arch/ia64/ia32/ia32_ioctl.c	2003-03-06 22:12:04.000000000 +0100
+@@ -295,221 +295,3 @@
  	}
+ 	return err;
  }
- 
--void disable_local_APIC(void)
-+void disable_lapic(void)
- {
- 	unsigned long value;
- 
--	clear_local_APIC();
-+	clear_lapic();
- 
- 	/*
- 	 * Disable APIC (implies clearing of registers
-@@ -189,7 +195,7 @@
-  * Check these against your board if the CPUs aren't getting
-  * started for no apparent reason.
-  */
--int __init verify_local_APIC(void)
-+int __init verify_lapic(void)
- {
- 	unsigned int reg0, reg1;
- 
-@@ -279,7 +285,7 @@
- 	/*
- 	 * Do not trust the local APIC being empty at bootup.
- 	 */
--	clear_local_APIC();
-+	clear_lapic();
- 
- 	/*
- 	 * Enable APIC.
-@@ -304,7 +310,28 @@
- 	apic_write_around(APIC_LVT1, value);
- }
- 
--void __init setup_local_APIC (void)
-+static struct {
-+	/* 'active' is true if the local APIC was enabled by us and
-+	   not the BIOS; this signifies that we are also responsible
-+	   for disabling it before entering apm/acpi suspend */
-+	int active;
-+	/* r/w apic fields */
-+	unsigned int apic_id;
-+	unsigned int apic_taskpri;
-+	unsigned int apic_ldr;
-+	unsigned int apic_dfr;
-+	unsigned int apic_spiv;
-+	unsigned int apic_lvtt;
-+	unsigned int apic_lvtpc;
-+	unsigned int apic_lvt0;
-+	unsigned int apic_lvt1;
-+	unsigned int apic_lvterr;
-+	unsigned int apic_tmict;
-+	unsigned int apic_tdcr;
-+	unsigned int apic_thmr;
-+} apic_pm_state;
-+
-+void __init setup_lapic (void)
- {
- 	unsigned long value, ver, maxlvt;
- 
-@@ -445,46 +472,24 @@
- 			printk("No ESR for 82489DX.\n");
- 	}
- 
--	if (nmi_watchdog == NMI_LOCAL_APIC)
--		setup_apic_nmi_watchdog();
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		enable_lapic_nmi_watchdog();
-+	}
-+
-+	apic_pm_state.active = 1;
- }
- 
- #ifdef CONFIG_PM
 -
--#include <linux/slab.h>
--#include <linux/pm.h>
--
--static struct {
--	/* 'active' is true if the local APIC was enabled by us and
--	   not the BIOS; this signifies that we are also responsible
--	   for disabling it before entering apm/acpi suspend */
--	int active;
--	/* 'perfctr_pmdev' is here because the current (2.4.1) PM
--	   callback system doesn't handle hierarchical dependencies */
--	struct pm_dev *perfctr_pmdev;
--	/* r/w apic fields */
--	unsigned int apic_id;
--	unsigned int apic_taskpri;
--	unsigned int apic_ldr;
--	unsigned int apic_dfr;
--	unsigned int apic_spiv;
--	unsigned int apic_lvtt;
--	unsigned int apic_lvtpc;
--	unsigned int apic_lvt0;
--	unsigned int apic_lvt1;
--	unsigned int apic_lvterr;
--	unsigned int apic_tmict;
--	unsigned int apic_tdcr;
--	unsigned int apic_thmr;
--} apic_pm_state;
--
--static void apic_pm_suspend(void *data)
-+static int lapic_suspend(struct device *dev, u32 state, u32 level)
- {
- 	unsigned int l, h;
- 	unsigned long flags;
- 
--	if (apic_pm_state.perfctr_pmdev)
--		pm_send(apic_pm_state.perfctr_pmdev, PM_SUSPEND, data);
-+	if (level != SUSPEND_POWER_DOWN)
-+		return 0;
-+	if (!apic_pm_state.active)
-+		return 0;
-+
- 	apic_pm_state.apic_id = apic_read(APIC_ID);
- 	apic_pm_state.apic_taskpri = apic_read(APIC_TASKPRI);
- 	apic_pm_state.apic_ldr = apic_read(APIC_LDR);
-@@ -500,18 +505,26 @@
- 	apic_pm_state.apic_thmr = apic_read(APIC_LVTTHMR);
- 	
- 	local_irq_save(flags);
--	disable_local_APIC();
-+	disable_lapic();
- 	rdmsr(MSR_IA32_APICBASE, l, h);
- 	l &= ~MSR_IA32_APICBASE_ENABLE;
- 	wrmsr(MSR_IA32_APICBASE, l, h);
- 	local_irq_restore(flags);
-+	return 0;
- }
- 
--static void apic_pm_resume(void *data)
-+static int lapic_resume(struct device *dev, u32 level)
- {
- 	unsigned int l, h;
- 	unsigned long flags;
- 
-+	if (level != RESUME_POWER_ON)
-+		return 0;
-+	if (!apic_pm_state.active)
-+		return 0;
-+
-+	set_fixmap_nocache(FIX_APIC_BASE, APIC_DEFAULT_PHYS_BASE);	/* FIXME: this is needed for S3 resume, but why? */
-+
- 	local_irq_save(flags);
- 	rdmsr(MSR_IA32_APICBASE, l, h);
- 	l &= ~MSR_IA32_APICBASE_BASE;
-@@ -536,74 +549,35 @@
- 	apic_write(APIC_ESR, 0);
- 	apic_read(APIC_ESR);
- 	local_irq_restore(flags);
--	if (apic_pm_state.perfctr_pmdev)
--		pm_send(apic_pm_state.perfctr_pmdev, PM_RESUME, data);
--}
--
--static int apic_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data)
+-asmlinkage long
+-sys32_ioctl (unsigned int fd, unsigned int cmd, unsigned int arg)
 -{
--	switch (rqst) {
--	case PM_SUSPEND:
--		apic_pm_suspend(data);
+-	long ret;
+-
+-	switch (IOCTL_NR(cmd)) {
+-	      case IOCTL_NR(VFAT_IOCTL_READDIR_SHORT):
+-	      case IOCTL_NR(VFAT_IOCTL_READDIR_BOTH): {
+-		      struct linux32_dirent *d32 = P(arg);
+-		      struct dirent d[2];
+-
+-		      ret = DO_IOCTL(fd, _IOR('r', _IOC_NR(cmd),
+-					      struct dirent [2]),
+-				     (unsigned long) d);
+-		      if (ret < 0)
+-			  return ret;
+-
+-		      if (put_dirent32(d, d32) || put_dirent32(d + 1, d32 + 1))
+-			  return -EFAULT;
+-
+-		      return ret;
+-	      }
+-		case IOCTL_NR(SIOCGIFCONF):
+-		{
+-			struct ifconf32 {
+-				int		ifc_len;
+-				unsigned int	ifc_ptr;
+-			} ifconf32;
+-			struct ifconf ifconf;
+-			int i, n;
+-			char *p32, *p64;
+-			char buf[32];	/* sizeof IA32 ifreq structure */
+-
+-			if (copy_from_user(&ifconf32, P(arg), sizeof(ifconf32)))
+-				return -EFAULT;
+-			ifconf.ifc_len = ifconf32.ifc_len;
+-			ifconf.ifc_req = P(ifconf32.ifc_ptr);
+-			ret = DO_IOCTL(fd, SIOCGIFCONF, &ifconf);
+-			ifconf32.ifc_len = ifconf.ifc_len;
+-			if (copy_to_user(P(arg), &ifconf32, sizeof(ifconf32)))
+-				return -EFAULT;
+-			n = ifconf.ifc_len / sizeof(struct ifreq);
+-			p32 = P(ifconf32.ifc_ptr);
+-			p64 = P(ifconf32.ifc_ptr);
+-			for (i = 0; i < n; i++) {
+-				if (copy_from_user(buf, p64, sizeof(struct ifreq)))
+-					return -EFAULT;
+-				if (copy_to_user(p32, buf, sizeof(buf)))
+-					return -EFAULT;
+-				p32 += sizeof(buf);
+-				p64 += sizeof(struct ifreq);
+-			}
+-			return ret;
+-		}
+-
+-	      case IOCTL_NR(DRM_IOCTL_VERSION):
+-	      {
+-		      drm_version_t ver;
+-		      struct {
+-			      int	version_major;
+-			      int	version_minor;
+-			      int	version_patchlevel;
+-			      unsigned int name_len;
+-			      unsigned int name; /* pointer */
+-			      unsigned int date_len;
+-			      unsigned int date; /* pointer */
+-			      unsigned int desc_len;
+-			      unsigned int desc; /* pointer */
+-		      } ver32;
+-
+-		      if (copy_from_user(&ver32, P(arg), sizeof(ver32)))
+-			      return -EFAULT;
+-		      ver.name_len = ver32.name_len;
+-		      ver.name = P(ver32.name);
+-		      ver.date_len = ver32.date_len;
+-		      ver.date = P(ver32.date);
+-		      ver.desc_len = ver32.desc_len;
+-		      ver.desc = P(ver32.desc);
+-		      ret = DO_IOCTL(fd, DRM_IOCTL_VERSION, &ver);
+-		      if (ret >= 0) {
+-			      ver32.version_major = ver.version_major;
+-			      ver32.version_minor = ver.version_minor;
+-			      ver32.version_patchlevel = ver.version_patchlevel;
+-			      ver32.name_len = ver.name_len;
+-			      ver32.date_len = ver.date_len;
+-			      ver32.desc_len = ver.desc_len;
+-			      if (copy_to_user(P(arg), &ver32, sizeof(ver32)))
+-				      return -EFAULT;
+-		      }
+-		      return ret;
+-	      }
+-
+-	      case IOCTL_NR(DRM_IOCTL_GET_UNIQUE):
+-	      {
+-		      drm_unique_t un;
+-		      struct {
+-			      unsigned int unique_len;
+-			      unsigned int unique;
+-		      } un32;
+-
+-		      if (copy_from_user(&un32, P(arg), sizeof(un32)))
+-			      return -EFAULT;
+-		      un.unique_len = un32.unique_len;
+-		      un.unique = P(un32.unique);
+-		      ret = DO_IOCTL(fd, DRM_IOCTL_GET_UNIQUE, &un);
+-		      if (ret >= 0) {
+-			      un32.unique_len = un.unique_len;
+-			      if (copy_to_user(P(arg), &un32, sizeof(un32)))
+-				      return -EFAULT;
+-		      }
+-		      return ret;
+-	      }
+-	      case IOCTL_NR(DRM_IOCTL_SET_UNIQUE):
+-	      case IOCTL_NR(DRM_IOCTL_ADD_MAP):
+-	      case IOCTL_NR(DRM_IOCTL_ADD_BUFS):
+-	      case IOCTL_NR(DRM_IOCTL_MARK_BUFS):
+-	      case IOCTL_NR(DRM_IOCTL_INFO_BUFS):
+-	      case IOCTL_NR(DRM_IOCTL_MAP_BUFS):
+-	      case IOCTL_NR(DRM_IOCTL_FREE_BUFS):
+-	      case IOCTL_NR(DRM_IOCTL_ADD_CTX):
+-	      case IOCTL_NR(DRM_IOCTL_RM_CTX):
+-	      case IOCTL_NR(DRM_IOCTL_MOD_CTX):
+-	      case IOCTL_NR(DRM_IOCTL_GET_CTX):
+-	      case IOCTL_NR(DRM_IOCTL_SWITCH_CTX):
+-	      case IOCTL_NR(DRM_IOCTL_NEW_CTX):
+-	      case IOCTL_NR(DRM_IOCTL_RES_CTX):
+-
+-	      case IOCTL_NR(DRM_IOCTL_AGP_ACQUIRE):
+-	      case IOCTL_NR(DRM_IOCTL_AGP_RELEASE):
+-	      case IOCTL_NR(DRM_IOCTL_AGP_ENABLE):
+-	      case IOCTL_NR(DRM_IOCTL_AGP_INFO):
+-	      case IOCTL_NR(DRM_IOCTL_AGP_ALLOC):
+-	      case IOCTL_NR(DRM_IOCTL_AGP_FREE):
+-	      case IOCTL_NR(DRM_IOCTL_AGP_BIND):
+-	      case IOCTL_NR(DRM_IOCTL_AGP_UNBIND):
+-
+-		/* Mga specific ioctls */
+-
+-	      case IOCTL_NR(DRM_IOCTL_MGA_INIT):
+-
+-		/* I810 specific ioctls */
+-
+-	      case IOCTL_NR(DRM_IOCTL_I810_GETBUF):
+-	      case IOCTL_NR(DRM_IOCTL_I810_COPY):
+-
+-	      case IOCTL_NR(MTIOCGET):
+-	      case IOCTL_NR(MTIOCPOS):
+-	      case IOCTL_NR(MTIOCGETCONFIG):
+-	      case IOCTL_NR(MTIOCSETCONFIG):
+-	      case IOCTL_NR(PPPIOCSCOMPRESS):
+-	      case IOCTL_NR(PPPIOCGIDLE):
+-	      case IOCTL_NR(NCP_IOC_GET_FS_INFO_V2):
+-	      case IOCTL_NR(NCP_IOC_GETOBJECTNAME):
+-	      case IOCTL_NR(NCP_IOC_SETOBJECTNAME):
+-	      case IOCTL_NR(NCP_IOC_GETPRIVATEDATA):
+-	      case IOCTL_NR(NCP_IOC_SETPRIVATEDATA):
+-	      case IOCTL_NR(NCP_IOC_GETMOUNTUID2):
+-	      case IOCTL_NR(CAPI_MANUFACTURER_CMD):
+-	      case IOCTL_NR(VIDIOCGTUNER):
+-	      case IOCTL_NR(VIDIOCSTUNER):
+-	      case IOCTL_NR(VIDIOCGWIN):
+-	      case IOCTL_NR(VIDIOCSWIN):
+-	      case IOCTL_NR(VIDIOCGFBUF):
+-	      case IOCTL_NR(VIDIOCSFBUF):
+-	      case IOCTL_NR(MGSL_IOCSPARAMS):
+-	      case IOCTL_NR(MGSL_IOCGPARAMS):
+-	      case IOCTL_NR(ATM_GETNAMES):
+-	      case IOCTL_NR(ATM_GETLINKRATE):
+-	      case IOCTL_NR(ATM_GETTYPE):
+-	      case IOCTL_NR(ATM_GETESI):
+-	      case IOCTL_NR(ATM_GETADDR):
+-	      case IOCTL_NR(ATM_RSTADDR):
+-	      case IOCTL_NR(ATM_ADDADDR):
+-	      case IOCTL_NR(ATM_DELADDR):
+-	      case IOCTL_NR(ATM_GETCIRANGE):
+-	      case IOCTL_NR(ATM_SETCIRANGE):
+-	      case IOCTL_NR(ATM_SETESI):
+-	      case IOCTL_NR(ATM_SETESIF):
+-	      case IOCTL_NR(ATM_GETSTAT):
+-	      case IOCTL_NR(ATM_GETSTATZ):
+-	      case IOCTL_NR(ATM_GETLOOP):
+-	      case IOCTL_NR(ATM_SETLOOP):
+-	      case IOCTL_NR(ATM_QUERYLOOP):
+-	      case IOCTL_NR(ENI_SETMULT):
+-	      case IOCTL_NR(NS_GETPSTAT):
+-		/* case IOCTL_NR(NS_SETBUFLEV): This is a duplicate case with ZATM_GETPOOLZ */
+-	      case IOCTL_NR(ZATM_GETPOOLZ):
+-	      case IOCTL_NR(ZATM_GETPOOL):
+-	      case IOCTL_NR(ZATM_SETPOOL):
+-	      case IOCTL_NR(ZATM_GETTHIST):
+-	      case IOCTL_NR(IDT77105_GETSTAT):
+-	      case IOCTL_NR(IDT77105_GETSTATZ):
+-	      case IOCTL_NR(IXJCTL_TONE_CADENCE):
+-	      case IOCTL_NR(IXJCTL_FRAMES_READ):
+-	      case IOCTL_NR(IXJCTL_FRAMES_WRITTEN):
+-	      case IOCTL_NR(IXJCTL_READ_WAIT):
+-	      case IOCTL_NR(IXJCTL_WRITE_WAIT):
+-	      case IOCTL_NR(IXJCTL_DRYBUFFER_READ):
+-	      case IOCTL_NR(I2OHRTGET):
+-	      case IOCTL_NR(I2OLCTGET):
+-	      case IOCTL_NR(I2OPARMSET):
+-	      case IOCTL_NR(I2OPARMGET):
+-	      case IOCTL_NR(I2OSWDL):
+-	      case IOCTL_NR(I2OSWUL):
+-	      case IOCTL_NR(I2OSWDEL):
+-	      case IOCTL_NR(I2OHTML):
 -		break;
--	case PM_RESUME:
--		apic_pm_resume(data);
--		break;
+-	      default:
+-		return sys_ioctl(fd, cmd, (unsigned long)arg);
+-
+-		case IOCTL_NR(SG_IO):
+-			return(sg_ioctl_trans(fd, cmd, arg));
+-
 -	}
- 	return 0;
- }
+-	printk(KERN_ERR "%x:unimplemented IA32 ioctl system call\n", cmd);
+-	return -EINVAL;
+-}
+--- clean/arch/mips64/kernel/ioctl32.c	2003-01-17 23:12:19.000000000 +0100
++++ linux/arch/mips64/kernel/ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+@@ -822,70 +822,3 @@
  
--/* perfctr driver should call this instead of pm_register() */
--struct pm_dev *apic_pm_register(pm_dev_t type,
--				unsigned long id,
--				pm_callback callback)
--{
--	struct pm_dev *dev;
+ #define NR_IOCTL32_HANDLERS	(sizeof(ioctl32_handler_table) /	\
+ 				 sizeof(ioctl32_handler_table[0]))
 -
--	if (!apic_pm_state.active)
--		return pm_register(type, id, callback);
--	if (apic_pm_state.perfctr_pmdev)
--		return NULL;	/* we're busy */
--	dev = kmalloc(sizeof(struct pm_dev), GFP_KERNEL);
--	if (dev) {
--		memset(dev, 0, sizeof(*dev));
--		dev->type = type;
--		dev->id = id;
--		dev->callback = callback;
--		apic_pm_state.perfctr_pmdev = dev;
+-static struct ioctl32_list *ioctl32_hash_table[1024];
+-
+-static inline int ioctl32_hash(unsigned int cmd)
+-{
+-	return ((cmd >> 6) ^ (cmd >> 4) ^ cmd) & 0x3ff;
+-}
+-
+-int sys32_ioctl(unsigned int fd, unsigned int cmd, unsigned int arg)
+-{
+-	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
+-	struct file *filp;
+-	struct ioctl32_list *l;
+-	int error;
+-
+-	l = ioctl32_hash_table[ioctl32_hash(cmd)];
+-
+-	error = -EBADF;
+-
+-	filp = fget(fd);
+-	if (!filp)
+-		return error;
+-
+-	if (!filp->f_op || !filp->f_op->ioctl) {
+-		error = sys_ioctl (fd, cmd, arg);
+-		goto out;
 -	}
--	return dev;
+-
+-	while (l && l->handler.cmd != cmd)
+-		l = l->next;
+-
+-	if (l) {
+-		handler = (void *)l->handler.function;
+-		error = handler(fd, cmd, arg, filp);
+-	} else {
+-		error = -EINVAL;
+-		printk("unknown ioctl: %08x\n", cmd);
+-	}
+-out:
+-	fput(filp);
+-	return error;
 -}
 -
--/* perfctr driver should call this instead of pm_unregister() */
--void apic_pm_unregister(struct pm_dev *dev)
+-static void ioctl32_insert(struct ioctl32_list *entry)
 -{
--	if (!apic_pm_state.active) {
--		pm_unregister(dev);
--	} else if (dev == apic_pm_state.perfctr_pmdev) {
--		apic_pm_state.perfctr_pmdev = NULL;
--		kfree(dev);
+-	int hash = ioctl32_hash(entry->handler.cmd);
+-	if (!ioctl32_hash_table[hash])
+-		ioctl32_hash_table[hash] = entry;
+-	else {
+-		struct ioctl32_list *l;
+-		l = ioctl32_hash_table[hash];
+-		while (l->next)
+-			l = l->next;
+-		l->next = entry;
+-		entry->next = 0;
 -	}
 -}
 -
--static void __init apic_pm_init1(void)
+-static int __init init_ioctl32(void)
 -{
--	/* can't pm_register() at this early stage in the boot process
--	   (causes an immediate reboot), so just set the flag */
--	apic_pm_state.active = 1;
+-	int i;
+-	for (i = 0; i < NR_IOCTL32_HANDLERS; i++)
+-		ioctl32_insert(&ioctl32_handler_table[i]);
+-	return 0;
 -}
-+static struct device_driver lapic_driver = {
-+	.name		= "apic",
-+	.bus		= &system_bus_type,
-+	.resume		= lapic_resume,
-+	.suspend	= lapic_suspend,
-+};
-+
-+/* not static, needed by child devices */
-+struct sys_device device_lapic = {
-+	.name		= "apic",
-+	.id		= 0,
-+	.dev		= {
-+		.name	= "lapic",
-+		.driver	= &lapic_driver,
-+	},
-+};
- 
--static void __init apic_pm_init2(void)
-+static int __init init_apic_devicefs(void)
- {
-+	driver_register(&lapic_driver);
- 	if (apic_pm_state.active)
--		pm_register(PM_SYS_DEV, 0, apic_pm_callback);
-+		return sys_device_register(&device_lapic);
-+	return 0;
- }
- 
--#else	/* CONFIG_PM */
 -
--static inline void apic_pm_init1(void) { }
--static inline void apic_pm_init2(void) { }
+-__initcall(init_ioctl32);
+--- clean/arch/mips64/kernel/scall_o32.S	2002-12-18 22:20:52.000000000 +0100
++++ linux/arch/mips64/kernel/scall_o32.S	2003-03-06 22:12:04.000000000 +0100
+@@ -287,7 +287,7 @@
+ 	sys	sys_acct	0
+ 	sys	sys_umount	2
+ 	sys	sys_ni_syscall	0
+-	sys	sys32_ioctl	3
++	sys	compat_sys_ioctl	3
+ 	sys	sys32_fcntl	3			/* 4055 */
+ 	sys	sys_ni_syscall	2
+ 	sys	sys_setpgid	2
+--- clean/arch/parisc/kernel/ioctl32.c	2003-02-24 22:33:42.000000000 +0100
++++ linux/arch/parisc/kernel/ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+@@ -3697,146 +3697,3 @@
+ COMPATIBLE_IOCTL(PA_PERF_OFF)
+ COMPATIBLE_IOCTL(PA_PERF_VERSION)
+ IOCTL_TABLE_END
 -
-+device_initcall(init_apic_devicefs);
- #endif	/* CONFIG_PM */
- 
- /*
-@@ -669,9 +643,6 @@
- 		nmi_watchdog = NMI_LOCAL_APIC;
- 
- 	printk("Found and enabled local APIC!\n");
+-unsigned int ioctl32_hash_table[1024];
 -
--	apic_pm_init1();
+-extern inline unsigned long ioctl32_hash(unsigned long cmd)
+-{
+-	return ((cmd >> 6) ^ (cmd >> 4) ^ cmd) & 0x3ff;
+-}
 -
- 	return 0;
- 
- no_apic:
-@@ -682,7 +653,6 @@
- void __init init_apic_mappings(void)
- {
- 	unsigned long apic_phys;
+-static void ioctl32_insert_translation(struct ioctl_trans *trans)
+-{
+-	unsigned long hash;
+-	struct ioctl_trans *t;
 -
- 	/*
- 	 * If no local APIC can be found then set up a fake all
- 	 * zeroes page to simulate the local APIC and another
-@@ -1149,15 +1119,12 @@
- 		return -1;
- 	}
- 
--	verify_local_APIC();
--
-+	verify_lapic();
- 	connect_bsp_APIC();
- 
- 	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
- 
--	apic_pm_init2();
--
--	setup_local_APIC();
-+	setup_lapic();
- 
- 	if (nmi_watchdog == NMI_LOCAL_APIC)
- 		check_nmi_watchdog();
-Index: linux-quilt/arch/i386/kernel/apm.c
---- .pc/apic32/arch/i386/kernel/apm.c	2003-03-18 18:33:58.000000000 +0100
-+++ a/arch/i386/kernel/apm.c	2003-03-16 18:51:05.000000000 +0100
-@@ -1237,6 +1237,10 @@
- 		}
- 		printk(KERN_CRIT "apm: suspend was vetoed, but suspending anyway.\n");
- 	}
-+
-+	
-+	device_suspend(3, SUSPEND_POWER_DOWN);
-+
- 	/* serialize with the timer interrupt */
- 	write_seqlock_irq(&xtime_lock);
- 
-@@ -1257,6 +1261,7 @@
- 	if (err != APM_SUCCESS)
- 		apm_error("suspend", err);
- 	err = (err == APM_SUCCESS) ? 0 : -EIO;
-+	device_resume(RESUME_POWER_ON);
- 	pm_send_all(PM_RESUME, (void *)0);
- 	queue_event(APM_NORMAL_RESUME, NULL);
-  out:
-@@ -1370,6 +1375,7 @@
- 				write_seqlock_irq(&xtime_lock);
- 				set_time();
- 				write_sequnlock_irq(&xtime_lock);
-+				device_resume(RESUME_POWER_ON);
- 				pm_send_all(PM_RESUME, (void *)0);
- 				queue_event(event, NULL);
- 			}
-Index: linux-quilt/arch/i386/kernel/i386_ksyms.c
---- .pc/apic32/arch/i386/kernel/i386_ksyms.c	2003-03-18 18:33:58.000000000 +0100
-+++ a/arch/i386/kernel/i386_ksyms.c	2003-03-18 17:22:21.000000000 +0100
-@@ -163,10 +163,6 @@
- EXPORT_SYMBOL(flush_tlb_page);
- #endif
- 
--#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PM)
--EXPORT_SYMBOL_GPL(set_nmi_pm_callback);
--EXPORT_SYMBOL_GPL(unset_nmi_pm_callback);
--#endif
- #ifdef CONFIG_X86_IO_APIC
- EXPORT_SYMBOL(IO_APIC_get_PCI_irq_vector);
- #endif
-Index: linux-quilt/arch/i386/kernel/io_apic.c
---- .pc/apic32/arch/i386/kernel/io_apic.c	2003-03-18 18:33:58.000000000 +0100
-+++ a/arch/i386/kernel/io_apic.c	2003-03-18 17:25:19.000000000 +0100
-@@ -1167,8 +1167,11 @@
- 	enable_8259A_irq(0);
- }
- 
--static inline void UNEXPECTED_IO_APIC(void)
-+static void __init unexpected_IO_APIC(void)
- {
-+	printk(KERN_WARNING "INFO: unexpected IO-APIC, please file a report at\n");
-+	printk(KERN_WARNING "      http://bugzilla.kernel.org\n");
-+	printk(KERN_WARNING "      if your kernel is less than 3 months old.\n");
- }
- 
- void __init print_IO_APIC(void)
-@@ -1206,7 +1209,7 @@
- 	printk(KERN_DEBUG ".......    : Delivery Type: %X\n", reg_00.delivery_type);
- 	printk(KERN_DEBUG ".......    : LTS          : %X\n", reg_00.LTS);
- 	if (reg_00.__reserved_0 || reg_00.__reserved_1 || reg_00.__reserved_2)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 
- 	printk(KERN_DEBUG ".... register #01: %08X\n", *(int *)&reg_01);
- 	printk(KERN_DEBUG ".......     : max redirection entries: %04X\n", reg_01.entries);
-@@ -1218,7 +1221,7 @@
- 		(reg_01.entries != 0x2E) &&
- 		(reg_01.entries != 0x3F)
- 	)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 
- 	printk(KERN_DEBUG ".......     : PRQ implemented: %X\n", reg_01.PRQ);
- 	printk(KERN_DEBUG ".......     : IO APIC version: %04X\n", reg_01.version);
-@@ -1228,15 +1231,15 @@
- 		(reg_01.version != 0x13) && /* Xeon IO-APICs */
- 		(reg_01.version != 0x20)    /* Intel P64H (82806 AA) */
- 	)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 	if (reg_01.__reserved_1 || reg_01.__reserved_2)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 
- 	if (reg_01.version >= 0x10) {
- 		printk(KERN_DEBUG ".... register #02: %08X\n", *(int *)&reg_02);
- 		printk(KERN_DEBUG ".......     : arbitration: %02X\n", reg_02.arbitration);
- 		if (reg_02.__reserved_1 || reg_02.__reserved_2)
--			UNEXPECTED_IO_APIC();
-+			unexpected_IO_APIC();
- 	}
- 
- 	printk(KERN_DEBUG ".... IRQ redirection table:\n");
-Index: linux-quilt/arch/i386/kernel/nmi.c
---- .pc/apic32/arch/i386/kernel/nmi.c	2003-03-18 18:33:58.000000000 +0100
-+++ a/arch/i386/kernel/nmi.c	2003-03-16 18:51:05.000000000 +0100
-@@ -9,6 +9,8 @@
-  *  Mikael Pettersson	: AMD K7 support for local APIC NMI watchdog.
-  *  Mikael Pettersson	: Power Management for local APIC NMI watchdog.
-  *  Mikael Pettersson	: Pentium 4 support for local APIC NMI watchdog.
-+ *  Pavel Machek and
-+ *  Mikael Pettersson	: PM converted to driver model. disable/enable API.
-  */
- 
- #include <linux/config.h>
-@@ -20,6 +22,8 @@
- #include <linux/interrupt.h>
- #include <linux/mc146818rtc.h>
- #include <linux/kernel_stat.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
- 
- #include <asm/smp.h>
- #include <asm/mtrr.h>
-@@ -29,6 +33,7 @@
- static unsigned int nmi_hz = HZ;
- unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
- extern void show_registers(struct pt_regs *regs);
-+static int nmi_active;
- 
- #define K7_EVNTSEL_ENABLE	(1 << 22)
- #define K7_EVNTSEL_INT		(1 << 20)
-@@ -117,7 +122,7 @@
- 	 */
- 	if ((nmi == NMI_LOCAL_APIC) &&
- 			(boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
--			(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
-+	  		(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
- 		nmi_watchdog = nmi;
- 	if ((nmi == NMI_LOCAL_APIC) &&
- 			(boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
-@@ -134,14 +139,11 @@
- 
- __setup("nmi_watchdog=", setup_nmi_watchdog);
- 
--#ifdef CONFIG_PM
--
--#include <linux/pm.h>
--
--struct pm_dev *nmi_pmdev;
- 
--static void disable_apic_nmi_watchdog(void)
-+void disable_lapic_nmi_watchdog(void)
- {
-+	if (!nmi_active)
-+		return;
- 	switch (boot_cpu_data.x86_vendor) {
- 	case X86_VENDOR_AMD:
- 		wrmsr(MSR_K7_EVNTSEL0, 0, 0);
-@@ -158,46 +160,60 @@
- 		}
- 		break;
- 	}
-+	nmi_active = 0;
- }
- 
--static int nmi_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data)
-+#ifdef CONFIG_PM
-+
-+static int nmi_suspend(struct device *dev, u32 state, u32 level)
- {
--	switch (rqst) {
--	case PM_SUSPEND:
--		disable_apic_nmi_watchdog();
--		break;
--	case PM_RESUME:
--		setup_apic_nmi_watchdog();
--		break;
+-	hash = ioctl32_hash (trans->cmd);
+-	if (!ioctl32_hash_table[hash])
+-		ioctl32_hash_table[hash] = (u32)(long)trans;
+-	else {
+-		t = (struct ioctl_trans *)(long)ioctl32_hash_table[hash];
+-		while (t->next)
+-			t = (struct ioctl_trans *)(long)t->next;
+-		trans->next = 0;
+-		t->next = (u32)(long)trans;
 -	}
-+	if (level != SUSPEND_POWER_DOWN)
-+		return 0;
-+
-+	disable_lapic_nmi_watchdog();
- 	return 0;
- }
- 
--struct pm_dev * set_nmi_pm_callback(pm_callback callback)
-+static int nmi_resume(struct device *dev, u32 level)
- {
--	apic_pm_unregister(nmi_pmdev);
--	return apic_pm_register(PM_SYS_DEV, 0, callback);
 -}
-+	if (level != RESUME_POWER_ON)
-+		return 0;
- 
--void unset_nmi_pm_callback(struct pm_dev * dev)
+-
+-static int __init init_sys32_ioctl(void)
 -{
--	apic_pm_unregister(dev);
--	nmi_pmdev = apic_pm_register(PM_SYS_DEV, 0, nmi_pm_callback);
+-	int i;
+-	extern struct ioctl_trans ioctl_translations[], ioctl_translations_end[];
+-
+-	for (i = 0; &ioctl_translations[i] < &ioctl_translations_end[0]; i++)
+-		ioctl32_insert_translation(&ioctl_translations[i]);
+-	return 0;
 -}
-- 
--static void nmi_pm_init(void)
+-
+-__initcall(init_sys32_ioctl);
+-
+-static struct ioctl_trans *additional_ioctls;
+-
+-/* Always call these with kernel lock held! */
+-
+-int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
 -{
--	if (!nmi_pmdev)
--		nmi_pmdev = apic_pm_register(PM_SYS_DEV, 0, nmi_pm_callback);
-+	if (nmi_watchdog == NMI_LOCAL_APIC)
-+		enable_lapic_nmi_watchdog();
-+
-+	return 0;
- }
+-	int i;
+-
+-panic("register_ioctl32_conversion() is B0RKEN! Called by %p\n", __builtin_return_address(0));
+-
+-	if (!additional_ioctls) {
+-		additional_ioctls = module_map(PAGE_SIZE);
+-		if (!additional_ioctls)
+-			return -ENOMEM;
+-		memset(additional_ioctls, 0, PAGE_SIZE);
+-	}
+-	for (i = 0; i < PAGE_SIZE/sizeof(struct ioctl_trans); i++)
+-		if (!additional_ioctls[i].cmd)
+-			break;
+-	if (i == PAGE_SIZE/sizeof(struct ioctl_trans))
+-		return -ENOMEM;
+-	additional_ioctls[i].cmd = cmd;
+-	if (!handler)
+-		additional_ioctls[i].handler = (u32)(long)sys_ioctl;
+-	else
+-		additional_ioctls[i].handler = (u32)(long)handler;
+-	ioctl32_insert_translation(&additional_ioctls[i]);
+-	return 0;
+-}
+-
+-int unregister_ioctl32_conversion(unsigned int cmd)
+-{
+-	unsigned long hash = ioctl32_hash(cmd);
+-	struct ioctl_trans *t, *t1;
+-
+-	t = (struct ioctl_trans *)(long)ioctl32_hash_table[hash];
+-	if (!t) return -EINVAL;
+-	if (t->cmd == cmd && t >= additional_ioctls &&
+-	    (unsigned long)t < ((unsigned long)additional_ioctls) + PAGE_SIZE) {
+-		ioctl32_hash_table[hash] = t->next;
+-		t->cmd = 0;
+-		return 0;
+-	} else while (t->next) {
+-		t1 = (struct ioctl_trans *)(long)t->next;
+-		if (t1->cmd == cmd && t1 >= additional_ioctls &&
+-		    (unsigned long)t1 < ((unsigned long)additional_ioctls) + PAGE_SIZE) {
+-			t1->cmd = 0;
+-			t->next = t1->next;
+-			return 0;
+-		}
+-		t = t1;
+-	}
+-	return -EINVAL;
+-}
+-
+-asmlinkage int sys32_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct file * filp;
+-	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
+-	unsigned long pafnptr[4];
+-	extern char __gp;
+-	struct ioctl_trans *t;
+-	int error = -EBADF;
+-
+-	filp = fget(fd);
+-	if(!filp)
+-		goto out2;
+-
+-	if (!filp->f_op || !filp->f_op->ioctl) {
+-		error = sys_ioctl (fd, cmd, arg);
+-		goto out;
+-	}
+-
+-	/* intercept private networking ioctl() calls here since it is
+-	 * an onerous task to figure out which ones of the HANDLE_IOCTL
+-	 * list map to these values.
+-	 */
+-	if (cmd >= SIOCDEVPRIVATE && cmd <= SIOCDEVPRIVATE + 0xf) {
+-		error = siocprivate(fd, cmd, arg);
+-		goto out;
+-	}
+-
+-	t = (struct ioctl_trans *)(long)ioctl32_hash_table [ioctl32_hash (cmd)];
+-
+-	while (t && t->cmd != cmd)
+-		t = (struct ioctl_trans *)(long)t->next;
+-	if (t) {
+-		handler = (void *) pafnptr;
+-		pafnptr[0] = pafnptr[1] = 0UL;
+-		pafnptr[2] = (unsigned long) t->handler;
+-		pafnptr[3] = A(&__gp);
+-		error = handler(fd, cmd, arg, filp);
+-	} else {
+-		static int count = 0;
+-		if (++count <= 20)
+-			printk(KERN_WARNING
+-				"sys32_ioctl: Unknown cmd fd(%d) "
+-				"cmd(%08x) arg(%08x)\n",
+-				(int)fd, (unsigned int)cmd, (unsigned int)arg);
+-		error = -EINVAL;
+-	}
+-out:
+-	fput(filp);
+-out2:
+-	return error;
+-}
+--- clean/arch/ppc64/kernel/ioctl32.c	2003-03-06 23:25:19.000000000 +0100
++++ linux/arch/ppc64/kernel/ioctl32.c	2003-03-06 23:27:35.000000000 +0100
+@@ -4474,129 +4474,3 @@
+ HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset),
+ HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64),
+ };
+-
+-unsigned long ioctl32_hash_table[1024];
+-
+-static inline unsigned long ioctl32_hash(unsigned long cmd)
+-{
+-	return ((cmd >> 6) ^ (cmd >> 4) ^ cmd) & 0x3ff;
+-}
+-
+-static void ioctl32_insert_translation(struct ioctl_trans *trans)
+-{
+-	unsigned long hash;
+-	struct ioctl_trans *t;
+-
+-	hash = ioctl32_hash (trans->cmd);
+-	if (!ioctl32_hash_table[hash])
+-		ioctl32_hash_table[hash] = (long)trans;
+-	else {
+-		t = (struct ioctl_trans *)ioctl32_hash_table[hash];
+-		while (t->next)
+-			t = (struct ioctl_trans *)(long)t->next;
+-		trans->next = 0;
+-		t->next = (long)trans;
+-	}
+-}
+-
+-static int __init init_sys32_ioctl(void)
+-{
+-        int i, size = sizeof(ioctl_translations) / sizeof(struct ioctl_trans);
+-        for (i=0; i < size ;i++)
+-                ioctl32_insert_translation(&ioctl_translations[i]);
+-	return 0;
+-}
+-
+-__initcall(init_sys32_ioctl);
+-
+-static struct ioctl_trans *additional_ioctls;
+-
+-/* Always call these with kernel lock held! */
+-
+-int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
+-{
+-	int i;
+-	if (!additional_ioctls) {
+-		additional_ioctls = (struct ioctl_trans *)get_zeroed_page(GFP_KERNEL);
+-		if (!additional_ioctls)
+-			return -ENOMEM;
+-	}
+-	for (i = 0; i < PAGE_SIZE/sizeof(struct ioctl_trans); i++) {
+-		if (!additional_ioctls[i].cmd)
+-			break;
+-		if (additional_ioctls[i].cmd == cmd)
+-			printk("duplicate ioctl found: %x\n", cmd);
+-	}
+-	if (i == PAGE_SIZE/sizeof(struct ioctl_trans))
+-		return -ENOMEM;
+-	additional_ioctls[i].cmd = cmd;
+-	if (!handler)
+-		additional_ioctls[i].handler = (long)sys_ioctl;
+-	else
+-		additional_ioctls[i].handler = (long)handler;
+-	ioctl32_insert_translation(&additional_ioctls[i]);
+-	return 0;
+-}
+-
+-int unregister_ioctl32_conversion(unsigned int cmd)
+-{
+-	unsigned long hash = ioctl32_hash(cmd);
+-	struct ioctl_trans *t, *t1;
+-
+-	t = (struct ioctl_trans *)ioctl32_hash_table[hash];
+-	if (!t) return -EINVAL;
+-	if (t->cmd == cmd && t >= additional_ioctls &&
+-	    (unsigned long)t < ((unsigned long)additional_ioctls) + PAGE_SIZE) {
+-		ioctl32_hash_table[hash] = t->next;
+-		t->cmd = 0;
+-		return 0;
+-	} else while (t->next) {
+-		t1 = (struct ioctl_trans *)t->next;
+-		if (t1->cmd == cmd && t1 >= additional_ioctls &&
+-		    (unsigned long)t1 < ((unsigned long)additional_ioctls) + PAGE_SIZE) {
+-			t1->cmd = 0;
+-			t->next = t1->next;
+-			return 0;
+-		}
+-		t = t1;
+-	}
+-	return -EINVAL;
+-}
+-
+-asmlinkage int sys32_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct file * filp;
+-	int error = -EBADF;
+-	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
+-	struct ioctl_trans *t;
+-
+-	filp = fget(fd);
+-	if (!filp)
+-		goto out2;
+-
+-	if (!filp->f_op || !filp->f_op->ioctl) {
+-		error = sys_ioctl (fd, cmd, arg);
+-		goto out;
+-	}
+-
+-	t = (struct ioctl_trans *)ioctl32_hash_table [ioctl32_hash (cmd)];
+-
+-	while (t && t->cmd != cmd)
+-		t = (struct ioctl_trans *)t->next;
+-	if (t) {
+-		handler = (void *)t->handler;
+-		error = handler(fd, cmd, arg, filp);
+-	} else {
+-		static int count = 0;
+-		if (++count <= 20)
+-			printk("sys32_ioctl(%s:%d): Unknown cmd fd(%d) "
+-			       "cmd(%08x) arg(%08x)\n",
+-			       current->comm, current->pid,
+-			       (int)fd, (unsigned int)cmd, (unsigned int)arg);
+-		error = -EINVAL;
+-	}
+-out:
+-	fput(filp);
+-out2:
+-	return error;
+-}
+--- clean/arch/ppc64/kernel/misc.S	2003-02-24 22:33:44.000000000 +0100
++++ linux/arch/ppc64/kernel/misc.S	2003-03-06 22:12:04.000000000 +0100
+@@ -556,7 +556,7 @@
+ 	.llong .sys_acct
+ 	.llong .sys32_umount
+ 	.llong .sys_ni_syscall		/* old lock syscall */
+-	.llong .sys32_ioctl
++	.llong .compat_sys_ioctl
+ 	.llong .sys32_fcntl		/* 55 */
+ 	.llong .sys_ni_syscall		/* old mpx syscall */
+ 	.llong .sys32_setpgid
+--- clean/arch/s390x/kernel/ioctl32.c	2003-01-17 23:12:20.000000000 +0100
++++ linux/arch/s390x/kernel/ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+@@ -971,113 +971,3 @@
  
--#define __pminit	/*empty*/
+ #define NR_IOCTL32_HANDLERS	(sizeof(ioctl32_handler_table) /	\
+ 				 sizeof(ioctl32_handler_table[0]))
+-
+-static struct ioctl32_list *ioctl32_hash_table[1024];
+-
+-static inline int ioctl32_hash(unsigned int cmd)
+-{
+-	return ((cmd >> 6) ^ (cmd >> 4) ^ cmd) & 0x3ff;
+-}
+-
+-int sys32_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
+-	struct file *filp;
+-	struct ioctl32_list *l;
+-	int error;
+-
+-	l = ioctl32_hash_table[ioctl32_hash(cmd)];
+-
+-	error = -EBADF;
+-
+-	filp = fget(fd);
+-	if (!filp)
+-		return error;
+-
+-	if (!filp->f_op || !filp->f_op->ioctl) {
+-		error = sys_ioctl (fd, cmd, arg);
+-		goto out;
+-	}
+-
+-	while (l && l->handler.cmd != cmd)
+-		l = l->next;
+-
+-	if (l) {
+-		handler = (void *)l->handler.function;
+-		error = handler(fd, cmd, arg, filp);
+-	} else {
+-		error = -EINVAL;
+-		printk("unknown ioctl: %08x\n", cmd);
+-	}
+-out:
+-	fput(filp);
+-	return error;
+-}
+-
+-static void ioctl32_insert(struct ioctl32_list *entry)
+-{
+-	int hash = ioctl32_hash(entry->handler.cmd);
+-
+-	entry->next = 0;
+-	if (!ioctl32_hash_table[hash])
+-		ioctl32_hash_table[hash] = entry;
+-	else {
+-		struct ioctl32_list *l;
+-		l = ioctl32_hash_table[hash];
+-		while (l->next)
+-			l = l->next;
+-		l->next = entry;
+-	}
+-}
+-
+-int register_ioctl32_conversion(unsigned int cmd,
+-				int (*handler)(unsigned int, unsigned int,
+-					       unsigned long, struct file *))
+-{
+-	struct ioctl32_list *l, *new;
+-	int hash;
+-
+-	hash = ioctl32_hash(cmd);
+-	for (l = ioctl32_hash_table[hash]; l != NULL; l = l->next)
+-		if (l->handler.cmd == cmd)
+-			return -EBUSY;
+-	new = kmalloc(sizeof(struct ioctl32_list), GFP_KERNEL);
+-	if (new == NULL)
+-		return -ENOMEM;
+-	new->handler.cmd = cmd;
+-	new->handler.function = (void *) handler;
+-	ioctl32_insert(new);
+-	return 0;
+-}
+-
+-int unregister_ioctl32_conversion(unsigned int cmd)
+-{
+-	struct ioctl32_list *p, *l;
+-	int hash;
+-
+-	hash = ioctl32_hash(cmd);
+-	p = NULL;
+-	for (l = ioctl32_hash_table[hash]; l != NULL; l = l->next) {
+-		if (l->handler.cmd == cmd)
+-			break;
+-		p = l;
+-	}
+-	if (l == NULL)
+-		return -ENOENT;
+-	if (p == NULL)
+-		ioctl32_hash_table[hash] = l->next;
+-	else
+-		p->next = l->next;
+-	kfree(l);
+-	return 0;
+-}
+-
+-static int __init init_ioctl32(void)
+-{
+-	int i;
+-	for (i = 0; i < NR_IOCTL32_HANDLERS; i++)
+-		ioctl32_insert(&ioctl32_handler_table[i]);
+-	return 0;
+-}
+-
+-__initcall(init_ioctl32);
+--- clean/arch/s390x/kernel/wrapper32.S	2003-02-24 22:33:45.000000000 +0100
++++ linux/arch/s390x/kernel/wrapper32.S	2003-03-06 22:12:04.000000000 +0100
+@@ -225,7 +225,7 @@
+ 	llgfr	%r2,%r2			# unsigned int
+ 	llgfr	%r3,%r3			# unsigned int
+ 	llgfr	%r4,%r4			# unsigned int
+-	jg	sys32_ioctl		# branch to system call
++	jg	compat_sys_ioctl		# branch to system call
  
--#else	/* CONFIG_PM */
-+static struct device_driver nmi_driver = {
-+	.name		= "lapic_nmi",
-+	.bus		= &system_bus_type,
-+	.resume		= nmi_resume,
-+	.suspend	= nmi_suspend,
-+};
-+
-+static struct sys_device device_nmi = {
-+	.name	= "lapic_nmi",
-+	.id	= 0,
-+	.dev	= {
-+		.name = "lapic_nmi",
-+		.driver = &nmi_driver,
-+		.parent = &device_lapic.dev,
-+	}
-+};
-+
-+extern struct sys_device device_apic;
- 
--static inline void nmi_pm_init(void) { }
-+static int __init init_nmi_devicefs(void)
-+{
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		driver_register(&nmi_driver);
-+		return sys_device_register(&device_nmi);
-+	}
-+}
- 
--#define __pminit	__init
-+late_initcall(init_nmi_devicefs);
- 
- #endif	/* CONFIG_PM */
- 
-@@ -206,7 +222,7 @@
-  * Original code written by Keith Owens.
-  */
- 
--static void __pminit clear_msr_range(unsigned int base, unsigned int n)
-+static void clear_msr_range(unsigned int base, unsigned int n)
- {
- 	unsigned int i;
- 
-@@ -214,7 +230,7 @@
- 		wrmsr(base+i, 0, 0);
- }
- 
--static void __pminit setup_k7_watchdog(void)
-+static void setup_k7_watchdog(void)
- {
- 	unsigned int evntsel;
- 
-@@ -236,7 +252,7 @@
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
- }
- 
--static void __pminit setup_p6_watchdog(void)
-+static void setup_p6_watchdog(void)
- {
- 	unsigned int evntsel;
- 
-@@ -258,7 +274,7 @@
- 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
- }
- 
--static int __pminit setup_p4_watchdog(void)
-+static int setup_p4_watchdog(void)
- {
- 	unsigned int misc_enable, dummy;
- 
-@@ -288,7 +304,7 @@
- 	return 1;
- }
- 
--void __pminit setup_apic_nmi_watchdog (void)
-+void enable_lapic_nmi_watchdog (void)
- {
- 	switch (boot_cpu_data.x86_vendor) {
- 	case X86_VENDOR_AMD:
-@@ -312,7 +328,7 @@
- 	default:
- 		return;
- 	}
--	nmi_pm_init();
-+	nmi_active = 1;
- }
- 
- static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
-@@ -400,3 +416,7 @@
- 		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
- 	}
- }
-+
-+EXPORT_SYMBOL(nmi_watchdog);
-+EXPORT_SYMBOL(enable_lapic_nmi_watchdog);
-+EXPORT_SYMBOL(disable_lapic_nmi_watchdog);
-Index: linux-quilt/arch/i386/oprofile/nmi_int.c
---- .pc/apic32/arch/i386/oprofile/nmi_int.c	2003-03-18 18:33:58.000000000 +0100
-+++ a/arch/i386/oprofile/nmi_int.c	2003-03-18 17:22:21.000000000 +0100
+ 	.globl  sys32_fcntl_wrapper 
+ sys32_fcntl_wrapper:
+--- clean/arch/sparc64/kernel/ioctl32.c	2003-03-06 23:25:20.000000000 +0100
++++ linux/arch/sparc64/kernel/ioctl32.c	2003-03-06 23:27:36.000000000 +0100
 @@ -11,6 +11,7 @@
- #include <linux/notifier.h>
+ #include <linux/config.h>
+ #include <linux/types.h>
+ #include <linux/compat.h>
++#include <linux/ioctl32.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
  #include <linux/smp.h>
- #include <linux/oprofile.h>
-+#include <linux/device.h>
- #include <asm/nmi.h>
- #include <asm/msr.h>
- #include <asm/apic.h>
-@@ -24,27 +25,6 @@
-  
- static int nmi_start(void);
- static void nmi_stop(void);
+@@ -678,7 +679,7 @@
+ 	return (void *) (usp - len);
+ }
+ 
+-static int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+ {
+ 	struct ifreq *u_ifreq64;
+ 	struct ifreq32 *u_ifreq32 = (struct ifreq32 *) arg;
+@@ -4274,16 +4275,14 @@
+ #define BNEPGETCONNLIST	_IOR('B', 210, int)
+ #define BNEPGETCONNINFO	_IOR('B', 211, int)
+ 
+-struct ioctl_trans {
+-	unsigned int cmd;
+-	unsigned int handler;
+-	unsigned int next;
+-};
++typedef int (* ioctl32_handler_t)(unsigned int, unsigned int, unsigned long, struct file *);
+ 
+-#define COMPATIBLE_IOCTL(cmd) asm volatile(".word %0, sys_ioctl, 0" : : "i" (cmd));
+-#define HANDLE_IOCTL(cmd,handler) asm volatile(".word %0, %1, 0" : : "i" (cmd), "i" (handler));
+-#define IOCTL_TABLE_START void ioctl32_foo(void) { asm volatile(".data\nioctl_translations:");
+-#define IOCTL_TABLE_END asm volatile("\nioctl_translations_end:\n\t.previous"); }
++#define COMPATIBLE_IOCTL(cmd)		HANDLE_IOCTL((cmd),sys_ioctl)
++#define HANDLE_IOCTL(cmd,handler)	{ (cmd), (ioctl32_handler_t)(handler), NULL },
++#define IOCTL_TABLE_START \
++	struct ioctl_trans ioctl_start[] = {
++#define IOCTL_TABLE_END \
++	}; struct ioctl_trans ioctl_end[0];
+ 
+ IOCTL_TABLE_START
+ /* List here exlicitly which ioctl's are known to have
+@@ -5218,134 +5217,3 @@
+ HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset)
+ HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64)
+ IOCTL_TABLE_END
 -
--static struct pm_dev * oprofile_pmdev;
-- 
--/* We're at risk of causing big trouble unless we
-- * make sure to not cause any NMI interrupts when
-- * suspended.
-- */
--static int oprofile_pm_callback(struct pm_dev * dev,
--		pm_request_t rqst, void * data)
+-unsigned int ioctl32_hash_table[1024];
+-
+-static inline unsigned long ioctl32_hash(unsigned long cmd)
 -{
--	switch (rqst) {
--		case PM_SUSPEND:
--			nmi_stop();
+-	return ((cmd >> 6) ^ (cmd >> 4) ^ cmd) & 0x3ff;
+-}
+-
+-static void ioctl32_insert_translation(struct ioctl_trans *trans)
+-{
+-	unsigned long hash;
+-	struct ioctl_trans *t;
+-
+-	hash = ioctl32_hash (trans->cmd);
+-	if (!ioctl32_hash_table[hash])
+-		ioctl32_hash_table[hash] = (u32)(long)trans;
+-	else {
+-		t = (struct ioctl_trans *)(long)ioctl32_hash_table[hash];
+-		while (t->next)
+-			t = (struct ioctl_trans *)(long)t->next;
+-		trans->next = 0;
+-		t->next = (u32)(long)trans;
+-	}
+-}
+-
+-static int __init init_sys32_ioctl(void)
+-{
+-	int i;
+-	extern struct ioctl_trans ioctl_translations[], ioctl_translations_end[];
+-
+-	for (i = 0; &ioctl_translations[i] < &ioctl_translations_end[0]; i++)
+-		ioctl32_insert_translation(&ioctl_translations[i]);
+-	return 0;
+-}
+-
+-__initcall(init_sys32_ioctl);
+-
+-static struct ioctl_trans *additional_ioctls;
+-
+-/* Always call these with kernel lock held! */
+-
+-int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
+-{
+-	int i;
+-	if (!additional_ioctls) {
+-		additional_ioctls = vmalloc(PAGE_SIZE);
+-		if (!additional_ioctls)
+-			return -ENOMEM;
+-		memset(additional_ioctls, 0, PAGE_SIZE);
+-	}
+-	for (i = 0; i < PAGE_SIZE/sizeof(struct ioctl_trans); i++)
+-		if (!additional_ioctls[i].cmd)
 -			break;
--		case PM_RESUME:
--			nmi_start();
--			break;
+-	if (i == PAGE_SIZE/sizeof(struct ioctl_trans))
+-		return -ENOMEM;
+-	additional_ioctls[i].cmd = cmd;
+-	if (!handler)
+-		additional_ioctls[i].handler = (u32)(long)sys_ioctl;
+-	else
+-		additional_ioctls[i].handler = (u32)(long)handler;
+-	ioctl32_insert_translation(&additional_ioctls[i]);
+-	return 0;
+-}
+-
+-int unregister_ioctl32_conversion(unsigned int cmd)
+-{
+-	unsigned long hash = ioctl32_hash(cmd);
+-	struct ioctl_trans *t, *t1;
+-
+-	t = (struct ioctl_trans *)(long)ioctl32_hash_table[hash];
+-	if (!t) return -EINVAL;
+-	if (t->cmd == cmd && t >= additional_ioctls &&
+-	    (unsigned long)t < ((unsigned long)additional_ioctls) + PAGE_SIZE) {
+-		ioctl32_hash_table[hash] = t->next;
+-		t->cmd = 0;
+-		t->next = 0;
+-		return 0;
+-	} else while (t->next) {
+-		t1 = (struct ioctl_trans *)(long)t->next;
+-		if (t1->cmd == cmd && t1 >= additional_ioctls &&
+-		    (unsigned long)t1 < ((unsigned long)additional_ioctls) + PAGE_SIZE) {
+-			t->next = t1->next;
+-			t1->cmd = 0;
+-			t1->next = 0;
+-			return 0;
+-		}
+-		t = t1;
+-	}
+-	return -EINVAL;
+-}
+-
+-asmlinkage int sys32_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct file * filp;
+-	int error = -EBADF;
+-	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
+-	struct ioctl_trans *t;
+-
+-	filp = fget(fd);
+-	if(!filp)
+-		goto out2;
+-
+-	if (!filp->f_op || !filp->f_op->ioctl) {
+-		error = sys_ioctl (fd, cmd, arg);
+-		goto out;
+-	}
+-
+-	t = (struct ioctl_trans *)(long)ioctl32_hash_table [ioctl32_hash (cmd)];
+-
+-	while (t && t->cmd != cmd)
+-		t = (struct ioctl_trans *)(long)t->next;
+-	if (t) {
+-		handler = (void *)(long)t->handler;
+-		error = handler(fd, cmd, arg, filp);
+-	} else if (cmd >= SIOCDEVPRIVATE &&
+-		   cmd <= (SIOCDEVPRIVATE + 15)) {
+-		error = siocdevprivate_ioctl(fd, cmd, arg);
+-	} else {
+-		static int count;
+-		if (++count <= 20)
+-			printk("sys32_ioctl(%s:%d): Unknown cmd fd(%d) "
+-			       "cmd(%08x) arg(%08x)\n",
+-			       current->comm, current->pid,
+-			       (int)fd, (unsigned int)cmd, (unsigned int)arg);
+-		error = -EINVAL;
+-	}
+-out:
+-	fput(filp);
+-out2:
+-	return error;
+-}
+--- clean/arch/sparc64/kernel/sparc64_ksyms.c	2003-03-06 23:25:20.000000000 +0100
++++ linux/arch/sparc64/kernel/sparc64_ksyms.c	2003-03-06 23:27:36.000000000 +0100
+@@ -89,7 +89,7 @@
+ extern int svr4_getcontext(svr4_ucontext_t *uc, struct pt_regs *regs);
+ extern int svr4_setcontext(svr4_ucontext_t *uc, struct pt_regs *regs);
+ extern int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
+-extern int sys32_ioctl(unsigned int fd, unsigned int cmd, u32 arg);
++extern int compat_sys_ioctl(unsigned int fd, unsigned int cmd, u32 arg);
+ extern int (*handle_mathemu)(struct pt_regs *, struct fpustate *);
+ extern long sparc32_open(const char * filename, int flags, int mode);
+ extern int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *));
+@@ -318,7 +318,7 @@
+ EXPORT_SYMBOL(svr4_setcontext);
+ EXPORT_SYMBOL(prom_cpu_nodes);
+ EXPORT_SYMBOL(sys_ioctl);
+-EXPORT_SYMBOL(sys32_ioctl);
++EXPORT_SYMBOL(compat_sys_ioctl);
+ EXPORT_SYMBOL(sparc32_open);
+ #endif
+ 
+--- clean/arch/sparc64/kernel/sunos_ioctl32.c	2003-02-24 22:33:46.000000000 +0100
++++ linux/arch/sparc64/kernel/sunos_ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+@@ -92,7 +92,7 @@
+ 
+ extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
+ 
+-extern asmlinkage int sys32_ioctl(unsigned int, unsigned int, u32);
++extern asmlinkage int compat_sys_ioctl(unsigned int, unsigned int, u32);
+ extern asmlinkage int sys_setsid(void);
+ 
+ asmlinkage int sunos_ioctl (int fd, u32 cmd, u32 arg)
+@@ -127,39 +127,39 @@
+ 	}
+ 	switch(cmd) {
+ 	case _IOW('r', 10, struct rtentry32):
+-		ret = sys32_ioctl(fd, SIOCADDRT, arg);
++		ret = compat_sys_ioctl(fd, SIOCADDRT, arg);
+ 		goto out;
+ 	case _IOW('r', 11, struct rtentry32):
+-		ret = sys32_ioctl(fd, SIOCDELRT, arg);
++		ret = compat_sys_ioctl(fd, SIOCDELRT, arg);
+ 		goto out;
+ 
+ 	case _IOW('i', 12, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCSIFADDR, arg);
++		ret = compat_sys_ioctl(fd, SIOCSIFADDR, arg);
+ 		goto out;
+ 	case _IOWR('i', 13, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCGIFADDR, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFADDR, arg);
+ 		goto out;
+ 	case _IOW('i', 14, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCSIFDSTADDR, arg);
++		ret = compat_sys_ioctl(fd, SIOCSIFDSTADDR, arg);
+ 		goto out;
+ 	case _IOWR('i', 15, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCGIFDSTADDR, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFDSTADDR, arg);
+ 		goto out;
+ 	case _IOW('i', 16, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCSIFFLAGS, arg);
++		ret = compat_sys_ioctl(fd, SIOCSIFFLAGS, arg);
+ 		goto out;
+ 	case _IOWR('i', 17, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCGIFFLAGS, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFFLAGS, arg);
+ 		goto out;
+ 	case _IOW('i', 18, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCSIFMEM, arg);
++		ret = compat_sys_ioctl(fd, SIOCSIFMEM, arg);
+ 		goto out;
+ 	case _IOWR('i', 19, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCGIFMEM, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFMEM, arg);
+ 		goto out;
+ 
+ 	case _IOWR('i', 20, struct ifconf32):
+-		ret = sys32_ioctl(fd, SIOCGIFCONF, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFCONF, arg);
+ 		goto out;
+ 
+ 	case _IOW('i', 21, struct ifreq): /* SIOCSIFMTU */
+@@ -170,32 +170,32 @@
+ 		goto out;
+ 
+ 	case _IOWR('i', 23, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCGIFBRDADDR, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFBRDADDR, arg);
+ 		goto out;
+ 	case _IOW('i', 24, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCSIFBRDADDR, arg);
++		ret = compat_sys_ioctl(fd, SIOCSIFBRDADDR, arg);
+ 		goto out;
+ 	case _IOWR('i', 25, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCGIFNETMASK, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFNETMASK, arg);
+ 		goto out;
+ 	case _IOW('i', 26, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCSIFNETMASK, arg);
++		ret = compat_sys_ioctl(fd, SIOCSIFNETMASK, arg);
+ 		goto out;
+ 	case _IOWR('i', 27, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCGIFMETRIC, arg);
++		ret = compat_sys_ioctl(fd, SIOCGIFMETRIC, arg);
+ 		goto out;
+ 	case _IOW('i', 28, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCSIFMETRIC, arg);
++		ret = compat_sys_ioctl(fd, SIOCSIFMETRIC, arg);
+ 		goto out;
+ 
+ 	case _IOW('i', 30, struct arpreq):
+-		ret = sys32_ioctl(fd, SIOCSARP, arg);
++		ret = compat_sys_ioctl(fd, SIOCSARP, arg);
+ 		goto out;
+ 	case _IOWR('i', 31, struct arpreq):
+-		ret = sys32_ioctl(fd, SIOCGARP, arg);
++		ret = compat_sys_ioctl(fd, SIOCGARP, arg);
+ 		goto out;
+ 	case _IOW('i', 32, struct arpreq):
+-		ret = sys32_ioctl(fd, SIOCDARP, arg);
++		ret = compat_sys_ioctl(fd, SIOCDARP, arg);
+ 		goto out;
+ 
+ 	case _IOW('i', 40, struct ifreq32): /* SIOCUPPER */
+@@ -209,10 +209,10 @@
+ 		goto out;
+ 
+ 	case _IOW('i', 49, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCADDMULTI, arg);
++		ret = compat_sys_ioctl(fd, SIOCADDMULTI, arg);
+ 		goto out;
+ 	case _IOW('i', 50, struct ifreq32):
+-		ret = sys32_ioctl(fd, SIOCDELMULTI, arg);
++		ret = compat_sys_ioctl(fd, SIOCDELMULTI, arg);
+ 		goto out;
+ 
+ 	/* FDDI interface ioctls, unsupported. */
+@@ -246,7 +246,7 @@
+ 		ret = -EFAULT;
+ 		if(get_user(oldval, ptr))
+ 			goto out;
+-		ret = sys32_ioctl(fd, cmd, arg);
++		ret = compat_sys_ioctl(fd, cmd, arg);
+ 		__get_user(newval, ptr);
+ 		if(newval == -1) {
+ 			__put_user(oldval, ptr);
+@@ -265,7 +265,7 @@
+ 		ret = -EFAULT;
+ 		if(get_user(oldval, ptr))
+ 			goto out;
+-		ret = sys32_ioctl(fd, cmd, arg);
++		ret = compat_sys_ioctl(fd, cmd, arg);
+ 		__get_user(newval, ptr);
+ 		if(newval == -1) {
+ 			__put_user(oldval, ptr);
+@@ -277,7 +277,7 @@
+ 	}
+ 	};
+ 
+-	ret = sys32_ioctl(fd, cmd, arg);
++	ret = compat_sys_ioctl(fd, cmd, arg);
+ 	/* so stupid... */
+ 	ret = (ret == -EINVAL ? -EOPNOTSUPP : ret);
+ out:
+--- clean/arch/sparc64/kernel/systbls.S	2003-02-24 22:33:46.000000000 +0100
++++ linux/arch/sparc64/kernel/systbls.S	2003-03-06 22:12:04.000000000 +0100
+@@ -29,7 +29,7 @@
+ 	.word sys_chown, sys_sync, sys_kill, compat_sys_newstat, sys32_sendfile
+ /*40*/	.word compat_sys_newlstat, sys_dup, sys_pipe, compat_sys_times, sys_getuid
+ 	.word sys_umount, sys32_setgid16, sys32_getgid16, sys_signal, sys32_geteuid16
+-/*50*/	.word sys32_getegid16, sys_acct, sys_nis_syscall, sys_getgid, sys32_ioctl
++/*50*/	.word sys32_getegid16, sys_acct, sys_nis_syscall, sys_getgid, compat_sys_ioctl
+ 	.word sys_reboot, sys32_mmap2, sys_symlink, sys_readlink, sys32_execve
+ /*60*/	.word sys_umask, sys_chroot, compat_sys_newfstat, sys_fstat64, sys_getpagesize
+ 	.word sys_msync, sys_vfork, sys32_pread64, sys32_pwrite64, sys_geteuid
+--- clean/arch/sparc64/solaris/ioctl.c	2002-12-11 23:33:58.000000000 +0100
++++ linux/arch/sparc64/solaris/ioctl.c	2003-03-06 22:12:04.000000000 +0100
+@@ -23,6 +23,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/mtio.h>
+ #include <linux/time.h>
++#include <linux/compat.h>
+ 
+ #include <net/sock.h>
+ 
+@@ -35,7 +36,7 @@
+ 
+ extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, 
+ 	unsigned long arg);
+-extern asmlinkage int sys32_ioctl(unsigned int fd, unsigned int cmd,
++extern asmlinkage int compat_sys_ioctl(unsigned int fd, unsigned int cmd,
+ 	u32 arg);
+ asmlinkage int solaris_ioctl(unsigned int fd, unsigned int cmd, u32 arg);
+ 
+@@ -597,9 +598,9 @@
+ {
+ 	switch (cmd & 0xff) {
+ 	case 10: /* SIOCADDRT */
+-		return sys32_ioctl(fd, SIOCADDRT, arg);
++		return compat_sys_ioctl(fd, SIOCADDRT, arg);
+ 	case 11: /* SIOCDELRT */
+-		return sys32_ioctl(fd, SIOCDELRT, arg);
++		return compat_sys_ioctl(fd, SIOCDELRT, arg);
+ 	}
+ 	return -ENOSYS;
+ }
+@@ -608,45 +609,45 @@
+ {
+ 	switch (cmd & 0xff) {
+ 	case 12: /* SIOCSIFADDR */
+-		return sys32_ioctl(fd, SIOCSIFADDR, arg);
++		return compat_sys_ioctl(fd, SIOCSIFADDR, arg);
+ 	case 13: /* SIOCGIFADDR */
+-		return sys32_ioctl(fd, SIOCGIFADDR, arg);
++		return compat_sys_ioctl(fd, SIOCGIFADDR, arg);
+ 	case 14: /* SIOCSIFDSTADDR */
+-		return sys32_ioctl(fd, SIOCSIFDSTADDR, arg);
++		return compat_sys_ioctl(fd, SIOCSIFDSTADDR, arg);
+ 	case 15: /* SIOCGIFDSTADDR */
+-		return sys32_ioctl(fd, SIOCGIFDSTADDR, arg);
++		return compat_sys_ioctl(fd, SIOCGIFDSTADDR, arg);
+ 	case 16: /* SIOCSIFFLAGS */
+-		return sys32_ioctl(fd, SIOCSIFFLAGS, arg);
++		return compat_sys_ioctl(fd, SIOCSIFFLAGS, arg);
+ 	case 17: /* SIOCGIFFLAGS */
+-		return sys32_ioctl(fd, SIOCGIFFLAGS, arg);
++		return compat_sys_ioctl(fd, SIOCGIFFLAGS, arg);
+ 	case 18: /* SIOCSIFMEM */
+-		return sys32_ioctl(fd, SIOCSIFMEM, arg);
++		return compat_sys_ioctl(fd, SIOCSIFMEM, arg);
+ 	case 19: /* SIOCGIFMEM */
+-		return sys32_ioctl(fd, SIOCGIFMEM, arg);
++		return compat_sys_ioctl(fd, SIOCGIFMEM, arg);
+ 	case 20: /* SIOCGIFCONF */
+-		return sys32_ioctl(fd, SIOCGIFCONF, arg);
++		return compat_sys_ioctl(fd, SIOCGIFCONF, arg);
+ 	case 21: /* SIOCSIFMTU */
+-		return sys32_ioctl(fd, SIOCSIFMTU, arg);
++		return compat_sys_ioctl(fd, SIOCSIFMTU, arg);
+ 	case 22: /* SIOCGIFMTU */
+-		return sys32_ioctl(fd, SIOCGIFMTU, arg);
++		return compat_sys_ioctl(fd, SIOCGIFMTU, arg);
+ 	case 23: /* SIOCGIFBRDADDR */
+-		return sys32_ioctl(fd, SIOCGIFBRDADDR, arg);
++		return compat_sys_ioctl(fd, SIOCGIFBRDADDR, arg);
+ 	case 24: /* SIOCSIFBRDADDR */
+-		return sys32_ioctl(fd, SIOCSIFBRDADDR, arg);
++		return compat_sys_ioctl(fd, SIOCSIFBRDADDR, arg);
+ 	case 25: /* SIOCGIFNETMASK */
+-		return sys32_ioctl(fd, SIOCGIFNETMASK, arg);
++		return compat_sys_ioctl(fd, SIOCGIFNETMASK, arg);
+ 	case 26: /* SIOCSIFNETMASK */
+-		return sys32_ioctl(fd, SIOCSIFNETMASK, arg);
++		return compat_sys_ioctl(fd, SIOCSIFNETMASK, arg);
+ 	case 27: /* SIOCGIFMETRIC */
+-		return sys32_ioctl(fd, SIOCGIFMETRIC, arg);
++		return compat_sys_ioctl(fd, SIOCGIFMETRIC, arg);
+ 	case 28: /* SIOCSIFMETRIC */
+-		return sys32_ioctl(fd, SIOCSIFMETRIC, arg);
++		return compat_sys_ioctl(fd, SIOCSIFMETRIC, arg);
+ 	case 30: /* SIOCSARP */
+-		return sys32_ioctl(fd, SIOCSARP, arg);
++		return compat_sys_ioctl(fd, SIOCSARP, arg);
+ 	case 31: /* SIOCGARP */
+-		return sys32_ioctl(fd, SIOCGARP, arg);
++		return compat_sys_ioctl(fd, SIOCGARP, arg);
+ 	case 32: /* SIOCDARP */
+-		return sys32_ioctl(fd, SIOCDARP, arg);
++		return compat_sys_ioctl(fd, SIOCDARP, arg);
+ 	case 52: /* SIOCGETNAME */
+ 	case 53: /* SIOCGETPEER */
+ 		{
+--- clean/arch/sparc64/solaris/timod.c	2002-11-19 16:46:00.000000000 +0100
++++ linux/arch/sparc64/solaris/timod.c	2003-03-06 22:12:04.000000000 +0100
+@@ -29,8 +29,6 @@
+ 
+ extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, 
+ 	unsigned long arg);
+-extern asmlinkage int sys32_ioctl(unsigned int fd, unsigned int cmd,
+-	u32 arg);
+ asmlinkage int solaris_ioctl(unsigned int fd, unsigned int cmd, u32 arg);
+ 
+ static spinlock_t timod_pagelock = SPIN_LOCK_UNLOCKED;
+--- clean/arch/x86_64/ia32/ia32_ioctl.c	2003-03-06 23:25:21.000000000 +0100
++++ linux/arch/x86_64/ia32/ia32_ioctl.c	2003-03-06 23:27:37.000000000 +0100
+@@ -680,7 +680,7 @@
+ 	return (void *)regs->rsp - len; 
+ }
+ 
+-static int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+ {
+ 	struct ifreq *u_ifreq64;
+ 	struct ifreq32 *u_ifreq32 = (struct ifreq32 *) arg;
+@@ -3578,18 +3578,12 @@
+ 	return err;
+ } 
+ 
+-struct ioctl_trans {
+-	unsigned long cmd;
+-	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
+-	struct ioctl_trans *next;
+-};
+-
+ #define REF_SYMBOL(handler) if (0) (void)handler;
+ #define HANDLE_IOCTL2(cmd,handler) REF_SYMBOL(handler);  asm volatile(".quad %c0, " #handler ",0"::"i" (cmd)); 
+ #define HANDLE_IOCTL(cmd,handler) HANDLE_IOCTL2(cmd,handler)
+ #define COMPATIBLE_IOCTL(cmd) HANDLE_IOCTL(cmd,sys_ioctl)
+-#define IOCTL_TABLE_START void ioctl_dummy(void) { asm volatile("\nioctl_start:\n\t" );
+-#define IOCTL_TABLE_END  asm volatile("\nioctl_end:"); }
++#define IOCTL_TABLE_START void ioctl_dummy(void) { asm volatile("\n.global ioctl_start\nioctl_start:\n\t" );
++#define IOCTL_TABLE_END  asm volatile("\n.global ioctl_end;\nioctl_end:\n"); }
+ 
+ IOCTL_TABLE_START
+ /* List here explicitly which ioctl's are known to have
+@@ -4432,217 +4426,3 @@
+ HANDLE_IOCTL(MTRRIOC32_KILL_PAGE_ENTRY, mtrr_ioctl32)
+ IOCTL_TABLE_END
+ 
+-#define IOCTL_HASHSIZE 256
+-struct ioctl_trans *ioctl32_hash_table[IOCTL_HASHSIZE];
+-
+-extern struct ioctl_trans ioctl_start[], ioctl_end[]; 
+-
+-extern struct ioctl_trans ioctl_start[], ioctl_end[]; 
+-
+-static inline unsigned long ioctl32_hash(unsigned long cmd)
+-{
+-	return (((cmd >> 6) ^ (cmd >> 4) ^ cmd)) % IOCTL_HASHSIZE;
+-}
+-
+-static void ioctl32_insert_translation(struct ioctl_trans *trans)
+-{
+-	unsigned long hash;
+-	struct ioctl_trans *t;
+-
+-	hash = ioctl32_hash (trans->cmd);
+-	if (!ioctl32_hash_table[hash])
+-		ioctl32_hash_table[hash] = trans;
+-	else {
+-		t = ioctl32_hash_table[hash];
+-		while (t->next)
+-			t = t->next;
+-		trans->next = 0;
+-		t->next = trans;
+-	}
+-}
+-
+-static int __init init_sys32_ioctl(void)
+-{
+-	int i;
+-
+-	for (i = 0; &ioctl_start[i] < &ioctl_end[0]; i++) {
+-		if (ioctl_start[i].next != 0) { 
+-			printk("ioctl translation %d bad\n",i); 
+-			return -1;
+-		}
+-
+-		ioctl32_insert_translation(&ioctl_start[i]);
 -	}
 -	return 0;
 -}
-- 
-  
- static int nmi_callback(struct pt_regs * regs, int cpu)
- {
-@@ -86,7 +66,41 @@
- 	saved_lvtpc[cpu] = apic_read(APIC_LVTPC);
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- }
-- 
-+
-+static int nmi_enabled = 0;	/* 0 == registered but off, 1 == registered and on */
-+
-+static int nmi_suspend(struct device *dev, u32 state, u32 level)
-+{
-+	if (level != SUSPEND_POWER_DOWN)
-+		return 0;
-+	if (nmi_enabled == 1)
-+		nmi_stop();
-+	return 0;
-+}
-+
-+static int nmi_resume(struct device *dev, u32 level)
-+{
-+	if (level != RESUME_POWER_ON)
-+		return 0;
-+	if (nmi_enabled == 1)
-+		nmi_start();
-+	return 0;
-+}
-+
-+
-+static struct device_driver nmi_driver = {
-+	.name		= "oprofile",
-+	.bus		= &system_bus_type,
-+	.resume		= nmi_resume,
-+	.suspend	= nmi_suspend,
-+};
-+
-+static struct device device_nmi = {
-+	.name	= "oprofile",
-+	.bus_id = "oprofile",
-+	.driver	= &nmi_driver,
-+	.parent = &device_lapic,
-+};
- 
- static int nmi_setup(void)
- {
-@@ -95,12 +109,26 @@
- 	 * without actually triggering any NMIs as this will
- 	 * break the core code horrifically.
- 	 */
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		disable_lapic_nmi_watchdog();
-+		nmi_watchdog = NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE;
-+	}
- 	on_each_cpu(nmi_cpu_setup, NULL, 0, 1);
- 	set_nmi_callback(nmi_callback);
--	oprofile_pmdev = set_nmi_pm_callback(oprofile_pm_callback);
+-
+-__initcall(init_sys32_ioctl);
+-
+-static struct ioctl_trans *ioctl_free_list;
+-
+-/* Never free them really. This avoids SMP races. With a Read-Copy-Update
+-   enabled kernel we could just use the RCU infrastructure for this. */
+-static void free_ioctl(struct ioctl_trans *t) 
+-{ 
+-	t->cmd = 0; 
+-	mb();
+-	t->next = ioctl_free_list;
+-	ioctl_free_list = t;
+-} 
+-
+-int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
+-{
+-	struct ioctl_trans *t;
+-	unsigned long hash = ioctl32_hash(cmd);
+-
+-	lock_kernel(); 
+-	for (t = (struct ioctl_trans *)ioctl32_hash_table[hash];
+-	     t;
+-	     t = t->next) { 
+-		if (t->cmd == cmd) {
+-			printk("Trying to register duplicated ioctl32 handler %x\n", cmd);
+-			unlock_kernel();
+-			return -EINVAL; 
+-	}
+-	} 
+-
+-	if (ioctl_free_list) { 
+-		t = ioctl_free_list; 
+-		ioctl_free_list = t->next; 
+-	} else { 
+-		t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
+-		if (!t) { 
+-			unlock_kernel();
+-		return -ENOMEM;
+-		}
+-	}
+-	
+-	t->next = NULL;
+-	t->cmd = cmd;
+-	t->handler = handler; 
+-	ioctl32_insert_translation(t);
+-
+-	unlock_kernel();
 -	return 0;
-+	nmi_enabled = 1;
-+        return 0;
+-}
+-
+-static inline int builtin_ioctl(struct ioctl_trans *t)
+-{ 
+-	return t >= (struct ioctl_trans *)ioctl_start &&
+-	       t < (struct ioctl_trans *)ioctl_end; 
+-} 
+-
+-/* Problem: 
+-   This function cannot unregister duplicate ioctls, because they are not
+-   unique.
+-   When they happen we need to extend the prototype to pass the handler too. */
+-
+-int unregister_ioctl32_conversion(unsigned int cmd)
+-{
+-	unsigned long hash = ioctl32_hash(cmd);
+-	struct ioctl_trans *t, *t1;
+-
+-	lock_kernel(); 
+-
+-	t = (struct ioctl_trans *)ioctl32_hash_table[hash];
+-	if (!t) { 
+-		unlock_kernel();
+-		return -EINVAL;
+-	} 
+-
+-	if (t->cmd == cmd) { 
+-		if (builtin_ioctl(t)) {
+-			printk("%p tried to unregister builtin ioctl %x\n",
+-			       __builtin_return_address(0), cmd);
+-		} else { 
+-		ioctl32_hash_table[hash] = t->next;
+-			free_ioctl(t); 
+-			unlock_kernel();
+-		return 0;
+-		}
+-	} 
+-	while (t->next) {
+-		t1 = (struct ioctl_trans *)(long)t->next;
+-		if (t1->cmd == cmd) { 
+-			if (builtin_ioctl(t1)) {
+-				printk("%p tried to unregister builtin ioctl %x\n",
+-				       __builtin_return_address(0), cmd);
+-				goto out;
+-			} else { 
+-			t->next = t1->next;
+-				free_ioctl(t1); 
+-				unlock_kernel();
+-			return 0;
+-		}
+-		}
+-		t = t1;
+-	}
+-	printk(KERN_ERR "Trying to free unknown 32bit ioctl handler %x\n", cmd);
+- out:
+-	unlock_kernel();
+-	return -EINVAL;
+-}
+-
+-EXPORT_SYMBOL(register_ioctl32_conversion); 
+-EXPORT_SYMBOL(unregister_ioctl32_conversion); 
+-
+-asmlinkage long sys32_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct file * filp;
+-	int error = -EBADF;
+-	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
+-	struct ioctl_trans *t;
+-
+-	filp = fget(fd);
+-	if(!filp)
+-		goto out2;
+-
+-	if (!filp->f_op || !filp->f_op->ioctl) {
+-		error = sys_ioctl (fd, cmd, arg);
+-		goto out;
+-	}
+-
+-	t = (struct ioctl_trans *)ioctl32_hash_table [ioctl32_hash (cmd)];
+-
+-	while (t && t->cmd != cmd)
+-		t = (struct ioctl_trans *)t->next;
+-	if (t) {
+-		handler = t->handler;
+-		error = handler(fd, cmd, arg, filp);
+-	} else if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
+-		error = siocdevprivate_ioctl(fd, cmd, arg);
+-	} else {
+-		static int count;
+-		if (++count <= 50) { 
+-			char buf[10];
+-			char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
+-
+-			/* find the name of the device. */
+-			if (path) {
+-				struct file *f = fget(fd); 
+-				if (f) {
+-					fn = d_path(f->f_dentry, f->f_vfsmnt, 
+-						    path, PAGE_SIZE);
+-					fput(f);
+-				}
+-			}
+-
+-			sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
+-			if (!isprint(buf[1]))
+-			    sprintf(buf, "%02x", buf[1]);
+-			printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
+-			       "cmd(%08x){%s} arg(%08x) on %s\n",
+-			       current->comm, current->pid,
+-			       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
+-			       fn);
+-			if (path) 
+-				free_page((unsigned long)path); 
+-		}
+-		error = -EINVAL;
+-	}
+-out:
+-	fput(filp);
+-out2:
+-	return error;
+-}
+-
+--- clean/arch/x86_64/ia32/ia32entry.S	2003-02-18 12:24:31.000000000 +0100
++++ linux/arch/x86_64/ia32/ia32entry.S	2003-03-06 22:12:04.000000000 +0100
+@@ -254,7 +254,7 @@
+ 	.quad sys_acct
+ 	.quad sys_umount			/* new_umount */
+ 	.quad ni_syscall			/* old lock syscall holder */
+-	.quad sys32_ioctl
++	.quad compat_sys_ioctl
+ 	.quad sys32_fcntl64		/* 55 */
+ 	.quad ni_syscall			/* old mpx syscall holder */
+ 	.quad sys_setpgid
+--- clean/fs/compat.c	2003-01-17 23:10:00.000000000 +0100
++++ linux/fs/compat.c	2003-03-09 22:39:06.000000000 +0100
+@@ -4,7 +4,11 @@
+  *  Kernel compatibililty routines for e.g. 32 bit syscall support
+  *  on 64 bit kernels.
+  *
+- *  Copyright (C) 2002 Stephen Rothwell, IBM Corporation
++ *  Copyright (C) 2002       Stephen Rothwell, IBM Corporation
++ *  Copyright (C) 1997-2000  Jakub Jelinek  (jakub@redhat.com)
++ *  Copyright (C) 1998       Eddie C. Dost  (ecd@skynet.be)
++ *  Copyright (C) 2001,2002  Andi Kleen, SuSE Labs 
++ *  Copyright (C) 2003       Pavel Machek (pavel@suse.cz)
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License version 2 as
+@@ -20,6 +24,12 @@
+ #include <linux/namei.h>
+ #include <linux/file.h>
+ #include <linux/vfs.h>
++#include <linux/ioctl32.h>
++#include <linux/init.h>
++#include <linux/sockios.h>	/* for SIOCDEVPRIVATE */
++#include <linux/fs.h>
++#include <linux/smp_lock.h>
++#include <linux/ctype.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -159,3 +169,214 @@
+ out:
+ 	return error;
+ }
++
++
++/* ioctl32 stuff, used by sparc64, parisc, s390x, ppc64, x86_64 */
++
++#define IOCTL_HASHSIZE 256
++struct ioctl_trans *ioctl32_hash_table[IOCTL_HASHSIZE];
++
++extern struct ioctl_trans ioctl_start[], ioctl_end[]; 
++
++static inline unsigned long ioctl32_hash(unsigned long cmd)
++{
++	return (((cmd >> 6) ^ (cmd >> 4) ^ cmd)) % IOCTL_HASHSIZE;
 +}
 +
-+static int __init init_nmi_driverfs(void)
++static void ioctl32_insert_translation(struct ioctl_trans *trans)
 +{
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		printk("Registering oprofile-nmi\n");
-+		driver_register(&nmi_driver);
-+		device_register(&device_nmi);
-+	}
- }
- 
-+late_initcall(init_nmi_driverfs);
- 
- static void nmi_restore_registers(struct op_msrs * msrs)
- {
-@@ -145,9 +173,13 @@
-  
- static void nmi_shutdown(void)
- {
--	unset_nmi_pm_callback(oprofile_pmdev);
-+	nmi_enabled = 0;
- 	unset_nmi_callback();
- 	on_each_cpu(nmi_cpu_shutdown, NULL, 0, 1);
-+	if (nmi_watchdog == NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE) {
-+		nmi_watchdog = NMI_LOCAL_APIC;
-+		enable_lapic_nmi_watchdog();
-+	}
- }
- 
-  
-Index: linux-quilt/include/asm-i386/apic.h
---- .pc/apic32/include/asm-i386/apic.h	2003-03-18 18:33:58.000000000 +0100
-+++ a/include/asm-i386/apic.h	2003-03-16 18:51:05.000000000 +0100
-@@ -78,7 +78,8 @@
- extern void smp_local_timer_interrupt (struct pt_regs * regs);
- extern void setup_boot_APIC_clock (void);
- extern void setup_secondary_APIC_clock (void);
--extern void setup_apic_nmi_watchdog (void);
-+extern void enable_lapic_nmi_watchdog (void);
-+extern void disable_lapic_nmi_watchdog (void);
- extern inline void nmi_watchdog_tick (struct pt_regs * regs);
- extern int APIC_init_uniprocessor (void);
- extern void disable_APIC_timer(void);
-@@ -95,6 +96,9 @@
- #define NMI_IO_APIC	1
- #define NMI_LOCAL_APIC	2
- #define NMI_INVALID	3
-+#define NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE	4
++	unsigned long hash;
++	struct ioctl_trans *t;
 +
-+extern struct sys_device device_lapic;
++	hash = ioctl32_hash (trans->cmd);
++	if (!ioctl32_hash_table[hash])
++		ioctl32_hash_table[hash] = trans;
++	else {
++		t = ioctl32_hash_table[hash];
++		while (t->next)
++			t = t->next;
++		trans->next = 0;
++		t->next = trans;
++	}
++}
++
++static int __init init_sys32_ioctl(void)
++{
++	int i;
++
++	for (i = 0; &ioctl_start[i] < &ioctl_end[0]; i++) {
++		if (ioctl_start[i].next != 0) { 
++			printk("ioctl translation %d bad\n",i); 
++			return -1;
++		}
++
++		ioctl32_insert_translation(&ioctl_start[i]);
++	}
++	return 0;
++}
++
++__initcall(init_sys32_ioctl);
++
++static struct ioctl_trans *ioctl_free_list;
++
++/* Never free them really. This avoids SMP races. With a Read-Copy-Update
++   enabled kernel we could just use the RCU infrastructure for this. */
++static void free_ioctl(struct ioctl_trans *t) 
++{ 
++	t->cmd = 0; 
++	mb();
++	t->next = ioctl_free_list;
++	ioctl_free_list = t;
++} 
++
++int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
++{
++	struct ioctl_trans *t;
++	unsigned long hash = ioctl32_hash(cmd);
++
++	lock_kernel(); 
++	for (t = (struct ioctl_trans *)ioctl32_hash_table[hash];
++	     t;
++	     t = t->next) { 
++		if (t->cmd == cmd) {
++			printk("Trying to register duplicated ioctl32 handler %x\n", cmd);
++			unlock_kernel();
++			return -EINVAL; 
++		}
++	} 
++
++	if (ioctl_free_list) { 
++		t = ioctl_free_list; 
++		ioctl_free_list = t->next; 
++	} else { 
++		t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
++		if (!t) { 
++			unlock_kernel();
++		return -ENOMEM;
++		}
++	}
++	
++	t->next = NULL;
++	t->cmd = cmd;
++	t->handler = handler; 
++	ioctl32_insert_translation(t);
++
++	unlock_kernel();
++	return 0;
++}
++
++static inline int builtin_ioctl(struct ioctl_trans *t)
++{ 
++	return t >= (struct ioctl_trans *)ioctl_start &&
++	       t < (struct ioctl_trans *)ioctl_end; 
++} 
++
++/* Problem: 
++   This function cannot unregister duplicate ioctls, because they are not
++   unique.
++   When they happen we need to extend the prototype to pass the handler too. */
++
++int unregister_ioctl32_conversion(unsigned int cmd)
++{
++	unsigned long hash = ioctl32_hash(cmd);
++	struct ioctl_trans *t, *t1;
++
++	lock_kernel(); 
++
++	t = (struct ioctl_trans *)ioctl32_hash_table[hash];
++	if (!t) { 
++		unlock_kernel();
++		return -EINVAL;
++	} 
++
++	if (t->cmd == cmd) { 
++		if (builtin_ioctl(t)) {
++			printk("%p tried to unregister builtin ioctl %x\n",
++			       __builtin_return_address(0), cmd);
++		} else { 
++		ioctl32_hash_table[hash] = t->next;
++			free_ioctl(t); 
++			unlock_kernel();
++		return 0;
++		}
++	} 
++	while (t->next) {
++		t1 = (struct ioctl_trans *)(long)t->next;
++		if (t1->cmd == cmd) { 
++			if (builtin_ioctl(t1)) {
++				printk("%p tried to unregister builtin ioctl %x\n",
++				       __builtin_return_address(0), cmd);
++				goto out;
++			} else { 
++			t->next = t1->next;
++				free_ioctl(t1); 
++				unlock_kernel();
++			return 0;
++			}
++		}
++		t = t1;
++	}
++	printk(KERN_ERR "Trying to free unknown 32bit ioctl handler %x\n", cmd);
++ out:
++	unlock_kernel();
++	return -EINVAL;
++}
++
++EXPORT_SYMBOL(register_ioctl32_conversion); 
++EXPORT_SYMBOL(unregister_ioctl32_conversion); 
++
++asmlinkage long compat_sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++{
++	struct file * filp;
++	int error = -EBADF;
++	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
++	struct ioctl_trans *t;
++
++	filp = fget(fd);
++	if(!filp)
++		goto out2;
++
++	if (!filp->f_op || !filp->f_op->ioctl) {
++		error = sys_ioctl (fd, cmd, arg);
++		goto out;
++	}
++
++	t = (struct ioctl_trans *)ioctl32_hash_table [ioctl32_hash (cmd)];
++
++	while (t && t->cmd != cmd)
++		t = (struct ioctl_trans *)t->next;
++	if (t) {
++		handler = t->handler;
++		error = handler(fd, cmd, arg, filp);
++	} else if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
++		error = siocdevprivate_ioctl(fd, cmd, arg);
++	} else {
++		static int count;
++		if (++count <= 50) { 
++			char buf[10];
++			char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
++
++			/* find the name of the device. */
++			if (path) {
++		       		fn = d_path(filp->f_dentry, filp->f_vfsmnt, 
++					    path, PAGE_SIZE);
++			}
++
++			sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
++			if (!isprint(buf[1]))
++			    sprintf(buf, "%02x", buf[1]);
++			printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
++			       "cmd(%08x){%s} arg(%08x) on %s\n",
++			       current->comm, current->pid,
++			       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
++			       fn);
++			if (path) 
++				free_page((unsigned long)path); 
++		}
++		error = -EINVAL;
++	}
++out:
++	fput(filp);
++out2:
++	return error;
++}
+--- clean/include/linux/ioctl32.h	2002-10-20 16:22:47.000000000 +0200
++++ linux/include/linux/ioctl32.h	2003-03-06 22:12:05.000000000 +0100
+@@ -19,5 +19,10 @@
  
- #endif /* CONFIG_X86_LOCAL_APIC */
+ extern int unregister_ioctl32_conversion(unsigned int cmd);
  
-
-%diffstat
- arch/i386/kernel/apic.c       |  189 +++++++++++++++++-------------------------
- arch/i386/kernel/apm.c        |    6 +
- arch/i386/kernel/i386_ksyms.c |    4 
- arch/i386/kernel/io_apic.c    |   15 ++-
- arch/i386/kernel/nmi.c        |  100 +++++++++++++---------
- arch/i386/oprofile/nmi_int.c  |   82 ++++++++++++------
- include/asm-i386/apic.h       |    6 +
- 7 files changed, 215 insertions(+), 187 deletions(-)
-
++struct ioctl_trans {
++	unsigned long cmd;
++	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
++	struct ioctl_trans *next;
++};
+ 
+ #endif
+--- clean/arch/parisc/kernel/syscall.S	2003-02-18 12:24:28.000000000 +0100
++++ linux/arch/parisc/kernel/syscall.S	2003-03-11 00:16:20.000000000 +0100
+@@ -407,8 +407,7 @@
+ 	ENTRY_SAME(umount)
+ 	/* struct sockaddr... */
+ 	ENTRY_SAME(getpeername)
+-	/* This one's a huge ugly mess */
+-	ENTRY_DIFF(ioctl)
++	ENTRY_COMP(ioctl)
+ 	/* struct flock? */
+ 	ENTRY_DIFF(fcntl)		/* 55 */
+ 	ENTRY_SAME(socketpair)
 
 -- 
 When do you have a heart between your knees?

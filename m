@@ -1,106 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUEFBuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbUEFCEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUEFBuc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 21:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUEFBuc
+	id S261317AbUEFCEA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 22:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUEFCEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 21:50:32 -0400
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:60903 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S261252AbUEFBuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 21:50:08 -0400
-Date: Wed, 5 May 2004 18:50:03 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: Ian Kumlien <pomac@vapor.com>
-Cc: ross@datscreative.com.au, linux-kernel@vger.kernel.org
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Message-ID: <20040506015003.GA2085@tesore.local>
-Mail-Followup-To: Jesse Allen <the3dfxdude@hotmail.com>,
-	Ian Kumlien <pomac@vapor.com>, ross@datscreative.com.au,
-	linux-kernel@vger.kernel.org
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com> <200405052124.55515.ross@datscreative.com.au> <1083759539.2797.24.camel@big> <200405052252.29359.ross@datscreative.com.au> <1083762481.2797.49.camel@big>
+	Wed, 5 May 2004 22:04:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47783 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261317AbUEFCD6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 22:03:58 -0400
+Date: Wed, 5 May 2004 19:03:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, jun.nakajima@intel.com,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [PATCH] bug in bigsmp CPU bringup
+Message-Id: <20040505190332.395cac70.akpm@osdl.org>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6001BFF5A9@scsmsx403.sc.intel.com>
+References: <88056F38E9E48644A0F562A38C64FB6001BFF5A9@scsmsx403.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1083762481.2797.49.camel@big>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 03:08:01PM +0200, Ian Kumlien wrote:
-> On Wed, 2004-05-05 at 14:52, Ross Dickson wrote:
-> > On Wednesday 05 May 2004 22:18, Ian Kumlien wrote:
-> > > On Wed, 2004-05-05 at 13:24, Ross Dickson wrote:
-> > > <snip>
-> > > > They can't see through their Windows.??!@@#$$%%&*&
-> > > > 
-> > > > ML1-0505-19 Re: Cause of lockups with KM-18G Pro is incorrect pci reg values in bios -please update bios
-> > > > 
-> > > > From: 
-> > > > "dr.pro" <dr.pro@albatron.com.tw>
-> > > > 
-> > > > To: 
-> > > > <ross@datscreative.com.au>
-> > > > 
-> > > > Date: 
-> > > > Today 17:38:08
-> > > > 
-> > > >   Dear Ross,
-> > > > 
-> > > >   Thank you very much for contacting Albatron technical support.
-> > > > 
-> > > >   KM18G Pro has been proved under Windows 98SE/ME/2000/XP but Linux, so > > > > you may encounter problems with it under Linux. We suggest you use 
-> > > > Windows 98SE/ME/2000/XP for the stable performance. Sorry for the 
-> > > > inconvenience and please kindly understand it.
-> > > > 
-> > > >   Please let us know if you have any question.
 
-!!!
-
-> > > 
-> > > Please kindly understand it? I wouldn't... I'm about to bash asus, so...
-> > > This information gets me in the moood to do some real bashing =)
-> > > 
-> > > Btw, does windows do a C1 disconnect? And if so how often?
-> > 
-> > I think it does as temps are lower then linux without disconnect.
-> > Here are some temperatures from my machine read from the bios on reboot.
-> > I gave it minimal activity for the minutes prior to reboot.
-> > 
-> >  Win98, 47C
-> >  XPHome, 42C
-> >  Patched Linux 2.4.24 (1000Hz), 40C
-> >  Linux 2.6.3-rc1-mm1, 53C  with no disconnect
-
-Patched AN35N Bios w/ Linux, C1 Disconnect on:
-idle system, 39-41 C
-heavy activity, 50-51 C
-
-Though I have since added two additional fans to my system.  When it is under
-heavy activity, it will obviously go up to 51 C.  When it is finished and 
-becomes idle again, then the CPU temp will quickly go back down to 39-41 C
-because the additional fans remove the heat quite effectively.
-
-> >  
-> > I think the disconnect happens for less time percentage. With slower
-> > ticks one might assume less often than linux. 
-> > -Ross
-> 
-> Which means that the problem isn't as likely to occur under Windows,
-> which also explains why mb-manuf ppl are lazy =P.
->  
+Len, Martin: please review?
 
 
-Ross, you should reply to them and say the problem affects windows as well.  I
-can't imagine it immune.  Although, windows is not that aggressive, I think 
-it's still affected.  It doesn't matter that people don't think windows has
-this hang.  It still has it.  It doesn't matter that they can't reproduce it 
-under what they think are normal circumstances.  It _still_ has it.
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
 
-Actually it isn't a OS problem, it's a BIOS problem.  It has nothing to do with
-the OS.  It's the quality of their boards we're talking about.  If only they
-get that...
+There is an bug in bigsmp sub-architecture, due to which it will not enable
+all the CPUs when the BIOS-APICIDs are not 0 to n-1 (where n is total
+number of CPUs).  Particularly, only 2 CPU comes up on a system that has 4
+CPUs with BIOS APICID as (0, 1, 6, 7).
 
-Jesse
+The bug is root caused to check_apicid_present(bit) call in smpboot.c, when
+bigsmp is expecting apicid in place of bit.  check_apicid_present(bit) in
+bigsmp subarchitecture checks the bit with phys_id_present_map (which is
+actually map representing all apicids and not bit).
 
+One solution is to change check_apicid_present(bit) to
+check_apicid_present(apicid), in smp_boot_cpus().  But, it can affect all
+the other subarchitectures in various subtle ways.  So, here is a simple
+alternate fix (Thanks to Martin Bligh), which solves the above problem.
+
+
+---
+
+ 25-akpm/include/asm-i386/mach-bigsmp/mach_apic.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN include/asm-i386/mach-bigsmp/mach_apic.h~bigsmp-cpu-bringup-fix include/asm-i386/mach-bigsmp/mach_apic.h
+--- 25/include/asm-i386/mach-bigsmp/mach_apic.h~bigsmp-cpu-bringup-fix	2004-05-05 19:02:18.299905696 -0700
++++ 25-akpm/include/asm-i386/mach-bigsmp/mach_apic.h	2004-05-05 19:02:18.302905240 -0700
+@@ -37,9 +37,10 @@ static inline unsigned long check_apicid
+ 	return 0;
+ }
+ 
++/* we don't use the phys_cpu_present_map to indicate apicid presence */
+ static inline unsigned long check_apicid_present(int bit) 
+ {
+-	return physid_isset(bit, phys_cpu_present_map);
++	return 1;
+ }
+ 
+ #define apicid_cluster(apicid) (apicid & 0xF0)
+
+_
 

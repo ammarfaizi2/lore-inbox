@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132095AbRANK4f>; Sun, 14 Jan 2001 05:56:35 -0500
+	id <S132130AbRANLAG>; Sun, 14 Jan 2001 06:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132130AbRANK4Z>; Sun, 14 Jan 2001 05:56:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51866 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132095AbRANK4P>;
-	Sun, 14 Jan 2001 05:56:15 -0500
+	id <S132168AbRANK74>; Sun, 14 Jan 2001 05:59:56 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:54170 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132130AbRANK7m>;
+	Sun, 14 Jan 2001 05:59:42 -0500
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14945.34208.281500.226085@pizda.ninka.net>
-Date: Sun, 14 Jan 2001 02:55:28 -0800 (PST)
-To: Andi Kleen <ak@suse.de>
-Cc: Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
-        Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 + iproute2
-In-Reply-To: <20010114115215.A22550@gruyere.muc.suse.de>
-In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net>
-	<Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl>
-	<14945.28354.209720.579437@pizda.ninka.net>
-	<20010114115215.A22550@gruyere.muc.suse.de>
+Message-ID: <14945.34414.185794.396720@pizda.ninka.net>
+Date: Sun, 14 Jan 2001 02:58:54 -0800 (PST)
+To: Petru Paler <ppetru@ppetru.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-pre3+zerocopy: weird messages
+In-Reply-To: <20010114124549.D1394@ppetru.net>
+In-Reply-To: <20010114121105.B1394@ppetru.net>
+	<14945.32886.671619.99921@pizda.ninka.net>
+	<20010114124549.D1394@ppetru.net>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andi Kleen writes:
- > In my opinion (rt)netlink would benefit a lot from introducing 5-10
- > new errnos and possibly a new socket option to get a string/number
- > with the exact error.
+Petru Paler writes:
+ > Ok. Should I keep reporting new syslog messages as they appear ?
 
-Introducing 5-10 new errnos just for rtnetlink is a big waste when we
-already have socket extended errors which are perfect for this
-purpose.
+Not the "Undo ***" and "Disorder ***" ones".
+
+But this one is curious:
+
+ > udp v4 hw csum failure.                                                                   
+Oh, I think I know why this happens.  Can you add this patch, and next
+time the UDP bad csum message appears, tell me if it says "UDP packet
+with bad csum was fragmented." in the next line of your syslog
+messages?  Thanks.
 
 Later,
 David S. Miller

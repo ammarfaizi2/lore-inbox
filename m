@@ -1,105 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267085AbSLXLM0>; Tue, 24 Dec 2002 06:12:26 -0500
+	id <S261312AbSLXLhZ>; Tue, 24 Dec 2002 06:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267086AbSLXLMZ>; Tue, 24 Dec 2002 06:12:25 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:5259 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267085AbSLXLMY>;
-	Tue, 24 Dec 2002 06:12:24 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-Reply-To: conman@kolivas.net
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] ext2 v ext3 with contest
-Date: Tue, 24 Dec 2002 22:20:22 +1100
-User-Agent: KMail/1.4.3
-Cc: Robert Love <rml@tech9.net>
+	id <S261518AbSLXLhZ>; Tue, 24 Dec 2002 06:37:25 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:56587 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S261312AbSLXLhY>;
+	Tue, 24 Dec 2002 06:37:24 -0500
+Date: Tue, 24 Dec 2002 12:45:35 +0100 (CET)
+From: venom@sns.it
+To: linux-kernel@vger.kernel.org
+Subject: aicasm: SIG 11 with 2.5.53 (new aic7xxx driver problem)
+Message-ID: <Pine.LNX.4.43.0212241237480.30482-100000@cibs9.sns.it>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200212242220.33049.conman@kolivas.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Here's a contest run comparing 2.5.52-mm2 on the same osdl hardware with the 
-ext3 partitions mounted ext2 for comparison:
+HI,
+I was compiling new kernel 2.5.53.
+If "build adaptec formware" option is enabled, (I know I should avoid it, but it
+is a development kernel, and I am doing tests ;) ),
+compiling aic7xxx driver,
+compilation fails because
+of a segmentation fault I get running aicasm.
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          39.2    181     0       0       1.08
-2552mm2ext2 [5]         39.1    180     0       0       1.08
-not significant
 
-cacherun:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          36.5    194     0       0       1.01
-2552mm2ext2 [5]         36.1    194     0       0       1.00
-slight speedup here. 
+Here is the error message:
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          46.5    152     8       41      1.28
-2552mm2ext2 [5]         48.3    144     10      48      1.33
-slight shift in the balance; no significant change
+yacc -d -b aicasm_gram aicasm_gram.y
+yacc: 2 rules never reduced
+mv aicasm_gram.tab.c aicasm_gram.c
+mv aicasm_gram.tab.h aicasm_gram.h
+yacc -d -b aicasm_macro_gram -p mm aicasm_macro_gram.y
+mv aicasm_macro_gram.tab.c aicasm_macro_gram.c
+mv aicasm_macro_gram.tab.h aicasm_macro_gram.h
+lex  -oaicasm_scan.c aicasm_scan.l
+lex  -Pmm -oaicasm_macro_scan.c aicasm_macro_scan.l
+gcc -I/usr/include -I. -ldb aicasm.c aicasm_symbol.c aicasm_gram.c
+aicasm_macro_gram.c aicasm_scan.c aicasm_macro_scan.c -o aicasm
+drivers/scsi/aic7xxx/aicasm/aicasm -Idrivers/scsi/aic7xxx -r
+drivers/scsi/aic7xxx/aic7xxx_reg.h -o drivers/scsi/aic7xxx/aic7xxx_seq.h
+drivers/scsi/aic7xxx/aic7xxx.seq
+drivers/scsi/aic7xxx/aicasm/aicasm: 888 instructions used
+make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_seq.h] Segmentation fault
+make[3]: *** Deleting file `drivers/scsi/aic7xxx/aic7xxx_seq.h'
+make[2]: *** [drivers/scsi/aic7xxx] Error 2
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          52.8    154     1       10      1.46
-2552mm2ext2 [5]         47.2    163     1       7       1.30
-speedup with better overall cpu usage with ext2
 
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          76.1    124     1       8       2.10
-2552mm2ext2 [5]         95.6    101     1       5       2.64
-interesting - a shift in the opposite direction here with ext2 much slower 
-(large)
+system is Athlon tbird 1300, 768 MB RAM,
+via 686b chipset, gcc 3.2.1, binutils 2.13.90.0.16,
+glibc 2.3.1.
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          74.5    112     11      20      2.06
-2552mm2ext2 [5]         77.4    118     11      13      2.14
-same here
+Hope this helps
 
-io_other:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          59.9    134     6       18      1.65
-2552mm2ext2 [5]         52.8    137     6       11      1.46
-slightly better with ext2
+Luigi
 
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          50.5    147     5       6       1.39
-2552mm2ext2 [5]         49.3    149     5       6       1.36
-slightly better ext2
 
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          43.7    167     0       9       1.21
-2552mm2ext2 [5]         43.4    166     0       9       1.20
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.52-mm2 [7]          66.0    141     39      3       1.82
-2552mm2ext2 [5]         63.9    145     38      3       1.76
-slightly better here
-
-It seems the (possibly?) faster writing with ext2 causes slowdowns under heavy 
-writing loads on the same disk, but improvements with the other loads.
-
-Interesting results (not quite what I was expecting)
-
-Enjoy the festive season
-
-Cheers,
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+CEL2F6dfvkL3i1gRAq/1AJ4wsVsERAUng6ALtmpnMflpb8co0gCfTYWB
-JzOrStkqsDGV/fC+21N69f8=
-=pUSo
------END PGP SIGNATURE-----

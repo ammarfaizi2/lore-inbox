@@ -1,1616 +1,861 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUILXfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUILXjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUILXfy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 19:35:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUILXfy
+	id S264098AbUILXjm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 19:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUILXjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 19:35:54 -0400
-Received: from zimbo.cs.wm.edu ([128.239.2.64]:56978 "EHLO zimbo.cs.wm.edu")
-	by vger.kernel.org with ESMTP id S264085AbUILXeA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 19:34:00 -0400
-Date: Sun, 12 Sep 2004 19:33:42 -0400
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] BSD Jail LSM (2/3)
-Message-ID: <20040912233342.GA12097@escher.cs.wm.edu>
-References: <1094847705.2188.94.camel@serge.austin.ibm.com> <1094847787.2188.101.camel@serge.austin.ibm.com> <1094844708.18107.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
+	Sun, 12 Sep 2004 19:39:41 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:3817 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S264098AbUILXhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 19:37:01 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch][1/3] ide: add ide_hwif_t->dma_setup()
+Date: Mon, 13 Sep 2004 01:33:48 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1094844708.18107.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Cc: "Mikael Starvik" <mikael.starvik@axis.com>,
+       Erik Jacobson <erikj@subway.americas.sgi.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409130133.48630.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[patch] ide: add ide_hwif_t->dma_setup()
 
-Quoting Alan Cox (alan@lxorguk.ukuu.org.uk):
-> On Gwe, 2004-09-10 at 21:23, Serge Hallyn wrote:
-> > Attached is a patch against the security Kconfig and Makefile to support
-> > bsdjail, as well as the bsdjail.c file itself.  bsdjail offers
-> > functionality similar to (but more limited than) the vserver patch.
-> 
-> Looking over the code the first question I would ask is that it supports
+- tag REQ_DRIVE_TASKFILE write requests with REQ_RW
+- split off ->dma_setup() from ->ide_dma_[read,write] functions
+- use ->dma_setup() directly in ATAPI drivers and remove media
+  checks from ->ide_dma_[read,write]
+- ->ide_dma_[read,write,begin] cannot fail now
+- in Etrax ide.c setup DMA for ATAPI devices before sending
+  command to drive (so setup order is the same as for disks)
 
-Thank you for looking at it.
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+---
 
-> AF_INET but not AF_INET6. That seems a bit limited in todays internet
-> environment. 
+ linux-2.6.9-rc1-bk18-bzolnier/arch/cris/arch-v10/drivers/ide.c |   62 +++------
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/arm/icside.c         |   24 +--
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-cd.c             |   12 -
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-disk.c           |   14 +-
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-dma.c            |   43 ++----
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-floppy.c         |   10 -
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-tape.c           |    8 -
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-taskfile.c       |   13 +
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide.c                |    1 
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/alim15x3.c       |   15 +-
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/ns87415.c        |   18 --
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/sgiioc4.c        |   41 +++---
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/trm290.c         |   66 ++++------
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ppc/pmac.c           |   19 --
+ linux-2.6.9-rc1-bk18-bzolnier/drivers/scsi/ide-scsi.c          |    9 -
+ linux-2.6.9-rc1-bk18-bzolnier/include/linux/ide.h              |    5 
+ 16 files changed, 147 insertions(+), 213 deletions(-)
 
-bsdjail.c in the attached version of jail.diff adds support for ipv6.
-This was my first time using ipv6, so please let me know if I'm going
-about it all wrong.
-
-Right now one must choose between either an ipv4 or ipv6 interface.
-Is typical ipv6 usage such that it would be preferable to be able to
-specify one of each?  
-
-Compiles and tests on a Crusoe laptop.
-
-thanks,
--serge
-
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="jail.diff"
-
-diff -Nrup /home/hallyn/kernel/linux-2.6.8.1/security/Kconfig linux-2.6.8.1/security/Kconfig
---- /home/hallyn/kernel/linux-2.6.8.1/security/Kconfig	2004-08-14 05:55:47.000000000 -0500
-+++ linux-2.6.8.1/security/Kconfig	2004-09-10 17:50:12.000000000 -0500
-@@ -46,5 +46,16 @@ config SECURITY_ROOTPLUG
+diff -puN arch/cris/arch-v10/drivers/ide.c~ide_dma_setup arch/cris/arch-v10/drivers/ide.c
+--- linux-2.6.9-rc1-bk18/arch/cris/arch-v10/drivers/ide.c~ide_dma_setup	2004-09-12 23:42:15.665113520 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/arch/cris/arch-v10/drivers/ide.c	2004-09-13 00:14:08.407332504 +0200
+@@ -282,6 +282,29 @@ static void tune_e100_ide(ide_drive_t *d
+ 	}
+ }
  
- source security/selinux/Kconfig
- 
-+config SECURITY_BSDJAIL
-+	tristate "BSD Jail LSM"
-+	depends on SECURITY
-+	select SECURITY_NETWORK
-+	help
-+	  Provides BSD Jail compartmentalization functionality.
-+	  See Documentation/bsdjail.txt for more information and
-+	  usage instructions.
-+	  
-+	  If you are unsure how to answer this question, answer N.
-+
- endmenu
- 
-diff -Nrup /home/hallyn/kernel/linux-2.6.8.1/security/Makefile linux-2.6.8.1/security/Makefile
---- /home/hallyn/kernel/linux-2.6.8.1/security/Makefile	2004-08-14 05:55:48.000000000 -0500
-+++ linux-2.6.8.1/security/Makefile	2004-09-10 17:50:12.000000000 -0500
-@@ -15,3 +15,4 @@ obj-$(CONFIG_SECURITY)			+= security.o d
- obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
- obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
- obj-$(CONFIG_SECURITY_ROOTPLUG)		+= commoncap.o root_plug.o
-+obj-$(CONFIG_SECURITY_BSDJAIL)		+= bsdjail.o
-diff -Nrup /home/hallyn/kernel/linux-2.6.8.1/security/bsdjail.c linux-2.6.8.1/security/bsdjail.c
---- /home/hallyn/kernel/linux-2.6.8.1/security/bsdjail.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.8.1/security/bsdjail.c	2004-09-12 11:55:09.000000000 -0500
-@@ -0,0 +1,1520 @@
-+/*
-+ * File: linux/security/bsdjail.c
-+ * Author: Serge Hallyn (serue@us.ibm.com)
-+ * Date: Sep 12, 2004
-+ *
-+ * (See Documentation/bsdjail.txt for more information)
-+ *
-+ * Copyright (C) 2004 International Business Machines <serue@us.ibm.com>
-+ *
-+ *   This program is free software; you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation; either version 2 of the License, or
-+ *   (at your option) any later version.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/security.h>
-+#include <linux/namei.h>
-+#include <linux/namespace.h>
-+#include <linux/proc_fs.h>
-+#include <linux/in.h>
-+#include <linux/in6.h>
-+#include <linux/pagemap.h>
-+#include <linux/ip.h>
-+#include <net/ipv6.h>
-+#include <linux/mount.h>
-+#include <asm/uaccess.h>
-+#include <linux/netdevice.h>
-+#include <linux/inetdevice.h>
-+#include <linux/seq_file.h>
-+#include <linux/un.h>
-+#include <linux/smp_lock.h>
-+#include <linux/kref.h>
-+
-+static int jail_debug = 0;
-+MODULE_PARM(jail_debug, "i");
-+MODULE_PARM_DESC(jail_debug, "Print bsd jail debugging messages.\n");
-+
-+#define DBG 0
-+#define WARN 1
-+#define bsdj_debug(how, fmt, arg... ) \
-+	do { \
-+		if ( how || jail_debug ) \
-+			printk(KERN_NOTICE "%s: %s: " fmt, \
-+				MY_NAME, __FUNCTION__, \
-+				## arg ); \
-+	} while ( 0 )
-+
-+#define MY_NAME "bsdjail"
-+
-+/* flag to keep track of how we were registered */
-+static int secondary = 0;
-+
-+/*
-+ * The task structure holding jail information.
-+ * Taskp->security points to one of these (or is null).
-+ * There is exactly one jail_struct for each jail.  If >1 process
-+ * are in the same jail, they share the same jail_struct.
-+ */
-+struct jail_struct {
-+	struct kref		kref;
-+
-+	/* these are set on writes to /proc/<pid>/attr/exec */
-+	char *root_pathname; /* char * containing path to use as jail / */
-+	char *ip_addr_name;  /* char * containing ip addr to use for jail */
-+
-+	/* these are set when a jail becomes active */
-+	union {
-+		__u32 a4;      /* internal form of ip_addr_name */
-+		struct in6_addr a6;
-+	} realaddr;
-+	struct dentry *dentry;  /* dentry of fs root */
-+	struct vfsmount *mnt;   /* vfsmnt of fs root */
-+
-+	/* Resource limits.  0 = no limit */
-+	int max_nrtask;		/* maximum number of tasks within this jail. */
-+	int cur_nrtask;	/* current number of tasks within this jail. */
-+	long maxtimeslice;      /* max timeslice in ms for procs in this jail */
-+	long nice;      	/* nice level for processes in this jail */
-+	long max_data, max_memlock;  /* equivalent to RLIMIT_{DATA,MEMLOCK} */
-+/* values for the jail_flags field */
-+#define GOT_NETWORK 1    /* if not set, jail can use any valid net address */
-+#define IN_USE 2	 /* if 0, task is setting up jail, not yet in it */
-+#define IS_IPV6 4	 /* if 0, ipv4, else ipv6 */
-+	char jail_flags;
-+};
-+
-+#define in_use(x) (x->jail_flags & IN_USE)
-+#define set_in_use(x) (x->jail_flags |= IN_USE)
-+
-+#define got_network(x) (x->jail_flags & GOT_NETWORK)
-+#define set_got_network(x) (x->jail_flags |= GOT_NETWORK)
-+#define unset_got_network(x) (x->jail_flags &= ~GOT_NETWORK)
-+
-+#define is_ipv4(x) (!(x->jail_flags & IS_IPV6))
-+#define is_ipv6(x) (x->jail_flags & IS_IPV6)
-+#define set_ipv4(x) (x->jail_flags &= ~IS_IPV6)
-+#define set_ipv6(x) (x->jail_flags |= IS_IPV6)
-+
-+/*
-+ * structs, defines, and functions to cope with stacking
-+ */
-+
-+#define get_task_security(task) (task->security)
-+#define get_inode_security(inode) (inode->i_security)
-+#define get_sock_security(sock) (sock->sk_security)
-+#define get_file_security(file) (file->f_security)
-+#define get_ipc_security(ipc)	(ipc->security)
-+
-+#define jail_of(proc) (get_task_security(proc))
-+
-+/*
-+ * disable_jail:  A jail which was in use, but has no references
-+ * left, is disabled - we free up the mountpoint and dentry, and
-+ * give up our reference on the module.
-+ *
-+ *   don't need to put namespace, it will be done automatically
-+ *     when the last process in jail is put.
-+ *   DO need to put the dentry and vfsmount
-+ */
-+static void
-+disable_jail(struct jail_struct *tsec)
++static int e100_dma_setup(ide_drive_t *drive)
 +{
-+	dput(tsec->dentry);
-+	mntput(tsec->mnt);
-+	module_put(THIS_MODULE);
-+}
++	struct request *rq = drive->hwif->hwgroup->rq;
 +
++	if (rq_data_dir(rq)) {
++		e100_read_command = 0;
 +
-+static void free_jail(struct jail_struct *tsec)
-+{
-+	if (!tsec)
-+		return;
++		RESET_DMA(ATA_TX_DMA_NBR); /* sometimes the DMA channel get stuck so we need to do this */
++		WAIT_DMA(ATA_TX_DMA_NBR);
++	} else {
++		e100_read_command = 1;
 +
-+	if (tsec->root_pathname)
-+		kfree(tsec->root_pathname);
-+	if (tsec->ip_addr_name)
-+		kfree(tsec->ip_addr_name);
-+	kfree(tsec);
-+}
-+
-+#define set_task_security(task,data) task->security = data
-+#define set_inode_security(inode,data) inode->i_security = data
-+#define set_sock_security(sock,data) sock->sk_security = data
-+#define set_file_security(file,data) file->f_security = data
-+#define set_ipc_security(ipc,data)   ipc.security = data
-+
-+/*
-+ * jail_task_free_security: this is the callback hooked into LSM.
-+ * If there was no task->security field for bsdjail, do nothing.
-+ * If there was, but it was never put into use, free the jail.
-+ * If there was, and the jail is in use, then decrement the usage
-+ *  count, and disable and free the jail if the usage count hits 0.
-+ */
-+static void jail_task_free_security(struct task_struct *task)
-+{
-+	struct jail_struct *tsec;
-+
-+	tsec = get_task_security(task);
-+
-+	if (!tsec)
-+		return;
-+
-+	if (!in_use(tsec)) {
-+		/* 
-+		 * someone did 'echo -n x > /proc/<pid>/attr/exec' but
-+		 * then forked before execing.  Nuke the old info.
-+		 */
-+		free_jail(tsec);
-+		set_task_security(task,NULL);
-+		return;
++		RESET_DMA(ATA_RX_DMA_NBR); /* sometimes the DMA channel get stuck so we need to do this */
++		WAIT_DMA(ATA_RX_DMA_NBR);
 +	}
-+	tsec->cur_nrtask--;
-+	/* If this was the last process in the jail, delete the jail */
-+	kref_put(&tsec->kref);
-+}
 +
-+static struct jail_struct *
-+alloc_task_security(struct task_struct *tsk)
-+{
-+	struct jail_struct *tsec;
-+	tsec = kmalloc(sizeof(struct jail_struct), GFP_KERNEL);
-+	if (!tsec)
-+		return ERR_PTR(-ENOMEM);
-+	memset(tsec, 0, sizeof(struct jail_struct));
-+	set_task_security(tsk, tsec);
-+	return tsec;
-+}
-+
-+static inline int
-+in_jail(struct task_struct *t)
-+{
-+	struct jail_struct *tsec = jail_of(t);
-+	
-+	if (tsec && in_use(tsec))
++	/* set up the Etrax DMA descriptors */
++	if (e100_ide_build_dmatable(drive))
 +		return 1;
 +
 +	return 0;
 +}
 +
-+/*
-+ * If a network address was passed into /proc/<pid>/attr/exec,
-+ * then process in its jail will only be allowed to bind/listen
-+ * to that address.
-+ */
-+void
-+setup_netaddress(struct jail_struct *tsec)
-+{
-+	unsigned int a,b,c,d, i;
-+	unsigned int x[8];
+ void __init
+ init_e100_ide (void)
+ {
+@@ -303,6 +326,7 @@ init_e100_ide (void)
+                 hwif->atapi_output_bytes = &e100_atapi_output_bytes;
+                 hwif->ide_dma_check = &e100_dma_check;
+                 hwif->ide_dma_end = &e100_dma_end;
++		hwif->dma_setup = &e100_dma_setup;
+ 		hwif->ide_dma_write = &e100_dma_write;
+ 		hwif->ide_dma_read = &e100_dma_read;
+ 		hwif->ide_dma_begin = &e100_dma_begin;
+@@ -769,10 +793,6 @@ static ide_startstop_t etrax_dma_intr (i
+  * sector address using CHS or LBA.  All that remains is to prepare for DMA
+  * and then issue the actual read/write DMA/PIO command to the drive.
+  *
+- * For ATAPI devices, we just prepare for DMA and return. The caller should
+- * then issue the packet command to the drive and call us again with
+- * ide_dma_begin afterwards.
+- *
+  * Returns 0 if all went well.
+  * Returns 1 if DMA read/write could not be started, in which case
+  * the caller should revert to PIO for the current request.
+@@ -793,14 +813,6 @@ static int e100_start_dma(ide_drive_t *d
+ {
+ 	if(reading) {
+ 
+-		RESET_DMA(ATA_RX_DMA_NBR); /* sometimes the DMA channel get stuck so we need to do this */
+-		WAIT_DMA(ATA_RX_DMA_NBR);
+-
+-		/* set up the Etrax DMA descriptors */
+-
+-		if(e100_ide_build_dmatable (drive))
+-			return 1;
+-
+ 		if(!atapi) {
+ 			/* set the irq handler which will finish the request when DMA is done */
+ 
+@@ -851,14 +863,6 @@ static int e100_start_dma(ide_drive_t *d
+ 	} else {
+ 		/* writing */
+ 
+-		RESET_DMA(ATA_TX_DMA_NBR); /* sometimes the DMA channel get stuck so we need to do this */
+-		WAIT_DMA(ATA_TX_DMA_NBR);
+-
+-		/* set up the Etrax DMA descriptors */
+-
+-		if(e100_ide_build_dmatable (drive))
+-			return 1;
+-
+ 		if(!atapi) {
+ 			/* set the irq handler which will finish the request when DMA is done */
+ 
+@@ -903,27 +907,11 @@ static int e100_start_dma(ide_drive_t *d
+ 
+ static int e100_dma_write(ide_drive_t *drive)
+ {
+-	e100_read_command = 0;
+-	/* ATAPI-devices (not disks) first call ide_dma_read/write to set the direction
+-	 * then they call ide_dma_begin after they have issued the appropriate drive command
+-	 * themselves to actually start the chipset DMA. so we just return here if we're
+-	 * not a diskdrive.
+-	 */
+-	if (drive->media != ide_disk)
+-                return 0;
+ 	return e100_start_dma(drive, 0, 0);
+ }
+ 
+ static int e100_dma_read(ide_drive_t *drive)
+ {
+-	e100_read_command = 1;
+-	/* ATAPI-devices (not disks) first call ide_dma_read/write to set the direction
+-	 * then they call ide_dma_begin after they have issued the appropriate drive command
+-	 * themselves to actually start the chipset DMA. so we just return here if we're
+-	 * not a diskdrive.
+-	 */
+-	if (drive->media != ide_disk)
+-                return 0;
+ 	return e100_start_dma(drive, 0, 1);
+ }
+ 
+@@ -932,7 +920,7 @@ static int e100_dma_begin(ide_drive_t *d
+ 	/* begin DMA, used by ATAPI devices which want to issue the
+ 	 * appropriate IDE command themselves.
+ 	 *
+-	 * they have already called ide_dma_read/write to set the
++	 * they have already called ->dma_setup to set the
+ 	 * static reading flag, now they call ide_dma_begin to do
+ 	 * the real stuff. we tell our code below not to issue
+ 	 * any IDE commands itself and jump into it.
+diff -puN drivers/ide/arm/icside.c~ide_dma_setup drivers/ide/arm/icside.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/arm/icside.c~ide_dma_setup	2004-09-12 23:42:15.667113216 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/arm/icside.c	2004-09-13 00:14:08.409332200 +0200
+@@ -443,11 +443,16 @@ static ide_startstop_t icside_dmaintr(id
+ 	return DRIVER(drive)->error(drive, __FUNCTION__, stat);
+ }
+ 
+-static int
+-icside_dma_common(ide_drive_t *drive, struct request *rq,
+-		  unsigned int dma_mode)
++static int icside_dma_setup(ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif = HWIF(drive);
++	struct request *rq = hwif->hwgroup->rq;
++	unsigned int dma_mode;
 +
-+	unset_got_network(tsec);
-+	ipv6_addr_set(&tsec->realaddr.a6, 0, 0, 0, 0);
-+	if (!tsec->ip_addr_name) {
-+		printk(KERN_NOTICE "%s: exiting\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	if (is_ipv6(tsec)) {
-+		printk(KERN_NOTICE "%s: is ipv6\n", __FUNCTION__);
-+		if (sscanf(tsec->ip_addr_name,"%x:%x:%x:%x:%x:%x:%x:%x",
-+			&x[0], &x[1], &x[2], &x[3], &x[4], &x[5], &x[6],
-+			&x[7]) != 8) {
-+			printk(KERN_NOTICE "%s: bad ipv6 addr %s\n", __FUNCTION__,
-+				tsec->ip_addr_name);
-+			return;
-+		}
-+		for (i=0; i<8; i++) {
-+			if (x[i] > 65535) {
-+				printk("%s: %x > 65535 at %d\n", __FUNCTION__, x[i], i);
-+				return;
++	if (rq_data_dir(rq))
++		dma_mode = DMA_MODE_WRITE;
++	else
++		dma_mode = DMA_MODE_READ;
+ 
+ 	/*
+ 	 * We can not enable DMA on both channels.
+@@ -489,12 +494,6 @@ static int icside_dma_read(ide_drive_t *
+ 	struct request *rq = HWGROUP(drive)->rq;
+ 	task_ioreg_t cmd;
+ 
+-	if (icside_dma_common(drive, rq, DMA_MODE_READ))
+-		return 1;
+-
+-	if (drive->media != ide_disk)
+-		return 0;
+-
+ 	BUG_ON(HWGROUP(drive)->handler != NULL);
+ 
+ 	/*
+@@ -526,12 +525,6 @@ static int icside_dma_write(ide_drive_t 
+ 	struct request *rq = HWGROUP(drive)->rq;
+ 	task_ioreg_t cmd;
+ 
+-	if (icside_dma_common(drive, rq, DMA_MODE_WRITE))
+-		return 1;
+-
+-	if (drive->media != ide_disk)
+-		return 0;
+-
+ 	BUG_ON(HWGROUP(drive)->handler != NULL);
+ 
+ 	/*
+@@ -626,6 +619,7 @@ static int icside_dma_init(ide_hwif_t *h
+ 	hwif->ide_dma_off_quietly = icside_dma_off_quietly;
+ 	hwif->ide_dma_host_on	= icside_dma_host_on;
+ 	hwif->ide_dma_on	= icside_dma_on;
++	hwif->dma_setup		= icside_dma_setup;
+ 	hwif->ide_dma_read	= icside_dma_read;
+ 	hwif->ide_dma_write	= icside_dma_write;
+ 	hwif->ide_dma_begin	= icside_dma_begin;
+diff -puN drivers/ide/ide.c~ide_dma_setup drivers/ide/ide.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ide.c~ide_dma_setup	2004-09-12 23:42:15.670112760 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide.c	2004-09-13 00:14:08.412331744 +0200
+@@ -685,6 +685,7 @@ static void ide_hwif_restore(ide_hwif_t 
+ 	hwif->atapi_input_bytes		= tmp_hwif->atapi_input_bytes;
+ 	hwif->atapi_output_bytes	= tmp_hwif->atapi_output_bytes;
+ 
++	hwif->dma_setup			= tmp_hwif->dma_setup;
+ 	hwif->ide_dma_read		= tmp_hwif->ide_dma_read;
+ 	hwif->ide_dma_write		= tmp_hwif->ide_dma_write;
+ 	hwif->ide_dma_begin		= tmp_hwif->ide_dma_begin;
+diff -puN drivers/ide/ide-cd.c~ide_dma_setup drivers/ide/ide-cd.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ide-cd.c~ide_dma_setup	2004-09-12 23:42:15.673112304 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-cd.c	2004-09-13 00:14:07.534465200 +0200
+@@ -865,20 +865,14 @@ static ide_startstop_t cdrom_start_packe
+ {
+ 	ide_startstop_t startstop;
+ 	struct cdrom_info *info = drive->driver_data;
++	ide_hwif_t *hwif = drive->hwif;
+ 
+ 	/* Wait for the controller to be idle. */
+ 	if (ide_wait_stat(&startstop, drive, 0, BUSY_STAT, WAIT_READY))
+ 		return startstop;
+ 
+-	if (info->dma) {
+-		if (info->cmd == READ) {
+-			info->dma = !HWIF(drive)->ide_dma_read(drive);
+-		} else if (info->cmd == WRITE) {
+-			info->dma = !HWIF(drive)->ide_dma_write(drive);
+-		} else {
+-			printk("ide-cd: DMA set, but not allowed\n");
+-		}
+-	}
++	if (info->dma)
++		info->dma = !hwif->dma_setup(drive);
+ 
+ 	/* Set up the controller registers. */
+ 	/* FIXME: for Virtual DMA we must check harder */
+diff -puN drivers/ide/ide-disk.c~ide_dma_setup drivers/ide/ide-disk.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ide-disk.c~ide_dma_setup	2004-09-12 23:42:15.675112000 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-disk.c	2004-09-13 00:14:08.414331440 +0200
+@@ -213,13 +213,15 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
+ 	}
+ 
+ 	if (dma) {
+-		if (rq_data_dir(rq)) {
+-			if (!hwif->ide_dma_write(drive))
+-				return ide_started;
+-		} else {
+-			if (!hwif->ide_dma_read(drive))
+-				return ide_started;
++		if (!hwif->dma_setup(drive)) {
++			if (rq_data_dir(rq)) {
++				hwif->ide_dma_write(drive);
++			} else {
++				hwif->ide_dma_read(drive);
 +			}
-+			tsec->realaddr.a6.in6_u.u6_addr16[i] = htons(x[i]);
-+		}
-+	} else {
-+		if (sscanf(tsec->ip_addr_name,"%u.%u.%u.%u",&a,&b,&c,&d)!=4)
-+			return;
-+		if (a>255 || b>255 || c>255 || d>255)
-+			return;
-+		tsec->realaddr.a4 = htonl((a<<24)|(b<<16)|(c<<8)|d);
-+	}
-+	set_got_network(tsec);
-+	bsdj_debug(DBG, "Network set up (%s)\n", tsec->ip_addr_name);
-+}
++			return ide_started;
+ 		}
++		/* fallback to PIO */
+ 		ide_init_sg_cmd(drive, rq);
+ 	}
+ 
+diff -puN drivers/ide/ide-dma.c~ide_dma_setup drivers/ide/ide-dma.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ide-dma.c~ide_dma_setup	2004-09-12 23:42:15.677111696 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-dma.c	2004-09-13 00:14:08.416331136 +0200
+@@ -590,10 +590,8 @@ int __ide_dma_check (ide_drive_t *drive)
+ EXPORT_SYMBOL(__ide_dma_check);
+ 
+ /**
+- *	ide_start_dma	-	begin a DMA phase
+- *	@hwif: interface
++ *	ide_dma_setup	-	begin a DMA phase
+  *	@drive: target device
+- *	@reading: set if reading, clear if writing
+  *
+  *	Build an IDE DMA PRD (IDE speak for scatter gather table)
+  *	and then set up the DMA transfer registers for a device
+@@ -603,12 +601,19 @@ EXPORT_SYMBOL(__ide_dma_check);
+  *	Returns 0 on success. If a PIO fallback is required then 1
+  *	is returned. 
+  */
+- 
+-int ide_start_dma(ide_hwif_t *hwif, ide_drive_t *drive, int reading)
 +
-+/* release_jail:
-+ * Callback for kref_put to use for releasing a jail when its
-+ * last user exits.
-+ */
-+static void release_jail(struct kref *kref)
++int ide_dma_setup(ide_drive_t *drive)
+ {
++	ide_hwif_t *hwif = drive->hwif;
+ 	struct request *rq = HWGROUP(drive)->rq;
++	unsigned int reading;
+ 	u8 dma_stat;
+ 
++	if (rq_data_dir(rq))
++		reading = 0;
++	else
++		reading = 1 << 3;
++
+ 	/* fall back to pio! */
+ 	if (!ide_build_dmatable(drive, rq))
+ 		return 1;
+@@ -628,23 +633,15 @@ int ide_start_dma(ide_hwif_t *hwif, ide_
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(ide_start_dma);
++EXPORT_SYMBOL_GPL(ide_dma_setup);
+ 
+-int __ide_dma_read (ide_drive_t *drive /*, struct request *rq */)
++static int __ide_dma_read(ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	struct request *rq	= HWGROUP(drive)->rq;
+-	unsigned int reading	= 1 << 3;
+ 	u8 lba48		= (drive->addressing == 1) ? 1 : 0;
+ 	task_ioreg_t command	= WIN_NOP;
+ 
+-	/* try pio */
+-	if (ide_start_dma(hwif, drive, reading))
+-		return 1;
+-
+-	if (drive->media != ide_disk)
+-		return 0;
+-
+ 	command = (lba48) ? WIN_READDMA_EXT : WIN_READDMA;
+ 	
+ 	if (drive->vdma)
+@@ -660,23 +657,13 @@ int __ide_dma_read (ide_drive_t *drive /
+ 	return hwif->ide_dma_begin(drive);
+ }
+ 
+-EXPORT_SYMBOL(__ide_dma_read);
+-
+-int __ide_dma_write (ide_drive_t *drive /*, struct request *rq */)
++static int __ide_dma_write(ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	struct request *rq	= HWGROUP(drive)->rq;
+-	unsigned int reading	= 0;
+ 	u8 lba48		= (drive->addressing == 1) ? 1 : 0;
+ 	task_ioreg_t command	= WIN_NOP;
+ 
+-	/* try PIO instead of DMA */
+-	if (ide_start_dma(hwif, drive, reading))
+-		return 1;
+-
+-	if (drive->media != ide_disk)
+-		return 0;
+-
+ 	command = (lba48) ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+ 	if (drive->vdma)
+ 		command = (lba48) ? WIN_WRITE_EXT: WIN_WRITE;
+@@ -692,8 +679,6 @@ int __ide_dma_write (ide_drive_t *drive 
+ 	return hwif->ide_dma_begin(drive);
+ }
+ 
+-EXPORT_SYMBOL(__ide_dma_write);
+-
+ int __ide_dma_begin (ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif	= HWIF(drive);
+@@ -1002,6 +987,8 @@ void ide_setup_dma (ide_hwif_t *hwif, un
+ 		hwif->ide_dma_host_on = &__ide_dma_host_on;
+ 	if (!hwif->ide_dma_check)
+ 		hwif->ide_dma_check = &__ide_dma_check;
++	if (!hwif->dma_setup)
++		hwif->dma_setup = &ide_dma_setup;
+ 	if (!hwif->ide_dma_read)
+ 		hwif->ide_dma_read = &__ide_dma_read;
+ 	if (!hwif->ide_dma_write)
+diff -puN drivers/ide/ide-floppy.c~ide_dma_setup drivers/ide/ide-floppy.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ide-floppy.c~ide_dma_setup	2004-09-12 23:42:15.680111240 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-floppy.c	2004-09-13 00:14:07.541464136 +0200
+@@ -995,6 +995,7 @@ static ide_startstop_t idefloppy_transfe
+ static ide_startstop_t idefloppy_issue_pc (ide_drive_t *drive, idefloppy_pc_t *pc)
+ {
+ 	idefloppy_floppy_t *floppy = drive->driver_data;
++	ide_hwif_t *hwif = drive->hwif;
+ 	atapi_feature_t feature;
+ 	atapi_bcount_t bcount;
+ 	ide_handler_t *pkt_xfer_routine;
+@@ -1049,13 +1050,8 @@ static ide_startstop_t idefloppy_issue_p
+ 	}
+ 	feature.all = 0;
+ 
+-	if (test_bit(PC_DMA_RECOMMENDED, &pc->flags) && drive->using_dma) {
+-		if (test_bit(PC_WRITING, &pc->flags)) {
+-			feature.b.dma = !HWIF(drive)->ide_dma_write(drive);
+-		} else {
+-			feature.b.dma = !HWIF(drive)->ide_dma_read(drive);
+-		}
+-	}
++	if (test_bit(PC_DMA_RECOMMENDED, &pc->flags) && drive->using_dma)
++		feature.b.dma = !hwif->dma_setup(drive);
+ 
+ 	if (IDE_CONTROL_REG)
+ 		HWIF(drive)->OUTB(drive->ctl, IDE_CONTROL_REG);
+diff -puN drivers/ide/ide-tape.c~ide_dma_setup drivers/ide/ide-tape.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ide-tape.c~ide_dma_setup	2004-09-12 23:42:15.683110784 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-tape.c	2004-09-13 00:14:07.547463224 +0200
+@@ -2135,12 +2135,8 @@ static ide_startstop_t idetape_issue_pac
+ 				"reverting to PIO\n");
+ 		(void)__ide_dma_off(drive);
+ 	}
+-	if (test_bit(PC_DMA_RECOMMENDED, &pc->flags) && drive->using_dma) {
+-		if (test_bit(PC_WRITING, &pc->flags))
+-			dma_ok = !HWIF(drive)->ide_dma_write(drive);
+-		else
+-			dma_ok = !HWIF(drive)->ide_dma_read(drive);
+-	}
++	if (test_bit(PC_DMA_RECOMMENDED, &pc->flags) && drive->using_dma)
++		dma_ok = !hwif->dma_setup(drive);
+ 
+ 	if (IDE_CONTROL_REG)
+ 		hwif->OUTB(drive->ctl, IDE_CONTROL_REG);
+diff -puN drivers/ide/ide-taskfile.c~ide_dma_setup drivers/ide/ide-taskfile.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ide-taskfile.c~ide_dma_setup	2004-09-12 23:42:15.687110176 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ide-taskfile.c	2004-09-13 00:14:08.418330832 +0200
+@@ -178,15 +178,19 @@ ide_startstop_t do_rw_taskfile (ide_driv
+ 		case WIN_WRITEDMA_ONCE:
+ 		case WIN_WRITEDMA:
+ 		case WIN_WRITEDMA_EXT:
+-			if (!hwif->ide_dma_write(drive))
++			if (!hwif->dma_setup(drive)) {
++				hwif->ide_dma_write(drive);
+ 				return ide_started;
++			}
+ 			break;
+ 		case WIN_READDMA_ONCE:
+ 		case WIN_READDMA:
+ 		case WIN_READDMA_EXT:
+ 		case WIN_IDENTIFY_DMA:
+-			if (!hwif->ide_dma_read(drive))
++			if (!hwif->dma_setup(drive)) {
++				hwif->ide_dma_read(drive);
+ 				return ide_started;
++			}
+ 			break;
+ 		default:
+ 			if (task->handler == NULL)
+@@ -526,6 +530,9 @@ int ide_diag_taskfile (ide_drive_t *driv
+ 
+ 		rq.hard_nr_sectors = rq.nr_sectors;
+ 		rq.hard_cur_sectors = rq.current_nr_sectors = rq.nr_sectors;
++
++		if (args->command_type == IDE_DRIVE_TASK_RAW_WRITE)
++			rq.flags |= REQ_RW;
+ 	}
+ 
+ 	rq.special = args;
+@@ -923,11 +930,13 @@ ide_startstop_t flagged_taskfile (ide_dr
+ 
+    	        case TASKFILE_OUT_DMAQ:
+ 		case TASKFILE_OUT_DMA:
++			hwif->dma_setup(drive);
+ 			hwif->ide_dma_write(drive);
+ 			break;
+ 
+ 		case TASKFILE_IN_DMAQ:
+ 		case TASKFILE_IN_DMA:
++			hwif->dma_setup(drive);
+ 			hwif->ide_dma_read(drive);
+ 			break;
+ 
+diff -puN drivers/ide/pci/alim15x3.c~ide_dma_setup drivers/ide/pci/alim15x3.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/pci/alim15x3.c~ide_dma_setup	2004-09-12 23:42:15.690109720 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/alim15x3.c	2004-09-12 23:42:15.808091784 +0200
+@@ -558,18 +558,17 @@ no_dma_set:
+ }
+ 
+ /**
+- *	ali15x3_dma_write	-	do a DMA IDE write
+- *	@drive:	drive to issue write for
++ *	ali15x3_dma_setup	-	begin a DMA phase
++ *	@drive:	target device
+  *
+- *	Returns 1 if the DMA write cannot be performed, zero on 
+- *	success.
++ *	Returns 1 if the DMA cannot be performed, zero on success.
+  */
+- 
+-static int ali15x3_dma_write (ide_drive_t *drive)
++
++static int ali15x3_dma_setup(ide_drive_t *drive)
+ {
+ 	if ((m5229_revision < 0xC2) && (drive->media != ide_disk))
+ 		return 1;	/* try PIO instead of DMA */
+-	return __ide_dma_write(drive);
++	return ide_dma_setup(drive);
+ }
+ 
+ /**
+@@ -773,7 +772,7 @@ static void __init init_hwif_common_ali1
+                  * M1543C or newer for DMAing
+                  */
+                 hwif->ide_dma_check = &ali15x3_config_drive_for_dma;
+-                hwif->ide_dma_write = &ali15x3_dma_write;
++		hwif->dma_setup = &ali15x3_dma_setup;
+ 		if (!noautodma)
+ 			hwif->autodma = 1;
+ 		if (!(hwif->udma_four))
+diff -puN drivers/ide/pci/ns87415.c~ide_dma_setup drivers/ide/pci/ns87415.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/pci/ns87415.c~ide_dma_setup	2004-09-12 23:42:15.693109264 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/ns87415.c	2004-09-12 23:42:15.808091784 +0200
+@@ -101,22 +101,11 @@ static int ns87415_ide_dma_end (ide_driv
+ 	return (dma_stat & 7) != 4;
+ }
+ 
+-static int ns87415_ide_dma_read (ide_drive_t *drive)
++static int ns87415_ide_dma_setup(ide_drive_t *drive)
+ {
+ 	/* select DMA xfer */
+ 	ns87415_prepare_drive(drive, 1);
+-	if (!(__ide_dma_read(drive)))
+-		return 0;
+-	/* DMA failed: select PIO xfer */
+-	ns87415_prepare_drive(drive, 0);
+-	return 1;
+-}
+-
+-static int ns87415_ide_dma_write (ide_drive_t *drive)
+-{
+-	/* select DMA xfer */
+-	ns87415_prepare_drive(drive, 1);
+-	if (!(__ide_dma_write(drive)))
++	if (!ide_dma_setup(drive))
+ 		return 0;
+ 	/* DMA failed: select PIO xfer */
+ 	ns87415_prepare_drive(drive, 0);
+@@ -204,8 +193,7 @@ static void __init init_hwif_ns87415 (id
+ 		return;
+ 
+ 	hwif->OUTB(0x60, hwif->dma_status);
+-	hwif->ide_dma_read = &ns87415_ide_dma_read;
+-	hwif->ide_dma_write = &ns87415_ide_dma_write;
++	hwif->dma_setup = &ns87415_ide_dma_setup;
+ 	hwif->ide_dma_check = &ns87415_ide_dma_check;
+ 	hwif->ide_dma_end = &ns87415_ide_dma_end;
+ 
+diff -puN drivers/ide/pci/sgiioc4.c~ide_dma_setup drivers/ide/pci/sgiioc4.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/pci/sgiioc4.c~ide_dma_setup	2004-09-12 23:42:15.697108656 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/sgiioc4.c	2004-09-13 00:14:08.419330680 +0200
+@@ -575,36 +575,36 @@ use_pio_instead:
+ 	return 0;		/* revert to PIO for this request */
+ }
+ 
+-static int
+-sgiioc4_ide_dma_read(ide_drive_t * drive)
++static int sgiioc4_ide_dma_setup(ide_drive_t *drive)
+ {
+ 	struct request *rq = HWGROUP(drive)->rq;
+ 	unsigned int count = 0;
++	int ddir;
++
++	if (rq_data_dir(rq))
++		ddir = PCI_DMA_TODEVICE;
++	else
++		ddir = PCI_DMA_FROMDEVICE;
+ 
+-	if (!(count = sgiioc4_build_dma_table(drive, rq, PCI_DMA_FROMDEVICE))) {
++	if (!(count = sgiioc4_build_dma_table(drive, rq, ddir))) {
+ 		/* try PIO instead of DMA */
+ 		return 1;
+ 	}
+-	/* Writes FROM the IOC4 TO Main Memory */
+-	sgiioc4_configure_for_dma(IOC4_DMA_WRITE, drive);
++
++	if (rq_data_dir(rq))
++		/* Writes TO the IOC4 FROM Main Memory */
++		ddir = IOC4_DMA_READ;
++	else
++		/* Writes FROM the IOC4 TO Main Memory */
++		ddir = IOC4_DMA_WRITE;
++
++	sgiioc4_configure_for_dma(ddir, drive);
+ 
+ 	return 0;
+ }
+ 
+-static int
+-sgiioc4_ide_dma_write(ide_drive_t * drive)
++static int sgiioc4_ide_dma_dummy(ide_drive_t *drive)
+ {
+-	struct request *rq = HWGROUP(drive)->rq;
+-	unsigned int count = 0;
+-
+-	if (!(count = sgiioc4_build_dma_table(drive, rq, PCI_DMA_TODEVICE))) {
+-		/* try PIO instead of DMA */
+-		return 1;
+-	}
+-
+-	sgiioc4_configure_for_dma(IOC4_DMA_READ, drive);
+-	/* Writes TO the IOC4 FROM Main Memory */
+-
+ 	return 0;
+ }
+ 
+@@ -630,8 +630,9 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
+ 	hwif->quirkproc = NULL;
+ 	hwif->busproc = NULL;
+ 
+-	hwif->ide_dma_read = &sgiioc4_ide_dma_read;
+-	hwif->ide_dma_write = &sgiioc4_ide_dma_write;
++	hwif->dma_setup = &sgiioc4_ide_dma_setup;
++	hwif->ide_dma_read = &sgiioc4_ide_dma_dummy;
++	hwif->ide_dma_write = &sgiioc4_ide_dma_dummy;
+ 	hwif->ide_dma_begin = &sgiioc4_ide_dma_begin;
+ 	hwif->ide_dma_end = &sgiioc4_ide_dma_end;
+ 	hwif->ide_dma_check = &sgiioc4_ide_dma_check;
+diff -puN drivers/ide/pci/trm290.c~ide_dma_setup drivers/ide/pci/trm290.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/pci/trm290.c~ide_dma_setup	2004-09-12 23:42:15.699108352 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/pci/trm290.c	2004-09-13 00:14:08.420330528 +0200
+@@ -185,28 +185,7 @@ static int trm290_ide_dma_write (ide_dri
+ 	struct request *rq	= HWGROUP(drive)->rq;
+ //	ide_task_t *args	= rq->special;
+ 	task_ioreg_t command	= WIN_NOP;
+-	unsigned int count, reading = 2, writing = 0;
+ 
+-	reading = 0;
+-	writing = 1;
+-#ifdef TRM290_NO_DMA_WRITES
+-	/* always use PIO for writes */
+-	trm290_prepare_drive(drive, 0);	/* select PIO xfer */
+-	return 1;
+-#endif
+-	if (!(count = ide_build_dmatable(drive, rq))) {
+-		/* try PIO instead of DMA */
+-		trm290_prepare_drive(drive, 0); /* select PIO xfer */
+-		return 1;
+-	}
+-	/* select DMA xfer */
+-	trm290_prepare_drive(drive, 1);
+-	hwif->OUTL(hwif->dmatable_dma|reading|writing, hwif->dma_command);
+-	drive->waiting_for_dma = 1;
+-	/* start DMA */
+-	hwif->OUTW((count * 2) - 1, hwif->dma_status);
+-	if (drive->media != ide_disk)
+-		return 0;
+ 	if (HWGROUP(drive)->handler != NULL)	/* paranoia check */
+ 		BUG();
+ 	ide_set_handler(drive, &ide_dma_intr, WAIT_CMD, NULL);
+@@ -236,21 +215,7 @@ static int trm290_ide_dma_read (ide_driv
+ 	struct request *rq	= HWGROUP(drive)->rq;
+ //	ide_task_t *args	= rq->special;
+ 	task_ioreg_t command	= WIN_NOP;
+-	unsigned int count, reading = 2, writing = 0;
+ 
+-	if (!(count = ide_build_dmatable(drive, rq))) {
+-		/* try PIO instead of DMA */
+-		trm290_prepare_drive(drive, 0); /* select PIO xfer */
+-		return 1;
+-	}
+-	/* select DMA xfer */
+-	trm290_prepare_drive(drive, 1);
+-	hwif->OUTL(hwif->dmatable_dma|reading|writing, hwif->dma_command);
+-	drive->waiting_for_dma = 1;
+-	/* start DMA */
+-	hwif->OUTW((count * 2) - 1, hwif->dma_status);
+-	if (drive->media != ide_disk)
+-		return 0;
+ 	if (HWGROUP(drive)->handler != NULL)	/* paranoia check */
+ 		BUG();
+ 	ide_set_handler(drive, &ide_dma_intr, WAIT_CMD, NULL);
+@@ -274,6 +239,36 @@ static int trm290_ide_dma_read (ide_driv
+ 	return hwif->ide_dma_begin(drive);
+ }
+ 
++static int trm290_ide_dma_setup(ide_drive_t *drive)
 +{
-+	struct jail_struct *tsec;
-+	
-+	tsec = container_of(kref,struct jail_struct,kref);
-+	disable_jail(tsec);
-+	free_jail(tsec);
-+}
-+
-+/*
-+ * enable_jail:
-+ * Called when a process is placed into a new jail to handle the
-+ * actual creation of the jail.
-+ *   Creates namespace
-+ *   Sets process root+pwd
-+ *   Stores the requested ip address
-+ *   Registers a unique pseudo-proc filesystem for this jail
-+ */
-+int enable_jail(struct task_struct *tsk)
-+{
-+	struct nameidata nd;
-+	struct jail_struct *tsec;
-+	int retval = -EFAULT;
-+
-+	tsec = jail_of(tsk);
-+	if (!tsec || !tsec->root_pathname)
-+		goto out;
-+
-+	/* 
-+	 * USE_JAIL_NAMESPACE: could be useful, so that future mounts outside
-+	 * the jail don't affect the jail.  But it's not necessary, and
-+	 * requires exporting copy_namespace from fs/namespace.c
-+	 *
-+	 * Actually, it would also be useful for truly hiding
-+	 * information about mounts which do not exist in this jail.
-+#define USE_JAIL_NAMESPACE
-+	 */
-+#ifdef USE_JAIL_NAMESPACE
-+	bsdj_debug(DBG, "bsdjail: copying namespace.\n");
-+	retval = -EPERM;
-+	if (copy_namespace(CLONE_NEWNS, tsk))
-+		goto out;
-+	bsdj_debug(DBG, "bsdjail: copied namespace.\n");
-+#endif
-+
-+	/* find our new root directory */
-+	bsdj_debug(DBG, "bsdjail: looking up %s\n", tsec->root_pathname);
-+	retval = path_lookup(tsec->root_pathname, LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &nd);
-+	if (retval)
-+		goto out;
-+
-+	bsdj_debug(DBG, "bsdjail: got %s, setting root to it\n", tsec->root_pathname);
-+
-+	/* and set the fsroot to it */
-+	set_fs_root(tsk->fs, nd.mnt, nd.dentry);
-+	set_fs_pwd(tsk->fs, nd.mnt, nd.dentry);
-+
-+	bsdj_debug(DBG, "bsdjail: root has been set.  Have fun.\n");
-+
-+	/* set up networking */
-+	if (tsec->ip_addr_name)
-+		setup_netaddress(tsec);
-+
-+	tsec->cur_nrtask = 1;
-+	if (tsec->nice)
-+		set_user_nice(current, tsec->nice);
-+	if (tsec->max_data) {
-+		current->rlim[RLIMIT_DATA].rlim_cur = tsec->max_data;
-+		current->rlim[RLIMIT_DATA].rlim_max = tsec->max_data;
-+	}
-+	if (tsec->max_memlock) {
-+		current->rlim[RLIMIT_MEMLOCK].rlim_cur = tsec->max_memlock;
-+		current->rlim[RLIMIT_MEMLOCK].rlim_max = tsec->max_memlock;
-+	}
-+	if (tsec->maxtimeslice) {
-+		current->rlim[RLIMIT_CPU].rlim_cur = tsec->maxtimeslice;
-+		current->rlim[RLIMIT_CPU].rlim_max = tsec->maxtimeslice;
-+	}
-+	/* success and end */
-+	tsec->mnt = mntget(nd.mnt);
-+	tsec->dentry = dget(nd.dentry);
-+	path_release(&nd);
-+	kref_init(&tsec->kref, release_jail);
-+	set_in_use(tsec);
-+
-+	/* won't let ourselves be removed until this jail goes away */
-+	try_module_get(THIS_MODULE);
-+
-+	return 0;
-+
-+out:
-+	return retval;
-+}
-+
-+/*
-+ * LSM /proc/<pid>/attr hooks.
-+ * You may write into /proc/<pid>/attr/exec:
-+ *    root /some/path
-+ *    ip 2.2.2.2
-+ * These values will be used on the next exec() to set up your jail
-+ *  (assuming you're not already in a jail)
-+ */
-+static int
-+jail_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+	long val;
-+	int start, len;
-+
-+	if (tsec && in_use(tsec))
-+		return -EINVAL;  /* let them guess why */
-+		
-+	if (p != current || strcmp(name, "exec"))
-+		return -EPERM;
-+
-+	if (strncmp(value, "root ", 5)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		if (tsec->root_pathname)
-+			kfree(tsec->root_pathname);
-+		start = 5;
-+		len = size-start;
-+		tsec->root_pathname = kmalloc(len+1, GFP_KERNEL);
-+		if (!tsec->root_pathname)
-+			return -ENOMEM;
-+		strncpy(tsec->root_pathname, value+start, len);
-+		tsec->root_pathname[len] = '\0';
-+	} else if (strncmp(value, "ip ", 3)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		if (tsec->ip_addr_name)
-+			kfree(tsec->ip_addr_name);
-+		start = 3;
-+		len = size-start;
-+		tsec->ip_addr_name = kmalloc(len+1, GFP_KERNEL);
-+		if (!tsec->ip_addr_name)
-+			return -ENOMEM;
-+		strncpy(tsec->ip_addr_name, value+start, len);
-+		tsec->ip_addr_name[len] = '\0';
-+		set_ipv4(tsec);
-+	} else if (strncmp(value, "ip6 ", 4) == 0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		if (tsec->ip_addr_name)
-+			kfree(tsec->ip_addr_name);
-+		start = 4;
-+		len = size-start;
-+		tsec->ip_addr_name = kmalloc(len+1, GFP_KERNEL);
-+		if (!tsec->ip_addr_name)
-+			return -ENOMEM;
-+		strncpy(tsec->ip_addr_name, value+start, len);
-+		tsec->ip_addr_name[len] = '\0';
-+		set_ipv6(tsec);
-+
-+	/* the next two are equivalent */
-+	} else if (strncmp(value, "slice ", 6)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		val = simple_strtoul(value+6, NULL, 0);
-+		tsec->maxtimeslice = val;
-+	} else if (strncmp(value, "timeslice ", 10)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		val = simple_strtoul(value+10, NULL, 0);
-+		tsec->maxtimeslice = val;
-+	} else if (strncmp(value, "nrtask ", 7)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		val = (int) simple_strtol(value+7, NULL, 0);
-+		if (val < 1)
-+			return -EINVAL;
-+		tsec->max_nrtask = val;
-+	} else if (strncmp(value, "memlock ", 8)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		val = simple_strtoul(value+8, NULL, 0);
-+		tsec->max_memlock = val;
-+	} else if (strncmp(value, "data ", 5)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		val = simple_strtoul(value+5, NULL, 0);
-+		tsec->max_data = val;
-+	} else if (strncmp(value, "nice ", 5)==0) {
-+		if (!tsec)
-+			tsec = alloc_task_security(current);
-+		if (IS_ERR(tsec))
-+			return -ENOMEM;
-+
-+		val = simple_strtoul(value+5, NULL, 0);
-+		tsec->nice = val;
-+	} else
-+		return -EINVAL;
-+
-+	return size;
-+}
-+
-+static int print_jail_net_info(struct jail_struct *j, char *buf, int maxcnt)
-+{
-+	if (j->ip_addr_name)
-+		return snprintf(buf, maxcnt, "%s\n", j->ip_addr_name);
-+
-+	return snprintf(buf, maxcnt, "No network information\n");
-+}
-+
-+/*
-+ * LSM /proc/<pid>/attr read hook.
-+ *
-+ * /proc/$$/attr/current output:
-+ * If the reading process, say process 1001, is in a jail, then
-+ *   cat /proc/999/attr/current
-+ * will print networking information.
-+ * If the reading process, say process 1001, is not in a jail, then
-+ *   cat /proc/999/attr/current
-+ * will return
-+ *   root: (root of jail)
-+ *   ip:   (ip address of jail)
-+ * if 999 is in a jail, or
-+ *   -EINVAL
-+ * if 999 is not in a jail.
-+ *
-+ * /proc/$$/attr/exec output:
-+ * A process in a jail gets -EINVAL for /proc/$$/attr/exec.
-+ * A process not in a jail gets hints on starting a jail.
-+ */
-+static int
-+jail_getprocattr(struct task_struct *p, char *name, void *value, size_t size)
-+{
-+	struct jail_struct *tsec;
-+	int err = 0;
-+
-+	if (in_jail(current)) {
-+		if (strcmp(name, "current")==0) {
-+			/* provide network info */
-+			err = print_jail_net_info(jail_of(current), value,
-+				size);
-+			return err;
-+		}
-+		return -EINVAL;  /* let them guess why */
-+	}
-+		
-+	if (strcmp(name, "exec") == 0) {
-+		/* Print usage some help */
-+		err = snprintf(value, size,
-+			"Valid keywords:\n"
-+			"root    <pathname>\n"
-+			"ip      <ip4-addr>\n"
-+			"ip6     <ip6-addr>\n"
-+			"nrtask  <max number of tasks in this jail>\n"
-+			"nice    <nice level for processes in this jail>\n"
-+			"slice   <max timeslice per process in msecs>\n"
-+			"data    <max data size per process in bytes>\n"
-+			"memlock <max lockable memory per process in bytes>\n");
-+		return err;
-+	}
-+
-+	if (strcmp(name, "current"))
-+		return -EPERM;
-+
-+	tsec = jail_of(p);
-+	if (!tsec || !in_use(tsec)) {
-+		err = snprintf(value, size, "Not Jailed\n");
-+	} else {
-+		err = snprintf(value, size,
-+			"Root: %s\nIP: %s\n"
-+			"max_nrtask %d current nrtask %d max_timeslice %lu "
-+			"nice %lu\n"
-+			"max_memlock %lu max_data %lu\n",
-+			tsec->root_pathname,
-+			tsec->ip_addr_name ? tsec->ip_addr_name : "(none)",
-+			tsec->max_nrtask, tsec->cur_nrtask, tsec->maxtimeslice,
-+			tsec->nice, tsec->max_data, tsec->max_memlock);
-+	}
-+
-+	return err;
-+}
-+
-+/*
-+ * Forbid a process in a jail from sending a signal to a process in another
-+ * (or no) jail through file sigio.
-+ *
-+ * We consider the process which set the fowner to be the one sending the
-+ * signal, rather than the one writing to the file.  Therefore we store the
-+ * jail of a process during jail_file_set_fowner, then check that against
-+ * the jail of the process receiving the signal.
-+ */
-+static int
-+jail_file_send_sigiotask(struct task_struct *tsk, struct fown_struct *fown,
-+       int fd, int reason)
-+{
-+	struct file *file;
-+	struct jail_struct *tsec, *fsec;
-+
-+	if (!in_jail(current))
-+		return 0;
-+
-+        file = (struct file *)((long)fown - offsetof(struct file,f_owner));
-+	tsec = jail_of(tsk);
-+	fsec = get_file_security(file);
-+
-+	if (fsec != tsec)
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+static int
-+jail_file_set_fowner(struct file *file)
-+{
-+	struct jail_struct *tsec;
-+
-+	tsec = jail_of(current);
-+	set_file_security(file, tsec);
-+	if (tsec)
-+		kref_get(&tsec->kref);
-+
-+	return 0;
-+}
-+
-+static void free_ipc_security(struct kern_ipc_perm *ipc)
-+{
-+	struct jail_struct *tsec;
-+
-+	tsec = get_ipc_security(ipc);
-+	if (!tsec)
-+		return;
-+	kref_put(&tsec->kref);
-+	set_ipc_security((*ipc), NULL);
-+}
-+
-+static void free_file_security(struct file *file)
-+{
-+	struct jail_struct *tsec;
-+
-+	tsec = get_file_security(file);
-+	if (!tsec)
-+		return;
-+	kref_put(&tsec->kref);
-+	set_file_security(file, NULL);
-+}
-+
-+static void free_inode_security(struct inode *inode)
-+{
-+	struct jail_struct *tsec;
-+
-+	tsec = get_inode_security(inode);
-+	if (!tsec)
-+		return;
-+	kref_put(&tsec->kref);
-+	set_inode_security(inode, NULL);
-+}
-+
-+/* 
-+ * LSM ptrace hook:
-+ * process in jail may not ptrace process not in the same jail
-+ */
-+static int
-+jail_ptrace (struct task_struct *tracer, struct task_struct *tracee)
-+{
-+	struct jail_struct *tsec = jail_of(tracer);
-+
-+	if (tsec && in_use(tsec)) {
-+		if (tsec == jail_of(tracee))
-+			return 0;
-+		return -EPERM;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * process in jail may only use one (aliased) ip address.  If they try to
-+ * attach to 127.0.0.1, that is remapped to their own address.  If some
-+ * other address (and not their own), deny permission
-+ */
-+static int jail_socket_unix_bind(struct socket *sock, struct sockaddr *address,
-+		int addrlen);
-+
-+#define loopbackaddr htonl((127 << 24) | 1)
-+
-+static inline int jail_inet4_bind(struct socket *sock, struct sockaddr *address, 
-+	int addrlen, struct jail_struct *tsec)
-+{
-+	struct sockaddr_in *inaddr;
-+	__u32 sin_addr, jailaddr;
-+
-+	if (is_ipv6(tsec))
-+		return -EPERM;
-+
-+	inaddr = (struct sockaddr_in *)address;
-+	sin_addr = inaddr->sin_addr.s_addr;
-+	jailaddr = tsec->realaddr.a4;
-+
-+	if (sin_addr == jailaddr)
-+		return 0;
-+
-+	if (sin_addr == loopbackaddr || !sin_addr) {
-+		bsdj_debug(DBG, "Got a loopback or 0 address\n");
-+		sin_addr = jailaddr;
-+		bsdj_debug(DBG, "Converted to: %u.%u.%u.%u\n", 
-+			NIPQUAD(sin_addr));
-+		return 0;
-+	}
-+
-+	return -EPERM;
-+}
-+
-+static inline int
-+jail_inet6_bind(struct socket *sock, struct sockaddr *address, int addrlen,
-+	struct jail_struct *tsec)
-+{
-+	struct sockaddr_in6 *inaddr6;
-+	struct in6_addr *sin6_addr, *jailaddr;
-+
-+	printk(KERN_NOTICE "%s: 1\n", __FUNCTION__);
-+	if (is_ipv4(tsec))
-+		return -EPERM;
-+
-+	printk(KERN_NOTICE "%s: 2\n", __FUNCTION__);
-+
-+	inaddr6 = (struct sockaddr_in6 *)address;
-+	sin6_addr = &inaddr6->sin6_addr;
-+	jailaddr = &tsec->realaddr.a6;
-+
-+	if (ipv6_addr_cmp(jailaddr, sin6_addr)==0) {
-+		printk(KERN_NOTICE "%s: allowing 1\n", __FUNCTION__);
-+		return 0;
-+	}
-+
-+	if (ipv6_addr_cmp(sin6_addr, &in6addr_loopback)==0) {
-+		printk(KERN_NOTICE "%s: allowing 2\n", __FUNCTION__);
-+		bsdj_debug(DBG, "Got a loopback or 0 address\n");
-+		ipv6_addr_copy(sin6_addr, jailaddr);
-+		return 0;
-+	}
-+	printk(KERN_NOTICE "%s: DENYING\n", __FUNCTION__);
-+	printk(KERN_NOTICE "%s: a %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x "
-+		"j %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n", 
-+		__FUNCTION__,
-+		NIP6(*sin6_addr),
-+		NIP6(*jailaddr));
-+
-+	return -EPERM;
-+}
-+
-+static int
-+jail_socket_bind(struct socket *sock, struct sockaddr *address, int addrlen)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+
-+	if (sock->sk->sk_family == AF_UNIX)
-+		return jail_socket_unix_bind(sock, address, addrlen);
-+
-+	if (!got_network(tsec))
-+		/* If we want to be strict, we could just
-+		 * deny net access when lacking a pseudo ip.
-+		 * For now we just allow it. */
-+		return 0;
-+
-+	if (address->sa_family == AF_INET)
-+		return jail_inet4_bind(sock, address, addrlen, tsec);
-+
-+	if (address->sa_family == AF_INET6)
-+		return jail_inet6_bind(sock, address, addrlen, tsec);
-+
-+	return 0;
-+}
-+
-+/*
-+ * If locked in an ipv6 jail, don't let them use ipv4, and vice versa
-+ */
-+static int
-+jail_socket_create(int family, int type, int protocol, int kern)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec) || kern || !got_network(tsec))
-+		return 0;
-+
-+	if (family == AF_INET) {
-+		if (is_ipv4(tsec))
-+			return 0;
-+		return -EPERM;
-+	}
-+
-+	if (family == AF_INET6) {
-+		if (is_ipv6(tsec))
-+			return 0;
-+		return -EPERM;
-+	}
-+
-+	return 0;
-+}
-+
-+static void
-+jail_socket_post_create(struct socket *sock, int family, int type,
-+	int protocol, int kern)
-+{
-+	struct inet_opt *inet;
-+	struct ipv6_pinfo *inet6;
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec) || kern)
-+		return;
-+	if (!got_network(tsec))
-+		return;
-+
-+	if (family == AF_INET) {
-+		inet = inet_sk(sock->sk);
-+		inet->saddr = tsec->realaddr.a4;
-+	} else if (family == AF_INET6) {
-+		inet6 = inet6_sk(sock->sk);
-+		ipv6_addr_copy(&inet6->saddr, &tsec->realaddr.a6);
-+	}
-+
-+	return;
-+}
-+
-+static int
-+jail_socket_listen(struct socket *sock, int backlog)
-+{
-+	struct inet_opt *inet;
-+	struct ipv6_pinfo *inet6;
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+
-+	if (!got_network(tsec))
-+		return 0;
-+
-+	if (sock->sk->sk_family == AF_INET) {
-+		inet = inet_sk(sock->sk);
-+		if (inet->saddr == tsec->realaddr.a4)
-+			return 0;
-+		return -EPERM;
-+	}
-+	if (sock->sk->sk_family == AF_INET) {
-+		inet6 = inet6_sk(sock->sk);
-+		if (ipv6_addr_cmp(&inet6->saddr, &tsec->realaddr.a6)==0)
-+			return 0;
-+		return -EPERM;
-+	}
-+
-+	return 0;
-+}
-+
-+static void free_sock_security(struct sock *sk)
-+{
-+	struct jail_struct *tsec;
-+
-+	tsec = get_sock_security(sk);
-+	if (!tsec)
-+		return;
-+	kref_put(&tsec->kref);
-+	set_sock_security(sk, NULL);
-+}
-+
-+/*
-+ * The next three (socket) hooks prevent a process in a jail from sending
-+ * data to a abstract unix domain socket which was bound outside the jail.
-+ */
-+static int
-+jail_socket_unix_bind(struct socket *sock, struct sockaddr *address,
-+	int addrlen)
-+{
-+	struct sockaddr_un *sunaddr;
-+	struct jail_struct *tsec;
-+
-+	if (sock->sk->sk_family != AF_UNIX)
-+		return 0;
-+
-+	sunaddr = (struct sockaddr_un *)address;
-+	if (sunaddr->sun_path[0] != 0)
-+		return 0;
-+
-+	tsec = jail_of(current);
-+	set_sock_security(sock->sk, tsec);
-+	if (tsec)
-+		kref_get(&tsec->kref);
-+	return 0;
-+}
-+
-+/*
-+ * Note - we deny sends  both from unjailed to jailed, and from jailed
-+ * to unjailed.  As well as, of course between different jails.
-+ */
-+static int
-+jail_socket_unix_may_send(struct socket *sock, struct socket *other)
-+{
-+	struct jail_struct *tsec, *ssec;
-+
-+	tsec = jail_of(current);  /* jail of sending process */
-+	ssec = get_sock_security(other->sk);  /* jail of receiver */
-+
-+	if (tsec != ssec)
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+static int
-+jail_socket_unix_stream_connect(struct socket *sock,
-+	      struct socket *other, struct sock *newsk)
-+{
-+	struct jail_struct *tsec, *ssec;
-+
-+	tsec = jail_of(current);  /* jail of sending process */
-+	ssec = get_sock_security(other->sk);  /* jail of receiver */
-+
-+	if (tsec != ssec)
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+static int
-+jail_mount(char * dev_name, struct nameidata *nd, char * type,
-+                         unsigned long flags, void * data)
-+{
-+	if (in_jail(current))
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+static int
-+jail_umount(struct vfsmount *mnt, int flags)
-+{
-+	if (in_jail(current))
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+/* 
-+ * process in jail may not:
-+ *   use nice
-+ *   change network config
-+ *   load/unload modules
-+ */
-+static int
-+jail_capable (struct task_struct *tsk, int cap)
-+{
-+	if (in_jail(tsk)) {
-+		if (cap == CAP_SYS_NICE)
-+			return -EPERM;
-+		if (cap == CAP_NET_ADMIN)
-+			return -EPERM;
-+		if (cap == CAP_SYS_MODULE)
-+			return -EPERM;
-+		if (cap == CAP_SYS_RAWIO)
-+			return -EPERM;
-+	}
-+
-+	if (cap_is_fs_cap (cap) ? tsk->fsuid == 0 : tsk->euid == 0)
-+		return 0;
-+	return -EPERM;
-+}
-+
-+/*
-+ * jail_security_task_create:
-+ *
-+ * If the current process is ina a jail, and that jail is about to exceed a
-+ * maximum number of processes, then refuse to fork.  If the maximum number
-+ * of jails is listed as 0, then there is no limit for this jail, and we allow
-+ * all forks.
-+ */
-+static inline int
-+jail_security_task_create (unsigned long clone_flags)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+
-+	if (tsec->max_nrtask && tsec->cur_nrtask >= tsec->max_nrtask)
-+		return -EPERM;
-+	return 0;
-+}
-+
-+/*
-+ * The child of a process in a jail belongs in the same jail
-+ */
-+static int
-+jail_task_alloc_security(struct task_struct *tsk)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+
-+	set_task_security(tsk, tsec);
-+	kref_get(&tsec->kref);
-+	tsec->cur_nrtask++;
-+	if (tsec->maxtimeslice) {
-+		tsk->rlim[RLIMIT_CPU].rlim_max = tsec->maxtimeslice;
-+		tsk->rlim[RLIMIT_CPU].rlim_cur = tsec->maxtimeslice;
-+	}
-+	if (tsec->max_data) {
-+		tsk->rlim[RLIMIT_CPU].rlim_max = tsec->max_data;
-+		tsk->rlim[RLIMIT_CPU].rlim_cur = tsec->max_data;
-+	}
-+	if (tsec->max_memlock) {
-+		tsk->rlim[RLIMIT_CPU].rlim_max = tsec->max_memlock;
-+		tsk->rlim[RLIMIT_CPU].rlim_cur = tsec->max_memlock;
-+	}
-+	if (tsec->nice)
-+		set_user_nice(current, tsec->nice);
-+
-+	return 0;
-+}
-+
-+static int
-+jail_bprm_alloc_security(struct linux_binprm *bprm)
-+{
-+	struct jail_struct *tsec;
-+	int ret;
-+
-+	tsec = jail_of(current);
-+	if (!tsec)
-+		return 0;
-+
-+	if (in_use(tsec))
-+		return 0;
-+
-+	if (tsec->root_pathname) {
-+		ret = enable_jail(current);
-+		if (ret) {
-+			/* if we failed, nix out the root/ip requests */
-+			jail_task_free_security(current);
-+			return ret;
-+		}
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Process in jail may not create devices 
-+ * Thanks to Brad Spender for pointing out fifos should be allowed.
-+ */
-+/* TODO: We may want to allow /dev/log, at least... */
-+static int
-+jail_inode_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
-+{
-+	if (!in_jail(current))
-+		return 0;
-+
-+	if (S_ISFIFO(mode))
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
-+/* yanked from fs/proc/base.c */
-+static unsigned name_to_int(struct dentry *dentry)
-+{
-+	const char *name = dentry->d_name.name;
-+	int len = dentry->d_name.len;
-+	unsigned n = 0;
-+
-+	if (len > 1 && *name == '0')
-+		goto out;
-+	while (len-- > 0) {
-+		unsigned c = *name++ - '0';
-+		if (c > 9)
-+			goto out;
-+		if (n >= (~0U-9)/10)
-+			goto out;
-+		n *= 10;
-+		n += c;
-+	}
-+	return n;
-+out:
-+	return ~0U;
-+}
-+
-+/*
-+ * jail_proc_inode_permission:
-+ *   called only when current is in a jail, and is trying to reach
-+ *   /proc/<pid>.  We check whether <pid> is in the same jail as
-+ *   current.  If not, permission is denied.
-+ *
-+ * NOTE:  On the one hand, the task_to_inode(inode)->i_security
-+ * approach seems cleaner, but on the other, this prevents us
-+ * from unloading bsdjail for awhile...
-+ */
-+static int
-+jail_proc_inode_permission(struct inode *inode, int mask,
-+				    struct nameidata *nd)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+	struct dentry *dentry = nd->dentry;
-+	unsigned pid;
-+
-+	pid = name_to_int(dentry);
-+	if (pid == ~0U) {
-+		struct qstr *dname = &dentry->d_name;
-+		if (strcmp(dname->name, "scsi")==0 ||
-+			strcmp(dname->name, "sys")==0 ||
-+			strcmp(dname->name, "ide")==0)
-+			return -EPERM;
-+		return 0;
-+	}
-+
-+	if (dentry->d_parent != dentry->d_sb->s_root)
-+		return 0;
-+	if (get_inode_security(inode) != tsec)
-+		return -ENOENT;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Here is our attempt to prevent chroot escapes.
-+ */
-+static int
-+is_jailroot_parent(struct dentry *candidate, struct dentry *root,
-+	struct vfsmount *rootmnt)
-+{
-+	if (candidate == root)
-+		return 0;
-+
-+	/* simple case:  fs->root/.. == candidate */
-+	if (root->d_parent == candidate)
++	ide_hwif_t *hwif = drive->hwif;
++	struct request *rq = hwif->hwgroup->rq;
++	unsigned int count, rw;
++
++	if (rq_data_dir(rq)) {
++#ifdef TRM290_NO_DMA_WRITES
++		/* always use PIO for writes */
++		trm290_prepare_drive(drive, 0);	/* select PIO xfer */
 +		return 1;
++#endif
++		rw = 1;
++	} else
++		rw = 2;
 +
-+	/*
-+	 * now more complicated:  if fs->root is a mounted directory,
-+	 * then chdir(..) out of fs->root, at follow_dotdot, will follow
-+	 * the fs->root mount point. So we must check the parent dir of
-+	 * the fs->root mount point.
-+	 */
-+	if (rootmnt->mnt_root == root && rootmnt->mnt_mountpoint!=root) {
-+		root = rootmnt->mnt_mountpoint;
-+		rootmnt = rootmnt->mnt_parent;
-+		return is_jailroot_parent(candidate, root, rootmnt);
++	if (!(count = ide_build_dmatable(drive, rq))) {
++		/* try PIO instead of DMA */
++		trm290_prepare_drive(drive, 0); /* select PIO xfer */
++		return 1;
 +	}
-+
++	/* select DMA xfer */
++	trm290_prepare_drive(drive, 1);
++	hwif->OUTL(hwif->dmatable_dma|rw, hwif->dma_command);
++	drive->waiting_for_dma = 1;
++	/* start DMA */
++	hwif->OUTW((count * 2) - 1, hwif->dma_status);
 +	return 0;
 +}
 +
-+/*
-+ * A process in a jail may not see that /proc/<pid> exists for
-+ * process not in its jail
-+ * Unfortunately we can't pretend that pid for the starting process
-+ * is 1, as vserver does.
-+ */
-+static int jail_task_lookup(struct task_struct *p)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec)
-+		return 0;
-+	if (tsec == jail_of(p))
-+		return 0;
-+	return -EPERM;
-+}
-+/*
-+ * security_task_to_inode:
-+ * Set inode->security = task's jail.
-+ */
-+static void jail_task_to_inode(struct task_struct *p, struct inode *inode)
-+{
-+	struct jail_struct *tsec = jail_of(p);
-+
-+	if (!tsec || !in_use(tsec))
-+		return;
-+	if (get_inode_security(inode))
-+		return;
-+	kref_get(&tsec->kref);
-+	set_inode_security(inode, tsec);
-+}
-+
-+/*
-+ * inode_permission:
-+ * If we are trying to look into certain /proc files from in a jail, we
-+ * 	may deny permission.
-+ * If we are trying to cd(..), but the cwd is the root of our jail, then
-+ * permission is denied.
-+ */
-+static int
-+jail_inode_permission(struct inode *inode, int mask,
-+				    struct nameidata *nd)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+
-+	if (!nd)
-+		return 0;
-+
-+	if (nd->dentry &&
-+		strcmp(nd->dentry->d_sb->s_type->name, "proc")==0) {
-+		return jail_proc_inode_permission(inode, mask, nd);
-+
-+	}
-+
-+	if (!(mask&MAY_EXEC))
-+		return 0;
-+	if (!inode || !S_ISDIR(inode->i_mode))
-+		return 0;
-+
-+	if (is_jailroot_parent(nd->dentry, tsec->dentry, tsec->mnt)) {
-+		bsdj_debug(WARN,"Attempt to chdir(..) out of jail!\n"
-+				"(%s is a subdir of %s)\n",
-+				tsec->dentry->d_name.name,
-+				nd->dentry->d_name.name);
-+		return -EPERM;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * A function which returns -ENOENT if dentry is the dentry for
-+ * a /proc/<pid> directory.  It returns 0 otherwise.
-+ */
-+static inline int
-+generic_procpid_check(struct dentry *dentry)
-+{
-+	struct jail_struct *jail = jail_of(current);
-+	unsigned pid = name_to_int(dentry);
-+
-+	if (!jail || !in_use(jail))
-+		return 0;
-+	if (pid == ~0U)
-+		return 0;
-+	if (strcmp(dentry->d_sb->s_type->name, "proc")!=0)
-+		return 0;
-+	if (dentry->d_parent != dentry->d_sb->s_root)
-+		return 0;
-+	if (get_inode_security(dentry->d_inode) != jail)
-+		return -ENOENT;
-+	return 0;
-+}
-+
-+/*
-+ * We want getattr to fail on /proc/<pid> to prevent leakage through, for
-+ * instance, ls -d.
-+ */
-+static int
-+jail_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
-+{
-+	return generic_procpid_check(dentry);
-+}
-+
-+/* This probably is not necessary - /proc does not support xattrs? */
-+static int
-+jail_inode_getxattr(struct dentry *dentry, char *name)
-+{
-+	return generic_procpid_check(dentry);
-+}
-+
-+/* process in jail may not send signal to process not in the same jail */
-+static int
-+jail_task_kill(struct task_struct *p, struct siginfo *info, int sig)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+
-+	if (tsec == jail_of(p))
-+		return 0;
-+
-+	if (sig==SIGCHLD)
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
-+/*
-+ * LSM hooks to limit jailed process' abilities to muck with resource
-+ * limits
-+ */
-+static int jail_task_setrlimit (unsigned int resource, struct rlimit *new_rlim)
-+{
-+	if (!in_jail(current))
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
-+static int jail_task_setscheduler (struct task_struct *p, int policy,
-+				    struct sched_param *lp)
-+{
-+	if (!in_jail(current))
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
-+/*
-+ * LSM hooks to limit IPC access.
-+ */
-+
-+static inline int
-+basic_ipc_security_check(struct kern_ipc_perm *p, struct task_struct *target)
-+{
-+	struct jail_struct *tsec = jail_of(target);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+
-+	if (get_ipc_security(p) != tsec)
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+static int
-+jail_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
-+{
-+	return basic_ipc_security_check(ipcp, current);
-+}
-+
-+static int
-+jail_shm_alloc_security (struct shmid_kernel *shp)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+	set_ipc_security(shp->shm_perm, tsec);
-+	kref_get(&tsec->kref);
-+	return 0;
-+}
-+
-+static void
-+jail_shm_free_security (struct shmid_kernel *shp)
-+{
-+	free_ipc_security(&shp->shm_perm);
-+}
-+
-+static int
-+jail_shm_associate (struct shmid_kernel *shp, int shmflg)
-+{
-+	return basic_ipc_security_check(&shp->shm_perm, current);
-+}
-+
-+static int
-+jail_shm_shmctl(struct shmid_kernel *shp, int cmd)
-+{
-+	if (cmd == IPC_INFO || cmd == SHM_INFO)
-+		return 0;
-+
-+	return basic_ipc_security_check(&shp->shm_perm, current);
-+}
-+
-+static int
-+jail_shm_shmat(struct shmid_kernel *shp, char *shmaddr, int shmflg)
-+{
-+	return basic_ipc_security_check(&shp->shm_perm, current);
-+}
-+
-+static int
-+jail_msg_queue_alloc(struct msg_queue *msq)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+	set_ipc_security(msq->q_perm, tsec);
-+	kref_get(&tsec->kref);
-+	return 0;
-+}
-+
-+static void
-+jail_msg_queue_free(struct msg_queue *msq)
-+{
-+	free_ipc_security(&msq->q_perm);
-+}
-+
-+static int jail_msg_queue_associate(struct msg_queue *msq, int flag)
-+{
-+	return basic_ipc_security_check(&msq->q_perm, current);
-+}
-+
-+static int
-+jail_msg_queue_msgctl(struct msg_queue *msq, int cmd)
-+{
-+	if (cmd == IPC_INFO || cmd == MSG_INFO)
-+		return 0;
-+
-+	return basic_ipc_security_check(&msq->q_perm, current);
-+}
-+
-+static int
-+jail_msg_queue_msgsnd(struct msg_queue *msq, struct msg_msg *msg, int msqflg)
-+{
-+	return basic_ipc_security_check(&msq->q_perm, current);
-+}
-+
-+static int
-+jail_msg_queue_msgrcv(struct msg_queue *msq, struct msg_msg *msg,
-+		struct task_struct *target, long type, int mode)
-+
-+{
-+	return basic_ipc_security_check(&msq->q_perm, target);
-+}
-+
-+static int
-+jail_sem_alloc_security(struct sem_array *sma)
-+{
-+	struct jail_struct *tsec = jail_of(current);
-+
-+	if (!tsec || !in_use(tsec))
-+		return 0;
-+	set_ipc_security(sma->sem_perm, tsec);
-+	kref_get(&tsec->kref);
-+	return 0;
-+}
-+
-+static void
-+jail_sem_free_security(struct sem_array *sma)
-+{
-+	free_ipc_security(&sma->sem_perm);
-+}
-+
-+static int
-+jail_sem_associate(struct sem_array *sma, int semflg)
-+{
-+	return basic_ipc_security_check(&sma->sem_perm, current);
-+}
-+
-+static int
-+jail_sem_semctl(struct sem_array *sma, int cmd)
-+{
-+	if (cmd == IPC_INFO || cmd == SEM_INFO)
-+		return 0;
-+	return basic_ipc_security_check(&sma->sem_perm, current);
-+}
-+
-+static int
-+jail_sem_semop(struct sem_array *sma, struct sembuf *sops, unsigned nsops,
-+	int alter)
-+{
-+	return basic_ipc_security_check(&sma->sem_perm, current);
-+}
-+
-+static struct security_operations bsdjail_security_ops = {
-+	.ptrace  =			jail_ptrace,
-+	.capable =			jail_capable,
-+
-+	.task_kill =			jail_task_kill,
-+	.task_alloc_security =		jail_task_alloc_security,
-+	.task_free_security =		jail_task_free_security,
-+	.bprm_alloc_security =		jail_bprm_alloc_security,
-+	.task_create =			jail_security_task_create,
-+	.task_to_inode =		jail_task_to_inode,
-+	.task_lookup =			jail_task_lookup,
-+
-+	.task_setrlimit =		jail_task_setrlimit,
-+	.task_setscheduler =		jail_task_setscheduler,
-+
-+	.setprocattr =                  jail_setprocattr,
-+	.getprocattr =                  jail_getprocattr,
-+
-+	.file_set_fowner =		jail_file_set_fowner,
-+	.file_send_sigiotask =		jail_file_send_sigiotask,
-+	.file_free_security =		free_file_security,
-+
-+	.socket_bind =			jail_socket_bind,
-+	.socket_listen =		jail_socket_listen,
-+	.socket_create =		jail_socket_create,
-+	.socket_post_create =		jail_socket_post_create,
-+        .unix_stream_connect =		jail_socket_unix_stream_connect,
-+	.unix_may_send =		jail_socket_unix_may_send,
-+	.sk_free_security =		free_sock_security,
-+
-+	.inode_mknod =			jail_inode_mknod,
-+	.inode_permission =		jail_inode_permission,
-+	.inode_free_security =		free_inode_security,
-+	.inode_getattr =		jail_inode_getattr,
-+	.inode_getxattr =		jail_inode_getxattr,
-+	.sb_mount =			jail_mount,
-+	.sb_umount =			jail_umount,
-+
-+	.ipc_permission =		jail_ipc_permission,
-+	.shm_alloc_security = 		jail_shm_alloc_security,
-+	.shm_free_security = 		jail_shm_free_security,
-+	.shm_associate =		jail_shm_associate,
-+	.shm_shmctl =			jail_shm_shmctl,
-+	.shm_shmat =			jail_shm_shmat,
-+
-+	.msg_queue_alloc_security =	jail_msg_queue_alloc,
-+	.msg_queue_free_security =	jail_msg_queue_free,
-+	.msg_queue_associate =		jail_msg_queue_associate,
-+	.msg_queue_msgctl =		jail_msg_queue_msgctl,
-+	.msg_queue_msgsnd =		jail_msg_queue_msgsnd,
-+	.msg_queue_msgrcv =		jail_msg_queue_msgrcv,
-+
-+	.sem_alloc_security = 		jail_sem_alloc_security,
-+	.sem_free_security =  		jail_sem_free_security,
-+	.sem_associate =		jail_sem_associate,
-+	.sem_semctl =			jail_sem_semctl,
-+	.sem_semop =			jail_sem_semop,
-+};
-+
-+static int __init bsdjail_init (void)
-+{
-+	int rc = 0;
-+
-+	if (register_security (&bsdjail_security_ops)) {
-+		printk (KERN_INFO 
-+			"Failure registering BSD Jail module with the kernel\n");
-+
-+		rc = mod_reg_security(MY_NAME, &bsdjail_security_ops);
-+		if (rc < 0) {
-+			printk (KERN_INFO "Failure registering BSD Jail "
-+				" module with primary security module.\n");
-+			return -EINVAL;
-+		}
-+		secondary = 1;
-+	}
-+	printk (KERN_INFO "BSD Jail module initialized.\n");
-+
-+	return 0;
-+}
-+
-+static void __exit bsdjail_exit (void)
-+{
-+	if (secondary) {
-+		if (mod_unreg_security (MY_NAME, &bsdjail_security_ops))
-+			printk (KERN_INFO "Failure unregistering BSD Jail "
-+				" module with primary module.\n");
-+	} else { 
-+		if (unregister_security (&bsdjail_security_ops)) {
-+			printk (KERN_INFO "Failure unregistering BSD Jail "
-+				"module with the kernel\n");
-+		}
-+	}
-+
-+	printk (KERN_INFO "BSD Jail module removed\n");
-+}
-+
-+security_initcall (bsdjail_init);
-+module_exit (bsdjail_exit);
-+
-+MODULE_DESCRIPTION("BSD Jail LSM.");
-+MODULE_LICENSE("GPL");
-
---nFreZHaLTZJo0R7j--
+ static int trm290_ide_dma_begin (ide_drive_t *drive)
+ {
+ 	return 0;
+@@ -347,6 +342,7 @@ void __devinit init_hwif_trm290(ide_hwif
+ 	ide_setup_dma(hwif, (hwif->config_data + 4) ^ (hwif->channel ? 0x0080 : 0x0000), 3);
+ 
+ #ifdef CONFIG_BLK_DEV_IDEDMA
++	hwif->dma_setup = &trm290_ide_dma_setup;
+ 	hwif->ide_dma_write = &trm290_ide_dma_write;
+ 	hwif->ide_dma_read = &trm290_ide_dma_read;
+ 	hwif->ide_dma_begin = &trm290_ide_dma_begin;
+diff -puN drivers/ide/ppc/pmac.c~ide_dma_setup drivers/ide/ppc/pmac.c
+--- linux-2.6.9-rc1-bk18/drivers/ide/ppc/pmac.c~ide_dma_setup	2004-09-12 23:42:15.702107896 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/ide/ppc/pmac.c	2004-09-13 00:14:08.423330072 +0200
+@@ -1889,7 +1889,7 @@ pmac_ide_dma_check(ide_drive_t *drive)
+  * a read on KeyLargo ATA/66 and mark us as waiting for DMA completion
+  */
+ static int __pmac
+-pmac_ide_dma_start(ide_drive_t *drive, int reading)
++pmac_ide_dma_setup(ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif = HWIF(drive);
+ 	pmac_ide_hwif_t* pmif = (pmac_ide_hwif_t *)hwif->hwif_data;
+@@ -1906,7 +1906,7 @@ pmac_ide_dma_start(ide_drive_t *drive, i
+ 
+ 	/* Apple adds 60ns to wrDataSetup on reads */
+ 	if (ata4 && (pmif->timings[unit] & TR_66_UDMA_EN)) {
+-		writel(pmif->timings[unit] + (reading ? 0x00800000UL : 0),
++		writel(pmif->timings[unit] + (!rq_data_dir(rq) ? 0x00800000UL : 0),
+ 			(unsigned *)(IDE_DATA_REG+IDE_TIMING_CONFIG));
+ 		(void)readl((unsigned *)(IDE_DATA_REG + IDE_TIMING_CONFIG));
+ 	}
+@@ -1926,12 +1926,6 @@ pmac_ide_dma_read(ide_drive_t *drive)
+ 	u8 lba48 = (drive->addressing == 1) ? 1 : 0;
+ 	task_ioreg_t command = WIN_NOP;
+ 
+-	if (pmac_ide_dma_start(drive, 1))
+-		return 1;
+-
+-	if (drive->media != ide_disk)
+-		return 0;
+-
+ 	command = (lba48) ? WIN_READDMA_EXT : WIN_READDMA;
+ 	
+ 	if (drive->vdma)
+@@ -1958,12 +1952,6 @@ pmac_ide_dma_write (ide_drive_t *drive)
+ 	u8 lba48 = (drive->addressing == 1) ? 1 : 0;
+ 	task_ioreg_t command = WIN_NOP;
+ 
+-	if (pmac_ide_dma_start(drive, 0))
+-		return 1;
+-
+-	if (drive->media != ide_disk)
+-		return 0;
+-
+ 	command = (lba48) ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+ 	if (drive->vdma)
+ 		command = (lba48) ? WIN_WRITE_EXT: WIN_WRITE;
+@@ -1989,8 +1977,6 @@ pmac_ide_dma_begin (ide_drive_t *drive)
+ 	pmac_ide_hwif_t* pmif = (pmac_ide_hwif_t *)HWIF(drive)->hwif_data;
+ 	volatile struct dbdma_regs *dma;
+ 
+-	if (pmif == NULL)
+-		return 1;
+ 	dma = pmif->dma_regs;
+ 
+ 	writel((RUN << 16) | RUN, &dma->control);
+@@ -2152,6 +2138,7 @@ pmac_ide_setup_dma(pmac_ide_hwif_t *pmif
+ 	hwif->ide_dma_off_quietly = &__ide_dma_off_quietly;
+ 	hwif->ide_dma_on = &__ide_dma_on;
+ 	hwif->ide_dma_check = &pmac_ide_dma_check;
++	hwif->dma_setup = &pmac_ide_dma_setup;
+ 	hwif->ide_dma_read = &pmac_ide_dma_read;
+ 	hwif->ide_dma_write = &pmac_ide_dma_write;
+ 	hwif->ide_dma_begin = &pmac_ide_dma_begin;
+diff -puN drivers/scsi/ide-scsi.c~ide_dma_setup drivers/scsi/ide-scsi.c
+--- linux-2.6.9-rc1-bk18/drivers/scsi/ide-scsi.c~ide_dma_setup	2004-09-12 23:42:15.704107592 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/drivers/scsi/ide-scsi.c	2004-09-13 00:14:07.560461248 +0200
+@@ -587,6 +587,7 @@ static ide_startstop_t idescsi_transfer_
+ static ide_startstop_t idescsi_issue_pc (ide_drive_t *drive, idescsi_pc_t *pc)
+ {
+ 	idescsi_scsi_t *scsi = drive_to_idescsi(drive);
++	ide_hwif_t *hwif = drive->hwif;
+ 	atapi_feature_t feature;
+ 	atapi_bcount_t bcount;
+ 	struct request *rq = pc->rq;
+@@ -597,12 +598,8 @@ static ide_startstop_t idescsi_issue_pc 
+ 	bcount.all = min(pc->request_transfer, 63 * 1024);		/* Request to transfer the entire buffer at once */
+ 
+ 	feature.all = 0;
+-	if (drive->using_dma && rq->bio) {
+-		if (test_bit(PC_WRITING, &pc->flags))
+-			feature.b.dma = !HWIF(drive)->ide_dma_write(drive);
+-		else
+-			feature.b.dma = !HWIF(drive)->ide_dma_read(drive);
+-	}
++	if (drive->using_dma && rq->bio)
++		feature.b.dma = !hwif->dma_setup(drive);
+ 
+ 	SELECT_DRIVE(drive);
+ 	if (IDE_CONTROL_REG)
+diff -puN include/linux/ide.h~ide_dma_setup include/linux/ide.h
+--- linux-2.6.9-rc1-bk18/include/linux/ide.h~ide_dma_setup	2004-09-12 23:42:15.707107136 +0200
++++ linux-2.6.9-rc1-bk18-bzolnier/include/linux/ide.h	2004-09-13 00:14:08.426329616 +0200
+@@ -873,6 +873,7 @@ typedef struct hwif_s {
+ 	void (*atapi_input_bytes)(ide_drive_t *, void *, u32);
+ 	void (*atapi_output_bytes)(ide_drive_t *, void *, u32);
+ 
++	int (*dma_setup)(ide_drive_t *);
+ 	int (*ide_dma_read)(ide_drive_t *drive);
+ 	int (*ide_dma_write)(ide_drive_t *drive);
+ 	int (*ide_dma_begin)(ide_drive_t *drive);
+@@ -1509,15 +1510,13 @@ extern void ide_destroy_dmatable(ide_dri
+ extern ide_startstop_t ide_dma_intr(ide_drive_t *);
+ extern int ide_release_dma(ide_hwif_t *);
+ extern void ide_setup_dma(ide_hwif_t *, unsigned long, unsigned int);
+-extern int ide_start_dma(ide_hwif_t *, ide_drive_t *, int);
+ 
+ extern int __ide_dma_host_off(ide_drive_t *);
+ extern int __ide_dma_off_quietly(ide_drive_t *);
+ extern int __ide_dma_host_on(ide_drive_t *);
+ extern int __ide_dma_on(ide_drive_t *);
+ extern int __ide_dma_check(ide_drive_t *);
+-extern int __ide_dma_read(ide_drive_t *);
+-extern int __ide_dma_write(ide_drive_t *);
++extern int ide_dma_setup(ide_drive_t *);
+ extern int __ide_dma_begin(ide_drive_t *);
+ extern int __ide_dma_end(ide_drive_t *);
+ extern int __ide_dma_test_irq(ide_drive_t *);
+_

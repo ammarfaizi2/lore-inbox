@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbUKWScA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbUKWScA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbUKWScA (ORCPT <rfc822;willy@w.ods.org>);
+	id S261495AbUKWScA (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 23 Nov 2004 13:32:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKWS34
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbUKWSaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 13:29:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33200 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261491AbUKWS2I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:28:08 -0500
-Message-ID: <41A38128.90305@pobox.com>
-Date: Tue, 23 Nov 2004 13:27:52 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 23 Nov 2004 13:30:08 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:58254 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261479AbUKWS2j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 13:28:39 -0500
+In-Reply-To: <20041123104215.GE27064@mail.shareable.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-fsdevel-owner@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>
 MIME-Version: 1.0
-To: Mathias Kretschmer <posting@blx4.net>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VIA VT610 IDE support for 2.4.28 (trivial)
-References: <41A2E581.2010305@blx4.net>
-In-Reply-To: <41A2E581.2010305@blx4.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable in fs/fcntl.c
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF1B36F096.86C07CEE-ON88256F55.00653896-88256F55.00658654@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Tue, 23 Nov 2004 10:28:23 -0800
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M3_11102004|November 10, 2004) at
+ 11/23/2004 13:28:37,
+	Serialize complete at 11/23/2004 13:28:37
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathias Kretschmer wrote:
-> hi,
-> 
-> I found an older version of this patch (against 2.4.22) on some website. 
-> After a little bit of editing it applied cleanly to 2.4.27 (and now 
-> 2.4.28). It works fine for me on a ASUS P4P800-Deluxe with 4x 300GB disks.
-> 
-> Maybe someone finds this patch helpful. Any reason why the original 
-> patch did not make it into the kernel ?
+>The unusual thing about this function is that "arg" is really
+>polymorphic, but given type "unsigned long" in the kernel.  It is
+>really a way to hold arbitrary values of any type.
 
-Why not add it to the existing via82cxxx driver, and get better 
-performance and device tuning?
+As you've described it, what's wrong with this code is not that it tests 
+arg < 0, but that it should cast arg to int before doing so:
 
-	Jeff
-
+  int signal_arg = (int) arg;
+  if (signal_arg < 0) ...
 
 

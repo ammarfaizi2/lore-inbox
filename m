@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265301AbUFOFzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265306AbUFOGKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265301AbUFOFzU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 01:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265302AbUFOFzU
+	id S265306AbUFOGKA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 02:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUFOGJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 01:55:20 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:51410 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S265301AbUFOFzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 01:55:14 -0400
-Date: Mon, 14 Jun 2004 22:55:07 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: [PATCH] stat nlink resolution fix
-Message-ID: <20040615055507.GA9847@taniwha.stupidest.org>
+	Tue, 15 Jun 2004 02:09:59 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:60517 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265306AbUFOGJ6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 02:09:58 -0400
+Date: Mon, 14 Jun 2004 23:18:36 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net, ak@muc.de,
+       anton@samba.org
+Subject: Re: NUMA API observations
+Message-Id: <20040614231836.2abe7b29.pj@sgi.com>
+In-Reply-To: <40CE824D.9020300@colorfullife.com>
+References: <40CE824D.9020300@colorfullife.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(As already discussed)
+> What about fixing the interface instead?
 
-Linus,
+Yeah - if someone has the stomach, and time for such,
+it might be well received.  Though this brain damage,
+and the further glibc brain damage down stream, will
+take a while to dissipate.
 
-Some filesystems can get overflows when their link-count exceeds
-65534.  This patch increases the kernels internal resolution for this
-and also has a check for the old-system call paths to return and error
-(-EOVERFLOW) as required (as suggested by Al Viro).
+Manfred - the copy of your email addressed back to me,
+"pj@sgi.com" was instead addressed to:
 
-Signed-off-by: Chris Wedgwood <cw@f00f.org>
+  "pj () sgi ! com"@dbl.q-ag.de
 
-diff -Nru a/fs/stat.c b/fs/stat.c
---- a/fs/stat.c	2004-06-14 17:40:21 -07:00
-+++ b/fs/stat.c	2004-06-14 17:40:21 -07:00
-@@ -131,6 +131,8 @@
- 	tmp.st_ino = stat->ino;
- 	tmp.st_mode = stat->mode;
- 	tmp.st_nlink = stat->nlink;
-+	if (tmp.st_nlink != stat->nlink)
-+		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, stat->uid);
- 	SET_GID(tmp.st_gid, stat->gid);
- 	tmp.st_rdev = old_encode_dev(stat->rdev);
-@@ -199,6 +201,8 @@
- 	tmp.st_ino = stat->ino;
- 	tmp.st_mode = stat->mode;
- 	tmp.st_nlink = stat->nlink;
-+	if (tmp.st_nlink != stat->nlink)
-+		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, stat->uid);
- 	SET_GID(tmp.st_gid, stat->gid);
- #if BITS_PER_LONG == 32
-diff -Nru a/include/linux/stat.h b/include/linux/stat.h
---- a/include/linux/stat.h	2004-06-14 17:40:21 -07:00
-+++ b/include/linux/stat.h	2004-06-14 17:40:21 -07:00
-@@ -60,7 +60,7 @@
- 	unsigned long	ino;
- 	dev_t		dev;
- 	umode_t		mode;
--	nlink_t		nlink;
-+	unsigned int	nlink;
- 	uid_t		uid;
- 	gid_t		gid;
- 	dev_t		rdev;
+Needless to say, I never saw that copy.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

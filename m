@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282890AbRLMNa3>; Thu, 13 Dec 2001 08:30:29 -0500
+	id <S283677AbRLMNi7>; Thu, 13 Dec 2001 08:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282947AbRLMNaU>; Thu, 13 Dec 2001 08:30:20 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:26563 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S282890AbRLMNaF>;
-	Thu, 13 Dec 2001 08:30:05 -0500
-Date: Thu, 13 Dec 2001 14:29:51 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: FBdev remains in unusable state 
-In-Reply-To: <8895.1008243321@redhat.com>
-Message-ID: <Pine.GSO.4.30.0112131429040.16242-100000@balu>
+	id <S282947AbRLMNiu>; Thu, 13 Dec 2001 08:38:50 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:33295 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S283677AbRLMNi3>;
+	Thu, 13 Dec 2001 08:38:29 -0500
+Date: Thu, 13 Dec 2001 11:38:11 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DRM OS 
+In-Reply-To: <Pine.LNX.4.10.10112121959320.8479-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.33L.0112131136520.20576-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, David Woodhouse wrote:
+On Wed, 12 Dec 2001, James Simmons wrote:
 
->
-> VANDROVE@vc.cvut.cz said:
-> > Documentation/fb/vesafb.txt, X11 paragraph, last sentence:
-> > -------8<-----
-> > The X-Server must restore the video mode correctly, else you end up
-> > with a broken console (and vesafb cannot do anything about this).
-> > -------8<-----
->
-> This isn't strictly true. We could just call the VESA BIOS to set it up
-> again for us. The 'vesa' XFree86 driver manages to do this perfectly well
-> from userspace, even.
+> Microsoft patents loading a trusted OS into a trusted CPU. The OS prevents
+> untrusted applications from accessing Rights Managed Data.
 
-Then why not include this set up code into vesafb?
+I haven't looked up the link, but this sounds suspiciously like
+what UNIX permission bits have been doing since the 1970s.
 
+I guess MS trying to enforce their patent against anyone would
+just get it invalidated, or the claim is narrow enough that
+people can work around it.
+
+> http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=/netahtml/search-adv.htm&r=1&f=G&l=50&d=CR99&S1=5,892,900.UREF.&OS=ref/5,892,900&RS=REF/5,892,900
+
+Then again, this only applies to people unlucky enough to live
+in the US. No need to worry.
+
+cheers,
+
+Rik
 -- 
-Balazs Pozsar
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,87 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317751AbSIEQBL>; Thu, 5 Sep 2002 12:01:11 -0400
+	id <S317743AbSIEQEl>; Thu, 5 Sep 2002 12:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSIEQBK>; Thu, 5 Sep 2002 12:01:10 -0400
-Received: from mta.sara.nl ([145.100.16.144]:14985 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S317751AbSIEQBI>;
-	Thu, 5 Sep 2002 12:01:08 -0400
-Date: Thu, 5 Sep 2002 18:05:32 +0200
-Subject: Re: ARP and alias IPs
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-From: Remco Post <r.post@sara.nl>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <20020905153436.GG16092@riesen-pc.gr05.synopsys.com>
-Message-Id: <4DE63E30-C0E9-11D6-8864-000393911DE2@sara.nl>
-X-Pgp-Agent: GPGMail 0.5.3 (v20)
-X-Mailer: Apple Mail (2.482)
+	id <S317755AbSIEQEl>; Thu, 5 Sep 2002 12:04:41 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:49637 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S317743AbSIEQEk>; Thu, 5 Sep 2002 12:04:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Oleg Drokin <green@namesys.com>, "David S. Miller" <davem@redhat.com>
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+Date: Thu, 5 Sep 2002 11:09:12 -0500
+X-Mailer: KMail [version 1.4]
+Cc: szepe@pinerecords.com, mason@suse.com, reiser@namesys.com,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, linuxjfs@us.ibm.com
+References: <3D76A6FF.509@namesys.com> <20020904.223651.79770866.davem@redhat.com> <20020905135442.A19682@namesys.com>
+In-Reply-To: <20020905135442.A19682@namesys.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209051109.12291.shaggy@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thursday 05 September 2002 04:54, Oleg Drokin wrote:
 
+> +/* Find maximal number, that nlink_t can hold. GCC is able to
+> calculate this +   value at compile time, so do not worry about extra
+> CPU overhead. */ +#define REISERFS_LINK_MAX ((((nlink_t) -1) >> 0)?~0:((1u<<(sizeof(nlink_t)*8-1))-1))
 
-On donderdag, september 5, 2002, at 05:34 , Alex Riesen wrote:
+Shouldn't this be:
 
-> On Thu, Sep 05, 2002 at 10:09:50AM -0500, Andrew Ryan wrote:
->> The linux implementation of ARP is causing me problems.  Linux sends 
->> out an
->> ARP request with the default interface as the sender address, rather 
->> than then
->> interface the request came on.
->
-> http://www.rfc-editor.org/rfc/std/std37.txt
->
->> For example
->>
->> eth0   10.1.1.100
->> eth0:1 192.16.1.101
->
-> Are you really expect an aliased interface to work the way you 
-> described?
+#define REISERFS_LINK_MAX ((((nlink_t) -1) >> 0)?(nlink_t) ~0:((1u<<(sizeof(nlink_t)*8-1))-1))
 
-
-if I read this version of the internet standard correctly, it should 
-respond with the ip address that was requested:
-
-"It then notices that it is a request, so it swaps fields, putting
-EA(Y) in the new sender Ethernet address field (ar$sha), sets the
-opcode to reply, and sends the packet directly (not broadcast) to
-EA(X)."
-
-Meaning that the reply must come from the ip-address that was beeing 
-looked for in the first place, not just any address used on that 
-interface. Though at the time of writing this was not something that was 
-in use at all I guess.
-
-So yes, I think it is reasonable to assume that if I do an arp request 
-for one address, I do not get a reply for another address that happens 
-to be on the same interface... There is no way of determining that this 
-is indeed the address I was looking for in the first place. I have not 
-checked to see if Linux does this, but if it does it is plain wrong...
-- ---
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (Darwin)
-
-iD8DBQE9d4DTBIoCv9yTlOwRAm1zAJ9DyuMA3RlAFYZeJkulWYOFPPrFZwCdGIHx
-pIvaA6utByxRaHKq58JdTso=
-=jsvP
------END PGP SIGNATURE-----
+if nlink_t is u16, ~0 would still be 0xffffffff (assuming 32 bits)
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

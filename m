@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262550AbREVDBD>; Mon, 21 May 2001 23:01:03 -0400
+	id <S262554AbREVDXA>; Mon, 21 May 2001 23:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262551AbREVDAx>; Mon, 21 May 2001 23:00:53 -0400
-Received: from [209.250.53.92] ([209.250.53.92]:8968 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S262550AbREVDAm>; Mon, 21 May 2001 23:00:42 -0400
-Date: Mon, 21 May 2001 21:59:27 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: linux-kernel@vger.kernel.org
+	id <S262555AbREVDWu>; Mon, 21 May 2001 23:22:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:52743 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262554AbREVDWh>;
+	Mon, 21 May 2001 23:22:37 -0400
+Date: Tue, 22 May 2001 05:22:35 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Steven Walter <srwalter@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-Message-ID: <20010521215927.B31289@hapablap.dyn.dhs.org>
-In-Reply-To: <3B090C81.53F163C3@TeraPort.de> <9ebbg2$m62$1@tazenda.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9ebbg2$m62$1@tazenda.transmeta.com>; from hpa@transmeta.com on Mon, May 21, 2001 at 08:16:18AM -0700
-X-Uptime: 7:36pm  up 1 day,  3:31,  1 user,  load average: 1.30, 1.21, 1.19
+In-Reply-To: <20010521215927.B31289@hapablap.dyn.dhs.org>
+Message-ID: <Pine.LNX.4.30.0105220519160.20545-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 21, 2001 at 08:16:18AM -0700, H. Peter Anvin wrote:
-> Followup to:  <3B090C81.53F163C3@TeraPort.de>
-> By author:    "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-> In newsgroup: linux.dev.kernel
-> >
-> > Hi,
-> > 
-> >  while trying to enhance a small hardware inventory script, I found that
-> > cpuinfo is missing the details of L1, L2 and L3 size, although they may
-> > be available at boot time. One could of cource grep them from "dmesg"
-> > output, but that may scroll away on long lived systems.
-> > 
-> 
-> Any particular reason this needs to be done in the kernel, as opposed
-> to having your script read /dev/cpu/*/cpuid?
+On Mon, 21 May 2001, Steven Walter wrote:
 
-Wouldn't that be the same reason we have /anything/ in cpuinfo?
+> > Any particular reason this needs to be done in the kernel, as opposed
+> > to having your script read /dev/cpu/*/cpuid?
+> Wouldn't that be the same reason we have /anything/ in cpuinfo?
+
+When /proc/cpuinfo was added, we didn't have /dev/cpu/*/cpuid
+Now that we do, we're stuck with keeping /proc/cpuinfo for
+compatability reasons.
+
+regards,
+
+Dave.
+
 -- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbULPOg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbULPOhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbULPOg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 09:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbULPOfG
+	id S262702AbULPOhf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 09:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbULPOhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 09:35:06 -0500
-Received: from mail.dif.dk ([193.138.115.101]:3793 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262670AbULPObd (ORCPT
+	Thu, 16 Dec 2004 09:37:25 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:38120 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261936AbULPOfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 09:31:33 -0500
-Message-ID: <41C19B4C.8030201@dif.dk>
-Date: Thu, 16 Dec 2004 15:27:24 +0100
-From: Jesper Juhl <juhl-lkml@dif.dk>
-Organization: DIF
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Thu, 16 Dec 2004 09:35:37 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57058BF9C9@exa-atlanta>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Matt Domsch'" <Matt_Domsch@dell.com>
+Cc: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Salyzyn, Mark'" <mark_salyzyn@adaptec.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "'brking@us.ibm.com'" <brking@us.ibm.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>,
+       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
+       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Mukker, Atul" <Atulm@lsil.com>
+Subject: RE: How to add/drop SCSI drives from within the driver?
+Date: Thu, 16 Dec 2004 09:27:02 -0500
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 0/30] return statement cleanup - kill pointless parent
- heses
-References: <200412161116.31607.arnd@arndb.de>
-In-Reply-To: <200412161116.31607.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Dunnersdag 16 Dezember 2004 01:02, Jesper Juhl wrote:
+> On Wed, 2004-12-15 at 15:30 -0600, Matt Domsch wrote:
+> > Do you plan to apply LSI's driver patch which adds the 
+> driver-private 
+> > ioctl to provide the mapping from logical drive address to 
+> HCTL value?
+> > Both Dell and LSI have products which are lined up to use this new 
+> > ioctl because it's the most expedient thing to do, 
+> maintains internal 
+> > project schedules, etc, which delaying until this sysfs 
+> mechanism hits 
+> > will greatly impact those schedules. (I know, many folks on 
+> this list 
+> > don't care about business-side impacts of choices made on-list.)
 > 
->>If these patches are generally acceted then I think it would make
-> 
-> sense to 
-> 
->>make a small addition to Documentation/CodingStyle mentioning the
-> 
-> prefered 
-> 
->>form of return statements, so we (hopefully) won't have to do cleanups
-> 
-> 
->>like this too often in the future.
->>Below I've included a proposed patch adding such a bit to CodingStyle.
-> 
-> I think the change in Documentation/CodingStyle is useful, even though I
-> don't really like changing all the existing code without going through
-> the respective maintainers.
-> 
-I guess you have a point. I won't submit more of these through LKML but 
-will stick to working with maintainers.
-These first 30 patches were mostly meant to "test the waters".
+> I'm strongly against adding this. The reason for that is that 
+> once an ioctl is added, it realistically will and can never go away.
 
-I'm glad you like the addition to CodingStyle. :)
+This issue has gone from the utility of the ioctl in question (which has
+been discussed in detail on the list) to now outright rejection of the
+driver ioctls. If this is the idea, drivers would need to consciously move
+the driver only ioctls to sysfs. Which may be good for simple ioctls like
+these but might now be elegant for complex transfers. So, IMO, drivers need
+both of the interfaces and should make a good judgment call on services
+provided by each interface.
 
+>
+> that is no reason to foul up the kernel more. 
 > 
-> This is basically the same category as the first three chapters of
-> CodingStyle. It's not nice to read, but there is no real problem in the 
-> code. Think of these issues as whitespace fixes: you are making the job
-> harder for code maintainers for very little gain. I would suggest that
-> you submit these patches only to the code maintainers, not to the
-> Trivial
-> Patch Monkey or Andrew.
+The ioctl in question has been discussed in detail and was deemed
+appropriate ioctl to provide important service to the management
+applications for device hot plugging. Schedules are one side of the story,
+but we must not overlook the importance of the reason to have this ioctl in
+the first place. If there are other preferred ways to implement the similar
+functionality, we would be more than happy to consider that.
 
-Will do.
-
-
-> Or even better, change scripts/Lindent to do the change automatically
-> for
-> code that it is used on, if that can be done in a reliable way.
->  Arnd <><
-
-I've never actually looked at how that script does its work, guess now's 
-a good time to start looking :)
-
-
--- 
-Jesper Juhl
+Thanks
+-Atul Mukker

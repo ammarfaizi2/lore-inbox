@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUHSGuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUHSGzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268095AbUHSGuE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 02:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268113AbUHSGuE
+	id S261184AbUHSGzn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 02:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUHSGzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 02:50:04 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:26781 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S268111AbUHSGts (ORCPT
+	Thu, 19 Aug 2004 02:55:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23173 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261184AbUHSGzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 02:49:48 -0400
-Subject: Re: 2.6.8.1-mm1 hangs on boot with ACPI
-From: Len Brown <len.brown@intel.com>
-To: Pontus Fuchs <pontus.fuchs@tactel.se>
-Cc: linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <566B962EB122634D86E6EE29E83DD808182C35CE@hdsmsx403.hd.intel.com>
-References: <566B962EB122634D86E6EE29E83DD808182C35CE@hdsmsx403.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092898173.25911.224.camel@dhcppc4>
+	Thu, 19 Aug 2004 02:55:39 -0400
+Date: Wed, 18 Aug 2004 23:55:23 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: arjanv@redhat.com
+Cc: alan@redhat.com, greg@kroah.com, linux-kernel@vger.kernel.org,
+       zaitcev@redhat.com, riel@redhat.com, sct@redhat.com
+Subject: PF_MEMALLOC in 2.6
+Message-Id: <20040818235523.383737cd@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 19 Aug 2004 02:49:37 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 04:55, Pontus Fuchs wrote:
-> Hi,
-> 
-> After upgrading to 2.6.8.1-mm1 from plain 2.6.8.1 my machine does not
-> boot anymore. The last message i see is:
-> 
-> ACPI: Processor [CPU0] (supports C1,C2,C3, 8 throttling states)
-> 
-> In plain 2.6.8.1 the next messages would be:
-> 
-> ACPI: Thermal Zone [THRM] (52 C)
-> Console: switching to colour frame buffer device 175x65
-> Linux agpgart interface v0.100 (c) Dave Jones
-> agpgart: Detected SiS 648 chipset
-> 
-> Booting with acpi=off works fine. I have also tried pci=routeirq but
-> it
-> does not make any difference.
-> 
-> The machine is an Asus L5c laptop.
+The PF_MEMALLOC is required on usb-storage threads in 2.4, because ext3
+will deadlock and otherwise misbehave when it's trying to write out
+dirty pages under memory pressure.
 
-Please try booting with "pci=routeirq"
-If that doesn't work, please take stock 2.6.8.1 and apply the latest
-patch here:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.8/
-and give it a go.
+I received a bug report today from an FC3T1 user with same symptoms
+as 2.4. But I'm entirely clueless in the way VM operates. Comments?
 
-This will bring your kernel up to the same ACPI patch that is in the -mm
-tree, but without all the other stuff in the mm tree.
+-- Pete
 
-If it fails, then ACPI broke.  If it works, then something in -mm broke
-ACPI.
-
-thanks,
--Len
-
-
+--- linux-2.6.8-rc4-mm1/drivers/usb/storage/usb.c	2004-08-16 12:13:06.000000000 -0700
++++ linux-2.6.8-rc4-mm1-ub/drivers/usb/storage/usb.c	2004-08-18 23:48:09.335107648 -0700
+@@ -285,7 +285,7 @@ static int usb_stor_control_thread(void 
+ 	 */
+ 	daemonize("usb-storage");
+ 
+-	current->flags |= PF_NOFREEZE;
++	current->flags |= PF_NOFREEZE|PF_MEMALLOC;
+ 
+ 	unlock_kernel();
+ 

@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbTEXPnD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 11:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTEXPnD
+	id S262114AbTEXQS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 12:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTEXQS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 11:43:03 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:63751 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262090AbTEXPnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 11:43:02 -0400
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <156240000.1053787871@aslan.scsiguy.com>
-References: <1053732598.1951.13.camel@mulgrave>
-		<20030524064340.GA1451@alpha.home.local>
-	<1053786998.1793.31.camel@mulgrave> 
-	<156240000.1053787871@aslan.scsiguy.com>
-Content-Type: text/plain
+	Sat, 24 May 2003 12:18:29 -0400
+Received: from smtp3.poczta.onet.pl ([213.180.130.29]:18096 "EHLO
+	smtp3.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262114AbTEXQS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 12:18:28 -0400
+Message-ID: <3ECF9E4F.302@poczta.onet.pl>
+Date: Sat, 24 May 2003 18:31:11 +0200
+From: Gutko <gutko@poczta.onet.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.4b) Gecko/20030507
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: broken vesafb on 2.4.21-rc3
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 24 May 2003 11:55:54 -0400
-Message-Id: <1053791756.1793.55.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-24 at 10:51, Justin T. Gibbs wrote:
-> Just for clarification.  Marcelo never asked me for a fix.  The only
-> mail I received from him was an informational message indicating that
-> the code was being backed out.  If I had been provided an opportunity
-> to fix the problem, I would have. Considering that the fix has been
-> available long before RC2 was cut (May 1st.), it's not hard to see that
-> getting a proper fix required nothing more than just upgrading the driver
-> or contacting its maintainer to get a paired down fix.
+I have compiled in vesafb. My Radeon 9700 is running on lastest ATI 
+drivers in X. Everything is ok , till I enter X and then exit. After 
+exiting console is totally messed up. There is no chance to even read a 
+single character.Kernel is patched with nforce2 agp support Everything 
+was ok on 2.4.21-rc2-ac3 which I also patched with nforce2 agp.
 
-The kernel, as you have been told several times before, follows a push
-model, not a pull one.  Just looking after SCSI, I don't have time to go
-around asking all the driver writers for updates; likewise Marcelo
-really doesn't have the time to do this for everything in the 2.4
-kernel.
+Asus A7N8X-deluxe on nforce2
+Radeon 9700
 
-Every maintained piece of the kernel has a listed maintainer to whom the
-bug reports are supposed to go.  The expectation is that these
-maintainers will see the bug reports and pro-actively provide fixes
-before they become release issues.  The maintainers also do
-enhancements, *but* these enhancements should follow the proper release
-cycle (i.e. in at the early -pre stage).
+Sorry for such poor describe of bug but I'm new to linux:(
 
-Could you please get with the program?  The bug fix vs enhancement issue
-hasn't previously mattered that much for 2.5, but I anticipate we'll be
-following a similar model when 2.6 is released.
-
-James
+Gutko
 
 

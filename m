@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286704AbRL1DSE>; Thu, 27 Dec 2001 22:18:04 -0500
+	id <S286711AbRL1Dbt>; Thu, 27 Dec 2001 22:31:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286708AbRL1DRy>; Thu, 27 Dec 2001 22:17:54 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13575
+	id <S286712AbRL1Dbj>; Thu, 27 Dec 2001 22:31:39 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15367
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S286704AbRL1DRn>; Thu, 27 Dec 2001 22:17:43 -0500
-Date: Thu, 27 Dec 2001 19:16:15 -0800 (PST)
+	id <S286711AbRL1Dba>; Thu, 27 Dec 2001 22:31:30 -0500
+Date: Thu, 27 Dec 2001 19:29:29 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: Guolin@alexa.com, linux-kernel@vger.kernel.org
-Subject: Re: where is the patch  ide.2.4.14.11062001.patch, for supporting
- EID E ata133 ??
-In-Reply-To: <200112271813.KAA30020@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.10.10112271854180.24491-100000@master.linux-ide.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: Guest section DW <dwguest@win.tue.nl>, James Stevenson <mistral@stev.org>,
+        jlladono@pie.xtec.es, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernels, big ide disks and old bios
+In-Reply-To: <200112272304.AAA05151@webserver.ithnet.com>
+Message-ID: <Pine.LNX.4.10.10112271926400.24491-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Adam J. Richter wrote:
 
-> >I will not merge until I can DOMAIN VALIDATE the pile of SHIT called 2.5.X
-> 
-> 	I would be interested in knowing what "domain validate" means
-> and how was done in previous kernels.
+You have it called "STROKE".
 
-"DOMAIN VALIDATION" is to test by emperical means and verification by bus
-analyzers considered standard to a given industry.
-
-In storage it means to have access/creation of the low_level transport
-layer to the hardware and be able to verify all the capablities of the
-hardware.  This is regardless if you use them or not.
-
-Linux has never used this in the past to the best of my knowledge.
-I am the first to push the idea, regardless how obvious it seems.
-In the past it was a "WAG" or "BHAG" but nobody has ever taken it
-seriously and now that Linux is finally becoming a serious OS, it needs to
-grow some wisdom.
-
-Now the short version is to perform a write-read-verify-compare.
+Use a patch and execute a soft-clip operation to the device and you are
+fixed.  To bad the kernel maintainers do not see value in this or any
+other driver that follows the standards for the physical layers.
 
 Regards,
 
+On Fri, 28 Dec 2001, Stephan von Krawczynski wrote:
+
+> > On Thu, Dec 27, 2001 at 07:51:01PM +0100, Stephan von Krawczynski   
+> wrote:                                                                
+> >                                                                     
+> > > I don't know. I tried once with                                   
+> > >                                                                   
+> > > 00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
+> (rev d0)                                                              
+> > >                                                                   
+> > > and it did not work. I could definitely not write beyond the 32 GB
+> border. I                                                             
+> > > replaced the mobo then.                                           
+> >                                                                     
+> > Did you try setmax?                                                 
+>                                                                       
+> unfortunately not, I did not even know it existed before this thread. 
+> I must admit I have still not had a look at it, but on the other hand:
+> if it makes big IDE drives work on old mobo & bios, it may be a good  
+> idea to include its intelligence into the kernel, or not?             
+> Yes, I know that people nowadays tend to strip down _old_ stuff from  
+> the current sources, but I guess it is not a big loss in code size    
+> either, is it?                                                        
+> knock, knock .. hello IDE maintainer, how about a Xmas present ?      
+> :-)                                                                   
+>                                                                       
+> Regards,                                                              
+> Stephan                                                               
+>                                                                       
+>                                                                       
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 Andre Hedrick
 CEO/President, LAD Storage Consulting Group

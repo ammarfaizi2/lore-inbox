@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269706AbTGULvU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 07:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269711AbTGULvU
+	id S269718AbTGULw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 07:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269731AbTGULwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 07:51:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62080 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S269706AbTGULu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 07:50:57 -0400
-Date: Mon, 21 Jul 2003 05:03:42 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: chas3@users.sourceforge.net
-Cc: chas@cmf.nrl.navy.mil, mikpe@csd.uu.se, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.4.22-pre7 ATM config breakage
-Message-Id: <20030721050342.7aeb48e2.davem@redhat.com>
-In-Reply-To: <200307192024.h6JKOqsG028133@ginger.cmf.nrl.navy.mil>
-References: <200307182330.h6INU0YJ029869@harpo.it.uu.se>
-	<200307192024.h6JKOqsG028133@ginger.cmf.nrl.navy.mil>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 21 Jul 2003 07:52:46 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:46066 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S269718AbTGULwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 07:52:31 -0400
+Subject: Re: 2.6.0-test1 Cannot login in X or console
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
+Cc: Jan Dittmer <j.dittmer@portrix.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F1A6397.8040706@yahoo.ca>
+References: <3F18B603.70405@yahoo.ca> <3F195E5D.50409@maine.rr.com>
+	 <3F1983BF.4080600@yahoo.ca> <3F19B65A.6010606@maine.rr.com>
+	 <3F1A244E.6000505@yahoo.ca> <3F1A5123.2080101@portrix.net>
+	 <3F1A6397.8040706@yahoo.ca>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058789247.5737.2.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 21 Jul 2003 14:07:28 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jul 2003 16:22:21 -0400
-chas williams <chas@cmf.nrl.navy.mil> wrote:
+On Sun, 2003-07-20 at 11:40, Jonathan Bastien-Filiatrault wrote:
+> Jan Dittmer wrote:
+> 
+> > just mount devpts to /dev/pts, iff you have devfs enabled.
+> 
+> Already did that, i cannot even login on the 80x25 console.
+> 
+> >
+> > jan
+> >
+> This bug is preventing me from migrating !!!
+> Any ideas on the cause of this problem ?
+> 
 
-> the following changeset should take care of this once and for all:
- ...
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 03/07/19	chas@relax.cmf.nrl.navy.mil	1.1022
-> # get atm config/build dependencies correct
-> # --------------------------------------------
+Maybe try to boot 2.4 again, and see if you can get the
+wiser by looking at the logs.
 
-Applied, thanks Chas.
+
+Regards,
+
+-- 
+Martin Schlemmer
+
+

@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267122AbTBHWZv>; Sat, 8 Feb 2003 17:25:51 -0500
+	id <S267123AbTBHWiZ>; Sat, 8 Feb 2003 17:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbTBHWZv>; Sat, 8 Feb 2003 17:25:51 -0500
-Received: from h-64-105-35-123.SNVACAID.covad.net ([64.105.35.123]:47850 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267122AbTBHWZu>; Sat, 8 Feb 2003 17:25:50 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sat, 8 Feb 2003 14:35:23 -0800
-Message-Id: <200302082235.OAA26038@adam.yggdrasil.com>
-To: gf@unixsol.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59-mm9
+	id <S267125AbTBHWiY>; Sat, 8 Feb 2003 17:38:24 -0500
+Received: from [212.156.4.132] ([212.156.4.132]:38117 "EHLO fep02.ttnet.net.tr")
+	by vger.kernel.org with ESMTP id <S267123AbTBHWiY>;
+	Sat, 8 Feb 2003 17:38:24 -0500
+Date: Sun, 9 Feb 2003 00:48:08 +0200
+From: Faik Uygur <faikuygur@ttnet.net.tr>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] REPORTING-BUGS
+Message-ID: <20030208224808.GA7354@ttnet.net.tr>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-9
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-PGP-Fingerprint: 15 C0 AA 31 59 F9 DE 4F 7D A6 C7 D8 A0 D5 67 73
+X-PGP-Key-ID: 0x5C447959
+X-PGP-Key-Size: 2048 bits
+X-Editor: GNU Emacs 21.2.1
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Feb 2003, Georgi Chorbadzhiyski wrote:
->Jochen Hein wrote:
->> Andrew Morton <akpm@digeo.com> writes:
->>>. Adam's cleanup and cutdown of devfs has been put back in again.  We
->>>  really need devfs users to test this and to report, please.  (And not just
->>>  to me!  I'll only bounce it to Adam J.  Richter <adam@yggdrasil.com>
->>>  anyway)
->> 
->> Ok, I patched 2.5.59 with Adam's patch and it boots fine.  I miss the
->> file /dev/.devfsd - Debian uses that file to detect devfs and act
->> accordingly.  Still in the first minutes, I'll get back when Linus has
 
->Slackware does the same.
+This patch adds some extra info for bug-reporting.
 
-	Distributions that want to do something different for devfs
-can parse /proc/mounts, or, less reliably, do statfs("/dev", &statfs_buf)
-and look at statfs_buf.f_type.  So, you still have this ability without
-the need for additional kernel code.
 
-	It's worth noting that some devfs users may want the non-devfs
-behavior (which I assume means creating /dev files during some
-installation process) because they may have a script to save /dev
-before shutdown and restore their additional /dev nodes at boot, so
-you probably want to centralize this decision in some little script
-anyhow.  The devfsd (for the stock devfs) has a couple of commands
-designed for this, although this can just as easily be done in scripts
-for boot and shutdowns.
+--- REPORTING-BUGS.orig Sun Feb  9 00:18:06 2003
++++ REPORTING-BUGS      Sun Feb  9 00:32:00 2003
+@@ -9,7 +9,7 @@
+ bug report. This explains what you should do with the "Oops" information
+ to make it useful to the recipient.
 
-	Also, I suppose that checking for /dev/.devfsd is an easy way
-to detect _which_ devfs you are using, although I don't know if such a
-check is useful, since you could start devfsd unconditionally and it
-should just exit if the old devfs is not present.
+-      Send the output the maintainer of the kernel area that seems to
++      Send the output to the maintainer of the kernel area that seems to
+ be involved with the problem. Don't worry too much about getting the
+ wrong person. If you are unsure send it to the person responsible for the
+ code relevant to what you were doing. If it occurs repeatably try and
+@@ -19,6 +19,11 @@
+       If you are totally stumped as to whom to send the report, send it to
+ linux-kernel@vger.kernel.org. (For more information on the linux-kernel
+ mailing list see http://www.tux.org/lkml/).
++
++      Before sending the report, also make sure that you are getting the
++same oops with the later stable/development versions of your kernel (if any).
++There is a chance that it may have already been fixed in the later kernels.
++This may not be easy to see if the bug is not reproducible, though.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+ This is a suggested format for a bug report sent to the Linux kernel mailing

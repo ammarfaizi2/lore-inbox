@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318977AbSH1V01>; Wed, 28 Aug 2002 17:26:27 -0400
+	id <S318982AbSH1V2E>; Wed, 28 Aug 2002 17:28:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318974AbSH1V01>; Wed, 28 Aug 2002 17:26:27 -0400
-Received: from pD9E23990.dip.t-dialin.net ([217.226.57.144]:50371 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318977AbSH1V00>; Wed, 28 Aug 2002 17:26:26 -0400
-Date: Wed, 28 Aug 2002 15:30:11 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
+	id <S318987AbSH1V2E>; Wed, 28 Aug 2002 17:28:04 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:527 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318982AbSH1V2C>; Wed, 28 Aug 2002 17:28:02 -0400
+Date: Wed, 28 Aug 2002 22:32:16 +0100
+From: Christoph Hellwig <hch@infradead.org>
 To: Steven Cole <elenstev@mesatop.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Marcelo Tosatti <marcelo@conectiva.com.br>,
        Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] update ver_linux script to work with gcc 3.2.
-In-Reply-To: <1030569489.4032.113.camel@spc9.esa.lanl.gov>
-Message-ID: <Pine.LNX.4.44.0208281528310.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020828223216.A13321@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steven Cole <elenstev@mesatop.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1030569489.4032.113.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1030569489.4032.113.camel@spc9.esa.lanl.gov>; from elenstev@mesatop.com on Wed, Aug 28, 2002 at 03:18:09PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 28 Aug 2002, Steven Cole wrote:
-> A commonly used gcc reports its version number thusly:
-> [steven@spc5 steven]$ gcc --version
-> 2.96
+On Wed, Aug 28, 2002 at 03:18:09PM -0600, Steven Cole wrote:
+> --- linux-2.4.20-pre4-ac2/scripts/ver_linux.orig	Wed Aug 28 14:37:39 2002
+> +++ linux-2.4.20-pre4-ac2/scripts/ver_linux	Wed Aug 28 14:37:51 2002
+> @@ -12,7 +12,11 @@
+>  uname -a
+>  echo ' '
 > 
-> But the new gcc 3.2 reports its version number thusly:
-> [steven@spc1 scripts]$ gcc --version
-> gcc (GCC) 3.2 (Mandrake Linux 9.0 3.2-1mdk)
-> Copyright (C) 2002 Free Software Foundation, Inc.
-> This is free software; see the source for copying conditions.  There is NO
-> warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+> -echo "Gnu C                 " `gcc --version`
+> +gcc --version 2>&1| head -n 1 | grep -v gcc | awk \
+> +'NR==1{print "Gnu C                 ", $1}'
+> +
+> +gcc --version 2>&1| grep gcc | awk \
+> +'NR==1{print "Gnu C                 ", $3}'
 
-[thunder@hawkeye.luckynet.adm ~] (1) gcc --version
-gcc (GCC) 3.2
-Copyright (C) 2002 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-[thunder@bluemoon.luckynet.adm ~] (1) gcc --version
-gcc (GCC) 3.1.1
-Copyright (C) 2002 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.
+Btw, both old and new versions are buggy here, as they should check $(CC).
 
-Your guess seems right, but don't rely on the rest!
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+My system compiler here is 2.95 but I compile with 3.2 from
+/opt/gcc-3.2/bin/gcc
 

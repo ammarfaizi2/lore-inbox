@@ -1,128 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264196AbUD0Q6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264204AbUD0RDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264196AbUD0Q6n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 12:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbUD0Q6n
+	id S264204AbUD0RDW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 13:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264199AbUD0RDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 12:58:43 -0400
-Received: from wirefire.bureaudepost.com ([66.38.187.209]:20387 "EHLO
-	oasis.linuxant.com") by vger.kernel.org with ESMTP id S264196AbUD0Q6i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 12:58:38 -0400
-Date: Tue, 27 Apr 2004 12:58:19 -0400
-From: Marc Boucher <marc@linuxant.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, rusty@rustcorp.com.au, pmarques@grupopie.com,
-       c-d.hailfinger.kernel.2004@gmx.net, jon787@tesla.resnet.mtu.edu,
-       malda@slashdot.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Message-ID: <20040427165819.GA23961@valve.mbsi.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040427161853.GC28206@tesla.resnet.mtu.edu>
-User-Agent: Mutt/1.3.25i
+	Tue, 27 Apr 2004 13:03:14 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:62445 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id S264198AbUD0RDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 13:03:08 -0400
+Date: Tue, 27 Apr 2004 19:02:46 +0200 (METDST)
+From: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>
+Reply-To: a.verweij@student.tudelft.nl
+To: Ross Dickson <ross@datscreative.com.au>
+cc: Len Brown <len.brown@intel.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Craig Bradney <cbradney@zip.com.au>, <christian.kroener@tu-harburg.de>,
+       <linux-kernel@vger.kernel.org>,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, Allen Martin <AMartin@nvidia.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+ for idle=C1halt, 2.6.5
+In-Reply-To: <200404262141.24616.ross@datscreative.com.au>
+Message-ID: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Hello,
 
-On Tue, Apr 27, 2004 at 04:09:36AM +0200, Carl-Daniel Hailfinger wrote:
-> Hi,
-> 
-> LinuxAnt offers binary only modules without any sources.
+I'm sorry for the small interlude in this thread, but I just want to get
+something clear.
 
-Not true. Linuxant modules come with full source for operating-system specific
-code.
+Basically we have a problem that is all around, except for (some) Shuttle
+boards. Noone really knows what's going on, or at least if they know they
+are not vocal about it.
 
-> To circumvent our
-> MODULE_LICENSE checks LinuxAnt has inserted a "\0" into their declaration:
->
-> MODULE_LICENSE("GPL\0for files in the \"GPL\" directory; for others, only
-> LICENSE file applies");
+In comes Ross Dickson. He starts poking at the problem until he comes up
+with two patches. Near the end of 2003, an NVIDIA engineer (Allen Martin)
+states that he (or maybe NVIDIA as a whole?) has been unable to reproduce
+this weird problem with hard locks, seemingly related to APIC and IO.
 
+He can tell us there was a bug in a reference BIOS that NVIDIA sent out
+into the world, but that it has been fixed in a follow-up. Somewhere at
+the start of December, Shuttle updates its BIOS for the AN35. Jesse Allen
+flashes the new BIOS into his board and for reasons unknown his hard lock
+problem has vanished. The importance of the update of NVIDIA's reference
+BIOS in relation to the Shuttle update of the BIOS for their product(s) is
+unknown as well.
 
-Paulo Marques said:
-> The way I see it, they know a C string ends with a '\0'. This is like saying 
-> that a English sentence ends with a dot. If they wrote "GPL\0" they are 
-> effectively saying that the license *is* GPL period.
-> 
-> So, where the source code? :)
+Meanwhile, Ross Dickson drops requests for support tickets at AMD and
+NVIDIA. Until this day, no reply yet. Unaffected by the deafening silence
+he keeps improving his patches which seem to work(tm).
 
-Unfortunately Linuxant cannot release the source for the proprietary portions
-of the Conexant HCF and HSF softmodem drivers, because it does not own these
-parts and the terms under which they have been licensed from Conexant prohibit
-it.
+Without Ross' hard labor one can avoid the hard locks by banning APIC
+support from the kernel, or turn off the C1 disconnect feature in the
+BIOS, which is misinterpreted by one ACPI developer as running the CPU
+"out of spec."
 
-We have tried to attenuate the inconvenience of these restrictions by isolating
-the proprietary code and releasing source for all operating-system specific
-code, so that people can rebuild the modules for any kernel.
+Recently Len Brown, the ACPI Linux kernel maintainer and Intel employee -
+can you spot the irony? - agrees to attempt to reproduce the problem.
+After having his box run with cat /dev/hda > /dev/null for a night
+straight no lockup has occured. The brand of his motherboard is Shuttle.
+Did I mention irony...?
 
-I believe that this is a fair compromise. Otherwise, it wouldn't be possible to
-use Conexant softmodems under Linux right now, since 1) the hardware is quite
-obscure, 2) no-one has fully implemented the modulations (such as V.92 etc..)
-and related protocols (V.44/V.42[bis]) for free, because this stuff is quite
-complex and involves many patents. Before blaming Conexant for protecting their
-intellectual property, one should note that as far as I know none of the
-other softmodem manufacturers (Lucent/Agere, SmartLink, Motorola, PC-Tel etc..)
-have ever accepted to give the source code away for their proprietary
-implementations of modem modulations either.  
+Although this topic is primarily about nforce2 chipsets, similar problems
+have been reported with SiS chipsets for AMD cpus. Other chipsets capable
+of having the CPU disconnect include VIA KT266(A), KT333 and KT400. For
+linux a tool like athcool can set the bits for the disconnect and the HLT
+instruction. It is unconfirmed that these chipsets suffer from the same
+symptoms as nforce2 chipsets.
 
-Willy Tarreau <willy () w ! ods ! org> wrote:
+Does anyone have some input on how to tackle this problem? The only things
+I can come up with is mailing all the motherboard manufacturers I can
+think of, harass NVIDIA and/or AMD some more through proper channels (i.e.
+file a "bug report", but I don't expect much from this, sorry Allen) or
+buy Len the cheapest broken nforce2 board I can find at pricewatch.com and
+have it shipped to his house :)
 
-> Funny, this reminds me of VGA BIOSes which put "IBM Compatible" at the right
-> location, because lots of programs were looking for "IBM" to check if this
-> way such a bios. Same check, same workaround :-) I hope they have patented
-> this trick so that they will be the only ones using it :-)
-> 
-> > The attached patch blacklists all modules having "Linuxant" or "Conexant"
-> > in their author string. This may seem a bit broad, but AFAIK both
-> > companies never have released anything under the GPL and have a strong
-> > history of binary-only modules.
-> 
-> What would be smarter would be to try to understand why they do this.
-> 
+Best regards,
 
-Exactly. Linuxant's intent is NOT to circumvent any license checks (see
-below for why this specific workaround was put in) which would be unnecessary
-since the drivers in question do not use any GPL_ONLY functions, as far as
-I know.
+Arjen
 
-> At
-> the moment, it seems to me that their only problem is to taint the kernel.
-
-Actually, we also have no desire nor purpose to prevent tainting. The purpose
-of the workaround is to avoid repetitive warning messages generated when
-multiple modules belonging to a single logical "driver"  are loaded (even when
-a module is only probed but not used due to the hardware not being present).
-Although the issue may sound trivial/harmless to people on the lkml, it was a
-frequent cause of confusion for the average person.
-
-Other Linuxant drivers (like DriverLoader and Riptide) do not need nor use this
-workaround because they are not composed of multiple modules and one set of
-warning messages is usually bearable. 
-
-> Why ? I don't this that any old modutils/module-utils found in any distros
-> don't load properly such modules. So perhaps they only want not to taint
-> the kernel because it appears dirty to their customers who will not receive
-> any more support from LKML. So perhaps what we really need is to add a new
-> MODULE_SUPPORT field stating where to get support from in case of bugs,
-> oopses or panics on a tainted kernel. Thus, the module author would be able
-> to insert something such as "support_XXX@author.com" which will be displayed
-> on each oops/panic/etc... Even if this is a long list because the customer
-> uses connexant, nvidia, checkpoint and I don't know what, at least he will
-> get 3 email addresses for his support. And it might reassure these authors
-> to know that the customer will ask them before asking us with our automatic
-> replies "unload your binary modules...".
-
-Linuxant would very much welcome such steps to improve the current situation,
-and is willing to eliminate workarounds once they are no longer necessary.
-
-Sincerely,
-Marc
-
---
-Marc Boucher
-President
-Linuxant inc.
-http://www.linuxant.com

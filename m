@@ -1,71 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311149AbSCHVnI>; Fri, 8 Mar 2002 16:43:08 -0500
+	id <S311150AbSCHVsG>; Fri, 8 Mar 2002 16:48:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311150AbSCHVmr>; Fri, 8 Mar 2002 16:42:47 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:26116 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S311149AbSCHVmn>;
-	Fri, 8 Mar 2002 16:42:43 -0500
-Date: Fri, 8 Mar 2002 13:34:27 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@suse.de>, Patricia Gaughen <gone@us.ibm.com>,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
-Message-ID: <20020308213427.GC28541@kroah.com>
-In-Reply-To: <200203082108.g28L8I504672@w-gaughen.des.beaverton.ibm.com> <20020308223330.A15106@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020308223330.A15106@suse.de>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 08 Feb 2002 18:57:22 -0800
+	id <S311151AbSCHVr4>; Fri, 8 Mar 2002 16:47:56 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:50953 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S311150AbSCHVro>; Fri, 8 Mar 2002 16:47:44 -0500
+Message-ID: <3C893171.2050003@lexus.com>
+Date: Fri, 08 Mar 2002 13:47:29 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: root-owned /proc/pid files for threaded apps?
+In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 10:33:30PM +0100, Dave Jones wrote:
->  As a sidenote (sort of related topic) :
->  An idea being kicked around a little right now is x86 subarch
->  support for 2.5. With so many of the niche x86 spin-offs appearing
->  lately, all fighting for their own piece of various files in
->  arch/i386/kernel/, it may be time to do the same as the ARM folks did,
->  and have..
-> 
->   arch/i386/generic/
->   arch/i386/numaq/
->   arch/i386/visws
->   arch/i386/voyager/
->   etc..
+Andreas Ferber wrote:
 
-YES!!!
-I've been working on the Foster patches and keep thinking that this
-would be the best solution to our current #ifdef hell.
+>As a side note, IMHO it would be sensible to have some way of
+>disabling module autoloading of protocol modules in the network stack.
+>
 
->  I've been meaning to find some time to move the necessary bits around,
->  and jiggle configs to see how it would work out, but with a pending
->  house move, I haven't got around to it yet.. Maybe next week.
-> 
->  The downsides to this:
->  - Code duplication.
->    Some routines will likely be very similar if not identical.
->  - Bug propagation.
->    If something is fixed in one subarch, theres a high possibility
->    it needs fixing in other subarchs
+What is the problem with using modules.conf e.g.
 
-Make sure that every subarch has a maintainer/someone to blame who needs
-to make sure their subarch also keeps up to date with the "generic" one
-would help out a lot with this problem.
+alias net-pf-10 off
 
->   The plus sides of this:
->   - Removal of #ifdef noise
->     With more and more of these subarchs appearing, this is getting
-> 	more of an issue.
->   - subarchs are free to do things 'their way' without affecting the
->     common case.
+?
 
-I think Martin's recent CONFIG_MULTIQUAD patches prove that the plus
-side would outweigh any possible downside :)
+Joe
 
-thanks,
-
-greg k-h

@@ -1,82 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVB1QQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVB1QTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVB1QQo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVB1QQn
+	id S261676AbVB1QTK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 11:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVB1QRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:16:43 -0500
+	Mon, 28 Feb 2005 11:17:24 -0500
 Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:10655 "EHLO
 	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S261673AbVB1QPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:15:37 -0500
+	id S261672AbVB1QPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 11:15:35 -0500
 From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [patch ide-dev 7/9] convert disk flush functions to use REQ_DRIVE_TASKFILE
-Date: Mon, 28 Feb 2005 17:17:06 +0100
+Subject: Re: [patch ide-dev 8/9] make ide_task_ioctl() use REQ_DRIVE_TASKFILE
+Date: Mon, 28 Feb 2005 17:14:55 +0100
 User-Agent: KMail/1.7.1
 Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.58.0502241545041.13534@mion.elka.pw.edu.pl> <200502271739.16076.bzolnier@elka.pw.edu.pl> <422334CB.4010408@gmail.com>
-In-Reply-To: <422334CB.4010408@gmail.com>
+References: <Pine.GSO.4.58.0502241547400.13534@mion.elka.pw.edu.pl> <200502271731.29448.bzolnier@elka.pw.edu.pl> <422337A1.4060806@gmail.com>
+In-Reply-To: <422337A1.4060806@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200502281717.06753.bzolnier@elka.pw.edu.pl>
+Message-Id: <200502281714.55960.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 February 2005 16:12, Tejun Heo wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Sunday 27 February 2005 05:51, Tejun Heo wrote:
-> > 
-> >> Hello, Bartlomiej,
-> >>
-> >>On Thu, Feb 24, 2005 at 03:45:39PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> >>
-> >>>Original patch from Tejun Heo <htejun@gmail.com>,
-> >>>ported over recent IDE changes by me.
-> >>>
-> >>>* teach ide_tf_get_address() about CHS
-> >>
-> >> IMHO, as patch #4 moves LBA/CHS selection into taskfile, I think
-> >>using taskfile->device to determine whether LBA or CHS is used instead
-> >>of drive->select makes more sense.
-> >>
-> >>
-> >>>* use ide_tf_get_address() and remove ide_get_error_location()
-> >>
-> >> IIRC, error responses for WIN_FLUSH_CACHE is in CHS if the LBA bit in
-> >>the device register is zero; likewise, in LBA if the LBA bit is one.
-> >>I don't know if drives can change the LBA bit when posting error
-> >>result.  The original code reads back the device register on error to
-> >>determine whether to interpret the error response in CHS or LBA.
-> >>(ATA/ATAPI-6 isn't clear on this issue.  Is ATA/ATAPI-7 updated?)
-> > 
-> > 
-> > The thing is that LBA bit is marked as "na" for FLUSH CACHE
-> > in all ATA/ATAPI drafts that I've seen.
-> > 
-> 
->   Yeah, and nothing is mentioned about the LBA bit in the normal output 
-> description even though the lcyl, hcyl.. registers are described to be 
-> in either form of CHS or LBA.  Strange...
-> 
-> > 
-> >> This change combined with patch #2/#5 can make error address
-> >>calculation wrong on LBA28 drives.  I think setting the LBA bit in the
-> >>device register according to the drive's addressing mode in
-> >>ide_task_init_flush() and use taskfile->device in ide_tf_get_address()
-> >>should fix the problem.
-> > 
-> > 
-> > I will change the code to set LBA bit, it shouldn't hurt. :-)
-> 
->   IMHO, there can be cases where just setting the LBA bit isn't enough. 
->   Theoretically, drives can report CHS and clear the LBA bit in the 
-> device register even when the LBA bit was set when the command was 
-> issued.  Maybe the intention of the original code was to handle 
-> something like this?
 
-/me suspects that disks that support LBA always report LBA and disks
-that use only CHS always report CHS but this is pure speculation
+Hi,
+
+On Monday 28 February 2005 16:24, Tejun Heo wrote:
+>   Hi,
+> 
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Sunday 27 February 2005 08:36, Tejun Heo wrote:
+> > 
+> >> Hello, Bartlomiej.
+> >>
+> >> This patch should be modified to use flagged taskfile if the
+> >>task_end_request_fix patch isn't applied.  As non-flagged taskfile
+> >>won't return valid result registers, TASK ioctl users won't get the
+> >>correct register output.
+> > 
+> > 
+> > Nope, it works just fine because REQ_DRIVE_TASK used only
+> > no-data protocol, please check task_no_data_intr().
+> > 
+> 
+>   Sorry, I missed that.  IDE really has a lot of ways to finish a 
+> command, doesn't it?  hdio.txt is gonna look ugly. :-)
+
+Yep but it was a lot more "fun" when there were three PIO codepaths. ;-)
+
+hdio.txt doesn't need to know about driver internals so no problem here.
+
+> > 
+> >> IMHO, this flag-to-get-result-registers thing is way too subtle.  How
+> >>about keeping old behavior by just not copying out register outputs in
+> >>ide_taskfile_ioctl() in applicable cases instead of not reading
+> >>registers when ending commands?  That is, unless there's some
+> >>noticeable performance impacts I'm not aware of.
+> > 
+> > 
+> > This would miss whole point of not _reading_ these registers (IO is slow).
+> > IMHO new flags denoting {in,out} registers should be added (to <linux/ata.h>
+> > to share them with libata) so new code can be sane and old flags would map
+> > on new flags when needed.
+> 
+>   Please do it.
+> 
+>   Or, let me know what you have in mind (added fields, flag names, 
+> etc...); then, I'll do it.  I think we also need to hear Jeff's opinion 
+> as things need to be added to ata.h.
+
+I was thinking about:
+
+* adding ATA_TFLAG_{IN,OUT}_xxx flags (there is enough free
+  place for all flags in ->flags field of struct ata_taskfile)
+* teaching flagged_taskfile() about these flags and mapping ->tf_out_flags
+  onto ATA_TFLAG_OUT_xxx (simple mapping no need to move ->tf_out_flags
+  to ide_taskfile_ioctl() etc. - no risk of breaking something)
+* moving flagged taskfile writing to ide_tf_load_discrete() helper
+* adding ide_tf_read_discrete() helper for use by ide_end_drive_cmd()
+  and mapping ->tf_in_flags onto ATA_TFLAG_IN_xxx (ditto)
+
+If you like this plan feel free to implement it.
+I'm also open for better ideas, comments etc.
+
+Bartlomiej

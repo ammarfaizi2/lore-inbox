@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbTJOSRK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTJOSRK
+	id S263764AbTJOSRh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 14:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbTJOSRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:17:10 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5762 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263713AbTJOSRH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:17:07 -0400
-Date: Wed, 15 Oct 2003 14:19:35 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Dave Jones <davej@redhat.com>
-cc: Nikita Danilov <Nikita@namesys.com>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Josh Litherland <josh@temp123.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Transparent compression in the FS
-In-Reply-To: <20031015174827.GA11893@redhat.com>
-Message-ID: <Pine.LNX.4.53.0310151404020.7746@chaos>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl>
- <16269.20654.201680.390284@laputa.namesys.com> <20031015142738.GG24799@bitwizard.nl>
- <16269.23199.833564.163986@laputa.namesys.com> <Pine.LNX.4.53.0310151150370.7350@chaos>
- <16269.29716.461117.338214@laputa.namesys.com> <Pine.LNX.4.53.0310151253001.7576@chaos>
- <20031015174827.GA11893@redhat.com>
+	Wed, 15 Oct 2003 14:17:37 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:53413 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263764AbTJOSRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 14:17:34 -0400
+Message-ID: <3F8D8F3A.5040506@nortelnetworks.com>
+Date: Wed, 15 Oct 2003 14:17:30 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on incoming packets and scheduler
+References: <3F8CA55C.1080203@nortelnetworks.com> <Pine.LNX.4.56.0310151035480.2144@bigblue.dev.mdolabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003, Dave Jones wrote:
+Davide Libenzi wrote:
+> On Tue, 14 Oct 2003, Chris Friesen wrote:
 
-> On Wed, Oct 15, 2003 at 01:19:09PM -0400, Richard B. Johnson wrote:
->  > FYI, I invented RLE and I also
->  > put it into JMODEM the "last" file-transfer protocol that
->  > I created in 1989.  http://www.hal9k.com/cug/v300e.htm
->
-> RLE has been around a *lot* longer than that.
-> There are even several patents long before you 'invented' it.
->
-> 1975:
->  http://patft.uspto.gov/netacgi/nph-Parser?Sect2=PTO1&Sect2=HITOFF&p=1&u=%2Fnetahtml%2Fsearch-bool.html&r=1&f=G&l=50&d=PALL&RefSrch=yes&Query=PN%2F4031515
->
-> 1983:
->  http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PALL&p=1&u=/netahtml/srchnum.htm&r=1&f=G&l=50&s1=4,586,027.WKU.&OS=PN/4,586,027&RS=PN/4,586,027
->
->
->
-> 		Dave
-
-JMODEM was done in 1989 as stated. RLE was invented my ME in 1967 and
-was first used for a digital telemetry link between the Haystack research
-facility in Groton, Mass. and MIT's main campus. I was a technician there
-during my senior year at Northeastern. Whether or not it was patented
-by others is immaterial.
-
-FYI, there are a lot of things I invented that others patented.
-The "Rubber Duckey" antenna (used in cell-phones and other
-transceivers) comes to mind.
-
-Even stuff, in which my name is mentioned as a "co-inventor"
-ends up being attributed to others, i.e., Gordon, et.al.
-
- United States Patent 5,577,026
-Apparatus for transferring data to and from a moving device.
- European Patent number 95906032.8-2206
-
-This, where I not only invented it, but single-handedly
-built it because the others mentioned in the patent were
-nay-sayers, claiming it wouldn't work.
+>>I have a long-running cpu hog background task, and a high-priority
+>>critical task that waits on a socket for network traffic.  When a packet
+>>comes in, I'd like the cpu hog to be swapped out ASAP, rather than
+>>waiting for the end of the timeslice.  Is there any way to make this happen?
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+> What do you mean for high priority? Is it an RT task? The wakeup (AKA
+> inserion in the run queue) happen soon :
+> IRQ->do_IRQ->softirq->net_rx_action->ip_rcv->...
+> but if your task is not RT there no guarantee that it'll preempt the
+> current running.
 
+Yes, it was an RT task.
+
+It appears that 2.4.20 fixes this issue, but there is another one 
+remaining that the latency appears to be dependent on the number of 
+incoming packets.  See thread "incoming packet latency in 2.4.[18-20]" 
+for details.  This behaviour doesn't show up in 2.6, and I'm about to 
+test 2.4.22.
+
+Chris
+
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

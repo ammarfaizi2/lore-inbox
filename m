@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279739AbRKVOl3>; Thu, 22 Nov 2001 09:41:29 -0500
+	id <S279778AbRKVOn3>; Thu, 22 Nov 2001 09:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279722AbRKVOlT>; Thu, 22 Nov 2001 09:41:19 -0500
-Received: from elin.scali.no ([62.70.89.10]:26886 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S279739AbRKVOlM>;
-	Thu, 22 Nov 2001 09:41:12 -0500
-Subject: Re: [Q] was the SYSENTER/SYSCALL fast system calls completed or
-	discared in the end??
-From: Terje Eggestad <terje.eggestad@scali.no>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011121225402.A175@elf.ucw.cz>
-In-Reply-To: <1006184327.19902.2.camel@pc-16.office.scali.no> 
-	<20011121225402.A175@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 22 Nov 2001 15:41:09 +0100
-Message-Id: <1006440069.22598.4.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+	id <S279768AbRKVOnT>; Thu, 22 Nov 2001 09:43:19 -0500
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:12295 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S279722AbRKVOnG>; Thu, 22 Nov 2001 09:43:06 -0500
+Date: Thu, 22 Nov 2001 15:43:05 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Dave Airlie <airlied@skynet.ie>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA and APM/ACPI issue (xircom card problem)
+In-Reply-To: <Pine.LNX.4.32.0111221429030.22550-100000@skynet>
+Message-ID: <Pine.LNX.4.33.0111221534500.27255-100000@chaos.tp1.ruhr-uni-bochum.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 2001-11-21 kl. 22:54 skrev Pavel Machek:
+On Thu, 22 Nov 2001, Dave Airlie wrote:
+
+> > > work..
+> >
+> > So basically, the problem exists when CONFIG_ACPI=y, right? Can you try to
+> > boot the ACPI enabled kernel with acpi=off in the command line?
 > 
-> On Mon 19-11-01 16:38:45, Terje Eggestad wrote:
-> > subject says it all....
-> > 
-> > I remember there was a discussion and a patch floating around that 
-> > implemented SYSCALL/SYSRET, just want to know what happened to it....
+> okay one kernel with ACPI it doesn't work with ACPI off it does ...
+> 2.4.15-pre8
+
+If I got this right, "acpi=off" fixes the problem using a kernel which
+otherwise shows the problem. If so, this clearly indicates that ACPI is
+the culprit, or, more precisely, probably an _INI method which is executed
+by the ACPI interpreter at boot time. Can you mail me (privately) a copy
+of your DSDT (cat /proc/acpi/dsdt > file), that's a table provided by the
+ACPI BIOS.
+
+> > Which exact error do you get from lspci? Does it give the error on both
+> > kernels?
 > 
-> discarded
-
-Because there was no perf benefit  or because the patch was in poor
-quality?
-
-
+> lspci without ACPI dumps out:
+> pcilib: Cannot open /proc/bus/pci/02/00.1
+> lspci: Unable to read 64 bytes of configuration space.
 > 
-> -- 
-> <sig in construction>
--- 
-_________________________________________________________________________
+> same except 00.1 is 00.7 on the ACPI boot..
 
-Terje Eggestad                  terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
+That's weird enough, somethings seems wrong with your PCI enumeration. 
+Can you recompile your kernel with #define DEBUG instead of #undef DEBUG 
+in drivers/pci/pci.c and arch/i386/kernel/pci-i386.h? Then please send the 
+boot messages again.
 
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
-N-0621 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+--Kai
 

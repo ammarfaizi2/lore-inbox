@@ -1,38 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbULNP0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbULNP1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbULNP0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 10:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbULNP0W
+	id S261531AbULNP1u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 10:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbULNP1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 10:26:22 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:30689 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261521AbULNP0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 10:26:15 -0500
-Date: Tue, 14 Dec 2004 16:25:58 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: dynamic-hz
-Message-ID: <20041214152558.GB16322@dualathlon.random>
-References: <20041212234331.GO16322@dualathlon.random> <cone.1102897095.171542.10669.502@pc.kolivas.org> <20041213002751.GP16322@dualathlon.random> <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <20041214023651.GT16322@dualathlon.random> <20041214095939.GC1063@elf.ucw.cz>
-Mime-Version: 1.0
+	Tue, 14 Dec 2004 10:27:44 -0500
+Received: from web51509.mail.yahoo.com ([206.190.38.201]:61522 "HELO
+	web51509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261529AbULNP1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 10:27:31 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=swRYfgj6b8LS1W8tcaEGb7aueo+Lue5K4YreyiiN1IP9WhnggYdthbbEwVesZuobyxyiunpHgkjQY0Eq20QuRF/qMgTWxIOYFnQh2+sk86RSyxjgEA0P821ulFFPQsiOSUKBkOH04cTBOrohHq6cdhqRac55oHqRCnDArfeUpj8=  ;
+Message-ID: <20041214152730.74648.qmail@web51509.mail.yahoo.com>
+Date: Tue, 14 Dec 2004 07:27:30 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: How to get the whole information dumped from kernel
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214095939.GC1063@elf.ucw.cz>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 10:59:39AM +0100, Pavel Machek wrote:
-> Are you using CONFIG_HPET_TIMER by chance? It seems to be missing some
-> strategic -1, TSC (etc) get it right.
+On  Sat, 11 Dec 2004 at 10:53, Linus Torvalds wrote:
+>
+> - for one-off things where you don't want to go to
+the bother, but
+> just want to find one problem, you can do:
+>      [snipped]     
+>    - disable CONFIG_CALLSYM, which makes the oops
+much harder to
+>      read, but also more compact. Then look up the
+addresses by hand
+>      with "gdb vmlinux" or use the ksymoops program.
+>
+ 
+Thank you.
+ 
+In /usr/src/linux/.config, we can see that
+"CONFIG_KALLSYMS=y" is included in the General setup
+section like the following: 
+ 
+#
+# General setup
+#
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_LOG_BUF_SHIFT=17
+CONFIG_HOTPLUG=y
+# CONFIG_IKCONFIG is not set
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+ 
+But, when we run 'make menuconfig', we can only see
+that the General setup section only contains the
+following items:
+  
+  [*] Support for paging of anonymous memory (swap)   
 
-I'm not using hpet because it's an old hardware, this is with timer_tsc.
-It must be reproducible in any machine out there, especially with
-machines with usb it should be reproducible even without any userspace
-testcase doing iopl/cli/sti. Time will go silenty in the future at every
-usb irq (they often last 3/4msec).
+  [*] System V IPC                                 
+  [*] POSIX Message Queues                         
+  [*] BSD Process Accounting                          
+   
+  [*] Sysctl support                                  
+     
+  [*] Auditing support                                
+     
+  [*]   Enable system-call auditing support           
+      
+  (17) Kernel log buffer size (16 => 64KB, 17 =>
+128KB)        
+  [*] Support for hot-pluggable devices               
+          
+  [ ] Kernel .config support                          
+         
+  [ ] Configure standard kernel features (for small
+systems)  ---> 
+  [*] Optimize for size                               
+ 
+Then, It seems that there is no place to disable
+CONFIG_KALLSYMS (i.e. turn 'CONFIG_KALLSYMS=y' to
+'CONFIG_KALLSYMS is not set'), How can I turn off the
+'CONFIG_KALLSYMS' item?? Is CONFIG_KALLSYMS=y set
+automatically by system?
+
+Thanks,
+
+
+
+=====
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
+
+
+
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

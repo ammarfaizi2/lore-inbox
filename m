@@ -1,93 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267700AbTAHRZZ>; Wed, 8 Jan 2003 12:25:25 -0500
+	id <S267692AbTAHRWy>; Wed, 8 Jan 2003 12:22:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267711AbTAHRZZ>; Wed, 8 Jan 2003 12:25:25 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:13755 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S267700AbTAHRZX>; Wed, 8 Jan 2003 12:25:23 -0500
-Date: Wed, 8 Jan 2003 12:33:56 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB CF reader reboots PC
-Message-ID: <20030108173356.GA1189@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030108165130.GA1181@Master.Wizards>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030108165130.GA1181@Master.Wizards>
-User-Agent: Mutt/1.4i
+	id <S267693AbTAHRWx>; Wed, 8 Jan 2003 12:22:53 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:34573 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267692AbTAHRWu>;
+	Wed, 8 Jan 2003 12:22:50 -0500
+Message-ID: <3E1C602C.6060702@walrond.org>
+Date: Wed, 08 Jan 2003 17:30:20 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUILD PROBLEM - Linux 2.5 BK - smpboot.c
+References: <3E1C17E0.2080804@walrond.org> <20030108162844.GA1025@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ooops - kernel 2.5.5[234]
-
-On Wed, Jan 08, 2003 at 11:51:30AM -0500, Murray J. Root wrote:
-> ASUS P4S533 (SiS645DX chipset)
-> P4 2GHz
-> 1G PC2700 RAM
-> SanDisk SDDR-77 ImageMate Dual Card Reader (using only CF cards)
+Sam Ravnborg wrote:
+> In BK recent mach_acpi is included on line 55.
+> Sure you have a clean tree?
 > 
-> ----------------------------
-> devfs compiled in to kernel, devfs=nomount in lilo.conf
->   
-> Insert CF card. mount it. cd to it, do reads and/or writes
-> umount card. remove card.
-> insert a different card (does not happen if the same card is used)
-> mount it. system reboots. logs are corrupted
-> 
-> Doesn't happen every time for read - sometimes I can read 2 or 3 cards first
-> Happens every time for write - if I write to a card then changing cards
-> causes a reboot
-> 
-> ----------------------------
-> devfs=mount in lilo.conf
->               
-> Insert CF card. 
-> ls /dev shows sda and sda1
-> mount it. 
-> ls /dev shows sda - no sda1
-> cd to mounted CF card
-> process hangs, sd-mod & usb-storage "busy"
-> rmmod -f usb-storage or sd-mod causes PC to stop
-> (keyboard & mouse unresponsive, wmfire frozen, net disconnects)
-> 
-> reboot
-> Insert CF card. 
-> ls /dev shows sda & sda1
-> mount it. 
-> ls /dev shows sda - no sda1
-> umount it
-> ls /dev shows sda - no sda1
-> modprobe -r sd-mod && modprobe sd-mod 
-> ls /dev shows sda & sda1
-> 
-> -- 
-> Murray J. Root
-> ------------------------------------------------
-> DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-> ------------------------------------------------
-> Mandrake on irc.freenode.net:
->   #mandrake & #mandrake-linux = help for newbies 
->   #mdk-cooker = Mandrake Cooker
->   #cooker = moderated Mandrake Cooker
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 	Sam
 > 
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker
-  #cooker = moderated Mandrake Cooker
+Please disregard. My Stupidity alarm has just gone off, along with the 
+Newbie BK user detector :(
 

@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267892AbTBVNFN>; Sat, 22 Feb 2003 08:05:13 -0500
+	id <S267896AbTBVNIk>; Sat, 22 Feb 2003 08:08:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267895AbTBVNFN>; Sat, 22 Feb 2003 08:05:13 -0500
-Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:23558 "EHLO
-	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S267892AbTBVNFN>; Sat, 22 Feb 2003 08:05:13 -0500
-Date: Sat, 22 Feb 2003 14:15:21 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ethernet-ATM-Router freezing
-Message-ID: <20030222131521.GC25040@torres.ka0.zugschlus.de>
-References: <20030222084958.GC23827@torres.ka0.zugschlus.de> <20030222113416.A14834@electric-eye.fr.zoreil.com> <20030222112553.GB24580@torres.ka0.zugschlus.de> <20030222125923.A14935@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030222125923.A14935@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.3.28i
+	id <S267897AbTBVNIk>; Sat, 22 Feb 2003 08:08:40 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:640 "EHLO bilbo.tmr.com")
+	by vger.kernel.org with ESMTP id <S267896AbTBVNIj>;
+	Sat, 22 Feb 2003 08:08:39 -0500
+Date: Sat, 22 Feb 2003 08:18:43 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: root@bilbo.tmr.com
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [2.4.21-pre4-ac5] make dep - Circular dependencies
+Message-ID: <Pine.LNX.4.44.0302220815440.5038-100000@bilbo.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 12:59:23PM +0100, romieu@fr.zoreil.com wrote:
-> > I will downgrade one of the boxes to 2.4.20 later today. This is going
-> > to be a busy weekend anyway :-(
-> 
-> Finding the first non-working kernel may help
+make[1]: Circular /usr/src/linux-2.4.21-pre4-ac5/include/asm/smplock.h <- /usr/src/linux-2.4.21-pre4-ac5/include/linux/interrupt.h dependency dropped.
+make[1]: Circular /usr/src/linux-2.4.21-pre4-ac5/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /usr/src/linux-2.4.21-pre4-ac5/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
 
-The freeze does happen about twice a week, so don't expect any results
-today.
+Happened to note this as it flashed by, the kernel is still building so I 
+don't know if it matters.
 
-> but you really should
-> include some more setup describing data (lspci -vv, lsmod and others
-> as suggested in REPORTING-BUGS file).
-
-If there is any information needed after seeing
-http://q.bofh.de/~mh/stuff/typescript-april-failure, please ask.
-
-Greetings
-Marc
+Built on 2.5.61-ac1 kernel with gcc 2.96 (RH 7.3) if it matters.
 
 -- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29
+bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
+  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
+since using 2.5 kernels includes a lot of things jumping out of dark
+corners to scare you.
+
+

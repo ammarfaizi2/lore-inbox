@@ -1,144 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264303AbTLVEkb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 23:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbTLVEkb
+	id S262328AbTLVEw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 23:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTLVEw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 23:40:31 -0500
-Received: from dhcp024-209-033-037.neo.rr.com ([24.209.33.37]:37250 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S264303AbTLVEkT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 23:40:19 -0500
-Date: Sun, 21 Dec 2003 23:29:56 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Alexander Poquet <atp@csbd.org>
-Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk
-Subject: Re: 2.6.0 fails to complete boot - Sony VAIO laptop
-Message-ID: <20031221232955.GA11201@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Alexander Poquet <atp@csbd.org>, wli@holomorphy.com,
-	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk
-References: <20031220040953.9C35D1E030CA3@csbd.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Dec 2003 23:52:58 -0500
+Received: from xavier.comcen.com.au ([203.23.236.73]:34058 "EHLO
+	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S262328AbTLVEwu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 23:52:50 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: cleanerx@au.hadiko.de
+Subject: Re: PROBLEM: nForce2 keeps crashing during network activity
+Date: Mon, 22 Dec 2003 14:51:06 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20031220040953.9C35D1E030CA3@csbd.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200312221451.06331.ross@datscreative.com.au>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 19, 2003 at 11:20:54PM -0500, Alexander Poquet wrote:
-> Hey folks.
->
->
->
-> On Fri, 19 Dec 2003 02:28:21 -0800, William Lee Irwin III wrote:
-> > The hardware solution is better, but I'll settle for anything you can
-> > get that way.
->
->
-> Not having a hardware solution at my disposal, I copied the dmesg by hand from
-> the screen, giving myself screenfuls by hacking null while loops into various
-> places.  I've attached it below; as it was copied by hand there may be a typo
-> or two but I was as careful as possible.  There are a few lines that I did not
-> get, at the very beginning, because the last place I could put a hang was after
-> console_init() in start_kernel() -- if information from up there is needed,
-> I can probably hack printk.  It doesn't look too hard but I didn't want to mess
-> with it unless someone requires the information.
->
-> As is evident from the dmesg, the blank out happens while doing an isapnp
-> scan.  Now, I'm wondering why I have isapnp configured -- I think it has
-> something to do with 16-bit PCMCIA cards, but I can't remember exactly -- but
+>>Jens Kübler wrote: 
+ 
+>> Hi 
+> > 
+> > My computer will freeze if I produce heavy network traffic. The crashes 
+> > happen after an arbitrary time and seem not to be related to hardware 
+> > defects. I tried the onboard nic and the rtl8139 which worked fine for me 
+> > with my old mainboard. I've copied the same file with windowsXP and tried 
+> > some other heavy network traffic just to see wheater it might be an 
+> > hardware error but the system was stable. After I have started to import 
+> > my home directory via NFS the crashes became more often. I will crash my 
+> > system if I copy a big file via SMB. 
+> > I had the problem with Mandrake 9.1 and now with 9.2 and even compiled my 
+> > own kernel (mandrake source) with no effect. 
+> > 
+> > Any suggestions? 
+> > 
 
-In this system, isapnp is probably not necessary.
+>Boot with noapic or acpi=off 
+> --
+>Regards
+>Thomas
 
->
-> at any rate as stock kernels are likely to have it setup perhaps this is a bug
-> that should be ironed out.  I haven't tried compiling the kernel without
+If the noapic or acpi=off stabilizes it for you and you want to run with apic
+and io-apic then my patches may help.
 
-Agreed.  In what kernel version did you first see this problem?
+You can find them in this thread
 
-> isapnp support, but I can do that if you think the bug is a symptom of something
-> else and not a fsck-up in the isapnp code itself.  At any rate, the exact
-> function call that generates the black out is in drivers/pnp/isapnp/core.c,
-> on line 1132 (or just about).  The code in question (it's in isapnp_init()):
->
->         isapnp_detected = 1;
->         if (isapnp_rdp < 0x203 || isapnp_rdp > 0x3ff) {
->                 cards = isapnp_isolate();
->                 if (cards < 0 ||
->                     (isapnp_rdp < 0x203 || isapnp_rdp > 0x3ff)) {
-> #ifdef ISAPNP_REGION_OK
->                         release_region(_PIDXR, 1);
-> #endif
-> ----------------->      release_region(_PNPWRP, 1);
->                         isapnp_detected = 0;
->                         printk(KERN_INFO "isapnp: No Plug & Play device found\n");
->                         return 0;
->                 }
->                 request_region(isapnp_rdp, 1, "isapnp read");
->         }
->         isapnp_build_device_list();
+Updated Lockup Patches, 2.4.22 - 23 Nforce2, apic timer ack delay, ioapic edge
+ for NMI debug
 
-Hmm, it doesn't seem possible for it to be occuring on that exact line.  Perhaps there
-is a delay between the bad code and the time the lcd actually blanks. ISAPnP uses
-legacy probing techniques.  It is possible that it is writting to one of your laptop's
-configuration interfaces during the probe.
+If unsubscribed you can find it here
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/4673.html
+or here
+http://lkml.org/lkml/2003/12/21/156
 
-Could you provide more information as to how you isolated the problem to this line?
+Regards
+Ross Dickson
 
-
->
-> The corresponding request_region is a little bit higher up in the function.
-> Why would releasing the region cause a console blank?
->
-> WRT to the console blank, it was very much as if the card jumped out of text
-> mode, or something.  The monitor felt ... weird.  (I'm connecting to my laptop
-> using an external monitor; the Sony VAIO model I have, the PCG-F450, has a
-> documented issue with its LCD panel).  I'm not exactly sure how to put it into
-> words, but it was like doing "SCREEN 9" in BASICA back on DOS.  Like it jumped
-> into a graphics mode, or something.
->
-> The boot obviously doesn't continue -- does that imply that the kernel panics
-> after the console black out?  Without a serial cable I can't be sure that
-> there isn't more stuff being printed after the console black out that might be
-> useful.  Any ideas on how to deal with this would be appreciated.
->
-> Oh, and also, what does that address space collision stuff in the PCI init
-> portion of the dmesg mean?  Should I be worried about that?
-
-The PnPBIOS is reserving ACPI configuration space.  PCI is surprised when it
-finds it already reserved.  Usually this isn't a problem.  It is interesting,
-however, that the the PCI bridge and the PnP BIOS are reporting slightly
-different ranges.
-
-> PnPBIOS: Scanning system for PnP BIOS support...
-> PnPBIOS: Found PnP BIOS installation structure at 0x00f71f0
-> pnp: 00:00: ioport range 0x398-0x399 has been reserved
-> pnp: 00:00: ioport range 0x4d0-0x4d1 has been reserved
-> pnp: 00:00: ioport range 0x8000-0x804f has been reserved
-> pnp: 00:00: ioport range 0x1040-0x104f has been reserved
-> PnPBIOS: 17 nodes reported by PnP BIOS; 17 recorded by driver
-
-> PCI: Probing PCI hardware
-> PCI: Probing PCI hardware (bus 00)
-> PCI: Address space collision on region 7 of bridge 0000:00:07.3 [8000:803f]
-> PCI: Address space collision on region 8 of bridge 0000:00:07.3 [1040:105f]
-
->
->
-> Alexander
->
-> dmesg follows...
->
-> -------------------------------------------------------------------------------
->
---> snip
->
-> isapnp: Scanning for PnP cards...
-
-Could you please ensure that ISAPnP is indeed the culprit by passing the "noisapnp"
-kernel parameter.
-
-Thanks,
-Adam

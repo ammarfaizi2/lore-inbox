@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136346AbRDWCjE>; Sun, 22 Apr 2001 22:39:04 -0400
+	id <S136348AbRDWCmn>; Sun, 22 Apr 2001 22:42:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136339AbRDWCiy>; Sun, 22 Apr 2001 22:38:54 -0400
-Received: from [211.99.247.66] ([211.99.247.66]:6665 "HELO lustre.us.mvd")
-	by vger.kernel.org with SMTP id <S135519AbRDWCil>;
-	Sun, 22 Apr 2001 22:38:41 -0400
-Date: Sun, 22 Apr 2001 19:40:10 -0700 (PDT)
-From: "Peter J. Braam" <braam@mountainviewdata.com>
-To: adilger@turbolinux.com, sct@redhat.com, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Cc: ericm@mountainviewdata.com
-Subject: Ext3 for Linux 2.4 progress report
-Message-ID: <Pine.LNX.4.21.0104221927020.11051-100000@lustre.us.mvd>
+	id <S136347AbRDWCme>; Sun, 22 Apr 2001 22:42:34 -0400
+Received: from juicer03.bigpond.com ([139.134.6.79]:64708 "EHLO
+	mailin6.bigpond.com") by vger.kernel.org with ESMTP
+	id <S136349AbRDWCmV>; Sun, 22 Apr 2001 22:42:21 -0400
+Date: Mon, 23 Apr 2001 12:42:41 +1000
+From: Brett <brett@macfeegles.com.au>
+To: Manuel McLure <manuel@mclure.org>
+cc: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
+In-Reply-To: <20010422192520.A3618@ulthar.internal.mclure.org>
+Message-ID: <Pine.LNX.4.21.0104231237130.13278-100000@tae-bo.generica.dyndns.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas, Stephen, 
+On Sun, 22 Apr 2001, Manuel McLure wrote:
+>
+> 
+> On 2001.04.22 14:38 Andrzej Krzysztofowicz wrote:
+> > > 
+> > > I'm having a problem with "su -" on ac11/ac12. ac5 doesn't show the
+> > > problem.
+> > > The problem is easy to reproduce - go to a console, log in as root, do
+> > an
+> > > "su -" (this will succeed) and then another "su -". The second "su -"
+> > > should hang - ps shows it started bash and that the bash process is
+> > > sleeping. You need to "kill -9" the bash to get your prompt back.
+> > 
 
-We have a lot working now: 
+No problem here either...
+Tried nesting 7 levels deep, a few times.
 
-1. journal recovery and initialization stuff is working
-2. transactions go to the disk
-3. infrastructure is there to do transcactions
-4. ext3_create is fully operational. 
+p75
 
-The problems we have seen mostly have to do with differences in which
-buffer heads are being initialized.  Things like b_transaction etc. were
-not cleaned up.
+# uname -a
+Linux lapsis 2.4.3-ac12 #2 Sun Apr 22 17:41:08 EST 2001 i586 unknown
 
-There are more buffer head problems around, but we are debugging them
-quickly now.
+# ls /lib/libc-*
+-rwxr-xr-x    1 root     root      1417065 Feb 17 14:57 /lib/libc-2.2.2.so*
 
-You can play with this, make a loop device, mount it and to things like
-touch (NOTE: only file creations have been handled so far).  If you
-re-mount a dirty ext3 image, it will recovery.  The first few always
-work, but at present things go wrong when bdflush kicks in.
+# gcc --version
+2.95.3
 
-We left a patch at: 
+# su --version
+su (GNU sh-utils) 2.0j
 
-ftp.inter-mezzo.org:/pub/ext3/242-ac26-1um.ext3-ph5_4.patch.gz
-
-In the patch there are markers of the form @@@ with your names, asking for
-help!
-
-- Peter -
+	/ Brett
 

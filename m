@@ -1,79 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317977AbSGLBsl>; Thu, 11 Jul 2002 21:48:41 -0400
+	id <S317978AbSGLBwi>; Thu, 11 Jul 2002 21:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317978AbSGLBsl>; Thu, 11 Jul 2002 21:48:41 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:14452 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S317977AbSGLBsj>; Thu, 11 Jul 2002 21:48:39 -0400
-Date: Fri, 12 Jul 2002 03:52:32 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       "Carter K. George" <carter@polyserve.com>,
-       Don Norton <djn@polyserve.com>, "James S. Tybur" <jtybur@polyserve.com>
-Subject: Re: fsync fixes for 2.4
-Message-ID: <20020712015232.GQ1342@dualathlon.random>
-References: <20020711225748.GN1342@dualathlon.random> <Pine.LNX.4.44.0207112149260.21511-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207112149260.21511-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S317979AbSGLBwh>; Thu, 11 Jul 2002 21:52:37 -0400
+Received: from dsl-213-023-020-198.arcor-ip.net ([213.23.20.198]:10707 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317978AbSGLBwg>;
+	Thu, 11 Jul 2002 21:52:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Alexander Viro <viro@math.psu.edu>, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: Rusty's module talk at the Kernel Summit
+Date: Fri, 12 Jul 2002 03:54:58 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       "David S. Miller" <davem@redhat.com>, adam@yggdrasil.com,
+       R.E.Wolff@bitwizard.nl, linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0207111928390.9488-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0207111928390.9488-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Spe7-0002az-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 11, 2002 at 09:51:29PM -0300, Marcelo Tosatti wrote:
-> 
-> 
-> On Fri, 12 Jul 2002, Andrea Arcangeli wrote:
-> 
-> > On Thu, Jul 11, 2002 at 05:21:24PM -0300, Marcelo Tosatti wrote:
-> > >
-> > >
-> > > On Wed, 10 Jul 2002, Andrea Arcangeli wrote:
-> > >
-> > > > At polyserve they found a severe problem with fsync in 2.4.
-> > > >
-> > > > In short the write_buffer (ll_rw_block of mainline) is a noop if old I/O
-> > > > is in flight. You know the buffer can be made dirty while I/O is in
-> > > > flight, and in such case fsync would return without flushing the dirty
-> > > > buffers at all. Their proposed fix is strightforward, just a
-> > > > wait_on_buffer before the ll_rw_block will guarantee somebody marked the
-> > > > bh locked _after_ we wrote to it.
-> > >
-> > > >From what I can see the problem goes like:
-> > >
-> > >
-> > > thread1				thread2
-> > > 				writepage(page) (marks the buffers clean, page is
-> > > 				locked for IO)
-> > >
-> > > mark_buffer_dirty()
-> > >
-> > > fsync()
-> > >
-> > > fsync_buffers_list() finds
-> > > the dirtied buffer, but since
-> > > its locked ll_rw_block() returns
-> > > without queueing the data.
-> > >
-> > > fsync_buffers_list() waits on the writepage()'s
-> > > write to return but not on latest data write.
-> > >
-> > >
-> > > Is that what you mean or I'm misunderstanding something?
-> >
-> > yes, that's it.
-> 
-> So I'm just going to add wait_on_page() on fsync_buffers_list() before the
-> ll_rw_block().
-> 
-> Nothing else, since all of the other stuff on your patch seems to be
-> improvements rather than bug fixes. ACK?
+On Friday 12 July 2002 01:37, Alexander Viro wrote:
+> As for determining the loading/normal/unloading - we _already_ have that
+> state, no need to introduce new fields.  How do you think try_inc_mod_count()
+> manages to work?  Exactly - there's a field of struct module that contains
+> a bunch of flags.  And no, Daniel's ramblings (from what I've seen quoted)
+> are pure BS - there's no need to mess with "oh, but I refuse to be
+> unregistered"; proper refcounting is easy for normal cases.
 
-agreed, for an rc2 that's certainly the best approch, thanks.
+I don't particularly like using the mod count to hold a module in memory.
+It's workable but sloppy.  Supposing that the mod count counts the number
+of filesystems mounted (it doesn't, it counts the number of mounts, an
+even sillier thing to count), and supposing all are unmounted but the
+module can't unregister itself for some other reason, say some thread it
+owns hasn't exited yet.  Yes, you could say the mod count is the count of
+all mounts, plus all the threads the module owns, plus more counts for
+other resources the module owns, but why?  Just let the unregister routine
+return failure, it's more general and a simpler interface.  Besides,
 
-Andrea
+> It's not needed.  I don't see where this ret-rmmod crap is coming from -
+> module uses some interface and decisions about holding it pinned belong
+> to that interface.
+
+The ret-rmmod race is what you get when you rely on something in the
+module dec'ing the use count, and somebody can come along later to throw
+the module out of memory - stepping on still-executing ret code.  This
+race isn't obviously gone.
+
+Speaking of crap, this is nothing to be proud of:
+
+637                 spin_lock(&unload_lock);
+638                 if (mod->refs == NULL
+639                     && (mod->flags & MOD_AUTOCLEAN)
+640                     && (mod->flags & MOD_RUNNING)
+641                     && !(mod->flags & MOD_DELETED)
+642                     && (mod->flags & MOD_USED_ONCE)
+643                     && !__MOD_IN_USE(mod)) {
+644                         if ((mod->flags & MOD_VISITED)
+645                             && !(mod->flags & MOD_JUST_FREED)) {
+646                                 spin_unlock(&unload_lock);
+647                                 mod->flags &= ~MOD_VISITED;
+648                         } else {
+649                                 mod->flags |= MOD_DELETED;
+650                                 spin_unlock(&unload_lock);
+651                                 free_module(mod, 1);
+652                                 something_changed = 1;
+653                         }
+654                 } else {
+655                         spin_unlock(&unload_lock);
+656                 }
+
+I'm not going to be very easily convinced that the result of this
+current effort is going to be the most elegant possible.  Yes, I expect
+it to work eventually, but as an shining example of transparent code...
+it just isn't.
+
+The rest of the interface seems to run about the same level of
+cleanliness.  I suppose I shouldn't be so quick to put away my
+dung-shovel.
+
+> Plain, simple and works for all normal drivers.
+
+That we agree on.
+
+-- 
+Daniel

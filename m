@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbTLWRfu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTLWRfu
+	id S261965AbTLWRki (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTLWRki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:35:50 -0500
-Received: from iron-c-1.tiscali.it ([212.123.84.81]:10802 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S261973AbTLWRfs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:35:48 -0500
-X-BrightmailFiltered: true
-Date: Tue, 23 Dec 2003 18:35:56 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: Bill Nottingham <notting@redhat.com>
-Subject: Re: various issues with ACPI sleep and 2.6
-Message-ID: <20031223173556.GA9412@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031223165739.GA28356@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+	Tue, 23 Dec 2003 12:40:38 -0500
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:21434
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261965AbTLWRkg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 12:40:36 -0500
+Message-ID: <3FE8388F.1020302@rogers.com>
+Date: Tue, 23 Dec 2003 12:43:59 +0000
+From: pZa1x <pZa1x@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Karol Kozimor <sziwan@hell.org.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Laptops and 2.6.0 - momentum? (was Re: 2.6.0 release + ALSA + suspend
+ = not work)
+References: <15Ee5-Id-5@gated-at.bofh.it> <20031222230237.GA26609@hell.org.pl>
+In-Reply-To: <20031222230237.GA26609@hell.org.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.157.208.226] using ID <dw2price@rogers.com> at Tue, 23 Dec 2003 12:38:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Testing ACPI sleep under 2.6, I noticed the following issues
-> (Thinkpad T40, i855PM chipset):
->
-> - USB fails on resume (sent to linux-usb-devel)
+Well, I'm volunteering time to do testing on my notebook for 2.6.0. I 
+wonder if there is anyway to generate some momentum for it? If the aim 
+is enterprise, doesn't enterprise use thousands of notebooks? I got mine 
+refurbished from some large business. There are many organizations that 
+collect thousands of old notebooks used by businesses, refurbish them 
+and re-sell them. It's a great way of acquiring a durable, light 
+business-class notebook at bargain prices.
 
-Known issue. Unload usb modules before suspending.
+This is a great target for Linux especially as it runs fine (even with 
+the infamous Gnome) on my 700Mhz T20 Thinkpad. ie. a multi-gigahertz 
+system seems a complete waste of money and a risk re weight and build 
+quality.
 
-> - DRI being loaded at all causes X to fail on resume
+I couldn't code a hello world to save my life but I can test patches and 
+collect data. Currently, I am running 2.4.22 on my notebook because on 
+2.6.0:
 
-Known issue. See
-http://dri.sourceforge.net/cgi-bin/moin.cgi/PowerManagement
+(a) suspend kills ALSA and ALSA mut be restarted
+(b) suspend fails to function if yenta_socket (PCMCIA services) is running
 
-> - MCE on resume:
->
->  MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
->  Bank 1: f200000000000175
 
-Hum, this is strange. I saw similar  messages on my laptop but they were
-related to bank0-issue on athlon CPUs. No idea of what's going on there.
+Karol Kozimor wrote:
+> Thus wrote pZa1x:
+> 
+>>ALSA stops producing sound after any time I suspend my Thinkpad T20 
+>>notebook. I am using 2.6.0 release and the snd-cs46xx driver.
+>>
+>>I have to log out of Gnome and remove the sound card module and re 
+>>modprobe it then restart Gnome to get sound back.
+>>
+>>No problems with 2.4.20 with OSS drivers.
+> 
+> 
+> I have a similar problem here (ICH3M, CS4299, snd-intel8x0). In my case,
+> using OSS emulation in userspace and ALSA modules in kernel works fine, so
+> it must be a locking problem of some kind, anyway probably something
+> trivial to fix.
+> A similar problem occurs under 2.4, FYI.
+> Best regards,
+> 
 
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Windows /win'dohz/ n. : thirty-two  bit extension and graphical shell to
-a sixteen  bit patch to an  eight bit operating system  originally coded
-for a  four bit microprocessor  which was  written by a  two-bit company
-that can't stand a bit of competition.

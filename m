@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUFBPJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263226AbUFBPM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUFBPJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 11:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUFBPJ4
+	id S263226AbUFBPM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 11:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUFBPM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 11:09:56 -0400
-Received: from main.gmane.org ([80.91.224.249]:54700 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263117AbUFBPJy (ORCPT
+	Wed, 2 Jun 2004 11:12:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:428 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263184AbUFBPMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 11:09:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: SERIO_USERDEV patch for 2.6
-Date: Wed, 2 Jun 2004 17:08:42 +0200
-Message-ID: <MPG.1b27e7e5aece43bc9896b5@news.gmane.org>
-References: <Pine.GSO.4.58.0406011105330.6922@stekt37> <200406011318.36992.dtor_core@ameritech.net> <MPG.1b272042f54382879896b4@news.gmane.org> <200406011850.16136.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-81-129.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
+	Wed, 2 Jun 2004 11:12:41 -0400
+Date: Wed, 2 Jun 2004 08:12:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+In-Reply-To: <20040602150440.GA26474@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org>
+References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl>
+ <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
+ <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org>
+ <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org>
+ <20040602150440.GA26474@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Tuesday 01 June 2004 05:23 pm, Giuseppe Bilotta wrote:
-> > Dmitry Torokhov wrote:
-> > > echo "rawdev" > /sys/bus/serio/devices/serio0/driver
-> > > 
-> > > or something alont these lines. At least that's my grand plan ;)
-> > 
-> > I like this kind of idea. Many options should be settable this 
-> > way (think for example about Synaptics and ALPS touchpad 
+
+
+On Wed, 2 Jun 2004, Jörn Engel wrote:
 > 
-> Yes, exactly, it will allow much more flexible option handling. Still,
-> as far as your examples go: 
-> 
-> > configurations: whether to use multipointers separately or 
-> > together,
-> - userspace task - always persent separate devices and have application
->   (GPM or X) multiplex data together.
+> Can I read this as:
+> Linus himself will use strong words to enforce all recursions in the
+> kernel to be either removed or properly documented.
 
-Ok, in this case your ALPS patch need a little working ;) (Last 
-time I saw it it ORed the touchpad and stick values.)
+If we have a good detector that is reliable and easy to run, why not?
 
-> > (de)activation of tapping,
-> - may be userspace task - i.e can be done in userspace if device can
->   report BTN_TOUCH event. If not then kernel has to toggle it.
+It will take some time, but I think the problem so far has been that the
+recursion can be hard to see. Some "core" cases are well-known (memory
+allocations during memory allocation, and filename lookup), and they 
+should be trivial to annotate. Knock wood. Others might be worse.
 
-> > button remapping etc).  
-> - userspace task
+> In that case, you have 273 recursions to deal with.  They are all in
+> the data I attached a few posts back.  Recursions would basically be
+> in the same league as huge stack hogs, sounds good.
 
-When you say "userspace task", are you saying that the 
-filtering out of, say, BTN_TOUCH events should happen at a 
-higher level than the kernel driver not reporting them at all? 
-Say, in gpm?
+Yes. And with huge stack hogs, we've not exactly "fixed them all in a 
+weekend", have we? But having a few people run the checking tools and 
+nagging every once in a while ends up eventually fixing things. At least 
+the most common ones.
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+		Linus

@@ -1,86 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbUBRKh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 05:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbUBRKhZ
+	id S264391AbUBRK0p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 05:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbUBRK0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 05:37:25 -0500
-Received: from agminet04.oracle.com ([141.146.126.231]:27285 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S264361AbUBRKhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 05:37:23 -0500
-Message-ID: <4033404E.1010303@iitbombay.org>
-Date: Wed, 18 Feb 2004 16:07:02 +0530
-From: Niraj Kumar <niraj17@iitbombay.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.6]  UFS2 Read Only Patch
-References: <40332F42.9070605@iitbombay.org> <20040218014422.7a1144b3.akpm@osdl.org>
-In-Reply-To: <20040218014422.7a1144b3.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 05:26:45 -0500
+Received: from ln33.neoplus.adsl.tpnet.pl ([83.30.25.33]:5892 "EHLO
+	uran.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
+	id S264391AbUBRK0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 05:26:43 -0500
+Date: Wed, 18 Feb 2004 11:26:13 +0100
+From: Damian Kolkowski <damian@kolkowski.no-ip.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+Subject: Re: Radeonfb problem
+Message-ID: <20040218102613.ALLYOURBASEAREBELONGTOUS.A2246@kolkowski.no-ip.org>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Kronos <kronos@kronoz.cjb.net>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de> <20040217203604.GA19110@dreamland.darkstar.lan> <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org> <20040217213441.GA22103@dreamland.darkstar.lan> <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org> <1077056532.1076.27.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1077056532.1076.27.camel@gaston>
+X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
+X-Girl: 1 will be enough!
+X-Age: 24 (1980.09.27 - libra)
+X-IM: JID:damian@kolkowski.no-ip.org ICQ:59367544 GG:88988
+X-Operating-System: Slackware GNU/Linux, kernel 2.6.3-mm1, up 1 min
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-Thanks for the comments.
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> [2004-02-18 00:02]:
+> Ugh ? Send me a dmesg log at boot please without any command
+> line. radeonfb should set your display to the native panel size
+> by default
 
->> The patch for 2.6.3 is here :
->> http://ufs-linux.sourceforge.net/ufs2/2.6.3/ufs2-read-only-p1.txt
->> http://ufs-linux.sourceforge.net/ufs2/2.6.3/ufs2-read-only-p2.txt
->>    
->>
->
->ooh, I see you have a mkfs.ufs there.  Does it support UFS1 as well?
->
-Yeah , it does support UFS1 as well ....
+Now I compiled 2.6.3-mm1 with new radeonfb. Clean boot without radeonfb append
+sets 640x480 in 60 Hz, ok thats fine.
 
->Does current UFS support little-endian machines?  If so, has this code been
->tested on a little-endian host?  The code _looks_ OK, but one does need to
->test...
->
-This patch has been somewhat tested on my "Pentium 4"  machine (running 
-RHEL 3).
-Other than that , 1-2 persons on freebsd list has also tried this.
+But..,
 
->Has the patched filesystem been regression tested against a UFS1 filesystem?
->
-Only some most basic (mount , read ) functionality has been cheked to be 
-working.
+if I use fbset like this:
 
->
->
->The patches which you have there are a bit of a disaster coding-style wise.
->
->- Use hard tabs everywhere, not eight-spaces.
->
->- No space before terminating semicolons
->
->-
->
->+        if ( (flags & UFS_TYPE_MASK) == UFS_TYPE_UFS2)
->+        {
->+	     uspi->s_u2_size  = fs64_to_cpu(sb, usb->fs_u11.fs_u2.fs_size);
->
->  should be
->
->	if ((flags & UFS_TYPE_MASK) == UFS_TYPE_UFS2) {
->
->  etcetera.   See Documentation/CodingStyle.
->
-Well .... I will prepare a modifed patch and send that again .
+	fbset -fb /dev/fb0 -a -depth 32 1024x768-100
 
->Thanks.
->
-All-in-all , the problem is that this
-was not getting enough testing so  I thought that unless it is included
-in  , say mm series, it will not get tested.  That's why I send it to you .
-But anyway , wait for the modifed version (which will take care of 
-Documentation/CodingStyle) .
+my CRT monitor MAG 786FD looks like ths:
 
-Niraj
+|------------|
+|     |      |
+|  a  |      |
+|     |      |
+|-----|      |
+|       b    |
+|            |
+|------------|
 
+Where "a" is the visual screan after using fbset and "b" is my monitor.
 
+So something is worng, besides when using higher resolution "a" fieald is
+smaller then "b".
+
+P.S. Using video=radeon:1024x768-32@100 in append is _NOT_ working for my
+rv250if (radeon 9000 pro).
+
+PP.S. Cursor is working fine on text terminal, but in graphics it's hangs when
+protocol option is set to auto :-) Using "IMPS/2" works, but xterm is not
+starting :-)
+
+PPP.S. Ben please if you know tell me if fglrx works with new radeonfb without
+hanging text terminal as it was in old radeonfb.
+
+-- 
+# Damian *dEiMoS* Ko³kowski # http://kolkowski.no-ip.org/ #

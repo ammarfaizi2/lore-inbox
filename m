@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261306AbSIWTcJ>; Mon, 23 Sep 2002 15:32:09 -0400
+	id <S261429AbSIWTOD>; Mon, 23 Sep 2002 15:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbSIWTaj>; Mon, 23 Sep 2002 15:30:39 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261331AbSIWSli>;
-	Mon, 23 Sep 2002 14:41:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: trond.myklebust@fys.uio.no, Andrew Morton <akpm@digeo.com>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-Date: Mon, 23 Sep 2002 19:16:59 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
-       trond.myklebust@fys.uio.no,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3D811363.70ABB50C@digeo.com> <3D811A6C.C73FEC37@digeo.com> <15759.17258.990642.379366@charged.uio.no>
-In-Reply-To: <15759.17258.990642.379366@charged.uio.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17tWpR-0003au-00@starship>
+	id <S261353AbSIWTNV>; Mon, 23 Sep 2002 15:13:21 -0400
+Received: from fes4-mail.whowhere.com ([209.202.220.170]:40582 "HELO
+	mailcity.com") by vger.kernel.org with SMTP id <S261343AbSIWTMs>;
+	Mon, 23 Sep 2002 15:12:48 -0400
+To: linux-kernel@vger.kernel.org
+Date: Mon, 23 Sep 2002 20:17:38 +0100
+From: "svetljo" <svetljo@lycos.com>
+Message-ID: <JOGPEBMEIODLJAAA@mailcity.com>
+Mime-Version: 1.0
+X-Sent-Mail: on
+Reply-To: svetljo@lycos.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: via-rhine, VT6103 and VT8235
+X-Sender-Ip: 131.188.24.131
+Organization: Lycos Mail  (http://www.mail.lycos.com:80)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 September 2002 18:38, Trond Myklebust wrote:
-> >>>>> " " == Andrew Morton <akpm@digeo.com> writes:
-> 
->      > Look, idunnoigiveup.  Like scsi and USB, NFS is a black hole
->      > where akpms fear to tread.  I think I'll sulk until someone
->      > explains why this work has to be performed in the context of a
->      > process which cannot do it.
-> 
-> I'd be happy to move that work out of the RPC callbacks if you could
-> point out which other processes actually can do it.
-> 
-> The main problem is that the VFS/MM has no way of relabelling pages as
-> being invalid or no longer up to date: I once proposed simply clearing
-> PG_uptodate on those pages which cannot be cleared by
-> invalidate_inode_pages(), but this was not to Linus' taste.
+Hi just found previous report about my troubles
+dating 2002-07-20
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102718248323184&w=2
 
-Could you please provide a subject line for that original discussion?
+and the fix is already in 2.4.20-pre7 
+but sadly i still have the problem with the fix applied
 
--- 
-Daniel
+my local LAN is 10Mb and the onboard NIC doesn't want to do anything
+else then 100Mb, and i get a lot of errors 
+ETDEV WATCHDOG: eth1: transmit timed out
+eth1: Transmit timed out, status 0000, PHY status 786d, resetting...
+NETDEV WATCHDOG: eth1: transmit timed out
+eth1: Transmit timed out, status 0000, PHY status 786d, resetting...
+[etc, etc, ...]
+
+mobo EPoX 8K5A-3+ KT333 + VT8235 2.4.19-pre10jam3(with/without the fix) 
+couldn't find 2.4.20-pre7 with SGI's xfs :( to test
+
+dmesg @ http://varna.demon.co.uk/~svetlio/RhineETH
+
+fix  @ http://varna.demon.co.uk/~svetlio/via-rhine.c.diff
+lspci -vvv @ http://varna.demon.co.uk/~svetlio/LSPCI
+
+so i wanted to ask whether someone has it working
+and if there is a newer fix? :)
+
+Best Regards,
+
+svetljo
+
+---
+Svetoslav Dimitrov Slavtschev
+
+svetljo@lycos.com
+svetoslav@web.de
+
+
+
+____________________________________________________________
+Tired of all the SPAM in your inbox? Switch to LYCOS MAIL PLUS
+http://www.mail.lycos.com/brandPage.shtml?pageId=plus

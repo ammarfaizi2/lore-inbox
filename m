@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVAMUOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVAMULK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVAMUOw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVAMULk
+	id S261466AbVAMULK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVAMUHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:11:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46789 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261460AbVAMUK6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:10:58 -0500
-Date: Thu, 13 Jan 2005 12:10:33 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Marek Habersack <grendel@caudium.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-In-Reply-To: <20050113200308.GC3555@redhat.com>
-Message-ID: <Pine.LNX.4.58.0501131206340.2310@ppc970.osdl.org>
-References: <20050112094807.K24171@build.pdx.osdl.net>
- <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com>
- <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet>
- <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112174203.GA691@logos.cnet>
- <1105627541.4624.24.camel@localhost.localdomain> <20050113194246.GC24970@beowulf.thanes.org>
- <20050113200308.GC3555@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jan 2005 15:07:19 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:128 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261460AbVAMUDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:03:42 -0500
+Date: Thu, 13 Jan 2005 20:59:42 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hugang@soulinfo.com
+Subject: Re: 2.6.10-mm3: swsusp: out of memory on resume (was: Re: Ho ho ho - Linux v2.6.10)
+Message-ID: <20050113195941.GD2599@openzaurus.ucw.cz>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <200412262127.49897.Rafal.Wysocki@fuw.edu.pl> <20041226221046.GA1406@elf.ucw.cz> <200501131909.26021.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501131909.26021.rjw@sisk.pl>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-On Thu, 13 Jan 2005, Dave Jones wrote:
+> > > > Can you try this one? It would be nice to have reproducible way to
+> > > > trigger this before trying to fix it, through.
+> > > > 
+> > > > [Patch is for 2.6.9something+my bigdiff, may need small tweaks]
+> > > 
+> > > It's for i386, isn't it?  Will it work as expected on AMD64?
+> > 
+> > Ouch, no, it probably will not work on amd64. Some assembly tweaks
+> > would be needed.
+> > 
+> > Anyway here's that patch ported to 2.6.10+my_bigdiff (just in case
+> > anyone has the same problem on i386).
 > 
-> When issues get leaked, the incentive for a researcher to use the
-> same process again goes away, which hurts us.  Basically, trying
-> to keep them happy is in our best interests.
+> Has this patch been ported to x86_64?  Or is there a newer version of it anywhere,
+> or an alternative?
 
-Not so.
+Was that hugang's patch we were talking about?
 
-_balancing_ their happiness with our needs is what's in our best
-interests. Yes, we should encourage them to tell us, but totally bending
-over backwards is definitely the wrong thing to do.
+Anyway ugly workaround for this is to just try harder to free memory during
+suspend... Just do free_some_memory five times with msleep(200) in between.
 
-In fact, right now we seem to encourage even people who do _not_
-necessarily want the delay and secrecy to go over to vendor-sec, just
-because the vendor-sec people are clearly arguing even against
-alternatives.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-Which is something I do not understand. The _apologia_ for vendor-sec is 
-absolutely stunning. Even if there are people who want to only interface 
-with a fascist vendor-sec-style absolute secrecy list, THAT IS NOT AN 
-EXCUSE TO NOT HAVE OPEN LISTS IN _ADDITION_!
-
-In other words, I really don't understand this total subjugation by people 
-to the vendor-sec mentaliy. It's a disease, I tell you.
-
-			Linus

@@ -1,79 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVCPCut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVCPCzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbVCPCut (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 21:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVCPCut
+	id S262472AbVCPCzY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 21:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVCPCzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 21:50:49 -0500
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:1481 "HELO
-	develer.com") by vger.kernel.org with SMTP id S262476AbVCPCuh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 21:50:37 -0500
-Message-ID: <42379ECC.9060100@develer.com>
-Date: Wed, 16 Mar 2005 03:49:48 +0100
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla Thunderbird 1.0-5 (X11/20050308)
-X-Accept-Language: en-us, en
+	Tue, 15 Mar 2005 21:55:24 -0500
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:57002 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262472AbVCPCzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 21:55:07 -0500
 MIME-Version: 1.0
-To: Neil Conway <nconway_kernel@yahoo.co.uk>
-CC: Anders Saaby <as@cohaesio.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       lkml <linux-kernel@vger.kernel.org>, nfs@lists.sourceforge.net
-Subject: Re: NFS client bug in 2.6.8-2.6.11
-References: <20050315234415.71730.qmail@web26510.mail.ukl.yahoo.com>
-In-Reply-To: <20050315234415.71730.qmail@web26510.mail.ukl.yahoo.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16951.40964.44130.990674@wombat.chubb.wattle.id.au>
+Date: Wed, 16 Mar 2005 13:55:00 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au,
+       davidm@davemloft.net
+Subject: Can no longer build ipv6 built-in (2.6.11, today's BK head)
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Conway wrote:
-
-> 766 -> 770 sounds like a "small" (ish) number of patches to check, if
-> we're lucky.  Did you wade through 'em all yet?  Any smoking guns?
-
-The RPM changelog doesn't contain anything relevant
-between 766 and 770:
-
----CUT---
-* Thu Feb 24 2005 Dave Jones <davej@redhat.com>
-
-- Use old scheme first when probing USB. (#145273)
-
-* Wed Feb 23 2005 Dave Jones <davej@redhat.com>
-
-- Try as you may, there's no escape from crap SCSI hardware. (#149402)
-
-* Mon Feb 21 2005 Dave Jones <davej@redhat.com>
-
-- Disable some experimental USB EHCI features.
-
-* Tue Feb 15 2005 Dave Jones <davej@redhat.com>
-
-- Fix bio leak in md layer.
----CUT---
-
-Perhaps the changelog is incomplete.  I don't have the
-two SRPMs at hand to make a comparison.
-
-By the way, it seems upgrading to 2.6.10-1.770_FC3 just made
-the bug much harder to trigger: I've definitely seen it once
-again when I had left a shell sitting in an NFS directory
-overnight.  I couldn't reproduce it a second time.
 
 
-> PS: oh bugger, just remembered that I also reproduced my bug with a
-> 2.6.8 kernel on the server; admittedly though it was an FC2 kernel so
-> who knows what extra patches it had.
+Changeset 
+  herbert@gondor.apana.org.au|ChangeSet|20050310043957|06845
+added cleanup to ipv6_init(), which calls ip6_route_cleanup()
 
-You can easily find out by downloading the SRPM.  Now that
-Fedora provides a public CVS, perhaps it could be used to
-make such investigations directly with the cvsweb interface
-without downloading and unpacking a 40MB file.
+ip6_route_cleanup() is marked __exit so cannot be called from an
+__init section -- it's discarded by the linker from the image
+(although it'll be retained in a module).
+
+You get errors like this:
+ip6_route_cleanup: discarded in section `.exit.text' from
+net/built-in.o 
+xfrm6_fini: discarded in section `.exit.text' from net/built-in.o
+fib6_gc_cleanup: discarded in section `.exit.text' from net/built-in.o
+ipv6_packet_cleanup: discarded in section `.exit.text' from
+net/built-in.o
+
+
+A simple fix is to delete the __exit from the various functions now that
+they're called other than at module_exit.
+
+Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
+
+Index: linux-2.5-import/net/ipv6/route.c
+===================================================================
+--- linux-2.5-import.orig/net/ipv6/route.c	2005-03-16 10:12:44.742595387 +1100
++++ linux-2.5-import/net/ipv6/route.c	2005-03-16 13:01:50.246678866 +1100
+@@ -2116,7 +2116,7 @@
+ #endif
+ }
+ 
+-void __exit ip6_route_cleanup(void)
++void ip6_route_cleanup(void)
+ {
+ #ifdef CONFIG_PROC_FS
+ 	proc_net_remove("ipv6_route");
+Index: linux-2.5-import/net/ipv6/ipv6_sockglue.c
+===================================================================
+--- linux-2.5-import.orig/net/ipv6/ipv6_sockglue.c	2005-03-16 10:12:44.736736056 +1100
++++ linux-2.5-import/net/ipv6/ipv6_sockglue.c	2005-03-16 13:24:19.095793200 +1100
+@@ -698,7 +698,7 @@
+ 	dev_add_pack(&ipv6_packet_type);
+ }
+ 
+-void __exit ipv6_packet_cleanup(void)
++void ipv6_packet_cleanup(void)
+ {
+ 	dev_remove_pack(&ipv6_packet_type);
+ }
+Index: linux-2.5-import/net/ipv6/ip6_fib.c
+===================================================================
+--- linux-2.5-import.orig/net/ipv6/ip6_fib.c	2005-03-15 12:28:44.819748921 +1100
++++ linux-2.5-import/net/ipv6/ip6_fib.c	2005-03-16 13:27:46.423351526 +1100
+@@ -1218,7 +1218,7 @@
+ 		panic("cannot create fib6_nodes cache");
+ }
+ 
+-void __exit fib6_gc_cleanup(void)
++void fib6_gc_cleanup(void)
+ {
+ 	del_timer(&ip6_fib_timer);
+ 	kmem_cache_destroy(fib6_node_kmem);
+Index: linux-2.5-import/net/ipv6/xfrm6_policy.c
+===================================================================
+--- linux-2.5-import.orig/net/ipv6/xfrm6_policy.c	2005-03-15 12:28:44.853928319 +1100
++++ linux-2.5-import/net/ipv6/xfrm6_policy.c	2005-03-16 13:53:28.890552848 +1100
+@@ -276,7 +276,7 @@
+ 	xfrm_policy_register_afinfo(&xfrm6_policy_afinfo);
+ }
+ 
+-static void __exit xfrm6_policy_fini(void)
++static void xfrm6_policy_fini(void)
+ {
+ 	xfrm_policy_unregister_afinfo(&xfrm6_policy_afinfo);
+ }
+@@ -287,7 +287,7 @@
+ 	xfrm6_state_init();
+ }
+ 
+-void __exit xfrm6_fini(void)
++void xfrm6_fini(void)
+ {
+ 	//xfrm6_input_fini();
+ 	xfrm6_policy_fini();
+Index: linux-2.5-import/net/ipv6/xfrm6_state.c
+===================================================================
+--- linux-2.5-import.orig/net/ipv6/xfrm6_state.c	2005-03-15 12:28:44.854904874 +1100
++++ linux-2.5-import/net/ipv6/xfrm6_state.c	2005-03-16 13:29:30.183337361 +1100
+@@ -129,7 +129,7 @@
+ 	xfrm_state_register_afinfo(&xfrm6_state_afinfo);
+ }
+ 
+-void __exit xfrm6_state_fini(void)
++void xfrm6_state_fini(void)
+ {
+ 	xfrm_state_unregister_afinfo(&xfrm6_state_afinfo);
+ }
+
+
 
 -- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

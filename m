@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265247AbUHMNMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265249AbUHMNNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265247AbUHMNMz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 09:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUHMNMz
+	id S265249AbUHMNNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 09:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbUHMNNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 09:12:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20162 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265247AbUHMNMy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 09:12:54 -0400
-Date: Fri, 13 Aug 2004 14:12:53 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Ben Castricum <lk@bencastricum.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc doesn't detect USB modem/weird SSH problem
-Message-ID: <20040813131253.GV12308@parcelfarce.linux.theplanet.co.uk>
-References: <001d01c48135$a0741b30$0502a8c0@tragebak>
+	Fri, 13 Aug 2004 09:13:18 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:11993 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265249AbUHMNNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 09:13:15 -0400
+Subject: Re: excessive swapping
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092381036.2597.29.camel@rivendell.home.local>
+References: <1092379250.2597.14.camel@rivendell.home.local>
+	 <1092379468.2597.16.camel@rivendell.home.local>
+	 <1092381036.2597.29.camel@rivendell.home.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092399058.24408.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001d01c48135$a0741b30$0502a8c0@tragebak>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 13 Aug 2004 13:10:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 02:59:32PM +0200, Ben Castricum wrote:
-> The SSH problem is a bit stranger. I know this is a user space application
-> but since 2.6.7 has no problems I thought I mention it just in case. If I
-> strace the daemon and compare a working with a non-working session the
-> non-working sessions fails on this:
-> open("/dev/ptmx", O_RDWR)         = -1 EIO (Input/output error)
-> 
-> Any suggestions?
+On Gwe, 2004-08-13 at 08:10, Florin Andrei wrote:
+> The efficiency of increasing the disk cache decreases exponentially with
+> size, like any other cache. Then what's the point of sacrificing useful
+> memory just to increase some hypothetical "useful" cache?
 
-For ssh - see ftp.linux.org.uk/pub/people/viro/ptmx-delta.  USB - fsck knows.
+The problem is defining "useful". Pieces of applications not being
+run at the moment are also not useful. Balancing them isn't easy 
+because as you say the cache behaviour is exponential _and_ the two
+caches have different behaviours when you get blocking (program paging
+is generally random so 30+ times slower than streaming bits). Plus there
+is user perception.
+
+The latest code is clearly wrong but it isn't simple to get the balance
+right either.
+

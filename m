@@ -1,119 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVDFWHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVDFWNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbVDFWHT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 18:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVDFWHT
+	id S262325AbVDFWNe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 18:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVDFWNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 18:07:19 -0400
-Received: from fire.osdl.org ([65.172.181.4]:62130 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262330AbVDFWHD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 18:07:03 -0400
-Date: Wed, 6 Apr 2005 15:07:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: 2.6.12-rc2-mm1
-Message-Id: <20050406150703.409dba1c.akpm@osdl.org>
-In-Reply-To: <d2to03$t0t$1@sea.gmane.org>
-References: <20050405000524.592fc125.akpm@osdl.org>
-	<d2to03$t0t$1@sea.gmane.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Apr 2005 18:13:34 -0400
+Received: from hammer.engin.umich.edu ([141.213.40.79]:39335 "EHLO
+	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S262325AbVDFWNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 18:13:22 -0400
+Date: Wed, 6 Apr 2005 18:13:16 -0400 (EDT)
+From: Christopher Allen Wing <wingc@engin.umich.edu>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: clock runs at double speed on x86_64 system w/ATI RS200
+ chipset (workaround for APIC mode?)
+In-Reply-To: <20050405183141.GA27195@muc.de>
+Message-ID: <Pine.LNX.4.58.0504061758150.4573@hammer.engin.umich.edu>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+ <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
+ <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
+ <20050405183141.GA27195@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz> wrote:
->
-> oes not compile on AthlonXP. For mmx_clear_page, only the prototype was
-> changed, but the implementation is still the same. I guess that part of
-> the patch slipped out somehow.
-> 
-> -extern void mmx_clear_page(void *page);
-> 
-> +extern void mmx_clear_page(void *page, int order);
-
-I guess this will fix it...
+The attached patch gets the clock to work normally for me without
+disabling APIC mode entirely. But I'm still not sure what's going on.
 
 
-diff -puN arch/i386/lib/mmx.c~add-a-clear_pages-function-to-clear-pages-of-higher-fix arch/i386/lib/mmx.c
---- 25/arch/i386/lib/mmx.c~add-a-clear_pages-function-to-clear-pages-of-higher-fix	Wed Apr  6 15:00:54 2005
-+++ 25-akpm/arch/i386/lib/mmx.c	Wed Apr  6 15:06:09 2005
-@@ -128,9 +128,10 @@ void *_mmx_memcpy(void *to, const void *
-  *	other MMX using processors do not.
+dmesg of 2.6.11.6 with default options (ACPI, APIC, 'apic=debug'):
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apicdebug
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-apic
+
+dmesg with patch, and 'timerhack apic=debug':
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apicdebug-timerhack
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-apic-timerhack
+
+
+The patch causes the timer to be routed via the "Virtual Wire IRQ" mode,
+and I see in /proc/interrupts:
+
+	  0:     376947  local-APIC-edge  timer
+
+instead of 'IO-APIC-edge'. I no longer get duplicate timer interrupts; it
+seems to track the 'LOC' interrupt count normally.
+
+
+The crucial part of the patch, besides skipping attempting to set up the
+timer IRQ through the APIC mp_INT or mp_ExtINT, is:
+
+	clear_IO_APIC_pin(0, pin1)
+
+
+Without this function call, I still get duplicate timer interrupts when
+using Virtual Wire to route the timer.
+
+
+I'm still seeing 'APIC error on CPU0: 00(40)' messages from time to time.
+
+
+-Chris
+wingc@engin.umich.edu
+
+
+
+--- linux-2.6.11.6/arch/x86_64/kernel/io_apic.c.orig	2005-03-25 22:28:21.000000000 -0500
++++ linux-2.6.11.6/arch/x86_64/kernel/io_apic.c	2005-04-06 17:56:46.486511088 -0400
+@@ -1564,6 +1564,8 @@
+  * is so screwy.  Thanks to Brian Perkins for testing/hacking this beast
+  * fanatically on his truly buggy board.
   */
- 
--static void fast_clear_page(void *page)
-+static void fast_clear_page(void *page, int order)
- {
- 	int i;
-+	int chunks = (4096 << order) / 64;
- 
- 	kernel_fpu_begin();
- 	
-@@ -138,8 +139,7 @@ static void fast_clear_page(void *page)
- 		"  pxor %%mm0, %%mm0\n" : :
- 	);
- 
--	for(i=0;i<4096/64;i++)
--	{
-+	for (i = 0; i < chunks; i++) {
- 		__asm__ __volatile__ (
- 		"  movntq %%mm0, (%0)\n"
- 		"  movntq %%mm0, 8(%0)\n"
-@@ -257,18 +257,18 @@ static void fast_copy_page(void *to, voi
-  *	Generic MMX implementation without K7 specific streaming
-  */
-  
--static void fast_clear_page(void *page)
-+static void fast_clear_page(void *page, int order)
- {
- 	int i;
--	
-+	int chunks = (4096 << order) / 128;
++static int timer_hack = 0;
 +
- 	kernel_fpu_begin();
- 	
- 	__asm__ __volatile__ (
- 		"  pxor %%mm0, %%mm0\n" : :
- 	);
- 
--	for(i=0;i<4096/128;i++)
--	{
-+	for (i = 0; i < chunks; i++) {
- 		__asm__ __volatile__ (
- 		"  movq %%mm0, (%0)\n"
- 		"  movq %%mm0, 8(%0)\n"
-@@ -359,23 +359,23 @@ static void fast_copy_page(void *to, voi
-  *	Favour MMX for page clear and copy. 
-  */
- 
--static void slow_zero_page(void * page)
-+static void slow_zero_page(void *page, int order)
+ static inline void check_timer(void)
  {
- 	int d0, d1;
- 	__asm__ __volatile__( \
- 		"cld\n\t" \
- 		"rep ; stosl" \
- 		: "=&c" (d0), "=&D" (d1)
--		:"a" (0),"1" (page),"0" (1024)
-+		:"a" (0),"1" (page),"0" (1024 << order)
- 		:"memory");
- }
-  
--void mmx_clear_page(void * page)
-+void mmx_clear_page(void *page, int order)
- {
- 	if(unlikely(in_interrupt()))
--		slow_zero_page(page);
-+		slow_zero_page(page, order);
- 	else
--		fast_clear_page(page);
-+		fast_clear_page(page, order);
- }
- 
- static void slow_copy_page(void *to, void *from)
-_
+ 	int pin1, pin2;
+@@ -1592,6 +1594,10 @@
 
+ 	apic_printk(APIC_VERBOSE,KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
+
++    if (timer_hack) {
++	/* for some reason this stops duplicate timer IRQ? */
++	clear_IO_APIC_pin(0, pin1);
++    } else {
+ 	if (pin1 != -1) {
+ 		/*
+ 		 * Ok, does IRQ0 through the IOAPIC work?
+@@ -1633,6 +1639,7 @@
+ 		clear_IO_APIC_pin(0, pin2);
+ 	}
+ 	printk(" failed.\n");
++    }
+
+ 	if (nmi_watchdog) {
+ 		printk(KERN_WARNING "timer doesn't work through the IO-APIC - disabling NMI Watchdog!\n");
+@@ -1669,6 +1676,14 @@
+ 	panic("IO-APIC + timer doesn't work! Try using the 'noapic' kernel parameter\n");
+ }
+
++static int __init timerhack(char *str)
++{
++	timer_hack = 1;
++	return 1;
++}
++__setup("timerhack", timerhack);
++
++
+ /*
+  *
+  * IRQ's that are handled by the PIC in the MPS IOAPIC case.

@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUIIOHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUIIOLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbUIIOHP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 10:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUIIOFN
+	id S264903AbUIIOLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 10:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUIIOLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 10:05:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9734 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264386AbUIIOEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 10:04:48 -0400
-Date: Thu, 9 Sep 2004 15:04:44 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [patch][9/9] block: remove bio walking
-Message-ID: <20040909150444.C6434@flint.arm.linux.org.uk>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Jens Axboe <axboe@suse.de>
-References: <200409082127.04331.bzolnier@elka.pw.edu.pl> <20040909090314.A24950@flint.arm.linux.org.uk> <200409091553.13918.bzolnier@elka.pw.edu.pl>
+	Thu, 9 Sep 2004 10:11:24 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:30122 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264396AbUIIOJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 10:09:59 -0400
+Subject: Re: multi-domain PCI and sysfs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, jbarnes@engr.sgi.com,
+       willy@debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e473391040908173179bf4647@mail.gmail.com>
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	 <200409072115.09856.jbarnes@engr.sgi.com>
+	 <20040907211637.20de06f4.davem@davemloft.net>
+	 <200409072125.41153.jbarnes@engr.sgi.com>
+	 <9e47339104090723554eb021e4@mail.gmail.com>
+	 <20040908112143.330a9301.davem@davemloft.net>
+	 <1094683264.12335.35.camel@localhost.localdomain>
+	 <9e473391040908173179bf4647@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094735187.14657.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200409091553.13918.bzolnier@elka.pw.edu.pl>; from bzolnier@elka.pw.edu.pl on Thu, Sep 09, 2004 at 03:53:13PM +0200
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 09 Sep 2004 14:06:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2004 at 03:53:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Thursday 09 September 2004 10:03, Russell King wrote:
-> > On Wed, Sep 08, 2004 at 09:27:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > [patch] block: remove bio walking
-> > > 
-> > > IDE driver was the only user of bio walking code.
-> 
-> was in -bk10 :-(
-> 
-> > The MMC driver also uses this.  Please don't remove.
-> 
-> OK I'll just drop this patch but can't we also use scatterlists in MMC?
-> 
-> The point is that I now think bio walking was a mistake and accessing
-> bios directly from low-level drivers is a layering violation (thus
-> all the added complexity). Moreover with fixed IDE PIO and without
-> bio walking code it should be possible to shrink struct request by
-> removing all "current" entries.
+On Iau, 2004-09-09 at 01:31, Jon Smirl wrote:
+> I think the problem is more basic than building a VGA device. I
+> wouldn't be having trouble if there were structures for each "PCI IO
+> space". An x86 machine would have one of these structs. Other
 
-I'm wondering whether it is legal to map onto SG lists and then do PIO.
-Provided we don't end up using the DMA API and then using PIO to the
-original pages, it should work.
+Depends which x86. 
 
-I would rather Jens considered your point first before rewriting code.
+The single trivial arch function I proposed in the previous mail is
+enough to untangle this problem and has two virtues
 
-However, using the SG lists does finally provide us with a nice way to
-ensure that we have the right information to finally fix IDE wrt the
-PIO cache issues (dirty cache lines being left in the page cache.)
+1. For most platforms the implementation is "return 1"
+2. The minimal implementation is merely less efficient so you don't
+have to hack every conceivable case at once.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> architectures would have multiple ones. You need these structs to find
+> any PCI legacy device, the problem is not specific to VGA.
+
+There are essentially no other devices we care about. IDE legacy is
+dealt with BIOS level and never touched again - so why bother designing
+for them.
+

@@ -1,35 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291738AbSBHS7O>; Fri, 8 Feb 2002 13:59:14 -0500
+	id <S291741AbSBHS7O>; Fri, 8 Feb 2002 13:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291746AbSBHS66>; Fri, 8 Feb 2002 13:58:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64273 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291743AbSBHS5s>; Fri, 8 Feb 2002 13:57:48 -0500
-Subject: Re: Problem with mke2fs on huge RAID-partition
-To: pruegg@eproduction.ch (Peter H. =?iso-8859-1?Q?R=FCegg?=)
-Date: Fri, 8 Feb 2002 18:18:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C640C90.E71E3F70@eproduction.ch> from "Peter H. =?iso-8859-1?Q?R=FCegg?=" at Feb 08, 2002 06:36:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291743AbSBHS7C>; Fri, 8 Feb 2002 13:59:02 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:63420 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S291745AbSBHS5x>;
+	Fri, 8 Feb 2002 13:57:53 -0500
+Date: Fri, 8 Feb 2002 19:01:06 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Balbir Singh <balbir_soni@hotmail.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] larger kernel stack (8k->16k) per task (fwd)
+In-Reply-To: <F69rw2fk1VK68maChsd0001c218@hotmail.com>
+Message-ID: <Pine.LNX.4.33.0202081849000.1359-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZFbD-0004TM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My problem is: If I start mke2fs [1] on the device, it writes everything
-> down until "Writing Superblocks...". The system then completly hangs.
-> And yes, I did wait long enough (well, at least I think 15 hours should
-> be enough ;-)
+Hi Balbir,
 
-More than enough
+On Fri, 8 Feb 2002, Balbir Singh wrote:
+> 2. I think you missed getuser.S in arch/i386/kernel/lib.
+>    All the __get_user_x should change to
 
-> Is there a limitation in the maximum size of a partition (well, 400 GB is
-> not that small...), may it be a (known) problem of mke2fs or the particular
-> Kernel-Version, or does anyone have any suggestions where else to seek?
+no, I didn't miss them. If you read the patch again you will see them.
 
-The limit is about 1Tb currently. You are hitting something else, perhaps
-a driver or VM problem ?
+>
+> 3. I verified that the instance of GET_CURRENT in hw-irq.h
+>    is not being used by anybody and can safely be removed.
+
+yes, I also verified and came to the same conclusion but left the change
+in the patch on purpose (so if anyone does start using it, it is already
+correct)
+
+>
+> __get_user_1:
+>         movl %esp,%edx
+>         andl $~(THREAD_SIZE - 1),%edx
+>         cmpl addr_limit(%edx),%eax
+>
+> I have a patch that lets the user select any stack size
+> from 8K to 64K, it can be configured. And yes, it works
+> on my system.
+>
+> I do not have the /proc entry that u have though in
+> my patch.
+>
+> Would you like to merge both the patches or would you
+> like me to do it and send out a new version.
+>
+>
+> The patch is attached along with this email. It
+> is againt 2.4.17
+
+The serious problem with your patch is that you missed quite a few places
+(e.g.  smpboot.c and traps.c). Most importantly, you missed the alignment
+in vmlinux.lds so I guess your machine boots by pure luck :) In the early
+stages (first hours of writing it) I missed that one too and was puzzled
+by random panics on boot...
+
+Actually, the patch I sent is only part of the "complete piece", the other
+part being changes to kdb to work correctly with large stack. I can
+separate those from kdb patch that I use and send out if there was enough
+interest.
+
+Regards,
+Tigran
+

@@ -1,68 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVCFWZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVCFWaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVCFWZe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 17:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVCFWZd
+	id S261555AbVCFWaU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 17:30:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVCFWaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 17:25:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2488 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261521AbVCFWZI (ORCPT
+	Sun, 6 Mar 2005 17:30:19 -0500
+Received: from quechua.inka.de ([193.197.184.2]:33964 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261555AbVCFWaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:25:08 -0500
-Date: Sun, 6 Mar 2005 23:24:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: domen@coderock.org
-Cc: linux-kernel@vger.kernel.org, nacc@us.ibm.com
-Subject: Re: [patch 1/1] kernel/smp: replace schedule_timeout() with ssleep()
-Message-ID: <20050306222444.GA3282@elf.ucw.cz>
-References: <20050306222248.254E11EC90@trashy.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050306222248.254E11EC90@trashy.coderock.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 6 Mar 2005 17:30:08 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: swsusp: allow resume from initramfs
+Date: Sun, 06 Mar 2005 23:28:36 +0100
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Message-Id: <pan.2005.03.06.22.28.35.805021@dungeon.inka.de>
+References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Use ssleep() instead of schedule_timeout(). The original code uses
-> TASK_INTERRUPTIBLE, but does not check for signals, so I believe the change to
-> ssleep() is appropriate.
+On Fri, 04 Mar 2005 11:35:12 +0000, Andrew Morton wrote:
+> I don't understand how this can be affected by the modularness of the
+> kernel.  Can you explain a little more?
 > 
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> Signed-off-by: Domen Puncer <domen@coderock.org>
+> Would it not be simpler to just add "resume=03:02" to the boot command line?
 
-Actually this code should be rewritten to use cpu hotplug
-infrastructure, but this seems simple enough. ACK. [Heh, would be nice
-if someone could test it...]
+initramfs can also be used to ask for a passphrase, hash it, and setup
+some (de)cryption dm tables.
 
-							Pavel
+Andreas
 
-> diff -puN kernel/power/smp.c~ssleep-kernel_power_smp kernel/power/smp.c
-> --- kj/kernel/power/smp.c~ssleep-kernel_power_smp	2005-03-05 16:11:19.000000000 +0100
-> +++ kj-domen/kernel/power/smp.c	2005-03-05 16:11:19.000000000 +0100
-> @@ -13,6 +13,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/suspend.h>
->  #include <linux/module.h>
-> +#include <linux/delay.h>
->  #include <asm/atomic.h>
->  #include <asm/tlbflush.h>
->  
-> @@ -49,8 +50,7 @@ void disable_nonboot_cpus(void)
->  	printk("Freezing CPUs (at %d)", smp_processor_id());
->  	oldmask = current->cpus_allowed;
->  	set_cpus_allowed(current, cpumask_of_cpu(0));
-> -	current->state = TASK_INTERRUPTIBLE;
-> -	schedule_timeout(HZ);
-> +	ssleep(1);
->  	printk("...");
->  	BUG_ON(smp_processor_id() != 0);
->  
-> _
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

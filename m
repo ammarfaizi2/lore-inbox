@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261595AbRE1SNL>; Mon, 28 May 2001 14:13:11 -0400
+	id <S263115AbRE1STC>; Mon, 28 May 2001 14:19:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263115AbRE1SNB>; Mon, 28 May 2001 14:13:01 -0400
-Received: from hamachi.synopsys.com ([204.176.20.26]:7064 "EHLO
-	hamachi.synopsys.com") by vger.kernel.org with ESMTP
-	id <S261595AbRE1SMr>; Mon, 28 May 2001 14:12:47 -0400
-Message-ID: <3B129510.53197DDB@Synopsys.COM>
-Date: Mon, 28 May 2001 20:12:32 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S263116AbRE1SSx>; Mon, 28 May 2001 14:18:53 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:33721 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S263115AbRE1SSn>; Mon, 28 May 2001 14:18:43 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200105281816.TAA15469@mauve.demon.co.uk>
+Subject: Loopback crypt.
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.5: SCSI devices are mixed up?
+Date: Mon, 28 May 2001 19:16:40 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Is there any way to delete the key of an existing loopback encrypted
+device, and have it block, until a key is reloaded?
 
-It took me quite some time to recognize what has changed between 2.4.4
-and 2.4.5 and why my CD drives were not accessable: Somehow the sequence 
-of SCSI devices has been changed.
+Of course any cached pages would need deleted, and dirty ones flushed
+first.
 
-For 2.4.4 the IDE SCSI emulation was scsibus0, my Adaptec 39160 was 
-scsibus1 and scsibus2.
+To enable things like deleting keys from memory, before suspend-to-disk,
+or forcing users of devices to verify identitiy, on various events.
 
-Suddenly with 2.4.5 the IDE SCSI stuff is scsibus2. The Adaptec devices
-moved down one step. You can imagine that this mixed up a lot of things. 
-Fortunately my boot disk wasn't affected. 
-
-My question is: How can I specify the sequence of the SCSI devices?
-I would like to make sure that this doesn't happen again.
-
-
-Regards
-
-Harri

@@ -1,30 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271800AbRHWKNP>; Thu, 23 Aug 2001 06:13:15 -0400
+	id <S272172AbRHWKRP>; Thu, 23 Aug 2001 06:17:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271944AbRHWKNF>; Thu, 23 Aug 2001 06:13:05 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:62727 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S271800AbRHWKM6>;
-	Thu, 23 Aug 2001 06:12:58 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Richard J Moore" <richardj_moore@uk.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is there any interest in Dynamic API 
-In-Reply-To: Your message of "Thu, 23 Aug 2001 10:21:25 +0100."
-             <OFD58750A9.2C3F311E-ON80256AB1.00331AB2@portsmouth.uk.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 23 Aug 2001 20:13:07 +1000
-Message-ID: <23384.998561587@ocs3.ocs-net>
+	id <S272070AbRHWKRG>; Thu, 23 Aug 2001 06:17:06 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:37650 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S271944AbRHWKQz>;
+	Thu, 23 Aug 2001 06:16:55 -0400
+Date: Thu, 23 Aug 2001 12:17:05 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: [BUG] HDIO_DRIVE_RESET ioctl is buggy
+To: david.balazic@uni-mb.si,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        andre@linux-ide.org, axboe@suse.de
+Message-id: <3B84D821.C2D157D1@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001 10:21:25 +0100, 
-"Richard J Moore" <richardj_moore@uk.ibm.com> wrote:
->Thanks, these are good areguments for not pursuing this. We'll proceed with
->conversion of dprobes to a device driver rather than a kernel module.
 
-I presume you meant a device driver rather than a syscall interface.
-Obviously a driver can be a module.
+The HDIO_DRIVE_RESET ioctl implementation in ide.c is broken :
 
+linux-2.4.8-ac8 , hdd is a Teac CD532E-B CDROM drive
+
+( it is the same for several latest linux versions )
+
+[root@localhost scsireset]# ./idereset /dev/hdd # source of iderest below , it just sends the ioctl
+hdd: DMA disabled
+idereset : ioctl succesful # this is from my idereset program , the rest are kernel messages
+hdd: ide_set_handler: handler not null; old=c017e9a0, new=e08ce2f0
+bug: kernel timer added twice at c017e8e8.
+
+
+relevant System.map parts :
+
+c017e800 T ide_end_request
+c017e890 T ide_set_handler
+c017e8f0 T current_capacity
+c017e920 T ide_geninit
+c017e9a0 t atapi_reset_pollfunc
+c017ea70 t reset_pollfunc
+c017ebd0 t check_dma_crc
+
+part of  `ksymoops -s all.map` :
+
+e08ce240 t cdrom_start_read     [ide-cd]
+e08ce2f0 t cdrom_pc_intr        [ide-cd]
+e08ce4b0 t cdrom_do_pc_continuation     [ide-cd]
+
+source if idereset.c :
+
+/*************************
+ * idereset - reset an ide device
+ * 
+ * Usage : idereset /dev/hdX
+ * 
+ */
+
+#define IDERESET_VERSION "v0.1"
+
+
+#include <string.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <linux/hdreg.h>
+
+void print_usage(FILE * out_file)
+{
+   fprintf(out_file,"idereset " IDERESET_VERSION "\nArgument error.Usage :\n");
+   fprintf(out_file,"idereset /dev/hdX\n");
+}
+
+int main (int argc,char ** argv)
+{
+   int device_fd;                /* file descriptor for the device file */
+   
+   if ( argc !=2 )
+     {   
+        print_usage(stderr);
+        return 1;
+     }
+/* open device */
+   device_fd=open(argv[1], O_RDONLY | O_NONBLOCK);
+   if ( device_fd == -1 )
+     {
+        perror(argv[1]);
+        return 1;
+     }
+   /* ioctl */
+   if(ioctl( device_fd, HDIO_DRIVE_RESET , NULL))
+     perror(argv[1]);
+   else
+     printf("idereset : ioctl succesful\n");
+   
+   close(device_fd);
+   
+   return 0;
+}
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbTIEWW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 18:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbTIEWW6
+	id S265158AbTIEW2v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 18:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265208AbTIEW2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 18:22:58 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:467 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S265248AbTIEWWz convert rfc822-to-8bit
+	Fri, 5 Sep 2003 18:28:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:32763 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265158AbTIEW2s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 18:22:55 -0400
-content-class: urn:content-classes:message
+	Fri, 5 Sep 2003 18:28:48 -0400
+Message-ID: <3F590D85.20803@mvista.com>
+Date: Fri, 05 Sep 2003 15:26:13 -0700
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [UPDATED PATCH] EFI support for ia32 kernels
-Date: Fri, 5 Sep 2003 15:22:50 -0700
-Message-ID: <0448350A99F69145AEACC4B950ECB3260455FE7A@fmsmsx406.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [UPDATED PATCH] EFI support for ia32 kernels
-Thread-Index: AcNz9HMn02tF4P9ZSHK2/DjZBAD3zQABDF5g
-From: "Doran, Mark" <mark.doran@intel.com>
-To: "Jamie Lokier" <jamie@shareable.org>
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Matt Tolentino" <metolent@snoqualmie.dp.intel.com>,
-       <linux-kernel@vger.kernel.org>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-X-OriginalArrivalTime: 05 Sep 2003 22:22:50.0993 (UTC) FILETIME=[3E415E10:01C373FC]
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take
+ 2
+References: <C8C38546F90ABF408A5961FC01FDBF1902C7D224@fmsmsx405.fm.intel.com>
+In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1902C7D224@fmsmsx405.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, September 05, 2003 2:24 PM Jamie Lokier wrote:
+Pallipadi, Venkatesh wrote:
+> 
+> 
+>>-----Original Message-----
+>>From: Andrew Morton [mailto:akpm@osdl.org] 
+>>
+>>We seem to keep on proliferating home-grown x86 64-bit math functions.
+>>
+>>Do you really need these?  Is it possible to use do_div() and 
+>>the C 64x64
+>>`*' operator instead?
+>>
+> 
+> 
+> 
+> We can change these handcoded 64 bit divs to do_div, with just an
+> additional data copy 
 
-> EFI is covered by patents?  What are they?
+We already have this in .../include/asm-i386/div64.h.  Check usage in 
+.../posix-timers.c to cover archs that have not yet included it in 
+there div64.h.
 
-Actually no, there are no patents that I'm aware of that read on EFI.
-We made a point of not filing any on the spec.  We told everyone we
-talked to during the spec's development that we wouldn't file any so
-that the spec would end up free of any IP considerations when
-complete.  This was a deliberate effort to support the goal of
-minimizing any potential barriers to adoption of EFI as much as
-possible.
+> (as do_div changes dividend in place). But, changing mul into 64x64 '*'
+> may be tricky. 
+> Gcc seem to generate a combination of mul, 2imul and add, where as we
+> are happy with 
+> using only one mull here.
 
-The patent license grant is thus in some sense a double coverage
-approach...you don't really need a patent license grant since there
-aren't any patents that read but to reinforce that you don't need to
-worry about patents we give you the grant anyway.  This helped make
-some corporate entities more comfortable about implementing support
-for EFI.
+You just need to do the right casting.  It should like 
+u64=u32*(u64)u32  as in .../kernel/posix-timers.c.  This could also be 
+signed with the same results.  If you really need to do a u64*u32, it 
+will do that as well but takes two mpys.  In this case you will need 
+to do it unsigned to eliminate the third mpy.
+> 
+> 
 
-In practice we have required that any feedback or contribution to the
-EFI spec or code from third parties that is given to us also comes
-without any IP encumbrances.  There are a couple of things that I've
-been offered that I would like to have included but couldn't in the
-end because it would not have been possible to continue telling folks
-using the EFI spec that they can do so without concern for IP issues.
-
-Cheers,
-
-Mark.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

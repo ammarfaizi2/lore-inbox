@@ -1,25 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311710AbSGIJyI>; Tue, 9 Jul 2002 05:54:08 -0400
+	id <S313125AbSGIJ6m>; Tue, 9 Jul 2002 05:58:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312254AbSGIJyH>; Tue, 9 Jul 2002 05:54:07 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9999 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311710AbSGIJyG>; Tue, 9 Jul 2002 05:54:06 -0400
-Subject: Re: list of compiled in support
-To: MMARTINEZ@intranet.reeusda.gov (Martinez, Michael - CSREES/ISTM)
-Date: Tue, 9 Jul 2002 11:20:22 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <630DA58AD01AD311B13A00C00D00E9BC05D2020A@CSREESSERVER> from "Martinez, Michael - CSREES/ISTM" at Jul 08, 2002 04:48:31 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313181AbSGIJ6l>; Tue, 9 Jul 2002 05:58:41 -0400
+Received: from realimage.realnet.co.sz ([196.28.7.3]:43497 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313125AbSGIJ6k>; Tue, 9 Jul 2002 05:58:40 -0400
+Date: Tue, 9 Jul 2002 12:19:08 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: rwhron@earthlink.net, <linux-kernel@vger.kernel.org>
+Subject: Re: pipe and af/unix latency differences between aa and jam on smp
+In-Reply-To: <20020709011536.GC1835@werewolf.able.es>
+Message-ID: <Pine.LNX.4.44.0207091218490.4869-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17Rs6Y-0004Zh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How does one tell if a kernel has compiled in support for ipx?
+On Tue, 9 Jul 2002, J.A. Magallon wrote:
 
-Open an AF_IPX socket
+> Opps, I remembered your tests are done on a Quad Xeon ?
+
+Out of interest, is that a P4/Xeon?
+
+Cheers,
+	Zwane Mwaikambo
+-- 
+function.linuxpower.ca
+

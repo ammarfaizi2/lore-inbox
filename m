@@ -1,54 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131509AbQKNW3B>; Tue, 14 Nov 2000 17:29:01 -0500
+	id <S131181AbQKNWdc>; Tue, 14 Nov 2000 17:33:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131532AbQKNW2v>; Tue, 14 Nov 2000 17:28:51 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:61175 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S131509AbQKNW2l>; Tue, 14 Nov 2000 17:28:41 -0500
-Date: Tue, 14 Nov 2000 15:58:38 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
-Subject: "couldn't find the kernel version the module was compiled for" - help!
-X-Mailer: The Polarbar Mailer (pbm 1.17b)
-Message-Id: <20001114222843Z131509-521+212@vger.kernel.org>
+	id <S131441AbQKNWdW>; Tue, 14 Nov 2000 17:33:22 -0500
+Received: from quechua.inka.de ([212.227.14.2]:30066 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S131181AbQKNWdK>;
+	Tue, 14 Nov 2000 17:33:10 -0500
+To: linux-kernel@vger.kernel.org
+Subject: for_each_task() in module?
+Organization: private Linux site, southern Germany
+Date: Tue, 14 Nov 2000 22:37:04 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E13vnlI-0006vs-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm at a loss to explain why I can't get this working.
+The definition of for_each_task() in <linux/sched.h> is based on
+init_task. This symbol is exported in Linux 2.2.15 and 2.4.0-test9,
+but with a comment which indicates only a special use; it is not
+exported in 2.2.9.
 
-I have a driver written for 2.4 that I'm porting back to 2.2.  Every time I
-think I got it working, something surprises me.  
+Is there an official opinion about whether for_each_task() is intended
+to be usable from a module? (Which means the older kernel is simply
+buggy) or is the right way to build my own version based on "current"?
 
-First, I had a bunch of link errors on the redifintion of
-__module_kernel_version.  To fix that, someone told me to do this:
-
-#define __NO_VERSION__
-#include <linux/version.h>
-
-And sure enough, no more errors.
-
-However, now I get this error from insmod when I try to load my driver:
-
-[root@two ttabi]# insmod tdmcddk.sys 
-tdmcddk.sys: couldn't find the kernel version the module was compiled for
-
-I've tried all sorts of things - recompiling the kernels, changing the order of
-#include files (version.h, module.h, modversions.h, whatever).  Either the
-driver won't link, or it won't load.
-
-I had our other Linux programmer (who works only with 2.2) look at the problem,
-but he couldn't figure it out, either.
-
-I'd be very appreciative of any assistance.
-
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+Olaf
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

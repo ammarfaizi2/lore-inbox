@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314614AbSD0UsE>; Sat, 27 Apr 2002 16:48:04 -0400
+	id <S314616AbSD0UtE>; Sat, 27 Apr 2002 16:49:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314615AbSD0UsD>; Sat, 27 Apr 2002 16:48:03 -0400
-Received: from bitmover.com ([192.132.92.2]:48085 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314614AbSD0UsC>;
-	Sat, 27 Apr 2002 16:48:02 -0400
-Date: Sat, 27 Apr 2002 13:48:01 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jerry McBride <mcbrides9@comcast.net>
-Cc: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.10-dj1 compilation failure
-Message-ID: <20020427134801.C31314@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jerry McBride <mcbrides9@comcast.net>,
-	Christoph Lameter <christoph@lameter.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020427192459.P14743@suse.de> <Pine.LNX.4.44.0204271033010.5612-100000@k2-400.lameter.com> <20020427140950.789adbb1.mcbrides9@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314615AbSD0UtD>; Sat, 27 Apr 2002 16:49:03 -0400
+Received: from vestibule.its.caltech.edu ([131.215.48.17]:53389 "EHLO
+	vestibule.its.caltech.edu") by vger.kernel.org with ESMTP
+	id <S314616AbSD0UtB>; Sat, 27 Apr 2002 16:49:01 -0400
+Message-ID: <3CCB0EAB.9050602@ixiacom.com>
+Date: Sat, 27 Apr 2002 13:48:43 -0700
+From: Bryan Rittmeyer <bryan@ixiacom.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Warchild <warchild@spoofed.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: remote memory reading using arp?
+In-Reply-To: <20020427202756.GC6240@spoofed.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 02:09:50PM -0400, Jerry McBride wrote:
-> On Sat, 27 Apr 2002 10:35:55 -0700 (PDT) Christoph Lameter
-> <christoph@lameter.com> wrote:
-> > That stuff might be useful in a CVS or BK() source code archive.
-> > What is the purpose of releasing a kernel tarball that does not compile?
-> > Kernel tarball are there to be compiled and tried out ....
+Warchild wrote:
+ > [oh my god, i see userspace text strings in ARP packets]
+ >
+> I couldn't find anything in the archives about this, and also didn't see
+> any changes in the arp implementation of the 2.4 kernel between 2.4.16 and
+> 2.4.18.  I also browsed rfc826 to see if there was any mention of 'padding
+> data', but nothing caught my eye.
 > 
-> MAN! You said a mouth full. I've found syntax errors, misspellings and
-> just plain old junk text in the make files of 2.5.10.
-> 
-> I appreciate the efforts going into the new kernel tree. I really look
-> forward to it becoming main stream... but MY GOD, at least I wish they
-> would try to compile the thing BEFORE it gets posted for download!
+> Any ideas what is causing this?
 
-I appreciate your efforts at being a considerate human being.
-I really look forward to you becoming part of the pleasant set of human
-beings... but MY GOD, at least I wish you would do some work yourself
-BEFORE posting a complaint!
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+It's not the ARP layer that's causing the padding... Ethernet has a
+minimum transmit size of 64 bytes (everything below that is disgarded
+by hardware as a fragment), so the network device driver or
+the hardware itself will pad any Linux skb smaller than 60 bytes up to
+that size (so that it's 64 bytes after appending CRC32). Apparently, in
+some cases that's done by just transmitting whatever uninitialized
+memory follows skb->data, which, after the system has been running
+for a while, may be inside a page previously used by userspace.
+
+This is NOT a "remote memory reading" exploit, since there is no way to
+remotely control what address in memory gets used as padding. I guess
+you could packet blast a machine and hope to find something
+interesting, but that'd be a denial of service attack long before you
+got a complete view of system memory. In any case, it's arguably
+userspace's responsibility to clear any sensitive memory contents
+before exiting. I would be more concerned if you can find data
+from currently in use, userspace-allocated pages flying out as packet
+padding (i.e. if reading past skb->data pushes you into somebody else's
+page, which seems unlikely since new skb's tend to get allocated near
+the beginning of a page).
+
+If you are really concerned you could probably patch the network driver
+to zero out memory that will be used as padding, though I don't think
+the security risk justifies that performance hit.
+
+-Bryan
+

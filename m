@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUK2IEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbUK2IFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbUK2IEf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 03:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUK2IEf
+	id S261292AbUK2IFh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 03:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUK2IFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 03:04:35 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:45841 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261231AbUK2IEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 03:04:34 -0500
-Subject: Re: Question about /dev/mem and /dev/kmem
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jim Nelson <james4765@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41AA9E26.4070105@verizon.net>
-References: <41AA9E26.4070105@verizon.net>
-Content-Type: text/plain
-Message-Id: <1101715470.2814.30.camel@laptop.fenrus.org>
+	Mon, 29 Nov 2004 03:05:34 -0500
+Received: from colino.net ([213.41.131.56]:7919 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S261292AbUK2IFS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 03:05:18 -0500
+Date: Mon, 29 Nov 2004 09:04:06 +0100
+From: Colin Leroy <colin.lkml@colino.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: David Brownell <david-b@pacbell.net>,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Colin Leroy <colin@colino.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop (second
+ take)
+Message-ID: <20041129090406.5fb31933@pirandello>
+In-Reply-To: <1101507130.28047.29.camel@gaston>
+References: <20041126113021.135e79df@pirandello>
+	<200411260928.18135.david-b@pacbell.net>
+	<20041126183749.1a230af9@jack.colino.net>
+	<200411260957.52971.david-b@pacbell.net>
+	<1101507130.28047.29.camel@gaston>
+X-Mailer: Sylpheed-Claws 0.9.12cvs169.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 29 Nov 2004 09:04:30 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-11-28 at 22:57 -0500, Jim Nelson wrote:
-> I was looking at some articles about rootkits on monolithic kernels, and had a 
-> thought.  Would a kernel config option to disable write access to /dev/mem and 
-> /dev/kmem be a workable idea?
+On 27 Nov 2004 at 09h11, Benjamin Herrenschmidt wrote:
 
-look at the -mm patch series ;-)
+Hi, 
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm3/broken-out/dev-mem-restriction-patch.patch
+> > > It's probably a linux-wlan-ng issue... 
+> > 
+> > I suspect PPC resume issues myself.
+> 
+> Colin, you didn't tell us which controller it was ? The NEC one is a
+> totally normal off-the-shelves controller coming out of D3. The Apple
+> ones are a bit special tho.
+
+It's the ibook G4's controller:
+[colin@jack ~]$ for i in 1 2 3 4; do cat /sys/bus/usb/devices/usb$i/product; done;
+NEC Corporation USB 2.0
+Apple Computer Inc. KeyLargo/Intrepid USB (#3)
+NEC Corporation USB
+NEC Corporation USB (#2)
 
 
-(fwiw this patch is also in the Fedora Core kernels for quite some time
-now)
-
+-- 
+Colin

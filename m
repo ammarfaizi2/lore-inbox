@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268677AbUHYUlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268682AbUHYUlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268677AbUHYUlq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 16:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268602AbUHYUjE
+	id S268682AbUHYUlp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 16:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268677AbUHYUjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 16:39:04 -0400
-Received: from mail.tmr.com ([216.238.38.203]:8198 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268590AbUHYUf4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 16:35:56 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux 2.6.9-rc1
-Date: Wed, 25 Aug 2004 16:36:28 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cgisra$2oe$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org> <805tv1-ec2.ln1@tux.abusar.org>
+	Wed, 25 Aug 2004 16:39:23 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:58889 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268668AbUHYUgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 16:36:04 -0400
+Date: Wed, 25 Aug 2004 21:35:49 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040825213549.A11531@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+	Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Alexander Lyamin aka FLX <flx@namesys.com>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Trace: gatekeeper.tmr.com 1093465771 2830 192.168.12.100 (25 Aug 2004 20:29:31 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <805tv1-ec2.ln1@tux.abusar.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>; from torvalds@osdl.org on Wed, Aug 25, 2004 at 01:22:55PM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dâniel Fraga wrote:
-> In article <412BD946.1080908@linux-user.net>,
-> 	Daniel Andersen <anddan@linux-user.net> writes:
+On Wed, Aug 25, 2004 at 01:22:55PM -0700, Linus Torvalds wrote:
+> And yes, the semantics can _easily_ be solved in very unixy ways.
 > 
+> One way to solve it is to just realize that a final slash at the end 
+> implies pretty strongly that you want to treat it as a directory. So what 
+> you do is:
 > 
->>As Linus initially said, there is the possibility of releasing a bug-fix 
->>patch 2.6.8.2 *after* 2.6.9 has been released. This can make things very 
+>  - without the slash, a file-as-dir won't open with O_DIRECTORY (ENOTDIR)
+>  - with the slash, it won't open _without_ O_DIRECTORY (EISDIR)
 > 
-> 
-> 	Why does this could happen? Do you agree with me that when 2.6.9 is
-> released, all future versions should be based on 2.6.9? Or it's a BK
-> issue I don't know?
-> 
-> 
->>confusing when patch-2.6.9 is against 2.6.8.1 and not 2.6.8.2 (or 
->>2.6.8). So if we use a rule of always patching against the first x.y.Z 
->>release (and not the last x.y.z.W by the time the new x.y.Z is released) 
->>we can assure consistence in the patch management.
-> 
-> 
-> 	Ok, I understand the problem. But isn't it possible to avoid
-> releasing some 2.6.8.x version after 2.6.9? I mean, I'm not
-> understanding why this could happen.
-> 
-> 	Ps: sorry if this question is silly, but I didn't get the point why
-> 2.6.8.2 could be released after 2.6.9.
-> 
-Say an evil bug is discovered in 2.6.8.1 about the time people find out 
-that cdrecord and vmware don't run on 2.6.9 and Oracle causes a massive 
-memory leak. Since the developers seem to totally disregard pre-release 
-testing with any 3rd party or closed source software, this isn't totally 
-out of the question.
+> Problem solved. Very user-friendly, and very intuitive.
 
-So out comes 2.6.8.2 to protect the honor and virtue of all the users 
-who run 3rd party software for some silly reason like needing it to make 
-a living.
+That would solve the O_DIRECTORY issue, the dentry aliasing still needs
+work though with the semantics for link/unlink/rename.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Maybe Hans & you should start 2.7 to work this out? :)
+

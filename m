@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264901AbSLBRRX>; Mon, 2 Dec 2002 12:17:23 -0500
+	id <S264892AbSLBROU>; Mon, 2 Dec 2002 12:14:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264903AbSLBRRW>; Mon, 2 Dec 2002 12:17:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54546 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264901AbSLBRRW>;
-	Mon, 2 Dec 2002 12:17:22 -0500
-Message-ID: <3DEB9761.50503@pobox.com>
-Date: Mon, 02 Dec 2002 12:24:49 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@sgi.com>
-CC: marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-References: <20021202192652.A25938@sgi.com>
-In-Reply-To: <20021202192652.A25938@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264901AbSLBROU>; Mon, 2 Dec 2002 12:14:20 -0500
+Received: from verein.lst.de ([212.34.181.86]:45321 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S264892AbSLBROT>;
+	Mon, 2 Dec 2002 12:14:19 -0500
+Date: Mon, 2 Dec 2002 18:21:31 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] remove IDESCSI_SG_TRANSFORM (compile fix)
+Message-ID: <20021202182131.A32468@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, andre@linux-ide.org,
+	linux-kernel@vger.kernel.org
+References: <20021129235353.A13377@lst.de> <20021130004435.GB3182@beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021130004435.GB3182@beaverton.ibm.com>; from andmike@us.ibm.com on Fri, Nov 29, 2002 at 04:44:35PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> now that all commercial vendors ship a backport of Ingo's O(1) scheduler
-> external projects like XFS have to track those projects in addition to the
-> mainline kernel.
+On Fri, Nov 29, 2002 at 04:44:35PM -0800, Mike Anderson wrote:
+> Thanks for catching this Christoph I thought the only use was inside
+> SCSI. I could make a patch to scsi-misc to add tag back in. Another
+> option if it is still needed is to switch to "->name == "generic").
 > 
-> Having the common new APIs available in mainline would be a very good thing
-> for those projects.  We already have a proper yield() in 2.4.20, but the
-> set_cpus_allowed() API as used e.g. for kernelthreads bound to CPUs is
-> still missing.
-> 
-> Any chance you could apply Robert Love's patch to add it for 2.4.21?  Note
-> that it does not change any existing code but just adds that interface.
+> Though I have not used this interface I thought if one was using an sg
+> device to a ide-scsi device and the flag was set that sg commands that
+> where not 100% the same as ATAP commands where translated.
 
-
-Adding to that, it is also used for backporting Ingo's workqueue stuff, 
-which is useful and completely separate from the O(1) scheduler.
-
-I plan on using workqueues for moving some drivers' duties to process 
-context where it really belongs [which in turn fixes bugs].
-
-	Jeff
-
-
-
+Well, imho IDESCSI_SG_TRANSFORM is broken in 2.5.  Now that ever block
+driver implements the sg ioctls a sg request can come from sd or sr
+aswell.
 

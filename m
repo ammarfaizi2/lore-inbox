@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292557AbSBVDC4>; Thu, 21 Feb 2002 22:02:56 -0500
+	id <S292784AbSBVEAv>; Thu, 21 Feb 2002 23:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292568AbSBVDCr>; Thu, 21 Feb 2002 22:02:47 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:47353
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292557AbSBVDCk>; Thu, 21 Feb 2002 22:02:40 -0500
-Date: Thu, 21 Feb 2002 19:02:54 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Cesar Suga <sartre@linuxbr.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HPT366: DMA errors?
-Message-ID: <20020222030254.GH20060@matchmail.com>
-Mail-Followup-To: Cesar Suga <sartre@linuxbr.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16e5Zw-0000al-00@the-village.bc.nu> <Pine.LNX.4.40.0202212352001.222-100000@sartre.linuxbr.com>
-Mime-Version: 1.0
+	id <S292774AbSBVEAc>; Thu, 21 Feb 2002 23:00:32 -0500
+Received: from gear.torque.net ([204.138.244.1]:28166 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S292761AbSBVEA3>;
+	Thu, 21 Feb 2002 23:00:29 -0500
+Message-ID: <3C75C264.80089312@torque.net>
+Date: Thu, 21 Feb 2002 23:00:36 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Compile error with linux-2.5.5-pre1 & advansys scsi
+In-Reply-To: <3C6C579F.960DE0D7@torque.net> <200202212336.33831.gjwucherpfennig@gmx.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0202212352001.222-100000@sartre.linuxbr.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 11:55:34PM -0300, Cesar Suga wrote:
-> 	I cannot use the 80pin cable with the normal IDE for it does not
-> fit. But I tried with two 80-pin cables.
+"Gerold J. Wucherpfennig" wrote:
 > 
+> On Friday 15 February 2002 01:34, Douglas Gilbert wrote:
+> > "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net> wrote:
+> > > The advansys scsi driver of linux-2.5.5-pre1 doesn't compile ...
+> >
+> > Gerold,
+> > Please try the attachment, tested on i386 UP + SMP.
+> >
+> > Doug Gilbert
+> 
+> This patch works very well for me and it's a pitty that it wasn't included
+> into Kernel 2.5.5-final.
+> 
+> I'm using advansys scsi with my P2 UP (Intel LX).
+> 
+> It should be included into Dave Jones tree (or is it already?),
 
-Is that because one of the connector holes is blocked on the cable conector?
+The advansys patch is in patch-2.5.5-dj1 .
 
-If so, I have had success with just breaking the correct pin so that the 80
-pin cable can be plugged into old motherboard IDE connectors.  As always
-with hardware mods, YMMV.
+> because Linus seems to be very busy (as usual).
 
-Mike
+Doug Gilbert

@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVBCJJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263457AbVBCJPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVBCJJp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 04:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVBCJJp
+	id S263457AbVBCJPd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 04:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263456AbVBCJPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 04:09:45 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:24713 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S262478AbVBCJJb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 04:09:31 -0500
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-pm@osdl.org, kernel-janitors@osdl.org,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: driver model u32 -> pm_message_t conversion: help needed
-References: <20050125194710.GA1711@elf.ucw.cz>
-	<yq0brb3qs74.fsf@jaguar.mkp.net> <20050202095014.GA12955@elf.ucw.cz>
-	<20050202095739.GB12955@elf.ucw.cz>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 03 Feb 2005 04:09:30 -0500
-In-Reply-To: <20050202095739.GB12955@elf.ucw.cz>
-Message-ID: <yq0y8e6ovqt.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 3 Feb 2005 04:15:32 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23170 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263417AbVBCJPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 04:15:14 -0500
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: vgoyal@in.ibm.com, ebiederm@xmission.com, akpm@osdl.org,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       maneesh@in.ibm.com, hari@in.ibm.com, suparna@in.ibm.com
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+References: <1106475280.26219.125.camel@2fwv946.in.ibm.com>
+	<m18y6gf6mj.fsf@ebiederm.dsl.xmission.com>
+	<1106833527.15652.146.camel@2fwv946.in.ibm.com>
+	<20050203.160252.104031714.taka@valinux.co.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Feb 2005 02:13:08 -0700
+In-Reply-To: <20050203.160252.104031714.taka@valinux.co.jp>
+Message-ID: <m1zmym6m6z.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
+Hirokazu Takahashi <taka@valinux.co.jp> writes:
 
->> > Sorry for being late responding to this, but I'd say this is a
->> prime > example for typedef's considered evil (see Greg's OLS talk
->> ;).
->> > 
->> > It would be a lot cleaner if it was made a struct and then
->> passing a > struct pointer as the argument instead of passing the
->> struct by value > as you do right now.
->> 
->> Sorry, can't do that. That would require flag day and change
->> everything at once. That is just not feasible. When things are
->> settled, it is okay to change it to struct passed by value.. It is
->> small anyway and at least we will not have problems with freeing it
->> etc.
+> Hi Vivek and Eric,
+> 
+> IMHO, why don't we swap not only the contents of the top 640K
+> but also kernel working memory for kdump kernel?
+> 
+> I guess this approach has some good points.
+> 
+>  1.Preallocating reserved area is not mandatory at boot time.
+>    And the reserved area can be distributed in small pieces
+>    like original kexec does.
+> 
+>  2.Special linking is not required for kdump kernel.
+>    Each kdump kernel can be linked in the same way,
+>    where the original kernel exists.
+> 
+> Am I missing something?
 
-Pavel> Well, we could switch to passing struct by reference
+Preallocating the reserved area is largely to keep it from
+being the target of DMA accesses.  Since we are not able
+to shutdown any of the drivers in the primary kernel running
+in a normal swath of memory sounds like a good way to get
+yourself stomped at the worst possible time.
 
-Pavel> (typedef struct pm_message *pm_message_t)
+In addition we get to avoid running a lot of code in the
+panic path if we are jumping to a contiguous region of memory 
+with everything already setup.
 
-Pavel> , but AFAICS it would only bring us problems with lifetime
-Pavel> rules etc. Lets not do it.  Pavel
+To some extent this is a contest who has the better imagination
+for things that can go wrong.  Real life on dying hardware and
+kernels, or the programmers writing the diagnostic code.
 
-This way you end up hiding what is really going on, the very problem
-of using typedefs. If the change is really needed why not get it right
-in the first go?
+But if it is a gamble you are willing to take it is quite
+feasible to use the reserved region for what you are
+proposing and you could run a standard kernel.
 
-Cheers,
-Jes
+The other reason for running out of the reserved region is that
+it actually requires less memory reserved.  Every byte you backup
+needs to have a reserved area of memory to hold it.  And if you are
+also going to fill that with meaningful content you need another
+byte to hold the data.  So using a stock kernel probably requires
+2/3 more memory.
 
+Eric

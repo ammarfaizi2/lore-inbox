@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261732AbTCQPLZ>; Mon, 17 Mar 2003 10:11:25 -0500
+	id <S261720AbTCQPJa>; Mon, 17 Mar 2003 10:09:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261735AbTCQPLZ>; Mon, 17 Mar 2003 10:11:25 -0500
-Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:35067 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261732AbTCQPLY>; Mon, 17 Mar 2003 10:11:24 -0500
-From: "BOEBLINGEN LINUX390" <LINUX390@de.ibm.com>
-Importance: Normal
-Sensitivity: 
-Subject: Re: [s390x] Patch for execve with a mode switch
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF4DCC5C2B.C044EACC-ONC1256CEC.004CE000@de.ibm.com>
-Date: Mon, 17 Mar 2003 16:20:37 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 17/03/2003 16:21:59
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S261728AbTCQPJa>; Mon, 17 Mar 2003 10:09:30 -0500
+Received: from 237.oncolt.com ([213.86.99.237]:46557 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261720AbTCQPJ3>; Mon, 17 Mar 2003 10:09:29 -0500
+Subject: Re: [patch] 2.4.21-pre5 kksymoops for i386/ia64
+From: David Woodhouse <dwmw2@infradead.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+In-Reply-To: <26040.1047888163@kao2.melbourne.sgi.com>
+References: <26040.1047888163@kao2.melbourne.sgi.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047914414.28282.91.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
+Date: 17 Mar 2003 15:20:15 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-03-17 at 08:02, Keith Owens wrote:
+> Automatic decoding of oops on 2.5 has been very useful, so this patch
+> adds kksymoops support to 2.4.21-pre5.  Currently only for i386 and
+> ia64, other architectures are easy to add.
 
-Hi Pete,
-> If I boot an s390x kernel over a 31 bit userland, /sbin/init segfaults
-> in the dynamic linker. This happens because mm->free_area_cache
-> is set with TASK_UNMAPPED_BASE macro, which needs the TIF_31BIT
-> set right. Setting TIF_31BIT in ELF_PLAT_INIT is way too late
-> for this.
-mm->free_area_cache can't cause any problems on s390x because it isn't
-used. The idea behind mm->free_area_cache is to speed up the search in
-get_unmapped_area/arch_get_unmapped_area. But s390x defines its own
-version of arch_get_unmapped_area in arch/s390x/kernel/sys_s390.c
-which doesn't start the search at mm->free_area_cache.
+> +KALLSYMS	= /sbin/kallsyms
 
-> The patch below basically ports what sparc64 does to s390x,
-> according to the Andrew Morton's comment in fs/binfmt_elf.c.
-> To tell the truth, I actually use equivalent of this on 2.4,
-> but I think it's important to get stock 2.5 right.
-This patch is severly broken. It wouldn't even compile.
+Kallsyms is arch-specific, isn't it? So shouldn't that be
+$(CROSS_COMPILE)kallsyms?
 
-To make sure I retested the kernel 2.5.64 with the patches I sent to
-this list and ipled a 31 bit userland successfully.
+How does one go about making non-native kallsyms? 
 
-blue skies,
-  Martin.
+The 2.5 kallsyms doesn't break cross-compilation, does it?
 
+-- 
+dwmw2
 

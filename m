@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268134AbUIBKto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268190AbUIBKyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268134AbUIBKto (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 06:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268243AbUIBKti
+	id S268190AbUIBKyK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 06:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268191AbUIBKyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 06:49:38 -0400
-Received: from ozlabs.org ([203.10.76.45]:56975 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268223AbUIBKq5 (ORCPT
+	Thu, 2 Sep 2004 06:54:09 -0400
+Received: from ozlabs.org ([203.10.76.45]:63887 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268247AbUIBKwK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 06:46:57 -0400
-Date: Thu, 2 Sep 2004 20:41:48 +1000
+	Thu, 2 Sep 2004 06:52:10 -0400
+Date: Thu, 2 Sep 2004 20:48:39 +1000
 From: Anton Blanchard <anton@samba.org>
 To: akpm@osdl.org
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org, olof@austin.ibm.com
-Subject: [PATCH] [ppc64] Make use of batched IOMMU calls on pSeries LPARs
-Message-ID: <20040902104148.GZ26072@krispykreme>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc64] update iSeries_defconfig
+Message-ID: <20040902104839.GA26072@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,212 +23,350 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Olof Johansson <olof@austin.ibm.com>
+Update iSeries_defconfig.
 
-Implement the HCALLs to do more than one TCE setup or invalidation at
-a time on pSeries LPAR. Previous implementation did one hypervisor call
-per setup or teardown, resulting in significant overhead.
-
-A simple test of "time dd if=/dev/sda of=/dev/null bs=128k" shows the
-amount of system time go down by about 5% by using the multi-tce calls.
-
-Signed-off-by: Olof Johansson <olof@austin.ibm.com>
 Signed-off-by: Anton Blanchard <anton@samba.org>
 
-diff -puN arch/ppc64/kernel/pSeries_lpar.c~tce-multi arch/ppc64/kernel/pSeries_lpar.c
---- linux-2.5/arch/ppc64/kernel/pSeries_lpar.c~tce-multi	2004-09-01 22:32:56.479947032 -0500
-+++ linux-2.5-olof/arch/ppc64/kernel/pSeries_lpar.c	2004-09-01 23:24:00.589955024 -0500
-@@ -112,6 +112,22 @@ long plpar_tce_put(unsigned long liobn,
- 	return plpar_hcall_norets(H_PUT_TCE, liobn, ioba, tceval);
- }
+diff -puN arch/ppc64/configs/iSeries_defconfig~iSeries_defconfig arch/ppc64/configs/iSeries_defconfig
+--- foobar2/arch/ppc64/configs/iSeries_defconfig~iSeries_defconfig	2004-09-02 20:02:50.644293632 +1000
++++ foobar2-anton/arch/ppc64/configs/iSeries_defconfig	2004-09-02 20:03:10.619786622 +1000
+@@ -16,17 +16,17 @@ CONFIG_FORCE_MAX_ZONEORDER=13
+ #
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+-CONFIG_STANDALONE=y
  
-+long plpar_tce_put_indirect(unsigned long liobn,
-+	  		    unsigned long ioba,
-+			    unsigned long page,
-+			    unsigned long count)
-+{
-+	return plpar_hcall_norets(H_PUT_TCE_INDIRECT, liobn, ioba, page, count);
-+}
-+
-+long plpar_tce_stuff(unsigned long liobn,
-+		     unsigned long ioba,
-+		     unsigned long tceval,
-+		     unsigned long count)
-+{
-+	return plpar_hcall_norets(H_STUFF_TCE, liobn, ioba, tceval, count);
-+}
-+
- long plpar_get_term_char(unsigned long termno,
- 			 unsigned long *len_ret,
- 			 char *buf_ret)
-@@ -161,6 +177,71 @@ static void tce_build_pSeriesLP(struct i
- 	}
- }
+ #
+ # General setup
+ #
+ CONFIG_SWAP=y
+ CONFIG_SYSVIPC=y
+-# CONFIG_POSIX_MQUEUE is not set
++CONFIG_POSIX_MQUEUE=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_SYSCTL=y
+-# CONFIG_AUDIT is not set
++CONFIG_AUDIT=y
++CONFIG_AUDITSYSCALL=y
+ CONFIG_LOG_BUF_SHIFT=17
+ CONFIG_HOTPLUG=y
+ CONFIG_IKCONFIG=y
+@@ -34,6 +34,7 @@ CONFIG_IKCONFIG_PROC=y
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
++# CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+ CONFIG_IOSCHED_NOOP=y
+@@ -41,6 +42,8 @@ CONFIG_IOSCHED_AS=y
+ CONFIG_IOSCHED_DEADLINE=y
+ CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
++CONFIG_SHMEM=y
++# CONFIG_TINY_SHMEM is not set
  
-+DEFINE_PER_CPU(void *, tce_page) = NULL;
-+
-+static void tce_buildmulti_pSeriesLP(struct iommu_table *tbl, long tcenum,
-+		long npages, unsigned long uaddr,
-+		enum dma_data_direction direction)
-+{
-+	u64 rc;
-+	union tce_entry tce, *tcep;
-+	long l, limit;
-+
-+	if (npages == 1)
-+		return tce_build_pSeriesLP(tbl, tcenum, npages, uaddr,
-+					   direction);
-+
-+	tcep = __get_cpu_var(tce_page);
-+
-+	/* This is safe to do since interrupts are off when we're called
-+	 * from iommu_alloc{,_sg}()
-+	 */
-+	if (!tcep) {
-+		tcep = (void *)__get_free_page(GFP_ATOMIC);
-+		/* If allocation fails, fall back to the loop implementation */
-+		if (!tcep)
-+			return tce_build_pSeriesLP(tbl, tcenum, npages,
-+						   uaddr, direction);
-+		__get_cpu_var(tce_page) = tcep;
-+	}
-+
-+	tce.te_word = 0;
-+	tce.te_rpn = (virt_to_abs(uaddr)) >> PAGE_SHIFT;
-+	tce.te_rdwr = 1;
-+	if (direction != DMA_TO_DEVICE)
-+		tce.te_pciwr = 1;
-+
-+	/* We can map max one pageful of TCEs at a time */
-+	do {
-+		/*
-+		 * Set up the page with TCE data, looping through and setting
-+		 * the values.
-+		 */
-+		limit = min_t(long, npages, PAGE_SIZE/sizeof(union tce_entry));
-+
-+		for (l = 0; l < limit; l++) {
-+			tcep[l] = tce;
-+			tce.te_rpn++;
-+		}
-+
-+		rc = plpar_tce_put_indirect((u64)tbl->it_index,
-+					    (u64)tcenum << 12,
-+					    (u64)virt_to_abs(tcep),
-+					    limit);
-+
-+		npages -= limit;
-+		tcenum += limit;
-+	} while (npages > 0 && !rc);
-+
-+	if (rc && printk_ratelimit()) {
-+		printk("tce_buildmulti_pSeriesLP: plpar_tce_put failed. rc=%ld\n", rc);
-+		printk("\tindex   = 0x%lx\n", (u64)tbl->it_index);
-+		printk("\tnpages  = 0x%lx\n", (u64)npages);
-+		printk("\ttce[0] val = 0x%lx\n", tcep[0].te_word);
-+		show_stack(current, (unsigned long *)__get_SP());
-+	}
-+}
-+
- static void tce_free_pSeriesLP(struct iommu_table *tbl, long tcenum, long npages)
- {
- 	u64 rc;
-@@ -169,23 +250,45 @@ static void tce_free_pSeriesLP(struct io
- 	tce.te_word = 0;
+ #
+ # Loadable module support
+@@ -62,10 +65,11 @@ CONFIG_PPC_ISERIES=y
+ CONFIG_PPC=y
+ CONFIG_PPC64=y
+ # CONFIG_POWER4_ONLY is not set
+-# CONFIG_IOMMU_VMERGE is not set
++CONFIG_IOMMU_VMERGE=y
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=32
+ # CONFIG_SCHED_SMT is not set
++# CONFIG_PREEMPT is not set
+ CONFIG_MSCHUNKS=y
+ CONFIG_LPARCFG=y
  
- 	while (npages--) {
--		rc = plpar_tce_put((u64)tbl->it_index, 
-+		rc = plpar_tce_put((u64)tbl->it_index,
- 				   (u64)tcenum << 12,
--				   tce.te_word );
--		
-+				   tce.te_word);
-+
- 		if (rc && printk_ratelimit()) {
--			printk("tce_free_pSeriesLP: plpar_tce_put failed\n");
--			printk("\trc      = %ld\n", rc);
-+			printk("tce_free_pSeriesLP: plpar_tce_put failed. rc=%ld\n", rc);
- 			printk("\tindex   = 0x%lx\n", (u64)tbl->it_index);
- 			printk("\ttcenum  = 0x%lx\n", (u64)tcenum);
- 			printk("\ttce val = 0x%lx\n", tce.te_word );
- 			show_stack(current, (unsigned long *)__get_SP());
- 		}
--		
-+
- 		tcenum++;
- 	}
- }
+@@ -97,6 +101,8 @@ CONFIG_PCI_NAMES=y
+ #
+ # Generic Driver Options
+ #
++CONFIG_STANDALONE=y
++CONFIG_PREVENT_FIRMWARE_BUILD=y
+ CONFIG_FW_LOADER=m
+ # CONFIG_DEBUG_DRIVER is not set
  
+@@ -125,7 +131,7 @@ CONFIG_FW_LOADER=m
+ CONFIG_BLK_DEV_LOOP=y
+ # CONFIG_BLK_DEV_CRYPTOLOOP is not set
+ CONFIG_BLK_DEV_NBD=m
+-# CONFIG_BLK_DEV_CARMEL is not set
++# CONFIG_BLK_DEV_SX8 is not set
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
+@@ -168,22 +174,23 @@ CONFIG_SCSI_FC_ATTRS=y
+ # SCSI low-level drivers
+ #
+ # CONFIG_BLK_DEV_3W_XXXX_RAID is not set
++# CONFIG_SCSI_3W_9XXX is not set
+ # CONFIG_SCSI_ACARD is not set
+ # CONFIG_SCSI_AACRAID is not set
+ # CONFIG_SCSI_AIC7XXX is not set
+ # CONFIG_SCSI_AIC7XXX_OLD is not set
+ # CONFIG_SCSI_AIC79XX is not set
+-# CONFIG_SCSI_ADVANSYS is not set
+-# CONFIG_SCSI_MEGARAID is not set
++# CONFIG_MEGARAID_NEWGEN is not set
++# CONFIG_MEGARAID_LEGACY is not set
+ # CONFIG_SCSI_SATA is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+-# CONFIG_SCSI_CPQFCTS is not set
+ # CONFIG_SCSI_DMX3191D is not set
+ # CONFIG_SCSI_EATA is not set
+ # CONFIG_SCSI_EATA_PIO is not set
+ # CONFIG_SCSI_FUTURE_DOMAIN is not set
+ # CONFIG_SCSI_GDTH is not set
+ # CONFIG_SCSI_IPS is not set
++CONFIG_SCSI_IBMVSCSI=m
+ # CONFIG_SCSI_INIA100 is not set
+ # CONFIG_SCSI_SYM53C8XX_2 is not set
+ # CONFIG_SCSI_IPR is not set
+@@ -209,11 +216,15 @@ CONFIG_BLK_DEV_MD=y
+ CONFIG_MD_LINEAR=y
+ CONFIG_MD_RAID0=y
+ CONFIG_MD_RAID1=y
++CONFIG_MD_RAID10=m
+ CONFIG_MD_RAID5=y
+-CONFIG_MD_RAID6=y
+-# CONFIG_MD_MULTIPATH is not set
++CONFIG_MD_RAID6=m
++CONFIG_MD_MULTIPATH=m
+ CONFIG_BLK_DEV_DM=y
+ CONFIG_DM_CRYPT=m
++CONFIG_DM_SNAPSHOT=m
++CONFIG_DM_MIRROR=m
++CONFIG_DM_ZERO=m
+ 
+ #
+ # Fusion MPT device support
+@@ -259,6 +270,7 @@ CONFIG_SYN_COOKIES=y
+ CONFIG_INET_AH=m
+ CONFIG_INET_ESP=m
+ CONFIG_INET_IPCOMP=m
++CONFIG_INET_TUNNEL=y
+ 
+ #
+ # IP: Virtual Server Configuration
+@@ -324,7 +336,13 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ CONFIG_IP_NF_COMPAT_IPCHAINS=m
+ CONFIG_IP_NF_COMPAT_IPFWADM=m
+-# CONFIG_IP_NF_RAW is not set
++CONFIG_IP_NF_TARGET_NOTRACK=m
++CONFIG_IP_NF_RAW=m
++CONFIG_IP_NF_MATCH_ADDRTYPE=m
++CONFIG_IP_NF_MATCH_REALM=m
++# CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_MATCH_SCTP=m
++CONFIG_IP_NF_CT_PROTO_SCTP=m
+ CONFIG_XFRM=y
+ CONFIG_XFRM_USER=m
+ 
+@@ -351,6 +369,7 @@ CONFIG_LLC=y
+ # QoS and/or fair queueing
+ #
+ # CONFIG_NET_SCHED is not set
++CONFIG_NET_CLS_ROUTE=y
+ 
+ #
+ # Network testing
+@@ -379,7 +398,6 @@ CONFIG_TUN=m
+ #
+ CONFIG_NET_ETHERNET=y
+ CONFIG_MII=y
+-# CONFIG_OAKNET is not set
+ # CONFIG_HAPPYMEAL is not set
+ # CONFIG_SUNGEM is not set
+ # CONFIG_NET_VENDOR_3COM is not set
+@@ -408,18 +426,32 @@ CONFIG_E100=y
+ # CONFIG_EPIC100 is not set
+ # CONFIG_SUNDANCE is not set
+ # CONFIG_VIA_RHINE is not set
++# CONFIG_VIA_VELOCITY is not set
+ 
+ #
+-# Gigabit Ethernet (1000/10000 Mbit)
++# Ethernet (1000 Mbit)
+ #
+-# CONFIG_NET_GIGE is not set
++# CONFIG_ACENIC is not set
++# CONFIG_DL2K is not set
++# CONFIG_E1000 is not set
++# CONFIG_NS83820 is not set
++# CONFIG_HAMACHI is not set
++# CONFIG_YELLOWFIN is not set
++# CONFIG_R8169 is not set
++# CONFIG_SK98LIN is not set
++# CONFIG_TIGON3 is not set
 +
-+static void tce_freemulti_pSeriesLP(struct iommu_table *tbl, long tcenum, long npages)
-+{
-+	u64 rc;
-+	union tce_entry tce;
++#
++# Ethernet (10000 Mbit)
++#
++# CONFIG_IXGB is not set
++# CONFIG_S2IO is not set
+ 
+ #
+ # Token Ring devices
+ #
+ CONFIG_TR=y
+ CONFIG_IBMOL=y
+-# CONFIG_IBMLS is not set
+ # CONFIG_3C359 is not set
+ # CONFIG_TMS380TR is not set
+ 
+@@ -508,10 +540,11 @@ CONFIG_SERIO_SERPORT=y
+ #
+ # Non-8250 serial port support
+ #
++CONFIG_SERIAL_CORE=m
++CONFIG_SERIAL_ICOM=m
+ CONFIG_UNIX98_PTYS=y
+ CONFIG_LEGACY_PTYS=y
+ CONFIG_LEGACY_PTY_COUNT=256
+-# CONFIG_QIC02_TAPE is not set
+ 
+ #
+ # IPMI
+@@ -542,6 +575,11 @@ CONFIG_MAX_RAW_DEVS=256
+ # CONFIG_I2C is not set
+ 
+ #
++# Dallas's 1-wire bus
++#
++# CONFIG_W1 is not set
 +
-+	tce.te_word = 0;
-+
-+	rc = plpar_tce_stuff((u64)tbl->it_index,
-+			   (u64)tcenum << 12,
-+			   tce.te_word,
-+			   npages);
-+
-+	if (rc && printk_ratelimit()) {
-+		printk("tce_freemulti_pSeriesLP: plpar_tce_stuff failed\n");
-+		printk("\trc      = %ld\n", rc);
-+		printk("\tindex   = 0x%lx\n", (u64)tbl->it_index);
-+		printk("\tnpages  = 0x%lx\n", (u64)npages);
-+		printk("\ttce val = 0x%lx\n", tce.te_word );
-+		show_stack(current, (unsigned long *)__get_SP());
-+	}
-+}
-+
- int vtermno;	/* virtual terminal# for udbg  */
++#
+ # Misc devices
+ #
  
- static void udbg_putcLP(unsigned char c)
-@@ -315,8 +418,13 @@ void pSeriesLP_init_early(void)
+@@ -592,8 +630,10 @@ CONFIG_FS_MBCACHE=y
+ CONFIG_REISERFS_FS=y
+ # CONFIG_REISERFS_CHECK is not set
+ # CONFIG_REISERFS_PROC_INFO is not set
+-# CONFIG_REISERFS_FS_XATTR is not set
+-CONFIG_JFS_FS=y
++CONFIG_REISERFS_FS_XATTR=y
++CONFIG_REISERFS_FS_POSIX_ACL=y
++# CONFIG_REISERFS_FS_SECURITY is not set
++CONFIG_JFS_FS=m
+ CONFIG_JFS_POSIX_ACL=y
+ # CONFIG_JFS_DEBUG is not set
+ # CONFIG_JFS_STATISTICS is not set
+@@ -616,6 +656,7 @@ CONFIG_ISO9660_FS=y
+ # CONFIG_JOLIET is not set
+ # CONFIG_ZISOFS is not set
+ CONFIG_UDF_FS=m
++CONFIG_UDF_NLS=y
  
- 	tce_init_pSeries();
+ #
+ # DOS/FAT/NT Filesystems
+@@ -623,6 +664,8 @@ CONFIG_UDF_FS=m
+ CONFIG_FAT_FS=y
+ CONFIG_MSDOS_FS=y
+ CONFIG_VFAT_FS=y
++CONFIG_FAT_DEFAULT_CODEPAGE=437
++CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+ # CONFIG_NTFS_FS is not set
  
--	ppc_md.tce_build = tce_build_pSeriesLP;
--	ppc_md.tce_free	 = tce_free_pSeriesLP;
-+	if (cur_cpu_spec->firmware_features & FW_FEATURE_MULTITCE) {
-+		ppc_md.tce_build = tce_buildmulti_pSeriesLP;
-+		ppc_md.tce_free	 = tce_freemulti_pSeriesLP;
-+	} else {
-+		ppc_md.tce_build = tce_build_pSeriesLP;
-+		ppc_md.tce_free	 = tce_free_pSeriesLP;
-+	}
+ #
+@@ -663,19 +706,22 @@ CONFIG_NFS_FS=y
+ CONFIG_NFS_V3=y
+ CONFIG_NFS_V4=y
+ # CONFIG_NFS_DIRECTIO is not set
+-CONFIG_NFSD=y
++CONFIG_NFSD=m
+ CONFIG_NFSD_V3=y
+ CONFIG_NFSD_V4=y
+ CONFIG_NFSD_TCP=y
+ CONFIG_LOCKD=y
+ CONFIG_LOCKD_V4=y
+-CONFIG_EXPORTFS=y
++CONFIG_EXPORTFS=m
+ CONFIG_SUNRPC=y
+ CONFIG_SUNRPC_GSS=y
+ CONFIG_RPCSEC_GSS_KRB5=y
++CONFIG_RPCSEC_GSS_SPKM3=m
+ # CONFIG_SMB_FS is not set
+ CONFIG_CIFS=m
+ # CONFIG_CIFS_STATS is not set
++CONFIG_CIFS_XATTR=y
++CONFIG_CIFS_POSIX=y
+ # CONFIG_NCP_FS is not set
+ # CONFIG_CODA_FS is not set
+ # CONFIG_AFS_FS is not set
+@@ -691,7 +737,7 @@ CONFIG_MSDOS_PARTITION=y
+ #
+ CONFIG_NLS=y
+ CONFIG_NLS_DEFAULT="iso8859-1"
+-# CONFIG_NLS_CODEPAGE_437 is not set
++CONFIG_NLS_CODEPAGE_437=y
+ # CONFIG_NLS_CODEPAGE_737 is not set
+ # CONFIG_NLS_CODEPAGE_775 is not set
+ # CONFIG_NLS_CODEPAGE_850 is not set
+@@ -714,7 +760,8 @@ CONFIG_NLS_DEFAULT="iso8859-1"
+ # CONFIG_NLS_ISO8859_8 is not set
+ # CONFIG_NLS_CODEPAGE_1250 is not set
+ # CONFIG_NLS_CODEPAGE_1251 is not set
+-# CONFIG_NLS_ISO8859_1 is not set
++CONFIG_NLS_ASCII=y
++CONFIG_NLS_ISO8859_1=y
+ # CONFIG_NLS_ISO8859_2 is not set
+ # CONFIG_NLS_ISO8859_3 is not set
+ # CONFIG_NLS_ISO8859_4 is not set
+@@ -748,14 +795,16 @@ CONFIG_OPROFILE=y
+ # Kernel hacking
+ #
+ CONFIG_DEBUG_KERNEL=y
++CONFIG_MAGIC_SYSRQ=y
++# CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
++# CONFIG_DEBUG_INFO is not set
+ CONFIG_DEBUG_STACKOVERFLOW=y
+ CONFIG_DEBUG_STACK_USAGE=y
+-# CONFIG_DEBUG_SLAB is not set
+-CONFIG_MAGIC_SYSRQ=y
+ # CONFIG_DEBUGGER is not set
+ # CONFIG_PPCDBG is not set
+-# CONFIG_DEBUG_INFO is not set
+ # CONFIG_IRQSTACKS is not set
++# CONFIG_SCHEDSTATS is not set
  
- 	pci_iommu_init();
+ #
+ # Security options
+@@ -773,6 +822,7 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
++CONFIG_CRYPTO_WHIRLPOOL=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+@@ -780,16 +830,19 @@ CONFIG_CRYPTO_SERPENT=m
+ CONFIG_CRYPTO_AES=m
+ CONFIG_CRYPTO_CAST5=m
+ CONFIG_CRYPTO_CAST6=m
++CONFIG_CRYPTO_TEA=m
+ CONFIG_CRYPTO_ARC4=m
++CONFIG_CRYPTO_KHAZAD=m
+ CONFIG_CRYPTO_DEFLATE=m
+-# CONFIG_CRYPTO_MICHAEL_MIC is not set
+-# CONFIG_CRYPTO_CRC32C is not set
++CONFIG_CRYPTO_MICHAEL_MIC=m
++CONFIG_CRYPTO_CRC32C=m
+ CONFIG_CRYPTO_TEST=m
  
-@@ -461,7 +569,7 @@ static unsigned long pSeries_lpar_hpte_g
- 	/* Do not need RPN to logical page translation */
- 	/* No cross CEC PFT access                     */
- 	flags = 0;
--	
-+
- 	lpar_rc = plpar_pte_read(flags, slot, &dword0, &dummy_word1);
- 
- 	BUG_ON(lpar_rc != H_Success);
-diff -puN include/asm-ppc64/hvcall.h~tce-multi include/asm-ppc64/hvcall.h
---- linux-2.5/include/asm-ppc64/hvcall.h~tce-multi	2004-09-01 22:32:56.481946728 -0500
-+++ linux-2.5-olof/include/asm-ppc64/hvcall.h	2004-09-01 22:32:56.487945816 -0500
-@@ -101,10 +101,12 @@
- #define H_VIO_SIGNAL		0x104
- #define H_SEND_CRQ		0x108
- #define H_COPY_RDMA             0x110
--#define H_POLL_PENDING	        0x1D8
-+#define H_STUFF_TCE		0x138
-+#define H_PUT_TCE_INDIRECT	0x13C
- #define H_VTERM_PARTNER_INFO	0x150
--#define H_REGISTER_VTERM		0x154
--#define H_FREE_VTERM			0x158
-+#define H_REGISTER_VTERM	0x154
-+#define H_FREE_VTERM		0x158
-+#define H_POLL_PENDING	        0x1D8
- 
- /* plpar_hcall() -- Generic call interface using above opcodes
-  *
-
+ #
+ # Library routines
+ #
++CONFIG_CRC_CCITT=m
+ CONFIG_CRC32=y
+-# CONFIG_LIBCRC32C is not set
++CONFIG_LIBCRC32C=m
+ CONFIG_ZLIB_INFLATE=y
+ CONFIG_ZLIB_DEFLATE=m
 _
-

@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262272AbTC1Hth>; Fri, 28 Mar 2003 02:49:37 -0500
+	id <S262264AbTC1H6I>; Fri, 28 Mar 2003 02:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262284AbTC1Hth>; Fri, 28 Mar 2003 02:49:37 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:29161 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S262272AbTC1Htg>;
-	Fri, 28 Mar 2003 02:49:36 -0500
-Date: Fri, 28 Mar 2003 09:00:26 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@infradead.org>
-cc: Antonino Daplas <adaplas@pol.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Framebuffer fixes.
-In-Reply-To: <Pine.LNX.4.44.0303280443170.11648-100000@phoenix.infradead.org>
-Message-ID: <Pine.GSO.4.21.0303280857240.7286-100000@vervain.sonytel.be>
+	id <S262292AbTC1H6I>; Fri, 28 Mar 2003 02:58:08 -0500
+Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:58363
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262264AbTC1H6I>; Fri, 28 Mar 2003 02:58:08 -0500
+Date: Fri, 28 Mar 2003 03:05:42 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 64GB NUMA-Q after pgcl
+In-Reply-To: <20030328075730.GP30140@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0303280303190.2884-100000@montezuma.mastecende.com>
+References: <20030328040038.GO1350@holomorphy.com>
+ <Pine.LNX.4.50.0303280243080.2884-100000@montezuma.mastecende.com>
+ <20030328075730.GP30140@holomorphy.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Mar 2003, James Simmons wrote:
-> > > > > Shouldn't these be info->var.bits_per_pixel instead of fb_logo.depth?
-> > > > 
-> > > > Yes, fb_logo.depth == info->var.bits_per_pixel.
-> > > 
-> > > Euh, now I get confused... Do you mean
-> > > `Yes, it should be replaced by info->var.bits_per_pixel' or
-> > > `No, logo.depth is always equal to info->var.bits_per_pixel'?
-> > 
-> > :)  Sorry about that. I meant:
-> > 
-> > 
-> > `No, fb_logo.depth is always equal to info->var.bits_per_pixel'
+On Thu, 27 Mar 2003, William Lee Irwin III wrote:
+
+> Sure. On NUMA-Q mem_map[] is not allocated using bootmem except for
+> node 0. Various other bootmem allocations are also proportional to
+> memory as measured in units of PAGE_SIZE, but not all.
 > 
-> No this is no longer true. For example last night I displayed the 16 color 
-> logo perfectly fine on a 16 bpp display!!!! The mono display still has 
-> bugs tho. The new logo tries to pick the best image to display. Say for 
-> example we have two video cards. One running VESA fbdev at 16 bpp and a 
-> another at vga 4 planar via vga16fb. This way we can have the both the 16 
-> color and 224 color logo compiled in.  The correct logo will be displayed 
-> then on the correct display. Now say we only have a mono display but all 
+> So all we're seeing here is node 0's mem_map[] with "miscellaneous"
+> bootmem allocations thrown in, whether reduced or increased.
+> 
+> This is not very reflective of what's going on as the majority of mem_map[]
+> is allocated through a custom reservation mechanism as opposed to bootmem.
 
-Didn't it always work like that? You got the 16 color logo on vga16fb and the
-224 color logo on displays with more than 256 colors (except for directcolor).
+Thanks, nice work btw, although the core guts of this stuff is somewhat of 
+a mystery to some of us ;)
 
-> the cards support 8 bpp or better. That logo still gets displayed.
-                                     ^^^^
-Which logo do you mean with `that'? On a monochrome display, it should be the
-monochrome logo.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,73 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVCGXnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVCGXny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVCGXnx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVCGXnm
+	id S261905AbVCGXny (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVCGXnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:43:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:44204 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261908AbVCGXdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:33:36 -0500
-Message-ID: <422CE4B2.2020403@osdl.org>
-Date: Mon, 07 Mar 2005 15:33:06 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Mon, 7 Mar 2005 18:43:13 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:11483 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261983AbVCGXd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 18:33:27 -0500
+Message-ID: <422CE4BF.5090600@acm.org>
+Date: Mon, 07 Mar 2005 17:33:19 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [1/many] acrypto: Kconfig
-References: <11102278531852@2ka.mipt.ru>
-In-Reply-To: <11102278531852@2ka.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andi Kleen <ak@muc.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] NMI/CMOS RTC race fix for x86-64
+References: <422CA1FA.1010903@acm.org> <m1ll8zmfzc.fsf@muc.de> <422CBE9F.1090906@acm.org> <20050307215300.GA36024@muc.de>
+In-Reply-To: <20050307215300.GA36024@muc.de>
+Content-Type: multipart/mixed;
+ boundary="------------080905070709090703070508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> diff -Nru /tmp/empty/Kconfig ./acrypto/Kconfig
-> --- /tmp/empty/Kconfig	1970-01-01 03:00:00.000000000 +0300
-> +++ ./acrypto/Kconfig	2005-03-07 21:21:33.000000000 +0300
-> @@ -0,0 +1,30 @@
-> +menu "Asynchronous crypto layer"
-> +
-> +config ACRYPTO
-> +	tristate "Asynchronous crypto layer"
-> +	select CONNECTOR
-> +	--- help ---
-> +	It supports:
-> +	 - multiple asynchronous crypto device queues
-> +	 - crypto session routing
-> +	 - crypto session binding
-> +	 - modular load balancing
-> +	 - crypto session batching genetically implemented by design
-Just curious, what genetics?
+This is a multi-part message in MIME format.
+--------------080905070709090703070508
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> +	 - crypto session priority
-> +	 - different kinds of crypto operation(RNG, asymmetrical crypto, HMAC and any other
-                                      operation (RNG, ... )
-> +
-> +config SIMPLE_LB
-> +	tristate "Simple load balancer"
-> +	depends on ACRYPTO
-> +	--- help ---
-> +	Simple load balancer returns device with the lowest load
-> +	(device has the least number of session in it's queue) if it exists.
-                                         sessions in its
-> +
-> +config ASYNC_PROVIDER
-> +	tristate "Asynchronous crypto provider (AES CBC)"
-> +	depends on ACRYPTO && (CRYPTO_AES || CRYPTO_AES_586)
-> +	--- help ---
-> +	Asynchronous crypto provider based on synchronous crypto layer.
-> +	It supports AES CBC crypto mode (may be changed by source edition).
-> +
-> +endmenu
+Patch is attached.  Thanks.
 
--- 
-~Randy
+-Corey
+
+Andi Kleen wrote:
+
+>>>But in this case it isnt. Instead of all this complexity 
+>>>just remove the NMI reassert code from the NMI handler.
+>>>It is oudated and mostly useless on modern systems anyways.
+>>>
+>>>
+>>>      
+>>>
+>>"mostly useless" and "completely useless" are two different things.
+>>    
+>>
+>
+>It's completely useless (double checked the AMD8111 and ICH5 data sheets)
+>
+>There is nothing that should ever clear the NMI bit in this register.
+>In fact the ICH5 datasheet even explicitely says software should
+>never touch this bit. 
+>
+>It may have some meaning in ancient ISA chipsets, but that is 
+>of no concern on x86-64.
+>
+>  
+>
+>>Do you want me to submit a patch that simply removes this?
+>>    
+>>
+>
+>Yes, please.
+>
+>-Andi
+>  
+>
+
+
+--------------080905070709090703070508
+Content-Type: text/plain;
+ name="nmicmos_x86_64_race.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nmicmos_x86_64_race.diff"
+
+This patch fixes a race between the CMOS clock setting and the NMI
+code.  The NMI code indiscriminatly sets index registers and values
+in the same place the CMOS clock is set.  If you are setting the
+CMOS clock and an NMI occurs, Bad values could be written to or
+read from the CMOS RAM, or the NMI operation might not occur
+correctly.
+
+Resetting the NMI is not required on x86_64 (in fact, it should
+not be done according to the ICH5 documentation).  This patch
+simply removes the useless code.
+
+Signed-off-by: Corey Minyard <minyard@acm.org>
+
+Index: linux-2.6.11-mm1/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux-2.6.11-mm1.orig/arch/x86_64/kernel/traps.c
++++ linux-2.6.11-mm1/arch/x86_64/kernel/traps.c
+@@ -620,15 +620,6 @@
+ 		mem_parity_error(reason, regs);
+ 	if (reason & 0x40)
+ 		io_check_error(reason, regs);
+-
+-	/*
+-	 * Reassert NMI in case it became active meanwhile
+-	 * as it's edge-triggered.
+-	 */
+-	outb(0x8f, 0x70);
+-	inb(0x71);		/* dummy */
+-	outb(0x0f, 0x70);
+-	inb(0x71);		/* dummy */
+ }
+ 
+ asmlinkage void do_int3(struct pt_regs * regs, long error_code)
+
+--------------080905070709090703070508--

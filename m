@@ -1,34 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317863AbSGKRS0>; Thu, 11 Jul 2002 13:18:26 -0400
+	id <S317865AbSGKRS5>; Thu, 11 Jul 2002 13:18:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317865AbSGKRSZ>; Thu, 11 Jul 2002 13:18:25 -0400
-Received: from dsl-213-023-020-056.arcor-ip.net ([213.23.20.56]:17045 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317863AbSGKRSY>;
-	Thu, 11 Jul 2002 13:18:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "Christian Ludwig" <cl81@gmx.net>, "Ville Herva" <vherva@niksula.hut.fi>
-Subject: Re: bzip2 support against 2.4.18
-Date: Thu, 11 Jul 2002 19:22:29 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
-References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <20020711062832.GU1548@niksula.cs.hut.fi> <002601c228ab$86b235e0$1c6fa8c0@hyper>
-In-Reply-To: <002601c228ab$86b235e0$1c6fa8c0@hyper>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17SheA-0002Uh-00@starship>
+	id <S317866AbSGKRSz>; Thu, 11 Jul 2002 13:18:55 -0400
+Received: from dhcp065-025-113-164.neo.rr.com ([65.25.113.164]:56192 "EHLO
+	zahra") by vger.kernel.org with ESMTP id <S317865AbSGKRSx>;
+	Thu, 11 Jul 2002 13:18:53 -0400
+Date: Thu, 11 Jul 2002 13:20:54 -0400
+From: James Cassidy <jcassidy@cs.kent.edu>
+To: linswing <linswing@sohu.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: framebuffer & S3 savage4
+Message-ID: <20020711172054.GA334@qfire.net>
+References: <20020711063517.CF7B353595@smtp01.sohu.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+In-Reply-To: <20020711063517.CF7B353595@smtp01.sohu.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 July 2002 09:21, Christian Ludwig wrote:
-> Putting in another 4MB into that machine (thus it has 8MB now), made the
-> kernel boot, but ramdisk decompression failed. All in all you will need at
-> least 12MB to boot correctly, if you are using a bz2bzImage of about 700kB
-> and a 2MB compressed ramdisk image.
 
-Good stuff, but why take this opportunity to make an ugly name even uglier?
-How about bz2Image, or, more natural in my mind, bz2linux.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Daniel
+
+    VESA framebuffer driver should work.
+
+On Thu, Jul 11, 2002 at 02:56:43PM +0800, linswing wrote:
+>=20
+>  	I have a S3 savage4 graphic card ,when
+> I compile 2.4.18 kernel ,I want my framebuffer=20
+> can support more then 4bpp(when I chose vga16).
+>     can anyone tell me how to chose? 		=09
+>=20
+> =E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80l=
+inswing
+> =E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80l=
+inswing@sohu.com
+> =E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=E3=80=80=
+=E3=80=80=E3=80=802002-07-11
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+						-- James Cassidy (QFire)
+
+--ReaqsoxgOBHFXBhH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9Lb52JanLLdMos+kRAupsAJ9V8W9o/caZERpCKp1kl/tWOo9hhwCgkIrb
+MMQUPYtdo/RI7deGYw9ovkY=
+=C+J7
+-----END PGP SIGNATURE-----
+
+--ReaqsoxgOBHFXBhH--

@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbSL2SjL>; Sun, 29 Dec 2002 13:39:11 -0500
+	id <S261356AbSL2SsD>; Sun, 29 Dec 2002 13:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261321AbSL2SjL>; Sun, 29 Dec 2002 13:39:11 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:10158 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261310AbSL2SjL>; Sun, 29 Dec 2002 13:39:11 -0500
-To: Sebastian Abt <sebastian@sabt.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch for null-interface?
-References: <20021229140121.34f0fbf6.sebastian@sabt.net>
-From: Andi Kleen <ak@muc.de>
-Date: 29 Dec 2002 19:47:15 +0100
-In-Reply-To: <20021229140121.34f0fbf6.sebastian@sabt.net>
-Message-ID: <m3el80oe6k.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S261354AbSL2SsD>; Sun, 29 Dec 2002 13:48:03 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:35024 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261346AbSL2SsC>;
+	Sun, 29 Dec 2002 13:48:02 -0500
+Date: Sun, 29 Dec 2002 10:54:06 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <Hell.Surfers@cwctv.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: where is the wine development list?
+In-Reply-To: <024e64932181dc2DTVMAIL9@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.33L2.0212291053470.10723-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sebastian Abt <sebastian@sabt.net> writes:
+On Sun, 29 Dec 2002 Hell.Surfers@cwctv.net wrote:
 
-> Is there any patch for null-interfaces like they exist in Cisco IOS
-> available? I'm searching for sth like that to do null-routing, but
-> google didn't find anything :/
+| I cant seem to find it on google...
 
-I guess you mean an interface without an own IP address?  Just give it the 
-IP address of some other interface, with a full (/32) netmask.
-The kernel needs at least one IP address per router/host to start
-local connections and give ICMP errors an source.
+Did you try http://www.winehq.org/development/ ?
 
--Andi
+-- 
+~Randy
+

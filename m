@@ -1,82 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbUJ1Lkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbUJ1Lmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbUJ1Lkf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 07:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbUJ1Lkf
+	id S262974AbUJ1Lmb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 07:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUJ1Lk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 07:40:35 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:15257 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262971AbUJ1LhP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 07:37:15 -0400
-Date: Thu, 28 Oct 2004 13:36:53 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: massive cross-builds without too much PITA
-In-Reply-To: <20041028054833.GP24336@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.GSO.4.61.0410281331320.7058@waterleaf.sonytel.be>
-References: <20041028054833.GP24336@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Oct 2004 07:40:58 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:55532 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262974AbUJ1Lh3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 07:37:29 -0400
+Date: Thu, 28 Oct 2004 17:08:45 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>, ak@muc.de,
+       suparna@in.ibm.com, dprobes@www-124.southbury.usf.ibm.com
+Subject: Re: [3/3] PATCH Kprobes for x86_64- 2.6.9-final
+Message-ID: <20041028113845.GC5812@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20041028113208.GA11182@in.ibm.com> <20041028113444.GA5812@in.ibm.com> <20041028113558.GB5812@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041028113558.GB5812@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004, Al Viro wrote:
-> 6) cross-sparse: sparse snapshots live on
-> http://www.codemonkey.org.uk/projects/bitkeeper/sparse/;  I'm probably doing
-> more work than necessary since I build a separate binary for each target.
-> What it means is
-> 	a) editing pre-process.h to point to cross-gcc headers (e.g.
-> /usr/lib/gcc-lib/alpha-linux/3.3.4/include) and
-> 	b) editing target.c (probably not needed these days)
-> make CFLAGS=-O3
-> mv ~/bin/sparse-<arch>{,-old}
-> cp check ~/bin/sparse-<arch>
-> does the build-and-install.
+[3/3] kprobes-arch-sparc64-changes.patch
 
-I use the native (ia32) sparse for m68k cross-builds, using the following trick
-(IIRC as suggested by Linus) in arch/m68k/Makefile:
 
-    CHECK := $(CHECK) -D__mc68000__=1 -I$(shell $(CC) -print-file-name=include)
+Minor changes required to port kprobes for x86_64.
 
-I guess a similar construct would work for other archs, even for native builds.
+Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 
-> ext2 works fine for build boxen - you are not dealing with hard-to-recreate
-> data there (diffs are going to master and you want them carved into small
-> chunks from the very beginning anyway).  So journalling, etc. is a pointless
-> overhead in this situation.  Keep in mind that forest of cp -rl'ed kernel
-> trees gets hard on caches once it grows past ~60 copies regardless of the
-> fs involved; if your patchset gets bigger than that, fragment it and do
-> porting, etc. group-by-group.
 
-Hmm, I seem to have 502 hardlinked copies of COPYING, that means at least 502
-trees :-)
-That's on ext3fs, Athlon XP2800+ with 1 GiB RAM.
 
-And I use same to merge trees after each release.
+---
 
-> Currently i386, amd, sparc32, sparc64, alpha and ppc all survive allmodconfig
-> with relatively few patches; amount of new breakage showing up is not too
-> bad and so far didn't take much time to deal with.  Bringing in new targets...
-> hell knows - parisc probably will be the next one (which will mean adding
-> delta between Linus' and parisc trees into -bird), arm going after it (that
-> will mean untangling the mess around drivers/net/8390.c first ;-/)  After
-> getting the target to build (and barring the acts of Cthulhu or Ingo) it
-> doesn't add a lot of overhead...
+ linux-2.6.9-final-prasanna/arch/sparc64/kernel/kprobes.c |   28 ++++++++++-----
+ linux-2.6.9-final-prasanna/include/asm-sparc64/kprobes.h |    6 +++
+ 2 files changed, 25 insertions(+), 9 deletions(-)
 
-Just in case you ever want to start doing m68k as well: I already have a few
-sparse-related cleanups at
-http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/XXX-sparse-*
+diff -puN arch/sparc64/kernel/kprobes.c~kprobes-arch-sparc64-changes arch/sparc64/kernel/kprobes.c
+--- linux-2.6.9-final/arch/sparc64/kernel/kprobes.c~kprobes-arch-sparc64-changes	2004-10-28 16:47:08.000000000 +0530
++++ linux-2.6.9-final-prasanna/arch/sparc64/kernel/kprobes.c	2004-10-28 16:47:08.000000000 +0530
+@@ -15,7 +15,7 @@
+  * traps.  The top-level scheme is similar to that used
+  * in the x86 kprobes implementation.
+  *
+- * In the kprobe->insn[] array we store the original
++ * At kprobe->insn we allocate enough bytes and then store the original
+  * instruction at index zero and a break instruction at
+  * index one.
+  *
+@@ -38,10 +38,20 @@
+  * - Mark that we are no longer actively in a kprobe.
+  */
+ 
+-void arch_prepare_kprobe(struct kprobe *p)
++int arch_prepare_kprobe(struct kprobe *p)
++{
++	p->ainsn.insn = (kprobe_opcode_t *) kmalloc(MAX_INSN_SIZE, GFP_ATOMIC);
++	if (!p->ainsn.insn) {
++		return -ENOMEM;
++	}
++
++	p->ainsn.insn[0] = *p->addr;
++	p->ainsn.insn[1] = BREAKPOINT_INSTRUCTION_2;
++	return 0;
++}
++
++void arch_remove_kprobe(struct kprobe *p)
+ {
+-	p->insn[0] = *p->addr;
+-	p->insn[1] = BREAKPOINT_INSTRUCTION_2;
+ }
+ 
+ /* kprobe_status settings */
+@@ -59,8 +69,8 @@ static inline void prepare_singlestep(st
+ 	current_kprobe_orig_tstate_pil = (regs->tstate & TSTATE_PIL);
+ 	regs->tstate |= TSTATE_PIL;
+ 
+-	regs->tpc = (unsigned long) &p->insn[0];
+-	regs->tnpc = (unsigned long) &p->insn[1];
++	regs->tpc = (unsigned long) &p->ainsn.insn[0];
++	regs->tnpc = (unsigned long) &p->ainsn.insn[1];
+ }
+ 
+ static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
+@@ -199,19 +209,19 @@ static void retpc_fixup(struct pt_regs *
+  * instruction.  To avoid the SMP problems that can occur when we
+  * temporarily put back the original opcode to single-step, we
+  * single-stepped a copy of the instruction.  The address of this
+- * copy is p->insn.
++ * copy is p->ainsn.insn.
+  *
+  * This function prepares to return from the post-single-step
+  * breakpoint trap.
+  */
+ static void resume_execution(struct kprobe *p, struct pt_regs *regs)
+ {
+-	u32 insn = p->insn[0];
++	u32 insn = p->ainsn.insn[0];
+ 
+ 	regs->tpc = current_kprobe_orig_tnpc;
+ 	regs->tnpc = relbranch_fixup(insn,
+ 				     (unsigned long) p->addr,
+-				     (unsigned long) &p->insn[0],
++				     (unsigned long) &p->ainsn.insn[0],
+ 				     regs->tnpc);
+ 	retpc_fixup(regs, insn, (unsigned long) p->addr);
+ 
+diff -puN include/asm-sparc64/kprobes.h~kprobes-arch-sparc64-changes include/asm-sparc64/kprobes.h
+--- linux-2.6.9-final/include/asm-sparc64/kprobes.h~kprobes-arch-sparc64-changes	2004-10-28 16:47:08.000000000 +0530
++++ linux-2.6.9-final-prasanna/include/asm-sparc64/kprobes.h	2004-10-28 16:47:08.000000000 +0530
+@@ -10,6 +10,12 @@ typedef u32 kprobe_opcode_t;
+ #define BREAKPOINT_INSTRUCTION_2 0x91d02071 /* ta 0x71 */
+ #define MAX_INSN_SIZE 2
+ 
++/* Architecture specific copy of original instruction*/
++struct arch_specific_insn {
++	/* copy of the original instruction */
++	kprobe_opcode_t insn[MAX_INSN_SIZE];
++};
++
+ #ifdef CONFIG_KPROBES
+ extern int kprobe_exceptions_notify(struct notifier_block *self,
+ 				    unsigned long val, void *data);
 
-Gr{oetje,eeting}s,
+_
+-- 
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265434AbTFRSSW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 14:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265407AbTFRSPk
+	id S265445AbTFRSWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 14:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265426AbTFRSWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 14:15:40 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:60562 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265408AbTFRSLt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 14:11:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10559607091816@kroah.com>
-Subject: Re: [PATCH] i2c driver changes for 2.5.72
-In-Reply-To: <10559607092693@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 18 Jun 2003 11:25:09 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Mime-Version: 1.0
+	Wed, 18 Jun 2003 14:22:21 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:39344 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265447AbTFRSVD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 14:21:03 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16112.45266.649753.218407@napali.hpl.hp.com>
+Date: Wed, 18 Jun 2003 11:34:58 -0700
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Check in new SN2 file from Jes' gettimeoffset() patch.
+In-Reply-To: <Pine.GSO.4.21.0306182003320.7606-100000@vervain.sonytel.be>
+References: <200306181626.h5IGQbH4027481@hera.kernel.org>
+	<Pine.GSO.4.21.0306182003320.7606-100000@vervain.sonytel.be>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1318.3.8, 2003/06/17 15:37:40-07:00, greg@kroah.com
+>>>>> On Wed, 18 Jun 2003 20:04:25 +0200 (MEST), Geert Uytterhoeven <geert@linux-m68k.org> said:
 
-I2C: fix resource leak in i2c-ali15x3.c
+  >> diff -Nru a/timer.c b/timer.c
+  >> --- /dev/null	Wed Dec 31 16:00:00 1969
+  >> +++ b/timer.c	Wed Jun 18 09:26:40 2003
+  Geert> ^^^^^^^
+  >> @@ -0,0 +1,85 @@
+  >> +/*
+  >> + * linux/arch/ia64/sn/kernel/sn2/timer.c
+  Geert> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Geert> Just wondering, did this file really end up where it belongs?
 
+I think it did, eventually: there was another change to undo the
+breakage.  What happened is that due to some error, the file ended up
+in the wrong place in the ia64 linux tree at some point.  I then
+deleted the bogus file.  Unfortunately, you can't make bk forgive such
+sins...
 
- drivers/i2c/busses/i2c-ali15x3.c |   18 +++++++++++-------
- 1 files changed, 11 insertions(+), 7 deletions(-)
-
-
-diff -Nru a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
---- a/drivers/i2c/busses/i2c-ali15x3.c	Wed Jun 18 11:19:16 2003
-+++ b/drivers/i2c/busses/i2c-ali15x3.c	Wed Jun 18 11:19:16 2003
-@@ -177,17 +177,18 @@
- 	if(force_addr) {
- 		dev_info(&ALI15X3_dev->dev, "forcing ISA address 0x%04X\n",
- 			ali15x3_smba);
--		if (PCIBIOS_SUCCESSFUL !=
--		    pci_write_config_word(ALI15X3_dev, SMBBA, ali15x3_smba))
--			return -ENODEV;
--		if (PCIBIOS_SUCCESSFUL !=
--		    pci_read_config_word(ALI15X3_dev, SMBBA, &a))
--			return -ENODEV;
-+		if (PCIBIOS_SUCCESSFUL != pci_write_config_word(ALI15X3_dev,
-+								SMBBA,
-+								ali15x3_smba))
-+			goto error;
-+		if (PCIBIOS_SUCCESSFUL != pci_read_config_word(ALI15X3_dev,
-+								SMBBA, &a))
-+			goto error;
- 		if ((a & ~(ALI15X3_SMB_IOSIZE - 1)) != ali15x3_smba) {
- 			/* make sure it works */
- 			dev_err(&ALI15X3_dev->dev,
- 				"force address failed - not supported?\n");
--			return -ENODEV;
-+			goto error;
- 		}
- 	}
- 	/* check if whole device is enabled */
-@@ -219,6 +220,9 @@
- 	dev_dbg(&ALI15X3_dev->dev, "iALI15X3_smba = 0x%X\n", ali15x3_smba);
- 
- 	return 0;
-+error:
-+	release_region(ali15x3_smba, ALI15X3_SMB_IOSIZE);
-+	return -ENODEV;
- }
- 
- /* Internally used pause function */
-
+	--david

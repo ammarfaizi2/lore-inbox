@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293388AbSB1XMq>; Thu, 28 Feb 2002 18:12:46 -0500
+	id <S310134AbSB1VxS>; Thu, 28 Feb 2002 16:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310186AbSB1XIp>; Thu, 28 Feb 2002 18:08:45 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:8462 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S310214AbSB1XFD>;
-	Thu, 28 Feb 2002 18:05:03 -0500
-Date: Thu, 28 Feb 2002 20:04:38 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Christoph Hellwig <hch@caldera.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
- tree
-In-Reply-To: <Pine.LNX.3.96.1020228174142.2006I-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33L.0202282002260.2801-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310141AbSB1Vvj>; Thu, 28 Feb 2002 16:51:39 -0500
+Received: from uucp.cistron.nl ([195.64.68.38]:27404 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S310121AbSB1VtQ>;
+	Thu, 28 Feb 2002 16:49:16 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: serial console in single mode does not function
+Date: Thu, 28 Feb 2002 21:49:15 +0000 (UTC)
+Organization: Cistron
+Message-ID: <a5m8kr$4jg$1@ncc1701.cistron.net>
+In-Reply-To: <3C7E6A84.DED890F6@lmt.lv>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1014932955 4720 195.64.65.67 (28 Feb 2002 21:49:15 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Feb 2002, Bill Davidsen wrote:
-> On Tue, 26 Feb 2002, Christoph Hellwig wrote:
->
-> > They shouldn't,  But many old drivers do (and _had to_):
-> >
-> > 	current->policy = SCHED_YIELD;
-> > 	schedule();
-> >
-> > which isn't possible with the new scheduler.
->
-> Let's see, the choices are to (a) keep the old scheduler which has many
-> performance issues, or (b) put in the new scheduler and let people who
-> need the old drivers either fix them or stop upgrading.
+In article <3C7E6A84.DED890F6@lmt.lv>,
+Andrejs Dubovskis  <adu@lmt.lv> wrote:
+>When system with serial console is started in single mode it boots
+>shell. But any button pressed in terminal does not go to console.
+>Looks like hanged system. Nothing changed but kernel (2.4.14) only
+>and serial console works as expected: any pressed chars are displayed
+>in console.
+>Kernels 2.4.17 and 2.4.18 was checked and do not function.
 
-or (c) have proponents of the inclusion of the O(1) scheduler
-fix all drivers before having the O(1) scheduler considered
-for inclusion.
+Update your sysvinit package.
 
-Adding a yield() function to 2.4's scheduler and fixing all
-the drivers to use it isn't that hard. Now all that's needed
-are some O(1) fans willing to do the grunt work.
-
-regards,
-
-Rik
+Mike.
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Computers are useless, they only give answers. --Pablo Picasso
 

@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264939AbSJVWRL>; Tue, 22 Oct 2002 18:17:11 -0400
+	id <S264935AbSJVWXw>; Tue, 22 Oct 2002 18:23:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbSJVWRL>; Tue, 22 Oct 2002 18:17:11 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:21921 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S264939AbSJVWRK>;
-	Tue, 22 Oct 2002 18:17:10 -0400
-Date: Wed, 23 Oct 2002 00:23:19 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: vm scenario tool / mincore(2) functionality for regular pages?
-Message-ID: <20021022222319.GA18272@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>
-References: <20021022184313.GA12081@outpost.ds9a.nl> <3DB5BBFC.479BE5DD@digeo.com>
+	id <S264938AbSJVWXw>; Tue, 22 Oct 2002 18:23:52 -0400
+Received: from rth.ninka.net ([216.101.162.244]:14737 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S264935AbSJVWXv>;
+	Tue, 22 Oct 2002 18:23:51 -0400
+Subject: Re: feature request - why not make netif_rx() a pointer?
+From: "David S. Miller" <davem@rth.ninka.net>
+To: Slavcho Nikolov <snikolov@okena.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <00b201c27a0e$3f82c220$800a140a@SLNW2K>
+References: <00b201c27a0e$3f82c220$800a140a@SLNW2K>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 15:40:51 -0700
+Message-Id: <1035326451.4817.15.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB5BBFC.479BE5DD@digeo.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 01:58:36PM -0700, Andrew Morton wrote:
+On Tue, 2002-10-22 at 14:01, Slavcho Nikolov wrote:
+> Non GPL modules that want to attach themselves between all L2 drivers and
+> upper layers would not have to incur a performance loss if netif_rx() is
+> made a
 
-> mincore needs to be taught to walk pagetables and to look up
-> stuff in swapcache.
+What you are suggesting can only result in illegal binary-only
+modules.
 
-As mincore appears to be entirely unstandardized, we can get away with
-extending its functionality.
+If you override netif_rx(), you are by definition implementing a derived
+work of the kernel reimplementing core functionality, thus your binary
+only driver is not abiding by the GPL and you are on very shaky legal
+ground.
 
-> Also it currently assumes that vma->vm_file is mapped linearly,
-> so it will return incorrect results with Ingo's nonlinear mapping
-> extensions.
+It isn't exported for a reason, there is legitimate use of it from
+modules.
 
-It also appears to fail if the memory range it is offered lives in multiple
-vmas. I'm unsure if this is possible, but I recall reading about mozilla
-needing 'vma merging', which seems to imply that a process can have more of
-them.
-
-> But if we were to use Ingo's "file pte's" for all mmappings, mincore
-> only needs to do the pte->pagecache lookup, so it can lose the
-> "vma is linear" arithmetic.
-
-The pagetable walking and swapcache lookup is orthogonal to this? 
-
-By the way, version 0.1 which is mildly functional is on
-http://ds9a.nl/vmloader-0.1.tar.gz , it currently does mincore only for
-mmapped files. Use 'mkfile name 100' to create a 100mb file, 'map name' to
-map it.
-
-It is interesting to note that 2.4.20-pre9 allows me to allocate 250
-megabytes and touch it sequentially without dire behaviour on a 186 megabyte
-(or so) machine. RSS is a reasonable 153MB afterwards.
-
-Reading that 250 megabytes from the start again however causes massive
-swapping and takes way longer than the initial touching. Probably some kind
-of 'use once' heuristic that is suddenly disabled.
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

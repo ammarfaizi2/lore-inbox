@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbTKNT1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 14:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTKNT1K
+	id S264374AbTKNTeT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 14:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbTKNTeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 14:27:10 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:3853 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264443AbTKNT1H (ORCPT
+	Fri, 14 Nov 2003 14:34:19 -0500
+Received: from mrelay1.cc.umr.edu ([131.151.1.120]:28350 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id S264374AbTKNTeR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 14:27:07 -0500
-Date: Fri, 14 Nov 2003 20:03:37 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Patrick Beard <patrick@scotcomms.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9 VFAT problem
-Message-ID: <20031114190337.GA18107@win.tue.nl>
-References: <09A92EA4A9D2D51182170004AC96FE7A1216BB@mercury.scotcomms>
+	Fri, 14 Nov 2003 14:34:17 -0500
+Subject: Changes between 2.4.21 and 2.4.22-pre1 affecting filesystem mounts?
+From: Nathan Neulinger <nneul@umr.edu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1068831962.2668.5.camel@infinity.cc.umr.edu>
+References: <1068817830.30727.12.camel@cessna>
+	 <1068831962.2668.5.camel@infinity.cc.umr.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: UMR Information Technology
+Message-Id: <1068838455.2770.7.camel@infinity.cc.umr.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <09A92EA4A9D2D51182170004AC96FE7A1216BB@mercury.scotcomms>
-User-Agent: Mutt/1.3.25i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 14 Nov 2003 13:34:16 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 14, 2003 at 11:51:57AM -0000, Patrick Beard wrote:
-> > > My fstab entry is;
-> > > /dev/sda    /mnt/smedia    vfat    rw,user,noauto    0,0
-> > 
-> > I would guess that you have to mount /dev/sda1 or perhaps /dev/sda4.
-> > Isn't that what you do under 2.4?
+Sorry for the resend if you've already seen this, I had addr wrong...
+Any ideas?
+
+On Fri, 2003-11-14 at 11:46, Nathan Neulinger wrote:
+> Narrowed this down to it breaking between 2.4.21 release and
+> 2.4.22-pre1. (2.4.21 works fine, 22-pre1 does not.) I read over the
+> detailed 2.4.22 ChangeLog and sure don't see anything that jumps out at
+> me as a likely cause... Any ideas?
 > 
-> Yes, with 2.4 I used sda1. When I first compiled 2.6 I used sda1 but I got
-> the 'wrong fs..' error. This was a clean install of debian so I didn't have
-> my original fstab. I checked the web and noticed people using sda. so I
-> tried that - same error. In trying to get this to work I've used sda and
-> sda1 at different times both gave the same errors.
+> Basically, client looks like it starts up just fine, but there's nothing
+> there. /afs is definately mounted, but the mount is non-functional and
+> complains about not being a directory. 
+> 
+> -- Nathan
+> 
+> On Fri, 2003-11-14 at 07:50, Nathan Neulinger wrote:
+> > I haven't dug into this in depth yet, but figured I'd ask in case the
+> > answer was obvious to any kernel developers - tried updating to
+> > 2.4.23-rc1 w/ openafs, and the filesystem mounts, but every traversal
+> > attempt results in ENOTDIR. Is there something that changed in kernel
+> > structures/functions/interfaces that needs to be addressed in openafs
+> > src to fix this? Pointers to change info appreciated. 
+> > 
+> > -- Nathan
+> > 
+> > ------------------------------------------------------------
+> > Nathan Neulinger                       EMail:  nneul@umr.edu
+> > University of Missouri - Rolla         Phone: (573) 341-4841
+> > UMR Information Technology             Fax: (573) 341-4216
+-- 
 
-Good.
-
-Maybe you know already, but just to be sure:
-You must use sda if the thing has no partition table.
-You must use sda1 if the thing has a partition table.
-
-So, if sda1 works under 2.4, then sda is certainly wrong under 2.6 -
-your device would just look like garbage and the error messages are
-meaningless.
-Only try sda1, and report whatever goes wrong in that case.
-
-Andries
-
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-6679
+UMR Information Technology             Fax: (573) 341-4216

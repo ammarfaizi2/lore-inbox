@@ -1,61 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291431AbSBSOfH>; Tue, 19 Feb 2002 09:35:07 -0500
+	id <S291436AbSBSOtI>; Tue, 19 Feb 2002 09:49:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291430AbSBSOer>; Tue, 19 Feb 2002 09:34:47 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25092 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291426AbSBSOeg>;
-	Tue, 19 Feb 2002 09:34:36 -0500
-Date: Tue, 19 Feb 2002 11:34:15 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: [PATCH *] new struct page shrinkage
-Message-ID: <Pine.LNX.4.33L.0202191131050.1930-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S291434AbSBSOs6>; Tue, 19 Feb 2002 09:48:58 -0500
+Received: from mustard.heime.net ([194.234.65.222]:20096 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S291436AbSBSOsw>; Tue, 19 Feb 2002 09:48:52 -0500
+From: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
+To: "Jens Schmidt" <j.schmidt@paradise.net.nz>, linux-kernel@vger.kernel.org,
+        j.schmidt@paradise.net.nz
+Subject: Re: secure erasure of files?
+Date: Tue, 19 Feb 2002 14:48:45 +0000
+Message-ID: <20020219.HQ8.97132600@karlsbakk.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+X-Mailer: phpGroupWare (http://www.phpgroupware.org) v 0.9.13.016
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+>I would strongly encourage somebody with fluent Norsk/English skills
+>to do a translation and post it to the list.
 
-The patch has been changed like you wanted, with page->zone
-shoved into page->flags. I've also pulled the thing up to
-your latest changes from linux.bkbits.net so you should be
-able to just pull it into your tree from:
+I'll do my very best ...
 
-bk://linuxvm.bkbits.net/linux-2.5-struct_page
+(translated by Roy Sigurd Karlsbakk - please don't spam me in case of bad
+speling :)
 
-You can also view the patch on:
+With permission from the leader of Research and Deveopment department, I
+quote his complete answer:
 
-http://surriel.com/patches/2.5/2.5.5-p2-struct_page5
+I'll try to answer your questions:
 
-I'm not retransmitting it to lkml as very little has changed.
-Please apply the patch to your 2.5 tree.
+The short answer is: No. It is not possible to read data that are (really)
+physically overwritten.
 
-thank you,
+Still, the reason to this is is a little different than what you are describing.
+To speak reasonably about this, we firstly need some basic understanding of how
+data is stored on a harddisk. A harddisk does not manipulate individual bits, but
+flux change. Simply explained is 'flux direction' however the magnetic field points
+clockwise or counter-clockwise. Thus, a 'flux change' is where the flux changes from
+CCW to CW or the other way around. The mapping between flux changes is not
+one-to-one.
+This means that we DO NOT use CW=0, CCW=1, but rather have each flux
+change
+giving the origin pf 2.5 to 3 bits in addition to the disks sequence detection.
+This means that it does not attempt to detect each bit isolated, but rather decodes
+a sequence at a time (typically 4096 bit = 1 sector).
 
-Rik
+This sequence detection is quite the same as a human reading a bad
+fax. If we try to read the fax letter by letter, we may for instance
+mistake an 'a' with an 'o'. If this letter is part of the word 'bank',
+and we read it letter by letter, we'll end up with 'bonk. However, if we
+look at the whole word (the sequence of letters), we can probably see
+the most probable word is 'bank'.
 
-----> begin standard blurb of explanation <----
+After data is overwritten, we can measure how strong the (field of the)
+old data is compared to the new ones. This means that all 'old' signals
+never really disappear. Still, our investigation shows that there is no
+officially documented way of how to change these (old) signals back to
+the origial data-
 
-I've forward-ported a small part of the -rmap patch to 2.5,
-the shrinkage of the struct page. Most of this code is from
-William Irwin and Christoph Hellwig.
+It may seem this will demand trail-breaking discoveries in many different
+fields: Non-linear analysis and modelling, low-noice electronics (cryo-
+electronics), computer technology (super-fast number-chrunchers)
 
-The executive summary:
-o page->wait is removed, instead we use a hash table of wait
-  queues per zone ... collisions are ok because of wake-all
-  semantics
-o page->virtual is only used on highmem machines and sparc64,
-  other machines calculate the address instead
-o page->zone is moved into page->flags
+This was the long (complicated) answer :)
 
-Linus, please pull from the bk tree:
+What is sure: Ibas does not know any documented methods, scientific
+environments or commercial services that do or demonstrate reading
+of overwritten data.
 
-bk://linuxvm.bkbits.net/linux-2.5-struct_page
+--
+Thor Arne Johansen
+Avdelingssjef FoU, Ibas AS
+
+Addition:
+
+Still, it should be said that this is being argued upon between the
+'wise' ones. This is - there are people that mean it is possible
+to read/recover overwritten data. But we have, as mentioned above,
+not found any scientific documentation or decriptions of how this
+can be done.
+
+-----------------------------------------------------------------------------
+--
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
 
 

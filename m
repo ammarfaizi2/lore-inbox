@@ -1,65 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262368AbTCICc5>; Sat, 8 Mar 2003 21:32:57 -0500
+	id <S262370AbTCICet>; Sat, 8 Mar 2003 21:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262369AbTCICc4>; Sat, 8 Mar 2003 21:32:56 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7 "EHLO
+	id <S262372AbTCICet>; Sat, 8 Mar 2003 21:34:49 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:775 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262368AbTCICcz>; Sat, 8 Mar 2003 21:32:55 -0500
-Date: Sat, 8 Mar 2003 21:38:07 -0500 (EST)
+	id <S262370AbTCICen>; Sat, 8 Mar 2003 21:34:43 -0500
+Date: Sat, 8 Mar 2003 21:41:20 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Harald.Schaefer@gls-germany.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Thomas.Mieslinger@gls-germany.com, linux-kernel@vger.kernel.org,
-       aeb@cwi.nl
-Subject: Re: ide-problem still with 2.4.21-pre5-ac1
-In-Reply-To: <20030308232351.GA3462@win.tue.nl>
-Message-ID: <Pine.LNX.3.96.1030308213021.5356B-100000@gatekeeper.tmr.com>
+To: Michael Vergoz <mvergoz@sysdoor.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: High Mem Options
+In-Reply-To: <20030305140257.2ab08ab8.mvergoz@sysdoor.com>
+Message-ID: <Pine.LNX.3.96.1030308213907.5356C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Mar 2003, Andries Brouwer wrote:
+On Wed, 5 Mar 2003, Michael Vergoz wrote:
 
-> On Sat, Mar 08, 2003 at 05:28:10PM -0500, Bill Davidsen wrote:
-> > On Thu, 6 Mar 2003 Harald.Schaefer@gls-germany.com wrote:
-> > 
-> > >  *    1. CHS value set by user       (whatever user sets will be trusted)
-> > >  *    2. LBA value from target drive (require new ATA feature)
-> > >  *    3. LBA value from system BIOS  (new one is OK, old one may break)
-> > >  *    4. CHS value from system BIOS  (traditional style)
-> > > 
-> > > I think that the priority of LBA from BIOS has to be raised to 2 and the
-> > > priority of LBA from drive should be lowered to 3.
-> > > The mapping-problem only appreared with very new drives in some
-> > > brand-computers using a 240-head mapping from the bios.
-> > 
-> > I think the chances of a drive knowing its own correct LBA info is far
-> > better than the BIOS getting it right. Many BIOS versions don't understand
-> > large drives.
-> 
-> Maybe time for some preaching again.
-> 
-> The above sounds like nonsense,
-> "its own correct LBA info" does not refer to anything.
+> Right, but if the pagetable pointing to a different 4GB subsets of memory.
+> The performance of the system can be disastrous, not?
 
-Change the wording any way you like, my point that the drive is more
-likely to have correct information about its LBA capacity than the BIOS.
+No. It may be measurable, but I've seen posts from very competent people
+indicating that penalties of 2-5% are usual. Swapping to disk is going to
+hurt a lot more than that, so if a system has lots of processes more
+memory is usually better.
 
-> A disk that is less than twelve years old does not have a geometry.
-> All disks that can handle LBA (that is, all disks less than
-> twelve years old) use LBA under Linux.
-> Thus, the disk has nothing to tell use except for its total capacity.
-
-So you are saying the same thing I am, are you not? I said to use the
-drive LBA capacity, you say that means nothing and then agree that is
-exactly what the drive can tell us. Many people put new drives in old
-machines which have a BIOS which doesn't understand large drives. So the
-kernel should believe the drive about the size rather than the BIOS.
-
-You call that nonsens and then say the same thing in other words as if you
-were disagreeing with me.
+Maybe some of the benchmark gurus can point you to numbers on this.
 
 -- 
 bill davidsen <davidsen@tmr.com>

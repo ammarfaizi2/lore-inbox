@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVBQV7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVBQWDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVBQV7V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 16:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVBQV7V
+	id S261205AbVBQWDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 17:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVBQWDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 16:59:21 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:20404 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261202AbVBQV7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 16:59:15 -0500
-Message-ID: <421512C8.9010304@sgi.com>
-Date: Thu, 17 Feb 2005 15:55:20 -0600
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Thu, 17 Feb 2005 17:03:25 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:42136 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261205AbVBQWDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 17:03:18 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Chris Wright <chrisw@osdl.org>
+Subject: Re: "Needlessly global functions static...."
+Date: Thu, 17 Feb 2005 22:53:04 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-os <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0502171607500.18275@chaos.analogic.com> <20050217212506.GA21662@shell0.pdx.osdl.net>
+In-Reply-To: <20050217212506.GA21662@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-To: akpm@osdl.org
-CC: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Altix : ioc4 serial driver support
-References: <20050103140938.GA20070@infradead.org> <20050207162525.GA15926@infradead.org> <4208EE3A.6010500@sgi.com> <200502101109.43455.jbarnes@engr.sgi.com> <20050210191525.GA11284@infradead.org> <420BCD23.9080808@sgi.com>
-In-Reply-To: <420BCD23.9080808@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <200502172253.04648.arnd@arndb.de>
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_AJRFCMylirf3T3Q";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
 
-Since there don't seem to be any more suggestions, can you take this - or at least queue it up ???
+--Boundary-02=_AJRFCMylirf3T3Q
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is a resend:
+On Dunnersdag 17 Februar 2005 22:25, Chris Wright wrote:
 
-I updated again with more __iomem tags.
+> static !=3D inline. =A0Locally scoped symbols, 't', =A0and global, 'T',=20
+> are in kallsyms or System.map.
 
-ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
+Well, actually they might get inlined automatically when building with
+gcc -funit-at-a-time. That is of course a desired side effect of making
+symbols local, although it can be confusing when you're looking at the
+assembler output.
 
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
+	Arnd <><
 
 
 
+--Boundary-02=_AJRFCMylirf3T3Q
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-> 
-> Christoph Hellwig wrote:
-> 
->> On Thu, Feb 10, 2005 at 11:09:43AM -0800, Jesse Barnes wrote:
->>
->>> On Tuesday, February 8, 2005 8:52 am, Patrick Gefre wrote:
->>>
->>>> I've update the patch with changes from the comments below.
->>>>
->>>> ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
->>>>
->>>> Christoph Hellwig wrote:
->>>>
->>>>> On Mon, Feb 07, 2005 at 09:58:33AM -0600, Patrick Gefre wrote:
->>>>>
->>>>>> Latest version with review mods:
->>>>>> ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
->>>>>
->>>>>
->>>>> - still not __iomem annotations.
->>>>
->>>>
->>>> I *think* I have this right ??
->>>
->>>
->>> Here's the output from 'make C=1' with your driver patched in (you if 
->>> you want
->>> to run it yourself, just copy tomahawk.engr:~jbarnes/bin/sparse to 
->>> somewhere
->>> in your path and run 'make C=1').  I think most of these warning 
->>> would be
->>> fixed up if the structure fields referring to registers were declared as
->>> __iomem, but I haven't looked carefully.
->>
->>
->>
->> Actually the pointers to the struct need to be declared __iomem.  
-> 
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCFRJA5t5GS2LDRf4RAr+TAJ45RxY4ltAXLNPi02JDGxZtEBbXWwCcDWcC
+EUvOtmjxCL84zbMCmyoRPCc=
+=i0x6
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_AJRFCMylirf3T3Q--

@@ -1,61 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131441AbQKCVMY>; Fri, 3 Nov 2000 16:12:24 -0500
+	id <S131405AbQKCVPE>; Fri, 3 Nov 2000 16:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131544AbQKCVMO>; Fri, 3 Nov 2000 16:12:14 -0500
-Received: from tungsten.btinternet.com ([194.73.73.81]:55695 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S131405AbQKCVMF>; Fri, 3 Nov 2000 16:12:05 -0500
-From: davej@suse.de
-Date: Fri, 3 Nov 2000 21:11:59 +0000 (GMT)
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: celeron-class misdetected as 486
-Message-ID: <Pine.LNX.4.21.0011032105470.3365-100000@neo.local>
+	id <S131768AbQKCVOy>; Fri, 3 Nov 2000 16:14:54 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:57606 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S131405AbQKCVOf>; Fri, 3 Nov 2000 16:14:35 -0500
+Message-ID: <3A050889.827589C8@namesys.com>
+Date: Sun, 05 Nov 2000 00:13:13 -0700
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andy Robinson <andyr@veritas.com>
+CC: Hans Reiser <hans@reiser.to>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Elena V. Gryaznova" <grev@uchcom.botik.ru>,
+        "Vladimir V. Saveliev" <vs@namesys.botik.ru>,
+        "zag@zag.botik.ru" <zag@zag.botik.ru>,
+        Alexander Zarochentcev <zam@odintsovo.comcor.ru>,
+        Alexei Adamovich <lexa@adam.botik.ru>, Yury Shevchuk <sizif@botik.ru>,
+        Vladimir Demidov <vladimir_493451@mtu-net.ru>,
+        Vitaly Fertman <vpf@fn.csa.ru>,
+        Edward Shushkin <edward@mail.infotel.ru>,
+        Nikita Danilov <nikitadanilov@yahoo.com>,
+        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>,
+        Alexander Lyamin <flx@msu.ru>, Chris Mason <mason@suse.com>,
+        "gawain@torque.com" <gawain@torque.com>,
+        "ragnar@bigstorage.com" <ragnar@bigstorage.com>
+Subject: Re: panic in reiserfs on test-2.4.0-test9/10
+In-Reply-To: <3A02EE84.CA981E3@veritas.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We'll try to reproduce this when the guys get in for work this morning, thanks for the bug report.
 
-Pavel Machek wrote..
+Elena, add symlink testing to mongo.sh so that it gets tested by our regression tests.
 
-> pavel@bug:~$ cat /proc/cpuinfo
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 4
-                    ^^^
-Since when were there family 4 Celerons ?
+Hans
 
-> model           : 0
-> model name      : 486 DX-25/33
-> stepping        : 0
-> cache size      : 128 KB
-
-Though a 486 with 128K cache is also unlikely.
-(Although some of the wierd overdrives had such added fun iirc)
-
->.... that's wrong. Older kernels detect it correctly as:
->May 10 21:39:04 bug kernel: Pentium-III serial number disabled.
->May 10 21:39:04 bug kernel: CPU: Intel Celeron (Mendocino) stepping 0a
-
-Which older kernel detected this ?
-
-This is really bizarre, as there are cpuid capable 486s with the
-family/vendor IDs reported above. I do hope we don't have to add
-more cachesize checking. That part of setup.c is ugly enough
-already.
-
-Can you open up and find out if it really is a Celeron in that box
-before such code gets added ?
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+Andy Robinson wrote:
+> 
+> Hi,
+> 
+> I tried the linux-2.4.0-test9-resiserfs-3.6.18-patch on both 2.4.0-test9
+> and test2.4.0-test10
+> and got the following PANIC I originally saw this PANIC when doing a 'cp
+> -a / /reiserfs'.
+> I narrowed it done to a simple symlink ....
+> 
+> Andy
+> 
+> [root@client19 /reiserfs]# ln -s foo.tar foo
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 00000010
+>  printing eip:
+> c0185953
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c0185953>]
+> EFLAGS: 00010296
+> eax: c12a017c   ebx: c12a0060   ecx: 0000000f   edx: 00000000
+> esi: c12a0090   edi: c12a0000   ebp: 00000005   esp: c0c01b60
+> ds: 0018   es: 0018   ss: 0018
+> Process ln (pid: 928, stackpage=c0c01000)
+> Stack: c12a0078 c12a017c c0c01bf8 00000001 00000000 c0c01be0 c0178dc4
+> c058dc00
+>        c0c01ba4 c0c01b8c 00000000 c0182728 c0182736 00000001 00000130
+> 00000000
+>        00000000 c0c01c40 00000001 00000000 c0c01c28 c0c01bfc 00000000
+> 00000000
+> Call Trace: [<c0178dc4>] [<c0182728>] [<c0182736>] [<c018ede7>]
+> [<c017d3a3>] [<c017d842>] [<c017a5f2>]
+>        [<c0230f99>] [<c0239e3a>] [<c0139892>] [<c0139951>] [<c010a717>]
+> Code: 8b 52 10 ff d2 5b 5f 8b 54 24 14 8b 42 34 89 c7 0f b7 47 02
+> Segmentation fault
+> 
+> ksymoops 2.3.4 on i686 2.4.0-test9.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.0-test9/ (default)
+>      -m /boot/System.map-test9 (specified)
+> 
+> No modules in ksyms, skipping objects
+> Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid
+> lsmod file?
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 00000010
+> c0185953
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c0185953>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010296
+> eax: c12a017c   ebx: c12a0060   ecx: 0000000f   edx: 00000000
+> esi: c12a0090   edi: c12a0000   ebp: 00000005   esp: c0c01b60
+> ds: 0018   es: 0018   ss: 0018
+> Process ln (pid: 928, stackpage=c0c01000)
+> Stack: c12a0078 c12a017c c0c01bf8 00000001 00000000 c0c01be0 c0178dc4
+> c058dc00
+>        c0c01ba4 c0c01b8c 00000000 c0182728 c0182736 00000001 00000130
+> 00000000
+>        00000000 c0c01c40 00000001 00000000 c0c01c28 c0c01bfc 00000000
+> 00000000
+> Call Trace: [<c0178dc4>] [<c0182728>] [<c0182736>] [<c018ede7>]
+> [<c017d3a3>] [<c017d842>] [<c017a5f2>]
+>        [<c0230f99>] [<c0239e3a>] [<c0139892>] [<c0139951>] [<c010a717>]
+> Code: 8b 52 10 ff d2 5b 5f 8b 54 24 14 8b 42 34 89 c7 0f b7 47 02
+> 
+> >>EIP; c0185953 <check_leaf+a3/c0>   <=====
+> Trace; c0178dc4 <do_balance+114/140>
+> Trace; c0182728 <fix_nodes+348/540>
+> Trace; c0182736 <fix_nodes+356/540>
+> Trace; c018ede7 <reiserfs_insert_item+a7/110>
+> Trace; c017d3a3 <reiserfs_new_symlink+e3/f0>
+> Trace; c017d842 <reiserfs_new_inode+492/500>
+> Trace; c017a5f2 <reiserfs_symlink+122/220>
+> Trace; c0230f99 <tvecs+193c9/27ed0>
+> Trace; c0239e3a <tvecs+2226a/27ed0>
+> Trace; c0139892 <vfs_symlink+62/a0>
+> Trace; c0139951 <sys_symlink+81/d0>
+> Trace; c010a717 <system_call+33/38>
+> Code;  c0185953 <check_leaf+a3/c0>
+> 00000000 <_EIP>:
+> Code;  c0185953 <check_leaf+a3/c0>   <=====
+>    0:   8b 52 10                  mov    0x10(%edx),%edx   <=====
+> Code;  c0185956 <check_leaf+a6/c0>
+>    3:   ff d2                     call   *%edx
+> Code;  c0185958 <check_leaf+a8/c0>
+>    5:   5b                        pop    %ebx
+> Code;  c0185959 <check_leaf+a9/c0>
+>    6:   5f                        pop    %edi
+> Code;  c018595a <check_leaf+aa/c0>
+>    7:   8b 54 24 14               mov    0x14(%esp,1),%edx
+> Code;  c018595e <check_leaf+ae/c0>
+>    b:   8b 42 34                  mov    0x34(%edx),%eax
+> Code;  c0185961 <check_leaf+b1/c0>
+>    e:   89 c7                     mov    %eax,%edi
+> Code;  c0185963 <check_leaf+b3/c0>
+>   10:   0f b7 47 02               movzwl 0x2(%edi),%eax
+> 
+> 1 warning issued.  Results may not be reliable.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

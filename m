@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129249AbRBTOlw>; Tue, 20 Feb 2001 09:41:52 -0500
+	id <S129258AbRBTOte>; Tue, 20 Feb 2001 09:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129258AbRBTOln>; Tue, 20 Feb 2001 09:41:43 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:42511 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S129249AbRBTOlg>; Tue, 20 Feb 2001 09:41:36 -0500
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: kernel problems
-Date: Tue, 20 Feb 2001 14:42:53 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <96tvpd$9tq$1@ncc1701.cistron.net>
-In-Reply-To: <E14VBLx-0006RO-00@the-village.bc.nu> <3A92757C.1913E653@kud-kontrabant.si>
-X-Trace: ncc1701.cistron.net 982680173 10170 195.64.65.67 (20 Feb 2001 14:42:53 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S129699AbRBTOtY>; Tue, 20 Feb 2001 09:49:24 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:24080 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129258AbRBTOtS>; Tue, 20 Feb 2001 09:49:18 -0500
+Date: Tue, 20 Feb 2001 08:49:12 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Norbert Roos <n.roos@berlin.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Probs with PCI bus master DMA to user space
+In-Reply-To: <3A927AE9.CE3B88F9@berlin.de>
+Message-ID: <Pine.LNX.3.96.1010220084656.23246Q-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A92757C.1913E653@kud-kontrabant.si>,
-Janez Vrenjak  <janez@kud-kontrabant.si> wrote:
->> Generally its indicative of hardwae when you get dcache corruption especially
->> with late 2.2, but it might be more complex. Does the box pass memtest86 ?
->
->I'm not shure what  memtest86 is ...
+On Tue, 20 Feb 2001, Norbert Roos wrote:
 
-http://www.google.com/search?q=memtest86
+> Jeff Garzik wrote:
+> 
+> > > But the buffers are usually allocated with malloc() by any application
+> > > which wants to use my driver.. otherwise my driver would have to offer a
+> > > malloc-like function, but I can hardly force the application to use my
+> > > own malloc function.
+> > 
+> > If you are writing the driver, sure you can.
+> 
+> ??
+> 
+> The application is doing something like
+> 
+>   fd = open("/dev/mydriver");
+>   buf = malloc();
+>   fill_buffer_with_data(buf);
+>  write(fd,buf);
+> 
+> And now i should tell the programmer not to use malloc() but my special
+> driver-malloc?
+> Or do you mean something different?
 
-Mike.
--- 
-I live the way I type; fast, with a lot of mistakes.
+fd = open(...);
+buf = mmap(fd, ...);
+fill_buffer_with_data(buf);
+ioctl(fd, ...); /* tell kernel data is there */
+
+There are variations depending on the application, but you get the
+picture.  A buffer copy is eliminated when mmap is used, too, making
+your application faster.
+
+	Jeff
+
+
 

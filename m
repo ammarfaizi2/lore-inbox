@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271744AbRH2BQB>; Tue, 28 Aug 2001 21:16:01 -0400
+	id <S271779AbRH2BWC>; Tue, 28 Aug 2001 21:22:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271779AbRH2BPv>; Tue, 28 Aug 2001 21:15:51 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47624 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271744AbRH2BPk>; Tue, 28 Aug 2001 21:15:40 -0400
-Date: Tue, 28 Aug 2001 18:13:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <20010829002715Z16351-32384+944@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0108281812200.978-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271788AbRH2BVv>; Tue, 28 Aug 2001 21:21:51 -0400
+Received: from [194.46.8.33] ([194.46.8.33]:38663 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S271779AbRH2BVl>;
+	Tue, 28 Aug 2001 21:21:41 -0400
+Date: Wed, 29 Aug 2001 01:50:50 +0100
+From: Dale Amon <amon@vnl.com>
+To: linux-kernel@vger.kernel.org
+Subject: Vger triggering alerts
+Message-ID: <20010829015050.F27869@vnl.com>
+In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Any one have an idea why I'd be getting these snort alerts
+from vger mail transactions?
 
-On Wed, 29 Aug 2001, Daniel Phillips wrote:
->
->     min(host->scsi.SCp.this_residual, (unsigned) DMAC_BUFFER_SIZE / 2);
+[**] [111:4:1] spp_stream4: WINDOW VIOLATION detection [**]
+08/27-01:01:27.806453 199.183.24.194:45473 -> 194.46.0.61:25
+TCP TTL:49 TOS:0x0 ID:25963 IpLen:20 DgmLen:74 DF
+***AP*** Seq: 0x3DFC914F  Ack: 0xC8CF2D66  Win: 0x16D0  TcpLen: 32
+TCP Options (3) => NOP NOP TS: 137819194 96190743 
 
-Sure.
-
-If you put the type information explicitly, you can get it right.
-
-Which is, btw, _exactly_ why the min() function takes the type explicitly.
-
-		Linus
-
-
+-- 
+------------------------------------------------------
+Use Linux: A computer        Dale Amon, CEO/MD
+is a terrible thing          Village Networking Ltd
+to waste.                    Belfast, Northern Ireland
+------------------------------------------------------

@@ -1,63 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264188AbTGBRdE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 13:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbTGBRdE
+	id S264202AbTGBRnr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 13:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTGBRnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 13:33:04 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4069
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264188AbTGBRdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 13:33:02 -0400
-Date: Wed, 2 Jul 2003 19:47:00 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030702174700.GJ23578@dualathlon.random>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet> <20030702171159.GG23578@dualathlon.random> <461030000.1057165809@flay>
-Mime-Version: 1.0
+	Wed, 2 Jul 2003 13:43:47 -0400
+Received: from web40607.mail.yahoo.com ([66.218.78.144]:9824 "HELO
+	web40607.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264202AbTGBRnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 13:43:45 -0400
+Message-ID: <20030702175810.87657.qmail@web40607.mail.yahoo.com>
+Date: Wed, 2 Jul 2003 10:58:10 -0700 (PDT)
+From: Muthian Sivathanu <muthian_s@yahoo.com>
+Subject: Re: scheduling with spinlocks held ?
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1057105149.1988.3381.camel@localhost>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <461030000.1057165809@flay>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 10:10:09AM -0700, Martin J. Bligh wrote:
-> Maybe I'm just taking this out of context, and it's twisting my brain,
-> but as far as I know, the nonlinear vma's *are* backed by pte_chains.
-> That was the whole problem with objrmap having to do conversions, etc.
+thanks for the pointers !
+
+in general, would it make sense to explicitly
+distinguish between mutex semaphores and others (maybe
+for producer consumer queues), i.e. have a separate
+structure mutex_semaphore with its own up() and down()
+ -- this will probably facilitate more fine grained
+handling of such priority inversion problems since one
+can accurately track the number of mutexes, if any,
+that a process is holding at any given point ?
+
+Muthian.
+
+--- Robert Love <rml@tech9.net> wrote:
+> On Tue, 2003-07-01 at 17:10, Muthian Sivathanu
+> wrote:
 > 
-> Am I just confused for some reason? I was pretty sure that was right ...
+> > Is it safe to assume that the kernel will not
+> preempt
+> > a process when its holding a spinlock ?  I know
+> most
+> > parts of the code make sure they dont yield the
+> cpu
+> > when they are holding spinlocks, but I was just
+> > curious if there is any place that does that.
+> 
+> Correct.
+> 
+> > Basically, the context is, I need to change the
+> > scheduler a bit to implement "perfect nice -19"
+> > semantics, i.e. give cpu to nice 19 process only
+> if no
+> > other normal process is ready to run.  I am
+> wondering
+> > if there is a possibility of priority inversion if
+> the
+> > nice-d process happens to yield the cpu and then
+> never
+> > get scheduled because a normal process is spinning
+> on
+> > the lock.
+> 
+> You will hit priority inversion... not with
+> spinlocks but with
+> semaphores (and possibly more subtle issues).
+> 
+> The only safe way to do this safely is to boost the
+> task's priority out
+> of the "idle" class when the task is inside the
+> kernel.
+> 
+> It is nontrivial to juggle user vs. kernel returns
+> such as that. Google
+> for Ingo Molnar's SCHED_BATCH addition to the O(1)
+> scheduler.
+> 
+> 	Robert Love
+> 
+> 
 
-you're right:
 
-int install_page(struct mm_struct *mm, struct vm_area_struct *vma,
-		unsigned long addr, struct page *page, pgprot_t prot)
-[..]
-	flush_icache_page(vma, page);
-	set_pte(pte, mk_pte(page, prot));
-	pte_chain = page_add_rmap(page, pte, pte_chain);
-	pte_unmap(pte);
-[..]
-
-(this make me understand better some of the arguments in the previous
-emails too ;)
-
-So ether we declare 32bit archs obsolete in production with 2.6, or we
-drop rmap behind remap_file_pages.
-
-actually other more invasive ways could be to move rmap into highmem.
-Also the page clustering could also hide part of the mem overhead by
-assuming the pagetables to be contiguos, but page clustering isn't part
-of mainline yet either.
-
-Something has to change since IMHO in the current 2.5.73 remap_file_pages
-is nearly useless.
-
-Andrea
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

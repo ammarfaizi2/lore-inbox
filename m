@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263708AbTH1Cwe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 22:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTH1Cwe
+	id S263705AbTH1Csh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 22:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTH1Csh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 22:52:34 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:13301 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263708AbTH1Cwc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 22:52:32 -0400
-Date: Wed, 27 Aug 2003 21:52:25 -0500 (CDT)
-From: olof@austin.ibm.com
-To: linux-kernel@vger.kernel.org
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] [2.4] /proc/ioports overrun for long device names
-Message-ID: <Pine.A41.4.44.0308272143170.53904-100000@forte.austin.ibm.com>
+	Wed, 27 Aug 2003 22:48:37 -0400
+Received: from smtp2.cwidc.net ([154.33.63.112]:12459 "EHLO smtp2.cwidc.net")
+	by vger.kernel.org with ESMTP id S263705AbTH1Csf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 22:48:35 -0400
+Message-ID: <3F4D6DED.7070603@tequila.co.jp>
+Date: Thu, 28 Aug 2003 11:50:21 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030718
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6] Including reiser4 snapshots
+References: <1062012801.666.3.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1062012801.666.3.camel@teapot.felipe-alfaro.com>
+X-Enigmail-Version: 0.76.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've seen some memory corruption on systems where we have long device
-names, since the last entry when you cat /proc/ioports might run over into
-the next page. The check is only to make sure there's room for 80
-characters, when there's more than that (i.e. 64-bit addresses + long
-device names), there can be an overrun.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-2.5 obviously doesn't have this because of seq_file.
+Felipe Alfaro Solana wrote:
 
-Below patch will take the length of the name into consideration.
+> Hi, Andrew
+>
+> Is there any possibility of seeing Reiser4 included in
+> vanilla 2.6.0-test kernels, or at least, in the -mm
+> series?
 
+No go for the test part in my opinion, this shall not be tainted be
+beta-alpha code I think.
 
---- kernel/resource.c.orig	2003-07-16 10:25:40.000000000 -0500
-+++ kernel/resource.c	2003-07-24 09:51:47.000000000 -0500
-@@ -32,14 +32,21 @@ static char * do_resource_list(struct re
- 		const char *name = entry->name;
- 		unsigned long from, to;
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
--		if ((int) (end-buf) < 80)
--			return buf;
--
- 		from = entry->start;
- 		to = entry->end;
- 		if (!name)
- 			name = "<BAD>";
-
-+		/* Make sure there's enough room for the format string
-+		   plus hex representation of 'from' and 'to' (2
-+		   characters per byte) as well as the name of the
-+		   resource. Due to the format characters in 'fmt', the
-+		   estimate will be a little high.
-+		 */
-+		if ((int) (end-buf) < (strlen(fmt) + strlen(name) +
-+		                       sizeof(from)*2 + sizeof(to)*2 + 1))
-+			return buf;
-+
- 		buf += sprintf(buf, fmt + offset, from, to, name);
- 		if (entry->child)
- 			buf = do_resource_list(entry->child, fmt, offset-2, buf, end);
-
-
-
-Thanks,
-
-Olof
-
-
-Olof Johansson                                        Office: 4E002/905
-pSeries Linux Development                             IBM Systems Group
-Email: olof@austin.ibm.com                          Phone: 512-838-9858
-All opinions are my own and not those of IBM
+iD8DBQE/TW3tjBz/yQjBxz8RAr/iAJ4mflzIh+is9StkJbyvMsEdYYY6IwCfaVMZ
+PdsOiLLCOWQAFUYKa2IShxY=
+=6YZN
+-----END PGP SIGNATURE-----
 

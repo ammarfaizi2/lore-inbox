@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbTFBTir (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 15:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTFBTir
+	id S261775AbTFBTg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 15:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTFBTg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 15:38:47 -0400
-Received: from pat.uio.no ([129.240.130.16]:2037 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261843AbTFBTip (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 15:38:45 -0400
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 v. 2.5 nfs_dentry_iput()
-References: <20030602021529.A19114@google.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 02 Jun 2003 21:52:05 +0200
-In-Reply-To: <20030602021529.A19114@google.com>
-Message-ID: <shsy90kb6l6.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	Mon, 2 Jun 2003 15:36:59 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64272 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261775AbTFBTg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 15:36:58 -0400
+Date: Mon, 2 Jun 2003 15:50:23 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: sys_lookup_dcookie on s390
+Message-ID: <20030602155023.A16223@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
+Martin,
 
-     > Hi, Could someone quickly explain the difference between the
-     > 2.4.20 and 2.5.69 nfs_dentry_iput()?
+Are you going to assign a number for lookup_dcookie? If yes, when?
 
-     > static void nfs_dentry_iput(struct dentry *dentry, struct inode
-     > *inode) {
-     >         if (dentry->d_flags & DCACHE_NFSFS_RENAMED) {
-     >                 lock_kernel();
-     >                 inode-> i_nlink--; /* only in 2.5 */
-
-Should eventually go into 2.4.x. Not critical...
-
-     >                 nfs_complete_unlink(dentry); unlock_kernel();
-     >         } if (is_bad_inode(inode)) /* not in 2.5 */
-     >                 force_delete(inode); /* not in 2.5 */
-
-Done in the VFS in 2.5
-
-     >         /* When creating a negative dentry, we want to renew
-     >         d_time */ nfs_renew_times(dentry); /* only in 2.5 */
-
-Only needed for the new CTO code in 2.5.
-
-     >         iput(inode);
-     > }
-
-Cheers,
-  Trond
+-- Pete

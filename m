@@ -1,100 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280781AbRKOMgQ>; Thu, 15 Nov 2001 07:36:16 -0500
+	id <S280788AbRKOMpH>; Thu, 15 Nov 2001 07:45:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280788AbRKOMgG>; Thu, 15 Nov 2001 07:36:06 -0500
-Received: from smtp01.uc3m.es ([163.117.136.121]:16142 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S280781AbRKOMfy>;
-	Thu, 15 Nov 2001 07:35:54 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200111151235.fAFCZQY31248@oboe.it.uc3m.es>
-Subject: Re: blocks or KB? (was: .. current meaning of blk_size array)
-In-Reply-To: <20011115003434.A25883@node0.opengeometry.ca> from "William Park"
- at "Nov 15, 2001 00:34:34 am"
-To: "William Park" <opengeometry@yahoo.ca>
-Date: Thu, 15 Nov 2001 13:35:26 +0100 (MET)
-Cc: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S280817AbRKOMo5>; Thu, 15 Nov 2001 07:44:57 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:34832 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S280788AbRKOMon>;
+	Thu, 15 Nov 2001 07:44:43 -0500
+Message-ID: <3BF3B8BA.3070804@epfl.ch>
+Date: Thu, 15 Nov 2001 13:44:42 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+CC: venza@iol.it, lists@sapience.com, Marvin Justice <mjustice@austin.rr.com>
+Subject: [PATCH]AGP incorrect PCI id fix
+Content-Type: multipart/mixed;
+ boundary="------------050805010705040004070001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago William Park wrote:"
-> On Wed, Nov 14, 2001 at 09:41:11PM +0100, Peter T. Breuer wrote:
-> > blk_size is the number of blocks or KB (which?) in a device. blksize is
-> > the size of the blocks. Is blk_size in KB or blocks?
-> > 
-> > It should be in blocks if the size of a device is to reach 8 or 16TB.
-> > If it is in KB, we are limited to 2 or 4TB.
-> 
-> I've been following this thread intensely.  I need to use Network Block
-> Device to get very large network-RAID.  And, resolution to this issue is
-> of great interest to me. 
+This is a multi-part message in MIME format.
+--------------050805010705040004070001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes, well, you may be the person on whose behalf I started checking it
-out.
+Hello all
 
-To put your mind at rest, all devices (partitions, etc.) are limited by
-the 32 bit int that holds the number of sectors on a device. This is
-31+9 bits of space (i don't know whether negative sectors are counted
-as positive :), which is 1 (or 2, if you use unsigned interpretation)
-TB.
+Here is a patch that fixes a few things for AGPGART in 2.4.15-pre4 :
+- Added the device 0x2501 which is the UP version of the i820 chipset 
+AGP bridge (according to Intel Specs)
+- The entry for i860 in 'agp.h' was incorrect (was 0x2532 instead of 0x2531)
 
-So the blk_size/blksize business is irrelevant.
+The previous patches (as well as this one) remain available through :
+http://ltswww.epfl.ch/~aspert/patches
 
-> Judging by 'driver/block/nbd.c', it counts by BLOCK_SIZE=1204
-> (BLOCK_SIZE_BITS=10), even though you can set the block size to
-> [512,1024,...,PAGE_SIZE=4096].  Since NBD counts this 1KB block using
-> 'u64' integer, the ultimate size of filesystem is determined by the
-> kernel block device support.
+Best regards.
+-- 
+Nicolas Aspert      Signal Processing Laboratory (LTS)
+Swiss Federal Institute of Technology (EPFL)
 
-This is correct, but it's quite a deep dependence in the kernel.
-Though nbd (and my enbd) use 64 bit sizes in their network protocols,
-you can't get rid of the limitation just like that. The kernel is
-infested with the limit associated with a 32bit sector count. The
-32bit KB count in blk_size is also a limit, but never an active one
-as the sector count bites first, before the other is reached. The
-kernel's VM thinks those sector counts are 32 bit and that sectors
-are 512B, which means the person in charge of the VM must handle any
-changes.
+--------------050805010705040004070001
+Content-Type: text/plain;
+ name="patch-agp_i8xx-2.4.15-pre4_fix_pci_ids"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-agp_i8xx-2.4.15-pre4_fix_pci_ids"
 
-To tell the truth, counting in 512B sectors is the only sane way to
-go.  It sends you mad counting in units of blocks, because that
-can be a variable size.
+diff -Nru linux-2.4.15-pre4.clean/drivers/char/Config.in linux-2.4.15-pre4/drivers/char/Config.in
+--- linux-2.4.15-pre4.clean/drivers/char/Config.in	Thu Nov 15 13:29:04 2001
++++ linux-2.4.15-pre4/drivers/char/Config.in	Tue Nov 13 16:28:31 2001
+@@ -210,7 +210,7 @@
+ 
+ dep_tristate '/dev/agpgart (AGP Support)' CONFIG_AGP $CONFIG_DRM_AGP
+ if [ "$CONFIG_AGP" != "n" ]; then
+-   bool '  Intel 440LX/BX/GX and I815/I830M/I840/I850 support' CONFIG_AGP_INTEL
++   bool '  Intel 440LX/BX/GX and I815/I820/I830M/I840/I845/I850/I860 support' CONFIG_AGP_INTEL
+    bool '  Intel I810/I815/I830M (on-board) support' CONFIG_AGP_I810
+    bool '  VIA chipset support' CONFIG_AGP_VIA
+    bool '  AMD Irongate, 761, and 762 support' CONFIG_AGP_AMD
+diff -Nru linux-2.4.15-pre4.clean/drivers/char/agp/agp.h linux-2.4.15-pre4/drivers/char/agp/agp.h
+--- linux-2.4.15-pre4.clean/drivers/char/agp/agp.h	Thu Nov 15 13:29:04 2001
++++ linux-2.4.15-pre4/drivers/char/agp/agp.h	Thu Nov 15 13:24:49 2001
+@@ -179,6 +179,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_820_0
+ #define PCI_DEVICE_ID_INTEL_820_0       0x2500
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_820_UP_0
++#define PCI_DEVICE_ID_INTEL_820_UP_0    0x2501
++#endif
+ #ifndef PCI_DEVICE_ID_INTEL_840_0
+ #define PCI_DEVICE_ID_INTEL_840_0		0x1a21
+ #endif
+@@ -189,7 +192,7 @@
+ #define PCI_DEVICE_ID_INTEL_850_0     0x2530
+ #endif
+ #ifndef PCI_DEVICE_ID_INTEL_860_0
+-#define PCI_DEVICE_ID_INTEL_860_0	0x2532
++#define PCI_DEVICE_ID_INTEL_860_0	0x2531
+ #endif
+ #ifndef PCI_DEVICE_ID_INTEL_810_DC100_0
+ #define PCI_DEVICE_ID_INTEL_810_DC100_0 0x7122
+diff -Nru linux-2.4.15-pre4.clean/drivers/char/agp/agpgart_be.c linux-2.4.15-pre4/drivers/char/agp/agpgart_be.c
+--- linux-2.4.15-pre4.clean/drivers/char/agp/agpgart_be.c	Thu Nov 15 13:29:04 2001
++++ linux-2.4.15-pre4/drivers/char/agp/agpgart_be.c	Thu Nov 15 13:21:00 2001
+@@ -3552,6 +3552,12 @@
+ 		"Intel",
+ 		"i820",
+ 		intel_820_setup },
++	{ PCI_DEVICE_ID_INTEL_820_UP_0,
++		PCI_VENDOR_ID_INTEL,
++		INTEL_I820,
++		"Intel",
++		"i820",
++		intel_820_setup },
+ 	{ PCI_DEVICE_ID_INTEL_830_M_0,
+ 		PCI_VENDOR_ID_INTEL,
+ 		INTEL_I830_M,
 
-> Looking at 'fs/block_dev.c', you can set the block size to
-> [512,1024,...,PAGE_SIZE=4096] also.  But, 'max_block()' returns block
-> count in whatever block size of the device, not in BLOCK_SIZE:
+--------------050805010705040004070001--
 
-It looks to me as though block_dev.c has been "prepared" to be more
-flexible, and that it will be a short job to either use 64bit sector
-counts for it, or move to counting in blocks. The same work
-has not gone into ll_rw_blk.c yet.
-
-> In particular, if block size is 512, then the block count is multiplied
-> by 2; and if block size if 4096, then the block count is divided by 4.
-> It thinks that 'blk_size[][]' is block count in KB.  So, I can only
-> deduce that block count is in KB.
-
-It still is, yes.
-
-> Also, from 'include/linux/blkdev.h',
->     extern int * blk_size[MAX_BLKDEV];
-> 'blk_size[][]' is 'int', which means maximum size of block device is
-> 2^10 x 2^31 = 2^41 = 2TB.  However, because it is always converted to
-> 'unsigned int' for block count calculation, I think you can take it as
-> 4TB.
-> 
-> Am I right?
-
-As far as I can tell. I was trying to ask here if it had changed, but 
-evidently it has not.
-
-What is the forward strategy? I see no alternative but moving to 64bit
-sector counts. 
-
-Peter

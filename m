@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288566AbSAWWmK>; Wed, 23 Jan 2002 17:42:10 -0500
+	id <S289330AbSAWWpU>; Wed, 23 Jan 2002 17:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289511AbSAWWmA>; Wed, 23 Jan 2002 17:42:00 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:11269 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S288566AbSAWWlt>; Wed, 23 Jan 2002 17:41:49 -0500
-Date: Wed, 23 Jan 2002 19:30:51 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Robert Schwebel <robert@schwebel.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] AMD Elan patch
-In-Reply-To: <Pine.LNX.4.33.0201231121380.893-100000@callisto.local>
-Message-ID: <Pine.LNX.4.21.0201231930041.4027-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289532AbSAWWpK>; Wed, 23 Jan 2002 17:45:10 -0500
+Received: from smtp4.vol.cz ([195.250.128.43]:56588 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id <S289330AbSAWWpF>;
+	Wed, 23 Jan 2002 17:45:05 -0500
+Date: Wed, 23 Jan 2002 13:18:19 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rm-ing files with open file descriptors
+Message-ID: <20020123121819.GD965@elf.ucw.cz>
+In-Reply-To: <a2bk6e$t2u$1@ncc1701.cistron.net> <Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu> <a2bn7g$5hm$1@ncc1701.cistron.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a2bn7g$5hm$1@ncc1701.cistron.net>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-On Wed, 23 Jan 2002, Robert Schwebel wrote:
-
-> Hi Marcelo,
+> >> This could be hacked around ofcourse in fs/namei.c, so I tried
+> >> it for fun. And indeed, with a minor correction it works:
+> >> 
+> >> % perl flink.pl 
+> >> Success.
+> >> 
+> >> I now have a flink-test2.txt file. That is pretty cool ;)
+> >
+> >It's also a security hole.
 > 
-> the changelog for -pre5 has my AMD Elan fixes included, but unfortunately
-> you seem to have forgotten to apply the patch...
+> How is linking back a file into the normal namespace anymore
+> a security hole as having it under /proc or keeping an fd to it
+> open?
 
-I have not applied the serial.c hunk since it breaks compilation without CONFIG_MELAN.
+Imagine you want to delete my file, you are root.
 
-Please fix that and resend me a patch to serial.c only.
-
-Thanks
-
-
+Before, you could rm it, then kill all my processes.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

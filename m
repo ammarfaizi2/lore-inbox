@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310568AbSCGWnI>; Thu, 7 Mar 2002 17:43:08 -0500
+	id <S310566AbSCGWov>; Thu, 7 Mar 2002 17:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310566AbSCGWmt>; Thu, 7 Mar 2002 17:42:49 -0500
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:62924 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S310565AbSCGWmj>; Thu, 7 Mar 2002 17:42:39 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux
- Maintainers
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org>
-	<20020305163809.D1682@altus.drgw.net>
-	<20020305165123.V12235@work.bitmover.com>
-	<20020306095434.B6599@borg.org>
-	<20020306085646.F15303@work.bitmover.com>
-	<20020306221305.GA370@elf.ucw.cz>
-	<20020307101701.S1682@altus.drgw.net>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Thu, 07 Mar 2002 23:42:01 +0100
-In-Reply-To: <20020307101701.S1682@altus.drgw.net> (Troy Benjegerdes's
- message of "Thu, 7 Mar 2002 10:17:01 -0600")
-Message-ID: <87pu2gov9i.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
-MIME-Version: 1.0
+	id <S310565AbSCGWop>; Thu, 7 Mar 2002 17:44:45 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:37870 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S310571AbSCGWoL>; Thu, 7 Mar 2002 17:44:11 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <E16j3Sj-0003Jb-00@the-village.bc.nu> 
+In-Reply-To: <E16j3Sj-0003Jb-00@the-village.bc.nu> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: phillips@bonn-fries.net (Daniel Phillips), yodaiken@fsmlabs.com,
+        jdike@karaya.com (Jeff Dike), bcrl@redhat.com (Benjamin LaHaise),
+        hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 07 Mar 2002 22:43:09 +0000
+Message-ID: <1595.1015540989@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Troy Benjegerdes <hozer@drgw.net> writes:
 
-> I'd really like everyone that's bitching about BK to shut the hell up and
-> go work on some scripts to allow a maintainer to easily manage a
-> BK<->$OTHER_SCM gateway.
+alan@lxorguk.ukuu.org.uk said:
+>  Not having a fallback is unacceptable. Thats the real problem. You
+> can't go around pandering to sloppy coders who can't work a memory
+> allocator 
 
-How do you know that BitMover isn't trying to patent aspects of
-BitKeeper which prevents you from writing such gateways?
+OTOH there is perhaps some justification for distinguishing between 'If you 
+fail this I'll tell the user -ENOMEM and continue happily on my way' 
+allocations and 'If you fail this I lose track of hardware state and all is 
+fucked till we reboot' ones.
 
-They're already aiming at a patent for some of there merging
-algorithms, IIRC.
+--
+dwmw2
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+

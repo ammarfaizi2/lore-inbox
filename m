@@ -1,65 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbTKKR3B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 12:29:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTKKR3B
+	id S263596AbTKKRVO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 12:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTKKRVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 12:29:01 -0500
-Received: from ACaen-202-1-1-80.w81-53.abo.wanadoo.fr ([81.53.140.80]:41258
-	"HELO Genesyme.localdomain") by vger.kernel.org with SMTP
-	id S263606AbTKKR27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 12:28:59 -0500
-Subject: Re: reiserfs 3.6 problem with test9
-From: Philippe <rouquier.p@wanadoo.fr>
-To: Ragnar Hojland Espinosa <ragnar@linalco.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031111135948.GA5229@linalco.com>
-References: <1068553197.1018.43.camel@Genesyme>
-	 <20031111135948.GA5229@linalco.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1068572036.344.8.camel@Genesyme>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 11 Nov 2003 18:33:56 +0100
-Content-Transfer-Encoding: 8bit
+	Tue, 11 Nov 2003 12:21:14 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:16585 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263596AbTKKRVD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 12:21:03 -0500
+Date: Tue, 11 Nov 2003 11:21:01 -0600
+From: Erik Jacobson <erikj@subway.americas.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 /proc/interrupts fails on systems with many CPUs
+Message-ID: <Pine.SGI.4.53.0311111116440.360387@subway.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-2136806248-1103982938-1068571261=:360387"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 11/11/2003 à 14:59, Ragnar Hojland Espinosa a écrit :
-> On Tue, Nov 11, 2003 at 01:19:57PM +0100, Philippe wrote:
-> > Hello,
-> > recently I noticed some annoying problems whenever I try to access some
-> > files on my harddrive (reiserfs filesystem). I get "permission denied"
-> > even if I am the owner or if I try as root. dmesg answers the following
-> > for every file (so it's repeated):
-> > 
-> > is_tree_node: node level 30065 does not match to the expected one 1
-> > vs-5150: search_by_key: invalid format found in block 2554621. Fsck?
-> > vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to
-> > find stat data of [1000086 2592 0x0 SD]
-> > 
-> > I rebuilt my filesystem with reiserfsck (3.6.11) and it worked, I could
-> > read and write again these files. but soon after the rebuilt some other
-> > files (they were not concerned by this problem before) appeared to have
-> > the same problem and their number kept growing until I rebuilt again the
-> > filesystem ... but again new ones appeared after an hour or two ...
-> 
-> Last time I had a box with similar problems it was memory.  I'd put
-> your system through a memtest.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-thanks for your answer.
-I did as you said but no problem (memtest 3.0).
-Some more info on the problem:
-- file that appeared to be "access denied" are not the files I had been
-using. I did not write or read them for some time.
-- As I looked at the Changelogs and the changes that provoke this error
-could be in test4, test5, test6, since test3 was fine.
-- I first noticed the problem when I used cvs to mirror the repository
-of mozilla. my entire partition was unusable afterward (I had to rebuild
-everything even the super block). note that the problem appeared later
-also on another partition (why / when ? I don't know) that I had not
-rebuilt at all so it's not related to the rebuilding.
+---2136806248-1103982938-1068571261=:360387
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-regards
+Howdy.
 
+On systems with lots of processors (512 for example), catting /proc/interrupts
+fails with a "not enough memory" error.
 
+This was observed in 2.6.0-test8
+
+I tracked this down to this in proc_misc.c:
+
+static int interrupts_open(struct inode *inode, struct file *file)
+{
+   unsigned size = 4096 * (1 + num_online_cpus() / 8);
+   char *buf = kmalloc(size, GFP_KERNEL);
+
+The kmalloc fails here.
+
+I'm looking for suggestions on how to fix this.  I came up with one fix
+that seems to work OK for ia64.  I have attached it to this message.
+I'm looking for advice on what should be proposed for the real fix.
+
+Thanks!
+
+--
+Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota
+---2136806248-1103982938-1068571261=:360387
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="foo.bar"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SGI.4.53.0311111121010.360387@subway.americas.sgi.com>
+Content-Description: 
+Content-Disposition: attachment; filename="foo.bar"
+
+DQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCmxpbnV4L2ZzL3By
+b2MvcHJvY19taXNjLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQ0KDQotLS0gL3Vzci90bXAvVG1wRGlyLjE4OTAxLTAvbGludXgvZnMvcHJv
+Yy9wcm9jX21pc2MuY18xLjUyCVR1ZSBOb3YgMTEgMDk6NTU6MTkgMjAwMw0K
+KysrIGxpbnV4L2ZzL3Byb2MvcHJvY19taXNjLmMJVHVlIE5vdiAxMSAwOTo0
+MzozMiAyMDAzDQpAQCAtNDQ1LDcgKzQ0NSw3IEBADQogCS8qIGRvbid0IGFz
+ayBmb3IgbW9yZSB0aGFuIHRoZSBrbWFsbG9jKCkgbWF4IHNpemUsIGN1cnJl
+bnRseSAxMjggS0IgKi8NCiAJaWYgKHNpemUgPiAxMjggKiAxMDI0KQ0KIAkJ
+c2l6ZSA9IDEyOCAqIDEwMjQ7DQotCWJ1ZiA9IGttYWxsb2Moc2l6ZSwgR0ZQ
+X0tFUk5FTCk7DQorCWJ1ZiA9IF9fdm1hbGxvYyhzaXplLCBHRlBfS0VSTkVM
+LCBQQUdFX0tFUk5FTCk7DQogCWlmICghYnVmKQ0KIAkJcmV0dXJuIC1FTk9N
+RU07DQogDQpAQCAtNDc2LDIwICs0NzYsMjEgQEANCiBleHRlcm4gaW50IHNo
+b3dfaW50ZXJydXB0cyhzdHJ1Y3Qgc2VxX2ZpbGUgKnAsIHZvaWQgKnYpOw0K
+IHN0YXRpYyBpbnQgaW50ZXJydXB0c19vcGVuKHN0cnVjdCBpbm9kZSAqaW5v
+ZGUsIHN0cnVjdCBmaWxlICpmaWxlKQ0KIHsNCi0JdW5zaWduZWQgc2l6ZSA9
+IDQwOTYgKiAoMSArIG51bV9vbmxpbmVfY3B1cygpIC8gOCk7DQotCWNoYXIg
+KmJ1ZiA9IGttYWxsb2Moc2l6ZSwgR0ZQX0tFUk5FTCk7DQorCXVuc2lnbmVk
+IHNpemUgPSA0MDk2ICogKDEgKyBudW1fb25saW5lX2NwdXMoKSAvIDgpOyAN
+CisJY2hhciAqYnVmID0gX192bWFsbG9jKHNpemUsIEdGUF9LRVJORUwsIFBB
+R0VfS0VSTkVMKTsNCiAJc3RydWN0IHNlcV9maWxlICptOw0KIAlpbnQgcmVz
+Ow0KIA0KLQlpZiAoIWJ1ZikNCisJaWYgKCFidWYpIA0KIAkJcmV0dXJuIC1F
+Tk9NRU07DQorCQ0KIAlyZXMgPSBzaW5nbGVfb3BlbihmaWxlLCBzaG93X2lu
+dGVycnVwdHMsIE5VTEwpOw0KIAlpZiAoIXJlcykgew0KIAkJbSA9IGZpbGUt
+PnByaXZhdGVfZGF0YTsNCiAJCW0tPmJ1ZiA9IGJ1ZjsNCiAJCW0tPnNpemUg
+PSBzaXplOw0KIAl9IGVsc2UNCi0JCWtmcmVlKGJ1Zik7DQorCQl2ZnJlZShi
+dWYpOw0KIAlyZXR1cm4gcmVzOw0KIH0NCiBzdGF0aWMgc3RydWN0IGZpbGVf
+b3BlcmF0aW9ucyBwcm9jX2ludGVycnVwdHNfb3BlcmF0aW9ucyA9IHsNCg0K
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQpsaW51eC9mcy9zZXFf
+ZmlsZS5jDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCg0KLS0t
+IC91c3IvdG1wL1RtcERpci4xODkwMS0wL2xpbnV4L2ZzL3NlcV9maWxlLmNf
+MS44CVR1ZSBOb3YgMTEgMDk6NTU6MTkgMjAwMw0KKysrIGxpbnV4L2ZzL3Nl
+cV9maWxlLmMJVHVlIE5vdiAxMSAwOToxODowNiAyMDAzDQpAQCAtOSw2ICs5
+LDcgQEANCiAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQogI2luY2x1ZGUg
+PGxpbnV4L3NlcV9maWxlLmg+DQogI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4N
+CisjaW5jbHVkZSA8bGludXgvdm1hbGxvYy5oPg0KIA0KICNpbmNsdWRlIDxh
+c20vdWFjY2Vzcy5oPg0KICNpbmNsdWRlIDxhc20vcGFnZS5oPg0KQEAgLTI5
+LDYgKzMwLDcgQEANCiBpbnQgc2VxX29wZW4oc3RydWN0IGZpbGUgKmZpbGUs
+IHN0cnVjdCBzZXFfb3BlcmF0aW9ucyAqb3ApDQogew0KIAlzdHJ1Y3Qgc2Vx
+X2ZpbGUgKnAgPSBrbWFsbG9jKHNpemVvZigqcCksIEdGUF9LRVJORUwpOw0K
+Kw0KIAlpZiAoIXApDQogCQlyZXR1cm4gLUVOT01FTTsNCiAJbWVtc2V0KHAs
+IDAsIHNpemVvZigqcCkpOw0KQEAgLTYxLDcgKzYzLDcgQEANCiAJZG93bigm
+bS0+c2VtKTsNCiAJLyogZ3JhYiBidWZmZXIgaWYgd2UgZGlkbid0IGhhdmUg
+b25lICovDQogCWlmICghbS0+YnVmKSB7DQotCQltLT5idWYgPSBrbWFsbG9j
+KG0tPnNpemUgPSBQQUdFX1NJWkUsIEdGUF9LRVJORUwpOw0KKwkJbS0+YnVm
+ID0gX192bWFsbG9jKG0tPnNpemUgPSBQQUdFX1NJWkUsIEdGUF9LRVJORUws
+IFBBR0VfS0VSTkVMKTsNCiAJCWlmICghbS0+YnVmKQ0KIAkJCWdvdG8gRW5v
+bWVtOw0KIAl9DQpAQCAtOTQsOCArOTYsOCBAQA0KIAkJaWYgKG0tPmNvdW50
+IDwgbS0+c2l6ZSkNCiAJCQlnb3RvIEZpbGw7DQogCQltLT5vcC0+c3RvcCht
+LCBwKTsNCi0JCWtmcmVlKG0tPmJ1Zik7DQotCQltLT5idWYgPSBrbWFsbG9j
+KG0tPnNpemUgPDw9IDEsIEdGUF9LRVJORUwpOw0KKwkJdmZyZWUobS0+YnVm
+KTsNCisJCW0tPmJ1ZiA9IF9fdm1hbGxvYyhtLT5zaXplIDw8PSAxLCBHRlBf
+S0VSTkVMLCBQQUdFX0tFUk5FTCk7DQogCQlpZiAoIW0tPmJ1ZikNCiAJCQln
+b3RvIEVub21lbTsNCiAJCW0tPmNvdW50ID0gMDsNCkBAIC0xNjAsNyArMTYy
+LDcgQEANCiAJaWYgKCFvZmZzZXQpDQogCQlyZXR1cm4gMDsNCiAJaWYgKCFt
+LT5idWYpIHsNCi0JCW0tPmJ1ZiA9IGttYWxsb2MobS0+c2l6ZSA9IFBBR0Vf
+U0laRSwgR0ZQX0tFUk5FTCk7DQorCQltLT5idWYgPSBfX3ZtYWxsb2MobS0+
+c2l6ZSA9IFBBR0VfU0laRSwgR0ZQX0tFUk5FTCwgUEFHRV9LRVJORUwpOw0K
+IAkJaWYgKCFtLT5idWYpDQogCQkJcmV0dXJuIC1FTk9NRU07DQogCX0NCkBA
+IC0xOTIsOCArMTk0LDggQEANCiANCiBFb3ZlcmZsb3c6DQogCW0tPm9wLT5z
+dG9wKG0sIHApOw0KLQlrZnJlZShtLT5idWYpOw0KLQltLT5idWYgPSBrbWFs
+bG9jKG0tPnNpemUgPDw9IDEsIEdGUF9LRVJORUwpOw0KKwl2ZnJlZShtLT5i
+dWYpOw0KKwltLT5idWYgPSBfX3ZtYWxsb2MobS0+c2l6ZSA8PD0gMSwgR0ZQ
+X0tFUk5FTCwgUEFHRV9LRVJORUwpOw0KIAlyZXR1cm4gIW0tPmJ1ZiA/IC1F
+Tk9NRU0gOiAtRUFHQUlOOw0KIH0NCiANCkBAIC0yNDYsNyArMjQ4LDcgQEAN
+CiBpbnQgc2VxX3JlbGVhc2Uoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0
+IGZpbGUgKmZpbGUpDQogew0KIAlzdHJ1Y3Qgc2VxX2ZpbGUgKm0gPSAoc3Ry
+dWN0IHNlcV9maWxlICopZmlsZS0+cHJpdmF0ZV9kYXRhOw0KLQlrZnJlZSht
+LT5idWYpOw0KKwl2ZnJlZShtLT5idWYpOw0KIAlrZnJlZShtKTsNCiAJcmV0
+dXJuIDA7DQogfQ0K
+
+---2136806248-1103982938-1068571261=:360387--

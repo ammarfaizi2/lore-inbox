@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267954AbTBYMff>; Tue, 25 Feb 2003 07:35:35 -0500
+	id <S268123AbTBYMlf>; Tue, 25 Feb 2003 07:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268066AbTBYMff>; Tue, 25 Feb 2003 07:35:35 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:8582 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id <S267954AbTBYMfe>;
-	Tue, 25 Feb 2003 07:35:34 -0500
-Subject: [PATCH] 2.5.63 snd_printd 
-To: perex@suse.cz
-Date: Tue, 25 Feb 2003 06:45:48 -0600 (CST)
+	id <S268129AbTBYMlf>; Tue, 25 Feb 2003 07:41:35 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:9606 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id <S268123AbTBYMld>;
+	Tue, 25 Feb 2003 07:41:33 -0500
+Subject: [PATCH] 2.5.63: aicasm Makefile
+To: gibbs@scsiguy.com
+Date: Tue, 25 Feb 2003 06:51:47 -0600 (CST)
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=ELM741935201-11515-0_
+Content-Type: multipart/mixed; boundary=ELM741935458-11570-0_
 Content-Transfer-Encoding: 7bit
-Message-Id: <20030225124548.41B454F0B@gherkin.frus.com>
+Message-Id: <20030225125147.CC4DA4F0B@gherkin.frus.com>
 From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ELM741935201-11515-0_
+--ELM741935458-11570-0_
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
 
-Back in 2.5.60, it seemed that the intent was to do away with
-snd_printd() and replace that function with a simple #define in terms
-of snd_verbose_printd() or printk() as appropriate.  This patch set
-finishes the job by deleting both the snd_printd() function and the
-corresponding EXPORT_SYMBOL().  This was needed to fix a compilation
-error with CONFIG_SND_DEBUG=y and CONFIG_SND_VERBOSE_PRINTK not set.
+The Makefile for aicasm has been broken since 2.5.48.  The order in
+which objects are specified on the linker command line *is* significant,
+and if "-ldb" is made part of AICASM_CFLAGS rather than appearing after
+the "-o $(PROG)", I get an undefined symbol error (__db185_open).
 
-Applies to 2.5.60 through 2.5.63 inclusive.  Originally posted 14 Feb.
+The attached patch is against 2.5.54-2.5.63 inclusive.  Original
+posting 1 December 2002.  Patch included in 2.5.62-ac1 (Thanks, Alan!),
+but didn't make it into 2.5.63.
 
 -- 
 -----------------------------------------------------------------------
@@ -39,50 +39,33 @@ Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
 rct@frus.com
 -----------------------------------------------------------------------
 
---ELM741935201-11515-0_
+--ELM741935458-11570-0_
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: attachment; filename=patch63_snd_printd
+Content-Disposition: attachment; filename=patch63_aicasm
 
---- linux/sound/core/misc.c.orig	2003-02-13 15:48:42.000000000 -0600
-+++ linux/sound/core/misc.c	2003-02-13 15:50:08.000000000 -0600
-@@ -79,25 +79,3 @@
- 	printk(tmpbuf);
- }
- #endif
--
--#if defined(CONFIG_SND_DEBUG) && !defined(CONFIG_SND_VERBOSE_PRINTK)
--void snd_printd(const char *format, ...)
--{
--	va_list args;
--	char tmpbuf[512];
--	
--	if (format[0] == '<' && format[1] >= '0' && format[1] <= '9' && format[2] == '>') {
--		char tmp[] = "<0>";
--		tmp[1] = format[1];
--		printk("%sALSA: ", tmp);
--		format += 3;
--	} else {
--		printk(KERN_DEBUG "ALSA: ");
--	}
--	va_start(args, format);
--	vsnprintf(tmpbuf, sizeof(tmpbuf)-1, format, args);
--	va_end(args);
--	tmpbuf[sizeof(tmpbuf)-1] = '\0';
--	printk(tmpbuf);
--}
--#endif
---- linux/sound/core/sound.c.orig	2003-02-13 15:48:42.000000000 -0600
-+++ linux/sound/core/sound.c	2003-02-13 15:51:12.000000000 -0600
-@@ -522,9 +522,6 @@
- #if defined(CONFIG_SND_DEBUG) && defined(CONFIG_SND_VERBOSE_PRINTK)
- EXPORT_SYMBOL(snd_verbose_printd);
- #endif
--#if defined(CONFIG_SND_DEBUG) && !defined(CONFIG_SND_VERBOSE_PRINTK)
--EXPORT_SYMBOL(snd_printd);
--#endif
-   /* wrappers */
- #ifdef CONFIG_SND_DEBUG_MEMORY
- EXPORT_SYMBOL(snd_wrapper_kmalloc);
+--- linux/drivers/scsi/aic7xxx/aicasm/Makefile~	2002-12-24 07:09:29.000000000 -0600
++++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	2003-01-07 16:47:01.000000000 -0600
+@@ -10,9 +10,10 @@
+ GENSRCS=	$(YSRCS:.y=.c) $(LSRCS:.l=.c)
+ 
+ SRCS=	${CSRCS} ${GENSRCS}
++LIBS=	-ldb
+ CLEANFILES= ${GENSRCS} ${GENHDRS} $(YSRCS:.y=.output)
+ # Override default kernel CFLAGS.  This is a userland app.
+-AICASM_CFLAGS:= -I/usr/include -I. -ldb
++AICASM_CFLAGS:= -I/usr/include -I.
+ YFLAGS= -d
+ 
+ NOMAN=	noman
+@@ -30,7 +31,7 @@
+ endif
+ 
+ $(PROG):  ${GENHDRS} $(SRCS)
+-	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG)
++	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG) $(LIBS)
+ 
+ aicdb.h:
+ 	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
 
---ELM741935201-11515-0_--
+--ELM741935458-11570-0_--

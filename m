@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317054AbSF1E3Q>; Fri, 28 Jun 2002 00:29:16 -0400
+	id <S317056AbSF1EdJ>; Fri, 28 Jun 2002 00:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317056AbSF1E3Q>; Fri, 28 Jun 2002 00:29:16 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:14274 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S317054AbSF1E3P>; Fri, 28 Jun 2002 00:29:15 -0400
-Message-ID: <3D1BE698.44B04F6B@cisco.com>
-Date: Fri, 28 Jun 2002 10:01:20 +0530
-From: Manik Raina <manik@cisco.com>
-Organization: Cisco Systems
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S317058AbSF1EdI>; Fri, 28 Jun 2002 00:33:08 -0400
+Received: from 12-237-16-92.client.attbi.com ([12.237.16.92]:9856 "EHLO
+	ledzep.dyndns.org") by vger.kernel.org with ESMTP
+	id <S317056AbSF1EdH>; Fri, 28 Jun 2002 00:33:07 -0400
+Message-ID: <3D1BE786.5070100@attbi.com>
+Date: Thu, 27 Jun 2002 23:35:18 -0500
+From: Jordan Breeding <jordan.breeding@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com
-Subject: Re: enums
-References: <3D1B0B95.51E13621@cisco.com>
-Content-Type: text/plain; charset=us-ascii
+To: Felipe Contreras <al593181@mail.mty.itesm.mx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Very weird bug in fs/exec.c
+References: <20020627211922.GA14184@zion.mty.itesm.mx>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felipe Contreras wrote:
+> Hi,
+> 
+> I've found a weird bug that seems to only happend in my system. It makes
+> recursive makes segfault, like:
+> 
+> test:
+> 	( make -v )
+> 
+> After a lot of work tracking it I finally found what causes it, I'm attaching
+> the patch that generates the bug, it's a diff from 2.5.18 to 2.5.19.
+> 
+> I'm saying it's weird because just adding a printk before do_execve returns
+> successfully makes the bug dissapear.
+> 
+> BTW, yes, my system is very special.
+> 
 
-	If no one has any objections, Can this be applied as a patch ?
+
+I can verify that a lot of weird problems (compiles failing with seg 
+faults, `java -version` not running, other java programs not running and 
+in most cases the program in question would succeed if I ran it through 
+strace first) I was seeing in kernels after 2.5.18 (ie. 2.5.20-dj1, 
+2.5.20-dj4, 2.5.23-dj1 and 2.5.24-dj1) go away if I reverse the patch 
+included in the original email for this thread.  Glad to find out what 
+had been causing that mess!  Thanks.
+
+Jordan
 
 
-Manik Raina wrote:
-> 
-> is there a particular reason we dislike constructs as attached in the
-> diffs below ?
-> with enums, we dont have to increment MAX_NR_ZONES everytime a new one
-> is added .
-> 
->   --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-> diff -u -r -U 6 cmp/include/linux/mmzone.h linux-2.5.24/include/linux/mmzone.h
-> --- cmp/include/linux/mmzone.h  Fri Jun 21 04:23:42 2002
-> +++ linux-2.5.24/include/linux/mmzone.h Thu Jun 27 18:00:25 2002
-> @@ -88,16 +88,21 @@
->          * rarely used fields:
->          */
->         char                    *name;
->         unsigned long           size;
->  } zone_t;
-> 
-> -#define ZONE_DMA               0
-> -#define ZONE_NORMAL            1
-> -#define ZONE_HIGHMEM           2
-> -#define MAX_NR_ZONES           3
-> +enum zone_type {
-> +
-> +     ZONE_DMA,
-> +     ZONE_NORMAL,
-> +     ZONE_HIGHMEM,
-> +     MAX_NR_ZONES,
-> +
-> +};
-> +
-> 
->  /*
->   * One allocation request operates on a zonelist. A zonelist
->   * is a list of zones, the first one is the 'goal' of the
->   * allocation, the other zones are fallback zones, in decreasing
->   * priority.

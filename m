@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263305AbTE3Gdg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 02:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTE3Gdg
+	id S263315AbTE3Gnz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 02:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbTE3Gnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 02:33:36 -0400
-Received: from cs.rice.edu ([128.42.1.30]:58319 "EHLO cs.rice.edu")
-	by vger.kernel.org with ESMTP id S263305AbTE3Gde (ORCPT
+	Fri, 30 May 2003 02:43:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35245 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263315AbTE3Gny (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 02:33:34 -0400
-To: "David S. Miller" <davem@redhat.com>
+	Fri, 30 May 2003 02:43:54 -0400
+Date: Thu, 29 May 2003 23:56:00 -0700 (PDT)
+Message-Id: <20030529.235600.88007251.davem@redhat.com>
+To: scrosby@cs.rice.edu
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
-References: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
-	<1054267067.2713.3.camel@rth.ninka.net>
-	<oyd3cixc9ev.fsf@bert.cs.rice.edu>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <oydof1l2aq3.fsf@bert.cs.rice.edu>
+References: <oyd3cixc9ev.fsf@bert.cs.rice.edu>
 	<20030529.232440.122068039.davem@redhat.com>
-From: Scott A Crosby <scrosby@cs.rice.edu>
-Organization: Rice University
-Date: 30 May 2003 01:46:12 -0500
-In-Reply-To: <20030529.232440.122068039.davem@redhat.com>
-Message-ID: <oydof1l2aq3.fsf@bert.cs.rice.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	<oydof1l2aq3.fsf@bert.cs.rice.edu>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 May 2003 23:24:40 -0700 (PDT), "David S. Miller" <davem@redhat.com> writes:
+   From: Scott A Crosby <scrosby@cs.rice.edu>
+   Date: 30 May 2003 01:46:12 -0500
+   
+   Its not safe to do anything like
 
->    From: Scott A Crosby <scrosby@cs.rice.edu>
->    Date: 30 May 2003 00:04:24 -0500
->    
->    Have you seen the current dcache function?
->    
->    /* Linux dcache */
->    #define HASH_3(hi,ho,c)  ho=(hi + (c << 4) + (c >> 4)) * 11
->    
-> Awesome, moving the Jenkins will actually save us some
-> cycles :-)
+One thing that helps here is that we don't need to provide
+protection outside the realm of a single name.
 
-Tricky though, because what if you want to hash more than 64 bits? You
-have to somehow chain Jenkin's together.
+This is because the hash function takes the pointer of the dentry of
+the directory it is in (the parent), and contributes this into
+the hash.
 
-Let H(a,b,c) be a jenkin's hash that does  '' mix(a,b,c) ; return a ''
+Back to the basic problem, using jenkins for hashing names.  You could
+simply shuffle the bytes into a set of 3 32-bit words, every time
+you've contributed 12 bytes (the 3 words are full) or you've finished
+the string, you run a __jhash_mix(a,b,c) pass.  And you can make
+init_name_hash() insert the initial random value (choosen using
+get_random_bytes() right before we mount root).
 
-Let a,b,c,d,e be inputs to be hashed, and R,S,T,U be random keys.
+After all, a string is just a variable number of u32 words.
 
-
-Its not safe to do anything like
-
- H(H(a,b,c),H(d,e,f),R)
-
-Because an attacker can brute-force to find tuples (a,b,c),
-(a',b',c'), ... so that H(a,b,c) == H(a',b',c') == ....
-
-A better approach (which I make with no formal analysis of its
-quality) might be to construct this:
-
- H(a,b,R) ^ H(c,d,S) ^ H(e,f,T)
-
-Perhaps the best approach is to visit Usenix Security 2003 this August
-and ask the experts there.
-
-Scott
+Actually, since we can say something about the alignment of the string
+pointer in the dentry case, we can simply feed this as a u32 pointer
+straight into the jenkins hash.  We know the length of the string so
+this is pretty easy.  Actually, the most generic version "jhash()"
+handles arbitrary byte lengths and alignments.

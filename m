@@ -1,89 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbVAKB1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVAKBbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbVAKB1M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 20:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVAKB0x
+	id S262684AbVAKBbM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 20:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbVAKBbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 20:26:53 -0500
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:27056 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262796AbVAKBX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 20:23:29 -0500
-Message-ID: <41E32ACC.8010103@kolivas.org>
-Date: Tue, 11 Jan 2005 12:24:28 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 10 Jan 2005 20:31:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14512 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262684AbVAKBad (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 20:30:33 -0500
+Date: Mon, 10 Jan 2005 17:30:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Dave <dave.jiang@gmail.com>, linux-kernel@vger.kernel.org,
+       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
+       drew.moseley@intel.com
+Subject: Re: clean way to support >32bit addr on 32bit CPU
+In-Reply-To: <41E31D95.50205@osdl.org>
+Message-ID: <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org>
+References: <8746466a050110153479954fd2@mail.gmail.com>
+ <Pine.LNX.4.58.0501101607240.2373@ppc970.osdl.org> <41E31D95.50205@osdl.org>
 MIME-Version: 1.0
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] ACPI using smp_processor_id in preemptible code
-References: <16A54BF5D6E14E4D916CE26C9AD30575F05409@pdsmsx402.ccr.corp.intel.com>	 <20050110095508.GJ1353@elf.ucw.cz> <1105405464.18834.4.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1105405464.18834.4.camel@sli10-desk.sh.intel.com>
-Content-Type: multipart/mixed;
- boundary="------------010708080709050009050404"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010708080709050009050404
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Li Shaohua wrote:
-> On Mon, 2005-01-10 at 17:55, Pavel Machek wrote:
+
+On Mon, 10 Jan 2005, Randy.Dunlap wrote:
 > 
->>>>I enabled CPU hotplug and preemptible debugging... now I get...
->>>>
->>>>BUG: using smp_processor_id() in preemptible [00000001] code:
->>>>swapper/0
->>>>caller is acpi_processor_idle+0xb/0x235
->>>>[<c020ba28>] smp_processor_id+0xa8/0xc0
->>>>[<c02338ce>] acpi_processor_idle+0xb/0x235
->>>>[<c02338c3>] acpi_processor_idle+0x0/0x235
->>>>[<c02338ce>] acpi_processor_idle+0xb/0x235
->>>>[<c02338c3>] acpi_processor_idle+0x0/0x235
->>>>[<c02338c3>] acpi_processor_idle+0x0/0x235
->>>>[<c02338c3>] acpi_processor_idle+0x0/0x235
->>>>[<c0101115>] cpu_idle+0x75/0x110
->>>>[<c04f5988>] start_kernel+0x158/0x180
->>>>[<c04f5390>] unknown_bootoption+0x0/0x1e0
->>>
->>>It doesn't trouble to me. It's in idle thread.
->>
->>You mean it does not happen to you? On my machine it fills logs very
->>quickly...
+> Speaking of fall-out, or more like trickle-down,
+> I'm almost done with a patch to make PCMCIA resources use
+> unsigned long instead of u_int or u_short for IO address:
+
+Ahh, yes. That's required on pretty much all platforms except x86 and
+x86-64.
+
+Of course, since ARM and MIPS already do the "u_int" thing, and not a 
+whole lot of other architectures do PCMCIA, I guess it doesn't matter 
+_that_ much. Cardbus stuff should get it right regardless.
+
+> typedef unsigned long	ioaddr_t;
 > 
-> What I mean is idle thread can't be migrated so this doesn't impact the
-> correctness. I guess the preemptible debugging can't recognise such
-> situation.
+> and then include/pcmcia/cs.c needs some changes in use of
+> ioaddr_t, along with drivers (printk formats).
+> 
+> Does that sound OK?
+> I guess that it would become unsigned long long (or u64)
+> with this proposal?
 
-This patch should help. If it's safe to use smp_processor_id() in 
-acpi_processor_idle use the alternative call.
+I don't think ioaddr_t needs to match resources. None of the IO accessor
+functions take "u64"s anyway - and aren't likely to do so in the future
+either - so "unsigned long" should be good enough.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+Having u64 for resource handling is mainly an issue for RAM and
+memory-mapped IO (right now the 32-bit limit means that we throw away
+information about stuff above the 4GB mark from the e820 interfaces on
+x86, for example - that _happens_ to work because we never see anything 
+but RAM there anyway, but it means that /proc/iomem doesn't show all of 
+the system RAM, and it does mean that our resource management doesn't 
+actually handle 64-bit addresses correctly. 
 
---------------010708080709050009050404
-Content-Type: text/x-patch;
- name="fix_acpi_smp_processor_id.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix_acpi_smp_processor_id.diff"
+See drivers/pci/probe.c for the result:
 
-Index: linux-2.6.10-mm2/drivers/acpi/processor_idle.c
-===================================================================
---- linux-2.6.10-mm2.orig/drivers/acpi/processor_idle.c	2005-01-11 12:20:31.399070008 +1100
-+++ linux-2.6.10-mm2/drivers/acpi/processor_idle.c	2005-01-11 12:22:19.931570560 +1100
-@@ -162,7 +162,7 @@
- 	int			sleep_ticks = 0;
- 	u32			t1, t2 = 0;
- 
--	pr = processors[smp_processor_id()];
-+	pr = processors[_smp_processor_id()];
- 	if (!pr)
- 		return;
- 
+	"PCI: Unable to handle 64-bit address for device xxxx"
 
---------------010708080709050009050404--
+(and I do not actually think this has _ever_ happened in real life, which 
+makes me suspect that Windows doesn't handle them either - but it 
+inevitably will happen some day).
+
+		Linus

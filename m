@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbTIYSry (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTIYSry
+	id S261754AbTIYSog (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTIYSoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:47:54 -0400
-Received: from smtp7.hy.skanova.net ([195.67.199.140]:9715 "EHLO
-	smtp7.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S261833AbTIYSrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:47:16 -0400
-To: Ani Joshi <ajoshi@unixbox.com>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: Radeon FB in 2.6.0-test4 fails for me
-References: <16202.57600.498532.587264@wombat.chubb.wattle.id.au>
-	<Pine.BSF.4.50.0308261102240.15539-200000@shell.unixbox.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 25 Sep 2003 20:46:21 +0200
-In-Reply-To: <Pine.BSF.4.50.0308261102240.15539-200000@shell.unixbox.com>
-Message-ID: <m28yocg0zm.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 25 Sep 2003 14:44:16 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:27820 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S261754AbTIYSnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:43:07 -0400
+Subject: Re: [PATCH} fix defect with kobject memory leaks during del_gendisk
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0309251023220.947-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0309251023220.947-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1064515384.4763.28.camel@persist.az.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 25 Sep 2003 11:43:04 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ani Joshi <ajoshi@unixbox.com> writes:
-
-> try the attatched patch (its against test4).
-
-Thanks, this patch makes the frame buffer usable on my computer. I
-suggest you send it to Linus.
-
-> On Tue, 26 Aug 2003, Peter Chubb wrote:
+On Thu, 2003-09-25 at 10:26, Patrick Mochel wrote:
+> > Attached is a patch which fixes a few memory leaks in 2.6.0-test5. 
+> > Comments are welcome as to whether or not this patch is the right
+> > solution.
+> > 
+> > I added the ability to linux MD to generate add and remove hotplug calls
+> > on RAID START and STOPs.  To achieve this, I use the del_gendisk call
+> > which deletes the gendisk, delete the children kobjects, and delete the
+> > parent (in this case, mdX) kobject.
+> > 
+> > Unfortunately it appears that del_gendisk uses kobject_del to delete the
+> > kobject.  If the kobject has a ktype release function, it is not called
+> > in the kobject_del call path, but only in kobject_unregister.
+> > 
+> > This patch changes the functionality so the release function (in this
+> > case the block device release function in drivers/block/genhd.c) is
+> > called by changing the kobject_del to kobject_unregister.
 > 
-> >
-> > Hi,
-> > 	On a Clevo laptop with a Radeon Mobility M7 LW (AGP), enabling
-> > 	the Radeon frame buffer results in an unusable LCD display (as
-> > 	if the horizontal and/or vertical sync were incorrect -- lots
-> > 	of skewed diagonal lines)
+> It is not the right thing to do, as Christoph pointed out. Gendisks have a 
+> lifetime longer than the time between add_disk() and del_gendisk(). They 
+> are created before they are added, and the objects may persist longer 
+> after they have been removed from view. 
 > 
-> diff -uNr linux-2.6.0-test4.orig/drivers/video/radeonfb.c linux-2.6.0-test4/drivers/video/radeonfb.c
-> --- linux-2.6.0-test4.orig/drivers/video/radeonfb.c	2003-08-22 17:01:33.000000000 -0700
-> +++ linux-2.6.0-test4/drivers/video/radeonfb.c	2003-08-26 10:48:03.000000000 -0700
-> @@ -2090,7 +2090,7 @@
->  	
->  	}
->  	/* Update fix */
-> -        info->fix.line_length = rinfo->pitch*64;
-> +        info->fix.line_length = mode->xres_virtual*(mode->bits_per_pixel/8);
->          info->fix.visual = rinfo->depth == 8 ? FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_DIRECTCOLOR;
->  
->  #ifdef CONFIG_BOOTX_TEXT
+> To delete the last reference, the MD layer should be calling put_disk(), 
+> which will trigger release to happen. 
+> 
+> Your patch will actually cause other bugs, since the final put_disk() of 
+> other block drivers will now be called on already freed memory.
+> 
+> 
+> 	Pat
+> 
+> 
+Thanks good call..  Didn't see the put_disk call but it makes sense now.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+-steve
+

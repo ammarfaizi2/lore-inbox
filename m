@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265251AbUEMXak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbUEMXmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265251AbUEMXak (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 19:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbUEMXaj
+	id S263174AbUEMXmf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 19:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUEMXme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 19:30:39 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:48013 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S265237AbUEMXaS (ORCPT
+	Thu, 13 May 2004 19:42:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49557 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263174AbUEMXmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 19:30:18 -0400
-Message-ID: <40A404A5.8070500@keyaccess.nl>
-Date: Fri, 14 May 2004 01:28:37 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [RFT][PATCH] ide-disk.c: more write cache fixes
-References: <200405132116.44201.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405132116.44201.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 13 May 2004 19:42:33 -0400
+Date: Thu, 13 May 2004 16:42:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Robert.Picco@hp.com, linux-kernel@vger.kernel.org,
+       venkatesh.pallipadi@intel.com
+Subject: Re: [PATCH] HPET driver
+Message-Id: <20040513164226.7efb2a83.akpm@osdl.org>
+In-Reply-To: <40A40204.1060509@pobox.com>
+References: <40A3F805.5090804@hp.com>
+	<40A40204.1060509@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> > +    vma->vm_flags |= (VM_IO | VM_SHM | VM_LOCKED);
+> > +    vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+> > +    addr = __pa(addr);
+> 
+> where did these flags come from?  don't you just want VM_RESERVED?
 
-> Comments, suggestions, complains?
+VM_IO is the way to mark mmapped I/O devices. 
 
-Yes, this works to stop it from complaining (on 6Y120P0). It comes up 
-with write cache enabled, and hdparm -W0/-W1 work to disable/enable 
-write cache as evidenced by the tiobench results. Not as evidenced by 
-/proc/ide/hda/settings (drive->wcache) which is always 1 and which will 
-probably confuse more users than just me -- I believe I saw hdparm just 
-pushes a drive command through an ioctl?
+	vma->vm_flags |= VM_IO;
 
-Question though:
+should be sufficient here.
 
-> @@ -1678,8 +1683,12 @@ static void idedisk_setup (ide_drive_t *
->  #endif	/* CONFIG_IDEDISK_MULTI_MODE */
->  	}
->  	drive->no_io_32bit = id->dword_io ? 1 : 0;
-> -	if (drive->id->cfs_enable_2 & 0x3000)
-> -		write_cache(drive, (id->cfs_enable_2 & 0x3000));
-> +
-> +	/* write cache enabled? */
-> +	if ((id->csfo & 1) || (id->cfs_enable_1 & (1 << 5)))
-> +		drive->wcache = 1;
-> +
-> +	write_cache(drive, 1);
+hm, I'm trying to decrypt how the driver accesses the hardware.  It's
+taking copies of kernel virtual addresses based off hpet_virt_address, but
+there are no readl's or writel's in there.  Is the actual device access
+done over in time_hpet.c?
 
-write_cache() also sets drive->wcache (to the argument, 1 in this case) 
-and you call that unconditionally, so the "if (foo) drive->wcache = 1" 
-seems superfluous. If the idea indeed is to unconditionally enable write 
-cache, it seems just
-
-write_cache(drive, 1);
-
-would be equivalent. Or if that wasn't the intention, maybe:
-
-if (foo)
-	write_cache(drive, 1);
-
-or if it should in fact be disabled if (!foo):
-
-write_cache(drive, (id->csfo & 1) || (id->cfs_enable_1 & (1 << 5)));
-
-or ...
-
-Ignore me if I completely missed the point, just looks odd.
-
-Rene.

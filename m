@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293423AbSCOW07>; Fri, 15 Mar 2002 17:26:59 -0500
+	id <S293410AbSCOW2T>; Fri, 15 Mar 2002 17:28:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293410AbSCOW0t>; Fri, 15 Mar 2002 17:26:49 -0500
-Received: from zero.tech9.net ([209.61.188.187]:1287 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S293423AbSCOW0h>;
-	Fri, 15 Mar 2002 17:26:37 -0500
-Subject: Re: [OOPS] Kernel powerdown
-From: Robert Love <rml@tech9.net>
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C92731B.1366B88E@delusion.de>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D03@orsmsx111.jf.intel.com> 
-	<3C92731B.1366B88E@delusion.de>
-Content-Type: text/plain
+	id <S293424AbSCOW2K>; Fri, 15 Mar 2002 17:28:10 -0500
+Received: from h24-83-222-158.vc.shawcable.net ([24.83.222.158]:3205 "EHLO
+	me.bcgreen.com") by vger.kernel.org with ESMTP id <S293410AbSCOW2E>;
+	Fri, 15 Mar 2002 17:28:04 -0500
+Message-ID: <3C92704C.1070909@bcgreen.com>
+Date: Fri, 15 Mar 2002 14:06:04 -0800
+From: Stephen Samuel <samuel@bcgreen.com>
+Organization: Just Another Radical
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+CC: Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] syscall interface for cpu affinity
+In-Reply-To: <1015784104.1261.8.camel@phantasy> <20020311013853.A1545@devcon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 15 Mar 2002 17:26:17 -0500
-Message-Id: <1016231178.908.66.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-03-15 at 17:18, Udo A. Steinberg wrote:
+Picking nits, but....
 
-> The latest ACPI patch fixes it.
-> Sorry Robert, that makes your patch obsolete :)
+Andreas Ferber wrote:
 
-I believe it includes a variant of the patch I sent.
+ > Setting the affinity of a whole process group also makes sense IMHO.
+ > Therefore I think an interface more like the setpriority syscall
+ > for sched_set_affinity (with two parameters which/who instead of a
+ > single PID) would be more flexible, eg.
+ >
+ >     int sched_set_affinity(int which, int who, unsigned int len,
+ >                            unsigned long *new_mask_ptr);
+ >
+ > with who one of {PRIO_PROCESS,PRIO_PGRP,PRIO_USER} and which according
+ > to the value of who.
 
-No matter, so long as it works.  It would be nice though to know if what
-I posted works as that can easily be pushed to Marcelo and Linus. 
-Nonetheless, the ACPI can push their next update in due time.
+I soule suggest that the order be
 
-Glad it works,
+int sched_set_affinity(int who, int which, unsigned int len,
+                             unsigned long *new_mask_ptr);
 
-	Robert Love
+This would have the {p,pg}id be the first thing that a programmer
+would see (likely more important than the 'which'.).
+
+
+-- 
+Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
+		   http://www.bcgreen.com/~samuel/
+Powerful committed communication, reaching through fear, uncertainty and
+doubt to touch the jewel within each person and bring it to life.
 

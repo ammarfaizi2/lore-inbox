@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265545AbTIDVs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbTIDVs0
+	id S265530AbTIDVzf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbTIDVzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:48:26 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:3981 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S265545AbTIDVsW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:48:22 -0400
-Date: Thu, 4 Sep 2003 22:48:10 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix remap of shared read only mappings
-Message-ID: <20030904214810.GG31590@mail.jlokier.co.uk>
-References: <1062686960.1829.11.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Sep 2003 17:55:35 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:8864 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S265530AbTIDVza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 17:55:30 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: precise characterization of ext3 atomicity
+Date: Thu, 4 Sep 2003 23:59:11 +0200
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+References: <3F574A49.7040900@namesys.com> <200309042308.54002.phillips@arcor.de> <3F57B0FD.1060708@namesys.com>
+In-Reply-To: <3F57B0FD.1060708@namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1062686960.1829.11.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309042359.11754.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> When mmap MAP_SHARED is done on a file, it gets marked with VM_MAYSHARE
-> and, if it's read/write, VM_SHARED.  However, if it is remapped with
-> mremap(), the MAP_SHARED is only passed into the new mapping based on
-> VM_SHARED.  This means that remapped read only MAP_SHARED mappings lose
-> VM_MAYSHARE.  This is causing us a problem on parisc because we have to
-> align all shared mappings carefully to mitigate cache aliasing problems.
-> 
-> The fix is to key passing the MAP_SHARED flag back into the remapped are
-> off VM_MAYSHARE not VM_SHARED.
+On Thursday 04 September 2003 23:39, Hans Reiser wrote:
+> Daniel Phillips wrote:
+> >I have always thought that some higher level synchronization is
+> >required for simultaneous writes.  So Hans might as well tell his fans
+> >that Ext3 makes no official guarantee, and neither does Linux.
+>
+> Not sure what you mean.
 
-At first I disagreed with your patch.  I was thinking that special
-alignment is only really needed to avoid aliasing problems for
-_writable_ shared mappings, and VM_SHARED is right for that.  (Which
-would indicate that mmap is faulty, not mremap).
+Nothing bad.  More power to you for adding a transaction interface to Reiser4, 
+and blazing that trail.  It's totally missing as a generic api at the moment, 
+and needs a push.
 
-But after some thought, I agree with you.
+Regards,
 
-A read-only mapping of a shared segment must be coherent with other,
-possibly writable mappings, so far as the architecture can guarantee
-that.
+Daniel
 
-That coherence should not disappear if the file handle used for the
-mapping was opened O_RDONLY.
-
-One last thought: this is what PROT_SEM is for.  Linux doesn't use
-this in any useful way.  But, technically, mmap with MAP_SHARED ad
-PROT_SEM should enable cache coherence, and that might include
-aligning the address.  Without PROT_SEM an application should not rely
-on cache coherence.
-
--- Jamie

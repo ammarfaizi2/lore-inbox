@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290796AbSBFUpQ>; Wed, 6 Feb 2002 15:45:16 -0500
+	id <S290805AbSBFUyv>; Wed, 6 Feb 2002 15:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290802AbSBFUpJ>; Wed, 6 Feb 2002 15:45:09 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:8834 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S290796AbSBFUpC>; Wed, 6 Feb 2002 15:45:02 -0500
-Date: Wed, 06 Feb 2002 15:44:43 -0500 (EST)
-Message-Id: <20020206.154443.02210556.wscott@bitmover.com>
-To: trini@kernel.crashing.org
-Cc: hch@ns.caldera.de, lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-From: Wayne Scott <wscott@bitmover.com>
-In-Reply-To: <20020206194515.GJ1447@opus.bloom.county>
-In-Reply-To: <20020206000343.I14622@work.bitmover.com>
-	<200202061935.g16JZLh18377@ns.caldera.de>
-	<20020206194515.GJ1447@opus.bloom.county>
-X-Mailer: Mew version 2.1.52 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S290806AbSBFUym>; Wed, 6 Feb 2002 15:54:42 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:65454 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S290805AbSBFUye>;
+	Wed, 6 Feb 2002 15:54:34 -0500
+Date: Wed, 6 Feb 2002 12:54:45 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: driverfs support for motherboard devices
+In-Reply-To: <Pine.LNX.4.44.0202060921380.8308-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.33.0202061253020.25114-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tom Rini <trini@kernel.crashing.org>
-> On Wed, Feb 06, 2002 at 08:35:21PM +0100, Christoph Hellwig wrote:
-> > Btw, is there a generic way to move repos cloned from Ted's (now
-> > orphaned?) 2.4 tree to Linus' official one?
+
+On Wed, 6 Feb 2002, Zwane Mwaikambo wrote:
+
+> On Tue, 5 Feb 2002, Pavel Machek wrote:
 > 
-> Working under the assuming that Linus started his own tree first and
-> didn't grab Ted's, no.
+> > +static void __init init_8259A_devicefs(void)
+> > +{
+> > +	device_register(&device_i8259A);
+> > +	strcpy(device_i8259A.name, "i8259A");
+> > +	strcpy(device_i8259A.bus_id, "0020");
+> > +	device_i8259A.parent = &sys_iobus;
+> 
+> I'm not entirely familiar with the driverfs API but wouldn't an API 
+> function to do all that strcpy and other init assignments be a bit 
+> cleaner? I see lots of retyping going on otherwise, someone feel free to 
+> hit me with a clue bat if i'm missing something...
 
-Right.  And yes Linus tree was started from scratch.  He started with
-2.4.0 and imported all prepatches.  The 2.5 tree was created as a
-clone of the 2.4 tree at the appropriate place.
+Actually, that's something I didn't notice with the patch: you need a 
+non-NULL bus_id inorder to register the device.
 
-So Chris is right csets in Ted's tree won't directly apply to Linus'
-tree.  Sorry.
+Something like this for singular devices would work better:
 
-I think 'bk export -tpatch' and 'bk import -tpatch' is called for.
-You might find the new 'bk comments' command (new in 2.1.4) useful to
-fixup the comments after 'bk import'.
+static struct device device_i8259A = {
+	name:		"i8259A",
+	bus_id:		"0020",
+};
 
-If you have a large ammount of state to transfer, let me know and
-maybe we can rig up something better.
+Though, where does that bus_id come from?
 
--Wayne
+	-pat
 

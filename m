@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266903AbUIJB06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUIJBmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266903AbUIJB06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 21:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUIJB06
+	id S266195AbUIJBmX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 21:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUIJBmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 21:26:58 -0400
-Received: from open.hands.com ([195.224.53.39]:31200 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S266914AbUIJBZK (ORCPT
+	Thu, 9 Sep 2004 21:42:23 -0400
+Received: from [24.24.2.58] ([24.24.2.58]:7867 "EHLO ms-smtp-04.nyroc.rr.com")
+	by vger.kernel.org with ESMTP id S266195AbUIJBmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 21:25:10 -0400
-Date: Fri, 10 Sep 2004 02:36:24 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
-Subject: Re: why is sk->skb->sk_socket->file  NULL on incoming packets?
-Message-ID: <20040910013624.GG11160@lkcl.net>
-References: <20040910004517.GC7587@lkcl.net> <20040909182053.P1973@build.pdx.osdl.net>
+	Thu, 9 Sep 2004 21:42:20 -0400
+Date: Thu, 9 Sep 2004 21:42:08 -0400
+From: Johann Koenig <explosive@hvc.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: patches failing - is 2.6.9-rc1 patch against 2.6.8? (not 2.6.8.1)
+Message-ID: <20040909214208.3b259016@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 0.9.12cvs99 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909182053.P1973@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2004 at 06:20:54PM -0700, Chris Wright wrote:
-> * Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
-> > hi, simple question - if a userspace ip_queue program (fireflier)
-> > can determine the pid of an incoming packet, why can't ipt_owner.c
-> > do the same?
-> > 
-> > how do i force, even by using a userspace thing which asks the
-> > packet to be "re-examined", the skb->sk->sk_socket->file to be
-> > set?
-> 
-> I assume the netfilter hook you come in on is NF_IP_LOCAL_IN?  This is
-> at ip level.  The sock (sk) is protocol specific, and hasn't been
-> looked up yet.  Look at the protocols' input handlers (i.e. udp_rcv or
-> tcp_v4_rcv), they do this lookup (i.e. udp_v4_lookup or __tcp_v4_lookup).
-> The sk_filter() point is probably the first time you have an association
-> between the skb (inbound) and the sock it's going to be queued to.
-> LSM modules use security_sock_rcv_skb at this point.
- 
- oooo *wide-eyed*. thanks
+I get the following when trying to get the 2.6.9-rc1 kernel:
 
+jkoenig@note:/usr/src$ grep -i fail patch.rc1.info -A5 -B5
+patching file Documentation/pci.txt
+patching file Documentation/usb/sn9c102.txt
+patching file Documentation/watchdog/pcwd-watchdog.txt
+patching file MAINTAINERS
+patching file Makefile
+Hunk #1 FAILED at 1.
+1 out of 13 hunks FAILED -- saving rejects to file Makefile.rej
+patching file arch/alpha/Kconfig
+patching file arch/alpha/Kconfig.debug
+patching file arch/alpha/Makefile
+patching file arch/alpha/boot/Makefile
+patching file arch/alpha/kernel/Makefile
+--
+patching file fs/nfs/delegation.c
+patching file fs/nfs/delegation.h
+patching file fs/nfs/dir.c
+patching file fs/nfs/direct.c
+patching file fs/nfs/file.c
+Hunk #2 FAILED at 74.
+Hunk #3 FAILED at 91.
+2 out of 11 hunks FAILED -- saving rejects to file fs/nfs/file.c.rej
+patching file fs/nfs/inode.c
+patching file fs/nfs/mount_clnt.c
+patching file fs/nfs/nfs2xdr.c
+patching file fs/nfs/nfs3proc.c
+patching file fs/nfs/nfs3xdr.c
+jkoenig@note:/usr/src$ 
+
+and this for 2.6.9-rc1-mm4:
+
+jkoenig@note:/usr/src$ grep -i fail patch.mm4.info -A5 -B5
+patching file lib/zlib_inflate/inftrees.c
+patching file lib/zlib_inflate/inftrees.h
+patching file lib/zlib_inflate/Makefile
+patching file MAINTAINERS
+patching file Makefile
+Hunk #1 FAILED at 1.
+1 out of 16 hunks FAILED -- saving rejects to file Makefile.rej
+patching file mm/bootmem.c
+patching file mm/filemap.c
+patching file mm/hugetlb.c
+patching file mm/Makefile
+patching file mm/memory.c
+jkoenig@note:/usr/src$ 
+
+Full files available at
+http://mental-graffiti.com/kernel/patch/
+
+-- 
+-johann koenig
+Now Playing: 54orty - S.S. : Trying To Break Even: The Northwest
+Compilation Today is Boomtime, the 33rd day of Bureaucracy in the YOLD
+3170 My public pgp key: http://mental-graffiti.com/pgp/

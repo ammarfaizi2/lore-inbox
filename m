@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279614AbRKFPJL>; Tue, 6 Nov 2001 10:09:11 -0500
+	id <S279627AbRKFPPt>; Tue, 6 Nov 2001 10:15:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279596AbRKFPI6>; Tue, 6 Nov 2001 10:08:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50441 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279614AbRKFPIq>; Tue, 6 Nov 2001 10:08:46 -0500
+	id <S279629AbRKFPPk>; Tue, 6 Nov 2001 10:15:40 -0500
+Received: from mustard.heime.net ([194.234.65.222]:29608 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S279596AbRKFPP0>; Tue, 6 Nov 2001 10:15:26 -0500
+Date: Tue, 6 Nov 2001 16:15:19 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Mylex/Compaq RAID controller placement in config
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Tue, 6 Nov 2001 15:15:53 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0111061519320.23668-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Nov 06, 2001 03:22:00 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <E1617xB-0000ln-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0111061612570.23908-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1617xB-0000ln-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I apologize if this is a well-stressed question, but why is the Mylex and
-> Compaq RAID controllers placed under 'Block devices' rather than under
-> 'SCSI'?
+> Because they are ?
+>
+> They dont provide scsi as the native interface (nor do some of the others
+> but thats a seperate saga)
 
-Because they are ?
+I know it might seem silly, but as to make things clearer for most
+users/admins, wouldn't it be better to just call them SCSI controllers, as
+they all indeed connect SCSI drives to the host?
 
-They dont provide scsi as the native interface (nor do some of the others
-but thats a seperate saga)
+roy
+
+---
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265569AbSKABkt>; Thu, 31 Oct 2002 20:40:49 -0500
+	id <S265559AbSKAB3C>; Thu, 31 Oct 2002 20:29:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265570AbSKABkt>; Thu, 31 Oct 2002 20:40:49 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:8426 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S265569AbSKABks>; Thu, 31 Oct 2002 20:40:48 -0500
-Message-ID: <3DC1DD1E.6000701@attbi.com>
-Date: Thu, 31 Oct 2002 17:47:10 -0800
-From: Miles Lane <miles.lane@attbi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021022
-X-Accept-Language: en-us, en
+	id <S265573AbSKAB2N>; Thu, 31 Oct 2002 20:28:13 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22545 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265567AbSKAB1L>; Thu, 31 Oct 2002 20:27:11 -0500
+Date: Thu, 31 Oct 2002 20:32:36 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: "Matthew J. Fanto" <mattf@mattjf.com>, linux-kernel@vger.kernel.org
+Subject: Re: The Ext3sj Filesystem
+In-Reply-To: <20021030200020.GV28982@clusterfs.com>
+Message-ID: <Pine.LNX.3.96.1021031202931.22444C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Will we have UPnP support for Linux?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 Oct 2002, Andreas Dilger wrote:
 
-http://www.e-insite.net/ednmag/index.asp?layout=article&articleId=CA154802
-http://www.microsoft.com/windowsxp/expertzone/columns/bowman/december24.asp
-http://www.upnp.org/
-http://www.upnp.org/newsletters/newsletter_09_2002/
-http://www.upnp.org/newsletters/newsletter_09_2002/committee.asp
-http://hometoys.com/htinews/aug01/articles/microsoft/upnp.htm
+> Some notes:
+> 1) having so many encryption algorithms is a huge pain in the ass, and
+>    it will never be accepted into the kernel like that.  Pick some
+>    "good" encryption algorithms (like those that will be supported as
+>    part of IPSec and/or the encrypted loop devices: 3DES, AES, RC5 or
+>    whatever) and then there can be some re-use with other parts of the kernel.
 
-UPnP Member companies:
+You are more trusting than I that these things can't be broken or in the
+case of AES were not selected because they could. Your point is good, but
+I think the way to do it is to define a crypto module API, such that user
+could drop in his/her own, be it custom, something which pops up in a
+year, or whatever.
 
-    http://www.upnp.org/membership/members.asp
-
-Firmware supporting UPnP:
-
-    http://support.dlink.com/downloads/
-   
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

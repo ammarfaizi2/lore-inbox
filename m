@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317853AbSGKXnF>; Thu, 11 Jul 2002 19:43:05 -0400
+	id <S317871AbSGKXzj>; Thu, 11 Jul 2002 19:55:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317870AbSGKXnE>; Thu, 11 Jul 2002 19:43:04 -0400
-Received: from p50886A23.dip.t-dialin.net ([80.136.106.35]:31876 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317853AbSGKXnC>; Thu, 11 Jul 2002 19:43:02 -0400
-Date: Thu, 11 Jul 2002 17:45:38 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Dawson Engler <engler@csl.Stanford.EDU>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <mc@cs.Stanford.EDU>
-Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8
-In-Reply-To: <20020711233226.GC8738@clusterfs.com>
-Message-ID: <Pine.LNX.4.44.0207111742400.26269-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317899AbSGKXzi>; Thu, 11 Jul 2002 19:55:38 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:18320 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317871AbSGKXzg>;
+	Thu, 11 Jul 2002 19:55:36 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Alexander Viro <viro@math.psu.edu>, "David S. Miller" <davem@redhat.com>,
+       adam@yggdrasil.com, R.E.Wolff@BitWizard.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: Rusty's module talk at the Kernel Summit 
+In-reply-to: Your message of "Thu, 11 Jul 2002 12:54:42 +0200."
+             <E17Sbat-0002TF-00@starship> 
+Date: Fri, 12 Jul 2002 10:00:26 +1000
+Message-Id: <20020711235822.8B2494849@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <E17Sbat-0002TF-00@starship> you write:
+> Note how the rmmod-during-ret race just disappeared, because rmmod directly 
+> calls deregister, which either succeeds or doesn't.  If it succeeds there are
+> no mounts on the module and everything is quiet, remove away.  Easy huh?  
+> Note also how we don't really have to divide up the 'deactivate' and 
+> 'destroy' parts of the deregistration process, though I can see why it still 
+> might be useful to do that.  Such refinements become a concern of the 
+> filesystem machinery, not the module interface.
+> 
+> This is all by way of saying that Al is apparently well advanced in 
+> implementing exactly the strategy I'd intended to demonstrate (Rusty and 
+> Keith seem to be heading to the same place as well, by a twistier path).  I'm
 
-On Thu, 11 Jul 2002, Andreas Dilger wrote:
-> So, how does adding braces and a linefeed fix the locking problem here?
-> ;-)
+<sigh>
 
-I did add the contents, they were just not added physically. I have them 
-somewhere in my mind...
+I noted previously that you can do it if you do restrict the interface
+to "one module, one fs" approach, as you've suggested here.  Al
+corrected me saying that's not neccessary.  It's possible that he's
+come up with a new twist on the "freeze-the-kernel" approach or
+something.
 
-Index: fs/hpfs/dir.c
-===================================================================
-RCS file: /var/cvs/thunder-2.5/fs/hpfs/dir.c,v
-retrieving revision 1.1
-diff -p -u -r1.1 dir.c
---- fs/hpfs/dir.c       19 Jun 2002 02:11:50 -0000      1.1
-+++ fs/hpfs/dir.c       11 Jul 2002 23:44:58 -0000	mind
-@@ -211,7 +211,10 @@ struct dentry *hpfs_lookup(struct inode
+Al has scribbled in the margin that there's a clever solution, let's
+hope he doesn't die before revealing it. 8)
 
-        lock_kernel();
-        if ((err = hpfs_chk_name((char *)name, &len))) {
--               if (err == -ENAMETOOLONG) return ERR_PTR(-ENAMETOOLONG);
-+               if (err == -ENAMETOOLONG) {
-+                       unlock_kernel();
-+                       return ERR_PTR(-ENAMETOOLONG);
-+               }
-                goto end_add;
-        }
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

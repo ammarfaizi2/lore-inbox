@@ -1,78 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277552AbRJVSbT>; Mon, 22 Oct 2001 14:31:19 -0400
+	id <S277568AbRJVSdJ>; Mon, 22 Oct 2001 14:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277576AbRJVSbK>; Mon, 22 Oct 2001 14:31:10 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:44552 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S277574AbRJVSbE>; Mon, 22 Oct 2001 14:31:04 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-ID: <86256AED.0065BD5D.00@smtpnotes.altec.com>
-Date: Mon, 22 Oct 2001 13:27:34 -0500
-Subject: Re: Linux 2.2.20pre10
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S277572AbRJVSc7>; Mon, 22 Oct 2001 14:32:59 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:46857 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S277568AbRJVScv>; Mon, 22 Oct 2001 14:32:51 -0400
+Message-ID: <3BD4655E.82ED21CC@zip.com.au>
+Date: Mon, 22 Oct 2001 11:28:46 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcos Dione <mdione@hal.famaf.unc.edu.ar>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kjournald and disk sleeping
+In-Reply-To: <Pine.LNX.4.30.0110221415460.19985-100000@multivac.famaf.unc.edu.ar>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcos Dione wrote:
+> 
+>         Hi. first of all, I'm not suscribed to the mailing list, so cc to
+> me in the replies. thanks. and I'm running 2.4.10.
+> 
+>         what I'm doing is to try to put the disks to sleep at night, or
+> when I'm not using the machine. I found what proceses to shutdown, mainly
+> those that do things from time to time, like the MTA. then I send a STOP
+> signal to kupdated. so far, so good. that works.
+> 
+>         then I switched to ext3 and kjournald started to appear on the
+> processes list. and it commits the transactions very often.
 
+Yes, this is a bit of a problem - it's probably atime updates,
+things which write to inodes, etc.  A commit will be forced within
+five seconds of this happening.
 
-I wonder if there are any Linux hackers in Iraq?  It's doubtful the government
-there would honor any legal action attempted by the US on DMCA issues.  OTOH, it
-would put me in the rather weird position of agreeing with the Iraqi government,
-which is something I NEVER would have expected...  :-)
+> I know I can set the commit interval to a high value, but both I don't
+> know exactly how, and I think that it's not the solution I need.
 
-Wayne
+That is certainly a simple way of addressing the problem, and
+it does work.  You'll need to edit fs/jbd/journal.c and change the `5'
+in this line:
 
+        journal->j_commit_interval = (HZ * 5);
 
+to 3600 or whatever.  I'd agree that this user interface could be
+improved :)  Probably a field in the journal superblock.
 
+The result of this change is that you could lose up to an hour's work
+after a crash rather than up to five seconds worth.  You can manually
+force a commit at any time by running /bin/sync.
 
-"Per Jessen" <per@computer.org> on 10/22/2001 01:13:42 PM
+Probably the best way of addressing all of this is teach ext3 to
+look at the kupdate writeback interval from /proc/sys/vm/bdflush.
+Users can then set the value in there to, say, one hour and it
+should all just work.
 
-Please respond to "Per Jessen" <per@computer.org>
-
-To:   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-cc:    (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: Linux 2.2.20pre10
-
-
-
-On Mon, 22 Oct 2001 12:51:53 -0500, Wayne.Brown@altec.com wrote:
->I never said that Alan, or any particular individual, should risk a lawsuit or
->jail.  I simply said that I hoped *someone outside the US* (that is, someone
-not
->subject to US laws) would make the information available.  Surely there are
->places in the world that are beyond the reach of the DMCA.  How about those
-
-Alan Cox, living in the UK, may be *somewhat* subject to US legislation.
-Ties between the US and the UK are strong, and it is understandable if a UK-
-resident person does not feel entirely out of reach of US law enforcement.
-
-IMHO.
-
-
-regards,
-Per Jessen, Zurich
-
-regards,
-Per Jessen, Zurich
-http://www.enidan.com - home of the J1 serial console.
-
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-
-
+ 
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
-
-

@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272877AbTHERF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 13:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272553AbTHERDT
+	id S272874AbTHEQzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 12:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272900AbTHEQxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 13:03:19 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:5517 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S272949AbTHERAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 13:00:14 -0400
-Subject: Re: [PATCH] O11int for interactivity
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Valdis.Kletnieks@vt.edu, piggin@cyberone.com.au, wli@holomorphy.com,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20030804225532.494bfd31.akpm@osdl.org>
-References: <200307301038.49869.kernel@kolivas.org>
-	 <20030802225513.GE32488@holomorphy.com>
-	 <200308030119.47474.m.c.p@wolk-project.de>
-	 <200308042106.51676.m.c.p@wolk-project.de>
-	 <20030804195335.GK32488@holomorphy.com> <3F2F00B0.9050804@cyberone.com.au>
-	 <20030805024103.GM32488@holomorphy.com> <3F2F1F80.7060207@cyberone.com.au>
-	 <20030805031341.GN32488@holomorphy.com> <3F2F231C.3030901@cyberone.com.au>
-	 <20030805033119.GO32488@holomorphy.com> <3F2F26BA.3060904@cyberone.com.au>
-	 <200308050454.h754sBqM004950@turing-police.cc.vt.edu>
-	 <20030804225532.494bfd31.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060102809.3174.15.camel@tux.rsn.bth.se>
+	Tue, 5 Aug 2003 12:53:30 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:53652 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S272875AbTHEQvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 12:51:38 -0400
+Date: Tue, 5 Aug 2003 18:50:58 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: torvalds@osdl.org, marekm@linux.org.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.0-test2 - Watchdog patches (advantechwdt.c)
+Message-ID: <20030805185058.A13304@infomag.infomag.iguana.be>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 05 Aug 2003 19:00:09 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-05 at 07:55, Andrew Morton wrote:
+Hi Linus,
 
-> Another possibility is that xmms is getting stuck in a read.  The
-> anticipatory scheduler is currently rather tuned for throughput.  Judging
-> by the vmstat trace which was posted, we have a classic
-> read-stream-vs-write-stream going on.  We trade off latency versus
-> throughput; perhaps wrongly.  You can decrease latency (at the expense of
-> throughput) by decreasing the settings in /sys/block/hda/queue/iosched.
-> 
-> To a point, it is a nice linear tradeoff, and someone should put the time
-> in to tweak and characterise it.
+please do a
 
-I believe it was my trace wli posted.
-No swapping was going on, swappiness set to 30
+	bk pull http://linux-watchdog.bkbits.net/linux-2.5-watchdog
 
-X was quite jerky and uninteractive during this and sometimes it froze
-for up to 5 seconds (the sound usually stopped during the freezing).
+This will update the following files:
 
-Since there wasn't any swapping going on and quite a lot of cpu left we
-either have quite some latency when reading back parts of X that
-previously got discarded or massive stalls in kernelspace somewhere.
+ drivers/char/watchdog/advantechwdt.c |  139 ++++++++++++++++++++---------------
+ 1 files changed, 82 insertions(+), 57 deletions(-)
 
-One thing I noticed was that when evolution started checking for new
-mail in a lot of folders I get a lot of seeks and the throughput
-naturally decreased but X got really responsive again. This points away
-from X beeing discarded and read back in from disk since that would take
-some time with all those seeks as well.
+through these ChangeSets:
 
-The machine this was tested on is a pIII 700 with 704MB ram and IDE
-disks (everything was against the same disk)
- 
--- 
-/Martin
+<wim@iguana.be> (03/08/05 1.1605)
+   [WATCHDOG] advantechwdt patches
+   
+   use module_param, removed __setup code,
+   general cleanup (mostly of comments and trailing spaces, also removed include of config.h),
+   made the watchdog's timeout a module_param.
+
+
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.5-watchdog
+
+Greetings,
+Wim.
+

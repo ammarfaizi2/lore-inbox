@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262946AbTC0OLx>; Thu, 27 Mar 2003 09:11:53 -0500
+	id <S262607AbTC0OSu>; Thu, 27 Mar 2003 09:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262944AbTC0OKi>; Thu, 27 Mar 2003 09:10:38 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:12735 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S262946AbTC0OKR>; Thu, 27 Mar 2003 09:10:17 -0500
-Date: Thu, 27 Mar 2003 14:23:25 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-cc: "'kasper_k_jensen@sol.dk'" <kasper_k_jensen@sol.dk>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel BUG
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780B71722A@orsmsx116.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0303271409020.2247-100000@localhost.localdomain>
+	id <S262742AbTC0OSu>; Thu, 27 Mar 2003 09:18:50 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:48400 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S262607AbTC0OSs>; Thu, 27 Mar 2003 09:18:48 -0500
+From: Chris Evans <chris@scary.beasts.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Reply-To: Chris Evans <chris@scary.beasts.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP3 Imap webMail Program 2.0.11
+X-Originating-IP: 217.163.5.253
+Subject: CPU2 gone "missing" on 4 CPU box.
+Message-Id: <E18yYOI-0006Ps-00@sphinx.mythic-beasts.com>
+Date: Thu, 27 Mar 2003 14:30:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Mar 2003, Perez-Gonzalez, Inaky wrote:
-> 
-> Mar 26 13:38:15 localhost kernel: CPU:    0
-> Mar 26 13:38:15 localhost kernel: ide-cd cdrom i810_audio ac97_codec
-> soundcore a
-> utofs 8139too mii iptable_filter
-> Mar 26 13:38:15 localhost kernel: invalid operand: 0000
-> Mar 26 13:38:15 localhost kernel: kernel BUG at page_alloc.c:145!
-> Mar 26 13:38:15 localhost kernel: ------------[ cut here ]------------
-> Mar 26 13:38:14 localhost kernel: swap_free: Bad swap file entry 0383304c
-> Mar 26 13:38:14 localhost kernel: swap_free: Bad swap file entry 050db024
-> 
-> I'd say you also have problems with your swap device ... I'd first make
-> sure your swap device is ok and then retry - 
+Hello-
 
-No, those swap_free and swap_dup errors appear when a page table has been
-corrupted, and we don't swap out page tables themselves, just the pages
-they point to.  There's no reason to suspect the swap device at all.
+I've got a very interesting problem with a 4 CPU box. I've
+never seen anything quite like it.
+After booting, all 4 CPUs seem to be available (e.g.
+/proc/cpuinfo sees them all), but one of them is never
+used for anything. It always stays at 100% idle. So it
+is effectively a 3 CPU box :-(
 
-> however, the BUG is still there, that is for sure ...
-> 
-> It'd also help to know your kernel version
+There is a highly suspicious entry in the kernel logs
+after bootup. It shows some differing values for the CPU
+which does not come up properly. Here is the entry:
 
-The kernel version would help to identify the page_alloc.c:145 BUG.
-But it's likely to correspond to freeing an impossible or already-freed
-page, because of the corrupted page table (odd numbered corruption looks
-like a valid page, even numbered corruption looks like a swap entry).
+cpu: 0, clocks: 996796, slice: 199359
+CPU0<T0:996784,T1:797424,D:1,S:199359,C:996796>
+cpu: 1, clocks: 996796, slice: 199359
+cpu: 2, clocks: 996796, slice: 199359
+cpu: 3, clocks: 996796, slice: 199359
+CPU2<T0:996784,T1:-133220960,D:133619667,S:199359,C:996796>
+CPU1<T0:996784,T1:598064,D:2,S:199359,C:996796>
+CPU3<T0:996784,T1:199344,D:4,S:199359,C:996796>
 
-Sorry, I've no guess to make on what might be corrupting this memory.
+As you can see, CPU2 has some weird looking values for
+"T1" and "D", compared with CPU0, CPU1 and CPU3.
 
-Hugh
+Has anyone seen anything like this?
+
+The kernel is:
+Linux <snip> 2.4.9-e.12enterprise #1 SMP Tue Feb 11
+01:29:18 EST 2003 i686 unknown
+
+I'm not entirely sure what the hardware is because the
+machine is remote.
+
+Thanks in advance.
+Chris
 

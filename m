@@ -1,58 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVAWKTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVAWK7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVAWKTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 05:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVAWKSV
+	id S261288AbVAWK7G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 05:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVAWK7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 05:18:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61191 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261282AbVAWKQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 05:16:53 -0500
-Date: Sun, 23 Jan 2005 11:16:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/block/elevator.c: make two functions static
-Message-ID: <20050123101652.GH3212@stusta.de>
+	Sun, 23 Jan 2005 05:59:06 -0500
+Received: from mail.suse.de ([195.135.220.2]:3492 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261288AbVAWK7E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 05:59:04 -0500
+Date: Sun, 23 Jan 2005 11:59:03 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>, ak@suse.de
+Subject: Re: [PATCH] x86_64: use UL on TASK_SIZE
+Message-ID: <20050123105903.GA2788@wotan.suse.de>
+References: <20050122225617.35d1c6ac.rddunlap@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050122225617.35d1c6ac.rddunlap@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes two needlessly global functions static.
+On Sat, Jan 22, 2005 at 10:56:17PM -0800, Randy.Dunlap wrote:
+> 
+> Use UL on large constant (kills 3214 sparse warnings :)
+> 
+> include/linux/sched.h:1150:18: warning: constant 0x800000000000 is so big it is long
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Jens Axboe <axboe@suse.de>
+Sounds more like a sparse bug to me.  The C99 standard says the type
+of the constant is the first in which the constant can be represented.
+And that list includes unsigned long and even unsigned long long.
 
----
-
- drivers/block/elevator.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-This patch was already sent on:
-- 29 Nov 2004
-
---- linux-2.6.10-rc1-mm3-full/drivers/block/elevator.c.old	2004-11-06 19:55:01.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/block/elevator.c	2004-11-06 19:55:34.000000000 +0100
-@@ -92,7 +92,7 @@
- }
- EXPORT_SYMBOL(elv_try_last_merge);
- 
--struct elevator_type *elevator_find(const char *name)
-+static struct elevator_type *elevator_find(const char *name)
- {
- 	struct elevator_type *e = NULL;
- 	struct list_head *entry;
-@@ -222,7 +222,7 @@
- 	kfree(e);
- }
- 
--int elevator_global_init(void)
-+static int elevator_global_init(void)
- {
- 	return 0;
- }
-
+-Andi

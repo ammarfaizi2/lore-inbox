@@ -1,35 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRBUSjm>; Wed, 21 Feb 2001 13:39:42 -0500
+	id <S129181AbRBUTKk>; Wed, 21 Feb 2001 14:10:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbRBUSjc>; Wed, 21 Feb 2001 13:39:32 -0500
-Received: from river.it.gvsu.edu ([148.61.1.16]:26320 "EHLO river.it.gvsu.edu")
-	by vger.kernel.org with ESMTP id <S129134AbRBUSjR>;
-	Wed, 21 Feb 2001 13:39:17 -0500
-Message-ID: <3A940B40.3020009@lycosmail.com>
-Date: Wed, 21 Feb 2001 13:38:56 -0500
-From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-ac6 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S129249AbRBUTKb>; Wed, 21 Feb 2001 14:10:31 -0500
+Received: from eschelon.gamesquad.net ([216.115.239.45]:37384 "HELO
+	eschelon.gamesquad.net") by vger.kernel.org with SMTP
+	id <S129181AbRBUTKT>; Wed, 21 Feb 2001 14:10:19 -0500
+From: "Vibol Hou" <vibol@khmer.cc>
+To: "David S. Miller" <davem@redhat.com>, <ookhoi@dds.nl>
+Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>, <sim@stormix.com>
+Subject: RE: 2.4 tcp very slow under certain circumstances (Re: netdev issues (3c905B))
+Date: Wed, 21 Feb 2001 11:06:49 -0800
+Message-ID: <HDEBKHLDKIDOBMHPKDDKOEKMEFAA.vibol@khmer.cc>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: linux ac20 patch got error:
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
+In-Reply-To: <14995.40701.818777.181432@pizda.ninka.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A rather incomprehensible message, so let's flesh this out a bit.
+Win2K here, I'll apply the patch and let you know what happens.
 
-Basically the problem occurs when patching linux/fs/reiserfs/namei.c It 
-can't find it, presumably due to an error in 2.4.1, where it appears to 
-me that reiserfs/ is located off of linux/ not linux/fs/. Simple to fix, 
-I guess, though this would appear to mean that Linus made a mistake w/ 
-2.4.1 (plz correct me if I'm wrong), though it could also be said that 
-this means that Alan diff'd the wrong tree (basically a fixed tree in re 
-reiserfs/)
+-Vibol
 
-/me needs to stop using latin while writing on lk. Maybe too much 
-caffeine (just received caffeine candy sampler from ThinkGeek)
+-----Original Message-----
+From: David S. Miller [mailto:davem@redhat.com]
+Sent: Wednesday, February 21, 2001 2:57 AM
+To: ookhoi@dds.nl
+Cc: Vibol Hou; Linux-Kernel; sim@stormix.com
+Subject: Re: 2.4 tcp very slow under certain circumstances (Re: netdev
+issues (3c905B))
+
+
+
+Ookhoi writes:
+ > We have exactly the same problem but in our case it depends on the
+ > following three conditions: 1, kernel 2.4 (2.2 is fine), 2, windows ip
+ > header compression turned on, 3, a free internet access provider in
+ > Holland called 'Wish' (which seemes to stand for 'I Wish I had a faster
+ > connection').
+ > If we remove one of the three conditions, the connection is oke. It is
+ > only tcp which is affected.
+ > A packet on its way from linux server to windows client seems to get
+ > dropped once and retransmitted. This makes the connection _very_ slow.
+
+:-( I hate these buggy systems.
+
+Does this patch below fix the performance problem and are the windows
+clients win2000 or win95?
+
+--- include/net/ip.h.~1~	Mon Feb 19 00:12:31 2001
++++ include/net/ip.h	Wed Feb 21 02:56:15 2001
+@@ -190,9 +190,11 @@
+
+ static inline void ip_select_ident(struct iphdr *iph, struct dst_entry
+*dst)
+ {
++#if 0
+ 	if (iph->frag_off&__constant_htons(IP_DF))
+ 		iph->id = 0;
+ 	else
++#endif
+ 		__ip_select_ident(iph, dst);
+ }
+
+
 

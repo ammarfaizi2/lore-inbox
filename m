@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQJ3M1t>; Mon, 30 Oct 2000 07:27:49 -0500
+	id <S129062AbQJ3Mdb>; Mon, 30 Oct 2000 07:33:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129062AbQJ3M1k>; Mon, 30 Oct 2000 07:27:40 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:29701 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S129057AbQJ3M1g>; Mon, 30 Oct 2000 07:27:36 -0500
-Message-ID: <39FD693D.7B3E8893@idb.hist.no>
-Date: Mon, 30 Oct 2000 13:27:41 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: no, da, en
+	id <S129210AbQJ3MdV>; Mon, 30 Oct 2000 07:33:21 -0500
+Received: from p3E9D38F7.dip.t-dialin.net ([62.157.56.247]:24068 "EHLO
+	gryffindor.sc") by vger.kernel.org with ESMTP id <S129062AbQJ3MdK>;
+	Mon, 30 Oct 2000 07:33:10 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: /proc & xml data
+In-Reply-To: <39FCDB16.B0955558@mindspring.com> <m1n1fmhl9b.fsf@frodo.biederman.org>
+From: Moritz Schulte <tux@gmx.li>
+Organization: Foobar
+X-Mailer: Gnus v5.8.3
+Date: 30 Oct 2000 13:33:00 +0100
+In-Reply-To: ebiederm@xmission.com's message of "29 Oct 2000 23:54:24 -0700"
+Message-ID: <87d7giecg3.fsf@gryffindor.sc>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: GPL Question
-In-Reply-To: <E13pGUS-0004pj-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> >       If the answer to this is "yes", then Microsoft should own some rights to
-> > every piece of software that uses the Windows API.
-> 
-> As US copyright law stands of the last few days Microsoft are entitled to
-> require a magic constant is passed in one register to 'unlock' an API syscall.
-> If you disassemble code to find that constant you could be jailed.
+ebiederm@xmission.com (Eric W. Biederman) writes:
 
-Anyone figuring out such a constant could post it anonymously on some
-website/newsgroup.  Anybody abusing the constant later, including the
-real discoverer, can simply claim they got it from that anonymous
-sensation
-posting.  It is now common knowledge.  No reverse engineering here...
+> The general consensus is that if we have a major reorganization, in proc
+> the rule will be one value per file.  And let directories do the grouping.
 
-Helge Hafting
+IIRC some time ago somebody suggested to rename 'proc' to something
+like 'sys' or 'system', because it contains so many sytem information,
+not only about processes; or extract all non-process-information from
+proc to sys. Will this, or something like that, eventually be done
+while the reorganization?
+
+	moritz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbUKTMMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbUKTMMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262826AbUKTMMv (ORCPT <rfc822;willy@w.ods.org>);
+	id S262739AbUKTMMv (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 20 Nov 2004 07:12:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbUKTMKI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbUKTMJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 07:10:08 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:8711 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262851AbUKTMHn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 07:07:43 -0500
-Date: Sat, 20 Nov 2004 13:07:42 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] I2C updates for 2.4.28 (1/5)
-Message-Id: <20041120130742.06079393.khali@linux-fr.org>
-In-Reply-To: <20041120125423.42527051.khali@linux-fr.org>
-References: <20041120125423.42527051.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 20 Nov 2004 07:09:46 -0500
+Received: from coderock.org ([193.77.147.115]:52368 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262879AbUKTMIN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 07:08:13 -0500
+Date: Sat, 20 Nov 2004 13:07:23 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: janitor@sternwelten.at, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: kernel/sched.c: fix subtle TASK_RUNNING compare
+Message-ID: <20041120120722.GA3826@masina.coderock.org>
+References: <E1CVL0H-0000SH-EN@sputnik> <20041120125355.GB8091@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041120125355.GB8091@elte.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Original report and discussion:
-http://archives.andrew.net.au/lm-sensors/msg18839.html
+On 20/11/04 13:53 +0100, Ingo Molnar wrote:
+> 
+> * janitor@sternwelten.at <janitor@sternwelten.at> wrote:
+> 
+> >  	switch_count = &prev->nivcsw;
+> > -	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
+> > +	if (prev->state != TASK_RUNNING &&
+> > +			!(preempt_count() & PREEMPT_ACTIVE)) {
+> >  		switch_count = &prev->nvcsw;
+> 
+> nack. We inherently rely on the process state mask being a bitmask and
+> TASK_RUNNING thus being zero.
 
-Bottom line:
-i2c_register_entry shouldn't rely on the procname field to detect the
-end of the control table, but on the ctl_name field. The latter is
-guaranteed to be non-zero except for the table terminator, the former
-can be null even in the middle of the table.
+Hmm... but other compares in sched.c are ok? ;-)
+1211:   BUG_ON(p->state != TASK_RUNNING);
+2550:   if (unlikely(current == rq->idle) && current->state != TASK_RUNNING) {
+3609:   if (state == TASK_RUNNING)
+3640:   if (state != TASK_RUNNING)
 
-The bug wasn't caught so far because all users of this function
-(basically the lm_sensors project's drivers) were exporting all entries
-through /proc so procname was never null (except for the table
-terminator, obviously).
-
-Credits go to Louis-Martin Cote for discovering the bug and proposing a
-fix.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-
---- linux-2.4.28-pre3/drivers/i2c/i2c-proc.c.orig	2004-09-29 22:35:29.000000000 +0200
-+++ linux-2.4.28-pre3/drivers/i2c/i2c-proc.c	2004-09-29 22:34:59.000000000 +0200
-@@ -152,7 +152,7 @@
- 	id += 256;
- 
- 	len = 0;
--	while (ctl_template[len].procname)
-+	while (ctl_template[len].ctl_name)
- 		len++;
- 	len += 7;
- 	if (!(new_table = kmalloc(sizeof(ctl_table) * len, GFP_KERNEL))) {
+Well, it just looks more readable to me. But i don't have too strong
+feelings about this. :-)
 
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+	Domen

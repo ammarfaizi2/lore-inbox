@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131723AbRC0WcR>; Tue, 27 Mar 2001 17:32:17 -0500
+	id <S131690AbRC0Woh>; Tue, 27 Mar 2001 17:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131722AbRC0WcH>; Tue, 27 Mar 2001 17:32:07 -0500
-Received: from 46-ZARA-X26.libre.retevision.es ([62.82.241.46]:33037 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S131708AbRC0Wb6>;
-	Tue, 27 Mar 2001 17:31:58 -0500
-Message-ID: <3AC1072E.4080005@zaralinux.com>
-Date: Tue, 27 Mar 2001 23:33:34 +0200
-From: Jorge Nerin <comandante@zaralinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac24 i586; en-US; 0.8) Gecko/20010226
-X-Accept-Language: es-es, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Win keys not working in console (2.4.x)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S131724AbRC0WoR>; Tue, 27 Mar 2001 17:44:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40202 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131690AbRC0WoN>;
+	Tue, 27 Mar 2001 17:44:13 -0500
+Date: Tue, 27 Mar 2001 23:43:08 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+Message-ID: <20010327234308.B5411@flint.arm.linux.org.uk>
+In-Reply-To: <E14i1ln-0004Tn-00@the-village.bc.nu> <3AC11145.58FDCFBB@transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AC11145.58FDCFBB@transmeta.com>; from hpa@transmeta.com on Tue, Mar 27, 2001 at 02:16:37PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, good work with 2.4.x, but I miss one thing. in early 2.3.x the MS 
-keys, you know, two flags and one "properties" key worked as navigation 
-keys in the console.
+On Tue, Mar 27, 2001 at 02:16:37PM -0800, H. Peter Anvin wrote:
+> Alan Cox wrote:
+> > A major for 'disk' generically makes total sense. Classing raid controllers
+> > as 'scsi' isnt neccessarily accurate. A major for 'serial ports' would also
+> > solve a lot of misery
+> 
+> But it might also cause just as much misery, specifically because things
+> move around too much.
 
-The flags get you to the "left" or "rigth" virtual console, and the 
-"properties" key put you on the last console you where before.
+Actually, it probably won't.  As has already been said in the past, the
+names are effectively a user space issue, but major numbers aren't.
 
-This was very useful when working in the console, I use the console 
-sometimes, and I miss these feature.
+I for one would like to see a major number for all 'serial ports' whether
+they be embedded ARM serial ports _or_ standard 16550 ports, but at the
+moment its not easily acheivable without introducing more mess.
 
-Is there a plan to put back these keys to work, or there was a problem 
-of some kind and this feature got dropped?
+Ted indicated to me a while ago (just after I wrote serial_core.c for
+yet-another-type-of-ARM-serial-port) his visions of the direction serial
+stuff should take in 2.5; this is obviously one of the things that I'm
+keen to discuss and solve in 2.5.
 
 --
-Jorge Nerin
-<comandante@zaralinux.com>
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

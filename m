@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310201AbSDCKHl>; Wed, 3 Apr 2002 05:07:41 -0500
+	id <S310241AbSDCK1b>; Wed, 3 Apr 2002 05:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310206AbSDCKHb>; Wed, 3 Apr 2002 05:07:31 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50961 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S310201AbSDCKH1>; Wed, 3 Apr 2002 05:07:27 -0500
-Date: Wed, 3 Apr 2002 05:05:10 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jauder Ho <jauderho@carumba.com>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S310252AbSDCK1W>; Wed, 3 Apr 2002 05:27:22 -0500
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:25081 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S310241AbSDCK1P>; Wed, 3 Apr 2002 05:27:15 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 3 Apr 2002 03:25:50 -0700
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Jauder Ho <jauderho@carumba.com>,
+        Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Ext2 vs. ext3 recovery after crash
-In-Reply-To: <Pine.LNX.4.44.0204022144310.21070-100000@twinlark.arctic.org>
-Message-ID: <Pine.LNX.3.96.1020403045517.11049B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020403102550.GT4735@turbolinux.com>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	Jauder Ho <jauderho@carumba.com>,
+	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0204022144310.21070-100000@twinlark.arctic.org> <Pine.LNX.3.96.1020403045517.11049B-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Apr 2002, Jauder Ho wrote:
+On Apr 03, 2002  05:05 -0500, Bill Davidsen wrote:
+> C'mon, I've been doing this stuff since the MCC four floppy distribution
+> was king, I've seen a max mount counts message before.
 
-> 
-> Bill, you do know that it will do a full fsck every x mounts right?
-> 
-> [root@turtle /lib]# tune2fs -l /dev/hda6 | grep -i mount
-> Last mounted on:          <not available>
-> Last mount time:          Sun Mar  3 11:34:50 2002
-> Mount count:              1
-> Maximum mount count:      20
+OK, well I've seen your name around a lot, but you never know...
 
-I assure you I have not set my max-mount down to three or four, and since
-it crashes several times a day you can forget forced by date, too.
+> This is purely a case of the *first* mount message being EXT2 instead
+> of EXT3, as if the journal wasn't detected in the first place.  However,
+> the r/w mount is always ext3 per fstab.
 
-C'mon, I've been doing this stuff since the MCC four floppy distribution
-was king, I've seen a max mount counts message before. This is purely a
-case of the *first* mount message being EXT2 instead of EXT3, as if the
-journal wasn't detected in the first place. However, the r/w mount is
-always ext3 per fstab.
+Well, 'mount' output is useless w.r.t. the root filesystem, because it is
+simply copied from /etc/fstab.  You need to check /proc/mounts to see if
+it is _ever_ being mounted as ext3 (lots of people have this problem,
+especially if they use initrds and ext3 as a module).
 
-I never get close to max-mounts, this problem is in the 20-30% of the time
-range. No one knows why a lot of the Dells hang on X-logout, guess this is
-one more thing it does poorly.
+If it _is_ being mounted as ext2 sometimes and ext3 other times, it
+would be informative to get the dmesg output, because it will tell
+you why it couldn't load the journal.  Note that if there _is_ a
+journal in use, it would normally prevent the filesystem from being
+mounted as ext2 entirely after a crash.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,33 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316652AbSFFBTH>; Wed, 5 Jun 2002 21:19:07 -0400
+	id <S316659AbSFFBUH>; Wed, 5 Jun 2002 21:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316653AbSFFBTG>; Wed, 5 Jun 2002 21:19:06 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:6020 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316652AbSFFBTF>;
-	Wed, 5 Jun 2002 21:19:05 -0400
-Date: Thu, 6 Jun 2002 11:18:37 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre10-ac2
-Message-Id: <20020606111837.7984e3c1.sfr@canb.auug.org.au>
-In-Reply-To: <200206051804.g55I4mK19323@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316654AbSFFBUG>; Wed, 5 Jun 2002 21:20:06 -0400
+Received: from jaded.cynicism.com ([206.129.95.68]:51208 "HELO
+	jaded.cynicism.com") by vger.kernel.org with SMTP
+	id <S316653AbSFFBT7>; Wed, 5 Jun 2002 21:19:59 -0400
+Date: Wed, 5 Jun 2002 18:19:53 -0700 (PDT)
+From: Derek Vadala <derek@cynicism.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: Re: RAID-6 support in kernel?
+In-Reply-To: <Pine.LNX.3.96.1020604144204.5024D-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.GSO.4.21.0206051716530.16571-100000@gecko.roadtoad.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002 14:04:48 -0400 (EDT) Alan Cox <alan@redhat.com> wrote:
->
-> o	Fix idle-period bug in APM parser		(Stephen Rothwell)
+On Tue, 4 Jun 2002, Bill Davidsen wrote:
 
-Actually by Laurent Latil <laurent@latil.nom.fr>, I just sent
-the patch on.
+> On Sun, 2 Jun 2002, Derek Vadala wrote:
+> 
+> > You can always fake this effect by combining two 8-disk RAID-5s into a
+> > RAID-0. It's not technically RAID-6, but can withstand a 2-disk failure,
+> > although not _any_ 2-disk failure.
+> 
+> I think (hope) you meant 1+5, which will stand any three disk failure, and
+> up to 1+N/2 if just the right drives fail. They never do, of course.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+I did mean RAID-0 combined with RAID-5. You can search for RAID-50 for
+more info. The configuration you describe (RAID-5s combined into a mirror)
+would have a disk overhead that is worse than RAID-10/RAID-0+1. For two
+5-disk RAID-5s combined into a RAID-1 you end up using six of your disks
+for parity and disk mirroring:
+
+  RAID-1 --------> RAID-5 (D0,D1,D2,D3,P0)
+              |--> RAID-5 (D0,D1,D2,D3,P0)
+   (four disks used for data, only one from each RAID-5 can fail)
+
+With RAID-10:
+
+  RAID-0 --------> RAID-1 (D0,D0)
+              |--> RAID-1 (D1,D1)
+              |--> RAID-1 (D2,D2)
+              |--> RAID-1 (D3,D3)
+              |--> RAID-1 (D4,D4)
+   (five disks used for data, one from each mirror can fail)
+
+With RAID-50:
+
+  RAID-0 --------> RAID-5 (D0,D2,D4,D6,P0)
+              |--> RAID-5 (D1,D3,D5,D7,P0)
+
+   (two disks wasted only one from each RAID-5 can fail)
+
+I believe that I/O performance would be similar for each
+configuration. I'll try to run some tests in the next few days.
+
+> I doubt it. Unless you run a system with heavy CPU demand there are lots
+> of cycles for this stuff. I run 0+1 several places and I don't see serious
+> CPU load. I would be very interested in RAID-6 in the kernel, but I have
+
+Mirroing doesnt hit the CPU nearly as much as RAID-5 does. I suspect
+RAID-6 would incur greater overhead because of its double parity blocks.
+But, there's no point in arguing about kernel RAID-6 without data to back
+it up.
+
+---
+Derek Vadala, derek@cynicism.com, http://www.cynicism.com/~derek
+

@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbTDBVLS>; Wed, 2 Apr 2003 16:11:18 -0500
+	id <S263036AbTDBVRb>; Wed, 2 Apr 2003 16:17:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbTDBVLS>; Wed, 2 Apr 2003 16:11:18 -0500
-Received: from main.gmane.org ([80.91.224.249]:55695 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S263155AbTDBVLR>;
-	Wed, 2 Apr 2003 16:11:17 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Dennis Cook" <cook@sandgate.com>
-Subject: Re: Deactivating TCP checksumming
-Date: Wed, 2 Apr 2003 16:22:40 -0500
-Organization: Sandgate Technologies
-Message-ID: <b6fkaf$t7p$1@main.gmane.org>
-References: <F91mkXMUIhAumscmKC00000f517@hotmail.com> <20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org> <20030402203653.GA2503@gtf.org> <b6fi8m$j4g$1@main.gmane.org> <Pine.LNX.4.53.0304021555160.32710@chaos>
-X-Complaints-To: usenet@main.gmane.org
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Cc: kernelnewbies@nl.linux.org
+	id <S263042AbTDBVRa>; Wed, 2 Apr 2003 16:17:30 -0500
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:20972 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id <S263036AbTDBVR3>;
+	Wed, 2 Apr 2003 16:17:29 -0500
+Date: Wed, 2 Apr 2003 23:36:29 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Antonio Vargas <wind@cocodriloo.com>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>
+Subject: Re: fairsched + O(1) process scheduler
+Message-ID: <20030402213629.GB13168@wind.cocodriloo.com>
+References: <20030401125159.GA8005@wind.cocodriloo.com> <20030401164126.GA993@holomorphy.com> <20030401221927.GA8904@wind.cocodriloo.com> <20030402124643.GA13168@wind.cocodriloo.com> <20030402163512.GC993@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030402163512.GC993@holomorphy.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re: Windows support of checksum offloading (not kidding).
+On Wed, Apr 02, 2003 at 08:35:12AM -0800, William Lee Irwin III wrote:
+> On Wed, Apr 02, 2003 at 02:46:43PM +0200, Antonio Vargas wrote:
+> +static inline void update_user_timeslices(void)
+> ...
+> +	list_for_each(entry, &user_list) {
+> +		user = list_entry(entry, struct user_struct, uid_list);
+> +
+> +		if(!user) continue;
+> +
+> +		if(0){
+> +			user_time_slice = user->time_slice;
+> 
+> Hmm, this looks very O(n)... BTW, doesn't uidhash_lock lock user_list?
+> 
+> 
+> On Wed, Apr 02, 2003 at 02:46:43PM +0200, Antonio Vargas wrote:
+> > @@ -39,10 +42,12 @@ struct user_struct root_user = {
+> >  static inline void uid_hash_insert(struct user_struct *up, struct list_head *hashent)
+> >  {
+> >  	list_add(&up->uidhash_list, hashent);
+> > +	list_add(&up->uid_list, &user_list);
+> >  }
+> 
+> Okay, there are three or four problems:
+> 
+> (1) uidhash_lock can't be taken in interrupt context
+> (2) you aren't taking uidhash_lock at all in update_user_timeslices()
+> (3) you're not actually handing out user timeslices due to an if (0)
+> (4) walking user_list is O(n)
 
-Following from Windows DDK
+Yes I know there are problems, I'm just trying to make it run compile and run :)
 
-===============================================
+I've been thinking about this thing a while ago, and I think I could do this:
 
-To achieve a significant performance boost, the Microsoft TCP/IP transport
-can offload one or more of the following tasks to a NIC that has the
-appropriate task-offload capabilities:
+a. Have a kernel thread which wakes up on each tick.
 
-  a.. Checksum tasks
-  The TCP/IP transport can offload the calculation and/or validation of IP
-and/or TCP checksums. The initial release of Windows® 2000 does not support
-UDP checksum offloads; however, future service packs and update releases of
-Windows 2000 and later versions may support UDP checksum offloads.
+b. The thread just takes the first user_truct from the list, adds one tick to his
+   timeslice and sends it to the back. This makes the thread giveone
+   tick to each user in turn and slowly, instead of trying to give all ticks
+   at the same time.
 
+Now, I don't know too much about the locking rules, but I think I could
+send a signal, semaphore o spinlock which wakes the thread from the
+scheduler_tick(), and the thread could take the uidhash_lock for the update.
 
-===============================================
+Also, this locking rule means I can't even read current->user->time_slice?
+What if I changed the type to an atomic_int?
 
-Win2K SP3 and WinXP both indicate to my driver that TCP and IP checksums are
-being offloaded
-on packets to be sent provided the driver advertises that the associated HW
-is capable of computing
-the checksums. I haven't established that the SW transport stack actually
-skips computing the checksums.
-
-"Richard B. Johnson" <root@chaos.analogic.com> wrote in message
-news:Pine.LNX.4.53.0304021555160.32710@chaos...
-> On Wed, 2 Apr 2003, Dennis Cook wrote:
->
-> > What I was looking for is a general capability to keep the SW transport
-> > stack from
-> > computing outgoing TCP/UDP/IP checksums so that the HW can be allowed to
-do
-> > it,
-> > similar to Windows checksum offload capability.
-> REALLY? Who are you kidding. Windows has no such capability.
->
-> Check \WINDOWS\SYSTEM32\DRIVERS\ETC\* and see who they stole
-> the TCP/IP stack from!
->
-> Further, when you perform normal user->TCP/IP operations, you
-> get checksumming for free as part of the copy operation. It's
-> only when you don't even copy data that you can get any advantage
-> of not checksumming. That's why sendfile disables it.
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-> Why is the government concerned about the lunatic fringe? Think about it.
->
-
-
-
+Greets, Antonio.

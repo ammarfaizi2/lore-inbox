@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268737AbUIGWzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268758AbUIGW4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268737AbUIGWzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268752AbUIGWzP
+	id S268758AbUIGW4k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 18:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268752AbUIGWze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:55:15 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:51906
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268737AbUIGWyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:54:32 -0400
-Date: Tue, 7 Sep 2004 15:51:48 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Thor Kooda <tkooda-patch-kernel@devsec.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.8.1 crypto: tea.c xtea_encrypt should use
- XTEA_DELTA
-Message-Id: <20040907155148.080dbca6.davem@davemloft.net>
-In-Reply-To: <20040907222622.GA15730@rock>
-References: <20040903223458.GD18362@rock>
-	<20040907134141.6c634f26.davem@davemloft.net>
-	<20040907222622.GA15730@rock>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 7 Sep 2004 18:55:34 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:19122 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268751AbUIGWzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 18:55:12 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org, rncbc@rnbnc.org
+In-Reply-To: <20040905140249.GA23502@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040904195141.GA6208@elte.hu>  <20040905140249.GA23502@elte.hu>
+Content-Type: text/plain
+Message-Id: <1094597710.16954.207.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 07 Sep 2004 18:55:10 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Sep 2004 17:26:22 -0500
-Thor Kooda <tkooda-patch-kernel@devsec.org> wrote:
+On Sun, 2004-09-05 at 10:02, Ingo Molnar wrote:
+> i've released -R5:
+>  
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk12-R5
 
-> On Tue, 07 Sep 2004, David S. Miller wrote:
-> > Thor, your patches do not apply because your email
-> > client turns tab characters into spaces, please fix
-> > this up.
-> 
-> Fixed.
+Ingo, here is a report from a user (Rui) of a problem that seems to have
+been introduced in Q5.  The symptoms look very similar to the SMP/HT
+problems that were thought to be fixed.  I have already requested more
+info as to what happens if soft/hardirq preemption are enabled.
 
-Thank you, both 2.4.x and 2.6.x patches applied
+---
+
+I'm having some trouble with latest VP patches on my P4 HT/SMP box. The
+trouble is that since Q5 that I can't get my machine to boot reliably,
+if at all. It goes almost all through the init scripts to drop dead on
+the beach, so to speak. It just freezes completely somewhere before the
+login prompts.
+
+This only happens if the kernel is configured for SMP/SMT
+(HyperThreading). The very same kernel configured and built for UP boots
+and runs fine. As I said before this was introduced on the Q5 patch, and
+the same showstopper is present on latest R6. Only with Q3 I'm still
+happy, altought only with softirq-preempt=0 AND hardirq-preempt=0.
+
+The "offending" box is a SUSE 9.1 based one, P4 2.80C HT on a ASUS
+P4P800 mobo, 1GB DDR.
+
+---
+
+Lee
+

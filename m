@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUHPLCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUHPLDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbUHPLCT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 07:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267528AbUHPLCT
+	id S267528AbUHPLDi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 07:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHPLDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 07:02:19 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:23233 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267522AbUHPLCQ (ORCPT
+	Mon, 16 Aug 2004 07:03:38 -0400
+Received: from mail.gmx.de ([213.165.64.20]:57325 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267528AbUHPLDW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 07:02:16 -0400
-Date: Mon, 16 Aug 2004 12:02:15 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: your mail
-In-Reply-To: <20040816113848.A9683@infradead.org>
-Message-ID: <Pine.LNX.4.58.0408161142490.21177@skynet>
-References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org>
- <Pine.LNX.4.58.0408160038320.9944@skynet> <20040816101732.A9150@infradead.org>
- <Pine.LNX.4.58.0408161019040.21177@skynet> <20040816105014.A9367@infradead.org>
- <Pine.LNX.4.58.0408161101050.21177@skynet> <20040816113848.A9683@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 07:03:22 -0400
+X-Authenticated: #4399952
+Date: Mon, 16 Aug 2004 13:13:59 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
+Message-Id: <20040816131359.1107bd69@mango.fruits.de>
+In-Reply-To: <20040816040515.GA13665@elte.hu>
+References: <20040815115649.GA26259@elte.hu>
+	<20040816022554.16c3c84a@mango.fruits.de>
+	<1092622121.867.109.camel@krustophenia.net>
+	<20040816023655.GA8746@elte.hu>
+	<1092624221.867.118.camel@krustophenia.net>
+	<20040816032806.GA11750@elte.hu>
+	<20040816033623.GA12157@elte.hu>
+	<1092627691.867.150.camel@krustophenia.net>
+	<20040816034618.GA13063@elte.hu>
+	<1092628493.810.3.camel@krustophenia.net>
+	<20040816040515.GA13665@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Aug 2004 06:05:15 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
->
-> 3) stop making broken changes.
+> 
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > Anyway, the change to sched.c fixes the mlockall bug, it works
+> > perfectly now.  Thanks!
+> 
+> great! This fix also means that we've got one more lock-break in the
+> ext3 journalling code and one more lock-break in dcache.c. I've
+> released-P1 with the fix included:
+> 
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P1
 
-The current system is broken in way more subtle ways...
+Hi,
 
-> 	You do stop fb from beeing loaded after drm
-> and thus break perfectly working setups during stable series.  And you
+cool, i can mlockall_test 500000  without an xrun in jackd! :) 
 
-I doubt anyone has a system that does it and they should have a broken one
-if they do it.. drm has also said you should load fb before it.. and
-having both fb and drm loaded on the same hardware is a hack anyways..
+But it seems that this wasn't the only thing causing an xrun on jackd
+client startup. I will try to take another look at the jackd source..
 
-> introduce indeterministic behaviour, and although I haven't looked at the
-> code because unlike every guideline tells you you didn't post it to do the
-> list, probably horribly broken code.
-
-I just did post it, it's been in the DRM CVS tree for 3-6 mths now, it's
-been in -mm for 1.5 mths, I've followed what Andrew and Linus told me to
-do to get the DRM maintained... the link I posted in the last mail to the
-broken out patch in the -mm tree, the only file to change is really
-drm_drv.h and some bits in drm_stub.h... the current code is we have
-discovered horribly broken in a lot of cases.. I've gotten nothing back to
-say this code is any worse....
-
-> If you want pci_driver semantics - and apparently you do - move fbdev
-> and drm into a common driver or introduce a stub.  This was discussed to
-> death and all kinds of list and Kernel Summit and now please follow what
-> was agreed on instead of introducing subtile hacks.
-
-Yes and that is the final goal but you are dodging the point we cannot
-jump to a fully finished state in one simple transition, it is great to
-hear "fbdrv/drm into a common driver" it's a simple sentence surely coding
-it must be simple, well its not and we are taking the route that should
-affect the least people, I'm majorly involved in the discussion and I was
-the one to agree to carry out the maintenance paths between DRM and LK,
-this code is needed for us to move forward with the merged drivers - if
-Linus/Andrew decide not to merge it I'll go back to the DRM team and it'll
-be reworked until they do accept it, but we have to stop the fb from
-loading after the DRM at some stage and it may as well be earlier.. (if
-2.7 was going to happen I'd wait but kernel development seems to be
-changing...)
-
-You seem to want us to go down the finished unmergeable mega-patch road
-to avoid breaking something that is broken and might work, the benefits
-don't outweight the costs.. so it makes no sense..
-
-Again if Linus/Andrew bounce this we will have to rework it but something
-like this has to go in at some stage...
-
-Dave.
+flo
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Palimm Palimm!
+http://affenbande.org/~tapas/
 

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbTFIVMO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbTFIVMO
+	id S262037AbTFIVN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTFIVN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:12:14 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:45536 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262029AbTFIVMN (ORCPT
+	Mon, 9 Jun 2003 17:13:56 -0400
+Received: from smtp.terra.es ([213.4.129.129]:64659 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S262037AbTFIVNz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:12:13 -0400
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Therien, Guy" <guy.therien@intel.com>
-Subject: RE: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-Date: Mon, 9 Jun 2003 14:21:03 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 9 Jun 2003 17:13:55 -0400
+Date: Mon, 9 Jun 2003 23:20:01 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-mm6
+Message-Id: <20030609232001.3980cb7a.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
+References: <20030607151440.6982d8c6.akpm@digeo.com>
+	<Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br] 
-> > > Any chance to get patch against latest -rc7 ?
-> >
-> > It's big, and deemed too risky. We are shooting for 2.4.22-pre1.
-> 
-> Just had a few thoughts about that and I want to have a fast 2.4.22
-> release (maximum two months). 2.4.21's development time was 
-> unnaceptable.
-> 
-> Lets do the ACPI merge in 2.4.23.
+On Mon, 9 Jun 2003 19:45:58 +0200 (CEST)
+Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
 
-I wouldn't have a problem with this, except that you've been deferring
-the ACPI merge for over a year. We've been maintaining this patch
-outside the mainline tree for EIGHTEEN MONTHS. Please stop leading me
-along. Will you EVER merge it?
+> The interactivity seems to have dropped. Again, with common desktop
+> applications: xmms playing with ALSA, when choosing navigating through
+> evolution options or browsing with opera, music skipps.
+> X is running with nice -10, but with mm5 it ran smoothly.
 
-I am confident it will merge cleanly.
-I am confident it will cause no problems when CONFIG_ACPI=off.
-I am confident the total number of working machines will go up.
-I am willing to bet $500 of MY OWN MONEY on this.
+Under "heavy" disk usage (when sylpheed finish merging the lkml
+messages in the 92M lkml mail folder) X pointer stops moving 
+(say, 1/8 or 1/6 seconds, very noticeable, pointer stops, windows stop
+redrawing, etc).
 
-Talk to me, man. What would make you happy? A lot is riding on this.
+System is a dual p3 800; fs is ext3. This odd behaviour
+seems to happen since the 2.5.69-mm9 ext3 locking changes.
+(well i started testing 2.5.70-mm3 because i'm timid,
+but never happened before in mm or mainline)
 
-Regards -- Andy
+Sorry that i can't provide really useful information now ;(

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbTLAO0t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 09:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbTLAO0t
+	id S263513AbTLAOkp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 09:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTLAOkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 09:26:49 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:4214 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263711AbTLAO0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 09:26:48 -0500
-Date: Mon, 1 Dec 2003 11:24:28 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: hadmut@danisch.de
+	Mon, 1 Dec 2003 09:40:45 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38142 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263513AbTLAOkn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 09:40:43 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: mikpolniak <mikpolniak@adelphia.net>
+Subject: Re: vt8235 ide0: Speed warnings UDMA 3/4/5 is not functional
+Date: Mon, 1 Dec 2003 15:42:07 +0100
+User-Agent: KMail/1.5.4
+References: <pan.2003.12.01.14.12.20.713784@adelphia.net>
+In-Reply-To: <pan.2003.12.01.14.12.20.713784@adelphia.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Partitions on a loopback block device?
-Message-Id: <20031201112428.3e92ce2c.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <20031201124034.GA32127@danisch.de>
-References: <20031201124034.GA32127@danisch.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312011542.07130.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Dec 2003 13:40:34 +0100, hadmut@danisch.de wrote:
->Would it be possible to have a loopback blockdevice recognize
->partition tables and to provide partitions as any other block device?
+
+Do you use 80-wires cable?
+If yes, please send full dmesg and output of 'hdparm -I /dev/hda'.
+
+--bart
+
+On Monday 01 of December 2003 15:12, mikpolniak wrote:
+> I have a new Shuttle MK40VN motherboard with VIA KM400 and VT8235. I have
+> tried kernel 2.6.0-test11 and 2.4.23 and only can get UDMA2 working on my
+> hard drive.
 >
->Obviously, naming is not very elegant, but /dev/loopa0 would be a nice
->analogon to /dev/hda0 and /dev/sda0
-
-Hi,
-
-try this patch.
-
-ftp://ftp.hq.nasa.gov/pub/ig/ccd/enhanced_loopback/patches
-
+> If i try hdparm -X69 -d 1 /dev/hda i get the speed warnings:
 >
->regards
->Hadmut
+> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: IDE controller at PCI slot 0000:00:11.1
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+>     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+>  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 p10 p11 p12
+> > ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX
+> as device
+> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+> Linux video capture interface: v1.00
+> ide0: Speed warnings UDMA 3/4/5 is not functional.
+> ide0: Speed warnings UDMA 3/4/5 is not functional.
+> ide0: Speed warnings UDMA 3/4/5 is not functional.
 
-chau,
- djgera
-
-
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

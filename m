@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263975AbRFENeb>; Tue, 5 Jun 2001 09:34:31 -0400
+	id <S263978AbRFENll>; Tue, 5 Jun 2001 09:41:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263976AbRFENeV>; Tue, 5 Jun 2001 09:34:21 -0400
-Received: from [217.6.75.12] ([217.6.75.12]:5618 "EHLO ftp.prs.de")
-	by vger.kernel.org with ESMTP id <S263975AbRFENeS>;
-	Tue, 5 Jun 2001 09:34:18 -0400
-Message-ID: <3B1CE135.2D82A977@prs.de>
-Date: Tue, 05 Jun 2001 15:40:05 +0200
-From: Till Immanuel Patzschke <tip@prs.de>
-Reply-To: tip@prs.de
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: lots of pppd (down) stall SMP linux-2.4.x
+	id <S263979AbRFENlb>; Tue, 5 Jun 2001 09:41:31 -0400
+Received: from homebase.cluenet.de ([195.247.6.184]:24581 "HELO
+	homebase.cluenet.de") by vger.kernel.org with SMTP
+	id <S263978AbRFENl2>; Tue, 5 Jun 2001 09:41:28 -0400
+Date: Tue, 5 Jun 2001 15:41:25 +0200
+From: Daniel Roesen <dr@bofh.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: TRG vger.timpanogas.org hacked
+Message-ID: <20010605154125.B27733@homebase.cluenet.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010604183642.A855@vger.timpanogas.org> <9filhp$hj$1@forge.intermeta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9filhp$hj$1@forge.intermeta.de>; from mailgate@hometree.net on Tue, Jun 05, 2001 at 01:07:05PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Tue, Jun 05, 2001 at 01:07:05PM +0000, Henning P. Schmiedehausen wrote:
+> Connected to vger.timpanogas.com.
+> Escape character is '^]'.
+> SSH-1.5-1.2.27
+> 
+> Well known exploits downloadable at any of the better hacking sites.
 
-I have a pretty nasty problem w/ pppd (2.4.0) on SMP versions of 2.4.x (I've
-tried 2.4.0.SuSE to 2.4.4).
-I am running >25 pppds on a Dual-Pentium933, 3GB, Asus CUR-DLS motherboard
-(ServerWorks SE). The pppds are running fine (I am using pppoe plugin from
-Michael Ostrowski, and/or a user process doing the PPPoE). BUT once I try to
-bring the ppds down to fast (killall is a perfect way) the system stalls, i.e.
-no Oops, no login etc. however, switching consoles via keyboard works, ping'ing
-the IP from the net still works. None of the log files hold any useful
-information...
-If I bring the pppds down using a slow loop (one kill per second or slower) the
-machine does NOT stall.
-I'v tried many different SMP related patches from this list (ppp_async, tty) but
-none of them helped on my problem.
-And - of course - the problem does NOT exist on the same box using the same
-kernel base w/o SMP support!!!
+This _may_ be misleading. I had several boxes where I patched ssh 1.2.27
+as a short-term solution. 
 
-Any help is very much appreciated!
-Thanks
-
-Immanuel
-
---
-Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
-interNetwork AG                         Phone:  +49-(0)611-1731-121
-Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
-D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
+Anyway, we're getting OT :-)
 
 
-
-
+Regards,
+Daniel
 

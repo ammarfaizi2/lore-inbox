@@ -1,757 +1,237 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbUCCEdy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 23:33:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbUCCEdb
+	id S262380AbUCCEh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 23:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUCCEfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 23:33:31 -0500
-Received: from mail.kroah.org ([65.200.24.183]:38274 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262366AbUCCEWC convert rfc822-to-8bit
+	Tue, 2 Mar 2004 23:35:34 -0500
+Received: from mail.kroah.org ([65.200.24.183]:39810 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262370AbUCCEWF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 23:22:02 -0500
-Subject: Re: [PATCH] Driver Core update for 2.6.4-rc1
-In-Reply-To: <10782873981292@kroah.com>
+	Tue, 2 Mar 2004 23:22:05 -0500
+Subject: [PATCH] PCI Hotplug fixes for 2.6.4-rc1
+In-Reply-To: <20040303042034.GA17156@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 2 Mar 2004 20:16:38 -0800
-Message-Id: <10782873983662@kroah.com>
+Date: Tue, 2 Mar 2004 20:21:45 -0800
+Message-Id: <10782877051959@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1612.17.6, 2004/02/27 11:40:48-08:00, masbock@us.ibm.com
+ChangeSet 1.1621, 2004/03/01 09:48:14-08:00, torben.mathiasen@hp.com
 
-[PATCH] Driver for IBM service processor - updated (2/2)
+[PATCH] PCI Hotplug: Patch to get cpqphp working with IOAPIC
 
-Here is the filesystem part for the IBM RSA service processor device driver
+On Fri, Feb 13 2004, Sy, Dely L wrote:
+> Since filling out the INTERRUPT_LINE is needed for systems running
+> with legacy irqs and not needed for systems running with IO-APIC.  The
+
+> possible
+> solutions:
+> 1) Best is there is a run-time check (a flag or an API call) that tells
+>    whether the system is running on legacy mode or IO-APIC mode. Is there
+>    such check that you know of?
+
+Dan suggested that we look at what IRQ the hotplug controller has been
+assigned in the MPS table. If its < 0x10 we're in legacy/mapped mode.
+That would probaly work
+
+> > >
+> > > Do those servers work on 2.6.2 without my patch?
+> > >
+>
+> > Yes
+>
+> They work but they get dev->irq = 9 or 11 in the APIC enabled mode.
+> Correct?
+>
+
+Yes. All hot-added adapters get legacy IRQs like IRQ5 in the example
+below where eth2 was added after bootup:
 
 
- drivers/misc/ibmasm/ibmasmfs.c |  717 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 717 insertions(+)
+linux:~ # cat /proc/interrupts
+           CPU0       CPU1       CPU2       CPU3
+0:     831113          0          0          0    IO-APIC-edge  timer
+1:        255          0          0          0    IO-APIC-edge  i8042
+2:          0          0          0          0          XT-PIC  cascade
+5:          0          0          0          0          XT-PIC  eth2
+8:          2          0          0          0    IO-APIC-edge  rtc
+12:         92          0          0          0   IO-APIC-edge  i8042
+14:         29          0          0          0   IO-APIC-edge  ide0
+20:          0          0          0          0   IO-APIC-level cciss0
+21:          0          0          0          0   IO-APIC-level cciss1
+29:        107          0          0          0   IO-APIC-level eth0
+30:       7702          0          0          0   IO-APIC-level aic7xxx
+31:         30          0          0          0   IO-APIC-level aic7xxx
+34:        336          0          0          0   IO-APIC-level
+cpqphp.o, cpqphp.o
+NMI:          0          0          0          0
+LOC:     830760     830893     830892     830891
+ERR:          0
+MIS:          0
+
+I attached a patch that does the legacy mode check that Dan suggested
+and IRQs for hot-added adapters seems to be given out in the APIC range.
 
 
-diff -Nru a/drivers/misc/ibmasm/ibmasmfs.c b/drivers/misc/ibmasm/ibmasmfs.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/misc/ibmasm/ibmasmfs.c	Tue Mar  2 19:49:32 2004
-@@ -0,0 +1,717 @@
-+/*
-+ * IBM ASM Service Processor Device Driver
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2004
-+ *
-+ * Author: Max Asböck <amax@us.ibm.com> 
-+ *
-+ */
-+
-+/*
-+ * Parts of this code are based on an article by Jonathan Corbet 
-+ * that appeared in Linux Weekly News.
-+ */
-+
-+
-+/*
-+ * The IBMASM file virtual filesystem. It creates the following hierarchy
-+ * dymamically when mounted from user space:
-+ *
-+ *    /ibmasm
-+ *    |-- 0
-+ *    |   |-- command
-+ *    |   |-- event
-+ *    |   |-- reverse_heartbeat
-+ *    |   `-- remote_video
-+ *    |       |-- connected
-+ *    |       |-- depth
-+ *    |       |-- events
-+ *    |       |-- height
-+ *    |       `-- width
-+ *    .
-+ *    .
-+ *    .
-+ *    `-- n
-+ *        |-- command
-+ *        |-- event
-+ *        |-- reverse_heartbeat
-+ *        `-- remote_video
-+ *            |-- connected
-+ *            |-- depth
-+ *            |-- events
-+ *            |-- height
-+ *            `-- width
-+ *
-+ * For each service processor the following files are created:
-+ *
-+ * command: execute dot commands
-+ * 	write: execute a dot command on the service processor
-+ * 	read: return the result of a previously executed dot command
-+ *
-+ * events: listen for service processor events
-+ * 	read: sleep (interruptible) until an event occurs
-+ *      write: wakeup sleeping event listener
-+ *
-+ * reverse_heartbeat: send a heartbeat to the service processor
-+ * 	read: sleep (interruptible) until the reverse heartbeat fails
-+ *      write: wakeup sleeping heartbeat listener
-+ *
-+ * remote_video/width
-+ * remote_video/height
-+ * remote_video/width: control remote display settings
-+ * 	write: set value
-+ * 	read: read value
-+ *
-+ * remote_video/connected
-+ * 	read: return "1" if web browser VNC java applet is connected, 
-+ * 		"0" otherwise
-+ *
-+ * remote_video/events
-+ * 	read: sleep until a remote mouse or keyboard event occurs, then return
-+ * 		then event.
-+ */
-+
-+#include <linux/fs.h>
-+#include <linux/pagemap.h>
-+#include <asm/uaccess.h>
-+#include <asm/io.h>
-+#include "ibmasm.h"
-+#include "remote.h"
-+#include "dot_command.h"
-+
-+#define IBMASMFS_MAGIC 0x66726f67
-+
-+static LIST_HEAD(service_processors);
-+
-+static struct inode *ibmasmfs_make_inode(struct super_block *sb, int mode);
-+static void ibmasmfs_create_files (struct super_block *sb, struct dentry *root);
-+static int ibmasmfs_fill_super (struct super_block *sb, void *data, int silent);
-+
-+
-+static struct super_block *ibmasmfs_get_super(struct file_system_type *fst,
-+			int flags, const char *name, void *data)
-+{
-+	return get_sb_single(fst, flags, data, ibmasmfs_fill_super);
-+}
-+
-+static struct super_operations ibmasmfs_s_ops = {
-+	.statfs		= simple_statfs,
-+	.drop_inode	= generic_delete_inode,
-+};
-+
-+static struct file_operations *ibmasmfs_dir_ops = &simple_dir_operations;
-+
-+static struct file_system_type ibmasmfs_type = {
-+	.owner          = THIS_MODULE,
-+	.name           = "ibmasmfs",
-+	.get_sb         = ibmasmfs_get_super,
-+	.kill_sb        = kill_litter_super,
-+};
-+
-+static int ibmasmfs_fill_super (struct super_block *sb, void *data, int silent)
-+{
-+	struct inode *root;
-+	struct dentry *root_dentry;
-+
-+	sb->s_blocksize = PAGE_CACHE_SIZE;
-+	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
-+	sb->s_magic = IBMASMFS_MAGIC;
-+	sb->s_op = &ibmasmfs_s_ops;
-+
-+	root = ibmasmfs_make_inode (sb, S_IFDIR | 0500);
-+	if (!root)
-+		return -ENOMEM;
-+
-+	root->i_op = &simple_dir_inode_operations;
-+	root->i_fop = ibmasmfs_dir_ops;
-+
-+	root_dentry = d_alloc_root(root);
-+	if (!root_dentry) {
-+		iput(root);
-+		return -ENOMEM;
+ drivers/pci/hotplug/cpqphp.h      |    1 
+ drivers/pci/hotplug/cpqphp_core.c |    5 ++++
+ drivers/pci/hotplug/cpqphp_ctrl.c |   47 +++++++++++++++++++-------------------
+ drivers/pci/hotplug/cpqphp_pci.c  |   36 ++++++++++++++---------------
+ 4 files changed, 48 insertions(+), 41 deletions(-)
+
+
+diff -Nru a/drivers/pci/hotplug/cpqphp.h b/drivers/pci/hotplug/cpqphp.h
+--- a/drivers/pci/hotplug/cpqphp.h	Tue Mar  2 19:43:03 2004
++++ b/drivers/pci/hotplug/cpqphp.h	Tue Mar  2 19:43:03 2004
+@@ -444,6 +444,7 @@
+ 
+ /* Global variables */
+ extern int cpqhp_debug;
++extern int cpqhp_legacy_mode;
+ extern struct controller *cpqhp_ctrl_list;
+ extern struct pci_func *cpqhp_slot_list[256];
+ 
+diff -Nru a/drivers/pci/hotplug/cpqphp_core.c b/drivers/pci/hotplug/cpqphp_core.c
+--- a/drivers/pci/hotplug/cpqphp_core.c	Tue Mar  2 19:43:03 2004
++++ b/drivers/pci/hotplug/cpqphp_core.c	Tue Mar  2 19:43:03 2004
+@@ -49,6 +49,7 @@
+ 
+ /* Global variables */
+ int cpqhp_debug;
++int cpqhp_legacy_mode;
+ struct controller *cpqhp_ctrl_list;	/* = NULL */
+ struct pci_func *cpqhp_slot_list[256];
+ 
+@@ -1169,6 +1170,10 @@
+ 	 */
+ 	// The next line is required for cpqhp_find_available_resources
+ 	ctrl->interrupt = pdev->irq;
++	if (ctrl->interrupt < 0x10) {
++		cpqhp_legacy_mode = 1;
++		dbg("System seems to be configured for Full Table Mapped MPS mode\n");
 +	}
-+	sb->s_root = root_dentry;
+ 
+ 	ctrl->cfgspc_irq = 0;
+ 	pci_read_config_byte(pdev, PCI_INTERRUPT_LINE, &ctrl->cfgspc_irq);
+diff -Nru a/drivers/pci/hotplug/cpqphp_ctrl.c b/drivers/pci/hotplug/cpqphp_ctrl.c
+--- a/drivers/pci/hotplug/cpqphp_ctrl.c	Tue Mar  2 19:43:03 2004
++++ b/drivers/pci/hotplug/cpqphp_ctrl.c	Tue Mar  2 19:43:03 2004
+@@ -3020,33 +3020,34 @@
+ 				}
+ 			}
+ 		}		// End of base register loop
++		if (cpqhp_legacy_mode) {
++			// Figure out which interrupt pin this function uses
++			rc = pci_bus_read_config_byte (pci_bus, devfn, 
++				PCI_INTERRUPT_PIN, &temp_byte);
+ 
+-#if !defined(CONFIG_X86_IO_APIC)
+-		// Figure out which interrupt pin this function uses
+-		rc = pci_bus_read_config_byte (pci_bus, devfn, PCI_INTERRUPT_PIN, &temp_byte);
+-
+-		// If this function needs an interrupt and we are behind a bridge
+-		// and the pin is tied to something that's alread mapped,
+-		// set this one the same
+-		if (temp_byte && resources->irqs && 
+-		    (resources->irqs->valid_INT & 
+-		     (0x01 << ((temp_byte + resources->irqs->barber_pole - 1) & 0x03)))) {
+-			// We have to share with something already set up
+-			IRQ = resources->irqs->interrupt[(temp_byte + resources->irqs->barber_pole - 1) & 0x03];
+-		} else {
+-			// Program IRQ based on card type
+-			rc = pci_bus_read_config_byte (pci_bus, devfn, 0x0B, &class_code);
+-
+-			if (class_code == PCI_BASE_CLASS_STORAGE) {
+-				IRQ = cpqhp_disk_irq;
++			// If this function needs an interrupt and we are behind a bridge
++			// and the pin is tied to something that's alread mapped,
++			// set this one the same
++			if (temp_byte && resources->irqs && 
++			    (resources->irqs->valid_INT & 
++			     (0x01 << ((temp_byte + resources->irqs->barber_pole - 1) & 0x03)))) {
++				// We have to share with something already set up
++				IRQ = resources->irqs->interrupt[(temp_byte + 
++					resources->irqs->barber_pole - 1) & 0x03];
+ 			} else {
+-				IRQ = cpqhp_nic_irq;
++				// Program IRQ based on card type
++				rc = pci_bus_read_config_byte (pci_bus, devfn, 0x0B, &class_code);
 +
-+	ibmasmfs_create_files(sb, root_dentry);
-+	return 0;
-+}
-+
-+static struct inode *ibmasmfs_make_inode(struct super_block *sb, int mode)
-+{
-+	struct inode *ret = new_inode(sb);
-+
-+	if (ret) {
-+		ret->i_mode = mode;
-+		ret->i_uid = ret->i_gid = 0;
-+		ret->i_blksize = PAGE_CACHE_SIZE;
-+		ret->i_blocks = 0;
-+		ret->i_atime = ret->i_mtime = ret->i_ctime = CURRENT_TIME;
++				if (class_code == PCI_BASE_CLASS_STORAGE) {
++					IRQ = cpqhp_disk_irq;
++				} else {
++					IRQ = cpqhp_nic_irq;
++				}
+ 			}
+-		}
+ 
+-		// IRQ Line
+-		rc = pci_bus_write_config_byte (pci_bus, devfn, PCI_INTERRUPT_LINE, IRQ);
+-#endif
++			// IRQ Line
++			rc = pci_bus_write_config_byte (pci_bus, devfn, PCI_INTERRUPT_LINE, IRQ);
++		}
+ 
+ 		if (!behind_bridge) {
+ 			rc = cpqhp_set_irq(func->bus, func->device, temp_byte + 0x09, IRQ);
+diff -Nru a/drivers/pci/hotplug/cpqphp_pci.c b/drivers/pci/hotplug/cpqphp_pci.c
+--- a/drivers/pci/hotplug/cpqphp_pci.c	Tue Mar  2 19:43:03 2004
++++ b/drivers/pci/hotplug/cpqphp_pci.c	Tue Mar  2 19:43:03 2004
+@@ -151,32 +151,32 @@
+  */
+ int cpqhp_set_irq (u8 bus_num, u8 dev_num, u8 int_pin, u8 irq_num)
+ {
+-#if !defined(CONFIG_X86_IO_APIC)	
+ 	int rc;
+ 	u16 temp_word;
+ 	struct pci_dev fakedev;
+ 	struct pci_bus fakebus;
+ 
+-	fakedev.devfn = dev_num << 3;
+-	fakedev.bus = &fakebus;
+-	fakebus.number = bus_num;
+-	dbg("%s: dev %d, bus %d, pin %d, num %d\n",
+-	    __FUNCTION__, dev_num, bus_num, int_pin, irq_num);
+-	rc = pcibios_set_irq_routing(&fakedev, int_pin - 0x0a, irq_num);
+-	dbg("%s: rc %d\n", __FUNCTION__, rc);
+-	if (!rc)
+-		return !rc;
++	if (cpqhp_legacy_mode) {
++		fakedev.devfn = dev_num << 3;
++		fakedev.bus = &fakebus;
++		fakebus.number = bus_num;
++		dbg("%s: dev %d, bus %d, pin %d, num %d\n",
++		    __FUNCTION__, dev_num, bus_num, int_pin, irq_num);
++		rc = pcibios_set_irq_routing(&fakedev, int_pin - 0x0a, irq_num);
++		dbg("%s: rc %d\n", __FUNCTION__, rc);
++		if (!rc)
++			return !rc;
+ 
+-	// set the Edge Level Control Register (ELCR)
+-	temp_word = inb(0x4d0);
+-	temp_word |= inb(0x4d1) << 8;
++		// set the Edge Level Control Register (ELCR)
++		temp_word = inb(0x4d0);
++		temp_word |= inb(0x4d1) << 8;
+ 
+-	temp_word |= 0x01 << irq_num;
++		temp_word |= 0x01 << irq_num;
+ 
+-	// This should only be for x86 as it sets the Edge Level Control Register
+-	outb((u8) (temp_word & 0xFF), 0x4d0);
+-	outb((u8) ((temp_word & 0xFF00) >> 8), 0x4d1);
+-#endif
++		// This should only be for x86 as it sets the Edge Level Control Register
++		outb((u8) (temp_word & 0xFF), 0x4d0);
++		outb((u8) ((temp_word & 0xFF00) >> 8), 0x4d1);
 +	}
-+	return ret;
-+}
-+
-+static struct dentry *ibmasmfs_create_file (struct super_block *sb,
-+			struct dentry *parent,
-+		       	const char *name,
-+			struct file_operations *fops,
-+			void *data,
-+			int mode)
-+{
-+	struct dentry *dentry;
-+	struct inode *inode;
-+	struct qstr qname;
-+
-+	qname.name = name;
-+	qname.len = strlen (name);
-+	qname.hash = full_name_hash(name, qname.len);
-+
-+	dentry = d_alloc(parent, &qname);
-+	if (!dentry)
-+		return NULL;
-+
-+	inode = ibmasmfs_make_inode(sb, S_IFREG | mode);
-+	if (!inode) {
-+		dput(dentry);
-+		return NULL;
-+	}
-+
-+	inode->i_fop = fops;
-+	inode->u.generic_ip = data;
-+
-+	d_add(dentry, inode);
-+	return dentry;
-+}
-+
-+static struct dentry *ibmasmfs_create_dir (struct super_block *sb,
-+				struct dentry *parent,
-+				const char *name)
-+{
-+	struct dentry *dentry;
-+	struct inode *inode;
-+	struct qstr qname;
-+
-+	qname.name = name;
-+	qname.len = strlen (name);
-+	qname.hash = full_name_hash(name, qname.len);
-+	dentry = d_alloc(parent, &qname);
-+	if (!dentry)
-+		return NULL;
-+
-+	inode = ibmasmfs_make_inode(sb, S_IFDIR | 0500);
-+	if (!inode) {
-+		dput(dentry);
-+		return NULL;
-+	}
-+
-+	inode->i_op = &simple_dir_inode_operations;
-+	inode->i_fop = ibmasmfs_dir_ops;
-+
-+	d_add(dentry, inode);
-+	return dentry;
-+}
-+
-+int ibmasmfs_register()
-+{
-+	return register_filesystem(&ibmasmfs_type);
-+}
-+
-+void ibmasmfs_unregister()
-+{
-+	unregister_filesystem(&ibmasmfs_type);
-+}
-+
-+void ibmasmfs_add_sp(struct service_processor *sp)
-+{
-+	list_add(&sp->node, &service_processors);
-+}
-+
-+/* struct to save state between command file operations */
-+struct ibmasmfs_command_data {
-+	struct service_processor	*sp;
-+	struct command			*command;
-+};
-+
-+/* struct to save state between event file operations */
-+struct ibmasmfs_event_data {
-+	struct service_processor	*sp;
-+	struct event_reader		reader;
-+	int				active;
-+};
-+
-+/* struct to save state between reverse heartbeat file operations */
-+struct ibmasmfs_heartbeat_data {
-+	struct service_processor	*sp;
-+	struct reverse_heartbeat	heartbeat;
-+	int				active;
-+};
-+
-+static int command_file_open(struct inode *inode, struct file *file)
-+{
-+	struct ibmasmfs_command_data *command_data;
-+
-+	if (!inode->u.generic_ip)
-+		return -ENODEV;
-+
-+	command_data = kmalloc(sizeof(struct ibmasmfs_command_data), GFP_KERNEL);
-+	if (!command_data)
-+		return -ENOMEM;
-+
-+	command_data->command = NULL;
-+	command_data->sp = inode->u.generic_ip;
-+	file->private_data = command_data;
-+	return 0;
-+}
-+
-+static int command_file_close(struct inode *inode, struct file *file)
-+{
-+	struct ibmasmfs_command_data *command_data = file->private_data;
-+
-+	if (command_data->command)
-+		command_put(command_data->command);	
-+
-+	kfree(command_data);
-+	return 0;
-+}
-+
-+static ssize_t command_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
-+{
-+	struct ibmasmfs_command_data *command_data = file->private_data;
-+	struct command *cmd;
-+	int len;
-+	unsigned long flags;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count == 0 || count > IBMASM_CMD_MAX_BUFFER_SIZE)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	spin_lock_irqsave(&command_data->sp->lock, flags);
-+	cmd = command_data->command;
-+	if (cmd == NULL) {
-+		spin_unlock_irqrestore(&command_data->sp->lock, flags);
-+		return 0;
-+	}
-+	command_data->command = NULL;
-+	spin_unlock_irqrestore(&command_data->sp->lock, flags);
-+
-+	if (cmd->status != IBMASM_CMD_COMPLETE) {
-+		command_put(cmd);
-+		return -EIO;
-+	}
-+	len = min(count, cmd->buffer_size);
-+	if (copy_to_user(buf, cmd->buffer, len)) {
-+		command_put(cmd);
-+		return -EFAULT;
-+	}
-+	command_put(cmd);
-+
-+	return len;
-+}
-+
-+static ssize_t command_file_write(struct file *file, const char *ubuff, size_t count, loff_t *offset)
-+{
-+	struct ibmasmfs_command_data *command_data = file->private_data;
-+	struct command *cmd;
-+	unsigned long flags;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count == 0 || count > IBMASM_CMD_MAX_BUFFER_SIZE)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	/* commands are executed sequentially, only one command at a time */
-+	if (command_data->command)
-+		return -EAGAIN;
-+
-+	cmd = ibmasm_new_command(count);
-+	if (!cmd)
-+		return -ENOMEM;
-+
-+	if (copy_from_user((void *)cmd->buffer, (void *)ubuff, count)) {
-+		command_put(cmd);
-+		return -EFAULT;
-+	}
-+
-+	spin_lock_irqsave(&command_data->sp->lock, flags);
-+	if (command_data->command) {
-+		spin_unlock_irqrestore(&command_data->sp->lock, flags);
-+		command_put(cmd);
-+		return -EAGAIN;
-+	}
-+	command_data->command = cmd;
-+	spin_unlock_irqrestore(&command_data->sp->lock, flags);
-+
-+	ibmasm_exec_command(command_data->sp, cmd);
-+	ibmasm_wait_for_response(cmd, get_dot_command_timeout(cmd->buffer));
-+
-+	return count;
-+}
-+
-+static int event_file_open(struct inode *inode, struct file *file)
-+{
-+	struct ibmasmfs_event_data *event_data;
-+	struct service_processor *sp; 
-+
-+	if (!inode->u.generic_ip)
-+		return -ENODEV;
-+
-+	sp = inode->u.generic_ip;
-+
-+	event_data = kmalloc(sizeof(struct ibmasmfs_event_data), GFP_KERNEL);
-+	if (!event_data)
-+		return -ENOMEM;
-+
-+	ibmasm_event_reader_register(sp, &event_data->reader);
-+
-+	event_data->sp = sp;
-+	file->private_data = event_data;
-+	return 0;
-+}
-+
-+static int event_file_close(struct inode *inode, struct file *file)
-+{
-+	struct ibmasmfs_event_data *event_data = file->private_data;
-+
-+	ibmasm_event_reader_unregister(event_data->sp, &event_data->reader);
-+	kfree(event_data);
-+	return 0;
-+}
-+
-+static ssize_t event_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
-+{
-+	struct ibmasmfs_event_data *event_data = file->private_data;
-+	struct event_reader *reader = &event_data->reader;
-+	int ret;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count == 0 || count > IBMASM_EVENT_MAX_SIZE)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	ret = ibmasm_get_next_event(event_data->sp, reader);
-+	if (ret <= 0)
-+		return ret;
-+
-+	if (count < reader->data_size)
-+		return -EINVAL;
-+
-+        if (copy_to_user(buf, reader->data, reader->data_size))
-+		return -EFAULT;
-+
-+	return reader->data_size;
-+}
-+
-+static ssize_t event_file_write(struct file *file, const char *buf, size_t count, loff_t *offset)
-+{
-+	struct ibmasmfs_event_data *event_data = file->private_data;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count != 1)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	wake_up_interruptible(&event_data->reader.wait);
-+	return 0;
-+}
-+
-+static int r_heartbeat_file_open(struct inode *inode, struct file *file)
-+{
-+	struct ibmasmfs_heartbeat_data *rhbeat;
-+
-+	if (!inode->u.generic_ip)
-+		return -ENODEV;
-+
-+	rhbeat = kmalloc(sizeof(struct ibmasmfs_heartbeat_data), GFP_KERNEL);
-+	if (!rhbeat)
-+		return -ENOMEM;
-+
-+	rhbeat->sp = (struct service_processor *)inode->u.generic_ip;
-+	rhbeat->active = 0;
-+	ibmasm_init_reverse_heartbeat(rhbeat->sp, &rhbeat->heartbeat);
-+	file->private_data = rhbeat;
-+	return 0;
-+}
-+
-+static int r_heartbeat_file_close(struct inode *inode, struct file *file)
-+{
-+	struct ibmasmfs_heartbeat_data *rhbeat = file->private_data;
-+
-+	kfree(rhbeat);
-+	return 0;
-+}
-+
-+static ssize_t r_heartbeat_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
-+{
-+	struct ibmasmfs_heartbeat_data *rhbeat = file->private_data;
-+	unsigned long flags;
-+	int result;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count == 0 || count > 1024)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	/* allow only one reverse heartbeat per process */
-+	spin_lock_irqsave(&rhbeat->sp->lock, flags);
-+	if (rhbeat->active) {
-+		spin_unlock_irqrestore(&rhbeat->sp->lock, flags);
-+		return -EBUSY;
-+	}
-+	rhbeat->active = 1;
-+	spin_unlock_irqrestore(&rhbeat->sp->lock, flags);
-+
-+	result = ibmasm_start_reverse_heartbeat(rhbeat->sp, &rhbeat->heartbeat);
-+	rhbeat->active = 0;
-+
-+	return result;
-+}
-+
-+static ssize_t r_heartbeat_file_write(struct file *file, const char *buf, size_t count, loff_t *offset)
-+{
-+	struct ibmasmfs_heartbeat_data *rhbeat = file->private_data;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count != 1)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	if (rhbeat->active)
-+		ibmasm_stop_reverse_heartbeat(&rhbeat->heartbeat);
-+
-+	return 1;
-+}
-+
-+static int remote_settings_file_open(struct inode *inode, struct file *file)
-+{
-+	file->private_data = inode->u.generic_ip;
-+	return 0;
-+}
-+
-+static int remote_settings_file_close(struct inode *inode, struct file *file)
-+{
-+	return 0;
-+}
-+
-+static ssize_t remote_settings_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
-+{
-+	unsigned long address = (unsigned long)file->private_data;
-+	unsigned char *page;
-+	int retval;
-+	int len = 0;
-+	unsigned int value;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count == 0 || count > 1024)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	page = (unsigned char *)__get_free_page(GFP_KERNEL);
-+	if (!page)
-+		return -ENOMEM;
-+
-+	value = readl(address);
-+	len = sprintf(page, "%d\n", value);
-+
-+	if (copy_to_user(buf, page, len)) {
-+		retval = -EFAULT;
-+		goto exit;
-+	}
-+	*offset += len;
-+	retval = len;
-+
-+exit:
-+	free_page((unsigned long)page);
-+	return retval;
-+}
-+
-+static ssize_t remote_settings_file_write(struct file *file, const char *ubuff, size_t count, loff_t *offset)
-+{
-+	unsigned long address = (unsigned long)file->private_data;
-+	char *buff;
-+	unsigned int value;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count == 0 || count > 1024)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	buff = kmalloc (count + 1, GFP_KERNEL);
-+	if (!buff)
-+		return -ENOMEM;
-+
-+	memset(buff, 0x0, count + 1);
-+
-+	if (copy_from_user((void *)buff, (void *)ubuff, count)) {
-+		kfree(buff);
-+		return -EFAULT;
-+	}
-+	
-+	value = simple_strtoul(buff, NULL, 10);
-+	writel(value, address);
-+	kfree(buff);
-+
-+	return count;
-+}
-+
-+static int remote_event_file_open(struct inode *inode, struct file *file)
-+{
-+	struct service_processor *sp;
-+	unsigned long flags;
-+	struct remote_queue *q;
-+	
-+	file->private_data = inode->u.generic_ip;
-+	sp = file->private_data;
-+	q = &sp->remote_queue;
-+
-+	/* allow only one event reader */
-+	spin_lock_irqsave(&sp->lock, flags);
-+	if (q->open) {
-+		spin_unlock_irqrestore(&sp->lock, flags);
-+		return -EBUSY;
-+	}
-+	q->open = 1;
-+	spin_unlock_irqrestore(&sp->lock, flags);
-+
-+	enable_mouse_interrupts(sp);
-+	
-+	return 0;
-+}
-+
-+static int remote_event_file_close(struct inode *inode, struct file *file)
-+{
-+	struct service_processor *sp = file->private_data;
-+
-+	disable_mouse_interrupts(sp);
-+	wake_up_interruptible(&sp->remote_queue.wait);
-+	sp->remote_queue.open = 0;
-+
-+	return 0;
-+}
-+
-+static ssize_t remote_event_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
-+{
-+	struct service_processor *sp = file->private_data;
-+	struct remote_queue *q = &sp->remote_queue;
-+	size_t data_size;
-+	struct remote_event *reader = q->reader;
-+	size_t num_events;
-+
-+	if (*offset < 0)
-+		return -EINVAL;
-+	if (count == 0 || count > 1024)
-+		return 0;
-+	if (*offset != 0)
-+		return 0;
-+
-+	if (wait_event_interruptible(q->wait, q->reader != q->writer))
-+		return -ERESTARTSYS;
-+
-+	/* only get multiples of struct remote_event */
-+	num_events = min((count/sizeof(struct remote_event)), ibmasm_events_available(q));
-+	if (!num_events)
-+		return 0;
-+
-+	data_size = num_events * sizeof(struct remote_event);
-+
-+	if (copy_to_user(buf, reader, data_size))
-+		return -EFAULT;
-+
-+	ibmasm_advance_reader(q, num_events);
-+
-+	return data_size;
-+}
-+
-+
-+static struct file_operations command_fops = {
-+	.open =		command_file_open,
-+	.release =	command_file_close,
-+	.read =		command_file_read,
-+	.write =	command_file_write,
-+};
-+
-+static struct file_operations event_fops = {
-+	.open =		event_file_open,
-+	.release =	event_file_close,
-+	.read =		event_file_read,
-+	.write 		event_file_write,
-+};
-+
-+static struct file_operations r_heartbeat_fops = {
-+	.open =		r_heartbeat_file_open,
-+	.release =	r_heartbeat_file_close,
-+	.read =		r_heartbeat_file_read,
-+	.write =	r_heartbeat_file_write,
-+};
-+
-+static struct file_operations remote_settings_fops = {
-+	.open =		remote_settings_file_open,
-+	.release =	remote_settings_file_close,
-+	.read =		remote_settings_file_read,
-+	.write =	remote_settings_file_write,
-+};
-+
-+static struct file_operations remote_event_fops = {
-+	.open =		remote_event_file_open,
-+	.release =	remote_event_file_close,
-+	.read =		remote_event_file_read,
-+};
-+
-+
-+static void ibmasmfs_create_files (struct super_block *sb, struct dentry *root)
-+{
-+	struct list_head *entry;
-+	struct service_processor *sp;
-+
-+	list_for_each(entry, &service_processors) {
-+		struct dentry *dir;
-+		struct dentry *remote_dir;
-+		sp = list_entry(entry, struct service_processor, node);
-+		dir = ibmasmfs_create_dir(sb, root, sp->dirname);
-+		if (!dir)
-+			continue;
-+
-+		ibmasmfs_create_file(sb, dir, "command", &command_fops, sp, S_IRUSR|S_IWUSR);
-+		ibmasmfs_create_file(sb, dir, "event", &event_fops, sp, S_IRUSR|S_IWUSR);
-+		ibmasmfs_create_file(sb, dir, "reverse_heartbeat", &r_heartbeat_fops, sp, S_IRUSR|S_IWUSR);
-+
-+		remote_dir = ibmasmfs_create_dir(sb, dir, "remote_video");
-+		if (!remote_dir)
-+			continue;
-+
-+		ibmasmfs_create_file(sb, remote_dir, "width", &remote_settings_fops, (void *)display_width(sp), S_IRUSR|S_IWUSR);
-+		ibmasmfs_create_file(sb, remote_dir, "height", &remote_settings_fops, (void *)display_height(sp), S_IRUSR|S_IWUSR);
-+		ibmasmfs_create_file(sb, remote_dir, "depth", &remote_settings_fops, (void *)display_depth(sp), S_IRUSR|S_IWUSR);
-+		ibmasmfs_create_file(sb, remote_dir, "connected", &remote_settings_fops, (void *)vnc_status(sp), S_IRUSR);
-+		ibmasmfs_create_file(sb, remote_dir, "events", &remote_event_fops, (void *)sp, S_IRUSR);
-+	}
-+}
+ 
+ 	return 0;
+ }
 

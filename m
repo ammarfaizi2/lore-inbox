@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267916AbUIGMGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267974AbUIGMIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267916AbUIGMGV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 08:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUIGMFy
+	id S267974AbUIGMIs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 08:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUIGMIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 08:05:54 -0400
-Received: from main.gmane.org ([80.91.224.249]:25218 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267930AbUIGMFo (ORCPT
+	Tue, 7 Sep 2004 08:08:47 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:59304 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S267958AbUIGMHr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 08:05:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: What is the maximum size in ramdisk_size boot parameter?
-Date: Tue, 07 Sep 2004 21:05:39 +0900
-Message-ID: <chk86k$smh$1@sea.gmane.org>
+	Tue, 7 Sep 2004 08:07:47 -0400
+Date: Tue, 7 Sep 2004 14:04:06 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Cc: Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
+Message-ID: <20040907120406.GA26972@wohnheim.fh-wedel.de>
+References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040904153902.6ac075ea.akpm@osdl.org> <413C5BF2.nail2RA1138AG@pluto.uni-freiburg.de> <20040906133523.GC25429@wohnheim.fh-wedel.de> <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de> <20040907110913.GA25802@wohnheim.fh-wedel.de> <413DA026.nail9XE11008R@pluto.uni-freiburg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
-X-Accept-Language: bg, en, ja, ru, de
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <413DA026.nail9XE11008R@pluto.uni-freiburg.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I am trying to boot my laptop via PXE and I still am in the middle of nowhere...
+On Tue, 7 September 2004 13:48:54 +0200, Gunnar Ritter wrote:
+> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> 
+> > Add another loop in the userspace caller to deal with it, if you don't
+> > already have it. It's a valid and documented return value, after all.
+> 
+> Of course (although cp will be terminated by the SIGINT anyway, so it
+> does not matter in this situation).
 
-So, while trying to cram more and more stuff on a ramdisk, I started seeing "strange behaviour" and this got me thinking, is there a limit to ramdisk_size boot parameter??
+I tested by hitting Ctrl-z.  My admittedly stupid test program didn't
+have a loop, so the fg terminated it. :)
 
-Looking at drivers/block/rd.c (on 2.6.8.1) I couldn't find anything like that...
-So is there any intrinsic upper limit, apart from the total RAM size?
+> Do I understand this correctly that sendfile now behaves like write with
+> SA_RESTART not set for the signal?
 
-And what happens if I say ramdisk_size=10240 (10MB) and I load only 1MB image into it.
-Will the "unused" memory be freed? i.e. is the size dynamically allocated (<docs) and the ramdisk_size is only the upper bound?
+Yes.
 
-Kalin.
+> If so, it might perhaps make sense to
+> add SA_RESTART semantics too, so that sendfile then just continues if the
+> process catches the signal and does not abort (scenario: SIGWINCH is sent
+> to a curses-based file manager).
+
+It might, not sure.  I've never actually looked at it, never missed
+it, don't need it.  Maybe someone else has a strong feeling one way or
+the other?
+
+Jörn
 
 -- 
- || ~~~~~~~~~~~~~~~~~~~~~~ ||
-(  ) http://ThinRope.net/ (  )
- || ______________________ ||
-
+He who knows others is wise.
+He who knows himself is enlightened.
+-- Lao Tsu

@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265455AbUEZKvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265470AbUEZK5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265455AbUEZKvP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 06:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265460AbUEZKvP
+	id S265470AbUEZK5C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 06:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbUEZK4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 06:51:15 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:6151 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265455AbUEZKvN convert rfc822-to-8bit (ORCPT
+	Wed, 26 May 2004 06:56:52 -0400
+Received: from lucidpixels.com ([66.45.37.187]:7809 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S265472AbUEZKyo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 06:51:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Buddy Lumpkin" <b.lumpkin@comcast.net>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>
-Subject: RE: why swap at all?
-Date: Wed, 26 May 2004 13:44:36 +0300
-X-Mailer: KMail [version 1.4]
-Cc: <orders@nodivisions.com>, <linux-kernel@vger.kernel.org>
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org>
-In-Reply-To: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org>
+	Wed, 26 May 2004 06:54:44 -0400
+Date: Wed, 26 May 2004 06:54:37 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+cc: ap@solarrain.com
+Subject: Dell GX1 500 MHZ locked up with Kernel 2.4.26 due to ACPI -- Also:
+ IPTables question.
+Message-ID: <Pine.LNX.4.60.0405260653450.1712@p500>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200405261344.36724.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 May 2004 11:30, Buddy Lumpkin wrote:
-> As for your short, two sentence comment below, let me save you the energy
-> of insinuations and translate your message the way I read it:
-> 
-> -------------------------------------------------------------------------
-> I don't recognize your name, therefore you can't possibly have a valuable
-> opinion on the direction VM system development should go. I doubt you have
-> an actual performance problem to share, but if you do, please share it and
-> go away so that we can work on solving the problem.
-> --------------------------------------------------------------------------
+Only thing changed was from 2.4.16 build 13 -> build 14 was that I enabled 
+ACPI, had APM & ACPI both compiled into the kernel, I just wanted to try 
+out ACPI to see if it worked on an older system.
 
-He was asking for proper bugreport.
+I previously have had a > 190 day uptime (without ACPI in the kernel, an 
+older kernel of course, but I believe it is ACPI that caused the problem).
 
-Preparing bug report:
-=====================
-How To Ask Questions The Smart Way:
-    http://www.catb.org/~esr/faqs/smart-questions.html
-        Anybody who has written software for public use will
-        probably have received at least one bad bug report.
-        Reports that say nothing ("It doesn't work!");
-        reports that make no sense; reports that don't give
-        enough information; reports that give wrong information.
-How to Report Bugs Effectively:
-    http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
-        Before asking a technical question by email, or in
-        a newsgroup, or on a website chat board, do the following:
-        * Try to find an answer by searching the Web.
-        * Try to find an answer by reading the manual.
-        * Try to find an answer by reading a FAQ.
-        * Try to find an answer by inspection or experimentation.
-        * Try to find an answer by reading the source code.
-Compile problems: report GCC output and result of
-        "grep '^CONFIG_' .config"
-Oops: decode it with ksymoops (or use 2.6 with kksymoops enabled ;).
-Unkillable process: Alt-SysRq-T and ksymoops relevant part.
-Yes it means you should have ksymoops installed and tested,
-which is easy to get wrong. I've done that too often.
--- 
-vda
+Also, I do have APIC in the kernel and always have it in the kernel; it is 
+ACPI that caused the lockup.
+
+HOWEVER:
+
+My monitor was in power save mode (I run X on it), the caps lock & scroll 
+lock key were flashing on and off (but not the num lock key) . there was 
+nothing in the logs as to why it crashed (paniced), is there some way I 
+can see what the panic message is if this ever happens again (even though 
+it shouldn.t because I disabled ACPI)?
+
+Perhaps using serial port..? or perhaps one of the network options for 
+syslogd/errors/panics, but these are only for 2.6.x?
+
+The reason why I don.t use 2.6.x yet is 2.4.x has patch-o-matic modules 
+(h323,realplayer,msmedia conn trackers) that 2.6. does not seem to have.
+
+Further question regarding iptables, will fragmented packets ever be able 
+to be blocked/logged with connection trackers? (ie: A machine could 
+theoretically be DoS.d and if they are using connection_trackers, they 
+would not see it via iptables), only tcpdump/similar.
+
+Thanks.
+

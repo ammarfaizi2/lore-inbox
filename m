@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264213AbRFFWkD>; Wed, 6 Jun 2001 18:40:03 -0400
+	id <S264212AbRFFWjN>; Wed, 6 Jun 2001 18:39:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264215AbRFFWj5>; Wed, 6 Jun 2001 18:39:57 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:60172 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S264213AbRFFWjr>; Wed, 6 Jun 2001 18:39:47 -0400
-Date: Wed, 6 Jun 2001 15:39:04 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        tytso@mit.edu,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [driver] New life for Serial mice
-In-Reply-To: <20010606220832.A31009@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10106061527580.12135-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264216AbRFFWjD>; Wed, 6 Jun 2001 18:39:03 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:56328 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S264215AbRFFWiy>; Wed, 6 Jun 2001 18:38:54 -0400
+Subject: Re: Break 2.4 VM in five easy steps
+From: Robert Love <rml@tech9.net>
+To: android <linux@ansa.hostings.com>
+Cc: Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20010606152347.028e21d0@ansa.hostings.com>
+In-Reply-To: <5.1.0.14.2.20010606143453.028ed400@ansa.hostings.com>
+	<9fm4t7$412$1@penguin.transmeta.com> <3B1D5ADE.7FA50CD0@illusionary.com> 
+	<5.1.0.14.2.20010606152347.028e21d0@ansa.hostings.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 06 Jun 2001 18:38:44 -0400
+Message-Id: <991867131.807.4.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 06 Jun 2001 15:27:57 -0700, android wrote:
+> >I sincerely hope you're joking.
+>
+> I realize that assembly is platform-specific. Being that I use the IA32 class
+> machine, that's what I would write for. Others who use other platforms could
+> do the deed for their native language.<snip>
 
-> > It would be nice if we had 
-> > 
-> > 1) A seperate serial directory under drivers.
-> > 
-> > 2) A nice structure that input devices and the tty layer can use. It is
-> >    just a waste to go threw the tty layer for input devices. It would also
-> >    make serial driver writing easier if the api is designed right :-) 
-> 
-> I am planning some day (don't know when yet though) to convert the 16x50
-> driver over to the serial_core stuff.
+no, look at the code. it is not going to benefit from assembly (assuming
+you can even implement it cleanly in assembly).  its basically an
+iteration of other function calls.
 
-I ported it over to my tree. I will have to figure out how to incorporate
-the input serial stuff without breaking all the input drivers we have. In
-CVS we have alot of them. This will make life so much easier since all I
-will have to do is change one file for changes I make to the tty layer. I
-have improved andrew mortons console patch to work with multiple consoles
-and for different types of console devices. Instead of altering all the 
-console drivers I'm planning on intergrating the locking into the tty
-layer. That patch is needed for serial devices as well as video terminals.
-Your work might help speed up devleopement.
+doing a new implementation in assembly for each platform is not
+feasible, anyhow. this is the sort of thing that needs to be uniform.
 
-> NB, Ted Tytso mentioned something at the 2.5 conference about integrating
-> some of the serial layer with the tty layer.
+this really has nothing to do with the "iron" of the computer -- its a
+loop to check and free swap pages. assembly will not provide benefit.
 
-What does he have in mind? I like to keep my VT changes in sync with what
-he has in mind.
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 

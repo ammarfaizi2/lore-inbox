@@ -1,30 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUGKGcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUGKGqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUGKGcf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 02:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUGKGcf
+	id S266250AbUGKGqg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 02:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUGKGqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 02:32:35 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:35739 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S263100AbUGKGcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 02:32:35 -0400
-To: Fawad Lateef <fawad_lateef@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040711041925.98050.qmail@web20823.mail.yahoo.com>
-Subject: Re: Need help in creating 8GB RAMDISK
-From: Junio C Hamano <junkio@cox.net>
-Date: Sat, 10 Jul 2004 23:32:32 -0700
-Message-ID: <7vn027xddr.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 11 Jul 2004 02:46:36 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:29853 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266250AbUGKGqe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 02:46:34 -0400
+Date: Sun, 11 Jul 2004 08:47:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck kernel mailing list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ck] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040711064730.GA11254@elte.hu>
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org> <40F016D9.8070300@kolivas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40F016D9.8070300@kolivas.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=0, required 5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I understand correctly, earlier you said that you can use
-your RAM into multiple ramdisks totalling 7GB or more, and the
-only thing you are unable to do is to make it a single ramdisk.
-If that is the case, I guess you should be able to kludge those
-ramdisks together using raid0 or LVM.
 
+* Con Kolivas <kernel@kolivas.org> wrote:
+
+> Ooops forgot to mention this was running reiserFS 3.6 on software
+> raid0 2x IDE with cfq elevator.
+
+ok, reiserfs (and all journalling fs's) definitely need a look - as you
+can see from the ext3 mods in the patch. Any chance you could try ext3
+based tests? Those are the closest to my setups.
+
+	Ingo

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312889AbSCZAjb>; Mon, 25 Mar 2002 19:39:31 -0500
+	id <S312896AbSCZAmb>; Mon, 25 Mar 2002 19:42:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312894AbSCZAjV>; Mon, 25 Mar 2002 19:39:21 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:18437 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312889AbSCZAjN>; Mon, 25 Mar 2002 19:39:13 -0500
-Date: Mon, 25 Mar 2002 20:33:51 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: bk repository compile bug (zoran)
-In-Reply-To: <3C9D799C.3070300@candelatech.com>
-Message-ID: <Pine.LNX.4.21.0203252033340.3456-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312898AbSCZAmV>; Mon, 25 Mar 2002 19:42:21 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:55189 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312896AbSCZAmL>;
+	Mon, 25 Mar 2002 19:42:11 -0500
+Date: Mon, 25 Mar 2002 16:37:39 -0800 (PST)
+Message-Id: <20020325.163739.40148174.davem@redhat.com>
+To: thunder@ngforever.de
+Cc: mdrobnak@optonline.net, linux-kernel@vger.kernel.org
+Subject: Re: More observations regarding IPv6 on PPC platform.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C9FC110.8010100@ngforever.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Thunder from the hill <thunder@ngforever.de>
+   Date: Mon, 25 Mar 2002 17:30:08 -0700
 
+   Matthew Drobnak wrote:
+   > While I was attempting to debug a little bit, I installed tcpdump to see 
+   > if it was even seeing the router advertisements...Apparently it was..
+   > 
+   > On top of that, if you keep tcpdump running, IPv6 works fine!
 
-On Sun, 24 Mar 2002, Ben Greear wrote:
-
-> Just in case this has not been caught yet, from repository:
->   bk://linux.bkbits.net/linux-2.4
-> 
-> 
-> gcc -D__KERNEL__ -I/home/greear/kernel/2.4/bk/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/bk/linux-2.4/include/linux/modversions.h  -DKBUILD_BASENAME=zr36067  -c -o zr36067.o zr36067.c
-> zr36067.c: In function `zoran_open':
-> zr36067.c:3268: structure has no member named `busy'
-> zr36067.c: At top level:
-> zr36067.c:4405: warning: initialization makes integer from pointer without a cast
-> zr36067.c:4406: warning: initialization makes integer from pointer without a cast
-> zr36067.c:4407: warning: initialization from incompatible pointer type
-> zr36067.c:4408: warning: initialization from incompatible pointer type
-> zr36067.c:4410: warning: initialization from incompatible pointer type
-> zr36067.c:4411: warning: initialization from incompatible pointer type
-> zr36067.c:4412: warning: initialization from incompatible pointer type
-> make[3]: *** [zr36067.o] Error 1
-> make[3]: Leaving directory `/home/greear/kernel/2.4/bk/linux-2.4/drivers/media/video'
-
-Already fixed by Gerd patches... Thanks.
-
+   tcpdump keeps ethn in promiscuous mode. Maybe this is what was expected?
+   
+Smells like a multicast bug in the network driver/card.

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUBRHXl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 02:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbUBRHXl
+	id S263606AbUBRHZX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 02:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUBRHZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 02:23:41 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:49844 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP id S263448AbUBRHXk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 02:23:40 -0500
-Date: Wed, 18 Feb 2004 08:23:32 +0100
-From: Marc Lehmann <pcg@schmorp.de>
+	Wed, 18 Feb 2004 02:25:23 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:40588 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S263606AbUBRHZT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 02:25:19 -0500
+Date: Wed, 18 Feb 2004 08:25:13 +0100
+From: bert hubert <ahu@ds9a.nl>
 To: linux-kernel@vger.kernel.org
 Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Message-ID: <20040218072332.GG1146@schmorp.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org> <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217161111.GE8231@schmorp.de> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org> <20040217164651.GB23499@mail.shareable.org> <yw1xr7wtcz0n.fsf@ford.guide> <20040217205707.GF24311@mail.shareable.org> <Pine.LNX.4.58.0402171402460.23115@sm1420.belits.com>
+Message-ID: <20040218072513.GA10446@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402171402460.23115@sm1420.belits.com>
-X-Operating-System: Linux version 2.4.24 (root@cerebro) (gcc version 2.95.4 20011002 (Debian prerelease)) 
+In-Reply-To: <c0ukd2$3uk$1@terminus.zytor.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 02:06:21PM -0700, Alex Belits <abelits@phobos.illtel.denver.co.us> wrote:
->   UTF-8 terminals (and variable-encoding terminals) alreay exist,
-> gnome-terminal is one of them. They are, of course, bloated pigs, but I
+On Wed, Feb 18, 2004 at 02:58:42AM +0000, H. Peter Anvin wrote:
 
-rxvt-unicode (mixed fonts, bad complex script), and mlterm (no mixed
-fonts, very good complex script support), are not all bloated, have a
-_much_ smaller memory footprint than xterm and are even faster on text
-output and scrolling complex scripts than xterm (by a factor of two).
+> Indeed.  The original name for the encoding was, in fact, "FSS-UTF",
+> for "filesystem safe Unicode transformation format."  
 
-(Of course, gnome-terminal is bloated. loading it requires 45MB of main
-memory here and then it's still 5-10 times slower than xterm).
+That might explain a few things.
 
-That UTF-8/Unicode in any way means bloated (I know you did not directly
-imply this) is a widely circulating but wrong idea nowadays.
+> > F8 80 80 80 AE F8 80 80 80 AE 
+> > FC 80 80 80 80 AE FC 80 80 80 80 AE
+> 
+> No, they don't.
+
+Serves me right for trusting a random site, apologies. 
 
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbUEPIUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbUEPIa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263340AbUEPIUL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 04:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbUEPIUK
+	id S263365AbUEPIa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 04:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUEPIa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 04:20:10 -0400
-Received: from lucidpixels.com ([66.45.37.187]:2980 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S263340AbUEPIUF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 04:20:05 -0400
-Date: Sun, 16 May 2004 04:20:03 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Stan Bubrouski <stan@ccs.neu.edu>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
-In-Reply-To: <1084676229.21547.0.camel@duergar>
-Message-ID: <Pine.LNX.4.58.0405160418500.14264@p500>
-References: <Pine.LNX.4.58.0405151530590.16044@p500> <1084676229.21547.0.camel@duergar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 16 May 2004 04:30:29 -0400
+Received: from outmx018.isp.belgacom.be ([195.238.2.117]:6805 "EHLO
+	outmx018.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S263365AbUEPIa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 04:30:27 -0400
+Subject: [PATCH 2.6.6-mm2] i8042 debug broken
+From: FabF <Fabian.Frederick@skynet.be>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-hfr0u29ZJLKt2wCrOMEf"
+Message-Id: <1084532991.8303.2.camel@bluerhyme.real3>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 14 May 2004 13:09:51 +0200
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx018.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Because it supports the /app/emu-tools-0.9.4/ option.
 
-default has rear end speakers but it is not "surround"/5.1/etc/
+--=-hfr0u29ZJLKt2wCrOMEf
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-./emu-script (loads rear-end speaker support for surround + AC3 option,
-ALSA does *NOT* have AC3 capability))
+Hi,
 
-On Sat, 15 May 2004, Stan Bubrouski wrote:
+	i8042 handle_data debug was broken -trying to display unknown
+irq-.Here's a quick fix.
 
-> On Sat, 2004-05-15 at 15:32, Justin Piszcz wrote:
-> > Script started on Sat May 15 14:47:08 2004
-> > # modprobe emu10k1
-> > FATAL: Error inserting emu10k1
-> > (/lib/modules/2.6.5/kernel/sound/oss/emu10k1/emu10k1.ko): Unknown symbol
->
-> Umm...why are you using OSS for emu10k instead of ALSA?
->
-> -sb
->
-> > in module, or unknown parameter (see dmesg)
-> > root@war:~# dmesg | tail -n 1
-> >  emu10k1: Unknown symbol strcpy
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
+Regards,
+FabF
+
+--=-hfr0u29ZJLKt2wCrOMEf
+Content-Disposition: attachment; filename=i80421.diff
+Content-Type: text/x-patch; name=i80421.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+diff -Naur orig/drivers/input/serio/i8042.c edited/drivers/input/serio/i8042.c
+--- orig/drivers/input/serio/i8042.c	2004-05-14 12:40:49.000000000 +0200
++++ edited/drivers/input/serio/i8042.c	2004-05-14 12:56:48.000000000 +0200
+@@ -420,16 +420,16 @@
+ 				data = 0xfe;
+ 			} else dfl = 0;
+ 
+-			dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
+-				data, (str >> 6), irq,
++			dbg("%02x <- i8042 (interrupt, aux%d, %s%s)",
++				data, (str >> 6), 
+ 				dfl & SERIO_PARITY ? ", bad parity" : "",
+ 				dfl & SERIO_TIMEOUT ? ", timeout" : "");
+ 
+ 			serio_interrupt(i8042_mux_port + ((str >> 6) & 3), data, dfl, NULL);
+ 		} else {
+ 
+-			dbg("%02x <- i8042 (interrupt, %s, %d%s%s)",
+-				data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq,
++			dbg("%02x <- i8042 (interrupt, %s, %s%s)",
++				data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd",
+ 				dfl & SERIO_PARITY ? ", bad parity" : "",
+ 				dfl & SERIO_TIMEOUT ? ", timeout" : "");
+ 
+
+--=-hfr0u29ZJLKt2wCrOMEf--
+

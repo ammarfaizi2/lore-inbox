@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267592AbUBTABH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267593AbUBTABH
+	id S267593AbUBTAKA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUBTAKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:01:07 -0500
-Received: from mail.shareable.org ([81.29.64.88]:24960 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S267592AbUBTABC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:01:02 -0500
-Date: Fri, 20 Feb 2004 00:00:54 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Tridge <tridge@samba.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-Message-ID: <20040220000054.GA5590@mail.shareable.org>
-References: <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0402191217050.1439@ppc970.osdl.org> <Pine.LNX.4.58.0402191226240.1439@ppc970.osdl.org> <20040219204853.GA4619@mail.shareable.org> <Pine.LNX.4.58.0402191326490.1439@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402191326490.1439@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 19 Feb 2004 19:10:00 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:10765 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S267593AbUBTAJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 19:09:58 -0500
+Message-ID: <40355080.8090008@snapgear.com>
+Date: Fri, 20 Feb 2004 10:10:40 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Weinehall <tao@acc.umu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
+References: <40342BD5.9080105@snapgear.com> <20040219103900.GH17140@khan.acc.umu.se> <4034B2E5.1090505@snapgear.com> <20040219131317.GI17140@khan.acc.umu.se>
+In-Reply-To: <20040219131317.GI17140@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> The hardest part of caching is not filling the cache - it's knowing when 
-> to release it. In other words, forget the filling part, and think about 
-> the replacement policy (balacing between the page cache, the directory 
-> cache, and regular pages). The kernel already has that.
+Hi David,
 
-It's worth noting that Samba already has a dcache in userspace: tridge
-mentioned that positive cache-insensitive lookups are cached, so the
-replacement policy is already skewed by that.
+David Weinehall wrote:
+> On Thu, Feb 19, 2004 at 10:58:13PM +1000, Greg Ungerer wrote:
+>>David Weinehall wrote:
+>>>On Thu, Feb 19, 2004 at 01:21:57PM +1000, Greg Ungerer wrote:
+>>>
+>>>>An update of the uClinux (MMU-less) fixups against 2.6.3.
+>>>>Nothing much new, just redone against 2.6.3.
+>>>>
+>>>>http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.3-uc0.patch.gz
+>>>
+>>>Any plans for a 2.6-version of the ARM-support?
+>>
+>>Yes. There is some code available now, although it is not complete
+>>and doesn't fully work yet. It really needs more cleaning up before
+>>it will be interresting or useful to anyone.
+> 
+> Dang.  I wish I still had some arm-hardware to play with (no, I'm not
+> gonna sacrifice my Tungsten E for uClinux-work...)
 
-Will your proposal eliminate Samba's positive cache as well?
+You don't need real hardware :-)
 
-> Besides, I really think that we can do this with basically just a few 
-> lines of code in the kernel (apart from the actual case comparison, which 
-> I'm not even going to worry about - that's totally independent of the 
-> cache handling itself, and I don't care about how to write a 
-> "windows_equivalent_strncasecmp()".
+The gdb/ARMulator makes a fine target for development.
+Quicker and easier to develop with. Heres a good place
+to get started with it if interrested:
 
-What I like about my idea is that no windows_equivalent_strncasecmp()
-needs to go into the kernel.  I.e. no need for a Samba-specific module.
+   http://www.uclinux.org/pub/uClinux/utilities/armulator/
 
-The other thing I like is that DN_IGNORE_SELF would be useful for
-other applications too.
 
-What I like about your idea is that it'll be a bit faster, the dcache
-replacement policy will be nicer, and if there are atomicity
-conditions we haven't thought of, it'll be easier to handle them.
+> How's the status of the 2.0-port of uClinux, btw?  Is it unintrusive
+> enough to be considered for a 2.0-merge?
 
--- Jamie
+Hmm, probably not. It is no where near as clean as the 2.6
+merge. It could be cleaned up, but no one seems to interrested
+in doing the work.
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+

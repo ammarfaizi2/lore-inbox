@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbUDEWxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 18:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbUDEWxZ
+	id S262059AbUDEW71 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 18:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUDEW71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 18:53:25 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:18528 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S262984AbUDEWw6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 18:52:58 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200404052253.i35Mr6k6011170@green.mif.pg.gda.pl>
-Subject: PTS alocation problem with 2.6.4/2.6.5
-To: linux-kernel@vger.kernel.org (kernel list)
-Date: Tue, 6 Apr 2004 00:53:06 +0200 (CEST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Mon, 5 Apr 2004 18:59:27 -0400
+Received: from waste.org ([209.173.204.2]:20893 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262059AbUDEW7Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 18:59:24 -0400
+Date: Mon, 5 Apr 2004 17:59:11 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] shrink core hashes on small systems
+Message-ID: <20040405225911.GJ6248@waste.org>
+References: <20040405204957.GF6248@waste.org> <20040405140223.2f775da4.akpm@osdl.org> <20040405211916.GH6248@waste.org> <20040405143824.7f9b7020.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040405143824.7f9b7020.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 05, 2004 at 02:38:24PM -0700, Andrew Morton wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
+> >
+> > Longer term, I think some serious thought needs to go into scaling
+> > hash sizes across the board, but this serves my purposes on the
+> > low-end without changing behaviour asymptotically.
+> 
+> Can we make longer-term a bit shorter?  init_per_zone_pages_min() only took
+> a few minutes thinking..
+> 
+> I suspect what we need is to replace num_physpages with nr_free_pages(),
+> then account for PAGE_SIZE, then muck around with sqrt() for a while then
+> apply upper and lower bounds to it.
 
-I noticed serious problem with PTS alocation on kernels 2.6.4 and 2.6.5:
-It seems that once alocated /dev/pts entries are never reused, leading to
-pty alocation errors. The testing system is fully compiled with kernel 2.2.x
-headers (including glibc), but informations from my coleagues using systems
-compiled on 2.4/2.6 headers seems to behave similarily.
-The testcase and used kernel configuration are shown below.
-Kernel 2.6.3 does not have this problem.
-Is it bug or feature (and I am doing sth wrong) ?
+Ok, I can take a look at that. I believe Arjan's been looking at the
+upper end side of the equation.
 
-NOTE: I realize that my glibc does not support minors > 255, so no more pts-es
-      is available, but problem is leakage of _free_ pts-es.
+On the small end, I think we need to take account for the fact
+that:
 
-[ankry@green SPECS]$ for a in $(seq 4);do ssh -t remote tty;done
-/dev/pts/253
-Connection to remote closed.
-/dev/pts/254
-Connection to remote closed.
-/dev/pts/255
-Connection to remote closed.
-not a tty
-         Connection to remote closed.
-[ankry@green SPECS]$ ssh remote cat /proc/sys/kernel/pty/{max,nr}
-2048
-1
-$ ssh olimp ls /dev/pts
-1
+- a bunch of stuff gets effectively pinned post-init
+- there are fewer pages total so paging granularity is bad
+- the desired size/performance ratio is heavily skewed towards size
 
-.config tested (selected entries)
+..so I think the head of this curve is squeezing most of these hashes
+down to order 0 or 1 for the first 16MB of RAM or so. 
 
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=2048
+On the large end, we obviously have diminishing returns for larger
+hashes and lots of dirty cachelines for hash misses. We almost
+certainly want sublinear growth here, but sqrt might be too
+aggressive. Arjan?
 
-or
-
-CONFIG_UNIX98_PTYS=y
-# CONFIG_LEGACY_PTYS is not set
-
-(full .config available on request)
+For 2.7, I've been thinking about pulling out a generic lookup API,
+which would allow replacing hashing with something like rbtree, etc.,
+depending on space and performance criterion. 
 
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+Matt Mackall : http://www.selenic.com : Linux development and consulting

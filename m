@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262272AbRETX7r>; Sun, 20 May 2001 19:59:47 -0400
+	id <S262276AbREUA3z>; Sun, 20 May 2001 20:29:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262274AbRETX7g>; Sun, 20 May 2001 19:59:36 -0400
-Received: from www.microgate.com ([216.30.46.105]:30219 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S262272AbRETX7Y>; Sun, 20 May 2001 19:59:24 -0400
-Message-ID: <006f01c0e188$f22fe1c0$0201a8c0@mojo>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E151ZTj-0002pT-00@the-village.bc.nu>
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Date: Sun, 20 May 2001 18:59:44 -0500
+	id <S262277AbREUA3p>; Sun, 20 May 2001 20:29:45 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:21254 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S262276AbREUA3c>;
+	Sun, 20 May 2001 20:29:32 -0400
+To: John Cowan <jcowan@reutershealth.com>
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 21 May 2001 02:29:17 +0200
+In-Reply-To: John Cowan's message of "Fri, 18 May 2001 11:51:28 -0400"
+Message-ID: <d31ypj1r4y.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 90% of drivers contain code written by stupid gits.
->
-> From: "Alan Cox"
-> I think thats a very arrogant and very mistaken view of the problem. 90%
-> of the driver are written by people who are
-> 
-> - Copying from other drivers
-> - Using the existing API's to make their job easy
-> - Working to timescales
-> - Just want it to work
+>>>>> "John" == John Cowan <jcowan@reutershealth.com> writes:
 
-I'll be the first to admit there is some ugliness in my driver.
+John> Jes Sorensen wrote:
+>> Telling them to install an updated gcc for kernel compilation is a
+>> necessary evil, which can easily be done without disturbing the
+>> rest of the system. Updating the system's python installation is
+>> not a reasonable request.
 
-Some originates from accepted methods when the
-driver originated. (points 1 and 2 above)
+John> Au contraire.  It is very reasonable to have both python and
+John> python2 installed.  Having two different gcc versions installed
+John> is a big pain in the arse.
 
-Some comes from doing new things with only the
-existing infrastructure, because changing the infrastructure
-is deemed too intrusive. (points 3 and 4 above)
-Stable infrastructure is good, but sometimes ugliness results.
+It's not unreasonable to have both installed, it's unreasonable to
+require it.
 
-Some is the result of genuine mistakes (people who
-have written nothing but perfect code flame away).
-I fix these as they are found through use and review,
-and the code improves. (I *really do* want my driver to work!)
+Eric seems to think he can tell every distributor to ship Python2
+tomorrow. Well it's a fine dream but it's not going to happen; Most
+distributors do not ship new major versions of tools in their minor
+number release versions. I've seen him mention the number 6 months
+until everybody ships it, but a) thats not going to happen Red Hat is
+currently at 7.1 (if one looks at their release history, one would say
+there is a good chance there will be a 7.2) not to mention the release
+rate of Debian (not sure about the current state of all other
+distributions). 18 months is more realistic for it to be deployed
+widely enough.
 
-As new facilities and guidelines are made available,
-I *gladly* and *gratefully* use them, and the code improves.
+>> So far I haven't heard a single developer say something positive
+>> about CML2, the most positive I have heard so far has been
+>> "whatever", "it's his choice", "I don't care", "I want to
+>> hack". The majority are of the "NO!" and "you got to be kiddin'".
 
-Calling driver writers stupid and devising punitive measures
-to 'cause them pain' seems less useful.
+John> Anonymized hearsay evidence is less than convincing.
 
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation http://www.microgate.com
+Well I don't like to quote personal conversations without peoples'
+approval, now both David Woodhouse and Arjan are two examples.
 
-
+Jes

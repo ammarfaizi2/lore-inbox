@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUIPVEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268224AbUIPVMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268253AbUIPVEl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 17:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbUIPVEl
+	id S268224AbUIPVMx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 17:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268268AbUIPVMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 17:04:41 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:19912 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268253AbUIPVE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 17:04:29 -0400
-Subject: Re: Having problem with mmap system call!!!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0409161404001.13362@chaos>
-References: <4EE0CBA31942E547B99B3D4BFAB348111078FE@mail.esn.co.in>
-	 <Pine.LNX.4.53.0409160958070.12146@chaos>
-	 <1095341494.22744.26.camel@localhost.localdomain>
-	 <Pine.LNX.4.53.0409161050200.12305@chaos>
-	 <1095350240.22750.37.camel@localhost.localdomain>
-	 <Pine.LNX.4.53.0409161404001.13362@chaos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095364875.22750.45.camel@localhost.localdomain>
+	Thu, 16 Sep 2004 17:12:53 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:28104 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S268224AbUIPVMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 17:12:51 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: offtopic: how to break huge patch into smaller independent patches?
+Date: Thu, 16 Sep 2004 23:11:48 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.09.16.21.11.47.825104@smurf.noris.de>
+References: <41474B15.8040302@nortelnetworks.com> <20040914201210.GE13788@redhat.com>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Sep 2004 21:01:16 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: server.smurf.noris.de 1095369108 21578 192.109.102.35 (16 Sep 2004 21:11:48 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Thu, 16 Sep 2004 21:11:48 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-16 at 19:13, Richard B. Johnson wrote:
+Hi, Dave Jones wrote:
 
-> 	for (i = 0; i < v->page_count; i++) {
-> 		unsigned long page = virt_to_phys((void *)v->desc[i]);
-> 		if (remap_page_range(start, page, PAGE_SIZE, PAGE_READONLY)) {
-> 			err = -EAGAIN;
-> 			goto out;
-> 		}
-> 		start += PAGE_SIZE;
+> diffsplit will split it into a patch-per-file, which could be
+> a good start. If you have multiple changes touching the same file
+> however, things get a bit more fun, and you get to spend a lot
+> of time in your favorite text editor glueing bits together.
 
-Actually thats a nice example of how easy it is to implement mmap
-properly.
+You can rip the bits apart instead, and leave the glueing and rip-patching
+to the computer.
 
+- edit patch file:
+  - delete all the parts you don't want applied; freely hand-edit stuff,
+    and don't worry about the pesky line numbers
+  - save to new patch file
+- run "rediff" to fix up the new file
+- run "interdiff" to create a second, clean patch file
+  containing just the deleted parts
+- iterate until finished
 
-> you usually say... Anyway are you aware that ...
-> 
-> 	unsigned long size  = vma->vm_end - vma->vm_start;
-> 
-> ... ends up being 32 bytes longer than the length the user-mode
-> code put into mmap()?
+All of this is part of the nice patchutils package.
 
-Its page aligned, that is what mmap() says happens.
-
+NB: if all else fails, use espdiff(1).
+-- 
+Matthias Urlichs

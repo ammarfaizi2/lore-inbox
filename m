@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbTF0Obk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 10:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTF0Obk
+	id S264393AbTF0Ojd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTF0Ojd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 10:31:40 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:13037 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264396AbTF0Obc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 10:31:32 -0400
-Date: Fri, 27 Jun 2003 16:45:40 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Kees Bakker <kees.bakker@altium.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: drivers/scsi/aic7xxx/aic7xxx_core.c -Werror causes build to stop
-Message-ID: <20030627144540.GG24661@fs.tum.de>
-References: <sillvnomds.fsf@koli.tasking.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Jun 2003 10:39:33 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:28308 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264393AbTF0Ojc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 10:39:32 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [RFC] My research agenda for 2.7
+Date: Fri, 27 Jun 2003 16:54:46 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <200306250111.01498.phillips@arcor.de> <Pine.LNX.4.53.0306271345330.14677@skynet> <23430000.1056725030@[10.10.2.4]>
+In-Reply-To: <23430000.1056725030@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <sillvnomds.fsf@koli.tasking.nl>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200306271654.46491.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 12:17:19PM +0200, Kees Bakker wrote:
-> To build 2.5.73 using my SuSE 8.2 system (gcc 3.3) I need the following
-> patch:
-> 
-> --- linux-2.5.73/drivers/scsi/aic7xxx/Makefile.orig	2003-06-22 20:33:34.000000000 +0200
-> +++ linux-2.5.73/drivers/scsi/aic7xxx/Makefile	2003-06-27 10:38:40.000000000 +0200
-> @@ -33,7 +33,7 @@
->  						   aic79xx_proc.o	\
->  						   aic79xx_osm_pci.o
->  
-> -EXTRA_CFLAGS += -Idrivers/scsi -Werror
-> +EXTRA_CFLAGS += -Idrivers/scsi -Werror -Wno-sign-compare
->  #EXTRA_CFLAGS += -g
->  
->  # Files generated that shall be removed upon make clean
->...
+On Friday 27 June 2003 16:43, Martin J. Bligh wrote:
+> The buddy allocator is not a good system for getting rid of fragmentation.
 
-The -Wno-sign-compare is not needed with the official gcc 3.3 release. 
-It's only needed for beta versions of gcc 3.3 .
+We've talked in the past about throwing out the buddy allocator and adopting 
+something more modern and efficient and I hope somebody will actually get 
+around to doing that.  In any event, defragging is an orthogonal issue.  Some 
+allocation strategies may be statistically more resistiant to fragmentation 
+than others, but no allocator has been invented, or ever will be, that can 
+guarantee that terminal fragmentation will never occur - only active 
+defragmentation can provide such a guarantee.
 
-cu
-Adrian
+Regards,
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Daniel
 

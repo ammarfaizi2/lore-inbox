@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSHGBYg>; Tue, 6 Aug 2002 21:24:36 -0400
+	id <S316788AbSHGB3K>; Tue, 6 Aug 2002 21:29:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316715AbSHGBYg>; Tue, 6 Aug 2002 21:24:36 -0400
-Received: from goshen.rutgers.edu ([165.230.180.150]:55273 "HELO
-	goshen.rutgers.edu") by vger.kernel.org with SMTP
-	id <S316705AbSHGBYf>; Tue, 6 Aug 2002 21:24:35 -0400
-Date: Tue, 6 Aug 2002 21:26:27 -0400 (EDT)
-From: Vasisht Tadigotla <vasisht@eden.rutgers.edu>
-To: linux-kernel@vger.kernel.org
-Subject: multiple connect on a socket
-Message-ID: <Pine.GSO.4.21.0208062103210.4158-100000@er3.rutgers.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316789AbSHGB3K>; Tue, 6 Aug 2002 21:29:10 -0400
+Received: from codepoet.org ([166.70.99.138]:20680 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S316788AbSHGB3J>;
+	Tue, 6 Aug 2002 21:29:09 -0400
+Date: Tue, 6 Aug 2002 19:32:51 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK-PATCH-2.5] NTFS 2.0.24: Cleanups
+Message-ID: <20020807013250.GA30858@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <E17cFG4-0007hW-00@storm.christs.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17cFG4-0007hW-00@storm.christs.cam.ac.uk>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed Aug 07, 2002 at 02:05:04AM +0100, Anton Altaparmakov wrote:
+>    - Do not allow read-write remounts of read-only volumes with errors.
 
-Hi,
+I thought the current NTFS driver does not yet support writing...
 
-i'm doing the following steps,
+ -Erik
 
-1. open a socket on some remote server
-2. set it to be non-blocking
-3. connect to that socket
-4. do a select on the socket
-5. read from the socket
-6. connect to the socket again
-7. read from the socket
-
-and as expected a EINPROGRESS error is thrown on step 3. After I do a
-select() and read from that socket, I try to connect to it again and it
-connects without throwing an EISCONN error in linux, though if I try to
-read from it it throws a EAGAIN error. Shouldn't it throw an error when I
-try to connect to it a second time ? Am I missing something here.
-
-
-Vasisht
-
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

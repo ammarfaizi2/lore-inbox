@@ -1,69 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270792AbTGNUXW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270765AbTGNUNo
+	id S270789AbTGNUXV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270795AbTGNUVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:13:44 -0400
-Received: from sea2-f51.sea2.hotmail.com ([207.68.165.51]:15624 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S270764AbTGNUI1
+	Mon, 14 Jul 2003 16:21:46 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:19841 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S270827AbTGNUR5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:08:27 -0400
-X-Originating-IP: [143.182.124.3]
-X-Originating-Email: [dagriego@hotmail.com]
-From: "David griego" <dagriego@hotmail.com>
-To: jgarzik@pobox.com
-Cc: alan@storlinksemi.com, linux-kernel@vger.kernel.org
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-Date: Mon, 14 Jul 2003 13:23:12 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F51JQjdF8qoH2800011794@hotmail.com>
-X-OriginalArrivalTime: 14 Jul 2003 20:23:12.0436 (UTC) FILETIME=[BF9BBF40:01C34A45]
+	Mon, 14 Jul 2003 16:17:57 -0400
+Date: Tue, 15 Jul 2003 08:30:08 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend
+	enhancements
+In-reply-to: <20030714201804.GF902@elf.ucw.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1058214607.3987.14.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1057963547.3207.22.camel@laptop-linux>
+ <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net>
+ <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk>
+ <20030713193114.GD570@elf.ucw.cz> <1058130071.1829.2.camel@laptop-linux>
+ <20030713210934.GK570@elf.ucw.cz> <1058147684.2400.9.camel@laptop-linux>
+ <20030714201245.GC24964@ucw.cz> <20030714201804.GF902@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
+I'm going to stand firm on this one, Pavel.
 
+I think being able to cancel a suspend is a really useful feature, and
+I'll be surprised if we don't see Microsoft including it in their next
+version of Windows (perhaps I should take a patent out! :>)
 
->From: Jeff Garzik <jgarzik@pobox.com>
->To: David griego <dagriego@hotmail.com>
->CC: alan@storlinksemi.com,  linux-kernel@vger.kernel.org
->Subject: Re: Alan Shih: "TCP IP Offloading Interface"
->Date: Mon, 14 Jul 2003 16:03:01 -0400
->
->David griego wrote:
->>Intel Clusters and Network Storage Volume Platforms Lab reported that it 
->>takes about 1MHz to process 1Mbps on a PIII.  Using this rule of thumb 
->>(they showed it scaling from 400MHz to 800MHz) it would take 10GHz to 
->>process 10Mbps.  Well you might say "what about multi-processers?"  This
->
->Um.  It doesn't take nearly 10Ghz to handle 10Mbps, or even 100Mbps.
-Err.  Make that 10GHz for 10Gbps :-)
->
->
->>would be good for people that have multi-processors, but there is a large 
->>segment of embedded processors that are not going have SMP, or be at 10GHz 
->>anytime soon.  Besides that processing interrupts does not scale across 
->>MPs liniarly.  The truth is that communication speeds are outpacing 
->>processor speeds at this time.
->
->If the host CPU is a bottleneck after large-send and checksums have been 
->offloaded, then logically you aren't getting any work done _anyway_. You 
->have to interface with the net stack at some point, in which case you incur 
->a fixed cost, for socket handling, TCP exception handling, etc.
-Still other processing going on like RAID, NFS, or CIFS.
->
->Maybe somebody needs to be looking into AMP (asymmetric multiprocessing), 
->too.
-Nice artical on AMP for ATM.  I'll try to find a pointer.
->
->	Jeff
->
->
->
+That's not to say that I haven't listened to you, however. That's why I
+tightened up the requirements for using it yesterday. As to the extra
+proc entry, it's not a biggie: 2.4 swsusp now has it's own proc handling
+code which is easily extensible. I did this to make it easier to
+understand.
 
-_________________________________________________________________
-MSN 8 with e-mail virus protection service: 2 months FREE*  
-http://join.msn.com/?page=features/virus
+This...
+
+[nigel@laptop-linux nigel]$ ls -l /proc/swsusp/
+total 0
+--w-------    1 root     root            0 Jul 15 08:28 activate
+-rw-------    1 root     root            0 Jul 15 08:28 async_io_limit
+-rw-------    1 root     root            0 Jul 15 08:28 beeping
+-rw-------    1 root     root            0 Jul 15 08:28 checkpage
+-rw-------    1 root     root            0 Jul 15 08:28 debug_sections
+-rw-------    1 root     root            0 Jul 15 08:28 default_console_level
+-rw-------    1 root     root            0 Jul 15 08:28 enable_escape
+-rw-------    1 root     root            0 Jul 15 08:28 image_size_limit
+-r--------    1 root     root            0 Jul 15 08:28 interface_version
+-r--------    1 root     root            0 Jul 15 08:28 last_result
+-rw-------    1 root     root            0 Jul 15 08:28 log_everything
+-rw-------    1 root     root            0 Jul 15 08:28 no_async_reads
+-rw-------    1 root     root            0 Jul 15 08:28 no_async_writes
+-rw-------    1 root     root            0 Jul 15 08:28 no_output
+-rw-------    1 root     root            0 Jul 15 08:28 nopageset2
+-rw-------    1 root     root            0 Jul 15 08:28 pause_between_steps
+-rw-------    1 root     root            0 Jul 15 08:28 progressbar_granularity_limit
+-rw-------    1 root     root            0 Jul 15 08:28 reboot
+-rw-------    1 root     root            0 Jul 15 08:28 slow
+-r--------    1 root     root            0 Jul 15 08:28 version
+[nigel@laptop-linux nigel]$ 
+
+is easier to understand and configure. The /proc/sys/kernel/swsusp
+interface is still there to make it easy to save & restore them all at
+once.
+
+Regards,
+
+Nigel
+
+On Tue, 2003-07-15 at 08:18, Pavel Machek wrote:
+> Hi!
+> 
+> > > Having listened to the arguments, I'll make pressing Escape to cancel
+> > > the suspend a feature which defaults to being disabled and can be
+> > > enabled via a proc entry in 2.4. I won't add code to poll for ACPI (or
+> > > APM) events :>
+> > 
+> > I'd suggest making it a mappable function in the keymap, like reboot is
+> > for example. Both for initiating and stopping the suspend. How about
+> > that?
+> 
+> Any user can load his own keymap, I believe... And I do not like
+> having special /proc options for esc key...
+> 								Pavel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

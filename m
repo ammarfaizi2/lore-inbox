@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286260AbRL2VHq>; Sat, 29 Dec 2001 16:07:46 -0500
+	id <S285552AbRL2VMQ>; Sat, 29 Dec 2001 16:12:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285732AbRL2VHg>; Sat, 29 Dec 2001 16:07:36 -0500
-Received: from varmint.moongroup.com ([216.228.97.23]:30938 "EHLO
-	varmint.moongroup.com") by vger.kernel.org with ESMTP
-	id <S285552AbRL2VH1>; Sat, 29 Dec 2001 16:07:27 -0500
-Date: Sat, 29 Dec 2001 16:07:20 -0500 (EST)
-From: Chuck Mead <csm@MoonGroup.com>
-Reply-To: csm@MoonGroup.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: [test] Hmm. no more lklm traffic?
-In-Reply-To: <20011224083050Z284470-18284+6891@vger.kernel.org>
-Message-ID: <Pine.LNX.4.43.0112291606520.13645-100000@stealth.moongroup.org>
-X-Warning-1: Spammers extracting addresses from this message will definitely want to include the following addresses:
-X-Warning-2: uce@ftc.gov - report@fraud.org - spamrecycle@ChooseYourMail.com
-X-Warning-3: rbl@mail-abuse.org - rss@mail-abuse.org - dul@mail-abuse.org
+	id <S285568AbRL2VMH>; Sat, 29 Dec 2001 16:12:07 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:11024 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S285572AbRL2VL4>; Sat, 29 Dec 2001 16:11:56 -0500
+Message-ID: <3C2E30DA.AEBC0C57@zip.com.au>
+Date: Sat, 29 Dec 2001 13:08:42 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Clean up fs.h union for ext2
+In-Reply-To: <20011227111415.D12868@lynx.no> <Pine.LNX.4.43.0112290957050.18183-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Oliver Xymoron wrote:
+> 
+> > Minor nit: this is already done for the ext3 code, but it looks like:
+> >
+> > #define EXT3_I        (&((inode)->u.ext3_i))
+> >
+> > We already have the EXT3_SB, so I thought I would be consistent with it:
+> >
+> > #define EXT3_SB       (&((sb)->u.ext3_sb))
+> >
+> > Do people like the inline version better?  Either way, I would like to make
+> > the ext2 and ext3 codes more similar, rather than less.
+> 
+> The ext3 macros are rather revolting, simply because they assume the
+> variable name. A parameterized macro might be the best compromise:
+> 
+> #define EXT2_I(i) (&(i->u.ext2_inode_info))
+> 
 
-On Mon, 24 Dec 2001, DevilKin posted the following:
+They _would_ be revolting, except Andreas mistyped :)  We have:
 
-D>Well... I have received your message, but I have not received it yet through LKML...
-D>
-D>DK
-D>
-D>On Monday 24 December 2001 09:24, Adam Keys wrote:
-D>> On December 24, 2001 02:08, DevilKin wrote:
-D>> > Hmm... It seems that I have / there is a problem with LKLM? I have no
-D>> > more traffic from the mailing list since 23/12 around 3 AM.
-D>>
-D>> I think it's just beginning to look a lot like Christmas...
+#define EXT3_SB(sb)     (&((sb)->u.ext3_sb))
+#define EXT3_I(inode)   (&((inode)->u.ext3_i))
 
-Hmmmmmmm.... xmas is over.... is everybody still hung over?
+(A number of the mm macros accidentally only work correctly if their
+argument is called "page".  Dunno if this is stil the case though).
 
-- -- 
-csm
-Dmitry is free!
-Boycott Adobe!
-Repeal the DMCA!
-Stop the SSSCA!
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjwuMIoACgkQv6Gjsf2pQ0osEwCgpABdHNvp30pKBVjaE+y1rBCZ
-mjwAoJLwgK5o5Nwc8bJwH9Gb/wWtxHQy
-=pcX6
------END PGP SIGNATURE-----
-
+-

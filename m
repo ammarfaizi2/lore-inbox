@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266067AbRGGIkt>; Sat, 7 Jul 2001 04:40:49 -0400
+	id <S266081AbRGGJR0>; Sat, 7 Jul 2001 05:17:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbRGGIkj>; Sat, 7 Jul 2001 04:40:39 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:4562 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S266067AbRGGIk1>;
-	Sat, 7 Jul 2001 04:40:27 -0400
-Message-Id: <m15IndK-000OzlC@amadeus.home.nl>
-Date: Sat, 7 Jul 2001 09:40:10 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: dushaw@apl.washington.edu (Brian Dushaw)
-Subject: Re: ASUS CUV4X-D Dual CPU's - Failure to boot...
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0107062244260.3175-100000@munk.apl.washington.edu>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S266074AbRGGJRQ>; Sat, 7 Jul 2001 05:17:16 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:10123 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S266069AbRGGJRB>; Sat, 7 Jul 2001 05:17:01 -0400
+Date: Sat, 7 Jul 2001 10:16:57 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.6 PCMCIA NET modular build breakage
+Message-ID: <20010707101657.C10927@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0107062244260.3175-100000@munk.apl.washington.edu> you wrote:
-> Dear Kernel People,
->   A friend of mine has a new PC with an ASUS CUV4X-D motherboard
-> and dual 1GHZ PIII's.  We have installed RedHat 7.1.  The original
-> RedHat SMP kernel (2.4.2) did not boot; it froze with some complaints
-> about APIC.  The backup single processor kernel 2.4.2 booted o.k.,
-> however.   The upgraded kernel from RedHat (2.4.3) also refused to boot
-> properly - the boot up will start and the screen will then go blank
-> before I can discern any informative messages.  I also downloaded the
-> latest 2.4.6 kernel which had the identical problem, and then I also
-> applied the latest Alan-Cox patch for 2.4.6 which did not solve the
-> problem.  The 2.4.6 kernel will boot when only a single processor
-> is used, however.
+Seems like its something that appeared between 2.4.5 and 2.4.6.  Anyone
+know the correct fix, other than reversing the change?
 
-For several people the following works:
-1) Upgrade to the latest bios
-2) Change the "MPS" level in the bios. It can have 3 values "1.4" "1.1" and
-   "none". the default one doesn't work, one of the others does (but I
-   forgot which one)
+----- Forwarded message from Nicolas Pitre <nico@cam.org> -----
+---------- Forwarded message ----------
+Date: Fri, 6 Jul 2001 12:17:54 +0400
+From: Oleg Drokin <green@iXcelerator.com>
+To: nico@CAM.ORG
+Subject: 2.4.6-rmk1-np1 breakage
 
-Greetings,
-   Arjan van de Ven
+Hello!
+
+   these sevaral bits from latest patch do not allow kernel to build
+   when PCMCIA netcard is selected, but all if the cards are selected as modules
+
+diff -uNr linux-2.4.5-rmk7-np1/drivers/net/pcmcia/Config.in linux-2.4.6-rmk1-np1/drivers/net/pcmcia/Config.in
+--- linux-2.4.5-rmk7-np1/drivers/net/pcmcia/Config.in   Mon May 28 10:21:00 2001
++++ linux-2.4.6-rmk1-np1/drivers/net/pcmcia/Config.in   Wed Jul  4 10:47:46 2001@@ -32,13 +32,4 @@
+    fi
+ fi
+
+-if [ "$CONFIG_PCMCIA_3C589" = "y" -o "$CONFIG_PCMCIA_3C574" = "y" -o \
+-     "$CONFIG_PCMCIA_FMVJ18X" = "y" -o "$CONFIG_PCMCIA_PCNET" = "y" -o \
+-     "$CONFIG_PCMCIA_NMCLAN" = "y" -o "$CONFIG_PCMCIA_SMC91C92" = "y" -o \
+-     "$CONFIG_PCMCIA_XIRC2PS" = "y" -o "$CONFIG_PCMCIA_RAYCS" = "y" -o \
+-     "$CONFIG_PCMCIA_NETWAVE" = "y" -o "$CONFIG_PCMCIA_WAVELAN" = "y" -o \
+-     "$CONFIG_PCMCIA_XIRTULIP" = "y" ]; then
+-   define_bool CONFIG_PCMCIA_NETCARD y
+-fi
+
+And this bit for top level Makefile
+
+-DRIVERS-$(CONFIG_PCMCIA_NETCARD) += drivers/net/pcmcia/pcmcia_net.o
++DRIVERS-$(CONFIG_NET_PCMCIA) += drivers/net/pcmcia/pcmcia_net.o
+
+Since all net cards are modules, object list for pcmcia_net.o is empty and
+kernel can't be linked.
+
+Bye,
+    Oleg
+
+
+----- End forwarded message -----
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

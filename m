@@ -1,80 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUD1OYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264809AbUD1O3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264819AbUD1OYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 10:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264820AbUD1OYa
+	id S264809AbUD1O3T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 10:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264878AbUD1O3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 10:24:30 -0400
-Received: from mx1.actcom.net.il ([192.114.47.13]:44699 "EHLO
-	smtp1.actcom.co.il") by vger.kernel.org with ESMTP id S264819AbUD1OYU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 10:24:20 -0400
-Date: Wed, 28 Apr 2004 17:22:20 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+	Wed, 28 Apr 2004 10:29:19 -0400
+Received: from waste.org ([209.173.204.2]:14574 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264809AbUD1O2E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 10:28:04 -0400
+Date: Wed, 28 Apr 2004 09:27:54 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Moyer <jmoyer@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: What does tainting actually mean?
-Message-ID: <20040428142219.GC9820@mulix.org>
-References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au> <20040428042742.GA1177@middle.of.nowhere> <opr65f48sfshwjtr@laptop-linux.wpcb.org.au> <408F3EE4.1080603@nortelnetworks.com> <opr65ic90vshwjtr@laptop-linux.wpcb.org.au> <20040428121009.GA2844@thunk.org> <yw1x7jw0mfoh.fsf@kth.se> <20040428130402.GB9820@mulix.org> <yw1x3c6omdwb.fsf@kth.se>
+Subject: Re: netconsole hangs w/ alt-sysrq-t
+Message-ID: <20040428142753.GE28459@waste.org>
+References: <16519.58589.773562.492935@segfault.boston.redhat.com> <20040425191543.GV28459@waste.org> <16527.42815.447695.474344@segfault.boston.redhat.com> <20040428140353.GC28459@waste.org> <16527.47765.286783.249944@segfault.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z4+8/lEcDcG5Ke9S"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yw1x3c6omdwb.fsf@kth.se>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <16527.47765.286783.249944@segfault.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 28, 2004 at 10:07:17AM -0400, Jeff Moyer wrote:
+> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
+> 
+> mpm> On Wed, Apr 28, 2004 at 08:44:47AM -0400, Jeff Moyer wrote:
+> >> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall
+> >> <mpm@selenic.com> adds:
+> >> 
+> mpm> On Thu, Apr 22, 2004 at 11:29:33AM -0400, Jeff Moyer wrote:
+> >> >> If netconsole is enabled, and you hit Alt-Sysrq-t, then it will print
+> >> a >> small amount of output to the console(s) and then hang the system.
+> >> In >> this case, I'm using the e100 driver, and we end up exhausting the
+> >> >> available cbs.  Since we are in interrupt context, the driver's poll
+> >> >> routine is never run, and we loop infinitely waiting for resources to
+> >> >> free up that never will.  Kernel version is 2.6.5.
+> >> 
+> mpm> Can you try 2.6.6-rc2? It has a fix to congestion handling that should
+> mpm> address this.
+> >> Is the attached patch the change you are referring to?  If so, I don't
+> >> see how this would fix the problem.  I ended up deferring netpoll writes
+> >> to process context, which has been working fine for me.  Have I missed
+> >> something?
+> 
+> mpm> Well process context defeats the purpose. Ok, I've more closely read
+> mpm> your report and if I understand correctly, you're using the NAPI
+> mpm> version of e100? There's some magic NAPI bits in netpoll_poll that
+> mpm> might help here:
+> 
+> Yes, sorry I didn't specify that earlier.
+> 
+> mpm>         if(trapped && np->dev->poll && test_bit(__LINK_STATE_RX_SCHED,
+> mpm> &np->dev->state))
+> np-> dev->poll(np->dev, &budget);
+> 
+> mpm> Perhaps we need to pull the trapped test out of there. Then with any
+> mpm> luck, dev->hard_start_xmit will return non-zero in netpoll_send_skb,
+> mpm> we'll call netpoll_poll to pump the card, and we'll be able to flush
+> mpm> it.
+> 
+> I don't think so.  You can end up in code running in interrupt context that
+> is not designed to (ip routing code, etc).  I've been down that path
+> already.  I only defer to process context if irqs_disabled().
 
---z4+8/lEcDcG5Ke9S
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fair enough. Turning on trapped basically short circuits the rest of
+the NAPI code so that stuff doesn't hit the stack when we call ->poll.
+Could you try doing a netpoll_set_trap(1)/(0) around the call to ->poll
+and see if that actually lets the thing work? Then we can try to
+figure out the right way to do this.
 
-On Wed, Apr 28, 2004 at 03:27:00PM +0200, M=E5ns Rullg=E5rd wrote:
-> Muli Ben-Yehuda <mulix@mulix.org> writes:
->=20
-> > On Wed, Apr 28, 2004 at 02:48:30PM +0200, M=E5ns Rullg=E5rd wrote:
-> >> > Stack overflows in a badly written device driver can overwrite task
-> >> > structures and cause apparent filesystem problems which are blamed on
-> >> > the hapless filesystem authors instead of where the blame properly
-> >> > lies, namely the device driver author.
-> >>=20
-> >> Wouldn't the problem be just as difficult to pin to a certain module
-> >> even if the source code was open?  I prefer open source modules (I
-> >> have Alpha machines), but I just can't see this argument work.
-> >
-> > No. If the code is open, you can read it and find the bug - just by
-> > reading it. If the code is closed, your only recourse is to observe
-> > the corruption while it happens or read the assembly, which is quite a
-> > lot more difficult.=20
->=20
-> Something has to hint to as to which code to read.  The usual way to
-> find the offending module is to remove modules until the problem goes
-> away.  The availability of source code only matters when you have
-> found which module actually has the bug. =20
+My point about deferring still stands, as when we're dumping an oops,
+we can't really expect that we'll ever get to a process context.
 
-If it's closed, you may think you have found the bug, but you can't
-verify. If it's open, you can.=20
-
-Cheers,=20
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
-
---z4+8/lEcDcG5Ke9S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAj74bKRs727/VN8sRAnDUAJsEBE9lNt7LxdbzE3SelEMwV8TAXgCgnF0K
-1rhNEHSz/YC4GJ6DhvOlL34=
-=Ay57
------END PGP SIGNATURE-----
-
---z4+8/lEcDcG5Ke9S--
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

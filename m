@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbUBPMii (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 07:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUBPMii
+	id S265203AbUBPMee (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 07:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbUBPMee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 07:38:38 -0500
-Received: from agminet04.oracle.com ([141.146.126.231]:58051 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S263953AbUBPMid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 07:38:33 -0500
-Message-ID: <4030B9A6.9090102@iitbombay.org>
-Date: Mon, 16 Feb 2004 18:07:58 +0530
-From: Niraj Kumar <niraj17@iitbombay.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
+	Mon, 16 Feb 2004 07:34:34 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:52427 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265203AbUBPMed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 07:34:33 -0500
+From: Emmeran Seehuber <rototor@rototor.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
+Date: Mon, 16 Feb 2004 13:34:43 +0000
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+References: <200402112344.23378.rototor@rototor.de> <200402151425.15478.rototor@rototor.de> <200402151028.25284.dtor_core@ameritech.net>
+In-Reply-To: <200402151028.25284.dtor_core@ameritech.net>
 MIME-Version: 1.0
-To: Mark Watts <m.watts@eris.qinetiq.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Where to find up to date documentation
-References: <200402161158.06060.m.watts@eris.qinetiq.com>
-In-Reply-To: <200402161158.06060.m.watts@eris.qinetiq.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402161334.43583.rototor@rototor.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:d84d732d8ddd2281dac05c143a411240
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look at :
+On Sunday 15 February 2004 15:28, Dmitry Torokhov wrote:
+[...]
+>
+> I see that the kernel correctly identifies both devices so I suspect there
+> could be a problem with your setup. Could you also post your XF86Config
+> and tell me the the options you are passing to GPM, please?
+What I forgot to mention: cat /dev/input/mouse1 gives me some garbage as soon 
+as I move on the trackpad. But cat /dev/input/mouse0 gives me nothing, so I 
+don't think that this is a userspace configuration problem. The kernel seems 
+to get no input from the PS/2 mouse at all.
 
-http://lwn.net/Articles/driver-porting/
-
-Niraj
-
-Mark Watts wrote:
-
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->
->Can someone recommend the best place to look for documentation on writing a 
->device driver for the 2.6.x kernel? (Preferably something with a worked 
->example)
->
->I'd prefer a hardcopy book, but I can only see ones for 2.4 driver 
->development.
->
->Cheers,
->
->Mark.
->
->- -- 
->Mark Watts
->Senior Systems Engineer
->QinetiQ TIM
->St Andrews Road, Malvern
->GPG Public Key ID: 455420ED
->
->-----BEGIN PGP SIGNATURE-----
->Version: GnuPG v1.2.3 (GNU/Linux)
->
->iD8DBQFAMLBOBn4EFUVUIO0RAkl6AJ0adGg7fyud/njfY2byccccmV2kcACeI+gP
->i57VzaimePPv+VQpzxZt+Zs=
->=NmkT
->-----END PGP SIGNATURE-----
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+cu,
+  Emmy

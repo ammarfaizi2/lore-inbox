@@ -1,187 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbULCVG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbULCVKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbULCVG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 16:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbULCVG4
+	id S262360AbULCVKY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 16:10:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbULCVKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 16:06:56 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:55189 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S262386AbULCVGP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 16:06:15 -0500
-Subject: Re: Exar ST16C2550 rev A2 bug
-From: Alex Williamson <alex.williamson@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, michael.knight@exar.com
-In-Reply-To: <1101659181.2838.41.camel@mythbox>
-References: <1100716008.32679.55.camel@tdi>
-	 <20041128111047.A10807@flint.arm.linux.org.uk>
-	 <1101659181.2838.41.camel@mythbox>
+	Fri, 3 Dec 2004 16:10:24 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:36992
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262360AbULCVKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 16:10:08 -0500
+Subject: Re: [PATCH] oom killer (Core)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
+In-Reply-To: <20041202233459.GF32635@dualathlon.random>
+References: <20041201104820.1.patchmail@tglx>
+	 <20041201211638.GB4530@dualathlon.random>
+	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	 <20041202033619.GA32635@dualathlon.random>
+	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	 <20041202164725.GB32635@dualathlon.random>
+	 <20041202085518.58e0e8eb.akpm@osdl.org>
+	 <20041202180823.GD32635@dualathlon.random>
+	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>
+	 <20041202233459.GF32635@dualathlon.random>
 Content-Type: text/plain
-Organization: LOSL
-Date: Fri, 03 Dec 2004 14:06:11 -0700
-Message-Id: <1102107971.7078.34.camel@tdi>
+Date: Fri, 03 Dec 2004 22:10:06 +0100
+Message-Id: <1102108206.13353.263.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
+On Fri, 2004-12-03 at 00:35 +0100, Andrea Arcangeli wrote:
+> Fork eventually failing is very reasonable if you're executing a fork
+> loop.
 
-On Sun, 2004-11-28 at 09:26 -0700, Alex Williamson wrote:
-> On Sun, 2004-11-28 at 11:10 +0000, Russell King wrote:
-> > On Wed, Nov 17, 2004 at 11:26:47AM -0700, Alex Williamson wrote:
+Yes, it's reasonable, but the effect that any consequent command is
+aborted then is not so reasonable.
+ 
+> > There is no output in dmesg, but I'm not able to remove the remaining
+> > hackbench processes as even a kill -SIGKILL returns with 
+> > fork() (error: resource temporarily not available)
 > > 
-> > Can you check whether this patch solves it?  I'd rather not rely on
-> > size_fifo() to do the right thing in every circumstance.
+> > I'm not sure, which of the two scenarios I like better :)
 > 
->   I have a system on order with one of these bad UARTs.  I'll be happy
-> to check the patch when it arrives (hopefully this week).
+> Please try with 2.4.23aa3, I think there was some oom killer change
+> after I had no resources to track 2.4 anymore. I'm not saying 2.4.23aa3
+> will work better though, but I would like to know if there's some corner
+> case still open in 2.4-aa. Careful, 2.4.23aa3 has security bugs (only
+> local security of course, i.e. normally not a big issue, sure good
+> enough for a quick test).
 
-   No system yet, hopefully soon :^(
+I try, if I find some time, but I'm not too interested in 2.4 :)
 
-> > Essentially, if we find an EFR, we check whether the UART reports
-> > DVID/DREV values corresponding to the known problem scenario, and
-> > if so, we essentially ignore the EFR.
+> I doubt your testcase simulates anything remotely realistic but
+> anyway it's still informative.
+
+The hackbench testcase resembles the real life problem I encountered
+quite realistic. Of course we have fixed the application since then, but
+I bet that I'm not the only one who uses forking servers.
+
+> What I'm simulating here is very real life scenario with a couple of
+> apps allocating more memory than ram.
+
+Use a forking server, connect a lot of clients and it is real life. :)
+
+> > FYI, I tried with 2.6 UP and PREEMPT=n. The result is more horrible. The
+> > box just gets stuck in an endless swap in/swap out and does not respond
+> > to anything else than SysRq-T and the reset button.
 > > 
-> > What I don't know is whether these DVID/DREV values correspond to
-> > a real device which does have an EFR.  Maybe Exar people can shed
-> > some light on this?
+> > With the callback the machine did not come back after 20 Minutes.
 > 
->    I'll see if I can get an engineering contact from Exar to confirm.
+> Was the oom killer invoked at all? If yes, and it works with preempt,
+> that could mean a cond_resched is simply missing...
 
-   Michael Knight from Exar is CC'd.  Unfortunately it sounds like the
-DVID/DREV registers are the same as another Exar product that does have
-a valid EFR.  So this would restrict functionality on that part as well.
-Perhaps a hybrid test, something like:
+Yes, it was invoked
 
-static int broken_efr(struct uart_8250_port *p)
-{
-	/*
-	 * Exar ST16C2550 "A2" devices incorrectly detect as
-	 * having an EFR, and report an ID of 0x0201.  See
-	 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
-	 */
-	if (autoconfig_read_divisor_id(p) == 0x0201 && size_fifo(p) == 16)
-		return 1;
-
-	return 0;
-}
-
-...
-
-	if (!broken_efr(up)) {
-		autoconfig_has_efr(up);
-		return;
-	}
-...
-
-   I think we know size_fifo() works on these parts, so we'd limit our
-reliance on size_fifo().  If any more UARTs come alone with this issue
-we could add them to the test.  Thoughts?  I can incorporate this into
-your patch and test it when I get a system with these parts.  Thanks,
-
-	Alex
-
-
-> > ===== drivers/serial/8250.c 1.92 vs edited =====
-> > --- 1.92/drivers/serial/8250.c	2004-11-19 07:03:10 +00:00
-> > +++ edited/drivers/serial/8250.c	2004-11-28 11:02:32 +00:00
-> > @@ -479,6 +479,34 @@
-> >  }
-> >  
-> >  /*
-> > + * Read UART ID using the divisor method - set DLL and DLM to zero
-> > + * and the revision will be in DLL and device type in DLM.  We
-> > + * preserve the device state across this.
-> > + */
-> > +static unsigned int autoconfig_read_divisor_id(struct uart_8250_port *p)
-> > +{
-> > +	unsigned char old_dll, old_dlm, old_lcr;
-> > +	unsigned int id;
-> > +
-> > +	old_lcr = serial_inp(p, UART_LCR);
-> > +	serial_outp(p, UART_LCR, UART_LCR_DLAB);
-> > +
-> > +	old_dll = serial_inp(p, UART_DLL);
-> > +	old_dlm = serial_inp(p, UART_DLM);
-> > +
-> > +	serial_outp(p, UART_DLL, 0);
-> > +	serial_outp(p, UART_DLM, 0);
-> > +
-> > +	id = serial_inp(p, UART_DLL) | serial_inp(p, UART_DLM) << 8;
-> > +
-> > +	serial_outp(p, UART_DLL, old_dll);
-> > +	serial_outp(p, UART_DLM, old_dlm);
-> > +	serial_outp(p, UART_LCR, old_lcr);
-> > +
-> > +	return id;
-> > +}
-> > +
-> > +/*
-> >   * This is a helper routine to autodetect StarTech/Exar/Oxsemi UART's.
-> >   * When this function is called we know it is at least a StarTech
-> >   * 16650 V2, but it might be one of several StarTech UARTs, or one of
-> > @@ -490,7 +518,7 @@
-> >   */
-> >  static void autoconfig_has_efr(struct uart_8250_port *up)
-> >  {
-> > -	unsigned char id1, id2, id3, rev, saved_dll, saved_dlm;
-> > +	unsigned int id1, id2, id3, rev;
-> >  
-> >  	/*
-> >  	 * Everything with an EFR has SLEEP
-> > @@ -540,21 +568,13 @@
-> >  	 *  0x12 - XR16C2850.
-> >  	 *  0x14 - XR16C854.
-> >  	 */
-> > -	serial_outp(up, UART_LCR, UART_LCR_DLAB);
-> > -	saved_dll = serial_inp(up, UART_DLL);
-> > -	saved_dlm = serial_inp(up, UART_DLM);
-> > -	serial_outp(up, UART_DLL, 0);
-> > -	serial_outp(up, UART_DLM, 0);
-> > -	id2 = serial_inp(up, UART_DLL);
-> > -	id1 = serial_inp(up, UART_DLM);
-> > -	serial_outp(up, UART_DLL, saved_dll);
-> > -	serial_outp(up, UART_DLM, saved_dlm);
-> > -
-> > -	DEBUG_AUTOCONF("850id=%02x:%02x ", id1, id2);
-> > -
-> > -	if (id1 == 0x10 || id1 == 0x12 || id1 == 0x14) {
-> > -		if (id1 == 0x10)
-> > -			up->rev = id2;
-> > +	id1 = autoconfig_read_divisor_id(up);
-> > +	DEBUG_AUTOCONF("850id=%04x ", id1);
-> > +
-> > +	id2 = id1 >> 8;
-> > +	if (id2 == 0x10 || id2 == 0x12 || id2 == 0x14) {
-> > +		if (id2 == 0x10)
-> > +			up->rev = id1 & 255;
-> >  		up->port.type = PORT_16850;
-> >  		return;
-> >  	}
-> > @@ -634,8 +654,16 @@
-> >  	serial_outp(up, UART_LCR, 0xBF);
-> >  	if (serial_in(up, UART_EFR) == 0) {
-> >  		DEBUG_AUTOCONF("EFRv2 ");
-> > -		autoconfig_has_efr(up);
-> > -		return;
-> > +
-> > +		/*
-> > +		 * Exar ST16C2550 "A2" devices incorrectly detect as
-> > +		 * having an EFR, and report an ID of 0x0201.  See
-> > +		 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
-> > +		 */
-> > +		if (autoconfig_read_divisor_id(up) != 0x0201) {
-> > +			autoconfig_has_efr(up);
-> > +			return;
-> > +		}
-> >  	}
-> >  
-> >  	/*
-> > 
+> > I think the callback is the only safe way to fix that. If PF_MEMDIE is
+> > racy then I'm sure we will find a different indicator for that.
 > 
--- 
-Alex Williamson                             HP Linux & Open Source Lab
+> The callback adds overhead to the exit path. Plus strictly speaking it's
+> not actually a callback, you're just "polling" for the bitflag :)
+
+I know :)
+
+> > Yep, but the reentrancy blocking with the callback makes the time, count
+> > crap and the watermark check go away, as it is safe to reenable the
+> > killer at this point because we definitely freed memory resources. So
+> > the watermark comes for free.
+> 
+> You can get an I/O race where your program is about to finish a failing
+> try_to_free_pages pass (note that a task exiting won't make
+> try_to_free_pages work any easier, try_to_free_pages has to free
+> allocated memory, it doesn't care if there's 1M or 100M of free memory).
+> If you don't check the watermarks after waiting for I/O, you're going to
+> generate a suprious oom-killing. Your changes can't help.
+
+True, I did not take the I/O into account.
+
+> Note that even the watermark checks leaves a race window open, but at
+> least it's not an I/O window. While try_to_free_pages can wait for I/O
+> and then fail.
+> 
+> I'll add to my last patch the removal of the PF_MEMDIE check in oom_kill
+> plus I'll fix the remaining race with PF_EXITING/DEAD, and I'll add a
+> cond_resched. Then you can try again with my simple way (w/ and w/o
+> PREEMPT ;).
+> 
+> Thanks for the great feedback.
+
 

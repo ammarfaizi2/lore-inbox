@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277731AbRJIO4H>; Tue, 9 Oct 2001 10:56:07 -0400
+	id <S277751AbRJIO5Q>; Tue, 9 Oct 2001 10:57:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277749AbRJIO4C>; Tue, 9 Oct 2001 10:56:02 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:17538 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S277731AbRJIOzc>; Tue, 9 Oct 2001 10:55:32 -0400
-Message-ID: <3BC31014.8010709@wipro.com>
-Date: Tue, 09 Oct 2001 20:26:20 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S277752AbRJIO47>; Tue, 9 Oct 2001 10:56:59 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:42760 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277751AbRJIO4X>; Tue, 9 Oct 2001 10:56:23 -0400
+Date: Tue, 9 Oct 2001 11:34:47 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
 To: Andrea Arcangeli <andrea@suse.de>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
+Cc: Linus Torvalds <torvalds@transmeta.com>,
         lkml <linux-kernel@vger.kernel.org>
 Subject: Re: pre6 VM issues
-In-Reply-To: <Pine.LNX.4.21.0110091057470.5604-100000@freak.distro.conectiva> <3BC30B9F.9060609@wipro.com> <20011009164417.G15943@athlon.random>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+In-Reply-To: <20011009165002.H15943@athlon.random>
+Message-ID: <Pine.LNX.4.21.0110091129260.5604-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
+On Tue, 9 Oct 2001, Andrea Arcangeli wrote:
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> On Tue, Oct 09, 2001 at 10:44:37AM -0200, Marcelo Tosatti wrote:
+> > 
+> > Hi, 
+> > 
+> > I've been testing pre6 (actually its pre5 a patch which Linus sent me
+> > named "prewith 16GB of RAM (thanks to OSDLabs for that), and I've found
+> > out some problems. First of all, we need to throttle normal allocators
+> > more often and/or update the low memory limits for normal allocators to a
+> > saner value. I already said I think allowing everybody to eat up to
+> > "freepages.min" is too low for a default.
+> > 
+> > I've got atomic memory failures with _22GB_ of swap free (32GB total):
+> > 
+> >  eth0: can't fill rx buffer (force 0)!
+> > 
+> > Another issue is the damn fork() special case. Its failing in practice:
+> > 
+> > bash: fork: Cannot allocate memory
+> > 
+> > Also with _LOTS_ of swap free. (gigs of them)
+> 
+> It could be just fragmentation but the fact it doesn't happen in
+> non-highmem pretty much shows that shows the memory balancing isn't
+> doing the right thing, you hide the problem with the infinite loop for
+> non atomic order 0 allocations and that's just broken, as best it will
+> be slower in collecting the right pages away.
+> 
+> My approch shouldn't fail so easily in fork despite I'm not looping in
+> fork either, because I'm trying to do better decisions since the first
+> place in the memory balancing, I don't wait the infinite loop to
+> eventually collect away the right pages.
 
-Andrea Arcangeli wrote:
+The problem may well be in the memory balancing Andrea, but I'm not trying
+to hide it with the infinite loop.
 
->On Tue, Oct 09, 2001 at 08:07:19PM +0530, BALBIR SINGH wrote:
->
->>their pages can even be swapped out if needed. But for a device that is not willing
->>to wait (GFP_ATOMIC) say in an interrupt context, this might be a issue.
->>
->
->There's just a reserved pool for atomic allocations. See the __GFP_WAIT
->check in __alloc_pages.
->
-I apologize for my ignorance on this
-Balbir
+The infinite loop is just a guarantee that we'll have a reliable way of
+throttling the allocators which can block. Not doing the infinite loop is
+just way too fragile IMO and it is _prone_ to fail in intensive
+loads. 
 
->
->Andrea
->
+If the problem is the highmem balancing, I'll love to get your fixes and
+integrate with the infinite loop logic, which is a separated (related,
+yes, but separate) thing.
 
-
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-
---------------InterScan_NT_MIME_Boundary--

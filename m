@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129667AbQKGAkQ>; Mon, 6 Nov 2000 19:40:16 -0500
+	id <S130683AbQKGAk1>; Mon, 6 Nov 2000 19:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130684AbQKGAkG>; Mon, 6 Nov 2000 19:40:06 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:57985 "EHLO
-	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S130682AbQKGAjy>; Mon, 6 Nov 2000 19:39:54 -0500
-Message-ID: <3A074F4F.DACD7ABA@linux.com>
-Date: Mon, 06 Nov 2000 16:39:43 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S130684AbQKGAkQ>; Mon, 6 Nov 2000 19:40:16 -0500
+Received: from innerfire.net ([208.181.73.33]:62983 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S130683AbQKGAkK>;
+	Mon, 6 Nov 2000 19:40:10 -0500
+Date: Mon, 6 Nov 2000 16:42:00 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <00110700362203.00940@dax.joh.cam.ac.uk>
+Message-ID: <Pine.LNX.4.10.10011061640330.31249-100000@innerfire.net>
 MIME-Version: 1.0
-To: David Hinds <dhinds@valinux.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: current snapshots of pcmcia
-In-Reply-To: <3A06757F.3C63F1A8@linux.com> <20001106104927.A19573@valinux.com> <3A073C8D.B6511746@linux.com> <20001106154039.A19860@valinux.com> <3A074AAC.1F88DB3@linux.com> <20001106163154.A20457@valinux.com>
-Content-Type: multipart/mixed;
- boundary="------------3F3F472F6373038A4BE1B8E8"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------3F3F472F6373038A4BE1B8E8
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Tue, 7 Nov 2000, James A. Sutherland wrote:
 
-David Hinds wrote:
+> On Mon, 06 Nov 2000, Gerhard Mack wrote:
+> > Sure .. lets see you start a laptop in class or buisness meeting and have
+> > everyone turn to look at you wondering why your laptop let off an ear
+> > piercing shreak because the hardware defaults to all settings max.
+> 
+> That only happens if the driver is stupid enough to try guessing "correct"
+> volume settings. If it leaves well alone until it KNOWS the correct settings,
+> there is no ear piercing shriek. Nor is there any break in the sound if you
+> were listening to something from the mixer.
+> 
+> > And you will _STILL_ have that shriek for 1/2 - 1 second before the
+> > userspace app loads.
+> 
+> Wrong. The userspace app is the one triggering the device init, when it gives
+> the sound driver the correct volume settings. There is no half second delay.
+> 
+> > And no we couldn't unplug either the mike or the speakers since they come
+> > embedded in the laptop's case. 
+> > 
+> > I don't see in any of your trolling an answer for this problem.
+> 
+> It isn't trolling, and there is a perfectly simple answer, as I have already
+> explained.
+> 
 
-> Incidentally, the i82365 module should work ok (using ISA interrupts)
-> despite the "No IRQ known" messages.  The Yenta driver won't work at
-> all if PCI interrupts aren't set up.  So I guess another question
-> would be, what card(s) are you using and how are they misbehaving?
+And if I don't use modules?
 
-I'm using tulip based cards and a linksys PC 10/100 + 56K mdm.
+	Gerhard
 
--d
 
 --
-"The difference between 'involvement' and 'commitment' is like an
-eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-'committed'."
+Gerhard Mack
 
+gmack@innerfire.net
 
-
---------------3F3F472F6373038A4BE1B8E8
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-adr:;;;;;;
-version:2.1
-email;internet:david@kalifornia.com
-title:Blue Labs Developer
-x-mozilla-cpt:;14688
-fn:David Ford
-end:vcard
-
---------------3F3F472F6373038A4BE1B8E8--
+<>< As a computer I find your faith in technology amusing.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

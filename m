@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUCVGPp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 01:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbUCVGPp
+	id S261763AbUCVGYT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 01:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUCVGYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 01:15:45 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:15745 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261756AbUCVGPk (ORCPT
+	Mon, 22 Mar 2004 01:24:19 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:8163 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261763AbUCVGYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 01:15:40 -0500
-Date: Mon, 22 Mar 2004 07:16:57 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Dmitry Torokhov <dtor@mail.ru>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Synaptics touchpad + external mouse with Linux 2.6?
-Message-ID: <20040322061657.GA346@ucw.cz>
-References: <m33c81lsnk.fsf@defiant.pm.waw.pl>
+	Mon, 22 Mar 2004 01:24:18 -0500
+Date: Mon, 22 Mar 2004 11:58:42 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Carsten Otte <COTTE@de.ibm.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>,
+       "Martin J. Bligh" <mjbligh@us.ibm.com>
+Subject: Re: [RFC 0/6] sysfs backing store v0.3
+Message-ID: <20040322062842.GA5898@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040318063306.GA27107@in.ibm.com> <20040320175708.GQ11010@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m33c81lsnk.fsf@defiant.pm.waw.pl>
+In-Reply-To: <20040320175708.GQ11010@waste.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 21, 2004 at 11:52:31PM +0100, Krzysztof Halasa wrote:
-> Hi,
+On Sat, Mar 20, 2004 at 11:57:09AM -0600, Matt Mackall wrote:
+> On Thu, Mar 18, 2004 at 12:03:06PM +0530, Maneesh Soni wrote:
+> > Hi,
+> > 
+> > Please find the following patch set for sysfs backing store. Thanks
+> > to Carsten Otte and S390 Linux guys for reporting the bug while
+> > unloading zfcp driver.
 > 
-> I have a notebook PC (an old Fujitsu-Siemens Liteline, celeron 600 etc)
-> with a Synaptics touchpad:
+> Could you rediff this to apply against 2.6.5-rc2? It's getting a fair
+> number of rejects.
 > 
-> Synaptics Touchpad, model: 1
->  Firmware: 4.6
->  Sensor: 19
->  new absolute packet format
->  Touchpad has extended capability bits
->  -> multifinger detection
->  -> palm detection
-> input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-> 
-> This notebook has external mouse+keyboard connector. Is it possible to
-> have both the touchpad and the external mouse simultaneously active in
-> their native modes? The hardware (keyboard controller) doesn't seem to
-> support the active multiplexing mode (by Synaptics and others):
-> 
-> drivers/input/serio/i8042.c: d3 -> i8042 (command) [3]
-> drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [3]
-> drivers/input/serio/i8042.c: 0f <- i8042 (return) [3]
-> drivers/input/serio/i8042.c: d3 -> i8042 (command) [3]
-> drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [3]
-> drivers/input/serio/i8042.c: a9 <- i8042 (return) [3]
-> drivers/input/serio/i8042.c: d3 -> i8042 (command) [3]
-> drivers/input/serio/i8042.c: a4 -> i8042 (parameter) [3]
-> drivers/input/serio/i8042.c: 5b <- i8042 (return) [3]
-> 
-> It looks the keyboard controller just forwards all data from both
-> devices. I can set them (i.e. Linux and XFree86 driver) to IM PS/2 mode
-> and they will both work (Linux treats them as one device), but I can't
-> use touchpad's special features.
 
-I'm sorry to say it, but it's not possible. Well, it might be, but still
-the magic to recognize which device is sending the data would be rather
-crazy.
+Please find the following patches for sysfs backing store v0.3 against 
+2.6.5-rc2. No, changes just fixed the rejects and re-diffed.
+
+Thanks
+Maneesh
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272948AbTHEXr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 19:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272956AbTHEXr3
+	id S272960AbTHFAFi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 20:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272961AbTHFAFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 19:47:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28819 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272948AbTHEXr2 (ORCPT
+	Tue, 5 Aug 2003 20:05:38 -0400
+Received: from waste.org ([209.173.204.2]:7874 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S272960AbTHFAFa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 19:47:28 -0400
-Date: Tue, 5 Aug 2003 16:49:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dick.streefland@xs4all.nl (Dick Streefland)
-Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: [PATCH] autofs4 doesn't expire
-Message-Id: <20030805164904.36b5d2cc.akpm@osdl.org>
-In-Reply-To: <4b0c.3f302ca5.93873@altium.nl>
-References: <4b0c.3f302ca5.93873@altium.nl>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 5 Aug 2003 20:05:30 -0400
+Date: Tue, 5 Aug 2003 19:05:24 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: s0be <s0be@DrunkenCodePoets.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Oops in 2.6.0-test2-mm4
+Message-ID: <20030806000524.GC26701@waste.org>
+References: <20030805170558.3ee38204.s0be@DrunkenCodePoets.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030805170558.3ee38204.s0be@DrunkenCodePoets.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-spam@streefland.xs4all.nl (Dick Streefland) wrote:
->
-> In linux-2.6.0-test1, lookup_mnt() was changed to increment the ref
-> count of the returned vfsmount struct. This breaks expiration of
-> autofs4 mounts, because lookup_mnt() is called in check_vfsmnt()
-> without decrementing the ref count afterwards. The following patch
-> fixes this:
+On Tue, Aug 05, 2003 at 05:05:58PM -0400, s0be wrote:
+> here's the oops from dmesg and the surrounding messages.  I'm guessing it was caused by smb, but I can't confirm it.  trying to recreate it.
 > 
+> SMB connection re-established (-5)
+> smb_errno: class ERRSRV, code 91 from command 0x80
+> SMB connection re-established (-5)
+> smb_errno: class ERRSRV, code 91 from command 0x80
+> SMB connection re-established (-5)
+> smb_errno: class ERRSRV, code 91 from command 0x80
+> SMB connection re-established (-5)
+> smb_errno: class ERRSRV, code 91 from command 0x80
+> Debug: sleeping function called from invalid context at include/asm/uaccess.h:512Call Trace:
+>  [<c011fd3c>] __might_sleep+0x5c/0x5e
+>  [<c010da1a>] save_v86_state+0x6a/0x200
+>  [<c010e565>] handle_vm86_fault+0xa5/0x8c0
+>  [<c0170a23>] dput+0x23/0x200
+>  [<c010c030>] do_general_protection+0x0/0xa0
+>  [<c032519f>] error_code+0x2f/0x38
+>  [<c0324733>] syscall_call+0x7/0xb
+> 
+> SMB connection re-established (-5)
+> smb_errno: class ERRSRV, code 91 from command 0x80
+> XFS mounting filesystem hda1
 
-Neat, thanks.
+Actually, Samba seems unconnected.
 
-Probably we should hold onto that ref because we play with the vfsmount
-later on.  So something like this?
+This is not an oops, just a debug trace that says something tried to
+do something unsafe (namely calling copy_from_user while in_atomic()
+was true). 
 
+Looks like we've got:
 
-diff -puN fs/autofs4/expire.c~autofs4-expiry-fix fs/autofs4/expire.c
---- 25/fs/autofs4/expire.c~autofs4-expiry-fix	2003-08-05 16:44:41.000000000 -0700
-+++ 25-akpm/fs/autofs4/expire.c	2003-08-05 16:48:20.000000000 -0700
-@@ -25,7 +25,7 @@ static inline int is_vfsmnt_tree_busy(st
- 	struct list_head *next;
- 	int count;
- 
--	count = atomic_read(&mnt->mnt_count) - 1;
-+	count = atomic_read(&mnt->mnt_count) - 1 - 1;
- 
- repeat:
- 	next = this_parent->mnt_mounts.next;
-@@ -70,8 +70,11 @@ static int check_vfsmnt(struct vfsmount 
- 	int ret = dentry->d_mounted;
- 	struct vfsmount *vfs = lookup_mnt(mnt, dentry);
- 
--	if (vfs && is_vfsmnt_tree_busy(vfs))
--		ret--;
-+	if (vfs) {
-+		if (is_vfsmnt_tree_busy(vfs))
-+			ret = 0;
-+		mntput(vfs);
-+	}
- 	DPRINTK(("check_vfsmnt: ret=%d\n", ret));
- 	return ret;
- }
+ do_general_protection
+  handle_vm86_fault
+   return_to_32bit
+    save_v86_state
+     copy_to_user   
 
-_
+and the destination of the copy is current->thread.vm86_info->regs,
+which is labelled __user. Presuming this is actually in userspace,
+this could be a problem.
 
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

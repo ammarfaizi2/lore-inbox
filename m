@@ -1,46 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263969AbTEWJIv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 05:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbTEWJIv
+	id S263970AbTEWJNq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 05:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbTEWJNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 05:08:51 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:12570 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263969AbTEWJIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 05:08:50 -0400
-Date: Fri, 23 May 2003 02:24:54 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Lothar Wassmann" <LW@KARO-electronics.de>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
- 2.5.30(at least))
-Message-Id: <20030523022454.61a180dd.akpm@digeo.com>
-In-Reply-To: <16077.55787.797668.329213@ipc1.karo>
-References: <16076.50160.67366.435042@ipc1.karo>
-	<20030522151156.C12171@flint.arm.linux.org.uk>
-	<16077.55787.797668.329213@ipc1.karo>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 23 May 2003 05:13:46 -0400
+Received: from aktion1.adns.de ([62.116.145.13]:36261 "EHLO aktion1.adns.de")
+	by vger.kernel.org with ESMTP id S263970AbTEWJNo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 05:13:44 -0400
+Message-ID: <3ECDE94C.3030502@web.de>
+Date: Fri, 23 May 2003 11:26:36 +0200
+From: Sven Krohlas <darkshadow@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4b) Gecko/20030516
+X-Accept-Language: de, de-at, de-de, de-li, de-lu, de-ch, en-us, en
+MIME-Version: 1.0
+To: Oliver Pitzeier <o.pitzeier@uptime.at>
+CC: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+References: <002c01c32108$1e4bb980$020b10ac@pitzeier.priv.at>
+In-Reply-To: <002c01c32108$1e4bb980$020b10ac@pitzeier.priv.at>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 May 2003 09:21:56.0522 (UTC) FILETIME=[C170B8A0:01C3210C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lothar Wassmann" <LW@KARO-electronics.de> wrote:
->
-> And maybe because *every* other call to flush_page_to_ram() has been
->  replaced by one of the new interface macros except that one in
->  filemap_nopage() in 'mm/filemap.c'.
-> 
+Hi,
 
-flush_page_to_ram() has been deleted from the kernel.
+> OK. So now I have to say: _Don't_ use 2.4.20-rc* if you have a aic7xxx. You can
+> use 2.4.19 and maybe 2.4.20(?).
 
-filemap_nopage() is a pagecache function and shouldn't be fiddling with
-cache and/or TLB operations.  Unless it touches the page by hand, which it
-does not.
+Just to clearify: _I don't_ have a aic7xxx!
 
-Please, test a current kernel.
+-------------------
+linux:/home/sven # hwinfo --short
+cpu:
+                       AMD-K6(tm)-III Processor, 500 MHz
+keyboard:
+                       PS/2 Keyboard
+mouse:
+  /dev/input/mice      Logitech iFeel Mouse
+printer:
+  /dev/lp0             Hewlett-Packard HP LaserJet 5L
+monitor:
+                       PHILIPS 109S
+graphics card:
+                       Diamond Viper V550
+framebuffer:
+                       NVidia Riva TNT
+sound:
+                       Creative Sound Blaster AWE 64
+storage:
+                       Floppy disk controller
+                       LSI Logic / Symbios Logic 53c875
+                       Promise 20269
+                       Acer Laboratories Inc. [ALi] M5229 IDE
+                       IDE interface
+network:
+                       Realtek RT8139
+                       Realtek RTL-8029(AS)
+network interface:
+  lo                   Loopback network interface
+  eth0                 Ethernet network interface
+  eth1                 Ethernet network interface
+  ppp0                 Network Interface
+  sit0                 Network Interface
+disk:
+  /dev/hda             IC35L120AVV207-0
+  /dev/hdc             IC35L120AVV207-0
+  /dev/hde             Maxtor 4G120J6
+  /dev/hdf             IBM-DJNA-352030
+  /dev/hdg             IC35L120AVV207-0
+  /dev/hdb             IC35L120AVV207-0
+cdrom:
+  /dev/sr0             IDE-CD R/RW 8x4x32
+  /dev/hdh             R/RW 8x4x32
+floppy:
+  /dev/fd0             Floppy Disk
+usb controller:
+                       Acer Laboratories Inc. [ALi] USB 1.1 Controller
+bios:
+                       BIOS
+bridge:
+                       Acer Laboratories Inc. [ALi] ALI M1541 Aladdin V/V+ AGP System Controller
+                       Acer Laboratories Inc. [ALi] M1541 PCI to AGP Controller
+                       Acer Laboratories Inc. [ALi] ALI M7101 Power Management Controller
+                       Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
+hub:
+                       USB OHCI Root Hub
+                       USB OHCI Root Hub
+                       Hub
+                       USB OHCI Root Hub
+                       USB OHCI Root Hub
+                       USB OHCI Root Hub
+                       USB OHCI Root Hub
+memory:
+                       Main Memory
+unknown:
+                       FPU
+                       DMA controller
+                       PIC
+                       Timer
+                       RTC
+                       Keyboard controller
+  /dev/lp0             Parallel controller
+                       PS/2 Controller
+                       ISA PnP Interface
+                       Creative Sound Blaster AWE 64
+                       Creative Sound Blaster AWE 64
+  /dev/ttyS0           16550A
+  /dev/ttyS1           16550A
+-------------------
 
+Sunday evening I'll try rc3, I'm looking forward to a freezing
+system again :-(
+
+Have a nice day.
+-- 
+BOFH excuse of the day:
+The salesman drove over the CPU board.
 

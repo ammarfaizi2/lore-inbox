@@ -1,98 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUGJAQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUGJASN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbUGJAQk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 20:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbUGJAQk
+	id S265093AbUGJASN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 20:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbUGJASN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 20:16:40 -0400
-Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:58264 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264991AbUGJAQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 20:16:34 -0400
-Message-ID: <40EF354F.9090903@kolivas.org>
-Date: Sat, 10 Jul 2004 10:16:15 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Fri, 9 Jul 2004 20:18:13 -0400
+Received: from mail1.fw-sj.sony.com ([160.33.82.68]:1948 "EHLO
+	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
+	id S265119AbUGJAR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 20:17:56 -0400
+Message-ID: <40EF3637.4090105@am.sony.com>
+Date: Fri, 09 Jul 2004 17:20:07 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <piggin@cyberone.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Likelihood of rt_tasks
-References: <40EE6CC2.8070001@kolivas.org> <40EF2FF2.6000001@bigpond.net.au>
-In-Reply-To: <40EF2FF2.6000001@bigpond.net.au>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig4BD00A7ACA3646424644FB6C"
+To: Adam Kropelin <akropel1@rochester.rr.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>,
+       CE Linux Developers List <celinux-dev@tree.celinuxforum.org>
+Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
+References: <40EEF10F.1030404@am.sony.com> <20040709193528.A23508@mail.kroptech.com>
+In-Reply-To: <20040709193528.A23508@mail.kroptech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4BD00A7ACA3646424644FB6C
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Adam Kropelin wrote:
+> Here's an alternate patch (compile tested only) which is slightly
+> simpler, slightly more flexible, and fixes a small bug in the original.
 
-Peter Williams wrote:
-> Con Kolivas wrote:
+These are great improvements.  Thanks.
+
+> The simplification centers around removing USE_PRESET_LPJ and
+> interpeting a preset value of 0 as a signal to autodetect. This 
+> eliminates ifdefs in the code and avoids giving magic significance 
+> to the loops_per_jiffy LSb.
+Yeah.  When I originally wrote it, I thought using the LSb was cute,
+and avoided an extra variable.  Your way is simpler and provides
+the extra feature of disabling the preset from the command line.
+This, and the elimination of ifdefs is quite nice.
+
+> Additionally, the user can always disable
+> the preset by using "lpj=0" which would allow booting a kernel that
+> crashes due to a bogus preset. The only problem I can think of with
+> this approach is if there is a system out there so slow that lpj=0 is
+> actually a valid setting.
+It's hard to imagine this case, but that would merely result in
+a calibration, right?  For a machine that slow, calibrating the
+delay is the least of their worries. :-)
+
 > 
->> A quick question about the usefulness of making rt_task() checks 
->> unlikely in sched-unlikely-rt_task.patch which is in -mm
->>
->> quote:
->>
->> diff -puN include/linux/sched.h~sched-unlikely-rt_task 
->> include/linux/sched.h
->> --- 25/include/linux/sched.h~sched-unlikely-rt_task    Fri Jul  2 
->> 16:33:01 2004
->> +++ 25-akpm/include/linux/sched.h    Fri Jul  2 16:33:01 2004
->> @@ -300,7 +300,7 @@ struct signal_struct {
->>
->>  #define MAX_PRIO        (MAX_RT_PRIO + 40)
->>
->> -#define rt_task(p)        ((p)->prio < MAX_RT_PRIO)
->> +#define rt_task(p)        (unlikely((p)->prio < MAX_RT_PRIO))
->>
->>  /*
->>   * Some day this will be a full-fledged user tracking system..
->>
->> ---
->> While rt tasks are normally unlikely, what happens in the case when 
->> you are scheduling one or many running rt_tasks and the majority of 
->> your scheduling is rt? Would it be such a good idea in this setting 
->> that it is always hitting the slow path of branching all the time?
+> The final change is to fix a small bug in the original patch:
+> loops_per_jiffy was no longer initialized each time calibrate_delay()
+> was invoked. This is potentially an issue on SMP systems since
+> calibrate_delay() will be invoked for each CPU. One related thing to
+> keep in mind is that on an SMP system, using an lpj preset will result
+> in the same lpj setting on each CPU. On sane systems this shouldn't be
+> a problem, but if there's a machine out there with unequal CPUs it will
+> be a problem. Perhaps this is worth mentioning in the help text as well.
+I hadn't considered this.  (Too much "embedded" on the brain.)
+By help text, do you mean the config text, or something on the wiki page,
+or some other file (in Documentation?).
+
+On the subject of help text, is there a Documentation file I should modify
+or someone I should notify about the addition of a new kernel command line
+option?
+
 > 
-> 
-> Even when this isn't the case you don't want to make all rt_task() 
-> checks "unlikely".  In particular, during "wake up" using "unlikely" 
-> around rt_task() will increase the time that it takes for SCHED_FIFO 
-> tasks to get onto the CPU when they wake which will be bad for latency 
-> (which is generally important to these tasks as evidenced by several 
-> threads on the topic).
+> While we're on the topic: Should FASTBOOT perhaps depend on EMBEDDED? I
+> can imagine a user with a massively MP system perhaps finding this
+> option useful, so maybe not.
 
-Well I dont think making them unlikely is necessary either, but 
-realistically the amount of time added by the unlikely() check will be 
-immeasurably small in real terms - and hitting it frequently enough will 
-be washed over by the cpu as Ingo said. I dont think the order of 
-magnitude of this change is in the same universe as the problem of 
-scheduling latency that people are complaining of.
+I had it there originally, then changed my mind.  I know some server
+guys are interested in fastboot.  This particular change might not
+be that interesting, but some of the other changes we are thinking of
+might not be specific to just embedded.
 
-Con
+I will do some runtime testing on your patch, but I probably won't be
+able to report back until Monday.
 
---------------enig4BD00A7ACA3646424644FB6C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Thanks very much!
+   -- Tim
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7zVUZUg7+tp6mRURAi6+AJ9KYbPy4LBrT7c7pRwX6WgRWMZnMQCgi6Xv
-TnwurCcjthtyTtg4sI0GkeY=
-=NCPr
------END PGP SIGNATURE-----
-
---------------enig4BD00A7ACA3646424644FB6C--
+=============================
+Tim Bird
+Architecture Group Co-Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

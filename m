@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbUJ0Cu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUJ0Cwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbUJ0Cu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbUJ0Cu4
+	id S261600AbUJ0Cwu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 22:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbUJ0Cwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:50:56 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:37256 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S261598AbUJ0Cuq (ORCPT
+	Tue, 26 Oct 2004 22:52:50 -0400
+Received: from gold.pobox.com ([208.210.124.73]:53726 "EHLO gold.pobox.com")
+	by vger.kernel.org with ESMTP id S261600AbUJ0Cwf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:50:46 -0400
-Date: Wed, 27 Oct 2004 03:47:28 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Massimo Cetra <mcetra@navynet.it>
-Subject: Re: My thoughts on the "new development model"
-In-Reply-To: <200410262002_MC3-1-8D38-C078@compuserve.com>
-Message-ID: <Pine.LNX.4.61.0410270345480.20284@student.dei.uc.pt>
-References: <200410262002_MC3-1-8D38-C078@compuserve.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Tue, 26 Oct 2004 22:52:35 -0400
+Date: Tue, 26 Oct 2004 19:52:22 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>, jbaron@redhat.com,
+       alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: Linux 2.4.28-rc1
+Message-ID: <20041027025222.GB9375@ip68-4-98-123.oc.oc.cox.net>
+References: <417E5904.9030107@ttnet.net.tr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417E5904.9030107@ttnet.net.tr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Oct 26, 2004 at 05:02:44PM +0300, O.Sezer wrote:
+> There are many lost/forgotten patches posted here on lkml. Since 2.4.28
+> is near and 2.4 is going into "deep maintainance" mode soon, I gathered
+> a short list of some of them.  There, sure, are many more of them,  but
+> here it goes.
+> I think they deserve a re-review and re-consideration for inclusion.
+[snip]
 
-On Tue, 26 Oct 2004, Chuck Ebbert wrote:
+Here's another one:
+Jason Baron: 2.4.28-pre3 tty/ldisc fixes
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109604869516678&w=2
 
->>>  "It works for me" doesn't cut it in the OS world.
->>
->> It's an existence proof spanning a wide swath of architectures. If
->> you are not seeing similar results, send bugreports.
->
->  I don't neeed to send in bug reports, there are plenty on l-k
-> right now:
+AFAICT the above patch is the fix for:
+CAN-2004-0814: Linux terminal layer races
+http://marc.theaimsgroup.com/?l=bugtraq&m=109837405025108&w=2
 
-If there are bugs not yet reported, you should report them. The number of
-yet-to-be-fixed bugs shouldn't make you not to report the others...
+This patch seems to be working fine for me, but I don't know if anyone
+else has really tested it at all, nor do I know (one way or the other)
+if the security issues are serious enough to apply this for 2.4.28-rc
+and not 2.4.29-pre. Also, I'm running on a single-processor system with
+no HyperThreading, so if there are any SMP-related issues then I have no
+way of experiencing them.
 
-Mind Booster Noori
+Anyway, since it's a security fix (unless I'm mistaken), I guess it's
+worth considering for inclusion...
 
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFBfwxCmNlq8m+oD34RAl9jAJ9FWzkM96WUJks443s258iyhY0vgACfRyvh
-rQ+cm7HPeHKvtzqAOv7Ulso=
-=e9Uc
------END PGP SIGNATURE-----
+-Barry K. Nathan <barryn@pobox.com>
 

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267285AbSLEK42>; Thu, 5 Dec 2002 05:56:28 -0500
+	id <S267278AbSLELM0>; Thu, 5 Dec 2002 06:12:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbSLEK42>; Thu, 5 Dec 2002 05:56:28 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:7878 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S267285AbSLEK4V>;
-	Thu, 5 Dec 2002 05:56:21 -0500
-Subject: Re: [RFC] generic device DMA implementation
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20021205004744.GB2741@zax.zax>
-References: <200212041747.gB4HlEF03005@localhost.localdomain> 
-	<20021205004744.GB2741@zax.zax>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 05 Dec 2002 12:08:16 +0100
-Message-Id: <1039086496.651.65.camel@zion>
+	id <S267283AbSLELM0>; Thu, 5 Dec 2002 06:12:26 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33292 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267278AbSLELMZ>; Thu, 5 Dec 2002 06:12:25 -0500
+Date: Thu, 5 Dec 2002 11:19:13 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: wli@holomorphy.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net, jgarzik@pobox.com,
+       miura@da-cha.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
+       pavel@ucw.cz
+Subject: Re: [warnings] [2/8] fix uninitialized quot in drivers/serial/core.c
+Message-ID: <20021205111913.A18253@flint.arm.linux.org.uk>
+Mail-Followup-To: wli@holomorphy.com, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org,
+	kernel-janitor-discuss@lists.sourceforge.net, jgarzik@pobox.com,
+	miura@da-cha.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
+	pavel@ucw.cz
+References: <0212050252.hdcd1a.b3aUbzb5bCbGc3dkcCd8a1atc20143@holomorphy.com> <0212050252.AaCdAbid6d9cabJbEbmaTdZb7daa.c5a20143@holomorphy.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <0212050252.AaCdAbid6d9cabJbEbmaTdZb7daa.c5a20143@holomorphy.com>; from wli@holomorphy.com on Thu, Dec 05, 2002 at 02:52:59AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-05 at 01:47, David Gibson wrote:
-> Do you have an example of where the second option is useful?  Off hand
-> the only places I can think of where you'd use a consistent_alloc()
-> rather than map_single() and friends is in cases where the hardware's
-> behaviour means you absolutely positively have to have consistent
-> memory.
+On Thu, Dec 05, 2002 at 02:52:59AM -0800, wli@holomorphy.com wrote:
+> Give quot a default value so it's initialized. rmk, this is yours
+> to ack.
 
-Looking at our implementation (ppc32 on non-coherent CPUs like 405) of
-pci_map_single, which just flushes the cache, I still feel we need a
-consistent_alloc, that is an implementation that _disables_ caching for
-the area.
+Why can't we get this obvious compiler bug fixed?  I'd rather have
+the compiler bug fixed rather than trying to work around the bogus
+warning.
 
-A typical example is an USB OHCI driver. You really don't want to play
-cache tricks with the shared area here. That will happen each time you
-have a shared area in memory in which both the CPU and the device may
-read/write in the same cache line.
+It's obvious that the loop:
 
-For things like ring descriptors of a net driver, I feel it's very much
-simpler (and possibly more efficient too) to also allocate non-cacheable
-space for consistent instead of continuously flushing/invalidating.
-Actually, flush/invalidate here can also have nasty side effects if
-several descriptors fit in the same cache line.
+	for (try = 0; try < 3; try++)
 
-The data buffers, of course (skbuffs typically) would preferably use
-pci_map_* like APIs (hrm... did we ever make sure skbuffs would _not_
-mix the data buffer with control datas in the same cache line ? This
-have been a problem with non-coherent CPUs in the past).
+is going to be executed at least once, which will initialise quot.
 
-Ben.
+As for the second hunk, its correct in so far as it'll catch the case
+where we can't even do 9600 baud.  However, I think we should just
+bound the lowest baud rate such that we can always do 9600 baud (and
+therefore this function will never return zero.)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

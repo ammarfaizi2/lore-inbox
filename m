@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbUK3Ajc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbUK3Ai5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbUK3Ajc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 19:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUK3AjM
+	id S261905AbUK3Ai5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUK3Aiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 19:39:12 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:44249 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261898AbUK3AgL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 19:36:11 -0500
-Date: Mon, 29 Nov 2004 16:06:48 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Roger Luethi <rl@hellgate.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 PATCH] visor: Make URB limit error more visible
-Message-ID: <20041130000648.GA28436@kroah.com>
-References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041123193604.GA12605@k3.hellgate.ch> <20041124232527.GB4394@kroah.com> <20041125161619.GD18567@k3.hellgate.ch> <1101661884.16787.28.camel@localhost.localdomain>
+	Mon, 29 Nov 2004 19:38:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44208 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261905AbUK3AgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 19:36:19 -0500
+Date: Mon, 29 Nov 2004 16:35:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kd6pag@qsl.net, linux-kernel@vger.kernel.org, perex@suse.cz
+Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
+Message-Id: <20041129163533.14afa2a5.akpm@osdl.org>
+In-Reply-To: <20041120185100.GA1205@elf.ucw.cz>
+References: <E1CVYZM-0000Fi-00@penngrove.fdns.net>
+	<20041120185100.GA1205@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101661884.16787.28.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 28, 2004 at 05:11:25PM +0000, Alan Cox wrote:
-> On Iau, 2004-11-25 at 16:16, Roger Luethi wrote:
-> > There is only one call to dev_dbg in all of visor.c, the rest is dbg or
-> > dev_err. It already bit us once when warnings didn't turn up in a debug
-> > log. I would argue that a flood of those warnings will warrant report
-> > and inspection anyway (broken app, broken driver, or lame DoS attempt),
-> > so I replaced the dev_dbg with dev_err.
-> > 
-> > Signed-off-by: Roger Luethi <rl@hellgate.ch>
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
 > 
-> Since it is trivially user caused should it not be rate limited or it
-> becomes a DoS of its own to the syslog
+> > The software suspend issue was long and tedious to narrow down.  Yep, as
+> > you suspected, it appears to be specific a driver (or group thereof).  It
+> > appears to happen when the sound subsystem is included.  Attached below 
+> > is the .config and a 'diff' from the losing one to one which works.
+> 
+> Okay, this is for the alsa team then. Somewhere between 2.6.10-rc1 and
+> 2.6.10-rc2, ALSA started breaking swsusp :-(.
 
-Agreed, that's why the change I commited doesn't do it this way :)
+What does "breaking" mean?  The driver fails to suspend the device? 
+Scribbles on memory?
 
-thanks,
+Also, John: did those framebuffer problems get fixed?
 
-greg k-h
+Thanks.

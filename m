@@ -1,374 +1,193 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbTIGPFx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 11:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbTIGPFx
+	id S263322AbTIGPOf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 11:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTIGPOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 11:05:53 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:47351 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S263309AbTIGPFO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 11:05:14 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: USB - UHCI not SMP capable? linux-2.6-test4
-Date: Sun, 7 Sep 2003 08:05:10 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AF12@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: USB - UHCI not SMP capable? linux-2.6-test4
-Thread-Index: AcN1SL/gItO5lvavS4mb9d1sNlExbgAB2Y2w
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Sven Dowideit" <svenud@ozemail.com.au>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "linux-acpi" <linux-acpi@intel.com>
-X-OriginalArrivalTime: 07 Sep 2003 15:05:12.0040 (UTC) FILETIME=[6F869E80:01C37551]
+	Sun, 7 Sep 2003 11:14:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59073 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263322AbTIGPO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 11:14:29 -0400
+Date: Sun, 7 Sep 2003 17:14:23 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Peter Daum <gator@cs.tu-berlin.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 with CONFIG_M686: networking broken
+Message-ID: <20030907151422.GX14436@fs.tum.de>
+References: <Pine.LNX.4.30.0309031227100.10173-100000@swamp.bayern.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0309031227100.10173-100000@swamp.bayern.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sounds like an ACPI issue, especially with APIC mode, assuming you have
-ACPI configured. Can you try the SMP kernel with the boot parameter
-"acpi=off"? We have a fix to that in 2.4 ACPI bk tree, and Len is
-working on patches for 2.6.
+On Wed, Sep 03, 2003 at 01:08:08PM +0200, Peter Daum wrote:
 
-Thanks,
-Jun
+> Hi,
 
-> -----Original Message-----
-> From: Sven Dowideit [mailto:svenud@ozemail.com.au]
-> Sent: Sunday, September 07, 2003 4:55 PM
-> To: linux-kernel
-> Subject: USB - UHCI not SMP capable? linux-2.6-test4
-> 
-> I have a dual pIII VIA VP6 which is not doing usb properly. it appears
-> to work when i re-build with SMP off , but with SMP on devices don't
-get
-> detected/powered up.
-> 
-> as a simple test I have a logitech usb mouse plugged in (but you don't
-> get to see it :).
-> 
-> as an added wierdness, when i added a pcmcia-PCI bridge to the system,
-> to test Russell's pcmcia patch (when didn't work well (but that could
-> have been config issues)) and repeatedly pulled and added pcmcia
-cards,
-> the usb mouse somethimes turned up.. but not at boot time.
-> 
-> does anyone have any ideas?
-> 
-> the following logs are with SMP enabled
-> ------
-> dmesg
-> 
-> niform CD-ROM driver Revision: 3.12
-> drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface
-> driver v2.1
-> uhci-hcd 0000:00:07.2: UHCI Host Controller
-> uhci-hcd 0000:00:07.2: irq 19, io base 0000a400
-> uhci-hcd 0000:00:07.2: new USB bus registered, assigned bus number 1
-> PM: Adding info for usb:usb1
-> hub 1-0:0: USB hub found
-> hub 1-0:0: 2 ports detected
-> PM: Adding info for usb:1-0:0
-> uhci-hcd 0000:00:07.3: UHCI Host Controller
-> uhci-hcd 0000:00:07.3: irq 19, io base 0000a800
-> uhci-hcd 0000:00:07.3: new USB bus registered, assigned bus number 2
-> PM: Adding info for usb:usb2
-> hub 2-0:0: USB hub found
-> hub 2-0:0: 2 ports detected
-> PM: Adding info for usb:2-0:0
-> drivers/usb/core/usb.c: registered new driver hid
-> drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-> mice: PS/2 mouse device common for all mice
-> input: PS/2 Logitech Mouse on isa0060/serio1
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> input: AT Set 2 keyboard on isa0060/serio0
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> I2O Core - (C) Copyright 1999 Red Hat Software
-> I2O: Event thread created as pid 19
-> 
-> ------
-> lspci -v
-> 
-> 00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 16) (prog-if
-00
-> [UHCI])
->         Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
->         Flags: bus master, medium devsel, latency 32, IRQ 19
->         I/O ports at a400 [size=32]Bus 002 Device 001: ID 0000:0000
->         Capabilities: [80] Power Management version 2
-> 
-> 00:07.3 USB Controller: VIA Technologies, Inc. USB (rev 16) (prog-if
-00
-> [UHCI])
->         Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
->         Flags: bus master, medium devsel, latency 32, IRQ 19
->         I/O ports at a800 [size=32]
->         Capabilities: [80] Power Management version 2
-> 
-> 
-> ---------
-> lsusb -v
-> 
-> Bus 002 Device 001: ID 0000:0000
-> Device Descriptor:
->   bLength                18
->   bDescriptorType         1
->   bcdUSB               1.10
->   bDeviceClass            9 Hub
->   bDeviceSubClass         0
->   bDeviceProtocol         0
->   bMaxPacketSize0         8
->   idVendor           0x0000
->   idProduct          0x0000
->   bcdDevice            2.06
->   iManufacturer           3 Linux 2.6.0-test4 uhci-hcd
->   iProduct                2 UHCI Host Controller
->   iSerial                 1 0000:00:07.3
->   bNumConfigurations      1
->   Configuration Descriptor:
->     bLength                 9
->     bDescriptorType         2
->     wTotalLength           25
->     bNumInterfaces          1
->     bConfigurationValue     1
->     iConfiguration          0
->     bmAttributes         0x40
->       Self Powered
->     MaxPower                0mA
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        0
->       bAlternateSetting       0
->       bNumEndpoints           1
->       bInterfaceClass         9 Hub
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x81  EP 1 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               none
->         wMaxPacketSize          2
->         bInterval             255
->   Language IDs: (length=4)
->      0409 English(US)
-> 
-> Bus 001 Device 001: ID 0000:0000
-> Device Descriptor:
->   bLength                18
->   bDescriptorType         1
->   bcdUSB               1.10
->   bDeviceClass            9 Hub
->   bDeviceSubClass         0
->   bDeviceProtocol         0
->   bMaxPacketSize0         8
->   idVendor           0x0000
->   idProduct          0x0000
->   bcdDevice            2.06
->   iManufacturer           3 Linux 2.6.0-test4 uhci-hcd
->   iProduct                2 UHCI Host Controller
->   iSerial                 1 0000:00:07.2
->   bNumConfigurations      1
->   Configuration Descriptor:
->     bLength                 9
->     bDescriptorType         2
->     wTotalLength           25
->     bNumInterfaces          1
->     bConfigurationValue     1
->     iConfiguration          0
->     bmAttributes         0x40
->       Self Powered
->     MaxPower                0mA
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        0
->       bAlternateSetting       0
->       bNumEndpoints           1
->       bInterfaceClass         9 Hub
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x81  EP 1 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               none
->         wMaxPacketSize          2
->         bInterval             255
->   Language IDs: (length=4)
->      0409 English(US)
-> 
-> 
-> ------
-> .config
-> 
-> #
-> # USB
-> support
-> #
-> CONFIG_USB=y
-> # CONFIG_USB_DEBUG is not
-> set
-> 
-> #
-> # Miscellaneous USB
-> options
-> #
-> CONFIG_USB_DEVICEFS=y
-> # CONFIG_USB_BANDWIDTH is not
-> set
-> # CONFIG_USB_DYNAMIC_MINORS is not
-> set
-> 
-> #
-> # USB Host Controller
-> Drivers
-> #
-> # CONFIG_USB_EHCI_HCD is not
-> set
-> # CONFIG_USB_OHCI_HCD is not
-> set
-> CONFIG_USB_UHCI_HCD=y
-> 
-> #
-> # USB Device Class
-> drivers
-> #
-> # CONFIG_USB_AUDIO is not
-> set
-> # CONFIG_USB_BLUETOOTH_TTY is not
-> set
-> # CONFIG_USB_MIDI is not
-> set
-> # CONFIG_USB_ACM is not
-> set
-> CONFIG_USB_PRINTER=m
-> 
-> #
-> # SCSI support is needed for USB
-> Storage
-> #
-> # CONFIG_USB_STORAGE is not
-> set
-> 
-> #
-> # USB Human Interface Devices
-> (HID)
-> #
-> CONFIG_USB_HID=y
-> CONFIG_USB_HIDINPUT=y
-> # CONFIG_HID_FF is not
-> set
-> # CONFIG_USB_HIDDEV is not
-> set
-> # CONFIG_USB_AIPTEK is not
-> set
-> # CONFIG_USB_WACOM is not
-> set
-> # CONFIG_USB_KBTAB is not
-> set
-> # CONFIG_USB_POWERMATE is not
-> set
-> # CONFIG_USB_XPAD is not
-> set
-> 
-> #
-> # USB Imaging
-> devices
-> #
-> # CONFIG_USB_MDC800 is not
-> set
-> # CONFIG_USB_SCANNER is not
-> set
-> 
-> #
-> # USB Multimedia
-> devices
-> #
-> # CONFIG_USB_DABUSB is not
-> set
-> # CONFIG_USB_VICAM is not
-> set
-> # CONFIG_USB_DSBR is not
-> set
-> # CONFIG_USB_IBMCAM is not
-> set
-> # CONFIG_USB_KONICAWC is not
-> set
-> # CONFIG_USB_OV511 is not
-> set
-> # CONFIG_USB_PWC is not
-> set
-> # CONFIG_USB_SE401 is not
-> set
-> # CONFIG_USB_STV680 is not
-> set
-> 
-> #
-> # USB Network
-> adaptors
-> #
-> # CONFIG_USB_AX8817X is not
-> set
-> # CONFIG_USB_CATC is not
-> set
-> # CONFIG_USB_KAWETH is not
-> set
-> # CONFIG_USB_PEGASUS is not
-> set
-> # CONFIG_USB_RTL8150 is not
-> set
-> # CONFIG_USB_USBNET is not
-> set
-> 
-> #
-> # USB port
-> drivers
-> #
-> # CONFIG_USB_USS720 is not
-> set
-> 
-> #
-> # USB Serial Converter
-> support
-> #
-> # CONFIG_USB_SERIAL is not
-> set
-> 
-> #
-> # USB Miscellaneous
-> drivers
-> #
-> # CONFIG_USB_TIGL is not
-> set
-> # CONFIG_USB_AUERSWALD is not
-> set
-> # CONFIG_USB_RIO500 is not
-> set
-> # CONFIG_USB_BRLVGER is not
-> set
-> # CONFIG_USB_LCD is not
-> set
-> # CONFIG_USB_TEST is not
-> set
-> # CONFIG_USB_GADGET is not set
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Hi Peter,
+
+> It seems, like kernel version 2.4.22 introduced some weird bug,
+> that causes all kinds of network malfunctions, when the kernel is
+> compiled with "CONFIG_M686".
+>...
+> I tried lots of different options until I eventually found out,
+> that the single setting that makes all the difference is the
+> processor type: Independently of any other settings, all kernels
+> with "CONFIG_M686" exhibit these problems; when I change this to
+> "CONFIG_MPENTIUM4" and recompile, everything seems to work.
+
+could you check whether the patch below fixes your problems?
+
+> (By the way: the affected machines have "Pentium Pro" or "Pentium
+> II" processors - is it safe to run a kernel compiled for "Pentium
+> IV" on such boxes?)
+
+No, it isn't safe.
+
+> Regards,
+>                  Peter Daum
+
+cu
+Adrian
+
+--- linux-2.4.23-pre3-full/arch/i386/config.in.old	2003-09-07 17:10:31.000000000 +0200
++++ linux-2.4.23-pre3-full/arch/i386/config.in	2003-09-07 17:11:47.000000000 +0200
+@@ -51,7 +51,7 @@
+ if [ "$CONFIG_M386" = "y" ]; then
+    define_bool CONFIG_X86_CMPXCHG n
+    define_bool CONFIG_X86_XADD n
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 4
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
+    define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
+    define_bool CONFIG_X86_PPRO_FENCE y
+@@ -67,21 +67,21 @@
+    define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
+ fi
+ if [ "$CONFIG_M486" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 4
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_USE_STRING_486 y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_PPRO_FENCE y
+    define_bool CONFIG_X86_F00F_WORKS_OK n
+ fi
+ if [ "$CONFIG_M586" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_USE_STRING_486 y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_PPRO_FENCE y
+    define_bool CONFIG_X86_F00F_WORKS_OK n
+ fi
+ if [ "$CONFIG_M586TSC" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_USE_STRING_486 y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_HAS_TSC y
+@@ -89,7 +89,7 @@
+    define_bool CONFIG_X86_F00F_WORKS_OK n
+ fi
+ if [ "$CONFIG_M586MMX" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_USE_STRING_486 y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_HAS_TSC y
+@@ -98,7 +98,7 @@
+    define_bool CONFIG_X86_F00F_WORKS_OK n
+ fi
+ if [ "$CONFIG_M686" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    bool 'PGE extensions (not for Cyrix/Transmeta)' CONFIG_X86_PGE
+@@ -107,7 +107,7 @@
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MPENTIUMIII" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_PGE y
+@@ -123,7 +123,7 @@
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MK6" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+@@ -134,7 +134,7 @@
+    define_bool CONFIG_MK7 y
+ fi
+ if [ "$CONFIG_MK7" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 6
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_USE_3DNOW y
+@@ -143,13 +143,13 @@
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MELAN" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 4
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_USE_STRING_486 y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MCYRIXIII" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_USE_3DNOW y
+@@ -157,26 +157,26 @@
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MVIAC3_2" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MCRUSOE" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MWINCHIPC6" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+    define_bool CONFIG_X86_OOSTORE y
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MWINCHIP2" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+@@ -184,7 +184,7 @@
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
+ if [ "$CONFIG_MWINCHIP3D" = "y" ]; then
+-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y

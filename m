@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbULIX51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbULIX7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbULIX51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 18:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbULIX51
+	id S261680AbULIX7w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 18:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbULIX7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 18:57:27 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:62428 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261679AbULIX5X
+	Thu, 9 Dec 2004 18:59:51 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:32750 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261680AbULIX7u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 18:57:23 -0500
-Date: Thu, 9 Dec 2004 15:57:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] USB fixes for 2.6.10-rc3
-Message-ID: <20041209235709.GA8147@kroah.com>
-References: <20041209230900.GA6091@kroah.com> <Pine.LNX.4.58.0412091538510.31040@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0412091538510.31040@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+	Thu, 9 Dec 2004 18:59:50 -0500
+Message-ID: <41B8E6F1.4070007@mvista.com>
+Date: Thu, 09 Dec 2004 15:59:45 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: ganzinger@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: RCU question
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 09, 2004 at 03:41:47PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 9 Dec 2004, Greg KH wrote:
-> > 
-> > Greg Kroah-Hartman:
-> >   o USB: fix another sparse warning in the USB core
-> 
-> This one looks incorrect.
-> 
-> The code doesn't _fix_ any warnings. It just shuts them up, without fixing 
-> anything at all.
+I am working on VST code.  This code is called from the idle loop to check for 
+future timers.  It then sets up a timer to interrupt in time to handle the 
+nearest timer and turns off the time base interrupt source.  As part of 
+qualifying the entry to this state I want to make sure there is no pending work 
+so, from the idle task I have this:
 
-No, the "fun" problem with this specific field (the wTotalLength one) is
-that we initially read them in from the hardware (which for USB is in le
-order) and then, in a later function, convert all of the le fields to
-native cpu order so that all device drivers don't have to worry about
-which fields in the usb structures are in which order.
+	if (local_softirq_pending())
+		do_softirq();
 
-I tried a while ago to create 2 different versions of the structures,
-one in the "on the wire" format, and the other after we had converted
-them to native format, but it just got too messy for no real good
-reason.  I then just put the proper __force markings in the needed
-places within the USB core.  Here's just a place where I had missed it
-before for some reason.
+	BUG_ON(local_softirq_pending());
 
-Yeah, it's not the cleanest, and yes, it is just shutting the warning
-up, but that's ok in this case.  I guess I could look into doing the
-"two different structures" type thing again, if people don't like things
-like this in different places.
+I did not really expect to find any pending softirqs, but, not only are there 
+some, they don't go away and the system BUGs.  The offender is the RCU task. 
+The question is: is this normal or is there something wrong?
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-thanks,
-
-greg k-h

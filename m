@@ -1,33 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUHWMM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUHWMRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUHWMM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 08:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUHWMM2
+	id S263769AbUHWMRy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 08:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUHWMRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 08:12:28 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:23556 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263770AbUHWMMY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 08:12:24 -0400
-Date: Mon, 23 Aug 2004 14:12:21 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/14] kexec: apic-virtwire-on-shutdown.i386.patch
-In-Reply-To: <m1vffd667r.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.58L.0408231411480.19572@blysk.ds.pg.gda.pl>
-References: <m1vffd667r.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Aug 2004 08:17:54 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:9632 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263769AbUHWMRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 08:17:03 -0400
+Date: Mon, 23 Aug 2004 14:15:41 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: serialize access to ide device
+Message-ID: <20040823121540.GN2301@suse.de>
+References: <20040802131150.GR10496@suse.de> <200408211643.55531.bzolnier@elka.pw.edu.pl> <20040821162155.GC7490@suse.de> <200408211913.47982.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408211913.47982.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Aug 2004, Eric W. Biederman wrote:
+On Sat, Aug 21 2004, Bartlomiej Zolnierkiewicz wrote:
+> On Saturday 21 August 2004 18:21, Jens Axboe wrote:
+> > On Sat, Aug 21 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > On Saturday 21 August 2004 12:32, Jens Axboe wrote:
+> > > > > What about adding new kind of REQ_SPECIAL request and converting
+> > > > > set_using_dma(), set_xfer_rate(), ..., to be callback functions for
+> > > > > this request?
+> > > > >
+> > > > > This should be a lot cleaner and will cover 100% cases.
+> > > >
+> > > > That will still only serialize per-channel. But yes, a lot cleaner.
+> > >
+> > > per hwgroup not per channel
+> > > (serializing per host device will be better but requires even more work)
+> >
+> > Sorry yes hwgroup, that's what I meant. The case I worried about in my
+> > patch (and noted) is that it doesn't cover per-hwif and neither would a
+> > special request.
+> 
+> I guess you meant 'per-host' because hwif == channel.
+> 
+> [ You are of course right for about 'per-host' case. ]
 
-> Restore the local apic to virtual wire mode on reboot.
+Yep, per host. So REQ_SPECIAL-like approach is cleaner, but doesn't
+cover more cases than a simple hwif pinning would anyways. You'd need
+some code to quisce the host in any case.
 
- Hmm, perhaps you should check for the through-I/O-APIC Virtual Wire mode.
-I've seen reports from such systems in the past.  They may not necessarily
-handle the through-Local-APIC mode correctly.
+-- 
+Jens Axboe
 
-  Maciej

@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318898AbSHSOqb>; Mon, 19 Aug 2002 10:46:31 -0400
+	id <S318902AbSHSOs3>; Mon, 19 Aug 2002 10:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318904AbSHSOqb>; Mon, 19 Aug 2002 10:46:31 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:31700 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318898AbSHSOqa>; Mon, 19 Aug 2002 10:46:30 -0400
-Subject: LTP-Nightly bk test
-From: Paul Larson <plars@austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net,
-       ltp-results <ltp-results@lists.sourceforge.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 19 Aug 2002 09:42:36 -0500
-Message-Id: <1029768156.2582.113.camel@plars.austin.ibm.com>
+	id <S318904AbSHSOs3>; Mon, 19 Aug 2002 10:48:29 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:7943 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318902AbSHSOs2>; Mon, 19 Aug 2002 10:48:28 -0400
+Date: Mon, 19 Aug 2002 15:52:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com, viro@math.psu.edu
+Subject: Re: Need more symbols to be exported out of kernel
+Message-ID: <20020819155226.A26430@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org,
+	reiserfs-dev@namesys.com, viro@math.psu.edu
+References: <20020819184208.A11022@namesys.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020819184208.A11022@namesys.com>; from green@namesys.com on Mon, Aug 19, 2002 at 06:42:08PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 8/17 run of the nightly bk testing I'm doing turned up a lot of page
-allocation failures in the dmesg and eventually an oops in swap.c:85
-(uncaptured, will try to reproduce on current).  Unfortunatly this meant
-the test did not run after that.  This morning I rebooted the machine
-and ran it against the current bk tree and with a single test was able
-to produce a LOT of these messages:
+On Mon, Aug 19, 2002 at 06:42:08PM +0400, Oleg Drokin wrote:
+> Hello!
+> 
+>    I have implemented file_operations->write() function for reiserfs for
+>    linux kernel v2.4, and it seems I need these symbols to be exported
+>    out of kernel for a case when reiserfs is built as a module:
+>    generic_osync_inode
 
-page allocation failure. order:0, mode:0x50
+sounds like a good idea.
 
-The test was: 'mtest01 -p80 -w' which will essentially allocate up to
-80% of the memory and write to it.  I'll keep pounding on it with LTP to
-see if I can reproduce the swap.c:80 oops.
+>    remove_suid
 
-Thanks,
-Paul Larson
-Linux Test Project
+trivial inline,  either move it to a header or copy & paste.
+
+>    block_commit_write
+
+fine with me.
+
+>    I need block_commit_write just because generic_commit_write is doing
+>    some extra stuff I'd better do myself.
+>    Will the patch to export these symbols be accepted? (should these be
+>    exported as GPL sysmbols or not?).
+
+IMHO no _GPL, they are not different from other generic filesystem code.
 

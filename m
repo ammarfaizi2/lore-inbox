@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUHYOGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267523AbUHYOST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267504AbUHYOGq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 10:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267523AbUHYOGq
+	id S267523AbUHYOST (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 10:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUHYOST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 10:06:46 -0400
-Received: from cantor.suse.de ([195.135.220.2]:53925 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267504AbUHYOGn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 10:06:43 -0400
-Date: Wed, 25 Aug 2004 16:03:35 +0200
-From: Kurt Garloff <kurt@garloff.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Process Aggregates for 2.6.8
-Message-ID: <20040825140335.GG11565@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.SGI.4.53.0408161127580.663457@subway.americas.sgi.com> <1092675050.7416.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qoTlaiD+Y2fIM3Ll"
-Content-Disposition: inline
-In-Reply-To: <1092675050.7416.0.camel@laptop.fenrus.com>
-X-Operating-System: Linux 2.6.8-2-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+	Wed, 25 Aug 2004 10:18:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33736 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267523AbUHYOSS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 10:18:18 -0400
+Message-ID: <412C9F89.7000901@pobox.com>
+Date: Wed, 25 Aug 2004 10:17:45 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michal Ludvig <mludvig@suse.cz>
+CC: Michael Halcrow <mahalcro@us.ibm.com>,
+       CryptoAPI List <cryptoapi@lists.logix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /dev/crypto for Linux
+References: <412BB517.4040204@suse.cz> <20040824215351.GA9272@halcrow.us> <412C41BC.8020607@suse.cz>
+In-Reply-To: <412C41BC.8020607@suse.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qoTlaiD+Y2fIM3Ll
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> What is it good for?
+> One can build really light-weigth programs with crypto support that
+> don't need any external libraries (e.g. OpenSSL) or built-in algorithms.
+> Easier testing of new CryptoAPI ciphers (later also hashes and maybe
+> asymmetric ciphers as well).
+> Once, maybe, userspace access to crypto accelerators through kernel
+> drivers.
 
-Hi,
 
-On Mon, Aug 16, 2004 at 06:50:50PM +0200, Arjan van de Ven wrote:
-> On Mon, 2004-08-16 at 18:32, Erik Jacobson wrote:
-> > This is a fresh PAGG patch that applies cleanly to 2.6.8.
-> >=20
-> > There have been no major changes since the last PAGG patch I posted.
->=20
-> are there (GPL) users of this yet ??
+Let's see...
 
-Hmm, I thought they might be useful for AFS as well?=20
-And maybe NFS?
+1) This increases context switches over a solution that links with 
+libcrypto and libssl.
 
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
-Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
-Linux: SUSE Labs (Head)        <garloff@suse.de>    [SUSE Nuernberg, DE]
+2) "build really lightweight programs with crypto support" implies that 
+you think it's a benefit to use the kernel as your crypto lib.  Shared libs
 
---qoTlaiD+Y2fIM3Ll
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+3) Your proposal actually avoids existing, working hardware crypto 
+support such as Broadcom's hwcrypto driver which is fully supported by 
+openssh.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+4) "open it and use ioctls to transfer data" is typically a bad idea. 
+ioctl(2) is a historical Unix mistake, to be avoided where possible. 
+read(2)/write(2) are to be used to transfer data.
 
-iD8DBQFBLJw3xmLh6hyYd04RAibcAJ904SuIHgn6ocj9bv6JE5+ket7qPwCfZngi
-4uY/j9dIxx5PLGy2iHAIQp0=
-=aQpS
------END PGP SIGNATURE-----
+	Jeff
 
---qoTlaiD+Y2fIM3Ll--
+
+

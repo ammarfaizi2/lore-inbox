@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264001AbTBAAfe>; Fri, 31 Jan 2003 19:35:34 -0500
+	id <S264010AbTBAAgj>; Fri, 31 Jan 2003 19:36:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264010AbTBAAfe>; Fri, 31 Jan 2003 19:35:34 -0500
-Received: from mail018.syd.optusnet.com.au ([210.49.20.176]:14534 "EHLO
-	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S264001AbTBAAfe> convert rfc822-to-8bit; Fri, 31 Jan 2003 19:35:34 -0500
+	id <S264614AbTBAAgj>; Fri, 31 Jan 2003 19:36:39 -0500
+Received: from smtp06.iddeo.es ([62.81.186.16]:59331 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id <S264010AbTBAAgh>;
+	Fri, 31 Jan 2003 19:36:37 -0500
+Date: Sat, 1 Feb 2003 01:46:00 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: nfsd and exporting /lib
+Message-ID: <20030201004600.GC4200@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [BENCHMARK] 2.5.59-mm7 with contest
-Date: Sat, 1 Feb 2003 11:44:54 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-References: <200302010930.54538.conman@kolivas.net> <3E3B16CF.9050806@cyberone.com.au>
-In-Reply-To: <3E3B16CF.9050806@cyberone.com.au>
-MIME-Version: 1.0
+Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200302011144.54554.conman@kolivas.net>
+X-Mailer: Balsa 2.0.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 Feb 2003 11:37 am, Nick Piggin wrote:
-> Con Kolivas wrote:
-> >Seems the fix for "reads starves everything" works. Affected the tar loads
-> >too?
->
-> Yes, at the cost of throughput, however for now it is probably
-> the best way to go. Hopefully anticipatory scheduling will provide
-> as good or better kernel compile times and better throughput.
->
-> Con, tell me, are "Loads" normalised to the time they run for?
-> Is it possible to get a finer grain result for the load tests?
+Hi...
 
-No, the load is the absolute number of times the load successfully completed. 
-We battled with the code for a while to see if there were ways to get more 
-accurate load numbers but if you write a 256Mb file you can only tell if it 
-completes the write or not; not how much has been written when you stop the 
-write. Same goes with read etc. The load rate is a more meaningful number but 
-we haven't gotten around to implementing that in the result presentation.
+I have a cluster mounting /lib exported from master node, and if
+I try to run, for example, a ping to master:
 
-Load rate would be:
+annwn:/etc# bpsh 0 ping master.net0.cluster
+ping: error while loading shared libraries: /lib/libresolv.so.2: cannot read file data: Error 116
 
-loads / ( load_compile_time - no_load_compile_time )
+/var/log/messages:
 
-because basically if the load compile time is longer, more loads are 
-completed. Most of the time the loads happen at the same rate, but if the 
-load rate was different it would be a more significant result than just a 
-scheduling balance change which is why load rate would be a useful addition.
+Feb  1 01:43:12 annwn kernel: nfsd Security: lib/libresolv-2.3.1.so bad export.
 
-Con
+???
+
+annwn:/etc# bpsh 0 ls -l /lib/libresolv*
+ls: /lib/libresolv-2.3.1.so: Stale NFS file handle
+lrwxrwxrwx    1 0        0              18 Jan 22 16:28 /lib/libresolv.so.2 -> libresolv-2.3.1.so
+
+Libraries can not be exported ??? Libs in other places look good:
+
+annwn:/etc# bpsh 0 ls -l /usr/lib/libz.*
+-rwxr-xr-x    1 0        0           72302 Jun  7  2002 /usr/lib/libz.a
+lrwxr-xr-x    1 0        0              13 Nov 13 12:10 /usr/lib/libz.so -> libz.so.1.1.4
+lrwxr-xr-x    1 0        0              23 Nov 13 12:01 /usr/lib/libz.so.1.1.4 -> ../../lib/libz.so.1.1.4
+
+Any ideas ?
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre4-jam1 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-5mdk))

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131219AbRA3QEx>; Tue, 30 Jan 2001 11:04:53 -0500
+	id <S131257AbRA3QO6>; Tue, 30 Jan 2001 11:14:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131256AbRA3QEo>; Tue, 30 Jan 2001 11:04:44 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:36874 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S131172AbRA3QEZ>;
-	Tue, 30 Jan 2001 11:04:25 -0500
-Date: Tue, 30 Jan 2001 17:03:48 +0100
-From: Frank de Lange <frank@unternet.org>
-To: heikki@indexdata.dk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Mailing List, Archive by Week: Gigabyte 6VXDC7: APGigabyte 6VXDC7: APIC error on CPU1: 08(08)
-Message-ID: <20010130170348.I14319@unternet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S131399AbRA3QOs>; Tue, 30 Jan 2001 11:14:48 -0500
+Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:45813 "HELO
+	localdomain") by vger.kernel.org with SMTP id <S131296AbRA3QOd>;
+	Tue, 30 Jan 2001 11:14:33 -0500
+From: Davide Libenzi <davidel@xmail.virusscreen.com>
+Organization: myCIO.com
+Date: Tue, 30 Jan 2001 08:15:39 -0800
+X-Mailer: KMail [version 1.1.95.5]
+Content-Type: text/plain; charset=US-ASCII
+Cc: "Romain Kang" <romain@kzsu.stanford.edu>, <linux-kernel@vger.kernel.org>,
+        <root@chaos.analogic.com>, "Craig I. Hagan" <hagan@cih.com>
+To: "Micah Gorrell" <angelcode@myrealbox.com>,
+        "Andrey Savochkin" <saw@saw.sw.com.sg>
+In-Reply-To: <003001c08acf$7ae475f0$9b2f4189@angelw2k>
+In-Reply-To: <003001c08acf$7ae475f0$9b2f4189@angelw2k>
+Subject: Re: eepro100 - Linux vs. FreeBSD
+MIME-Version: 1.0
+Message-Id: <01013008153900.01000@ewok.dev.mycio.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heikki,
+On Tuesday 30 January 2001 08:14, Micah Gorrell wrote:
+> I have been running 2.2 on many machines since its release and have updated
+> to the latest version of 2.2 many times.  All of these machines have an
+> eepro100 and I never saw a single problem with any of them.  I updated most
+> of my machines to 2.4 over the course of a week and within a day of
+> updating each of them showed the problem.  This may be pure chance but it
+> sounds to me as if it is a difference with the 2.4 kernel.
 
-Those are the same problems I had with my Abit BP-6 SMP-board. There are a
-couple of patched which seem to make the problem disappear. The jury is still
-not out on whether they really solve the problem or merely hide it, but I
-haven't had a crash ever since I patched my box. The most recent patch is the
-one from Maciej, you can find it on the list, or in the archives (like this
-one: http://boudicca.tux.org/hypermail/linux-kernel/this-week/0469.html - this
-link is only valid 'till sunday!)
+I had the same problem on my dual PIII with a dual eepro100 NIC.
+2.4.1-pre12 solved the problem ( don't ask me why :) ).
 
-Unfortunately, the archives often mangle patches, so it is better to get them
-directly from the list (or mail Maciej for it...)
 
-Cheers//Frank
 
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+- Davide
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

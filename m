@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318512AbSGSOFC>; Fri, 19 Jul 2002 10:05:02 -0400
+	id <S318516AbSGSOHa>; Fri, 19 Jul 2002 10:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318523AbSGSOFB>; Fri, 19 Jul 2002 10:05:01 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:14785 "EHLO
+	id <S318526AbSGSOH3>; Fri, 19 Jul 2002 10:07:29 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:58818 "EHLO
 	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S318512AbSGSODO>; Fri, 19 Jul 2002 10:03:14 -0400
-Message-ID: <3D381CD1.6A0B9909@bellsouth.net>
-Date: Fri, 19 Jul 2002 10:06:09 -0400
+	id <S318516AbSGSODr>; Fri, 19 Jul 2002 10:03:47 -0400
+Message-ID: <3D381CF2.ED8490CA@bellsouth.net>
+Date: Fri, 19 Jul 2002 10:06:42 -0400
 From: Albert Cranford <ac9410@bellsouth.net>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch 2/9] 2.5.6 lm_sensors
+Subject: [patch 4/9] 2.5.6 lm_sensors
 Content-Type: multipart/mixed;
- boundary="------------F719D3046F0AADF220F310D3"
+ boundary="------------A50607A6F44730B5BA5DA7B9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------F719D3046F0AADF220F310D3
+--------------A50607A6F44730B5BA5DA7B9
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
@@ -40,1363 +40,19 @@ Albert
 -- 
 Albert Cranford Deerfield Beach FL USA
 ac9410@bellsouth.net
---------------F719D3046F0AADF220F310D3
+--------------A50607A6F44730B5BA5DA7B9
 Content-Type: text/plain; charset=iso-8859-1;
- name="2.5.26-busses-a-patch"
+ name="2.5.26-busses-c-patch"
 Content-Transfer-Encoding: 8bit
 Content-Disposition: inline;
- filename="2.5.26-busses-a-patch"
+ filename="2.5.26-busses-c-patch"
 
 --- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/busses/i2c-ali1535.c	2002-05-20 01:51:45.000000000 -0400
-@@ -0,0 +1,687 @@
++++ linux/drivers/i2c/busses/i2c-piix4.c	2002-05-20 01:54:37.000000000 -0400
+@@ -0,0 +1,569 @@
 +/*
-+    i2c-ali1535.c - Part of lm_sensors, Linux kernel modules for hardware
-+                    monitoring
-+    Copyright (c) 2000  Frodo Looijaard <frodol@dds.nl>, 
-+                        Philip Edelbrock <phil@netroedge.com>, 
-+                        Mark D. Studebaker <mdsxyz123@yahoo.com>,
-+                        Dan Eaton <dan.eaton@rocketlogix.com> and 
-+                        Stephen Rousset<stephen.rousset@rocketlogix.com> 
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+/*
-+    This is the driver for the SMB Host controller on
-+    Acer Labs Inc. (ALI) M1535 South Bridge.
-+
-+    The M1535 is a South bridge for portable systems.
-+    It is very similar to the M15x3 South bridges also produced
-+    by Acer Labs Inc.  Some of the registers within the part
-+    have moved and some have been redefined slightly. Additionally,
-+    the sequencing of the SMBus transactions has been modified
-+    to be more consistent with the sequencing recommended by
-+    the manufacturer and observed through testing.  These
-+    changes are reflected in this driver and can be identified
-+    by comparing this driver to the i2c-ali15x3 driver.
-+    For an overview of these chips see http://www.acerlabs.com
-+
-+    The SMB controller is part of the 7101 device, which is an
-+    ACPI-compliant Power Management Unit (PMU).
-+
-+    The whole 7101 device has to be enabled for the SMB to work.
-+    You can't just enable the SMB alone.
-+    The SMB and the ACPI have separate I/O spaces.
-+    We make sure that the SMB is enabled. We leave the ACPI alone.
-+
-+    This driver controls the SMB Host only.
-+
-+    This driver does not use interrupts.
-+*/
-+
-+
-+/* Note: we assume there can only be one ALI1535, with one SMBus interface */
-+
-+#include <linux/version.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <asm/io.h>
-+#include <asm/semaphore.h>
-+#include <linux/kernel.h>
-+#include <linux/stddef.h>
-+#include <linux/ioport.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/sensors.h>
-+
-+MODULE_LICENSE("GPL");
-+
-+#ifndef DECLARE_MUTEX
-+#define DECLARE_MUTEX(name)  struct semaphore name = MUTEX
-+#endif /* def DECLARE_MUTEX */
-+
-+/* ALI1535 SMBus address offsets */
-+#define SMBHSTSTS (0 + ali1535_smba)
-+#define SMBHSTTYP (1 + ali1535_smba)
-+#define SMBHSTPORT (2 + ali1535_smba)
-+#define SMBHSTCMD (7 + ali1535_smba)
-+#define SMBHSTADD (3 + ali1535_smba)
-+#define SMBHSTDAT0 (4 + ali1535_smba)
-+#define SMBHSTDAT1 (5 + ali1535_smba)
-+#define SMBBLKDAT (6 + ali1535_smba)
-+
-+/* PCI Address Constants */
-+#define SMBCOM    0x004
-+#define SMBREV    0x008
-+#define SMBCFG    0x0D1
-+#define SMBBA     0x0E2
-+#define SMBHSTCFG 0x0F0
-+#define SMBCLK    0x0F2
-+
-+/* Other settings */
-+#define MAX_TIMEOUT 500		/* times 1/100 sec */
-+#define ALI1535_SMB_IOSIZE 32
-+
-+/* 
-+*/
-+#define ALI1535_SMB_DEFAULTBASE 0x8040
-+
-+/* ALI1535 address lock bits */
-+#define ALI1535_LOCK	0x06 < dwe >
-+
-+/* ALI1535 command constants */
-+#define ALI1535_QUICK      0x00
-+#define ALI1535_BYTE       0x10
-+#define ALI1535_BYTE_DATA  0x20
-+#define ALI1535_WORD_DATA  0x30
-+#define ALI1535_BLOCK_DATA 0x40
-+#define ALI1535_I2C_READ   0x60
-+
-+#define	ALI1535_DEV10B_EN	0x80	/* Enable 10-bit addressing in */
-+                                        /*  I2C read                   */
-+#define	ALI1535_T_OUT		0x08	/* Time-out Command (write)    */
-+#define	ALI1535_A_HIGH_BIT9	0x08	/* Bit 9 of 10-bit address in  */
-+                                        /* Alert-Response-Address      */
-+                                        /* (read)                      */
-+#define	ALI1535_KILL		0x04	/* Kill Command (write)        */
-+#define	ALI1535_A_HIGH_BIT8	0x04	/* Bit 8 of 10-bit address in  */
-+                                        /*  Alert-Response-Address     */
-+                                        /*  (read)                     */
-+
-+#define	ALI1535_D_HI_MASK	0x03	/* Mask for isolating bits 9-8 */
-+                                        /*  of 10-bit address in I2C   */ 
-+                                        /*  Read Command               */
-+
-+/* ALI1535 status register bits */
-+#define ALI1535_STS_IDLE	0x04
-+#define ALI1535_STS_BUSY	0x08	/* host busy */
-+#define ALI1535_STS_DONE	0x10	/* transaction complete */
-+#define ALI1535_STS_DEV		0x20	/* device error */
-+#define ALI1535_STS_BUSERR	0x40	/* bus error    */
-+#define ALI1535_STS_FAIL	0x80    /* failed bus transaction */
-+#define ALI1535_STS_ERR		0xE0	/* all the bad error bits */
-+
-+#define ALI1535_BLOCK_CLR	0x04	/* reset block data index */
-+
-+/* ALI1535 device address register bits */
-+#define	ALI1535_RD_ADDR		0x01	/* Read/Write Bit in Device    */
-+                                        /*  Address field              */
-+                                        /*  -> Write = 0               */
-+                                        /*  -> Read  = 1               */
-+#define	ALI1535_SMBIO_EN	0x04	/* SMB I/O Space enable        */
-+
-+#ifdef MODULE
-+static
-+#else
-+extern
-+#endif
-+int __init i2c_ali1535_init(void);
-+static int __init ali1535_cleanup(void);
-+static int ali1535_setup(void);
-+static s32 ali1535_access(struct i2c_adapter *adap, u16 addr,
-+			  unsigned short flags, char read_write,
-+			  u8 command, int size,
-+			  union i2c_smbus_data *data);
-+static void ali1535_do_pause(unsigned int amount);
-+static int ali1535_transaction(void);
-+static void ali1535_inc(struct i2c_adapter *adapter);
-+static void ali1535_dec(struct i2c_adapter *adapter);
-+static u32 ali1535_func(struct i2c_adapter *adapter);
-+
-+#ifdef MODULE
-+extern int init_module(void);
-+extern int cleanup_module(void);
-+#endif				/* MODULE */
-+
-+static struct i2c_algorithm smbus_algorithm = {
-+	/* name */ "Non-i2c SMBus adapter",
-+	/* id */ I2C_ALGO_SMBUS,
-+	/* master_xfer */ NULL, 
-+	/* smbus_access */ ali1535_access,
-+	/* slave_send */ NULL,
-+	/* slave_rcv */ NULL,
-+	/* algo_control */ NULL,
-+	/* functionality */ ali1535_func,
-+};
-+
-+static struct i2c_adapter ali1535_adapter = {
-+	"unset",
-+	I2C_ALGO_SMBUS | I2C_HW_SMBUS_ALI1535,
-+	&smbus_algorithm,
-+	NULL,
-+	ali1535_inc,
-+	ali1535_dec,
-+	NULL,
-+	NULL,
-+};
-+
-+static int __initdata ali1535_initialized;
-+static unsigned short ali1535_smba = 0;
-+DECLARE_MUTEX(i2c_ali1535_sem);
-+
-+
-+/* Detect whether a ALI1535 can be found, and initialize it, where necessary.
-+   Note the differences between kernels with the old PCI BIOS interface and
-+   newer kernels with the real PCI interface. In compat.h some things are
-+   defined to make the transition easier. */
-+int ali1535_setup(void)
-+{
-+	int error_return = 0;
-+	unsigned char temp;
-+
-+	struct pci_dev *ALI1535_dev;
-+
-+	/* First check whether we can access PCI at all */
-+	if (pci_present() == 0) {
-+		printk("i2c-ali1535.o: Error: No PCI-bus found!\n");
-+		error_return = -ENODEV;
-+		goto END;
-+	}
-+
-+	/* Look for the ALI1535, M7101 device */
-+	ALI1535_dev = NULL;
-+	ALI1535_dev = pci_find_device(PCI_VENDOR_ID_AL,
-+				      PCI_DEVICE_ID_AL_M7101, 
-+				      ALI1535_dev); 
-+
-+	if (ALI1535_dev == NULL) {
-+		printk("i2c-ali1535.o: Error: Can't detect ali1535!\n");
-+		error_return = -ENODEV;
-+		goto END;
-+	}
-+
-+/* Check the following things:
-+	- SMB I/O address is initialized
-+	- Device is enabled
-+	- We can use the addresses
-+*/
-+
-+/* Determine the address of the SMBus area */
-+	pci_read_config_word(ALI1535_dev, SMBBA, &ali1535_smba);
-+	ali1535_smba &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
-+	if (ali1535_smba == 0) {
-+		printk
-+		    ("i2c-ali1535.o: ALI1535_smb region uninitialized - upgrade BIOS?\n");
-+		error_return = -ENODEV;
-+	}
-+
-+	if (error_return == -ENODEV)
-+		goto END;
-+
-+	if (check_region(ali1535_smba, ALI1535_SMB_IOSIZE)) {
-+		printk
-+		    ("i2c-ali1535.o: ALI1535_smb region 0x%x already in use!\n",
-+		     ali1535_smba);
-+		error_return = -ENODEV;
-+	}
-+
-+	if (error_return == -ENODEV)
-+		goto END;
-+
-+	/* check if whole device is enabled */
-+	pci_read_config_byte(ALI1535_dev, SMBCFG, &temp);
-+	if ((temp & ALI1535_SMBIO_EN) == 0) {
-+		printk
-+		    ("i2c-ali1535.o: SMB device not enabled - upgrade BIOS?\n");
-+		error_return = -ENODEV;
-+		goto END;
-+	}
-+
-+/* Is SMB Host controller enabled? */
-+	pci_read_config_byte(ALI1535_dev, SMBHSTCFG, &temp);
-+	if ((temp & 1) == 0) {
-+		printk
-+		    ("i2c-ali1535.o: SMBus controller not enabled - upgrade BIOS?\n");
-+		error_return = -ENODEV;
-+		goto END;
-+	}
-+
-+/* set SMB clock to 74KHz as recommended in data sheet */
-+	pci_write_config_byte(ALI1535_dev, SMBCLK, 0x20);
-+
-+	/* Everything is happy, let's grab the memory and set things up. */
-+	request_region(ali1535_smba, ALI1535_SMB_IOSIZE, "ali1535-smb");
-+
-+#ifdef DEBUG
-+/*
-+  The interrupt routing for SMB is set up in register 0x77 in the
-+  1533 ISA Bridge device, NOT in the 7101 device.
-+  Don't bother with finding the 1533 device and reading the register.
-+  if ((....... & 0x0F) == 1)
-+     printk("i2c-ali1535.o: ALI1535 using Interrupt 9 for SMBus.\n");
-+*/
-+	pci_read_config_byte(ALI1535_dev, SMBREV, &temp);
-+	printk("i2c-ali1535.o: SMBREV = 0x%X\n", temp);
-+	printk("i2c-ali1535.o: ALI1535_smba = 0x%X\n", ali1535_smba);
-+#endif				/* DEBUG */
-+
-+      END:
-+	return error_return;
-+}
-+
-+
-+/* Internally used pause function */
-+void ali1535_do_pause(unsigned int amount)
-+{
-+	current->state = TASK_INTERRUPTIBLE;
-+	schedule_timeout(amount);
-+}
-+
-+/* Another internally used function */
-+int ali1535_transaction(void)
-+{
-+	int temp;
-+	int result = 0;
-+	int timeout = 0;
-+
-+#ifdef DEBUG
-+	printk
-+	    ("i2c-ali1535.o: Transaction (pre): STS=%02x, TYP=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
-+	     "DAT1=%02x\n", inb_p(SMBHSTSTS), inb_p(SMBHSTTYP),
-+	     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
-+	     inb_p(SMBHSTDAT1));
-+#endif
-+
-+	/* get status */
-+	temp = inb_p(SMBHSTSTS);
-+
-+	/* Make sure the SMBus host is ready to start transmitting */
-+	/* Check the busy bit first */
-+	if (temp & ALI1535_STS_BUSY) {
-+/*
-+   If the host controller is still busy, it may have timed out in the previous transaction,
-+   resulting in a "SMBus Timeout" printk.
-+   I've tried the following to reset a stuck busy bit.
-+	1. Reset the controller with an KILL command.
-+	   (this doesn't seem to clear the controller if an external device is hung)
-+	2. Reset the controller and the other SMBus devices with a T_OUT command.
-+	   (this clears the host busy bit if an external device is hung,
-+	   but it comes back upon a new access to a device)
-+	3. Disable and reenable the controller in SMBHSTCFG
-+   Worst case, nothing seems to work except power reset.
-+*/
-+/* Abort - reset the host controller */
-+/*
-+#ifdef DEBUG
-+    printk("i2c-ali1535.o: Resetting host controller to clear busy condition\n",temp);
-+#endif
-+    outb_p(ALI1535_KILL, SMBHSTTYP);
-+    temp = inb_p(SMBHSTSTS);
-+    if (temp & ALI1535_STS_BUSY) {
-+*/
-+
-+/*
-+   Try resetting entire SMB bus, including other devices -
-+   This may not work either - it clears the BUSY bit but
-+   then the BUSY bit may come back on when you try and use the chip again.
-+   If that's the case you are stuck.
-+*/
-+		printk
-+		    ("i2c-ali1535.o: Resetting entire SMB Bus to clear busy condition (%02x)\n",
-+		     temp);
-+		outb_p(ALI1535_T_OUT, SMBHSTTYP);
-+		temp = inb_p(SMBHSTSTS);
-+	}
-+/*
-+  }
-+*/
-+
-+	/* now check the error bits and the busy bit */
-+	if (temp & (ALI1535_STS_ERR | ALI1535_STS_BUSY)) {
-+		/* do a clear-on-write */
-+		outb_p(0xFF, SMBHSTSTS);
-+		if ((temp = inb_p(SMBHSTSTS)) &
-+		    (ALI1535_STS_ERR | ALI1535_STS_BUSY)) {
-+			/* this is probably going to be correctable only by a power reset
-+			   as one of the bits now appears to be stuck */
-+			/* This may be a bus or device with electrical problems. */
-+			printk
-+			    ("i2c-ali1535.o: SMBus reset failed! (0x%02x) - controller or device on bus is probably hung\n",
-+			     temp);
-+			return -1;
-+		}
-+	} else {
-+		/* check and clear done bit */
-+		if (temp & ALI1535_STS_DONE) {
-+			outb_p(temp, SMBHSTSTS);
-+		}
-+	}
-+
-+	/* start the transaction by writing anything to the start register */
-+	outb_p(0xFF, SMBHSTPORT);
-+
-+	/* We will always wait for a fraction of a second! */
-+	timeout = 0;
-+	do {
-+		ali1535_do_pause(1);
-+		temp = inb_p(SMBHSTSTS);
-+	} while (((temp & ALI1535_STS_BUSY) && !(temp & ALI1535_STS_IDLE))
-+		 && (timeout++ < MAX_TIMEOUT));
-+
-+	/* If the SMBus is still busy, we give up */
-+	if (timeout >= MAX_TIMEOUT) {
-+		result = -1;
-+		printk("i2c-ali1535.o: SMBus Timeout!\n");
-+	}
-+
-+	if (temp & ALI1535_STS_FAIL) {
-+		result = -1;
-+#ifdef DEBUG
-+		printk("i2c-ali1535.o: Error: Failed bus transaction\n");
-+#endif
-+	}
-+
-+/*
-+  Unfortunately the ALI SMB controller maps "no response" and "bus collision"
-+  into a single bit. No reponse is the usual case so don't do a printk.
-+  This means that bus collisions go unreported.
-+*/
-+	if (temp & ALI1535_STS_BUSERR) {
-+		result = -1;
-+#ifdef DEBUG
-+		printk
-+		    ("i2c-ali1535.o: Error: no response or bus collision ADD=%02x\n",
-+		     inb_p(SMBHSTADD));
-+#endif
-+	}
-+
-+/* haven't ever seen this */
-+	if (temp & ALI1535_STS_DEV) {
-+		result = -1;
-+		printk("i2c-ali1535.o: Error: device error\n");
-+	}
-+
-+/* 
-+   check to see if the "command complete" indication is set
-+ */
-+	if (!(temp & ALI1535_STS_DONE)) {
-+		result = -1;
-+		printk("i2c-ali1535.o: Error: command never completed\n");
-+	}
-+#ifdef DEBUG
-+	printk
-+	    ("i2c-ali1535.o: Transaction (post): STS=%02x, TYP=%02x, CMD=%02x, ADD=%02x, "
-+	     "DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTSTS), inb_p(SMBHSTTYP),
-+	     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
-+	     inb_p(SMBHSTDAT1));
-+#endif
-+
-+/* 
-+    take consequent actions for error conditions
-+ */
-+        if (!(temp & ALI1535_STS_DONE)) {
-+	  /* issue "kill" to reset host controller */
-+	  outb_p(ALI1535_KILL,SMBHSTTYP);
-+	  outb_p(0xFF,SMBHSTSTS);
-+	}	  
-+	else if (temp & ALI1535_STS_ERR) {
-+	  /* issue "timeout" to reset all devices on bus */
-+	  outb_p(ALI1535_T_OUT,SMBHSTTYP);
-+	  outb_p(0xFF,SMBHSTSTS);
-+	}
-+        
-+	return result;
-+}
-+
-+/* Return -1 on error. See smbus.h for more information */
-+s32 ali1535_access(struct i2c_adapter * adap, u16 addr,
-+		   unsigned short flags, char read_write, u8 command,
-+		   int size, union i2c_smbus_data * data)
-+{
-+	int i, len;
-+	int temp;
-+	int timeout;
-+	s32 result = 0;
-+
-+	down(&i2c_ali1535_sem);
-+/* make sure SMBus is idle */
-+	temp = inb_p(SMBHSTSTS);
-+	for (timeout = 0;
-+	     (timeout < MAX_TIMEOUT) && !(temp & ALI1535_STS_IDLE);
-+	     timeout++) {
-+		ali1535_do_pause(1);
-+		temp = inb_p(SMBHSTSTS);
-+	}
-+	if (timeout >= MAX_TIMEOUT) {
-+		printk("i2c-ali1535.o: Idle wait Timeout! STS=0x%02x\n",
-+		       temp);
-+	}
-+
-+/* clear status register (clear-on-write) */
-+	outb_p(0xFF, SMBHSTSTS);
-+
-+	switch (size) {
-+	case I2C_SMBUS_PROC_CALL:
-+		printk
-+		    ("i2c-ali1535.o: I2C_SMBUS_PROC_CALL not supported!\n");
-+		result = -1;
-+		goto EXIT;
-+	case I2C_SMBUS_QUICK:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		size = ALI1535_QUICK;
-+                outb_p(size, SMBHSTTYP);	/* output command */
-+                break;
-+	case I2C_SMBUS_BYTE:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		size = ALI1535_BYTE;
-+                outb_p(size, SMBHSTTYP);	/* output command */
-+		if (read_write == I2C_SMBUS_WRITE)
-+			outb_p(command, SMBHSTCMD);
-+		break;
-+	case I2C_SMBUS_BYTE_DATA:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		size = ALI1535_BYTE_DATA;
-+                outb_p(size, SMBHSTTYP);	/* output command */
-+		outb_p(command, SMBHSTCMD);
-+		if (read_write == I2C_SMBUS_WRITE)
-+			outb_p(data->byte, SMBHSTDAT0);
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		size = ALI1535_WORD_DATA;
-+                outb_p(size, SMBHSTTYP);	/* output command */
-+		outb_p(command, SMBHSTCMD);
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			outb_p(data->word & 0xff, SMBHSTDAT0);
-+			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
-+		}
-+		break;
-+	case I2C_SMBUS_BLOCK_DATA:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		size = ALI1535_BLOCK_DATA;
-+                outb_p(size, SMBHSTTYP);	/* output command */
-+		outb_p(command, SMBHSTCMD);
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			len = data->block[0];
-+			if (len < 0) {
-+				len = 0;
-+				data->block[0] = len;
-+			}
-+			if (len > 32) {
-+				len = 32;
-+				data->block[0] = len;
-+			}
-+			outb_p(len, SMBHSTDAT0);
-+			outb_p(inb_p(SMBHSTTYP) | ALI1535_BLOCK_CLR, SMBHSTTYP);	/* Reset SMBBLKDAT */
-+			for (i = 1; i <= len; i++)
-+				outb_p(data->block[i], SMBBLKDAT);
-+		}
-+		break;
-+	}
-+
-+	if (ali1535_transaction())	/* Error in transaction */
-+	  {
-+		result = -1;
-+		goto EXIT;
-+          }
-+
-+	if ((read_write == I2C_SMBUS_WRITE) || (size == ALI1535_QUICK))
-+	  {
-+		result = 0;
-+		goto EXIT;
-+          }
-+
-+	switch (size) {
-+	case ALI1535_BYTE:	/* Result put in SMBHSTDAT0 */
-+		data->byte = inb_p(SMBHSTDAT0);
-+		break;
-+	case ALI1535_BYTE_DATA:
-+		data->byte = inb_p(SMBHSTDAT0);
-+		break;
-+	case ALI1535_WORD_DATA:
-+		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
-+		break;
-+	case ALI1535_BLOCK_DATA:
-+		len = inb_p(SMBHSTDAT0);
-+		if (len > 32)
-+			len = 32;
-+		data->block[0] = len;
-+		outb_p(inb_p(SMBHSTTYP) | ALI1535_BLOCK_CLR, SMBHSTTYP);	/* Reset SMBBLKDAT */
-+		for (i = 1; i <= data->block[0]; i++) {
-+			data->block[i] = inb_p(SMBBLKDAT);
-+#ifdef DEBUG
-+			printk
-+			    ("i2c-ali1535.o: Blk: len=%d, i=%d, data=%02x\n",
-+			     len, i, data->block[i]);
-+#endif	/* DEBUG */
-+		}
-+		break;
-+	}
-+EXIT:
-+	up(&i2c_ali1535_sem);
-+	return result;
-+}
-+
-+void ali1535_inc(struct i2c_adapter *adapter)
-+{
-+	MOD_INC_USE_COUNT;
-+}
-+
-+void ali1535_dec(struct i2c_adapter *adapter)
-+{
-+
-+	MOD_DEC_USE_COUNT;
-+}
-+
-+u32 ali1535_func(struct i2c_adapter *adapter)
-+{
-+	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-+	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+	    I2C_FUNC_SMBUS_BLOCK_DATA;
-+}
-+
-+int __init i2c_ali1535_init(void)
-+{
-+	int res;
-+	printk("i2c-ali1535.o version %s (%s)\n", LM_VERSION, LM_DATE);
-+#ifdef DEBUG
-+/* PE- It might be good to make this a permanent part of the code! */
-+	if (ali1535_initialized) {
-+		printk
-+		    ("i2c-ali1535.o: Oops, ali1535_init called a second time!\n");
-+		return -EBUSY;
-+	}
-+#endif
-+	ali1535_initialized = 0;
-+	if ((res = ali1535_setup())) {
-+		printk
-+		    ("i2c-ali1535.o: ALI1535 not detected, module not inserted.\n");
-+		ali1535_cleanup();
-+		return res;
-+	}
-+	ali1535_initialized++;
-+	sprintf(ali1535_adapter.name, "SMBus ALI1535 adapter at %04x",
-+		ali1535_smba);
-+	if ((res = i2c_add_adapter(&ali1535_adapter))) {
-+		printk
-+		    ("i2c-ali1535.o: Adapter registration failed, module not inserted.\n");
-+		ali1535_cleanup();
-+		return res;
-+	}
-+	ali1535_initialized++;
-+	printk
-+	    ("i2c-ali1535.o: ALI1535 SMBus Controller detected and initialized\n");
-+	return 0;
-+}
-+
-+int __init ali1535_cleanup(void)
-+{
-+	int res;
-+	if (ali1535_initialized >= 2) {
-+		if ((res = i2c_del_adapter(&ali1535_adapter))) {
-+			printk
-+			    ("i2c-ali1535.o: i2c_del_adapter failed, module not removed\n");
-+			return res;
-+		} else
-+			ali1535_initialized--;
-+	}
-+	if (ali1535_initialized >= 1) {
-+		release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
-+		ali1535_initialized--;
-+	}
-+	return 0;
-+}
-+
-+#ifdef RLX
-+EXPORT_SYMBOL(ali1535_smba);
-+EXPORT_SYMBOL(ali1535_access);
-+EXPORT_SYMBOL(i2c_ali1535_sem);
-+#else
-+EXPORT_NO_SYMBOLS;
-+#endif
-+
-+#ifdef MODULE
-+
-+MODULE_AUTHOR
-+    ("Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>,\n"
-+      "Mark D. Studebaker <mdsxyz123@yahoo.com> and Dan Eaton <dan.eaton@rocketlogix.com>");
-+MODULE_DESCRIPTION("ALI1535 SMBus driver");
-+
-+int init_module(void)
-+{
-+	return i2c_ali1535_init();
-+}
-+
-+int cleanup_module(void)
-+{
-+	return ali1535_cleanup();
-+}
-+
-+#endif				/* MODULE */
-+
---- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/busses/i2c-ali15x3.c	2002-05-20 01:52:13.000000000 -0400
-@@ -0,0 +1,646 @@
-+/*
-+    ali15x3.c - Part of lm_sensors, Linux kernel modules for hardware
++    piix4.c - Part of lm_sensors, Linux kernel modules for hardware
 +              monitoring
-+    Copyright (c) 1999  Frodo Looijaard <frodol@dds.nl> and
-+    Philip Edelbrock <phil@netroedge.com> and
-+    Mark D. Studebaker <mdsxyz123@yahoo.com>
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+/*
-+    This is the driver for the SMB Host controller on
-+    Acer Labs Inc. (ALI) M1541 and M1543C South Bridges.
-+
-+    The M1543C is a South bridge for desktop systems.
-+    The M1533 is a South bridge for portable systems.
-+    They are part of the following ALI chipsets:
-+       "Aladdin Pro 2": Includes the M1621 Slot 1 North bridge
-+       with AGP and 100MHz CPU Front Side bus
-+       "Aladdin V": Includes the M1541 Socket 7 North bridge
-+       with AGP and 100MHz CPU Front Side bus
-+       "Aladdin IV": Includes the M1541 Socket 7 North bridge
-+       with host bus up to 83.3 MHz.
-+    For an overview of these chips see http://www.acerlabs.com
-+
-+    The M1533/M1543C devices appear as FOUR separate devices
-+    on the PCI bus. An output of lspci will show something similar
-+    to the following:
-+
-+	00:02.0 USB Controller: Acer Laboratories Inc. M5237
-+	00:03.0 Bridge: Acer Laboratories Inc. M7101
-+	00:07.0 ISA bridge: Acer Laboratories Inc. M1533
-+	00:0f.0 IDE interface: Acer Laboratories Inc. M5229
-+
-+    The SMB controller is part of the 7101 device, which is an
-+    ACPI-compliant Power Management Unit (PMU).
-+
-+    The whole 7101 device has to be enabled for the SMB to work.
-+    You can't just enable the SMB alone.
-+    The SMB and the ACPI have separate I/O spaces.
-+    We make sure that the SMB is enabled. We leave the ACPI alone.
-+
-+    This driver controls the SMB Host only.
-+    The SMB Slave controller on the M15X3 is not enabled.
-+
-+    This driver does not use interrupts.
-+*/
-+
-+/* Note: we assume there can only be one ALI15X3, with one SMBus interface */
-+
-+#include <linux/version.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <asm/io.h>
-+#include <linux/kernel.h>
-+#include <linux/stddef.h>
-+#include <linux/ioport.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/sensors.h>
-+
-+MODULE_LICENSE("GPL");
-+
-+/* ALI15X3 SMBus address offsets */
-+#define SMBHSTSTS (0 + ali15x3_smba)
-+#define SMBHSTCNT (1 + ali15x3_smba)
-+#define SMBHSTSTART (2 + ali15x3_smba)
-+#define SMBHSTCMD (7 + ali15x3_smba)
-+#define SMBHSTADD (3 + ali15x3_smba)
-+#define SMBHSTDAT0 (4 + ali15x3_smba)
-+#define SMBHSTDAT1 (5 + ali15x3_smba)
-+#define SMBBLKDAT (6 + ali15x3_smba)
-+
-+/* PCI Address Constants */
-+#define SMBCOM    0x004
-+#define SMBBA     0x014
-+#define SMBATPC   0x05B		/* used to unlock xxxBA registers */
-+#define SMBHSTCFG 0x0E0
-+#define SMBSLVC   0x0E1
-+#define SMBCLK    0x0E2
-+#define SMBREV    0x008
-+
-+/* Other settings */
-+#define MAX_TIMEOUT 200		/* times 1/100 sec */
-+#define ALI15X3_SMB_IOSIZE 32
-+
-+/* this is what the Award 1004 BIOS sets them to on a ASUS P5A MB.
-+   We don't use these here. If the bases aren't set to some value we
-+   tell user to upgrade BIOS and we fail.
-+*/
-+#define ALI15X3_SMB_DEFAULTBASE 0xE800
-+
-+/* ALI15X3 address lock bits */
-+#define ALI15X3_LOCK	0x06
-+
-+/* ALI15X3 command constants */
-+#define ALI15X3_ABORT      0x02
-+#define ALI15X3_T_OUT      0x04
-+#define ALI15X3_QUICK      0x00
-+#define ALI15X3_BYTE       0x10
-+#define ALI15X3_BYTE_DATA  0x20
-+#define ALI15X3_WORD_DATA  0x30
-+#define ALI15X3_BLOCK_DATA 0x40
-+#define ALI15X3_BLOCK_CLR  0x80
-+
-+/* ALI15X3 status register bits */
-+#define ALI15X3_STS_IDLE	0x04
-+#define ALI15X3_STS_BUSY	0x08
-+#define ALI15X3_STS_DONE	0x10
-+#define ALI15X3_STS_DEV		0x20	/* device error */
-+#define ALI15X3_STS_COLL	0x40	/* collision or no response */
-+#define ALI15X3_STS_TERM	0x80	/* terminated by abort */
-+#define ALI15X3_STS_ERR		0xE0	/* all the bad error bits */
-+
-+
-+/* If force_addr is set to anything different from 0, we forcibly enable
-+   the device at the given address. */
-+static int force_addr = 0;
-+MODULE_PARM(force_addr, "i");
-+MODULE_PARM_DESC(force_addr,
-+		 "Initialize the base address of the i2c controller");
-+
-+#ifdef MODULE
-+static
-+#else
-+extern
-+#endif
-+int __init i2c_ali15x3_init(void);
-+static int __init ali15x3_cleanup(void);
-+static int ali15x3_setup(void);
-+static s32 ali15x3_access(struct i2c_adapter *adap, u16 addr,
-+			  unsigned short flags, char read_write,
-+			  u8 command, int size,
-+			  union i2c_smbus_data *data);
-+static void ali15x3_do_pause(unsigned int amount);
-+static int ali15x3_transaction(void);
-+static void ali15x3_inc(struct i2c_adapter *adapter);
-+static void ali15x3_dec(struct i2c_adapter *adapter);
-+static u32 ali15x3_func(struct i2c_adapter *adapter);
-+
-+#ifdef MODULE
-+extern int init_module(void);
-+extern int cleanup_module(void);
-+#endif				/* MODULE */
-+
-+static struct i2c_algorithm smbus_algorithm = {
-+	/* name */ "Non-I2C SMBus adapter",
-+	/* id */ I2C_ALGO_SMBUS,
-+	/* master_xfer */ NULL,
-+	/* smbus_access */ ali15x3_access,
-+	/* slave_send */ NULL,
-+	/* slave_rcv */ NULL,
-+	/* algo_control */ NULL,
-+	/* functionality */ ali15x3_func,
-+};
-+
-+static struct i2c_adapter ali15x3_adapter = {
-+	"unset",
-+	I2C_ALGO_SMBUS | I2C_HW_SMBUS_ALI15X3,
-+	&smbus_algorithm,
-+	NULL,
-+	ali15x3_inc,
-+	ali15x3_dec,
-+	NULL,
-+	NULL,
-+};
-+
-+static int __initdata ali15x3_initialized;
-+static unsigned short ali15x3_smba = 0;
-+static int locked=0;
-+
-+/* Detect whether a ALI15X3 can be found, and initialize it, where necessary.
-+   Note the differences between kernels with the old PCI BIOS interface and
-+   newer kernels with the real PCI interface. In compat.h some things are
-+   defined to make the transition easier. */
-+int ali15x3_setup(void)
-+{
-+	u16 a;
-+	unsigned char temp;
-+
-+	struct pci_dev *ALI15X3_dev;
-+
-+	/* First check whether we can access PCI at all */
-+	if (pci_present() == 0) {
-+		printk("i2c-ali15x3.o: Error: No PCI-bus found!\n");
-+		return -ENODEV;
-+	}
-+
-+	/* Look for the ALI15X3, M7101 device */
-+	ALI15X3_dev = NULL;
-+	ALI15X3_dev = pci_find_device(PCI_VENDOR_ID_AL,
-+				      PCI_DEVICE_ID_AL_M7101, ALI15X3_dev);
-+	if (ALI15X3_dev == NULL) {
-+		printk("i2c-ali15x3.o: Error: Can't detect ali15x3!\n");
-+		return -ENODEV;
-+	}
-+
-+/* Check the following things:
-+	- SMB I/O address is initialized
-+	- Device is enabled
-+	- We can use the addresses
-+*/
-+
-+/* Unlock the register.
-+   The data sheet says that the address registers are read-only
-+   if the lock bits are 1, but in fact the address registers
-+   are zero unless you clear the lock bits.
-+*/
-+	pci_read_config_byte(ALI15X3_dev, SMBATPC, &temp);
-+	if (temp & ALI15X3_LOCK) {
-+		temp &= ~ALI15X3_LOCK;
-+		pci_write_config_byte(ALI15X3_dev, SMBATPC, temp);
-+	}
-+
-+/* Determine the address of the SMBus area */
-+	pci_read_config_word(ALI15X3_dev, SMBBA, &ali15x3_smba);
-+	ali15x3_smba &= (0xffff & ~(ALI15X3_SMB_IOSIZE - 1));
-+	if (ali15x3_smba == 0 && force_addr == 0) {
-+		printk
-+		    ("i2c-ali15x3.o: ALI15X3_smb region uninitialized - upgrade BIOS or use force_addr=0xaddr\n");
-+		return -ENODEV;
-+	}
-+
-+	if(force_addr)
-+		ali15x3_smba = force_addr & ~(ALI15X3_SMB_IOSIZE - 1);
-+
-+	if (check_region(ali15x3_smba, ALI15X3_SMB_IOSIZE)) {
-+		printk
-+		    ("i2c-ali15x3.o: ALI15X3_smb region 0x%x already in use!\n",
-+		     ali15x3_smba);
-+		return -ENODEV;
-+	}
-+
-+	if(force_addr) {
-+		printk("i2c-ali15x3.o: forcing ISA address 0x%04X\n", ali15x3_smba);
-+		if (PCIBIOS_SUCCESSFUL !=
-+		    pci_write_config_word(ALI15X3_dev, SMBBA, ali15x3_smba))
-+			return -ENODEV;
-+		if (PCIBIOS_SUCCESSFUL !=
-+		    pci_read_config_word(ALI15X3_dev, SMBBA, &a))
-+			return -ENODEV;
-+		if ((a & ~(ALI15X3_SMB_IOSIZE - 1)) != ali15x3_smba) {
-+			/* make sure it works */
-+			printk("i2c-ali15x3.o: force address failed - not supported?\n");
-+			return -ENODEV;
-+		}
-+	}
-+/* check if whole device is enabled */
-+	pci_read_config_byte(ALI15X3_dev, SMBCOM, &temp);
-+	if ((temp & 1) == 0) {
-+		printk("i2c-ali15x3: enabling SMBus device\n");
-+		pci_write_config_byte(ALI15X3_dev, SMBCOM, temp | 0x01);
-+	}
-+
-+/* Is SMB Host controller enabled? */
-+	pci_read_config_byte(ALI15X3_dev, SMBHSTCFG, &temp);
-+	if ((temp & 1) == 0) {
-+		printk("i2c-ali15x3: enabling SMBus controller\n");
-+		pci_write_config_byte(ALI15X3_dev, SMBHSTCFG, temp | 0x01);
-+	}
-+
-+/* set SMB clock to 74KHz as recommended in data sheet */
-+	pci_write_config_byte(ALI15X3_dev, SMBCLK, 0x20);
-+
-+	/* Everything is happy, let's grab the memory and set things up. */
-+	request_region(ali15x3_smba, ALI15X3_SMB_IOSIZE, "ali15x3-smb");
-+
-+#ifdef DEBUG
-+/*
-+  The interrupt routing for SMB is set up in register 0x77 in the
-+  1533 ISA Bridge device, NOT in the 7101 device.
-+  Don't bother with finding the 1533 device and reading the register.
-+  if ((....... & 0x0F) == 1)
-+     printk("i2c-ali15x3.o: ALI15X3 using Interrupt 9 for SMBus.\n");
-+*/
-+	pci_read_config_byte(ALI15X3_dev, SMBREV, &temp);
-+	printk("i2c-ali15x3.o: SMBREV = 0x%X\n", temp);
-+	printk("i2c-ali15x3.o: ALI15X3_smba = 0x%X\n", ali15x3_smba);
-+#endif				/* DEBUG */
-+
-+	return 0;
-+}
-+
-+
-+/* Internally used pause function */
-+void ali15x3_do_pause(unsigned int amount)
-+{
-+	current->state = TASK_INTERRUPTIBLE;
-+	schedule_timeout(amount);
-+}
-+
-+/* Another internally used function */
-+int ali15x3_transaction(void)
-+{
-+	int temp;
-+	int result = 0;
-+	int timeout = 0;
-+
-+#ifdef DEBUG
-+	printk
-+	    ("i2c-ali15x3.o: Transaction (pre): STS=%02x, CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
-+	     "DAT1=%02x\n", inb_p(SMBHSTSTS), inb_p(SMBHSTCNT),
-+	     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
-+	     inb_p(SMBHSTDAT1));
-+#endif
-+
-+	/* get status */
-+	temp = inb_p(SMBHSTSTS);
-+
-+	/* Make sure the SMBus host is ready to start transmitting */
-+	/* Check the busy bit first */
-+	if (temp & ALI15X3_STS_BUSY) {
-+/*
-+   If the host controller is still busy, it may have timed out in the previous transaction,
-+   resulting in a "SMBus Timeout" printk.
-+   I've tried the following to reset a stuck busy bit.
-+	1. Reset the controller with an ABORT command.
-+	   (this doesn't seem to clear the controller if an external device is hung)
-+	2. Reset the controller and the other SMBus devices with a T_OUT command.
-+	   (this clears the host busy bit if an external device is hung,
-+	   but it comes back upon a new access to a device)
-+	3. Disable and reenable the controller in SMBHSTCFG
-+   Worst case, nothing seems to work except power reset.
-+*/
-+/* Abort - reset the host controller */
-+/*
-+#ifdef DEBUG
-+    printk("i2c-ali15x3.o: Resetting host controller to clear busy condition\n",temp);
-+#endif
-+    outb_p(ALI15X3_ABORT, SMBHSTCNT);
-+    temp = inb_p(SMBHSTSTS);
-+    if (temp & ALI15X3_STS_BUSY) {
-+*/
-+
-+/*
-+   Try resetting entire SMB bus, including other devices -
-+   This may not work either - it clears the BUSY bit but
-+   then the BUSY bit may come back on when you try and use the chip again.
-+   If that's the case you are stuck.
-+*/
-+		printk
-+		    ("i2c-ali15x3.o: Resetting entire SMB Bus to clear busy condition (%02x)\n",
-+		     temp);
-+		outb_p(ALI15X3_T_OUT, SMBHSTCNT);
-+		temp = inb_p(SMBHSTSTS);
-+	}
-+/*
-+  }
-+*/
-+
-+	/* now check the error bits and the busy bit */
-+	if (temp & (ALI15X3_STS_ERR | ALI15X3_STS_BUSY)) {
-+		/* do a clear-on-write */
-+		outb_p(0xFF, SMBHSTSTS);
-+		if ((temp = inb_p(SMBHSTSTS)) &
-+		    (ALI15X3_STS_ERR | ALI15X3_STS_BUSY)) {
-+			/* this is probably going to be correctable only by a power reset
-+			   as one of the bits now appears to be stuck */
-+			/* This may be a bus or device with electrical problems. */
-+			printk
-+			    ("i2c-ali15x3.o: SMBus reset failed! (0x%02x) - controller or device on bus is probably hung\n",
-+			     temp);
-+			return -1;
-+		}
-+	} else {
-+		/* check and clear done bit */
-+		if (temp & ALI15X3_STS_DONE) {
-+			outb_p(temp, SMBHSTSTS);
-+		}
-+	}
-+
-+	/* start the transaction by writing anything to the start register */
-+	outb_p(0xFF, SMBHSTSTART);
-+
-+	/* We will always wait for a fraction of a second! */
-+	timeout = 0;
-+	do {
-+		ali15x3_do_pause(1);
-+		temp = inb_p(SMBHSTSTS);
-+	} while ((!(temp & (ALI15X3_STS_ERR | ALI15X3_STS_DONE)))
-+		 && (timeout++ < MAX_TIMEOUT));
-+
-+	/* If the SMBus is still busy, we give up */
-+	if (timeout >= MAX_TIMEOUT) {
-+		result = -1;
-+		printk("i2c-ali15x3.o: SMBus Timeout!\n");
-+	}
-+
-+	if (temp & ALI15X3_STS_TERM) {
-+		result = -1;
-+#ifdef DEBUG
-+		printk("i2c-ali15x3.o: Error: Failed bus transaction\n");
-+#endif
-+	}
-+
-+/*
-+  Unfortunately the ALI SMB controller maps "no response" and "bus collision"
-+  into a single bit. No reponse is the usual case so don't
-+  do a printk.
-+  This means that bus collisions go unreported.
-+*/
-+	if (temp & ALI15X3_STS_COLL) {
-+		result = -1;
-+#ifdef DEBUG
-+		printk
-+		    ("i2c-ali15x3.o: Error: no response or bus collision ADD=%02x\n",
-+		     inb_p(SMBHSTADD));
-+#endif
-+	}
-+
-+/* haven't ever seen this */
-+	if (temp & ALI15X3_STS_DEV) {
-+		result = -1;
-+		printk("i2c-ali15x3.o: Error: device error\n");
-+	}
-+#ifdef DEBUG
-+	printk
-+	    ("i2c-ali15x3.o: Transaction (post): STS=%02x, CNT=%02x, CMD=%02x, ADD=%02x, "
-+	     "DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTSTS), inb_p(SMBHSTCNT),
-+	     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
-+	     inb_p(SMBHSTDAT1));
-+#endif
-+	return result;
-+}
-+
-+/* Return -1 on error. See smbus.h for more information */
-+s32 ali15x3_access(struct i2c_adapter * adap, u16 addr,
-+		   unsigned short flags, char read_write, u8 command,
-+		   int size, union i2c_smbus_data * data)
-+{
-+	int i, len;
-+	int temp;
-+	int timeout;
-+
-+/* clear all the bits (clear-on-write) */
-+	outb_p(0xFF, SMBHSTSTS);
-+/* make sure SMBus is idle */
-+	temp = inb_p(SMBHSTSTS);
-+	for (timeout = 0;
-+	     (timeout < MAX_TIMEOUT) && !(temp & ALI15X3_STS_IDLE);
-+	     timeout++) {
-+		ali15x3_do_pause(1);
-+		temp = inb_p(SMBHSTSTS);
-+	}
-+	if (timeout >= MAX_TIMEOUT) {
-+		printk("i2c-ali15x3.o: Idle wait Timeout! STS=0x%02x\n",
-+		       temp);
-+	}
-+
-+	switch (size) {
-+	case I2C_SMBUS_PROC_CALL:
-+		printk
-+		    ("i2c-ali15x3.o: I2C_SMBUS_PROC_CALL not supported!\n");
-+		return -1;
-+	case I2C_SMBUS_QUICK:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		size = ALI15X3_QUICK;
-+		break;
-+	case I2C_SMBUS_BYTE:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		if (read_write == I2C_SMBUS_WRITE)
-+			outb_p(command, SMBHSTCMD);
-+		size = ALI15X3_BYTE;
-+		break;
-+	case I2C_SMBUS_BYTE_DATA:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		outb_p(command, SMBHSTCMD);
-+		if (read_write == I2C_SMBUS_WRITE)
-+			outb_p(data->byte, SMBHSTDAT0);
-+		size = ALI15X3_BYTE_DATA;
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		outb_p(command, SMBHSTCMD);
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			outb_p(data->word & 0xff, SMBHSTDAT0);
-+			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
-+		}
-+		size = ALI15X3_WORD_DATA;
-+		break;
-+	case I2C_SMBUS_BLOCK_DATA:
-+		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMBHSTADD);
-+		outb_p(command, SMBHSTCMD);
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			len = data->block[0];
-+			if (len < 0) {
-+				len = 0;
-+				data->block[0] = len;
-+			}
-+			if (len > 32) {
-+				len = 32;
-+				data->block[0] = len;
-+			}
-+			outb_p(len, SMBHSTDAT0);
-+			outb_p(inb_p(SMBHSTCNT) | ALI15X3_BLOCK_CLR, SMBHSTCNT);	/* Reset SMBBLKDAT */
-+			for (i = 1; i <= len; i++)
-+				outb_p(data->block[i], SMBBLKDAT);
-+		}
-+		size = ALI15X3_BLOCK_DATA;
-+		break;
-+	}
-+
-+	outb_p(size, SMBHSTCNT);	/* output command */
-+
-+	if (ali15x3_transaction())	/* Error in transaction */
-+		return -1;
-+
-+	if ((read_write == I2C_SMBUS_WRITE) || (size == ALI15X3_QUICK))
-+		return 0;
-+
-+
-+	switch (size) {
-+	case ALI15X3_BYTE:	/* Result put in SMBHSTDAT0 */
-+		data->byte = inb_p(SMBHSTDAT0);
-+		break;
-+	case ALI15X3_BYTE_DATA:
-+		data->byte = inb_p(SMBHSTDAT0);
-+		break;
-+	case ALI15X3_WORD_DATA:
-+		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
-+		break;
-+	case ALI15X3_BLOCK_DATA:
-+		len = inb_p(SMBHSTDAT0);
-+		if (len > 32)
-+			len = 32;
-+		data->block[0] = len;
-+		outb_p(inb_p(SMBHSTCNT) | ALI15X3_BLOCK_CLR, SMBHSTCNT);	/* Reset SMBBLKDAT */
-+		for (i = 1; i <= data->block[0]; i++) {
-+			data->block[i] = inb_p(SMBBLKDAT);
-+#ifdef DEBUG
-+			printk
-+			    ("i2c-ali15x3.o: Blk: len=%d, i=%d, data=%02x\n",
-+			     len, i, data->block[i]);
-+#endif	/* DEBUG */
-+		}
-+		break;
-+	}
-+	return 0;
-+}
-+
-+void ali15x3_inc(struct i2c_adapter *adapter)
-+{
-+	MOD_INC_USE_COUNT;
-+}
-+
-+void ali15x3_dec(struct i2c_adapter *adapter)
-+{
-+
-+	MOD_DEC_USE_COUNT;
-+}
-+
-+u32 ali15x3_func(struct i2c_adapter *adapter)
-+{
-+	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-+	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+	    I2C_FUNC_SMBUS_BLOCK_DATA;
-+}
-+
-+int __init i2c_ali15x3_init(void)
-+{
-+	int res;
-+	printk("i2c-ali15x3.o version %s (%s)\n", LM_VERSION, LM_DATE);
-+#ifdef DEBUG
-+/* PE- It might be good to make this a permanent part of the code! */
-+	if (ali15x3_initialized) {
-+		printk
-+		    ("i2c-ali15x3.o: Oops, ali15x3_init called a second time!\n");
-+		return -EBUSY;
-+	}
-+#endif
-+	ali15x3_initialized = 0;
-+	if ((res = ali15x3_setup())) {
-+		printk
-+		    ("i2c-ali15x3.o: ALI15X3 not detected, module not inserted.\n");
-+		ali15x3_cleanup();
-+		return res;
-+	}
-+	ali15x3_initialized++;
-+	sprintf(ali15x3_adapter.name, "SMBus ALI15X3 adapter at %04x",
-+		ali15x3_smba);
-+	if ((res = i2c_add_adapter(&ali15x3_adapter))) {
-+		printk
-+		    ("i2c-ali15x3.o: Adapter registration failed, module not inserted.\n");
-+		ali15x3_cleanup();
-+		return res;
-+	}
-+	ali15x3_initialized++;
-+	printk
-+	    ("i2c-ali15x3.o: ALI15X3 SMBus Controller detected and initialized\n");
-+	return 0;
-+}
-+
-+int __init ali15x3_cleanup(void)
-+{
-+	int res;
-+	if (ali15x3_initialized >= 2) {
-+		if ((res = i2c_del_adapter(&ali15x3_adapter))) {
-+			printk
-+			    ("i2c-ali15x3.o: i2c_del_adapter failed, module not removed\n");
-+			return res;
-+		} else
-+			ali15x3_initialized--;
-+	}
-+	if (ali15x3_initialized >= 1) {
-+		release_region(ali15x3_smba, ALI15X3_SMB_IOSIZE);
-+		ali15x3_initialized--;
-+	}
-+	return 0;
-+}
-+
-+EXPORT_NO_SYMBOLS;
-+
-+#ifdef MODULE
-+
-+MODULE_AUTHOR
-+    ("Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>, and Mark D. Studebaker <mdsxyz123@yahoo.com>");
-+MODULE_DESCRIPTION("ALI15X3 SMBus driver");
-+
-+int init_module(void)
-+{
-+	return i2c_ali15x3_init();
-+}
-+
-+int cleanup_module(void)
-+{
-+	return ali15x3_cleanup();
-+}
-+
-+#endif				/* MODULE */
---- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/busses/i2c-amd756.c	2002-05-20 01:52:33.000000000 -0400
-@@ -0,0 +1,505 @@
-+/*
-+    amd756.c - Part of lm_sensors, Linux kernel modules for hardware
-+              monitoring
-+
-+    Copyright (c) 1999 Merlin Hughes <merlin@merlin.org>
-+
-+    Shamelessly ripped from i2c-piix4.c:
-+
 +    Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl> and
 +    Philip Edelbrock <phil@netroedge.com>
 +
@@ -1416,7 +72,11 @@ Content-Disposition: inline;
 +*/
 +
 +/*
-+   Supports AMD756, AMD766, and AMD768.
++   Supports:
++	Intel PIIX4, 440MX
++	Serverworks OSB4, CSB5
++	SMSC Victory66
++
 +   Note: we assume there can only be one device, with one SMBus interface.
 +*/
 +
@@ -1431,74 +91,114 @@ Content-Disposition: inline;
 +#include <linux/init.h>
 +#include <linux/sensors.h>
 +
-+MODULE_LICENSE("GPL");
++/* Note: We assume all devices are identical
++         to the Intel PIIX4; we only mention it during detection.   */
 +
-+#ifndef PCI_DEVICE_ID_AMD_756
-+#define PCI_DEVICE_ID_AMD_756 0x740B
-+#endif
-+#ifndef PCI_DEVICE_ID_AMD_766
-+#define PCI_DEVICE_ID_AMD_766 0x7413
++#ifndef PCI_DEVICE_ID_SERVERWORKS_OSB4
++#define PCI_DEVICE_ID_SERVERWORKS_OSB4 0x0200
 +#endif
 +
-+static int supported[] = {PCI_DEVICE_ID_AMD_756,
-+                          PCI_DEVICE_ID_AMD_766,
-+			  0x7443, /* AMD768 */
-+                          0 };
++#ifndef PCI_DEVICE_ID_SERVERWORKS_CSB5
++#define PCI_DEVICE_ID_SERVERWORKS_CSB5 0x0201
++#endif
 +
-+/* AMD756 SMBus address offsets */
-+#define SMB_ADDR_OFFSET        0xE0
-+#define SMB_IOSIZE             16
-+#define SMB_GLOBAL_STATUS      (0x0 + amd756_smba)
-+#define SMB_GLOBAL_ENABLE      (0x2 + amd756_smba)
-+#define SMB_HOST_ADDRESS       (0x4 + amd756_smba)
-+#define SMB_HOST_DATA          (0x6 + amd756_smba)
-+#define SMB_HOST_COMMAND       (0x8 + amd756_smba)
-+#define SMB_HOST_BLOCK_DATA    (0x9 + amd756_smba)
-+#define SMB_HAS_DATA           (0xA + amd756_smba)
-+#define SMB_HAS_DEVICE_ADDRESS (0xC + amd756_smba)
-+#define SMB_HAS_HOST_ADDRESS   (0xE + amd756_smba)
-+#define SMB_SNOOP_ADDRESS      (0xF + amd756_smba)
++#ifndef PCI_VENDOR_ID_SERVERWORKS
++#define PCI_VENDOR_ID_SERVERWORKS 0x01166
++#endif
++
++#ifndef PCI_DEVICE_ID_INTEL_82443MX_3
++#define PCI_DEVICE_ID_INTEL_82443MX_3	0x719b
++#endif
++
++#ifndef PCI_VENDOR_ID_EFAR
++#define PCI_VENDOR_ID_EFAR		0x1055
++#endif
++
++#ifndef PCI_DEVICE_ID_EFAR_SLC90E66_3
++#define PCI_DEVICE_ID_EFAR_SLC90E66_3	0x9463
++#endif
++
++struct sd {
++	const unsigned short mfr;
++	const unsigned short dev;
++	const unsigned char fn;
++	const char *name;
++};
++
++static struct sd supported[] = {
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3, 3, "PIIX4"},
++	{PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_OSB4, 0, "OSB4"},
++	{PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB5, 0, "CSB5"},
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3, 3, "440MX"},
++	{PCI_VENDOR_ID_EFAR, PCI_DEVICE_ID_EFAR_SLC90E66_3, 0, "Victory66"},
++	{0, 0, 0, NULL}
++};
++
++/* PIIX4 SMBus address offsets */
++#define SMBHSTSTS (0 + piix4_smba)
++#define SMBHSLVSTS (1 + piix4_smba)
++#define SMBHSTCNT (2 + piix4_smba)
++#define SMBHSTCMD (3 + piix4_smba)
++#define SMBHSTADD (4 + piix4_smba)
++#define SMBHSTDAT0 (5 + piix4_smba)
++#define SMBHSTDAT1 (6 + piix4_smba)
++#define SMBBLKDAT (7 + piix4_smba)
++#define SMBSLVCNT (8 + piix4_smba)
++#define SMBSHDWCMD (9 + piix4_smba)
++#define SMBSLVEVT (0xA + piix4_smba)
++#define SMBSLVDAT (0xC + piix4_smba)
 +
 +/* PCI Address Constants */
-+
-+/* address of I/O space */
-+#define SMBBA     0x058		/* mh */
-+
-+/* general configuration */
-+#define SMBGCFG   0x041		/* mh */
-+
-+/* silicon revision code */
-+#define SMBREV    0x008
++#define SMBBA     0x090
++#define SMBHSTCFG 0x0D2
++#define SMBSLVC   0x0D3
++#define SMBSHDW1  0x0D4
++#define SMBSHDW2  0x0D5
++#define SMBREV    0x0D6
 +
 +/* Other settings */
-+#define MAX_TIMEOUT 100
++#define MAX_TIMEOUT 500
++#define  ENABLE_INT9 0
 +
-+/* AMD756 constants */
-+#define AMD756_QUICK        0x00
-+#define AMD756_BYTE         0x01
-+#define AMD756_BYTE_DATA    0x02
-+#define AMD756_WORD_DATA    0x03
-+#define AMD756_PROCESS_CALL 0x04
-+#define AMD756_BLOCK_DATA   0x05
++/* PIIX4 constants */
++#define PIIX4_QUICK      0x00
++#define PIIX4_BYTE       0x04
++#define PIIX4_BYTE_DATA  0x08
++#define PIIX4_WORD_DATA  0x0C
++#define PIIX4_BLOCK_DATA 0x14
 +
 +/* insmod parameters */
++
++/* If force is set to anything different from 0, we forcibly enable the
++   PIIX4. DANGEROUS! */
++static int force = 0;
++MODULE_PARM(force, "i");
++MODULE_PARM_DESC(force, "Forcibly enable the PIIX4. DANGEROUS!");
++
++/* If force_addr is set to anything different from 0, we forcibly enable
++   the PIIX4 at the given address. VERY DANGEROUS! */
++static int force_addr = 0;
++MODULE_PARM(force_addr, "i");
++MODULE_PARM_DESC(force_addr,
++		 "Forcibly enable the PIIX4 at the given address. "
++		 "EXTREMELY DANGEROUS!");
 +
 +#ifdef MODULE
 +static
 +#else
 +extern
 +#endif
-+int __init i2c_amd756_init(void);
-+static int __init amd756_cleanup(void);
-+static int amd756_setup(void);
-+static s32 amd756_access(struct i2c_adapter *adap, u16 addr,
-+			 unsigned short flags, char read_write,
-+			 u8 command, int size, union i2c_smbus_data *data);
-+static void amd756_do_pause(unsigned int amount);
-+static int amd756_transaction(void);
-+static void amd756_inc(struct i2c_adapter *adapter);
-+static void amd756_dec(struct i2c_adapter *adapter);
-+static u32 amd756_func(struct i2c_adapter *adapter);
++int __init i2c_piix4_init(void);
++static int __init piix4_cleanup(void);
++static int piix4_setup(void);
++static s32 piix4_access(struct i2c_adapter *adap, u16 addr,
++			unsigned short flags, char read_write,
++			u8 command, int size, union i2c_smbus_data *data);
++static void piix4_do_pause(unsigned int amount);
++static int piix4_transaction(void);
++static void piix4_inc(struct i2c_adapter *adapter);
++static void piix4_dec(struct i2c_adapter *adapter);
++static u32 piix4_func(struct i2c_adapter *adapter);
 +
 +#ifdef MODULE
 +extern int init_module(void);
@@ -1509,121 +209,150 @@ Content-Disposition: inline;
 +	/* name */ "Non-I2C SMBus adapter",
 +	/* id */ I2C_ALGO_SMBUS,
 +	/* master_xfer */ NULL,
-+	/* smbus_access */ amd756_access,
-+	/* slave;_send */ NULL,
++	/* smbus_access */ piix4_access,
++	/* slave_send */ NULL,
 +	/* slave_rcv */ NULL,
 +	/* algo_control */ NULL,
-+	/* functionality */ amd756_func,
++	/* functionality */ piix4_func,
 +};
 +
-+static struct i2c_adapter amd756_adapter = {
++static struct i2c_adapter piix4_adapter = {
 +	"unset",
-+	I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD756,
++	I2C_ALGO_SMBUS | I2C_HW_SMBUS_PIIX4,
 +	&smbus_algorithm,
 +	NULL,
-+	amd756_inc,
-+	amd756_dec,
++	piix4_inc,
++	piix4_dec,
 +	NULL,
 +	NULL,
 +};
 +
-+static int __initdata amd756_initialized;
-+static unsigned short amd756_smba = 0;
++static int __initdata piix4_initialized;
++static unsigned short piix4_smba = 0;
 +
-+/* Detect whether a AMD756 can be found, and initialize it, where necessary.
++/* Detect whether a PIIX4 can be found, and initialize it, where necessary.
 +   Note the differences between kernels with the old PCI BIOS interface and
 +   newer kernels with the real PCI interface. In compat.h some things are
 +   defined to make the transition easier. */
-+int amd756_setup(void)
++int piix4_setup(void)
 +{
++	int error_return = 0;
 +	unsigned char temp;
-+	int *num = supported;
-+	struct pci_dev *AMD756_dev = NULL;
++	struct sd *num = supported;
++	struct pci_dev *PIIX4_dev = NULL;
 +
 +	if (pci_present() == 0) {
-+		printk("i2c-amd756.o: Error: No PCI-bus found!\n");
-+		return(-ENODEV);
++		error_return = -ENODEV;
++		goto END;
 +	}
 +
-+	/* Look for the AMD756, function 3 */
-+	/* Note: we keep on searching until we have found 'function 3' */
++	/* Look for a supported device/function */
 +	do {
-+		if((AMD756_dev = pci_find_device(PCI_VENDOR_ID_AMD,
-+					      *num, AMD756_dev))) {
-+			if(PCI_FUNC(AMD756_dev->devfn) != 3)
++		if((PIIX4_dev = pci_find_device(num->mfr, num->dev,
++					        PIIX4_dev))) {
++			if(PCI_FUNC(PIIX4_dev->devfn) != num->fn)
 +				continue;
 +			break;
 +		}
++		PIIX4_dev = NULL;
 +		num++;
-+	} while (*num != 0);
++	} while (num->mfr);
 +
-+	if (AMD756_dev == NULL) {
++	if (PIIX4_dev == NULL) {
 +		printk
-+		    ("i2c-amd756.o: Error: Can't detect AMD756, function 3!\n");
-+		return(-ENODEV);
++		  (KERN_ERR "i2c-piix4.o: Error: Can't detect PIIX4 or compatible device!\n");
++		 error_return = -ENODEV;
++		 goto END;
++	}
++	printk(KERN_INFO "i2c-piix4.o: Found %s device\n", num->name);
++
++
++/* Determine the address of the SMBus areas */
++	if (force_addr) {
++		piix4_smba = force_addr & 0xfff0;
++		force = 0;
++	} else {
++		pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
++		piix4_smba &= 0xfff0;
++		if(piix4_smba == 0) {
++			printk(KERN_ERR "i2c-piix4.o: SMB base address uninitialized - upgrade BIOS or use force_addr=0xaddr\n");
++			return -ENODEV;
++		}
 +	}
 +
-+
-+	pci_read_config_byte(AMD756_dev, SMBGCFG, &temp);
-+	if ((temp & 128) == 0) {
++	if (check_region(piix4_smba, 8)) {
 +		printk
-+		  ("i2c-amd756.o: Error: SMBus controller I/O not enabled!\n");
-+		return(-ENODEV);
++		    (KERN_ERR "i2c-piix4.o: SMB region 0x%x already in use!\n",
++		     piix4_smba);
++		error_return = -ENODEV;
++		goto END;
 +	}
 +
-+	/* Determine the address of the SMBus areas */
-+	/* Technically it is a dword but... */
-+	pci_read_config_word(AMD756_dev, SMBBA, &amd756_smba);
-+	amd756_smba &= 0xff00;
-+	amd756_smba += SMB_ADDR_OFFSET;
-+
-+	if (check_region(amd756_smba, SMB_IOSIZE)) {
++	pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
++/* If force_addr is set, we program the new address here. Just to make
++   sure, we disable the PIIX4 first. */
++	if (force_addr) {
++		pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp & 0xfe);
++		pci_write_config_word(PIIX4_dev, SMBBA, piix4_smba);
++		pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp | 0x01);
 +		printk
-+		    ("i2c-amd756.o: SMB region 0x%x already in use!\n",
-+		     amd756_smba);
-+		return(-ENODEV);
++		    (KERN_INFO "i2c-piix4.o: WARNING: SMBus interface set to new "
++		     "address %04x!\n", piix4_smba);
++	} else if ((temp & 1) == 0) {
++		if (force) {
++/* This should never need to be done, but has been noted that
++   many Dell machines have the SMBus interface on the PIIX4
++   disabled!? NOTE: This assumes I/O space and other allocations WERE
++   done by the Bios!  Don't complain if your hardware does weird 
++   things after enabling this. :') Check for Bios updates before
++   resorting to this.  */
++			pci_write_config_byte(PIIX4_dev, SMBHSTCFG,
++					      temp | 1);
++			printk
++			    (KERN_NOTICE "i2c-piix4.o: WARNING: SMBus interface has been FORCEFULLY "
++			     "ENABLED!\n");
++		} else {
++			printk
++			    (KERN_ERR "i2c-piix4.o: Host SMBus controller not enabled!\n");
++			error_return = -ENODEV;
++			goto END;
++		}
 +	}
 +
 +	/* Everything is happy, let's grab the memory and set things up. */
-+	request_region(amd756_smba, SMB_IOSIZE, "amd756-smbus");
++	request_region(piix4_smba, 8, "piix4-smbus");
 +
 +#ifdef DEBUG
-+	pci_read_config_byte(AMD756_dev, SMBREV, &temp);
-+	printk("i2c-amd756.o: SMBREV = 0x%X\n", temp);
-+	printk("i2c-amd756.o: AMD756_smba = 0x%X\n", amd756_smba);
++	if ((temp & 0x0E) == 8)
++		printk
++		    (KERN_DEBUG "i2c-piix4.o: Using Interrupt 9 for SMBus.\n");
++	else if ((temp & 0x0E) == 0)
++		printk
++		    (KERN_DEBUG "i2c-piix4.o: Using Interrupt SMI# for SMBus.\n");
++	else
++		printk
++		    (KERN_ERR "i2c-piix4.o: Illegal Interrupt configuration (or code out "
++		     "of date)!\n");
++
++	pci_read_config_byte(PIIX4_dev, SMBREV, &temp);
++	printk(KERN_DEBUG "i2c-piix4.o: SMBREV = 0x%X\n", temp);
++	printk(KERN_DEBUG "i2c-piix4.o: SMBA = 0x%X\n", piix4_smba);
 +#endif				/* DEBUG */
 +
-+	return 0;
++      END:
++	return error_return;
 +}
 +
-+/* 
-+  SMBUS event = I/O 28-29 bit 11
-+     see E0 for the status bits and enabled in E2
-+     
-+*/
 +
 +/* Internally used pause function */
-+void amd756_do_pause(unsigned int amount)
++void piix4_do_pause(unsigned int amount)
 +{
 +	current->state = TASK_INTERRUPTIBLE;
 +	schedule_timeout(amount);
 +}
 +
-+#define GS_ABRT_STS (1 << 0)
-+#define GS_COL_STS (1 << 1)
-+#define GS_PRERR_STS (1 << 2)
-+#define GS_HST_STS (1 << 3)
-+#define GS_HCYC_STS (1 << 4)
-+#define GS_TO_STS (1 << 5)
-+#define GS_SMB_STS (1 << 11)
-+
-+#define GS_CLEAR_STS (GS_ABRT_STS | GS_COL_STS | GS_PRERR_STS | \
-+  GS_HCYC_STS | GS_TO_STS )
-+
-+#define GE_CYC_TYPE_MASK (7)
-+#define GE_HOST_STC (1 << 3)
-+
-+int amd756_transaction(void)
++/* Another internally used function */
++int piix4_transaction(void)
 +{
 +	int temp;
 +	int result = 0;
@@ -1631,247 +360,241 @@ Content-Disposition: inline;
 +
 +#ifdef DEBUG
 +	printk
-+	    ("i2c-amd756.o: Transaction (pre): GS=%04x, GE=%04x, ADD=%04x, DAT=%04x\n",
-+	     inw_p(SMB_GLOBAL_STATUS), inw_p(SMB_GLOBAL_ENABLE),
-+	     inw_p(SMB_HOST_ADDRESS), inb_p(SMB_HOST_DATA));
++	    (KERN_DEBUG "i2c-piix4.o: Transaction (pre): CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
++	     "DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
++	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
 +#endif
 +
 +	/* Make sure the SMBus host is ready to start transmitting */
-+	if ((temp = inw_p(SMB_GLOBAL_STATUS)) & (GS_HST_STS | GS_SMB_STS)) {
++	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
 +#ifdef DEBUG
-+		printk
-+		    ("i2c-amd756.o: SMBus busy (%04x). Waiting... \n", temp);
++		printk(KERN_DEBUG "i2c-piix4.o: SMBus busy (%02x). Resetting... \n",
++		       temp);
 +#endif
-+		do {
-+			amd756_do_pause(1);
-+			temp = inw_p(SMB_GLOBAL_STATUS);
-+		} while ((temp & (GS_HST_STS | GS_SMB_STS)) &&
-+		         (timeout++ < MAX_TIMEOUT));
-+		/* If the SMBus is still busy, we give up */
-+		if (timeout >= MAX_TIMEOUT) {
-+			printk("i2c-amd756.o: Busy wait timeout! (%04x)\n",
-+			       temp);
-+			return(-1);
++		outb_p(temp, SMBHSTSTS);
++		if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++#ifdef DEBUG
++			printk(KERN_ERR "i2c-piix4.o: Failed! (%02x)\n", temp);
++#endif
++			return -1;
++		} else {
++#ifdef DEBUG
++			printk(KERN_DEBUG "i2c-piix4.o: Successfull!\n");
++#endif
 +		}
-+		timeout = 0;
 +	}
 +
-+	/* start the transaction by setting the start bit */
-+	outw_p(inw(SMB_GLOBAL_ENABLE) | GE_HOST_STC, SMB_GLOBAL_ENABLE);
++	/* start the transaction by setting bit 6 */
++	outb_p(inb(SMBHSTCNT) | 0x040, SMBHSTCNT);
 +
-+	/* We will always wait for a fraction of a second! */
++	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
 +	do {
-+		amd756_do_pause(1);
-+		temp = inw_p(SMB_GLOBAL_STATUS);
-+	} while ((temp & GS_HST_STS) && (timeout++ < MAX_TIMEOUT));
++		piix4_do_pause(1);
++		temp = inb_p(SMBHSTSTS);
++	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
 +
++#ifdef DEBUG
 +	/* If the SMBus is still busy, we give up */
 +	if (timeout >= MAX_TIMEOUT) {
-+		printk("i2c-amd756.o: Completion timeout!\n");
-+		return(-1);
-+	}
-+
-+	if (temp & GS_PRERR_STS) {
++		printk(KERN_ERR "i2c-piix4.o: SMBus Timeout!\n");
 +		result = -1;
-+#ifdef DEBUG
-+		printk("i2c-amd756.o: SMBus Protocol error (no response)!\n");
-+#endif
-+	}
-+
-+	if (temp & GS_COL_STS) {
-+		result = -1;
-+		printk("i2c-amd756.o: SMBus collision!\n");
-+		/* TODO: Clear Collision Status with a 1 */
-+	}
-+
-+	if (temp & GS_TO_STS) {
-+		result = -1;
-+#ifdef DEBUG
-+		printk("i2c-amd756.o: SMBus protocol timeout!\n");
-+#endif
-+	}
-+#ifdef DEBUG
-+	if (temp & GS_HCYC_STS) {
-+		printk("i2c-amd756.o: SMBus protocol success!\n");
 +	}
 +#endif
 +
-+	outw_p(GS_CLEAR_STS, SMB_GLOBAL_STATUS);
-+
++	if (temp & 0x10) {
++		result = -1;
 +#ifdef DEBUG
-+	if (((temp = inw_p(SMB_GLOBAL_STATUS)) & GS_CLEAR_STS) != 0x00) {
++		printk(KERN_ERR "i2c-piix4.o: Error: Failed bus transaction\n");
++#endif
++	}
++
++	if (temp & 0x08) {
++		result = -1;
 +		printk
-+		    ("i2c-amd756.o: Failed reset at end of transaction (%04x)\n",
++		    (KERN_ERR "i2c-piix4.o: Bus collision! SMBus may be locked until next hard\n"
++		     "reset. (sorry!)\n");
++		/* Clock stops and slave is stuck in mid-transmission */
++	}
++
++	if (temp & 0x04) {
++		result = -1;
++#ifdef DEBUG
++		printk(KERN_ERR "i2c-piix4.o: Error: no response!\n");
++#endif
++	}
++
++	if (inb_p(SMBHSTSTS) != 0x00)
++		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++
++#ifdef DEBUG
++	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++		printk
++		    (KERN_ERR "i2c-piix4.o: Failed reset at end of transaction (%02x)\n",
 +		     temp);
 +	}
 +	printk
-+	    ("i2c-amd756.o: Transaction (post): GS=%04x, GE=%04x, ADD=%04x, DAT=%04x\n",
-+	     inw_p(SMB_GLOBAL_STATUS), inw_p(SMB_GLOBAL_ENABLE),
-+	     inw_p(SMB_HOST_ADDRESS), inb_p(SMB_HOST_DATA));
++	    (KERN_DEBUG "i2c-piix4.o: Transaction (post): CNT=%02x, CMD=%02x, ADD=%02x, "
++	     "DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
++	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
 +#endif
-+
 +	return result;
 +}
 +
 +/* Return -1 on error. See smbus.h for more information */
-+s32 amd756_access(struct i2c_adapter * adap, u16 addr,
-+		  unsigned short flags, char read_write,
-+		  u8 command, int size, union i2c_smbus_data * data)
++s32 piix4_access(struct i2c_adapter * adap, u16 addr,
++		 unsigned short flags, char read_write,
++		 u8 command, int size, union i2c_smbus_data * data)
 +{
 +	int i, len;
 +
-+  /** TODO: Should I supporte the 10-bit transfers? */
 +	switch (size) {
 +	case I2C_SMBUS_PROC_CALL:
 +		printk
-+		    ("i2c-amd756.o: I2C_SMBUS_PROC_CALL not supported!\n");
-+		/* TODO: Well... It is supported, I'm just not sure what to do here... */
++		    (KERN_ERR "i2c-piix4.o: I2C_SMBUS_PROC_CALL not supported!\n");
 +		return -1;
 +	case I2C_SMBUS_QUICK:
-+		outw_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMB_HOST_ADDRESS);
-+		size = AMD756_QUICK;
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		size = PIIX4_QUICK;
 +		break;
 +	case I2C_SMBUS_BYTE:
-+		outw_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMB_HOST_ADDRESS);
-+		/* TODO: Why only during write? */
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
 +		if (read_write == I2C_SMBUS_WRITE)
-+			outb_p(command, SMB_HOST_COMMAND);
-+		size = AMD756_BYTE;
++			outb_p(command, SMBHSTCMD);
++		size = PIIX4_BYTE;
 +		break;
 +	case I2C_SMBUS_BYTE_DATA:
-+		outw_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMB_HOST_ADDRESS);
-+		outb_p(command, SMB_HOST_COMMAND);
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
 +		if (read_write == I2C_SMBUS_WRITE)
-+			outw_p(data->byte, SMB_HOST_DATA);
-+		size = AMD756_BYTE_DATA;
++			outb_p(data->byte, SMBHSTDAT0);
++		size = PIIX4_BYTE_DATA;
 +		break;
 +	case I2C_SMBUS_WORD_DATA:
-+		outw_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMB_HOST_ADDRESS);
-+		outb_p(command, SMB_HOST_COMMAND);
-+		if (read_write == I2C_SMBUS_WRITE)
-+			outw_p(data->word, SMB_HOST_DATA);	/* TODO: endian???? */
-+		size = AMD756_WORD_DATA;
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			outb_p(data->word & 0xff, SMBHSTDAT0);
++			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
++		}
++		size = PIIX4_WORD_DATA;
 +		break;
 +	case I2C_SMBUS_BLOCK_DATA:
-+		outw_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+		       SMB_HOST_ADDRESS);
-+		outb_p(command, SMB_HOST_COMMAND);
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
 +		if (read_write == I2C_SMBUS_WRITE) {
 +			len = data->block[0];
 +			if (len < 0)
 +				len = 0;
 +			if (len > 32)
 +				len = 32;
-+			outw_p(len, SMB_HOST_DATA);
-+			/* i = inw_p(SMBHSTCNT); Reset SMBBLKDAT */
++			outb_p(len, SMBHSTDAT0);
++			i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
 +			for (i = 1; i <= len; i++)
-+				outb_p(data->block[i],
-+				       SMB_HOST_BLOCK_DATA);
++				outb_p(data->block[i], SMBBLKDAT);
 +		}
-+		size = AMD756_BLOCK_DATA;
++		size = PIIX4_BLOCK_DATA;
 +		break;
 +	}
 +
-+	/* How about enabling interrupts... */
-+	outw_p(size & GE_CYC_TYPE_MASK, SMB_GLOBAL_ENABLE);
++	outb_p((size & 0x1C) + (ENABLE_INT9 & 1), SMBHSTCNT);
 +
-+	if (amd756_transaction())	/* Error in transaction */
++	if (piix4_transaction())	/* Error in transaction */
 +		return -1;
 +
-+	if ((read_write == I2C_SMBUS_WRITE) || (size == AMD756_QUICK))
++	if ((read_write == I2C_SMBUS_WRITE) || (size == PIIX4_QUICK))
 +		return 0;
 +
 +
 +	switch (size) {
-+	case AMD756_BYTE:
-+		data->byte = inw_p(SMB_HOST_DATA);
++	case PIIX4_BYTE:	/* Where is the result put? I assume here it is in
++				   SMBHSTDAT0 but it might just as well be in the
++				   SMBHSTCMD. No clue in the docs */
++
++		data->byte = inb_p(SMBHSTDAT0);
 +		break;
-+	case AMD756_BYTE_DATA:
-+		data->byte = inw_p(SMB_HOST_DATA);
++	case PIIX4_BYTE_DATA:
++		data->byte = inb_p(SMBHSTDAT0);
 +		break;
-+	case AMD756_WORD_DATA:
-+		data->word = inw_p(SMB_HOST_DATA);	/* TODO: endian???? */
++	case PIIX4_WORD_DATA:
++		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
 +		break;
-+	case AMD756_BLOCK_DATA:
-+		data->block[0] = inw_p(SMB_HOST_DATA & 63);
-+		/* i = inw_p(SMBHSTCNT); Reset SMBBLKDAT */
++	case PIIX4_BLOCK_DATA:
++		data->block[0] = inb_p(SMBHSTDAT0);
++		i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
 +		for (i = 1; i <= data->block[0]; i++)
-+			data->block[i] = inb_p(SMB_HOST_BLOCK_DATA);
++			data->block[i] = inb_p(SMBBLKDAT);
 +		break;
 +	}
-+
 +	return 0;
 +}
 +
-+void amd756_inc(struct i2c_adapter *adapter)
++void piix4_inc(struct i2c_adapter *adapter)
 +{
 +	MOD_INC_USE_COUNT;
 +}
 +
-+void amd756_dec(struct i2c_adapter *adapter)
++void piix4_dec(struct i2c_adapter *adapter)
 +{
 +
 +	MOD_DEC_USE_COUNT;
 +}
 +
-+u32 amd756_func(struct i2c_adapter *adapter)
++u32 piix4_func(struct i2c_adapter *adapter)
 +{
 +	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
 +	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+	    I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_PROC_CALL;
++	    I2C_FUNC_SMBUS_BLOCK_DATA;
 +}
 +
-+int __init i2c_amd756_init(void)
++int __init i2c_piix4_init(void)
 +{
 +	int res;
-+	printk("i2c-amd756.o version %s (%s)\n", LM_VERSION, LM_DATE);
-+#ifdef DEBUG
-+/* PE- It might be good to make this a permanent part of the code! */
-+	if (amd756_initialized) {
++	printk("i2c-piix4.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	if (piix4_initialized) {
 +		printk
-+		    ("i2c-amd756.o: Oops, amd756_init called a second time!\n");
++		    (KERN_ERR "i2c-piix4.o: Oops, piix4_init called a second time!\n");
 +		return -EBUSY;
 +	}
-+#endif
-+	amd756_initialized = 0;
-+	if ((res = amd756_setup())) {
++	piix4_initialized = 0;
++	if ((res = piix4_setup())) {
 +		printk
-+		    ("i2c-amd756.o: AMD756/766 not detected, module not inserted.\n");
-+		amd756_cleanup();
++		    (KERN_ERR "i2c-piix4.o: Device not detected, module not inserted.\n");
++		piix4_cleanup();
 +		return res;
 +	}
-+	amd756_initialized++;
-+	sprintf(amd756_adapter.name, "SMBus AMD7X6 adapter at %04x",
-+		amd756_smba);
-+	if ((res = i2c_add_adapter(&amd756_adapter))) {
++	piix4_initialized++;
++	sprintf(piix4_adapter.name, "SMBus PIIX4 adapter at %04x",
++		piix4_smba);
++	if ((res = i2c_add_adapter(&piix4_adapter))) {
 +		printk
-+		    ("i2c-amd756.o: Adapter registration failed, module not inserted.\n");
-+		amd756_cleanup();
++		    (KERN_ERR "i2c-piix4.o: Adapter registration failed, module not inserted.\n");
++		piix4_cleanup();
 +		return res;
 +	}
-+	amd756_initialized++;
-+	printk("i2c-amd756.o: AMD756/766 bus detected and initialized\n");
++	piix4_initialized++;
++	printk(KERN_ERR "i2c-piix4.o: SMBus detected and initialized\n");
 +	return 0;
 +}
 +
-+int __init amd756_cleanup(void)
++int __init piix4_cleanup(void)
 +{
 +	int res;
-+	if (amd756_initialized >= 2) {
-+		if ((res = i2c_del_adapter(&amd756_adapter))) {
++	if (piix4_initialized >= 2) {
++		if ((res = i2c_del_adapter(&piix4_adapter))) {
 +			printk
-+			    ("i2c-amd756.o: i2c_del_adapter failed, module not removed\n");
++			    (KERN_ERR "i2c-piix4.o: i2c_del_adapter failed, module not removed\n");
 +			return res;
 +		} else
-+			amd756_initialized--;
++			piix4_initialized--;
 +	}
-+	if (amd756_initialized >= 1) {
-+		release_region(amd756_smba, SMB_IOSIZE);
-+		amd756_initialized--;
++	if (piix4_initialized >= 1) {
++		release_region(piix4_smba, 8);
++		piix4_initialized--;
 +	}
 +	return 0;
 +}
@@ -1880,32 +603,783 @@ Content-Disposition: inline;
 +
 +#ifdef MODULE
 +
-+MODULE_AUTHOR("Merlin Hughes <merlin@merlin.org>");
-+MODULE_DESCRIPTION("AMD756/766 SMBus driver");
++MODULE_AUTHOR
++    ("Frodo Looijaard <frodol@dds.nl> and Philip Edelbrock <phil@netroedge.com>");
++MODULE_DESCRIPTION("PIIX4 SMBus driver");
++MODULE_LICENSE("GPL");
 +
 +int init_module(void)
 +{
-+	return i2c_amd756_init();
++	return i2c_piix4_init();
 +}
 +
 +int cleanup_module(void)
 +{
-+	return amd756_cleanup();
++	return piix4_cleanup();
 +}
 +
 +#endif				/* MODULE */
 --- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/busses/i2c-hydra.c	2002-05-20 01:53:01.000000000 -0400
-@@ -0,0 +1,205 @@
++++ linux/drivers/i2c/busses/i2c-sis5595.c	2002-05-20 01:54:54.000000000 -0400
+@@ -0,0 +1,548 @@
 +/*
-+    i2c-hydra.c - Part of lm_sensors,  Linux kernel modules
-+                  for hardware monitoring
++    sis5595.c - Part of lm_sensors, Linux kernel modules for hardware
++              monitoring
++    Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl> and
++    Philip Edelbrock <phil@netroedge.com>
 +
-+    i2c Support for the Apple `Hydra' Mac I/O
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
 +
-+    Copyright (c) 1999 Geert Uytterhoeven <geert@linux-m68k.org>
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
 +
-+    Based on i2c Support for Via Technologies 82C586B South Bridge
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/* Note: we assume there can only be one SIS5595 with one SMBus interface */
++
++/*
++   Note: all have mfr. ID 0x1039.
++   SUPPORTED		PCI ID		
++	5595		0008
++
++   Note: these chips contain a 0008 device which is incompatible with the
++         5595. We recognize these by the presence of the listed
++         "blacklist" PCI ID and refuse to load.
++
++   NOT SUPPORTED	PCI ID		BLACKLIST PCI ID	
++	 540		0008		0540
++	 550		0008		0550
++	5513		0008		5511
++	5581		0008		5597
++	5582		0008		5597
++	5597		0008		5597
++	5598		0008		5597/5598
++	 630		0008		0630
++	 645		0008		0645
++	 730		0008		0730
++	 735		0008		0735
++*/
++
++/* TO DO: 
++ * Add Block Transfers (ugly, but supported by the adapter)
++ * Add adapter resets
++ */
++
++#include <linux/version.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <asm/io.h>
++#include <linux/kernel.h>
++#include <linux/stddef.h>
++#include <linux/ioport.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/sensors.h>
++
++MODULE_LICENSE("GPL");
++
++#ifndef PCI_DEVICE_ID_SI_540
++#define PCI_DEVICE_ID_SI_540		0x0540
++#endif
++#ifndef PCI_DEVICE_ID_SI_550
++#define PCI_DEVICE_ID_SI_550		0x0550
++#endif
++#ifndef PCI_DEVICE_ID_SI_630
++#define PCI_DEVICE_ID_SI_630		0x0630
++#endif
++#ifndef PCI_DEVICE_ID_SI_730
++#define PCI_DEVICE_ID_SI_730		0x0730
++#endif
++#ifndef PCI_DEVICE_ID_SI_5598
++#define PCI_DEVICE_ID_SI_5598		0x5598
++#endif
++
++static int blacklist[] = {
++			PCI_DEVICE_ID_SI_540,
++			PCI_DEVICE_ID_SI_550,
++			PCI_DEVICE_ID_SI_630,
++			PCI_DEVICE_ID_SI_730,
++			PCI_DEVICE_ID_SI_5511, /* 5513 chip has the 0008 device but
++						  that ID shows up in other chips so we
++						  use the 5511 ID for recognition */
++			PCI_DEVICE_ID_SI_5597,
++			PCI_DEVICE_ID_SI_5598,
++			0x645,
++			0x735,
++                          0 };
++
++/* Length of ISA address segment */
++#define SIS5595_EXTENT 8
++/* SIS5595 SMBus registers */
++#define SMB_STS_LO 0x00
++#define SMB_STS_HI 0x01
++#define SMB_CTL_LO 0x02
++#define SMB_CTL_HI 0x03
++#define SMB_ADDR   0x04
++#define SMB_CMD    0x05
++#define SMB_PCNT   0x06
++#define SMB_CNT    0x07
++#define SMB_BYTE   0x08
++#define SMB_DEV    0x10
++#define SMB_DB0    0x11
++#define SMB_DB1    0x12
++#define SMB_HAA    0x13
++
++/* PCI Address Constants */
++#define SMB_INDEX  0x38
++#define SMB_DAT    0x39
++#define SIS5595_ENABLE_REG 0x40
++#define ACPI_BASE  0x90
++
++/* Other settings */
++#define MAX_TIMEOUT 500
++
++/* SIS5595 constants */
++#define SIS5595_QUICK      0x00
++#define SIS5595_BYTE       0x02
++#define SIS5595_BYTE_DATA  0x04
++#define SIS5595_WORD_DATA  0x06
++#define SIS5595_PROC_CALL  0x08
++#define SIS5595_BLOCK_DATA 0x0A
++
++/* insmod parameters */
++
++/* If force_addr is set to anything different from 0, we forcibly enable
++   the device at the given address. */
++static int force_addr = 0;
++MODULE_PARM(force_addr, "i");
++MODULE_PARM_DESC(force_addr,
++		 "Initialize the base address of the i2c controller");
++
++#ifdef MODULE
++static
++#else
++extern
++#endif
++int __init i2c_sis5595_init(void);
++static int __init sis5595_cleanup(void);
++static int sis5595_setup(void);
++static s32 sis5595_access(struct i2c_adapter *adap, u16 addr,
++			  unsigned short flags, char read_write,
++			  u8 command, int size,
++			  union i2c_smbus_data *data);
++static void sis5595_do_pause(unsigned int amount);
++static int sis5595_transaction(void);
++static void sis5595_inc(struct i2c_adapter *adapter);
++static void sis5595_dec(struct i2c_adapter *adapter);
++static u32 sis5595_func(struct i2c_adapter *adapter);
++
++#ifdef MODULE
++extern int init_module(void);
++extern int cleanup_module(void);
++#endif				/* MODULE */
++
++static struct i2c_algorithm smbus_algorithm = {
++	/* name */ "Non-I2C SMBus adapter",
++	/* id */ I2C_ALGO_SMBUS,
++	/* master_xfer */ NULL,
++	/* smbus_access */ sis5595_access,
++	/* slave_send */ NULL,
++	/* slave_rcv */ NULL,
++	/* algo_control */ NULL,
++	/* functionality */ sis5595_func,
++};
++
++static struct i2c_adapter sis5595_adapter = {
++	"unset",
++	I2C_ALGO_SMBUS | I2C_HW_SMBUS_SIS5595,
++	&smbus_algorithm,
++	NULL,
++	sis5595_inc,
++	sis5595_dec,
++	NULL,
++	NULL,
++};
++
++static int __initdata sis5595_initialized;
++static unsigned short sis5595_base = 0;
++
++static u8 sis5595_read(u8 reg)
++{
++	outb(reg, sis5595_base + SMB_INDEX);
++	return inb(sis5595_base + SMB_DAT);
++}
++
++static void sis5595_write(u8 reg, u8 data)
++{
++	outb(reg, sis5595_base + SMB_INDEX);
++	outb(data, sis5595_base + SMB_DAT);
++}
++
++
++/* Detect whether a SIS5595 can be found, and initialize it, where necessary.
++   Note the differences between kernels with the old PCI BIOS interface and
++   newer kernels with the real PCI interface. In compat.h some things are
++   defined to make the transition easier. */
++int sis5595_setup(void)
++{
++	u16 a;
++	u8 val;
++	struct pci_dev *SIS5595_dev;
++	int *i;
++
++	/* First check whether we can access PCI at all */
++	if (pci_present() == 0) {
++		printk("i2c-sis5595.o: Error: No PCI-bus found!\n");
++		return -ENODEV;
++	}
++
++	/* Look for the SIS5595 */
++	SIS5595_dev = NULL;
++	if (!(SIS5595_dev = pci_find_device(PCI_VENDOR_ID_SI,
++					    PCI_DEVICE_ID_SI_503,
++					    SIS5595_dev))) {
++		printk("i2c-sis5595.o: Error: Can't detect SIS5595!\n");
++		return -ENODEV;
++	}
++
++	/* Look for imposters */
++	for(i = blacklist; *i != 0; i++) {
++		if (pci_find_device(PCI_VENDOR_ID_SI, *i, NULL)) {
++			printk("i2c-sis5595.o: Error: Looked for SIS5595 but found unsupported device %.4X\n", *i);
++			return -ENODEV;
++		}
++	}
++
++/* Determine the address of the SMBus areas */
++	pci_read_config_word(SIS5595_dev, ACPI_BASE, &sis5595_base);
++	if(sis5595_base == 0 && force_addr == 0) {
++		printk("i2c-sis5595.o: ACPI base address uninitialized - upgrade BIOS or use force_addr=0xaddr\n");
++		return -ENODEV;
++	}
++
++	if(force_addr)
++		sis5595_base = force_addr & ~(SIS5595_EXTENT - 1);
++#ifdef DEBUG
++	printk("ACPI Base address: %04x\n", sis5595_base);
++#endif
++	/* NB: We grab just the two SMBus registers here, but this may still
++	 * interfere with ACPI :-(  */
++	if (check_region(sis5595_base + SMB_INDEX, 2)) {
++		printk
++		    ("i2c-sis5595.o: SMBus registers 0x%04x-0x%04x already in use!\n",
++		     sis5595_base + SMB_INDEX,
++		     sis5595_base + SMB_INDEX + 1);
++		return -ENODEV;
++	}
++
++	if(force_addr) {
++		printk("i2c-sis5595.o: forcing ISA address 0x%04X\n", sis5595_base);
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_write_config_word(SIS5595_dev, ACPI_BASE, sis5595_base))
++			return -ENODEV;
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_read_config_word(SIS5595_dev, ACPI_BASE, &a))
++			return -ENODEV;
++		if ((a & ~(SIS5595_EXTENT - 1)) != sis5595_base) {
++			/* doesn't work for some chips! */
++			printk("i2c-sis5595.o: force address failed - not supported?\n");
++			return -ENODEV;
++		}
++	}
++
++	if (PCIBIOS_SUCCESSFUL !=
++	    pci_read_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, &val))
++		return -ENODEV;
++	if((val & 0x80) == 0) {
++		printk("sis5595.o: enabling ACPI\n");
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_write_config_byte(SIS5595_dev, SIS5595_ENABLE_REG,
++		                      val | 0x80))
++			return -ENODEV;
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_read_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, &val))
++			return -ENODEV;
++		if((val & 0x80) == 0) {	/* doesn't work for some chips? */
++			printk("sis5595.o: ACPI enable failed - not supported?\n");
++			return -ENODEV;
++		}
++	}
++
++	/* Everything is happy, let's grab the memory and set things up. */
++	request_region(sis5595_base + SMB_INDEX, 2, "sis5595-smbus");
++	return(0);
++}
++
++
++/* Internally used pause function */
++void sis5595_do_pause(unsigned int amount)
++{
++	current->state = TASK_INTERRUPTIBLE;
++	schedule_timeout(amount);
++}
++
++/* Another internally used function */
++int sis5595_transaction(void)
++{
++	int temp;
++	int result = 0;
++	int timeout = 0;
++
++	/* Make sure the SMBus host is ready to start transmitting */
++	if (
++	    (temp =
++	     sis5595_read(SMB_STS_LO) + (sis5595_read(SMB_STS_HI) << 8)) !=
++	    0x00) {
++#ifdef DEBUG
++		printk("i2c-sis5595.o: SMBus busy (%04x). Resetting... \n",
++		       temp);
++#endif
++		sis5595_write(SMB_STS_LO, temp & 0xff);
++		sis5595_write(SMB_STS_HI, temp >> 8);
++		if (
++		    (temp =
++		     sis5595_read(SMB_STS_LO) +
++		     (sis5595_read(SMB_STS_HI) << 8)) != 0x00) {
++#ifdef DEBUG
++			printk("i2c-sis5595.o: Failed! (%02x)\n", temp);
++#endif
++			return -1;
++		} else {
++#ifdef DEBUG
++			printk("i2c-sis5595.o: Successfull!\n");
++#endif
++		}
++	}
++
++	/* start the transaction by setting bit 4 */
++	sis5595_write(SMB_CTL_LO, sis5595_read(SMB_CTL_LO) | 0x10);
++
++	/* We will always wait for a fraction of a second! */
++	do {
++		sis5595_do_pause(1);
++		temp = sis5595_read(SMB_STS_LO);
++	} while (!(temp & 0x40) && (timeout++ < MAX_TIMEOUT));
++
++	/* If the SMBus is still busy, we give up */
++	if (timeout >= MAX_TIMEOUT) {
++#ifdef DEBUG
++		printk("i2c-sis5595.o: SMBus Timeout!\n");
++#endif
++		result = -1;
++	}
++
++	if (temp & 0x10) {
++		result = -1;
++#ifdef DEBUG
++		printk("i2c-sis5595.o: Error: Failed bus transaction\n");
++#endif
++	}
++
++	if (temp & 0x20) {
++		result = -1;
++		printk
++		    ("i2c-sis5595.o: Bus collision! SMBus may be locked until next hard\n"
++		     "reset (or not...)\n");
++		/* Clock stops and slave is stuck in mid-transmission */
++	}
++
++	if (
++	    (temp =
++	     sis5595_read(SMB_STS_LO) + (sis5595_read(SMB_STS_HI) << 8)) !=
++	    0x00) {
++		sis5595_write(SMB_STS_LO, temp & 0xff);
++		sis5595_write(SMB_STS_HI, temp >> 8);
++	}
++
++	if (
++	    (temp =
++	     sis5595_read(SMB_STS_LO) + (sis5595_read(SMB_STS_HI) << 8)) !=
++	    0x00) {
++
++#ifdef DEBUG
++		printk
++		    ("i2c-sis5595.o: Failed reset at end of transaction (%02x)\n",
++		     temp);
++#endif
++	}
++	return result;
++}
++
++/* Return -1 on error. See smbus.h for more information */
++s32 sis5595_access(struct i2c_adapter * adap, u16 addr,
++		   unsigned short flags, char read_write,
++		   u8 command, int size, union i2c_smbus_data * data)
++{
++	switch (size) {
++	case I2C_SMBUS_QUICK:
++		sis5595_write(SMB_ADDR,
++			      ((addr & 0x7f) << 1) | (read_write & 0x01));
++		size = SIS5595_QUICK;
++		break;
++	case I2C_SMBUS_BYTE:
++		sis5595_write(SMB_ADDR,
++			      ((addr & 0x7f) << 1) | (read_write & 0x01));
++		if (read_write == I2C_SMBUS_WRITE)
++			sis5595_write(SMB_CMD, command);
++		size = SIS5595_BYTE;
++		break;
++	case I2C_SMBUS_BYTE_DATA:
++		sis5595_write(SMB_ADDR,
++			      ((addr & 0x7f) << 1) | (read_write & 0x01));
++		sis5595_write(SMB_CMD, command);
++		if (read_write == I2C_SMBUS_WRITE)
++			sis5595_write(SMB_BYTE, data->byte);
++		size = SIS5595_BYTE_DATA;
++		break;
++	case I2C_SMBUS_PROC_CALL:
++	case I2C_SMBUS_WORD_DATA:
++		sis5595_write(SMB_ADDR,
++			      ((addr & 0x7f) << 1) | (read_write & 0x01));
++		sis5595_write(SMB_CMD, command);
++		if (read_write == I2C_SMBUS_WRITE) {
++			sis5595_write(SMB_BYTE, data->word & 0xff);
++			sis5595_write(SMB_BYTE + 1,
++				      (data->word & 0xff00) >> 8);
++		}
++		size =
++		    (size ==
++		     I2C_SMBUS_PROC_CALL) ? SIS5595_PROC_CALL :
++		    SIS5595_WORD_DATA;
++		break;
++	case I2C_SMBUS_BLOCK_DATA:
++		printk("sis5595.o: Block data not yet implemented!\n");
++		return -1;
++		break;
++	}
++
++	sis5595_write(SMB_CTL_LO, ((size & 0x0E)));
++
++	if (sis5595_transaction())	/* Error in transaction */
++		return -1;
++
++	if ((size != SIS5595_PROC_CALL) &&
++	    ((read_write == I2C_SMBUS_WRITE) || (size == SIS5595_QUICK)))
++		return 0;
++
++
++	switch (size) {
++	case SIS5595_BYTE:	/* Where is the result put? I assume here it is in
++				   SMB_DATA but it might just as well be in the
++				   SMB_CMD. No clue in the docs */
++	case SIS5595_BYTE_DATA:
++		data->byte = sis5595_read(SMB_BYTE);
++		break;
++	case SIS5595_WORD_DATA:
++	case SIS5595_PROC_CALL:
++		data->word =
++		    sis5595_read(SMB_BYTE) +
++		    (sis5595_read(SMB_BYTE + 1) << 8);
++		break;
++	}
++	return 0;
++}
++
++void sis5595_inc(struct i2c_adapter *adapter)
++{
++	MOD_INC_USE_COUNT;
++}
++
++void sis5595_dec(struct i2c_adapter *adapter)
++{
++
++	MOD_DEC_USE_COUNT;
++}
++
++u32 sis5595_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
++	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
++	    I2C_FUNC_SMBUS_PROC_CALL;
++}
++
++int __init i2c_sis5595_init(void)
++{
++	int res;
++	printk("i2c-sis5595.o version %s (%s)\n", LM_VERSION, LM_DATE);
++#ifdef DEBUG
++/* PE- It might be good to make this a permanent part of the code! */
++	if (sis5595_initialized) {
++		printk
++		    ("i2c-sis5595.o: Oops, sis5595_init called a second time!\n");
++		return -EBUSY;
++	}
++#endif
++	sis5595_initialized = 0;
++	if ((res = sis5595_setup())) {
++		printk
++		    ("i2c-sis5595.o: SIS5595 not detected, module not inserted.\n");
++		sis5595_cleanup();
++		return res;
++	}
++	sis5595_initialized++;
++	sprintf(sis5595_adapter.name, "SMBus SIS5595 adapter at %04x",
++		sis5595_base + SMB_INDEX);
++	if ((res = i2c_add_adapter(&sis5595_adapter))) {
++		printk
++		    ("i2c-sis5595.o: Adapter registration failed, module not inserted.\n");
++		sis5595_cleanup();
++		return res;
++	}
++	sis5595_initialized++;
++	printk("i2c-sis5595.o: SIS5595 bus detected and initialized\n");
++	return 0;
++}
++
++int __init sis5595_cleanup(void)
++{
++	int res;
++	if (sis5595_initialized >= 2) {
++		if ((res = i2c_del_adapter(&sis5595_adapter))) {
++			printk
++			    ("i2c-sis5595.o: i2c_del_adapter failed, module not removed\n");
++			return res;
++		} else
++			sis5595_initialized--;
++	}
++	if (sis5595_initialized >= 1) {
++		release_region(sis5595_base + SMB_INDEX, 2);
++		sis5595_initialized--;
++	}
++	return 0;
++}
++
++EXPORT_NO_SYMBOLS;
++
++#ifdef MODULE
++
++MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>");
++MODULE_DESCRIPTION("SIS5595 SMBus driver");
++
++int init_module(void)
++{
++	return i2c_sis5595_init();
++}
++
++int cleanup_module(void)
++{
++	return sis5595_cleanup();
++}
++
++#endif				/* MODULE */
+--- /dev/null	1994-07-17 19:46:18.000000000 -0400
++++ linux/drivers/i2c/busses/i2c-tsunami.c	2002-05-20 01:55:11.000000000 -0400
+@@ -0,0 +1,198 @@
++/*
++    i2c-tsunami.c - Part of lm_sensors, Linux kernel modules for hardware
++              monitoring
++    Copyright (c) 2001  Oleg Vdovikin <vdovikin@jscc.ru>
++    
++    Based on code written by Ralph Metzler <rjkm@thp.uni-koeln.de> and
++    Simon Vogl
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/* This interfaces to the I2C bus of the Tsunami/Typhoon 21272 chipsets 
++   to gain access to the on-board I2C devices. 
++
++   For more information refer to Compaq's 
++	"Tsunami/Typhoon 21272 Chipset Hardware Reference Manual"
++	Order Number: DS-0025-TE
++*/ 
++
++#include <linux/version.h>
++#include <linux/module.h>
++#include <asm/io.h>
++#include <asm/hwrpb.h>
++#include <asm/core_tsunami.h>
++#include <linux/i2c.h>
++#include <linux/i2c-algo-bit.h>
++#include <linux/init.h>
++#include <linux/sensors.h>
++
++MODULE_LICENSE("GPL");
++
++/* Memory Presence Detect Register (MPD-RW) bits 
++   with except of reserved RAZ bits */
++
++#define MPD_DR	0x8	/* Data receive - RO */
++#define MPD_CKR	0x4	/* Clock receive - RO */
++#define MPD_DS	0x2	/* Data send - Must be a 1 to receive - WO */
++#define MPD_CKS	0x1	/* Clock send - WO */
++
++#ifdef MODULE
++static
++#else
++extern
++#endif
++int __init i2c_tsunami_init(void);
++static int __init i2c_tsunami_cleanup(void);
++static void i2c_tsunami_inc(struct i2c_adapter *adapter);
++static void i2c_tsunami_dec(struct i2c_adapter *adapter);
++
++#ifdef MODULE
++extern int init_module(void);
++extern int cleanup_module(void);
++#endif				/* MODULE */
++
++extern inline void writempd(unsigned long value)
++{
++	TSUNAMI_cchip->mpd.csr = value;
++	mb();
++}
++
++extern inline unsigned long readmpd(void)
++{
++	return TSUNAMI_cchip->mpd.csr;
++}
++
++static void bit_tsunami_setscl(void *data, int val)
++{
++	/* read currently setted bits to modify them */
++	unsigned long bits = readmpd() >> 2; /* assume output == input */
++
++	if (val)
++		bits |= MPD_CKS;
++	else
++		bits &= ~MPD_CKS;
++
++	writempd(bits);
++}
++
++static void bit_tsunami_setsda(void *data, int val)
++{
++	/* read currently setted bits to modify them */
++	unsigned long bits = readmpd() >> 2; /* assume output == input */
++
++	if (val)
++		bits |= MPD_DS;
++	else
++		bits &= ~MPD_DS;
++
++	writempd(bits);
++}
++
++/* The MPD pins are open drain, so the pins always remain outputs.
++   We rely on the i2c-algo-bit routines to set the pins high before
++   reading the input from other chips. */
++
++static int bit_tsunami_getscl(void *data)
++{
++	return (0 != (readmpd() & MPD_CKR));
++}
++
++static int bit_tsunami_getsda(void *data)
++{
++	return (0 != (readmpd() & MPD_DR));
++}
++
++static struct i2c_algo_bit_data tsunami_i2c_bit_data = {
++	NULL,
++	bit_tsunami_setsda,
++	bit_tsunami_setscl,
++	bit_tsunami_getsda,
++	bit_tsunami_getscl,
++	10, 10, 50	/* delays/timeout */
++};
++
++static struct i2c_adapter tsunami_i2c_adapter = {
++	"I2C Tsunami/Typhoon adapter",
++	I2C_HW_B_TSUNA,
++	NULL,
++	&tsunami_i2c_bit_data,
++	i2c_tsunami_inc,
++	i2c_tsunami_dec,
++	NULL,
++	NULL,
++};
++
++void i2c_tsunami_inc(struct i2c_adapter *adapter)
++{
++	MOD_INC_USE_COUNT;
++}
++
++void i2c_tsunami_dec(struct i2c_adapter *adapter)
++{
++	MOD_DEC_USE_COUNT;
++}
++
++int __init i2c_tsunami_init(void)
++{
++	int res;
++	printk("i2c-tsunami.o version %s (%s)\n", LM_VERSION, LM_DATE);
++
++	if (hwrpb->sys_type != ST_DEC_TSUNAMI) {
++		printk("i2c-tsunami.o: not Tsunami based system (%d), module not inserted.\n", hwrpb->sys_type);
++		return -ENXIO;
++	} else {
++		printk("i2c-tsunami.o: using Cchip MPD at 0x%lx.\n", &TSUNAMI_cchip->mpd);
++	}
++	
++	if ((res = i2c_bit_add_bus(&tsunami_i2c_adapter))) {
++		printk("i2c-tsunami.o: I2C adapter registration failed\n");
++	} else {
++		printk("i2c-tsunami.o: I2C bus initialized\n");
++	}
++
++	return res;
++}
++
++int __init i2c_tsunami_cleanup(void)
++{
++	int res;
++
++	if ((res = i2c_bit_del_bus(&tsunami_i2c_adapter))) {
++		printk("i2c-tsunami.o: i2c_bit_del_bus failed, module not removed\n");
++		return res;
++	}
++
++	return 0;
++}
++
++EXPORT_NO_SYMBOLS;
++
++#ifdef MODULE
++
++MODULE_AUTHOR("Oleg I. Vdovikin <vdovikin@jscc.ru>");
++MODULE_DESCRIPTION("Tsunami I2C/SMBus driver");
++
++int init_module(void)
++{
++	return i2c_tsunami_init();
++}
++
++int cleanup_module(void)
++{
++	return i2c_tsunami_cleanup();
++}
++
++#endif				/* MODULE */
+--- /dev/null	1994-07-17 19:46:18.000000000 -0400
++++ linux/drivers/i2c/busses/i2c-via.c	2002-05-20 01:55:24.000000000 -0400
+@@ -0,0 +1,223 @@
++/*
++    i2c-via.c - Part of lm_sensors,  Linux kernel modules
++                for hardware monitoring
++
++    i2c Support for Via Technologies 82C586B South Bridge
++
 +    Copyright (c) 1998, 1999 Kyösti Mälkki <kmalkki@cc.hut.fi>
 +
 +    This program is free software; you can redistribute it and/or modify
@@ -1925,10 +1399,10 @@ Content-Disposition: inline;
 +
 +#include <linux/version.h>
 +#include <linux/kernel.h>
++#include <linux/ioport.h>
 +#include <linux/module.h>
 +#include <linux/pci.h>
 +#include <asm/io.h>
-+#include <asm/system.h>
 +#include <linux/types.h>
 +#include <linux/i2c.h>
 +#include <linux/i2c-algo-bit.h>
@@ -1938,122 +1412,137 @@ Content-Disposition: inline;
 +MODULE_LICENSE("GPL");
 +
 +/* PCI device */
-+#define VENDOR		PCI_VENDOR_ID_APPLE
-+#define DEVICE		PCI_DEVICE_ID_APPLE_HYDRA
++#define VENDOR		PCI_VENDOR_ID_VIA
++#define DEVICE		PCI_DEVICE_ID_VIA_82C586_3
 +
-+#define HYDRA_CACHE_PD	0x00000030
++/* Power management registers */
 +
-+#define HYDRA_CPD_PD0	0x00000001	/* CachePD lines */
-+#define HYDRA_CPD_PD1	0x00000002
-+#define HYDRA_CPD_PD2	0x00000004
-+#define HYDRA_CPD_PD3	0x00000008
++#define PM_CFG_REVID    0x08	/* silicon revision code */
++#define PM_CFG_IOBASE0  0x20
++#define PM_CFG_IOBASE1  0x48
 +
-+#define HYDRA_SCLK	HYDRA_CPD_PD0
-+#define HYDRA_SDAT	HYDRA_CPD_PD1
-+#define HYDRA_SCLK_OE	0x00000010
-+#define HYDRA_SDAT_OE	0x00000020
++#define I2C_DIR		(pm_io_base+0x40)
++#define I2C_OUT		(pm_io_base+0x42)
++#define I2C_IN		(pm_io_base+0x44)
++#define I2C_SCL		0x02	/* clock bit in DIR/OUT/IN register */
++#define I2C_SDA		0x04
 +
-+static unsigned long hydra_base;
++/* io-region reservation */
++#define IOSPACE		0x06
++#define IOTEXT		"via-i2c"
 +
-+static inline void pdregw(u32 val)
++/* ----- global defines -----------------------------------------------	*/
++#define DEB(x) x		/* silicon revision, io addresses       */
++#define DEB2(x) x		/* line status                          */
++#define DEBE(x)			/*                                      */
++
++/* ----- local functions ----------------------------------------------	*/
++
++static u16 pm_io_base;
++
++/*
++   It does not appear from the datasheet that the GPIO pins are
++   open drain. So a we set a low value by setting the direction to
++   output and a high value by setting the direction to input and
++   relying on the required I2C pullup. The data value is initialized
++   to 0 in i2c_via_init() and never changed.
++*/
++
++static void bit_via_setscl(void *data, int state)
 +{
-+	writel(val, hydra_base + HYDRA_CACHE_PD);
++	outb(state ? inb(I2C_DIR) & ~I2C_SCL : inb(I2C_DIR) | I2C_SCL,
++	     I2C_DIR);
 +}
 +
-+static inline u32 pdregr(void)
++static void bit_via_setsda(void *data, int state)
 +{
-+	u32 val = readl(hydra_base + HYDRA_CACHE_PD);
-+	return val;
++	outb(state ? inb(I2C_DIR) & ~I2C_SDA : inb(I2C_DIR) | I2C_SDA,
++	     I2C_DIR);
 +}
 +
-+static void bit_hydra_setscl(void *data, int state)
++static int bit_via_getscl(void *data)
 +{
-+	u32 val = pdregr();
-+	if (state)
-+		val &= ~HYDRA_SCLK_OE;
-+	else {
-+		val &= ~HYDRA_SCLK;
-+		val |= HYDRA_SCLK_OE;
-+	}
-+	pdregw(val);
++	return (0 != (inb(I2C_IN) & I2C_SCL));
 +}
 +
-+static void bit_hydra_setsda(void *data, int state)
++static int bit_via_getsda(void *data)
 +{
-+	u32 val = pdregr();
-+	if (state)
-+		val &= ~HYDRA_SDAT_OE;
-+	else {
-+		val &= ~HYDRA_SDAT;
-+		val |= HYDRA_SDAT_OE;
-+	}
-+	pdregw(val);
++	return (0 != (inb(I2C_IN) & I2C_SDA));
 +}
 +
-+static int bit_hydra_getscl(void *data)
-+{
-+	return (pdregr() & HYDRA_SCLK) != 0;
-+}
-+
-+static int bit_hydra_getsda(void *data)
-+{
-+	return (pdregr() & HYDRA_SDAT) != 0;
-+}
-+
-+static void bit_hydra_inc(struct i2c_adapter *adap)
++static void bit_via_inc(struct i2c_adapter *adapter)
 +{
 +	MOD_INC_USE_COUNT;
 +}
 +
-+static void bit_hydra_dec(struct i2c_adapter *adap)
++static void bit_via_dec(struct i2c_adapter *adapter)
 +{
 +	MOD_DEC_USE_COUNT;
 +}
 +
 +/* ------------------------------------------------------------------------ */
 +
-+static struct i2c_algo_bit_data bit_hydra_data = {
++static struct i2c_algo_bit_data bit_data = {
 +	NULL,
-+	bit_hydra_setsda,
-+	bit_hydra_setscl,
-+	bit_hydra_getsda,
-+	bit_hydra_getscl,
++	bit_via_setsda,
++	bit_via_setscl,
++	bit_via_getsda,
++	bit_via_getscl,
 +	5, 5, 100,		/*waits, timeout */
 +};
 +
-+static struct i2c_adapter bit_hydra_ops = {
-+	"Hydra i2c",
-+	I2C_HW_B_HYDRA,
++static struct i2c_adapter bit_via_ops = {
++	"VIA i2c",
++	I2C_HW_B_VIA,
 +	NULL,
-+	&bit_hydra_data,
-+	bit_hydra_inc,
-+	bit_hydra_dec,
++	&bit_data,
++	bit_via_inc,
++	bit_via_dec,
 +	NULL,
 +	NULL,
 +};
 +
 +
-+static int find_hydra(void)
++/* When exactly was the new pci interface introduced? */
++static int find_via(void)
 +{
-+	struct pci_dev *dev;
-+	unsigned int base_addr;
++	struct pci_dev *s_bridge;
++	u16 base;
++	u8 rev;
 +
 +	if (!pci_present())
 +		return -ENODEV;
 +
-+	dev = pci_find_device(VENDOR, DEVICE, NULL);
-+	if (!dev) {
-+		printk("Hydra not found\n");
++	s_bridge = pci_find_device(VENDOR, DEVICE, NULL);
++
++	if (!s_bridge) {
++		printk("i2c-via.o: vt82c586b not found\n");
 +		return -ENODEV;
 +	}
 +
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,13)
-+	base_addr = dev->resource[0].start;
-+#else
-+	base_addr = dev->base_address[0];
-+#endif
-+	hydra_base = (unsigned long) ioremap(base_addr, 0x100);
++	if (PCIBIOS_SUCCESSFUL !=
++	    pci_read_config_byte(s_bridge, PM_CFG_REVID, &rev))
++		return -ENODEV;
 +
++	switch (rev) {
++	case 0x00:
++		base = PM_CFG_IOBASE0;
++		break;
++	case 0x01:
++	case 0x10:
++		base = PM_CFG_IOBASE1;
++		break;
++
++	default:
++		base = PM_CFG_IOBASE1;
++		/* later revision */
++	}
++
++	if (PCIBIOS_SUCCESSFUL !=
++	    pci_read_config_word(s_bridge, base, &pm_io_base))
++		    return -ENODEV;
++
++	pm_io_base &= (0xff << 8);
 +	return 0;
 +}
 +
@@ -2062,22 +1551,31 @@ Content-Disposition: inline;
 +#else
 +extern
 +#endif
-+int __init i2c_hydra_init(void)
++int __init i2c_via_init(void)
 +{
-+	if (find_hydra() < 0) {
-+		printk("Error while reading PCI configuration\n");
++	printk("i2c-via.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	if (find_via() < 0) {
++		printk("i2c-via.o: Error while reading PCI configuration\n");
 +		return -ENODEV;
 +	}
 +
-+	pdregw(0);		/* clear SCLK_OE and SDAT_OE */
++	if (check_region(I2C_DIR, IOSPACE) < 0) {
++		printk("i2c-via.o: IO 0x%x-0x%x already in use\n",
++		       I2C_DIR, I2C_DIR + IOSPACE);
++		return -EBUSY;
++	} else {
++		request_region(I2C_DIR, IOSPACE, IOTEXT);
++		outb(inb(I2C_DIR) & ~(I2C_SDA | I2C_SCL), I2C_DIR);
++		outb(inb(I2C_OUT) & ~(I2C_SDA | I2C_SCL), I2C_OUT);
++	}
 +
-+	if (i2c_bit_add_bus(&bit_hydra_ops) == 0) {
-+		printk("Hydra i2c: Module succesfully loaded\n");
++	if (i2c_bit_add_bus(&bit_via_ops) == 0) {
++		printk("i2c-via.o: Module succesfully loaded\n");
 +		return 0;
 +	} else {
-+		iounmap((void *) hydra_base);
++		release_region(I2C_DIR, IOSPACE);
 +		printk
-+		    ("Hydra i2c: Algo-bit error, couldn't register bus\n");
++		    ("i2c-via.o: Algo-bit error, couldn't register bus\n");
 +		return -ENODEV;
 +	}
 +}
@@ -2085,23 +1583,951 @@ Content-Disposition: inline;
 +EXPORT_NO_SYMBOLS;
 +
 +#ifdef MODULE
-+MODULE_AUTHOR("Geert Uytterhoeven <geert@linux-m68k.org>");
-+MODULE_DESCRIPTION("i2c for Apple Hydra Mac I/O");
++MODULE_AUTHOR("Kyösti Mälkki <kmalkki@cc.hut.fi>");
++MODULE_DESCRIPTION("i2c for Via vt82c586b southbridge");
 +
 +int init_module(void)
 +{
-+	return i2c_hydra_init();
++	return i2c_via_init();
 +}
 +
 +void cleanup_module(void)
 +{
-+	i2c_bit_del_bus(&bit_hydra_ops);
-+	if (hydra_base) {
-+		pdregw(0);	/* clear SCLK_OE and SDAT_OE */
-+		iounmap((void *) hydra_base);
-+	}
++	i2c_bit_del_bus(&bit_via_ops);
++	release_region(I2C_DIR, IOSPACE);
 +}
 +#endif
+--- /dev/null	1994-07-17 19:46:18.000000000 -0400
++++ linux/drivers/i2c/busses/i2c-viapro.c	2002-05-20 01:55:42.000000000 -0400
+@@ -0,0 +1,566 @@
++/*
++    i2c-viapro.c - Part of lm_sensors, Linux kernel modules for hardware
++              monitoring
++    Copyright (c) 1998 - 2001  Frodo Looijaard <frodol@dds.nl>, 
++    Philip Edelbrock <phil@netroedge.com>, Kyösti Mälkki <kmalkki@cc.hut.fi>,
++    Mark D. Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++   Supports Via devices:
++	82C596A/B (0x3050)
++	82C596B (0x3051)
++	82C686A/B
++	8233
++   Note: we assume there can only be one device, with one SMBus interface.
++*/
++
++#include <linux/version.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <asm/io.h>
++#include <linux/kernel.h>
++#include <linux/stddef.h>
++#include <linux/ioport.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/sensors.h>
++
++#ifndef PCI_DEVICE_ID_VIA_82C596_3
++#define PCI_DEVICE_ID_VIA_82C596_3 	0x3050
++#endif
++#ifndef PCI_DEVICE_ID_VIA_82C596B_3
++#define PCI_DEVICE_ID_VIA_82C596B_3	0x3051
++#endif
++#ifndef PCI_DEVICE_ID_VIA_82C686_4
++#define PCI_DEVICE_ID_VIA_82C686_4 	0x3057
++#endif
++#ifndef PCI_DEVICE_ID_VIA_8233_0
++#define PCI_DEVICE_ID_VIA_8233_0	0x3074
++#endif
++
++#define SMBBA1	    0x90
++#define SMBBA2      0x80
++#define SMBBA3      0xD0
++
++struct sd {
++	const unsigned short dev;
++	const unsigned char base;
++	const unsigned char hstcfg;
++	const char *name;
++};
++
++static struct sd supported[] = {
++	{PCI_DEVICE_ID_VIA_82C596_3, SMBBA1, 0xD2, "VT82C596A/B"},
++	{PCI_DEVICE_ID_VIA_82C596B_3, SMBBA1, 0xD2, "VT82C596B"},
++	{PCI_DEVICE_ID_VIA_82C686_4, SMBBA1, 0xD2, "VT82C686A/B"},
++	{PCI_DEVICE_ID_VIA_8233_0, SMBBA3, 0xD2, "VT8233"},
++	{0, 0, 0, NULL}
++};
++
++static struct sd *num = supported;
++
++/* SMBus address offsets */
++#define SMBHSTSTS (0 + vt596_smba)
++#define SMBHSLVSTS (1 + vt596_smba)
++#define SMBHSTCNT (2 + vt596_smba)
++#define SMBHSTCMD (3 + vt596_smba)
++#define SMBHSTADD (4 + vt596_smba)
++#define SMBHSTDAT0 (5 + vt596_smba)
++#define SMBHSTDAT1 (6 + vt596_smba)
++#define SMBBLKDAT (7 + vt596_smba)
++#define SMBSLVCNT (8 + vt596_smba)
++#define SMBSHDWCMD (9 + vt596_smba)
++#define SMBSLVEVT (0xA + vt596_smba)
++#define SMBSLVDAT (0xC + vt596_smba)
++
++/* PCI Address Constants */
++
++/* SMBus data in configuration space can be found in two places,
++   We try to select the better one*/
++
++static unsigned short smb_cf_hstcfg;
++
++#define SMBHSTCFG   (smb_cf_hstcfg)
++#define SMBSLVC     (SMBHSTCFG+1)
++#define SMBSHDW1    (SMBHSTCFG+2)
++#define SMBSHDW2    (SMBHSTCFG+3)
++#define SMBREV      (SMBHSTCFG+4)
++
++/* Other settings */
++#define MAX_TIMEOUT 500
++#define  ENABLE_INT9 0
++
++/* VT82C596 constants */
++#define VT596_QUICK      0x00
++#define VT596_BYTE       0x04
++#define VT596_BYTE_DATA  0x08
++#define VT596_WORD_DATA  0x0C
++#define VT596_BLOCK_DATA 0x14
++
++/* insmod parameters */
++
++/* If force is set to anything different from 0, we forcibly enable the
++   VT596. DANGEROUS! */
++static int force = 0;
++MODULE_PARM(force, "i");
++MODULE_PARM_DESC(force, "Forcibly enable the SMBus. DANGEROUS!");
++
++/* If force_addr is set to anything different from 0, we forcibly enable
++   the VT596 at the given address. VERY DANGEROUS! */
++static int force_addr = 0;
++MODULE_PARM(force_addr, "i");
++MODULE_PARM_DESC(force_addr,
++		 "Forcibly enable the SMBus at the given address. "
++		 "EXTREMELY DANGEROUS!");
++
++#ifdef MODULE
++static
++#else
++extern
++#endif
++int __init i2c_vt596_init(void);
++static int __init vt596_cleanup(void);
++static int vt596_setup(void);
++static s32 vt596_access(struct i2c_adapter *adap, u16 addr,
++			unsigned short flags, char read_write,
++			u8 command, int size, union i2c_smbus_data *data);
++static void vt596_do_pause(unsigned int amount);
++static int vt596_transaction(void);
++static void vt596_inc(struct i2c_adapter *adapter);
++static void vt596_dec(struct i2c_adapter *adapter);
++static u32 vt596_func(struct i2c_adapter *adapter);
++
++#ifdef MODULE
++extern int init_module(void);
++extern int cleanup_module(void);
++#endif				/* MODULE */
++
++static struct i2c_algorithm smbus_algorithm = {
++	/* name */ "Non-I2C SMBus adapter",
++	/* id */ I2C_ALGO_SMBUS,
++	/* master_xfer */ NULL,
++	/* smbus_access */ vt596_access,
++	/* slave_send */ NULL,
++	/* slave_rcv */ NULL,
++	/* algo_control */ NULL,
++	/* functionality */ vt596_func,
++};
++
++static struct i2c_adapter vt596_adapter = {
++	"unset",
++	I2C_ALGO_SMBUS | I2C_HW_SMBUS_VIA2,
++	&smbus_algorithm,
++	NULL,
++	vt596_inc,
++	vt596_dec,
++	NULL,
++	NULL,
++};
++
++static int __initdata vt596_initialized;
++static unsigned short vt596_smba = 0;
++
++
++/* Detect whether a compatible device can be found, and initialize it. */
++int vt596_setup(void)
++{
++	unsigned char temp;
++
++	struct pci_dev *VT596_dev = NULL;
++
++	/* First check whether we can access PCI at all */
++	if (pci_present() == 0)
++		return(-ENODEV);
++
++	/* Look for a supported device/function */
++	do {
++		if((VT596_dev = pci_find_device(PCI_VENDOR_ID_VIA, num->dev,
++					        VT596_dev)))
++			break;
++	} while ((++num)->dev);
++
++	if (VT596_dev == NULL)
++		return(-ENODEV);
++	printk("i2c-viapro.o: Found Via %s device\n", num->name);
++
++/* Determine the address of the SMBus areas */
++	smb_cf_hstcfg = num->hstcfg;
++	if (force_addr) {
++		vt596_smba = force_addr & 0xfff0;
++		force = 0;
++	} else {
++		if ((pci_read_config_word(VT596_dev, num->base, &vt596_smba))
++		    || !(vt596_smba & 0x1)) {
++			/* try 2nd address and config reg. for 596 */
++			if((num->dev == PCI_DEVICE_ID_VIA_82C596_3) &&
++			   (!pci_read_config_word(VT596_dev, SMBBA2, &vt596_smba)) &&
++			   (vt596_smba & 0x1)) {
++				smb_cf_hstcfg = 0x84;
++			} else {
++			        /* no matches at all */
++			        printk("i2c-viapro.o: Cannot configure SMBus "
++				       "I/O Base address\n");
++			        return(-ENODEV);
++			}
++		}
++		vt596_smba &= 0xfff0;
++		if(vt596_smba == 0) {
++			printk(KERN_ERR "i2c-viapro.o: SMBus base address"
++			   "uninitialized - upgrade BIOS or use force_addr=0xaddr\n");
++			return -ENODEV;
++		}
++	}
++
++	if (check_region(vt596_smba, 8)) {
++		printk("i2c-viapro.o: SMBus region 0x%x already in use!\n",
++		        vt596_smba);
++		return(-ENODEV);
++	}
++
++	pci_read_config_byte(VT596_dev, SMBHSTCFG, &temp);
++/* If force_addr is set, we program the new address here. Just to make
++   sure, we disable the VT596 first. */
++	if (force_addr) {
++		pci_write_config_byte(VT596_dev, SMBHSTCFG, temp & 0xfe);
++		pci_write_config_word(VT596_dev, num->base, vt596_smba);
++		pci_write_config_byte(VT596_dev, SMBHSTCFG, temp | 0x01);
++		printk
++		    ("i2c-viapro.o: WARNING: SMBus interface set to new "
++		     "address 0x%04x!\n", vt596_smba);
++	} else if ((temp & 1) == 0) {
++		if (force) {
++/* NOTE: This assumes I/O space and other allocations WERE
++   done by the Bios!  Don't complain if your hardware does weird 
++   things after enabling this. :') Check for Bios updates before
++   resorting to this.  */
++			pci_write_config_byte(VT596_dev, SMBHSTCFG,
++					      temp | 1);
++			printk
++			    ("i2c-viapro.o: enabling SMBus device\n");
++		} else {
++			printk
++			    ("SMBUS: Error: Host SMBus controller not enabled! - "
++			     "upgrade BIOS or use force=1\n");
++			return(-ENODEV);
++		}
++	}
++
++	/* Everything is happy, let's grab the memory and set things up. */
++	request_region(vt596_smba, 8, "viapro-smbus");
++
++#ifdef DEBUG
++	if ((temp & 0x0E) == 8)
++		printk("i2c-viapro.o: using Interrupt 9 for SMBus.\n");
++	else if ((temp & 0x0E) == 0)
++		printk("i2c-viapro.o: using Interrupt SMI# for SMBus.\n");
++	else
++		printk
++		    ("i2c-viapro.o: Illegal Interrupt configuration (or code out "
++		     "of date)!\n");
++
++	pci_read_config_byte(VT596_dev, SMBREV, &temp);
++	printk("i2c-viapro.o: SMBREV = 0x%X\n", temp);
++	printk("i2c-viapro.o: VT596_smba = 0x%X\n", vt596_smba);
++#endif				/* DEBUG */
++
++	return(0);
++}
++
++
++/* Internally used pause function */
++void vt596_do_pause(unsigned int amount)
++{
++	current->state = TASK_INTERRUPTIBLE;
++	schedule_timeout(amount);
++}
++
++/* Another internally used function */
++int vt596_transaction(void)
++{
++	int temp;
++	int result = 0;
++	int timeout = 0;
++
++#ifdef DEBUG
++	printk
++	    ("i2c-viapro.o: Transaction (pre): CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
++	     "DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
++	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
++#endif
++
++	/* Make sure the SMBus host is ready to start transmitting */
++	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++#ifdef DEBUG
++		printk("i2c-viapro.o: SMBus busy (0x%02x). Resetting... \n",
++		       temp);
++#endif
++		outb_p(temp, SMBHSTSTS);
++		if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++#ifdef DEBUG
++			printk("i2c-viapro.o: Failed! (0x%02x)\n", temp);
++#endif
++			return -1;
++		} else {
++#ifdef DEBUG
++			printk("i2c-viapro.o: Successfull!\n");
++#endif
++		}
++	}
++
++	/* start the transaction by setting bit 6 */
++	outb_p(inb(SMBHSTCNT) | 0x040, SMBHSTCNT);
++
++	/* We will always wait for a fraction of a second! 
++	   I don't know if VIA needs this, Intel did  */
++	do {
++		vt596_do_pause(1);
++		temp = inb_p(SMBHSTSTS);
++	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
++
++	/* If the SMBus is still busy, we give up */
++	if (timeout >= MAX_TIMEOUT) {
++#ifdef DEBUG
++		printk("i2c-viapro.o: SMBus Timeout!\n");
++		result = -1;
++#endif
++	}
++
++	if (temp & 0x10) {
++		result = -1;
++#ifdef DEBUG
++		printk("i2c-viapro.o: Error: Failed bus transaction\n");
++#endif
++	}
++
++	if (temp & 0x08) {
++		result = -1;
++		printk
++		    ("i2c-viapro.o: Bus collision! SMBus may be locked until next hard\n"
++		     "reset. (sorry!)\n");
++		/* Clock stops and slave is stuck in mid-transmission */
++	}
++
++	if (temp & 0x04) {
++		result = -1;
++#ifdef DEBUG
++		printk("i2c-viapro.o: Error: no response!\n");
++#endif
++	}
++
++	if (inb_p(SMBHSTSTS) != 0x00)
++		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++
++	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++#ifdef DEBUG
++		printk
++		    ("i2c-viapro.o: Failed reset at end of transaction (%02x)\n",
++		     temp);
++#endif
++	}
++#ifdef DEBUG
++	printk
++	    ("i2c-viapro.o: Transaction (post): CNT=%02x, CMD=%02x, ADD=%02x, "
++	     "DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
++	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
++#endif
++	return result;
++}
++
++/* Return -1 on error. See smbus.h for more information */
++s32 vt596_access(struct i2c_adapter * adap, u16 addr, unsigned short flags,
++		 char read_write,
++		 u8 command, int size, union i2c_smbus_data * data)
++{
++	int i, len;
++
++	switch (size) {
++	case I2C_SMBUS_PROC_CALL:
++		printk
++		    ("i2c-viapro.o: I2C_SMBUS_PROC_CALL not supported!\n");
++		return -1;
++	case I2C_SMBUS_QUICK:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		size = VT596_QUICK;
++		break;
++	case I2C_SMBUS_BYTE:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		if (read_write == I2C_SMBUS_WRITE)
++			outb_p(command, SMBHSTCMD);
++		size = VT596_BYTE;
++		break;
++	case I2C_SMBUS_BYTE_DATA:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE)
++			outb_p(data->byte, SMBHSTDAT0);
++		size = VT596_BYTE_DATA;
++		break;
++	case I2C_SMBUS_WORD_DATA:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			outb_p(data->word & 0xff, SMBHSTDAT0);
++			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
++		}
++		size = VT596_WORD_DATA;
++		break;
++	case I2C_SMBUS_BLOCK_DATA:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			len = data->block[0];
++			if (len < 0)
++				len = 0;
++			if (len > 32)
++				len = 32;
++			outb_p(len, SMBHSTDAT0);
++			i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
++			for (i = 1; i <= len; i++)
++				outb_p(data->block[i], SMBBLKDAT);
++		}
++		size = VT596_BLOCK_DATA;
++		break;
++	}
++
++	outb_p((size & 0x1C) + (ENABLE_INT9 & 1), SMBHSTCNT);
++
++	if (vt596_transaction())	/* Error in transaction */
++		return -1;
++
++	if ((read_write == I2C_SMBUS_WRITE) || (size == VT596_QUICK))
++		return 0;
++
++
++	switch (size) {
++	case VT596_BYTE:	/* Where is the result put? I assume here it is in
++				   SMBHSTDAT0 but it might just as well be in the
++				   SMBHSTCMD. No clue in the docs */
++
++		data->byte = inb_p(SMBHSTDAT0);
++		break;
++	case VT596_BYTE_DATA:
++		data->byte = inb_p(SMBHSTDAT0);
++		break;
++	case VT596_WORD_DATA:
++		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
++		break;
++	case VT596_BLOCK_DATA:
++		data->block[0] = inb_p(SMBHSTDAT0);
++		i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
++		for (i = 1; i <= data->block[0]; i++)
++			data->block[i] = inb_p(SMBBLKDAT);
++		break;
++	}
++	return 0;
++}
++
++void vt596_inc(struct i2c_adapter *adapter)
++{
++	MOD_INC_USE_COUNT;
++}
++
++void vt596_dec(struct i2c_adapter *adapter)
++{
++
++	MOD_DEC_USE_COUNT;
++}
++
++u32 vt596_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
++	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
++	    I2C_FUNC_SMBUS_BLOCK_DATA;
++}
++
++int __init i2c_vt596_init(void)
++{
++	int res;
++	printk("i2c-viapro.o version %s (%s)\n", LM_VERSION, LM_DATE);
++#ifdef DEBUG
++/* PE- It might be good to make this a permanent part of the code! */
++	if (vt596_initialized) {
++		printk
++		    ("i2c-viapro.o: Oops, vt596_init called a second time!\n");
++		return -EBUSY;
++	}
++#endif
++	vt596_initialized = 0;
++	if ((res = vt596_setup())) {
++		printk
++		    ("i2c-viapro.o: Can't detect vt82c596 or compatible device, module not inserted.\n");
++		vt596_cleanup();
++		return res;
++	}
++	vt596_initialized++;
++	sprintf(vt596_adapter.name, "SMBus Via Pro adapter at %04x",
++		vt596_smba);
++	if ((res = i2c_add_adapter(&vt596_adapter))) {
++		printk
++		    ("i2c-viapro.o: Adapter registration failed, module not inserted.\n");
++		vt596_cleanup();
++		return res;
++	}
++	vt596_initialized++;
++	printk("i2c-viapro.o: Via Pro SMBus detected and initialized\n");
++	return 0;
++}
++
++int __init vt596_cleanup(void)
++{
++	int res;
++	if (vt596_initialized >= 2) {
++		if ((res = i2c_del_adapter(&vt596_adapter))) {
++			printk
++			    ("i2c-viapro.o: i2c_del_adapter failed, module not removed\n");
++			return res;
++		} else
++			vt596_initialized--;
++	}
++	if (vt596_initialized >= 1) {
++		release_region(vt596_smba, 8);
++		vt596_initialized--;
++	}
++	return 0;
++}
++
++EXPORT_NO_SYMBOLS;
++
++#ifdef MODULE
++
++MODULE_AUTHOR
++    ("Frodo Looijaard <frodol@dds.nl> and Philip Edelbrock <phil@netroedge.com>");
++MODULE_DESCRIPTION("vt82c596 SMBus driver");
++
++MODULE_LICENSE("GPL");
++
++int init_module(void)
++{
++	return i2c_vt596_init();
++}
++
++int cleanup_module(void)
++{
++	return vt596_cleanup();
++}
++
++#endif				/* MODULE */
+--- /dev/null	1994-07-17 19:46:18.000000000 -0400
++++ linux/drivers/i2c/busses/i2c-voodoo3.c	2002-05-20 01:56:01.000000000 -0400
+@@ -0,0 +1,359 @@
++/*
++    voodoo3.c - Part of lm_sensors, Linux kernel modules for hardware
++              monitoring
++    Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl>,
++    Philip Edelbrock <phil@netroedge.com>,
++    Ralph Metzler <rjkm@thp.uni-koeln.de>, and
++    Mark D. Studebaker <mdsxyz123@yahoo.com>
++    
++    Based on code written by Ralph Metzler <rjkm@thp.uni-koeln.de> and
++    Simon Vogl
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/* This interfaces to the I2C bus of the Voodoo3 to gain access to
++    the BT869 and possibly other I2C devices. */
++
++#include <linux/version.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <asm/io.h>
++#include <linux/i2c.h>
++#include <linux/i2c-algo-bit.h>
++#include <linux/init.h>
++#include <linux/sensors.h>
++
++MODULE_LICENSE("GPL");
++
++/* 3DFX defines */
++#ifndef PCI_DEVICE_ID_3DFX_VOODOO3
++#define PCI_DEVICE_ID_3DFX_VOODOO3 0x05
++#endif
++#ifndef PCI_DEVICE_ID_3DFX_BANSHEE
++#define PCI_DEVICE_ID_3DFX_BANSHEE 0x03
++#endif
++
++/* the only registers we use */
++#define REG	0x78
++#define REG2 	0x70
++
++/* bit locations in the register */
++#define DDC_ENAB	0x00040000
++#define DDC_SCL_OUT	0x00080000
++#define DDC_SDA_OUT	0x00100000
++#define DDC_SCL_IN	0x00200000
++#define DDC_SDA_IN	0x00400000
++#define I2C_ENAB	0x00800000
++#define I2C_SCL_OUT	0x01000000
++#define I2C_SDA_OUT	0x02000000
++#define I2C_SCL_IN	0x04000000
++#define I2C_SDA_IN	0x08000000
++
++/* initialization states */
++#define INIT2	0x2
++#define INIT3	0x4
++
++/* delays */
++#define CYCLE_DELAY	10
++#define TIMEOUT		50
++
++#ifdef MODULE
++static
++#else
++extern
++#endif
++int __init i2c_voodoo3_init(void);
++static int __init voodoo3_cleanup(void);
++static int voodoo3_setup(void);
++static void config_v3(struct pci_dev *dev);
++static void voodoo3_inc(struct i2c_adapter *adapter);
++static void voodoo3_dec(struct i2c_adapter *adapter);
++
++#ifdef MODULE
++extern int init_module(void);
++extern int cleanup_module(void);
++#endif				/* MODULE */
++
++
++static int __initdata voodoo3_initialized;
++static unsigned char *mem;
++
++extern inline void outlong(unsigned int dat)
++{
++	*((unsigned int *) (mem + REG)) = dat;
++}
++
++extern inline unsigned int readlong(void)
++{
++	return *((unsigned int *) (mem + REG));
++}
++
++/* The voo GPIO registers don't have individual masks for each bit
++   so we always have to read before writing. */
++
++static void bit_vooi2c_setscl(void *data, int val)
++{
++	unsigned int r;
++	r = readlong();
++	if(val)
++		r |= I2C_SCL_OUT;
++	else
++		r &= ~I2C_SCL_OUT;
++	outlong(r);
++}
++
++static void bit_vooi2c_setsda(void *data, int val)
++{
++	unsigned int r;
++	r = readlong();
++	if(val)
++		r |= I2C_SDA_OUT;
++	else
++		r &= ~I2C_SDA_OUT;
++	outlong(r);
++}
++
++/* The GPIO pins are open drain, so the pins always remain outputs.
++   We rely on the i2c-algo-bit routines to set the pins high before
++   reading the input from other chips. */
++
++static int bit_vooi2c_getscl(void *data)
++{
++	return (0 != (readlong() & I2C_SCL_IN));
++}
++
++static int bit_vooi2c_getsda(void *data)
++{
++	return (0 != (readlong() & I2C_SDA_IN));
++}
++
++static void bit_vooddc_setscl(void *data, int val)
++{
++	unsigned int r;
++	r = readlong();
++	if(val)
++		r |= DDC_SCL_OUT;
++	else
++		r &= ~DDC_SCL_OUT;
++	outlong(r);
++}
++
++static void bit_vooddc_setsda(void *data, int val)
++{
++	unsigned int r;
++	r = readlong();
++	if(val)
++		r |= DDC_SDA_OUT;
++	else
++		r &= ~DDC_SDA_OUT;
++	outlong(r);
++}
++
++static int bit_vooddc_getscl(void *data)
++{
++	return (0 != (readlong() & DDC_SCL_IN));
++}
++
++static int bit_vooddc_getsda(void *data)
++{
++	return (0 != (readlong() & DDC_SDA_IN));
++}
++
++static struct i2c_algo_bit_data voo_i2c_bit_data = {
++	NULL,
++	bit_vooi2c_setsda,
++	bit_vooi2c_setscl,
++	bit_vooi2c_getsda,
++	bit_vooi2c_getscl,
++	CYCLE_DELAY, CYCLE_DELAY, TIMEOUT
++};
++
++static struct i2c_adapter voodoo3_i2c_adapter = {
++	"I2C Voodoo3/Banshee adapter",
++	I2C_HW_B_VOO,
++	NULL,
++	&voo_i2c_bit_data,
++	voodoo3_inc,
++	voodoo3_dec,
++	NULL,
++	NULL,
++};
++
++static struct i2c_algo_bit_data voo_ddc_bit_data = {
++	NULL,
++	bit_vooddc_setsda,
++	bit_vooddc_setscl,
++	bit_vooddc_getsda,
++	bit_vooddc_getscl,
++	CYCLE_DELAY, CYCLE_DELAY, TIMEOUT
++};
++
++static struct i2c_adapter voodoo3_ddc_adapter = {
++	"DDC Voodoo3/Banshee adapter",
++	I2C_HW_B_VOO,
++	NULL,
++	&voo_ddc_bit_data,
++	voodoo3_inc,
++	voodoo3_dec,
++	NULL,
++	NULL,
++};
++
++/* Configures the chip */
++
++void config_v3(struct pci_dev *dev)
++{
++	unsigned int cadr;
++
++	/* map Voodoo3 memory */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,13)
++	cadr = dev->resource[0].start;
++#else
++	cadr = dev->base_address[0];
++#endif
++	cadr &= PCI_BASE_ADDRESS_MEM_MASK;
++	mem = ioremap_nocache(cadr, 0x1000);
++
++	*((unsigned int *) (mem + REG2)) = 0x8160;
++	*((unsigned int *) (mem + REG)) = 0xcffc0020;
++	printk("i2c-voodoo3: Using Banshee/Voodoo3 at 0x%p\n", mem);
++}
++
++/* Detect whether a Voodoo3 or a Banshee can be found,
++   and initialize it. */
++static int voodoo3_setup(void)
++{
++	struct pci_dev *dev;
++	int v3_num;
++
++	v3_num = 0;
++
++	dev = NULL;
++	do {
++		if ((dev = pci_find_device(PCI_VENDOR_ID_3DFX,
++					   PCI_DEVICE_ID_3DFX_VOODOO3,
++					   dev))) {
++			if (!v3_num)
++				config_v3(dev);
++			v3_num++;
++		}
++	} while (dev);
++
++	dev = NULL;
++	do {
++		if ((dev = pci_find_device(PCI_VENDOR_ID_3DFX,
++					   PCI_DEVICE_ID_3DFX_BANSHEE,
++					   dev))) {
++			if (!v3_num)
++				config_v3(dev);
++			v3_num++;
++		}
++	} while (dev);
++
++	if (v3_num > 0) {
++		printk("i2c-voodoo3: %d Banshee/Voodoo3 found.\n", v3_num);
++		if (v3_num > 1)
++			printk("i2c-voodoo3: warning: only 1 supported.\n");
++		return 0;
++	} else {
++		printk("i2c-voodoo3: No Voodoo3 found.\n");
++		return -ENODEV;
++	}
++}
++
++void voodoo3_inc(struct i2c_adapter *adapter)
++{
++	MOD_INC_USE_COUNT;
++}
++
++void voodoo3_dec(struct i2c_adapter *adapter)
++{
++	MOD_DEC_USE_COUNT;
++}
++
++int __init i2c_voodoo3_init(void)
++{
++	int res;
++	printk("i2c-voodoo3.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	voodoo3_initialized = 0;
++	if ((res = voodoo3_setup())) {
++		printk
++		    ("i2c-voodoo3.o: Voodoo3 not detected, module not inserted.\n");
++		voodoo3_cleanup();
++		return res;
++	}
++	if ((res = i2c_bit_add_bus(&voodoo3_i2c_adapter))) {
++		printk("i2c-voodoo3.o: I2C adapter registration failed\n");
++	} else {
++		printk("i2c-voodoo3.o: I2C bus initialized\n");
++		voodoo3_initialized |= INIT2;
++	}
++	if ((res = i2c_bit_add_bus(&voodoo3_ddc_adapter))) {
++		printk("i2c-voodoo3.o: DDC adapter registration failed\n");
++	} else {
++		printk("i2c-voodoo3.o: DDC bus initialized\n");
++		voodoo3_initialized |= INIT3;
++	}
++	if(!(voodoo3_initialized & (INIT2 | INIT3))) {
++		printk("i2c-voodoo3.o: Both registrations failed, module not inserted\n");
++		voodoo3_cleanup();
++		return res;
++	}
++	return 0;
++}
++
++int __init voodoo3_cleanup(void)
++{
++	int res;
++
++	iounmap(mem);
++	if (voodoo3_initialized & INIT3) {
++		if ((res = i2c_bit_del_bus(&voodoo3_ddc_adapter))) {
++			printk
++			    ("i2c-voodoo3.o: i2c_bit_del_bus failed, module not removed\n");
++			return res;
++		}
++	}
++	if (voodoo3_initialized & INIT2) {
++		if ((res = i2c_bit_del_bus(&voodoo3_i2c_adapter))) {
++			printk
++			    ("i2c-voodoo3.o: i2c_bit_del_bus failed, module not removed\n");
++			return res;
++		}
++	}
++	return 0;
++}
++
++EXPORT_NO_SYMBOLS;
++
++#ifdef MODULE
++
++MODULE_AUTHOR
++    ("Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>, Ralph Metzler <rjkm@thp.uni-koeln.de>, and Mark D. Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("Voodoo3 I2C/SMBus driver");
++
++
++int init_module(void)
++{
++	return i2c_voodoo3_init();
++}
++
++int cleanup_module(void)
++{
++	return voodoo3_cleanup();
++}
++
++#endif				/* MODULE */
 
---------------F719D3046F0AADF220F310D3--
+--------------A50607A6F44730B5BA5DA7B9--
 

@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270932AbRHXEiW>; Fri, 24 Aug 2001 00:38:22 -0400
+	id <S270931AbRHXEhL>; Fri, 24 Aug 2001 00:37:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270930AbRHXEiM>; Fri, 24 Aug 2001 00:38:12 -0400
-Received: from juicer39.bigpond.com ([139.134.6.96]:27381 "EHLO
-	mailin8.bigpond.com") by vger.kernel.org with ESMTP
-	id <S269777AbRHXEh4>; Fri, 24 Aug 2001 00:37:56 -0400
-Message-ID: <005901c12c56$82f21f80$010da8c0@valhalla>
-From: "Kingsley Foreman" <Kingsley@wintronics.com.au>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <012401c12bb9$51ce4020$010da8c0@valhalla>
-Subject: Update Re: Kernel 2.4.9 and an AMD compile
-Date: Fri, 24 Aug 2001 14:07:38 +0930
+	id <S269777AbRHXEhB>; Fri, 24 Aug 2001 00:37:01 -0400
+Received: from [24.130.1.15] ([24.130.1.15]:48774 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S270905AbRHXEgt>; Fri, 24 Aug 2001 00:36:49 -0400
+Message-ID: <3B85D9E9.7BF8415C@kegel.com>
+Date: Thu, 23 Aug 2001 21:36:57 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Pete Marvin King <pmking@ntsp.nec.co.jp>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: re: socket problem
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It was a dodgy motherboard it swaped it and it is fixed now and working very
-happily
+> Is it possible to increase the maximum sockets that can be opened
+> simultaneously?
+> I'd like it to reach 1024, is it possible?
+> 
+>     I'm currently doing a stress test on postgres. we created a dummy
+> client that would connect to it 1024 times. But is just stops at 324,
+> postgres reports : " postmaster: StreamConnection: accept: Too many open
+> files in system".
+> 
+>     I don't think the problem is not with the file descriptors. Is it
+> the max num of sockets?
+> or maybe the maximum number of files that can be opened?
 
-thanks for the help
+see http://www.kegel.com/c10k.html#limits.filehandles
 
-Kingsley
+You may need to raise ulimit, or perhaps /proc/sys/fs/file-max
+- Dan
 
------ Original Message -----
-From: "Kingsley Foreman" <Kingsley@wintronics.com.au>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, August 23, 2001 7:22 PM
-Subject: Kernel 2.4.9 and an AMD compile
-
-
-> Ive compiled kernel 2.4.9 as an amd athlon cpu
->
-> ive got a amd 1.2 on a via kt133a mb
->
-> It compiles fine but when i try to boot that kernel it randomly segfaults
-> and gives me gives me kernel panics at boot up ive tried
-> 2.4.6-2.4.8 and they all do the same but it works if i compile it as a
-i686
-> cpu
->
->
-> Im new to the list so if it has come up before i appoligize
-> anyone got any ideas what causes this and any way of fixing it
->
->
-> Kingsley
->
-||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
->
-||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-> |||||||||||||||||||||||||||
-> This signature set seems to have reduced my spam. Maybe if everyone does
->  it we can defeat the email search bots.  tosspam@aol.com abuse@aol.com
->  abuse@yahoo.com abuse@hotmail.com abuse@msn.com abuse@sprint.com
-> abuse@earthlink.com uce@ftc.gov abuse@fbi.gov abuse@cia.gov abuse@nsa.gov
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+"I have seen the future, and it licks itself clean." -- Bucky Katt

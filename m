@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264013AbUDFU5K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbUDFU5J
+	id S264012AbUDFVAe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 17:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbUDFVAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:57:09 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45029 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264008AbUDFUyB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:54:01 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "John Stoffel" <stoffel@lucent.com>
-Subject: Re: 2.6.5-rc3: cat /proc/ide/hpt366 kills disk on second channel
-Date: Tue, 6 Apr 2004 23:02:17 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
-References: <16496.41345.341470.807320@gargle.gargle.HOWL> <200404061900.36497.bzolnier@elka.pw.edu.pl> <16499.3204.604627.205193@gargle.gargle.HOWL>
-In-Reply-To: <16499.3204.604627.205193@gargle.gargle.HOWL>
+	Tue, 6 Apr 2004 17:00:18 -0400
+Received: from ida.rowland.org ([192.131.102.52]:27396 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S264025AbUDFU7d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 16:59:33 -0400
+Date: Tue, 6 Apr 2004 16:59:32 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Erik Tews <erik@debian.franken.de>
+cc: Alex Riesen <fork0@users.sourceforge.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: Oops with bluetooth dongle
+In-Reply-To: <20040406192708.GA5327@debian.franken.de>
+Message-ID: <Pine.LNX.4.44L0.0404061654560.6345-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404062302.17698.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 of April 2004 22:01, John Stoffel wrote:
-> Bart,
->
-> You're patch does the trick, I can now do cat /proc/ide/hpt366 without
-> any problems.  Time to re-sync my md mirror.
->
-> I'll also pull this patch forward to 2.6.5 and make sure to submit it
-> to Linus/Andrew, unless you'll do that part?
+On Tue, 6 Apr 2004, Erik Tews wrote:
 
-I'll take care of it. :)
+> On Tue, Apr 06, 2004 at 08:47:36PM +0200, Alex Riesen wrote:
+> > 
+> > no change for me. Still oopses.
+> 
+> I have been running 2.6.5 with the bk-usb patch broken out of mm1. I
+> still got the problem.
+> 
+> If I rmmod uhci-hcd, the kernel oopses too.
+> 
+> Still any ideas?
 
-> I do wish the cable detection stuff worked though... too bad about the
+Please, folks, don't just say it oopses.  Post a crash dump so I have
+some chance of figuring out what's going wrong!
 
-Cable detection works just fine, see init_hwif_hpt366().
+So many people have reported problems with the USB bluetooth driver that I
+can't keep them straight.  Some of them crashed in usb_set_interface(),
+and the patch I sent out should have fixed that.  Others crashed in
+hcd_giveback_urb(), and others crashed elsewhere.  This will require more 
+than a single fix.
 
-> outb() stuff.  Maybe I can poke at it and figure out what kind of
-> locking is required here to make this work right.  Would it need to be
-> queued up as a regular HWIF command?  Can you tell I don't know what
-> I'm talking about?  *grin*
-
-regular HWIF command?  It can be fixed using REQ_SPECIAL special request
-but I don't think it's worth the work - remove #ifdef/#endif DEBUG around
-printk() in init_hwif_hpt366() if you need info about cable.
-
-Thanks,
-Bartlomiej
+Alan Stern
 

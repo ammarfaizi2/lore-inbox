@@ -1,81 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUJRMqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUJRMuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266427AbUJRMqI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 08:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUJRMqI
+	id S266477AbUJRMuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 08:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUJRMuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 08:46:08 -0400
-Received: from colin2.muc.de ([193.149.48.15]:45574 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266427AbUJRMqC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 08:46:02 -0400
-Date: 18 Oct 2004 14:46:00 +0200
-Date: Mon, 18 Oct 2004 14:46:00 +0200
-From: Andi Kleen <ak@muc.de>
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com
-Subject: Re: [1/2] PATCH Kernel watchpoint interface-2.6.9-rc4-mm1
-Message-ID: <20041018124600.GA6175@muc.de>
-References: <20041018084312.GG27204@in.ibm.com> <20041018084525.GA27936@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 18 Oct 2004 08:50:25 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:59782 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266459AbUJRMuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 08:50:01 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.9-final: urgent swsusp patch missing
+Date: Mon, 18 Oct 2004 14:51:47 +0200
+User-Agent: KMail/1.6.2
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041018084525.GA27936@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_jx7cBIcBGdxcEIF"
+Message-Id: <200410181451.47225.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +config DEBUGREG
-> +	bool "Global Debug Registers"
 
-I agree with Keith that it shouldn't be user visible. I would always
-enable it in fact.
+--Boundary-00=_jx7cBIcBGdxcEIF
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> +{
-> +	int i;
-> +	if (flag == DR_ALLOC_LOCAL) {
+Andrew,
 
-[...] This all would be simpler if you used lib/idr.c, no?
+The attached Pavel's patch for swsusp is missing from 2.6.9-final.  It is an 
+urgent bugfix, so please consider including it into 2.6.9.
 
-> +int dr_free(int regnum)
-> +{
-> +	spin_lock(&dr_lock);
-> +	if (regnum >= DR_MAX || dr_list[regnum].flag == DR_UNUSED) {
-> +		spin_unlock(&dr_lock);
-> +		return -1;
+Greets,
+RJW
 
-This should printk
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"
 
-> +#ifdef CONFIG_DEBUGREG
-> +{
-> +	/*
-> +	 * Don't reload global debug registers. Don't touch the global debug
-> +	 * register settings in dr7.
-> +	 */
-> +	unsigned long next_dr7 = next->debugreg[7];
-> +	if (unlikely(next_dr7)) {
-> +		if (DR7_L0(next_dr7)) loaddebug(next, 0);
-> +		if (DR7_L1(next_dr7)) loaddebug(next, 1);
-> +		if (DR7_L2(next_dr7)) loaddebug(next, 2);
-> +		if (DR7_L3(next_dr7)) loaddebug(next, 3);
+--Boundary-00=_jx7cBIcBGdxcEIF
+Content-Type: text/x-diff;
+  charset="iso-8859-2";
+  name="2.6.9-rc3-swsusp-fix-x86-64-do-not-use-memory-in-copy-loop.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.9-rc3-swsusp-fix-x86-64-do-not-use-memory-in-copy-loop.patch"
 
-I would do this differently - check instead if the registers
-are different between the tasks and only reload when different.
-This will make updating/freeing more expensive because
-you will need to change all tasks, but imho it's worth it.
+Hi!
 
-And then no ifdefs please.
+In assembly code, there are some problems with "nosave" section
+(linker was doing something stupid, like duplicating the section). We
+attempted to fix it, but fix was worse then first problem. This fixes
+is for good: We no longer use any memory in the copy loop. (Plus it
+fixes indentation and uses meaningfull labels.)
 
->  	 */
->  clear_dr7:
-> -	__asm__("movl %0,%%db7"
-> -		: /* no output */
-> -		: "r" (0));
-> +	load_process_dr7(0);
->  	CHK_REMOTE_DEBUG(1,SIGTRAP,error_code,regs,)
+Patch is against 2.6.9-rc3. -mm has sligtly different version, with
+more text on ".section .data.nosave" line. Those lines should really
+be removed.
+								Pavel
 
-That's mm (and should go away anyways because debug notifiers are better) 
-I would do the patch against mainline so that it can be actually merged.
+--- clean/arch/x86_64/kernel/suspend_asm.S	2004-10-01 00:30:08.000000000 +0200
++++ linux/arch/x86_64/kernel/suspend_asm.S	2004-10-02 18:35:04.000000000 +0200
+@@ -39,29 +39,28 @@
+ 	/* set up cr3 */	
+ 	leaq	init_level4_pgt(%rip),%rax
+ 	subq	$__START_KERNEL_map,%rax
+-	movq %rax,%cr3
++	movq	%rax,%cr3
+ 
+ 	movq	mmu_cr4_features(%rip), %rax
+ 	movq	%rax, %rdx
+-	
+ 	andq	$~(1<<7), %rdx	# PGE
+-	movq %rdx, %cr4;  # turn off PGE     
+-	movq %cr3, %rcx;  # flush TLB        
+-	movq %rcx, %cr3;                     
+-	movq %rax, %cr4;  # turn PGE back on 
++	movq	%rdx, %cr4;  # turn off PGE     
++	movq	%cr3, %rcx;  # flush TLB        
++	movq	%rcx, %cr3;                     
++	movq	%rax, %cr4;  # turn PGE back on 
+ 
+ 	movl	nr_copy_pages(%rip), %eax
+ 	xorl	%ecx, %ecx
+-	movq	$0, loop(%rip)
++	movq	$0, %r10
+ 	testl	%eax, %eax
+-	je	.L108
++	jz	done
+ .L105:
+ 	xorl	%esi, %esi
+-	movq	$0, loop2(%rip)
++	movq	$0, %r11
+ 	jmp	.L104
+ 	.p2align 4,,7
+-.L111:
+-	movq	loop(%rip), %rcx
++copy_one_page:
++	movq	%r10, %rcx
+ .L104:
+ 	movq	pagedir_nosave(%rip), %rdx
+ 	movq	%rcx, %rax
+@@ -71,27 +70,26 @@
+ 	movzbl	(%rsi,%rax), %eax
+ 	movb	%al, (%rsi,%rcx)
+ 
+-	movq %cr3, %rax;  # flush TLB 
+-	movq %rax, %cr3;              
++	movq	%cr3, %rax;  # flush TLB 
++	movq	%rax, %cr3;              
+ 
+-	movq	loop2(%rip), %rax
++	movq	%r11, %rax
+ 	incq	%rax
+ 	cmpq	$4095, %rax
+ 	movq	%rax, %rsi
+-	movq	%rax, loop2(%rip)
+-	jbe	.L111
+-	movq	loop(%rip), %rax
++	movq	%rax, %r11
++	jbe	copy_one_page
++	movq	%r10, %rax
+ 	incq	%rax
+ 	movq	%rax, %rcx
+-	movq	%rax, loop(%rip)
++	movq	%rax, %r10
+ 	mov	nr_copy_pages(%rip), %eax
+ 	cmpq	%rax, %rcx
+ 	jb	.L105
+-.L108:
+-	.align 4
++done:
+ 	movl	$24, %eax
+-
+-	movl %eax, %ds
++	movl	%eax, %ds
++	
+ 	movq saved_context_esp(%rip), %rsp
+ 	movq saved_context_ebp(%rip), %rbp
+ 	movq saved_context_eax(%rip), %rax
+@@ -111,10 +109,3 @@
+ 	pushq saved_context_eflags(%rip) ; popfq
+ 	call	swsusp_restore
+ 	ret
+-
+-	.section .data.nosave
+-loop:
+-	.quad 0
+-loop2:	
+-	.quad 0		
+-	.previous
 
--Andi
+
+-- 
+
+--Boundary-00=_jx7cBIcBGdxcEIF--

@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266718AbTBQEeX>; Sun, 16 Feb 2003 23:34:23 -0500
+	id <S266772AbTBQE6S>; Sun, 16 Feb 2003 23:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbTBQEeX>; Sun, 16 Feb 2003 23:34:23 -0500
-Received: from bjl1.jlokier.co.uk ([81.29.64.88]:22656 "EHLO
-	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S266718AbTBQEeX>; Sun, 16 Feb 2003 23:34:23 -0500
-Date: Mon, 17 Feb 2003 04:46:59 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-Message-ID: <20030217044659.GB16137@bjl1.jlokier.co.uk>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <Pine.LNX.4.50.0302131215140.1869-100000@blue1.dev.mcafeelabs.com> <20030215010837.D2791@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030215010837.D2791@almesberger.net>
-User-Agent: Mutt/1.4i
+	id <S266796AbTBQE6S>; Sun, 16 Feb 2003 23:58:18 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:29916 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S266772AbTBQE6O>;
+	Sun, 16 Feb 2003 23:58:14 -0500
+Date: Mon, 17 Feb 2003 10:38:05 +0530 (IST)
+From: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
+Reply-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5.53 not compiling
+In-Reply-To: <20030217040949.GA10986@nevyn.them.org>
+Message-ID: <Pine.SOL.3.96.1030217102959.28131E-100000@osiris.csa.iisc.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> Davide Libenzi wrote:
-> > What do you think about having timers through a file interface ?
+Thank you Daniel,
+
+                The kernel source compiled. I changed the CC variable
+path.
+
+I also thank Russel,Zwane and John for their help.
+
+Thanks again.  
+
+--
+Rahul Vaidya
+Hostel Room G46,
+Ph.3942451
+
+"Life can only be understood going backwards, 
+	            but it must be lived going forwards"
+						-Kierkegaard
+
+On Sun, 16 Feb 2003, Daniel Jacobowitz wrote:
+
+> On Mon, Feb 17, 2003 at 09:33:32AM +0530, Rahul Vaidya wrote:
+> > >From my kernel source directory: I have aliased gcc to my actual gcc
+> > file..not the softlinked one..
 > 
-> Maybe I'm missing something obvious, but couldn't you simply
-> do this with a signal handler that writes to (a) pipe(s) ?
+> Shell aliases won't affect the GCC that Make uses.  Try using make
+> CC=/path/to/real/gcc.
+> 
+> -- 
+> Daniel Jacobowitz
+> MontaVista Software                         Debian GNU/Linux Developer
+> 
 
-You can do that, and sometimes it is done, but the point is to provide
-a mechanism with is _fast_, as epoll() is.
 
--- Jamie
+

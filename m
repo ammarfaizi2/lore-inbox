@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289942AbSAKNPt>; Fri, 11 Jan 2002 08:15:49 -0500
+	id <S289948AbSAKNZK>; Fri, 11 Jan 2002 08:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289944AbSAKNPj>; Fri, 11 Jan 2002 08:15:39 -0500
-Received: from mout04.kundenserver.de ([195.20.224.89]:41272 "EHLO
-	mout04.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S289942AbSAKNPX>; Fri, 11 Jan 2002 08:15:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: trond.myklebust@fys.uio.no
-Subject: [NFS] some strangeness (at least) with linux-2.4.17-NFS_ALL patch
-Date: Fri, 11 Jan 2002 14:15:11 +0100
-X-Mailer: KMail [version 1.3.2]
-Organization: LISA GmbH
-Cc: linux-kernel@vger.kernel.org
+	id <S289950AbSAKNZA>; Fri, 11 Jan 2002 08:25:00 -0500
+Received: from mail.turbolinux.co.jp ([210.171.55.67]:21510 "EHLO
+	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
+	id <S289948AbSAKNYr>; Fri, 11 Jan 2002 08:24:47 -0500
+Message-ID: <3C3EE76C.1030808@turbolinux.co.jp>
+Date: Fri, 11 Jan 2002 22:23:56 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+Organization: Turbolinx Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:0.9.6) Gecko/20011206
+X-Accept-Language: ja
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020111131528.44F8613E6@shrek.lisa.de>
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, sd@turbolinux.co.jp
+Subject: Re: [PATCH] removed socket buffer in unix domain socket
+In-Reply-To: <E16NaD0-0001Hs-00@the-village.bc.nu>
+Content-Type: multipart/mixed;
+ boundary="------------010005040202000502080300"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond et al.,
+This is a multi-part message in MIME format.
+--------------010005040202000502080300
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-after applying $subject and resolving the rej with 2.4.18-pre1, 
-I found the following strangeness in my SuSE 7.3 based NFS diskless setup:
+What size of actually used hash table --unix_socket_table--?
+If it is 256, probably forall_unix_sockets is dangerous.
 
-Trying to start openuniverse for the first time (ever), it complaint about
-a missing config file. SuSE installed it's data at /usr/share/openuniverse 
-with the config file conf/ou.conf symlinked to ../../../../etc/ou.conf (=> 
-/etc/ou.conf), which was missing within my diskless setup.
+forall_unix_sockets use 257 table size.
+And If I apply this fix, test program can work.
 
-The problem is, ls on the client side complains about an I/O error, when 
-listing the conf/ dir.
+Alan Cox wrote:
 
-After removing this symlink (within the server), ls is OK within
-the client. Trying to copy servers /etc/ou.conf file to
-/usr/share/openuniverse within the client, cp complains about to many levels 
-of symlinks?!? (/usr is shared)
+ >>                                 */
+ >>-                               if(UNIXCB(skb).fp)
+ >>+                               if(s->dead && UNIXCB(skb).fp)
+ >>                                {
+ >>
+ >
+ > The bug may be real but the fix would prevent garbage collection working
+ > at all - which I grant would fix the problem.
+ >
+ > You don't need a socket to be dead to want to garbage collect it. If a
+ > socket is getting disposed of while in use then there is a
+ > maybe_unmark_and.. call missing, or a lock on the unix socket table missing
+ > somewhere.
 
-May be I missed/confused some patches. I could send you a plain
-copy of the interresting modules, if you like. 
+-- GO!
 
-Somehow, the dir entry on the client survived the rm from the server.
+--------------010005040202000502080300
+Content-Type: text/plain;
+ name="af_net.h.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="af_net.h.patch"
 
-Compiling/KDE 2.2.2 Desktop is working fine so far.
+--- linux/include/net/af_unix.h.orig	Tue Apr 25 05:43:04 2000
++++ linux/include/net/af_unix.h	Fri Jan 11 21:49:57 2002
+@@ -14,7 +14,7 @@
+ extern atomic_t unix_tot_inflight;
+ 
+ 
+-#define forall_unix_sockets(i, s) for (i=0; i<=UNIX_HASH_SIZE; i++) \
++#define forall_unix_sockets(i, s) for (i=0; i<UNIX_HASH_SIZE; i++) \
+                                     for (s=unix_socket_table[i]; s; s=s->next)
+ 
+ struct unix_address
 
-Any ideas?
 
-Cheers,
-Hans-Peter
+--------------010005040202000502080300--
+

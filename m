@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264986AbSKRXC0>; Mon, 18 Nov 2002 18:02:26 -0500
+	id <S265108AbSKRXKw>; Mon, 18 Nov 2002 18:10:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264978AbSKRXCZ>; Mon, 18 Nov 2002 18:02:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:49025 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264940AbSKRXAy>;
-	Mon, 18 Nov 2002 18:00:54 -0500
-Date: Mon, 18 Nov 2002 15:05:18 -0800 (PST)
-Message-Id: <20021118.150518.63149728.davem@redhat.com>
-To: jmorris@intercode.com.au
-Cc: ahu@ds9a.nl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.5.48 Compilation Failure skbuff.c
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Mutt.LNX.4.44.0211190013030.22010-100000@blackbird.intercode.com.au>
-References: <20021118125450.GA14855@outpost.ds9a.nl>
-	<Mutt.LNX.4.44.0211190013030.22010-100000@blackbird.intercode.com.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S265114AbSKRXKw>; Mon, 18 Nov 2002 18:10:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61451 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265108AbSKRXKt>; Mon, 18 Nov 2002 18:10:49 -0500
+Date: Mon, 18 Nov 2002 23:17:45 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] More missing includes [1/4]
+Message-ID: <20021118231745.D21571@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.21.0211182314490.16079-100000@vervain.sonytel.be>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0211182314490.16079-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Mon, Nov 18, 2002 at 11:16:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: James Morris <jmorris@intercode.com.au>
-   Date: Tue, 19 Nov 2002 00:14:10 +1100 (EST)
+On Mon, Nov 18, 2002 at 11:16:04PM +0100, Geert Uytterhoeven wrote:
+> 
+> Add missing #include <linux/init.h>
+> 
+> --- linux-2.5.48/drivers/scsi/scsi.h	Mon Nov 18 10:03:40 2002
+> +++ linux-m68k-2.5.48/drivers/scsi/scsi.h	Mon Nov 18 14:18:21 2002
+> @@ -18,6 +18,7 @@
+>  #include <linux/config.h>	/* for CONFIG_SCSI_LOGGING */
+>  #include <linux/devfs_fs_kernel.h>
+>  #include <linux/proc_fs.h>
+> +#include <linux/init.h>
+>  
+>  /*
+>   * Some of the public constants are being moved to this file.
+> 
 
-   On Mon, 18 Nov 2002, bert hubert wrote:
-   
-   > On Mon, Nov 18, 2002 at 01:36:48PM +0100, Rene Blokland wrote:
-   > > Hello, 2.5.48 Doesn't compile for me on a AMD k6-3 with gcc-3.2 and glibc-2.3.1
-   > 
-   > I bet this just made ipsec mandatory :-)
-   
-   Not quite yet :-)
-   
-   A fix is below.
+The more obvious solution is to remove the __initdata from the
+declaration on line 545.  Such usage of __initdata (and __init)
+serves no purpose.
 
-Applied, I'll push this around shortly.
+--- orig/drivers/scsi/scsi.h	Mon Nov 18 09:52:15 2002
++++ linux/drivers/scsi/scsi.h	Mon Nov 18 15:25:42 2002
+@@ -542,7 +542,7 @@
+ 	unsigned flags;
+ };
+ 
+-extern struct dev_info scsi_static_device_list[] __initdata;
++extern struct dev_info scsi_static_device_list[];
+ 
+ /*
+  * scsi_dev_info_list: structure to hold black/white listed devices.
+
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

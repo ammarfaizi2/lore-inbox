@@ -1,269 +1,199 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263245AbTESTtY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 15:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbTESTtY
+	id S263084AbTESToF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 15:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTESToF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 15:49:24 -0400
-Received: from us02smtp1.synopsys.com ([198.182.60.75]:21469 "HELO
-	vaxjo.synopsys.com") by vger.kernel.org with SMTP id S263245AbTESTtR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 15:49:17 -0400
-Date: Mon, 19 May 2003 16:02:07 -0400
-From: Jim Nance <jlnance@us54.synopsys.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org,
-       gary.nifong@synopsys.COM, James.Nance@synopsys.COM,
-       david.thomas@synopsys.COM
-Subject: Re: NFS problems with Linux-2.4
-Message-ID: <20030519160207.A16014@synopsys.com>
-References: <20030513145023.GA10383@ncsu.edu> <16065.3323.449992.207039@charged.uio.no> <20030515112231.A28148@synopsys.com> <shsznlkjo53.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <shsznlkjo53.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Sun, May 18, 2003 at 05:00:24PM +0200
+	Mon, 19 May 2003 15:44:05 -0400
+Received: from mcomail02.maxtor.com ([134.6.76.16]:59922 "EHLO
+	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
+	id S263084AbTESTnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 15:43:52 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D3AB@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@maxtor.com>
+To: "'Lars'" <lhofhansl@yahoo.com>, Tomas Szepe <szepe@pinerecords.com>
+Cc: Jeffrey Baker <jwbaker@acm.org>, linux-kernel@vger.kernel.org
+Subject: RE: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
+Date: Mon, 19 May 2003 13:56:20 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
 
-On Sun, May 18, 2003 at 05:00:24PM +0200, Trond Myklebust wrote:
+I think that is the offending line?
+
+can you enable DMA transfer modes on the drive using hdparm?
+
+--eric
+
+-----Original Message-----
+From: Lars [mailto:lhofhansl@yahoo.com]
+Sent: Sunday, May 18, 2003 9:03 PM
+To: Tomas Szepe
+Cc: Jeffrey Baker; linux-kernel@vger.kernel.org
+Subject: Re: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
+
+
+Tomas Szepe wrote:
+>>[jwbaker@acm.org]
+>>
+>>I have the same problem on VIA chipset.  IDE DMA is disabled in
+>>2.4.21-rc2 but works fine otherwise:
 > 
-> Sorry. stat doesn't obey close-to-open. It relies on standard
-> attribute caching. close-to-open means "open()" (and only "open()")
-> checks data cache consistency...
+> 
+> Please post the relevant extract of your .config and dmesg output.
+> 
 
-Hi Trond,
-    I rewrote my test program so that it uses open() instead of stat().
-I also changed it so that it does not rename the file after it writing
-it.  This should only leave close, open, and unlink calls.  The program
-still fails for me after running for a minute or so:
+Here's all the information:
 
-  cayman> ./p1 s
-  Failed to find #0 which client wrote
-  Failed on file number 10202
+dmesg:
+------
+...
+PCI: PCI BIOS revision 2.10 entry at 0xfc06e, last bus=8
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Transparent bridge - Intel Corp. 82801BAM/CAM PCI Bridge
+PCI: Using IRQ router PIIX [8086/244c] at 00:1f.0
+...
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta3-.2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+hda: HITACHI_DK23CA-30, ATA DISK drive
+hdb: TOSHIBA DVD-ROM SD-C2502, ATAPI CD/DVD-ROM drive
+hdc: TOSHIBA CD-RW/DVD-ROM SD-R2102, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 58605120 sectors (30006 MB) w/2048KiB Cache, CHS=3648/255/63
+Partition check:
+hda: hda1 hda2 hda3 < hda5 hda6 hda7 hda8 hda9 hda10 >
 
-Again, this is with 2.4.20 kernel.  It fails much faster with a 2.4.7.
+.config:
+--------
+...
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
+...
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
 
-Thanks,
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
 
-Jim
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=m
+# CONFIG_BLK_DEV_IDETAPE is not set
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
 
--- 
-----------------------------------------------------------------------------
-Jim Nance                                                           Synopsys
-(919) 425-7219  Do you have sweet iced tea?        jlnance@us54.synopsys.com
-                No, but there's sugar on the table.
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_ADMA100 is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+# CONFIG_BLK_DEV_ATARAID_SII is not set
+...
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="p1.c"
+lspci:
+------
+00:00.0 Host bridge: Intel Corporation 82815 815 Chipset Host Bridge and 
+Memory Controller Hub (rev 04)
+00:01.0 PCI bridge: Intel Corporation: Unknown device 1131 (rev 04)
+00:1e.0 PCI bridge: Intel Corporation 82801BA PCI (rev 03)
+00:1f.0 ISA bridge: Intel Corporation 82801BAM ISA Bridge (ICH2) (rev 03)
+00:1f.1 IDE interface: Intel Corporation 82801BAM IDE U100 (rev 03)
+00:1f.2 USB Controller: Intel Corporation 82801BA(M) USB (Hub A) (rev 03)
+01:00.0 VGA compatible controller: nVidia Corporation: Unknown device 
+0112 (revb2)
+02:03.0 Multimedia audio controller: ESS Technology ES1983S Maestro-3i 
+PCI Audio Accelerator (rev 10)
+02:06.0 PCI bridge: Action Tec Electronics Inc: Unknown device 0100 (rev 11)
+02:0f.0 CardBus bridge: Texas Instruments PCI4451 PC card Cardbus Controller
+02:0f.1 CardBus bridge: Texas Instruments PCI4451 PC card Cardbus Controller
+02:0f.2 FireWire (IEEE 1394): Texas Instruments: Unknown device 8027
+08:04.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] 
+(rev 08)08:08.0 Communication controller: Lucent Microelectronics 
+WinModem 56k (rev 01)
 
-/* This program demonstrates a problem with the close/open consistency
- * of NFS file systems under Linux.  It fails very rapidy with Red Hats
- * 2.4.7-10smp kernel.  This kernel was known to have bugs.  It also fails
- * with Red Hats 2.4.20-13.7bigmem kernel, which was thought to have this
- * bug fixed.  For my testcase both linux machines were talking to a
- * network applicance file server and mounted like this:
- *
- * na1-rtp:/vol/vol0/home/jlnance /home/jlnance nfs rw,v3,rsize=4096,\
- * wsize=4096,hard,intr,udp,lock,addr=na1-rtp 0 0
- *
- * This program needs to be run on 2 machines, assume hostnames A & B.
- * A and B need to share an NFS mounted file system.
- *
- * On machine A:
- *   cd /some/nfs/path/common/to/both
- *   ./p1 s
- *
- * On machine B:
- *   cd /some/nfs/path/common/to/both
- *   ./p1 c A
- *
- * After a while you may see output similar to:
- *   cayman> ./p1 s
- *   Failed to find #0 which client wrote
- *   Failed on file number 483
- */
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <netdb.h>
-
-#define PORT 12387
-#define FLEN 16
-
-void die()
-{
-  perror("");
-  exit(-1);
-}
-
-void Write(int fd, char *buff, size_t len)
-{
-  for(;;) {
-    int nsent=write(fd, buff, len);
-    if(nsent==0)
-      exit(0);
-    if(nsent==-1) {
-      if(errno!=EINTR)
-        die();
-    } else {
-      buff += nsent;
-      len  -= nsent;
-      if(len==0) {
-        return;
-      }
-    }
-  }
-}
-
-void Read(int fd, char *buff, size_t len)
-{
-  for(;;) {
-    int nread=read(fd, buff, len);
-    if(nread==0)
-      exit(0);
-    if(nread==-1) {
-      if(errno!=EINTR)
-        die();
-    } else {
-      buff += nread;
-      len  -= nread;
-      if(len==0) {
-        return;
-      }
-    }
-  }
-}
-
-int server()
-{
-  int sock = socket(AF_INET, SOCK_STREAM, 0);
-  if(sock==-1) die(); else {
-    struct sockaddr_in name;
-    int                on = 1;
-    name.sin_family       = AF_INET;
-    name.sin_addr.s_addr  = htonl(INADDR_ANY);
-    name.sin_port         = htons(PORT);
-
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof on);
-    if(bind(sock, (struct sockaddr*)&name, sizeof(name))==-1) die(); else {
-      if(listen(sock, 1)==-1) die(); else {
-        int tsock = accept(sock, 0, 0);
-        if(tsock!=-1) {
-          int cnt;
-
-          for(cnt=0; cnt<100000; cnt++) {
-            int  fd;
-            char dummy;
-            char number[FLEN];
-            struct stat sbuf;
-            /*sprintf(number, "#%d", cnt);*/
-            sprintf(number, "#%d", 0);
-            Write(tsock, number, sizeof(number));
-            Read(tsock, &dummy, 1);
-#if 0
-            if(stat(number, &sbuf)) {
-              fprintf(stderr, "Failed to find %s which client wrote\n", number);
-              fprintf(stderr, "Failed on file number %d\n", cnt);
-              exit(-2);
-            }
-#else
-            fd = open(number, O_RDONLY, 0);
-            if(fd<0) {
-              fprintf(stderr, "Failed to find %s which client wrote\n", number);
-              fprintf(stderr, "Failed on file number %d\n", cnt);
-              exit(-2);
-            }
-#endif
-            close(fd);
-            unlink(number);
-          }
-        }
-      }
-    }
-  }
-
-  return 0;
-}
-
-int client(char *server)
-{
-  struct hostent *info = gethostbyname(server);
-  if(!info) die(); else {
-    int rsocket = socket(AF_INET, SOCK_STREAM, 0);
-    if(rsocket==-1) die(); else {
-      struct sockaddr_in name;
-      name.sin_family = AF_INET;
-      name.sin_port   = htons(PORT);
-      memcpy(&name.sin_addr, info->h_addr_list[0], sizeof(struct in_addr));
-      if(connect(rsocket, (struct sockaddr*)&name, sizeof(name))==-1)
-        die();
-      else {
-        for(;;) {
-          int  fd;
-          char fname[FLEN];
-          char tname[FLEN+8];
-
-          Read(rsocket, fname, sizeof(fname));
-          strcpy(tname, fname);
-          /*strcat(tname, ".tmp");*/
-
-          fd = open(tname, O_WRONLY|O_CREAT, 0600);
-          if(fd==-1) die();
-
-          Write(fd, fname, sizeof(fname)); /* Junk data */
-          close(fd);
-
-          /*rename(tname, fname);*/
-
-          Write(rsocket, fname, 1); /* Tells the server we are done */
-        }
-      }
-    }
-  }
-
-  return 0;
-}
-
-void usage(char *prog)
-{
-  fprintf(stderr, "Usage:\n");
-  fprintf(stderr, " %s s\n", prog);
-  fprintf(stderr, " %s c servername\n", prog);
-  fprintf(stderr, " Run 1 of each in the same NFS directory on 2 different "
-        "machines\n Two processes total\n");
-  exit(-1);
-}
-
-int main(int ac, char **av)
-{
-  if(ac<2) {
-    usage(av[0]);
-  } if(av[1][0]=='s') {
-    return server();
-  }else if(ac<3) {
-    usage(av[0]);
-  } else if(av[1][0]=='c') {
-    return client(av[2]);
-  } else {
-    usage(av[0]);
-  }
-
-  return -1;
-}
-
---J/dobhs11T7y2rNN--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268344AbRGWVPh>; Mon, 23 Jul 2001 17:15:37 -0400
+	id <S268343AbRGWVS1>; Mon, 23 Jul 2001 17:18:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268346AbRGWVP2>; Mon, 23 Jul 2001 17:15:28 -0400
-Received: from [47.129.117.131] ([47.129.117.131]:48512 "HELO
-	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S268344AbRGWVPM>; Mon, 23 Jul 2001 17:15:12 -0400
-Message-ID: <3B5C93C9.8DF406CC@nortelnetworks.com>
-Date: Mon, 23 Jul 2001 17:14:49 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Friesen, Christopher [CAR:VS16:EXCH]" <cfriesen@americasm01.nt.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrea Arcangeli <andrea@suse.de>, Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: user-mode port 0.44-2.4.7
-In-Reply-To: <E15OmlH-0007R9-00@the-village.bc.nu>
+	id <S268353AbRGWVSI>; Mon, 23 Jul 2001 17:18:08 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:34063
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S268343AbRGWVRu>; Mon, 23 Jul 2001 17:17:50 -0400
+Date: Mon, 23 Jul 2001 14:17:51 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org, linux-fsdev@vger.kernel.org,
+        martizab@libertsurf.fr, rusty@rustcorp.com.au
+Subject: Re: Yet another linux filesytem: with version control
+Message-ID: <20010723141751.W6820@work.bitmover.com>
+Mail-Followup-To: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>,
+	linux-kernel@vger.kernel.org, linux-fsdev@vger.kernel.org,
+	martizab@libertsurf.fr, rusty@rustcorp.com.au
+In-Reply-To: <3B5C91DA.3C8073AC@wanadoo.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3B5C91DA.3C8073AC@wanadoo.fr>; from jerome.de-vivie@wanadoo.fr on Mon, Jul 23, 2001 at 11:06:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox wrote:
-> 
-> > Suppose I loop against xtime reaching a particular value.  While this is
-> 
-> xtime isnt used this way that I can see. jiffies however is. There are good
-> arguments for getting rid of most [ab]use of jiffies however. For one its
-> pretty important to scaling on both big mainframes and beowulf setups doing
-> heavy computation to reduce timer ticks
+> The multiple version filesystem (mvfs) of ClearCase gives a
+> transparent acces to the data. I found this feature cool, but the
+> overall system is too complex. I would like to write an extension
+> module for the linux kernel to handle version control in a simply way.
 
-jiffies is (as of 2.4.7 anyways) marked as volatile, so we're safe there.  My
-point is this--should someone writing badly designed (but technically correct)
-code be able to totally hose the system?
+Having been through this a time or two, a few points to consider:
 
-The only difference between volatile and normal is that if it is marked as
-volatile it must be accessed every time rather than being pre-cached.  If we
-never spin on accessing xtime, then the fact that we can't optimize it shouldn't
-hurt. (Am I wrong here?  If I am then please explain because I'm missing
-something...)  If someone ever *does* spin on xtime, then we really don't want
-to optimize that access out of the loop, because doing so could cause nasty
-problems.
+a) This is a hard area to get right.  I've done it twice, I told Linus that
+   I could do it the second time in 6 months, and that was 3 years ago and
+   we're up to 6 full time people working on this.  Your mileage may vary.
+b) Filesystem support for SCM is really a flawed approach.  No matter how
+   much you hate all SCM systems out there, shoving the problem into the
+   kernel isn't the answer.  All that means is that you have an ongoing
+   battle to keep your VFS up to date with the kernel.  Ask Rational
+   how much fun that is...
+c) If you have to do a file system, may I suggest that you clone the SunOS
+   4.x TFS (translucent file system)?  It's a useful model, you "stack" a
+   directory on top of a directory and you can see through to the underlying
+   directory.  When you write to a file, the file is copied forward to the
+   top directory.  So a hack attack is
 
+   	mount -t TFS my_linux /usr/src/linux
+	cd my_linux
+	hack hack hack
+	... many hours later
+	cd ..
+	umount my_linux
+	find . -type f -print	# this is your list of modified files
 
+   It's a cool thing but only semi needed - most serious programmers already
+   know how to do the same thing with hard links.
+
+More brains are better than less brains, so welcome to the SCM mess...
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269255AbUIYHbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269082AbUIYHiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269255AbUIYHbL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 03:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269256AbUIYHbL
+	id S269082AbUIYHiX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 03:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269256AbUIYHiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 03:31:11 -0400
-Received: from [218.232.239.215] ([218.232.239.215]:51730 "HELO
-	gatton-park.org.uk") by vger.kernel.org with SMTP id S269255AbUIYHbK
+	Sat, 25 Sep 2004 03:38:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50152 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269082AbUIYHiV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 03:31:10 -0400
-Message-ID: <ddeb01c4a2d2$7c0d8a6f$cf278b3a@gatton-park.org.uk>
-From: "Ramiro Clarke" <r_clarke_el@matsushita.cz>
-To: linux-kernel@vger.kernel.org
-Subject: New!  =?ISO-8859-1?Q?=20V=ECagra?= soft tabs.
-Date: Sat, 25 Sep 2004 10:36:00 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Sat, 25 Sep 2004 03:38:21 -0400
+Date: Sat, 25 Sep 2004 08:38:19 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: greg@kroah.com, Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [RFC] put symbolic links between drivers and modules in the sysfs tree
+Message-ID: <20040925073819.GT23987@parcelfarce.linux.theplanet.co.uk>
+References: <1095701390.2016.34.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095701390.2016.34.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Sep 20, 2004 at 01:29:44PM -0400, James Bottomley wrote:
+> This functionality is essential for us to work out which drivers are
+> supplied by which modules.  We use this in turn to work out which
+> modules are necessary to find the root device (and hence what
+> initrd/initramfs needs to insert).
 
-We would like to offer V_I_A_G_R_A soft tabs,
+So what will your userland code do when you run it on a system with
+non-modular kernel currently running?
 
-These pills are just like regular Vìagra but they are specially formulated 
-to be soft and dissolvable under the tongue. The pill is absorbed at the 
-mouth and enters the bloodstream directly instead of going through the stomach. 
-This results in a faster more powerful effect which lasts as long as the normal.
-
-Soft Tabs also have less sidebacks (you can drive or mix alcohol drinks with them).
-
-You can get it at: http://888-luvu.com/st/?coupon
-
-No thanks: http://888-luvu.com/rm.html
-
+IOW, that's a fundamentally broken interface - you really want the same
+information regardless of modular vs. built-in.

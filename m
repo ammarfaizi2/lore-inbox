@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287313AbSACOfD>; Thu, 3 Jan 2002 09:35:03 -0500
+	id <S287311AbSACOiD>; Thu, 3 Jan 2002 09:38:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287310AbSACOex>; Thu, 3 Jan 2002 09:34:53 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:40716 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S287303AbSACOeu>;
-	Thu, 3 Jan 2002 09:34:50 -0500
-Date: Thu, 3 Jan 2002 15:33:55 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: harald.holzer@eunet.at, linux-kernel@vger.kernel.org, wookie@osdl.org,
-        velco@fadata.bg
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-Message-Id: <20020103153355.612bd269.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33L.0201031106590.24031-100000@imladris.surriel.com>
-In-Reply-To: <1010015450.15492.19.camel@hh2.hhhome.at>
-	<Pine.LNX.4.33L.0201031106590.24031-100000@imladris.surriel.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S287320AbSACOhx>; Thu, 3 Jan 2002 09:37:53 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:20234 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S287311AbSACOhq>; Thu, 3 Jan 2002 09:37:46 -0500
+Message-Id: <200201031437.g03EbZwh022014@pincoya.inf.utfsm.cl>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: esr@thyrsus.com, Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems? 
+In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> 
+   of "Wed, 02 Jan 2002 22:34:42 CDT." <3C33D152.79FC8251@didntduck.org> 
+Date: Thu, 03 Jan 2002 11:37:35 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002 11:28:45 -0200 (BRST)
-Rik van Riel <riel@conectiva.com.br> wrote:
+Brian Gerst <bgerst@didntduck.org> said:
 
-> Another item to look into is removing the page cache hash table
-> and replacing it by a radix tree or hash trie, in the hopes of
-> improving scalability while at the same time saving some space.
+[...]
 
-Ah, didn't we see such a patch lately in LKML? If I remember correct I saw some
-comparison charts too and some people testing it were happy with it. Just
-searched through the list: 24. dec :-) by Momchil Velikov Can someone with big
-mem have a look at the saving? How about 18-pre?
+> Then the best thing to do is to put a disclaimer on your
+> autoconfiguration program: "WARNING: autoconfigure may not detect older
+> hardware that was not designed for reliable detection.  If autoconfigure
+> fails to detect all of your hardware, you may need to manually configure
+> your kernel."
 
-Regards,
-Stephan
+It is a lot easier just to leave a question in "Do you have old (ISA) cards
+in your machine?"... solves 95% of the "problem" with minimal effort. The
+question can then go for "Newbie configuration" in a few years.
+
+> Sometimes perfection isn't worth the effort, especially when trying to
+> support a class of hardware that is rapidly becoming obsolete.  Optimize
+> for the most likely case, and deal with the rare corner cases with other
+> means.
+
+Bingo!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

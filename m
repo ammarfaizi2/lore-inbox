@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272746AbRIGPyB>; Fri, 7 Sep 2001 11:54:01 -0400
+	id <S272744AbRIGP5L>; Fri, 7 Sep 2001 11:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272742AbRIGPxw>; Fri, 7 Sep 2001 11:53:52 -0400
-Received: from mx9.port.ru ([194.67.57.19]:15542 "EHLO mx9.port.ru")
-	by vger.kernel.org with ESMTP id <S272734AbRIGPxh>;
-	Fri, 7 Sep 2001 11:53:37 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109072016.f87KG9r06406@vegae.deep.net>
-Subject: Re: Recent kernels sound crash  solution found?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Fri, 7 Sep 2001 20:16:08 +0000 (UTC)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15fNy1-0001uy-00@the-village.bc.nu> from "Alan Cox" at Sep 07, 2001 04:54:53 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272743AbRIGP5B>; Fri, 7 Sep 2001 11:57:01 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3846 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272744AbRIGP4t>; Fri, 7 Sep 2001 11:56:49 -0400
+Date: Fri, 7 Sep 2001 08:52:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tester <tester@videotron.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Bizzare crashes on IBM Thinkpad A22e.. yenta_socket related
+In-Reply-To: <Pine.LNX.4.33.0109041803010.1614-100000@TesterTop.PolyDom>
+Message-ID: <Pine.LNX.4.33.0109070847270.10038-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  Alan Cox wrote:"
-> 
-> >          * Now loop until we get a free buffer. Try to get smaller buffer if
-> >          * it fails. Don't accept smaller than 8k buffer for performance
-> >          * reasons.
-> >          */
-> >     ===>  _here_ is a dead-loop  <===
-> >         while (start_addr == NULL && dmap->buffsize > PAGE_SIZE) {
-> 
-> It terminates when dmap->bufsise hits  page size
-> >                 start_addr = (char *) __get_free_pages(GFP_ATOMIC|GFP_DMA, sz);
-> >                 if (start_addr == NULL)
-> >                         dmap->buffsize /= 2;
-> 
-> I see no bug
-> 
-     Ahh.. yes. Sorry for this one. Comment was so obvious.
 
-regards, Sam
+On Tue, 4 Sep 2001, Tester wrote:
+> >
+> > What they are doing, however, is to generate a SCI, ie "System Control
+> > Interrupt". Which, I bet you five bucks, is routed to the same interrupt
+> > that your CardBus controller is on.
+>
+> Seems like you may have lost five bucks... When ACPI is enabled the sci is
+> on IRQ 9, while the CardBus controller is on a IRQ 11 along with
+> the Sound card, the ethernet card, the modem and the usb controller. The
+> SCI seems to go to irq 9... and be alone there...  The bug does not happen
+> when acpi is enabled tho... So I can't confirm...
+
+No, I think I'll keep my 5 bucks, cheap bastard that I am.
+
+The thing is, enabling ACPI will also force the _correct_ routing of the
+SCI interrupt (assuming ACPI works - it doesn't on all machines), and thus
+it doesn't show up as some random other irq. Which is why you don't get a
+lockup.
+
+> > However, the interrupt handler we have is _not_ aware of system
+> > control interrupts. So it won't be able to handle them, and the
+> > interrupts will go on forever - locking up the machine.
+>
+> Where would that loop occur?
+
+There won't be any explicit loop - what will happen is that irq12 will
+stay active, so we will keep on having irq12 interrupts that the CardBus
+interrupt handler doesn't know what to do with - and immediately when the
+irq handler returns and acks the interrupt we'll just take the irq again.
+
+Over and over.
+
+		Linus
+

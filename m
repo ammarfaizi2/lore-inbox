@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275420AbTHNR3g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 13:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275421AbTHNR3g
+	id S275419AbTHNRe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 13:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275414AbTHNRe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 13:29:36 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5019 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S275420AbTHNR3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 13:29:34 -0400
-Date: Thu, 14 Aug 2003 14:29:13 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@localhost.localdomain
-To: Narayan Desai <desai@mcs.anl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-rc2 boot hang
-In-Reply-To: <878ypwkz0d.fsf@mcs.anl.gov>
-Message-ID: <Pine.LNX.4.44.0308141428330.3360-100000@localhost.localdomain>
+	Thu, 14 Aug 2003 13:34:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51597 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S275411AbTHNRcr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 13:32:47 -0400
+Date: Thu, 14 Aug 2003 10:32:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Matt Wilson <msw@redhat.com>,
+       <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] revert zap_other_threads breakage, disallow CLONE_THREAD
+ without CLONE_DETACHED
+In-Reply-To: <200308120752.h7C7qQT20085@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.44.0308141023480.8148-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Thu, 14 Aug 2003, Narayan Desai wrote:
-
-> We have a netfinity 5100 (including aic7xxx scsi controllers) that
-> fails to boot with kernels newer than 2.4.18. The last few lines in
-> the boot messages are:
-> hda: LTN485S, ATAPI CD/DVD-ROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: attached ide-cdrom driver.
-> hda: ATAPI 48X CD-ROM drive, 120kB Cache
-> Uniform CD-ROM driver Revision: 3.12
-> SCSI subsystem driver Revision: 1.00
+On Tue, 12 Aug 2003, Roland McGrath wrote:
+>
+> Please apply this patch to get us back out of this useless quagmire and
+> disallow the problematic case that noone wants to try to use any more.
 > 
-> After this point, the system has locked up. (sysrqs don't work, etc)
-> The system is a dual pIII. acpi is disabled. This machine has worked
-> stably with 2.4.14 and 2.4.18 for quite a while. (it is a fileserver,
-> and isn't touched often)
-> 
-> I have tried running with noapic, to no avail. I have attached
-> complete boot messages and .config. How can i get more info out about
-> where it is dying?
+> -	if ((clone_flags & CLONE_THREAD) && !(clone_flags & CLONE_SIGHAND))
+> +	if ((clone_flags & CLONE_THREAD) &&
+> +	    (clone_flags & (CLONE_SIGHAND|CLONE_DETACHED)) != (CLONE_SIGHAND|CLONE_DETACHED))
+>  		return ERR_PTR(-EINVAL);
+>  	if ((clone_flags & CLONE_DETACHED) && !(clone_flags & CLONE_THREAD))
 
-Do you have the NMI watchdog on? If not please turn it on, it should give
-us useful information.
+Look at the condition that follows: it disallows CLONE_DETACHED for 
+non-threads.
+
+Which really means that together with the first change, CLONE_DETACHED is 
+always the same thing as CLONE_THREAD: you can't have one without the 
+other. 
+
+Which means that they are logically not separate bits any more, and we
+should just get rid of CLONE_DETACHED altogether, and use CLONE_THREAD in
+all cases where it is tested for.
+
+I'd really prefer not to keep a bit around that has to mean the same thing 
+as another bit - that way just lies madness. So I'll document 
+CLONE_DETACHED as being a no-op, and change the _one_ place that used it 
+to just use CLONE_THREAD instead.
+
+		Linus
 

@@ -1,164 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265988AbUBJTJe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 14:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUBJTJe
+	id S266193AbUBJSXb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUBJSUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 14:09:34 -0500
-Received: from proxy.quengel.org ([213.146.113.159]:42368 "EHLO
-	gerlin1.hsp-law.de") by vger.kernel.org with ESMTP id S265988AbUBJTJ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 14:09:27 -0500
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: irq 7: nobody cared! (intel8x0 sound / 2.6.2-rc3-mm1)
-References: <4023BEA8.5060306@vision.ee> <s5hd68o2ia7.wl@alsa2.suse.de>
-From: Ralf Gerbig <rge-news@quengel.org>
-Date: 10 Feb 2004 20:09:22 +0100
-In-Reply-To: <s5hd68o2ia7.wl@alsa2.suse.de>
-Message-ID: <m3llnaycnx.fsf-news@hsp-law.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	Tue, 10 Feb 2004 13:20:17 -0500
+Received: from mail.kroah.org ([65.200.24.183]:30609 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266165AbUBJSTg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 13:19:36 -0500
+Date: Tue, 10 Feb 2004 10:19:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Mike Bell <kernel@mikebell.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040210181932.GI28111@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210175548.GN4421@tinyvaio.nome.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210175548.GN4421@tinyvaio.nome.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moins,
+ugh, and here I said I wouldn't respond.  But to be fair, he wrote me
+this before I said that...
 
-* On Mon, 09 Feb 2004 19:56:48 +0100, Takashi Iwai <tiwai@suse.de> said:
+On Tue, Feb 10, 2004 at 09:55:49AM -0800, Mike Bell wrote:
+> On Tue, Feb 10, 2004 at 09:01:57AM -0800, Greg KH wrote:
+> > Did you read:
+> > 	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+> 
+> While we're at it...
+> 
+> >  Problems:
+> >    1) devfs only shows the dev entries for the devices in the system.
+> 
+> Why is that a bad thing? Why should I want to see dev entries for firewire
+> drives on my 486 or LPT1 on my legacy-free laptop? 
 
-> could you check the status register value when this happens with the
-> attached patch?
+No, I'm saying that devfs does solve this problem.  Quite well in fact.
 
-I'm not Lenar, but this is what I get upon module load:
+> >    2) devfs does not handle the need for dynamic major/minor numbers
+> 
+> It does as well as udev does. You say it yourself, "if the kernel switches to
+> dynamic major/minor". The same is true of devfs. It was designed for dynamic
+> major/minors, and the static ones were for backward compatibility with static
+> /devs.
 
-Epox EP8RDA3 Mobo, nforce2, acpi, apic, preempt, 2.6.3-rc1-mm1
+But devfs never used the dynamic major/minor code.  No one used it.
+It's not even present anymore in 2.6.  That shows that devfs does not
+solve this problem by itself.
 
-00:06.0 Multimedia audio controller: nVidia Corporation nForce2 AC97 Audio Controler (MCP) (rev a1)
+> >    4) devfs does provide a deamon that userspace programs can hook into
+> >       to listen to see what devices are being created or removed.
+> 
+> How is that a problem?
 
-21:     751435   IO-APIC-level  NVidia nForce2
+It isn't.  It's saying that devfs does do this.
 
-line in -> line out (bttv) works fine, aplay just plays the first
-snippet of sound a couple of times and then hangs.
+> >  Constraints:
+> >    1) devfs forces the devfs naming policy into the kernel.  If you
+> >       don't like this naming scheme, tough.
+> 
+> Not true at all. If you don't like the naming scheme, run devfsd. Just
+> like running udev, only unlike udev at least you have device files even
+> if the daemon's not running.
 
- kernel: PCI: Setting latency timer of device 0000:00:06.0 to 64
- kernel: intel8x0: ignored irq, status = 0x0, sta_mask = 0x0
- kernel: intel8x0: ignored irq, status = 0x0, sta_mask = 0x0
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 2377 times
- kernel: intel8x0: ignored irq, status = 0x300100,red irq, status = 0xred irq, status = 0x300100, sta_mask = 0xf0
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 2146 times
- kernel: intel8x0: ignored irq, status = 0x3001red irq, status = 0x300100, sta_mask = 0xf0
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 1863 times
- /sbin/hotplug[5795]: no runnable /etc/hotplug/sound.agent is installed
- /sbin/hotplug[5802]: no runnable /etc/hotplug/sound.agent is installed
- /sbin/hotplug[5810]: no runnable /etc/hotplug/sound.agent is installed
- /sbin/hotplug[5809]: no runnable /etc/hotplug/sound.agent is installed
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 283 times
- kernel: red irred irq, status = 0x300100, sta_mask = 0xf0
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 2146 times
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask =red irq, status = 0x300100, sta_mask = 0xf0
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 481 times
- /sbin/hotplug[5825]: no runnable /etc/hotplug/sound.agent is installed
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 1665 times
- kernel: rq, status = 0x300100, sta_mask = 0xf0
- kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
- last message repeated 2142 times
- kernel: irq 21: nobody cared!
- kernel: Call Trace:
- kernel:  [__report_bad_irq+42/144] __report_bad_irq+0x2a/0x90
- kernel:  [<c010cc7a>] __report_bad_irq+0x2a/0x90
- kernel:  [note_interrupt+112/176] note_interrupt+0x70/0xb0
- kernel:  [<c010cd70>] note_interrupt+0x70/0xb0
- kernel:  [do_IRQ+304/320] do_IRQ+0x130/0x140
- kernel:  [<c010d060>] do_IRQ+0x130/0x140
- kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
- kernel:  [<c0321d64>] common_interrupt+0x18/0x20
- kernel: 
- kernel: handlers:
- kernel: [_end+542335376/1069053776] (snd_intel8x0_interrupt+0x0/0x260 [snd_intel8x0])
- kernel: [<e09aba40>] (snd_intel8x0_interrupt+0x0/0x260 [snd_intel8x0])
- kernel: Disabling IRQ #21
+Heh, you haven't ever converted a driver to use devfs have you?  If so,
+you would have seen the fact that you had to specify your devfs name in
+the driver interface.  That's hard coding the naming scheme in the
+kernel.
 
-without hotplug:
+And how flexible does devfsd allow you to specify your own naming
+scheme?  How can you get the info from devfsd that you need to provide a
+proper device name?  No one I know has ever does this.  And I know some
+people who tried real hard...
 
-kernel: PCI: Setting latency timer of device 0000:00:06.0 to 64
-kernel: intel8x0: ignored irq, status = 0x0, sta_mask = 0x0
-kernel: intel8x0: ignored irq, status = 0x0, sta_mask = 0x0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 939 times
-kernel: red irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 2147 times
-kernel: red irq, statured irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 2146 times
-kernel: intel8x0: ignored irq, status = 0x300100, stred irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 2147 times
-kernel: red irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 2147 times
-kernel: red irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 981 times
-kernel: intel8x0: ignored irq, status = 0x300100red irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 1163 times
-kernel: intel8x0: ignored irq, status = red irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 2147 times
-kernel: >intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-kernel: intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
-last message repeated 2134 times
-kernel: irq 21: nobody cared!
-kernel: Call Trace:
-kernel:  [__report_bad_irq+42/144] __report_bad_irq+0x2a/0x90
-kernel:  [<c010cc7a>] __report_bad_irq+0x2a/0x90
-kernel:  [note_interrupt+112/176] note_interrupt+0x70/0xb0
-kernel:  [<c010cd70>] note_interrupt+0x70/0xb0
-kernel:  [do_IRQ+304/320] do_IRQ+0x130/0x140
-kernel:  [<c010d060>] do_IRQ+0x130/0x140
-kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-kernel:  [<c0321d64>] common_interrupt+0x18/0x20
-kernel:  [schedule+884/1456] schedule+0x374/0x5b0
-kernel:  [<c011dff4>] schedule+0x374/0x5b0
-kernel:  [preempt_schedule+54/96] preempt_schedule+0x36/0x60
-kernel:  [<c011e266>] preempt_schedule+0x36/0x60
-kernel:  [unix_dgram_sendmsg+872/1392] unix_dgram_sendmsg+0x368/0x570
-kernel:  [<c031c518>] unix_dgram_sendmsg+0x368/0x570
-kernel:  [call_console_drivers+101/288] call_console_drivers+0x65/0x120
-kernel:  [<c01221b5>] call_console_drivers+0x65/0x120
-kernel:  [call_console_drivers+101/288] call_console_drivers+0x65/0x120
-kernel:  [<c01221b5>] call_console_drivers+0x65/0x120
-kernel:  [sock_aio_write+191/240] sock_aio_write+0xbf/0xf0
-kernel:  [<c02b8a3f>] sock_aio_write+0xbf/0xf0
-kernel:  [do_sync_write+140/192] do_sync_write+0x8c/0xc0
-kernel:  [<c0157d5c>] do_sync_write+0x8c/0xc0
-kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-kernel:  [<c0321d64>] common_interrupt+0x18/0x20
-kernel:  [vfs_write+254/304] vfs_write+0xfe/0x130
-kernel:  [<c0157e8e>] vfs_write+0xfe/0x130
-kernel:  [sys_write+66/112] sys_write+0x42/0x70
-kernel:  [<c0157f72>] sys_write+0x42/0x70
-kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-kernel:  [<c03213f7>] syscall_call+0x7/0xb
-kernel: 
-kernel: handlers:
-kernel: [_end+542335376/1069053776] (snd_intel8x0_interrupt+0x0/0x260 [snd_intel8x0])
-kernel: [<e09aba40>] (snd_intel8x0_interrupt+0x0/0x260 [snd_intel8x0])
-kernel: Disabling IRQ #21
+> >    2) devfs does not follow the LSB device naming standard.
+> 
+> No, but the userspace daemon attached to it could do so, just like udev.
 
-hope this helps,
+But it doesn't.  That was the point.
 
-Ralf
--- 
- P:     Linus Torvalds			patch-2.2.4
--S:     Buried alive in diapers
-+S:     Buried alive in reporters
+udev defaults to this.  Which is the sane thing to do.
+
+thanks,
+
+greg k-h

@@ -1,88 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286222AbRL0GSv>; Thu, 27 Dec 2001 01:18:51 -0500
+	id <S285169AbRL0Gyr>; Thu, 27 Dec 2001 01:54:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285169AbRL0GSm>; Thu, 27 Dec 2001 01:18:42 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:58837 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S286222AbRL0GSX>; Thu, 27 Dec 2001 01:18:23 -0500
-Date: Thu, 27 Dec 2001 08:17:20 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <kaos@ocs.com.au>
-Subject: Re: BUG and Kernel Panic on 2.5.2-pre1 with loop and cdrom 
-In-Reply-To: <11207.1009422284@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.33.0112270813090.28333-100000@netfinity.realnet.co.sz>
+	id <S286221AbRL0Gyi>; Thu, 27 Dec 2001 01:54:38 -0500
+Received: from ns2.q-station.net ([202.66.128.35]:1029 "HELO
+	smtp.q-station.net") by vger.kernel.org with SMTP
+	id <S285169AbRL0Gy0>; Thu, 27 Dec 2001 01:54:26 -0500
+Date: Thu, 27 Dec 2001 14:54:22 +0800 (CST)
+From: Leung Yau Wai <chris@gist.q-station.net>
+To: linux-kernel@vger.kernel.org
+cc: chris@q-station.net
+Subject: dd cdrom error
+Message-ID: <Pine.LNX.4.10.10112271442090.3984-100000@gist.q-station.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
-mount /dev/fd0 /floppy -o loop gives a "better" dump :) This is on
-2.5.2-pre2 (The END_OF_CODE is because i didn't do modprobe loop before
-running ksymoops. Thanks to Keith Owens for that) but we know where the
-bug really is now.
+Dear all,
 
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c020c065>]    Not tainted
-EFLAGS: 00010286
-eax: 00000020   ebx: c88db1a4   ecx: c0304cc4   edx: 000025e1
-esi: cae38c64   edi: cae95000   ebp: 00000000   esp: c8adff9c
-ds: 0018   es: 0018   ss: 0018
-Process loop0 (pid: 697, stackpage=c8adf000)
-Stack: c02e1c03 00000554 cae38c64 cae38f64 c014dd33 cae38c64 00000000 cc9170a2
-       cae38c64 00000001 00000000 cae95000 cae38f64 cae38c64 00000000 00000000
-       00000000 c1560018 00000f00 ca13bf30 00000000 c0107286 cae95000 cc916e80
-Call Trace: [<c014dd33>] [<cc9170a2>] [<c0107286>] [<cc916e80>]
+	I come across a problem which seem exist in kernel 2.4.x but not
+in 2.2.x.
 
-Code: 0f 0b 58 5a 8b 46 0c 83 e0 01 50 53 ff 53 34 56 e8 b6 14 f4
+	The problem is that, when I try to using dd to create a ISO image
+of a cdrom then around dumping the end of the disc it will give out the
+following error message:
 
- Jan  1 02:12:34 mondecino kernel: kernel BUG at ll_rw_blk.c:1364!
-Jan  1 02:12:34 mondecino kernel: invalid operand: 0000
-Jan  1 02:12:34 mondecino kernel: CPU:    0
-Jan  1 02:12:34 mondecino kernel: EIP:    0010:[end_bio_bh_io_sync+37/80]    Not tainted
-Jan  1 02:12:34 mondecino kernel: EIP:    0010:[<c020c065>]    Not tainted
-Jan  1 02:12:34 mondecino kernel: EFLAGS: 00010286
-Jan  1 02:12:34 mondecino kernel: eax: 00000020   ebx: c88db1a4   ecx: c0304cc4   edx: 000025e1
-Jan  1 02:12:34 mondecino kernel: esi: cae38c64   edi: cae95000   ebp: 00000000   esp: c8adff9c
-Jan  1 02:12:34 mondecino kernel: ds: 0018   es: 0018   ss: 0018
-Jan  1 02:12:34 mondecino kernel: Process loop0 (pid: 697, stackpage=c8adf000)
-Jan  1 02:12:34 mondecino kernel: Stack: c02e1c03 00000554 cae38c64 cae38f64 c014dd33 cae38c64 000
-Jan  1 02:12:34 mondecino kernel:        cae38c64 00000001 00000000 cae95000 cae38f64 cae38c64 000
-Jan  1 02:12:34 mondecino kernel:        00000000 c1560018 00000f00 ca13bf30 00000000 c0107286 cae
-Jan  1 02:12:34 mondecino kernel: Call Trace: [bio_endio+35/48] [sound:num_midis_Rsmp_a1eae7cf+814
-Jan  1 02:12:34 mondecino kernel: Call Trace: [<c014dd33>] [<cc9170a2>] [<c0107286>] [<cc916e80>]
-Jan  1 02:12:34 mondecino kernel:
-Jan  1 02:12:34 mondecino kernel: Code: 0f 0b 58 5a 8b 46 0c 83 e0 01 50 53 ff 53 34 56 e8 b6 14 f
+e.g. dd if=/dev/cdrom of=n.iso
 
->>EIP; c020c065 <end_bio_bh_io_sync+25/50>   <=====
-Trace; c014dd33 <bio_endio+23/30>
-Trace; cc9170a2 <END_OF_CODE+90a42/????>
-Trace; c0107286 <kernel_thread+26/30>
-Trace; cc916e80 <END_OF_CODE+90820/????>
-Code;  c020c065 <end_bio_bh_io_sync+25/50>
-00000000 <_EIP>:
-Code;  c020c065 <end_bio_bh_io_sync+25/50>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c020c067 <end_bio_bh_io_sync+27/50>
-   2:   58                        pop    %eax
-Code;  c020c068 <end_bio_bh_io_sync+28/50>
-   3:   5a                        pop    %edx
-Code;  c020c069 <end_bio_bh_io_sync+29/50>
-   4:   8b 46 0c                  mov    0xc(%esi),%eax
-Code;  c020c06c <end_bio_bh_io_sync+2c/50>
-   7:   83 e0 01                  and    $0x1,%eax
-Code;  c020c06f <end_bio_bh_io_sync+2f/50>
-   a:   50                        push   %eax
-Code;  c020c070 <end_bio_bh_io_sync+30/50>
-   b:   53                        push   %ebx
-Code;  c020c071 <end_bio_bh_io_sync+31/50>
-   c:   ff 53 34                  call   *0x34(%ebx)
-Code;  c020c074 <end_bio_bh_io_sync+34/50>
-   f:   56                        push   %esi
-Code;  c020c075 <end_bio_bh_io_sync+35/50>
-  10:   e8 b6 14 f4 00            call   f414cb <_EIP+0xf414cb> c114d530 <_end+d6c100/c444c30>
+Dec 22 16:53:25 rainbow kernel: hdd: command error: status=0x51 {
+DriveReady SeekComplete Error }
+Dec 22 16:53:25 rainbow kernel: hdd: command error: error=0x54
+Dec 22 16:53:25 rainbow kernel: end_request: I/O error, dev 16:40 (hdd),
+sector 1324148
+Dec 22 16:56:51 rainbow kernel: hdd: command error: status=0x51 {
+DriveReady SeekComplete Error }
+Dec 22 16:56:51 rainbow kernel: hdd: command error: error=0x54
+Dec 22 16:56:51 rainbow kernel: end_request: I/O error, dev 16:40 (hdd),
+sector 1323912
+Dec 22 16:56:51 rainbow kernel: hdd: command error: status=0x51 {
+DriveReady SeekComplete Error }
+Dec 22 16:56:51 rainbow kernel: hdd: command error: error=0x54
+Dec 22 16:56:51 rainbow kernel: end_request: I/O error, dev 16:40 (hdd),
+sector 1323916
+
+
+	However, the problem will gone if I trun off the DMA support of my
+cdrom under kernel 2.4.x.
+
+e.g. hdparm -d0 /dev/hdd
+
+
+	Then I recheck everything, keeping the same OS, the same machine
+except booting the 2.2.X kernel (with UDMA patch to support my Promise
+UDMA 66 controller). Then everything will run fine even turn on the DMA
+support of the cdrom.
+
+	Could anyone tell me what happened? Or, anything I missed? or I
+should give which information to get some help?
+
+
+My machine is a
+Asus P3BF
+with Promise UDMA66 add-on-card
+
+cutting a part of dmesg from booting 2.4.17 hope can help
+------------------------------------------------------------------
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 21
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:DMA
+PDC20262: IDE controller on PCI bus 00 dev 58
+PCI: Found IRQ 5 for device 00:0b.0
+PDC20262: chipset revision 1
+PDC20262: not 100% native mode: will probe irqs later
+PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:DMA, hdf:DMA
+    ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:DMA
+hdd: CD-S500/A, ATAPI CD/DVD-ROM drive
+hde: IBM-DPTA-372050, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0xb400-0xb407,0xb002 on irq 5
+hde: 40088160 sectors (20525 MB) w/1961KiB Cache, CHS=39770/16/63, UDMA(66)
+
+---------------------------------------------------------------------
+
+	Thanks your attention
+
+
+Chris
 

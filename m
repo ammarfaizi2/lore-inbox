@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129228AbQLOShT>; Fri, 15 Dec 2000 13:37:19 -0500
+	id <S129736AbQLOShb>; Fri, 15 Dec 2000 13:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129736AbQLOShJ>; Fri, 15 Dec 2000 13:37:09 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11529 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129228AbQLOSg7>; Fri, 15 Dec 2000 13:36:59 -0500
-Subject: Re: test12 lockups -- need feedback
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Fri, 15 Dec 2000 18:06:58 +0000 (GMT)
-Cc: ingo.oeser@informatik.tu-chemnitz.de, e.jokisch@u-code.de,
-        linux-kernel@vger.kernel.org, davej@suse.de, hpa@zytor.com
-In-Reply-To: <1368.195.67.189.102.976902742.squirrel@www.zytor.com> from "H. Peter Anvin" at Dec 15, 2000 09:52:22 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130643AbQLOShT>; Fri, 15 Dec 2000 13:37:19 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:64597 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129370AbQLOShB>; Fri, 15 Dec 2000 13:37:01 -0500
+Date: Fri, 15 Dec 2000 20:13:50 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Rob Landley <telomerase@yahoo.com>, maddog@valinux.com,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Is there a Linux trademark issue with sun?
+In-Reply-To: <Pine.LNX.4.21.0012151153330.3596-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0012152013210.4303-100000@server.serve.me.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E146zG2-0001bG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I also got a hard lockup (but with Oops) while calling the
-> > "vendor CPU init" function during system boot.
-> > 
-> > This was on Cyrix III.
-> > PS: CC'ed hpa, because he is cpu-detection maintainer and davej,
-> >    because he added Cyrix III support and might know details ;-)
+> > >When asked by a reporter why Sun's new clustering 
+> > >software was restricted to Solaris and not available 
+> > >on Linux, McNealy's aggravation seemed to peak. "You 
+> > >people just don't get it, do you? All Linux 
+> > >applications run on Solaris, which is our 
+> > >implementation of Linux. Now ask the question again,"
 > 
-> Please include the oops information, as well as the /proc/cpuinfo output.
+> I wouldn't worry about this.  It's only a question of time
+> before people will start to ask him why Sun isn't shipping
+> the "original Linux" but has their own, strange, version ;)
 
-Also be sure you built Pentium/TSC kernels as Cyrix III is a 686 core without
-the cmov instruction it seems
+hahahaha... I like that view.. Nice one for my infoline :)
+
+
+
+	Regards,
+
+
+		Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261418AbSKKVwU>; Mon, 11 Nov 2002 16:52:20 -0500
+	id <S261427AbSKKV4C>; Mon, 11 Nov 2002 16:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSKKVwT>; Mon, 11 Nov 2002 16:52:19 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:53986 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261418AbSKKVwT>; Mon, 11 Nov 2002 16:52:19 -0500
-Subject: Re: Voyager subarchitecture for 2.5.46
-From: john stultz <johnstul@us.ibm.com>
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
-       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200211112057.gABKvS620539@localhost.localdomain>
-References: <200211112057.gABKvS620539@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Nov 2002 13:58:44 -0800
-Message-Id: <1037051926.3844.4.camel@cornchips>
-Mime-Version: 1.0
+	id <S261446AbSKKV4C>; Mon, 11 Nov 2002 16:56:02 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:29416 "HELO palrel13.hp.com")
+	by vger.kernel.org with SMTP id <S261427AbSKKV4B>;
+	Mon, 11 Nov 2002 16:56:01 -0500
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: "'Mario Smarduch '" <cms063@email.mot.com>,
+       "'davidm+AEA-hpl.hp.com '" <davidm@hpl.hp.com>,
+       "'Mario Smarduch '" <CMS063@motorola.com>,
+       "'linux-ia64+AEA-linuxia64.org '" <linux-ia64@linuxia64.org>,
+       "'linux-kernel+AEA-vger.kernel.org '" <linux-kernel@vger.kernel.org>,
+       grundler@cup.hp.com
+Subject: Re: [Linux-ia64] RE: +AFs-Linux-ia64+AF0- reader-writer livelock proble 
+In-Reply-To: Your message of "Mon, 11 Nov 2002 14:36:38 CST."
+             <3FAD1088D4556046AEC48D80B47B478C0101F4F7@usslc-exch-4.slc.unisys.com> 
+References: <3FAD1088D4556046AEC48D80B47B478C0101F4F7@usslc-exch-4.slc.unisys.com> 
+Date: Mon, 11 Nov 2002 14:02:32 -0800
+From: Grant Grundler <grundler@cup.hp.com>
+Message-Id: <20021111220232.C94F712C0C@debian.cup.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-11 at 12:57, J.E.J. Bottomley wrote:
-> As a beginning, what about the attached patch?  It eliminates the compile time 
-> TSC options (and thus hopefully the sources of confusion).  I've exported 
-> tsc_disable, so it can be set by the subarchs if desired (voyager does this) 
-> and moved the notsc option into the timer_tsc code (which is where it looks 
-> like it belongs).
+"Van Maren, Kevin" wrote:
+> It is also possible that a processor can get stuck +ACI-forever+ACI-
+> spinning in the kernel with interrupts disabled trying to
+> acquire a lock, and never succeed, without the rest of the
+> kernel going south.  If that happens, and application will
+> be livelocked, but the rest of the system will function.
 
-Looks good to me.
+Probably not. ia64 systems (and x86 systems with IO xapic) direct
+IO interrupts to specific CPUs. Devices would not get serviced
+in the above case and IO to/from those devices would come to a
+grinding halt. It would look more like "dead" lock than "live" lock.
 
-We'd still need to go back and yank out the #ifdef CONFIG_X86_TSC'ed 
-macros in profile.h and pksched.h or replace them w/ inlines that wrap
-the rdtsc calls w/ if(cpu_has_tsc && !tsc_disable) or some such line. 
 
-But yea, its a start, assuming no one screams about not being able to
-optimize out the timer_pit code.
+> It really depends on the particular circumstances.
 
-thanks
--john
+yes. But it sounds very likely to me.
 
+grant

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261800AbSJDU1q>; Fri, 4 Oct 2002 16:27:46 -0400
+	id <S262330AbSJDUGX>; Fri, 4 Oct 2002 16:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261994AbSJDU1q>; Fri, 4 Oct 2002 16:27:46 -0400
-Received: from zork.zork.net ([66.92.188.166]:54987 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S261800AbSJDU1q>;
-	Fri, 4 Oct 2002 16:27:46 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: (off-list) Mail headers (was: Re: export of sys_call_table)
-References: <1033684027.1247.43.camel@phantasy.suse.lists.linux.kernel>
-	<20021003233504.GA20570@suse.de.suse.lists.linux.kernel>
-	<20021003235022.GA82187@compsoc.man.ac.uk.suse.lists.linux.kernel>
-	<mailman.1033691043.6446.linux-kernel2news@redhat.com.suse.lists.linux.kerne
-	<200210040403.g9443Vu03329@devserv.devel.redhat.com.suse.lists.linux.kernel>
-	<20021003233221.C31444@openss7.org.suse.lists.linux.kernel>
-	<20021004133657.B17216@devserv.devel.redhat.com.suse.lists.linux.kernel>
-	<p73fzvmqdg4.fsf@oldwotan.suse.de>
-	<1033757193.31839.51.camel@irongate.swansea.linux.org.uk>
-	<20021004131547.B2369@openss7.org>
-	<20021004153755.A1116@devserv.devel.redhat.com>
-	<6uit0i3qne.fsf_-_@zork.zork.net>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: HYPERLINK PATENT INFRINGEMENT,
- SALACIOUS IMAGININGS
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 04 Oct 2002 21:33:19 +0100
-In-Reply-To: <6uit0i3qne.fsf_-_@zork.zork.net> (Sean Neakums's message of
- "Fri, 04 Oct 2002 21:17:25 +0100")
-Message-ID: <6uk7ky2bcg.fsf@zork.zork.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262331AbSJDUGX>; Fri, 4 Oct 2002 16:06:23 -0400
+Received: from 62-190-217-49.pdu.pipex.net ([62.190.217.49]:55300 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262330AbSJDUGW>; Fri, 4 Oct 2002 16:06:22 -0400
+Date: Fri, 4 Oct 2002 21:20:26 +0100
+From: jbradford@dial.pipex.com
+Message-Id: <200210042020.g94KKQX4007896@darkstar.example.net>
+To: vojtech@suse.cz
+Subject: 2.5.X breaks PS/2 mouse
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quite clearly, that went to the list.  My apologies.
+One of my 486 laptops has a special port on the side, for a dedicated trackball.  I always assumed that it was electrically identical to the standard PS/2 mouse port, which is also present.
 
--- 
- /                          |
-[|] Sean Neakums            |  Questions are a burden to others;
-[|] <sneakums@zork.net>     |      answers a prison for oneself.
- \                          |
+With 2.2.x, (I haven't tried 2.4.x on this machine), both the dedicated trackball and a standard external PS/2 mouse work fine, using /dev/psaux.
+
+With 2.5.40, however, the behavior is as follows:
+
+Booting:
+
+With no pointing devices connected, just the port is detected:
+serio: i8042 AUX port at 0x60, 0x64 irq 12
+
+With the dedicated trackball connected, it also gets detected:
+input: PS/2 Generic mouse on isa0060/serio1
+serio: i8042 AUX port at 0x60, 0x64 irq 12
+
+Same with a PS/2 mouse, it also gets detected:
+input: PS/2 Generic mouse on isa0060/serio1
+serio: i8042 AUX port at 0x60, 0x64 irq 12
+
+Once booted:
+
+Hot plugging either the dedicated trackball or a PS/2 mouse generates a message on connection:
+
+Just to clarify, I am not trying to use them both at the same time.
+
+X also works with the external PS/2 mouse, but not the dedicated trackball.
+
+Any suggestions?
+
+John.

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbTJOQwf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 12:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTJOQwe
+	id S263619AbTJOQwV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 12:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTJOQwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 12:52:34 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6674 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263620AbTJOQwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 12:52:32 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-Date: 15 Oct 2003 09:52:01 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bmjtvh$1k5$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl> <200310141733.h9EHXnYg002262@81-2-122-30.bradfords.org.uk> <20031015124314.GD20846@lug-owl.de> <20031015130614.GI765@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Wed, 15 Oct 2003 12:52:21 -0400
+Received: from holomorphy.com ([66.224.33.161]:38016 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263619AbTJOQwU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 12:52:20 -0400
+Date: Wed, 15 Oct 2003 09:55:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test7-mm1
+Message-ID: <20031015165508.GA723@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20031015013649.4aebc910.akpm@osdl.org> <1066232576.25102.1.camel@telecentrolivre>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1066232576.25102.1.camel@telecentrolivre>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20031015130614.GI765@holomorphy.com>
-By author:    William Lee Irwin III <wli@holomorphy.com>
-In newsgroup: linux.dev.kernel
-> 
-> Well, unless it's an interrupts-safe critical section that's hurting,
-> you could take profiles, provided you have enough RAM for the profile
-> buffer (which appears to be large). You could easily do a quick hack
-> to steal the profile buffer from e820 regions not otherwise used for
-> RAM (i.e. unused because you did mem=) to handle that for a slow cpu
-> with more RAM than 8MB.
-> 
+On Wed, Oct 15, 2003 at 01:42:56PM -0200, Luiz Capitulino wrote:
+> Andrew (I again),
+> Em Qua, 2003-10-15 ?s 06:36, Andrew Morton escreveu:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test7/2.6.0-test7-mm1
+> getting this while umounting my /home (ext3) partition:
+> # umount /dev/hda4
+> Unable to handle kernel paging request at virtual address c282deac
+> printing eip:
+> c0164104
+> 00007063
+> *pte = 0282d000
+> Oops: 0002 [#1]
+> DEBUG_PAGEALLOC
+> CPU:    0
+> EIP:    0060:[generic_forget_inode+84/352]    Not tainted VLI
+> EFLAGS: 00010246
+> EIP is at generic_forget_inode+0x54/0x160
 
-Or just reduce mem= by enough less that you gain the profile buffer
-back.
+Okay, this one's me. I should have tried DEBUG_PAGEALLOC when testing.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+
+-- wli

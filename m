@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132919AbRD2AAJ>; Sat, 28 Apr 2001 20:00:09 -0400
+	id <S132496AbRD1XxJ>; Sat, 28 Apr 2001 19:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132707AbRD1X7u>; Sat, 28 Apr 2001 19:59:50 -0400
-Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:61104 "EHLO
-	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
-	id <S132686AbRD1X7k>; Sat, 28 Apr 2001 19:59:40 -0400
-Message-ID: <3AEB5969.6FB678B4@bigfoot.com>
-Date: Sat, 28 Apr 2001 16:59:37 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-intel-smp-ide i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: idalton@ferret.phonewave.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 locks up on SMP
-In-Reply-To: <Pine.LNX.4.33.0104281402090.2487-100000@age.cs.columbia.edu> <20010429011604.A976@home.ds9a.nl> <20010428160954.A25712@ferret.phonewave.net>
+	id <S132686AbRD1XxA>; Sat, 28 Apr 2001 19:53:00 -0400
+Received: from www.linux.org.uk ([195.92.249.252]:24082 "EHLO www.linux.org.uk")
+	by vger.kernel.org with ESMTP id <S132496AbRD1Xwo>;
+	Sat, 28 Apr 2001 19:52:44 -0400
+Date: Sun, 29 Apr 2001 00:52:06 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Zerocopy implementation issues
+Message-ID: <20010429005206.J21792@flint.arm.linux.org.uk>
+Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Obvious question is, which compiler.
-> 
-> I hadn't seen any locks, but (on a dual Pmmx 200) it started crawling
-> right after the NIC module (tulip) was loaded. System load decided to
-> skyrocket.
-> 
-> Yadda... 2.2.19 with devfs patch.
-> bicycle:~# gcc -v
-> Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.3/specs
-> gcc version 2.95.3 20010315 (Debian release)
-> 
-> Might be the same problem.
+Hi,
 
-Twin Abit BP6's, 2.2.19 + 9-Apr ide patch, no problems.
+Can someone please explain to me the rationale behind the zerocopy
+implementation that has appeared in 2.4.4 please?
 
-egcs-2.91.66
+The reason I ask is that even on x86, it seems to me to be extremely
+silly to have the expense of doing unaligned checksumming for the gain
+of zerocopy.
 
-tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov
-eth0: Lite-On 82c168 PNIC rev 32 at 0xc800, 00:A0:CC:57:89:93, IRQ 16.
+Just think - if you did checksumming on aligned word boundaries you
+could be far faster!
 
--- 
-  |  650.390.9613  |  6502247437@messaging.cellone-sf.com
+(Yes, you guessed it, its broken on ARM, and is going to make the
+networking layer pig slow if we keep the current implementation as
+it stands due to the phenominal amount of exceptions it _will_
+generate - 1 exception per word in a packet).
+
+I'm still investigating the source of the networking corruptions I'm
+seeing, but its looking like the above is the reason (data is being
+corrupted on TCP send).
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

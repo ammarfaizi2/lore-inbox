@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319217AbSILXon>; Thu, 12 Sep 2002 19:44:43 -0400
+	id <S319228AbSILXvj>; Thu, 12 Sep 2002 19:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319228AbSILXom>; Thu, 12 Sep 2002 19:44:42 -0400
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:21633 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S319217AbSILXok>;
-	Thu, 12 Sep 2002 19:44:40 -0400
-Date: Thu, 12 Sep 2002 16:49:22 -0700
-From: Simon Kirby <sim@netnation.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: 802.1q + device removal causing hang
-Message-ID: <20020912234922.GA1472@netnation.com>
-References: <20020911223252.GA12517@erik.ca> <20020911.153132.63843642.davem@redhat.com>
+	id <S319318AbSILXvj>; Thu, 12 Sep 2002 19:51:39 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:26818 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319228AbSILXvi>;
+	Thu, 12 Sep 2002 19:51:38 -0400
+Date: Thu, 12 Sep 2002 16:47:54 -0700 (PDT)
+Message-Id: <20020912.164754.133954355.davem@redhat.com>
+To: lm@bitmover.com
+Cc: gmack@innerfire.net, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] Spamcop
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020912141338.B14230@work.bitmover.com>
+References: <20020912211056.J4739@flint.arm.linux.org.uk>
+	<Pine.LNX.4.44.0209121657590.27346-100000@innerfire.net>
+	<20020912141338.B14230@work.bitmover.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020911.153132.63843642.davem@redhat.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2002 at 03:31:32PM -0700, David S. Miller wrote:
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Thu, 12 Sep 2002 14:13:38 -0700
+   
+   In the for what it is worth department, I got mail from "esr@thyrus.org"
+   with a subject of "cool game" or something like that, and it was obviously
+   forged.  It's interesting that they are getting smart enough to make it look
+   like it comes from someone that you've communicated with in the past.  Sigh.
 
-> Try this:
-> 
-> --- net/8021q/vlan.c.~1~	Wed Sep 11 15:34:49 2002
-> +++ net/8021q/vlan.c	Wed Sep 11 15:34:59 2002
-> @@ -626,7 +626,7 @@
->  			ret = unregister_vlan_dev(dev,
->  						  VLAN_DEV_INFO(vlandev)->vlan_id);
->  
-> -			unregister_netdev(vlandev);
-> +			unregister_netdevice(vlandev);
->  
->  			/* Group was destroyed? */
->  			if (ret == 1)
+There is someone basically forging email from anyone prominent
+in the opensource community.  I've even got these forges myself
+addressed as from myself which is even more amusing :-)
 
-Woops, sorry about the erik.ca domain.
-
-Yup, this fixed it!
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+So I think rather it is this clown instead of someone figuring out
+who you've had email with recently.

@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264069AbTKJTMl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 14:12:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTKJTMl
+	id S264072AbTKJTMx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 14:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTKJTMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 14:12:41 -0500
-Received: from sea2-dav56.sea2.hotmail.com ([207.68.164.191]:12045 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264069AbTKJTMk
+	Mon, 10 Nov 2003 14:12:53 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22803 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264072AbTKJTMu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 14:12:40 -0500
-X-Originating-IP: [12.145.34.101]
-X-Originating-Email: [san_madhav@hotmail.com]
-From: "sankar" <san_madhav@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: pthread condition variables question
-Date: Mon, 10 Nov 2003 11:07:33 -0800
+	Mon, 10 Nov 2003 14:12:50 -0500
+Date: Mon, 10 Nov 2003 14:01:59 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <Pine.LNX.4.44.0311070652080.1842-100000@home.osdl.org>
+Message-ID: <Pine.LNX.3.96.1031110135419.6278B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-ID: <Sea2-DAV56Ur5qWn3GC00013e02@hotmail.com>
-X-OriginalArrivalTime: 10 Nov 2003 19:12:39.0621 (UTC) FILETIME=[9BCFAF50:01C3A7BE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-How is pthread condition variables implemented on linux. Specifically I want
-to know how pthread_cond_signal() wakes the waiting thread. Does it send any
-specific signal to the waiting thread or is there any other means??
+On Fri, 7 Nov 2003, Linus Torvalds wrote:
 
-Thx in advance.
+> 
+> On Fri, 7 Nov 2003, Bill Davidsen wrote:
+> > 
+> > I mentioned ide tapes and ZIP drives, Linus didn't mention how one gets
+> > around those.
+> 
+> The thing is, the non-ide-scsi interfaces really _should_ work. The fact
+> is, SG_IO ("send a SCSI command") just _works_.
+> 
+> However, right now only the CD-ROM driver exposes those commands. Why? 
+> Because nobody has apparently cared enough about those theoretical IDE 
+> tapes and ZIP drives.
+> 
+> In other words, they seem to "exist" in the same sense that soubdblaster 
+> CD-ROM users "exist". True in theory, but apparently only really useful 
+> for theoretical arguments.
 
-Sankarshana M
+I take it that if the IDE maintainer and you don't use a device it will
+not be supported in the future? There's nothing theoretical about ZIP
+drives and ATAPI tape drives, you can order them mail order or buy them at
+any computer show. And 2.4 ide-scsi seems to support them perfectly, or at
+least usefully, which is probably why there haven't been any complaints.
+
+I admit I can't understand why 2.6 supports old NICs and motherboard
+chipsets which haven't been made in five years, and then deliberately
+desupports devices which did work and which are available at computer
+stores and mail order today.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,80 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263073AbSJBMkv>; Wed, 2 Oct 2002 08:40:51 -0400
+	id <S263079AbSJBMbr>; Wed, 2 Oct 2002 08:31:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263078AbSJBMkv>; Wed, 2 Oct 2002 08:40:51 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:1295 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S263073AbSJBMku>;
-	Wed, 2 Oct 2002 08:40:50 -0400
-Date: Wed, 2 Oct 2002 14:44:44 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Frederik Nosi <fredi@e-salute.it>
-Cc: mec@shout.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40: make menuconfig error
-Message-ID: <20021002144444.A1369@mars.ravnborg.org>
-Mail-Followup-To: Frederik Nosi <fredi@e-salute.it>, mec@shout.net,
-	linux-kernel@vger.kernel.org
-References: <200210021403.00305.fredi@e-salute.it>
-Mime-Version: 1.0
+	id <S263080AbSJBMbr>; Wed, 2 Oct 2002 08:31:47 -0400
+Received: from web9603.mail.yahoo.com ([216.136.129.182]:60057 "HELO
+	web9603.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263079AbSJBMbq>; Wed, 2 Oct 2002 08:31:46 -0400
+Message-ID: <20021002123715.45465.qmail@web9603.mail.yahoo.com>
+Date: Wed, 2 Oct 2002 05:37:15 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: 2.4.18+IPv6+IPV6_ADDRFORM
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20021002.182006.1021932192.yoshfuji@wide.ad.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210021403.00305.fredi@e-salute.it>; from fredi@e-salute.it on Wed, Oct 02, 2002 at 02:03:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 02:03:00PM +0200, Frederik Nosi wrote:
-> Please CC me because I'm not in the list
-> Here it is:
-> 
-> 
-> Menuconfig has encountered a possible error in one of the kernel's
-> configuration files and is unable to continue.  Here is the error
-> report:
-> 
->  Q> ./scripts/Menuconfig: MCmenu74: command not found
-> 
-> Please report this to the maintainer <mec@shout.net>.  You may also
-> send a problem report to <linux-kernel@vger.kernel.org>.
-> 
-> Please indicate the kernel version you are trying to configure and
-> which menu you were trying to enter when this error occurred.
-> 
-> make: *** [menuconfig] Error 1
-There is something wrong in the ALSA Config.in, fix already posted.
-See http://marc.theaimsgroup.com?l=linux-kernel
+>IPV6_ADDRFORM is deprecated.
+>I believe that it should be removed.
 
-> 
-> 
-> Another strangeness: Some drivers do not build and finding the errors is 
-> difficult because the error messages come only during linking. When I build 
-> the kernel usually run this command:
-> 
-> make (bzImage | modules) 2> /some/file .
-> 
-> During compiling i haven't get any compile error, this seems as the linker 
-> goes searching for files not compiled:
-> 
-> ld: cannot open ircomm_tty.o: No such file or directory
-> make[3]: *** [ircomm-tty.o] Error 1
-> make[2]: *** [ircomm] Error 2
-> make[1]: *** [irda] Error 2
-> make: *** [net] Error 2
-An error happened when compiling ircomm-tty or one of the composite objects.
-Try using:
-make KBUILD_VERBOSE=0
-Then you will see the error.
+Shouldn't we correct it in 2.4 and drop it in 2.5 ? 
 
-Fix already posted to lkml, and present in Linus's latest BK tree.
+If the above assumption is correct...
 
-	Sam
-> 
-> 
-> Cheers,
-> Frederik Nosi
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>1) should the level really be IPPROTO_IPV6?
+>2) do other platforms use IPPROTO_IP to retrieve this
+>option or said another way, is the behavior observed
+>in Linux portable?
+>3) should the returned value be 0 & 1 or AF_INET &
+>AF_INET6?
+
+>>Also, the Sus v3, states there is a socket option:
+>>level IPPROTO_IPV6, option IPV6_V6ONLY.
+>
+>We, USAGI Project, have implementation for it,
+>and we are about to contribute it here.
+
+Great.
+
+Thanks,
+Steve Grubb
+
+
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com

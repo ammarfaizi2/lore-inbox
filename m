@@ -1,54 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSDHIYV>; Mon, 8 Apr 2002 04:24:21 -0400
+	id <S313482AbSDHIZ6>; Mon, 8 Apr 2002 04:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313482AbSDHIYU>; Mon, 8 Apr 2002 04:24:20 -0400
-Received: from cpe-66-87-67-85.ca.sprintbbd.net ([66.87.67.85]:2820 "EHLO
-	minerva.ekline.com") by vger.kernel.org with ESMTP
-	id <S312938AbSDHIYT>; Mon, 8 Apr 2002 04:24:19 -0400
-Message-Id: <200204080824.g388Nxo32454@minerva.ekline.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Erik Kline <ekline@ekline.com>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] pam_capability 0.0.13 + 2.4.18 kernel patch
-Date: Mon, 8 Apr 2002 00:23:59 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: lwn@lwn.net
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S313557AbSDHIZ6>; Mon, 8 Apr 2002 04:25:58 -0400
+Received: from gw.wmich.edu ([141.218.1.100]:29082 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S313482AbSDHIZ4>;
+	Mon, 8 Apr 2002 04:25:56 -0400
+Subject: Re: Make swsusp actually work
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: alan@redhat.com, kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020407233725.GA15559@elf.ucw.cz>
+Content-Type: multipart/mixed; boundary="=-DrKfpkXPLxlxgPYOig/T"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 08 Apr 2002 04:25:43 -0400
+Message-Id: <1018254348.571.129.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
 
-I'd like to announce a new linux pam module called "pam_capability". Taking a 
-cue from the capabilities FAQ:
-	ftp://ftp.guardian.no/pub/free/linux/capabilities/capfaq.txt
-I have tried to implement role-based assigned capabilities for users via a 
-pam module. However, lacking capability support in VFS, I patched the kernel 
-to pass the process inheritable capabilities to an exec'd binary's permitted 
-and effective set during exec (in <src_dir>/fs/exec.c). This ensures that the 
-new exec'd binary's process effective set is equal to the inherited set. This 
-seemed simplest to implement.  I believe it to be a good way to debug proper 
-capability support in the kernel prior to full  VFS support. Suffice it to 
-say, you can now easily assign capabilities to users or to process users 
-(like "ntp", "apache", and "bind", granting them CAP_NET_BIND_SERVICE, 
-allowing them to bind to reserved ports w/o running as root) via pam for such 
-services as sshd, login, and su.
+--=-DrKfpkXPLxlxgPYOig/T
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I'd like very much to get feedback and help w/ testing the supplied patch and 
-pam module: how it can be made more secure, what role definitions work well 
-for certain applications, bugs, anything.
+It tries killing init on resume for me and panics.  the actual suspend
+worked though (apparently).  I attached the ksymoops output to the
+panic.
 
-The freshmeat project URL is:
+On Sun, 2002-04-07 at 19:37, Pavel Machek wrote:
+> Hi!
+> 
+> There were two bugs, and linux/mm.h one took me *very* long to
+> find... Well, those bits used for zone should have been marked. Plus I
+> hack ide_..._suspend code not to panic, and it now seems to
+> work. [Sorry, 2pm, have to get some sleep.]
+> 
 
-	http://freshmeat.net/projects/pam_capability/
 
-and the download URL is:
+--=-DrKfpkXPLxlxgPYOig/T
+Content-Disposition: attachment; filename=ksymoops.out
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=ksymoops.out; charset=ANSI_X3.4-1968
 
-	http://ekline.com/linux/pam_capability/
+ksymoops 2.4.5 on i686 2.4.19-pre5-ac3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19-pre5-ac3/ (default)
+     -m /boot/System.map-2.4.19-pre5-ac3 (default)
 
-Yours, in code,
--Erik Kline
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Many personal thanks to Jason Baietto.
+unable to handle kernel NULL pointer dereference at virtual address 0000000=
+0
+00000000
+*pde =3D 00000000
+Oops: 0000
+CPU: 0
+EIP: 0010:[<00000000>] Not Tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: c0292e58   ebx: c013f000     ecx: 00000304       edx: 00000000
+esi: cff6a100   edi: 00000000     ebp: 00000000       esp: c1357e98
+ds: 0018        es: 00000000   ss: 0018
+Process swapper (pid: 1, stackpage=3Dc1357000)
+Stack: c0196c88 c0292e58 00000000 cff6a100 00000000 c0142512 cff6a100 00000=
+000
+    00000008 00000000 00000000 00000002 c0196d2a 00000000 cff6a100 cff6a100
+    00000000 c0196f3d 00000000 cff6a100 00000304 00000200 00002480 00000304
+Call Trace: [<c0196c88>] [<c0142512>] [<c0196d2a>] [<c0196f3d>] [<c0140358>=
+] [<c014604>] [<c011a776>] [<c011a866>] [<c0129c70>] [<c0129d5f>] [<c010500=
+0>]
+    [<c012a245>] [<c0105070>] [<c0105000>] [<c01071d6>] [<c0105050>]
+Code: Bad EIP value
+
+
+>>EIP; 00000000 Before first symbol
+
+>>eax; c0292e58 <blk_dev+198/8780>
+>>ebx; c013f000 <end_buffer_io_sync+0/30>
+>>esi; cff6a100 <_end+fcc5b8c/1055ba8c>
+>>esp; c1357e98 <_end+10b3924/1055ba8c>
+
+Trace; c0196c88 <generic_make_request+d8/140>
+Trace; c0142512 <hash_page_buffers+102/120>
+Trace; c0196d2a <submit_bh+3a/60>
+Trace; c0196f3d <ll_rw_block+18d/1b0>
+Trace; c0140358 <getblk+18/40>
+Trace; 0c014604 Before first symbol
+Trace; c011a776 <__call_console_drivers+46/60>
+Trace; c011a866 <call_console_drivers+66/120>
+Trace; c0129c70 <bdev_read+30/70>
+Trace; c0129d5f <resume_try_to_read+af/530>
+Trace; c0105000 <_stext+0/0>
+Trace; c012a245 <software_resume+65/b0>
+Trace; c0105070 <init+20/1b0>
+Trace; c0105000 <_stext+0/0>
+Trace; c01071d6 <kernel_thread+26/30>
+Trace; c0105050 <init+0/1b0>
+
+<0>Kernel Panic: Attempted to kill init!
+
+1 warning issued.  Results may not be reliable.
+
+--=-DrKfpkXPLxlxgPYOig/T--
+

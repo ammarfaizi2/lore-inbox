@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264011AbRFJGTk>; Sun, 10 Jun 2001 02:19:40 -0400
+	id <S264502AbRFJG2W>; Sun, 10 Jun 2001 02:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264502AbRFJGTb>; Sun, 10 Jun 2001 02:19:31 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:28935 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264011AbRFJGT1>; Sun, 10 Jun 2001 02:19:27 -0400
-Date: Sat, 9 Jun 2001 23:19:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
-In-Reply-To: <200106100228.TAA18829@csl.Stanford.EDU>
-Message-ID: <Pine.LNX.4.21.0106092313280.27431-100000@penguin.transmeta.com>
+	id <S264503AbRFJG2L>; Sun, 10 Jun 2001 02:28:11 -0400
+Received: from web13906.mail.yahoo.com ([216.136.175.69]:31751 "HELO
+	web13906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264502AbRFJG2A>; Sun, 10 Jun 2001 02:28:00 -0400
+Message-ID: <20010610062755.64407.qmail@web13906.mail.yahoo.com>
+Date: Sat, 9 Jun 2001 23:27:55 -0700 (PDT)
+From: Mr Miles T Lane <miles_lane@yahoo.com>
+Subject: 2.4.5-ac12 -- Unresolved symbols in drivers/net/wan/comx.o -- "proc_get_inode"
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i
+-r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F
+System.map  2.4.5-ac12; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.5-ac12/kernel/drivers/net/wan/comx.o
+depmod: 	proc_get_inode
 
-On Sat, 9 Jun 2001, Dawson Engler wrote:
-> > 
-> > Good point. Spinlocks (with the exception of read-read locks, of course)
-> > and semaphores will deadlock on recursive use, while the BKL has this
-> > "process usage counter" recursion protection.
-> 
-> Actually, it did show up all over the place --- I'd just selected two
-> candidates to examine out of hundreds.  (Checking call chains is
-> strenous, even when you know what you're looking for.)
 
-Sure.
-
-> > Dawson - the user-mode access part is probably _the_ most interesting from
-> > a lock checking standpoint, could you check doing the page fault case?
-> 
-> Sure, it's a pretty interaction.  To be sure about the rule: any *_user
-> call can be treated as an implicit invocation of do_page_fault?  
-
-As a first approximation, yes. The exception cases are certain callers
-that use kernel addresses and set_fs(KERNEL_DS) in order to "fake"
-arguments to system calls etc, but I doubt they should need any
-special-casing.
-
-		Linus
-
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/

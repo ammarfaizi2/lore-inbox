@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265288AbUATA3i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 19:29:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbUATA2B
+	id S265173AbUATAd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 19:33:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUATA1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 19:28:01 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:55945 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265248AbUATA0C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 19:26:02 -0500
-In-Reply-To: <20040120000405.GA5656@kroah.com>
-References: <3FC7B008-487C-11D8-AED9-000A95A0560C@us.ibm.com> <20040117001739.GB3840@kroah.com> <400C3D87.3010502@us.ibm.com> <20040120000405.GA5656@kroah.com>
-Mime-Version: 1.0 (Apple Message framework v609)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1DFA0D5A-4ADF-11D8-B557-000A95A0560C@us.ibm.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: kobj_to_dev ?
-Date: Mon, 19 Jan 2004 18:25:14 -0600
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.609)
+	Mon, 19 Jan 2004 19:27:37 -0500
+Received: from gprs214-67.eurotel.cz ([160.218.214.67]:63362 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263580AbUATAFH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 19:05:07 -0500
+Date: Tue, 20 Jan 2004 01:04:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: ncunningham@users.sourceforge.net, Hugang <hugang@soulinfo.com>,
+       ncunningham@clear.net.nz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       debian-powerpc@lists.debian.org
+Subject: Re: Help port swsusp to ppc.
+Message-ID: <20040120000435.GB837@elf.ucw.cz>
+References: <20040119105237.62a43f65@localhost> <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux> <1074490463.10595.16.camel@gaston> <20040119204551.GB380@elf.ucw.cz> <1074555531.10595.89.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1074555531.10595.89.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Jan 19, 2004, at 6:04 PM, Greg KH wrote:
+> > Well, then what you do is not swsusp.
+> > 
+> > swsusp does assume same kernel during suspend and resume. Doing resume
+> > within bootloader (and thus avoiding this) would be completely
+> > different design.
+> 
+> Wait... what the hell in swsusp requires this assumption ? It seems to
+> me like a completely unnecessary design limitation.
 
-> On Mon, Jan 19, 2004 at 02:26:47PM -0600, Hollis Blanchard wrote:
->> Greg KH wrote:
->>>
->>> How about just adding a find_device() function to the driver core, 
->>> where
->>> you pass in a name and a type, so that others can use it?
->>
->> Something like this?
->
-> Very nice, yes.  But I'll rename it to device_find() to keep the
-> namespace sane.  Sound ok?
+(1) There's routine during resume that copies pages to their old
+locations. If you (would want to) have different kernel during resume,
+how do you guarantee that that "kernel being resumed" does not use
+memory ocupied by copying routine?
 
-Sure. I'm having a problem inside kset_find_obj() when actually using 
-it though, and I'm not sure if it's my fault or not. It seems there are 
-kobjects present for which kobject_name() returns NULL.
+(2) Plus number of problems with devices grows with number of versions
+squared. To guarantee it works properly you'd have to test all
+combinations of "suspend kernel" and "resume kernel".
 
-kset_find_obj:
-	list_for_each(entry,&kset->list) {
-		struct kobject * k = to_kobj(entry);
-		if (!strcmp(kobject_name(k),name)) {
-			ret = k;
-			break;
-		}
-	}
-
-where "kset" above is "&my_bus_type.devices". strcmp doesn't like NULL 
-and panics. I've registered 11 devices in my_bus_type, and all of them 
-have names (device_add() makes sure of that).
-
-Does this sound like my fault?
-
+[(1) Could be solved by reserving 4KB somewhere for copy routine, and
+making sure copy routine is never bigger than 4KB etc. But I'd like to
+keep it simple and really don't want to deal with (2).]
+								Pavel
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

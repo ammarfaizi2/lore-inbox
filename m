@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268753AbUHTVYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268755AbUHTVdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268753AbUHTVYB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 17:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHTVYB
+	id S268755AbUHTVdK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 17:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268759AbUHTVdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 17:24:01 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:54996 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268753AbUHTVX6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 17:23:58 -0400
-Message-ID: <41266C5D.7000908@drzeus.cx>
-Date: Fri, 20 Aug 2004 23:25:49 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Timer allocates too many ports
-References: <4126600F.4050302@drzeus.cx> <20040820140503.67d23479.rddunlap@osdl.org>
-In-Reply-To: <20040820140503.67d23479.rddunlap@osdl.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 20 Aug 2004 17:33:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30699 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268755AbUHTVdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 17:33:07 -0400
+Date: Fri, 20 Aug 2004 14:35:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rusty@rustcorp.com.au, nathanl@austin.ibm.com,
+       linux-kernel@vger.kernel.org, vatsa@in.ibm.com
+Subject: Re: 2.6.8.1-mm2
+Message-Id: <20040820143554.59979df9.akpm@osdl.org>
+In-Reply-To: <20040820083322.GA8392@elte.hu>
+References: <20040819014204.2d412e9b.akpm@osdl.org>
+	<1092964083.4946.7.camel@biclops.private.network>
+	<20040819181603.700a9a0e.akpm@osdl.org>
+	<1092987650.28849.349.camel@bach>
+	<20040820083322.GA8392@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Rusty Russell <rusty@rustcorp.com.au> wrote:
+> 
+> > Nathan, can you revert that, and apply this?  This actually fixes the
+> > might_sleep problem, and should fix at least the problem Vatsa saw. 
+> > If it doesn't solve your problem, we need to look again.
+> 
+> i've attached a much simpler replacement: dont allow CPU hotplug during
+> self-reap.
 
->On Fri, 20 Aug 2004 22:33:19 +0200 Pierre Ossman wrote:
->
->| Hi!
->
->Ho-
->
->| The timer in linux allocates the io ports 0x40 to 0x5F. This is causing 
->| some problems for me since the hardware I'm writing a driver for has its 
->| ports at 0x4E and 0x4F. In Windows the ports 0x40 to 0x43 are used for 
->| the timer. Why does linux allocate so many more ports?
->
->Seems reasonable to me for Linux timer driver (resource) to allocate
->0x40 - 0x43 and 0x50 - 0x53 (on intel x86; only 0x40 - 0x43 for AMD x86-64).
->At least that's what is in some Intel specs.  That would be accurate
->AFAIK and still leave 0x4e - 0x4f available.
->  
->
-Unfortunately the driver allocates 0x40-0x5f as can be seen in 
-/proc/ioports:
-0040-005f : timer
-I do not know which file contains this allocation so I haven't been able 
-to change it. Any ideas?
+I got this patch into -mm3, but at the expense of one of Rusty's earlier
+patches.
 
->What kind of device uses IO addresses 0x4e - 0x4f?
->Is it a motherboard device?  Intel ICH specs think that 0x4e - 0x4f
->are for LPC SIO and are forwarded to the LPC device.
->
->
->  
->
-The device is a SD/MMC card reader which is indeed an LPC device. The 
-ports in question are needed to identify the chip and determine which 
-resources it has. Actual usage is done on higher ports.
-
-Rgds
-Pierre
+Could you and Rusty please carefully review what we have in -mm3 and make
+sure that everything is now shipshape?
 

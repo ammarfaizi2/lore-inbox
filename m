@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276751AbRKHRxQ>; Thu, 8 Nov 2001 12:53:16 -0500
+	id <S277112AbRKHRzq>; Thu, 8 Nov 2001 12:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276988AbRKHRxG>; Thu, 8 Nov 2001 12:53:06 -0500
-Received: from zero.tech9.net ([209.61.188.187]:49168 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S276751AbRKHRw7>;
-	Thu, 8 Nov 2001 12:52:59 -0500
-Subject: Re: speed difference between using hard-linked and modular drives?
-From: Robert Love <rml@tech9.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0111081700240.1916-100000@mustard.heime.net>
-In-Reply-To: <Pine.LNX.4.30.0111081700240.1916-100000@mustard.heime.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
-Date: 08 Nov 2001 12:53:03 -0500
-Message-Id: <1005241983.939.39.camel@phantasy>
-Mime-Version: 1.0
+	id <S277143AbRKHRz0>; Thu, 8 Nov 2001 12:55:26 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:25355 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277068AbRKHRzP>;
+	Thu, 8 Nov 2001 12:55:15 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111081754.UAA24454@ms2.inr.ac.ru>
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 8 Nov 2001 20:54:29 +0300 (MSK)
+Cc: tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        adilger@turbolabs.com, netdev@oss.sgi.com, ak@muc.de
+In-Reply-To: <20011107.160950.57890584.davem@redhat.com> from "David S. Miller" at Nov 7, 1 04:09:50 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-11-08 at 11:01, Roy Sigurd Karlsbakk wrote:
-> Are there any speed difference between hard-linked device drivers and
-> their modular counterparts?
+Hello!
 
-On top of what Ingo said, there is also a slightly larger (very slight)
-memory footprint due to some of the module code that isn't included in
-in-kernel components.  For example, the __exit functions aren't needed
-if the driver is not a module.
+>    jiffies cleanup patch of the day follows. Mostly boring changes of jiffies
+>    comparisons to use time_{before,after} in order to handle jiffies
+>    wraparound correctly.
 
-	Robert Love
+I want to _ask_ one thing people working on these changes.
+_Please_, defer this edit to 2.5. The changes are very good,
+but time for them is very bad.
 
+When I wrote this code the macros did not exist. However, this code is right,
+take my word. Hence, it is pure maintanance problem and as soon as
+main reader of this code is me, I would be glad to see the changes,
+but only having no deadlines.
+
+Anyway, if someone want to try to define jiffies as somewhat
+different of "unsigned long", all code needs real checking rather
+than syntax changes.
+
+Alexey

@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268487AbUHaNmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268483AbUHaNuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268487AbUHaNmS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 09:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268488AbUHaNmS
+	id S268483AbUHaNuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 09:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268473AbUHaNuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 09:42:18 -0400
-Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:55812 "EHLO
-	smtp-vbr2.xs4all.nl") by vger.kernel.org with ESMTP id S268487AbUHaNmD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 09:42:03 -0400
-Message-ID: <20040831154157.6fnvoq04ssow00so@www.wagland.net>
-Date: Tue, 31 Aug 2004 15:41:57 +0200
-From: Paul Wagland <paul@kungfoocoder.org>
-To: Alexander Stohr <Alexander.Stohr@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch-utility] remove whitespaces from kernel sources (for
-	any kernel version)
-References: <17345.1093954271@www23.gmx.net>
-In-Reply-To: <17345.1093954271@www23.gmx.net>
+	Tue, 31 Aug 2004 09:50:16 -0400
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:28432
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S268498AbUHaNtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 09:49:25 -0400
+Date: Tue, 31 Aug 2004 06:45:16 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: Driver retries disk errors.
+In-Reply-To: <1093952715.32684.12.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.10.10408310643290.26528-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format="flowed"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 31 Aug 2004 02:11:11 PM CEST, Alexander Stohr wrote:
 
-> Hello,
->
-> for current 2.6.x kernel a resulting diff had a size
-> of about 24 MB unpacked. i suppose that other kernel
-> trees will compare to this magnitude.
+Rogier,
 
-Don't forget though, that the actual file difference will be about 200K over a
-34M tree... not trivial, but nowhere near that size of that diff file ;-)
+Because the command layer states to execute retries, regardless.
+Modern drives now convert read-once to retry.
+You need special opcodes to revert to desired status.
 
-> this means the linux kernel source has an interesting potential
-> for optimisation which will result in smaller tarballs,
+Media forensics is not a cake walk.
 
-About 180 KB smaller...
+Andre Hedrick
+LAD Storage Consulting Group
 
-> faster compilation in misc stages of code preprocessing
+On Tue, 31 Aug 2004, Alan Cox wrote:
 
-neglible change in speed...
+> On Llu, 2004-08-30 at 17:39, Rogier Wolff wrote:
+> > We encounter "bad" drives with quite a lot more regularity than other
+> > people (look at the Email address). We're however, wondering why the
+> > IDE code still retries a bad block 8 times? By the time the drive
+> > reports "bad block" it has already tried it several times, including a
+> > bunch of "recalibrates" etc etc. For comparison, the Scsi-disk driver
+> > doesn't do any retrying.
+> 
+> It helps for some things like magneto-opticals. For generic hard drives
+> its only relevant for older devices.
+> 
+> > (*) Note: Tested last month: The driver still works for MFM
+> > drives. However, the initialization apparently is not enough
+> > anymore. The drive did not work when the BIOS didn't think there was a
+> > drive.
+> 
+> Please file a bug report if 2.6 also shows that problem.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> and last but not least lesser fuzz in diffs for people
-> that do use editors which will strip such charcters by themselves.
-
-This would be useful :-)
-
-Cheers,
-Paul

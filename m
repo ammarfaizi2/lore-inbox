@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315119AbSFIUcH>; Sun, 9 Jun 2002 16:32:07 -0400
+	id <S315178AbSFIUf2>; Sun, 9 Jun 2002 16:35:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315178AbSFIUcG>; Sun, 9 Jun 2002 16:32:06 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:19771 "EHLO tsmtp8.mail.isp")
-	by vger.kernel.org with ESMTP id <S315119AbSFIUcG>;
-	Sun, 9 Jun 2002 16:32:06 -0400
-Date: Sun, 9 Jun 2002 22:05:37 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Nicholas Miell <nmiell@attbi.com>
-Cc: phillips@bonn-fries.net, adelton@informatics.muni.cz,
-        christoph@lameter.com, linux-kernel@vger.kernel.org,
-        adelton@fi.muni.cz
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-Message-Id: <20020609220537.6cd71662.diegocg@teleline.es>
-In-Reply-To: <1023648813.1188.19.camel@entropy>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S315179AbSFIUf1>; Sun, 9 Jun 2002 16:35:27 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46862
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315178AbSFIUf0>; Sun, 9 Jun 2002 16:35:26 -0400
+Date: Sun, 9 Jun 2002 13:33:21 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Gert Vervoort <Gert.Vervoort@wxs.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: FORMAT OPCODE == (Re: 2.5.21: "ata_task_file: unknown command 50")
+In-Reply-To: <3D0358DD.DFBACA9E@wxs.nl>
+Message-ID: <Pine.LNX.4.10.10206091328250.4658-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09 Jun 2002 11:53:32 -0700
-Nicholas Miell <nmiell@attbi.com> escribió:
 
-> First of all, some programs (WINE) will actually want to use the .lnk
-> files, and transparently converting them to symlinks will complicate
-> that.
+Why the hell is the kernel sending down a low-level format command to
+media?  How stupid can we get in writing a driver?  What next, modify the
+microcode on the devices between boots and kernels?
 
-I agree. M$ did .lnk _files_, but really, there's not symlinks in vfat
-world. Even msdos doesn't recognize them. I don't remember if it's the
-same in NTFS, W2000 & XP are so good that I can't work with them in 32MB
-RAM...
+Do backup between boots if this kind of crap is going in to the base
+driver.  Even MircoSoft has more brains than to permit this rogue from
+their product.
 
-And I must say that symlinks are not needed in most of the windows 9X
-systems. They aren't really useful for most of the systems. But if
-someone needs it, it'd be include as a .config option.....
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sun, 9 Jun 2002, Gert Vervoort wrote:
+
+> 
+> kernel 2.5.21 hangs with repeating the message "ata_task_file: unknown command 50" forever.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

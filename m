@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131150AbQLEPi6>; Tue, 5 Dec 2000 10:38:58 -0500
+	id <S129228AbQLEPpi>; Tue, 5 Dec 2000 10:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131183AbQLEPis>; Tue, 5 Dec 2000 10:38:48 -0500
-Received: from ns-inetext.inet.com ([199.171.211.140]:5831 "EHLO
-	ns-inetext.inet.com") by vger.kernel.org with ESMTP
-	id <S131150AbQLEPiq>; Tue, 5 Dec 2000 10:38:46 -0500
-Message-ID: <3A2D0493.55AED90C@inet.com>
-Date: Tue, 05 Dec 2000 09:06:59 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S129226AbQLEPp2>; Tue, 5 Dec 2000 10:45:28 -0500
+Received: from [193.120.224.170] ([193.120.224.170]:46730 "EHLO
+	florence.itg.ie") by vger.kernel.org with ESMTP id <S129228AbQLEPpN>;
+	Tue, 5 Dec 2000 10:45:13 -0500
+Date: Tue, 5 Dec 2000 15:14:44 +0000 (GMT)
+From: Paul Jakma <paulj@itg.ie>
+To: Steve Hill <steve@navaho.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Serial Console
+In-Reply-To: <Pine.LNX.4.21.0012051456070.2836-100000@sorbus.navaho>
+Message-ID: <Pine.LNX.4.30.0012051506030.31704-100000@rossi.itg.ie>
 MIME-Version: 1.0
-To: Andrew Reitz <areitz@uiuc.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Assistance requested in demystifying wait queues.
-In-Reply-To: <Pine.SOL.4.30.0012042358270.19766-100000@stellar.cso.uiuc.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Reitz wrote:
-> 
-> Hello,
-> 
-> I'm absolutely green when it comes to Linux kernel development, and so
-> working on a school project to port a TCP/IP-based service into the kernel
-> has been quite challenging (but also intesting)! Currently, I'm absolutely
-> mystified regarding how the "wait queue" subsystem works. I've been
-> reading the code, and usually that combined with an example is enough,
-> but not this time.
+On Tue, 5 Dec 2000, Steve Hill wrote:
 
-Andy,
+> On Tue, 5 Dec 2000, PaulJakma wrote:
+>
+> > how? symlink to /dev/ttyS0, or with console=ttyS0 boot option?
+>
+> console=ttyS0
+>
+> Nope, /dev/console *does* block.
 
-Go get "Linux Device Drivers" by Rubini (O'Reilly).  It talks about that
-and a lot of other useful stuff.  Some of it is a bit dated by
-development in 2.2 & 2.[34], but it'll help a lot.
+very weird.. the reason i replied to you, even though i have no direct
+experience of serial console, was that last night i read a mail on the
+linux-mips on almost exactly the same subject (serial console being
+quite common on linux-mips), and IIRC Ralf Baechle explained how there
+was a fundamental difference between tty and console precisely because
+/dev/console might not be going anywhere.
 
-Good luck,
+Quoting from Ralf's email:
 
-Eli
---------------------. "To the systems programmer, users and applications
-Eli Carter          | serve only to provide a test load."
-eli.carter@inet.com `---------------------------------- (random fortune)
+"/dev/console (as chardev 5/1) differs from another device in some important
+ways:
+
+- When opened by a process without controlling tty it will not become
+  a CTTY even if the NOCTTY flag is not set.
+
+- It will never block but rather loose data.  This may sound like a
+  disadvantage but it's actually very important for proper operation.
+  For example, if /dev/console'd block due to a serial console with
+  hardware handshaking enabled (DON'T) syslogd writing to it may also
+  block for an unbounded time and thus as soon as /dev/log is full all
+  services trying to log via syslog(3) will also freeze.
+
+ Syslogd actually tries to be clever about avoiding this from
+ happening but fails to handle one case correctly, so this is a real
+ world scenario.
+
+- It uses different routines to access the console device than normal
+  write access to i.e. ttyS0."
+
+perhaps linux-mips is just different? or i386 serial-console is
+incorrect?
+
+> ATM I've found a quick workaround - I
+> use "stty -F /dev/console clocal -crtscts" to turn off the serial flow
+> control at the stawrt of /etc/rc.d/rc.sysinit - this seems to work quite
+> well... of course it doesn't stop some program turning flow control back
+> on and ballsing it all up again :)
+
+yukkk...
+
+/dev/console having non-blocking semantics sounds much cleaner.
+
+regards,
+
+--paulj
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

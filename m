@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316860AbSGSQGY>; Fri, 19 Jul 2002 12:06:24 -0400
+	id <S316878AbSGSQJE>; Fri, 19 Jul 2002 12:09:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316864AbSGSQGY>; Fri, 19 Jul 2002 12:06:24 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:28899 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316860AbSGSQGX>;
-	Fri, 19 Jul 2002 12:06:23 -0400
+	id <S316882AbSGSQJE>; Fri, 19 Jul 2002 12:09:04 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:45030 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316878AbSGSQJD>;
+	Fri, 19 Jul 2002 12:09:03 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Hubertus Franke <frankeh@watson.ibm.com>
 Reply-To: frankeh@watson.ibm.com
 Organization: IBM Research
-To: Ingo Molnar <mingo@elte.hu>, shreenivasa H V <shreenihv@usa.net>
-Subject: Re: Gang Scheduling in linux
-Date: Fri, 19 Jul 2002 11:05:57 -0400
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Date: Fri, 19 Jul 2002 11:08:44 -0400
 User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207181930170.32666-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0207181930170.32666-100000@localhost.localdomain>
+References: <3D361091.13618.16DC46FB@localhost> <41821596.1026977488@[10.10.2.3]>
+In-Reply-To: <41821596.1026977488@[10.10.2.3]>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200207191105.57814.frankeh@watson.ibm.com>
+Message-Id: <200207191108.44659.frankeh@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 July 2002 01:40 pm, Ingo Molnar wrote:
-> you are right in that the Linux scheduler does not enable classic
-> gang-scheduling: where multiple processes are scheduled 'at once' on
-> multiple CPUs. Can you point out specific (real-life) workloads where this
-> would be advantegous? Some testcode would be the best form of expressing
-> this. Pretty much any job that uses sane (kernel-based or kernel-helped)
-> synchronization should see good throughput.
+On Thursday 18 July 2002 10:31 am, Martin J. Bligh wrote:
+> > Do you think the breakdown is realistic?
 >
-> 	Ingo
+> Here's a list of other things I am hoping to see merged:
+>
+> shared pagetables
+> large page support
+> NUMA aware multipath IO
+> NUMA aware scheduler extensions
+> ia32 discontigmem support for NUMA machines
+> NUMA aware slab allocator
+> CONFIG_NONLINEAR (in some form, quite possibly a cut down version)
+> shared pagetables
+> large page support
+> rcu rtcache
+> rcu dcache
 >
 > -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Go to any of the national labs. 
-I was involved in the gangscheduler implementation for the IBM 340 node SP2 
-cluster at Lawrence Livermore National Lab.
-Implementation aside, one can show that the total system utilization can be 
-raised from ~60% to a ~90% when doing gang scheduling rather than FIFO 
-scheduling, which one would otherwise do to get a dedicated machine.
-We got tons of papers on this. 
+Thanks Martin.
 
-For this it seems sufficient to simply STOP apps on a larger granularity and 
-have that done through a user level daemon. The kernel scheduler simply 
-schedules the runnable threads that given the U-Sched would always amount
-to a limited number of threads/tasks.
+I am confident that we will have large page support in 2.5 by then ready and 
+tested as described at OLS.
 
 -- 
 -- Hubertus Franke  (frankeh@watson.ibm.com)

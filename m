@@ -1,85 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131302AbRBARuy>; Thu, 1 Feb 2001 12:50:54 -0500
+	id <S130492AbRBARve>; Thu, 1 Feb 2001 12:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131286AbRBARuo>; Thu, 1 Feb 2001 12:50:44 -0500
-Received: from athena.intergrafix.net ([206.245.154.69]:48651 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S130492AbRBARu1>; Thu, 1 Feb 2001 12:50:27 -0500
-Date: Thu, 1 Feb 2001 12:50:26 -0500 (EST)
-From: Admin Mailing Lists <mlist@intergrafix.net>
-To: Bruce Harada <bruce@ask.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rlim_t and DNS?
-In-Reply-To: <20010202023923.4fce856c.bruce@ask.ne.jp>
-Message-ID: <Pine.LNX.4.10.10102011242380.18810-100000@athena.intergrafix.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130534AbRBARvY>; Thu, 1 Feb 2001 12:51:24 -0500
+Received: from ns.caldera.de ([212.34.180.1]:52486 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130492AbRBARus>;
+	Thu, 1 Feb 2001 12:50:48 -0500
+Date: Thu, 1 Feb 2001 18:49:50 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@caldera.de>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Steve Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010201184950.A448@caldera.de>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Stephen C. Tweedie" <sct@redhat.com>, Steve Lord <lord@sgi.com>,
+	linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+In-Reply-To: <20010201180237.A28007@caldera.de> <E14ONdD-0004gz-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <E14ONdD-0004gz-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 01, 2001 at 05:34:49PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 2 Feb 2001, Bruce Harada wrote:
-
-> > The C file says BSD/OS is the only OS they found not to have rlim_t.
-> > Am I missing something?
-> > Where can i find this in linux? I looked in all the include
-> > files, including resource.h
-> 
-> Are you sure you looked in ALL the include files? I seem to have it as:
-> 
-> /usr/include/bits/resource.h:typedef __rlim_t rlim_t;
-> 
-> where __rlim_t is
-> 
-> /usr/include/bits/types.h:typedef long int __rlim_t;
-> 
-
-i have no bits directory, but those definitions are not in my resource.h
-or types.h.
-I know this is crude, but:
-	grep rlim_t /usr/include/*.h /usr/include/*/*.h
-	/usr/include/*/*/*.h /usr/include/*/*/*/*.h
-returns nothing. /usr/include/linux does link to the linux source too.
-
-Ditto on SYS_capset.
-when bind can't find SYS_capset, it does do #define SYS_capset
-__NR_capset
-the compilation returns that __NR_capset is undeclared.
-the only __NR defines i can find are in /usr/include/asm/unistd.h
-and capset isn't in there.
-
-*shrug*
-
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
-
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-
-> so you could try including those two in the appropriate places.
-> 
-> > For now i jsut typedefed it as a long.
+On Thu, Feb 01, 2001 at 05:34:49PM +0000, Alan Cox wrote:
+> > > I'm in the middle of some parts of it, and am actively soliciting
+> > > feedback on what cleanups are required.  
 > > 
-> > Also, it's looking for a setting for SYS_capset to pass to syscall()
-> > and can't that either. Again, I looked in the include files without
-> > success.
+> > The real issue is that Linus dislikes the current kiobuf scheme.
+> > I do not like everything he proposes, but lots of things makes sense.
 > 
-> I have this:
-> 
-> /usr/include/bits/syscall.h:#define SYS_capset __NR_capset
-> 
-> Hope that helps (although l-k probably isn't the best place for this...)
-> 
-> --
-> Bruce Harada
-> bruce@ask.ne.jp
-> 
-> 
+> Linus basically designed the original kiobuf scheme of course so I guess
+> he's allowed to dislike it. Linus disliking something however doesn't mean
+> its wrong. Its not a technically valid basis for argument.
 
+Sure.  But Linus saing that he doesn't want more of that (shit, crap,
+I don't rember what he said exactly) in the kernel is a very good reason
+for thinking a little more aboyt it.
+
+Espescially if most arguments look right to one after thinking more about
+it...
+
+> Linus list of reasons like the amount of state are more interesting
+
+True.  The arument that they are to heaviweight also.
+That they should allow scatter gather without an array of structs also.
+
+
+> > > So, what are the benefits in the disk IO stack of adding length/offset
+> > > pairs to each page of the kiobuf?
+> > 
+> > I don't see any real advantage for disk IO.  The real advantage is that
+> > we can have a generic structure that is also usefull in e.g. networking
+> > and can lead to a unified IO buffering scheme (a little like IO-Lite).
+> 
+> Networking wants something lighter rather than heavier.
+
+Right.  That's what the new design was about, besides adding a offset and
+length to every page instead of the page array, something also wanted by
+the networking in the first place.
+Look at the skb_frag struct in the zero-copy patch for what networking
+thinks it needs for physical page based buffers.
+
+> Adding tons of base/limit pairs to kiobufs makes it worse not better
+
+>From looking at the networking code and listening to Dave and Ingo it looks
+like it makes the thing better for networking, although I can not verify
+this due to the lack of familarity with the networking code.
+
+For disk I/O it makes the handling a little easier for the cost of the
+additional offset/length fields.
+
+	Christoph
+
+P.S. the tuple things is also what Larry had in his inital slice paper.
+-- 
+Of course it doesn't work. We've performed a software upgrade.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

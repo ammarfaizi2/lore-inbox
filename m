@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbTANMNX>; Tue, 14 Jan 2003 07:13:23 -0500
+	id <S262500AbTANMOp>; Tue, 14 Jan 2003 07:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbTANMNX>; Tue, 14 Jan 2003 07:13:23 -0500
-Received: from mail6.bluewin.ch ([195.186.4.229]:5860 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S262208AbTANMNW>;
-	Tue, 14 Jan 2003 07:13:22 -0500
-Date: Tue, 14 Jan 2003 13:21:14 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       trivial@rustcorp.com.au
-Subject: [PATCH][2.5] export skb_pad symbol
-Message-ID: <20030114122114.GA30656@k3.hellgate.ch>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	trivial@rustcorp.com.au
+	id <S262506AbTANMOp>; Tue, 14 Jan 2003 07:14:45 -0500
+Received: from holomorphy.com ([66.224.33.161]:60549 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262500AbTANMOo>;
+	Tue, 14 Jan 2003 07:14:44 -0500
+Date: Tue, 14 Jan 2003 04:23:34 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21pre2aa2
+Message-ID: <20030114122334.GE919@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+References: <20021226102814.GB6938@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.57 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+In-Reply-To: <20021226102814.GB6938@dualathlon.random>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 26, 2002 at 11:28:14AM +0100, Andrea Arcangeli wrote:
+> I'm leaving for vacations in 5 minutes so hopefully this will compile
+> for everybody ;) [I know, mylex still doesn't compile without backing
+> out the elevator-lowlatency patch but I hadn't time to fix it yet], I'll
+> be back online on 3 Jan.
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hmm. Where is init_one_highpage() defined?
 
-Actually exporting the symbol introduced in 2.5.57 makes module users
-happy. Please apply.
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="export_skpad.diff"
+Thanks,
+Bill
 
---- linux-2.5.58/net/netsyms.c.org	Tue Jan 14 13:11:29 2003
-+++ linux-2.5.58/net/netsyms.c	Tue Jan 14 13:11:35 2003
-@@ -534,6 +534,7 @@
- EXPORT_SYMBOL(__kfree_skb);
- EXPORT_SYMBOL(skb_clone);
- EXPORT_SYMBOL(skb_copy);
-+EXPORT_SYMBOL(skb_pad);
- EXPORT_SYMBOL(netif_rx);
- EXPORT_SYMBOL(netif_receive_skb);
- EXPORT_SYMBOL(dev_add_pack);
 
---jRHKVT23PllUwdXP--
+$ grep -nr init_one_highpage .                   
+./arch/i386/mm/discontig.c:47:extern void init_one_highpage(struct page *, int, int);
+./arch/i386/mm/discontig.c:297:                 init_one_highpage((struct page *) (zone_mem_map + node_pfn), zone_start_pfn + node_pfn, bad_ppro);
+Binary file ./arch/i386/mm/discontig.o matches
+Binary file ./arch/i386/mm/mm.o matches
+

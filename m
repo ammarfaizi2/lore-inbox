@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbSLQR0H>; Tue, 17 Dec 2002 12:26:07 -0500
+	id <S265190AbSLQR3l>; Tue, 17 Dec 2002 12:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265475AbSLQR0H>; Tue, 17 Dec 2002 12:26:07 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:26548
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S265470AbSLQR0G>; Tue, 17 Dec 2002 12:26:06 -0500
-Message-ID: <3DFF5FFE.8070305@redhat.com>
-Date: Tue, 17 Dec 2002 09:33:50 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021216
-X-Accept-Language: en-us, en
+	id <S265230AbSLQR3l>; Tue, 17 Dec 2002 12:29:41 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:38355 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265190AbSLQR3k>;
+	Tue, 17 Dec 2002 12:29:40 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-To: dada1 <dada1@cosmosbay.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, hpa@transmeta.com
-Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212162140500.1644-100000@home.transmeta.com> <3DFF023E.6030401@redhat.com> <000b01c2a5bd$ebb6e870$760010ac@edumazet>
-In-Reply-To: <000b01c2a5bd$ebb6e870$760010ac@edumazet>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15871.24785.792097.896169@harpo.it.uu.se>
+Date: Tue, 17 Dec 2002 18:37:21 +0100
+To: root@chaos.analogic.com
+Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.3.95.1021217121612.25972B-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1021217120925.25972A-100000@chaos.analogic.com>
+	<Pine.LNX.3.95.1021217121612.25972B-100000@chaos.analogic.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dada1 wrote:
+Richard B. Johnson writes:
+ > Actually I should be:
+ > 
+ > 	pushl	$next_address	# Where to go when the call returns
+ > 	pushl	$0xfffff000	# Put this on the stack
+ > 	ret			# 'Return' to it (jump)
+ > next_address:			# Were we end up after
 
-> You could have only one routine that would need a relocation / patch at
-> dynamic linking stage :
+You just killed that process' performance by causing the
+return-stack branch prediction buffer to go out of sync.
 
-That's a horrible way to deal with this in DSOs.  THere is no writable
-and executable segment and it would have to be created which means
-enormous additional setup costs and higher memory requirement.  I'm not
-going to use any scode modification.
+It might have worked ok on a 486, but P6+ don't like it one bit.
 
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
-
+This is also why I'm slightly unhappy about the
+s/int $0x80/call <address of sysenter>/ approach, since it leads
+to yet another recursion level and risk overflowing the RSB.

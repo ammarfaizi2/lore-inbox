@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132904AbRALAJy>; Thu, 11 Jan 2001 19:09:54 -0500
+	id <S129742AbRALAP4>; Thu, 11 Jan 2001 19:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135434AbRALAJo>; Thu, 11 Jan 2001 19:09:44 -0500
-Received: from femail1.rdc1.on.home.com ([24.2.9.88]:22728 "EHLO
-	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S132904AbRALAJc>; Thu, 11 Jan 2001 19:09:32 -0500
-Message-ID: <3A5E4B1D.5EF1B0EB@Home.net>
-Date: Thu, 11 Jan 2001 19:09:01 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S130207AbRALAPp>; Thu, 11 Jan 2001 19:15:45 -0500
+Received: from oker.escape.de ([194.120.234.254]:10254 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S129742AbRALAPl>;
+	Thu, 11 Jan 2001 19:15:41 -0500
+Date: Fri, 12 Jan 2001 00:56:24 +0100 (CET)
+From: Matthias Kilian <kili@outback.escape.de>
+To: Takacs Sandor <taki@enternet.hu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jens Petersohn <jkp@mccoy.penguinpowered.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Ingo's RAID patch for 2.2.18 final?
+In-Reply-To: <Pine.LNX.4.21.0101112336240.10955-100000@mail.enternet.hu>
+Message-ID: <Pine.LNX.4.30.0101120054450.7768-100000@outback.escape.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Critical compile bug: 2.4.1-pre2 alpha
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-init/main.o: In function `check_fpu':
-init/main.o(.text.init+0x53): undefined reference to
-`__buggy_fxsr_alignment'
-make: *** [vmlinux] Error 1
+On Thu, 11 Jan 2001, Takacs Sandor wrote:
 
-On compiling (and recompiling) i get this fatal error. This function
-does not exist anymore?
+> If I see it there is no raid patch for 2.2.18 final, only
+> 2.2.18pre13. This patch (raid-2.2.18-A2) rejects some diffs. I will apply
+> it by hand :)
 
-Shawn Starr.
+I've allready done it:
+http://www.escape.de/users/outback/linux/raid-2.2.18.bz2
 
+But it's untested, since I'm now using 2.4.0 :-)
+
+Bye,
+	Kili
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

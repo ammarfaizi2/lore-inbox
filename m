@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263006AbREaQMp>; Thu, 31 May 2001 12:12:45 -0400
+	id <S263032AbREaQPf>; Thu, 31 May 2001 12:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263020AbREaQMZ>; Thu, 31 May 2001 12:12:25 -0400
-Received: from comverse-in.com ([38.150.222.2]:29638 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S263006AbREaQMQ>; Thu, 31 May 2001 12:12:16 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678F09@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Mark Frazer'" <mark@somanetworks.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Makefile patch for cscope and saner Ctags
-Date: Thu, 31 May 2001 12:11:24 -0400
+	id <S262804AbREaQPZ>; Thu, 31 May 2001 12:15:25 -0400
+Received: from motgate.mot.com ([129.188.136.100]:39835 "EHLO motgate.mot.com")
+	by vger.kernel.org with ESMTP id <S263034AbREaQPN>;
+	Thu, 31 May 2001 12:15:13 -0400
+Message-Id: <3B166DD1.94BF4B44@crm.mot.com>
+Date: Thu, 31 May 2001 18:14:09 +0200
+From: Emmanuel Varagnat <varagnat@crm.mot.com>
+Organization: Motorola
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Sysctl problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Great stuff. May I suggest adding -k to the cscope cmdline:
 
-> +	cscope -b -I include
+I registered a new directory and its tree in the proc filesystem with
+some register_sysctl_table. And naturally I use unregister_sysctl_table
+when the module is unloaded.
+And everything seems to work fine.
 
-should become 
-  +	cscope -b -k -I include
+Execpt that I can't read the corresponding data with the 'cat' command.
+A 'strace'
+shows me that 'cat' is in a loop :
+...
+read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"...,
+1024) = 1024
+write(1, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"...,
+1024) = 1024
+read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"...,
+1024) = 1024
+write(1, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"...,
+1024) = 1024
+...
 
-Also, I think you should separate cscope.files creation into a different
-rule,
-and make the cscope target depend on it and on the files in it. (Like the
-stuff
-with .flags)
+I'm using my own function to change the data value, but helped by
+proc_dointvec.
+My function doesn't seem to be called.
 
-The new .files should be created  in a different file, and the old file
-shouldn't 
-be replaced if there's no change.
+Does anybody ever met something like this ?
 
-Lastly, you need to clean up. I think cscope.out should be cleaned up
-in the clean target, while the cscope.files should probably should only be
-cleaned on rmproper or such.
+Thanks
 
-Vassilii
+-Manu

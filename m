@@ -1,69 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTLGFom (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 00:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTLGFom
+	id S261492AbTLGGTt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 01:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTLGGTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 00:44:42 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29970 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261539AbTLGFok
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 00:44:40 -0500
-Date: Sun, 7 Dec 2003 00:33:22 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: libata in 2.4.24?
-In-Reply-To: <20031203004736.GB27306@mail.shareable.org>
-Message-ID: <Pine.LNX.3.96.1031207002609.7168A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 7 Dec 2003 01:19:49 -0500
+Received: from sitemail3.everyone.net ([216.200.145.37]:32698 "EHLO
+	omta06.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S261492AbTLGGTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 01:19:45 -0500
+Content-Type: multipart/mixed; boundary="----------=_1070777984-13338-1"
+Content-Transfer-Encoding: binary
+Mime-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+Date: Sat, 6 Dec 2003 22:19:44 -0800 (PST)
+From: john moser <bluefoxicy@linux.net>
+To: linux-kernel@vger.kernel.org
+Subject: Memory Managment idea to help move things to userspace
+Reply-To: bluefoxicy@linux.net
+X-Originating-Ip: [68.33.187.247]
+Message-Id: <20031207061944.2D005E4B9@sitemail.everyone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Dec 2003, Jamie Lokier wrote:
+This is a multi-part message in MIME format...
 
-> bill davidsen wrote:
-> > With O_SYNC files there is the possibility of having a don't cache bit
-> > in the packet to the drive, even with write caching. With fsync I don't
-> > see any way to do it after the fact for only some of the data in the
-> > drive cache. That's just an observation.
-> 
-> With fsync, can't you write all the dirty pages with that bit set,
-> write _again_ all the pages in RAM which are clean but which have
-> never been written with the don't-cache bit, and read-then-write with
-> the bit set all the pages which are not in RAM but which were dirtied
-> and written without the don't cache bit set?
+------------=_1070777984-13338-1
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Actually, what I meant was to pass the bit to the drive, so that it would
-not return completion status until physical completion. That can be done
-for O_SYNC. But fsync() is after the fact, the o/s has no way of knowing
-that the pages already sent to the drive have been written to media except
-to do a cache flush and flush everything.
+I've been told there's issues with transferring huge amounts of data between kernelspace and userspace.  I think I may have a solution, if this problem does indeed exist.  This would make things such as userspace netfiltering and userspace network filesystem drivers extremely feasable by effectively eliminating all data transfer overhead to and from the kernel in a secure and efficient manner.
 
-I don't think there's anything else you can do with fsync() with or
-without the bit, since you may no longer have the buffers to send with the
-bit set. Moreover, some drives, reportedly IBM, tend to botch a sevtor
-being written during power fail, if I understand your proposal it *cold*
-result in a buffer being sent to the drive twice, and a power fail during
-the 2nd write could clobber the good data you wrote.
+PLEASE read and review this.  If it is complete and utter braindamage and simply not possible, please explain why, and discard.  If it IS good, then please plan to impliment in 2.7/2.8 (I realize I'm too late for 2.6).  If it's close but not quite there, FIX IT.  It's just an idea.
 
-That's assuming I understand what you propose.
+--Bluefox Icy
 
-> 
-> I know, it sounds a bit complicated :)
-> 
-> But would it work?
+_____________________________________________________________
+Linux.Net -->Open Source to everyone
+Powered by Linare Corporation
+http://www.linare.com/
 
-Maybe a guru will disagree, but I would say that just switching to what
-SCSI does and caching the write on the drive and not returning done status
-until it completes is the right solution. Maybe a drive vendor will do
-that, maybe it's in SATA-2 spec, I was just making up the bit which
-indicated a realtime write buffer, as a way O_SYNC could work without
-killing performance.
+------------=_1070777984-13338-1
+Content-Type: text/plain; name="ukshm.txt"
+Content-Disposition: inline; filename="ukshm.txt"
+Content-Transfer-Encoding: base64
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+dXNlci1rZXJuZWwgc2hhcmVkIG1lbW9yeQoKVEhFUkUgSVMgQU4gSVNTVUUg
+d2l0aCB1c2Vyc3BhY2UgcHJvZ3JhbXMgY29tbXVuaWNhdGluZyB3aXRoIHRo
+ZSBrZXJuZWwsIGZyb20Kd2hhdCBJIGhlYXIuICBUaGlzIGlzc3VlIGlzIHRo
+YXQgdGhlIHRyYW5zZmVycmVuY2Ugb2YgZGF0YSB0byBhbmQgZnJvbSB0aGUK
+a2VybmVsIGluY3VycnMgYSBsYXJnZSBhbW91bnQgb2Ygb3ZlcmhlYWQuICBJ
+IGhhdmUgYXR0ZW1wdGVkIHRvIGNvbWUgdXAgd2l0aCBhCmhhbGZ3YXkgZGVj
+ZW50IHdheSB0byBnZXQgYXJvdW5kIHRoaXMsIGFuZCBJIHdpbGwgc3RhdGUg
+bXkgcmVzdWx0cyBoZXJlLgoKRklSU1QgTEVUIE1FIEFTU0VSVCB0aGF0IEkg
+ZG8gbm90IGhhdmUgYW55IGV4cGVydCB1bmRlcnN0YW5kaW5nIG9mIHRoZSBz
+bGFiCmFsbG9jYXRvciBPUiBvZiB0aGUgVExCOyB0aGUgc2xhYiBjb2RlIGNv
+bmZ1c2VzIHRoZSBoZWxsIG91dCBvZiBtZSwgYW5kIEkgZG9uJ3QKZXZlbiBy
+ZW1lbWJlciB3aGF0IFRMQiBzdGFuZHMgZm9yLiAgTm9uZXRoZWxlc3MsIEkg
+YXNrIHRoYXQgdGhvc2Ugb2YgeW91IHdobwpkbyB1bmRlcnN0YW5kIHRoZXNl
+IHRoaW5ncyBnaXZlIHRoaXMgcG9zdCwgZG9jdW1lbnQsIG9yIHdoYXRldmVy
+IGZvcm0gaXQgaXMKeW91IGxvb2sgYXQgdGhpcyBpZGVhIGluIGZhaXIgcmV2
+aWV3LiAgSWYgdGhvc2Ugb2YgeW91IHdobyBrbm93IGhvdyB0aGVzZQp0aGlu
+Z3Mgd29yayB3aXNoIHRvIGFzc2VydCB0aGF0IGl0IGlzIHRvbyBtdWNoIHdv
+cmssIHBsZWFzZSBzdXBwbHkgbG9naWNhbApyZWFzb25zIHdoeSBpdCB3b24n
+dC4gIElmIHlvdSBiZWxpZXZlIGl0IG1heSwgcGxlYXNlIGF0dGVtcHQgdG8g
+ZXh0ZW5kIHRoZXNlCmlkZWFzIGludG8gc29tZSB3b3JrYWJsZSBmb3JtLgoK
+VEhFIFNMQUIgQUxMT0NBVE9SIGhhcyBzZXZlcmFsIHR5cGVzIG9mIGRhdGEg
+aXQgY2FuIGFsbG9jYXRlLCBpbmNsdWRpbmcgRE1BCmFsbG9jYXRpb25zLS1h
+bGxvY2F0aW9ucyB1c2VkIGFzIHRhcmdldHMgZm9yIGRpcmVjdCBkYXRhIHRy
+YW5zZmVyIGZyb20KaGFyZHdhcmUgc3VjaCBhcyBoYXJkIGRpc2tzIHRvIG1l
+bW9yeS0tYW5kIEF0b21pYyBhbGxvY2F0aW9ucy0tYWxsb2NhdGlvbnMKdGhh
+dCBtdXN0IGJlIGZ1bGx5IGFsbG9jYXRlZCBiZWZvcmUgdGhlIGZ1bmN0aW9u
+IGNhbiBzbGVlcC4gIFRoZXJlIGlzIGFsc28Ka2VybmVsIGFuZCB1c2VyIG1l
+bW9yeS4KClRIRSBWSVJUVUFMIE1FTU9SWSBzeXN0ZW0sIGFzIEkgdW5kZXJz
+dGFuZCBpdCwgZGVwZW5kcyBvbiBDUFUgbWljcm9jb2RlLApjYWNoZSwgYW5k
+IHNvbWV0aGluZyBpbiB0aGUgQ1BVIGNhbGxlZCBUTEIuICBBcyBJIGdhdGhl
+ciwgdGhpcyBUTEIgbWljcm9jb2RlCmFuZCBjYWNoZSBpcyBoYW5kbGVkIGF1
+dG9tYXRpY2FsbHkgYnkgdGhlIENQVS4gIFdoZW4gYSBwYWdlIGZhdWx0cyBh
+Y2Nyb3NzIGl0cwpib3VuZGFyeS0tdXN1YWxseSwgYSBwYWdlIGxvYWRlZCBp
+bnRvIENQVSBjYWNoZS0tdGhlIFRMQiBtaWNyb2NvZGUgcmVhZHMgdGhlCnBh
+Z2VfdGFibGUgY2FjaGUgaW5zaWRlIHRoZSBDUFUgY2FjaGUsIGZpbmRzIHRo
+ZSBuZXh0IG1hcHBpbmcsIGFuZCBsb2FkcyBpdApmcm9tIHJhbS4gIFRoZSBw
+cm9jZXNzIHNlZXMgdGhpcyBhcyBhIHNpbmdsZSwgY29udGlndW91cyBibG9j
+ayBvZiByYW0sIGV2ZW4KdGhvdWdoIHRoZSBwcm9jZXNzJyB2aXJ0dWFsIHJh
+bXNwYWNlIG1heSBiZSBzY2F0dGVyZWQgYWNjcm9zcyByYW0gb3IgZXZlbiBu
+b3QKZXZlbiBpbiByYW0gYnV0IG9uIGRpc2sgaW4gc3dhcCwgaW4gd2hpY2gg
+Y2FzZSBhIHBhZ2UgZmF1bHQgd291bGQgTk9UIGZpbmQKdGhhdCBlbnRyeSBp
+biB0aGUgVExCIGNhY2hlIGFuZCB3b3VsZCByZXF1ZXN0IHRoZSBvcGVyYXRp
+bmcgc3lzdGVtIHRvIGdpdmUgaXQKdGhhdCBwYWdlX3RhYmxlIGVudHJ5LCB3
+aGljaCB3b3VsZCBjYXVzZSB0aGUgT1MgdG8gc3dhcCB0aGUgcGFnZSBpbi4K
+CldIQVQgSSBBTSBTVUdHRVNUSU5HIGlzIHRoZSBhZGRpdGlvbiBvZiBhIG5l
+dyB0eXBlIG9mIHNsYWIgbWVtb3J5IGNhbGxlZApVc2VyLUtlcm5lbCBTaGFy
+ZWQgTWVtb3J5LCBvciBTTEFCX1VLU0hNIChHRlBfVUtTSE0pLiAgVGhpcyBt
+ZW1vcnkgd291bGQgT05MWQpiZSBjcmVhdGVkIHdoZW4gc3BlY2lhbGl6ZWQg
+aG9vayBpbiB0aGUga2VybmVsIGlzIHVzZWQsIGFuZCB3b3VsZCBiZSBtYXBw
+ZWQKaW50byB0aGUgcHJvY2VzcycgcmFtIHNwYWNlIHdpdGggcGFnZV90YWJs
+ZSBtYXBwaW5ncywgYnV0IGFsc28gd291bGQgYmUgYSBwYXJ0Cm9mIHRoZSBr
+ZXJuZWwncyBwcml2YXRlIHJhbXNwYWNlLiAgSW4gdGhpcyB3YXksIGlmIHRo
+ZSBwcm9jZXNzICJ3YWxrZWQiIHBhc3QKdGhlIGVuZCBvZiB0aGUgY2h1bmsg
+b2Yga2VybmVsc3BhY2UgcmFtIGFsbG9jYXRlZCBmb3IgaXRzIHB1cnBvc2Us
+IGl0IHdvdWxkCndpbmQgdXAgYmFjayBpbiB1c2Vyc3BhY2UsIHdpdGggbm8g
+a2VybmVsLWxldmVsIGNoZWNraW5nIG5lZWRlZCB0byBrZWVwIHRoZQpwcm9j
+ZXNzIGZyb20gc2NyZWVjaGluZyBhY2Nyb3NzIGtlcm5lbCByYW0gYW5kIGRl
+c3Ryb3lpbmcgdGhlIGtlcm5lbC4gIFRoZQptYWpvciBpc3N1ZSBoZXJlIGlz
+IHRoYXQgdGhpcyBraW5kIG9mIHBhZ2VfdGFibGUgbWFwcGluZyBtdXN0IGJl
+IG5vdGVkIGRvd24gc28KdGhhdCBpdCBpcyBOT1QgU1dBUFBFRC4KClRIRSBU
+WVBJQ0FMIFVTQUdFIG9mIHRoaXMgd291bGQgYmUgZm9yIGltbWVkaWF0ZSBh
+bmQgZGlyZWN0IGNvbW11bmljYXRpb24gb2YKZGF0YSBiZXR3ZWVuIHRoZSBr
+ZXJuZWwgYW5kIHNwZWNpYWxpemVkIHVzZXJzcGFjZSBhcHBsaWNhdGlvbnMg
+d2l0aG91dCBjb3B5aW5nCnJhbSBvciB1c2luZyBzeXNjYWxscy4KCkkgV0lM
+TCBFWEVNUExJRlkgVEhJUyBieSBkaXNjdXNzaW5nIGEgcG9zc2libGUgcmVp
+bXBsaW1lbnRhdGlvbiBvZgpuZXRmaWx0ZXIvZmlyZXdhbGxpbmcgaW4gdXNl
+cnNwYWNlIHdpdGggVUtTSE0uICBJIGFtIG5vdCBzdWdnZXN0aW5nIGhlcmUg
+dGhhdAppcHRhYmxlcyBuZWVkcyB0byBiZSBtb3ZlZCBvdXQgb2YgdGhlIGtl
+cm5lbDsgSSBhbSBzdWdnZXN0aW5nIHRoYXQgaXQgaXMKcG9zc2libGUgdG8g
+ZG8gc28gd2l0aCB0aGUgb25seSBwZXJmb3JtYW5jZSBoaXQgYW5kIGNvbXBs
+aWNhdGlvbnMgYmVpbmcgdGhhdApvZiBtb3ZpbmcgQ09ERSBmcm9tIGtlcm5l
+bCBzcGFjZSB0byB1c2Vyc3BhY2UuCgpDVVJSRU5UTFkgV0lUSCBJUFRBQkxF
+UyB0aGVyZSBhcmUgaG9va3MgaW4gdGhlIGtlcm5lbCB0byBhbGxvdyBhIHBy
+b2Nlc3Mgd2l0aApwcm9wZXIgYWNjZXNzIHByaXZpbGFnZXMgKHJvb3Qgb3du
+ZWQ/KSB0byBjYWxsIGNlcnRhaW4gc3lzdGVtIGZ1bmN0aW9ucyB0bwphZGp1
+c3QgaG93IHRoZSBrZXJuZWwgaGFuZGxlcyBuZXR3b3JrIGNvbm5lY3Rpb25z
+IGFuZCBkYXRhLiAgVGhpcyByZXF1aXJlcwptaW5pbWFsIGRhdGEgdHJhbnNm
+ZXIgYmV0d2VlbiB0aGUga2VybmVsIGFuZCB0aGUgdXNlcnNwYWNlIHByb2dy
+YW0gZm9yCmNvbmZpZ3VyYXRpb24gb25seS4gIEFmdGVyIHRoYXQsIGFsbCBw
+cm9jZXNzaW5nIGFuZCBkZWNpc2lvbiBtYWtpbmcgaXMgZG9uZQppbnNpZGUg
+dGhlIGtlcm5lbC4KCkFOT1RIRVIgQVBQUk9BQ0ggVE8gVEhJUyB3b3VsZCBi
+ZSB0byBtb3ZlIHRoZSBkZWNpc2lvbiBtYWtpbmcgYW5kIHByb2Nlc3NpbmcK
+Y29kZSBvdXQgb2YgdGhlIGtlcm5lbCwgYW5kIHRoZSB0YXJnZXRzIHN1Y2gg
+YXMgTkFUJ3MgTUFTUVVFUkFERSwgRFJPUCwKQUNDRVBULCBERU5ZLCBhbmQg
+Rk9SV0FSRCBpbnNpZGUgdGhlIGtlcm5lbCwgcG9zc2libHkgYXMgbW9kdWxl
+cy4gIFRoZSB0YXJnZXRzCndvdWxkIGV4aXN0IGV4YWN0bHkgYXMgdGhleSBh
+cmUgbm93LCBpbiBrZXJuZWxzcGFjZTsgaG93ZXZlciwgYWxsIGV4YW1pbmF0
+aW9uCmFuZCBkZWNpc2lvbiB3b3VsZCBiZSBkb25lIG91dHNpZGUgdGhlIGtl
+cm5lbCwgYW5kIHVzZXItZGVmaW5lZCBjaGFpbnMgYW5kCnRhcmdldHMgd291
+bGQgZXhpc3Qgb3V0c2lkZSB0aGUga2VybmVsLgoKVEhJUyBXT1VMRCBSRVFV
+SVJFIHRoYXQgdGhlIGtlcm5lbCB0cmFuc2ZlciB0aGUgbmV0d29yayBkYXRh
+IHRvIHRoZSBwcm9jZXNzOwp0aGUgcHJvY2VzcyBleGFtaW5lIHRoZSBkYXRh
+IGFuZCBtYWtlIGl0cyBkZWNpc2lvbnMgYW5kIGFsdGVyYXRpb25zOyBhbmQK
+ZmluYWxseSB0aGF0IHRoZSBwcm9jZXNzIHBhc3MgdGhlIGFsdGVyZWQgZGF0
+YSBhbmQgdGhlIGRlY2lzaW9ucyBiYWNrIHRvIHRoZQprZXJuZWwuICBBcyBJ
+IHVuZGVyc3RhbmQgaXQsIHRoaXMgd291bGQgY3VycmVudGx5IHJlcXVpcmUg
+YSBsb3Qgb2Ygd29yay4gIFRoaXMKaXMgd2hlcmUgVUtTSE0gY29tZXMgaW50
+byBwbGF5LgoKV0lUSCBUSEUgU1VHR0VTVEVEIEFERElUSU9OIHRvIHRoZSBr
+ZXJuZWwncyBtZW1vcnkgdHlwZSBhbmQgbW0gY29kZSwgdGhlCm92ZXJoZWFk
+IG9mIHRyYW5zZmVycmluZyB0aGUgZGF0YSBiYWNrIGFuZCBmb3J0aCBjb3Vs
+ZCBiZSBldmFkZWQuICBUaGUga2VybmVsCndvdWxkIHNpbXBseSBuZWdvdGlh
+dGUgYW4gQVBJIHdpdGggdGhlIHByb2dyYW0sIGFuZCB3aGVuIG5lZWRlZCBp
+dCB3b3VsZCBtYXAKb3V0IGEgcGFnZSBvciBwYWdlcyBvZiBrZXJuZWwgcmFt
+IHRvIGEgZnJlZSBwYWdlIG9yIHNldCBvZiBwYWdlcyBvZiB0aGUKdXNlcnNw
+YWNlIHByb2dyYW0ncyB2aXJ0dWFsIHJhbXNwYWNlICh0aGUgcHJvZ3JhbSB0
+eXBpY2FsbHkgaGFzIDNHLiAgVGhpcyBpcwpOT1QgYSBwcm9ibGVtKS4gIFRo
+ZW4gaXQgd291bGQgY2FsbCBhIGZ1bmN0aW9uIGluIHRoZSB1c2Vyc3BhY2Ug
+cHJvZ3JhbSB0bwp0ZWxsIGl0IHdoZXJlIHRoaXMgcmFtIGlzIGFuZCB3aGF0
+IGl0IHdhbnRzIGRvbmUgd2l0aCBpdC4gIEkgZG9uJ3Qga25vdyBpZgp0aGUg
+Y29uY2VwdCBvZiBhIGtlcm5lbCBjYWxsaW5nIGEgZnVuY3Rpb24gaW4gYSBw
+cm9ncmFtIGhhcyBiZWVuIHRob3VnaHQgb2YKYmVmb3JlLCBvciBpZiBpdCBp
+cyB1c2VkIG5vdzsgaWYgbm90LCBJIHdpbGwgdGVybSB0aGlzIGEgInJldmVy
+c2Ugc3lzY2FsbCIgZm9yCnNpbXBsaWNpdHkncyBzYWtlLCBiZWNhdXNlIHRo
+YXQncyB3aGF0IGl0IGlzLgoKVVBPTiBSRUNFSVZJTkcgdGhlIHJldmVyc2Ug
+c3lzY2FsbCwgdGhlIHByb2dyYW0gd291bGQgcGVyZm9ybSBpdHMgb3BlcmF0
+aW9ucwpvbiB0aGUgZGF0YSwgdGhlbiBpbml0aWF0ZSBhIHN5c2NhbGwgdG8g
+dGhlIGtlcm5lbCB0byBhY2tub3dsZWRnZSBpdHMgZmluaXNoZWQKc3RhdGUu
+ICBUaGlzIHNob3VsZCBiZSBub25ibG9ja2luZywgYXMgdGhlIHByb2dyYW0g
+Km1heSogY3Jhc2ggKHNvIG1heSB0aGUKY3VycmVudCBpbXBsaW1lbnRhdGlv
+biksIGFuZCB3ZSBkbyBOT1Qgd2FudCB0aGF0IHRvIHRha2UgZG93biB0aGUg
+a2VybmVsICh0aGUKY3VycmVudCBpbXBsaW1lbnRhdGlvbiB3aWxsKS4gIFRo
+ZSBrZXJuZWwgd2lsbCB0aGVuIHByb2Nlc3MgdGhlIHBhc3NlZApkZWNpc2lv
+biBhbmQgdW5tYXAgdGhlIFVLU0hNIGZyb20gdGhlIHByb2dyYW0sIGNvbnZl
+cnRpbmcgaXQgZGlyZWN0bHkgdG8KU0xBQl9LRVJORUwgbWVtb3J5LgoKSU4g
+VEhFIEVWRU5UIHRoYXQgdGhlIGNvbm5lY3RlZCBwcm9jZXNzIGlzIEtJTExF
+RCwgdGhlIGtlcm5lbCB3aWxsIGluIHRoaXMKZXhjb3JjaXNlIHNpbXBseSBk
+ZW55IGFsbCBuZXR3b3JraW5nICh5b3VyIGZpcmV3YWxsIGlzIGRlYWQsIHdo
+YXQgdGhlIGhlY2sgZG8KeW91IHdhbnQgaXQgdG8gZG8/KSB1bnRpbCBmdXJ0
+aGVyIG5vdGljZS4KClRISVMgSVMgT05MWSBhIHN1Z2dlc3Rpb24sIGFuZCBh
+IHNrZXRjaHkgaWRlYSBhdCB0aGF0LiAgSG93ZXZlciwgSSBiZWxpZXZlCnRo
+YXQgaWYgSSBoYXZlIE5PVCBoaXQgdGhpcyBkaXJlY3RseSBvbiB0aGUgaGVh
+ZCBpbiBhIHNlY3VyZSBhbmQgaGlnaGx5CmVmZmljaWVudCBtYW5uZXIsIHRo
+ZW4gSSBoYXZlIGF0IGxlYXN0IGNvbWUgY2xvc2UsIGFuZCB0aG9zZSBvZiB5
+b3Ugd2hvIGtub3cKYmV0dGVyIGNhbiBudWRnZSB0aGUgaWRlYSB0aGUgcmln
+aHQgd2F5IGFuZCBjb21lIHVwIHdpdGggYSB2aWFibGUgc29sdXRpb24uCg==
 
+------------=_1070777984-13338-1--

@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133022AbRDSTb2>; Thu, 19 Apr 2001 15:31:28 -0400
+	id <S133009AbRDSTbs>; Thu, 19 Apr 2001 15:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133018AbRDSTbS>; Thu, 19 Apr 2001 15:31:18 -0400
-Received: from m646-mp1-cvx1b.col.ntl.com ([213.104.74.134]:17280 "EHLO
-	[213.104.74.134]") by vger.kernel.org with ESMTP id <S133009AbRDSTau>;
-	Thu, 19 Apr 2001 15:30:50 -0400
-To: Patrick Mochel <mochel@transmeta.com>
-Cc: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Next gen PM interface
-In-Reply-To: <Pine.LNX.4.10.10104191206100.7690-100000@nobelium.transmeta.com>
-From: John Fremlin <chief@bandits.org>
-Date: 19 Apr 2001 20:30:41 +0100
-In-Reply-To: <Pine.LNX.4.10.10104191206100.7690-100000@nobelium.transmeta.com>
-Message-ID: <m2vgo0offi.fsf@bandits.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Solid Vapor)
+	id <S133018AbRDSTbj>; Thu, 19 Apr 2001 15:31:39 -0400
+Received: from denise.shiny.it ([194.20.232.1]:31104 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S133009AbRDSTb0>;
+	Thu, 19 Apr 2001 15:31:26 -0400
+Message-ID: <3ADDDF82.DB37117B@denise.shiny.it>
+Date: Wed, 18 Apr 2001 20:40:02 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: SodaPop <soda@xirr.com>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Oscillations in disk write compaction, poor interactive performance
+In-Reply-To: <Pine.LNX.4.30.0104170950350.24360-100000@xirr.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel <mochel@transmeta.com> writes:
 
-[...]
+> The problem is that at the low point in the cycle, the machine is
+> unusable.  It is utterly unresponsive until the writes complete, which can
+> take a very long time (in the case of the ppc machine, several minutes!)
+> Anything that does disk I/O will block for a long time - having 'ls' take
+> two minutes is not a good thing.
 
-> > > I can see at least two types of events - (forgive the lack of colorful
-> > > terminology) passive and active. Passive events are simply providing
-> > > status updates, much like the events described above. These are simply so
-> > > some UI can notify the user of things like a low battery or detection of
-> > > an AC adapter. These can be handled in much the same way as described
-> > > above.
-> > 
-> > No they can't. They only happen once. Battery status exists all the
-> > time.
-> 
-> Yes they can. My point was they can be handled from userspace in the
-> same way that battery status does - by doing a select on a file in
-> /proc or /dev. Once in a while (or constantly) they get data from
-> the kernel - battery status, AC change, etc - that can be then
-> translated and displayed in the UI.
+Can you chack how much cpu time do dbflush and kswapd get ?
 
-I think these events have a generic utility not specific to UIs. In
-particular, when ones battery is running out, one would quite like the
-event manager to be notified. As is currently the case with e.g. apmd.
+> 2.2 does not exhibit this behaviour.
 
-Polling on battery charge left or battery voltage/current is different
-from this, surely? Why should such programs have to be notified that
-the battery was low? The event itself is pretty useless if you're
-doing polling but there is no point throwing it away, in case you
-aren't.
+2.2 is much worse IMO.
 
-[...]
+Bye.
 
--- 
-
-	http://www.penguinpowered.com/~vii

@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbTJ2RAT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 12:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTJ2RAT
+	id S261193AbTJ2RWY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 12:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbTJ2RWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 12:00:19 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:18368 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261744AbTJ2RAN
+	Wed, 29 Oct 2003 12:22:24 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:33987 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261193AbTJ2RWX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 12:00:13 -0500
-Date: Wed, 29 Oct 2003 14:51:27 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Javier Villavicencio <jvillavicencio@arnet.com.ar>
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-Subject: Re: RadeonFB [Re: 2.4.23pre8 - ACPI Kernel Panic on boot]
-In-Reply-To: <20031028200544.4e10cc97.jvillavicencio@arnet.com.ar>
-Message-ID: <Pine.LNX.4.44.0310291443180.1630-100000@logos.cnet>
+	Wed, 29 Oct 2003 12:22:23 -0500
+Content-Type: text/plain;
+  charset="utf-8"
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
+Date: Wed, 29 Oct 2003 09:20:06 -0800
+User-Agent: KMail/1.4.1
+References: <3F9D82F0.4000307@mvista.com> <20031028224416.GA8671@kroah.com> <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
+In-Reply-To: <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200310290920.06056.dsteklof@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 29 October 2003 06:30 am, Andreas Jellinghaus wrote:
+> On Tue, 28 Oct 2003 22:52:33 +0000, Greg KH wrote:
+[snip]
+> > that udev is suffering from "lack of maintainability and bloat" if you
+> > really want :)
+>
+> bloat. lots of bloat. what is that tdb database for?
+> filesystems are persistent. if you want to save space,
+> create a tar file :-)
+
+[snip]
 
 
-On Tue, 28 Oct 2003, Javier Villavicencio wrote:
+The tdb database is for storing current device information, udev needs to 
+reference names to devices. The database also enables an api for applications 
+to query what devices are on the system, their names, and their nodes. 
 
-> On Tue, 28 Oct 2003 17:42:17 -0500
-> "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu> wrote:
-> 
-> > Marcelo Tosatti wrote:
-> > 
-> > >Joachim, 
-> > >The patch in question has caused other problems and will be removed.
-> > >  
-> > >
-> > 
-> > Speaking of patches causing problems and needing reversion, can the 
-> > screen-corrupting RadeonFB patch introduced in 2.4.23-pre3 be reverted 
-> > until such time as it is fixed?  I know there was a maintainer war going 
-> > on over who should officially submit RadeonFB patches; somewhere in 
-> > there, updates and fixes stopped coming.
-> > 
-> > As it now stands in current -pre kernels, returning from XFree86 to a 
-> > RadeonFB console results in total gibberish all over the screen (with my 
-> > hardware anyway, a standard Built-by-ATI Radeon 8500 LE chipset QL 
-> > rev0).  There is no workaround, other than to return to X.  Another bug 
-> > also causes screen corruption when switching VCs (it forgets where in 
-> > the YPan it is), but this can be easily worked around by setting VYRES = 
-> > YRES (fbset -match -a).
-> > 
-> > The previous version of RadeonFB in 2.4.23-pre2 and earlier works just 
-> > fine on my Radeon 8500 hardware, albeit without accelerated scrolling.  
-> > Of course, if people with other Radeon flavors can't use the older 
-> > driver but the newer one works for them, then short of a 
-> > CONFIG_OLD_RADEONFB, I guess we should keep the current one...
+Using tdb has its advantages too; it's small, it's flexible, it's fast, it can 
+be in memory or on disk, and it has locking for multiple accesses.
 
-There have been no radeonfb changes in 2.4.23-pre, what has been updated 
-is DRM.
+IMVHO - tdb isn't bloat.
 
-Are you using DRM? 
+Thanks,
 
+Dan

@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281890AbRL0SZS>; Thu, 27 Dec 2001 13:25:18 -0500
+	id <S286447AbRL0Sdi>; Thu, 27 Dec 2001 13:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284415AbRL0SZI>; Thu, 27 Dec 2001 13:25:08 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:778 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281890AbRL0SYy>; Thu, 27 Dec 2001 13:24:54 -0500
-Date: Thu, 27 Dec 2001 16:24:40 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <a0fntk$ukm$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0112271623220.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286443AbRL0Sd3>; Thu, 27 Dec 2001 13:33:29 -0500
+Received: from [206.98.161.198] ([206.98.161.198]:16400 "EHLO
+	bart.learningpatterns.com") by vger.kernel.org with ESMTP
+	id <S286434AbRL0SdP>; Thu, 27 Dec 2001 13:33:15 -0500
+Subject: Re: Problems booting 2.4.17
+From: Edward Muller <emuller@learningpatterns.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1009475886.16791.0.camel@akira.learningpatterns.com>
+In-Reply-To: <1009475886.16791.0.camel@akira.learningpatterns.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 27 Dec 2001 13:30:36 -0500
+Message-Id: <1009477836.16903.2.camel@akira.learningpatterns.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Linus Torvalds wrote:
+Compiled/Installed 2.4.16 and the machine boots without a problem. 
 
-> >I'm not going to resend more than twice. If after that
-> >a critical bugfix isn't applied, I'll put it in our
-> >kernel RPM and the rest of the world has tough luck.
->
-> Which, btw, explains why I don't consider you a kernel maintainer,
-> Rik, and I don't tend to apply any patches at all from you.  It's just
-> not worth my time to worry about people who aren't willing to sustain
-> their patches.
+So is it a 2.4.17 issue or do I need to upgrade something else?
 
-OK, I'll setup something to automatically send you patches
-as long as they're not applied, don't get any reaction and
-still apply cleanly.
-
-regards,
-
-Rik
+On Thu, 2001-12-27 at 12:58, Edward Muller wrote:
+> Hello all.
+> 
+> I'm having problems booting 2.4.17 on a Mandrake 8.1 system (with all
+> current updates).
+> 
+> When I boot 2.4.17 (with an initrd image) I get the following...
+> 
+> kernel boots ...
+> Creating root device
+> mkrootdev: mknod failed: 17
+> Mounting root filesyste with flags data=ordered
+> Mount: error 16 mounting ext3 flags data=ordered
+> ...Tried to remount without flags and fails with the same error...
+> Kernel Panic: No initrd found ...
+> 
+> I am using ext3 / /boot /usr /var & /home filesystems
+> 
+> 2.4.8-34.1mdk boots fine however.
+> 
+> I'm about to go try 2.4.16 (it was working with reiserfs partitions
+> before).
+> 
+> The machine is an AMD Athalon 1.3 Ghz on an EPOC board with a 3ware 7800
+> series RAID card, with three 75/80 GB drives in a RAID 5 array.
+> 
+> Anyone else run into something like this? 
+> 
+> I'll report back about 2.4.16 and if anyone would like more info, just
+> shout.
+> 
+> 
+> -- 
+> -------------------------------
+> Edward Muller
+> Director of IS
+> 
+> 973-715-0230 (cell)
+> 212-487-9064 x115 (NYC)
+> 
+> http://www.learningpatterns.com
+> -------------------------------
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+-------------------------------
+Edward Muller
+Director of IS
 
-http://www.surriel.com/		http://distro.conectiva.com/
+973-715-0230 (cell)
+212-487-9064 x115 (NYC)
+
+http://www.learningpatterns.com
+-------------------------------
 

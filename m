@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318133AbSIORWD>; Sun, 15 Sep 2002 13:22:03 -0400
+	id <S318136AbSIORcS>; Sun, 15 Sep 2002 13:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318138AbSIORWD>; Sun, 15 Sep 2002 13:22:03 -0400
-Received: from holomorphy.com ([66.224.33.161]:11227 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318133AbSIORWC>;
-	Sun, 15 Sep 2002 13:22:02 -0400
-Date: Sun, 15 Sep 2002 10:26:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-Cc: Andrew Morton <akpm@digeo.com>, Dave Hansen <haveblue@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] add vmalloc stats to meminfo
-Message-ID: <20020915172608.GJ3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
-	Andrew Morton <akpm@digeo.com>, Dave Hansen <haveblue@us.ibm.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20020915071157.GH3530@holomorphy.com> <Pine.LNX.4.44.0209151021530.3517-100000@shell1.aracnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209151021530.3517-100000@shell1.aracnet.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S318138AbSIORcS>; Sun, 15 Sep 2002 13:32:18 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:29365 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S318136AbSIORcR>; Sun, 15 Sep 2002 13:32:17 -0400
+Date: Sun, 15 Sep 2002 14:36:37 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Axel Siebenwirth <axel@hh59.org>, Con Kolivas <conman@kolivas.net>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       "lse-tech@lists.sourceforge.net" <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.34-mm4
+In-Reply-To: <3D84C63E.76526EDE@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0209151436080.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, William Lee Irwin III wrote:
->> Also, dynamic vmalloc allocations may very well be starved by boot-time
->> allocations on systems where much vmallocspace is required for IO memory.
->> The failure mode of such is effectively deadlock, since they block
->> indefinitely waiting for permanent boot-time allocations to be freed up.
+On Sun, 15 Sep 2002, Andrew Morton wrote:
 
-On Sun, Sep 15, 2002 at 10:23:24AM -0700, M. Edward (Ed) Borasky wrote:
-> Thank you!! How difficult would it be to back-port this to 2.4.18?
+> Unfortunately, those updates cause odd-but-not-serious things to
+> happen to Red Hat initscripts.  This happens when you install standard
+> util-linux as well.  It is due to the initscripts passing in arguments
+> which the standard tools do not understand.
 
-Note the follow-up to this saying that the above paragraph was incorrect.
-It doesn't sleep except to allocate backing memmory.
+I'm about to add all patches from the RH procps rpm to the
+procps cvs tree, so this should go away soon.
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Bill
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

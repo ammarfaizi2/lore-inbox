@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267128AbTBDJpi>; Tue, 4 Feb 2003 04:45:38 -0500
+	id <S267204AbTBDJqq>; Tue, 4 Feb 2003 04:46:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267198AbTBDJpi>; Tue, 4 Feb 2003 04:45:38 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:25219 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S267128AbTBDJpf>; Tue, 4 Feb 2003 04:45:35 -0500
-Message-ID: <3E3F8DE6.708@bogonomicon.net>
-Date: Tue, 04 Feb 2003 03:54:46 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: vda@port.imtp.ilyichevsk.odessa.ua, root@chaos.analogic.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: gcc 2.95 vs 3.21 performance
-References: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com> <200302040656.h146uJs10531@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267208AbTBDJqq>; Tue, 4 Feb 2003 04:46:46 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:15044 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267204AbTBDJqp>; Tue, 4 Feb 2003 04:46:45 -0500
+Message-Id: <200302040956.h149u8IR021827@eeyore.valparaiso.cl>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module alias and device table support. 
+In-Reply-To: Your message of "Mon, 03 Feb 2003 21:34:08 +1100."
+             <20030203105342.0CE3B2C003@lists.samba.org> 
+Date: Tue, 04 Feb 2003 10:56:07 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell <rusty@rustcorp.com.au> said:
+> "insmod foo" will *always* get foo.  The only exception is when "foo"
+> doesn't exist, in which case modprobe looks for another module which
+> explicitly says it can serve in the place of foo.
 
-Personal opinion here but I know it is also held by many developers I 
-know and work with.  I'd rather have a compiler that produces correct 
-and fast code but ran slow than one that produces slow or bad code and 
-runs fast.  Remember compilation is done far less often than run time 
-execution.  Yes I too noticed a difference when I switched over to 3.2 
-but I also noticed some of my code speed up.
+OK.
 
->>>People keep extolling the virtues of gcc 3.2 to me, which I'm
->>>reluctant to switch to, since it compiles so much slower. But
->>>it supposedly generates better code, so I thought I'd compile
->>>the kernel with both and compare the results. This is gcc 2.95
->>>and 3.2.1 from debian unstable on a 16-way NUMA-Q. The kernbench
->>>tests still use 2.95 for the compile-time stuff.
->>
->>[SNIPPED tests...]
+> This allows smooth transition when a driver is superceded, *if* the
+> new author wants it.
+
+I would't let this happen, ever. What if foo does exist and Aunt Tillie
+just didn't compile it?
+
+[...]
+
+> Sure, but you cut the vital bit of my mail.  Currently we have (1)
+> request_module() which is used in various cases to request a service,
+> and (2) aliases like "char-major-36", which modprobe.conf (or the old
+> modutils' builtin) says is "netlink".  If you introduce a new char
+> major (or, say a new cypher, or new network family, etc), you currenly
+> have to get everyone to include it in their configuration file.
 > 
-> 
-> What was the size of uncompressed kernel binaries?
-> This is a simple (and somewhat inaccurate) measure of compiler
-> improvement ;)
+> Now, the netlink module *knows* it provides char-major-36: with
+> MODULE_ALIAS() it can say so.
 
-While I too like smaller tighter output code, I'd trade it for code that 
-runs faster in real world situations.  As an example identifying the 
-most likely execution path through a routine and keeping it contiguous 
-in memory will do more for average execution speed than optimizing to 
-use the smallest number of bytes.  If the compiler could tell which 
-blocks of code are for handling exceptions it then can place them ouside 
-of the main execution path.  This makes the normal code execution path 
-smaller and more compact.  In doing so it also reduces the number of 
-memory fetch operations and cache space needed to run the code.  With 
-cache misses being 100+ clock cycles and page faults well into the 
-millions, keeping that normal execution path short means alot.
+The "provides" is the missing clue... You are taking about "provides" (and
+mixing it up with "alias", something I still can't agree on), I'm talking
+about "alias". Maybe they should be separate? In your examples netlink
+_provides_ char-major-36, xyz3000 _provides_ binfmt-754, eepro100 _aliases_
+to eth0 here. First use is clearly in-kernel, second one is (or should
+always be IMVHO) out-of-kernel. Sure, could use the same infrastructure for
+simplicity.
 
->>Don't let this get out, but egcs-2.91.66 compiled FFT code
->>works about 50 percent of the speed of whatever M$ uses for
->>Visual C++ Version 6.0  I was awfully disheartened when I
-> 
-> Yes. M$ (and some other compilers) beat GCC badly.
+Now, what if xyz and zyx both provide foo? This will be the case when a new
+driver comes along...
 
-But can M$'s compiler produce code for many radically different CPU 
-architectures?  Most people only work with gcc on one type of CPU so 
-they never think about just how flexible and good GCC really is.  I see 
-it often compaired against compilers that are dedicated to a single CPU 
-where the development team only has to worry about one CPU type.  GCC's 
-development team needs to worry about many different arcitectures.  Some 
-are radically different in their fundamental structure.  This really 
-complicates the job of producing a compiler that works correctly.
+[This is looking more and more like a task for rpm/apt...
+ /me ducks and runs]
 
-- Bryan
-
-
-
+Thanks for your patience!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

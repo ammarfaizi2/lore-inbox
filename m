@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUDEGAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 02:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbUDEGAU
+	id S263141AbUDEGC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 02:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbUDEGC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 02:00:20 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:37602 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S261479AbUDEGAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 02:00:15 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Richard Harke <rharke@earthlink.net>
+	Mon, 5 Apr 2004 02:02:28 -0400
+Received: from 201008050033.user.veloxzone.com.br ([201.8.50.33]:31941 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id S263141AbUDEGC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 02:02:27 -0400
+Date: Mon, 5 Apr 2004 03:02:24 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
 To: linux-kernel@vger.kernel.org
-Subject: Make menuconfig fails
-Date: Mon, 5 Apr 2004 00:01:11 -0700
-User-Agent: KMail/1.4.3
+Subject: Re: 2.6.5-mc1
+In-Reply-To: <20040404194037.09d67c37.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404050300470.1706@pervalidus.dyndns.org>
+References: <20040404194037.09d67c37.akpm@osdl.org>
+X-Archive: encrypt
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200404050001.11301.rharke@earthlink.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Messages says lxdialog is bad, probably because of a problem
-with ncurses
-I have:
-/lib/libncurses.so.5    -> libncurses.so.5.4
-/lib/libncurses.so.5.4
+This patch doesn't apply to 2.6.5 or 2.6.5-mm1. I get:
 
-/usr/lib/libncurses.a
-/usr/lib/libncurses.so  -> /lib/libncurses.so.5
-/usr/lib/libncurses.so.5   ->   libtermcap.so
+The next patch would create the file arch/alpha/kernel/osf_sys.c,
+which already exists!  Assume -R? [n]
 
-/usr/include/ncurses.h   -> curses.h
-/usr/include/ncurses_dll.h
-/usr/include/curses.h
+and so on.
 
-I don't see any other ncurses lib's or headers
+2.6.5-mm1 applies cleanly.
 
-System ia64 (zx2000) running Debian 2.4.19
-trying to build 2.4.25 from debian kernel-source-2.4.25
-    with kernel-patches-2.4.25-ia64
-Also have
-/lib/libc-2.3.2.so
-/lib/libc.so.6.1  -> libc-2.3.2.so
+On Sun, 4 Apr 2004, Andrew Morton wrote:
 
-I tried removing /usr/lib/libncurses.a as it is not part of the
-ncurses5 package but did not make a difference
-The message also suggests that you can rebuild lxdialog
-by cd'ing to /usr/src/linux/scripts/lxdialog and
-running make clean all
-This will never work as HOSTGCC is not defined unless make
-is run in /usr/src/linux
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mc1/
 
-Iwould appreciate any help or suggestions.
-
-Richard Harke
-
+-- 
+http://www.pervalidus.net/contact.html

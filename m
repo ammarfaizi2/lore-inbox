@@ -1,55 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbTHZUYE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 16:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTHZUYD
+	id S262619AbTHZUST (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 16:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbTHZUST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 16:24:03 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:51205 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262166AbTHZUYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 16:24:01 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [PATCH 2.4.23-pre1] /proc/ikconfig support
-Date: Tue, 26 Aug 2003 22:23:08 +0200
-User-Agent: KMail/1.5.3
-Cc: lkml <linux-kernel@vger.kernel.org>, Willy Tarreau <willy@w.ods.org>
-References: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 26 Aug 2003 16:18:19 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:26971 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S262619AbTHZUSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 16:18:17 -0400
+Subject: Re: reiser4 snapshot for August 26th.
+From: Steven Cole <elenstev@mesatop.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Oleg Drokin <green@namesys.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Alex Zarochentsev <zam@namesys.com>, reiserfs-dev@namesys.com,
+       reiserfs-list@namesys.com, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030826200530.GC1258@matchmail.com>
+References: <20030826102233.GA14647@namesys.com>
+	 <1061922037.1670.3.camel@spc9.esa.lanl.gov>
+	 <20030826182609.GO5448@backtop.namesys.com>
+	 <1061926566.1076.2.camel@teapot.felipe-alfaro.com>
+	 <20030826194321.GA25730@namesys.com>
+	 <1061927482.1666.36.camel@spc9.esa.lanl.gov>
+	 <20030826200530.GC1258@matchmail.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1061928831.1666.46.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 26 Aug 2003 14:13:51 -0600
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308262223.08827.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 August 2003 21:33, Marcelo Tosatti wrote:
+On Tue, 2003-08-26 at 14:05, Mike Fedyk wrote:
+> On Tue, Aug 26, 2003 at 01:51:22PM -0600, Steven Cole wrote:
+> > I did a "time bk -r co" for the current 2.6 tree, and here
+> > are the results for reiser4 and ext3 on 2.6.0-test4:
+> > 
+> > Reiser4:
+> > real    1m55.077s
+> > user    0m30.740s
+> > sys     0m36.558s
+> > 
+> > Ext3:
+> > real    3m48.438s
+> > user    0m26.400s
+> > sys     0m13.205s
+> > 
+> 
+> Can you try ext3 with -o data=writeback, as well as xfs & reiser3?
 
-Hi Marcelo,
+[root@spc1 /]# umount /dev/hda9
+[root@spc1 /]# mount -t ext3 -o data=writeback /dev/hda9 /home
+[root@spc1 /]# mount -t reiserfs /dev/hda10 /share_r
+[root@spc1 /]# mount -t xfs /dev/hda12 /share_x
 
-> > I have the same question about the seq_file "single" additions
-> > patch that I sent yesterday.... ???
-> The seq_file patch needs EXPORT_SYMBOL right?
+[root@spc1 /]# df -T
+Filesystem    Type   1K-blocks      Used Available Use% Mounted on
+/dev/hda1     ext3      241116     89449    139219  40% /
+none         tmpfs      126784         0    126784   0% /dev/shm
+/dev/hda8     ext3      241116      4711    223957   3% /tmp
+/dev/hda6     ext3     3012204   2507596    351592  88% /usr
+/dev/hda7     ext3      489992     70724    393968  16% /var
+df: `/share_r4': Value too large for defined data type
+/dev/hda9     ext3    20556656  16526268   4030388  81% /home
+/dev/hda10
+          reiserfs     4112476   1911220   2201256  47% /share_r
+/dev/hda12     xfs     4991380    990884   4000496  20% /share_x
 
-I've send the export_symbol patch yesterday to you cc'ed lkml and randy etc.
+Yes, I can do that.  Results in a little while.
 
-> And about ikconfig, hum, I'm not sure if I want that. Its nice, yes, but I
-> still wonder. You are free to convince me though: I think people usually
-> know what they compile in their kernels, dont they?
+BTW, this is RedHat Severn, so df --version gives
+[steven@spc1 /]$ df --version
+df (coreutils) 5.0
 
-grmpf. Absolutely wrong argumentation. People like me compile kernels a lot, 
-for tons of different machines, for customers and so on. My brain is not that 
-good that I'll remember each and every customers kernel/machine config ;)
+Steven
 
-Many people forget to copy the current .config to somewhere else in /boot or 
-such. And I agree 100% with Willy :)
-
-P.S.: Alan planed it for .23-pre1 ;-))
-
-ciao, Marc
 

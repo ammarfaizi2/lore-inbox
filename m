@@ -1,41 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263671AbTDTSbm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 14:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263672AbTDTSbm
+	id S263669AbTDTSaA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 14:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263671AbTDTS37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 14:31:42 -0400
-Received: from fed1mtao01.cox.net ([68.6.19.244]:4823 "EHLO fed1mtao01.cox.net")
-	by vger.kernel.org with ESMTP id S263671AbTDTSbl (ORCPT
+	Sun, 20 Apr 2003 14:29:59 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:43894 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id S263669AbTDTS35 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 14:31:41 -0400
-Message-ID: <3EA2E8CC.4080201@cox.net>
-Date: Sun, 20 Apr 2003 11:37:00 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 20 Apr 2003 14:29:57 -0400
+Date: Sun, 20 Apr 2003 20:41:52 +0200 (MEST)
+From: Matthias Brinkmann <Lead_Crow@gmx.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: irq balancing; kernel vs. userspace
-References: <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>	 <6uwuhpl2u5.fsf@zork.zork.net> <1050863476.1412.11.camel@laptop.fenrus.com>
-In-Reply-To: <1050863476.1412.11.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Subject: 2.4.21-pre7: make_install error for ide-Drivers
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0002230372@gmx.net
+X-Authenticated-IP: [80.136.180.112]
+Message-ID: <19396.1050864112@www53.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Hello!
 
-> On Sun, 2003-04-20 at 15:23, Sean Neakums wrote:
-> 
->>I thought I'd play with the userspace IRQ-balancer, but booting with
->>noirqbalance seems not to not balance.  Possibly I misunderstand how
->>this all fits together.
-> 
-> 
-> this looks like you haven't started the userspace daemon (yet)
+I compiled an 2.4.21-pre7 kernel with modularized IDE-Drivers. When I tried
+to install
+the modules, I got the following error:
 
-I thought the same thing reading his original message, then I looked 
-closer. He booted using "noirqbalance", did not start the userspace 
-balancer, and yet his IRQs are still being balanced.
+Errors from make modules_install:
+-------------------
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.21-pre7; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.21-pre7/kernel/drivers/ide/ide-probe.o
+depmod: 	do_ide_request
+depmod: 	ide_add_generic_settings
+depmod: 	create_proc_ide_interfaces
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.21-pre7/kernel/drivers/ide/ide.o
+depmod: 	ide_add_proc_entries
+depmod: 	proc_ide_read_capacity
+depmod: 	proc_ide_create
+depmod: 	ide_remove_proc_entries
+depmod: 	destroy_proc_ide_drives
+depmod: 	proc_ide_destroy
+depmod: 	create_proc_ide_interfaces
+------------------
+
+
+Consequenty an 'modprobe ide-cd' failed with this error:
+--------------------
+modprobe: Too deep recursion in module dependencies!
+modprobe: Circular dependency? ide-iops ide-lib ide ide-cd
+Aborted
+-----------------------
+
+
+I want to add that I took the config from an 2.4.18 kernel, where the IDE
+drivers
+worked with no problem.
+
+
+Could it be a problem that I cross-compiled the kernel on an Athlon/1200+
+machine and
+then copied the whole stuff to the target system (Pentiom 133)?
+
+Some Ideas what went wrong? Bug, Feature or only my Dumbness?
+
+
+Compiler: gcc 3.0.4
+System: SuSE Linux 8.0
+
+
+TIA,
+Matthias
+
+-- 
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
 

@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267507AbRGMR0g>; Fri, 13 Jul 2001 13:26:36 -0400
+	id <S267510AbRGMRcZ>; Fri, 13 Jul 2001 13:32:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267508AbRGMR0Z>; Fri, 13 Jul 2001 13:26:25 -0400
-Received: from [204.94.214.22] ([204.94.214.22]:14612 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S267507AbRGMR0Q>; Fri, 13 Jul 2001 13:26:16 -0400
-Message-Id: <200107131727.f6DHRXp08659@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Mike Black <mblack@csihq.com>, Andrew Morton <andrewm@uow.edu.au>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246 
-In-Reply-To: Message from "Stephen C. Tweedie" <sct@redhat.com> 
-   of "Fri, 13 Jul 2001 17:30:07 BST." <20010713173007.G13419@redhat.com> 
-Date: Fri, 13 Jul 2001 12:27:33 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S267511AbRGMRcP>; Fri, 13 Jul 2001 13:32:15 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:15019 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267510AbRGMRcI>; Fri, 13 Jul 2001 13:32:08 -0400
+Date: Fri, 13 Jul 2001 10:31:44 -0700
+From: Mike Kravetz <mkravetz@sequent.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+        Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net,
+        Mike Kravetz <mkravetz@sequent.com>
+Subject: Re: CPU affinity & IPI latency
+Message-ID: <20010713103144.E1137@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <20010712173641.C11719@work.bitmover.com> <XFMail.20010713094144.davidel@xmailserver.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010713094144.davidel@xmailserver.org>; from davidel@xmailserver.org on Fri, Jul 13, 2001 at 09:41:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
+On Fri, Jul 13, 2001 at 09:41:44AM -0700, Davide Libenzi wrote:
 > 
-> On Fri, Jul 13, 2001 at 09:54:56AM -0400, Mike Black wrote:
-> > I give up!  I'm getting file system corruption now on the ext3 partition...
-> > and I've got a kernel oops (soon to be decoded)
-> 
-> Please, do send details.  We already know that the VM has a hard job
-> under load, and journaling exacerbates that --- ext3 cannot always
-> write to disk without first allocating more memory, and the VM simply
-> doesn't have a mechanism for dealing with that reliably.  It seems to
-> be compounded by (a) 2.4 having less write throttling than 2.2 had,
-> and (b) the zoned allocator getting confused about which zones
-> actually need to be recycled.
+> I personally think that a standard scheduler/cpu is the way to go for SMP.
+> I saw the one IBM guys did and I think that the wrong catch there is trying
+> always to grab the best task to run over all CPUs.
 
-We seem to have managed to keep XFS going without the memory reservation
-scheme - and the way we do I/O on metadata right now means there is always
-a memory allocation in that path. At the moment the only thing I can kill
-the system with is make -j bzImage it eventually grinds to a halt with
-the swapper waiting for a request slot in the block layer but the system
-is in such a mess that I have not been able to diagnose it further than
-that.
-
-A lot of careful use of GFP flags on memory allocation was necessary to
-get to this point, the GFP_NOIO and GFP_NOFS finally made this deadlock
-clean.
-
-Steve
+That was me/us.  Most of the reason for making 'global scheduling'
+decisions was an attempt to maintain the same behavior as the existing
+scheduler.  We are trying to see how well we can make this scheduler
+scale, while maintaining this global behavior.  Thought is that if
+there was ever any hope of someone adopting this scheduler, they would
+be more likely to do so if it attempted to maintain existing behavior.
 
 
-> 
-> It's not just ext3 --- highmem bounce buffering and soft raid buffers
-> have the same problem, and work around it by doing their own internal
-> preallocation of emergency buffers.  Loop devices and nbd will have a
-> similar problem if you use those for swap or writable mmaps, as will
-> NFS.
-> 
-> One proposed suggestion is to do per-zone memory reservations for the
-> VM's use: Ben LaHaise has prototype code for that and we'll be testing
-> to see if it makes for an improvement when used with ext3.
-> 
-> Cheers,
->  Stephen
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I think that this concept could be relaxed introducing less chains between each
+> CPU scheduler.
+> A cheap load balancer should run, "time to time"(tm), to move tasks when a
+> certain level of unbalancing has been reached.
+> This will give each scheduler more independence and will make it more scalable,
+> IMVHO.
 
+Take a look at the 'CPU pooling & Load balancing' extensions to our
+scheduler(lse.sourceforge.net/scheduling).  It allows you to divide
+the system into CPU pools keep scheduling decisions limited to
+these pools.  Periodicly, load balancing will be performed among
+the pools.  This has shown some promise on NUMA architectures (as
+one would expect).  You could define pool sizes to be 1 CPU and
+get the scheduling behavior you desire on SMP.
 
+But, none of this has to do with CPU affinity issues with the
+current scheduler.
+
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center

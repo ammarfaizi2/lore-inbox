@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbUBDTiT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUBDThl
+	id S263800AbUBDTax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbUBDTax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:37:41 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:7177 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263726AbUBDThi (ORCPT
+	Wed, 4 Feb 2004 14:30:53 -0500
+Received: from ddc.ilcddc.com ([12.35.229.4]:37906 "EHLO ddcnyntd.ddc-ny.com")
+	by vger.kernel.org with ESMTP id S263800AbUBDTaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:37:38 -0500
-Date: Wed, 4 Feb 2004 20:47:58 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Steve Kenton <skenton@ou.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.2 make defconfig for all arches give 171 "trying to assign nonexistent symbol" errors
-Message-ID: <20040204194758.GC2023@mars.ravnborg.org>
-Mail-Followup-To: Steve Kenton <skenton@ou.edu>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <4021243F.30500@ou.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4021243F.30500@ou.edu>
-User-Agent: Mutt/1.4.1i
+	Wed, 4 Feb 2004 14:30:52 -0500
+Message-ID: <89760D3F308BD41183B000508BAFAC4104B16F32@DDCNYNTD>
+From: "Randazzo, Michael" <RANDAZZO@ddc-web.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.x POSIX Compliance/Conformance...
+Date: Wed, 4 Feb 2004 14:30:39 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 10:56:31AM -0600, Steve Kenton wrote:
-> 2.6.2 make defconfig for all arches give 171 "trying to assign nonexistent 
-> symbol" errors
+All,
 
-You should at least cc: the relevant mailing lists and/or maintainers.
-You can be sure ppc folks see your mail at ppc-devel, but not linux-kernel.
-Just an example, the lists and maintainers are listed in MAINTAINERS.
+Can someone inform me of the POSIX compliance/Conformance of the Linux 
+Kernel, esp. for module (driver) development.
 
-	Sam
+Posix.1 (1003.1)
+Posix.4 (1003.1b)
+etc....
+
+I have made attempts to use (Posix semaphores) in my LKM, but find 
+no POSIX support in /lib/modules/<uname -r>/build/include/unistd.h
+
+Any help is appreciated...
+
+M.
+ 
+"This message may contain company proprietary information. If you are not
+the intended recipient, any disclosure, copying, distribution or reliance on
+the contents of this message is prohibited. If you received this message in
+error, please delete and notify me."
+

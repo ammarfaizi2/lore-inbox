@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268022AbRHBAdq>; Wed, 1 Aug 2001 20:33:46 -0400
+	id <S267987AbRHBAPR>; Wed, 1 Aug 2001 20:15:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268042AbRHBAdg>; Wed, 1 Aug 2001 20:33:36 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62220 "EHLO
+	id <S267973AbRHBAPG>; Wed, 1 Aug 2001 20:15:06 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45324 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268022AbRHBAdT>; Wed, 1 Aug 2001 20:33:19 -0400
-Subject: Re: Memory Write Ordering Question
-To: jim@intra.blueskylabs.com (James W. Lake)
-Date: Thu, 2 Aug 2001 01:35:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org ("Linux Kernel Mailing List (E-mail)")
-In-Reply-To: <no.id> from "James W. Lake" at Aug 01, 2001 11:44:10 AM
+	id <S267992AbRHBAOz>; Wed, 1 Aug 2001 20:14:55 -0400
+Subject: Re: [PATCH] vxfs fix
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Thu, 2 Aug 2001 01:15:13 +0100 (BST)
+Cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk, hch@caldera.de,
+        viro@math.psu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108011522590.21247-100000@penguin.transmeta.com> from "Linus Torvalds" at Aug 01, 2001 03:29:58 PM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15S6S7-00087H-00@the-village.bc.nu>
+Message-Id: <E15S68v-00083w-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm wondering if anyone has any idea what exactly is causing this.  The
-> readl is a so-so work around.  I'd like to figure out how to do it
-> correctly.  Does anyone who knows more about Intel CPU's and write
-> ordering and PCI have any ideas?
+> I don't think V7 has a magic number at all. But checking that the size and
+> nr-of-inodes fields make sense, together with verifying that the root
+> inode really is a directory with (size % 512) == 0, and possibly verifying
+> things like "if the root directory is not large enough to have a
+> doubly/triply indirect block, then that doubly/triply indirect blocknumber
+> had better be zero"  would catch 99.9% of everything.
 
-Its entirely a PCI issue. PCI writes are posted and may be deferred. However
-a write cannot pass another write to the device, nor a read, so your read
-is the real solution.
+Alternatively pass a flag to the mount command saying "this is a guesswork
+special" then V7 fs can just return 'not me'
 
-The full horror is in the PCI specs which you can get on CD nowdays fairly
-sanely. Basically PCI is a message passing system disguised as a bus, treat
-it as the former and you wont get too badly hurt
+Alan

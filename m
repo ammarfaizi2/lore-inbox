@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284871AbRLFAMi>; Wed, 5 Dec 2001 19:12:38 -0500
+	id <S284882AbRLFAN2>; Wed, 5 Dec 2001 19:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284872AbRLFAM3>; Wed, 5 Dec 2001 19:12:29 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:45326 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S284871AbRLFAMR>; Wed, 5 Dec 2001 19:12:17 -0500
-Date: Thu, 6 Dec 2001 11:13:06 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: mfedyk@matchmail.com, hps@intermeta.de, lm@bitmover.com,
-        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-Message-Id: <20011206111306.6ce4039e.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.GSO.4.21.0112010003410.7958-100000@binet.math.psu.edu>
-In-Reply-To: <20011130201235.A489@mikef-linux.matchmail.com>
-	<Pine.GSO.4.21.0112010003410.7958-100000@binet.math.psu.edu>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S284885AbRLFANT>; Wed, 5 Dec 2001 19:13:19 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:39869 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S284882AbRLFANF>; Wed, 5 Dec 2001 19:13:05 -0500
+Date: Thu, 6 Dec 2001 09:12:45 +0900
+Message-Id: <200112060012.JAA04482@asami.proc.flab.fujitsu.co.jp>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        Shuji YAMAMURA <yamamura@flab.fujitsu.co.jp>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] task_struct + kernel stack colouring ...
+In-Reply-To: <3C0E84B4.1070808@colorfullife.com>
+In-Reply-To: <Pine.LNX.4.40.0112051103100.1644-100000@blue1.dev.mcafeelabs.com>
+	<3C0E84B4.1070808@colorfullife.com>
+Reply-To: kumon@flab.fujitsu.co.jp
+From: kumon@flab.fujitsu.co.jp
+Cc: kumon@flab.fujitsu.co.jp
+X-Mailer: Handmade Mailer version 1.0
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Dec 2001 00:14:54 -0500 (EST)
-Alexander Viro <viro@math.psu.edu> wrote:
+Manfred Spraul writes:
+ > Shuij, I don't understand why you need both a shift and a modulo: 
+ > address % odd_number should generate a random distribution (i.e. all 
+ > bits affect the result), even without the shift.
 
-> 
-> 
-> On Fri, 30 Nov 2001, Mike Fedyk wrote:
-> 
-> > This is Linux-Kernel.  Each developer is on their own on how they pay the
-> > their bills.  The question is... Why not accept a *driver* that *works* but
-> > the source doesn't look so good?
-> 
-> Because this "works" may very well include exploitable buffer overruns in
-> kernel mode.  I had seen that - ioctl() assuming that nobody would pass
+The lame duck reason was: previously it was intended to use within
+Current macro, the division should be avoided such a frequently used
+operation.
 
-And: bad code spreads.  Anyone who has done infrastructure change in the
-kernel sees this: people copy (presumed) working code.
-
-Hence I now lean towards "change EVERYTHING" rather than "wrap old source, add
-new", and "fix even if not broken", eg. my "set_bit needs a long" patch which
-also changed x86-specific code (where it doesn't matter).
-
-Cheers,
-Rusty.
--- 
-  Anyone who quotes me is an idiot. -- Rusty Russell.
+Currently the stack coloring operation is required only at process
+creation time, division by a odd number is sufficient and we'll
+experiment it.
+--
+Kouichi Kumon, Software Laboratory, Fujitsu Labs.
+kumon@flab.fujitsu.co.jp

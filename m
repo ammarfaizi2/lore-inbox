@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310920AbSCTADg>; Tue, 19 Mar 2002 19:03:36 -0500
+	id <S310924AbSCTAG0>; Tue, 19 Mar 2002 19:06:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310924AbSCTAD1>; Tue, 19 Mar 2002 19:03:27 -0500
-Received: from ns1.cypress.com ([157.95.67.4]:33976 "EHLO ns1.cypress.com")
-	by vger.kernel.org with ESMTP id <S310920AbSCTADQ>;
-	Tue, 19 Mar 2002 19:03:16 -0500
-Message-ID: <3C97D18F.7010001@cypress.com>
-Date: Tue, 19 Mar 2002 18:02:23 -0600
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, 
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Larry McVoy <lm@bitmover.com>
-Subject: Re: Bitkeeper licence issues
-In-Reply-To: <E16nOzQ-0008U7-00@the-village.bc.nu> <Pine.LNX.4.44L.0203192005350.2181-100000@imladris.surriel.com> <20020319163155.A25986@hq.fsmlabs.com> <20020319154727.O14877@work.bitmover.com>
+	id <S310953AbSCTAGR>; Tue, 19 Mar 2002 19:06:17 -0500
+Received: from ohiper1-213.apex.net ([209.250.47.228]:38929 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S310924AbSCTAGD>; Tue, 19 Mar 2002 19:06:03 -0500
+Date: Tue, 19 Mar 2002 18:03:30 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: Danijel Schiavuzzi <dschiavu@public.srce.hr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Screen corruption in 2.4.18
+Message-ID: <20020320000330.GA15278@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Danijel Schiavuzzi <dschiavu@public.srce.hr>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203192112.WAA09721@jagor.srce.hr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Scanned but not guaranteed against viruses
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Uptime: 17:57:24 up 6 days,  6:02,  1 user,  load average: 1.11, 1.12, 1.09
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 19, 2002 at 10:12:18PM +0100, Danijel Schiavuzzi wrote:
+> Hi.
+> 
+> Some two weeks ago I posted here a kernel bug report regarding
+> a screen corruption issue. You can find it here:
+> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0203.0/1577.html
+> 
+> As I didn't know if it's my hardware that is the cause of corruption,
+> searched over the Internet and found that Thomas Brehm is also
+> having the same problem, and he has the same motherboard as me
+> (MSI MS-6340M, VIA KM133 chipset - VT8365 north + VIA686B south bridge).
+> 
+> Short problem description: 2.4.17 kernel works fine, but any kernel
+> higher than this makes the screen corrupted in any text or VESA fb
+> mode. In standard text mode, the screen gets filled with vertical
+> lines. In vesafb mode, random horizontal lines appear on the screen.
+> 
+> However, I made up the 2.4.18 kernel to boot up properly by 
+> replacing the file
+> 
+> 	./linux/arch/i386/pci-pc.c
+> 
+> with that from the 2.4.17 kernel. The kernel runs fine now.
+> 
+> So, what seems to make the screen corruption?
 
-Larry McVoy wrote:
-> I think that there is lots to be said about moving out of silicon valley,
-> I personally don't like it here that all much.  On the other hand,
-> it is extremely cool that there is such a high concentration of smart
-> people within 30 minutes of my house.  What I'd like to see is a migration
-> out of silly valley but to somewhere else.  I.e., pockets of smart people
-> working together.  Face time with smart people is fun, if you get a chance
-> to do it, you know what I mean.
-
-
-Which would negate the monetary resons for moving.
-The cost of living in a given area is related to
-what people can/will pay to live there.
-
-Example. I live in a university town in rual Mississippi.
-Without the university, the down would likely die.
-An apartment here that rents for $600 a month would
-only bing $200 - $300 in the small towns 30 miles
-away. When I was looking to buy a house, 15 miles away,
-the price's are half that here. Same for land to build
-a house on.
-
-If a lot of engineers and programmers, were to move
-to a small town 30 miles away, the prices would quickly
-rise to meet the new earnings levels. Soon it would be
-the same as here. As more move in the place gets bigger,
-prices go up, and soon you have another Silicon Valley.
-
-So please, stay in the valley, I like my current standard
-of living :)
-
-	-Thomas
-
+I also experienced this problem on a VIA board.  I tried removing my
+chipset from the list of those which need the fix-up from pci-pc.c, and
+this elimiated all the corruption.  It would seem that this chip, at
+least on our specific boards, does not need the fix-up, and in fact it
+is detrimental.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?
+			-- Montgomery C. Burns

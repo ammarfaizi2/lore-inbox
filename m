@@ -1,115 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbTIPIpm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 04:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTIPIpm
+	id S261799AbTIPIvw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 04:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTIPIvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 04:45:42 -0400
-Received: from mail-08.iinet.net.au ([203.59.3.40]:56028 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261681AbTIPIpk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 04:45:40 -0400
-Message-ID: <3F66CDB6.7000601@ii.net>
-Date: Tue, 16 Sep 2003 16:45:42 +0800
-From: Wade <neroz@ii.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 16 Sep 2003 04:51:52 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:3268 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261799AbTIPIvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 04:51:50 -0400
+Date: Tue, 16 Sep 2003 10:51:28 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: David Yu Chen <dychen@stanford.edu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu,
+       David Woodhouse <dwmw2@infradead.org>, linux-mtd@lists.infradead.org,
+       Wade <neroz@ii.net>
 Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
-In-Reply-To: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
-Content-Type: multipart/mixed;
- boundary="------------070201080000020604040700"
+Message-ID: <20030916085128.GC27703@wohnheim.fh-wedel.de>
+References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU> <20030916065553.GA12329@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030916065553.GA12329@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070201080000020604040700
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-David Yu Chen wrote:
-> Hi All,
+On Tue, 16 September 2003 08:55:53 +0200, Jörn Engel wrote:
+> On Mon, 15 September 2003 21:35:46 -0700, David Yu Chen wrote:
+> > 
+> > looks like checking for mtdblks instead of mtdblk
+> > [FILE:  2.6.0-test5/drivers/mtd/mtdblock.c]
+> > [FUNC:  mtdblock_open]
+> > [LINES: 277-279]
+> > [VAR:   mtdblk]
+> >  272:		mtdblks[dev]->count++;
+> >  273:		return 0;
+> >  274:	}
+> >  275:	
+> >  276:	/* OK, it's not open. Create cache info for it */
+> > START -->
+> >  277:	mtdblk = kmalloc(sizeof(struct mtdblk_dev), GFP_KERNEL);
+> >  278:	if (!mtdblks)
+> > END -->
+> >  279:		return -ENOMEM;
+> >  280:
+> >  281:	memset(mtdblk, 0, sizeof(*mtdblk));
+> >  282:	mtdblk->count = 1;
+> >  283:	mtdblk->mtd = mtd;
+> >  284:
 > 
-> I'm with the Stanford Meta-level Compilation research group, and I
-> have a set of memory leaks on error paths for the 2.6.0-test5 kernel.
-> (I also have error reports for 2.4.18 and a couple other kernels if
-> anyone is interested).
-> 
-> There may be one or more "GOTO -->" markers showing the different
-> paths of execution that can occur between where the memory is
-> allocated and where the function returns.
-> 
-> My checker identifies error paths with a learning algorithm on
-> features surrounding goto and return statements.  I'd greatly
-> appreciate any comments or confirmation on these bugs.
-> 
-> Thanks!
-> 
-> ---
-> David Yu Chen
-> http://www.stanford.edu/~dychen/
-[snip]
-> 
-> [FILE:  2.6.0-test5/drivers/char/vt_ioctl.c]
-> [FUNC:  do_kdsk_ioctl]
-> [LINES: 133-150]
-> [VAR:   key_map]
->  128:
->  129:			if (keymap_count >= MAX_NR_OF_USER_KEYMAPS &&
->  130:			    !capable(CAP_SYS_RESOURCE))
->  131:				return -EPERM;
->  132:
-> START -->
->  133:			key_map = (ushort *) kmalloc(sizeof(plain_map),
->  134:						     GFP_KERNEL);
->  135:			if (!key_map)
->  136:				return -ENOMEM;
->  137:			key_maps[s] = key_map;
->  138:			key_map[0] = U(K_ALLOCATED);
->         ... DELETED 6 lines ...
->  145:			break;	/* nothing to do */
->  146:		/*
->  147:		 * Attention Key.
->  148:		 */
->  149:		if (((ov == K_SAK) || (v == K_SAK)) && !capable(CAP_SYS_ADMIN))
-> END -->
->  150:			return -EPERM;
->  151:		key_map[i] = U(v);
->  152:		if (!s && (KTYP(ov) == KT_SHIFT || KTYP(v) == KT_SHIFT))
->  153:			compute_shiftstate();
->  154:		break;
->  155:	}
-> ---------------------------------------------------------
-> 
+> Invalid.  This is quite an obvious false positive, at least if your
+> algorithm checks for possible value ranges.
 
-Is the attached correct?
+Actually, it *is* valid, as Wade pointed out to me.
 
+David, please apply!
 
+Jörn
 
---------------070201080000020604040700
-Content-Type: text/plain;
- name="vt_ioctl_memleak.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vt_ioctl_memleak.diff"
+-- 
+Mundie uses a textbook tactic of manipulation: start with some
+reasonable talk, and lead the audience to an unreasonable conclusion.
+-- Bruce Perens
 
---- linux-2.6.0-test5.old/drivers/char/vt_ioctl.c	2003-08-23 07:57:57.000000000 +0800
-+++ linux-2.6.0-test5.new/drivers/char/vt_ioctl.c	2003-09-16 16:17:00.000000000 +0800
-@@ -146,8 +146,10 @@
- 		/*
- 		 * Attention Key.
- 		 */
--		if (((ov == K_SAK) || (v == K_SAK)) && !capable(CAP_SYS_ADMIN))
-+		if (((ov == K_SAK) || (v == K_SAK)) && !capable(CAP_SYS_ADMIN)) {
-+			kfree(key_map);
- 			return -EPERM;
-+		}
- 		key_map[i] = U(v);
- 		if (!s && (KTYP(ov) == KT_SHIFT || KTYP(v) == KT_SHIFT))
- 			compute_shiftstate();
-
---------------070201080000020604040700--
-
+--- linux-2.6.0-test3/drivers/mtd/mtdblock.c~mtdblock_leak	2003-07-05 23:59:30.000000000 +0200
++++ linux-2.6.0-test3/drivers/mtd/mtdblock.c	2003-09-16 10:47:58.000000000 +0200
+@@ -275,7 +275,7 @@
+ 	
+ 	/* OK, it's not open. Create cache info for it */
+ 	mtdblk = kmalloc(sizeof(struct mtdblk_dev), GFP_KERNEL);
+-	if (!mtdblks)
++	if (!mtdblk)
+ 		return -ENOMEM;
+ 
+ 	memset(mtdblk, 0, sizeof(*mtdblk));

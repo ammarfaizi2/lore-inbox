@@ -1,79 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313419AbSF3Ub2>; Sun, 30 Jun 2002 16:31:28 -0400
+	id <S315213AbSF3Tui>; Sun, 30 Jun 2002 15:50:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSF3Ub1>; Sun, 30 Jun 2002 16:31:27 -0400
-Received: from macker.loria.fr ([152.81.1.70]:53975 "EHLO macker.loria.fr")
-	by vger.kernel.org with ESMTP id <S311710AbSF3UbZ>;
-	Sun, 30 Jun 2002 16:31:25 -0400
-X-Amavix: Anti-spam check done by SpamAssassin
-X-Amavix: Anti-virus check done by McAfee
-X-Amavix: Scanned by Amavix
-Date: Sun, 30 Jun 2002 22:33:43 +0200 (CEST)
-From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
-X-X-Sender: samy@localhost.localdomain
-Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
-To: zab@zabbo.net, <linux-sound@vger.kernel.org>
-Cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.18 drivers/sound/maestro.c
-Message-ID: <Pine.LNX.4.44.0206302209370.470-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315406AbSF3Tuh>; Sun, 30 Jun 2002 15:50:37 -0400
+Received: from p033.as-l031.contactel.cz ([212.65.234.225]:8320 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S315213AbSF3Tug>;
+	Sun, 30 Jun 2002 15:50:36 -0400
+Date: Sun, 30 Jun 2002 21:49:20 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+       Martin Dalecki <dalecki@evision-ventures.com>, alex@ssi.bg,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: HDIO_GETGEO accessibility (was Re: [PATCH] 2.5.24 IDE 95 (fwd))
+Message-ID: <20020630194920.GC3778@ppc.vc.cvut.cz>
+References: <Pine.SOL.4.30.0206301848370.26714-200000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0206301848370.26714-200000@mion.elka.pw.edu.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 30, 2002 at 06:52:58PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> 
+> I hope you dont mind Petr.
 
-Hi !
+No problem.
+ 
+But I have one, unrelated... Today I found that VMware does not run
+on 2.5.24 with rawdisks for non-root users because of ioctl(hdd, HDIO_GETGEO, ...)
+is guarded by "if (!capable(CAP_SYS_ADMIN)) return -EACCES;". And so it
+fails although user has read-write access to /dev/hdX.
 
-maestro.c:3537 takes care about volume button pressing when requesting irq
-(maestro_probe) :
-
-	if((ret=request_irq(card->irq, ess_interrupt, SA_SHIRQ, card_names[card_type], card)))
-	{
-		<snipped>
-	}
-
-	/* Turn on hardware volume control interrupt.
-	   This has to come after we grab the IRQ above,
-	   or a crash will result on installation if a button has been pressed,
-	   because in that case we'll get an immediate interrupt. */
-	n = inw(iobase+0x18);
-	n|=(1<<6);
-	outw(n, iobase+0x18);
-
-but not when unloading module : in fact, this bit is never cleared.
-Indeed, loading the module, unloading it, and pressing a volume button
-immediately crashes.
-
-This cures the problem :
-
-diff -urN linux-2.4.18/drivers/sound/maestro.c linux-2.4.18-cor/drivers/sound/maestro.c
---- linux-2.4.18/drivers/sound/maestro.c	Sun Jun 30 22:00:22 2002
-+++ linux-2.4.18-cor/drivers/sound/maestro.c	Sun Jun 30 22:02:11 2002
-@@ -3569,9 +3569,18 @@
- static void maestro_remove(struct pci_dev *pcidev) {
- 	struct ess_card *card = pci_get_drvdata(pcidev);
- 	int i;
-+	u32 n;
-
- 	/* XXX maybe should force stop bob, but should be all
- 		stopped by _release by now */
-+
-+	/* Turn off hardware volume control interrupt.
-+	   This has to come before we leave the IRQ below,
-+	   or a crash results if a button is pressed ! */
-+	n = inw(card->iobase+0x18);
-+	n&=~(1<<6);
-+	outw(n, card->iobase+0x18);
-+
- 	free_irq(card->irq, card);
- 	unregister_sound_mixer(card->dev_mixer);
- 	for(i=0;i<NR_DSPS;i++)
-
-This patch also apply to 2.5 series (tested on 2.5.24) in linux/sound/oss
-by using -p3.
-
-Best regards,
-
-Samuel Thibault
-
+Is this change really intentional? It is GET, not SET operation, and user has
+access to /dev/hdX. If this change is intentional, I'll recommend VMware
+to gain priviledges around disk geometry accesses, but I do not think that
+user should need SYS_ADMIN for retrieving disk geometry.
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz

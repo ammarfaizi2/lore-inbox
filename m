@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263887AbRFFRav>; Wed, 6 Jun 2001 13:30:51 -0400
+	id <S263961AbRFFRoR>; Wed, 6 Jun 2001 13:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263885AbRFFRal>; Wed, 6 Jun 2001 13:30:41 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:18843 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263851AbRFFRaY>;
-	Wed, 6 Jun 2001 13:30:24 -0400
-Message-ID: <3B1E68AB.CDD00F2C@mandrakesoft.com>
-Date: Wed, 06 Jun 2001 13:30:19 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Frank Davis <fdavis112@juno.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patches sound driver locking issue
-In-Reply-To: <383443482.991847258860.JavaMail.root@web395-wra.mail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263962AbRFFRn5>; Wed, 6 Jun 2001 13:43:57 -0400
+Received: from [213.96.124.18] ([213.96.124.18]:33258 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S263961AbRFFRnw>;
+	Wed, 6 Jun 2001 13:43:52 -0400
+Date: Wed, 6 Jun 2001 19:44:32 +0000
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jldomingo@crosswinds.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: temperature standard - global config option?
+Message-ID: <20010606194432.A1858@dardhal.mired.net>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <B74421C0.F6F7%bootc@worldnet.fr>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Davis wrote:
+On Wednesday, 06 June 2001, at 18:06:56 +0200,
+Chris Boot wrote:
+
+> Hi,
 > 
-> Hello all,
->     I have attached patches against the following sound drivers to fix the locking issues mentioned in Alan's release notes for 2.4.5-ac9 . Please CC me on your comments to the code (I can address the issues quicker). Thanks.
+> > Please, don't.
+> > 
+> > Use kelvins *0.1, and use them consistently everywhere. This is what
+> > ACPI does, and it is probably right.
+> 
+> I'm sorry, by I don't feel like adding 273 to every number I get just to
+> find the temperature of something.  What I would do is give configuration
+>
+What about keeping times with format similar to "06 June 2001, at 18:06:56
++0200" instead of using miliseconds from 01 Jan 1970 ? ;)
 
-Do these patches have the same problems that your es1371 patch did?
+If there is a universally-accepted measure for temperatures, we should use
+it, and let user space applications make the conversions for us.
 
-Let's make sure that is fixed first, and is solid.
+Just my 0.02 (eurocents :)
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+--
+José Luis Domingo López
+Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
+

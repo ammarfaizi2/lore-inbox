@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314031AbSDQNFv>; Wed, 17 Apr 2002 09:05:51 -0400
+	id <S314038AbSDQNP6>; Wed, 17 Apr 2002 09:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314038AbSDQNFu>; Wed, 17 Apr 2002 09:05:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29452 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S314031AbSDQNFt>;
-	Wed, 17 Apr 2002 09:05:49 -0400
-Date: Wed, 17 Apr 2002 15:05:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@suse.de>, Helge Hafting <helgehaf@aitel.hist.no>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-Message-ID: <20020417130536.GH800@suse.de>
-In-Reply-To: <20020415125606.GR12608@suse.de> <02db01c1e498$7180c170$58dc703f@bnscorp.com> <20020416102510.GI17043@suse.de> <3CBD2527.EB976895@aitel.hist.no> <20020417150153.J32185@suse.de>
+	id <S314043AbSDQNP5>; Wed, 17 Apr 2002 09:15:57 -0400
+Received: from gandalf.physik.uni-konstanz.de ([134.34.144.69]:1554 "HELO
+	gandalf.physik.uni-konstanz.de") by vger.kernel.org with SMTP
+	id <S314038AbSDQNP4>; Wed, 17 Apr 2002 09:15:56 -0400
+Date: Wed, 17 Apr 2002 15:15:55 +0200
+From: Guido Guenther <agx@sigxcpu.org>
+To: Rob Radez <rob@osinvestor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Watchdog Updates
+Message-ID: <20020417151555.B31398@gandalf.physik.uni-konstanz.de>
+In-Reply-To: <Pine.LNX.4.33.0204161320110.17511-100000@pita.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17 2002, Dave Jones wrote:
-> On Wed, Apr 17, 2002 at 09:32:55AM +0200, Helge Hafting wrote:
->  > I tried it.  It had to run as root to get permission to read.
->  > Then it hung the machine - caps & scroll lock blinking.
->  > 
->  > I can retry it without X (and fs'es remounted r/o) _if_ the
->  > resulting crash may help with debugging.
-> 
-> The blinking LEDs indicate you oopsed. Try it without X and you
-> should see an oops that when decoded may be useful for Jens / Martin.
+On Tue, Apr 16, 2002 at 01:49:24PM -0400, Rob Radez wrote:
+> Hah, like I'm going to attach two >100k patches to a mail going to l-k.
+> It's that time of day again, and instead of just one patch, I have two.
+> Not only that, but I only just now noticed the indydog driver, so that's
+> got some updates in here too.  Plus, the patches this time include the
+> meaning of life, the universe, and everything.  I've changed the format
+> of the patch slightly this time, in hopes of getting it applied sometime
+> soon.  So, I've put up two patches.
+[..snip..] 
++indydog.c -- Hardware Watchdog Device for SGI IP22
++
++	Timeout value unknown.
++	Support KEEPALIVEPING.
++	GETSTATUS and GETBOOTSTATUS return 0.
 
-This bug has been fixed in the latest patches, it's the 'ar was on
-stack, don't return to pool' bug.
-
--- 
-Jens Axboe
-
+IP22 machines have a hardwired 1 minute timeout.
+ -- Guido

@@ -1,86 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbUACKyr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 05:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbUACKyr
+	id S263057AbUACK4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 05:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUACK4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 05:54:47 -0500
-Received: from lmdeliver02.st1.spray.net ([212.78.202.115]:49037 "EHLO
+	Sat, 3 Jan 2004 05:56:09 -0500
+Received: from lmdeliver02.st1.spray.net ([212.78.202.115]:55950 "EHLO
 	lmdeliver02.st1.spray.net") by vger.kernel.org with ESMTP
-	id S262731AbUACKyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 05:54:45 -0500
+	id S263057AbUACK4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 05:56:05 -0500
 From: Paolo Ornati <ornati@lycos.it>
-To: Valdis.Kletnieks@vt.edu
+To: Mike Fedyk <mfedyk@matchmail.com>
 Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
-Date: Sat, 3 Jan 2004 11:20:07 +0100
+Date: Sat, 3 Jan 2004 11:20:04 +0100
 User-Agent: KMail/1.5.2
 Cc: Ed Sweetman <ed.sweetman@wmich.edu>, linux-kernel@vger.kernel.org
-References: <200401021658.41384.ornati@lycos.it> <200401022200.22917.ornati@lycos.it> <200401022127.i02LR0vm015416@turing-police.cc.vt.edu>
-In-Reply-To: <200401022127.i02LR0vm015416@turing-police.cc.vt.edu>
+References: <200401021658.41384.ornati@lycos.it> <200401022200.22917.ornati@lycos.it> <20040102213228.GH1882@matchmail.com>
+In-Reply-To: <20040102213228.GH1882@matchmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200401031119.31554.ornati@lycos.it>
+Message-Id: <200401031041.36982.ornati@lycos.it>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 January 2004 22:27, you wrote:
+On Friday 02 January 2004 22:32, Mike Fedyk wrote:
+> On Fri, Jan 02, 2004 at 10:04:27PM +0100, Paolo Ornati wrote:
+> > NR_TESTS=3
+> > RA_VALUES="64 128 256 8192"
 >
-> Do you get different numbers if you boot with:
->
-> elevator=as
-> elevator=deadline
-> elevator=cfq  (for -mm kernels)
-> elevator=noop
->
+> Can you add more samples between 128 and 256, maybe at intervals of 32?
 
-Changing io scheduler doesn't seem to affect performance too much...
+YES
 
-AS (the one already used)
-> > 2.6.0:
-> > 64        31.91
-> > 128      31.89
-> > 256      26.22	# during the transfer HD LED blinks
-> > 8192    26.26	# during the transfer HD LED blinks
-> >
-> > 2.6.1-rc1:
-> > 64        25.84	# during the transfer HD LED blinks
-> > 128      25.85	# during the transfer HD LED blinks
-> > 256      25.90	# during the transfer HD LED blinks
-> > 8192    26.42	# during the transfer HD LED blinks
-
-DEADLINE
 2.6.0:
-64	31.89
-128	31.90
-256	26.18
-8192	26.22
+128	31.66
+160	31.88
+192	30.93
+224	31.18
+256	26.16	# HD LED blinking
 
 2.6.1-rc1:
-64	25.90
-128	26.14
-256	26.06
-8192	26.45
+128	25.91	# HD LED blinking
+160	26.00	# HD LED blinking
+192	26.06	# HD LED blinking
+224	25.94	# HD LED blinking
+256	25.96	# HD LED blinking
 
-NOOP
-2.6.0:
-64	31.90
-128	31.76
-256	26.05
-8192	26.20
-
-2.6.1-rc1:
-64	25.91
-128	26.23
-256	26.16
-8192	26.40
-
-
-Bye
+bye
 
 -- 
 	Paolo Ornati
 	Linux v2.4.23
+
 

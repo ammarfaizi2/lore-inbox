@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267638AbSLSXyQ>; Thu, 19 Dec 2002 18:54:16 -0500
+	id <S267652AbSLSXzi>; Thu, 19 Dec 2002 18:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbSLSXyQ>; Thu, 19 Dec 2002 18:54:16 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:17024 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S267638AbSLSXyP> convert rfc822-to-8bit; Thu, 19 Dec 2002 18:54:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
-Date: Fri, 20 Dec 2002 11:04:24 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200212200850.32886.conman@kolivas.net> <200212201042.48161.conman@kolivas.net> <1040341995.2521.81.camel@phantasy>
-In-Reply-To: <1040341995.2521.81.camel@phantasy>
+	id <S267659AbSLSXzi>; Thu, 19 Dec 2002 18:55:38 -0500
+Received: from packet.digeo.com ([12.110.80.53]:2047 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267652AbSLSXze>;
+	Thu, 19 Dec 2002 18:55:34 -0500
+Message-ID: <3E025E1A.EA32918A@digeo.com>
+Date: Thu, 19 Dec 2002 16:02:34 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212201104.28863.conman@kolivas.net>
+To: Robert Love <rml@tech9.net>
+CC: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
+References: <200212200850.32886.conman@kolivas.net>
+		 <1040337982.2519.45.camel@phantasy>  <3E0253D9.94961FB@digeo.com> <1040341293.2521.71.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Dec 2002 00:03:30.0352 (UTC) FILETIME=[3A976B00:01C2A7BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Robert Love wrote:
+> 
+> On Thu, 2002-12-19 at 18:18, Andrew Morton wrote:
+> 
+> > That is too often not the case.
+> 
+> I knew you would say that!
+> 
+> > I can get the desktop machine working about as comfortably
+> > as 2.4.19 with:
+> >
+> > # echo 10 > max_timeslice
+> > # echo 0 > prio_bonus_ratio
+> >
+> > ie: disabling all the fancy new scheduler features :(
+> >
+> > Dropping max_timeslice fixes the enormous stalls which happen
+> > when an interactive process gets incorrectly identified as a
+> > cpu hog.  (OK, that's expected)
+> 
+> Curious why you need to drop max_timeslice, too.
 
+What Con said.  When the scheduler makes an inappropriate decision,
+shortening the timeslice minimises its impact.
 
->On Thu, 2002-12-19 at 18:42, Con Kolivas wrote:
->> I guess this explains why my variable timeslice thingy in -ck helps on the
->> desktop. Basically by shortening the timeslice it is masking the effect of
->> the interactivity estimator under load. That is, it is treating the
->> symptoms of having an interactivity estimator rather than tackling the
->> cause.
->
->You would probably get the same effect or better by setting
->prio_bonus_ratio lower (or off).
->
->Setting it lower will also give less priority bonus/penalty and not
->reinsert the tasks so readily into the active array.
->
->Something like the attached patch may help...
->
->	Robert Love
+>  Did you do that _before_ changing the interactivity estimator?
 
-Thanks. That looks fair enough. My only concern is that io_load performance is 
-worse with lower prio_bonus_ratio settings and io loads are the most felt.
+I disabled the estimator first.  The result was amazingly bad ;)
 
-I was thinking of changing what it varied. I was going to leave the timeslice 
-fixed and use it to change the prio_bonus_ratio under load. Although that 
-kind of defeats the purpose of having it in the first place since it is 
-supposed to decide what is interactive under load?
+>  Dropping max_timeslice
+> closer to min_timeslice would do away with a lot of effect of the
+> interactivity estimator, since bonuses and penalties would be less
+> apparent.
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Yup.  One good test is to keep rebuilding a kernel all the time,
+then just *use* the system.  Setting max_timeslice=10, prio_bonus=10
+works better still.  prio_bonus=25 has small-but-odd lags.
+ 
+> There would still be (a) the improved priority given to interactive
+> processes and (b) the reinsertion into the active away done to
+> interactive processes.
+> 
+> Setting prio_bonus_ratio to zero would finish off (a) and (b).  It would
+> also accomplish the effect of setting max_timeslice low, without
+> actually doing it.
+> 
+> Thus, can you try putting max_timeslice back to 300?  You would never
+> actually use that range, mind you, except for niced/real-time
+> processes.  But at least then the default timeslice would be a saner
+> 100ms.
 
-iD8DBQE+Al6IF6dfvkL3i1gRAo6mAKColJKXyGNaa0dcwot4EvElpHqkawCeORLm
-ZSyRVx1w76qWBEgkjbRZWmw=
-=ckYA
------END PGP SIGNATURE-----
+prio_bonus=0, max_timeslice=300 is awful.  Try it...
+ 
+> ...
+> But that in no way precludes not fixing what we have, because good
+> algorithms should not require tuning for common cases.  Period.
+
+hm.  Good luck ;)
+
+This is a situation in which one is prepares to throw away some cycles
+to achieve a desired effect.

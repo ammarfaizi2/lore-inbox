@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270737AbTGUVwC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:52:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270738AbTGUVwC
+	id S270739AbTGUV5X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270743AbTGUV5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:52:02 -0400
-Received: from hendrix.ece.utexas.edu ([128.83.59.42]:53888 "EHLO
-	hendrix.ece.utexas.edu") by vger.kernel.org with ESMTP
-	id S270737AbTGUVv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:51:59 -0400
-Message-ID: <3F1C6406.5040009@ece.utexas.edu>
-Date: Mon, 21 Jul 2003 17:07:02 -0500
-From: yi <yi@ece.utexas.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: yi@ece.utexas.edu
-Subject: TCP congestion window
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.2, required 9, AWL)
+	Mon, 21 Jul 2003 17:57:23 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:20676 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S270739AbTGUV5W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 17:57:22 -0400
+Date: Tue, 22 Jul 2003 00:12:05 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>,
+       ole.rohne@cern.ch
+Subject: Re: More powermanagment hooks for pci
+Message-ID: <20030721221205.GJ436@elf.ucw.cz>
+References: <20030721213506.GH436@elf.ucw.cz> <Pine.LNX.4.44.0307211505530.22018-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307211505530.22018-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
-First, I apologize you for posing this message although I'm not on the list.
+Hi!
 
-I have some questions. I made the following system call for getting tcp 
-cwnd size of ongoing connection. However, I am always getting the value 
-of "2", which is the initial tcp cwnd size, I think. What I really want 
-to do is to trace tcp cwnd size when I download some big file using 
-"wget"'s http file downloader. For it, I added a new system call shown 
-below and modified the wget source code.
+> > Well, there are likely more drivers that need to quiesce PCI card
+> > before resume. (I was wrong, 8390too does *not* need it, radeonfb
+> > does). It looks like bug not to have the hook in the first place...
+> 
+> You also didn't credit the original author.. 
 
-Please cc to me personally in reply. Thanks in advance.
+Sorry, Ole was the original author AFAIK.
 
-Best Regards,
-Yung Yi.
+> > Patrick, can you comment? I was trying to add power_on hook to PCI
+> > devices...
+> 
+> I know. I'm thinking of adding power_{off,on} to the core and getting rid
+> of the level parameter to the suspend/resume functions (like how I changed
+> system devices). That would require an additional hook to the PCI drivers
+> so that the call is propogated down to the low-level driver. If that's the
+> case, then we should add both to struct pci_driver at once.
 
----------------------------------------------------------------------------
-asmlinkage int sys_get_winsize(int sockfd)
-{
-    struct socket *sock;
-    struct sock *sk;
-    int err;
-    sock = sockfd_lookup(sockfd, &err);
+Should I modify patch to add both?
+								Pavel
 
-    if (!sock)
-        return -1;
-
-    sk = sock->sk;
-    return sk->tp_pinfo.af_tcp.snd_cwnd;
-}
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261861AbSKSN2S>; Tue, 19 Nov 2002 08:28:18 -0500
+	id <S265238AbSKSNfb>; Tue, 19 Nov 2002 08:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264644AbSKSN2S>; Tue, 19 Nov 2002 08:28:18 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39101 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261861AbSKSN2R>; Tue, 19 Nov 2002 08:28:17 -0500
-Date: Tue, 19 Nov 2002 11:32:45 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-       <margit@margit.com>
-Subject: Re: Linux 2.4.19 patch for Suse compatibility
-In-Reply-To: <p73d6p1vi7c.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.44L.0211191132280.1571-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265306AbSKSNfb>; Tue, 19 Nov 2002 08:35:31 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:37070 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265238AbSKSNfa>;
+	Tue, 19 Nov 2002 08:35:30 -0500
+Subject: Re: [LTP] Re: LTP - gettimeofday02 FAIL
+From: Paul Larson <plars@linuxtestproject.org>
+To: jim.houston@attbi.com
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       high-res-timers-discourse@lists.sourceforge.net,
+       ltp-list@lists.sourceforge.net, jim.houston@ccur.com
+In-Reply-To: <200211190127.gAJ1RWg11023@linux.local>
+References: <200211190127.gAJ1RWg11023@linux.local>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-S0W2GwSaXYsMK/f8RN7V"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 19 Nov 2002 07:37:23 -0600
+Message-Id: <1037713044.24031.15.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Nov 2002, Andi Kleen wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> > This was discussed on the kernel list about four to six weeks ago and
-> > rejected then as well. See the previous discussion
->
-> Actually I don't remember it being rejected, just the discussion dropped
-> off and there was no suggestion on how to solve the problem this ioctl
-> solves in a better way.
+--=-S0W2GwSaXYsMK/f8RN7V
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So, what problem does it try to solve ?
+On Mon, 2002-11-18 at 19:27, Jim Houston wrote:
+>=20
+> Hi Everyone,
+>=20
+> I just tried gettimeofday02 on an old pentium-pro dual processor, and yes
+> the time goes backwards with a 2.5.48 kernel.
+This has been noticed, I've posted to lkml about it.  The only person
+who replied to me seems to be suggesting it is a hardware issue, but I
+can't believe it is impossible to work around.
 
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
+-Paul Larson
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--=-S0W2GwSaXYsMK/f8RN7V
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj3aPpMACgkQbkpggQiFDqcMUQCbBZlKk+Ax5eCMKSSFteSELt2o
+VdMAn2YxcPAXfakF3QuWgfd3byGj2OBF
+=TQa/
+-----END PGP SIGNATURE-----
+
+--=-S0W2GwSaXYsMK/f8RN7V--
 

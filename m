@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSCHH55>; Fri, 8 Mar 2002 02:57:57 -0500
+	id <S310723AbSCHIGi>; Fri, 8 Mar 2002 03:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310716AbSCHH5i>; Fri, 8 Mar 2002 02:57:38 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:22276 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S293680AbSCHH5c>; Fri, 8 Mar 2002 02:57:32 -0500
-Message-ID: <3C886DA3.7010408@megapathdsl.net>
-Date: Thu, 07 Mar 2002 23:52:03 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
+	id <S310726AbSCHIG3>; Fri, 8 Mar 2002 03:06:29 -0500
+Received: from ip68-4-123-226.oc.oc.cox.net ([68.4.123.226]:22779 "HELO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
+	id <S310723AbSCHIGP>; Fri, 8 Mar 2002 03:06:15 -0500
+Subject: Re: [OT] Invalid @home email addresses
+To: blumpkin@attbi.com (Buddy Lumpkin)
+Date: Fri, 8 Mar 2002 00:08:04 -0800 (PST)
+Cc: tmolina@cox.net (Thomas Molina), linux-kernel@vger.kernel.org
+In-Reply-To: <FJEIKLCALBJLPMEOOMECGECOCJAA.blumpkin@attbi.com> from "Buddy Lumpkin" at Mar 07, 2002 09:16:14 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: andreas.bombe@munich.netsurf.de
-CC: linux-kernel@vger.kernel.org
-Subject: 2.5.6 -- ieee1394drv.o: In function `initialize_dma_ir_prg': undefined reference to `virt_to_bus_not_defined_use_pci_map'
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20020308080804.466C18A5E7@cx518206-b.irvn1.occa.home.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/ieee1394/ieee1394drv.o: In function `initialize_dma_ir_prg':
-drivers/ieee1394/ieee1394drv.o(.text+0xb1a2): undefined reference to 
-`virt_to_bus_not_defined_use_pci_map'
-drivers/ieee1394/ieee1394drv.o(.text+0xb1b5): undefined reference to 
-`virt_to_bus_not_defined_use_pci_map'
-drivers/ieee1394/ieee1394drv.o(.text+0xb22c): undefined reference to 
-`virt_to_bus_not_defined_use_pci_map'
-drivers/ieee1394/ieee1394drv.o(.text+0xb23f): undefined reference to 
-`virt_to_bus_not_defined_use_pci_map'
-drivers/ieee1394/ieee1394drv.o(.text+0xb2e8): undefined reference to 
-`virt_to_bus_not_defined_use_pci_map'
-drivers/ieee1394/ieee1394drv.o(.text+0xb2f9): more undefined references 
-to `virt_to_bus_not_defined_use_pci_map' follow
+("[OT]" added to subject line, as I think this may be beginning to drift
+off topic now.)
 
-CONFIG_IEEE1394=y
-CONFIG_IEEE1394_PCILYNX=y
-CONFIG_IEEE1394_OHCI1394=y
-CONFIG_IEEE1394_VIDEO1394=y
-CONFIG_IEEE1394_SBP2=y
-CONFIG_IEEE1394_DV1394=y
-CONFIG_IEEE1394_VERBOSEDEBUG=y
+Buddy Lumpkin wrote:
+> In fact, I never heard anything about cox.com
 
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.11.90.0.8
-util-linux             2.11f
-mount                  2.11g
-modutils               2.4.14
-e2fsprogs              1.23
-reiserfsprogs          3.x.0j
-pcmcia-cs              3.1.22
-PPP                    2.4.1
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.3.3
-Sh-utils               2.0.11
+cox.net, you mean -- that's the domain name for e-mail accounts on Cox
+High-Speed Internet (which replaced Cox@Home).
 
+> didn't AT&T buy @home?
+
+I don't remember the exact details; I think AT&T tried to buy it but the
+@Home bondholders managed to kill the deal with their legal manuverings,
+or something to that effect. So, AT&T never got to buy @Home.
+
+> I know they have since sold it
+
+No, it was liquidated at the beginning of the month -- AT&T never owned
+it.
+
+> but my email address hasn't changed again.
+
+Because you're on AT&T's own network now, the same way that Thomas Molina
+and I are on Cox's own network, etc.
+
+-Barry K. Nathan <barryn@pobox.com>

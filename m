@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282902AbSAASgM>; Tue, 1 Jan 2002 13:36:12 -0500
+	id <S282963AbSAASjc>; Tue, 1 Jan 2002 13:39:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282904AbSAASgC>; Tue, 1 Jan 2002 13:36:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57861 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282902AbSAASfz>; Tue, 1 Jan 2002 13:35:55 -0500
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-To: znmeb@aracnet.com (M. Edward Borasky)
-Date: Tue, 1 Jan 2002 18:46:40 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        harald.holzer@eunet.at (Harald Holzer), linux-kernel@vger.kernel.org
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBMEAHEFAA.znmeb@aracnet.com> from "M. Edward Borasky" at Jan 01, 2002 10:15:59 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S282904AbSAASjP>; Tue, 1 Jan 2002 13:39:15 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:47889 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S282963AbSAASi7>; Tue, 1 Jan 2002 13:38:59 -0500
+Date: Tue, 1 Jan 2002 19:38:54 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: David Findlay <david_j_findlay@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Joystick driver
+Message-ID: <20020101193854.B30616@suse.cz>
+In-Reply-To: <200201010307.g0137icS006022@ADSL-Server.davsoft.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LTvs-00016I-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201010307.g0137icS006022@ADSL-Server.davsoft.com.au>; from david_j_findlay@yahoo.com.au on Tue, Jan 01, 2002 at 01:07:44PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. Shouldn't there be *four* zones: (DMA, low, high and PAE)?
+On Tue, Jan 01, 2002 at 01:07:44PM +1000, David Findlay wrote:
 
-Probably not. PAE isnt special. With PAE you pay the page table penalties
-for all RAM.
+> I think i've discovered a bug in the analog joystick driver. I have a 
+> multifunction analog joystick which defaults to a mode where the 4 standard 
+> joystick buttons are linked to keystrokes. In this mode the joystick has no 
+> standard joystick buttons, and the kernel doesn't detect it when booting. If 
+> i turn off this switch before booting up the kernel detects the joystick as a 
+> 4 button 2 axis joystick correctly. Could someone please change the analog 
+> joystick driver so it doesn't try to detect buttons, and will just accept 
+> input from any button when it is pressed, even if the button wasn't 
+> previously detected? Or is there a better solution? Thanks,
 
-> 2. Isn't the boundary at 2^30 really irrelevant and the three "correct"
-> zones are (0 - 2^24-1), (2^24 - 2^32-1) and (2^32 - 2^36-1)?
+Sorry, it doesn't try to detect buttons.
 
-Nope. The limit for directly mapped memory is 2^30.
-
-> 3. On a system without ISA DMA devices, can DMA and low be merged into a
-> single zone?
-
-Rarely. PCI vendors are not exactly angels when it comes to implementing all
-32bits of a DMA transfer
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbTKCAqP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 19:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTKCAqP
+	id S261879AbTKCDCe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 22:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbTKCDCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 19:46:15 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:16326 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261875AbTKCAqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 19:46:13 -0500
-Subject: Re:No backlight control on PowerBook G4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Dustin Lang <dalang@cs.ubc.ca>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
-Content-Type: text/plain
-Message-Id: <1067820334.692.38.camel@gaston>
+	Sun, 2 Nov 2003 22:02:34 -0500
+Received: from hera.kernel.org ([63.209.29.2]:30619 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261879AbTKCDCc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 22:02:32 -0500
+To: linux-kernel@vger.kernel.org
+From: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [OOPS] Linux-2.6.0-test9
+Date: Sun, 02 Nov 2003 19:01:51 -0800
+Organization: OSDL
+Message-ID: <bo4gf0$4o8$1@build.pdx.osdl.net>
+References: <20031103000924.494d960f.us15@os.inf.tu-dresden.de> <20031103001913.612795b3.us15@os.inf.tu-dresden.de>
+Reply-To: torvalds@osdl.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 03 Nov 2003 11:45:34 +1100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
-X-Bad-Reply: References but no Re:
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: build.pdx.osdl.net 1067828513 4872 172.20.1.2 (3 Nov 2003 03:01:53 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Mon, 3 Nov 2003 03:01:53 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-11-03 at 06:23, Dustin Lang wrote:
-> Hi,
+Udo A. Steinberg wrote:
 > 
-> I just bought a new PowerBook G4 and installed Linux on it.  Now the
-> tweaking begins!  One of the first orders of business is getting power
-> management working, and I'm a bit stuck.
-
-You can't expect a machine just released a couple of weeks ago by
-Apple to be fully supported by linux, do you ? :)
-
-> I'm running kernel version 2.4.22 with Ben Herrenschmidt's 2.4.23-pre5
-> patches.
+> I just noticed that my last report was actually the second OOPS in a whole
+> series. Here is the first one.
 > 
-> On startup, arch/ppc/platform/pmac_backlight.c doesn't recognize the
-> backlight controller.  It checks compatibility with a couple of specific
-> machines, and then checks compatibility with the backlight controller.
-> This appears to be the same check that is performed in the Darwin/xnu
-> kernel (at least the version that I found...).
+> Unable to handle kernel paging request at virtual address 50d35f7c
+> EIP is at __d_lookup+0xf2/0x150
 
-If it's a new Mobility 9600 machine, then I expect my 2.6 tree
-(bk://ppc.bkbits.net/linuxppc-2.5-benh or rsync from source.mvista.com)
-to work, though the actual backlight "scale" may not be fully correct
-yet.
+Ok, looks like your dentry lists got seriously corrupted.
 
-> Any (non-null) pointers would be appreciated!
+The good news (?) is that you seem to have preempt enabled, and there is one
+known (but fairly hard-to-hit) race in UP+preempt locking due to bad
+barrier ordering in test9 (and all previous kernels too, for that matter).
+That should be fixed in the current BK snapshots, but you can also avoid
+the problem by just not enabling preempt.
 
-Unfortunately, there's isn't much HW documentation available for these
-babies, other than reading Apple darwin source, Open Firmware forth
-code, etc...
+Of course, if you see the bug without preempt, or if this was on a SMP
+kernel (which _should_ have hidden the preempt problem even with preempt
+enabled), holler.
 
-Regarding overall power management (that is machine sleep), it is not
-supported on these machines yet. The blocking factor is the new ATI chip,
-which need to be rebooted from scratch. ATI told me they might be able to
-send me tables to do that though, so there is hope.
-
-Ben.
-
+                Linus

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136208AbRD0Uci>; Fri, 27 Apr 2001 16:32:38 -0400
+	id <S136211AbRD0Uzc>; Fri, 27 Apr 2001 16:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136211AbRD0Uc2>; Fri, 27 Apr 2001 16:32:28 -0400
-Received: from irc.penguinhosting.net ([206.152.182.152]:44951 "HELO
-	zeus.penguinhosting.net") by vger.kernel.org with SMTP
-	id <S136208AbRD0UcX>; Fri, 27 Apr 2001 16:32:23 -0400
-Date: Fri, 27 Apr 2001 20:32:20 +0000
-From: Ian Gulliver <ian@penguinhosting.net>
-To: linux-kernel@vger.kernel.org
-Subject: ReiserFS oops/panic/uninterruptable sleeps in -ac
-Message-ID: <20010427203220.A10517@penguinhosting.net>
-Mime-Version: 1.0
+	id <S136213AbRD0UzW>; Fri, 27 Apr 2001 16:55:22 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:48220 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S136211AbRD0UzK>; Fri, 27 Apr 2001 16:55:10 -0400
+Message-ID: <3AE9DC22.597D94F5@sgi.com>
+Date: Fri, 27 Apr 2001 13:52:50 -0700
+From: LA Walsh <law@sgi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en, en-US, en-GB, fr
+MIME-Version: 1.0
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <200104271113.NAA16761@cave.bitwizard.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux zeus.penguinhosting.net 2.4.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an SMP PenIII that had been running 2.4.1-ac18 for 65
-days.  Its /home partition was a newly created (first used on
-that kernel) ResierFS 3.6.x partition.  For no obvious reason,
-two days ago, processes started going into uninterruptable
-sleeps, reportedly in "down" in the kernel.  
+Rogier Wolff wrote:
 
-We rebooted into 2.4.3-ac14, and suddenly we had oops and
-eventually panics when accessing certain parts of /home.
-(just an "ls" could spawn an oops, and an "ls -l" could
-spawn a panic).  This is a production box, so unfortunately
-writing down the oops/panic info was the lowest priority
-on my list and it didn't happen.
+> > > On Linux any swap adds to the memory pool, so 1xRAM would be
+> > > equivalent to 2xRAM with the old old OS's.
+> >
+> > no more true AFAIK
+>
+> I've always been trying to convice people that 2x RAM remains a good
+> rule-of-thumb.
 
-We tried a reiserfsck with the newest reiserfsutils with
-both --rebuild-sb and --rebuild-tree, and neither worked.
+---
+    Ug.  I like to view swap as "low grade memory" -- i.e. I really
+should spend 99.9% of my time in RAM -- if I spill, then it means
+I'm running too much/too big for my computer and should get more RAM --
+meanwhile, I suffer with performance degradation to remind me I'm really
+exceeding my machine's physical memory capacity.
 
-Finally, as a last resort before returning to ext2, we tried
-2.4.3 stock kernel.  Magically, everything worked fine.
-We have yet to see any instability, and we can't make any
-processes stick, even under load.
+    An interesting option (though with less-than-stellar performance
+characteristics) would be a dynamically expanding swapfile.  If you're
+going to be hit with swap penalties, it may be useful to not have to
+pre-reserve something you only hit once in a great while.
 
-This seems to be a bug somewhere in the ac patch, possibly
-related to SMP.  If anyone could figure it out, it'd really
-be nice to fix this before the bug makes it way into the
-stock kernels.
+    Definitely only for systems where you don't expect to use swap (but
+it could be there for "emergencies" up to some predefined limit or
+available disk space).
 
-Ian Gulliver
-Penguin Hosting
-http://www.penguinhosting.net/
+--
+The above thoughts and           | They may have nothing to do with
+writings are my own.             | the opinions of my employer. :-)
+L A Walsh                        | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338
+
+
+

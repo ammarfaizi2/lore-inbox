@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131451AbQJ2ANG>; Sat, 28 Oct 2000 20:13:06 -0400
+	id <S131475AbQJ2A2I>; Sat, 28 Oct 2000 20:28:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131462AbQJ2AMz>; Sat, 28 Oct 2000 20:12:55 -0400
-Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:39872
-	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
-	with SMTP id <S131451AbQJ2AMe>; Sat, 28 Oct 2000 20:12:34 -0400
-Date: Sun, 29 Oct 2000 02:12:32 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] ide-patch for 2.2.18(pre)
-In-Reply-To: <Pine.LNX.4.21.0010280032200.9401-100000@tricky>
-Message-ID: <Pine.NEB.4.30.0010290207120.19188-100000@gaia.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131471AbQJ2A16>; Sat, 28 Oct 2000 20:27:58 -0400
+Received: from piglet.twiddle.net ([207.104.6.26]:15113 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S131462AbQJ2A1l>; Sat, 28 Oct 2000 20:27:41 -0400
+Date: Sat, 28 Oct 2000 17:27:00 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Keith Owens <kaos@ocs.com.au>, Pavel Machek <pavel@suse.cz>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
+Message-ID: <20001028172700.A13608@twiddle.net>
+In-Reply-To: <20001027194513.A1060@bug.ucw.cz> <4309.972694843@ocs3.ocs-net> <20001028131558.A17429@uni-mainz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20001028131558.A17429@uni-mainz.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Oct 2000, Bartlomiej Zolnierkiewicz wrote:
+On Sat, Oct 28, 2000 at 01:15:58PM +0200, Dominik Kubla wrote:
+> Even simpler: "gcc -V 2.7.2.3" or "gcc -V 2.95.2" or whatever...
 
->...
-> I don't use 2.2.x kernels anymore so I don't do ide-patches for pre
-> kernels. But there will be patches for stable 2.2.x. (Although it's
-> a real pain - I hate doing backporting instead of new stuff).
-
-I have modified your patch to apply cleanly against 2.2.18pre18. You can
-find this patch at
-
-  http://www.fs.tum.de/~bunk/ide.2.2.18pre18.adrian.patch.bz2
+Which was a nice idea, but it doesn't actually work.  Changes
+in spec file format between versions makes this fall over.
 
 
-cu,
-Adrian
-
--- 
-A "No" uttered from deepest conviction is better and greater than a
-"Yes" merely uttered to please, or what is worse, to avoid trouble.
-                -- Mahatma Ghandi
-
-
-
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

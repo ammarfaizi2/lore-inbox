@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317605AbSGXW3T>; Wed, 24 Jul 2002 18:29:19 -0400
+	id <S317593AbSGXW0j>; Wed, 24 Jul 2002 18:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317627AbSGXW3T>; Wed, 24 Jul 2002 18:29:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1796 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317605AbSGXW3T>; Wed, 24 Jul 2002 18:29:19 -0400
-Date: Wed, 24 Jul 2002 15:32:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Larson <plars@austin.ibm.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.28
-In-Reply-To: <1027547187.7700.67.camel@plars.austin.ibm.com>
-Message-ID: <Pine.LNX.4.33.0207241530060.10886-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317602AbSGXW0j>; Wed, 24 Jul 2002 18:26:39 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:37125 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S317593AbSGXW0j>; Wed, 24 Jul 2002 18:26:39 -0400
+Message-Id: <200207242228.g6OMSmbA040560@aslan.scsiguy.com>
+To: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
+cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] aic7xxx driver doesn't release region 
+In-Reply-To: Your message of "Wed, 24 Jul 2002 13:32:54 PDT."
+             <20020724132119.2803.T-KOUCHI@mvf.biglobe.ne.jp> 
+Date: Wed, 24 Jul 2002 16:28:48 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 24 Jul 2002, Paul Larson wrote:
+>Hi,
 >
-> Error building 2.5.28:
+>This is a patch to fix releasing memory and io regions for the
+>aic7xxx driver.  This applies both 2.4- and 2.5-series.
 
-Yes, a number of drivers won't compile on SMP because they want the global
-lock (that is gone). This includes the cmd640 IDE driver, and the parallel
-port driver (and a largish number of others too, but I think those two are
-the really common ones).
+I don't recall when exactly this was fixed in the aic7xxx driver,
+but probably 6.2.5 or so.  The 2.5.X kernel must not be using
+a recent version of the driver.  Marcelo's tree has 6.2.8
+which definitely does not require this patch (won't even apply).
 
-It should all work the same way it always did on UP, and hopefully the
-straggling drivers will be converted to use local spinlocks soon (and in
-some cases the global irq lock might not even be needed at all)
-
-		Linus
-
+--
+Justin

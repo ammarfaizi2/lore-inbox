@@ -1,113 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVBVTzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVBVUFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVBVTzs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 14:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVBVTzr
+	id S261222AbVBVUFo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 15:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVBVUFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 14:55:47 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32406 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261183AbVBVTz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 14:55:29 -0500
-Date: Tue, 22 Feb 2005 11:55:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: olof@austin.ibm.com (Olof Johansson)
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, jamie@shareable.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-Message-Id: <20050222115503.729cd17b.akpm@osdl.org>
-In-Reply-To: <20050222190646.GA7079@austin.ibm.com>
-References: <20050222190646.GA7079@austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Feb 2005 15:05:44 -0500
+Received: from mta9.adelphia.net ([68.168.78.199]:35730 "EHLO
+	mta9.adelphia.net") by vger.kernel.org with ESMTP id S261222AbVBVUFl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 15:05:41 -0500
+Message-ID: <421B9018.7020007@nodivisions.com>
+Date: Tue, 22 Feb 2005 15:03:36 -0500
+From: Anthony DiSante <theant@nodivisions.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups
+References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-olof@austin.ibm.com (Olof Johansson) wrote:
->
-> Hi,
-> 
-> Consider a small testcase that spawns off two threads, either thread
-> doing a loop of:
-> 
-> 	buf = mmap /dev/zero MAP_SHARED for 0x100000 bytes
-> 	call sys_futex (buf+page, FUTEX_WAIT, 1, NULL, NULL) for each page in said mmap
-> 	munmap(buf)
-> 	repeat
-> 
-> This will quickly lock up, since the futex_wait code dows a
-> down_read(mmap_sem), then a get_user().
-> 
-> The do_page_fault code on ppc64 (as well as other architectures) needs
-> to take the same semaphore for reading. This is all good until the
-> second thread comes into play: Its mmap call tries to take the same
-> semaphore for writing which causes in the do_page_fault down_read()
-> to get stuck. Classic deadlock.
+linux-os wrote:
+> There has been some discussion that these hung
+> states could be "fixed", but that's absolutely
+> positively incorrect.
 
-Yup.  Jamie says that the futex code _has_ to hold mmap_sem across the
-get_user().  I forget (but could probably locate) the details.
+That's one of the things I asked a few messages ago.  Some people on the 
+list were saying that it'd be "really hard" and would "require a lot of 
+bookkeeping" to "fix" permanently-D-stated processes... which is completely 
+different than "impossible."
 
->
-> One attempt to fix this is included below. It works, but I'm not entirely
-> happy with the fact that it's a bit messy solution. If anyone has a
-> better idea for how to solve it I'd be all ears.
-
-It's fairly sane.  Style-wise I'd be inclined to turn this:
-
-	down_read(&current->mm->mmap_sem);
-	while (!check_user_page_readable(current->mm, uaddr1)) {
-		up_read(&current->mm->mmap_sem);
-		/* Fault in the page through get_user() but discard result */
-		if (get_user(curval, (int __user *)uaddr1) != 0)
-			return -EFAULT;
-		down_read(&current->mm->mmap_sem);
-	}
-
-into a standalone helper function.
-
-> --- linux-2.5.orig/mm/mempolicy.c	2005-02-04 00:27:40.000000000 -0600
-> +++ linux-2.5/mm/mempolicy.c	2005-02-21 16:43:08.000000000 -0600
-> @@ -486,6 +486,7 @@
->  	struct mm_struct *mm = current->mm;
->  	struct vm_area_struct *vma = NULL;
->  	struct mempolicy *pol = current->mempolicy;
-> +	DECLARE_BITMAP(nodes, MAX_NUMNODES);
->  
->  	if (flags & ~(unsigned long)(MPOL_F_NODE|MPOL_F_ADDR))
->  		return -EINVAL;
-> @@ -524,16 +525,21 @@
->  	} else
->  		pval = pol->policy;
->  
-> +	if (nmask)
-> +		get_zonemask(pol, nodes);
-> +
-> +	if (vma) {
-> +		up_read(&current->mm->mmap_sem);
-> +		vma = NULL;
-> +	}
-> +
-
-OK.
-
->  	err = -EFAULT;
->  	if (policy && put_user(pval, policy))
->  		goto out;
->  
->  	err = 0;
-> -	if (nmask) {
-> -		DECLARE_BITMAP(nodes, MAX_NUMNODES);
-> -		get_zonemask(pol, nodes);
-> +	if (nmask)
->  		err = copy_nodes_to_user(nmask, maxnode, nodes, sizeof(nodes));
-> -	}
->  
->   out:
->  	if (vma)
-
-I don't think we need to hold mmap_sem while running get_zonemask().  `pol'
-is a copy of current->mempolicy, and it won't be going away.
-
-
+-Anthony DiSante
+http://nodivisions.com/

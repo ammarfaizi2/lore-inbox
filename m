@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263156AbUDOVKc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 17:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbUDOVKc
+	id S263651AbUDOVOA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 17:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUDOVOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 17:10:32 -0400
-Received: from smtp.rol.ru ([194.67.21.9]:25940 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S263574AbUDOVK1 (ORCPT
+	Thu, 15 Apr 2004 17:14:00 -0400
+Received: from mail.enyo.de ([212.9.189.167]:52999 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S263651AbUDOVNn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 17:10:27 -0400
-From: Konstantin Sobolev <kos@supportwizard.com>
-Reply-To: kos@supportwizard.com
-Organization: SupportWizard
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: poor sata performance on 2.6
-Date: Fri, 16 Apr 2004 01:13:10 +0400
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <200404150236.05894.kos@supportwizard.com> <20040415195053.GP468@openzaurus.ucw.cz>
-In-Reply-To: <20040415195053.GP468@openzaurus.ucw.cz>
+	Thu, 15 Apr 2004 17:13:43 -0400
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Overlay ramdisk on filesystem?
+References: <407EF9C4.4070207@techsource.com>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Thu, 15 Apr 2004 23:13:40 +0200
+In-Reply-To: <407EF9C4.4070207@techsource.com> (Timothy Miller's message of
+ "Thu, 15 Apr 2004 17:08:20 -0400")
+Message-ID: <87hdvl7xmj.fsf@deneb.enyo.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404160113.10553.kos@supportwizard.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 April 2004 23:50, Pavel Machek wrote:
-> > /dev/hde:
-> >  Timing buffer-cache reads:   1436 MB in  2.00 seconds = 717.03 MB/sec
-> >  Timing buffered disk reads:  100 MB in  3.03 seconds =  32.95 MB/sec
->
-> 33MB/sec "totally unacceptable"? Wow.
-well.. taking into account it's price and final 68MB/sec I've got after 
-following Justin's advice.. :)
+Timothy Miller <miller@techsource.com> writes:
+
+> I have a feeling that this may be a bit too off-topic, but I'm doing
+> some Linux and hardware performance tests, and some of the tests will
+> put the hardware into an unstable state which could get memory errors
+> which could cause filesystem corruption.
+
+In the presence of memory errors, all bets are off anyway.
+
+> I would like to know how I could overlay a RAM disk over a read-only
+> filesystem so that all new files and modified files end up in the RAM
+> disk, but old files are read from the disk.  This way, when I reboot,
+> the disk reverts back.
+
+You might have to tweak the underlying file system, too.  IIRC, ext2
+avoids to reallocate freshly deallocated blocks, to prevent
+fragmentation.  This will waste a lot of RAM on the long run.
+
 -- 
-/KoS
-* Jeez, if you love Honkus...					      
+Current mail filters: many dial-up/DSL/cable modem hosts, and the
+following domains: bigpond.com, postino.it, tiscali.co.uk, tiscali.cz,
+tiscali.it, voila.fr.

@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVDCHgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVDCHi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVDCHgj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 03:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVDCHgi
+	id S261589AbVDCHi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 03:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVDCHi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 03:36:38 -0400
-Received: from c-67-177-11-57.hsd1.ut.comcast.net ([67.177.11.57]:47744 "EHLO
-	vger") by vger.kernel.org with ESMTP id S261590AbVDCHgd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 03:36:33 -0400
-Message-ID: <424F9618.3000807@utah-nac.org>
-Date: Sun, 03 Apr 2005 00:07:04 -0700
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Sun, 3 Apr 2005 03:38:56 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:34749 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261589AbVDCHir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 03:38:47 -0400
+Message-ID: <424F9D59.5060907@yahoo.com.au>
+Date: Sun, 03 Apr 2005 17:38:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9 Adaptec 4 Port Starfire Sickness
-References: <424F73F8.8020108@utah-nac.org> <424F9AA8.3020401@pobox.com>
-In-Reply-To: <424F9AA8.3020401@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: David Lang <david.lang@digitalinsight.com>
+CC: Andreas Dilger <adilger@clusterfs.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Paul Jackson'" <pj@engr.sgi.com>, mingo@elte.hu, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Industry db benchmark result on recent 2.6 kernels
+References: <200504020205.j32256g05369@unix-os.sc.intel.com> <Pine.LNX.4.62.0504022228080.5402@qynat.qvtvafvgr.pbz> <20050403065356.GV1753@schnapps.adilger.int> <Pine.LNX.4.62.0504022318160.5402@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0504022318160.5402@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+David Lang wrote:
 
-> jmerkey wrote:
+> On Sat, 2 Apr 2005, Andreas Dilger wrote:
 >
->> With linux 2.6.9 running at 192 MB/S network loading and protocol 
->> splitting drivers routing packets out of
->> a 2.6.9 device at full 100 mb/s (12.5 MB/S) simultaneously over 4 
->> ports, the adaptec starfire driver goes into
->> constant Tx FIFO reconfiguration mode and after 3-4 days of 
->> constantly resetting the Tx FIFO window and
->> generating a deluge of messages such as:
+>>> given that this would let you get the same storage with about 1200 
+>>> fewer
+>>> drives (with corresponding savings in raid controllers, fiberchannel
+>>> controllers and rack frames) it would be interesting to know how 
+>>> close it
+>>> would be (for a lot of people the savings, which probably are within
+>>> spitting distance of $1M could be work the decrease in performance)
 >>
->> ethX: PCI bus congestion, resetting Tx FIFO window to X bytes
 >>
->> pouring into the system log file at a rate of a dozen per minute. 
->> After several days, the PCI bus totally locks up
->> and hangs the system. Need a config option to allow the starfire to 
->> disable this feature. At very
->> high bus loading rates, the starfire card will completely lock the 
->> bus after 3-4 days
->> of constant Tx FIFO reconfiguration at very high data rates with 
->> protocol splitting and routing.
+>> For benchmarks like these, the issue isn't the storage capacity, but
+>> rather the ability to have lots of heads seeking concurrently to
+>> access the many database tables.  At one large site I used to work at,
+>> the database ran on hundreds of 1, 2, and 4GB disks long after they
+>> could be replaced by many fewer, larger disks...
 >
 >
-> The feature doesn't need disabling; just modify the driver to stop the 
-> flapping.
+> I can understand this to a point, but it seems to me that after you 
+> get beyond some point you stop gaining from this (simply becouse you 
+> run out of bandwidth to keep all the heads busy). I would have guessed 
+> that this happened somewhere in the hundreds of drives rather then the 
+> thousands, so going from 1500x73G to 400x300G (even if this drops you 
+> from 15Krpm to 10Krpm) would still saturate the interface bandwidth 
+> before the drives
 >
-> Jeff
->
->
->
->
-I am going to try to just turn off the Tx FIFO setting in the code 
-completely and see if this helps, not just
-the message. See what happens ...
 
-Jeff
+But in this case probably not - Ken increases IO capacity until the CPUs 
+become saturated.
+So there probably isn't a very large margin for error, you might need 
+2000 of the slower
+SATA disks to achieve a similar IOPS capacity.
+
+

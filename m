@@ -1,65 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262447AbRENT7C>; Mon, 14 May 2001 15:59:02 -0400
+	id <S262438AbRENT5W>; Mon, 14 May 2001 15:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262455AbRENT6y>; Mon, 14 May 2001 15:58:54 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40978 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262447AbRENT6q>; Mon, 14 May 2001 15:58:46 -0400
-Message-ID: <3B0038B3.EBB9747A@transmeta.com>
-Date: Mon, 14 May 2001 12:57:39 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
+	id <S262441AbRENT5M>; Mon, 14 May 2001 15:57:12 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:25604 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S262438AbRENT5I>;
+	Mon, 14 May 2001 15:57:08 -0400
+Date: Mon, 14 May 2001 12:57:06 -0700
+From: "H . J . Lu" <hjl@lucon.org>
 To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B002FC6.C0093C18@transmeta.com> <3B0033A4.8BB96F43@mandrakesoft.com>
+Cc: =?iso-8859-1?Q?Mads_Martin_J=F8rgensen?= <mmj@suse.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: PATCH 2.4.4.ac9: BOOTP/DHCP
+Message-ID: <20010514125706.A26901@lucon.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Mon, May 14, 2001 at 12:02:48PM -0700, H . J . Lu wrote:
 > 
-> "H. Peter Anvin" wrote:
-> > Linus Torvalds has requested a moratorium on new device number
-> > assignments. His hope is that a new and better method for device space
-> > handing will emerge as a result.
+> BTW, I cannot select both CONFIG_IP_PNP_DHCP and CONFIG_IP_PNP_BOOTP.
+> BOOTP doesn' work even if I pass "ip=bootp" to kernel. I will take
+> a look.
 > 
-> Here's my suggestion for a solution.
-> 
-> Once I work through a bunch of net driver problems, I want to release a
-> snapshot block device driver (freezes a blkdev in time).  For this, I
-> needed a block major.  After hearing about the device number freeze, I
-> was wondering if this solution works:
-> 
-> Register block device using existing API, and obtain a dynamically
-> assigned major number.  Export a tiny ramfs which lists all device
-> nodes.  Mounted on /dev/snap, /dev/snap/0 would be the first blkdev for
-> snap's dynamically assigned major.  (Al Viro said he has skeleton code
-> to create such an fs, IIRC)
-> 
-> This solution
-> (a) keeps from grot-ing up /proc even more [I had considered
-> proc_mknod() until viro talked me out of it]
-> (b) does not require centrally assigned majors and minors.
-> (c) does not require devfs.  most distros ship without it afaik, and
-> switching to it is not an overnight process, and requires devfsd to be
-> useful in the real world.
 > 
 
-It does, however, not manage permissions, nor does it provide for a sane
-namespace (it exposes too many internal implementation details in the
-interface -- in particular, the driver becomes part of the namespace, and
-devices move around between drivers regularly.)
+Here is a patch. We should do DHCP iff it is enabled.
 
-	-hpa
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+H.J.
+--- linux-2.4.4-ac9/net/ipv4/ipconfig.c.auto	Mon May 14 12:18:18 2001
++++ linux-2.4.4-ac9/net/ipv4/ipconfig.c	Mon May 14 12:52:51 2001
+@@ -816,61 +816,63 @@ static int __init ic_bootp_recv(struct s
+ 		u8 *ext;
+ 
+ #ifdef IPCONFIG_DHCP
++		if (ic_proto_enabled & IC_USE_DHCP) {
+ 
+-		u32 server_id = INADDR_NONE;
+-		int mt = 0;
++			u32 server_id = INADDR_NONE;
++			int mt = 0;
+ 
+-		ext = &b->exten[4];
+-		while (ext < end && *ext != 0xff) {
+-			u8 *opt = ext++;
+-			if (*opt == 0)	/* Padding */
+-				continue;
+-			ext += *ext + 1;
+-			if (ext >= end)
+-				break;
+-			switch (*opt) {
+-			case 53:	/* Message type */
+-				if (opt[1])
+-					mt = opt[2];
+-				break;
+-			case 54:	/* Server ID (IP address) */
+-				if (opt[1] >= 4)
+-					memcpy(&server_id, opt + 2, 4);
+-				break;
++			ext = &b->exten[4];
++			while (ext < end && *ext != 0xff) {
++				u8 *opt = ext++;
++				if (*opt == 0)	/* Padding */
++					continue;
++				ext += *ext + 1;
++				if (ext >= end)
++					break;
++				switch (*opt) {
++				case 53:	/* Message type */
++					if (opt[1])
++						mt = opt[2];
++					break;
++				case 54:	/* Server ID (IP address) */
++					if (opt[1] >= 4)
++						memcpy(&server_id, opt + 2, 4);
++					break;
++				}
+ 			}
+-		}
+ 
+ #ifdef IPCONFIG_DEBUG
+-		printk("DHCP: Got message type %d\n", mt);
++			printk("DHCP: Got message type %d\n", mt);
+ #endif
+ 
+-		switch (mt) {
+-		    case DHCPOFFER:
+-			/* While in the process of accepting one offer,
+-			   ignore all others. */
+-			if (ic_myaddr != INADDR_NONE)
+-				goto drop;
+-			/* Let's accept that offer. */
+-			ic_myaddr = b->your_ip;
+-			ic_servaddr = server_id;
++			switch (mt) {
++			case DHCPOFFER:
++				/* While in the process of accepting one offer,
++				   ignore all others. */
++				if (ic_myaddr != INADDR_NONE)
++					goto drop;
++				/* Let's accept that offer. */
++				ic_myaddr = b->your_ip;
++				ic_servaddr = server_id;
+ #ifdef IPCONFIG_DEBUG
+-			printk("DHCP: Offered address %u.%u.%u.%u", NIPQUAD(ic_myaddr));
+-			printk(" by server %u.%u.%u.%u\n", NIPQUAD(ic_servaddr));
++				printk("DHCP: Offered address %u.%u.%u.%u", NIPQUAD(ic_myaddr));
++				printk(" by server %u.%u.%u.%u\n", NIPQUAD(ic_servaddr));
+ #endif
+-			break;
++				break;
+ 
+-		    case DHCPACK:
+-			/* Yeah! */
+-			break;
+-
+-		    default:
+-			/* Urque.  Forget it*/
+-			ic_myaddr = INADDR_NONE;
+-			ic_servaddr = INADDR_NONE;
+-			goto drop;
+-		}
++			case DHCPACK:
++				/* Yeah! */
++				break;
++
++			default:
++				/* Urque.  Forget it*/
++				ic_myaddr = INADDR_NONE;
++				ic_servaddr = INADDR_NONE;
++				goto drop;
++			}
+ 
+-		ic_dhcp_msgtype = mt;
++			ic_dhcp_msgtype = mt;
++		}
+ 
+ #endif /* IPCONFIG_DHCP */
+ 

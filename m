@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbUL1SVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUL1SXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbUL1SVz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 13:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUL1SVz
+	id S261204AbUL1SXS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 13:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbUL1SXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 13:21:55 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:60590
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261185AbUL1SVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 13:21:54 -0500
-Date: Tue, 28 Dec 2004 10:20:26 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Manuel Perez Ayala <mperaya@alcazaba.unex.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TG3 support broken on PPC (PowerMac G4)
-Message-Id: <20041228102026.0ec40a5a.davem@davemloft.net>
-In-Reply-To: <1104217668.41d10644a57f7@alcazaba.unex.es>
-References: <1104217668.41d10644a57f7@alcazaba.unex.es>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Dec 2004 13:23:18 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:1174 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261204AbUL1SXG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 13:23:06 -0500
+Date: Tue, 28 Dec 2004 19:23:01 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: John Way <wayjd@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Sym-2
+In-Reply-To: <20041228172554.38787.qmail@web60307.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0412281921270.3365@yvahk01.tjqt.qr>
+References: <20041228172554.38787.qmail@web60307.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Dec 2004 08:07:48 +0100
-Manuel Perez Ayala <mperaya@alcazaba.unex.es> wrote:
+>2. I'm having a problem with the new SYM-2 drivers
+>when using the newly released 2.6.10 kernel. I've
+>tried compiling it into the kernel, and again as
+>modules, but still the 'mkinitrd" says "No module
 
-> Disconnecting: Corrupted MAC on input.
-> lost connection
+Sounds like you need to `make modules_install` first. Or drop the initrd in 
+one (i.e. compile it in and do not worry about any initrd)
 
-That message is from ssh, and it indicates data corruption
-on the TCP connection.
+>sym53c8xx found for kernel 2.6.10, aborting." My scsi
+>drives are NOT my boot drives, they're just extra
+>storage. Everything worked perfectly with the
+>2.6.10-rc2 patched kernel and below.
+>
+>3. initrd, modules, kernel, compiling
 
-I have a similar report on x86_64 from Alan Cox.  What does
-the kernel say when the module is loaded?  In particular
-the lines from the kernel logs which describe the exact tg3
-chip revision.
+If that is the order, it's wrong.
+menuconfig -> select sym -> compile it -> (install) -> mkinitrd
+
+
+Jan Engelhardt
+-- 
+ENOSPC

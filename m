@@ -1,77 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265896AbTF3VKz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 17:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbTF3VKz
+	id S265897AbTF3VRR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 17:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbTF3VRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 17:10:55 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:19340 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265896AbTF3VKx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 17:10:53 -0400
-Message-Id: <200306302125.h5ULPEjn004960@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andre Hedrick <andre@linux-ide.org>
+	Mon, 30 Jun 2003 17:17:17 -0400
+Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:8197 "EHLO
+	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S265897AbTF3VRQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 17:17:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PTY DOS vulnerability?
+Date: Mon, 30 Jun 2003 23:31:38 +0200
+User-Agent: KMail/1.4.3
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dell vs. GPL 
-In-Reply-To: Your message of "Mon, 30 Jun 2003 13:44:29 PDT."
-             <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-397196322P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 30 Jun 2003 17:25:14 -0400
+References: <200306301613.11711.fredrik@dolda2000.cjb.net> <1056995729.17590.19.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1056995729.17590.19.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306302331.38071.fredrik@dolda2000.cjb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-397196322P
-Content-Type: text/plain; charset=us-ascii
+I'll summarize some of the answers:
 
-On Mon, 30 Jun 2003 13:44:29 PDT, Andre Hedrick said:
-> 
-> Now you are being silly, and I have to stop because your lack of
-> seriousness.  
-> 
-> You can not talk about what you see or hear.
-> 
-> What is not clear?
+On Monday 30 June 2003 19:55, Alan Cox wrote:
+> On Llu, 2003-06-30 at 15:18, Fredrik Tolf wrote:
+> > Shouldn't PTYs be a per-user resource limit?
+>
+> It depends to what degree you consider your users hostile. But
+> yes its possibly one of the things to do per user counting on.
 
-It's a general rule that clauses in a contract (which an NDA is) are null and
-unenforcable if they compel you to do something illegal.  In addition, clauses
-can be held unenforcable if they are "unconscionable", i.e. if they compel you
-to do something totally out of line and unreasonable.  This is why almost all
-contracts have a separability clause.
+It isn't necessarily an entitled user; see below. But even if it 
+is, I think it should be able to limit it, just as it is 
+possible to put a limit on processes.
 
-"Thou shalt not tell the ingredients of the secret sauce" is enforcable.
-"Thou shalt not tell others that the secret sauce contains high levels of
-dangerous carcinogens" is unconscionable. 
+On Monday 30 June 2003 17:52, Marcelo Bezerra wrote:
+> On Mon, 2003-06-30 at 11:18, Fredrik Tolf wrote:
+> > Shouldn't PTYs be a per-user resource limit?
+>
+> This would help, but not solve.
+>
+> Once he roots your box, he can easly change the script to
+> setuid each uid possible and request all ptys it can.
+>
+> Or he could run it as root, without the limit.
 
-Also, note that the Sarbanes-Oxley Act provides a lot of protection for
-whistleblowers: http://www.workindex.com/editorial/expert/expview.asp
-on top of the usual legal havens.
+That is provided that he is able to root the system. Take for 
+example Apache, a program that is relatively often cracked. It, 
+as many other programs, doesn't run as root. If the attacker 
+could tie up all PTYs, though, he could go on his business 
+(extracting confidential information, subnet scanning, etc.) 
+without root being able to log in to stop him. Instead, the 
+admimistrator might have to call the datacenter to get them to 
+reboot the box.
+Of course, if the attacker is able to root the box, it doesn't 
+help very with a resource limit, but that's more of an issue for 
+the grsecurity project, isn't it?
 
-On  Mon, 30 Jun 2003 16:55:56 -0400, "Trever L. Adams" said:
-> I have also had to sign contracts that require I do not disclose
-> anything I learn on the job, except to law enforcement personnel. 
-> Andre's situation may be like this.   Sure, he can report it, but he
-> can't talk about it to anyone else!
+On Monday 30 June 2003 16:24, Mark Hahn wrote:
+> pty's are not required for ssh activity, though they would
+> make it tricker.
 
-See? That's my point exactly - you *weren't* prohibited from reporting illegal
-activity.
+That is true, though, of course. Stupid me not to think about 
+that. However, that means that an administrator who could find 
+himself being under such an attack might not think about it 
+either. Also, from the outside, the ssh client just does 
+nothing, making it look as if the server is unresponsive. Of 
+course, the exact error is logged to the server's syslog, but if 
+you can't view it, then you won't know about it.
 
+So all in all, do you think I should implement a per-user 
+resource limit on PTYs?
 
---==_Exmh_-397196322P
-Content-Type: application/pgp-signature
+Fredrik Tolf
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/AKq5cC3lWbTT17ARApXUAKCFLaNvS1IabT9B62WR3sSnfKYn0ACgqWf4
-5axf/oINbP03iNLbd0Az2hc=
-=R3wk
------END PGP SIGNATURE-----
-
---==_Exmh_-397196322P--

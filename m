@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292627AbSCDRrB>; Mon, 4 Mar 2002 12:47:01 -0500
+	id <S292589AbSCDRqn>; Mon, 4 Mar 2002 12:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292594AbSCDRqq>; Mon, 4 Mar 2002 12:46:46 -0500
-Received: from flaske.stud.ntnu.no ([129.241.56.72]:3044 "EHLO
-	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S292627AbSCDRqH>; Mon, 4 Mar 2002 12:46:07 -0500
-Date: Mon, 4 Mar 2002 18:46:05 +0100
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: Hirling Endre <endre@interware.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: recommended gigabit card for dot1q?
-Message-ID: <20020304184605.A12016@stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0203041827430.1157-100000@dusk.interware.hu>
-Mime-Version: 1.0
+	id <S292612AbSCDRqE>; Mon, 4 Mar 2002 12:46:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47626 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292594AbSCDRpz>;
+	Mon, 4 Mar 2002 12:45:55 -0500
+Message-ID: <3C83B2E7.B5EB0FB5@mandrakesoft.com>
+Date: Mon, 04 Mar 2002 12:46:15 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Dillow <dillowd@y12.doe.gov>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
+In-Reply-To: <Pine.LNX.4.33.0203041023580.11065-100000@janetreno.austin.ibm.com> <3C83A925.F93BF448@mandrakesoft.com> <3C83AE6B.9B5DE85F@y12.doe.gov>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0203041827430.1157-100000@dusk.interware.hu>; from endre@interware.hu on Mon, Mar 04, 2002 at 06:31:59PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirling Endre:
-> I have to upgrade one of our linux-based routers to gigabit. What GE
-> card do you recommend for using with dot1q vlans? I tried a D-Link one
-> (DGE550SX, based on a Level1 chip) and an Intel one that works with the
-> e1000 driver, but I couldn't set up vlans properly with either of these.
+David Dillow wrote:
+> 
+> Jeff Garzik wrote:
+> > Set cache line size just like drivers/net/acenic.c does, and enable
+> > memory-write-invalidate...
+> 
+> Does this mean the setup pci_enable_device() does on the cache line size
+> is not sufficient?
 
-If you follow the threads on this list, there has been some discussions
-regarding VLANs and GE. Try theese threads:
+pci_enable_device doesn't touch the PCI_COMMAND_INVALIDATE bit at all...
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101524429100394&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101481826920095&w=2
+> I ask, because I've been relying on it for a driver I'm working on;
+> should I be setting this as acenic does? It would seem that this is
+> something many drivers would need to do...
+
+Yes, acenic is the code to copy, for setting that up.
+
+I need to create a pci_set_mwi() helper function.
+
+	Jeff
+
 
 
 -- 
-Thomas
+Jeff Garzik      |
+Building 1024    |
+MandrakeSoft     | Choose life.

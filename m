@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbULTR2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbULTRi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbULTR2n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 12:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbULTR1m
+	id S261588AbULTRi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 12:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbULTRi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 12:27:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61317 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261584AbULTR1e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 12:27:34 -0500
-Date: Mon, 20 Dec 2004 17:27:33 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: James Nelson <james4765@verizon.net>, akpm@osdl.org,
-       kernel-janitors@lists.osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [KJ] Re: [PATCH] pcxx: replace cli()/sti() with spin_lock_irqsave()/spin_unlock_irqrestore()
-Message-ID: <20041220172733.GK7113@parcelfarce.linux.theplanet.co.uk>
-References: <20041217223426.11143.44338.87156@localhost.localdomain> <1103554747.30268.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103554747.30268.24.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Mon, 20 Dec 2004 12:38:26 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:52140 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261589AbULTRiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 12:38:05 -0500
+Message-ID: <41C70DF2.80101@nortelnetworks.com>
+Date: Mon, 20 Dec 2004 11:37:54 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Al Hooton <al@hootons.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ioctl assignment strategy?
+References: <1103067067.2826.92.camel@chatsworth.hootons.org> <20041215004620.GA15850@kroah.com> <41C04FFA.6010407@nortelnetworks.com> <20041217234854.GA24506@kroah.com>
+In-Reply-To: <20041217234854.GA24506@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 02:59:09PM +0000, Alan Cox wrote:
-> On Gwe, 2004-12-17 at 22:34, James Nelson wrote:
-> > -	save_flags(flags);
-> > -	cli();
-> > +	spin_lock_irqsave(&pcxx_lock, flags);
-> >  	del_timer_sync(&pcxx_timer);
-> 
-> Not safe if the lock is grabbed by the timer between the lock and the
-> irqsave as it will spin on another cpu and the timer delete will never
-> finish.
+Greg KH wrote:
 
-Right, but wrong reason ...
+> Rethink the way you want to control your device.  Seriously, a lot of
+> ioctls can be broken down into single device files, single sysfs files,
+> or other such things (a whole new fs as a last resort too.)
 
-James admitted he thought the driver was otherwise SMP-safe; he didn't know
-how to convert things from the old locking style to proper locking.
+Actually, my particular case is likely not a good example.  We've got a misc 
+char driver giving access to a lot of miscellaneous features we've added to the 
+kernel,.  We originally (a few years back) used new syscalls, but then we 
+started supporting a bunch more arches, and having to patch all of them just to 
+add syscall numbers sucked.
 
-The problem with this code section is not the race between local
-interrupts and the lock, since irqs are disabled before the cpu tries to
-grab the lock.  The problem is that if the lock is grabbed by this code
-path, and then the timer running on a different CPU attempts to acquire
-the lock, it will spin.  del_timer_sync() will then spin waiting for
-the timer to complete.  We're deadlocked.
+Some of it could easily be moved to /proc or /sys, but if you do it that way, 
+how do you handle returning unusual error values?  Other stuff involves multiple 
+stages of registration, then getting handles returned, and doing new calls with 
+those handles.  I don't see how this would tie nicely into the read/write paradigm.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+What's the big problem with ioctls anyways?  I mean, in a closed environment 
+where I'm writing both the userspace and the kernelspace side of things.
+
+Chris

@@ -1,104 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281174AbRKLXTS>; Mon, 12 Nov 2001 18:19:18 -0500
+	id <S281179AbRKLXTS>; Mon, 12 Nov 2001 18:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281177AbRKLXTL>; Mon, 12 Nov 2001 18:19:11 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:10510 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S281181AbRKLXSy>; Mon, 12 Nov 2001 18:18:54 -0500
-Date: Tue, 13 Nov 2001 00:18:48 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: PATCH: addition to real_root_dev patch
-Message-ID: <Pine.LNX.4.33.0111130012050.489-100000@serv>
+	id <S281174AbRKLXTK>; Mon, 12 Nov 2001 18:19:10 -0500
+Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:8888 "EHLO
+	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S281177AbRKLXSx>; Mon, 12 Nov 2001 18:18:53 -0500
+Message-ID: <007501c16bd0$36d93a20$0a00a8c0@intranet.mp3s.com>
+Reply-To: "Sean Elble" <S_Elble@yahoo.com>
+From: "Sean Elble" <S_Elble@yahoo.com>
+To: "Don Krause" <dkrause@optivus.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <015f01c16bbe$bd5272e0$6cc8c58f@satoy>
+Subject: Re: Is ReiserFS stable?
+Date: Mon, 12 Nov 2001 18:17:12 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The problems that you may see with NFS-exported file systems on Linux tend
+to be symbolic link problems and the such, at least in later kernels. Reiser
+only compounds these problems even further. In my experiences, NFS always
+seems to work well with Solaris boxes; the problems I have seen personally
+are with my IRIX box. Even without Reiser, I've had a couple problems, but
+they have been gone since 2.4.10 . . . havn't tried Reiser since then
+though. Good luck moving your home directories to Reiser . . . not too hard
+of a move, though I'd have to recommend XFS myself. :-)
 
-The patch below adds the proper conversion function to convert
-real_root_dev (which is now int) into/from kdev_t.
+-----------------------------------------------
+Sean P. Elble
+Editor, Writer, Co-Webmaster
+ReactiveLinux.com (Formerly MaximumLinux.org)
+http://www.reactivelinux.com/
+elbles@reactivelinux.com
+-----------------------------------------------
 
-bye, Roman
-
-diff -ur -X /opt/home/roman/nodiff linux-2.4/drivers/block/rd.c linux-kdev/drivers/block/rd.c
---- linux-2.4/drivers/block/rd.c	Mon Nov 12 22:30:24 2001
-+++ linux-kdev/drivers/block/rd.c	Mon Nov 12 22:21:50 2001
-@@ -809,13 +809,14 @@
-
- static void __init rd_load_disk(int n)
- {
-+	kdev_t real_root = to_kdev_t(real_root_dev);
-
- 	if (rd_doload == 0)
- 		return;
-
- 	if (MAJOR(ROOT_DEV) != FLOPPY_MAJOR
- #ifdef CONFIG_BLK_DEV_INITRD
--		&& MAJOR(real_root_dev) != FLOPPY_MAJOR
-+		&& MAJOR(real_root) != FLOPPY_MAJOR
- #endif
- 	)
- 		return;
-@@ -827,8 +828,8 @@
- #ifdef CONFIG_MAC_FLOPPY
- 		if(MAJOR(ROOT_DEV) == FLOPPY_MAJOR)
- 			swim3_fd_eject(MINOR(ROOT_DEV));
--		else if(MAJOR(real_root_dev) == FLOPPY_MAJOR)
--			swim3_fd_eject(MINOR(real_root_dev));
-+		else if(MAJOR(real_root) == FLOPPY_MAJOR)
-+			swim3_fd_eject(MINOR(real_root));
- #endif
- 		printk(KERN_NOTICE
- 		       "VFS: Insert root floppy disk to be loaded into RAM disk and press ENTER\n");
-diff -ur -X /opt/home/roman/nodiff linux-2.4/include/linux/devfs_fs_kernel.h linux-kdev/include/linux/devfs_fs_kernel.h
---- linux-2.4/include/linux/devfs_fs_kernel.h	Sun Sep 23 22:56:16 2001
-+++ linux-kdev/include/linux/devfs_fs_kernel.h	Mon Nov 12 22:24:25 2001
-@@ -49,7 +49,7 @@
+----- Original Message -----
+From: "Don Krause" <dkrause@optivus.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, November 12, 2001 4:12 PM
+Subject: RE: Is ReiserFS stable?
 
 
- #ifdef CONFIG_BLK_DEV_INITRD
--#  define ROOT_DEVICE_NAME ((real_root_dev ==ROOT_DEV) ? root_device_name:NULL)
-+#  define ROOT_DEVICE_NAME ((to_kdev_t(real_root_dev) == ROOT_DEV) ? root_device_name:NULL)
- #else
- #  define ROOT_DEVICE_NAME root_device_name
- #endif
-diff -ur -X /opt/home/roman/nodiff linux-2.4/init/main.c linux-kdev/init/main.c
---- linux-2.4/init/main.c	Mon Nov 12 22:30:31 2001
-+++ linux-kdev/init/main.c	Mon Nov 12 22:26:28 2001
-@@ -752,7 +752,7 @@
- 		mount_initrd = 0;
- 	if (mount_initrd)
- 		root_mountflags &= ~MS_RDONLY;
--	real_root_dev = ROOT_DEV;
-+	real_root_dev = kdev_t_to_nr(ROOT_DEV);
- #endif
-
- #ifdef CONFIG_BLK_DEV_RAM
-@@ -771,7 +771,7 @@
-
- #ifdef CONFIG_BLK_DEV_INITRD
- 	root_mountflags = real_root_mountflags;
--	if (mount_initrd && ROOT_DEV != real_root_dev
-+	if (mount_initrd && ROOT_DEV != to_kdev_t(real_root_dev)
- 	    && MAJOR(ROOT_DEV) == RAMDISK_MAJOR && MINOR(ROOT_DEV) == 0) {
- 		int error;
- 		int i, pid;
-@@ -783,9 +783,9 @@
- 				schedule();
- 			}
- 		}
--		if (MAJOR(real_root_dev) != RAMDISK_MAJOR
--		     || MINOR(real_root_dev) != 0) {
--			error = change_root(real_root_dev,"/initrd");
-+		if (MAJOR(to_kdev_t(real_root_dev)) != RAMDISK_MAJOR
-+		     || MINOR(to_kdev_t(real_root_dev)) != 0) {
-+			error = change_root(to_kdev_t(real_root_dev),"/initrd");
- 			if (error)
- 				printk(KERN_ERR "Change root to /initrd: "
- 				    "error %d\n",error);
+> Actually, while I had major problems with reiser and nfs in the stock SuSE
+> 6.4 kernel,
+> I have a very busy nfs server running SuSE 6.4 with a custom compiled
+2.4.2
+> kernel and
+> all available (at the time..) reiser +nfs patches, that moves on the order
+> of 6 million
+> files per day, with no problems. (Small files, but this same system
+crashed
+> consistently every
+> 30 days or so with the stock kernel)
+>
+> And to make things worse, this box exports to a Sun 1000e,
+> running 2.6
+>
+> ankaa:~ # uptime
+>   1:33pm  up 194 days, 22:31,   1 user,   load average: 0.00, 0.00, 0.00
+> ankaa:~ # uname -a
+> Linux ankaa 2.4.2 #1 Thu Apr 19 07:34:27 PDT 2001 i586 unknown
+>
+> (No load, this is a backup database server, and backups don't run monday
+> mornings..)
+>
+> Because of the success of this server, I'll be switching our home
+> directories to reiser over the next couple months.
+>
+>
+> --
+> Don Krause                                       ph: 909.799.8327
+> Systems Administrator                          page: 909.512.0174
+> Optivus Technology, Inc               e-mail: dkrause@optivus.com
+> "Splitting Atoms.. Saving Lives"           http://www.optivus.com
+>
+>
+> > -----Original Message-----
+> > From: linux-kernel-owner@vger.kernel.org
+> > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Sean Elble
+> > Sent: Sunday, November 11, 2001 9:51 AM
+> > To: Roy Sigurd Karlsbakk; linux-kernel@vger.kernel.org
+> > Subject: Re: Is ReiserFS stable?
+> >
+> >
+> > That all depends on what you mean by "stable". Reiser
+> > is certainly capable of high uptimes, but Reiser
+> > doesn't have a good history of working well with older
+> > UNIX tools/systems like NFS, due to Reiser's newer
+> > methods for handling inodes and such. If this isn't a
+> > problem for you, Reiser should work very well for you;
+> > it works great on my /var partition, which handles my
+> > Squid proxy. I don't use Reiser on my /home partition
+> > though; that FS has the user directories exported
+> > through NFS, as well as Samba. In fact, I use SGI's
+> > XFS on my /home partition, and that works well too.
+> > The main advantage to using XFS is that it handles NFS
+> > _really_ well, and it has certain features Reiser
+> > doesn't, like extended attributes, and access control
+> > lists. YMMV, but Reiser seems stable for just that one
+> > specific duty . . . I'd recommend trying Reiser, JFS,
+> > XFS, and maybe even Ext3 to get a feel for how stable
+> > each is for your particular needs. HTH.
+> > --- Roy Sigurd Karlsbakk <roy@karlsbakk.net> wrote:
+> > > Hi all
+> > >
+> > > I've heard a lot of talk from all sorts of people
+> > > about ReiserFS not being
+> > > stable enough to use in a productional environment
+> > > where high uptime is
+> > > essensial.
+> > >
+> > > Can someone tell me if this is true?
+> > >
+> > > Thanks
+> > >
+> > > roy
+> > >
+> > > --
+> > > Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> > >
+> > > Computers are like air conditioners.
+> > > They stop working when you open Windows.
+> > >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129987AbQKLTbk>; Sun, 12 Nov 2000 14:31:40 -0500
+	id <S129864AbQKLTeK>; Sun, 12 Nov 2000 14:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130313AbQKLTba>; Sun, 12 Nov 2000 14:31:30 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:35823 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S129987AbQKLTbO>;
-	Sun, 12 Nov 2000 14:31:14 -0500
-Date: Sun, 12 Nov 2000 11:31:07 -0800
-From: Greg KH <greg@wirex.com>
-To: Gerald Haese <Gerald.Haese@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB mouse stops working
-Message-ID: <20001112113107.B23154@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	Gerald Haese <Gerald.Haese@gmx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <00111101012003.01860@dose> <20001110164006.E1229@wirex.com> <00111111194700.00657@dose>
+	id <S130313AbQKLTeA>; Sun, 12 Nov 2000 14:34:00 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:26637 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129864AbQKLTd4>;
+	Sun, 12 Nov 2000 14:33:56 -0500
+Date: Sun, 12 Nov 2000 20:33:53 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+        Tigran Aivazian <tigran@veritas.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>, Max Inux <maxinux@bigfoot.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+Message-ID: <20001112203353.A13289@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet> <m1ofzmcne5.fsf@frodo.biederman.org> <20001112122910.A2366@athlon.random> <m1k8a9badf.fsf@frodo.biederman.org> <20001112163705.A4933@athlon.random> <m1bsvlauic.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <00111111194700.00657@dose>; from Gerald.Haese@gmx.de on Sat, Nov 11, 2000 at 11:19:47AM +0100
-X-Operating-System: Linux 2.2.17-immunix (i686)
+In-Reply-To: <m1bsvlauic.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Nov 12, 2000 at 11:57:15AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2000 at 11:19:47AM +0100, Gerald Haese wrote:
->  18:      14845      14797   IO-APIC-level  usb-uhci
+[This is quite a bizarre discussion, but I'll answer anyways. I am not exactly
+sure what your point is]
 
-Can you try the uhci.o host controller driver, to see if it has the same
-problem?
+On Sun, Nov 12, 2000 at 11:57:15AM -0700, Eric W. Biederman wrote:
+> 
+> > > I can tell you don't have real hardware.  The non obviousness
+> 
+> I need to retract this a bit.  You are still building a compressed image,
+> and the code in the boot/compressed/head.S remains unchanged and loads
+> segment registers, so it works by luck.  If you didn't build a
+> compressed image you would be in trouble.
 
-thanks,
+boot/compressed/head.S does run in 32bit legacy mode, where you of course
+need segment registers. After you got into long mode segments are only
+needed to jump between 32/64bit code segments and and for a the data segment
+of the 32bit emulation (+ the iretd bug currently which I hope will be fixed
+in final hardware) 
 
-greg k-h
+Also note that boot/compressed/* currently does not even link, because the 
+x86-64 toolchain cannot generate relocated 32bit code ATM (the linker chokes
+on the 32bit relocations) The tests we did so far used a precompiled 
+relocated binary compressed/{head,misc}.o from a IA32 build.
 
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+> > 	In 64-bit mode, the contents of the ES, DS, and SS segment registers
+> > 	are ignored. All fields (base, limit, and attribute) in the
+> > 	corresponding segment descriptor registers (hidden part) are also
+> > 	ignored.
+> 
+> Hmm.  I'll have to look and see if FS & GS are also ignored.
+
+They are not, you to fully use them you need privileged MSRs. 
+Their limit is ignored.
+
+> > Sure, go ahead if you weren't missing that basic part of the long mode specs.
+> > Thanks.
+> 
+> Nope.  Though I suspect we should do the switch to 64bit mode in
+> setup.S and not have these issues pollute head.S at all.
+
+I see no advantage in doing it there instead of in head.S
+
+
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

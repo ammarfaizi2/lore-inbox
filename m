@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267198AbTBDJ5G>; Tue, 4 Feb 2003 04:57:06 -0500
+	id <S267216AbTBDKL6>; Tue, 4 Feb 2003 05:11:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267208AbTBDJ5G>; Tue, 4 Feb 2003 04:57:06 -0500
-Received: from math.ut.ee ([193.40.5.125]:12284 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id <S267198AbTBDJ5F>;
-	Tue, 4 Feb 2003 04:57:05 -0500
-Date: Tue, 4 Feb 2003 12:06:16 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4-current: ndelay error on PPC
-Message-ID: <Pine.GSO.4.44.0302041204450.4475-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267217AbTBDKL6>; Tue, 4 Feb 2003 05:11:58 -0500
+Received: from dux1.tcd.ie ([134.226.1.23]:57310 "HELO dux1.tcd.ie")
+	by vger.kernel.org with SMTP id <S267216AbTBDKL5>;
+	Tue, 4 Feb 2003 05:11:57 -0500
+Subject: RE: CPU throttling??
+From: Seamus <assembly@gofree.indigo.ie>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Valdis.Kletnieks@vt.edu,
+       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A14A@orsmsx401.jf.intel.com>
+References: <F760B14C9561B941B89469F59BA3A84725A14A@orsmsx401.jf.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044354123.17354.23.camel@taherias.sre.tcd.ie>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1- 
+Date: 04 Feb 2003 10:22:08 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.21-pre4+BK doesn't link on PPC: problems with ndelay.
+On Mon, 2003-02-03 at 21:14, Grover, Andrew wrote:
+> > From: Dave Jones [mailto:davej@codemonkey.org.uk] 
+> > Valdis.Kletnieks@vt.edu wrote:
+> > 
+> >  > It's conceivable that a CPU halted at 1.2Gz takes less 
+> > power than one
+> >  > at 1.6Gz - anybody have any actual data on this?  
+> > Alternately phrased,
+> >  > does CPU throttling save power over and above what the halt does?
+> > 
+> > Given that most decent implementations scale voltage as well as
+> > frequency, yes, a lower speed will save more power.
+> 
+> You save the most power when the CPU is at the lowest voltage level, and
+> in the deepest CPU sleep state (aka CPU C state).
+> 
+> Throttling offers a linear power/perf tradeoff if your system doesn't
+> have C state support (or if you aren't using it) but really it is
+> preferable to keep the CPU at its nominal speed, get the work done
+> sooner, and start sleeping right away. The quote above makes it sound
+> like the voltage is scaled when throttling, and that isn't accurate -
+> voltage is scaled when sleeping (to counteract leakage current), at
+> least on modern Intel mobile processors.
+> 
+> Valdis, you may want to try compiling in ACPI and ACPI Processor support
+> in 2.5.latest and see what happens to your battery life (if you haven't
+> tried already). (A caveat - ACPI still doesn't work for everyone, but if
+> it does, you should see a power savings.)
+> 
+> Regards -- Andy
 
-ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic arch/ppc/kernel/head.o arch/ppc/kernel/idle_6xx.o init/main.o init/version.o init/do_mounts.o \
-	--start-group \
-	arch/ppc/kernel/kernel.o arch/ppc/platforms/platform.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/macintosh/macintosh.o drivers/video/video.o drivers/media/media.o drivers/input/inputdrv.o \
-	net/network.o \
-	/home/mroos/compile/linux-2.4/lib/lib.a \
-	--end-group \
-	-o vmlinux
-drivers/ide/idedriver.o(.text+0x3bc8): In function `ide_execute_command':
-: undefined reference to `ndelay'
-drivers/ide/idedriver.o(.text+0x3bc8): In function `ide_execute_command':
-: relocation truncated to fit: R_PPC_REL24 ndelay
-make: *** [vmlinux] Error 1
+Hmmm, it seems most of these apply to mobile processors.
+I'm using AMD 1.4 Athlon Thunderbird on a desktop, as you know my
+processor was the one before release low power AMD XP processors.
+It uses a savage amount of power, and operates well into 60 and 70
+degrees celcius.
 
--- 
-Meelis Roos (mroos@linux.ee)
+I'm not a big linux head, can someone through me an ACPI link, related
+to this issue of CPU C state?
+
+One other thing, apart from saving power on CPU and hard-disk (via
+hdparm) is there anything else I can look into ? something worthy
+though.
+
+Thanks,
+
+Seamus
 

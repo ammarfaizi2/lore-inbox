@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSHXMco>; Sat, 24 Aug 2002 08:32:44 -0400
+	id <S315946AbSHXMec>; Sat, 24 Aug 2002 08:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315946AbSHXMcn>; Sat, 24 Aug 2002 08:32:43 -0400
-Received: from dp.samba.org ([66.70.73.150]:30853 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S315928AbSHXMcn>;
-	Sat, 24 Aug 2002 08:32:43 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15719.32025.236298.592156@argo.ozlabs.ibm.com>
-Date: Sat, 24 Aug 2002 22:33:29 +1000 (EST)
-To: James Simmons <jsimmons@infradead.org>
-Cc: Antonino Daplas <adaplas@pol.net>,
-       fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] cfbimgblt.c
-In-Reply-To: <Pine.LNX.4.33.0208221123140.9077-200000@maxwell.earthlink.net>
-References: <1029972099.551.3.camel@daplas>
-	<Pine.LNX.4.33.0208221123140.9077-200000@maxwell.earthlink.net>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+	id <S315988AbSHXMec>; Sat, 24 Aug 2002 08:34:32 -0400
+Received: from ns2.sea.interquest.net ([66.135.144.2]:7341 "EHLO ns2.sea")
+	by vger.kernel.org with ESMTP id <S315946AbSHXMeb>;
+	Sat, 24 Aug 2002 08:34:31 -0400
+Date: Sat, 24 Aug 2002 05:44:16 -0700
+From: silvio@qualys.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] linux-2.4.19/drivers/ieee1394/video1394.c
+Message-ID: <20020824054416.A3582@hamsec.aurora.sfo.interquest.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons writes:
 
-> Paul please test the code.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-(The new cfbimgblt.c, that is.)
+avoid possible integer overflow
 
-It mostly seems to be fine, except there are some problems with the
-cursor.  I have only tested it with the standard 8x16 font so far
-though.  I had to add a #include <video/fbcon.h> near the top to get
-the definitions of fb_readl and fb_writel.
+(also change the <= to just != since its using unsigned types anyway making
+the sign test invalid here *shrug*)
 
-It seems to be not erasing the cursor image when it should.  So, if I
-am logged in on the console and I type a few characters and then press
-backspace a few times, it leaves those character positions entirely
-white.  Also, when I press return it leaves the cursor image on that
-line as well as drawing the cursor after the shell prompt on the next
-line.
+--
+Silvio
 
-I just tried with the old cfbimgblt.c and it also does the same
-thing.  So it's not the new cfbimgblt.c that is doing this, it's
-something else in your fbcon changes (or just possibly mine :).  This
-is with atyfb with my patches.
-Paul.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch.video1394"
+
+--- linux-2.4.19/drivers/ieee1394/video1394.c	Sat Aug 24 05:37:15 2002
++++ linux-2.4.19-dev/drivers/ieee1394/video1394.c	Sat Aug 24 05:40:22 2002
+@@ -871,13 +871,13 @@
+ 		}
+ 		ohci->ISO_channel_usage |= mask;
+ 
+-		if (v.buf_size<=0) {
++		if (v.buf_size == 0 || v.buf_size > VIDEO1394_MAX_SIZE) {
+ 			PRINT(KERN_ERR, ohci->id,
+ 			      "Invalid %d length buffer requested",v.buf_size);
+ 			return -EFAULT;
+ 		}
+ 
+-		if (v.nb_buffers<=0) {
++		if (v.nb_buffers == 0 || v.nb_buffers > VIDEO1394_MAX_SIZE) {
+ 			PRINT(KERN_ERR, ohci->id,
+ 			      "Invalid %d buffers requested",v.nb_buffers);
+ 			return -EFAULT;
+
+--ReaqsoxgOBHFXBhH--

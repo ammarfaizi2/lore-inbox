@@ -1,113 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263718AbUERWkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUERXBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbUERWkh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 18:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbUERWkh
+	id S263713AbUERXBI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 19:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUERXBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 18:40:37 -0400
-Received: from [80.28.60.165] ([80.28.60.165]:11212 "HELO medusa.homeunix.net")
-	by vger.kernel.org with SMTP id S263725AbUERWkU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 18:40:20 -0400
-From: "Williams Parker" <listas@medusa.homeunix.net>
-Date: Wed, 19 May 2004 00:31:33 +0200
-To: linux-kernel@vger.kernel.org
-Subject: driver ppp trouble
-Message-ID: <20040518223133.GA31411@sakroot.org>
-References: <200405161425.57745.rpaskowitz@confucius.ca> <1084736118.4172.6.camel@DustPuppy.LNX.RO> <200405170838.40560.hpoley@dds.nl> <20040518080507.GA15247@hmmn.org>
-Mime-Version: 1.0
+	Tue, 18 May 2004 19:01:07 -0400
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:30358 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S263713AbUERXBB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 19:01:01 -0400
+To: Roland Dreier <roland@topspin.com>
+Cc: ebiederm@xmission.com (Eric W. Biederman), Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, Robert.Picco@hp.com,
+       linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
+       Greg KH <greg@kroah.com>
+Subject: Re: readq/writeq on 32bit machines
+References: <40A3F805.5090804@hp.com> <40A40204.1060509@pobox.com>
+	<40A93DA5.4020701@hp.com> <20040517160508.63e1ddf0.akpm@osdl.org>
+	<20040517161212.659746db.akpm@osdl.org> <40A94857.9030507@pobox.com>
+	<20040517163356.506a9c8f.akpm@osdl.org> <40A94DF7.30307@pobox.com>
+	<20040517184621.0da52a3c.akpm@osdl.org> <40A96E11.5040000@pobox.com>
+	<m1vfit3939.fsf_-_@ebiederm.dsl.xmission.com>
+	<52fz9xpp5l.fsf@topspin.com>
+From: ebiederman@lnxi.com (Eric W. Biederman)
+Date: 18 May 2004 17:01:14 -0600
+In-Reply-To: <52fz9xpp5l.fsf@topspin.com>
+Message-ID: <m3hdudtk5h.fsf@maxwell.lnxi.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040518080507.GA15247@hmmn.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-my machine:
+Roland Dreier <roland@topspin.com> writes:
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 3
-model name      : Pentium II (Klamath)
-stepping        : 4
-cpu MHz         : 300.686
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
-cmov mmx
-bogomips        : 599.65
+> Thanks for posting this Eric... I sent a less detailed reply yesterday
+> (pointing out that atomic writeq is needed sometimes) but it seems to
+> have gotten eaten.
+> 
+>     Eric> This issue came last night on the openib list.  The driver
+>     Eric> currently rolls it's own version of writeq and in the case
+>     Eric> where there is not an atomic 64bit write it needs to a
+>     Eric> spinlock to make certain things don't get out of order.  The
+>     Eric> driver fails with the current 2 writel() version.
+> 
+>     Eric> Here is an SSE version, that should not be to intrusive.
+>     Eric> According to intel's docs a 64bit aligned 64bit write is
+>     Eric> atomic all of the way back to the Pentium.  If
+>     Eric> kernel_fpu_begin/kernel_fpu_end are safe in interrupt
+>     Eric> context we can do an atomic/correct version of writeq for
+>     Eric> x86 processors that don't support sse as well.  Although I
+>     Eric> don't know if we want to.
+> 
+> 	static inline void __raw_writeq(u64 val, unsigned long dest)
+> 	{
+> 		unsigned long cr0;
+> 		u64 xmmsave __attribute__((aligned(8));
+> 		preempt_disable();
+> 	        cr0 = read_cr0();
+> 		clts();
+> 	        asm volatile (
+> 			"movlps %%xmm0,(%0); \n\t"
+> 			"movlps (%2),%%xmm0; \n\t"
+> 			"movlps %%xmm0,(%1); \n\t"
+> 			"movlps (%0),%%xmm0; \n\t"
+> 			: =m (&xmmsave), "=m" ((void *)dest)
+> 			: "m" (&val)
+> 			);
+> 		write_cr0(cr0);
+> 		preempt_enable();
+> 	}
+> 
+> This is pretty much what I wrote in the above-mentioned openib
+> driver.  However I'm worried about using 
+> 
+>         u64 xmmsave __attribute__((aligned(8));
+> 
+> for a stack variable.  I don't think gcc respects the alignment
+> attribute for stack variables (I've had a problem in the past using
+> movdqa to a stack variable, even if I do __attribute__((aligned(16))).
+> If we're sure gcc aligns xmmsave properly, stick a comment in and
+> leave out the __attribute__; if not then I think we have to do
 
-pppd version:
-ii  ppp             2.4.2+20031127- Point-to-Point Protocol (PPP) daemon
-ii  pppoe           3.5-3           PPP over Ethernet driver
+I picked that up out of xor.h where the raid code does something similar,
+so if there is a problem it needs to be fixed there as well.
 
+> 
+>         u8 xmmsave[8 + 7];
+> 
+> and then use ~7 & (xmmsave + 7).
+> 
+>     Eric> Thinking about this a little more we might be able to get
+>     Eric> away with.
+> 
+> 	static inline void __raw_writeq(u64 val, unsigned long dest)
+> 	{
+> 		unsigned long flags;
+> 	        local_irq_save(flags);
+> 		writel(val & 0xffffffff, addr);
+> 		writel(val >> 32, addr + 4);
+> 	        irq_restore(flags);
+> 	}
+> 
+> I don't think this is good enough on SMP.  In the openib case, it's
+> entirely possible for one CPU to be ringing a (64-bit) work queue
+> doorbell at the same time as another CPU is ringing a (64-bit)
+> completion queue doorbell, and if the 32-bit halves of those doorbells
+> get interleaved, the hardware gets confused.  Maybe there's some magic
+> aspect of the PC hardware that ensures this can't happen but I'd hate
+> to count on it without some very good documentation.
 
-kernel:
-
-Linux MeDuSa.homeunix.net 2.4.24 #1 Sat Jan 1 00:29:11 CET 2000 i686
-GNU/Linux
-
-
- cat /etc/ppp/peers/dsl-provider
- pty "pppoe -I eth0 -T 80 -m 1452"
-
-
- grep -i ppp /boot/config-2.4.24
- CONFIG_PPP=y
- # CONFIG_PPP_MULTILINK is not set
- CONFIG_PPP_FILTER=y
- CONFIG_PPP_ASYNC=y
- # CONFIG_PPP_SYNC_TTY is not set
- CONFIG_PPP_DEFLATE=y
- CONFIG_PPP_BSDCOMP=m
- # CONFIG_PPPOE is not set
-
-
-
-Hello I have troubles with conection adsl in my host,
-hang down every low time and i see error messages:
-
-it is frecuently--->
-
-May 13 04:16:11 MeDuSa pppd[302]: tcflush failed: Input/output error
-May 13 05:54:13 MeDuSa pppoe[7149]: read (asyncReadFromPPP): Session
-7355: Input/output
-May 18 15:45:47 MeDuSa pppoe[21082]: Bad TCP checksum 4a5a
-May 18 15:45:53 MeDuSa pppoe[21082]: Bad TCP checksum 4a5a
-May 18 20:34:34 MeDuSa pppoe[21082]: Bad TCP checksum 4654
-
-
-
-
-and my stadistics times conecction stablished in link pppoe:
-
-May  4 03:06:41 MeDuSa pppd[769]: Connect time 3472.2 minutes.
-May  4 03:06:41 MeDuSa pppd[769]: Connect time 3472.2 minutes.
-May  5 05:19:14 MeDuSa pppd[3974]: Connect time 1560.4 minutes.
-May  5 05:19:14 MeDuSa pppd[3974]: Connect time 1560.4 minutes.
-May  6 02:17:47 MeDuSa pppd[30601]: Connect time 1248.3 minutes.
-May  6 02:17:47 MeDuSa pppd[30601]: Connect time 1248.3 minutes.
-May  7 08:47:55 MeDuSa pppd[21842]: Connect time 1818.4 minutes.
-May  7 08:47:55 MeDuSa pppd[21842]: Connect time 1818.4 minutes.
-May 10 12:30:53 MeDuSa pppd[20320]: Connect time 4533.4 minutes.
-May 10 12:30:53 MeDuSa pppd[20320]: Connect time 4533.4 minutes.
-May 13 04:16:11 MeDuSa pppd[302]: Connect time 828.4 minutes.
-May 13 04:16:13 MeDuSa pppd[302]: Connect time 828.4 minutes.
-May 13 05:54:13 MeDuSa pppd[7145]: Connect time 97.6 minutes.
-May 13 05:54:13 MeDuSa pppd[7145]: Connect time 97.6 minutes.
-May 14 22:06:32 MeDuSa pppd[7984]: Connect time 2392.5 minutes.
-May 14 22:06:32 MeDuSa pppd[7984]: Connect time 2392.5 minutes.
-May 15 02:17:37 MeDuSa pppd[19383]: Connect time 247.6 minutes.
-May 15 02:17:37 MeDuSa pppd[19383]: Connect time 247.6 minutes.
+Right.  It does make the window incredibly small though.  I am even
+nervous that the version with a spinlock might break, if something really
+needs an atomic guarantee.  
 
 
-
-thanks 
+Eric

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbUKPWUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbUKPW1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbUKPWUT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 17:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbUKPWUS
+	id S261841AbUKPW1e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 17:27:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUKPW1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 17:20:18 -0500
-Received: from gizmo09ps.bigpond.com ([144.140.71.19]:17117 "HELO
-	gizmo09ps.bigpond.com") by vger.kernel.org with SMTP
-	id S261839AbUKPWT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 17:19:58 -0500
-Message-ID: <419A7D09.4080001@bigpond.net.au>
-Date: Wed, 17 Nov 2004 09:19:53 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Tue, 16 Nov 2004 17:27:34 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:8634 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261841AbUKPW1d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 17:27:33 -0500
+Date: Wed, 17 Nov 2004 00:28:27 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling
- bugs
-References: <20041116113209.GA1890@elte.hu>
-In-Reply-To: <20041116113209.GA1890@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling bugs
+Message-ID: <20041116232827.GA842@elte.hu>
+References: <20041116113209.GA1890@elte.hu> <419A7D09.4080001@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <419A7D09.4080001@bigpond.net.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> PREEMPT_RT on SMP systems triggered weird (very high) load average
-> values rather easily, which turned out to be a mainline kernel
-> ->nr_uninterruptible handling bug in try_to_wake_up().
-> 
-> the following code:
-> 
->         if (old_state == TASK_UNINTERRUPTIBLE) {
->                 old_rq->nr_uninterruptible--;
-> 
-> potentially executes with old_rq potentially being != rq, and hence
-> updating ->nr_uninterruptible without the lock held. Given a
-> sufficiently concurrent preemption workload the count can get out of
-> whack and updates might get lost, permanently skewing the global count. 
-> Nothing except the load-average uses nr_uninterruptible() so this
-> condition can go unnoticed quite easily.
-> 
-> the fix is to update ->nr_uninterruptible always on the runqueue where
-> the task currently is. (this is also a tiny performance plus for
-> try_to_wake_up() as a stackslot gets freed up.)
 
-Couldn't this part of the problem have been solved by using an atomic_t 
-for nr_uninterruptible as for nr_iowait?  It would also remove the need 
-for migrate_nr_uninterruptible().
+* Peter Williams <pwil3058@bigpond.net.au> wrote:
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+> Couldn't this part of the problem have been solved by using an
+> atomic_t for nr_uninterruptible as for nr_iowait?  It would also
+> remove the need for migrate_nr_uninterruptible().
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+maybe, but why? Atomic ops are still a tad slower than normal ops and
+every cycle counts in the wakeup path. Also, the solution is still not
+correct, because it does not take other migration paths into account, so
+we could end up with a sleeping task showing up on another CPU just as
+well. The most robust solution is to simply not care about migration and
+to care about the total count only.
+
+	Ingo

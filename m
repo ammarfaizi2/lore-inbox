@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262890AbSJAXQw>; Tue, 1 Oct 2002 19:16:52 -0400
+	id <S262895AbSJAXOj>; Tue, 1 Oct 2002 19:14:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262906AbSJAXQC>; Tue, 1 Oct 2002 19:16:02 -0400
-Received: from jalon.able.es ([212.97.163.2]:44236 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262902AbSJAXPR>;
-	Tue, 1 Oct 2002 19:15:17 -0400
-Date: Wed, 2 Oct 2002 00:56:35 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.20-pre8-jam1
-Message-ID: <20021001225635.GF3927@werewolf.able.es>
-References: <20021001224206.GB3927@werewolf.able.es> <20021001225500.GA11744@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021001225500.GA11744@suse.de>; from davej@codemonkey.org.uk on Wed, Oct 02, 2002 at 00:55:00 +0200
-X-Mailer: Balsa 1.4.1
+	id <S262904AbSJAXOj>; Tue, 1 Oct 2002 19:14:39 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:51466 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S262897AbSJAXOh>;
+	Tue, 1 Oct 2002 19:14:37 -0400
+Date: Wed, 2 Oct 2002 01:19:37 +0200 (CEST)
+From: venom@sns.it
+To: Jens Axboe <axboe@suse.de>
+cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+In-Reply-To: <20021001164136.GG5755@suse.de>
+Message-ID: <Pine.LNX.4.43.0210020117280.16927-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+That was exactky what I was meaning with my first post.
 
-On 2002.10.02 Dave Jones wrote:
->On Wed, Oct 02, 2002 at 12:42:06AM +0200, J.A. Magallon wrote:
-> > 17-cache-detection.bz2
-> > 	Fix cache detection (trace cache) in P3s.
-> > 	Author: Dave Jones <davej@codemonkey.org.uk>
+LVM should stay included untill LVM2 is ready
+to be merged. That would be metodologically and logically correct.
+What is LVM2 is not ready for 2.6? then you could still fix old LVM.
+
+Luigi
+
+
+On Tue, 1 Oct 2002, Jens Axboe wrote:
+
+> Date: Tue, 1 Oct 2002 18:41:36 +0200
+> From: Jens Axboe <axboe@suse.de>
+> To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+> Cc: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
+>      Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+>      Linus Torvalds <torvalds@transmeta.com>
+> Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
 >
->s/P3/P4/
+> On Tue, Oct 01 2002, Joe Thornber wrote:
+> > On Tue, Oct 01, 2002 at 06:06:08PM +0200, Jens Axboe wrote:
+> > > On Tue, Oct 01 2002, Dave Jones wrote:
+> > > > Consider it patch 1/2 of the device mapper merge 8-)
+> > >
+> > > Indeed, the patches are also arriving out of order though, LVM remove
+> > > patch should be 2/2 not 1/2. IMO.
+> >
+> > If LVM remotely worked I would agree with you.
 >
-></pendantic> :-)
+> No matter the state of lvm, it's much better to day "1, here's the
+> replacement - 2, rip the old one out". What if device mapper for 2.5
+> really sucks? Maybe it's so bad that we'd rather fix up lvm1? Apparently
+> davej has patches that sort-of makes lvm work.
+>
+> It's not likely, but still :-)
+>
+> --
+> Jens Axboe
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
-Opps, didn't code refer to Tualatins ??
-Thanks.
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (dolphin) for i586
-Linux 2.4.20-pre8-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

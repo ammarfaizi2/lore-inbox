@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287366AbSACV7N>; Thu, 3 Jan 2002 16:59:13 -0500
+	id <S287375AbSACWBc>; Thu, 3 Jan 2002 17:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287372AbSACV7C>; Thu, 3 Jan 2002 16:59:02 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:36618 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287368AbSACV6s>; Thu, 3 Jan 2002 16:58:48 -0500
-Message-ID: <3C34D306.F0893D1B@zip.com.au>
-Date: Thu, 03 Jan 2002 13:54:14 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S287368AbSACWBX>; Thu, 3 Jan 2002 17:01:23 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:5504 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S287394AbSACWBJ>; Thu, 3 Jan 2002 17:01:09 -0500
+Date: Thu, 3 Jan 2002 17:01:18 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Michael Zhu <mylinuxk@yahoo.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The CURRENT macro
+In-Reply-To: <20020103213455.34699.qmail@web14911.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020103165726.906A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Ken Brownfield <brownfld@irridia.com>
-CC: Andreas Hartmann <andihartmann@freenet.de>,
-        Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <3C2CD326.100@athlon.maya.org>,
-		<3C2CD326.100@athlon.maya.org>; from andihartmann@freenet.de on Fri, Dec 28, 2001 at 09:16:38PM +0100 <20020103142301.C4759@asooo.flowerfire.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Brownfield wrote:
+On Thu, 3 Jan 2002, Michael Zhu wrote:
+
+> In Alessandro Rubini's book Linux Device Driver(Second
+> Edition), Chatper 12, he said that "By accessing the
+> fields in the request structure, usually by way of
+> CURRENT" and "CURRENT is just a pointer into
+> blk_dev[MAJOR_NR].request_queue". I know CURRENT is
+> just a macro. Where can I find the definition of this
+> macro?
+> I just don't know how to get the struct request from
+> the request_queue(a request_queue_t struct). CURRENT
+> points to which field in the
+> blk_dev[MAJOR_NR].request_queue? Thank you very much.
 > 
-> Unfortunately, I lost the response that basically said "2.4 looks stable
-> to me", but let me count the ways in which I agree with Andreas'
-> sentiment:
-> 
->         A) VM has major issues
->                 1) about a dozen recent OOPS reports in VM code
+> Michael
 
-Ben LaHaise's fix for page_cache_release() is absolutely required.
+If symlinks are set up:
 
->                 2) VM falls down on large-memory machines with a
->                    high inode count (slocate/updatedb, i/dcache)
->                 3) Memory allocation failures and OOM triggers
->                    even though caches remain full.
->                 4) Other bugs fixed in -aa and others
->         B) Live- and dead-locks that I'm seeing on all 2.4 production
->            machines > 2.4.9, possibly related to A.  But how will I
->            ever find out?
+/usr/include/linux/blk.h
 
-Does this happen with the latest -aa patch?  If so, please send
-a full system description and report.
+#ifndef _BLK_H
+#define _BLK_H
 
->         C) IO-APIC code that requires noapic on any and all SMP
->            machines that I've ever run on.
+[SNIPPED...]
 
-Dunno about this one.  Have you prepared a description?
- 
+#ifndef CURRENT
+#define CURRENT blkdev_entry_next_request(&blk_dev[MAJOR_NR].request_queue.queue_head)
+#endif
 
--
+#endif /* _BLK_H */
+
+Otherwise:
+
+../linux-n.n.n/include/linux/blk.h
+
+
+FYI. To find things in the future, do:
+cd /usr/include/linux
+grep WHAT_TO_FIND *.h | more
+cd ../asm
+grep WHAT_TO_FIND *.h | more
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

@@ -1,160 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268503AbUIQJ7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268655AbUIQKFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268503AbUIQJ7a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 05:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268655AbUIQJ7a
+	id S268655AbUIQKFe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 06:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUIQKFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 05:59:30 -0400
-Received: from mail.gmx.de ([213.165.64.20]:7394 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268503AbUIQJ7Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 05:59:24 -0400
-X-Authenticated: #17725021
-Date: Fri, 17 Sep 2004 11:55:02 +0200
-From: Henry Margies <henry.margies@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is there a problem in timeval_to_jiffies?
-Message-Id: <20040917115502.33831479.henry.margies@gmx.de>
-In-Reply-To: <4149F56E.50406@mvista.com>
-References: <20040909154828.5972376a.henry.margies@gmx.de>
-	<20040912163319.6e55fbe6.henry.margies@gmx.de>
-	<20040915203039.369bb866.rddunlap@osdl.org>
-	<414962DF.5080209@mvista.com>
-	<20040916200203.6259e113.henry.margies@gmx.de>
-	<4149F56E.50406@mvista.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: %3lz3@K$hA\]+AEANQT9>.M`@Pfo]3I,M,_JWswT5MBOpjXQ'VST8|DGMhkv8j,9Xb%j3jG
- |onl!dcPab\nF3>j.1\:ixCGSM)nHq&UXeDDhN@x^5I
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Sep 2004 06:05:31 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:64650 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S268655AbUIQKFP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 06:05:15 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH][resend] Update e1000 to use module_param()
+Date: Fri, 17 Sep 2004 03:05:00 -0700
+Message-ID: <468F3FDA28AA87429AD807992E22D07E028C8E99@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][resend] Update e1000 to use module_param()
+Thread-Index: AcScC39eyxL29yW1TRmvRlbR0r4eEQAkghKQ
+From: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+To: "Roland Dreier" <roland@topspin.com>, "cramerj" <cramerj@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>
+Cc: <jgarzik@pobox.com>, <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Sep 2004 10:05:02.0202 (UTC) FILETIME=[CC256DA0:01C49C9D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roland:
 
-Ok, first of all I want to show you the output of my program
-running on my arm device.
+Thanks for the patch. Based on some feedback from the community we had
+developed a patch several weeks ago. We just submitted the patch. Please
+let me know if you see any issues with it.
 
-TIMER_INTERVAL          =1000ms
-COUNTER                 =1
-expected elapsed time   =1000ms
-elapsed time            =1010ms and 14ns
+Thanks,
+Ganesh.
 
-TIMER_INTERVAL          =1000ms
-COUNTER                 =1
-expected elapsed time   =1000ms
-elapsed time            =1009ms and 981ns
+-----Original Message-----
+From: Roland Dreier [mailto:roland@topspin.com] 
+Sent: Thursday, September 16, 2004 9:37 AM
+To: cramerj; Ronciak, John; Venkatesan, Ganesh
+Cc: jgarzik@pobox.com; netdev@oss.sgi.com; linux-kernel@vger.kernel.org
+Subject: [PATCH][resend] Update e1000 to use module_param()
 
-TIMER_INTERVAL          =1000ms
-COUNTER                 =1
-expected elapsed time   =1000ms
-elapsed time            =1010ms and 12ns
+(resending because this seems to have been lost; e1000 still has mixed
+MODULE_PARM and module_param use)
 
-As you can see, it is always about 10ms late. The 14ns, -19ns and
-12ns difference are because of latency.
+The change to e1000_main.c in
 
-TIMER_INTERVAL          =100ms
-COUNTER                 =10
-expected elapsed time   =1000ms
-elapsed time            =1100ms and 9ns
+    ChangeSet@1.1722.32.6, 2004-05-27 13:44:06-04:00,
+ganesh.venkatesan@intel.com
+      [PATCH] e1000 7/7: Support for ethtool msglevel based error
 
-TIMER_INTERVAL          =100ms
-COUNTER                 =10
-expected elapsed time   =1000ms
-elapsed time            =1099ms and 994ns
+added module_param(debug, ...) to e1000_main.c.  Since e1000_param.c
+still uses MODULE_PARM(), this means that one gets
 
-TIMER_INTERVAL          =100ms
-COUNTER                 =10
-expected elapsed time   =1000ms
-elapsed time            =1100ms and 8ns
+    e1000: Ignoring new-style parameters in presence of obsolete ones
 
-Much more interesting is the output for 10ms timers.
+when e1000 is loaded, so the debug parameter cannot even be set.
 
-TIMER_INTERVAL          =10ms
-COUNTER                 =100
-expected elapsed time   =1000ms
-elapsed time            =2000ms and 0ns
+The patch below fixes this by updating e1000_param.c to use
+module_param() as well.  Since module_param might make the parameters
+visible in sysfs, I removed the __devinitdata notation from the
+parameter arrays as well, just to be safe.
 
-TIMER_INTERVAL          =10ms
-COUNTER                 =100
-expected elapsed time   =1000ms
-elapsed time            =1999ms and 998ns
+Thanks,
+  Roland
 
-TIMER_INTERVAL          =10ms
-COUNTER                 =100
-expected elapsed time   =1000ms
-elapsed time            =2000ms and 3ns
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-
-Now, you can maybe see my problem. If I want to write a program
-which should just send something every 10ms with the current 2.6
-implementation, it will only send something every 20ms. I don't
-care about the time between timers that much. But for 10ms
-interval timers, I want to have 100 triggered timers within one
-second.
-
-The precision of timers can never be better than the size of
-one jiffie. But with the old 2.4 solution the maximum deviation
-is +/- 10ms, with your solution (the current 2.6 approach) it
-is +20ms (for arm platform, where a jiffie size is 10ms).
-The bad thing is, that the average deviation for 2.4 kernels is
-0ms and for 2.6 kernels 10ms.
-
-I see the problem for x86 architecture, where the size of one
-jiffie is 999849ns. That means, that 
-
-jiffie: 0 s0ms 0ns
-jiffie: 1 s0ms 999849ns
-jiffie: 2 s1ms 999698ns
-jiffie: 3 s2ms 999547ns
-jiffie: 4 s3ms 999396ns
-jiffie: 5 s4ms 999245ns
-jiffie: 6 s5ms 999094ns
-jiffie: 7 s6ms 998943ns
-jiffie: 8 s7ms 998792ns
-jiffie: 9 s8ms 998641ns
-jiffie: 10 s9ms 998490ns
-
-Right? But for arm, with a jiffie size of 10000000, it is much
-more easier. And that is why I don't understand why an one second
-interval is converted to 101 jiffies (on arm).
-
-
-On Thu, 16 Sep 2004 13:19:58 -0700
-George Anzinger <george@mvista.com> wrote:
-
-> [...] However, the standard seems to
-> say that what you should measure is the expected arrival time
-> (i.e. assume zero latency).  In this case the standard calls
-> for timers NEVER to be early.
-
-I agree. But then, why adding one jiffie to every interval? If
-there is no latency, the timer should appear right at the
-beginning of a jiffie. For x86 you are right, because 10 jiffies
-are less then 10ms. But for arm, 1 jiffie is precisely 10ms. 
-
-
-> > So, what about adding this rounding value just to it_value to
-> > guarantee that the first occurrence is in it least this time?
-> 
-> The it_value and the it_interval are, indeed, computed
-> differently.  The it_value needs to have 1 additional
-> resolution size period added to it to account for the initial
-> time starting between ticks.  The it_interval does not have
-> this additional period added to it.  Both values, however, are
-> first rounded up to the next resolution size value.
-
-Ok, I will have a closer look to the rounding. Maybe it is just
-not working for arm.
-
-Please, can you send me your test application?
-
-Best regards,
-
-Henry
-
--- 
-
-Hi! I'm a .signature virus! Copy me into your
-~/.signature to help me spread!
-
+Index: linux-2.6.8.1/drivers/net/e1000/e1000_param.c
+===================================================================
+--- linux-2.6.8.1.orig/drivers/net/e1000/e1000_param.c	2004-08-14
+03:55:48.000000000 -0700
++++ linux-2.6.8.1/drivers/net/e1000/e1000_param.c	2004-08-15
+08:16:31.109671753 -0700
+@@ -55,9 +55,11 @@
+  * over and over (plus this helps to avoid typo bugs).
+  */
+ 
++static int param_count;
++
+ #define E1000_PARAM(X, S) \
+-static const int __devinitdata X[E1000_MAX_NIC + 1] = E1000_PARAM_INIT;
+\
+-MODULE_PARM(X, "1-" __MODULE_STRING(E1000_MAX_NIC) "i"); \
++static int X[E1000_MAX_NIC + 1] = E1000_PARAM_INIT; \
++module_param_array(X, int, param_count, 0); \
+ MODULE_PARM_DESC(X, S);
+ 
+ /* Transmit Descriptor Count

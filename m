@@ -1,56 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130177AbQKUMG3>; Tue, 21 Nov 2000 07:06:29 -0500
+	id <S129231AbQKUMbu>; Tue, 21 Nov 2000 07:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130363AbQKUMGT>; Tue, 21 Nov 2000 07:06:19 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:35847 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130177AbQKUMGK>;
-	Tue, 21 Nov 2000 07:06:10 -0500
-Date: Tue, 21 Nov 2000 12:36:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: kumon@flab.fujitsu.co.jp
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] livelock in elevator scheduling
-Message-ID: <20001121123608.F10007@suse.de>
-In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp> <20001121112836.B10007@suse.de> <200011211130.UAA27961@asami.proc.flab.fujitsu.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200011211130.UAA27961@asami.proc.flab.fujitsu.co.jp>; from kumon@flab.fujitsu.co.jp on Tue, Nov 21, 2000 at 08:30:33PM +0900
+	id <S129825AbQKUMbk>; Tue, 21 Nov 2000 07:31:40 -0500
+Received: from 13dyn177.delft.casema.net ([212.64.76.177]:41995 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129231AbQKUMbY>; Tue, 21 Nov 2000 07:31:24 -0500
+Date: Tue, 21 Nov 2000 13:00:32 +0100 (CET)
+From: Patrick van de Lageweg <patrick@bitwizard.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Rogier Wolff <wolff@bitwizard.nl>
+Subject: [PATCH] generic_serial's block_til_ready
+In-Reply-To: <Pine.LNX.4.21.0011060947190.2867-100000@panoramix.bitwizard.nl>
+Message-ID: <Pine.LNX.4.21.0011211256490.29426-100000@panoramix.bitwizard.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21 2000, kumon@flab.fujitsu.co.jp wrote:
->  > Believe it or not, but this is intentional. In that regard, the
->  > function name is a misnomer -- call it i/o scheduler instead :-)
-> 
-> I never believe it intentional.  If it is true, the current kernel
-> will be suffered from a kind of DOS attack.  Yes, actually I'm a
-> victim of it.
+Hi Linus,
+ 
+This patch renames the block_til_ready of generic serial to
+gs_block_til_ready. 
 
-The problem is caused by the too high sequence numbers in stock
-kernel, as I said. Plus, the sequence decrementing doesn't take
-request/buffer size into account. So the starvation _is_ limited,
-the limit is just too high.
+it helps when other modules have a "static block_til_ready" defined when
+used older modutils.
 
-> By Running ZD's ServerBench, not only the performance down, but my
-> machine blocks all commands execution including /bin/ps, /bin/ls... ,
-> and those are not ^C able unless the benchmark is stopped. Those
-> commands are read from disks but the requests are wating at the end of
-> I/O queue, those won't be executed.
+ 	Patrick
 
-If performance is down, then that problem is most likely elsewhere.
-I/O limited benchmarking typically thrives on lots of request
-latency -- with that comes better throughput for individual threads.
 
-> Anyway, I'll try your patch.
+diff -r -u linux-2.4.0-test10.clean/drivers/char/generic_serial.c linux-2.4.0-test10.generic_serial/drivers/char/generic_serial.c
+--- linux-2.4.0-test10.clean/drivers/char/generic_serial.c	Tue Nov 21 12:08:20 2000
++++ linux-2.4.0-test10.generic_serial/drivers/char/generic_serial.c	Tue Nov 21 12:31:43 2000
+@@ -35,7 +35,6 @@
+ 
+ static int gs_debug;
+ 
+-
+ #ifdef DEBUG
+ #define gs_dprintk(f, str...) if (gs_debug & f) printk (str)
+ #else
+@@ -583,7 +582,7 @@
+ }
+ 
+ 
+-int block_til_ready(void *port_, struct file * filp)
++int gs_block_til_ready(void *port_, struct file * filp)
+ {
+ 	struct gs_port *port = port_;
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -600,7 +599,7 @@
+ 
+ 	if (!tty) return 0;
+ 
+-	gs_dprintk (GS_DEBUG_BTR, "Entering block_till_ready.\n"); 
++	gs_dprintk (GS_DEBUG_BTR, "Entering gs_block_till_ready.\n"); 
+ 	/*
+ 	 * If the device is in the middle of being closed, then block
+ 	 * until it's done, and then try again.
+@@ -1070,7 +1069,7 @@
+ EXPORT_SYMBOL(gs_start);
+ EXPORT_SYMBOL(gs_hangup);
+ EXPORT_SYMBOL(gs_do_softint);
+-EXPORT_SYMBOL(block_til_ready);
++EXPORT_SYMBOL(gs_block_til_ready);
+ EXPORT_SYMBOL(gs_close);
+ EXPORT_SYMBOL(gs_set_termios);
+ EXPORT_SYMBOL(gs_init_port);
+diff -r -u linux-2.4.0-test10.clean/drivers/char/sh-sci.c linux-2.4.0-test10.generic_serial/drivers/char/sh-sci.c
+--- linux-2.4.0-test10.clean/drivers/char/sh-sci.c	Wed Nov  1 13:57:19 2000
++++ linux-2.4.0-test10.generic_serial/drivers/char/sh-sci.c	Tue Nov 21 12:13:56 2000
+@@ -839,7 +839,7 @@
+ 		MOD_INC_USE_COUNT;
+ 	}
+ 
+-	retval = block_til_ready(port, filp);
++	retval = gs_block_til_ready(port, filp);
+ 
+ 	if (retval) {
+ 		MOD_DEC_USE_COUNT;
+diff -r -u linux-2.4.0-test10.clean/drivers/char/sx.c linux-2.4.0-test10.generic_serial/drivers/char/sx.c
+--- linux-2.4.0-test10.clean/drivers/char/sx.c	Tue Nov 21 12:08:21 2000
++++ linux-2.4.0-test10.generic_serial/drivers/char/sx.c	Tue Nov 21 12:13:56 2000
+@@ -1478,7 +1478,7 @@
+ 		return -EIO;
+ 	}
+ 
+-	retval = block_til_ready(port, filp);
++	retval = gs_block_til_ready(port, filp);
+ 	sx_dprintk (SX_DEBUG_OPEN, "Block til ready returned %d. Count=%d\n", 
+ 	            retval, port->gs.count);
+ 
+diff -r -u linux-2.4.0-test10.clean/include/linux/generic_serial.h linux-2.4.0-test10.generic_serial/include/linux/generic_serial.h
+--- linux-2.4.0-test10.clean/include/linux/generic_serial.h	Mon Mar 13 04:18:55 2000
++++ linux-2.4.0-test10.generic_serial/include/linux/generic_serial.h	Tue Nov 21 12:13:56 2000
+@@ -92,7 +92,7 @@
+ void gs_start(struct tty_struct *tty);
+ void gs_hangup(struct tty_struct *tty);
+ void gs_do_softint(void *private_);
+-int  block_til_ready(void *port, struct file *filp);
++int  gs_block_til_ready(void *port, struct file *filp);
+ void gs_close(struct tty_struct *tty, struct file *filp);
+ void gs_set_termios (struct tty_struct * tty, 
+                      struct termios * old_termios);
 
-Thanks
-
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

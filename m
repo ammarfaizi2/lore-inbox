@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUIPQIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268176AbUIPQIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268142AbUIPQIs (ORCPT <rfc822;willy@w.ods.org>);
+	id S268176AbUIPQIs (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 16 Sep 2004 12:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268176AbUIPQIG
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUIPQHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:08:06 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:28888 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S268142AbUIPQDv (ORCPT
+	Thu, 16 Sep 2004 12:07:54 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61087 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268239AbUIPQEU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:03:51 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: device driver for the SGI system clock, mmtimer
-Date: Thu, 16 Sep 2004 10:03:39 -0600
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Bob Picco <Robert.Picco@hp.com>, venkatesh.pallipadi@intel.com
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 16 Sep 2004 12:04:20 -0400
+Date: Thu, 16 Sep 2004 09:03:22 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Simon Derr <Simon.Derr@bull.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] cpusets: fix race in cpuset_add_file()
+Message-Id: <20040916090322.6861d402.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0409161715550.5423@openx3.frec.bull.fr>
+References: <20040916012913.8592.85271.16927@sam.engr.sgi.com>
+	<Pine.LNX.4.61.0409161548040.5423@openx3.frec.bull.fr>
+	<20040916075501.20c3ee45.pj@sgi.com>
+	<Pine.LNX.4.61.0409161715550.5423@openx3.frec.bull.fr>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409161003.39258.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> The timer hardware was designed around the multimedia timer specification by Intel
-> but to my knowledge only SGI has implemented that standard. The driver was written
-> by Jesse Barnes.
+Simon wrote:
+> However, your remark is welcome, since there is indeed a slight chance of 
+> deadlock with my patch, but it needs 2 mkdirs racing.
 
-As far as I can see, drivers/char/hpet.c talks to the same hardware.
-HP sx1000 machines (and probably others) also implement the HPET.
+Glad my confusions led to some good.
 
-I think you should look at adding your functionality to hpet.c
-rather than adding a new driver.
+Let me think about this one a bit.
+
+I had it in my brain that the cpuset_sem should be held across the
+entire cpuset_populate_dir(), as if there would be a problem with
+another task getting this lock while a directory was half populated.
+
+But I don't know if that was a valid concern, or just a superstition on
+my part.  I'll stare at this a bit more, and get back to you, either
+way.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

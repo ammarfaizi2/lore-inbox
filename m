@@ -1,40 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265489AbTFRS0v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 14:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265419AbTFRSZ4
+	id S265493AbTFRSbE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 14:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265415AbTFRSL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 14:25:56 -0400
-Received: from lvs00-fl.valueweb.net ([216.219.253.199]:52881 "EHLO
-	ams002.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S265474AbTFRSY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 14:24:26 -0400
-Message-ID: <3EF0B170.4040304@coyotegulch.com>
-Date: Wed, 18 Jun 2003 14:37:36 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Sco vs. IBM
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe>	 <063301c32c47$ddc792d0$3f00a8c0@witbe>	 <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net> <1055957807.16818.12.camel@loke>
-In-Reply-To: <1055957807.16818.12.camel@loke>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jun 2003 14:11:57 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:29588 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265399AbTFRSLn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 14:11:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10559607093836@kroah.com>
+Subject: Re: [PATCH] i2c driver changes for 2.5.72
+In-Reply-To: <10559607081420@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 18 Jun 2003 11:25:09 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin List-Petersen wrote:
-> Ok .. here we got us a few more articles about the stuff going on.
-[snip]
+ChangeSet 1.1318.3.6, 2003/06/16 11:40:37-07:00, margitsw@t-online.de
 
-I'll panic when Linus panics... or when IBM surrenders. ;}
+[PATCH] I2C: Sensors patch for adm1021
 
-Certainly, SCO will influence the ebb and flow of the universe; in the
-end, I suspect it will be much ado about nothing.
+Patch for adm1021
+This corrects temp reporting and a major error whereby
+"alarms" and "die_code" were being put though the "TEMP" macro.
+Compiled but don't have the hardware to test.
 
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
 
+ drivers/i2c/chips/adm1021.c |   18 ++++++++++++++----
+ 1 files changed, 14 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
+--- a/drivers/i2c/chips/adm1021.c	Wed Jun 18 11:19:25 2003
++++ b/drivers/i2c/chips/adm1021.c	Wed Jun 18 11:19:25 2003
+@@ -88,8 +88,8 @@
+    these macros are called: arguments may be evaluated more than once.
+    Fixing this is just not worth it. */
+ /* Conversions  note: 1021 uses normal integer signed-byte format*/
+-#define TEMP_FROM_REG(val)	(val > 127 ? val-256 : val)
+-#define TEMP_TO_REG(val)	(SENSORS_LIMIT((val < 0 ? val+256 : val),0,255))
++#define TEMP_FROM_REG(val)	(val > 127 ? (val-256)*1000 : val*1000)
++#define TEMP_TO_REG(val)	(SENSORS_LIMIT((val < 0 ? (val/1000)+256 : val/1000),0,255))
+ 
+ /* Initial values */
+ 
+@@ -172,8 +172,18 @@
+ show(remote_temp_max);
+ show(remote_temp_hyst);
+ show(remote_temp_input);
+-show(alarms);
+-show(die_code);
++
++#define show2(value)	\
++static ssize_t show_##value(struct device *dev, char *buf)	\
++{								\
++	struct i2c_client *client = to_i2c_client(dev);		\
++	struct adm1021_data *data = i2c_get_clientdata(client);	\
++								\
++	adm1021_update_client(client);				\
++	return sprintf(buf, "%d\n", data->value);		\
++}
++show2(alarms);
++show2(die_code);
+ 
+ #define set(value, reg)	\
+ static ssize_t set_##value(struct device *dev, const char *buf, size_t count)	\
 

@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbTIHOVB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbTIHOVB
+	id S262360AbTIHOZr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTIHOZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:21:01 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:27873 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262363AbTIHOU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:20:59 -0400
-Date: Mon, 8 Sep 2003 16:20:33 +0200
-From: kladit@t-online.de (Klaus Dittrich)
-To: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: 2.4.23-pre3 hypertreading
-Message-ID: <20030908142033.GA568@xeon2.local.here>
+	Mon, 8 Sep 2003 10:25:47 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:38351 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262360AbTIHOZp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 10:25:45 -0400
+Date: Mon, 8 Sep 2003 10:25:45 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <willy@debian.org>,
+       Erik Andersen <andersen@codepoet.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel header separation
+Message-ID: <20030908142545.GA3926@gtf.org>
+References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk> <20030903014908.GB1601@codepoet.org> <20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk> <20030905211604.GB16993@codepoet.org> <20030905232212.GP18654@parcelfarce.linux.theplanet.co.uk> <1063028303.32473.333.camel@hades.cambridge.redhat.com> <1063030329.21310.32.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Seen: false
-X-ID: TzjAOvZlgeAJmJzciet0ofNoNO25xR-t1hd6DjxXPvZS1FTXIL6Wg9
+In-Reply-To: <1063030329.21310.32.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dual-Xeon board i7505, apic enabled.
+On Mon, Sep 08, 2003 at 03:12:10PM +0100, Alan Cox wrote:
+> On Llu, 2003-09-08 at 14:38, David Woodhouse wrote:
+> > > __u8 has a very precise meaning defined by Linux.  If you're including
+> > > a Linux header. that's what you need to worry about.
+> > 
+> > It's a kernel-private type. If we're aiming for a clean set of headers,
+> > then ideally we should avoid gratuitously defining our own types when
+> > standards already exist.
+> 
+> __u8 is intended to be used by non kernel stuff for headers. Thats why
+> "__u8" not "u8" - so it doesnt pollute the sacred posix name space and
+> have us lynched by glibc people
 
-With 2.4.23-pre3 the number of cpu's detected is two,
-with 2.4.22 the number of cpu's detected is four.
+Well, strictly speaking, __u8 is an internal gcc not kernel type.
 
--- 
-Klaus
+Now that C99 has defined size-based types, I would prefer that we start
+using those...  They are a bit more verbose than "u8" but I think look
+better, and more important, are more portable in the long term than __u8.
+
+Whenever I see "__u8", I think "non-standard, gcc-specific dependency"
+
+	Jeff
+
+
+

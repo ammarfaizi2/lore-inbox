@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262972AbTCLB0N>; Tue, 11 Mar 2003 20:26:13 -0500
+	id <S261654AbTCLBwU>; Tue, 11 Mar 2003 20:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262998AbTCLB0N>; Tue, 11 Mar 2003 20:26:13 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:33040 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262972AbTCLB0L>; Tue, 11 Mar 2003 20:26:11 -0500
-Date: Wed, 12 Mar 2003 02:36:34 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "David S. Miller" <davem@redhat.com>
-cc: torvalds@transmeta.com, <shemminger@osdl.org>, <rml@tech9.net>,
-       <zwane@linuxpower.ca>, <linux-kernel@vger.kernel.org>,
-       <linux-net@vger.kernel.org>
-Subject: Re: [PATCH] (0/8) replace brlock with RCU
-In-Reply-To: <20030311.162831.42576307.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0303120232100.32518-100000@serv>
-References: <1047428032.15874.87.camel@dell_ss3.pdx.osdl.net>
- <Pine.LNX.4.44.0303111622260.2709-100000@home.transmeta.com>
- <20030311.162831.42576307.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261716AbTCLBwU>; Tue, 11 Mar 2003 20:52:20 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:23936 "EHLO
+	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S261654AbTCLBwT>; Tue, 11 Mar 2003 20:52:19 -0500
+Date: Wed, 12 Mar 2003 01:55:38 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, george@mvista.com,
+       felipe_alfaro@linuxmail.org, cobra@compuserve.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Runaway cron task on 2.5.63/4 bk?
+Message-ID: <20030312015538.GA17149@bjl1.jlokier.co.uk>
+References: <20030311144448.4d9ee416.akpm@digeo.com> <Pine.LNX.4.44.0303111458390.1709-100000@home.transmeta.com> <20030311150913.20ddb760.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030311150913.20ddb760.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 11 Mar 2003, David S. Miller wrote:
-
-> I'm fine with it, as long as I get shown how to get the equivalent
-> atomic sequence using the new primitives.  Ie. is there still a way
-> to go:
+Andrew Morton wrote:
+> > However, gcc is unable to do-the-right-thing and generate 32x32->64 
+> > multiplies, or 32x64->64 multiplies, even though those are both a _lot_ 
+> > faster than the full 64x64->64 case.
 > 
-> 	stop_all_incoming_packets();
-> 	do_something();
-> 	resume_all_incoming_packets();
+> 2.95.3 and 3.2.1 seem to do it right?
 > 
-> with the new stuff?
+> long a;
+> long b;
+> long long c;
+> 
+> void foo(void)
+> {
+> 	c = a * b;
+> }
 
-BTW if anyone is interested in a brlock implementation, which can offer 
-this property, but can also beat rcu, you might want to look at this 
-patch http://marc.theaimsgroup.com/?l=linux-kernel&m=104733360501112&w=2
+Your code is wrong for this test.  It does a 32x32->32 multiply, and
+then sign extends the result to 64 bits.
 
-bye, Roman
+The correct test has "c = (long long) a * b;".
+
+-- Jamie
 

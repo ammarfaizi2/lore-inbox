@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbTFIA6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 20:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbTFIA6Y
+	id S264075AbTFIBZF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 21:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFIBZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 20:58:24 -0400
-Received: from codepoet.org ([166.70.99.138]:39382 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S264134AbTFIA6N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 20:58:13 -0400
-Date: Sun, 8 Jun 2003 19:11:53 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Paul Jakma <paul@clubi.ie>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030609011153.GA11362@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Paul Jakma <paul@clubi.ie>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030608233546.GA11064@codepoet.org> <Pine.LNX.4.44.0306090105320.15572-100000@fogarty.jakma.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306090105320.15572-100000@fogarty.jakma.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	Sun, 8 Jun 2003 21:25:05 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:32778 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S264075AbTFIBZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 21:25:01 -0400
+Message-Id: <200306090138.h591cJS11030@pincoya.inf.utfsm.cl>
+To: James Stevenson <james@stev.org>
+cc: Lars Unin <lars_unin@linuxmail.org>, linux-kernel@vger.kernel.org
+Subject: Re: What are .s files in arch/i386/boot 
+In-reply-to: Your message of "Sat, 07 Jun 2003 21:05:42 +0100."
+             <Pine.LNX.4.44.0306072102580.1776-100000@jlap.stev.org> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 08 Jun 2003 21:38:19 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jun 09, 2003 at 01:09:45AM +0100, Paul Jakma wrote:
-> On Sun, 8 Jun 2003, Erik Andersen wrote:
-> 
-> > BTW, this is what I did to open up the Linksys rom...
-> 
-> interesting.. what do you make of:
-> 
-> 	http://download.qlogic.com/sf/10215/fullimage_1.5.1.04.zip
-> 
-> which is the firmware that runs on QLogic SANBox2 2Gbit fibre-channel
-> switches (Cyrix MediaGX iirc). Looking at strings it includes
-> software such as glib (LGPL), Linux and GRUB.
-> 
-> QLogic did not answer my request for source to the (L)GPL 
-> parts of the firmware when i asked them.
+Lars Unin <lars_unin@linuxmail.org> said:
+> James Stevenson <james@stev.org> said:
+> > > > What are .s files in arch/i386/boot, are they c sources of some sort?
+> > > > Where can I find the specifications documents they were made from? 
+> > > 
+> > > There are not c files.
+> > > They are assembler files
+> > > 
+> > > Try running gcc on a c file with the -S option
+> > > it will generate the same then you can tweak the
+> > > assembler produced to make it faster.
+> > > 
+> > Where can I find the .c files they were made from,
 
-gzip magic at 0x4110 for a compressed 1.7 MB, i386, 
-2.4.18-xfs linux kernel
+Those files are smallish routines that can't be sanely written in C, or (in
+the case of the bootstrap stuff) are for running on the 8086 your latest
+CPU thinks it is when booting. No support for that from gcc.
 
-x86 boot sector with GRUB at 0xE3ACB6
+> > and the spec sheets the .c files were made from? 
 
-gzip magic at 0xFA0E4 for file named "image" that contains 
-a compressed 24 MB ext2 filesystem
+If they where around once, they have been long plastered over by patches
+that make them useless now.
 
-gzip magic at 0x80D278 for a compressed 1.7 MB, i386,
-2.4.18-xfs linux kernel (apparently a backup)
+> You would have to find the original author of the person
+> who tweaks the assembler in the .s file chances are the .c
+> file is long gone though.
 
-gzip magic at 0x90324Ci for a file name "fl_image" that
-also contains a compressed 24 MB ext2 filesystem
+Probably never was. Only way out is as they say: "Use the source, Luke".
 
-A quick look through their filesystem shows plenty of GPL'd
-stuff.  Mostly looks lika RedHat ripoff, with a bunch of
-apparently proprietary junk under /itasca,
+You'd better get a book on ia32 (caution, the intel sytax almost all are
+written for is truly bletcherous, and does things just different enough
+from the AT&T sytax gcc/the kernel uses to make your head spin when trying
+to map back and forth). There was an HOWTO on assembly language programming
+under Linux, haven't looked at it in a long time. 
 
- -Erik
+> Why do all .c files have to be generated from a spec sheet ?
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Now that is a good question... never used one in my life :-)
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

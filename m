@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTLURXM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 12:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbTLURXM
+	id S263472AbTLURVt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 12:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTLURVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 12:23:12 -0500
-Received: from linux-bt.org ([217.160.111.169]:13738 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S263637AbTLURXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 12:23:08 -0500
-Subject: Re: Difference between select and enable in Kconfig
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Randy Dunlap <rddunlap@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <20031220205433.195037e8.rddunlap@osdl.org>
-References: <1071974814.2684.41.camel@pegasus>
-	 <20031220205433.195037e8.rddunlap@osdl.org>
-Content-Type: text/plain
-Message-Id: <1072027326.2684.72.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 21 Dec 2003 18:22:06 +0100
+	Sun, 21 Dec 2003 12:21:49 -0500
+Received: from bay8-dav13.bay8.hotmail.com ([64.4.26.117]:2309 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263472AbTLURVs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 12:21:48 -0500
+X-Originating-IP: [194.236.130.199]
+X-Originating-Email: [nikomail@hotmail.com]
+From: "Nicklas Bondesson" <nikomail@hotmail.com>
+To: "'Walt H'" <waltabbyh@comcast.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
+Date: Sun, 21 Dec 2003 18:21:47 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcPH4MNRXBvSI+pTTmm2mInozEX+ewABbKlg
+In-Reply-To: <3FE5CB0E.6060702@comcast.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-ID: <BAY8-DAV13E2eDEo42p00003756@hotmail.com>
+X-OriginalArrivalTime: 21 Dec 2003 17:21:47.0170 (UTC) FILETIME=[E993F820:01C3C7E6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy,
+I will try to do that now. Do you think this can have anything to do with me
+actually having a rather large root partition (76GB)? I will try with two
+33GB partitions this time (it might have something to do with it - but on
+the other hand it is working working with the Debian pre-compiled kernel).
 
-> | while porting some of my drivers to 2.6 which use the firmware loader
-> | for example I came to the question whether to use select or enable to
-> | achieve the desired result. Looking at the documention don't gives me
-> | the answer and from zconf.l I feel that both options are the same. Can
-> | anyone please explain me the differences if there are any?
+Well, let's see what I find out. I'll keep you posted.
+
+/Nicke 
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Walt H
+Sent: den 21 december 2003 17:32
+To: Nicklas Bondesson
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+(PDC20271)
+
+Nicklas Bondesson wrote:
+> Nopes, I get the kernel panic before the driver loads or when it does, 
+> however I'm not seeing any ataraid driver message at all. This is 
+> really strange I think. The only thing that has changed in my setup 
+> are the harddrives. I really need to get this working. Do you have any 
+> suggestions what-so-ever what to do? I really appreciate your help on
+this.
 > 
-> I agree, they look like synonyms.
-> There's nothing about "enable" in Documentation/kbuild/kconfig-language.txt
-> and there's evidence in zconf.l (as you mention) and in menu.c
-> that they are the same:
+> /Nicke
 > 
-> 			case P_SELECT:
-> 				sym2 = prop_get_symbol(prop);
-> 				if ((sym->type != S_BOOLEAN && sym->type != S_TRISTATE) ||
-> 				    (sym2->type != S_BOOLEAN && sym2->type != S_TRISTATE))
-> 					fprintf(stderr, "%s:%d:warning: enable is only allowed with boolean and tristate symbols\n",
-> 					                                ~~~~~~
 
-so both options achieve the same result. Why do we have two different
-options for the same stuff? Should we not remove one?
+Well, since you're using raid1, you should be able to pass a root=/dev/hda1
+(or whatever your / is located) using the same kernel and at least boot
+using this kernel. Then maybe you can use dmesg etc.. to see what the driver
+is actually doing. From your original post, it looks like you're using Lilo,
+so you'll need to boot using the old kernel first and change the lilo entry.
 
-Regards
-
-Marcel
+-Walt
 
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org More majordomo info at
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

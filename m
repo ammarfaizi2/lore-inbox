@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTDUXyB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 19:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbTDUXyB
+	id S262685AbTDUXxP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 19:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTDUXxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 19:54:01 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:12676 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262687AbTDUXx6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 19:53:58 -0400
-Date: Tue, 22 Apr 2003 01:04:40 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andy Kleen <ak@muc.de>
-Subject: Re: [PATCH] Runtime memory barrier patching
-Message-ID: <20030422000440.GB17793@mail.jlokier.co.uk>
-References: <200304211945_MC3-1-355A-F77D@compuserve.com>
+	Mon, 21 Apr 2003 19:53:15 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:25817 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id S262685AbTDUXxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 19:53:14 -0400
+Date: Mon, 21 Apr 2003 17:04:18 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.68
+Message-ID: <20030422000418.GF7570@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304211945_MC3-1-355A-F77D@compuserve.com>
-User-Agent: Mutt/1.4.1i
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> > Does anybody have the preferred Intel sequence somewhere?
-> 
->   These are in Intel ASM form (i.e. dest first) from the 486 manual:
-> 
->  2-bytes            mov reg,reg
->  3-bytes            lea reg, 0[reg]  ; 8-bit displacement
+WimMark I report for 2.5.68
 
-Look in the GAS source code for opcodes.
+Runs:  1651.75 1613.27 1427.69
 
-At least on the 486 and Pentium (I remember that part of GAS in those
-days), it makes sense to select a register that is not set in the
-preceding few instructions or used in the subsequent few.  Otherwise,
-lea's use of a register adds an address generation delay (worse than
-just a mov).
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.  The
+runs all do ramp-up work to populate caches and the like.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.  A bigger number
+is a better number.  All things being equal, a delta <50 is close to
+unimportant, and a delta < 20 is very identical.
+	This benchmark is sensitive to random system events.  I run
+three runs because of this.  If two runs are nearly identical and the
+remaining run is way off, that run should probably be ignored (it is
+often a low number, signifying that something on the system impacted
+the benchmark).
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
 
-Hence use of %esi and %edi in GAS - registers allocated last by the
-compiler, so least likely to be used/set in surrounding instructions.
 
-The register selection is probably too difficult to automate, though.
+-- 
 
--- Jamie
+Life's Little Instruction Book #80
 
+	"Slow dance"
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

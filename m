@@ -1,263 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315994AbSEJOGr>; Fri, 10 May 2002 10:06:47 -0400
+	id <S315995AbSEJOH6>; Fri, 10 May 2002 10:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315995AbSEJOGr>; Fri, 10 May 2002 10:06:47 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5504 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315994AbSEJOGn>; Fri, 10 May 2002 10:06:43 -0400
-Date: Fri, 10 May 2002 10:06:55 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Keith Owens <kaos@ocs.com.au>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spin-locks 
-In-Reply-To: <30386.1021037082@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.3.95.1020510095907.2632A-100000@chaos.analogic.com>
+	id <S315997AbSEJOH5>; Fri, 10 May 2002 10:07:57 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:8832 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S315995AbSEJOHz>;
+	Fri, 10 May 2002 10:07:55 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15579.54308.729464.625414@kim.it.uu.se>
+Date: Fri, 10 May 2002 16:07:32 +0200
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: 2.5.15 warnings
+In-Reply-To: <20020510142038.A7165@flint.arm.linux.org.uk>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 May 2002, Keith Owens wrote:
+Russell King writes:
+ > On Fri, May 10, 2002 at 01:58:48PM +0200, Mikael Pettersson wrote:
+ > > This patch silences the sound/oss/emu10k1 warnings.
+ > 
+ > You probably want to think about these in context of 32bit vs 64bit
+ > machines.
+ > 
+ > > --- linux-2.5.15/sound/oss/emu10k1/efxmgr.h.~1~	Wed Feb 20 03:11:02 2002
+ > > +++ linux-2.5.15/sound/oss/emu10k1/efxmgr.h	Fri May 10 01:54:43 2002
+ > > @@ -50,10 +50,10 @@
+ > >          u16 code_start;
+ > >          u16 code_size;
+ > >  
+ > > -        u32 gpr_used[NUM_GPRS / 32];
+ > > -        u32 gpr_input[NUM_GPRS / 32];
+ > > -        u32 route[NUM_OUTPUTS];
+ > > -        u32 route_v[NUM_OUTPUTS];
+ > > +        unsigned long gpr_used[NUM_GPRS / 32];
+ > > +        unsigned long gpr_input[NUM_GPRS / 32];
+ > > +        unsigned long route[NUM_OUTPUTS];
+ > > +        unsigned long route_v[NUM_OUTPUTS];
+ > >  };
 
-> On Fri, 10 May 2002 08:58:47 -0400 (EDT), 
-> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> >First, if I create a spin-lock in the ".data" segment it
-> >doesn't work on a SMP machine with two CPUs. I know I am
-> >supposed to use the macros, but I have some high-speed stuff
-> >written in assembly that needs a spin-lock. The 'doesn't work'
-> >is that the spin-lock seems to dead-lock, i.e., they loop
-> >forever with the interrupts disabled. I think what's really
-> >happening is that .data was paged and can't be paged back in
-> >with the interrupts off. I don't know. This stuff used to
-> >work....
-> 
-> Kernel .data sections are not paged.  They are identity[*] mapped along
-> with the rest of the kernel text and data and are locked down.
-> 
-> [*] Ignoring NUMA machines which may use non-identity mappings on each
-> node.
-> 
-> >In earlier versions of Linux, the locks were in .text_lock.
-> >Now they are in : _text_lock_KBUILD_BASENAME
-> 
-> Not quite.  They were all in section .text.lock but that broke when
-> binutils started detecting dangling references to discarded sections.
-> 
-> The fix was to store the lock code in the same section that called the
-> lock, so .text locks are in the .text section, .text.exit locks are in
-> the .text.exit section, no dangling references when .text.exit is
-> discarded.
-> 
-> The locks are now at the end of the section that references the lock,
-> preceded by a label (not a section) of _text_lock_KBUILD_BASENAME.
-> 
-> >So, what is special about this area that allows locks to work?
-> 
-> There is nothing special about the text lock code.  It is just moving
-> the failure path out of line to speed up the normal case.
-> 
-> >And, what is special about .data that prevents them from working?
-> 
-> Again nothing.  The spin lock area goes in .data, the code goes in the
-> relevant text section.
-> 
-> >Also, there is a potential bug (ducks and hides under the desk) in
-> >the existing spin-lock unlocking. To unlock, the lock is simply
-> >set to 1. This works if you have two CPUs, but what about more?
-> >
-> >Shouldn't the lock/unlock just be incremented/decremented so 'N' CPUs
-> >can pound on it?
-> 
-> Spinlocks are single cpu.  Only one cpu at a time can modify the data
-> that is being protected by obtaining the lock.
-> 
-> >From your description, you are confused about spinlocking.  Perhaps if
-> you mailed your code instead of assuming where the error was ...
+Ideally the emu10k1 maintainer should have fixed this by now. I'm just an emu10k user.
 
-Well, here is code that worked on linux 2.2.17.  Same CPUs, same
-everything... Just a different version of OS...
+The problem is: 3 archs (i386, ppc, ppc64) require "unsigned long *" as the
+parameter type in bitops (set_bit et al), the others take "void *".
+"unsigned int *" triggers compiler warnings: on the 32-bitters the warnings
+are just portability hints, but for ppc64 I imagine int != long. (And
+consequently emu10k1 is already broken on ppc64.)
 
-In this code, any CPU will modify (increment) the lock so we can
-only have 255 CPUs before this fails <grin>...
+So what emu10k1 needs here is either
+(a) a fix to make these arrays work even if the element type is 64 bits
+    (I can't claim to understand the code so I don't want to do that), or
+(b) a typedef for a 32-bit type which is "unsigned long" on 32-bitters and
+    "unsigned int" on 64-bitters; I couldn't find a standard one but I could
+    certainly invent one for emu10k1's private use.
 
+Suggestions?
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-.section .data
-lrm_tickl:	.long	0
-lrm_tickh:	.long	0
-lockf:		.byte	0
-.section .text
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#
-#   This reads the rapidly-changing tick-value and returns it as a
-#   long long. The output value is in carefully calculated miliseconds.
-#
-.global	lrm_tick
-.type	lrm_tick,@function
-.align	0x04
-lrm_tick:
-	pushf			# Restored at the end
-	cli
-	lock
-	incb	(lockf)		# Bump lock-value
-1:	cmpb	$1,(lockf)	# See if we own it
-	jnz	1b		# Nope, spin until we do.
-
-	pushl	%ebx		# Save non-volatile registers
-	pushl	%ecx
-	pushl	%esi
-	pushl	%edi
-
-#
-#   Locks no longer work so I have to do this hack......
-#
-
-2:	movl	(lrm_tickl), %eax
-	movl	(lrm_tickh), %edx
-	cmpl	(lrm_tickl), %eax
-	jnz	2b	
-	cmpl	(lrm_tickh), %edx
-	jnz	2b
-#
-#   Okay, we have a stable tick. Now, it's 2048 ticks/second instead
-#   of 1,000 ticks. Therefore we have to multiply by 1,000 and and
-#   divide by 2048 to get the millisecond count.
-#
-	xorl	%esi, %esi		# For overflow
-	movl	%eax, %ebx		# Save times 1 low lword
-	movl	%edx, %ecx		# Save times 1 high lword
-	movl	%esi, %edi		# Save overflow
-#
-	shl	$1, %eax		# Times 2
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	shl	$1, %eax		# Times 4
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	addl	%ebx, %eax		# Add the times 1 low lword
-	adcl	%ecx, %edx		# Add the times 1 high lword
-	adcl	%edi, %esi		# Add the times 1 overflow
-					# Now times 5 
-#
-	shl	$1, %eax		# Times 10
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	movl	%eax, %ebx		# Save times 10 low lword
-	movl	%edx, %ecx		# Save times 10 high lword
-	movl	%esi, %edi		# Save overflow
-#
-	shl	$1, %eax		# Times 20
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	shl	$1, %eax		# Times 40
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	addl	%ebx, %eax		# Add the times 10 low lword
-	adcl	%ecx, %edx		# Add the times 10 high lword 
-	adcl	%edi, %esi		# Add the times 10 overflow
-					# Now times 50
-#
-	shl	$1, %eax		# Times 100 
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	movl	%eax, %ebx		# Save times 100 low lword
-	movl	%edx, %ecx		# Save times 100 high lword
-	movl	%esi, %edi		# Save overflow
-#
-	shl	$1, %eax		# Times 200 
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	shl	$1, %eax		# Times 400 
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-	addl	%ebx, %eax		# Add the times 100 low lword
-	adcl	%ecx, %edx		# Add the times 100 high lword 
-	adcl	%edi, %esi		# Add the times 100 overflow
-					# Now times 500
-#
-	shl	$1, %eax		# Times 1000 
-	adcl	$0, %edx		# Take care of CY
-	adcl	$0, %esi		# Take care of overflow
-#
-#    Now do the division (2^11) and yes, I do know about loops.
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 2
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 4 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 8 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 16 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 32 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 64 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 128 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 256 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 512 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 1024 
-	rcrl	$1, %eax
-#
-	shrl	$1, %esi
-	rcrl	$1, %edx		# Div by 2048 
-	rcrl	$1, %eax
-#
-#	Return long-long in EAX:EDX
-#
-	popl	%edi
-	popl	%esi
-	popl	%ecx			# Restore registers used
-	popl	%ebx
-	lock
-	decb	(lockf)			# Release lock
-	popf
-	ret
-.end
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+/Mikael

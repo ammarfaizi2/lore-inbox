@@ -1,96 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUHJV7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267768AbUHJWFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267765AbUHJV7V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 17:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267766AbUHJV7V
+	id S267768AbUHJWFi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 18:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267769AbUHJWFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 17:59:21 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:22745 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267765AbUHJV7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 17:59:09 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040810132654.GA28915@elte.hu>
-References: <1090795742.719.4.camel@mindpipe>
-	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
-	 <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe>
-	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
-	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-	 <20040809104649.GA13299@elte.hu>  <20040810132654.GA28915@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092175165.5061.10.camel@mindpipe>
+	Tue, 10 Aug 2004 18:05:37 -0400
+Received: from ctb-mesg5.saix.net ([196.25.240.77]:27086 "EHLO
+	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S267768AbUHJWFP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 18:05:15 -0400
+Subject: Re: 2.6.8-rc2-mm2, staircase sched and ESD
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Zan Lynx <zlynx@acm.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <cone.1091658687.786019.9775.502@pc.kolivas.org>
+References: <1091655857.3088.10.camel@localhost.localdomain>
+	 <cone.1091658687.786019.9775.502@pc.kolivas.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vrf+L3JSRLERwi0bk2ru"
+Message-Id: <1092172133.8976.40.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 17:59:27 -0400
-Content-Transfer-Encoding: 7bit
+Date: Tue, 10 Aug 2004 23:08:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 09:26, Ingo Molnar wrote:
-> i've uploaded the latest version of the voluntary-preempt patch:
->     
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc3-O5
-> 
-> -O5 fixes the APIC lockup issues. The bug was primarily caused by PCI
-> POST delays causing IRQ storms of level-triggered IRQ sources that were
-> hardirq-redirected. Also found some bugs in delayed-IRQ masking and
-> unmasking. SMP should thus work again too.
-> 
 
-Correction, mlockall-test *does* cause xruns.  Here is the trace:
+--=-vrf+L3JSRLERwi0bk2ru
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-(mlockall-test/12466): 10303us non-preemptible critical section violated 400 us preempt threshold starting at get_user_pages+0xa5/0x3d0 and ending at get_user_pages+0x2e7/0x3d0
- [<c0106777>] dump_stack+0x17/0x20
- [<c01140eb>] sub_preempt_count+0x4b/0x60
- [<c013dbe7>] get_user_pages+0x2e7/0x3d0
- [<c013f198>] make_pages_present+0x68/0x90
- [<c013f5ed>] mlock_fixup+0x8d/0xb0
- [<c013f8d0>] do_mlockall+0x70/0x90
- [<c013f989>] sys_mlockall+0x99/0xa0
- [<c0106117>] syscall_call+0x7/0xb
-ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
- [<c0106777>] dump_stack+0x17/0x20
- [<de92f79b>] snd_pcm_period_elapsed+0x28b/0x3f0 [snd_pcm]
- [<de96c1d1>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
- [<c011ac63>] generic_handle_IRQ_event+0x33/0x60
- [<c0107a27>] do_IRQ+0xb7/0x190
- [<c0106338>] common_interrupt+0x18/0x20
- [<c0114008>] __touch_preempt_timing+0x8/0x20
- [<c013dbf4>] get_user_pages+0x2f4/0x3d0
- [<c013f198>] make_pages_present+0x68/0x90
- [<c013f5ed>] mlock_fixup+0x8d/0xb0
- [<c013f8d0>] do_mlockall+0x70/0x90
- [<c013f989>] sys_mlockall+0x99/0xa0
- [<c0106117>] syscall_call+0x7/0xb
+On Thu, 2004-08-05 at 00:31, Con Kolivas wrote:
+> Zan Lynx writes:
+>=20
+> > The 2.6.8-rc2-mm2 kernel has the staircase scheduler, right?  Well, I a=
+m
+> > seeing an odd thing.  At least, I think it is odd.
+> >=20
+> > I'm running Fedora Core 2 and playing music with Rhythmbox.  When I
+> > watch top sorted by priority, I see esd slowly increase its priority
+> > until it reaches 38, then it goes back to 20.  ESD is only using 1-2%
+> > CPU.
+> >=20
+> > This is causing a problem because doing just about anything in X, like
+> > bring up a new window or drag a window causes the sound to just stop.
+> >=20
+> > Why does ESD's priority keep climbing?
+> >=20
+> > Oh yes, this does not happen if I change /proc/sys/fs/interactive to 0.=
+=20
+> > When it is 0, X's priority climbs faster than ESDs and does not cause
+> > the problem.
+>=20
+> Yes this is a known issue with esd. It basically wakes up far too frequen=
+tly=20
+> for it's own good. esd should not be required with alsa drivers and=20
+> 2.6 since alsa supports sharing of the sound card / mixing on it's own so=
+=20
+> adding esd adds an unnecessary layer to the sound drivers. It ends=20
+> up doing this:
+> esd->oss emulation->alsa.
+>=20
 
-Here is a different one:
+This is not entirely true - or at least not on a more modern
+distro that uses alsa:
 
-ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D0p
- [<c0106777>] dump_stack+0x17/0x20
- [<de92f79b>] snd_pcm_period_elapsed+0x28b/0x3f0 [snd_pcm]
- [<de96c437>] snd_emu10k1_interrupt+0x337/0x3c0 [snd_emu10k1]
- [<c011ac63>] generic_handle_IRQ_event+0x33/0x60
- [<c0107a27>] do_IRQ+0xb7/0x190
- [<c0106338>] common_interrupt+0x18/0x20
- [<c0266777>] schedule+0x2d7/0x5b0
- [<c0266fa7>] schedule_timeout+0x57/0xa0
- [<c015fef1>] do_poll+0xa1/0xc0
- [<c0160041>] sys_poll+0x131/0x220
- [<c0106117>] syscall_call+0x7/0xb
-(jackd/12430): 17135us non-preemptible critical section violated 400 us preempt threshold starting at schedule+0x57/0x5b0 and ending at schedule+0x2ef/0x5b0
- [<c0106777>] dump_stack+0x17/0x20
- [<c01140eb>] sub_preempt_count+0x4b/0x60
- [<c026678f>] schedule+0x2ef/0x5b0
- [<c0266fa7>] schedule_timeout+0x57/0xa0
- [<c015fef1>] do_poll+0xa1/0xc0
- [<c0160041>] sys_poll+0x131/0x220
- [<c0106117>] syscall_call+0x7/0xb
+---
+nosferatu root # lsof | grep esd | grep /dev
+esd        8886  azarah  mem    CHR     116,16                6226 /dev/snd=
+/pcmC0D0p
+esd        8886  azarah    0r   CHR        1,3                 756 /dev/nul=
+l
+esd        8886  azarah    1u   CHR        4,4                1193 /dev/vc/=
+4
+esd        8886  azarah    2u   CHR        4,4                1193 /dev/vc/=
+4
+esd        8886  azarah   29u   CHR     116,16                6226 /dev/snd=
+/pcmC0D0p
+esd        8886  azarah   30r   CHR     116,33                6058 /dev/snd=
+/timer
+esd       16748  azarah  mem    CHR     116,16                6226 /dev/snd=
+/pcmC0D0p
+esd       16748  azarah   29u   CHR     116,16                6226 /dev/snd=
+/pcmC0D0p
+nosferatu root # ldd `which esd` | grep asound
+        libasound.so.2 =3D> /usr/lib/libasound.so.2 (0x41b0d000)
+nosferatu root #
+---
 
+--=20
+Martin Schlemmer
 
+--=-vrf+L3JSRLERwi0bk2ru
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBGTllqburzKaJYLYRAv2jAJ46XIuoG+1RXdcz5ojVWPG6m5GvkACgk1mu
+Ma4HS5R3WNV5KJ7A95mpMzA=
+=5MPp
+-----END PGP SIGNATURE-----
+
+--=-vrf+L3JSRLERwi0bk2ru--
 

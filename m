@@ -1,93 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269491AbUJSQJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269477AbUJSQKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269491AbUJSQJy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 12:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269496AbUJSQI3
+	id S269477AbUJSQKG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 12:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269473AbUJSQKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 12:08:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13196 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269495AbUJSQHE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:07:04 -0400
-Message-ID: <41753B99.5090003@pobox.com>
-Date: Tue, 19 Oct 2004 12:06:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 19 Oct 2004 12:10:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48528 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269477AbUJSQFl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:05:41 -0400
+Date: Tue, 19 Oct 2004 09:05:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 BK build broken
+In-Reply-To: <20041019090019.GA6020@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.58.0410190904050.2317@ppc970.osdl.org>
+References: <20041019021719.GA22924@merlin.emma.line.org> <41747CA6.7030400@pobox.com>
+ <41748ADE.70403@pobox.com> <Pine.LNX.4.58.0410182208020.2287@ppc970.osdl.org>
+ <20041019090019.GA6020@merlin.emma.line.org>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Larry McVoy <lm@bitmover.com>, support@bitmover.com, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: BK kernel workflow
-References: <41752E53.8060103@pobox.com> <20041019153126.GG18939@work.bitmover.com>
-In-Reply-To: <20041019153126.GG18939@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Although tangential to the problem, I thought LKML and BitMover (and 
-maybe Andrew or Linus as well) might be interested in a general 
-description of my workflow.
 
 
-For net drivers in the Linux kernel, there exists two patch queues, 
-net-drivers-2.6 and netdev-2.6 (and corresponding 2.4 versions). 
-net-drivers-2.6 could be described as the "upstream immediately" or "for 
-Linus" queue, and netdev-2.6 could be described as the "testing" queue.
+On Tue, 19 Oct 2004, Matthias Andree wrote:
+> 
+> I'd tried SuSE's gcc-3.3.3-41 (as shipped with SuSE Linux 9.1 Pro),
+> pristine gcc 3.3.4, pristine gcc 3.4.2, each of the three failed - and I
+> therefore claim "having really up-to-date compilers" for my system.
 
-When receive a patch from some random person on the Internet, fixing a 
-net driver bug in the "8139too" driver, I do
+Yes. My problem was that ppc64 doesn't use "-traditional", and the x86
+machine I thought I had tried it on had plain 2.6.9, not my latest tree ;)
 
-1) create "topic-specific" repo, if it doesn't already exist
+Anyway. It should all be fixed in current BK.
 
-Key point:  when dealing with a large number of incoming changes, like I 
-do, sorting the changes locally into logically separate _sets of 
-changes_ (one set per repo) has a lot of advantages, given that 
-BitKeeper doesn't allow changeset "cherrypicking".
-
-	cd /spare/repo/netdev-2.6	# not a repo, just a subdir
-	bk clone -ql ../linux-2.6 8139too
-
-2) move the email containing the patch, in my MUA, to 25_Patches mbox
-
-3) merge the patch into the topic-specific repo, using Linus's patch 
-importing tools,
-
-	cd 8139too && dotest < /garz/nsmail/25_Patches
-
-4) pull the topic-specific repo into "collector" repo, and merge conflicts
-
-	cd ALL && bk pull ../8139too
-
-5) build and test 'ALL' repo [heh... usually...]
-
-6) push 'ALL' to external netdev-2.6 repos on gkernel.bkbits.net and 
-kernel.bkbits.net
-
-7) Andrew's workflow includes automatically pulling netdev-2.6 repo into 
-his more-experimental "-mm" tree for wider review and testing.
-
-[time passes]
-
-8) Linus and Andrew release the latest and greatest 2.6.N stable release.
-
-9) every day or so, I 'bk pull' a few "topic-specific" repos into a 
-local clone of net-drivers-2.6, test that, and send it off to Linus/Andrew.
-
-Key point:  thanks to the daily snapshots, my changes show up broken up 
-across several daily snapshots, rather than "one big huge lump of 
-changes that's been waiting to go in".
-
-	cd /spare/repo
-	bk clone -ql linux-2.6 net-drivers-2.6
-	bk pull ../netdev-2.6/8139too
-	bk pull ../netdev-2.6/viro-sparse-annotations
-	bk pull ../netdev-2.6/janitor
-	bk pull ../netdev-2.6/misc
-	bk push && bk push kernel.bkbits.net:net-drivers-2.6
-
-	# and then email Linus/Andrew the output of
-	# bk-make-sum + gcapatch (see Documentation/BK-usage)
-
-
+		Linus

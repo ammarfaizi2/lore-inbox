@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316204AbSGQRyx>; Wed, 17 Jul 2002 13:54:53 -0400
+	id <S316187AbSGQRxx>; Wed, 17 Jul 2002 13:53:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316210AbSGQRyx>; Wed, 17 Jul 2002 13:54:53 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:37558 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S316204AbSGQRyw>;
-	Wed, 17 Jul 2002 13:54:52 -0400
-Date: Thu, 18 Jul 2002 19:56:48 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: shreenivasa H V <shreenihv@usa.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Re: Gang Scheduling in linux]
-In-Reply-To: <20020717172429.16682.qmail@uadvg137.cms.usa.net>
-Message-ID: <Pine.LNX.4.44.0207181949480.761-100000@localhost.localdomain>
+	id <S316204AbSGQRxx>; Wed, 17 Jul 2002 13:53:53 -0400
+Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:22205 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316187AbSGQRxw>;
+	Wed, 17 Jul 2002 13:53:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch 1/13] minimal rmap
+Date: Wed, 17 Jul 2002 19:57:40 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <3D3500AA.131CE2EB@zip.com.au>
+In-Reply-To: <3D3500AA.131CE2EB@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Ut3V-0004OY-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 17 July 2002 07:29, Andrew Morton wrote:
+> 11: The nightly updatedb run is still evicting everything.
 
-the most simple form of gang scheduling is in fact possible on Linux: if
-the number-crunching job is running on the system (almost) exclusively. In
-this case the jobs get distributed amongst CPUs, each CPU runs at most one
-task which can 'gang up' as much as they want.
+That is not a problem with rmap per se, it's a result of not properly 
+handling streaming IO.  I don't think you want to get bogged down in this 
+detail at the moment, it will only distract from the real issues.  My 
+recommendation is to just pretend for the time being that this is correct 
+behaviour.
 
-it's not possible at the moment to define a given group of processes to
-form a 'gang' and be scheduled on/off simultaneously. This has
-significance only if the system is running multiple, unrelated 'gangs'.
+On the other hand, if updatedb is pushing you into swap, that's a bug.
 
-if needed then it's possible to implement gang scheduling in userspace:  
-groups of processes can be bound to individual CPUs and can be forced
-on/off the CPU at a periodic interval. Doing this in the scheduler looks
-too complex at first sight - and probably the scheduler would do a poorer
-job than userspace-based manual affinities plus forced group-suspension
-achieves.
-
-	Ingo
-
+-- 
+Daniel

@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270646AbRINUsE>; Fri, 14 Sep 2001 16:48:04 -0400
+	id <S270847AbRINUyf>; Fri, 14 Sep 2001 16:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270847AbRINUrp>; Fri, 14 Sep 2001 16:47:45 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:57614 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S270646AbRINUrg>; Fri, 14 Sep 2001 16:47:36 -0400
-Message-ID: <3BA26CFA.E3859A7A@bluewin.ch>
-Date: Fri, 14 Sep 2001 22:47:53 +0200
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S270857AbRINUyZ>; Fri, 14 Sep 2001 16:54:25 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63181 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270847AbRINUyL>;
+	Fri, 14 Sep 2001 16:54:11 -0400
+Date: Fri, 14 Sep 2001 16:54:12 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lazy umount (1/4)
+In-Reply-To: <Pine.LNX.4.33.0109141341100.1769-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0109141648260.11172-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: How errorproof is ext2 fs?
-In-Reply-To: <Pine.LNX.4.10.10109140953100.24181-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> there's no reason you can't configure your boot scripts to automatically
-> fix such problems.  and by "manually", I hope you meant that "fsck -y"
-> took 15 minutes to run.
-> ...
-What's this "-y" meaning, "man fsck" does not show it. Could this mean answer
-any question with "yes"? The 15 minutes I needed to answer about the first
-hundreds of questions with "y", afterwards I simply pressed "y" until the fsck
-was finished.
 
-O. Wyss
+
+On Fri, 14 Sep 2001, Linus Torvalds wrote:
+
+> 
+> On Fri, 14 Sep 2001, Alexander Viro wrote:
+> >
+> > There are only two things to take care of -
+> > 	a) if we detach a parent we should do it for all children
+> > 	b) we should not mount anything on "floating" vfsmounts.
+> > Both are obviously staisfied for current code (presence of children
+> > means that vfsmount is busy and we can't mount on something that
+> > doesn't exist).
+> 
+> I disagree about the "we can't mount on something that doesn't exist"
+> part.
+> 
+> If the detached mount is busy, it might be busy exactly because somebody
+> has his working directory in it. Which means that
+> 
+> 	mount /dev/hda ./xxxx
+> 
+> by such a process could cause a mount within the "nonexisting" mount.
+
+Sure, which is exactly why we need to add checks.  See part 3 - calls of
+check_mnt() prevent precisely that kind of situations.
+
+	What I mean is that adding these checks is backwards-compatible -
+in absence of lazy umounts they are never triggered.
+

@@ -1,88 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbUJ0Pqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbUJ0PvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262477AbUJ0Pqk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 11:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUJ0Pmy
+	id S262449AbUJ0PvS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 11:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbUJ0PvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 11:42:54 -0400
-Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:33959 "EHLO
-	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
-	id S262494AbUJ0Pkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 11:40:36 -0400
-Date: Wed, 27 Oct 2004 17:39:50 +0200 (CEST)
-From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-X-X-Sender: gc1007@fb07-2go.math.uni-giessen.de
-To: Andreas Klein <Andreas.C.Klein@physik.uni-wuerzburg.de>
-Cc: Andi Kleen <ak@muc.de>, Andrew Walrond <andrew@walrond.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: solution Re: lost memory on a 4GB amd64
-In-Reply-To: <Pine.LNX.4.58.0410271704050.3903@pluto.physik.uni-wuerzburg.de>
-Message-Id: <Pine.LNX.4.58.0410271718050.10573@fb07-2go.math.uni-giessen.de>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
- <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de>
- <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de>
- <Pine.LNX.4.58.0410231220400.17491@fb07-2go.math.uni-giessen.de>
- <20041023164902.GB52982@muc.de> <Pine.LNX.4.58.0410241133400.17491@fb07-2go.math.uni-giessen.de>
- <Pine.LNX.4.58.0410271704050.3903@pluto.physik.uni-wuerzburg.de>
-Organization: University of Giessen * Germany
+	Wed, 27 Oct 2004 11:51:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20870 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262449AbUJ0PvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 11:51:12 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
-X-HRZ-JLUG-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16767.50093.59665.83462@segfault.boston.redhat.com>
+Date: Wed, 27 Oct 2004 11:50:05 -0400
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org
+Subject: netpoll_setup questions
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Andreas Klein (AK) wrote:
+Hi, Matt,
 
-AK> Hello,
-AK> 
-AK> the problem has been verified by Tyan. It is definately a hardware issue.
-AK> The Tyan and AMD engineers are developing a solution (BIOS) for the 
-AK> problem.
-AK> They will fix the problem for the S2885, as weel as for the S2875 boards.
+The section of code in the body of this if statement:
 
-Are you sure this is the same problem, that I have? You discovered
-Problems with memtest86:
+	if (!(ndev->flags & IFF_UP)) {
 
-> Memtest sees 0-2GB mem usable and 4-6GB unusable (complains 
-> about each memory address).
+is a bit broken.  First, upon discussion with jgarzik, it seems we should
+not check for IFF_UP, but instead do netif_running.  However, I'm wondering
+why we try to force the interface up in the first place?  Just because we
+force it up doesn't mean that it will get an IP address.  And, in the case
+where it doesn't, you will get an oops further on when dereferencing the
+ifa_list.  So, why does this section of code exist at all?  If it has a
+good purpose, can we replace it with a call to ndev->open?
 
-I didn't:
+Thanks!
 
-> memtest86 is happy with the memory.
-
-The next difference: 
-You have the S2885 (thunder K8W) and S2875S (tiger K8W single processor) 
-boards and I have a S2875 (tiger K8W double processor)
-
-
-I summarize (again) my problems:
-
-Independantly of the memory settings in the BIOS:
- - non-SMP Kernel is stable
- - memtest86 does not report any errors
-
-If the memory (4GB) is set up in one block (0-4GB) in the BIOS, then
- - SMP Kernel is stable 
-
-If the memory (4GB) is set up in two blocks (eg. 0-3GB, 4-5GB) in the
-BIOS, then
- - SMP Kernel is stable _if_and_only_if_ NUMA is _disabled_.
-
-
-BTW.: I won't be able to flash a new BIOS to our machine, since it is in 
-production use and runs _rock_stable_ with _full_memory_ after we
-_disabled_ NUMA support in the kernel. (see the two small programs posted 
-by me and by Andi Kleen)
-
-What I COULD do is running some tests if needed. (e.g. to check if the 
-Board/BIOS is lying about its capabilities)
-
-
-        Sergei
--- 
---------------------------------------------------------------------  -?)
-         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
--------------------------------------------------------------------- _\_V
-Be careful of reading health books, you might die of a misprint.
-                -- Mark Twain
+Jeff

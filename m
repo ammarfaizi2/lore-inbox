@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbTDPScf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 14:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTDPScf
+	id S264531AbTDPSb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 14:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTDPSb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 14:32:35 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:30429 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264527AbTDPSce (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 14:32:34 -0400
-Date: Wed, 16 Apr 2003 11:42:59 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Daniel Stekloff <dsteklof@us.ibm.com>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, Martin Hicks <mort@wildopensource.com>,
-       <hpa@zytor.com>, <pavel@ucw.cz>, <jes@wildopensource.com>,
-       <linux-kernel@vger.kernel.org>, <wildos@sgi.com>
-Subject: Re: [patch] printk subsystems
-In-Reply-To: <200304141533.18779.dsteklof@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0304161140160.912-100000@cherise>
+	Wed, 16 Apr 2003 14:31:29 -0400
+Received: from mcomail02.maxtor.com ([134.6.76.16]:14860 "EHLO
+	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
+	id S264531AbTDPSb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 14:31:28 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D134@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@maxtor.com>
+To: "'Anders Larsson'" <anders@dio.jll.se>, linux-kernel@vger.kernel.org
+Subject: RE: bio too big device
+Date: Wed, 16 Apr 2003 12:43:06 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Would the debug level be for the entire subsystem? Do you think people would 
-> like to be able to set debug/logging level per driver or device, and not just 
-> subsystem? 
 
-I can see a use for doing per-object debug levels, but I'd rather not add 
-the overhead to every object, especially when it would be used by a small 
-minority of the populace. 
-
-Such a flag could easily be placed in the subsystem-specific object, and 
-accessed through the logging/debugging wrappers.
-
-> Is debugging level here the same as logging level? 
-
-Yes. 
-
-> I like the idea of having logging levels, which include debug, defined by 
-> subsystem. Each subsystem will have separate requirements for logging. 
-> Networking, for instance, already has the NETIF_MSG* levels defined in 
-> netdevice.h that can be set with Ethtool. I can see, for example, having the 
-> msg_enable not in the private data as it is now but in the subsystem or class 
-> structure for that device, such as in struct net_device. This could easily be 
-> exported through sysfs. 
-
-It would be nice. Unfortunately, it's only a nifty pipe-dream at the 
-moment, unless some lucky volunteer would like to step forward. ;)
+> -----Original Message-----
+> From: Anders Larsson [mailto:anders@dio.jll.se]
+> Sent: Wednesday, April 16, 2003 12:32 PM
+>
+> hdg: WDC WD1200JB-00DUA0, ATA DISK drive  
+> hdg: host protected area => 1
+> hdg: 234441648 sectors (120034 MB) w/8192KiB Cache, 
+> CHS=14593/255/63,       
+> UDMA(100)
+> 
+> hdh: WDC WD1200JB-75CRA0, ATA DISK drive
+> hdh: host protected area => 1
+> hdh: setmax LBA 234441648, native  234375000
+> hdh: 234375000 sectors (120000 MB) w/8192KiB Cache, 
+> CHS=232514/16/63,       
+> UDMA(100)
 
 
-	-pat
+On hdh, it appears you're setting the max lba > the native size.  Maybe this
+is the problem.
 
+For RAID on two drives, I would imagine your RAID size would need to be the
+size of the smaller device, not the larger device.  (Note that they aren't
+identical).
+
+Not sure if the two different CHS translation modes on each drive is
+important or not (probably not), that legacy bios stuff is something that
+has always confused me...
+
+--eric

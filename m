@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131457AbRDBWjK>; Mon, 2 Apr 2001 18:39:10 -0400
+	id <S131424AbRDBW4l>; Mon, 2 Apr 2001 18:56:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131429AbRDBWjB>; Mon, 2 Apr 2001 18:39:01 -0400
-Received: from jalon.able.es ([212.97.163.2]:55017 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131424AbRDBWix>;
-	Mon, 2 Apr 2001 18:38:53 -0400
-Date: Tue, 3 Apr 2001 00:38:04 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-   Oliver Xymoron <oxymoron@waste.org>, David Lang <dlang@diginsite.com>,
-   Manfred Spraul <manfred@colorfullife.com>,
-   "Albert D . Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
-   linux-kernel@vger.kernel.org
-Subject: Re: bug database braindump from the kernel summit
-Message-ID: <20010403003804.I17148@werewolf.able.es>
-In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com> <Pine.LNX.4.30.0104021436110.24812-100000@waste.org> <20010402234045.C17148@werewolf.able.es> <3AC8F881.F20A19A6@mandrakesoft.com>
+	id <S131461AbRDBW4c>; Mon, 2 Apr 2001 18:56:32 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:21380 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131424AbRDBW4X>; Mon, 2 Apr 2001 18:56:23 -0400
+Date: Mon, 2 Apr 2001 18:55:26 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ketil Froyn <ketil@froyn.com>
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: oops in uhci.c running 2.4.2-ac28
+Message-ID: <20010402185526.A4083@devserv.devel.redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0104010313440.1135-100000@ns.froyn.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3AC8F881.F20A19A6@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Apr 03, 2001 at 00:09:05 +0200
-X-Mailer: Balsa 1.1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0104010313440.1135-100000@ns.froyn.org>; from ketil@froyn.com on Sun, Apr 01, 2001 at 03:35:03AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Date: 	Sun, 1 Apr 2001 03:35:03 +0200 (CEST)
+> From: Ketil Froyn <ketil@froyn.com>
+> To: <linux-kernel@vger.kernel.org>
 
-On 04.03 Jeff Garzik wrote:
-> "J . A . Magallon" wrote:
-> > Could <installkernel> make part of the kernel scripts, or in one other
-> > standard software package, like modutils, so its versions are controlled
-> 
-> There is value in putting it into the Linux kernel source tree, in
-> linux/scripts dir.  But most vendors can and should take this script as
-> a sample, and customize it for their distro.  The Linux-Mandrake
-> installkernel script definitely gets touched every so often, and
-> decisions it makes, like updating lilo.conf or grub/menu.lst, or
-> autodetecting the boot loader, are definitely not to be applied for all
-> cases.
->
+> While running kernel 2.4.2-ac28, I switched on spinlock debugging and
+> verbose BUG() reporting (I always use sysrq). Anyway, while running this I
+> got an oops after about 2 or 3 minutes running, several times, exact same
+> place each time, which I traced back to rh_int_timer_do().
+> This was in uhci.c (I used CONFIG_USB_UHCI_ALT).  [...]  I
+> recompiled with usb-uhci.c instead (CONFIG_USB_UHCI), and now I don't get
+> the oops any more.
 
-I think that should be split in two, one thing is building and install a kernel
-and one other is add the entry in your bootloader config ('update-bootloader',
-for example, that looks into /boot and adds missing entries).
+I am behind usb-uhci for a reason. Alan bounced your report
+to me but I do not see a case for action...
 
-> FWIW here is our /sbin/installkernel command line usage help text, to
-> give a glimpse of what it does and can do:
-
-I know, run Cooker.
-
-> 
-> There will never be an official place to put this stuff, because that's
-> a distro policy decision.  A quick search just now reveals no reference
-> to /boot in the i386 Makefiles, and only a quick reference in the README
-> file.
-
-linux/Makefile, #INSTALL_PATH=/boot
-
-> 
-> > And you can add something like /proc/signature/map, /proc/signature/config,
-> > etc to md5-check if a certain file fits running kernel.
-> 
-
-I usually think about /proc like the way to do a 'cat' instead of a 'syscall',
-in this case to ask kernel for various md5 sigs,
-but of course you can always write a user app that queries kernel and prints
-result for your scripting pleasure...
-
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
-
-Linux werewolf 2.4.3 #2 SMP Fri Mar 30 15:42:05 CEST 2001 i686
-
+-- Pete

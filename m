@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319433AbSILEsQ>; Thu, 12 Sep 2002 00:48:16 -0400
+	id <S319435AbSILFFI>; Thu, 12 Sep 2002 01:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319434AbSILEsQ>; Thu, 12 Sep 2002 00:48:16 -0400
-Received: from dp.samba.org ([66.70.73.150]:57235 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319433AbSILEsP>;
-	Thu, 12 Sep 2002 00:48:15 -0400
-Date: Thu, 12 Sep 2002 14:52:44 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: lk@tantalophile.demon.co.uk, oliver@neukum.name, zippel@linux-m68k.org,
-       viro@math.psu.edu, kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Raceless module interface
-Message-Id: <20020912145244.4cc6fb98.rusty@rustcorp.com.au>
-In-Reply-To: <E17pKxR-0007by-00@starship>
-References: <20020912031345.760A32C061@lists.samba.org>
-	<E17pKxR-0007by-00@starship>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S319436AbSILFFI>; Thu, 12 Sep 2002 01:05:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:7138 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319435AbSILFFH>;
+	Thu, 12 Sep 2002 01:05:07 -0400
+Date: Thu, 12 Sep 2002 07:06:20 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Phil Stracchino <alaric@babcom.com>, linux-kernel@vger.kernel.org
+Subject: Re: CDROM driver does not support Linux partition tables
+Message-ID: <20020912050620.GG30234@suse.de>
+References: <20020904181952.GA1158@babylon5.babcom.com> <1031182512.3017.139.camel@irongate.swansea.linux.org.uk> <20020911211959.GA31724@babylon5.babcom.com> <1031779715.2838.4.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031779715.2838.4.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Sep 2002 05:47:57 +0200
-Daniel Phillips <phillips@arcor.de> wrote:
-
-> On Thursday 12 September 2002 05:13, Rusty Russell wrote:
-> > B) We do not handle the "half init problem" where a module fails to load, eg.
-> > 	a = register_xxx();
-> > 	b = register_yyy();
-> > 	if (!b) {
-> > 		unregister_xxx(a);
-> > 		return -EBARF;
-> > 	}
-> >   Someone can start using "a", and we are in trouble when we remove
-> >   the failed module.
+On Wed, Sep 11 2002, Alan Cox wrote:
+> On Wed, 2002-09-11 at 22:19, Phil Stracchino wrote:
+> >  
+> > A deficiency in the Linux CDROM driver was just brought to my attention.
+> > Even on a kernel configured with support for UFS and Sun partition
+> > tables, it doesn't appear to be possible to mount any but the first
+> > slice of a Sun CDROM containing multiple slices.  Essentially, it seems
+> > that Solaris partition table support doesn't trickle down to the CDROM
+> > driver.
+> > 
+> > Is this something that's supposed to happen, and is there a reason why
+> > it's not supported, or is it simply that no-one has asked for it to be
+> > supported and/or no-one has gotten around to implementing it because of 
+> > lack of demand?
 > 
-> No we are not.  The module remains in the 'stopped' state
-> throughout the entire initialization process, as it should and
-> does, in my model.
+> It ought to be supportable on scsi cd or with ide-scsi. ide-cd has no
+> minor space for partitioning, ide-scsi/sr do support partitions.
 
-Um, so register_xxx interfaces all use try_inc_mod_count (ie. a
-struct module *  extra arg to register_xxx)?  Or those entry points
-are not protected by try_inc_mod_count, so it must bump the refcnt, so
-you need to sleep in load until the module becomes unused again.
+The opposite, surely? sr uses one minor per cd-rom, ide-cd has 64.
 
-You have the same issue in the "wait for schedule" case on unload,
-where someone jumps in while you are unregistering.  My implementation
-decided to ignore this problem (ie. potentially wait forever with the
-module half-loaded) but it is an issue.
-
-Rusty.
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Jens Axboe
+

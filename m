@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262968AbTJJRGH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 13:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTJJRGG
+	id S263017AbTJJRQm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 13:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263068AbTJJRQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 13:06:06 -0400
-Received: from pat.uio.no ([129.240.130.16]:24293 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262968AbTJJRGD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 13:06:03 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Oct 2003 13:16:42 -0400
+Received: from email.careercast.com ([216.39.101.233]:62936 "HELO
+	email.careercast.com") by vger.kernel.org with SMTP id S263017AbTJJRQl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 13:16:41 -0400
+Subject: Re: 2.7 thoughts
+From: Matt Simonsen <matt_lists@careercast.com>
+To: Stuart Longland <stuartl@longlandclan.hopto.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3F864F82.4050509@longlandclan.hopto.org>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>
+	 <20031009115809.GE8370@vega.digitel2002.hu>
+	 <20031009165723.43ae9cb5.skraw@ithnet.com>
+	 <3F864F82.4050509@longlandclan.hopto.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065805958.2806.22.camel@mattswrk.cbd.careercast.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 10 Oct 2003 10:12:39 -0700
 Content-Transfer-Encoding: 7bit
-Message-ID: <16262.59127.34589.49365@charged.uio.no>
-Date: Fri, 10 Oct 2003 13:05:59 -0400
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-In-Reply-To: <3F86E51D.3090605@nortelnetworks.com>
-References: <20031010122755.GC22908@ca-server1.us.oracle.com>
-	<Pine.LNX.4.44.0310100756510.20420-100000@home.osdl.org>
-	<20031010152710.GA28773@ca-server1.us.oracle.com>
-	<20031010160144.GI28795@mail.shareable.org>
-	<20031010163300.GC28773@ca-server1.us.oracle.com>
-	<3F86E51D.3090605@nortelnetworks.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Chris Friesen <cfriesen@nortelnetworks.com> writes:
+On Thu, 2003-10-09 at 23:19, Stuart Longland wrote:
+> 	- Software RAID 0+1 perhaps?
+> 
+> 		A lot of hardware RAID cards support it, why not the
+> 		kernel?  By RAID 0+1 I mean mirror-RAIDing two (or more) 		stripe-RAID 
+> arrays.  (Or can this be done already?)
 
-    >> Platter level doesn't matter.  Storage access level matters.
-    >> Node1 and Node2 have to see the same thing.  As long as I am
-    >> absolutely sure that when Node1's write() returns, any
-    >> subsequent read() on Node2 will see the change (normal barrier
-    >> stuff, really), it doesn't matter what happend on the Storage.
 
-     > Isn't that exactly what msync() exists for?
+You can do this now (as you rightly suspected). 
 
-It can't, be used to invalidate the page cache (at least not in the
-current implentation) so it won't help you in the above case where you
-have 2 nodes writing to the same device.
+Just create 2 raid 0 arrays (md0, md1). From there create md2 as a RAID1
+array using /dev/md0 and /dev/md1. Create the filesystem and you've got
+yourself RAID 0+1. 
 
-Cheers,
-  Trond
+You can do RAID 5+0 or any other wild combo you could think of.
+
+Matt
+

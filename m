@@ -1,667 +1,634 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265972AbUAFAgl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266033AbUAFAgj
+	id S265990AbUAFAqA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUAFAow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:36:39 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:56018 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265972AbUAFAek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:34:40 -0500
-Subject: [PATCH] VT locking
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Cc: Andrew Morton <akpm@osdl.org>, James Simmons <jsimmons@infradead.org>
-Content-Type: text/plain
-Message-Id: <1073349182.9504.175.camel@gaston>
+	Mon, 5 Jan 2004 19:44:52 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:28893 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S265990AbUAFAjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 19:39:11 -0500
+Subject: ACPI battery issue - Dell Inspiron 4150 - 2.6.1-rc1-mm2
+From: Dax Kelson <dax@gurulabs.com>
+To: linux-kernel@vger.kernel.org
+Cc: acpi-devel@lists.sourceforge.net, len.brown@intel.com
+Content-Type: multipart/mixed; boundary="=-HaMZ/RW2boXlLEHFucdP"
+Message-Id: <1073350293.2802.36.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Jan 2004 11:33:22 +1100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 05 Jan 2004 17:51:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-The VT code is currently, it seems, full of races, it basically doesn't
-do any locking... This patch is definitely not fixing everything, but at
-least fixes some of the most obvious ones by putting things under the
-umbrella of the console semaphore. For debugging purposes, I added an
-is_console_locked() call to kernel/printk.c along with a bunch of WARN_ON
-in low level VT functions that I think should be protected.
+--=-HaMZ/RW2boXlLEHFucdP
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I suppose we should merge this at least into -mm. Getting the semaphore
-around vc_resize, at least, seems necessary to avoid nasty problems with
-fbdev's especally when those try to output some debug printk's in the
-mode setting code.
+Found at boot: 
+ACPI: Battery Slot [BAT0] (battery present)
+ACPI: Battery Slot [BAT1] (battery present)
 
-I also moved the blanking code down to the console work queue instead of
-calling the lower level blank right at interrupt time. Unblank is still
-possibly called at interrupt time by printk/panic, but then, the console
-sem will be held. The idea here is to properly protect calls to the low
-level driver with the console semaphore. Without this, quite bad things
-can happen, for example if blank() happens to preempt a mode switch
-initiated by userland.
+But no run-time information:
 
-Note that the current console code definitely takes too much time in
-keventd. It would probably be wise to consider turning these work queues
-abuses into a console thread... I keep that for later.
+$ cat /proc/acpi/battery/BAT0/info
+present:                 yes
+design capacity:         0 mWh
+last full capacity:      0 mWh
+battery technology:      non-rechargeable
+design voltage:          0 mV
+design capacity warning: 0 mWh
+design capacity low:     0 mWh
+capacity granularity 1:  0 mWh
+capacity granularity 2:  0 mWh
+model number:
+serial number:
+battery type:
+OEM info:
 
-Ben.
+$ cat /proc/acpi/battery/BAT0/state
+present:                 yes
+capacity state:          ok
+charging state:          unknown
+present rate:            0 mA
+remaining capacity:      0 mAh
+present voltage:         0 mV
 
-diff -urN linux-2.5/drivers/char/selection.c linuxppc-2.5-benh/drivers/char/selection.c
---- linux-2.5/drivers/char/selection.c	2004-01-06 10:03:50.467075336 +1100
-+++ linuxppc-2.5-benh/drivers/char/selection.c	2003-12-31 12:38:10.000000000 +1100
-@@ -24,6 +24,7 @@
- #include <linux/consolemap.h>
- #include <linux/selection.h>
- #include <linux/tiocl.h>
-+#include <linux/console.h>
- 
- #ifndef MIN
- #define MIN(a,b)	((a) < (b) ? (a) : (b))
-@@ -290,7 +291,10 @@
- 	int	pasted = 0, count;
- 	DECLARE_WAITQUEUE(wait, current);
- 
-+	acquire_console_sem();
- 	poke_blanked_console();
-+	release_console_sem();
-+
- 	add_wait_queue(&vt->paste_wait, &wait);
- 	while (sel_buffer && sel_buffer_lth > pasted) {
- 		set_current_state(TASK_INTERRUPTIBLE);
-diff -urN linux-2.5/drivers/char/tty_io.c linuxppc-2.5-benh/drivers/char/tty_io.c
---- linux-2.5/drivers/char/tty_io.c	2004-01-06 10:03:51.105978208 +1100
-+++ linuxppc-2.5-benh/drivers/char/tty_io.c	2003-12-31 12:38:10.000000000 +1100
-@@ -1484,7 +1484,12 @@
- #ifdef CONFIG_VT
- 	if (tty->driver->type == TTY_DRIVER_TYPE_CONSOLE) {
- 		unsigned int currcons = tty->index;
--		if (vc_resize(currcons, tmp_ws.ws_col, tmp_ws.ws_row))
-+		int rc;
-+
-+		acquire_console_sem();	       
-+		rc = vc_resize(currcons, tmp_ws.ws_col, tmp_ws.ws_row);
-+		release_console_sem();
-+		if (rc)
- 			return -ENXIO;
- 	}
- #endif
-diff -urN linux-2.5/drivers/char/vt.c linuxppc-2.5-benh/drivers/char/vt.c
---- linux-2.5/drivers/char/vt.c	2004-01-06 10:03:51.225959968 +1100
-+++ linuxppc-2.5-benh/drivers/char/vt.c	2003-12-31 15:49:38.000000000 +1100
-@@ -148,7 +148,6 @@
- static int con_open(struct tty_struct *, struct file *);
- static void vc_init(unsigned int console, unsigned int rows,
- 		    unsigned int cols, int do_clear);
--static void blank_screen(unsigned long dummy);
- static void gotoxy(int currcons, int new_x, int new_y);
- static void save_cur(int currcons);
- static void reset_terminal(int currcons, int do_clear);
-@@ -156,8 +155,8 @@
- static void set_vesa_blanking(unsigned long arg);
- static void set_cursor(int currcons);
- static void hide_cursor(int currcons);
--static void unblank_screen_t(unsigned long dummy);
- static void console_callback(void *ignored);
-+static void blank_screen_t(unsigned long dummy);
- 
- static int printable;		/* Is console ready for printing? */
- 
-@@ -214,6 +213,13 @@
- int (*console_blank_hook)(int);
- 
- static struct timer_list console_timer;
-+static int blank_state;
-+static int blank_timer_expired;
-+enum {
-+	blank_off = 0,
-+	blank_normal_wait,
-+	blank_vesa_wait,
-+};
- 
- /*
-  *	Low-Level Functions
-@@ -559,6 +565,8 @@
- 
- static void set_origin(int currcons)
- {
-+	WARN_ON(!is_console_locked());
-+
- 	if (!IS_VISIBLE ||
- 	    !sw->con_set_origin ||
- 	    !sw->con_set_origin(vc_cons[currcons].d))
-@@ -570,6 +578,8 @@
- 
- static inline void save_screen(int currcons)
- {
-+	WARN_ON(!is_console_locked());
-+
- 	if (sw->con_save_screen)
- 		sw->con_save_screen(vc_cons[currcons].d);
- }
-@@ -583,6 +593,8 @@
- 	int redraw = 1;
- 	int currcons, old_console;
- 
-+	WARN_ON(!is_console_locked());
-+
- 	if (!vc_cons_allocated(new_console)) {
- 		/* strange ... */
- 		/* printk("redraw_screen: tty %d not allocated ??\n", new_console+1); */
-@@ -660,6 +672,8 @@
- 
- int vc_allocate(unsigned int currcons)	/* return 0 on success */
- {
-+	WARN_ON(!is_console_locked());
-+
- 	if (currcons >= MAX_NR_CONSOLES)
- 		return -ENXIO;
- 	if (!vc_cons[currcons].d) {
-@@ -726,6 +740,8 @@
- 	unsigned int new_cols, new_rows, new_row_size, new_screen_size;
- 	unsigned short *newscreen;
- 
-+	WARN_ON(!is_console_locked());
-+
- 	if (!vc_cons_allocated(currcons))
- 		return -ENXIO;
- 
-@@ -2076,6 +2092,10 @@
- 			sw->con_scrolldelta(vc_cons[currcons].d, scrollback_delta);
- 		scrollback_delta = 0;
- 	}
-+	if (blank_timer_expired) {
-+		do_blank_screen(0);
-+		blank_timer_expired = 0;
-+	}
- 
- 	release_console_sem();
- }
-@@ -2409,7 +2429,9 @@
- 
- 	currcons = tty->index;
- 
-+	acquire_console_sem();
- 	i = vc_allocate(currcons);
-+	release_console_sem();
- 	if (i)
- 		return i;
- 
-@@ -2475,16 +2497,20 @@
- 	const char *display_desc = NULL;
- 	unsigned int currcons = 0;
- 
-+	acquire_console_sem();
-+
- 	if (conswitchp)
- 		display_desc = conswitchp->con_startup();
- 	if (!display_desc) {
- 		fg_console = 0;
-+		release_console_sem();
- 		return 0;
- 	}
- 
- 	init_timer(&console_timer);
--	console_timer.function = blank_screen;
-+	console_timer.function = blank_screen_t;
- 	if (blankinterval) {
-+		blank_state = blank_normal_wait;
- 		mod_timer(&console_timer, jiffies + blankinterval);
- 	}
- 
-@@ -2515,6 +2541,8 @@
- 	printable = 1;
- 	printk("\n");
- 
-+	release_console_sem();
-+
- #ifdef CONFIG_VT_CONSOLE
- 	register_console(&vt_console_driver);
- #endif
-@@ -2594,8 +2622,13 @@
- 	int i, j = -1;
- 	const char *desc;
- 
-+	acquire_console_sem();
-+
- 	desc = csw->con_startup();
--	if (!desc) return;
-+	if (!desc) {
-+		release_console_sem();
-+		return;
-+	}
- 	if (deflt)
- 		conswitchp = csw;
- 
-@@ -2635,6 +2668,8 @@
- 		       desc, vc_cons[j].d->vc_cols, vc_cons[j].d->vc_rows);
- 	else
- 		printk("to %s\n", desc);
-+
-+	release_console_sem();
- }
- 
- void give_up_console(const struct consw *csw)
-@@ -2683,23 +2718,24 @@
-     }
- }
- 
--/*
-- * This is a timer handler
-- */
--static void vesa_powerdown_screen(unsigned long dummy)
--{
--	console_timer.function = unblank_screen_t;
--
--	vesa_powerdown();
--}
--
--static void timer_do_blank_screen(int entering_gfx, int from_timer_handler)
-+void do_blank_screen(int entering_gfx)
- {
- 	int currcons = fg_console;
- 	int i;
- 
--	if (console_blanked)
-+	WARN_ON(!is_console_locked());
-+
-+	if (console_blanked) {
-+		if (blank_state == blank_vesa_wait) {
-+			blank_state = blank_off;
-+			vesa_powerdown();
-+			
-+		}
- 		return;
-+	}
-+	if (blank_state != blank_normal_wait)
-+		return;
-+	blank_state = blank_off;
- 
- 	/* entering graphics mode? */
- 	if (entering_gfx) {
-@@ -2718,9 +2754,8 @@
- 	}
- 
- 	hide_cursor(currcons);
--	if (!from_timer_handler)
--		del_timer_sync(&console_timer);
--	console_timer.function = unblank_screen_t;
-+	del_timer_sync(&console_timer);
-+	blank_timer_expired = 0;
- 
- 	save_screen(currcons);
- 	/* In case we need to reset origin, blanking hook returns 1 */
-@@ -2733,7 +2768,7 @@
- 		return;
- 
- 	if (vesa_off_interval) {
--		console_timer.function = vesa_powerdown_screen;
-+		blank_state = blank_vesa_wait,
- 		mod_timer(&console_timer, jiffies + vesa_off_interval);
- 	}
- 
-@@ -2741,18 +2776,6 @@
- 		sw->con_blank(vc_cons[currcons].d, vesa_blank_mode + 1);
- }
- 
--void do_blank_screen(int entering_gfx)
--{
--	timer_do_blank_screen(entering_gfx, 0);
--}
--
--/*
-- * This is a timer handler
-- */
--static void unblank_screen_t(unsigned long dummy)
--{
--	unblank_screen();
--}
- 
- /*
-  * Called by timer as well as from vt_console_driver
-@@ -2761,6 +2784,8 @@
- {
- 	int currcons;
- 
-+	WARN_ON(!is_console_locked());
-+
- 	ignore_poke = 0;
- 	if (!console_blanked)
- 		return;
-@@ -2773,9 +2798,9 @@
- 	if (vcmode != KD_TEXT)
- 		return; /* but leave console_blanked != 0 */
- 
--	console_timer.function = blank_screen;
- 	if (blankinterval) {
- 		mod_timer(&console_timer, jiffies + blankinterval);
-+		blank_state = blank_normal_wait;
- 	}
- 
- 	console_blanked = 0;
-@@ -2789,23 +2814,33 @@
- }
- 
- /*
-- * This is both a user-level callable and a timer handler
-+ * We defer the timer blanking to work queue so it can take the console semaphore
-+ * (console operations can still happen at irq time, but only from printk which
-+ * has the console semaphore. Not perfect yet, but better than no locking
-  */
--static void blank_screen(unsigned long dummy)
-+static void blank_screen_t(unsigned long dummy)
- {
--	timer_do_blank_screen(0, 1);
-+	blank_timer_expired = 1;
-+	schedule_work(&console_work);	
- }
- 
- void poke_blanked_console(void)
- {
-+	WARN_ON(!is_console_locked());
-+
-+	/* This isn't perfectly race free, but a race here would be mostly harmless,
-+	 * at worse, we'll do a spurrious blank and it's unlikely
-+	 */
- 	del_timer(&console_timer);
-+	blank_timer_expired = 0;
-+
- 	if (ignore_poke || !vt_cons[fg_console] || vt_cons[fg_console]->vc_mode == KD_GRAPHICS)
- 		return;
--	if (console_blanked) {
--		console_timer.function = unblank_screen_t;
--		mod_timer(&console_timer, jiffies);	/* Now */
--	} else if (blankinterval) {
-+	if (console_blanked)
-+		unblank_screen();
-+	else if (blankinterval) {
- 		mod_timer(&console_timer, jiffies + blankinterval);
-+		blank_state = blank_normal_wait;
- 	}
- }
- 
-@@ -2815,6 +2850,8 @@
- 
- void set_palette(int currcons)
- {
-+	WARN_ON(!is_console_locked());
-+
- 	if (vcmode != KD_GRAPHICS)
- 		sw->con_set_palette(vc_cons[currcons].d, color_table);
- }
-@@ -2854,11 +2891,15 @@
- 
- int con_set_cmap(unsigned char *arg)
- {
-+	WARN_ON(!is_console_locked());
-+
- 	return set_get_cmap (arg,1);
- }
- 
- int con_get_cmap(unsigned char *arg)
- {
-+	WARN_ON(!is_console_locked());
-+
- 	return set_get_cmap (arg,0);
- }
- 
-@@ -3029,10 +3070,14 @@
- 	switch (rqst)
- 	{
- 	case PM_RESUME:
-+		acquire_console_sem();
- 		unblank_screen();
-+		release_console_sem();
- 		break;
- 	case PM_SUSPEND:
-+		acquire_console_sem();
- 		do_blank_screen(0);
-+		release_console_sem();
- 		break;
- 	}
- 	return 0;
-diff -urN linux-2.5/drivers/char/vt_ioctl.c linuxppc-2.5-benh/drivers/char/vt_ioctl.c
---- linux-2.5/drivers/char/vt_ioctl.c	2004-01-06 10:03:51.257955104 +1100
-+++ linuxppc-2.5-benh/drivers/char/vt_ioctl.c	2003-12-31 15:26:05.000000000 +1100
-@@ -470,6 +470,9 @@
- 		 * currently, setting the mode from KD_TEXT to KD_GRAPHICS
- 		 * doesn't do a whole lot. i'm not sure if it should do any
- 		 * restoration of modes or what...
-+		 *
-+		 * XXX It should at least call into the driver, fbdev's definitely
-+		 * need to restore their engine state. --BenH
- 		 */
- 		if (!perm)
- 			return -EPERM;
-@@ -492,10 +495,12 @@
- 		/*
- 		 * explicitly blank/unblank the screen if switching modes
- 		 */
-+		acquire_console_sem();
- 		if (arg == KD_TEXT)
- 			unblank_screen();
- 		else
- 			do_blank_screen(1);
-+		release_console_sem();
- 		return 0;
- 
- 	case KDGETMODE:
-@@ -718,7 +723,9 @@
- 		if (arg == 0 || arg > MAX_NR_CONSOLES)
- 			return -ENXIO;
- 		arg--;
-+		acquire_console_sem();
- 		i = vc_allocate(arg);
-+		release_console_sem();
- 		if (i)
- 			return i;
- 		set_console(arg);
-@@ -768,17 +775,20 @@
- 				 * The current vt has been released, so
- 				 * complete the switch.
- 				 */
--				int newvt = vt_cons[console]->vt_newvt;
-+				int newvt;
-+				acquire_console_sem();
-+				newvt = vt_cons[console]->vt_newvt;
- 				vt_cons[console]->vt_newvt = -1;
- 				i = vc_allocate(newvt);
--				if (i)
-+				if (i) {
-+					release_console_sem();
- 					return i;
-+				}
- 				/*
- 				 * When we actually do the console switch,
- 				 * make sure we are atomic with respect to
- 				 * other console switches..
- 				 */
--				acquire_console_sem();
- 				complete_change_console(newvt);
- 				release_console_sem();
- 			}
-@@ -828,8 +838,11 @@
- 		if (get_user(ll, &vtsizes->v_rows) ||
- 		    get_user(cc, &vtsizes->v_cols))
- 			return -EFAULT;
--		for (i = 0; i < MAX_NR_CONSOLES; i++)
-+		for (i = 0; i < MAX_NR_CONSOLES; i++) {
-+			acquire_console_sem();
-                         vc_resize(i, cc, ll);
-+			release_console_sem();
-+		}
- 		return 0;
- 	}
- 
-@@ -870,11 +883,13 @@
- 		for (i = 0; i < MAX_NR_CONSOLES; i++) {
- 			if (!vc_cons[i].d)
- 				continue;
-+			acquire_console_sem();
- 			if (vlin)
- 				vc_cons[i].d->vc_scan_lines = vlin;
- 			if (clin)
- 				vc_cons[i].d->vc_font.height = clin;
- 			vc_resize(i, cc, ll);
-+			release_console_sem();
- 		}
-   		return 0;
- 	}
-diff -urN linux-2.5/kernel/power/console.c linuxppc-2.5-benh/kernel/power/console.c
---- linux-2.5/kernel/power/console.c	2004-01-06 10:07:09.031888896 +1100
-+++ linuxppc-2.5-benh/kernel/power/console.c	2003-12-31 15:49:32.000000000 +1100
-@@ -6,6 +6,7 @@
- 
- #include <linux/vt_kern.h>
- #include <linux/kbd_kern.h>
-+#include <linux/console.h>
- #include "power.h"
- 
- static int new_loglevel = 10;
-@@ -18,14 +19,20 @@
- 	console_loglevel = new_loglevel;
- 
- #ifdef SUSPEND_CONSOLE
-+	acquire_console_sem();
-+
- 	orig_fgconsole = fg_console;
- 
--	if (vc_allocate(SUSPEND_CONSOLE))
-+	if (vc_allocate(SUSPEND_CONSOLE)) {
- 	  /* we can't have a free VC for now. Too bad,
- 	   * we don't want to mess the screen for now. */
-+		release_console_sem();
- 		return 1;
-+	}
- 
- 	set_console(SUSPEND_CONSOLE);
-+	release_console_sem();
-+
- 	if (vt_waitactive(SUSPEND_CONSOLE)) {
- 		pr_debug("Suspend: Can't switch VCs.");
- 		return 1;
-@@ -40,12 +47,9 @@
- {
- 	console_loglevel = orig_loglevel;
- #ifdef SUSPEND_CONSOLE
-+	acquire_console_sem();
- 	set_console(orig_fgconsole);
--
--	/* FIXME: 
--	 * This following part is left over from swsusp. Is it really needed?
--	 */
--	update_screen(fg_console);
-+	release_console_sem();
- #endif
- 	return;
- }
-diff -urN linux-2.5/kernel/printk.c linuxppc-2.5-benh/kernel/printk.c
---- linux-2.5/kernel/printk.c	2004-01-06 10:07:08.640948328 +1100
-+++ linuxppc-2.5-benh/kernel/printk.c	2003-12-31 17:01:25.000000000 +1100
-@@ -33,6 +33,11 @@
- 
- #include <asm/uaccess.h>
- 
-+#ifdef CONFIG_BOOTX_TEXT
-+#include <asm/btext.h>
-+#endif
-+
-+
- #define __LOG_BUF_LEN	(1 << CONFIG_LOG_BUF_SHIFT)
- 
- /* printk's without a loglevel use this.. */
-@@ -62,6 +67,15 @@
-  */
- static DECLARE_MUTEX(console_sem);
- struct console *console_drivers;
-+/*
-+ * This is used for debugging the mess that is the VT code by
-+ * keeping track if we have the console semaphore held. It's
-+ * definitely not the perfect debug tool (we don't know if _WE_
-+ * hold it are racing, but it helps tracking those weird code
-+ * path in the console code where we end up in places I want
-+ * locked without the console sempahore held
-+ */
-+static int console_locked;
- 
- /*
-  * logbuf_lock protects log_buf, log_start, log_end, con_start and logged_chars
-@@ -479,6 +493,9 @@
- 	char *p;
- 	static char printk_buf[1024];
- 	static int log_level_unknown = 1;
-+#ifdef CONFIG_BOOTX_TEXT
-+	extern int force_printk_to_btext;
-+#endif
- 
- 	if (oops_in_progress) {
- 		/* If a crash is occurring, make sure we can't deadlock */
-@@ -494,6 +511,10 @@
- 	va_start(args, fmt);
- 	printed_len = vsnprintf(printk_buf, sizeof(printk_buf), fmt, args);
- 	va_end(args);
-+#ifdef CONFIG_BOOTX_TEXT
-+	if (force_printk_to_btext)
-+		btext_drawstring(printk_buf);
-+#endif /* CONFIG_BOOTX_TEXT */
- 
- 	/*
- 	 * Copy the output into log_buf.  If the caller didn't provide
-@@ -524,6 +545,7 @@
- 		goto out;
- 	}
- 	if (!down_trylock(&console_sem)) {
-+		console_locked = 1;
- 		/*
- 		 * We own the drivers.  We can drop the spinlock and let
- 		 * release_console_sem() print the text
-@@ -557,10 +579,17 @@
- 	if (in_interrupt())
- 		BUG();
- 	down(&console_sem);
-+	console_locked = 1;
- 	console_may_schedule = 1;
- }
- EXPORT_SYMBOL(acquire_console_sem);
- 
-+int is_console_locked(void)
-+{
-+	return console_locked;
-+}
-+EXPORT_SYMBOL(is_console_locked);
-+
- /**
-  * release_console_sem - unlock the console system
-  *
-@@ -592,12 +621,14 @@
- 		spin_unlock_irqrestore(&logbuf_lock, flags);
- 		call_console_drivers(_con_start, _log_end);
- 	}
-+	console_locked = 0;
- 	console_may_schedule = 0;
- 	up(&console_sem);
- 	spin_unlock_irqrestore(&logbuf_lock, flags);
- 	if (wake_klogd && !oops_in_progress && waitqueue_active(&log_wait))
- 		wake_up_interruptible(&log_wait);
- }
-+EXPORT_SYMBOL(release_console_sem);
- 
- /** console_conditional_schedule - yield the CPU if required
-  *
-@@ -633,6 +664,7 @@
- 	 */
- 	if (down_trylock(&console_sem) != 0)
- 		return;
-+	console_locked = 1;
- 	console_may_schedule = 0;
- 	for (c = console_drivers; c != NULL; c = c->next)
- 		if ((c->flags & CON_ENABLED) && c->unblank)
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Attached dmidecode ouput (which shows the battery info)
+
+
+--=-HaMZ/RW2boXlLEHFucdP
+Content-Disposition: attachment; filename=dell-inspiron-4150.txt
+Content-Type: text/plain; name=dell-inspiron-4150.txt; charset=
+Content-Transfer-Encoding: 7bit
+
+# dmidecode 2.2
+SMBIOS 2.3 present.
+61 structures occupying 2353 bytes.
+Table at 0x000F76A0.
+Handle 0xDA00
+	DMI type 218, 203 bytes.
+	OEM-specific Type
+		Header And Data:
+			DA CB 00 DA B2 00 0D 1F 0F 17 40 6F 00 00 00 01
+			00 70 00 00 00 00 00 71 00 02 00 01 00 72 00 02
+			00 00 00 7B 00 04 00 00 00 7C 00 06 00 00 00 79
+			00 08 00 00 00 7D 00 0A 00 00 00 7E 00 0C 00 00
+			00 78 00 0E 00 01 00 77 00 0E 00 00 00 73 00 10
+			00 01 00 74 00 10 00 00 00 7A 00 11 00 00 00 7F
+			00 12 00 00 00 40 00 13 00 01 00 41 00 13 00 00
+			00 1E 00 14 00 00 00 1F 00 14 00 01 00 20 00 14
+			00 02 00 21 00 14 00 03 00 75 00 15 00 01 00 76
+			00 15 00 00 00 00 80 00 80 00 00 00 A0 00 A0 01
+			00 05 80 05 80 01 00 01 F0 01 F0 00 00 02 F0 02
+			F0 00 00 03 F0 03 F0 00 00 04 F0 04 F0 00 00 05
+			F0 05 F0 00 00 FF FF 00 00 00 00
+Handle 0x0000
+	DMI type 0, 20 bytes.
+	BIOS Information
+		Vendor: Dell Computer Corporation
+		Version: A06
+		Release Date: 05/15/2003
+		Address: 0xF0000
+		Runtime Size: 64 kB
+		ROM Size: 512 kB
+		Characteristics:
+			PCI is supported
+			PC Card (PCMCIA) is supported
+			PNP is supported
+			APM is supported
+			BIOS is upgradeable
+			BIOS shadowing is allowed
+			Boot from CD is supported
+			Selectable boot is supported
+			Boot from PC Card (PCMCIA) is supported
+			3.5"/720 KB floppy services are supported (int 13h)
+			Print screen service is supported (int 5h)
+			8042 keyboard services are supported (int 9h)
+			Serial services are supported (int 14h)
+			Printer services are supported (int 17h)
+			CGA/mono video services are supported (int 10h)
+			ACPI is supported
+			USB legacy is supported
+			AGP is supported
+			LS-120 boot is supported
+			ATAPI Zip drive boot is supported
+			Smart battery is supported
+			BIOS boot specification is supported
+Handle 0x0100
+	DMI type 1, 25 bytes.
+	System Information
+		Manufacturer: Dell Computer Corporation
+		Product Name: Inspiron 4150                   
+		Version: Not Specified
+		Serial Number: 5R0GP11
+		UUID: 44454C4C-5200-1030-8047-B5C04F503131
+		Wake-up Type: Power Switch
+Handle 0x0200
+	DMI type 2, 9 bytes.
+	Base Board Information
+		Manufacturer: Dell Computer Corporation
+		Product Name:       
+		Version:    
+		Serial Number: .5R0GP11.              .
+Handle 0x0300
+	DMI type 3, 13 bytes.
+	Chassis Information
+		Manufacturer: Dell Computer Corporation
+		Type: Portable
+		Lock: Not Present
+		Version: Not Specified
+		Serial Number: 5R0GP11
+		Asset Tag: Not Specified
+		Boot-up State: Safe
+		Power Supply State: Safe
+		Thermal State: Safe
+		Security Status: None
+Handle 0x0301
+	DMI type 126, 13 bytes.
+	Inactive
+Handle 0x0400
+	DMI type 4, 32 bytes.
+	Processor Information
+		Socket Designation: Microprocessor
+		Type: Central Processor
+		Family: Pentium 4
+		Manufacturer: Intel
+		ID: 24 0F 00 00 FF F9 EB 3F
+		Signature: Type 0, Family F, Model 2, Stepping 4
+		Flags:
+			FPU (Floating-point unit on-chip)
+			VME (Virtual mode extension)
+			DE (Debugging extension)
+			PSE (Page size extension)
+			TSC (Time stamp counter)
+			MSR (Model specific registers)
+			PAE (Physical address extension)
+			MCE (Machine check exception)
+			CX8 (CMPXCHG8 instruction supported)
+			SEP (Fast system call)
+			MTRR (Memory type range registers)
+			PGE (Page global enable)
+			MCA (Machine check architecture)
+			CMOV (Conditional move instruction supported)
+			PAT (Page attribute table)
+			PSE-36 (36-bit page size extension)
+			CLFSH (CLFLUSH instruction supported)
+			DS (Debug store)
+			ACPI (ACPI supported)
+			MMX (MMX technology supported)
+			FXSR (Fast floating-point save and restore)
+			SSE (Streaming SIMD extensions)
+			SSE2 (Streaming SIMD extensions 2)
+			SS (Self-snoop)
+			HTT (Hyper-threading technology)
+			TM (Thermal monitor supported)
+		Version: Not Specified
+		Voltage: 3.3 V
+		External Clock: 133 MHz
+		Max Speed: 2400 MHz
+		Current Speed: 1900 MHz
+		Status: Populated, Enabled
+		Upgrade: None
+		L1 Cache Handle: 0x0700
+		L2 Cache Handle: 0x0701
+		L3 Cache Handle: Not Provided
+Handle 0x0700
+	DMI type 7, 19 bytes.
+	Cache Information
+		Socket Designation: Not Specified
+		Configuration: Enabled, Not Socketed, Level 1
+		Operational Mode: Write Back
+		Location: Internal
+		Installed Size: 8 KB
+		Maximum Size: 8 KB
+		Supported SRAM Types:
+			Unknown
+		Installed SRAM Type: Unknown
+		Speed: Unknown
+		Error Correction Type: None
+		System Type: Data
+		Associativity: 4-way Set-associative
+Handle 0x0701
+	DMI type 7, 19 bytes.
+	Cache Information
+		Socket Designation: Not Specified
+		Configuration: Enabled, Not Socketed, Level 2
+		Operational Mode: Varies With Memory Address
+		Location: Internal
+		Installed Size: 512 KB
+		Maximum Size: 512 KB
+		Supported SRAM Types:
+			Pipeline Burst
+		Installed SRAM Type: Pipeline Burst
+		Speed: 15 ns
+		Error Correction Type: None
+		System Type: Unified
+		Associativity: Other
+Handle 0x0800
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: PARALLEL
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: DB-25 female
+		Port Type: Parallel Port PS/2
+Handle 0x0801
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: SERIAL1
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: DB-9 male
+		Port Type: Serial Port 16550A Compatible
+Handle 0x0802
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: PS/2
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: Mini DIN
+		Port Type: Mouse Port
+Handle 0x0803
+	DMI type 126, 9 bytes.
+	Inactive
+Handle 0x0804
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: USB
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: Access Bus (USB)
+		Port Type: USB
+Handle 0x0805
+	DMI type 126, 9 bytes.
+	Inactive
+Handle 0x0806
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: MONITOR
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: DB-15 female
+		Port Type: Video Port
+Handle 0x0807
+	DMI type 126, 9 bytes.
+	Inactive
+Handle 0x0808
+	DMI type 126, 9 bytes.
+	Inactive
+Handle 0x0809
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: IrDA
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: Infrared
+		Port Type: Other
+Handle 0x080A
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: S-Video
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: Mini DIN
+		Port Type: Video Port
+Handle 0x080C
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: Modem
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: RJ-11
+		Port Type: Modem Port
+Handle 0x080D
+	DMI type 8, 9 bytes.
+	Port Connector Information
+		Internal Reference Designator: Ethernet
+		Internal Connector Type: None
+		External Reference Designator: Not Specified
+		External Connector Type: RJ-45
+		Port Type: Network Port
+Handle 0x0900
+	DMI type 9, 13 bytes.
+	System Slot Information
+		Designation: PCMCIA 0
+		Type: 32-bit PC Card (PCMCIA)
+		Current Usage: Available
+		Length: Other
+		ID: Adapter 0, Socket 0
+		Characteristics:
+			5.0 V is provided
+			3.3 V is provided
+			PC Card-16 is supported
+			Cardbus is supported
+			Zoom Video is supported
+			Modem ring resume is supported
+Handle 0x0901
+	DMI type 9, 13 bytes.
+	System Slot Information
+		Designation: PCMCIA 1
+		Type: 32-bit PC Card (PCMCIA)
+		Current Usage: Available
+		Length: Other
+		ID: Adapter 10, Socket 0
+		Characteristics:
+			5.0 V is provided
+			3.3 V is provided
+			PC Card-16 is supported
+			Cardbus is supported
+			Modem ring resume is supported
+Handle 0x0902
+	DMI type 126, 13 bytes.
+	Inactive
+Handle 0x0903
+	DMI type 126, 13 bytes.
+	Inactive
+Handle 0x0904
+	DMI type 9, 13 bytes.
+	System Slot Information
+		Designation: MiniPCI
+		Type: 32-bit Other
+		Current Usage: Available
+		Length: Other
+		Characteristics:
+			5.0 V is provided
+			3.3 V is provided
+			PME signal is supported
+Handle 0x0A00
+	DMI type 10, 6 bytes.
+	On Board Device Information
+		Type: Video
+		Status: Enabled
+		Description: ATI Mobility M7
+Handle 0x0A01
+	DMI type 10, 6 bytes.
+	On Board Device Information
+		Type: Sound
+		Status: Enabled
+		Description: Crystal 4205
+Handle 0x0A02
+	DMI type 126, 6 bytes.
+	Inactive
+Handle 0x0A03
+	DMI type 126, 6 bytes.
+	Inactive
+Handle 0x0B00
+	DMI type 11, 5 bytes.
+	OEM Strings
+		String 1: Dell System
+		String 2: 5[0025]
+Handle 0x0D00
+	DMI type 13, 22 bytes.
+	BIOS Language Information
+		Installable Languages: 1
+			en|US|iso8859-1
+		Currently Installed Language: en|US|iso8859-1
+Handle 0x1000
+	DMI type 16, 15 bytes.
+	Physical Memory Array
+		Location: System Board Or Motherboard
+		Use: System Memory
+		Error Correction Type: None
+		Maximum Capacity: 1 GB
+		Error Information Handle: Not Provided
+		Number Of Devices: 2
+Handle 0x1100
+	DMI type 17, 27 bytes.
+	Memory Device
+		Array Handle: 0x1000
+		Error Information Handle: Not Provided
+		Total Width: 64 bits
+		Data Width: 64 bits
+		Size: 512 MB
+		Form Factor: DIMM
+		Set: None
+		Locator: DIMM_A
+		Bank Locator: Not Specified
+		Type: DDR
+		Type Detail: Synchronous
+		Speed: 266 MHz (3.8 ns)
+		Manufacturer: Not Specified
+		Serial Number: Not Specified
+		Asset Tag: Not Specified
+		Part Number:                 
+Handle 0x1101
+	DMI type 17, 27 bytes.
+	Memory Device
+		Array Handle: 0x1000
+		Error Information Handle: Not Provided
+		Total Width: 64 bits
+		Data Width: 64 bits
+		Size: 512 MB
+		Form Factor: DIMM
+		Set: None
+		Locator: DIMM_B
+		Bank Locator: Not Specified
+		Type: DDR
+		Type Detail: Synchronous
+		Speed: 266 MHz (3.8 ns)
+		Manufacturer: Not Specified
+		Serial Number: Not Specified
+		Asset Tag: Not Specified
+		Part Number:                 
+Handle 0x1300
+	DMI type 19, 15 bytes.
+	Memory Array Mapped Address
+		Starting Address: 0x00000000000
+		Ending Address: 0x0000009FFFF
+		Range Size: 640 kB
+		Physical Array Handle: 0x1000
+		Partition Width: 0
+Handle 0x1301
+	DMI type 19, 15 bytes.
+	Memory Array Mapped Address
+		Starting Address: 0x00000100000
+		Ending Address: 0x0003FFFFFFF
+		Range Size: 1023 MB
+		Physical Array Handle: 0x1000
+		Partition Width: 0
+Handle 0x1400
+	DMI type 20, 19 bytes.
+	Memory Device Mapped Address
+		Starting Address: 0x00000000000
+		Ending Address: 0x0000009FFFF
+		Range Size: 640 kB
+		Physical Device Handle: 0x1100
+		Memory Array Mapped Address Handle: 0x1300
+		Partition Row Position: 1
+Handle 0x1401
+	DMI type 20, 19 bytes.
+	Memory Device Mapped Address
+		Starting Address: 0x00000100000
+		Ending Address: 0x0001FFFFFFF
+		Range Size: 511 MB
+		Physical Device Handle: 0x1100
+		Memory Array Mapped Address Handle: 0x1301
+		Partition Row Position: 1
+Handle 0x1402
+	DMI type 20, 19 bytes.
+	Memory Device Mapped Address
+		Starting Address: 0x00020000000
+		Ending Address: 0x0003FFFFFFF
+		Range Size: 512 MB
+		Physical Device Handle: 0x1101
+		Memory Array Mapped Address Handle: 0x1301
+		Partition Row Position: 1
+Handle 0x1500
+	DMI type 21, 7 bytes.
+	Built-in Pointing Device
+		Type: Touch Pad
+		Interface: Bus Mouse
+		Buttons: 2
+Handle 0x1600
+	DMI type 22, 26 bytes.
+	Portable Battery
+		Location: Left Module Bay 
+		Manufacturer: SANYO           
+		Name: 0004M778        
+		Design Capacity: 66000 mWh
+		Design Voltage: 14800 mV
+		SBDS Version: 1.0
+		Maximum Error: 4%
+		SBDS Serial Number: 03C0
+		SBDS Manufacture Date: 2002-07-22
+		SBDS Chemistry: LION            
+		OEM-specific Information: 0x00000001
+Handle 0x1601
+	DMI type 22, 26 bytes.
+	Portable Battery
+		Location: Right Module Bay
+		Manufacturer: Sony Corp.      
+		Name: LIP8120DLP      
+		Design Capacity: 65120 mWh
+		Design Voltage: 14800 mV
+		SBDS Version: 1.0
+		Maximum Error: 4%
+		SBDS Serial Number: 1402
+		SBDS Manufacture Date: 2002-06-24
+		SBDS Chemistry: LION            
+		OEM-specific Information: 0x00000001
+Handle 0x1B00
+	DMI type 27, 12 bytes.
+	Cooling Device
+		Type: Fan
+		Status: OK
+		OEM-specific Information: 0x0000DD00
+Handle 0x1C00
+	DMI type 28, 20 bytes.
+	Temperature Probe
+		Description: CPU Internal Temperature
+		Location: Processor
+		Status: OK
+		Maximum Value: 127.0 deg C
+		Minimum Value 0.0 deg C
+		Resolution: 1.000 deg C
+		Tolerance: 0.5 deg C
+		Accuracy: Unknown
+		OEM-specific Information: 0x0000DC00
+Handle 0x2000
+	DMI type 32, 11 bytes.
+	System Boot Information
+		Status: No errors detected
+Handle 0xD000
+	DMI type 208, 10 bytes.
+	OEM-specific Type
+		Header And Data:
+			D0 0A 00 D0 01 04 FE 00 2B 01
+Handle 0xD100
+	DMI type 209, 12 bytes.
+	OEM-specific Type
+		Header And Data:
+			D1 0C 00 D1 00 00 00 03 04 07 80 05
+Handle 0xD200
+	DMI type 210, 12 bytes.
+	OEM-specific Type
+		Header And Data:
+			D2 0C 00 D2 F8 03 04 03 06 80 04 05
+Handle 0xD300
+	DMI type 211, 13 bytes.
+	OEM-specific Type
+		Header And Data:
+			D3 0D 00 D3 01 04 02 01 00 00 00 00 02
+		Strings:
+			Back of System
+			        
+			        
+Handle 0xD800
+	DMI type 216, 9 bytes.
+	OEM-specific Type
+		Header And Data:
+			D8 09 00 D8 01 03 01 F0 03
+		Strings:
+			ATI Technologies Inc.
+			 
+			.0 VR006.006.006.00
+			 
+Handle 0xD900
+	DMI type 217, 8 bytes.
+	OEM-specific Type
+		Header And Data:
+			D9 08 00 D9 01 02 01 03
+		Strings:
+			US-101
+			Proprietary
+Handle 0xDB00
+	DMI type 219, 8 bytes.
+	OEM-specific Type
+		Header And Data:
+			DB 08 00 DB 03 01 02 03
+		Strings:
+			System Device Bay
+			Floppy, Battery, CD-ROM, CD-RW, Hard Disk, LS-120, DVD, ZIP
+			Battery   
+Handle 0xDB01
+	DMI type 126, 8 bytes.
+	Inactive
+Handle 0xDC00
+	DMI type 220, 22 bytes.
+	OEM-specific Type
+		Header And Data:
+			DC 16 00 DC 01 F0 00 00 02 F0 00 00 00 00 03 F0
+			04 F0 00 00 00 00
+Handle 0xDD00
+	DMI type 221, 19 bytes.
+	OEM-specific Type
+		Header And Data:
+			DD 13 00 DD 00 00 00 00 00 05 F0 00 00 00 00 00
+			00 00 00
+Handle 0xD400
+	DMI type 212, 207 bytes.
+	OEM-specific Type
+		Header And Data:
+			D4 CF 00 D4 70 00 71 00 00 10 2D 2E 5C 00 78 BF
+			40 5D 00 78 BF 00 5E 00 23 FE 01 5F 00 23 FE 00
+			60 00 1D EF 10 61 00 1D EF 00 62 00 25 E7 00 63
+			00 25 E7 08 64 00 25 E7 10 65 00 21 F7 00 66 00
+			21 F7 08 67 00 25 DF 20 68 00 25 DF 00 1D 00 21
+			FE 00 1C 00 21 FE 01 0F 00 26 F8 00 11 00 26 F8
+			01 05 00 26 F8 02 12 00 26 F8 03 06 00 26 F8 04
+			31 00 26 8F 00 32 00 26 8F 10 33 00 26 8F 20 34
+			00 26 8F 30 35 00 26 8F 40 07 00 25 F8 00 0B 00
+			25 F8 01 0C 00 25 F8 02 0D 00 25 F8 04 28 00 23
+			F3 00 29 00 23 F3 04 2A 00 23 F3 08 2B 00 58 00
+			00 2C 00 59 00 00 88 00 23 FD 02 89 00 23 FD 00
+			08 00 1D DF 00 03 00 1D DF 00 FF FF 00 00 00
+Handle 0xD401
+	DMI type 212, 37 bytes.
+	OEM-specific Type
+		Header And Data:
+			D4 25 01 D4 70 00 71 00 03 40 49 4A 42 00 48 7F
+			80 43 00 48 7F 00 55 00 47 BF 00 6D 00 47 BF 40
+			FF FF 00 00 00
+Handle 0xDE00
+	DMI type 222, 13 bytes.
+	OEM-specific Type
+		Header And Data:
+			DE 0D 00 DE 01 02 FF FF 00 00 00 00 00
+Handle 0x7F00
+	DMI type 127, 4 bytes.
+	End Of Table
+
+--=-HaMZ/RW2boXlLEHFucdP--
 

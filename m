@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTE3Jqj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 05:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTE3Jqj
+	id S263521AbTE3Jui (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 05:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTE3Jui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 05:46:39 -0400
-Received: from [62.29.76.200] ([62.29.76.200]:17541 "EHLO submoron.org")
-	by vger.kernel.org with ESMTP id S263496AbTE3Jqi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 05:46:38 -0400
-From: "ismail (cartman) donmez" <kde@myrealbox.com>
-Organization: Bogazici University
-To: Christoph Hellwig <hch@lst.de>
-Subject: Re: Recent binutils releases and linux kernel 2.5.69+
-Date: Fri, 30 May 2003 12:59:10 +0300
-User-Agent: KMail/1.5.9
-Cc: "H. J. Lu" <hjl@lucon.org>, linux kernel <linux-kernel@vger.kernel.org>,
-       GNU C Library <libc-alpha@sources.redhat.com>
-References: <20030529074448.A29931@lucon.org> <200305301245.26808.kde@myrealbox.com> <20030530094805.GA30793@lst.de>
-In-Reply-To: <20030530094805.GA30793@lst.de>
+	Fri, 30 May 2003 05:50:38 -0400
+Received: from ahuumrelay0.ams.ops.eu.uu.net ([195.129.70.138]:49050 "EHLO
+	ahuumrelay0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
+	id S263521AbTE3Juh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 05:50:37 -0400
+From: "Cedric ADAM" <cadam@la-martiniquaise.Fr>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem with Agp  3.0 in Kernel 2.4.20 on e7205 mobo
+Date: Fri, 30 May 2003 12:01:46 +0200
+Message-ID: <001401c32692$7b0b3a80$670a0b82@tartuffe>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-   =?ISO-8859-1?Q?=20charset=3D=22=FDso-885?= =?ISO-8859-1?Q?9-9=22?=
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200305301259.10457.kde@myrealbox.com>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 May 2003 12:48, Christoph Hellwig wrote:
-> How so?  If the sysctl values change you're screwed anyway.
-Heh that was what I mean like what if glibc header and kernel header differs a 
-lot. Its bringing more harm than goodness but including linux/sysctl.h in 
-sys/sysctl.h makes two header synchronised.
+Hi,
+I'm looking for the agpgart patch against kernel 2.4.20 for agp 3.0.
+Because  on my p4g8x (Asus motherboard) i'can't activate DRI with the
+kernel 2.4.20 . I saw tah the 2.5.x support the e7205 agp, but i need a
+stable kernel, cause its for a workstation, for a non-advanced user :).
+I read on the mailing list archive that there is a patch but i can't
+find him for downloading. Does anyone have it ?
 
-Wondering what glibc guys think to solve this ? Ulrich Drepper or some other 
-glibc hacker make a comment please?
+Thanx 
 
-Regards,
-/ismail

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262237AbTEFAmV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 20:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbTEFAmV
+	id S262217AbTEFAia (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 20:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbTEFAia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 20:42:21 -0400
-Received: from zero.aec.at ([193.170.194.10]:52743 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262237AbTEFAmU (ORCPT
+	Mon, 5 May 2003 20:38:30 -0400
+Received: from mx1.it.wmich.edu ([141.218.1.89]:39051 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S262217AbTEFAi3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 20:42:20 -0400
-Date: Tue, 6 May 2003 02:53:26 +0200
-From: Andi Kleen <ak@muc.de>
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Cc: Adrian Bunk <bunk@fs.tum.de>, lkml <linux-kernel@vger.kernel.org>,
-       ak@muc.de, ingo.oeser@informatik.tu-chemnitz.de
-Subject: Re: 2.5.68-bk11: .text.exit errors in .altinstructions
-Message-ID: <20030506005326.GB18146@averell>
-References: <20030502171355.GU21168@fs.tum.de> <1052175893.25085.9.camel@nalesnik>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052175893.25085.9.camel@nalesnik>
-User-Agent: Mutt/1.4i
+	Mon, 5 May 2003 20:38:29 -0400
+Message-ID: <3EB706F3.8090701@wmich.edu>
+Date: Mon, 05 May 2003 20:50:59 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030318
+X-Accept-Language: en
+MIME-Version: 1.0
+To: samba@lists.samba.org
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: subdir problems with 2.5.69 and samba 3.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 01:04:55AM +0200, Grzegorz Jaskiewicz wrote:
-> I've got the same problem with 2.5.69:
+I've tried both the debian devel and cvs pulls of samba and upon 
+upgrading my kernel to 2.5.69 samba no longer allowed access to 
+subdirectories of my shares.  Windows gives the error "Directory does 
+not exist" yet all files in the share directory in the directory 
+supplied by "path" are accessible.  This is even true for guest only 
+services with share security so I'm not sure what's going on here.  The 
+subdirectories are not symlinks and the permissions are world readable 
+world searchable. Is anyone else having this problem or has this 
+occurred before so someone can point out what i'm doing wrong.  I'm not 
+subscribed to the list so cc all replies and i can supply any further 
+info required.
 
-Use the same workaround. Remove .text.exit from the DISCARD
-section in your vmlinux.lds.S
+This all worked prior to the kernel upgrade and samba was not changed.
 
-Really the problem is unfixable without binutils changes in other
-ways, sorry.
-
--Andi

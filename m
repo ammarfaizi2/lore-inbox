@@ -1,84 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268333AbUIGTbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268568AbUIGTbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268333AbUIGTbu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 15:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUIGT2N
+	id S268568AbUIGTbr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 15:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268333AbUIGT17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 15:28:13 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:53904 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S268526AbUIGTYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 15:24:03 -0400
-Date: Tue, 07 Sep 2004 21:22:33 +0200
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: Hans Reiser <reiser@namesys.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
-       Spam <spam@tnonline.net>, ReiserFS List <reiserfs-list@namesys.com>,
-       Pavel Machek <pavel@ucw.cz>, David Masover <ninja@slaphack.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Jamie Lokier <jamie@shareable.org>, Christoph Hellwig <hch@lst.de>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Chris Wedgwood <cw@f00f.org>, Christer Weinigel <christer@weinigel.se>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <413E0A79.nailEBK11DW72@pluto.uni-freiburg.de>
-References: <200409070206.i8726vrG006493@localhost.localdomain>
- <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
- <413DA8EE.nailA301JQ74H@pluto.uni-freiburg.de>
- <413DFC06.5070604@namesys.com>
-In-Reply-To: <413DFC06.5070604@namesys.com>
-User-Agent: nail 11.7pre 9/7/04
-MIME-Version: 1.0
+	Tue, 7 Sep 2004 15:27:59 -0400
+Received: from p3EE060A9.dip0.t-ipconnect.de ([62.224.96.169]:42624 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S268576AbUIGTYw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 15:24:52 -0400
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: software-suspend-2.0.0.105-for-2.4.27 broken?
+Date: Tue, 07 Sep 2004 21:23:07 +0200
+Organization: privat
+Message-ID: <chl1qr$1ic$1@p3EE060A9.dip0.t-ipconnect.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@fu.berlin.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7) Gecko/20040828
+X-Accept-Language: de, en-us, en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
+Hello!
 
-> Gunnar Ritter wrote:
-> >You cannot just 'modify cp'. 
-> >
-> People who think that POSIX is the objective rather than the least 
-> common denominator of OS design
+I applied to a vanilla kernel the following patches from
+software-suspend-2.0.0.105-for-2.4.27:
 
-I am not principally adversed against extensions to POSIX. My mailx
-implementation 'nail' has e.g. perhaps more extensions than there are
-commands and options in the POSIX standard for it.
+10-preempt
+10-preempt-log
+20-software-suspend-linux-2.4.27-rev2-whole
+30-software-suspend-core-2.0.0.104-whole
+31-software-suspend-core-2.0.0.105-incremental
 
-POSIX is also not against extensions. In fact, POSIX development
-generally works as follows: One vendor creates something as an extension,
-other vendors follow to implement it, and later on it is discussed if it
-is desirable to integrate the feature into the standard itself. It is
-absolutely possible that Sun's openat() might be in POSIX.1-2010 one day,
-for example. Useful extensions are thus welcome to POSIX.
+First of all:
+After booting this kernel, I can't see any /proc/swsusp entries, but
+/proc/sys/kernel/swsusp exists.
 
-This does not mean, however, that one should not clearly distinct between
-standard and extensions, and that extensions should be created at will
-without carefully weighting pros and cons.
+When trying to hibernate, suspension is canceled, because there wouldn't
+be enough space in the swap device - which is obviously wrong. I've got
+512 MB RAM and the swap partition has the same size. When trying to
+hibernate, RAM is used half and the swap partition isn't used at all.
 
-I did not say: POSIX forbids to handle streams or directory/file mixes.
-This would not even have been true. However, POSIX restricts the choice
-of possible interfaces for them. One of those restrictions is that 'cp'
-may not copy streams if used in strict accordance with POSIX. As you
-acknowledged in your reply, POSIX is the least common denominator. Thus
-'cp' implementations should not be modified in a way that violates it.
+/var/log/messages says:
 
-This means, in effect, that a strictly conforming POSIX application (i.e.
-something like a shell script that uses no POSIX extensions or methods
-which are not clearly defined in the standard) will very likely be unable
-to copy streams, unless some other, conforming, method is found. Which is
-a problem one should know about when discussing this.
+Sep  6 21:19:47 athlon kernel: Software Suspend 2.0.0.105: Swap space
+signature found.
+Sep  6 21:19:47 athlon kernel: Software Suspend 2.0.0.105: Suspending enabled.
+Sep  6 21:19:47 athlon kernel: Software Suspend 2.0.0.105: Initiating a
+software_suspend cycle.
+Sep  6 21:19:50 athlon kernel: Couldn't get enough yet. 10334 pages short.
+Sep  6 21:19:50 athlon kernel: Unable to free sufficient memory to
+suspend. Still need 69083 pages.
+Sep  6 21:19:50 athlon kernel: Please include the following information in
+bug reports:
+Sep  6 21:19:50 athlon kernel: - SWSUSP core    : 2.0.0.105
+Sep  6 21:19:50 athlon kernel: - Kernel Version : 2.4.27
+Sep  6 21:19:50 athlon kernel: - Version spec.  : 2.0.1
+Sep  6 21:19:50 athlon kernel: - Compiler vers. : 3.3
+Sep  6 21:19:50 athlon kernel: - Modules loaded : nfs nfsd lockd sunrpc
+eepro100 mii sis900 crc32 serial usb-storage scsi_mod uhci usbcore
+parport_pc lp parport loop lvm-mod unix
+Sep  6 21:19:50 athlon kernel: - Attempt number : 1
+Sep  6 21:19:50 athlon kernel: - Pageset sizes  : 0 and 0 (166 low).
+Sep  6 21:19:50 athlon kernel: - Parameters     : 257 0 0 1 512 2048
+Sep  6 21:19:50 athlon kernel: - Calculations   : Image size: 70501. Ram
+to suspend: 73295.
+Sep  6 21:19:50 athlon kernel: - Limits         : 131056 pages RAM.
+Initial boot: 128300.
+Sep  6 21:19:50 athlon kernel: - Overall expected compression percentage: 0.
+Sep  6 21:19:51 athlon kernel: - GZIP compressor enabled.
+Sep  6 21:19:51 athlon kernel: - Swapwriter active.
+Sep  6 21:19:51 athlon kernel:   Swap available for image: 125293.
+Sep  6 21:19:51 athlon kernel: - Debugging compiled in.
+Sep  6 21:19:51 athlon kernel: - Max ranges used: 14620 ranges in 43 pages.
+Sep  6 21:19:51 athlon kernel: - Suspend cancelled. No I/O speed stats.
 
-> have had their head screwed on backwards 
-> to better look at where their competitors used to be.
 
-But there are not only forwards and backwards directions. Sideways might
-lead to nowhere.
+My configuration:
 
-	Gunnar
+.config:
+CONFIG_SOFTWARE_SUSPEND2_CORE=y
+CONFIG_SOFTWARE_SUSPEND2=y
+CONFIG_SOFTWARE_SUSPEND_SWAPWRITER=y
+CONFIG_SOFTWARE_SUSPEND_GZIP_COMPRESSION=y
+# CONFIG_SOFTWARE_SUSPEND_LZF_COMPRESSION is not set
+CONFIG_SOFTWARE_SUSPEND_TEXT_MODE=y
+# CONFIG_SOFTWARE_SUSPEND_BOOTSPLASH is not set
+CONFIG_SOFTWARE_SUSPEND_DEBUG=y
+# CONFIG_SOFTWARE_SUSPEND_KEEP_IMAGE is not set
+CONFIG_SOFTWARE_SUSPEND_RELAXED_PROC=y
+CONFIG_SOFTWARE_SUSPEND_DEFAULT_RESUME2="swap:/dev/hda9"
 
--- 
-http://omnibus.ruf.uni-freiburg.de/~gritter
+
+lilo.conf:
+  image  = /boot/vmlinuz-2.4.27
+  label  = 2427
+  root   = /dev/hda1
+  append="resume2=swap:/dev/hda9"
+
+If there is not more than about 150MB of RAM used, suspension and resume
+does work with 2.0.0.105, too.
+
+
+Does anybody know what to do to get it working?
+
+
+Thanks for any hint,
+kind regards,
+Andreas Hartmann
+
+
+---------------------------------------------------------------------------------
+
+Hibernation works well with kernel 2.4.26 and swsusp 2.0.0.66:
+
+Sep  6 19:25:43 athlon kernel: Should have tried to free page c14a4f94.
+Sep  6 19:25:43 athlon kernel: Software Suspend 2.0.0.66: Swap space
+signature found.
+Sep  6 19:25:43 athlon kernel: Software Suspend 2.0.0.66: Suspending enabled.
+Sep  6 19:25:43 athlon kernel: Software Suspend 2.0.0.66: Initiating a
+software_suspend cycle.
+Sep  6 19:26:04 athlon kernel: syslogd (144) is busy.
+Sep  6 19:26:04 athlon kernel: tee (597) is busy.
+Sep  6 19:26:04 athlon kernel: serial.c: Suspending 3f8
+Sep  6 19:26:04 athlon kernel: serial.c: Suspending 2f8
+Sep  6 19:26:04 athlon kernel: serial.c: Resuming 3f8
+Sep  6 19:26:04 athlon kernel: serial.c: Resuming 2f8
+Sep  6 19:26:04 athlon kernel: Please include the following information in
+bug reports:
+Sep  6 19:26:04 athlon kernel: - SWSUSP core    : 2.0.0.66
+Sep  6 19:26:04 athlon kernel: - Kernel Version : 2.4.26
+Sep  6 19:26:04 athlon kernel: - Version spec.  : 2.0.1
+Sep  6 19:26:04 athlon kernel: - Compiler vers. : 3.3
+Sep  6 19:26:04 athlon kernel: - Modules loaded : snd-pcm-oss
+snd-mixer-oss snd-via82xx snd-pcm snd-timer s
+Sep  6 19:26:04 athlon kernel: - Attempt number : 1
+Sep  6 19:26:04 athlon kernel: - Pageset sizes  : 9626 and 58059 (58059 low).
+Sep  6 19:26:04 athlon kernel: - Parameters     : 0 0 0 1 512 32
+Sep  6 19:26:04 athlon kernel: - Calculations   : Image size: 67728. Ram
+to suspend: 1156.
+Sep  6 19:26:04 athlon kernel: - Limits         : 131056 pages RAM.
+Initial boot: 128291.
+Sep  6 19:26:04 athlon kernel: - Overall expected compression percentage: 0.
+Sep  6 19:26:04 athlon kernel: - Swapwriter active.
+Sep  6 19:26:04 athlon kernel:   Swap available for image: 128510.
+Sep  6 19:26:04 athlon kernel: - GZIP compressor enabled.
+Sep  6 19:26:04 athlon kernel:   Compressed 277237760 bytes into 88717381.
+Sep  6 19:26:04 athlon kernel:   Image compressed by 68 percent.
+Sep  6 19:26:04 athlon kernel: - Debugging compiled in.
+Sep  6 19:26:04 athlon kernel: - Max ranges used: 13662 ranges in 41 pages.
+Sep  6 19:26:04 athlon kernel: - I/O speed: Write 15 MB/s, Read 45 MB/s.

@@ -1,53 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbTAEKGO>; Sun, 5 Jan 2003 05:06:14 -0500
+	id <S264631AbTAEKfW>; Sun, 5 Jan 2003 05:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbTAEKGO>; Sun, 5 Jan 2003 05:06:14 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:63947 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S262859AbTAEKGN>; Sun, 5 Jan 2003 05:06:13 -0500
-Date: Sun, 5 Jan 2003 11:14:13 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org,
-       Richard Stallman <rms@gnu.org>, mark@mark.mielke.cc,
-       billh@gnuppy.monkey.org, paul@clubi.ie, riel@conectiva.com.br,
-       Hell.Surfers@cwctv.net
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030105101413.GC14362@louise.pinerecords.com>
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030104222330.GA1386@work.bitmover.com>
+	id <S264644AbTAEKfW>; Sun, 5 Jan 2003 05:35:22 -0500
+Received: from tag.witbe.net ([81.88.96.48]:17927 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S264631AbTAEKfU>;
+	Sun, 5 Jan 2003 05:35:20 -0500
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Paul Rolland'" <rol@as2917.net>,
+       "'Steven Barnhart'" <sbarn03@softhome.net>,
+       "'Mark Hahn'" <hahn@physics.mcmaster.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.54 - Oops] CPUFreq [Was: Re: [2.5.54] OOPS: unable to handle kernel paging request]
+Date: Sun, 5 Jan 2003 11:43:50 +0100
+Message-ID: <012601c2b4a7$55ce8090$2101a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <012501c2b49c$75000a70$2101a8c0@witbe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [lm@bitmover.com]
-> 
-> And we all agree that they are the leader in the free software financial
-> success stories, right?  Who's bigger?  IBM?  Let's see, spent $1B and
-> by their own statements "almost have made that back".  Hmm, running at
-> a loss but going to make it up on volume.
-> 
-> Now let's compare to some closed source companies:
-> 
-> 	Company		Factor more revenue than Red Hat
-> 	Microsoft	370
-> 	Oracle		116
-> 	Sun		150
-> 
-> You get the idea.  Sun makes more in 2 days than Red Hat makes all year.
-> It doesn't even take Microsoft a whole day to make what Red Hat makes in
-> a year.
+Hello,
 
-Warning: stdin:8: comparison is always false due to limited range of data.
+Good news !
+Using the patch : 
+http://www.brodo.de/cpufreq/cpufreq-2.5.54-p4-1
+it is now booting fine !
 
-Even if I overlook that you're effectively comparing the incomparable,
-Microsoft making 370 times more than RedHat says _nothing_ about their
-actual achievement in terms of software development.  Should you insist
-on that correlation, though, I'd recommend you cancel your Wired magazine
-subscription as soon as possible, because continuing to read their stuff
-might put your health at stake. <g>
+1 [11:40] rol@donald:~> cat /proc/cpufreq 
+          minimum CPU frequency  -  maximum CPU frequency  -  policy
+CPU  0       302902 kHz ( 12 %)  -    2423222 kHz (100 %)  -
+performance
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Cool...
+
+Paul Rolland, rol@as2917.net
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Paul Rolland
+> Sent: Sunday, January 05, 2003 10:26 AM
+> To: 'Steven Barnhart'; 'Mark Hahn'
+> Cc: linux-kernel@vger.kernel.org
+> Subject: [2.5.54 - Oops] CPUFreq [Was: Re: [2.5.54] OOPS: 
+> unable to handle kernel paging request]
+> 
+> 
+> Hello,
+> 
+> I've got it running my serial console. Full trace at boot time is :
+> SBF: Simple Boot Flag extension found and enabled.
+> SBF: Setting boot flags 0x1
+> cpufreq: P4/Xeon(TM) CPU On-Demand Clock Modulation available 
+> divide error: 0000
+> CPU:    0
+> EIP:    0060:[<c01151bb>]    Not tainted
+> EFLAGS: 00010246
+> Unable to handle kernel paging request at virtual address 
+> ffffff8d  printing eip: c012ebcf *pde = 00001067 *pte = 00000000
+> Oops: 0002
+> CPU:    0
+> EIP:    0060:[<c012ebcf>]    Not tainted
+> EFLAGS: 00010006
+> 
+> and ksymoops says :
+> 8 [10:21] rol@donald:~> ksymoops -v /usr/src/linux/vmlinux -K 
+> -m /boot/System.map-2.5.54 <oops-cpufreq2 ksymoops 2.4.8 on 
+> i686 2.4.20.  Options used
+>      -v /usr/src/linux/vmlinux (specified)
+>      -K (specified)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.20/ (default)
+>      -m /boot/System.map-2.5.54 (specified)
+> 
+> No modules in ksyms, skipping objects
+> No ksyms, skipping lsmod
+> CPU:    0
+> EIP:    0060:[<c01151bb>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010246
+> Unable to handle kernel paging request at virtual address 
+> ffffff8d c012ebcf *pde = 00001067
+> Oops: 0002
+> CPU:    0
+> EIP:    0060:[<c012ebcf>]    Not tainted
+> EFLAGS: 00010006
+> Warning (Oops_read): Code line not seen, dumping what data is 
+> available
+> 
+> 
+> >>EIP; c01151bb <time_cpufreq_notifier+14f/208>   <=====
+> >>EIP; c012ebcf <kallsyms_lookup+df/194>   <=====
+> 
+> 
+> 1 warning issued.  Results may not be reliable.
+> 
+> Problem is that ksymoops seems to decode the paging request 
+> fault, not the 0 divide error...
+> 
+> This comes from a plain 2.5.54 kernel, no patches applied.
+> 
+> Dominik, you told me last week, with 2.5.53, that a patch was 
+> to be used. 
+> Is it included in 2.5.54 ?
+> If not, forget this mail... just tell me, I'll apply the 
+> patch and I'll tell you if it's better.
+> 
+> Regards,
+> Paul
+> 
+> 
+> > -----Original Message-----
+> > From: linux-kernel-owner@vger.kernel.org
+> > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> > Steven Barnhart
+> > Sent: Friday, January 03, 2003 10:06 PM
+> > To: Mark Hahn
+> > Cc: linux-kernel@vger.kernel.org
+> > Subject: Re: [2.5.54] OOPS: unable to handle kernel paging request
+> > 
+> > 
+> > On Fri, 2003-01-03 at 10:48, Mark Hahn wrote:
+> > > it's not very meaningful: some part of the kernel tried
+> > dereferencing
+> > > a null pointer (as it happens, with a negative offset, such as you
+> > > might expect from a variable sitting in the stack). the 
+> > negativeness
+> > > is not surprising, and the value of the offset would 
+> depend on your
+> > > cpu/compiler/config.
+> > 
+> > Well I have a Intel Celeron 1.06 GHz (i686). 384MB ram, gcc
+> > 3.2 (redhat 8 release). I don't really know how to decode it 
+> > since I have no serial console hookups...anything paticualr I 
+> > could get from the oops report during bootup? i.e. what 
+> > sections to copy?
+> > 
+> > --
+> > Steven
+> > sbarn03@softhome.net
+> > GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 
+> D516 0A94
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> > linux-kernel" in the body of a message to 
+> > majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266361AbRGBD6Y>; Sun, 1 Jul 2001 23:58:24 -0400
+	id <S266363AbRGBEZL>; Mon, 2 Jul 2001 00:25:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266362AbRGBD6O>; Sun, 1 Jul 2001 23:58:14 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:29457 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S266361AbRGBD6D>;
-	Sun, 1 Jul 2001 23:58:03 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S266364AbRGBEZB>; Mon, 2 Jul 2001 00:25:01 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:21204 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S266363AbRGBEYs>; Mon, 2 Jul 2001 00:24:48 -0400
+Date: Mon, 2 Jul 2001 00:24:45 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: hang from HUP'ing init in linuxrc
+In-Reply-To: <15167.61332.139916.158874@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.33.0107020017510.9798-100000@toomuch.toronto.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15167.61332.139916.158874@cargo.ozlabs.ibm.com>
-Date: Mon, 2 Jul 2001 13:50:44 +1000 (EST)
-To: linux-kernel@vger.kernel.org
-Subject: hang from HUP'ing init in linuxrc
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently I tried running the Debian installer on top of a 2.4.6-pre6
-kernel.  It got up to the point of installing libc and then the system
-hung.  It was still taking interrupts (I could change vt's, etc.) but
-no user processes were running.
+On Mon, 2 Jul 2001, Paul Mackerras wrote:
 
-What was happening was rather interesting.  The init process was stuck
-inside prepare_namespace(), in the while loop here (this is lines 749
-- 751 of init/main.c):
+> I'm not sure what the best way to fix this is.  The problem would crop
+> up whenever we have a kernel thread which wants to wait for a child
+> process.  I don't think we want to start delivering signals to kernel
+> threads in the same way that we do to usermode processes though.
+>
+> Any suggestions?
 
-		pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
-		if (pid>0)
-			while (pid != wait(&i));
+Well, linuxrc and a number of aspects of the boot process seem to suffer
+from attempting to kludge userspace programs into the kernel.  To this
+end, I would like to propose that we move these functions into userspace
+where they belong and instead provide support for linking an initial
+filesystem image into vmlinux.  We can then move linuxrc, dhcp and other
+such bits out of the kernel and use the same code as is normally used at
+run time -> it's better tested and easier to fix.
 
-The installer had sent a HUP signal to init.  The init process thus
-had current->sigpending == 1.  When it called wait, it got down into
-sys_wait4 which worked out that there were children but none were
-zombies, and at that point it would normally sleep, but because there
-were signals pending, it returned -ERESTARTSYS.  Now, on the way out
-from the system call, the kernel noticed that it was returning to
-kernel mode and thus didn't deliver any signals, and sigpending stayed
-at 1.
+		-ben
 
-Thus the system was sitting in a tight loop calling wait() over and
-over again in kernel mode in the init process.
-
-This was on PPC.  I had a look at the i386 code and AFAICS it will do
-the same thing.  The check for whether we are returning to user mode
-is in do_signal there (whereas PPC does the check in entry.S) but the
-net effect in both cases is that we don't execute the main body of
-do_signal when we are returning from a syscall from a process running
-in kernel mode.
-
-I'm not sure what the best way to fix this is.  The problem would crop
-up whenever we have a kernel thread which wants to wait for a child
-process.  I don't think we want to start delivering signals to kernel
-threads in the same way that we do to usermode processes though.
-
-Any suggestions?
-
-Paul.

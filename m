@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbUKEOIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbUKEONh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262695AbUKEOIz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 09:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbUKEOIz
+	id S262696AbUKEONh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 09:13:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbUKEONh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 09:08:55 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:61164 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262695AbUKEOIx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 09:08:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lGENdf0rPf8c+ZIaCpBoE54aarBWaU9lKKJrha8hQimtBVw6BrEX9E1qf2IqdTxks3uylWQJ5JCfXEDsOFlpJfZ2jroC5AhTjazkEnxJz6cssEigTWQtRJu2SYUsoB+0NksvGhuHUgPPhNUTVnYqO6pWLQhAqQvYjpsonylL2X0=
-Message-ID: <58cb370e041105060837f6c555@mail.gmail.com>
-Date: Fri, 5 Nov 2004 15:08:53 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] ide-scsi: DMA alignment bug fixed
-Cc: Terry Kyriacopoulos <terryk@echo-on.net>, linux-kernel@vger.kernel.org,
-       gadio@netvision.net.il, andre@linux-ide.org, linu-ide@vger.kernel.org
-In-Reply-To: <20041105073556.GE16649@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.56.0411050042250.88@vk.local>
-	 <20041105073556.GE16649@suse.de>
+	Fri, 5 Nov 2004 09:13:37 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:4253 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262696AbUKEONc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 09:13:32 -0500
+Message-ID: <418B8A8B.9020507@free.fr>
+Date: Fri, 05 Nov 2004 15:13:31 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [patch} turn off pcspeaker when unloading
+Content-Type: multipart/mixed;
+ boundary="------------060307010609020305050804"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ linux-ide@vger.kernel.org added to cc: ]
+This is a multi-part message in MIME format.
+--------------060307010609020305050804
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Before going further please both of you check the current -linus tree.
+Hi,
 
-I fixed ide-scsi to "pass" scatterlist table obtained from
-SCSI layer to IDE layer and killed BIO mapping completely.
+this patch turn off the pc speaker when you unload it : with whe current 
+version if you unload it when the speacker beep, the beep never stop.
 
-Thanks.
+Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
 
-Jens, while unaligned DMA is a problem for ide-scsi?
-AFAIR ide-cd does it so this is not a hardware limitation...
+--------------060307010609020305050804
+Content-Type: text/x-patch;
+ name="pcspkr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pcspkr.patch"
 
-Bartlomiej
+--- linux/drivers/input/misc/pcspkr.c	2004-10-18 23:54:32.000000000 +0200
++++ linux/drivers/input/misc/pcspkr.c	2004-11-05 15:08:57.000000000 +0100
+@@ -89,6 +89,8 @@
+ static void __exit pcspkr_exit(void)
+ {
+         input_unregister_device(&pcspkr_dev);
++	/* turn off the speaker */
++	pcspkr_event(NULL, EV_SND, SND_BELL, 0);
+ }
+ 
+ module_init(pcspkr_init);
+
+--------------060307010609020305050804--

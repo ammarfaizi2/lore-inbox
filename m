@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284728AbSALErh>; Fri, 11 Jan 2002 23:47:37 -0500
+	id <S284794AbSALE72>; Fri, 11 Jan 2002 23:59:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284752AbSALEr2>; Fri, 11 Jan 2002 23:47:28 -0500
-Received: from zero.tech9.net ([209.61.188.187]:63759 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S284728AbSALErO>;
-	Fri, 11 Jan 2002 23:47:14 -0500
-Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
-From: Robert Love <rml@tech9.net>
-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0201111832110.14335-100000@banaan.taco.dhs.org>
-In-Reply-To: <Pine.LNX.4.21.0201111832110.14335-100000@banaan.taco.dhs.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 11 Jan 2002 23:49:47 -0500
-Message-Id: <1010810997.1551.123.camel@phantasy>
+	id <S284809AbSALE7S>; Fri, 11 Jan 2002 23:59:18 -0500
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:1600 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S284794AbSALE7J>; Fri, 11 Jan 2002 23:59:09 -0500
+From: brian@worldcontrol.com
+Date: Fri, 11 Jan 2002 20:57:31 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CIPE vs. GPLONLY_
+Message-ID: <20020112045731.GA3788@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020112010317.GA1765@top.worldcontrol.com> <E16PD12-0000wY-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16PD12-0000wY-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23.2i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-01-11 at 12:33, Taco IJsselmuiden wrote:
-
-> OK, just booted (remote) with 2.5.2-pre11-H6 and it works !!!
+On Sat, Jan 12, 2002 at 01:31:24AM +0000, Alan Cox wrote:
+> > running CIPE 1.5.2 I get the error above.  Should I be bother the
+> > CIPE people with this?  Or is this some kernel thingy that needs
+> > to be dealt with?
 > 
-> haven't looked at the patch yet, but is sure fixed it for me ;)
-> let's hope the same goes for 2.4.x people...
+> Add
+> 
+> 	MODULE_LICENSE("GPL");
+> 
+> to the cipe code and all will be well
 
-The problem is 2.4-only afaik.  That said, I think H6 fixed it, so good
-luck.
+As I posted in another email. The above changed helped but I still
+had one undef'ed reference.
 
-	Robert Love
+I removed my linux source tree, rebuilt everything, and now it
+works fine.
 
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2002 By Brian Litzinger, All Rights Reserved

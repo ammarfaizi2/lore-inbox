@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbULITk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbULITn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbULITk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 14:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbULITk5
+	id S261594AbULITn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 14:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbULITn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 14:40:57 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:21992 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261589AbULITkw (ORCPT
+	Thu, 9 Dec 2004 14:43:59 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:9852 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261594AbULITn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 14:40:52 -0500
-Date: Thu, 9 Dec 2004 20:40:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041209194038.GB18840@elte.hu>
-References: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+	Thu, 9 Dec 2004 14:43:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:return-path:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=gttCik6jrPPQ+uhMn384HGO+r4lyYkd2OkgotQb8MwNBwy5MFx6tHb0wRbJef4L0E+uuUS8tFXp5lpjUq0ZEeC27tzNyV0YBoRq8MUa3HjLI1zONuyiWzc4+R3AwNm3zpKJcB0tDUagXF4785EtPazn4nMmETtnUzKowGOJBuHg=
+Message-ID: <41B8AAF9.6000807@gmail.com>
+Date: Thu, 09 Dec 2004 21:43:53 +0200
+From: Matan Peled <chaosite@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rich turner <rich@storix.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: initrd and fc3
+References: <1102620480.19320.8.camel@rich>
+In-Reply-To: <1102620480.19320.8.camel@rich>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+rich turner wrote:
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+>i am testing fc3 by using an old-school initrd. by old-school i mean not
+>the new initramfs/cpio type initrd. the process i use to create the
+>initrd works for all other distributions (suse, mandrake, debian, fc2,
+>2.2.x, 2.4.x, 2.6.x, etc) but fails with fc3 (2.6.9-1.667).
+>
+>upon system boot, the kernel executes, checks to see if the initrd is
+>initramfs (it isnt), finds the initrd (ext2), mounts it, and then
+>immediately exits without executing linuxrc.
+>
+>anyone have any ideas as to why linuxrc is not being executed?
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+You pretty much deduced the bug is in FC3, and not the general kernel...
 
-> >> Yes, but then I have ALL the IRQ's at the highest priority (plus a
-> >> couple other /0 and /1 tasks). [...]
-> >
-> > that is the fundamental problem i believe: your 'CPU loop' gets 
-> > delayed by them.
-> 
-> They should not get delayed by them any more than in the
-> PREEMPT_DESKTOP configuration [...]
+So why exactly is this on topic on LKML?
 
-just to make sure we are talking about the same thing. Do you mean
-PREEMPT_DESKTOP with IRQ threading disabled?
 
-	Ingo
+Is the bug reproducible on a vanilla kernel.org kernel?
+
+- Mif
+

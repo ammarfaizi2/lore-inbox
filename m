@@ -1,65 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265613AbTFWXLl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 19:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbTFWXJ2
+	id S265539AbTFWXNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 19:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbTFWXL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 19:09:28 -0400
-Received: from cmsrelay01.mx.net ([165.212.11.110]:8187 "HELO
-	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S265573AbTFWXIN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 19:08:13 -0400
-X-USANET-Auth: 165.212.8.8     AUTO bradtilley@usa.net uwdvg008.cms.usa.net
-Date: Mon, 23 Jun 2003 19:22:16 -0400
-From: Brad Tilley <bradtilley@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [OS Fails to Load]
-X-Mailer: USANET web-mailer (CM.0402.5.6)
+	Mon, 23 Jun 2003 19:11:59 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:50383 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265544AbTFWWvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 18:51:10 -0400
+Date: Mon, 23 Jun 2003 16:05:16 -0700
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4 IrDA] Export CRC routine to drivers
+Message-ID: <20030623230516.GE12593@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Message-ID: <868HFwXwq9072S08.1056410536@uwdvg008.cms.usa.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please disregard these messages. I think this is a RH specific startup script
-issue and not a kernel issue. Sorry for the inconvenience.
+	Hi Marcelo,
 
-Brad Tilley <bradtilley@usa.net> wrote:
-> Hello,
-> 
-> 50% of the time when I boot RH Linux 9 (2.4.20-18.9) the OS fails to load.
-The
-> failure usually occurs during a period of intense disk activity such as
-> 'finding module dependencies' or 'mounting local filesystems'. I can
-reproduce
-> this error with the most recent RH kernel and the kernel that the distro
-> originally shipped with and 2.4.21 from Kernel.org built using RH's config
-> files. Usually after 4-5 power cycles, the OS loads OK and the machine runs
-> fine once it gets going.
-> 
-> It's a HP xw4100 with these specs:
-> 
-> P4 Processor 3.00GHz/800 FSB
-> 1.5GB DDR/400 ECC (2x512, 2x256)
-> NVIDIA Quadro4 200NVS 64MB AGP
-> Ultra320 SCSI Controller
-> 18GB Ultra 320 SCSI 15,000rpm Hard Drive (sda)
-> 146GB Ultra 320 SCSI 10,000rpm Hard Drive (sdb)
-> 48X DVD/CDRW Combo Drive
-> 48X CD-RW Drive
-> Broadcom Gbit 10/100/1000
-> 
-> Can someone help me troubleshoot this? I'm at the end of my rope. I have
-the
-> most recent BIOS from HP.
-> 
-> 
-> Thanks,
-> Brad
-> 
-> 
-> 
+	This export avoid users to duplicate this code. Driver fixes
+will come later on.
+	Please apply ;-)
+
+	Jean
 
 
+ir241_export_crc-3.diff :
+-----------------------
+	o [FEATURE] Export CRC16 helper so that drivers can use it
+
+
+diff -u -p linux/include/net/irda/crc.d3.h linux/include/net/irda/crc.h
+--- linux/include/net/irda/crc.d3.h	Mon Dec  2 16:02:41 2002
++++ linux/include/net/irda/crc.h	Mon Dec  2 16:03:58 2002
+@@ -28,6 +28,6 @@ static inline __u16 irda_fcs(__u16 fcs, 
+ }
+ 
+ /* Recompute the FCS with len bytes appended. */
+-unsigned short crc_calc( __u16 fcs, __u8 const *buf, size_t len);
++unsigned short irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len);
+ 
+ #endif
+diff -u -p linux/net/irda/crc.d3.c linux/net/irda/crc.c
+--- linux/net/irda/crc.d3.c	Mon Dec  2 16:02:53 2002
++++ linux/net/irda/crc.c	Mon Dec  2 16:03:58 2002
+@@ -57,7 +57,7 @@ __u16 const irda_crc16_table[256] =
+ 	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+ };
+ 
+-unsigned short crc_calc( __u16 fcs, __u8 const *buf, size_t len) 
++unsigned short irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len) 
+ {
+ 	while (len--)
+                 fcs = irda_fcs(fcs, *buf++);
+diff -u -p linux/net/irda/irsyms.d3.c linux/net/irda/irsyms.c
+--- linux/net/irda/irsyms.d3.c	Mon Dec  2 16:03:22 2002
++++ linux/net/irda/irsyms.c	Mon Dec  2 16:04:38 2002
+@@ -44,6 +44,7 @@
+ #include <net/irda/wrapper.h>
+ #include <net/irda/timer.h>
+ #include <net/irda/parameters.h>
++#include <net/irda/crc.h>
+ 
+ extern struct proc_dir_entry *proc_irda;
+ 
+@@ -158,6 +159,8 @@ EXPORT_SYMBOL(irda_task_delete);
+ 
+ EXPORT_SYMBOL(async_wrap_skb);
+ EXPORT_SYMBOL(async_unwrap_char);
++EXPORT_SYMBOL(irda_calc_crc16);
++EXPORT_SYMBOL(irda_crc16_table);
+ EXPORT_SYMBOL(irda_start_timer);
+ EXPORT_SYMBOL(setup_dma);
+ EXPORT_SYMBOL(infrared_mode);
 

@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266438AbTATSVA>; Mon, 20 Jan 2003 13:21:00 -0500
+	id <S266473AbTATSZG>; Mon, 20 Jan 2003 13:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266443AbTATSVA>; Mon, 20 Jan 2003 13:21:00 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:40681 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S266438AbTATSU7>;
-	Mon, 20 Jan 2003 13:20:59 -0500
-Date: Mon, 20 Jan 2003 10:30:03 -0800
-To: irda-users@lists.sourceforge.net,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: irport_net_open issue in 2.5.59
-Message-ID: <20030120183003.GA7798@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S266528AbTATSZG>; Mon, 20 Jan 2003 13:25:06 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:60315 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S266473AbTATSZE>; Mon, 20 Jan 2003 13:25:04 -0500
+Date: Mon, 20 Jan 2003 10:41:35 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: pci_set_mwi() ... why isn't it used more?
+To: linux-kernel@vger.kernel.org
+Message-id: <3E2C42DF.1010006@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi wrote :
-> 
-> [crossposted to IrDA-users and l-k]
+I was looking at some new hardware and noticed that it's
+got explicit support for the PCI Memory Write and Invalidate
+command ... enabled (in part) under Linux by pci_set_mwi().
 
-	Hum... This means that the IrDA mailing list archive is broken
-again. Thanks SourceForge.
+However, very few Linux drivers use that routine.  Given
+that it can lead to improved performance, and that devices
+don't have to implement that enable bit, I'm curious what
+the story is...
 
-> The quest to set up properly (or give up where not possible) my new
-> Dell Latitude C640 is moving forward... next target, IrDA. This
-> laptop has a chip that is not detected by the 'findchip' tool but is
-> detected by kernel code (SMC LPC47N252).
+  - Just laziness or lack-of-education on the part of
+    driver writers?
 
-	Ok.
+  - Iffy upport in motherboard chipsets or CPUs?  If so,
+    which ones?
 
-> When irport is loaded (or perhaps when irattach is run), the module
-> complains saying
-> 
-> irport_net_open(), unable to allocate irq=0
-> 
-> It does load, but as expected it doesn't seem to work - irdadump
-> doesn't come up with any line at all.
+  - Flakey support in PCI devices, so that enabling it
+    leads to trouble?
 
-	Personally, I've never managed to make irport work, and I know
-that in 2.5.X it's worse.
-	But, the message above indicate that you fed the driver with
-improper module options. Try to set the proper irq, that would help.
-	Also, Daniele did lot's of work on the new SMC driver (smsc2,
-available on my web page). Maybe you could test this one.
+  - Something else?
 
-> Any hints ? Thanks in advance, ciao,
-> 
-> --alessandro
+  - Combination of all the above?
 
-	Good luck...
+Briefly, MWI can avoid some cache flushes, thereby reducing
+memory bus contention.  It can also enable longer PCI bursts
+(since the dma master won't stop writing mid-cacheline).
 
-	Jean
+And calling pci_set_mwi() makes sure that the device knows
+the correct cache line size, which can make Memory Read
+Multiple (and Memory Read Line) commands work better (also
+with longer PCI bursts) by hinting to bridges when prefetch
+would be a Fine Thing ... likewise reducing memory bus
+contention.  Those benefits can happen even if the hardware
+doesn't support MWI; on my systems I noticed that the
+cacheline size is always set too small by default, which
+seems like a PCI initialization bug.
+
+So what's the story ... is there some reason Linux isn't
+trying to enable such PCI features more often?  And why
+it doesn't set the cacheline size correctly by default?
+
+- Dave
 

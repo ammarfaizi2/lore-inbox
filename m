@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVB1Ux3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVB1UzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVB1Ux3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVB1Ux3
+	id S261737AbVB1UzX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVB1UzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:53:29 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49581 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261613AbVB1Ux1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:53:27 -0500
-Date: Mon, 28 Feb 2005 12:52:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix few remaining u32 vs. pm_message_t issues
-Message-ID: <20050228205251.GA22844@kroah.com>
-References: <20050228201536.GA12861@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050228201536.GA12861@elf.ucw.cz>
-User-Agent: Mutt/1.5.8i
+	Mon, 28 Feb 2005 15:55:22 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:52789 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261737AbVB1UzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 15:55:11 -0500
+Date: Mon, 28 Feb 2005 20:53:41 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Chris Wright <chrisw@osdl.org>
+cc: Darren Hart <dvhltc@us.ibm.com>, akpm@osdl.org, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow vma merging with mlock et. al.
+In-Reply-To: <20050228203307.GL15867@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.61.0502282051100.28577@goblin.wat.veritas.com>
+References: <421E74B5.3040701@us.ibm.com> 
+    <20050225171122.GE28536@shell0.pdx.osdl.net> 
+    <20050225220543.GC15867@shell0.pdx.osdl.net> 
+    <Pine.LNX.4.61.0502261626330.20871@goblin.wat.veritas.com> 
+    <20050228203307.GL15867@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28, 2005 at 09:15:36PM +0100, Pavel Machek wrote:
-> Hi!
+On Mon, 28 Feb 2005, Chris Wright wrote:
 > 
-> -mm is pretty good in u32 vs. pm_message_t area, there are only few
-> -places missing. Some of them are in usb (and already on their way
-> -through greg), this should fix the rest. Only code change is
-> -pci_choose_state in savagefb. Please apply,
+> Successive mlock/munlock calls can leave fragmented vmas because they can
+> be split but not merged.  Give mlock et. al. full vma merging support.
+> While we're at it, move *pprev assignment above first split_vma in
+> mprotect_fixup to keep it in step with mlock_fixup (which for mlockall
+> ignores errors yet still needs a valid prev pointer).
+> 
+> Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-If you split out the drivers/base/* and the drivers/pci/* ones I'll add
-those to my trees too.
-
-thanks,
-
-greg k-h
+Acked-by: Hugh Dickins <hugh@veritas.com>

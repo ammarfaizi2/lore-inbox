@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262658AbREOGl5>; Tue, 15 May 2001 02:41:57 -0400
+	id <S262653AbREOGmR>; Tue, 15 May 2001 02:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262657AbREOGlh>; Tue, 15 May 2001 02:41:37 -0400
-Received: from smtp2.Stanford.EDU ([171.64.14.116]:63616 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S262653AbREOGl0>; Tue, 15 May 2001 02:41:26 -0400
-From: "Victor Wong" <victor.wong@stanford.edu>
-To: <dhinds@users.sourceforge.net>, <torvalds@transmeta.com>,
-        <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pcmcia/rsrc_mgr.c
-Date: Mon, 14 May 2001 23:40:58 -0700
-Message-ID: <NDBBLHPAGLNBKNHFNOOGCEHECKAA.victor.wong@stanford.edu>
+	id <S262657AbREOGmI>; Tue, 15 May 2001 02:42:08 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19731 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262653AbREOGly>; Tue, 15 May 2001 02:41:54 -0400
+Date: Mon, 14 May 2001 23:41:15 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <15104.17957.253821.765483@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.21.0105142332550.23955-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The following is a patch to the pcmcia code in which a kmalloc failure could
-cause the code to crash since the pointer is dereferenced. I've instead
-allocated the fixed sized array on the stack. The patch was made against
-v2.4.4 of the kernel and result from some errors found during checker runs
-against the kernel source.
+On Tue, 15 May 2001, Neil Brown wrote:
+> 
+> I want to create a new block device - it is a different interface to
+> the software-raid code that allows the arrays to be partitioned using
+> normal partition tables.
 
-Victor Wong
-victor.wong@stanford.edu
+See the other posts about creating a "disk" layer. Think of it as just a
+simple "lvm" thing, except on a higher level (ie not on the request level,
+but on the level _before_ we get to queuing the thing at all).
 
---- drivers/pcmcia/rsrc_mgr.c.orig	Mon May  7 00:39:20 2001
-+++ drivers/pcmcia/rsrc_mgr.c	Mon May  7 00:40:29 2001
-@@ -182,13 +182,12 @@
- {
+Plug the thing in at "__blk_get_queue()", and you're done.
 
-     ioaddr_t i, j, bad, any;
--    u_char *b, hole, most;
-+    u_char b[256], hole, most;
+> So I need a major number - to give to devfs_register_blkdev at least.
+> You don't want me to have a hardcoded one (which is fine) so I need a
+> dynamically allocated one - yes?
 
-     printk(KERN_INFO "cs: IO port probe 0x%04x-0x%04x:",
- 	   base, base+num-1);
+If you are willing to use devfs, you can just use a major nr of zero, and
+devfs will allocate a device for you. 
 
-     /* First, what does a floating port look like? */
--    b = kmalloc(256, GFP_KERNEL);
-     memset(b, 0, 256);
-     for (i = base, most = 0; i < base+num; i += 8) {
- 	if (check_io_resource(i, 8))
-@@ -200,7 +199,6 @@
- 	    most = hole;
- 	if (b[most] == 127) break;
-     }
--    kfree(b);
+Not everybody likes devfs, and there are bootstrap issues with this
+approach, but it is the simple "get things working quickly" approach that
+needs _zero_ changes or infrastructure.
 
-     bad = any = 0;
-     for (i = base; i < base+num; i += 8) {
+> This means that we need some analogue to {get,put}_unnamed_dev that
+> manages a range of dynamically allocated majors.
+
+We already do have that. And have had it for a long time. It's pretty much
+been part of "register_blkdev()" since day one (not quite true, but I bet
+that code has been there since the days of Linux-1.0.x). 
+
+You just pass in a major number of zero to "register_blkdev()", and it
+will make one up for you.
+
+devfs inherited this behaviour from the first version, I think.
+
+> Am I missing something obvious here?
+
+The fact that it already exists, and has existed for 5+ years, but that
+nobody really uses it?
+
+Nobody really uses it because it would require you to add a line or two to
+your init scripts to pick up the major number from /proc/devices, and
+that's obviously too hard. Much better to just hardcode randome numbers,
+right?
+
+		Linus
 

@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262006AbTCPCNj>; Sat, 15 Mar 2003 21:13:39 -0500
+	id <S262100AbTCPCnO>; Sat, 15 Mar 2003 21:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262038AbTCPCNj>; Sat, 15 Mar 2003 21:13:39 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:48516 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262006AbTCPCNj>; Sat, 15 Mar 2003 21:13:39 -0500
-Date: Sat, 15 Mar 2003 18:24:20 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: colpatch@us.ibm.com, James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262132AbTCPCnO>; Sat, 15 Mar 2003 21:43:14 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:23745 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S262100AbTCPCnN>; Sat, 15 Mar 2003 21:43:13 -0500
+Date: Sat, 15 Mar 2003 20:53:56 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, <colpatch@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] NUMAQ subarchification
-Message-ID: <1650000.1047781459@[10.10.2.4]>
-In-Reply-To: <1047776836.1327.11.camel@irongate.swansea.linux.org.uk>
-References: <1047676332.5409.374.camel@mulgrave> <3E7284CA.6010907@us.ibm.com> <3E7285E7.8080802@us.ibm.com> <247240000.1047693951@flay> <1047776836.1327.11.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+In-Reply-To: <1047750799.1964.72.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44.0303152036250.27065-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> No, *please* don't do this. Subarch for .c files is *broken*.
->> Last time I looked (and I don't think anyone has fixed it since) 
->> it requires copying files all over the place, making an unmaintainable
->> nightmare. Either subarch needs fixing first, or we don't use it.
+On 15 Mar 2003, James Bottomley wrote:
+
+> It is the place designed for code belonging only to one subarch.
 > 
-> It was fixed in about 2.5.50-ac. I thought Linus had picked up the 
-> improved version of mach-default* too. Its used extensively for stuff
-> like PC9800 which is deeply un-PC
+> > Last time I looked (and I don't think anyone has fixed it since) 
+> > it requires copying files all over the place, making an unmaintainable
+> > nightmare. Either subarch needs fixing first, or we don't use it.
 
-Cool, if that's in mainline, we're set ... if not, I guess we need to
-pull it out and steal it ;-)
+I agree that duplicating files into different subarch dirs sure isn't the 
+way to go.
 
-M.
+> The problem you have (your setup.c and topology.c are identical to the
+> default) was originally going to be solved using VPATH.  Unfortunately,
+> that got broken along the way in the new build scheme, so the best I
+> think you can do is add this to the summit Makefile
+
+I think VPATH has never been meant to be used for anything like this, it 
+could be make to work, though it would interfere with the separate src/obj 
+thing. But I don't think it's a good idea, we'll have object files 
+magically appear without any visible source file, that's just too obscure.
+
+I can basically see two options at this point:
+
+> $(obj)/setup.c: $(src)/../mach-default/setup.c
+> 	cat $< $@
+
+Something like this, but using ln -sf would be nicer, since that avoids 
+someone editing the wrong file by mistake.
+
+Or:
+
+Make the build enter mach-default always. However, make compilation of
+setup.c and topology.c conditional on CONFIG_X86_DEFAULT_SETUP and
+CONFIG_X86_DEFAULT_TOPOLOGY (or combine those two into one config
+variable). Then, you'll have to deal with those two variables explicitly
+from Kconfig. Basically, set them to n for voyager and visws, y otherwise.
+
+Yes, that means changing another line in Kconfig when you add a new 
+subarch, but that doesn't happen all that frequently. And it's sure better 
+than crashes on boot because your setup.c disappeared after a bk commit 
+and the build chose to use the mach-default one instead...
+
+--Kai
+
 

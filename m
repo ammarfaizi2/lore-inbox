@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272832AbTHKQqV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 12:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272837AbTHKQqV
+	id S272781AbTHKQlw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 12:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272799AbTHKQlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 12:46:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33447 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272832AbTHKQqP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 12:46:15 -0400
-Date: Mon, 11 Aug 2003 09:43:04 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [RFC] file extents for EXT3
-Message-Id: <20030811094304.10369817.rddunlap@osdl.org>
-In-Reply-To: <3F3791C8.4090903@pobox.com>
-References: <m3ptjcabey.fsf@bzzz.home.net>
-	<3F3791C8.4090903@pobox.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 11 Aug 2003 12:41:51 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:24731 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272781AbTHKQke
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 12:40:34 -0400
+Date: Mon, 11 Aug 2003 09:40:12 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: davej@redhat.com
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+Message-ID: <20030811164012.GB858@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>, davej@redhat.com,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org,
+	dri-devel@lists.sourceforge.net
+References: <E19mF4Y-0005Eg-00@tetrachloride>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E19mF4Y-0005Eg-00@tetrachloride>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003 08:53:28 -0400 Jeff Garzik <jgarzik@pobox.com> wrote:
+A few comments on why I don't like this patch:
+    1) It's a formatting only patch.  That screws over people who are using
+       BK for debugging, now when I double click on these changes I'll get
+       to your cleanup patch, not the patch that was the last substantive
+       change.
+    2) "if (expr) statement;" really ought to be considered legit coding style.
+       It's a one line "shorty" and it lets you see more of the code on a 
+       screen.
+    
+On the other hand, the author carried things too far when they did
 
-| Alex Tomas wrote:
-| > hello all!
-| > 
-| > there are several problems with old good method ext2/ext3
-| > use to store map of block for an inode. for example, ext3's
-| > truncate is quite slow. I think extents could solve this
-| > and some other troubles. so ...
-| > 
-| > 
-| > in fact, design is taken from htree modern ext2/ext3 uses. in constrast with
-| > htree, it isn't backward-compatible.
-| 
-| Neat.  I really like extents, and think this is the best long-term 
-| approach.  Apparently the ext3 maintainers do, too, because tytso/sct's 
-| "ext roadmap" paper publishing a while ago describes extents, too.  (I 
-| wish I had a URL for that)
+	if (expr) statement;
+	else	  statement;
 
-like this?  http://www.usenix.org/publications/library/proceedings/usenix02/tech/freenix/tso.html
-
-
---
-~Randy				For Linux-2.6, see:
-http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt
+that's too hard for your eyes to parse quickly IMO.

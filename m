@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUHIGTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUHIGcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266139AbUHIGTt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 02:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUHIGTt
+	id S266166AbUHIGcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 02:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUHIGcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 02:19:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30619 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266139AbUHIGTs (ORCPT
+	Mon, 9 Aug 2004 02:32:16 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:55012 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S266166AbUHIGcO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 02:19:48 -0400
-Date: Sun, 8 Aug 2004 23:15:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Hollis Blanchard <hollisb@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cross-depmod?
-Message-ID: <20040809061530.GA13528@kroah.com>
-References: <1091742716.28466.27.camel@localhost> <20040806154211.GB7331@mars.ravnborg.org> <1091963200.27202.10.camel@bach>
+	Mon, 9 Aug 2004 02:32:14 -0400
+Date: Mon, 9 Aug 2004 08:32:12 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James Morris <jmorris@redhat.com>, David Howells <dhowells@redhat.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       dwmw2@infradead.org, greg@kroah.com, Chris Wright <chrisw@osdl.org>,
+       sfrench@samba.org, mike@halcrow.us,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] implement in-kernel keys & keyring management
+Message-ID: <20040809063212.GA16123@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Linus Torvalds <torvalds@osdl.org>,
+	James Morris <jmorris@redhat.com>,
+	David Howells <dhowells@redhat.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, arjanv@redhat.com, dwmw2@infradead.org,
+	greg@kroah.com, Chris Wright <chrisw@osdl.org>, sfrench@samba.org,
+	mike@halcrow.us, Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Kyle Moffett <mrmacman_g4@mac.com>
+References: <Xine.LNX.4.44.0408082041010.1123-100000@dhcp83-76.boston.redhat.com> <Pine.LNX.4.58.0408082114230.1832@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091963200.27202.10.camel@bach>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.58.0408082114230.1832@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 09:05:11AM +1000, Rusty Russell wrote:
-> 
-> I was always planning on doing this after we got rid of the modules.map
-> files, but that never happened due to reluctance from other people to
-> transition, and I didn't fight them.
+On Sun, Aug 08, 2004 at 09:27:15PM -0700, Linus Torvalds wrote:
 
-The reluctance was just not-enough-time to update the hotplug scripts.
+> Yes. However, I don't see that the kernel really would ask for new keys 
+> very often.  Any normal operation is that you have the key already.
 
-However, if you forced the issue and took away the files, making me fix
-the hotplug scripts, that might just cause it to happen a lot sooner :)
+Key might not be there though, leading to many repeated requests. Three
+points:
 
-thanks,
+1) A netlink binary "server" looks a hell of a lot like a nameserver, and
+those are a roaring success in terms of stability and performance. When
+considering nameservers other than bind, I'd also add security and leanness
+to that list.
 
-greg k-h
+2) One can also send text over datagrams (think SIP)
+
+3) Debugging netlink communications is actually not that hard as other
+processes can listen in on netlink communications given certain settings,
+think 'netlinkdump'. Especially easy when doing ASCII over netlink!
+
+Bert.
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

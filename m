@@ -1,46 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbULYCHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbULYCOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbULYCHw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 21:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbULYCHw
+	id S261471AbULYCOe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 21:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbULYCOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 21:07:52 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:62336 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S261470AbULYCHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 21:07:38 -0500
-Date: Sat, 25 Dec 2004 03:07:07 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Robert_Hentosh@Dell.com, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Message-ID: <20041225020707.GQ13747@dualathlon.random>
-References: <Pine.LNX.4.61.0412201013080.13935@chimarrao.boston.redhat.com> <20041220125443.091a911b.akpm@osdl.org> <Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com> <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com> <20041224164024.GK4459@dualathlon.random> <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 24 Dec 2004 21:14:34 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:32456 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S261471AbULYCOb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 21:14:31 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 xfs segfault on boot startup?
+Date: Fri, 24 Dec 2004 21:14:27 -0500
+User-Agent: KMail/1.7
+Cc: Lee Revell <rlrevell@joe-job.com>
+References: <200412241942.36264.gene.heskett@verizon.net> <1103935821.9525.1.camel@krustophenia.net>
+In-Reply-To: <1103935821.9525.1.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Message-Id: <200412242114.27539.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.45.252] at Fri, 24 Dec 2004 20:14:30 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 24, 2004 at 05:12:32PM -0500, Rik van Riel wrote:
-> The process 'dd', and all the other processes, live in
-> the highmem zone, which has 2.5GB of memory free. Now
-> tell me again why you think the swap token has any
-> relevance to those 950MB of pagecache that is filling
-> up lowmem ?
+On Friday 24 December 2004 19:50, Lee Revell wrote:
+>On Fri, 2004-12-24 at 19:42 -0500, Gene Heskett wrote:
+>> Greetings all;
+>>
+>> I just rebooted to a "still got that new car smell" fresh 2.6.10,
+>> and this went by on the boot screen while it was starting the
+>> various services in init.d:
+>>
+>> Starting xfs: /etc/rc3.d/S90xfs: line 137:  2377 Segmentation
+>> fault ttmkfdir -d . -o fonts.scale
+>> /etc/rc3.d/S90xfs: line 137:  2404 Segmentation fault     
+>> ttmkfdir -d . -o fonts.scale
+>
+>If that was a kernel problem you would probably have an Oops.
+>
+>Lee
 
-If 2.5G of ram is really free, then how can the oom killer be invoked in
-the first place? If that happens it means you're under a lowmem
-shortage, something you apparently ruled out when you said
-lowmem_reserve couldn't help your workload.
+The closest thing I can see in the logs is a few of these:
 
-If you would post a vmstat before and after the oom killing plus the
-exact oom killer syslog dump, it would help to see what's going on.
+Dec 24 19:27:00 coyote Xprt_33: lpstat: Unable to connect to server: Connection refused
+Dec 24 19:27:01 coyote Xprt_33: Could not init font path element /usr/share/fonts, removing from list!
+Dec 24 19:27:01 coyote Xprt_33: Could not init font path element /usr/share/fonts/msfonts, removing from list!
+Dec 24 19:27:01 coyote Xprt_33: Could not init font path element /usr/X11R6/lib/X11/fonts, removing from list!
+Dec 24 19:27:01 coyote Xprt_33: Could not init font path element /usr/X11R6/lib/X11/fonts/latin2, removing from list!
+Dec 24 19:27:01 coyote Xprt_33: Could not init font path element /usr/X11R6/lib/X11/fonts/local, removing from list!
+Dec 24 19:27:01 coyote Xprt_33: Could not init font path element /usr/X11R6/lib/X11/fonts/OTF, removing from list!
+Dec 24 19:27:01 coyote Xprt_33: Could not init font path element /usr/X11R6/lib/X11/fonts/util, removing from list!
 
-I sure can't reproduce your problem here with 2.6.10-rc3 + the 4 patches
-I posted (so with swap-token disabled).
+But, this isn't unusual, its just telling me I've been moving fonts
+around.  Someday, when I've got nothing better to do, I'm going to
+clean house in whatever font list its using by combining them all
+into one fonts dir, and then lndir that to all the other places
+the various programs ordinarily look for fonts.  Frankly its a
+mess, possibly partly of my own doing because for a while I actually
+believed that I could just drop them into ~/fonts and they would work.
+
+Sure, and pigs fly too...  With enough dynamite maybe.
+
+I hope you all have a very Merry Christmas.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266346AbUAVVVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 16:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUAVVVx
+	id S266495AbUAVUci (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 15:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266496AbUAVUci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 16:21:53 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:24786 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266346AbUAVVVv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 16:21:51 -0500
-Subject: Re: 2.6.1 "clock preempt"?
-From: john stultz <johnstul@us.ibm.com>
-To: timothy parkinson <t@timothyparkinson.com>
-Cc: hauan@cmu.edu, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com>
-References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
-	 <1074633977.16374.67.camel@cog.beaverton.ibm.com>
-	 <1074697593.5650.26.camel@steinar.cheme.cmu.edu>
-	 <1074709166.16374.73.camel@cog.beaverton.ibm.com>
-	 <20040122193704.GA552@h00a0cca1a6cf.ne.client2.attbi.com>
-	 <1074800554.21658.68.camel@cog.beaverton.ibm.com>
-	 <20040122195026.GA579@h00a0cca1a6cf.ne.client2.attbi.com>
-	 <1074801242.21658.71.camel@cog.beaverton.ibm.com>
-	 <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com>
-Content-Type: text/plain
-Message-Id: <1074806504.21658.76.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 22 Jan 2004 13:21:45 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jan 2004 15:32:38 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:37296 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266495AbUAVUcg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 15:32:36 -0500
+Date: Fri, 23 Jan 2004 09:34:19 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: 2.6.2-rc1
+In-reply-to: <40103160.5070304@earthlink.net>
+To: sclark46@earthlink.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1074803658.12774.143.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-oyxju3Wl5BoZuh7Y0EGa";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <40103160.5070304@earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-22 at 12:00, timothy parkinson wrote:
-> su -c "/usr/sbin/hdparm /dev/hda"
-> Password:
-> 
-> /dev/hda:
->  multcount    = 16 (on)
->  IO_support   =  1 (32-bit)
->  unmaskirq    =  0 (off)
->  using_dma    =  0 (off)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 256 (on)
->  geometry     = 65535/16/63, sectors = 156301488, start = 0
-> 
-> but...
-> 
-> su -c "/usr/sbin/hdparm -d1 /dev/hda"
-> Password:
-> 
-> /dev/hda:
->  setting using_dma to 1 (on)
->  HDIO_SET_DMA failed: Operation not permitted
->  using_dma    =  0 (off)
-> 
-> it's an 80gig western digital from about 2-3 years ago.
 
-Its likely you need to enable support in the kernel for your IDE
-controller, or your DMA on your controller isn't supported. 
+--=-oyxju3Wl5BoZuh7Y0EGa
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-thanks
--john
+Hi.
+
+Does .config include CONFIG_SWAP (in config it's called "Support for
+paging of anonymous memory", found under 'General Setup').
+
+Nigel
+
+On Fri, 2004-01-23 at 09:24, Stephen Clark wrote:
+> Any ideas why my swapon from rh9 won't work?
+
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+
+--=-oyxju3Wl5BoZuh7Y0EGa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAEDPKVfpQGcyBBWkRAnZoAJ9nuJBilejTFClzIiTylj5FfW+O3ACgk13H
+HYoQvcbTI7+ErCgTOwllQbY=
+=GEAr
+-----END PGP SIGNATURE-----
+
+--=-oyxju3Wl5BoZuh7Y0EGa--
 

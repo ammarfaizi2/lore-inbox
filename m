@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVAMUvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVAMUXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVAMUvI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVAMUux
+	id S261468AbVAMUXI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVAMTjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:50:53 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:28389 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261383AbVAMUt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:49:29 -0500
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: brking@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113202354.GA67143@muc.de>
-References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com>
-	 <m14qhpxo2j.fsf@muc.de> <41E2AC74.9090904@us.ibm.com>
-	 <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com>
-	 <1105454259.15794.7.camel@localhost.localdomain>
-	 <20050111173332.GA17077@muc.de>
-	 <1105626399.4664.7.camel@localhost.localdomain>
-	 <20050113180347.GB17600@muc.de>
-	 <1105641991.4664.73.camel@localhost.localdomain>
-	 <20050113202354.GA67143@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105645491.4624.114.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 14:39:05 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:63704 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261347AbVAMTfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:35:22 -0500
+Date: Thu, 13 Jan 2005 11:35:16 -0800
+From: "H. J. Lu" <hjl@lucon.org>
+To: "Allan B. Cruse" <cruse@cs.usfca.edu>, binutils@sources.redhat.com
+Cc: gcc@gcc.gnu.org, GNU C Library <libc-alpha@sources.redhat.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Change i386 assembler/disassembler for SIB with INDEX==4
+Message-ID: <20050113193516.GA441@lucon.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 19:44:52 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 20:23, Andi Kleen wrote:
-> > X needs to be able to find the device layout in order to build its PCI
-> > mappings. Cached data is probably quite sufficient for this.
-> 
-> I mean i would expect it to continue scanning other entries when it sees
-> an error on one.  Is that not true?
+I am proposing to change i386 assembler/disassembler for SIB with
+INDEX==4
 
-X needs to be able to find the device layout in order to build its PCI
-mappings. If there are things mysteriously vanishing now and then its
-not going to have valid mappings
+http://sources.redhat.com/bugzilla/show_bug.cgi?id=658
 
+It will change the assembler output for (%ebx,[1248]). I am not too
+worried about the disassembler output since assembler can't generate
+SIB with INDEX==4 directly today. Any comments?
+
+
+H.J.

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291624AbSB0LhW>; Wed, 27 Feb 2002 06:37:22 -0500
+	id <S291314AbSB0L40>; Wed, 27 Feb 2002 06:56:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292326AbSB0LhN>; Wed, 27 Feb 2002 06:37:13 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:40066 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291624AbSB0Lg6> convert rfc822-to-8bit;
-	Wed, 27 Feb 2002 06:36:58 -0500
-Date: Wed, 27 Feb 2002 03:34:55 -0800 (PST)
-Message-Id: <20020227.033455.13771237.davem@redhat.com>
-To: linux-kernel@vger.kernel.org, tlan@stud.ntnu.no
-Cc: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
+	id <S292346AbSB0L4Q>; Wed, 27 Feb 2002 06:56:16 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:60125 "EHLO due.stud.ntnu.no")
+	by vger.kernel.org with ESMTP id <S291314AbSB0L4N>;
+	Wed, 27 Feb 2002 06:56:13 -0500
+Date: Wed, 27 Feb 2002 12:56:11 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        linux-net@vger.kernel.org
 Subject: Re: [BETA] First test release of Tigon3 driver
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020227120549.A8734@stud.ntnu.no>
-In-Reply-To: <20020226164044.A7726@stud.ntnu.no>
-	<20020226.185630.104030430.davem@redhat.com>
-	<20020227120549.A8734@stud.ntnu.no>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20020227125611.A20415@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020226164044.A7726@stud.ntnu.no> <20020226.185630.104030430.davem@redhat.com> <20020227120549.A8734@stud.ntnu.no> <20020227.033455.13771237.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020227.033455.13771237.davem@redhat.com>; from davem@redhat.com on Wed, Feb 27, 2002 at 03:34:55AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Thomas Langås <tlan@stud.ntnu.no>
-   Date: Wed, 27 Feb 2002 12:05:49 +0100
-   
-   > If the module still fails to load because of the -EBUSY error (ie. the
-   > "read_partno returns -19" thing happens again), bring
-   > drivers/net/tg3.c into an editor and go to around line 4185 and change
-   > the line that reads:
-   >  [snipp]
-   > And see if it works then.  PLEASE type sync a few times before trying
-   > to load the module in this case as it could very well hang your
-   > machine.
-   
-   Didn't work, didn't hang the box either :)
+David S. Miller:
+> What did it print out when you changed the code to
+> be "while (1)"?  It must print something different.
 
-What did it print out when you changed the code to
-be "while (1)"?  It must print something different.
+Here's the output (counter is something I added inside the while (1)
+{}-loop, on top in that loop, it's unsigned int, set to 0 to start with):
 
+tg3.c:v0.90 (Feb 25, 2002)
+DEBUG: counter 6592
+DEBUG: smallest_limit is 10000
+DEBUG: read_partno returned -19
+tg3: Problem fetching invariants of chip, aborting.
+
+smallest_limit is naturally 10k since limit isn't decremented...
+
+-- 
+Thomas

@@ -1,92 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbTLCWM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 17:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTLCWM2
+	id S262174AbTLCWVt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 17:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTLCWVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 17:12:28 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:13184 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262109AbTLCWLW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 17:11:22 -0500
-Date: Wed, 3 Dec 2003 17:11:56 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Kendall Bennett <KendallB@scitechsoft.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <3FCDE5CA.2543.3E4EE6AA@localhost>
-Message-ID: <Pine.LNX.4.53.0312031648390.3725@chaos>
-References: <3FCDE5CA.2543.3E4EE6AA@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Dec 2003 17:21:49 -0500
+Received: from ppp-RAS1-4-75.dialup.eol.ca ([64.56.227.75]:5248 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S262174AbTLCWVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 17:21:44 -0500
+Date: Wed, 3 Dec 2003 17:21:45 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: USB + SMP (MPS 1.4) --> oops
+Message-ID: <20031203222145.GA673@node1.opengeometry.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Dec 2003, Kendall Bennett wrote:
+Dear USB developers:
 
-> Hi All,
->
-> I have heard many people reference the fact that the although the Linux
-> Kernel is under the GNU GPL license, that the code is licensed with an
-> exception clause that says binary loadable modules do not have to be
-> under the GPL. Obviously today there are vendors delivering binary
-> modules (not supported by the kernel maintainers of course), so clearly
-> people believe this to be true. However I was curious about the wording
-> of this exception clause so I went looking for it, but I cannot seem to
-> find it. I downloaded the 2.6-test1 kernel source code and looked at the
-> COPYING file, but found nothing relating to this (just the note at the
-> top from Linus saying user programs are not covered by the GPL). I also
-> looked in the README file and nothing was mentioned there either, at
-> least from what I could see from a quick read.
->
-> So does this exception clause exist or not? If not, how can the binary
-> modules be valid for use under Linux if the source is not made available
-> under the terms of the GNU GPL?
->
+With SMP linux-2.6.0-test11 and MPS 1.1, USB seems to work.  But, when I
+use MPS 1.4, which moves the PCI cards to irq=16-19, USB does not work.
+Furthermore, when I try do 'rmmod' or stop 'rc.hotplug', it hangs with
+the following:
 
-I'll jump into this fray first stating that it is really great
-that the CEO of a company that is producing high-performance graphics
-cards and acceleration software is interested in finding out this
-information. It seems that some other companies just hack together some
-general-purpose source-code under GPL and then link it with a secret
-object file. This, of course, defeats the purpose of the GPL (which is
-or was to PUBLISH software in human readable form).
+I can't make head or tail of it, but it's just for your reference...
 
-It is certainly time for a definitive answer.
+# sh /etc/rc.d/rc.hotplug stop
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c018fd86>]    Not tainted
+EFLAGS: 00010296
+EIP is at sysfs_get_dentry+0x16/0x70
+eax: 00000000   ebx: ddc7cad0   ecx: ffffffff   edx: 00000000
+esi: dd908de0   edi: 00000000   ebp: ddc7c624   esp: dd771e44
+ds: 007b   es: 007b   ss: 0068
+Process rmmod (pid: 521, threadinfo=dd770000 task=dde1b2f0)
+Stack: c016615f dd771e64 dd92d500 00000000 c018fdd5 dd771e64 dd6f47c0 ddc7cad0
+       ddc7c600 c018fe0b dd908de0 00000000 ddc7cad0 e1132ba0 c01cd298 dd908de0
+       00000000 ddc7cad0 ddc7c6d0 c01cd426 ddc7cad0 ddc7cb2c ddc7cad0 ddc7c6d0
+Call Trace:
+ [<c016615f>] lookup_hash+0x1f/0x30
+ [<c018fdd5>] sysfs_get_dentry+0x65/0x70
+ [<c018fe0b>] sysfs_hash_and_remove+0x2b/0x7f
+ [<c01cd298>] device_release_driver+0x28/0x70
+ [<c01cd426>] bus_remove_device+0x56/0xa0
+ [<c01cc2bf>] device_del+0x5f/0xb0
+ [<c01cc323>] device_unregister+0x13/0x30
+ [<e111cad9>] usb_disconnect+0xd9/0xf0 [usbcore]
+ [<e1124cb9>] usb_hcd_pci_remove+0x89/0x180 [usbcore]
+ [<c01a6b2b>] pci_device_remove+0x3b/0x40
+ [<c01cd2d6>] device_release_driver+0x66/0x70
+ [<c01cd30b>] driver_detach+0x2b/0x40
+ [<c01cd55e>] bus_remove_driver+0x3e/0x80
+ [<c01cd983>] driver_unregister+0x13/0x2a
+ [<c01a6cc2>] pci_unregister_driver+0x12/0x20
+ [<e1139fef>] uhci_hcd_cleanup+0xf/0x5e [uhci_hcd]
+ [<c0136b9c>] sys_delete_module+0x13c/0x180
+ [<c014bb25>] sys_munmap+0x45/0x70
+ [<c01094ef>] syscall_call+0x7/0xb
 
-Maybe Linus knows the answer.
+Code: f2 ae f7 d1 49 31 db 89 d7 89 4c 24 10 49 83 f9 ff 74 24 8d
+ /etc/hotplug/usb.rc: line 370:   521 Segmentation fault      rmmod uhci-hcd >/dev/null 2>&1
 
-> Lastly I noticed that the few source code modules I looked at to see if
-> the exception clause was mentioned there, did not contain the usual GNU
-> GPL preable section at the top of each file. IMHO all files need to have
-> such a notice attached, or they are not under the GNU GPL (just being in
-> a ZIP/tar achive with a COPYING file does not place a file under the GNU
-> GPL). Given all the current legal stuff going on with SCO, I figured
-> every file would have such a header. In fact some of the files I looked
-> at didn't even contain a basic copyright notice!!
->
-
-I have been told by lawyers who do intellectual property
-law for a living that under US Copyright law, the INSTANT
-that something is written anywhere in a manner that allows
-it to be read back, it is protected by the writer's default
-copyright protection. The writer may alter that protection or
-even assign ownership to something or somebody else, but nobody
-needs to  put a copyright notice anywhere in text. Now, if you
-intend to sue, before that suit starts, the text must be registered
-with the United States Copyright Office. In that case, it still
-doesn't need a copyright notice or the famous (c) specified by
-the act. It just needs to be identified by the writer, like:
-
-File:     TANGO.FOR        Created 12-DEC-1988     John R. Doe
-
-Grin... from my VAX/VMS days.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+Linux solution for data management and processing. 

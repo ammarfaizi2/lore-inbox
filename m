@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265531AbUGSV0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264229AbUGSV2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbUGSV0U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 17:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUGSV0L
+	id S264229AbUGSV2s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 17:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265544AbUGSV2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 17:26:11 -0400
-Received: from S140092.selcuk.edu.tr ([193.140.140.92]:59300 "EHLO
-	posta1.selcuk.edu.tr") by vger.kernel.org with ESMTP
-	id S264266AbUGSV0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 17:26:05 -0400
-Date: Thu, 22 Jul 2004 16:51:45 +0000 (GMT)
-From: Cristina Schroeder <uaknnghexi@macmegasite.com>
-Subject: o Loads h of f cool s software r
-To: countrygirl@pdq.net
-Reply-to: Cristina Schroeder <uaknnghexi@macmegasite.com>
-Message-id: <2vp6rov-8b243-8--$64457n4186y9j@3g9qi.fzaw3.52>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Content-type: multipart/alternative;
- boundary="Boundary_(ID_Us/sgTB1VRQWfHFIK2/jiw)"
-X-Priority: 3
-X-MSMail-priority: Normal
+	Mon, 19 Jul 2004 17:28:48 -0400
+Received: from mailer.nec-labs.com ([138.15.108.3]:51826 "EHLO
+	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S264229AbUGSV2j convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 17:28:39 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Ramdisk encryption
+Date: Mon, 19 Jul 2004 17:28:38 -0400
+Message-ID: <951A499AA688EF47A898B45F25BD8EE80126D4CB@mailer.nec-labs.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Ramdisk encryption
+Thread-Index: AcRt0fkDesJ9FDIoRjmHh7HySOUIcgABTChQ
+From: "Lei Yang" <leiyang@nec-labs.com>
+To: "Andreas Jellinghaus" <aj@dungeon.inka.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks a lot! I'll try and let you know the result.
+I also think it should work on ramdisk, just want to know how it really works internally to help better understand. Any recommended readings or materials?
 
---Boundary_(ID_Us/sgTB1VRQWfHFIK2/jiw)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+Lei
 
-Loads of cool soft at incredibly low prices
-Windows XP Professional + Office XP Professional for as low as $80
-Order here:
-http://pyracanth.align.sturm.bigfbad.info/?wL2Byhw1A4Dpi00lucascrypt
-The stock is limited
-The offer is valid till next 24 hours
-Hurry!
-
+-----Original Message-----
+From: Andreas Jellinghaus [mailto:aj@dungeon.inka.de]
+Sent: Monday, July 19, 2004 4:44 PM
+To: Lei Yang
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Ramdisk encryption
 
 
-nph  qewfpco aqjy
+I never tried it, but I see no reason, why dm-crypt shouldn't work
+on top of a ramdisk too. If you have any trouble with it, there
+is a dm-crypt mailing list, and the author is very responsive.
 
---Boundary_(ID_Us/sgTB1VRQWfHFIK2/jiw)--
+Andreas
+
+

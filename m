@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbRDGSwc>; Sat, 7 Apr 2001 14:52:32 -0400
+	id <S130253AbRDGSyC>; Sat, 7 Apr 2001 14:54:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbRDGSwW>; Sat, 7 Apr 2001 14:52:22 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:7684 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129478AbRDGSwM>;
-	Sat, 7 Apr 2001 14:52:12 -0400
-Date: Thu, 5 Apr 2001 10:24:55 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Vik Heyndrickx <vik.heyndrickx@pandora.be>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 kernel hangs on 486 machine at boot
-Message-ID: <20010405102454.A31@(none)>
-In-Reply-To: <E14krU0-0002P8-00@the-village.bc.nu> <3ACB6524.C5986233@didntduck.org>
-Mime-Version: 1.0
+	id <S129669AbRDGSxn>; Sat, 7 Apr 2001 14:53:43 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:59312 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S129624AbRDGSxZ>;
+	Sat, 7 Apr 2001 14:53:25 -0400
+Message-ID: <3ACF6223.41F138CF@mandrakesoft.com>
+Date: Sat, 07 Apr 2001 14:53:23 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+Cc: linux-kernel@vger.kernel.org, mj@suse.cz, reinelt@eunet.at,
+        twaugh@redhat.com
+Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3ACB6524.C5986233@didntduck.org>; from bgerst@didntduck.org on Wed, Apr 04, 2001 at 02:17:08PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Problem: Linux kernel 2.4 consistently hangs at boot on 486 machine
-> > >
-> > > Shortly after lilo starts the kernel it hangs at the following message:
-> > > Checking if this processor honours the WP bit even in supervisor mode...
-> > > <blinking cursor>
-> > 
-> > Does this happen on 2.4.3-ac kernel trees ? I thought i had it zapped
+Gunther Mayer wrote:
+> Hardware has always needed quirks (linux-2.4.3 has about 60 occurences
+> of the word "quirks", not to mention workaround, blacklist and other synonyms)!
 > 
-> Yes, that fix in -ac should take care of it.  As to why only the 486
-> showed the problem, most 386's will not fault on the write protected
-> page (the whole reason for this test) and pentiums and later don't run
-> the test at all (assumed good).
+> Please apply this little patch instead of wasting time by finger-pointing
+> and arguing.
+> 
+> Martin, comments?
 
-We should not "assume good" -- to catch bugs like this one.
+Is Martin still alive?  He hasn't been active in PCI development well
+over six months, maybe a year now.  Ivan (alpha hacker) appeared on the
+scene to fix serious PCI bridge bugs, DaveM has added some PCI DMA
+stuff, and I've added a couple driver-related things.  I haven't seen
+code from Martin in a long long time, and only a comment or two in
+recent memory.
+
+
+> --- linux-2.4.3-orig/include/linux/pci.h        Wed Apr  4 19:46:49 2001
+> +++ linux/include/linux/pci.h   Sat Apr  7 20:01:51 2001
+> @@ -454,6 +454,9 @@
+>         void (*remove)(struct pci_dev *dev);    /* Device removed (NULL if not a hot-plug capable driver) */
+>         void (*suspend)(struct pci_dev *dev);   /* Device suspended */
+>         void (*resume)(struct pci_dev *dev);    /* Device woken up */
+> +       int multifunction_quirks;               /* Quirks for PCI serial+parport cards,
+> +                                                   here multiple drivers are allowed to register
+> +                                                   for the same pci id match */
+>  };
+
+As has been explained, the current API supports this just fine without
+modification.
+
+Also, changing the API in the stable series should be frowned upon,
+-especially- something domain specific like this.
+
+	Jeff
+
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

@@ -1,41 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267146AbSKSTLa>; Tue, 19 Nov 2002 14:11:30 -0500
+	id <S267148AbSKSTMR>; Tue, 19 Nov 2002 14:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267148AbSKSTLa>; Tue, 19 Nov 2002 14:11:30 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:11657 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S267146AbSKSTL3>;
-	Tue, 19 Nov 2002 14:11:29 -0500
-Message-ID: <3DDA8E81.4070508@colorfullife.com>
-Date: Tue, 19 Nov 2002 20:18:25 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Akira Tsukamoto <at541@columbia.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Performance improvement with Akira Tsukamoto's Athlon copy_user
- patch
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267149AbSKSTMR>; Tue, 19 Nov 2002 14:12:17 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51896 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267148AbSKSTMI>; Tue, 19 Nov 2002 14:12:08 -0500
+Subject: Re: [TRIVIAL PATCH 2.5.48] Remove unused function from radeon_mem.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bob Miller <rem@osdl.org>
+Cc: trivial@rustcorp.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021119185015.GG1986@doc.pdx.osdl.net>
+References: <20021119185015.GG1986@doc.pdx.osdl.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Nov 2002 19:47:13 +0000
+Message-Id: <1037735233.12086.30.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I read the code of laze FPU state saving and confirmed that 
->if the function does not generate exception than
->'kernel_fpu_begin/end()' should assure fpu safe inside kernel.
->
->However, it is not enough where exception could rise, as Takahashi
->mentioned.
-
-
-I had prototyped an exception safe kfpu framework, but then I didn't have the time to submit/cleanup it.
-
-http://www.colorfullife.com/~manfred/linux-2.5/sse/patch-kfpu
-
-Have you tried SSE based copy_to_user? With SSE, you can just save the affected registers, without unexpected sideeffects.
-
---
-	Manfred
-
+Can you leave this one. Its just going to make resynching with the
+XFree86 4.3 DRM harder. The DRM in the kernel is about to become
+obsolete anyway
 

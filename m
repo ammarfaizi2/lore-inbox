@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267206AbVBEPTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271670AbVBEPrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267206AbVBEPTY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 10:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267203AbVBEPTY
+	id S271670AbVBEPrn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 10:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271683AbVBEPrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 10:19:24 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:61453 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S267103AbVBEPTN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 10:19:13 -0500
-Date: Sat, 5 Feb 2005 10:19:08 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.11-rc[23]: swsusp & usb regression
-In-Reply-To: <20050204231649.GA1057@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44L0.0502051006150.31778-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 5 Feb 2005 10:47:43 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:24423 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S271670AbVBEPrk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 10:47:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=PAuY3I4AQHy+rknYobCqiqqi7uAebBfexEDQ2rh5ETDekKAZhwL+b+IfrVRE5qoh4X3aimHBQ/azbnwTfhcogDstbYcP2+gcQwB7a2DGC/xJAmPoFxLSmvmVMcu+MwIMxPyiF3nfGUtBTjKhEbu1qZYJes7vAWMUUTz3I3jh7ZI=
+Message-ID: <9e473391050205074769e4f10@mail.gmail.com>
+Date: Sat, 5 Feb 2005 10:47:39 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Ondrej Zary <linux@rainbow-software.org>
+Subject: Re: [RFC] Reliable video POSTing on resume
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@ucw.cz>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4204B3C1.80706@rainbow-software.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050122134205.GA9354@wsc-gmbh.de> <420367CF.7060206@gmx.net>
+	 <20050204163019.GC1290@elf.ucw.cz>
+	 <9e4733910502040931955f5a6@mail.gmail.com>
+	 <1107569089.8575.35.camel@tyrosine>
+	 <9e4733910502041809738017a7@mail.gmail.com>
+	 <1107569842.8575.44.camel@tyrosine>
+	 <9e47339105020418306a4c2c93@mail.gmail.com>
+	 <1107591336.8575.51.camel@tyrosine>
+	 <4204B3C1.80706@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Feb 2005, Pavel Machek wrote:
+On Sat, 05 Feb 2005 12:53:37 +0100, Ondrej Zary
+<linux@rainbow-software.org> wrote:
+> I wonder how this can work:
+> a motherboard with i815 chipset (integrated VGA), Video BIOS is
+> integrated into system BIOS
+> a PCI card inserted into one of the PCI slots, configured as primary in
+> system BIOS
 
-> Hi!
-> 
-> In 2.6.11-rc[23], I get problems after swsusp resume:
-> 
-> Feb  4 23:54:39 amd kernel: Restarting tasks...<3>hub 3-0:1.0:
-> over-current change on port 1
-> Feb  4 23:54:39 amd kernel:  done
-> Feb  4 23:54:39 amd kernel: hub 3-0:1.0: connect-debounce failed, port
-> 1 disabled
-> Feb  4 23:54:39 amd kernel: hub 3-0:1.0: over-current change on port 2
-> Feb  4 23:54:39 amd kernel: usb 3-2: USB disconnect, address 2
-> 
-> After unplugging usb bluetooth key, machine hung. Sysrq still
-> responded with help but I could not get any usefull output.
+The info needed to initialize Intel chips is public. The info needed
+to initialize most Nvidia and ATI chips is not.
 
-Your logs don't indicate which host controller driver is bound to each of 
-your hubs.  /proc/bus/usb/devices will contain that information.  Without 
-it, it's hard to diagnose what happened.
-
-At the moment usbcore is undergoing a lengthy, and not terribly rapid,
-series of changes to the generic bus glue layer, as are the host
-controller drivers themselves.  Part of this change will involve the way
-suspend/resume is handled.  (Not to the mention the fact that the power
-management core itself is in the midst of change!)
-
-As the uhci-hcd maintainer, I can safely say that the suspend/resume 
-support in that driver is badly out of date.  Fixing it up is one of the 
-ingredients planned for this series of changes.
-
-As things stand now, however, there's likely to be lots of problems in the 
-coordination of suspend/resume activities among the HCDs, the glue layer, 
-and the hub driver.  One thing you could try is to turn on 
-CONFIG_USB_SUSPEND.  It's likely to change things, although not 
-necessarily for the better.  :-)
-
-Alan Stern
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

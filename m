@@ -1,26 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267049AbSK3UZ7>; Sat, 30 Nov 2002 15:25:59 -0500
+	id <S267059AbSK3UaL>; Sat, 30 Nov 2002 15:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267059AbSK3UZ6>; Sat, 30 Nov 2002 15:25:58 -0500
-Received: from mail.tnaccess.com ([206.155.195.1]:3336 "EHLO mail.tnaccess.com")
-	by vger.kernel.org with ESMTP id <S267049AbSK3UZ6>;
-	Sat, 30 Nov 2002 15:25:58 -0500
-Date: Sat, 30 Nov 2002 14:31:56 -0600
-Message-Id: <200211301431.AA40632710@mail.tnaccess.com>
+	id <S267134AbSK3UaL>; Sat, 30 Nov 2002 15:30:11 -0500
+Received: from p508B5AB3.dip.t-dialin.net ([80.139.90.179]:20932 "EHLO
+	dea.linux-mips.net") by vger.kernel.org with ESMTP
+	id <S267059AbSK3UaK>; Sat, 30 Nov 2002 15:30:10 -0500
+Date: Sat, 30 Nov 2002 21:34:31 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Andi Kleen <ak@muc.de>
+Cc: davidm@hpl.hp.com, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
+       anton@samba.org, "David S. Miller" <davem@redhat.com>,
+       schwidefsky@de.ibm.com, willy@debian.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+Message-ID: <20021130213431.C27776@linux-mips.org>
+References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au> <15844.31669.896101.983575@napali.hpl.hp.com> <20021127082918.GA5227@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-From: "ruckc" <ruckc@mail.tnaccess.com>
-Reply-To: <ruckc@mail.tnaccess.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.50 keyboard won't work
-X-Mailer: <IMail v7.13>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021127082918.GA5227@averell>; from ak@muc.de on Wed, Nov 27, 2002 at 09:29:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.50 i am completly unable to get my keyboard to work.  I have selected the input device->keyboard support, but nevertheless it just doesn't work.  The machine operates fine, as in the daemons all work, just no keyboard working.  
+On Wed, Nov 27, 2002 at 09:29:18AM +0100, Andi Kleen wrote:
 
-1) This is probably a stupid stupid stupid user error.
-2) I have been playing with this for the past 4 hours trying different options.
-3) I am baffled.
-4) Sorry if this isn't the right place for this.
+> > That is not a safe assumption.  The ia64 ABI requires that a 32-bit
+> > result is returned in the least-significant 32 bits only---the upper
+> > 32 bits may contain garbage.  It should be safe to declare the syscall
+> > return type always as "long", no?
+> 
+> But the 32bit user space surely doesn't care about any garbage in 
+> the upper 32bits, no ?
+
+It does.  With very few exceptions all 32-bit instructions on MIPS require
+that all the register values are properly sign extended to 64-bit or the
+operation of those instructions is undefined.
+
+  Ralf

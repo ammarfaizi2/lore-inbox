@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbUJ0Amw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbUJ0Amh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbUJ0Amw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 20:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbUJ0Amv
+	id S261593AbUJ0Amh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 20:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUJ0AjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 20:42:51 -0400
-Received: from hera.kernel.org ([63.209.29.2]:19649 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261592AbUJ0Aky (ORCPT
+	Tue, 26 Oct 2004 20:39:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28854 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261593AbUJ0Ai5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 20:40:54 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: The naming wars continue...
-Date: Wed, 27 Oct 2004 00:40:47 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <clmqqf$g8r$1@terminus.zytor.com>
-References: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <417D7089.3070208@tmr.com> <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org> <MPG.1be8533f25663a40989703@news.gmane.org>
+	Tue, 26 Oct 2004 20:38:57 -0400
+Date: Tue, 26 Oct 2004 17:42:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: nickpiggin@yahoo.com.au, riel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+Message-Id: <20041026174237.44ab2b23.akpm@osdl.org>
+In-Reply-To: <20041027002536.GM14325@dualathlon.random>
+References: <20041025170128.GF14325@dualathlon.random>
+	<Pine.LNX.4.44.0410252147330.30224-100000@chimarrao.boston.redhat.com>
+	<20041026015825.GU14325@dualathlon.random>
+	<417DC8F2.7000902@yahoo.com.au>
+	<20041026040429.GW14325@dualathlon.random>
+	<417DCFDD.50606@yahoo.com.au>
+	<20041027002536.GM14325@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1098837647 16668 127.0.0.1 (27 Oct 2004 00:40:47 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 27 Oct 2004 00:40:47 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <MPG.1be8533f25663a40989703@news.gmane.org>
-By author:    Giuseppe Bilotta <bilotta78@hotpop.com>
-In newsgroup: linux.dev.kernel
-> 
-> Yeah but try fitting that in the extraversion. Maybe we should 
-> use -hopstt(hold on patches, stress-test this) for this kind of 
-> stuff, and -beo (bring 'em on) for the "early" -rcX ... :)
-> 
+Andrea Arcangeli <andrea@novell.com> wrote:
+>
+> I don't see any other equivalent teminology besides my "classzone" word
+> existing,
 
-We could even spell them -pre and -rc.
+I'll confess that I've never understood what "classzone" _means_.  Is it "a
+zone from amongst several classes" or what?
 
-	-hpa
+If it was "zone_class" then it might mean "a particular classification of
+zones".  Maybe that's what you meant?
+
+I think a lot of other mm hackers share my confusion, which is why
+"classzone" has been trickling away.  But yeah, we haven't been replacing it
+with anything very useful.

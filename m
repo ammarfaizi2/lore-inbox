@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUDSLcy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 07:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbUDSLcx
+	id S264360AbUDSLgw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 07:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbUDSLgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 07:32:53 -0400
-Received: from FW-30-241.go.retevision.es ([62.174.241.30]:43944 "EHLO
-	mayhem.ghetto") by vger.kernel.org with ESMTP id S264371AbUDSLcu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 07:32:50 -0400
-Date: Mon, 19 Apr 2004 13:32:43 +0200
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: CFQ iosched praise: good perfomance and better latency
-Message-ID: <20040419113243.GA18042@larroy.com>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040419005651.GA7860@larroy.com> <40835F4E.5000308@yahoo.com.au> <20040418225752.56d10695.akpm@osdl.org> <40836DE8.5080303@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40836DE8.5080303@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: piotr@larroy.com (Pedro Larroy)
+	Mon, 19 Apr 2004 07:36:51 -0400
+Received: from spc1-brig1-3-0-cust85.lond.broadband.ntl.com ([80.0.159.85]:7093
+	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
+	id S264360AbUDSLgb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 07:36:31 -0400
+Date: Mon, 19 Apr 2004 12:36:30 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: KVM issues with recent 2.6 kernels
+Message-ID: <Pine.LNX.4.58.0404191216020.31750@ppg_penguin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 04:12:56PM +1000, Nick Piggin wrote:
-> Andrew Morton wrote:
-> >Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> >
-> >>Pedro Larroy wrote:
-> >>
-> >>>Hi
-> >>>
-> >>>I've been trying CFQ ioscheduler in my software raid5 with nice results,
-> >>>I've observed that a latency pattern still exists, just as in the
-> >>>anticipatory ioscheduler, but those spikes are now much lower (from
-> >>>6ms with AS to 2ms with CFQ as seen in the bottom of
-> >>>http://pedro.larroy.com/devel/iolat/analisys/),
-> >>>plus apps seems to get a fair amount of io so they don't get starved.
-> >>>
-> >>>Seems a good choice for io loaded boxes. Thanks Jens Axboe.
-> >>>
-> >>
-> >>Although AS isn't at its best when behind raid devices (it should
-> >>probably be in front of them), you could be seeing some problem
-> >>with the raid code.
-> >>
-> >>I'd be interested to see what the graph looks like with elevator=noop
-> >
-> >
-> >This isn't a very surprising result, is it?  AS throws away latency to gain
-> >throughput.  Pedro is measuring latency...
-> >
-> 
-> Well I think Pedro actually means *seconds*, not ms. The URL
-> shows AS peaks at nearly 10 seconds latency, and CFQ over 2s.
+Hi,
 
-Yes, I meant seconds, my mistake. I will be testing elevator=noop this
-evening.
+ I'm seeing some oddities on two 2.6 boxes here.  I use a Belkin Omni
+4-way PS/2 KVM switch.  It has a "hot key" to switch boxes (scroll-lock
+twice, then number 1-4).  This has always been a little problematic on
+2.4 (you have to get the timing of the key presses right, worst case
+when you get to the session either the number has been treated as input,
+or the display has scroll-lock turned on), but usable.
 
-> 
-> It really seems like a raid problem though, because latency
-> measured at the individual devices is under 250ms for AS.
+ On the two boxes running 2.6 (Celeron 1GHz with 2.6.4, Duron 1GHz with
+2.6.5) I'm now seeing two strangenesses:
 
-Probably. But I was surprised to find that bonnie gave similar results
-with CFQ and with AS when benchmarking the swraid5.
+ The celeron is running console sessions, including a long-winded series
+of shell scripts run from a Makefile.  I've started to notice that if I
+start the make then switch to another machine, sometimes when I come
+back the build is "stalled" between the scripts - the console looks as
+if scroll-lock is on, but when I free it the next stage of the build
+starts (confirmed from `top').  My expectation is that the whole build
+would have continued, even if that particular console display was
+somehow "locked".
 
-Regards.
+ The duron is now being used to do things in xterms.  From time to time
+the alt key stops being recognised (no alt-tab to switch windows, no
+ctrl-alt-n to switch desktops).  And then after again switching machines
+it suddenly starts working properly again.
 
+ Any suggestions on where to look, or which parts of my .config would be
+relevant ?
+
+Ken
 -- 
-Pedro Larroy Tovar | Linux & Network consultant |  piotr%member.fsf.org 
+ das eine Mal als Tragödie, das andere Mal als Farce
 
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUD0Rz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264248AbUD0R7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUD0Rz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 13:55:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264243AbUD0Rz0
+	id S264248AbUD0R7n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 13:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264247AbUD0R7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 13:55:26 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:13448 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S264231AbUD0RzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 13:55:16 -0400
-Date: Tue, 27 Apr 2004 21:55:14 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: Dru <andru@treshna.com>, linux-xfs@oss.sgi.com,
-       =?koi8-r?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: status of Linux on Alpha?
-Message-ID: <20040427215514.A651@den.park.msu.ru>
-References: <20040328204308.C14868@jurassic.park.msu.ru> <20040328221806.7fa20502@vaio.gigerstyle.ch> <yw1xr7vcn1z2.fsf@ford.guide> <20040329205233.5b7905aa@vaio.gigerstyle.ch> <20040404121032.7bb42b35@vaio.gigerstyle.ch> <20040409134534.67805dfd@vaio.gigerstyle.ch> <20040409134828.0e2984e5@vaio.gigerstyle.ch> <20040409230651.A727@den.park.msu.ru> <20040413194907.7ce8ceb7@vaio.gigerstyle.ch> <20040427185124.134073cd@vaio.gigerstyle.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040427185124.134073cd@vaio.gigerstyle.ch>; from gigerstyle@gmx.ch on Tue, Apr 27, 2004 at 06:51:24PM +0200
+	Tue, 27 Apr 2004 13:59:42 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:31484 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264248AbUD0R5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 13:57:55 -0400
+Message-ID: <408E9F42.2080804@namesys.com>
+Date: Tue, 27 Apr 2004 10:58:26 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Chris Mason <mason@suse.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org
+Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary additional
+ namespace to ReiserFS
+References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <20040426203314.A6973@infradead.org> <408E986F.90506@namesys.com> <20040427183400.A20221@infradead.org>
+In-Reply-To: <20040427183400.A20221@infradead.org>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 06:51:24PM +0200, Marc Giger wrote:
-> What's the current status of the problem?
+Christoph Hellwig wrote:
 
-Hopefully resolved - thanks to Dru <andru@treshna.com>, who provided
-an easy way to reproduce the problem.
+>>Did you notice that V4 blows XFS and ReiserFS V3 away in benchmarks?    
+>>That is what I have been doing for 3 years....
+>>
+>>See www.namesys.com for details.
+>>    
+>>
+>
+>see www.microsoft.com why Windows is much better than Linux.  Yeah, thanks.
+>  
+>
+Ask the users whether their laptops, etc.,  seem to go a lot faster with 
+V4.  They seem to be pretty happy with it.
 
-What we have in lib/rwsem.c:__rwsem_do_wake():
-	int woken, loop;
-	^^^
-and several lines below:
-	loop = woken;
-	woken *= RWSEM_ACTIVE_BIAS-RWSEM_WAITING_BIAS;
-	woken -= RWSEM_ACTIVE_BIAS;
+V4 fixed all of V3's serious performance flaws, and totally obsoletes 
+it.    I am very happy with it.
 
-However, rw_semaphore->count is 64-bit on Alpha, so
-RWSEM_WAITING_BIAS has been defined as -0x0000000100000000L.
-Obviously, this blows up in the write contention case.
-
-Ivan.
-
---- linux.orig/lib/rwsem.c	Mon Apr 26 20:11:36 2004
-+++ linux/lib/rwsem.c	Tue Apr 27 20:04:14 2004
-@@ -40,8 +40,7 @@ static inline struct rw_semaphore *__rws
- {
- 	struct rwsem_waiter *waiter;
- 	struct list_head *next;
--	signed long oldcount;
--	int woken, loop;
-+	signed long oldcount, woken, loop;
- 
- 	rwsemtrace(sem,"Entering __rwsem_do_wake");
- 

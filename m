@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318806AbSG0TMX>; Sat, 27 Jul 2002 15:12:23 -0400
+	id <S318803AbSG0TF0>; Sat, 27 Jul 2002 15:05:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318807AbSG0TMW>; Sat, 27 Jul 2002 15:12:22 -0400
-Received: from flrtn-5-m1-95.vnnyca.adelphia.net ([24.55.70.95]:138 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S318806AbSG0TMW>;
-	Sat, 27 Jul 2002 15:12:22 -0400
-Message-ID: <3D42F155.4060200@tmsusa.com>
-Date: Sat, 27 Jul 2002 12:15:33 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020727
-X-Accept-Language: en-us, en
+	id <S318804AbSG0TFZ>; Sat, 27 Jul 2002 15:05:25 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9230 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S318803AbSG0TFZ>; Sat, 27 Jul 2002 15:05:25 -0400
+Message-Id: <200207271904.g6RJ4jT27545@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Ville Herva <vherva@niksula.hut.fi>, DervishD <raul@pleyades.net>
+Subject: Re: About the need of a swap area
+Date: Sat, 27 Jul 2002 22:02:51 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <3D42907C.mailFS15JQVA@viadomus.com> <20020727144228.GQ1548@niksula.cs.hut.fi>
+In-Reply-To: <20020727144228.GQ1548@niksula.cs.hut.fi>
 MIME-Version: 1.0
-To: kees <kees@schoen.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19.rc3 vs 2.4.17
-References: <Pine.LNX.4.33.0207272012340.1731-100000@schoen3.schoen.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-2 comments just from an end-user perspective:
-
-1. netscape 6.2 is nowhere near stable anyway -
-I'd recommend either netscape 7-pr1, or a
-recent mozilla (1.0, 1.1b or latest nightly)
-
-2. Try one of the "enhanced" kernels, e,g,
-2.4.19-rc3-ac2 or 2.4.19-rc3aa1 - they have
-bugfixes and performance enhancements
-
-Joe
-
-kees wrote:
-
->Hi
->I ran 2.4.19rc3 but my feeling is: Netscape 6.2 and (KDE3) Konqueror
->showed a high number of spontaneous crashes. 256MB Ram xosview shows a few
->megs of swap used.  My pencam program didn't download pictures under
->2.4.19rc3 and it does under 2.4.17.
->Kees
+On 27 July 2002 12:42, Ville Herva wrote:
+> >     I created a swap area twice as large as my RAM size (just an
+> > arbitrary size), that is 1G. I've tested with lower sizes too. My RAM
+> > is never filled (well, I haven't seen it filled, at least) since I
+> > always work on console, no X and things like those. Even compiling
+> > two or three kernels at a time don't consume my RAM. What I try to
+> > explain is that the swap is not really needed in my machine, since
+> > the memory is not prone to be filled.
 >
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+> So you have 512MB of RAM? All the programs (without X) will fit there
+> easily. You'll still have plenty for disk cache.
 
+With today's software I'd say you probably need swap if you have
+less than 256M of RAM and use X. You _definitely_ need it if you have less 
+than 128M.
+
+X is regularly uses 50+ megs, Mozilla and OpenOffice are big
+leaky beasts too. Hopes for improvements are dim.
+
+Really, we have to fight software bloat instead of adding tons of RAM
+and swap, but sadly we have quite a number of vital desktop software
+packages overbloated.
+
+I am enormously grateful for all kernel developers for Linux kernel
+which is:
+
+Memory: 124644k/129536k available
+(1403k kernel code, 4436k reserved, 403k data, 152k init, 0k highmem)
+
+Only 1.5 megs of code, 0.5 megs of data!
+--
+vda

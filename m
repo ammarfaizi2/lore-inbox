@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267438AbUG2VaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUG2VaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267438AbUG2VaL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 17:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUG2V21
+	id S265245AbUG2VaK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 17:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267269AbUG2V2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 17:28:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55744 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267438AbUG2VZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 17:25:18 -0400
-Date: Thu, 29 Jul 2004 14:28:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, riel@redhat.com,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [patch] mlock-as-nonroot revisted
-Message-Id: <20040729142829.2a75c9b9.akpm@osdl.org>
-In-Reply-To: <20040729100307.GA23571@devserv.devel.redhat.com>
-References: <20040729100307.GA23571@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 29 Jul 2004 17:28:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52452 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265245AbUG2VXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 17:23:19 -0400
+Date: Thu, 29 Jul 2004 23:23:10 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: paul@linuxaudiosystems.com, thomas@undata.org, perex@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] ALSA rme9652/hdsp: remove inlines
+Message-ID: <20040729212310.GF23589@fs.tum.de>
+References: <20040711102637.GA4701@fs.tum.de> <s5hisctcrou.wl@alsa2.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hisctcrou.wl@alsa2.suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> wrote:
->
-> Below is a fixed up patch to allow non-root to mlock memory
+On Mon, Jul 12, 2004 at 02:53:37PM +0200, Takashi Iwai wrote:
+> At Sun, 11 Jul 2004 12:26:37 +0200,
+> Adrian Bunk wrote:
+> > 
+> > The patch below removes all inlines from hdsp.c. As a side effect, it
+> > showed that snd_hdsp_9652_disable_mixer() is completely unused, and it's
+> > therefore also removed in the patch.
+> > 
+> > 
+> > An alternative approach to removing the inlines would be to keep all
+> > inlines that are _really_ required and reorder the functions in the file
+> > accordingly.
+> 
+> Just removing inline should be fine, since they are all no
+> time-critical functions.  I'll apply it to ALSA tree.
 
-I seem to recall that Andrea identified reasons why per-user mlock limits
-were fundamentally broken/unsuitable, but I forget the details.  Perhaps he
-could remind us?
+It seems to be missing in the copy of the ALSA tree included in 
+2.6.8-rc2-mm1 ?
 
-As for this patch: it's a new capability which will get basically zero
-testing for the next year, which is a worry.  How have you tested it, and
-how much?
+> thanks,
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

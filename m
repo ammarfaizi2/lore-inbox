@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVCTE7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVCTGXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVCTE7O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 23:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVCTE7O
+	id S261559AbVCTGXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 01:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVCTGXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 23:59:14 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:59065 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S262025AbVCTE7C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 23:59:02 -0500
-Date: Sat, 19 Mar 2005 20:58:59 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ppc64 build broke between 2.6.11-bk6 and 2.6.11-bk7
-Message-ID: <515230000.1111294739@[10.10.2.4]>
-In-Reply-To: <20050317224409.41f0f5c5.akpm@osdl.org>
-References: <445800000.1111127533@[10.10.2.4]> <20050317224409.41f0f5c5.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Mar 2005 01:23:16 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:43237 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261559AbVCTGXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 01:23:12 -0500
+Subject: Re: [PATCH][0/6] Change proc file permissions with sysctls
+From: Albert Cahalan <albert@users.sf.net>
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com, 7eggert@gmx.de
+In-Reply-To: <1111278162.22BA.5209@neapel230.server4you.de>
+References: <1111278162.22BA.5209@neapel230.server4you.de>
+Content-Type: text/plain
+Date: Sun, 20 Mar 2005 01:08:23 -0500
+Message-Id: <1111298903.1930.99.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-03-20 at 01:22 +0100, Rene Scharfe wrote:
 
+> The permissions of files in /proc/1 (usually belonging to init) are
+> kept as they are.  The idea is to let system processes be freely
+> visible by anyone, just as before.  Especially interesting in this
+> regard would be instances of login.  I don't know how to easily
+> discriminate between system processes and "normal" processes inside
+> the kernel (apart from pid == 1 and uid == 0 (which is too broad)).
+> Any ideas?
 
---Andrew Morton <akpm@osdl.org> wrote (on Thursday, March 17, 2005 22:44:09 -0800):
+The ideal would be to allow viewing:
 
-> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
->> 
->> drivers/built-in.o(.text+0x182bc): In function `.matroxfb_probe':
->> : undefined reference to `.mac_vmode_to_var'
->> make: *** [.tmp_vmlinux1] Error 1
->> 
->> Anyone know what that is?
->> 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/broken-out/fbdev-kconfig-fix-for-macmodes-and-ppc.patch
-> 
-> should fix it.
+1. killable processes (that is, YOU can kill them)
+2. processes sharing a tty with a killable process
 
-Great - tested, that fixed it up for me.
+Optionally, add:
 
-Thanks,
+3. processes controlling a tty master of a killable process
+4. ancestors of all of the above
+5. children of killable processes
 
-M.
+This is of course expensive, but maybe you can get some of
+it cheaply. For example, allow viewing a process if the session
+leader, group leader, parent, or tpgid process is killable.
+
 

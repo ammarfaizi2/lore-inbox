@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267464AbSKQH5Z>; Sun, 17 Nov 2002 02:57:25 -0500
+	id <S267465AbSKQIVj>; Sun, 17 Nov 2002 03:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267465AbSKQH5Z>; Sun, 17 Nov 2002 02:57:25 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36619 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267464AbSKQH5Y>; Sun, 17 Nov 2002 02:57:24 -0500
-Date: Sun, 17 Nov 2002 02:49:31 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-In-Reply-To: <20021115212517.GA10080@mars.ravnborg.org>
-Message-ID: <Pine.LNX.3.96.1021117024753.18748B-100000@gatekeeper.tmr.com>
+	id <S267466AbSKQIVj>; Sun, 17 Nov 2002 03:21:39 -0500
+Received: from mail1.csc.albany.edu ([169.226.1.133]:55463 "EHLO
+	smtp.albany.edu") by vger.kernel.org with ESMTP id <S267465AbSKQIVi> convert rfc822-to-8bit;
+	Sun, 17 Nov 2002 03:21:38 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Justin A <ja6447@albany.edu>
+To: ksardem@linux01.gwdg.de
+Subject: Re: bug in via-rhine network-driver (transmit timed out)
+Date: Sun, 17 Nov 2002 03:30:51 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211170330.51312.ja6447@albany.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Nov 2002, Sam Ravnborg wrote:
+I had the same problem with the integrated nic on a soyo k7vdragon+
 
-> Here is first try:
-> - clean now deletes all generated files except .config + .config.old
-> - mrproper in addition to clean only deleted .config + .config.old
-> - distclean in addition ot mrproper deletes backupfiles as usual.
+search google/the archives for "via-rhine timeouts"
 
-Just what I wanted. If you can be happy doing this it now provides all
-three useful behaviours in a clear manner.
+Try the linuxfet driver found here:
 
-Good show!
+http://www.viaarena.com/?PageID=87#ethernet
+http://downloads.viaarena.com/LinuxApplicationNotes/RedHat/May02/VIA%20RH7.2-7.1%20Fast%20Ethernet%20Controller%20Driver%20Installation%20ver%200.9.gz
 
+I've been using it since then without problems.  I had to change malloc.h or 
+whatever it used to be to slab.h a few versions ago to make it compile 
+without whining, but thats all.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+-Justin
 

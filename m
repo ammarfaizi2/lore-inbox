@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265732AbUHAQ2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUHAQlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265732AbUHAQ2K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 12:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbUHAQ2K
+	id S265910AbUHAQlj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 12:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUHAQli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 12:28:10 -0400
-Received: from [217.160.223.60] ([217.160.223.60]:16017 "EHLO
-	p15141755.pureserver.info") by vger.kernel.org with ESMTP
-	id S265732AbUHAQ2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 12:28:08 -0400
-Message-ID: <410D1A4F.40103@timisoara.net>
-Date: Sun, 01 Aug 2004 18:29:03 +0200
-From: Christian Eichert <moga@timisoara.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4.2) Gecko/20040308
-X-Accept-Language: de, en, de-at, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: swiching from 2.2.20 to 2.4.18-k7
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1BrJBr-00038u-00*jlQP1vuewf2*
+	Sun, 1 Aug 2004 12:41:38 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:28137 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S265910AbUHAQlh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 12:41:37 -0400
+Date: Sun, 1 Aug 2004 18:26:51 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Andi Kleen <ak@muc.de>, "Walker, Bruce J" <bruce.walker@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+Message-ID: <20040801162651.GA3873@marowsky-bree.de>
+References: <2o4AV-18E-27@gated-at.bofh.it> <m3zn5g2k2q.fsf@averell.firstfloor.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m3zn5g2k2q.fsf@averell.firstfloor.org>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a small K7 shuttle.
-On it i have a mail server and a samba server.
-I installed Debian Woody on it.
-Everything is installed from the apt.
+On 2004-07-31T18:54:53,
+   Andi Kleen <ak@muc.de> said:
 
-This morning I installed the 2.4.18-k7 kernel from the apt.
+> Do you have plans to contribute any pieces of it to the main kernel? 
 
-my problem is I like to run my shuttle without a mouse, but this new 
-kernel refuses to boot without the pci mouse pluged in.
+I guess there's a definite plan to have at least the OpenCI as an
+alternative backend for the membership, locking etc subsystem which
+seems to be taking shape at RHAT right now, at least that's what I
+understood last week.
 
-can someone help ?
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	    \ ever tried. ever failed. no matter.
+SUSE Labs, Research and Development | try again. fail again. fail better.
+SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
 

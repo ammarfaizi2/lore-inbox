@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266487AbUG0TcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266508AbUG0TdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266487AbUG0TcM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUG0TcM
+	id S266508AbUG0TdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUG0TdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:32:12 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:36873 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266487AbUG0TcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:32:08 -0400
-Message-ID: <4106B448.2010308@techsource.com>
-Date: Tue, 27 Jul 2004 16:00:08 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Benjamin Rutt <rutt.4+news@osu.edu>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: clearing filesystem cache for I/O benchmarks
-References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org> <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org> <871xixpdky.fsf@osu.edu>
-In-Reply-To: <871xixpdky.fsf@osu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 Jul 2004 15:33:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40836 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266508AbUG0Tc7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 15:32:59 -0400
+Date: Tue, 27 Jul 2004 12:31:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Josh Aas <josha@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add core dump file name pattern option for cpu id
+Message-Id: <20040727123115.794577d7.akpm@osdl.org>
+In-Reply-To: <1090955660.20503.13.camel@coetzee.americas.sgi.com>
+References: <1090955660.20503.13.camel@coetzee.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Benjamin Rutt wrote:
-> Andrew Morton <akpm@osdl.org> writes:
+Josh Aas <josha@sgi.com> wrote:
+>
+>  ---------------------------------------------------------
+>  --- a/fs/exec.c	2004-07-13 14:32:24.000000000 -0500
+>  +++ b/fs/exec.c	2004-07-15 13:16:17.000000000 -0500
+>  @@ -1276,6 +1276,14 @@ void format_corename(char *corename, con
+>   					goto out;
+>   				out_ptr += rc;
+>   				break;
+>  +			/* cpu id */
+>  +			case 'c':
+>  +				rc = snprintf(out_ptr, out_end - out_ptr,
+>  +					      "%d", smp_processor_id());
+>  +				if (rc > out_end - out_ptr)
+>  +					goto out;
+>  +				out_ptr += rc;
+>  +				break;
+>   			default:
+>   				break;
+>   			}
+>  ---------------------------------------------------------
 > 
-> 
->>(Please don't remove people from the email recipient list when doing kernel
->>work.)
-> 
-> 
-> Sorry, I'm reading via gmane and my newsreader doesn't make it
-> straightforward to do so.  But I'll do it manually for you.
+>  Is there any reason this couldn't be taken into the kernel? I didn't get
+>  any response at all and it seems to be a safe and useful patch. Any
+>  feedback would be appreciated.
 
+There's no guarantee at all that we're still running on the same CPU by the
+time we get here.
 
-I haven't been paying attention, and I don't know if anyone's already 
-suggested this, but going on the title, have you considered running the 
-same benchmark more than once and just throwing away the first result?
+Possibly do_coredump() could fish the relevant info out of the pt_regs in
+some arch-dependent way, or it needs to be propagated down in some manner. 
+Either way, the patch will become more complex.
 
+Any future revision of this patch should include an update to
+Documentation/sysctl/kernel.txt:core_pattern please.

@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131426AbRAOUiz>; Mon, 15 Jan 2001 15:38:55 -0500
+	id <S130032AbRAQGIO>; Wed, 17 Jan 2001 01:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131436AbRAOUip>; Mon, 15 Jan 2001 15:38:45 -0500
-Received: from inje.iskon.hr ([213.191.128.16]:61705 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S131426AbRAOUif>;
-	Mon, 15 Jan 2001 15:38:35 -0500
-To: "Vlad Bolkhovitine" <vladb@sw.com.sg>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: mmap()/VM problems in 2.4.0
-In-Reply-To: <3A5EFB40.6080B6F3@sw.com.sg> <3A62C5F0.80C0E8B5@sw.com.sg>
-Reply-To: zlatko@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko@iskon.hr>
-Date: 15 Jan 2001 21:31:56 +0100
-In-Reply-To: "Vlad Bolkhovitine"'s message of "Mon, 15 Jan 2001 17:42:08 +0800"
-Message-ID: <87hf30d0ar.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Peisino,Ak(B)
+	id <S131231AbRAQGHy>; Wed, 17 Jan 2001 01:07:54 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:34041 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130032AbRAQGHs>; Wed, 17 Jan 2001 01:07:48 -0500
+Date: Sat, 13 Jan 2001 14:23:41 -0500 (EST)
+From: Burton Windle <burton@fint.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: VM: Undead swap messages at shutdown
+Message-ID: <Pine.LNX.4.21.0101131417320.2087-100000@fint.staticky.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Loop: duckman
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Vlad Bolkhovitine" <vladb@sw.com.sg> writes:
+Hello Linux VM God :)
 
-> Here is updated info for 2.4.1pre3:
-> 
-> Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
-> 
-> with mmap()
-> 
->  File   Block  Num          Seq Read    Rand Read   Seq Write  Rand Write
->  Dir    Size   Size    Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-> ------- ------ ------- --- ----------- ----------- ----------- -----------
->    .     1024   4096    2  1.089 1.24% 0.235 0.45% 1.118 4.11% 0.616 1.41%
-> 
-> without mmap()
->    
->  File   Block  Num          Seq Read    Rand Read   Seq Write  Rand Write
->  Dir    Size   Size    Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-> ------- ------ ------- --- ----------- ----------- ----------- -----------
->    .     1024   4096    2  28.41 41.0% 0.547 1.15% 13.16 16.1% 0.652 1.46%
-> 
-> 
-> Mmap() performance dropped dramatically down to almost unusable level. Plus,
-> system was unusable during test: "vmstat 1" updated results every 1-2 _MINUTES_!
-> 
+I think I started seeing this about 2.4.0-ac6...when I shutdown my
+machine, I see tons of 'VM: Undead swap entry #######', where ####### is
+some memory address.  I can also reproduce this 100% by (for
+example) going into X, loading a lot of crap so that my 112mb ram is full
+and it starts to swap, then get out of X, and do a 'swapoff -a'. 
 
-You need Marcelo's patch. Please apply and retest.
+Is this just debugging info, or would you like to see the output of it? My
+machine is currently a Debian Unstable, with 112mb RAM and about 190mb
+swap, running 2.4.0-ac8.
 
+I have the following kernels installed, so if you need me to see exactly
+which kernel started this, it'll be easy:
 
-
---- linux.orig/mm/vmscan.c      Mon Jan 15 02:33:15 2001
-+++ linux/mm/vmscan.c   Mon Jan 15 02:46:25 2001
-@@ -153,7 +153,7 @@
-
-                        if (VALID_PAGE(page) && !PageReserved(page)) {
-                                try_to_swap_out(mm, vma, address, pte,
-page);
--                               if (--count)
-+                               if (!--count)
-                                        break;
-                        }
-                }
-
+toy:/etc# grep label /etc/lilo.conf
+  label = 240ac8
+  label = 240ac7
+#  label = 240ac6
+#  label = 240ac2
+#  label = 240prac6
+#  label = 240prac4
+#  label = 240t13p7
+#  label = 240t12
+#  label = 240t12p6
+#  label = 240t12p5
+#  label = 240t12p3
+#  label = 240t12p2
+#  label = 240t11
+#  label = 240t11p7
+  label = k2218p15
+  label = win98
 
 -- 
-Zlatko
+Burton Windle				burton@fint.org
+Linux: the "grim reaper of innocent orphaned children."
+          from /usr/src/linux/init/main.c:1384
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

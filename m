@@ -1,145 +1,425 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266968AbTB0VaD>; Thu, 27 Feb 2003 16:30:03 -0500
+	id <S267121AbTB0Vtz>; Thu, 27 Feb 2003 16:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267023AbTB0VaD>; Thu, 27 Feb 2003 16:30:03 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:18902 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S266968AbTB0VaA>; Thu, 27 Feb 2003 16:30:00 -0500
-Message-ID: <20030227213954.2125.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S267135AbTB0Vtz>; Thu, 27 Feb 2003 16:49:55 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:37893 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S267121AbTB0Vts>; Thu, 27 Feb 2003 16:49:48 -0500
+Date: Fri, 28 Feb 2003 06:59:44 +0900 (JST)
+Message-Id: <20030228.065944.08980219.yoshfuji@linux-ipv6.org>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+CC: davem@redhat.com, kuznet@ms2.inr.ac.ru, usagi@linux-ipv6.org
+Subject: [PATCH] Use C99 initializers in net/ipv6
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com
-Date: Fri, 28 Feb 2003 05:39:54 +0800
-Subject: [BENCHMARK] AIM9 results. 2.4.19 vs 2.5.58 vs 2.5.63
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-the subject says everything.
-I don't post the results that don's show intersting number.
+Hi,
 
-2.4.19
-2.5.58
-2.5.63
+This convers net/ipv6/{addrconf,route,sit}.c files to use C99
+initializers.  We don't touch net/ipv6/exthdrs.c for now because
+it will conflicts with our patch for IPsec.
 
-creat-clo 10040 19.4223        19422.31 File Creations and Closes/second
-creat-clo 10020 79.7405        79740.52 File Creations and Closes/second
-creat-clo 10010 84.3157        84315.68 File Creations and Closes/second
-^^^^^ Amazing improvement here
+Thanks in advance.
 
-page_test 10000 123.9       210630.00 System Allocations & Pages/second
-page_test 10000 102.8       174760.00 System Allocations & Pages/second
-page_test 10010 101.898       173226.77 System Allocations & Pages/second
-^^^^^Here we are still slowe then 2.4.19
+-------------------------------------------------------------------
+Patch-Name: Use C99 initializers in net/ipv6
+Patch-Id: FIX_2_5_63_C99_CLEANUP-20030228
+Patch-Author: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+Credit: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+-------------------------------------------------------------------
+Index: net/ipv6/addrconf.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/addrconf.c,v
+retrieving revision 1.1.1.6
+retrieving revision 1.1.1.6.4.1
+diff -u -r1.1.1.6 -r1.1.1.6.4.1
+--- net/ipv6/addrconf.c	25 Feb 2003 05:33:26 -0000	1.1.1.6
++++ net/ipv6/addrconf.c	27 Feb 2003 21:31:11 -0000	1.1.1.6.4.1
+@@ -2288,75 +2288,163 @@
+ 	ctl_table addrconf_proto_dir[2];
+ 	ctl_table addrconf_root_dir[2];
+ } addrconf_sysctl = {
+-	NULL,
+-        {{NET_IPV6_FORWARDING, "forwarding",
+-         &ipv6_devconf.forwarding, sizeof(int), 0644, NULL,
+-         &addrconf_sysctl_forward},
+-
+-	{NET_IPV6_HOP_LIMIT, "hop_limit",
+-         &ipv6_devconf.hop_limit, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-
+-	{NET_IPV6_MTU, "mtu",
+-         &ipv6_devconf.mtu6, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-
+-	{NET_IPV6_ACCEPT_RA, "accept_ra",
+-         &ipv6_devconf.accept_ra, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-
+-	{NET_IPV6_ACCEPT_REDIRECTS, "accept_redirects",
+-         &ipv6_devconf.accept_redirects, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-
+-	{NET_IPV6_AUTOCONF, "autoconf",
+-         &ipv6_devconf.autoconf, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-
+-	{NET_IPV6_DAD_TRANSMITS, "dad_transmits",
+-         &ipv6_devconf.dad_transmits, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-
+-	{NET_IPV6_RTR_SOLICITS, "router_solicitations",
+-         &ipv6_devconf.rtr_solicits, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-
+-	{NET_IPV6_RTR_SOLICIT_INTERVAL, "router_solicitation_interval",
+-         &ipv6_devconf.rtr_solicit_interval, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies},
+-
+-	{NET_IPV6_RTR_SOLICIT_DELAY, "router_solicitation_delay",
+-         &ipv6_devconf.rtr_solicit_delay, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies},
+-
++	.sysctl_header = NULL,
++	.addrconf_vars = {
++        	{
++			.ctl_name	=	NET_IPV6_FORWARDING,
++			.procname	=	"forwarding",
++         		.data		=	&ipv6_devconf.forwarding,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&addrconf_sysctl_forward,
++		},
++		{
++			.ctl_name	=	NET_IPV6_HOP_LIMIT,
++			.procname	=	"hop_limit",
++         		.data		=	&ipv6_devconf.hop_limit,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++			.proc_handler	=	proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_MTU,
++			.procname	=	"mtu",
++			.data		=	&ipv6_devconf.mtu6,
++         		.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_ACCEPT_RA,
++			.procname	=	"accept_ra",
++         		.data		=	&ipv6_devconf.accept_ra,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_ACCEPT_REDIRECTS,
++			.procname	=	"accept_redirects",
++         		.data		=	&ipv6_devconf.accept_redirects,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_AUTOCONF,
++			.procname	=	"autoconf",
++         		.data		=	&ipv6_devconf.autoconf,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_DAD_TRANSMITS,
++			.procname	=	"dad_transmits",
++         		.data		=	&ipv6_devconf.dad_transmits,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_RTR_SOLICITS,
++			.procname	=	"router_solicitations",
++         		.data		=	&ipv6_devconf.rtr_solicits,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_RTR_SOLICIT_INTERVAL,
++			.procname	=	"router_solicitation_interval",
++         		.data		=	&ipv6_devconf.rtr_solicit_interval,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec_jiffies,
++		},
++		{
++			.ctl_name	=	NET_IPV6_RTR_SOLICIT_DELAY,
++			.procname	=	"router_solicitation_delay",
++         		.data		=	&ipv6_devconf.rtr_solicit_delay,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++         		.proc_handler	=	&proc_dointvec_jiffies,
++		},
+ #ifdef CONFIG_IPV6_PRIVACY
+-	{NET_IPV6_USE_TEMPADDR, "use_tempaddr",
+-	 &ipv6_devconf.use_tempaddr, sizeof(int), 0644, NULL,
+-	 &proc_dointvec},
+-
+-	{NET_IPV6_TEMP_VALID_LFT, "temp_valid_lft",
+-	 &ipv6_devconf.temp_valid_lft, sizeof(int), 0644, NULL,
+-	 &proc_dointvec},
+-
+-	{NET_IPV6_TEMP_PREFERED_LFT, "temp_prefered_lft",
+-	 &ipv6_devconf.temp_prefered_lft, sizeof(int), 0644, NULL,
+-	 &proc_dointvec},
+-
+-	{NET_IPV6_REGEN_MAX_RETRY, "regen_max_retry",
+-	 &ipv6_devconf.regen_max_retry, sizeof(int), 0644, NULL,
+-	 &proc_dointvec},
+-
+-	{NET_IPV6_MAX_DESYNC_FACTOR, "max_desync_factor",
+-	 &ipv6_devconf.max_desync_factor, sizeof(int), 0644, NULL,
+-	 &proc_dointvec},
++		{
++			.ctl_name	=	NET_IPV6_USE_TEMPADDR,
++			.procname	=	"use_tempaddr",
++	 		.data		=	&ipv6_devconf.use_tempaddr,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++	 		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_TEMP_VALID_LFT,
++			.procname	=	"temp_valid_lft",
++	 		.data		=	&ipv6_devconf.temp_valid_lft,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++	 		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_TEMP_PREFERED_LFT,
++			.procname	=	"temp_prefered_lft",
++	 		.data		=	&ipv6_devconf.temp_prefered_lft,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++	 		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_REGEN_MAX_RETRY,
++			.procname	=	"regen_max_retry",
++	 		.data		=	&ipv6_devconf.regen_max_retry,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++	 		.proc_handler	=	&proc_dointvec,
++		},
++		{
++			.ctl_name	=	NET_IPV6_MAX_DESYNC_FACTOR,
++			.procname	=	"max_desync_factor",
++	 		.data		=	&ipv6_devconf.max_desync_factor,
++			.maxlen		=	sizeof(int),
++			.mode		=	0644,
++	 		.proc_handler	=	&proc_dointvec,
++		},
+ #endif
+-
+-	{0}},
+-
+-	{{NET_PROTO_CONF_ALL, "all", NULL, 0, 0555, addrconf_sysctl.addrconf_vars},{0}},
+-	{{NET_IPV6_CONF, "conf", NULL, 0, 0555, addrconf_sysctl.addrconf_dev},{0}},
+-	{{NET_IPV6, "ipv6", NULL, 0, 0555, addrconf_sysctl.addrconf_conf_dir},{0}},
+-	{{CTL_NET, "net", NULL, 0, 0555, addrconf_sysctl.addrconf_proto_dir},{0}}
++	},
++	.addrconf_dev = {
++		{
++			.ctl_name	=	NET_PROTO_CONF_ALL,
++			.procname	=	"all",
++			.mode		=	0555,
++			.child		=	addrconf_sysctl.addrconf_vars,
++		},
++	},
++	.addrconf_conf_dir = {
++		{
++			.ctl_name	=	NET_IPV6_CONF,
++			.procname	=	"conf",
++			.mode		=	0555,
++			.child		=	addrconf_sysctl.addrconf_dev,
++		},
++	},
++	.addrconf_proto_dir = {
++		{
++			.ctl_name	=	NET_IPV6,
++			.procname	=	"ipv6",
++			.mode		=	0555,
++			.child		=	addrconf_sysctl.addrconf_conf_dir,
++		},
++	},
++	.addrconf_root_dir = {
++		{
++			.ctl_name	=	CTL_NET,
++			.procname	=	"net",
++			.mode		=	0555,
++			.child		=	addrconf_sysctl.addrconf_proto_dir,
++		},
++	},
+ };
+ 
+ static void addrconf_sysctl_register(struct inet6_dev *idev, struct ipv6_devconf *p)
+Index: net/ipv6/route.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/route.c,v
+retrieving revision 1.1.1.7
+retrieving revision 1.1.1.7.4.1
+diff -u -r1.1.1.7 -r1.1.1.7.4.1
+--- net/ipv6/route.c	25 Feb 2003 05:33:26 -0000	1.1.1.7
++++ net/ipv6/route.c	27 Feb 2003 21:31:11 -0000	1.1.1.7.4.1
+@@ -1777,34 +1777,84 @@
+ }
+ 
+ ctl_table ipv6_route_table[] = {
+-        {NET_IPV6_ROUTE_FLUSH, "flush",
+-         &flush_delay, sizeof(int), 0644, NULL,
+-         &ipv6_sysctl_rtcache_flush},
+-	{NET_IPV6_ROUTE_GC_THRESH, "gc_thresh",
+-         &ip6_dst_ops.gc_thresh, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-	{NET_IPV6_ROUTE_MAX_SIZE, "max_size",
+-         &ip6_rt_max_size, sizeof(int), 0644, NULL,
+-         &proc_dointvec},
+-	{NET_IPV6_ROUTE_GC_MIN_INTERVAL, "gc_min_interval",
+-         &ip6_rt_gc_min_interval, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies, &sysctl_jiffies},
+-	{NET_IPV6_ROUTE_GC_TIMEOUT, "gc_timeout",
+-         &ip6_rt_gc_timeout, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies, &sysctl_jiffies},
+-	{NET_IPV6_ROUTE_GC_INTERVAL, "gc_interval",
+-         &ip6_rt_gc_interval, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies, &sysctl_jiffies},
+-	{NET_IPV6_ROUTE_GC_ELASTICITY, "gc_elasticity",
+-         &ip6_rt_gc_elasticity, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies, &sysctl_jiffies},
+-	{NET_IPV6_ROUTE_MTU_EXPIRES, "mtu_expires",
+-         &ip6_rt_mtu_expires, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies, &sysctl_jiffies},
+-	{NET_IPV6_ROUTE_MIN_ADVMSS, "min_adv_mss",
+-         &ip6_rt_min_advmss, sizeof(int), 0644, NULL,
+-         &proc_dointvec_jiffies, &sysctl_jiffies},
+-	 {0}
++        {
++		.ctl_name	=	NET_IPV6_ROUTE_FLUSH, 
++		.procname	=	"flush",
++         	.data		=	&flush_delay,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&ipv6_sysctl_rtcache_flush
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_GC_THRESH,
++		.procname	=	"gc_thresh",
++         	.data		=	&ip6_dst_ops.gc_thresh,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec,
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_MAX_SIZE,
++		.procname	=	"max_size",
++         	.data		=	&ip6_rt_max_size,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec,
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_GC_MIN_INTERVAL,
++		.procname	=	"gc_min_interval",
++         	.data		=	&ip6_rt_gc_min_interval,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec_jiffies,
++		.strategy	=	&sysctl_jiffies,
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_GC_TIMEOUT,
++		.procname	=	"gc_timeout",
++         	.data		=	&ip6_rt_gc_timeout,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec_jiffies,
++		.strategy	=	&sysctl_jiffies,
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_GC_INTERVAL,
++		.procname	=	"gc_interval",
++         	.data		=	&ip6_rt_gc_interval,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec_jiffies,
++		.strategy	=	&sysctl_jiffies,
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_GC_ELASTICITY,
++		.procname	=	"gc_elasticity",
++         	.data		=	&ip6_rt_gc_elasticity,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec_jiffies,
++		.strategy	=	&sysctl_jiffies,
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_MTU_EXPIRES,
++		.procname	=	"mtu_expires",
++         	.data		=	&ip6_rt_mtu_expires,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec_jiffies,
++		.strategy	=	&sysctl_jiffies,
++	},
++	{
++		.ctl_name	=	NET_IPV6_ROUTE_MIN_ADVMSS,
++		.procname	=	"min_adv_mss",
++         	.data		=	&ip6_rt_min_advmss,
++		.maxlen		=	sizeof(int),
++		.mode		=	0644,
++         	.proc_handler	=	&proc_dointvec_jiffies,
++		.strategy	=	&sysctl_jiffies,
++	},
+ };
+ 
+ #endif
+Index: net/ipv6/sit.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/sit.c,v
+retrieving revision 1.1.1.6
+retrieving revision 1.1.1.6.4.1
+diff -u -r1.1.1.6 -r1.1.1.6.4.1
+--- net/ipv6/sit.c	25 Feb 2003 05:33:26 -0000	1.1.1.6
++++ net/ipv6/sit.c	27 Feb 2003 21:31:11 -0000	1.1.1.6.4.1
+@@ -68,7 +68,8 @@
+ };
+ 
+ static struct ip_tunnel ipip6_fb_tunnel = {
+-	NULL, &ipip6_fb_tunnel_dev, {0, }, 0, 0, 0, 0, 0, 0, 0, {"sit0", }
++	.dev = &ipip6_fb_tunnel_dev,
++	.parms = { .name = "sit0" }
+ };
+ 
+ static struct ip_tunnel *tunnels_r_l[HASH_SIZE];
 
-brk_test 10010 48.951       832167.83 System Memory Allocations/second
-brk_test 10000 43.7       742900.00 System Memory Allocations/second
-brk_test 10020 41.018       697305.39 System Memory Allocations/second
-^^^^Slower then .58 and a lot slower then 2.4.19
-
-signal_test 10000 166.1       166100.00 Signal Traps/second
-signal_test 10010 156.843       156843.16 Signal Traps/second
-signal_test 10000 148.3       148300.00 Signal Traps/second
-^^^^Slower then .58 and a lot slower then 2.4.19
-
-exec_test 10000 13.8           69.00 Program Loads/second
-exec_test 10030 12.8614           64.31 Program Loads/second
-exec_test 10020 12.7745           63.87 Program Loads/second
-^^^^ Slower then 2.4.19
-
-fork_test 10000 44.8         4480.00 Task Creations/second
-fork_test 10020 24.8503         2485.03 Task Creations/second
-fork_test 10000 23.2         2320.00 Task Creations/second
-^^^^^ A lot slower then 2.4.19
-
-link_test 10000 155.3         9783.90 Link/Unlink Pairs/second
-link_test 10000 135         8505.00 Link/Unlink Pairs/second
-link_test 10010 160.739        10126.57 Link/Unlink Pairs/second
-^^^^Big improvement here
-
-
-disk_rw 10060 5.666        29009.94 Random Disk Writes (K)/second
-disk_rw 10110 6.42928        32917.90 Random Disk Writes (K)/second
-disk_rw 10010 6.39361        32735.26 Random Disk Writes (K)/second
-^^^^^Fatser then 2.4.19
-
-sync_disk_rw 16020 0.062422          159.80 Sync Random Disk Writes (K)/second
-sync_disk_rw 14600 0.0684932          175.34 Sync Random Disk Writes (K)/second
-sync_disk_rw 14410 0.0693963          177.65 Sync Random Disk Writes (K)/second
-^^^^ Faster then 2.4.19
-
-array_rtns 10010 13.6863          273.73 Linear Systems Solved/second
-array_rtns 10030 13.0608          261.22 Linear Systems Solved/second
-array_rtns 10020 11.2774          225.55 Linear Systems Solved/second
-^^^^2.5.63 is slower then .58 and slower then 2.4.19
-
-mem_rtns_1 10000 27.7       831000.00 Dynamic Memory Operations/second
-mem_rtns_1 10000 24.1       723000.00 Dynamic Memory Operations/second
-mem_rtns_1 10020 22.7545       682634.73 Dynamic Memory Operations/second
-^^^^^Slow, slow, slow...
-
-misc_rtns_1 10000 782.2         7822.00 Auxiliary Loops/second
-misc_rtns_1 10000 706         7060.00 Auxiliary Loops/second
-misc_rtns_1 10000 686.9         6869.00 Auxiliary Loops/second
-^^^^ Slow too...
-
-dir_rtns_1 10000 85.8       858000.00 Directory Operations/second
-dir_rtns_1 10010 101.598      1015984.02 Directory Operations/second
-dir_rtns_1 10010 101.998      1019980.02 Directory Operations/second
-^^^^ Fast, really fast
-
-shared_memory 10000 2227.4       222740.00 Shared Memory Operations/second
-shared_memory 10000 1973.1       197310.00 Shared Memory Operations/second
-shared_memory 10000 1955.2       195520.00 Shared Memory Operations/second
-^^^^Slow, slow, slow...
-
-tcp_test 10000 661.7        59553.00 TCP/IP Messages/second
-tcp_test 10000 532.7        47943.00 TCP/IP Messages/second
-tcp_test 10000 539.3        48537.00 TCP/IP Messages/second
-^^^^Debug code, I guess.
-
-udp_test 10000 1182.7       118270.00 UDP/IP DataGrams/second
-udp_test 10000 931.5        93150.00 UDP/IP DataGrams/second
-udp_test 10000 909.3        90930.00 UDP/IP DataGrams/second
-^^^^Debug code, I guess.
-
-fifo_test 10000 1207       120700.00 FIFO Messages/second
-fifo_test 10000 997.2        99720.00 FIFO Messages/second
-fifo_test 10000 1117.3       111730.00 FIFO Messages/second
-^^^^^Faster then 2.5.58 but slower then 2.4.19
-
-stream_pipe 10000 2418.6       241860.00 Stream Pipe Messages/second
-stream_pipe 10000 2190       219000.00 Stream Pipe Messages/second
-stream_pipe 10000 2176.7       217670.00 Stream Pipe Messages/second
-^^^^Still slower then 2.4.19
-
-dgram_pipe 10000 2357.8       235780.00 DataGram Pipe Messages/second
-dgram_pipe 10000 2040       204000.00 DataGram Pipe Messages/second
-dgram_pipe 10000 1978       197800.00 DataGram Pipe Messages/second
-^^^^Debug code, I guess.
-
-pipe_cpy 10000 3918       391800.00 Pipe Messages/second
-pipe_cpy 10000 2949.9       294990.00 Pipe Messages/second
-pipe_cpy 10000 3123.7       312370.00 Pipe Messages/second
-^^^^^Faster then 2.5.58 but slower then 2.4.19
-
-
-Hope it helps.
-
-Ciao,
-         Paolo
 
 -- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
-
-Powered by Outblaze
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

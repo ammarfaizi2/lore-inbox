@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbTEMD4L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 23:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTEMD4L
+	id S262718AbTEMDxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 23:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbTEMDxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 23:56:11 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:31706 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262811AbTEMD4K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 23:56:10 -0400
-Date: Tue, 13 May 2003 05:08:49 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Greg KH <greg@kroah.com>
+	Mon, 12 May 2003 23:53:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14263 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262718AbTEMDxM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 23:53:12 -0400
+Date: Tue, 13 May 2003 05:05:57 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@digeo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: re-scanning the PCI bus after boot for configurable device...
-In-Reply-To: <20030513034147.GA5938@kroah.com>
-Message-ID: <Pine.LNX.4.53.0305130507090.25655@skynet>
-References: <Pine.LNX.4.53.0305130225240.20908@skynet> <20030513034147.GA5938@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 2.6 must-fix list, v2
+Message-ID: <20030513040557.GV10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030512155511.21fb1652.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I've posted a driver to the linux-hotplug-devel mailing list a year or
-> so ago that might help you out with this.  On module load it rescans the
-> PCI address space, adding or removind devices that are new or now gone.
-> This will probably do what you want.
+On Mon, May 12, 2003 at 03:55:11PM -0700, Andrew Morton wrote:
+> 
+> drivers/char/
+> -------------
+> 
+> - TTY locking is broken.
 
-I persume it's this one
-http://marc.theaimsgroup.com/?l=linux-hotplug-devel&m=101312609603679
+No shit.  Locking, refcounting, serial drivers, yada, yada.  Currently it's
+the worst widely-used subsystem in the tree - both 2.4 and 2.5 (and 2.2 is
+not much better).  I've got some cleanups, but that will have to go slowly
+and carefully - otherwise we'll destroy the last remnants of 2.0 race
+prevention logics in there and that's the only thing that makes the current
+code kinda-sorta work most of the time.
 
-and it looks the business, I don't have my hardware yet but I this answers
-the is it possible question enough :-)
+>   - see FIXME in do_tty_hangup().  This causes ppp BUGs in local_bh_enable()
+> 
+>   - Other problems: aviro, dipankar, Alan have details.
 
-Thanks Greg,
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied@skynet.ie
-pam_smb / Linux DecStation / Linux VAX / ILUG person
-
+BTW, somebody will have to document the tty driver and ldisc API.

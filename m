@@ -1,87 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUGLXMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUGLXOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUGLXMz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 19:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUGLXMz
+	id S264231AbUGLXOa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 19:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUGLXOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 19:12:55 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:16786 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264129AbUGLXMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 19:12:52 -0400
-Subject: Re: desktop and multimedia as an afterthought?
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: florin@sgi.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1089665153.1231.88.camel@cube>
+	Mon, 12 Jul 2004 19:14:30 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:4992 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264231AbUGLXOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 19:14:24 -0400
+Date: Mon, 12 Jul 2004 16:14:21 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040712231421.GA24184@taniwha.stupidest.org>
+References: <40F03665.90108@tlinx.org> <E1Bk9pA-0008HQ-00@calista.eckenfels.6bone.ka-ip.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 Jul 2004 16:45:54 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1Bk9pA-0008HQ-00@calista.eckenfels.6bone.ka-ip.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florin Andrei writes:
+On Tue, Jul 13, 2004 at 01:03:04AM +0200, Bernd Eckenfels wrote:
 
-> I could be wrong, but it seems to me that at least a part of the kernel
-> development team has the desktop and multimedia issues very low on the 
-> priority list.
+>    open("test.txt", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
 
-You're right, but you imply that this is bad. It would only be
-bad if _all_ of the kernel development team had the desktop and
-multimedia issues very low on the priority list. It would be
-far worse if everyone worked on multimedia issues.
+old data blocks release (truncated), transaction for this written to
+journal more-or-less synchronously
 
-> The CK patches floated around as separate patches for a long time, even
-> though they brought significant improvements to the kernel w.r.t.
-> desktop and media.
-> Now the stock 2.6 kernel has a pretty bad problem with the latency.
-> Also, there seems to be a reluctance in accepting the autoregulated
-> swappiness patch, even though it markedly improves the overall behaviour
-> of the system as a desktop.
-  
-Reluctance is good. Reluctance keeps out bloat. Reluctance supplies
-time to investigate alternate ideas that might be better.
+>    write(3, "test\ntest\n", 10)            = 10
+>    close(3)                                = 0
 
-> The CK patches have devouted "cult followers".
-> Projects such as PlanetCCRMA, which attempt to build a multimedia-ready
-> Linux distribution, are running kernels patched with the CK patches by
-> default.
+new data sitting in page-cache, not written to disk (in the case of
+XFS the new blocks probably aren't even allocted at this stage).  the
+file size being extended is i assume recorded in the journal though.
 
-This is expected. It's how proposed features get widespread testing.
+if you crash now, you see nulls or a truncated file,  i think this is
+what people are getting with dotfiles
 
-> On the Linux multimedia mailing lists and forums, one can often hear
-> advices in the vein of "use such-and-such patch if you want your system
-> to do any serious multimedia work, the vanilla kernel sucks."
-...
-> I mean, go read the forums. No one in the multimedia community uses the
-> vanilla kernel. They could be all wrong, sure, but there's lots of them.
-     
-It's too bad that the multimedia community didn't participate
-much during the 2.5.xx development leading up to 2.6.0. If they
-had done so, the situation might be different today. Fortunately,
-fixing up the multimedia problems isn't too risky to do during
-the stable 2.6.xx series.
-  
-> It seems like there's a split-brain situation within the Linux
-> community, with the core kernel developers sitting on one side of the
-> rift, and the multimedia people on the other side.
-  
-Nah. People do forget about problems if nobody is reporting them.
-Since the problem reports came in late, you get to be last.
- 
-> Now, i remember someone saying, a while ago, that the server stuff is  
-> pretty much done, and the interesting things are going to happen on the
-> desktop. That sounds plausible, but if the kernel has poor support for 
-> typical desktop scenarios, how are those big desktop improvements going
-> to take place?
-
-Much of that is about hot-plug, laptops going to sleep,
-busy disks being ripped from the machine, support for
-recent video card features, and so on. Multimedia is only
-a small part of the big picture, even for desktop usage.
+KDE is especially good at triggering this it seems
 
 
-
+   --cw

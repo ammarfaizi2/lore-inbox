@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288117AbSACBwE>; Wed, 2 Jan 2002 20:52:04 -0500
+	id <S288120AbSACBze>; Wed, 2 Jan 2002 20:55:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288130AbSACBvy>; Wed, 2 Jan 2002 20:51:54 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:59024 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S288129AbSACBvq>; Wed, 2 Jan 2002 20:51:46 -0500
-Date: Wed, 2 Jan 2002 20:52:31 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Two hdds on one channel - why so slow?
-In-Reply-To: <Pine.GSO.4.33.0201021812560.28783-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.LNX.4.33.0201022010340.10236-100000@coffee.psychology.mcmaster.ca>
+	id <S288109AbSACBzY>; Wed, 2 Jan 2002 20:55:24 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15627
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S288108AbSACBzS>; Wed, 2 Jan 2002 20:55:18 -0500
+Date: Wed, 2 Jan 2002 17:52:30 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Chris Friesen <chris_friesen@sympatico.ca>
+cc: Aaron Lehmann <aaronl@vitelus.com>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DRM OS
+In-Reply-To: <3C338600.B019EED9@sympatico.ca>
+Message-ID: <Pine.LNX.4.10.10201021425380.11866-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Ricky Beam wrote:
-...
-> IDE is just fine for toys.  It's a serious pain in the ass for any serious
-> work.
 
-my goodness; it's been so long since l-k saw this traditional sport!
-nothing much has changed in the intrim: SCSI still costs 2-3x as much,
-and still offers the same, ever-more-niche set of advantages 
-(decent hotswap, somewhat higher reliability, moderately higher performance,
-easier expansion to more disks and/or other devices.)
+http://www.lsilogic.com/techlib/marketing_docs/consumer/ACF394.pdf
 
-> It takes expensive hardware RAID cards to make IDE tolerable. (and
-> I'm not talking about the 30$ PoS HPT crap.)
+Merry Christmas -- 
 
-besides having missed the last 2-3 generations of ATA (which include
-things like diskconnect), you have clearly not noticed that entry-level
-hardware with PoS UDMA100 controllers can sustain more bandwidth than
-you can hope to consume (120 MB/s is pretty easy, even on 32x33 PCI!)
+On Wed, 2 Jan 2002, Chris Friesen wrote:
 
-> PS: I once turned down a 360MHz Ultra10 in favor of a 167MHz Ultra1 because
->     of the absolutely shitty IDE performance.  The U1 was actually faster
->     at compiling software. (Solaris 2.6, btw)
+> Aaron Lehmann wrote:
+> > 
+> > On Fri, Dec 14, 2001 at 01:15:48AM -0800, Andre Hedrick wrote:
+> > > CPU(crypto)<->Memory(crypto)<->Framebuffer(crypto)
+> > > ata(clean)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
+> > > scsi(crypto)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
+> > > CPU(crypto)<->Bridge(crypto)<->Memory(crypto)
+> > >
+> > > Just watch and see!
+> > 
+> > Why would crypto help at all?
+> 
+> That's just the point!  The hardware manufacturers are going to implement the
+> crypto so that only valid digitally signed files can be played on that hardware,
+> and there will be crypto at every step to try and prevent people from getting at
+> the unencrypted bytestream.
+> 
+> They want to keep us from doing cd/mp3 or DVD/DivX type conversions.
+> 
+> Chris
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-yeah, if Sun can't make IDE scream, then no one can eh?
+Andre Hedrick
+Linux ATA Development
+
 

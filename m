@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTFTCs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 22:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTFTCs0
+	id S262175AbTFTCs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 22:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTFTCs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 22:48:26 -0400
-Received: from dp.samba.org ([66.70.73.150]:10201 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262174AbTFTCsZ (ORCPT
+	Thu, 19 Jun 2003 22:48:27 -0400
+Received: from dp.samba.org ([66.70.73.150]:10457 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262175AbTFTCsZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 19 Jun 2003 22:48:25 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: torvalds@transmeta.com, akpm@zip.com.au, linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [PATCH] Make gcc3.3 Eliminate Unused Static Functions 
-In-reply-to: Your message of "Thu, 19 Jun 2003 14:17:33 +0200."
-             <20030619121732.GQ29247@fs.tum.de> 
-Date: Fri, 20 Jun 2003 12:28:36 +1000
-Message-Id: <20030620030225.8EC742C053@lists.samba.org>
+To: Andi Kleen <ak@muc.de>
+Cc: torvalds@transmeta.com, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove spinlock workaround for pre 2.95 gccs 
+In-reply-to: Your message of "Thu, 19 Jun 2003 23:18:19 +0200."
+             <20030619211819.GA12716@averell> 
+Date: Fri, 20 Jun 2003 13:00:56 +1000
+Message-Id: <20030620030225.952512C05E@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030619121732.GQ29247@fs.tum.de> you write:
-> On Fri, Jun 13, 2003 at 11:03:43AM +1000, Rusty Russell wrote:
-> > Argh, bogus line pasted into Makefile turned up in patch.
-> > 
-> > This should be better...
-> >...
-> > +# Needs gcc 3.3 or above to understand max-inline-insns-auto.
-> > +INLINE_OPTS	:= $(shell $(CC) -o /non/existent/file -c --param max-i
-nline-insns-auto=0 -xc /dev/null 2>&1 | grep /non/existent/file >/dev/null && e
-cho -finline-functions --param max-inline-insns-auto=0)
-> >...
-> 
-> You have to add a -Wno-unused-function or you'll get a warning for every
-> eliminated function.
+In message <20030619211819.GA12716@averell> you write:
+> Advantage is that gcc 2.95 and 3.x compiled kernels are now binary
+> compatible. Unfortunately module loading still checks the compiler
+> version, but I guess that could be taken out now. As far as I know
+> there should be no compiler related incompatibilities now.
 
-No, suppressing warnings like that would be bad.  Instead, you write
-functions like this:
+Good point, Andi.  And if any particular arch has compiler version
+issues it can add it back in the arch-specific part.
 
-	#ifdef CONFIG_FOO
-	extern int register_foo(foo_fn myfunction);
-	#else
-	static inline int register_foo(foo_fn myfunction)
-	{
-		return 0;
-	}
-	#endif /* CONFIG_FOO */
-
-That way, there's no unused warning, but gcc knows enough to discard
-the function.
-
-Hope that clarifies!
+Patch is as trivial.  If noone else can think of any problems?
+Cheers,
 Rusty.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.72-bk2/include/linux/vermagic.h working-2.5.72-bk2-compiler-version/include/linux/vermagic.h
+--- linux-2.5.72-bk2/include/linux/vermagic.h	2003-02-18 11:18:56.000000000 +1100
++++ working-2.5.72-bk2-compiler-version/include/linux/vermagic.h	2003-06-20 12:57:51.000000000 +1000
+@@ -19,5 +19,4 @@
+ #define VERMAGIC_STRING 						\
+ 	UTS_RELEASE " "							\
+ 	MODULE_VERMAGIC_SMP MODULE_VERMAGIC_PREEMPT 			\
+-	MODULE_ARCH_VERMAGIC 						\
+-	"gcc-" __stringify(__GNUC__) "." __stringify(__GNUC_MINOR__)
++	MODULE_ARCH_VERMAGIC
+
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

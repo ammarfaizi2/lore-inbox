@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbUKCINK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbUKCIQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbUKCINK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 03:13:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbUKCINK
+	id S261469AbUKCIQw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 03:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbUKCIQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 03:13:10 -0500
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:10644 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261455AbUKCIMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 03:12:49 -0500
-Message-ID: <418892E8.6090002@kolivas.org>
-Date: Wed, 03 Nov 2004 19:12:24 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Wed, 3 Nov 2004 03:16:52 -0500
+Received: from adsl-64-217-116-74.dsl.hstntx.swbell.net ([64.217.116.74]:14084
+	"EHLO dsl-64-217-116-74.dsl.hstntx.swbell.net") by vger.kernel.org
+	with ESMTP id S261469AbUKCIQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 03:16:51 -0500
+Message-ID: <418893F2.30604@adsl-64-217-116-74.dsl.hstntx.swbell.net>
+Date: Wed, 03 Nov 2004 08:16:50 +0000
+From: James Tabor <jimtabor@adsl-64-217-116-74.dsl.hstntx.swbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: linux <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] add requeue task
-References: <418707E5.90705@kolivas.org>	<41877F2D.6070200@yahoo.com.au> <16775.42190.9404.303359@thebsh.namesys.com>
-In-Reply-To: <16775.42190.9404.303359@thebsh.namesys.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigDBB6E9781EC395055F76B451"
+To: linux-kernel@vger.kernel.org
+Subject: IT/ITE 8212 IDE Controller Status
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigDBB6E9781EC395055F76B451
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
+I have applied Alan Cox patch to 2.6.9 and it works with my CompUSA PCI-8212 controller
+card. I have a OptoRite DVD-+R/W running w/o any errors. I can burn and read cd's (/dev/hde),
+etc..
 
-Nikita Danilov wrote:
->  > Con Kolivas wrote:
->  > > +	list_del(&p->run_list);
->  > > +	list_add_tail(&p->run_list, array->queue + p->prio);
->  > > +}
-> 
-> Shouldn't this be
-> 
-> list_move_tail(&p->run_list, array->queue + p->prio);
+I noticed that the it8212 patch was not included in the 2.6.9 release. So,,,,
+What is the status with having the controller patch included in 2.6.10?
 
-Yes indeed thanks! Fortunately they're one and the same thing. I've 
-already resent this patch once, let akpm's tree settle for a bit before 
-I throw more at him.
+Thanks,
+James
 
-Cheers,
-Con
 
---------------enigDBB6E9781EC395055F76B451
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+-- 
+___________________________________________________________________
+             Using Linux since 0.99.12 August 1993
+___________________________________________________________________
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBiJLrZUg7+tp6mRURAuMaAJ9rrnDQamudF3DSFQL6EDmWeibcBQCdGW3n
-0TIsZV0Viu431qcJYz2id50=
-=0EW4
------END PGP SIGNATURE-----
-
---------------enigDBB6E9781EC395055F76B451--

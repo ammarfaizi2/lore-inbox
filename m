@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUKTBWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbUKTAVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263032AbUKTBWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 20:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbUKTBV6
+	id S262815AbUKTAVn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 19:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbUKTARx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 20:21:58 -0500
-Received: from bgm-24-95-139-53.stny.rr.com ([24.95.139.53]:60392 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263032AbUKTBRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 20:17:51 -0500
-Subject: Re: smp_apic_timer_interrupt entry point
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Darren Hart <darren@dvhart.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1100911984.22670.4.camel@localhost.localdomain>
-References: <1100911984.22670.4.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Fri, 19 Nov 2004 20:17:45 -0500
-Message-Id: <1100913465.4051.48.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Fri, 19 Nov 2004 19:17:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46480 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262850AbUKTANR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 19:13:17 -0500
+Date: Sat, 20 Nov 2004 00:13:05 GMT
+Message-Id: <200411200013.iAK0D5mt006624@sisko.sctweedie.blueyonder.co.uk>
+From: Stephen Tweedie <sct@redhat.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: [Patch 1/3]: ext3: cleanup handling of aborted transactions.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-19 at 16:53 -0800, Darren Hart wrote:
-> I am trying to hunt down the entry point to smp_apic_timer_interrupt()
-> for i386.  grep found:
-> 
-> arch/x86_64/kernel/entry.S:     apicinterrupt LOCAL_TIMER_VECTOR,smp_apic_timer_interrupt
-> 
-> but nothing for i386.  I noticed that entry.o on i386 does contain the
-> string "smp_apic_timer_interrupt", is there some kind of linker magic
-> going on?
+This patch improves ext3's error loggin when we encounter an on-disk
+corruption.  Previously, a transaction (such as a truncate) which
+encountered many corruptions (eg. a single highly-corrupt indirect
+block) would emit copious "aborting transaction" errors to the log.
 
-Not linker magic, but macro magic.  Look again at entry.S at
-BUILD_INTERRUPT.  It adds the smp_ onto apic_timer_interrupt.
-Then look where apic_timer_interrupt is used.
+Even worse, encountering an aborted journal can count as such an
+error, leading to a flood of spurious "aborting transaction: Journal
+has aborted" errors.
 
--- 
-Steven Rostedt
-Senior Engineer
-Kihon Technologies
+With the fix, only emit that message on the first error.  The patch
+also restores a missing \n in that printk path.
+
+Signed-off-by: Stephen Tweedie <sct@redhat.com>
+
+--- linux-2.6-ext3/fs/ext3/super.c.=K0000=.orig
++++ linux-2.6-ext3/fs/ext3/super.c
+@@ -108,14 +108,19 @@ void ext3_journal_abort_handle(const cha
+ 	char nbuf[16];
+ 	const char *errstr = ext3_decode_error(NULL, err, nbuf);
+ 
+-	printk(KERN_ERR "%s: aborting transaction: %s in %s", 
+-	       caller, errstr, err_fn);
+-
+ 	if (bh)
+ 		BUFFER_TRACE(bh, "abort");
+-	journal_abort_handle(handle);
++
+ 	if (!handle->h_err)
+ 		handle->h_err = err;
++
++	if (is_handle_aborted(handle))
++		return;
++	
++	printk(KERN_ERR "%s: aborting transaction: %s in %s\n", 
++	       caller, errstr, err_fn);
++
++	journal_abort_handle(handle);
+ }
+ 
+ /* Deal with the reporting of failure conditions on a filesystem such as

@@ -1,87 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbVAFWfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263075AbVAFWlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbVAFWfN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 17:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbVAFWdw
+	id S263075AbVAFWlR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 17:41:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbVAFWlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 17:33:52 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:18395 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S263142AbVAFWbP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 17:31:15 -0500
-Message-ID: <41DDBC52.4020801@tmr.com>
-Date: Thu, 06 Jan 2005 17:31:46 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       "Theodore Ts'o" <tytso@mit.edu>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-References: <4d8e3fd30501060603247e955a@mail.gmail.com><4d8e3fd30501060603247e955a@mail.gmail.com> <20050106193214.GK3096@stusta.de>
-In-Reply-To: <20050106193214.GK3096@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jan 2005 17:41:17 -0500
+Received: from gprs215-35.eurotel.cz ([160.218.215.35]:12168 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263161AbVAFWfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 17:35:30 -0500
+Date: Thu, 6 Jan 2005 23:31:32 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: hugang@soulinfo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [hugang@soulinfo.com: [PATH]software suspend for ppc.]
+Message-ID: <20050106223132.GD25913@elf.ucw.cz>
+References: <20050103122653.GB8827@hugang.soulinfo.com> <20050103221718.GC25250@elf.ucw.cz> <20050106160306.GA20127@hugang.soulinfo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106160306.GA20127@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Thu, Jan 06, 2005 at 03:03:26PM +0100, Paolo Ciarrocchi wrote:
-> 
->>What's wrong in keeping the release management as is now plus
->>introducing a 2.6.X.Y series of kernels ?
->>
->>In short:
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109882220123966&w=2
-> 
-> 
-> Currently (2.6.10), there would have been 11 such branches.
-> 
-> If a security vulnerability was found today, this meant backporting and 
-> applying the patch to 11 different kernel versions, the oldest one being 
-> more than one year old.
-> 
-> With more 2.6 versions, there would be even more branches, and the 
-> oldest ones becoming more and more different from the current codebase.
-> 
-> You could at some point start dropping the oldest branches, but this 
-> would mean a migration to a more recent branch for all users of this 
-> branch.
-> 
-> OTOH, if you migrated relatively late at 2.4.17 to the 2.4 branch, this 
-> branch is still actively maintained today, more than 3 years later.
+Hi!
 
-I don't think that's what he meant (I hope not) and I know it's not what 
-I had in mind. What I was suggesting is that until 2.6.11 comes out, all 
-patches which are fixes (existing feature doesn't work, oops, security 
-issues, or other "unusable with the problem triggered" cases) would go 
-into 2.6.10.N, where N would be a small number unless we had another 100 
-day release cycle.
+> > swsusp_arch_{suspend,resume} should really be written in
+> > assembly. Just compile this, disassemble it and put it into source
+> > file. Otherwise it looks OK.
+> > 								Pavel
+> 
+> After do more test, I have to drop my last patch, That's unstable.
+> Current I using this one from 
+>  http://honk.physik.uni-konstanz.de/~agx/linux-ppc/kernel/
+> 
+> Here is another patch try make software suspend work well. This idea
+> base on swsusp2.
+> 
+> adding a option to freeze/thaw_processes, first freeze all user
+> processess, from now only kernel processess running, Now we can shrink
+> more memory than current version, after that freeze all processes.
+> that's mean if your swap space enough, swsusp will not fail. 
 
-This wouldn't be a blank check to maintain a version forever, and since 
-the patch from 2.6.10 to 2.6.11 will be against a 2.6.10 base there will 
-not be a lot of rediffing beyond what's needed if someone submits a 
-patch against -mm or -bk or whatever. It's not zero work, but it's small 
-work.
+Thanks for the port... ...what is the test case this fixes?
 
-When 2.6.11 came out, the 2.6.10.N effort would stop, or perhaps 
-continue for a short time in the unlikely event that some huge security 
-hole was found within the first week or so after 2.6.11. That seems to 
-happen at most a few times a year. In general once 2.6.N+1 is out, 
-2.6.N.x is frozen.
+Patch is pretty pretty simple, that's good...
 
-Since the mechanism is already in place to generate -bk versions against 
-both the base and previous -bk version, I don't see any reason why both 
-can't be available.
+							Pavel
 
-Unless I'm missing something this would involve only a small amount of 
-work which wouldn't be done anyway, and would provide a bugfix path 
-which people could use with a high probability of unwanted side effects.
+
+
+> --- 2.6.10-mm1/include/linux/sched.h	2005-01-03 18:53:51.000000000 +0800
+> +++ 2.6.10-mm1-swsusp//include/linux/sched.h	2005-01-03 22:33:37.000000000 +0800
+> @@ -1172,8 +1172,8 @@ extern void normalize_rt_tasks(void);
+>   */
+>  #ifdef CONFIG_PM
+>  extern void refrigerator(unsigned long);
+> -extern int freeze_processes(void);
+> -extern void thaw_processes(void);
+> +extern int freeze_processes(int);
+> +extern void thaw_processes(int);
+>  
+>  static inline int try_to_freeze(unsigned long refrigerator_flags)
+>  {
+> --- 2.6.10-mm1/kernel/power/disk.c	2004-12-30 14:49:03.000000000 +0800
+> +++ 2.6.10-mm1-swsusp//kernel/power/disk.c	2005-01-03 22:53:11.000000000 +0800
+> @@ -116,7 +116,7 @@ static void finish(void)
+>  	device_resume();
+>  	platform_finish();
+>  	enable_nonboot_cpus();
+> -	thaw_processes();
+> +	thaw_processes(1);
+>  	pm_restore_console();
+>  }
+>  
+> @@ -128,7 +128,7 @@ static int prepare(void)
+>  	pm_prepare_console();
+>  
+>  	sys_sync();
+> -	if (freeze_processes()) {
+> +	if (freeze_processes(0)) {
+>  		error = -EBUSY;
+>  		goto Thaw;
+>  	}
+> @@ -142,6 +142,8 @@ static int prepare(void)
+>  
+>  	/* Free memory before shutting down devices. */
+>  	free_some_memory();
+> +	
+> +	freeze_processes(1);
+>  
+>  	disable_nonboot_cpus();
+>  	if ((error = device_suspend(PM_SUSPEND_DISK)))
+> @@ -152,7 +154,7 @@ static int prepare(void)
+>  	platform_finish();
+>   Thaw:
+>  	enable_nonboot_cpus();
+> -	thaw_processes();
+> +	thaw_processes(1);
+>  	pm_restore_console();
+>  	return error;
+>  }
+> --- 2.6.10-mm1/kernel/power/main.c	2004-12-30 14:49:02.000000000 +0800
+> +++ 2.6.10-mm1-swsusp//kernel/power/main.c	2005-01-03 22:39:53.000000000 +0800
+> @@ -55,7 +55,7 @@ static int suspend_prepare(suspend_state
+>  
+>  	pm_prepare_console();
+>  
+> -	if (freeze_processes()) {
+> +	if (freeze_processes(1)) {
+>  		error = -EAGAIN;
+>  		goto Thaw;
+>  	}
+> @@ -72,7 +72,7 @@ static int suspend_prepare(suspend_state
+>  	if (pm_ops->finish)
+>  		pm_ops->finish(state);
+>   Thaw:
+> -	thaw_processes();
+> +	thaw_processes(1);
+>  	pm_restore_console();
+>  	return error;
+>  }
+> @@ -107,7 +107,7 @@ static void suspend_finish(suspend_state
+>  	device_resume();
+>  	if (pm_ops && pm_ops->finish)
+>  		pm_ops->finish(state);
+> -	thaw_processes();
+> +	thaw_processes(1);
+>  	pm_restore_console();
+>  }
+>  
+> --- 2.6.10-mm1/kernel/power/power.h	2004-12-30 14:49:02.000000000 +0800
+> +++ 2.6.10-mm1-swsusp//kernel/power/power.h	2005-01-03 22:39:24.000000000 +0800
+> @@ -45,8 +45,5 @@ static struct subsys_attribute _name##_a
+>  
+>  extern struct subsystem power_subsys;
+>  
+> -extern int freeze_processes(void);
+> -extern void thaw_processes(void);
+> -
+>  extern int pm_prepare_console(void);
+>  extern void pm_restore_console(void);
+> --- 2.6.10-mm1/kernel/power/process.c	2004-12-30 14:49:02.000000000 +0800
+> +++ 2.6.10-mm1-swsusp//kernel/power/process.c	2005-01-03 22:34:50.000000000 +0800
+> @@ -19,7 +19,7 @@
+>  #define TIMEOUT	(6 * HZ)
+>  
+>  
+> -static inline int freezeable(struct task_struct * p)
+> +static inline int freezeable(struct task_struct * p, int all)
+>  {
+>  	if ((p == current) || 
+>  	    (p->flags & PF_NOFREEZE) ||
+> @@ -28,6 +28,8 @@ static inline int freezeable(struct task
+>  	    (p->state == TASK_STOPPED) ||
+>  	    (p->state == TASK_TRACED))
+>  		return 0;
+> +	if (all == 0 && p->mm == NULL) 
+> +		return 0;
+>  	return 1;
+>  }
+>  
+> @@ -55,7 +57,7 @@ void refrigerator(unsigned long flag)
+>  }
+>  
+>  /* 0 = success, else # of processes that we failed to stop */
+> -int freeze_processes(void)
+> +int freeze_processes(int all)
+>  {
+>         int todo;
+>         unsigned long start_time;
+> @@ -68,7 +70,7 @@ int freeze_processes(void)
+>  		read_lock(&tasklist_lock);
+>  		do_each_thread(g, p) {
+>  			unsigned long flags;
+> -			if (!freezeable(p))
+> +			if (!freezeable(p, all))
+>  				continue;
+>  			if ((p->flags & PF_FROZEN) ||
+>  			    (p->state == TASK_TRACED) ||
+> @@ -97,14 +99,14 @@ int freeze_processes(void)
+>  	return 0;
+>  }
+>  
+> -void thaw_processes(void)
+> +void thaw_processes(int all)
+>  {
+>  	struct task_struct *g, *p;
+>  
+>  	printk( "Restarting tasks..." );
+>  	read_lock(&tasklist_lock);
+>  	do_each_thread(g, p) {
+> -		if (!freezeable(p))
+> +		if (!freezeable(p, all))
+>  			continue;
+>  		if (p->flags & PF_FROZEN) {
+>  			p->flags &= ~PF_FROZEN;
+> 
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

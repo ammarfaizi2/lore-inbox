@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265336AbTAEV6V>; Sun, 5 Jan 2003 16:58:21 -0500
+	id <S265382AbTAEWFf>; Sun, 5 Jan 2003 17:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265325AbTAEV6U>; Sun, 5 Jan 2003 16:58:20 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:56726 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S265321AbTAEV6O> convert rfc822-to-8bit; Sun, 5 Jan 2003 16:58:14 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <hps@intermeta.de>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Sun, 5 Jan 2003 14:06:46 -0800
-In-Reply-To: <ava93t$gdp$1@forge.intermeta.de>
+	id <S265385AbTAEWFf>; Sun, 5 Jan 2003 17:05:35 -0500
+Received: from auto-matic.ca ([216.209.85.42]:14353 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S265382AbTAEWFe>;
+	Sun, 5 Jan 2003 17:05:34 -0500
+Date: Sun, 5 Jan 2003 17:22:35 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Message-ID: <20030105222235.GB31840@mark.mielke.cc>
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103075134.GA31357@mark.mielke.cc> <E18UYSe-0004v1-00@fencepost.gnu.org> <20030104011926.GB4472@mark.mielke.cc> <ava8bs$gbi$1@forge.intermeta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20030105220647.AAA2025@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ava8bs$gbi$1@forge.intermeta.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Jan 2003 21:46:37 +0000 (UTC), Henning P. Schmiedehausen 
-wrote:
+On Sun, Jan 05, 2003 at 09:33:48PM +0000, Henning P. Schmiedehausen wrote:
+> Mark Mielke <mark@mark.mielke.cc> writes:
+> >I have the freedom to use Linux and ClearCase. If closed source modules
+> >were to be disallowed, it would be illegal for me to use this configuration,
+> >and I would be forced to use HP-UX or Solaris, and not Linux.
+> No, it wouldn't. Thats' what most people don't understand. You
+> wouldn't have a license to GIVE AWAY a system which consists of Linux
+> kernel and MVFS object module.
+> ...
 
->Wrong. You buy a license from Microsoft and a media (CD/DVD). Read
->the
->end user license agreement (EULA).  You're allowed to resell the
->media
->but not the license. "Unfortunately" for Microsoft, this distinction
->is illegal in free countries like Germany [1]. So M$ lost in court
->and
->you can legally buy "OEM" versions for a fraction of the "boxed"
->price
->and resell your licenses.
+Just to point out - I said "If closed source modules were to be disallowed,".
 
->AFAIK, in the U.S. you cannot resell the license legally once you
->accepted the EULA (i.e. opened the box). And dealers must not resell
->unbundled OEM software.
+Also - the question isn't whether closed source modules can be distributed,
+as much as "can closed source modules that could not be compiled without GPL
+source code (header files), be distributed?"
 
->Now, who's living in a free country again?
+RMS wishes my configuration (Linux + ClearCase MVFS) to be illegal,
+because he wishes to enforce an all-free ("free" as defined by RMS)
+final product, and the existence of closed-source hardware drivers
+(nVidia) or software extensions (ClearCase MVFS) are in the way of
+this goal.
 
-	We are. Freedom includes the freedom to set whatever terms you want 
-on what other people do with what is yours. Of course, it also 
-includes the freedom not to buy things that come with restrictive 
-licenses.
+If he succeeds, I may lose the freedom to effectively use Linux,
+because I don't *mind* buying good software, and I don't *mind* if it
+is closed source. Why don't I mind? Because, with few exceptions,
+closed source software for expensive price tags tends to be better, or
+fuller in some way, in my experience. We live in a capitalist society.
+Pretending that capitalism can be avoided is... not realistic.
 
-	DS
+mark
 
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbRE3Ulg>; Wed, 30 May 2001 16:41:36 -0400
+	id <S262094AbRE3Uv2>; Wed, 30 May 2001 16:51:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262090AbRE3Ul0>; Wed, 30 May 2001 16:41:26 -0400
-Received: from mercury.ukc.ac.uk ([129.12.21.10]:58540 "EHLO mercury.ukc.ac.uk")
-	by vger.kernel.org with ESMTP id <S262094AbRE3UlU>;
-	Wed, 30 May 2001 16:41:20 -0400
-Date: Wed, 30 May 2001 21:40:45 +0100 (BST)
-From: Leonid Timochouk <L.A.Timochouk@ukc.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Segfault during network calls
-Message-ID: <Pine.GSO.4.21.0105302124290.10349-100000@myrtle.ukc.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262239AbRE3UvS>; Wed, 30 May 2001 16:51:18 -0400
+Received: from [158.152.228.152] ([158.152.228.152]:23942 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S262213AbRE3UvM>;
+	Wed, 30 May 2001 16:51:12 -0400
+Message-Id: <m155Csr-000OkJC@amadeus.home.nl>
+Date: Wed, 30 May 2001 21:48:01 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: engler@csl.Stanford.EDU (Dawson Engler)
+Subject: Re: [CHECKER] new floating point bugs in 2.4.5-ac4
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105302033.NAA07866@csl.Stanford.EDU>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello colleagues,
+In article <200105302033.NAA07866@csl.Stanford.EDU> you wrote:
+> Here are two new uses of floating point that popped up in the 2.4.5-ac4
+> kernel.  While the expressions that use FP are trivial, at least my
+> version of gcc does not calculate them at compile time.
 
-We have a strange problem with our multi-threaded SMTP client: at very
-heavy load (e.g. 150 threads, each with a pool of 5 persistent
-connections) it sometimes receives SIGSEGV while making network kernel
-calls (mostly in "recvfrom" for both TCP and UDP, but also in "connect").
-This happens for both 2.2.12 and 2.4.4 kernels on a Celeron 600 machine
-(no SMP) with glibc 2.1.3. The kernel logs do not show any problems, yet
-the application program gets killed. This happens MORE frequently if we
-increase the number of file descriptors available to the process (using
-"ulimit -n"), which suggests some resource utilisation problem in the
-kernel (?) E.g., is there a compiled-in upper bound on the total number of
-sockets which can be created by all processes? (I could not find
-SOCK_ARRAY_SIZE in 2.4.4). Any ideas would be very much appreciated.
+> [BUG] DMFE_TX_KICK is (HZ * 0.5) which gcc does as floating point.  Fix is
+>        trivial: just divide by 2 instead.
 
-Thank you very much in advance,
-
-Dr. Leonid A. Timochouk
-Computing Laboratory
-University of Kent at Canterbury
-
+Fixed in 2.4.5-ac5 already

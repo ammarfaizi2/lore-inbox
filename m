@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbTFDAP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 20:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTFDAP5
+	id S262001AbTFDAQm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 20:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTFDAP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 20:15:57 -0400
-Received: from dm2-85.slc.aros.net ([66.219.220.85]:56730 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S261994AbTFDAPx (ORCPT
+	Tue, 3 Jun 2003 20:15:59 -0400
+Received: from fe5.rdc-kc.rr.com ([24.94.163.52]:29956 "EHLO mail5.kc.rr.com")
+	by vger.kernel.org with ESMTP id S262001AbTFDAPy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 20:15:53 -0400
-Message-ID: <3EDD3D5F.3010509@aros.net>
-Date: Tue, 03 Jun 2003 18:29:19 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70 add_disk(disk) re-registering disk->queue->elevator.kobj
- (bug?!)
-References: <3EDCEA14.2000407@aros.net> <20030603120717.66012855.akpm@digeo.com>
-In-Reply-To: <20030603120717.66012855.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jun 2003 20:15:54 -0400
+Date: Tue, 3 Jun 2003 19:29:11 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lost interrupts with 2.4.21-rc6 and i875p chipset
+Message-ID: <20030604002911.GA1379@glitch.localdomain>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030603111519.GA23228@glitch.localdomain> <20030603234359.GA690@glitch.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030603234359.GA690@glitch.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+> Does this occur if you build the kernel without ACPI and without APIC
+> support ?
 
->Lou Langholtz <ldl@aros.net> wrote:
->  
->
->>Or perhaps the block 
->>handling logic was changed such that disks don't share the same 
->>request_queue anymore. If so, then a few drivers (like nbd) need to be 
->>updated to use a seperate request_queue per disk.
->>    
->>
->
->The ramdisk driver was recently changed to do exactly this.  From what
->you say it appears that nbd needs the same treatment.
->  
->
-I noticed that too but thought surely that couldn't be why the rd driver 
-was changes. Cause... then it would seem via 'grep blk_init_queue 
-drivers/block/*.c' that most of the block drivers need to be changed. 
-And having a request_queue structure for every disk that's often (in 
-these drivers) every minor device, seems like a lot of unneeded memory 
-usage too. I'm afraid to ask this, but are you sure that each disk 
-really is supposed to have its own request queue now? That seems less 
-sensible than inverting the kobject parenting logic so that the 
-request_queue.elevator kobject is the parent of the disk kobject. After 
-all, makes more sense for multiple gen_disk objects to belong to the 
-same elevator than for multiple elevators to belong to the same gen_disk 
-no???
+After a bit of experimenting with pre7, I found that I only need to
+disable IOAPIC (ACPI was already disabled).  Thanx for the pointer!
 
-Anyways.... thanks for setting me straight ;-)
 
-Lou
-
+   $ grep APIC config_glitch.apic.2
+   CONFIG_X86_GOOD_APIC=y
+   CONFIG_X86_UP_APIC=y
+   # CONFIG_X86_UP_IOAPIC is not set
+   CONFIG_X86_LOCAL_APIC=y

@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUDVPb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUDVPaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUDVPb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 11:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbUDVPb5
+	id S264124AbUDVPaB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 11:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUDVPaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 11:31:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36575 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264132AbUDVPbB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 11:31:01 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Thu, 22 Apr 2004 11:30:01 -0400
+Received: from dsl-gw-90.pilosoft.com ([69.31.90.1]:63194 "EHLO
+	paix.pilosoft.com") by vger.kernel.org with ESMTP id S264124AbUDVP3z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 11:29:55 -0400
+Date: Thu, 22 Apr 2004 11:27:05 -0400 (EDT)
+From: alex@pilosoft.com
+To: jamal <hadi@cyberus.ca>
+cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
+Subject: Re: tcp vulnerability?  haven't seen anything on it here...
+In-Reply-To: <1082647046.1099.47.camel@jzny.localdomain>
+Message-ID: <Pine.LNX.4.44.0404221121230.2738-100000@paix.pilosoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16519.58589.773562.492935@segfault.boston.redhat.com>
-Date: Thu, 22 Apr 2004 11:29:33 -0400
-To: linux-kernel@vger.kernel.org
-Subject: netconsole hangs w/ alt-sysrq-t
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If netconsole is enabled, and you hit Alt-Sysrq-t, then it will print a
-small amount of output to the console(s) and then hang the system.  In this
-case, I'm using the e100 driver, and we end up exhausting the available
-cbs.  Since we are in interrupt context, the driver's poll routine is never
-run, and we loop infinitely waiting for resources to free up that never
-will.  Kernel version is 2.6.5.
+> > > Unless i misunderstood: You need someone/thing to see about 64K
+> > > packets within a single flow to make the predicition so the attack
+> > > is succesful. Sure to have access to such capability is to be in a
+> > > hostile path, no? ;->
+> > No, you do not need to see any packet.
+> > 
+> 
+> Ok, so i misunderstood then. How do you predict the sequences without
+> seeing any packet? Is there any URL to mentioned paper?
+You don't - just brute-force the tcp 4-tuple and sequence number. The
+attack relies on the fact that you don't have to match sequence number
+exactly, which cuts down on the search-space. (If total search space is
+2^32, rwin is 16k, effective attack search space is 2^32/16k). Multiplied 
+by number of ephemeral ports, it becomes *feasible* but still not very 
+likely.
 
-No easy solutions jump out at me, unfortunately.  Comments?
+> > Inter-provider BGP is long-lived with close to fixed ports, which is
+> > why it has caused quite a stir.
+> 
+> Makes sense. What would be the overall effect though? Route flaps?
+Yep.
 
-Regards,
+> > Nevertheless, number of packets to kill the session is still *large*
+> > (under "best-case" for attacker, you need to send 2^30 packets)...
 
-Jeff
+-alex
+

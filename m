@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTLDUxb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 15:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTLDUxa
+	id S262558AbTLDUzf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 15:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTLDUze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 15:53:30 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:48140 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S261928AbTLDUxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 15:53:30 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: torvalds@osdl.org (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
-Organization: Core
-In-Reply-To: <Pine.LNX.4.58.0312031721210.2055@home.osdl.org>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
-Message-Id: <E1AS0TP-0003ga-00@gondolin.me.apana.org.au>
-Date: Fri, 05 Dec 2003 07:53:19 +1100
+	Thu, 4 Dec 2003 15:55:34 -0500
+Received: from main.gmane.org ([80.91.224.249]:45490 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262558AbTLDUz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 15:55:26 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Date: Thu, 04 Dec 2003 21:55:23 +0100
+Message-ID: <yw1xoeuos3pg.fsf@kth.se>
+References: <200312041432.23907.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:OOiX37Ya2LK1h7UBTjmWTH9+kWU=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> Really? This actually makes a difference for you? I don't see why it
-> should matter: even if the sector offsets would overflow, why would that
-> cause _oopses_?
+Rob Landley <rob@landley.net> writes:
 
-Apart from the printk, he also changed dev_info_t which means that any
-place that uses it will be using the 64-bit type now.
+> You can make a file with a hole by seeking past it and never writing to that 
+> bit, but is there any way to punch a hole in a file after the fact?  (I mean 
+> other with lseek and write.  Having a sparse file as the result....)
+
+I've never heard of one.
+
+> What are the downsides of holes?  (How big do they have to be to
+> actually save space, is there a performance penalty to having a file
+> with 1000 4k holes in it, etc...)
+
+A hole has to be at least the size of one block in the filesystem,
+typically 4k, to save any space.  Regarding performance, I would
+expect it to improve for reads.
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Måns Rullgård
+mru@kth.se
+

@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266692AbUAWUEt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 15:04:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUAWUEt
+	id S266688AbUAWUCj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 15:02:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266694AbUAWUCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 15:04:49 -0500
-Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:55939 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S266692AbUAWUEr
+	Fri, 23 Jan 2004 15:02:39 -0500
+Received: from mail4.edisontel.com ([62.94.0.37]:65488 "EHLO
+	mail4.edisontel.com") by vger.kernel.org with ESMTP id S266688AbUAWUCh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 15:04:47 -0500
-Message-ID: <40117F5B.30607@stesmi.com>
-Date: Fri, 23 Jan 2004 21:08:59 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Fri, 23 Jan 2004 15:02:37 -0500
+From: Eduard Roccatello <lilo@roccatello.it>
+Organization: SPINE
+To: Willy Tarreau <willy@w.ods.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] net/ipv4/tcp.c little cleanup
+Date: Fri, 23 Jan 2004 21:03:05 +0100
+User-Agent: KMail/1.5.4
+References: <200401222253.37426.lilo@roccatello.it> <20040122234833.GL545@alpha.home.local>
+In-Reply-To: <20040122234833.GL545@alpha.home.local>
+Cc: linux-kernel@vger.kernel.org
+X-IRC: #hardware@azzurra.org #rolug@freenode
+X-Jabber: eduardroccatello@jabber.linux.it
+X-GPG-Keyserver: keyserver.linux.it
+X-GPG-FingerPrint: F7B3 3844 038C D582 2C04 4488 8D46 368B 474D 6DB0
+X-GPG-KeyID: 474D6DB0
+X-Website: http://www.pcimprover.it
 MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: Pavel Machek <pavel@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, ak@colin2.muc.de,
-       sundarapandian.durairaj@intel.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, torvalds@osdl.org, greg@kroah.com,
-       vladimir.kondratiev@intel.com, harinarayanan.seshadri@intel.com
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-References: <6B09584CC3D2124DB45C3B592414FA83011A3357@bgsmsx402.gar.corp.intel.com> <20040122131258.GA84577@colin2.muc.de> <1074795663.1413.8.camel@dhcp23.swansea.linux.org.uk> <20040122114035.7af1c9bc.rddunlap@osdl.org> <20040123191928.GA1355@elf.ucw.cz> <20040123193111.GA28277@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20040123193111.GA28277@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401232103.05618.lilo@roccatello.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
+On Friday 23 January 2004 00:48, Willy Tarreau wrote:
+> Hi !
+>
+> On Thu, Jan 22, 2004 at 10:53:37PM +0100, Eduard Roccatello wrote:
+> > Hello,
+> > i've done a little cleanup to net/ipv4/tcp.c
+> >
+> > I hope it is ok :-)
+>
+> I haven't looked at sysctl_max_syn_backlog type, but if it's unsigned,
+> there's a risk of infinite loop for values above 2^31 on 32 bits
+> machines, or 2^63 on 64 bits machine.
+sysctl_max_syn_backlog is an int and max_qlen_log is a u8 (uint8_t).
+i think there is no problem with them.
+sysctl_max_syn_backlog max value is 1024 so max_qlen_log is just 9.
 
-> Hi!
-> 
-> 
->>I'd call it "noexpress". pciexp sounds like PCI exception, PCI
->>expected or something...
-> 
-> 
-> Well, "noexpress" sounds like it does nothing in common with PCI,
-> which is more misleading than the connotations you mention.
+is it ok for you?
 
-nopciexpress sounds better than but it's sorta long...
-
-// Stefan
+> > --- net/ipv4/tcp.c.orig	2004-01-22 22:49:38.000000000 +0100
+> > +++ net/ipv4/tcp.c	2004-01-22 22:42:38.000000000 +0100
+> > @@ -549,9 +549,9 @@ int tcp_listen_start(struct sock *sk)
+> >  	 	return -ENOMEM;
+> >
+> > 	memset(lopt, 0, sizeof(struct tcp_listen_opt));
+> > -	for (lopt->max_qlen_log = 6; ; lopt->max_qlen_log++)
+> > -		if ((1 << lopt->max_qlen_log) >= sysctl_max_syn_backlog)
+> > -			break;
+> > +	lopt->max_qlen_log = 6;
+> > +	while (sysctl_max_syn_backlog > (1 << lopt->max_qlen_log))
+> > +		lopt->max_qlen_log++;
+> >  	get_random_bytes(&lopt->hash_rnd, 4);
+> >
+> >  	write_lock_bh(&tp->syn_wait_lock);
 

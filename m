@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265566AbTFZLii (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 07:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265567AbTFZLii
+	id S265567AbTFZLlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 07:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265572AbTFZLlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 07:38:38 -0400
-Received: from [203.124.166.107] ([203.124.166.107]:24331 "EHLO
-	mail.pune.nevisnetworks.com") by vger.kernel.org with ESMTP
-	id S265566AbTFZLih convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 07:38:37 -0400
-content-class: urn:content-classes:message
-Subject: RE: INIT:ld"2" respawning too fast:disabled for 5 minutes
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 26 Jun 2003 17:23:55 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Message-ID: <36993D449C7FA647BF43568E0793AB3E059BC2@nevis_pune_xchg.pune.nevisnetworks.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: INIT:ld"2" respawning too fast:disabled for 5 minutes
-Thread-Index: AcM7zd0ra2D8JgflSNmPI7GjGHmMoAAC5mQA
-From: "Girish Kale" <girish.kale@nevisnetworks.com>
-To: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Thu, 26 Jun 2003 07:41:14 -0400
+Received: from angband.namesys.com ([212.16.7.85]:19913 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S265567AbTFZLlN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 07:41:13 -0400
+Date: Thu, 26 Jun 2003 15:55:25 +0400
+From: Oleg Drokin <green@namesys.com>
+To: joe briggs <jbriggs@briggsmedia.com>
+Cc: Edward Tandi <ed@efix.biz>, Timothy Miller <miller@techsource.com>,
+       reiser@namesys.com, Artur Jasowicz <kernel@mousebusiness.com>,
+       Brian Jackson <brian@brianandsara.net>,
+       Bart SCHELSTRAETE <Bart.SCHELSTRAETE@dhl.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: AMD MP, SMP, Tyan 2466, REISERFS I/O error
+Message-ID: <20030626115525.GA13194@namesys.com>
+References: <BB1F47F5.17533%kernel@mousebusiness.com> <3EFA2939.2060005@techsource.com> <1056583075.31265.22.camel@wires.home.biz> <200306260825.54076.jbriggs@briggsmedia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306260825.54076.jbriggs@briggsmedia.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using 2.4.21 kernel. Sending it separately to you.
+Hello!
 
-Regards,
-Girish
+On Thu, Jun 26, 2003 at 08:25:54AM -0400, joe briggs wrote:
+> I am working on a Tyan 2466 SMP/Athlon server now and am getting tons of 
+> reiserf errors (see attached /var/log/syslog) that claim an i/o error, yet 
+> the log does not show any errors from the driver (should it?).  
+> Unfortunately, Reiser does not indicate which drive the error is produced 
+> from.  My configuration is:
+> Tyan 2466 SMP 2 x AMD2400-MP
+> 512 MB PC2100 DDR-> not registered!
+> Debian woody
+> 2.4.21 reiser
+> system drive (os, swap) wd800-bb (80 gb ide)
+> data drives: 3ware 7200, 2 x wd2000 (200 gb ide) RAID-0
 
+Is not this is one of those heavy-PCI loaded boxes that ocasionally corrupt
+data when PCI is overloaded? 
+The log you quoted shows that suddenly tree nodes have incorrect content
+(and the i/o error is because reiserfs does not know what to do with such nodes).
+(and we hope to push the patch that will print device where error have occured
+soon).
 
------Original Message-----
-From: Zeno R.R. Davatz [mailto:zdavatz@ywesee.com] 
-Sent: Thursday, June 26, 2003 3:55 PM
-To: linux-kernel@vger.kernel.org
-Subject: Re: INIT:ld"2" respawning too fast:disabled for 5 minutes
-
-On Thu, 26 Jun 2003 15:31:29 +0530
-"Girish Kale" <girish.kale@nevisnetworks.com> wrote:
-
-> When I experimented with my new kernel I added another entry in my
-> grub file. That gave me 2 options - to load from my previous kernel or
-> to load from my new kernel. So everytime things went wrong with my new
-> kernel I booted from the new kernel (which was always intact, not
-> overwritten by the new kernel), made modifications for the new kernel
-> and then tried out with the new kernel.
-
-Okay, I will try that.
-
-NB: I get the same error with the Debian Kernel-Source-2.4.20...
-
-Can you send me your .config file?
-
-I attached mine.
-
-Thanks
-Zeno
+Bye,
+    Oleg

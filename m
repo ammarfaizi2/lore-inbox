@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264169AbRF0VDv>; Wed, 27 Jun 2001 17:03:51 -0400
+	id <S265404AbRF0VKC>; Wed, 27 Jun 2001 17:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265398AbRF0VDl>; Wed, 27 Jun 2001 17:03:41 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:62728 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264169AbRF0VDY>; Wed, 27 Jun 2001 17:03:24 -0400
-Message-ID: <3B3A4A09.F7D8D5BA@transmeta.com>
-Date: Wed, 27 Jun 2001 14:03:05 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S265407AbRF0VJw>; Wed, 27 Jun 2001 17:09:52 -0400
+Received: from matrix2.enst.fr ([137.194.2.14]:24009 "HELO smtp2.enst.fr")
+	by vger.kernel.org with SMTP id <S265404AbRF0VJq>;
+	Wed, 27 Jun 2001 17:09:46 -0400
+Date: Wed, 27 Jun 2001 23:08:43 +0200
+From: Fabrice Gautier <gautier@email.enst.fr>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Subject: Re: When the FUD is all around (sniff).
+Cc: Luigi Genoni <kernel@Expansa.sns.it>, linux-kernel@vger.kernel.org
+In-Reply-To: <3B3880FF.36885A81@oracle.com>
+In-Reply-To: <Pine.LNX.4.33.0106261015120.9537-100000@Expansa.sns.it> <3B3880FF.36885A81@oracle.com>
+Message-Id: <20010627230741.9759.GAUTIER@email.enst.fr>
 MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User chroot
-In-Reply-To: <200106272055.f5RKtur331470@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.00.06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" wrote:
-> 
-> BTW, it is way wrong that /dev/zero should be needed at all.
-> Such use is undocumented ("man zero", "man mmap") anyway, and
-> AFAIK one should use mmap() with MAP_ANON instead. Not that
-> the documentation on MAP_ANON is any good either, but at least
-> the mere existence of the flag is mentioned.
-> 
 
-RTFM(POSIX).
+On Tue, 26 Jun 2001 14:33:03 +0200
+Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
 
-	-hpa
+> 
+> I have trouble in finding words to describe such blatant ignorance.
+
+
+A Troll ?
+
+oh.. geez, this was not something on the internet...
+
+-- 
+Fabrice Gautier <gautier@email.enstfr>
+

@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUIEGo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUIEHFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266244AbUIEGo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 02:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUIEGo6
+	id S266292AbUIEHFP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 03:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUIEHFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 02:44:58 -0400
-Received: from hermes.iil.intel.com ([192.198.152.99]:17893 "EHLO
-	hermes.iil.intel.com") by vger.kernel.org with ESMTP
-	id S266244AbUIEGo4 convert rfc822-to-8bit (ORCPT
+	Sun, 5 Sep 2004 03:05:15 -0400
+Received: from dev.tequila.jp ([128.121.50.153]:24847 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S266292AbUIEHFJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 02:44:56 -0400
-Content-class: urn:content-classes:message
+	Sun, 5 Sep 2004 03:05:09 -0400
+Message-ID: <413ABA9E.5030809@tequila.co.jp>
+Date: Sun, 05 Sep 2004 16:05:02 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: force_sig_info
-Date: Sun, 5 Sep 2004 08:44:44 +0200
-Message-ID: <2C83850C013A2540861D03054B478C06048FFA9D@hasmsx403.ger.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: force_sig_info
-Thread-Index: AcSR4a9Fc0ZGQtD3THa7beEVkXJ5NwBLw3rg
-From: "Zach, Yoav" <yoav.zach@intel.com>
-To: "Linus Torvalds" <torvalds@osdl.org>, "Yoav Zach" <yoav_zach@yahoo.com>
-Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Sep 2004 06:44:46.0200 (UTC) FILETIME=[D5180780:01C49313]
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: external firewire dvd writer
+References: <413A799C.1000505@tequila.co.jp> <413A7B61.2000603@tequila.co.jp> <200409042153.20030.dtor_core@ameritech.net>
+In-Reply-To: <200409042153.20030.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->-----Original Message-----
->From: Linus Torvalds [mailto:torvalds@osdl.org] 
->Sent: Friday, September 03, 2004 21:12
->To: Yoav Zach
->Cc: akpm@osdl.org; linux-kernel@vger.kernel.org; Zach, Yoav
->Subject: Re: force_sig_info
->
->
+Dmitry Torokhov wrote:
+| On Saturday 04 September 2004 09:35 pm, Clemens Schwaighofer wrote:
 
->
->Why are you blocking signals that you want to get? Sounds like 
->a bug in 
->your program.
->
->		Linus
->
+|
+|
+| Did you compile SCSI CD-ROM support? If you did try loading sr_mod. Works
 
-It's a translator - it emulates the behavior of the translated
-'process', which is the one that sets the signal mask. On the
-other hand, it has its own logic, which requires handling of
-certain HW exceptions. In 2.4, signals that were raised due to
-HW exceptions could be handled by the translator regardless of
-the mask that was set by the translated process. We lost this
-ability in 2.6. It will be very good for our product, and I
-believe any similar product where a native process emulates 
-behavior of another process, if we could have this ability
-back.
+oh blimey! I totaly forgot that. Of course thats the problem. Thanks for
+this hint :)
 
-Thanks,
-Yoav.
+lg, clemens
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFBOrqejBz/yQjBxz8RAulrAJ9RTePoFoCh+jx+blew8Hg5Zh4SjQCfQyor
+q17c0LM2y3B2xIuKo2drjHA=
+=CUxg
+-----END PGP SIGNATURE-----

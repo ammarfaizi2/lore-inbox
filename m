@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262262AbRFNMRq>; Thu, 14 Jun 2001 08:17:46 -0400
+	id <S262400AbRFNM15>; Thu, 14 Jun 2001 08:27:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262355AbRFNMR1>; Thu, 14 Jun 2001 08:17:27 -0400
-Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:64969 "EHLO
-	sunny.pacific.net.au") by vger.kernel.org with ESMTP
-	id <S262262AbRFNMRS>; Thu, 14 Jun 2001 08:17:18 -0400
-Message-Id: <200106141214.f5ECEaL3022945@typhaon.pacific.net.au>
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Download process for a "split kernel" (was: obsolete code must die) 
-In-Reply-To: Your message of "Thu, 14 Jun 2001 08:07:11 -0400."
-             <200106141207.f5EC7CA4030080@pincoya.inf.utfsm.cl> 
-In-Reply-To: <200106141207.f5EC7CA4030080@pincoya.inf.utfsm.cl> 
+	id <S262406AbRFNM1r>; Thu, 14 Jun 2001 08:27:47 -0400
+Received: from darkstar.internet-factory.de ([195.122.142.9]:59081 "EHLO
+	darkstar.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S262400AbRFNM1d>; Thu, 14 Jun 2001 08:27:33 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: Re: bzDisk compression Q; boot debug Q
+Date: Thu, 14 Jun 2001 14:27:31 +0200
+Organization: Internet Factory AG
+Message-ID: <3B28ADB3.7CE09FC3@internet-factory.de>
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678F59@mail-in.comverse-in.com> <3B2869F9.D0AE17CB@idcomm.com>
+NNTP-Posting-Host: bastille.internet-factory.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 14 Jun 2001 22:14:35 +1000
-From: David Luyer <david_luyer@pacific.net.au>
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 992521652 7000 195.122.142.158 (14 Jun 2001 12:27:32 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 14 Jun 2001 12:27:32 GMT
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac13 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"D. Stimits" proclaimed:
+> down to 1.44 MB. But then it would also have to be self-extracting,
+> which complicates it, so I'm wondering how effective this current
+> compression is, and if a more bzip2-like system would be beneficial as
+> kernels get larger?
 
-  (I wrote)
-> > This might actually make sense - a kernel composed of multiple versioned
-> > segments.  A tool which works out dependencies of the options being selected,
-> > downloads the required parts if the latest versions of those parts are not
-> > already downloaded, and then builds the kernel (or could even build during
-> > the download, as soon as the build dependencies for each block of the kernel
-> > are satisfied, if you want to be fancy...).
-> 
-> Please do look at the archives to find out just why this idea is floated
-> each 3 to 4 months and then shot down, and why.
+bzip2 has pretty large memory requirements, consuming up to 8 MB in
+addition to the data being uncompressed.
+Although thats less of an issue now than it was some years ago, i still
+doubt that the kernel is going to be bzip2 compressed any time soon.
 
-Well, I'm actually looking at the 2nd idea I mentioned in my e-mail -- a very 
-small "kernel package" which has a config script, a list of config options and
-the files they depend on and an appropriately tagged CVS tree which can then be
-used for a compressed checkout of a version to do a build.  (Or maybe something
-more bandwidth-friendly than CVS for the initial checkout.)
+if you're looking for better compression, you might want to examine upx
+(http://wildsau.idv.uni-linz.ac.at/mfx/upx.html). The kernel image
+compression is still experimental, but already usable. kernels tend to
+get ~100 K smaller compared to the usual gzip compressed bzImage.
 
-Maybe I'll find the spare time to do it, maybe I won't, either way I won't post
-any more on the subject until I have something tangible (so far I've just 
-done the 'easy bit': written a quick shell script which imported 2.4.x into a
-tagged CVS tree; the 'hard bit', to write a script to analyse each kernel rev
-and determine which files are used by which config options and mix that in
-together with the minimal install for a 'make menuconfig' will take somewhat
-longer).
-
-David.
--- 
-David Luyer                                        Phone:   +61 3 9674 7525
-Engineering Projects Manager   P A C I F I C       Fax:     +61 3 9699 8693
-Pacific Internet (Australia)  I N T E R N E T      Mobile:  +61 4 1111 2983
-http://www.pacific.net.au/                         NASDAQ:  PCNTF
-
-
+Holger

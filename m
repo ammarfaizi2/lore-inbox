@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbUKXULL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbUKXUNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbUKXULL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 15:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbUKXULE
+	id S262774AbUKXUNO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 15:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbUKXULS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 15:11:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31666 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262827AbUKXUI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 15:08:59 -0500
-Message-ID: <41A4EA47.2040304@pobox.com>
-Date: Wed, 24 Nov 2004 15:08:39 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
-CC: Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: linux-2.4.28 released
-References: <BF571719A4041A478005EF3F08EA6DF062D0B5@pcsmail03.pcs.pc.ome.toshiba.co.jp>
-In-Reply-To: <BF571719A4041A478005EF3F08EA6DF062D0B5@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+	Wed, 24 Nov 2004 15:11:18 -0500
+Received: from fed1rmmtai10.cox.net ([68.230.241.49]:57268 "EHLO
+	fed1rmmtai10.cox.net") by vger.kernel.org with ESMTP
+	id S262823AbUKXUIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 15:08:51 -0500
+Date: Wed, 24 Nov 2004 11:53:49 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm3
+Message-ID: <20041124185349.GI7839@smtp.west.cox.net>
+References: <20041121223929.40e038b2.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20041121223929.40e038b2.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomita, Haruo wrote:
-> It may be unavoidable one that ata_piix does not work. 
-> But, it is a problem that a DMA transfer does not enable by piix. 
-> Don't you think so?
+On Sun, Nov 21, 2004 at 10:39:29PM -0800, Andrew Morton wrote:
 
+> - It's time to shut things down for a 2.6.10 release now.  I'll do another
+>   pass through the -mm lineup for things which should go into 2.6.10.  
+> 
+>   If anyone has patches in -mm which they think should go into 2.6.10 please
+>   let me know.  (particularly ppc/ppc64).  The v4l patches certainly look like
+>   they need to go in.
+[snip]
+> +ppc32-have-the-8260-board-hook-happen-a-bit-later.patch
+> +ppc32-fix-__iomem-warnings-in-todc-code.patch
+> +ppc32-fix-an-irq-issue-with-cpufreq.patch
 
-This is unavoidable.  Two drivers grabbing the same PCI I/O range is
-dangerous.
+These three should go out.
 
-Now that libata supports PATA, it would be easier to let libata support
-both SATA and PATA.  Since that is a single driver, it makes DMA easy to
-support for both SATA/PATA.
-
-If libata does this, there needs to be a "ide=disable" or
-"legacy_ide=libata" switch added somewhere, for the cases (most distros)
-where IDE driver is built-in.
-
-	Jeff
-
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

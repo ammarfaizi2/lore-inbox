@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272682AbSIST7i>; Thu, 19 Sep 2002 15:59:38 -0400
+	id <S272723AbSISUB4>; Thu, 19 Sep 2002 16:01:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272723AbSIST7i>; Thu, 19 Sep 2002 15:59:38 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:22658 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S272682AbSIST7h>; Thu, 19 Sep 2002 15:59:37 -0400
-Date: Thu, 19 Sep 2002 16:07:45 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Martin Mares <mj@ucw.cz>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-In-Reply-To: <20020919192758.GA430@ucw.cz>
-Message-ID: <Pine.LNX.3.95.1020919155422.16070A-100000@chaos.analogic.com>
+	id <S272779AbSISUB4>; Thu, 19 Sep 2002 16:01:56 -0400
+Received: from nameservices.net ([208.234.25.16]:22876 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S272723AbSISUBz>;
+	Thu, 19 Sep 2002 16:01:55 -0400
+Message-ID: <3D8A2F2E.F8E935D2@opersys.com>
+Date: Thu, 19 Sep 2002 16:10:22 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: LTT 0.9.6pre1: Lockless logging, ARM, MIPS, etc.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Martin Mares wrote:
 
-> Hello, world!\n
-> 
-> > nevertheless we do lock up for 32 seconds if there are 32K PIDs allocated
-> > in a row and last_pid hits that range - regardless of pid_max. (Depending
-> > on the cache architecture it could take significantly more.)
-> 
-> What about randomizing the PID selection a bit? I.e., allocate PIDs
-> consecutively as long as they are free; if you hit an already used
-> PID, roll dice to find a new position where the search should be
-> continued. As long as the allocated fraction of PID space is reasonably
-> small, this algorithm should be very quick in average case.
-> 
-> Another possible solution: Divide PID space to blocks and for each
-> block, keep a counter of PID's available in this block and when
-> allocating, just skip blocks which are full. Runs in O(sqrt(PID space
-> size)) in the worst case.
-> 
-> 				Have a nice fortnight
+A new development version of LTT, 0.9.6pre1, is now available.
+At this point, LTT supports 6 architectures:
+i386, PPC, S/390, ARM, SuperH, and MIPS.
 
-I remember something like the pid problem a few years ago when
-somebody needed to get a unique 'key' value. The 'key' value was
-used by a lock manager. It was not random, it just needed to be
-unique, sort of like a pid. As I recall, the selection went something
-like this:
+Here's what's in 0.9.6pre1:
+- Lockless logging implementation a-la K42 by Tom Zanussi (IBM).
+  This was added to the 2.5.x patch series only.
+- ARM port by Frank Rowand (MontaVista).
+- MIPS port update/cleanup by Frank Rowand (MontaVista).
+- Autotools update by Andrea Cisternino (ST Micro) and Frank
+  Rowand (MontaVista)
+- Added RTAI install script by Klaas Gadeyne to Examples/ directory.
+- Added arch/mips/timer.c instrumentation by Bino Mathew (Wipro).
+- Fixes for keeping track of event details by Andreas Heppel (Sysgo).
+- Fixes for SMP trace analysis by Frank Rowand (MontaVista).
+- Moved max limit of IRQ to 256 for XScale by Frank Rowand (MontaVista).
 
-(1)	When keys were given up (released), the key value was compared
-with the last, lowest-key value given up. If this was lower, the last
-lowest key-value was substituted.
+The lockless logging feature is very important because LTT can now
+trace a system without using any spinlocks or IRQ disabling whatsoever.
+Though this feature is currently only in the 2.5.35 patch included with
+LTT, it will be part of all patches for kernels past 2.5.35. At this
+time, preliminary testing of the 2.5.35 patch included in 0.9.6pre1
+has shown some minor issues which will result in lockups. These issues
+will be addressed in a patch I will soon be releasing for 2.5.36.
 
-(2)	When keys were allocated, the last lowest key-value was used.
-Upon its use, the next available highest key-value was substituted.
+This is a development release, so the usual warnings apply.
 
-(3)	Somehow, I don't remember the alogrithm, the highest key-
-value became the lowest key-value when all the higher keys were
-released. At this time, everything was free.
+You will find 0.9.6pre1 here:
+http://opersys.com/ftp/pub/LTT/
 
-Nobody ever had to scan anything to get the next-available key.
-So what was saved in memory was, the highest key-value allocated, and
-the lowest key-value allocated.
+LTT's web site is here:
+http://www.opersys.com/LTT
 
-Anybody here work on the Cluster Lock Manager for DEC?  That's what
-used the keys.
+Karim
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

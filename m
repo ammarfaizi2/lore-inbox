@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267850AbTBRPkp>; Tue, 18 Feb 2003 10:40:45 -0500
+	id <S267873AbTBRPpD>; Tue, 18 Feb 2003 10:45:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbTBRPko>; Tue, 18 Feb 2003 10:40:44 -0500
-Received: from zeke.inet.com ([199.171.211.198]:58781 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S267850AbTBRPko>;
-	Tue, 18 Feb 2003 10:40:44 -0500
-Message-ID: <3E52564B.8030300@inet.com>
-Date: Tue, 18 Feb 2003 09:50:35 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: What language has Alan's portaloo changed to?
-References: <20030217172507.GA23990@ncsu.edu> <3E51204C.1010505@inet.com> <20030218071153.GJ351@lug-owl.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267874AbTBRPpD>; Tue, 18 Feb 2003 10:45:03 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26250
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267873AbTBRPpC>; Tue, 18 Feb 2003 10:45:02 -0500
+Subject: Re: [PATCH]: M5451 (OSS trident.c) did not come out of reset
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030218151138.GU2492@actcom.co.il>
+References: <20030218151138.GU2492@actcom.co.il>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045587412.24171.39.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 18 Feb 2003 16:56:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> On Mon, 2003-02-17 11:47:56 -0600, Eli Carter <eli.carter@inet.com>
-> wrote in message <3E51204C.1010505@inet.com>:
-> 
->>jlnance@unity.ncsu.edu wrote:
->>
->>>I notice that the entries on http://www.linux.org.uk/diary/ have changed
->>>to a different language.  Is it Welsh?  Hm.  I wonder if bablefish can
->>>help me translate it.
->>
->>Apparently it is Welsh....  check that 'The other side of the story' 
->>link at the top, and the feb 16th entry on that page.
->>
->>I have no idea how to grok Welsh.
-> 
-> 
-> Alan took the Benglish language example on Bitkeeper to point out some
-> "proprietary" system (here Welsh). It's all about politics, isn't it?
-> 
-> MfG, JBG
-> 
+On Tue, 2003-02-18 at 15:11, Muli Ben-Yehuda wrote:
 
-Ah, well then, we should all loudly demand that Larry^WAlan provide a 
-free and Free, Welsh -> English translater hosted on bkbi^Wlinux.org.uk. 
-  Right?
+> The 2.4 behaviour is to continue as usual even if the card doesn't
+> come out of reset, because it's a non fatal error on at least some
+> cards. This patch reverts the behaviour to the 2.4 behaviour, which
+> works for me. If anyone knows how to tell for a given card whether
+> this is a fatal error or not, please let me know and I'll update the
+> patch.  
 
-Or perhaps we should ask Alan "That's a Word^WWelsh doc.  Can you resend 
-in plain text^WEnglish?" Hmmm?
+Looks fine. 2.4 went from short delay -> long with check -> long with check
+counted non fatal. The trick used to check the codec came up doesnt work
+for all codecs alas. Fix is fine
 
-*ahem*  Back to work.... ;)
-
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Alan
 

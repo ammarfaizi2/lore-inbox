@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285048AbRL2T6n>; Sat, 29 Dec 2001 14:58:43 -0500
+	id <S285417AbRL2UCN>; Sat, 29 Dec 2001 15:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285384AbRL2T6d>; Sat, 29 Dec 2001 14:58:33 -0500
-Received: from waste.org ([209.173.204.2]:18386 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S285048AbRL2T61>;
-	Sat, 29 Dec 2001 14:58:27 -0500
-Date: Sat, 29 Dec 2001 13:58:21 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        <linux-kernel@vger.kernel.org>
+	id <S285384AbRL2UCD>; Sat, 29 Dec 2001 15:02:03 -0500
+Received: from cp912944-a.mtgmry1.md.home.com ([24.38.248.2]:51943 "EHLO
+	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S285398AbRL2UBw>;
+	Sat, 29 Dec 2001 15:01:52 -0500
+Date: Sat, 29 Dec 2001 15:01:52 -0500
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: The direction linux is taking
-In-Reply-To: <20011229113749.D19306@work.bitmover.com>
-Message-ID: <Pine.LNX.4.43.0112291341360.18183-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011229150152.A10678@zalem.puupuu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011229190600.2556C36DE6@hog.ctrl-c.liu.se> <Pine.LNX.4.43.0112291313160.18183-100000@waste.org> <20011229113749.D19306@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011229113749.D19306@work.bitmover.com>; from lm@bitmover.com on Sat, Dec 29, 2001 at 11:37:49AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Larry McVoy wrote:
+On Sat, Dec 29, 2001 at 11:37:49AM -0800, Larry McVoy wrote:
+> One way to quantify this is to ask Linus, Alan, Marcelo, et al, how much
+> time they spend merging, i.e., how often do they get patch rejects?
+> Regardless of the answer, it will be interesting.  If it is a lot,
+> then the patchbot idea has marginal usefulness.  If it is none at all,
+> then that says development is serialized, which means we may be leaving
+> a lot of progress on the floor.
 
-> [patchbot stuff]
+I personally think the merging is distributed, and done by each
+subsystem maintainer.  When that doesn't happen, and the merge is
+non-trivial, we often see a message by Linus essentially saying "your
+patch is cool, but it conflicts with another patch by <foo> that does
+<bar>, so I've done a new pre with <foo>'s patch, could you merge and
+rediff against it?".
 
-> If you have N people trying to patch the same file, you'll require N
-> releases and some poor shlep is going to have to resubmit their patch
-> N-1 times before it gets in.
-
-The point is to have N patches queued against rev x that apply cleanly by
-themselves before even considering merging. The idea is to cut out as much
-bogosity beforehand as possible. Turning them locally into 'changesets' or
-whatever to perform the actual merge after deciding which ones you're
-going to try applying is orthogonal.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+  OG.

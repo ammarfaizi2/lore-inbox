@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277738AbRJLPrU>; Fri, 12 Oct 2001 11:47:20 -0400
+	id <S277735AbRJLPrA>; Fri, 12 Oct 2001 11:47:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277739AbRJLPrL>; Fri, 12 Oct 2001 11:47:11 -0400
-Received: from wing0.lancs.ac.uk ([148.88.1.12]:64699 "EHLO wing0.lancs.ac.uk")
-	by vger.kernel.org with ESMTP id <S277738AbRJLPrC>;
-	Fri, 12 Oct 2001 11:47:02 -0400
-Message-Id: <200110121547.f9CFlXx11575@wing0.lancs.ac.uk>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
+	id <S277738AbRJLPqu>; Fri, 12 Oct 2001 11:46:50 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:27826 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S277735AbRJLPqi>;
+	Fri, 12 Oct 2001 11:46:38 -0400
+Message-ID: <3BC71084.ECCD2E4B@vnet.ibm.com>
+Date: Fri, 12 Oct 2001 15:47:16 +0000
+From: Tom Gall <tom_gall@vnet.ibm.com>
+Reply-To: tom_gall@vnet.ibm.com
+Organization: IBM
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: steveb@unix.lancs.ac.uk
-Date: Fri, 12 Oct 2001 16:47:33 +0100
-Subject: kernel not booting when configured for Athlon
-To: linux-kernel@vger.kernel.org
+To: Tom Rini <trini@kernel.crashing.org>
+CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.12-ac1
+In-Reply-To: <20011012072910.N21564@cpe-24-221-152-185.az.sprintbbd.net> <E15s44B-0007Vk-00@the-village.bc.nu> <20011012083616.C9992@cpe-24-221-152-185.az.sprintbbd.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Rini wrote:
+> 
+> On Fri, Oct 12, 2001 at 04:17:39PM +0100, Alan Cox wrote:
+> > > On Fri, Oct 12, 2001 at 02:17:26PM +0100, Alan Cox wrote:
+> > >
+> > > > 2.4.12-ac1
+> > > > o Merge the majority of 2.4.11/12
+> > > >   -       Fall back to the Linus reiserfs code set
+> > > [snip]
+> > >
+> > > The endian-safe patches will come back tho, right?  I don't think those
+> > > have made it into Linus' tree yet...
+> >
+> > Really what needs to happen is the important bits that were tested and
+> > the reiser folks were happy with get pushed back bit by bit into both trees
+> > now
+> [reiserfs list added to cc]
+> 
+> That would be nice.  Are there any plans on behalf of the reiserfs
+> people to merge in the Endian-Safeness patches now?
 
-I've just replace my Pentium-III system with an Athlon-based one, I rebuilt
-the kernel with 'processor Family' changed from 'Pentium III' to Athlon/Duron/K7, and it failed to boot - it goes as far as "OK, booting the kernel" and hangs.
+Speaking from the PPC64 crew, this would be highly desirable.
 
-I can boot a kernel supposedly built for Pentium-III without any apparent problems.
+Regards,
 
-My system is a 1.4GHz Athlon, 512MB 2100DDR memory, ASUS A7A266 system board (ALI M1647 chipset).
-
-I've tried kernel versions 2.4.9, 2.4.11 (briefly), and 2.4.12, all with the same effect.
-
-I've tried gcc-3.0.1 and gcc-2.96-81 (from RedHat 7.1), both have the same effect.
-
-I've upgraded the BIOS from Rev 1006 to 1007 (the most recent), this makes no difference.
-
-I've seen some discussion on here about a patch for Athlon motherboards, this doesn't appear to be relevant since it seems to be for a different chipset to mine.
-
-/proc/cpuinfo reports:
-
-  processor       : 0
-  vendor_id       : AuthenticAMD
-  cpu family      : 6
-  model           : 4
-  model name      : AMD Athlon(tm) Processor
-  stepping        : 4
-  cpu MHz         : 1410.328
-  cache size      : 256 KB
-  fdiv_bug        : no
-  hlt_bug         : no
-  f00f_bug        : no
-  coma_bug        : no
-  fpu             : yes
-  fpu_exception   : yes
-  cpuid level     : 1
-  wp              : yes
-  flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr
-  pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-  bogomips        : 2811.49
-
-
-1) Am I doing anything stupid here?
-2) Are there any issues with running a kernel configured for a Pentium III on an Athlon? It seems stable so far.
+Tom
 
 -- 
-Steve Bennett
+Tom Gall - PPC64 Code Monkey     "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc

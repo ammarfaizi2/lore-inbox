@@ -1,98 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267350AbSKSVOG>; Tue, 19 Nov 2002 16:14:06 -0500
+	id <S267290AbSKSVUV>; Tue, 19 Nov 2002 16:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267352AbSKSVOG>; Tue, 19 Nov 2002 16:14:06 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:28568 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S267350AbSKSVOE>;
-	Tue, 19 Nov 2002 16:14:04 -0500
-Date: Tue, 19 Nov 2002 22:19:39 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Daniel Jacobowitz <dan@debian.org>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       kbuild-devel@lists.sourceforge.net,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [RFC/CFT] Separate obj/src dir
-In-Reply-To: <20021119210157.GA19881@nevyn.them.org>
-Message-ID: <Pine.GSO.4.21.0211192214370.17531-100000@vervain.sonytel.be>
+	id <S267300AbSKSVUV>; Tue, 19 Nov 2002 16:20:21 -0500
+Received: from mta03bw.bigpond.com ([139.134.6.86]:36297 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S267290AbSKSVUU>; Tue, 19 Nov 2002 16:20:20 -0500
+From: Brad Hards <bhards@bigpond.net.au>
+To: Oliver Neukum <oliver@neukum.name>,
+       "Folkert van Heusden" <folkert@vanheusden.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: local link configuration daemon?
+Date: Wed, 20 Nov 2002 08:15:56 +1100
+User-Agent: KMail/1.4.5
+References: <003b01c28fed$724a2c80$3640a8c0@boemboem> <200211191827.10622.oliver@neukum.name>
+In-Reply-To: <200211191827.10622.oliver@neukum.name>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200211200815.56896.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Nov 2002, Daniel Jacobowitz wrote:
-> On Tue, Nov 19, 2002 at 03:46:28PM -0500, Richard B. Johnson wrote:
-> > On Tue, 19 Nov 2002, Sam Ravnborg wrote:
-> > 
-> > > On Tue, Nov 19, 2002 at 03:22:45PM -0500, Richard B. Johnson wrote:
-> > > > I have a question; "What problem is this supposed to solve?"
-> > > 
-> > > Two problems (at least):
-> > > 
-> > > 1) You want to compile your kernel based on two different configurations,
-> > > but sharing the same src. No need to have a duplicate of all src.
-> > > - There are other ways to do this using symlinks
-> > > 
-> > > 2) You have the src located on a read-only filesystem.
-> > > I have been told this is the case for some SCM systems.
-> > > 
-> > > People has requested this feature at several occasions, and here
-> > > it is based on the current build system.
-> > > It's not ready for inclusion (obviously), and you shall
-> > > also see this as a way to check that this is considered usefull
-> > > by someone.
-> > > 
-> > > 	Sam
-> > 
-> > Hmmm. If your source is located on a read-only file-system, you
-> > can't modify it. You are therefore doomed to use only "known working"
-> > distributions that are known to work with all possible module
-> > combinations (these don't exist). So you get to compile the kernel
-> > just as a test exercise or a gimmick like; "what did you do today?..."
-> > answer; "I compiled the kernel..." This seems to not be very practical
-> > since the purpose of compiling the kernel was to add something or
-> > fix something. Now, its just to see if it compiles.
-> > 
-> > Different configurations are handled with different ".config"
-> > files.
-> > 
-> > I think all you did was increase the compile time by writing
-> > output files to different directories than the ones currently
-> > in cache. There are a lot of negatives. It would be a shame for
-> > you to waste a great deal of time on something that would not
-> > be accepted into the distribution. Remember the earlier `make modules`
-> > where the new objects went into a separate directory with sym-links?
-> > That got changed. I think it got changed for good reasons.
-> 
-> There are plenty of other good reasons for this.  Offhand:
-> 
-> - Speeds up grepping through the source tree for things if you don't
-> have to look at object files.  SCCS dirs still make this a pain, I may
-> hack grep -r to optionally skip them.
-> 
-> - Guarantees that doing a build should not affect anything in the srcdir;
-> this is handy when preparing release tarballs etc.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Or when you store multiple versions of the source tree using cp -rl, patch, and
-same.  I do not want to accidentally touch any file in hardlinked trees, since
-it would screw up the file in all trees.
+On Wed, 20 Nov 2002 04:27, Oliver Neukum wrote:
+> Am Dienstag, 19. November 2002 18:02 schrieb Folkert van Heusden:
+> > Hi,
+> >
+> > I just read this RFC on 'local link configuration' (mirrored at
+> > http://keetweej.vanheusden.com/~folkert/draft-ietf-zeroconf-ipv4-linkloca
+> >l. t xt ) and I was wondering: is this planned to be in the kernel? Or
+> > should occur this in userspace? (and if so; does it exist?
+> > freshmeat/google say it doesn't)
+> > Initially I thought I just configure an ip-address in that range on an
+> > adapter, but then I read that there is this whole protocol of sending and
+> > receiving arp-requests etc.
+>
+> Brad Hards has done a preliminary implementation that runs in user space.
+It was originally done by Sebastian Kuzminsky. It basically uses the kernel's 
+packet filter (BPF) and socket code, via Libnet and libpcap. You can get it 
+from your friendly kernel.org mirror 
+(http://www.XX.kernel.org/pub/software/network/zcip/, where XX is your 
+country code).
 
-Currently I use separate trees for compiling, which (A) consumes more disk
-space, and (B) is much slower to maintain (e.g. diff knows about hard links).
+In the longer term, it might be appropriate to move some of it (the defend 
+part of the claim-and-defend sequence) into kernel space. I don't think it 
+makes sense to have it all in kernel space.
 
-If I can compile in a separate directory, I can directly use one of the
-hardlinked trees as the source tree.
+However since it is still an i-D, and hasn't reached RFC state, I think it is 
+better to work up a reference implementation in userspace, and think about 
+how much might need to be in the kernel (for performance reasons, whatever) 
+when the RFC is released and we have a little deployment experience.
 
-Gr{oetje,eeting}s,
+Brad
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+iD8DBQE92qoMW6pHgIdAuOMRAsLhAJ9PBj1DyxSLfPa6JLYUPR81GKhDEwCePEYk
+Aznd3lBCdznErhRgtkKNvS4=
+=xz4Y
+-----END PGP SIGNATURE-----
 

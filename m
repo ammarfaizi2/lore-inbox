@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSCMRbk>; Wed, 13 Mar 2002 12:31:40 -0500
+	id <S310869AbSCMReT>; Wed, 13 Mar 2002 12:34:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310869AbSCMRba>; Wed, 13 Mar 2002 12:31:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62212 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293680AbSCMRbQ>; Wed, 13 Mar 2002 12:31:16 -0500
-Date: Wed, 13 Mar 2002 09:17:13 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: bert hubert <ahu@ds9a.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ide filters / 'ide dump' / 'bio dump'
-In-Reply-To: <3C8F25BE.9040000@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0203130910420.29865-100000@home.transmeta.com>
+	id <S310906AbSCMReJ>; Wed, 13 Mar 2002 12:34:09 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16906
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S310869AbSCMRdu>; Wed, 13 Mar 2002 12:33:50 -0500
+Date: Wed, 13 Mar 2002 09:32:17 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Karsten Weiss <knweiss@gmx.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre3
+In-Reply-To: <Pine.LNX.4.10.10203130129520.18254-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10203130926190.19703-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Mar 2002, Andre Hedrick wrote:
+
+> On Wed, 13 Mar 2002, Jens Axboe wrote:
+> 
+> > On Wed, Mar 13 2002, Andre Hedrick wrote:
+> > > 
+> > > Jens,
+> > > 
+> > > Please try again because that is not the real problem.
+> > > All you have shown is that we disagree on the method of page walking
+> > > between BLOCK v/s IOCTL.  This is very minor and I agreed that it is
+> > > reasonable to map the IOCTL buffer in to BH or BIO so this is a net zero
+> > > of negative point.
+> > 
+> > No this is two issues -- you (ab)using request interface for ioctls is
+> > one thing, I don't care too much about that (although it spreads
+> > confusion and I've already seen at least one copy this code). The other
+> > is that the task handlers are now forced to be separate and the legacy
+> > handlers in ide-disk used.
+> 
+> Well, now that you see a little more.
+> 
+> The reason for segmenting the data handlers to separate and isolate the
+> errors and flaws in the Linus failed attempt to push forward multimode io.
+> Also it is not isolated to writes, it is a read issue too.
+> Since this is now moving to the technical asspect I wanted you to go,
+> please go on to the third point below.
+> 
+> > > How about attempting to describe the differences between the atomic and
+> > > what is violated by who and where.  I will help you later if you get
+> > > stuck.
+> > 
+> > and bingo, here comes a third issue. Please stay on track.
+> 
+> Please go on on the third point because coming full circle to see an error.
+
+Well I promised to help you if you got stuck, so here is a hint.
+Describe the variations between the hardware atomic segment wrt to the
+bh/bio OS atomic segment.  Then explain the event ordering of the state
+diagram.  Be specific when bh/bio's should be updated and reported to
+block as complete.  Finally then explain where things are wrong and why it
+is wrong and a solution to fix it.  You should note the policy which is
+wrong belongs to Linus and not you, but you are charge to make it happen.
+
+Cheers,
 
 
-On Wed, 13 Mar 2002, Jeff Garzik wrote:
-> bert hubert wrote:
->
-> ># biodump /dev/hda
-> >09:09:33.023 READ block 12345 [10 blocks]
-> >09:09:33.024 READ block 12355 [10 blocks]
-> >09:09:33.025 READ block 12365 [10 blocks]
-> >09:09:34.000 WRITE block 12345 [1 block]
->
-> Definitely an interesting idea...   With this new stuff Linus talked
-> about in his proposal and what I'm thinking about, it shouldn't be too
-> hard to do.
-
-Note that I actually think we're talking about two different things.
-
-There's the notion of _feeding_ special requests onto the request queue
-through some interface that also can refuse to feed certain kinds of
-requests. That is needed for the special commands, and is "above" the
-requests queue layer.
-
-That interface doesn't really support filtering of requests that other
-people (notably the regular kernel itself) is also feeding to the request
-queue.
-
-Note that one of the big issues with the request queue is that it acts as
-a funnel: it (very much by design) can, and does, take requests from
-different places, and nobody needs to "own" the request queue. But the
-kind of "feed this raw request down" module that has been talked about
-would have absolutely _zero_ visibility into what others are feeding into
-the request queue.
-
-If you actually want to filter other peoples requests, then you have to do
-something completely different, namely set up a request queue of your own,
-then exporting _your_ request queue as the request queue for <major,minor>
-and then taking the requests off that queue internally, and moving them to
-the original queue after you've done filtering.
-
-Basically a simplified "loopback" thing that doesn't even need to do any
-remapping.
-
-The two are totally independent, they work on requests queues at different
-levels (one feeds some random request queue, the other changes how we look
-up a request queue and inserts its own queue in between).
-
-			Linus
+Andre Hedrick
 

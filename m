@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261424AbSIWSsj>; Mon, 23 Sep 2002 14:48:39 -0400
+	id <S261396AbSIWTGb>; Mon, 23 Sep 2002 15:06:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSIWSsD>; Mon, 23 Sep 2002 14:48:03 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261410AbSIWSmh>;
-	Mon, 23 Sep 2002 14:42:37 -0400
-Date: Mon, 23 Sep 2002 10:10:09 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Remco Post <r.post@sara.nl>
-cc: Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.38 on ppc/prep
-In-Reply-To: <4FDC416F-CF02-11D6-A08A-000393911DE2@sara.nl>
-Message-ID: <Pine.LNX.4.44.0209231008580.13892-100000@chaos.physics.uiowa.edu>
+	id <S261404AbSIWTFl>; Mon, 23 Sep 2002 15:05:41 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:65218 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261396AbSIWTEr>;
+	Mon, 23 Sep 2002 15:04:47 -0400
+Date: Mon, 23 Sep 2002 15:09:53 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 broke the floppy driver
+In-Reply-To: <15759.25411.512115.64467@kim.it.uu.se>
+Message-ID: <Pine.GSO.4.21.0209231507370.3948-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Sep 2002, Remco Post wrote:
 
-> > What typo exactly?  The only 'lib' in the Makefile
-> > (arch/ppc/boot/prep/Makefile) is:
-> > LIBS = ../lib/zlib.a
-> >
-> 
-> That one exactly... I don't recall calling it a typo, though ;-) I guess 
-> that is more a relic from when the only lib routines were libz ones and 
-> we called the lib to be linked libz.a....
 
-That's my bad, I renamed the L_TARGET but obviously missed some references
-to it. I'll include a fix in my next update.
+On Mon, 23 Sep 2002, Mikael Pettersson wrote:
 
---Kai
+> With O100-get_gendisk-C38 the oops is cured, but the floppy size is
+> still wrong. Freshly booted, dd if=/dev/fd0H1440 bs=72k of=/dev/null
+> reads only 720K instead of 1440K. Same thing on write: trying to
+> write more than 720K results in an ENOSPC error.
 
+
+Arrrgh.  O/O101-floppy_sizes-C38 and it's also my fsckup - missed the
+size in kilobytes/size in sectors.  Fortunately that kind of crap is
+over - blk_size[] is no more...
 

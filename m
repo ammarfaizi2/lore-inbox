@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136475AbREIOHI>; Wed, 9 May 2001 10:07:08 -0400
+	id <S136473AbREIOK2>; Wed, 9 May 2001 10:10:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136473AbREIOG6>; Wed, 9 May 2001 10:06:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6154 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136472AbREIOGs>; Wed, 9 May 2001 10:06:48 -0400
-Subject: Re: 
-To: root@chaos.analogic.com
-Date: Wed, 9 May 2001 15:10:31 +0100 (BST)
-Cc: george@mvista.com (george anzinger),
-        linux-kernel@vger.kernel.org (Linux kernel)
-In-Reply-To: <Pine.LNX.3.95.1010509085529.8159A-100000@chaos.analogic.com> from "Richard B. Johnson" at May 09, 2001 09:04:01 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136477AbREIOKS>; Wed, 9 May 2001 10:10:18 -0400
+Received: from NS.CenSoft.COM ([208.219.23.2]:55047 "EHLO
+	ns.centurysoftware.com") by vger.kernel.org with ESMTP
+	id <S136473AbREIOKL>; Wed, 9 May 2001 10:10:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jordan Crouse <jordanc@Censoft.com>
+Reply-To: jordanc@Censoft.com
+Organization: The Microwindows Project
+To: Jocelyn Mayer <jma@netgem.com>, antonpoon@hongkong.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to compile kernel for Geode GX1
+Date: Wed, 9 May 2001 08:09:40 -0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3AF91E88.1000705@netgem.com>
+In-Reply-To: <3AF91E88.1000705@netgem.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xUfi-0002PB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01050908094005.28749@cosmic>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     while(!!time_before(jiffies, timer))
->     {
->         if(!!(*event & mask))
->         {
->             stat = 0;
->             break;
->         }
->         schedule();
+If you are using the vesa framebuffer on the Geode, you will also want to 
+make a minor change to vesafb.c.  Because the framebuffer is located within 
+the processor itself, requesting the memory region always caused my Geode 
+boxes to freeze.  I think that we can safely eliminate this call, since we 
+know the memory is always available:  
 
-You want to yield as well otherwise you may just spin anyway
+--- /usr/src/linux/drivers/video/vesafb.c	Thu Mar  8 10:35:53 2001
++++ vesafb.c	Tue Mar 27 09:13:22 2001
+@@ -519,12 +519,14 @@
+ 	video_visual = (video_bpp == 8) ?
+ 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+ 
++#ifdef NOTUSED
+ 	if (!request_mem_region(video_base, video_size, "vesafb")) {
+ 		printk(KERN_ERR
+ 		       "vesafb: abort, cannot reserve video memory at 0x%lx\n",
+ 			video_base);
+ 		return -EBUSY;
+ 	}
++#endif
+ 
+         video_vbase = ioremap(video_base, video_size);
+ 	if (!video_vbase) {
 
-> Both of these procedures schedule() while waiting for something to
-> happen. The wait can be very long (1 second) so I don't want to
-> just spin eating CPU cycles. I have to give the CPU to somebody.
-
-So use a timer
-
-
-void tick_tick_boom(unsigned long l)
-{
-	struct my_device *d = (struct my_device *)l;
-
-	if(its_still_busy(d))
-	{
-		d->timer_count--;
-		if(d->timer_count)
-		{
-			/* Try again until timer_count hits zero */
-			add_timer(&t->timer, jiffies+1);
-			return;
-		}
-		else
-		{
-			/* Lose some .. */
-			d->event_status = TIMEOUT;
-		}
-	}
-	else
-	{
-		/* Win some .. */
-		d->event_status = OK;
-	}
-	/* Wake up the invoker */
-	wake_up(&d->timer_wait);
-}
+Jordan
+-- 
+-- embed this!  http://www.microwindows.org --
 

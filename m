@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266184AbSKFWlU>; Wed, 6 Nov 2002 17:41:20 -0500
+	id <S266196AbSKFWwt>; Wed, 6 Nov 2002 17:52:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266185AbSKFWlU>; Wed, 6 Nov 2002 17:41:20 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:34463 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S266184AbSKFWlT>;
-	Wed, 6 Nov 2002 17:41:19 -0500
-Date: Wed, 6 Nov 2002 23:47:55 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Regarding zerocopy implementation ...
-Message-ID: <20021106224755.GA10956@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <233C89823A37714D95B1A891DE3BCE5202AB183D@xch-a.win.zambeel.com> <1036619185.3405.1407.camel@phantasy> <20021106174418.F18836@redhat.com>
+	id <S266204AbSKFWwt>; Wed, 6 Nov 2002 17:52:49 -0500
+Received: from bozo.vmware.com ([65.113.40.131]:25096 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id <S266196AbSKFWwq>; Wed, 6 Nov 2002 17:52:46 -0500
+Date: Wed, 6 Nov 2002 17:58:37 -0800
+From: Christopher Li <chrisl@vmware.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix bug in ext3 htree rename: doesn't delete old name, leaves ino with bad nlink
+Message-ID: <20021106175837.B7778@vmware.com>
+References: <1036471670.21855.15.camel@ixodes.goop.org> <20021105212415.GB1472@vmware.com> <20021106082500.GA3680@vmware.com> <20021106214027.GA9711@think.thunk.org> <20021106172455.A7778@vmware.com> <20021106224112.GA10130@think.thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021106174418.F18836@redhat.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021106224112.GA10130@think.thunk.org>; from tytso@mit.edu on Wed, Nov 06, 2002 at 05:41:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 05:44:18PM -0500, Benjamin LaHaise wrote:
-
-> > Yes, we have zero-copy networking if the device supports the requisite
-> > features and the driver is so coded.
+On Wed, Nov 06, 2002 at 05:41:12PM -0500, Theodore Ts'o wrote:
+> On Wed, Nov 06, 2002 at 05:24:55PM -0800, Christopher Li wrote:
+> > 
+> > I think we have the lock on ext3_rename. I might be wrong.
+> > If other process can change the dir between the add new entry
+> > and delete old entry. We should also need to check the entry have
+> > been delete from other process in case fall into dead loop? 
 > 
-> But we do not perform zero copy receives to userland yet.
+> We take the BKL, yes; but if we need to sleep waiting for a block to
+> be read in, that's when another process can run.  Yes, that means
+> another process could end up deleting the entry out from under us ---
+> or make some other change to the directory.  I was actually quite
 
-It has been opted that sendfile with reversed arguments could function as
-'recvfile' and be renamed to 'copyfd' or something more generic like that.
+Then the correct fix for the rename problem is very nasty then.
+I thought about remove entry first then add new entry. Then if
+add new entry fail abort the whole transaction. It looks nasty
+also if it sleep in between, the file goes nowhere.
 
-Regards,
+> nervous about this, so I spent some time auditing the code paths of
+> when do_split() might sleep, to make sure it would never leave the
+> directory in an unstable condition.
+> 
+> Things will actually get easier once we fine-grain lock ext3 (and
+> remove the BKL), since we'll very likely end up locking the directory
+> during an insert, rename, or delete, and so we don't have to worry
+> about things happening in an interleaved fashion.
 
-bert
+Agree.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+>
+> I wasn't able to find your e-mail address in the source file.... 
+> grep -i chrisl fs/ext3/*.c didn't turn up anything?
+Sorry, indeed I did not put my email address there. Never mind.
+
+Chris
+
+

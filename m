@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129583AbRBZS3L>; Mon, 26 Feb 2001 13:29:11 -0500
+	id <S129593AbRBZSfC>; Mon, 26 Feb 2001 13:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129593AbRBZS3A>; Mon, 26 Feb 2001 13:29:00 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1290 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129583AbRBZS2r>; Mon, 26 Feb 2001 13:28:47 -0500
-Date: Mon, 26 Feb 2001 13:42:27 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Mordechai T. Abzug" <morty@sanctuary.arbutus.md.us>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cache/swap issues under 2.4.1, 2.4.2
-In-Reply-To: <20010226033713.A7120@red-sonja.sanctuary.arbutus.md.us>
-Message-ID: <Pine.LNX.4.21.0102261136310.5626-100000@freak.distro.conectiva>
+	id <S129640AbRBZSew>; Mon, 26 Feb 2001 13:34:52 -0500
+Received: from adsl-64-168-227-89.dsl.sntc01.pacbell.net ([64.168.227.89]:38148
+	"HELO lustre.us.mvd") by vger.kernel.org with SMTP
+	id <S129593AbRBZSel>; Mon, 26 Feb 2001 13:34:41 -0500
+From: "Peter J. Braam" <braam@mountainviewdata.com>
+To: "Alexander Viro" <viro@math.psu.edu>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Cc: "Ronald G. Minnich" <rminnich@lanl.gov>
+Subject: RE: [PATCH][CFT] per-process namespaces for Linux
+Date: Mon, 26 Feb 2001 08:26:23 -0800
+Message-ID: <NEBBIIJKCMJGDLNAMBCBMEDKCEAA.braam@mountainviewdata.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
+In-Reply-To: <Pine.GSO.4.21.0102242253460.24312-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Al,
 
-On Mon, 26 Feb 2001, Mordechai T. Abzug wrote:
+Very neat!
 
-> Why do I have 47MB of swap in use?  I thought at first that it might
-> be due to the minimum allowable cache size, but considering that there
-> was only 48MB of RAM in use to begin with, that still seems
-> suspicious.  Even weirder, if I then turn off swap, the usage looks
-> more reasonable:
-> 
-> # swapoff -a
-> 
-> # free
->              total       used       free     shared    buffers     cached
-> Mem:        255564      53900     201664          0        840       9356
-> -/+ buffers/cache:      43704     211860
-> Swap:            0          0          0
+Ron Minnich and I built something similar: we built private namespaces for
+login sessions.  Ours have slightly different semantics I think.
 
-The "used" swap space here means _allocated_ swap space, not necessarily
-used swap space. 
+To do so we changed mount+chroot into "imount" (i = invisible).  This landed
+a process in a file system that had no root in the Unix directory tree.
+(see the "Private name spaces, PNS" project on SourceForge.
 
-Linux 2.4 allocate's swap space for an anonymous page when it unmaps a
-page table entry mapping the page. When it allocates the swap space, it
-also adds the page to the swapcache to be written later. 
+We added another goodie, which was called "memdev".  It provided a new block
+device from a private, i.e. copy on write, memory mapped block device.  See
+"memdev" on SourceForge.
 
-The swapcache is part of the pagecache. The swapoff rips all the
-swapcached pages on the device, thats why you see a lot less memory
-"cached" after the swapoff. 
+We used it as follows:
 
+ - when you login, you get imounted into an environment where you have full
+priviliges (except mknod).  The "/" of your environment is not a directory
+in the Unix tree.
+ - in this environment the system file systems are available to you on a
+copy on write private basis.
+ - any files you change get out over a network file system to a server.  We
+used InterMezzo backed by a ramfs cache.
 
+When the user logs out, everything is gone, except possibly footprints in
+swap.
 
+- Peter J. Braam -
 
+Mountain View Data, Inc.
 

@@ -1,77 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265726AbUAKCkK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 21:40:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUAKCkJ
+	id S265718AbUAKCj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 21:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265726AbUAKCj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 21:40:09 -0500
-Received: from mail.aei.ca ([206.123.6.14]:39133 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S265726AbUAKCj6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 21:39:58 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 and irq balancing
-Date: Sat, 10 Jan 2004 21:39:09 -0500
-User-Agent: KMail/1.5.93
-Cc: Ethan Weinstein <lists@stinkfoot.org>
-References: <40008745.4070109@stinkfoot.org>
-In-Reply-To: <40008745.4070109@stinkfoot.org>
+	Sat, 10 Jan 2004 21:39:28 -0500
+Received: from imf.math.ku.dk ([130.225.103.32]:5009 "EHLO imf.math.ku.dk")
+	by vger.kernel.org with ESMTP id S265718AbUAKCjV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 21:39:21 -0500
+Date: Sun, 11 Jan 2004 03:39:16 +0100 (CET)
+From: Peter Berg Larsen <pebl@math.ku.dk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Gunter =?iso-8859-1?Q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
+ loss (With Patch).
+In-Reply-To: <Pine.LNX.4.40.0401102336450.588-100000@shannon.math.ku.dk>
+Message-ID: <Pine.LNX.4.40.0401110335330.588-100000@shannon.math.ku.dk>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200401102139.09883.edt@aei.ca>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-What is the load on the box when this is happening?  If its low think
-this is optimal (for cache reasons).
+On Sat, 10 Jan 2004, Peter Berg Larsen wrote:
 
-Ed Tomlinson
+> I dont have a machine with active multiplexing so the the patch is
+> untested. It warns when the mouse is removed, and tries to recover
+> if multiplexing is disabled.
 
-On January 10, 2004 06:14 pm, Ethan Weinstein wrote:
-> Greetings all,
-> 
-> I upgraded my server to 2.6.1, and I'm finding I'm saddled with only 
-> interrupting on CPU0 again. 2.6.0 does this as well. This is the 
-> Supermicro X5DPL-iGM-O (E7501 chipset), 2 Xeons@2.4ghz HT enabled. 
-> /proc/cpuinfo is normal as per HT, displaying 4 cpus.
-> 2.4.2(3|4) exhibited this behaviour as well, until I applied patches 
-> from here: 
-> http://www.hardrock.org/kernel/2.4.23/irqbalance-2.4.23-jb.patch, et al.
-> 
-> 
->             CPU0       CPU1       CPU2       CPU3
->    0:    1572323          0          0          0    IO-APIC-edge  timer
->    2:          0          0          0          0          XT-PIC  cascade
->    3:      23520          0          0          0    IO-APIC-edge  serial
->    8:          2          0          0          0    IO-APIC-edge  rtc
->    9:          0          0          0          0   IO-APIC-level  acpi
->   14:         10          0          0          0    IO-APIC-edge  ide0
->   16:         30          0          0          0   IO-APIC-level 
-> sym53c8xx 22:       4162          0          0          0   IO-APIC-level 
-> eth0 48:       7798          0          0          0   IO-APIC-level 
-> aic79xx 49:       3385          0          0          0   IO-APIC-level 
-> aic79xx 54:      17062          0          0          0   IO-APIC-level 
-> eth1 NMI:          0          0          0          0
-> LOC:    1572002    1572251    1572250    1572243
-> ERR:          0
-> MIS:          0
-> 
-> 
-> THey keyboard isn't working either, but we see the i8042..
-> 
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> 
-> 
-> -Ethan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+A lot a have changed since 2.6.0 so here is the patch against 2.6.1:
+
+diff -rup a/include/linux/serio.h b/include/linux/serio.h
+--- a/include/linux/serio.h	Sun Oct 20 04:57:23 2002
++++ b/include/linux/serio.h	Sun Oct 20 04:58:32 2002
+@@ -99,6 +99,7 @@
+ #define SERIO_TIMEOUT	1
+ #define SERIO_PARITY	2
+ #define SERIO_FRAME	4
++#define SERIO_REMOVED	8
+
+ #define SERIO_TYPE	0xff000000UL
+ #define SERIO_XT	0x00000000UL
+diff -rup a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	2004-01-11 03:52:53.000000000 +0100
++++ b/drivers/input/serio/i8042.c	2004-01-11 04:02:34.000000000 +0100
+@@ -78,6 +78,7 @@ struct timer_list i8042_timer;
+ #define i8042_request_irq_cookie (&i8042_timer)
+
+ static irqreturn_t i8042_interrupt(int irq, void *dev_id, struct pt_regs *regs);
++static int i8042_enable_mux_mode(struct i8042_values *values, unsigned char *mux_version);
+
+ /*
+  * The i8042_wait_read() and i8042_wait_write functions wait for the i8042 to
+@@ -375,7 +376,7 @@ static irqreturn_t i8042_interrupt(int i
+ 		int data;
+ 		int str;
+ 	} buffer[I8042_BUFFER_SIZE];
+-	int i, j = 0;
++	int i, j = 0, mux_failed = 0;
+
+ 	spin_lock_irqsave(&i8042_lock, flags);
+
+@@ -397,15 +398,17 @@ static irqreturn_t i8042_interrupt(int i
+
+ 			if (str & I8042_STR_MUXERR) {
+ 				switch (data) {
+-					case 0xfd:
++					case 0xfd: dfl = SERIO_REMOVED; break;
+ 					case 0xfe: dfl = SERIO_TIMEOUT; break;
+ 					case 0xff: dfl = SERIO_PARITY; break;
++					default: mux_failed = 1;
+ 				}
+ 				data = 0xfe;
+ 			} else dfl = 0;
+
+-			dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
++			dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s%s)",
+ 				data, (str >> 6), irq,
++				dfl & SERIO_REMOVED ? ", removed" : "",
+ 				dfl & SERIO_PARITY ? ", bad parity" : "",
+ 				dfl & SERIO_TIMEOUT ? ", timeout" : "");
+
+@@ -429,6 +432,12 @@ static irqreturn_t i8042_interrupt(int i
+ 		serio_interrupt(&i8042_kbd_port, data, dfl, regs);
+ 	}
+
++	if (mux_failed) {
++		printk(KERN_ERR "i8042.c: Reverted to lagacy aux mode.\n");
++		if (i8042_enable_mux_mode(NULL,NULL))
++			printk(KERN_ERR "i8042.c: Failed to activate mux again.\n");
++	}
++
+ 	return IRQ_RETVAL(j);
+ }
+
+
+
+Peter
+
+
+

@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAaOvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVAaO5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVAaOvF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 09:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVAaOvF
+	id S261226AbVAaO5d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 09:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVAaO5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 09:51:05 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:7337 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261225AbVAaOvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 09:51:03 -0500
-Date: Mon, 31 Jan 2005 14:51:00 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
-       Nathan Scott <nathans@sgi.com>
-Subject: Re: 2.6.11-rc2-mm2
-Message-ID: <20050131145100.GA13161@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Paul Blazejowski <diffie@gmail.com>,
-	linux-kernel@vger.kernel.org, Nathan Scott <nathans@sgi.com>
-References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050129235653.1d9ba5a9.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 31 Jan 2005 09:57:33 -0500
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:6676 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S261226AbVAaO53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 09:57:29 -0500
+X-SBRSScore: None
+X-IronPort-AV: i="3.88,167,1102287600"; 
+   d="scan'208"; a="3863770:sNHT100830492"
+Message-ID: <41FE4745.4020003@fujitsu-siemens.com>
+Date: Mon, 31 Jan 2005 15:57:09 +0100
+From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: SIOCGIFMAP silently broken?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 29, 2005 at 11:56:53PM -0800, Andrew Morton wrote:
-> Paul Blazejowski <diffie@gmail.com> wrote:
-> >
-> > Kernel compile errors here, i think this might be XFS related...
-> > 
-> >  fs/built-in.o(.text+0x52a93): In function `linvfs_decode_fh':
-> >  : undefined reference to `find_exported_dentry'
-> >  make: *** [.tmp_vmlinux1] Error 1
-> 
-> bix:/home/akpm> grep EXPORT x
-> CONFIG_XFS_EXPORT=y
-> CONFIG_EXPORTFS=m
-> 
-> That isn't going to work.  Something like this, perhaps?
+Hi,
 
+we are using a server management software that uses the irq information
+returned by the SIOCGIFMAP ioctl to correlate network interfaces with
+LAN hardware.
 
-This patch (implementing Roman's suggestion) should fix it:
+The code for SIOCGIFMAP if net/core/dev.c simply returns netdev->irq 
+which isn't set by most actual LAN drivers any more, and it seems to
+be common opinion that setting netdev->irq is either optional or even 
+wrong (http://www.ussg.iu.edu/hypermail/linux/kernel/0407.3/1292.html).
 
---- linux-2.6.11-rc2-mm1/fs/xfs/Kconfig~	2005-01-31 15:56:45.969973712 +0100
-+++ linux-2.6.11-rc2-mm1/fs/xfs/Kconfig	2005-01-31 15:57:12.236974472 +0100
-@@ -3,6 +3,7 @@
- config XFS_FS
- 	tristate "XFS filesystem support"
- 	select QSORT
-+	select EXPORTFS if NFSD
- 	help
- 	  XFS is a high performance journaling filesystem which originated
- 	  on the SGI IRIX platform.  It is completely multi-threaded, can
+Consequently, the SIOCGIFMAP ioctl reports bogus IRQ values for most 
+hardware; it is therefore unreliable.
+
+Would it be possible to fix the ioctl such that it returns the correct 
+irq value, e.g. be using the irq field of the associated struct pci_dev?
+
+If not, I'd consider it better to deprecate netdev->irq officially and 
+always return bogus so that people stop using it.
+
+In both cases, the netdev->irq field isn't used anymore; perhaps it 
+should be officially deprecated and/or removed?
+
+Regards
+Martin
+
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+

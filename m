@@ -1,171 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbUC3OUh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 09:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263668AbUC3OUh
+	id S263679AbUC3OZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 09:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbUC3OZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 09:20:37 -0500
-Received: from mimesweeper2.hubbell.com ([63.111.141.185]:52234 "EHLO
-	cprorgctnt02-ms.hubbell.com") by vger.kernel.org with ESMTP
-	id S263665AbUC3OUb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 09:20:31 -0500
-Message-Id: <s0693be0.086@CRPORGCTNW02-IA>
-X-Mailer: Novell GroupWise Internet Agent 6.0.2
-Date: Tue, 30 Mar 2004 09:17:54 -0500
-From: "Brian T. Brunner" <brian.t.brunner@gai-tronics.com>
-To: <greg@kroah.com>, <linux-hotplug-devel@lists.sourceforge.net>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       <Linux-usb-users@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-usb-users] [ANNOUNCE] 2004-03-29 release of hotplug
-    scripts
+	Tue, 30 Mar 2004 09:25:30 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:4111 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263679AbUC3OZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 09:25:24 -0500
+Date: Tue, 30 Mar 2004 16:22:15 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Len Brown <len.brown@intel.com>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+Message-ID: <20040330142215.GA21931@alpha.home.local>
+References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com> <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local> <1080598062.983.3.camel@dhcppc4> <1080651370.25228.1.camel@dhcp23.swansea.linux.org.uk> <Pine.LNX.4.53.0403300814350.5311@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0403300814350.5311@chaos>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 30, 2004 at 08:15:46AM -0500, Richard B. Johnson wrote:
+> On Tue, 30 Mar 2004, Alan Cox wrote:
+> 
+> > On Llu, 2004-03-29 at 23:07, Len Brown wrote:
+> > > Linux uses this locking mechanism to coordinate shared access
+> > > to hardware registers with embedded controllers,
+> > > which is true also on uniprocessors too.
+> >
+> > If the ACPI layer simply refuses to run on a CPU without cmpxchg
+> > then I can't see there being a problem, there don't appear to be
+> > any 386 processors with ACPI
+> >
+> 
+> Yep, but to get to use cmpxchg, you need to compile as a '486 or
+> higher. This breaks i386.
 
-Thanks, Greg, for the dedication.
+OK, so why not compile the cmpxchg instruction even on i386 targets
+to let generic kernels stay compatible with everything, but disable
+ACPI at boot if the processor does not feature cmpxchg ? This could
+be helpful for boot/install kernels which try to support a wide
+range of platforms, and may need ACPI to correctly enable interrupts
+on others.
 
-I'll do some testing of this from a "truly dumb user" perspective.
-
-Brian Brunner
-brian.t.brunner@gai-tronics.com
-(610)796-5838
-
->>> Greg KH <greg@kroah.com> 03/29/04 08:31PM >>>
-I've just packaged up the latest Linux hotplug scripts into a release,
-which can be found at:
- 	http://sourceforge.net/project/showfiles.php?group_id=17679 
- 
-Or from your favorite kernel.org mirror at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2004_03_29.tar.gz
-or for those who like bz2 packages:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2004_03_29.tar.bz2
-
-I've also packaged up some pre-built (and signed) Red Hat FC 2-test based rpms:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2004_03_29-1.noarch.rpm
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-base-2004_03_29-1.noarch.rpm
-
-The source rpm is available if you want to rebuild it for other distros
-or versions of Red Hat at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2004_03_29-1.src.rpm
- 
-The main web site for the linux-hotplug project can be found at:
-	http://linux-hotplug.sf.net/ 
-which contains lots of documentation on the whole linux-hotplug
-process.
-
-This release is recommended for _anyone_ using older versions of the
-hotplug scripts (especially the last development snapshot) as lots of
-bugs have been fixed.  Especially for any scsi or usb-storage users, now
-the proper drivers should be automatically loaded when a device is
-plugged in.
-
-The release is still backwards compatible with 2.4, so there is no need
-to worry about upgrading.
-
-The full ChangeLog extract since the last release is included below for
-those who want to know everything that's been changed, and who to blame
-for them :)
-
-Many thanks to everyone who has send in patches for this release,
-without these submissions, this release would still contain lots of
-issues...
-
-
-thanks,
-
-greg k-h
-
-Mon Mar 29 2004 kroah
-        - 2004_03_29 release
-        - make test on network start for /var/... a Red Hat specific test
-        - make modprobe use '-q' to get rid of some unneeded messages at
-          times.  Reported by upstream users at:
-                http://bugs.gentoo.org/show_bug.cgi?id=37086 
-
-Sat Mar 27 2004 ukai
-
-        - usb.rc: fix usb coldplugging on linux 2.6.*
-                  sleep to wait usb data propagated at usb boot
-
-Fri Mar 26 2004 kroah
-        - more messages quieted (in scsi.agent this time.)
-        - make "... no modules for..." messages not print out except if
-          debugging is enabled.
-        - From Jean Tourrilhes <jt@bougret.hpl.hp.com>:
-                add support for ifrename if present.
-        - From Stephen Hemminger <shemminger@osdl.org>:
-                add stir4200 to the usb.distmap file.
-        - From Rolf Eike Beer <eike-hotplug@sf-tec.de>:
-                fix detection of kernel series for older machines with no USB
-                or PCI busses.
-
-Mon Mar 15 2004 ukai
-        - firmware.agent: quote firmware name
-        - usb.agent: sysfs usb attribute value is hex
-        - scsi.agent: remove bashism
-        - input.rc: do not even try if /proc/bus/input is missing
-          in input_boot_events
-        - input.agent: use input_match_bits for bits parameters
-        - default.hotplug: provides open file descriptors for stdin, stdout
-          and stderr
-
-Sun Mar 14 2004 ukai
-        - ieee1394.agent: fix misplaced conversion code for module map
-                        parameters
-        - pci.rc: fix [: missing ']'
-
-Thu Mar 11 2004 kroah
-        - 2004_03_11 release
-        - From Dmitry Torokhov <dtor_core@ameritech.net>:
-                add evbug to the blacklist of modules
-        - From Kay Sievers <kay.sievers@vrfy.org>:
-                We should mention the DEVPATH in the hotplug man page too,
-                as someone missed it and got confused.
-        - 5 patches from Marco d'Itri <md@Linux.IT>:
-                - 000_small_fixes: fixed some small bugs.
-                - 001_no_bashisms: removed bashisms from all scripts.
-                - 003_no_useless_includes: removed some unused code.
-                - 004_2.6_pci_synthesis: added sysfs support to pci.rc,
-                  enabling boot time events synthesis on lacking the
-                  pcimodules program.
-                - 004_2.6_usb_sysfs: improved sysfs support in the USB
-                  scripts. Please review the changes marked with the FIXME
-                  comment: this works on my system and others, but I'm not
-                  sure that it's the proper way.
-
-Fri Feb 13 2004 dbrownell
-        - scsi.agent waits for /sys$DEVPATH/type to appear before
-          modprobing higher level drivers.  Patch from Patrick
-          Mansfield <patmans@us.ibm.com>
-
- 
-
-
--------------------------------------------------------
-This SF.Net email is sponsored by: IBM Linux Tutorials
-Free Linux tutorial presented by Daniel Robbins, President and CEO of
-GenToo technologies. Learn everything from fundamentals to system
-administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-_______________________________________________
-Linux-usb-users@lists.sourceforge.net 
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-users
-
-
-**********************************************************************
-This email and any files transmitted with it are confidential and
-intended solely for the use of the individual or entity to whom they
-are addressed. If you have received this email in error please notify
-the system manager.
-
-This footnote also confirms that this email message has been swept
-for the presence of computer viruses.
-
-www.hubbell.com - Hubbell Incorporated
-**********************************************************************
+Cheers,
+Willy
 

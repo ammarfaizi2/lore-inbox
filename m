@@ -1,52 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263242AbUCTHMy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 02:12:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263243AbUCTHMy
+	id S263238AbUCTHbl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 02:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbUCTHbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 02:12:54 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:35289 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263242AbUCTHMx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 02:12:53 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>, kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Kgdb-bugreport] Move eth into 'lite' series?
-Date: Sat, 20 Mar 2004 12:42:21 +0530
-User-Agent: KMail/1.5
-References: <20040319210322.GA13141@smtp.west.cox.net>
-In-Reply-To: <20040319210322.GA13141@smtp.west.cox.net>
+	Sat, 20 Mar 2004 02:31:41 -0500
+Received: from phoenix.servershost.net ([66.225.220.4]:20674 "EHLO
+	phoenix.servershost.net") by vger.kernel.org with ESMTP
+	id S263238AbUCTHbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 02:31:39 -0500
+Message-ID: <2101.202.88.238.147.1079767903.squirrel@www.sepsit.org>
+Date: Sat, 20 Mar 2004 01:31:43 -0600 (CST)
+Subject: kernel compilation
+From: mtr@sepsit.org
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403201242.21578.amitkale@emsyssoft.com>
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Primary Hostname - phoenix.servershost.net
 X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+X-AntiAbuse: Originator/Caller UID/GID - [33425 33425] / [47 12]
+X-AntiAbuse: Sender Address Domain - phoenix.servershost.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 Mar 2004 2:33 am, Tom Rini wrote:
-> I was thinking, now that netpoll is in 2.6.5-rc1, should we move the
-> kgdboe driver into the -lite series?  I'd like to say Yes, with a quick
-> check over the include list.
+hai
 
-Let's wait till current session to push kgdb into mainline kernel is over. We 
-need not push kgdboe into lite series, we can push it into mainline kernel 
-itself :-)
+ I am a new bie in the list. I have a doubt. It is about kernel compilation.
+I use  linux-2.4.20-8 in redhat 9. In the default kernel after i giving
+the lsmod command it will list the following list
 
-I was supposed to submit second version of lite patches monday this week, but 
-was preempted by some other work. I'll post them on coming monday now
+Module                  Size  Used by    Not tainted
+sr_mod                 18136   0  (autoclean)
+i810_audio             27720   0  (autoclean)
+ac97_codec             13640   0  (autoclean) [i810_audio]
+soundcore               6404   2  (autoclean) [i810_audio]
+parport_pc             19076   1  (autoclean)
+lp                      8996   0  (autoclean)
+parport                37056   1  (autoclean) [parport_pc lp]
+autofs                 13268   0  (autoclean) (unused)
+microcode               4668   0  (autoclean)
+8139too                18088   1
+mii                     3976   0  [8139too]
+ide-scsi               12208   0
+scsi_mod              107160   2  [sr_mod ide-scsi]
+ide-cd                 35708   0
+cdrom                  33728   0  [sr_mod ide-cd]
+keybdev                 2944   0  (unused)
+mousedev                5492   1
+hid                    22148   0  (unused)
+input                   5856   0  [keybdev mousedev hid]
+ehci-hcd               19976   0  (unused)
+usb-ohci               21480   0  (unused)
+usbcore                78784   1  [hid ehci-hcd usb-ohci]
+ext3                   70784   7
+jbd                    51892   7  [ext3]
+
+After compilation the new kernel is booting and i could not get the USB
+mouse and Xserver. At the prompt i give ls mode it will give only the
+following line.
+Module                  Size  Used by    Not tainted
+
+I compile the source in /usr/src/linux-2.4.20-8/ using the commands
+
+make xconfig
+make dep
+make clean
+make bzImage
+
+after this i move the bzImage to the boot directory and edit grub to boot
+the new kernel.
+
+How to load all modules in the default kernel into the new kernel.
+or How to make a kernel image that contain all the default modules and my
+new option given in make xconfig.
+
+Sorry for this long mail to this list and my not good english.
+
+If this is not a list to ask this type of questions please give the
+apropriate list name
+
+With regards
+Manoj
 
 
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+
 

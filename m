@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310474AbSCPReN>; Sat, 16 Mar 2002 12:34:13 -0500
+	id <S310479AbSCPRfD>; Sat, 16 Mar 2002 12:35:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310479AbSCPRdz>; Sat, 16 Mar 2002 12:33:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4105 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310474AbSCPRdi>; Sat, 16 Mar 2002 12:33:38 -0500
-Subject: Re: [PATCH], tiser module: TI graphing calculators
-To: roms@lpg.ticalc.org
-Date: Sat, 16 Mar 2002 17:49:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Kernel List),
-        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), tytso@mit.edu (Theodore T'so)
-In-Reply-To: <3C937EBD.C0308D21@free.fr> from "Romain =?iso-8859-1?Q?Li=E9vin?=" at Mar 16, 2002 06:19:57 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S310480AbSCPRey>; Sat, 16 Mar 2002 12:34:54 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:51975 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S310479AbSCPRen>;
+	Sat, 16 Mar 2002 12:34:43 -0500
+Date: Sat, 16 Mar 2002 09:34:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Gordon J Lee <gordonl@world.std.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
+Message-ID: <20020316173434.GB10003@kroah.com>
+In-Reply-To: <3C927F3E.7C7FB075@world.std.com> <20020315234333.GH5563@kroah.com> <3C92B1EA.F40BDBD5@world.std.com> <20020316055542.GA8125@kroah.com> <3C938093.D1640CB6@world.std.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16mIJB-0006oL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <3C938093.D1640CB6@world.std.com>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sat, 16 Feb 2002 15:28:36 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This driver directly accesses some UART registers in a way similar to
-> serial.c. 
-> A better method should be to do some ioctl for toggling UART lines
-> rather than by-passing the ttySx driver.
+On Sat, Mar 16, 2002 at 12:27:48PM -0500, Gordon J Lee wrote:
+> > > > > 2.4.9     works fine!
+> > > >
+> > > > Forgot to mention, how many processors does this kernel show you having?
+> > >
+> > > It has two physical packages, and shows two processors.  See below.
+> >
+> > Ah, can you try the latest 2.4.19-ac tree and make sure that the rest of
+> > your processors (the "evil" twins) show up?
+> 
+> Yes, they show up.  I tried 'cat /proc/cpuinfo' on the following:
+> 
+> 2.4.18  shows two processors
+> 2.4.19-pre3 shows two processors
+> 2.4.19-pre3-ac1 shows four processors
 
-TIOCM* sounds promising. You ought to be able to bitbang enough lines in
-user space not to need a driver. 
+Great, thanks for testing.  I'd recommend using this hardware :)
+
+greg k-h

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289139AbSA3Mf2>; Wed, 30 Jan 2002 07:35:28 -0500
+	id <S289166AbSA3Mns>; Wed, 30 Jan 2002 07:43:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289136AbSA3MfS>; Wed, 30 Jan 2002 07:35:18 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:42769 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S289139AbSA3MfB>; Wed, 30 Jan 2002 07:35:01 -0500
-Message-Id: <200201301232.g0UCWmt10496@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: David Weinehall <tao@acc.umu.se>
-Subject: Re: [PATCH] KERN_INFO for devfs
-Date: Wed, 30 Jan 2002 14:32:47 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200201291649.g0TGnnD8001332@tigger.cs.uni-dortmund.de> <200201300903.g0U933t08579@Port.imtp.ilyichevsk.odessa.ua> <20020130120934.R1735@khan.acc.umu.se>
-In-Reply-To: <20020130120934.R1735@khan.acc.umu.se>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S289161AbSA3Mni>; Wed, 30 Jan 2002 07:43:38 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:52488 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id <S289166AbSA3Mn3>;
+	Wed, 30 Jan 2002 07:43:29 -0500
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: Alexander Viro's message of "Wed, 30 Jan 2002 02:58:51 -0500 (EST)"
+In-Reply-To: <Pine.GSO.4.21.0201300258230.11157-100000@weyl.math.psu.edu>
+X-Attribution: KB
+Reply-To: kees.bakker@altium.nl (Kees Bakker)
+From: kees.bakker@altium.nl (Kees Bakker)
+From: Kees Bakker <rnews@altium.nl>
+Date: 30 Jan 2002 13:41:38 +0100
+Message-ID: <silmeg80zh.fsf@koli.tasking.nl>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 January 2002 09:09, David Weinehall wrote:
-> > > >      else printk ("Warning: unable to mount devfs, err: %d\n", err);
-> > >
-> > >                     ^^^^^
-> > >                      Missed this one
-> >
-> > Hmm. KERN_WARNING can be added there, but it is the default level anyway.
->
-> Yes, but that may change (in theory, at least.) Consistency is a virtue.
+>>>>> "Alexander" == Alexander Viro <viro@math.psu.edu> writes:
 
-I'll do this cleanup if my KERN_INFO patches will be accepted, at least some 
-of them. So far only Richard Gooch replied...
---
-vda
+Alexander> On Wed, 30 Jan 2002, Daniel Phillips wrote:
+
+>> Linus just called you the ext2 maintainer.
+
+Alexander> Message-ID, please?
+
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: 	Tue, 29 Jan 2002 22:22:46 +0000 (UTC)
+Message-ID: <a377bn$1go$1@penguin.transmeta.com>

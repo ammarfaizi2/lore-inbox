@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbTFUV6v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 17:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTFUV6v
+	id S264054AbTFUWDC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 18:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264080AbTFUWDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 17:58:51 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:57865 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S261769AbTFUV6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 17:58:50 -0400
-Date: Sun, 22 Jun 2003 00:13:22 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-Cc: wa@almesberger.net, lm@work.bitmover.com, miquels@cistron-office.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-Id: <20030622001322.16c5c458.skraw@ithnet.com>
-In-Reply-To: <3EF4ABF7.9050003@coyotegulch.com>
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
-	<1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
-	<03061908145500.25179@tabby>
-	<20030619141443.GR29247@fs.tum.de>
-	<bcsolt$37m$2@news.cistron.nl>
-	<20030619165916.GA14404@work.bitmover.com>
-	<3EF4ABF7.9050003@coyotegulch.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 21 Jun 2003 18:03:02 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:4877 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S264054AbTFUWDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 18:03:00 -0400
+Date: Sat, 21 Jun 2003 16:17:02 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Zack Gilburd <zack@tehunlose.com>, linux-kernel@vger.kernel.org
+Subject: Re: AIC7(censored) card gone wild?
+Message-ID: <909940000.1056233822@aslan.scsiguy.com>
+In-Reply-To: <200306211335.48734.zack@tehunlose.com>
+References: <A46BBDB345A7D5118EC90002A5072C780E040C95@orsmsx116.jf.intel.com> <20030621094748.GB4560@merlin.emma.line.org>
+ <200306211335.48734.zack@tehunlose.com>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Jun 2003 15:03:19 -0400
-Scott Robert Ladd <coyote@coyotegulch.com> wrote:
+> The aic7xxx has been driving me crazy in 2.5.7x... Something got changed and 
+> now the card will not work for me.  I've posted the errors to this ML, but 
+> noone replied.. You can dig for the message, if you'd like.  It's the only 
+> other time I've posted to the LKML.
 
-> Stephan von Krawczynski wrote:
-> > GPL has an inherent long-term strategy, you are talking of short-term,
-> > Larry. That does not match. If I am using only GPL-software I know I am
-> > able to use it as is in five years from now. If I depend on being nice to
-> > commercial companies, it may well turn out, that they are not being nice to
-> > me no matter what I do.
-> 
-> A very technocratic view, to be sure. Source code is no guranatee of 
-> future portability or viability; for the vast, vast majority of users -- 
-> we do care about those, don't we? -- source code is useless.
+The messages I have seen are for drivers version 6.2.8 under 2.4.21-ac1.
+If you have additional output for different kernels or drivers, please
+send them to me directly.
 
-I doubt that. You are probably right with your exact statement, meaning that
-the _user_ cannot make use of the available source code himself (though the
-only reason why is that he plays user and refuses to learn anything :-)
-, BUT:
-the manpower and brain invested in creation of this open source code is not
-lost in space. Someone with brain and time can pick it up and revive it at any
-given time. And this is a very big advantage in comparison to closed source
-which simply vanishes with its producing company - and there already have been
-quite a few of those.
-So even if your statement looks correct in micro-economics, it is completely
-wrong in macro-economics. As Larry already pointed out in another post software
-development is often expensive. But it is only expensive if every company has
-to re-invent the wheel. If you can simply use the wheel and go on producing a
-car "on top" of it, you _saved_ money, time and manpower.
-So from that point of view, no piece of crappy software ever written is
-useless, as long as its source is _open_. Because I think based on todays'
-knowledge you simply do not know which software is really the "wheel" and which
-is pure nonsense. Only time can tell.
-
-Regards,
-Stephan
+--
+Justin
 

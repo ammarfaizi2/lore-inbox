@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136309AbRAJUDE>; Wed, 10 Jan 2001 15:03:04 -0500
+	id <S136288AbRAJUDE>; Wed, 10 Jan 2001 15:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136310AbRAJUCy>; Wed, 10 Jan 2001 15:02:54 -0500
-Received: from hercules.telenet-ops.be ([195.130.132.33]:10254 "HELO
-	smtp.pandora.be") by vger.kernel.org with SMTP id <S136309AbRAJUCk>;
-	Wed, 10 Jan 2001 15:02:40 -0500
-Date: Wed, 10 Jan 2001 20:51:27 +0100
-From: mo6 <sjoos@pandora.be>
-To: Robert Kaiser <rob@sysgo.de>
-Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-Message-ID: <20010110205127.B982@pandora.be>
-In-Reply-To: <01010922090000.02630@rob> <3A5B7F76.ABDFED7A@didntduck.org> <01010922264400.02737@rob>
-Mime-Version: 1.0
+	id <S136309AbRAJUCz>; Wed, 10 Jan 2001 15:02:55 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15365 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136288AbRAJUCh>; Wed, 10 Jan 2001 15:02:37 -0500
+Message-ID: <3A5CBFC5.7E11E5A@transmeta.com>
+Date: Wed, 10 Jan 2001 12:02:13 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: rdunlap <randy.dunlap@intel.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kai Germaschewski <kai@thphy.uni-duesseldorf.de>,
+        Alan Cox <alan@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Re: That horrible hack from hell called A20
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F06E2EC5F@orsmsx31.jf.intel.com> <3A5CBAE3.ACDD2494@intel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <01010922264400.02737@rob>; from rob@sysgo.de on Tue, Jan 09, 2001 at 10:17:47PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 10:17:47PM +0100, Robert Kaiser wrote:
-> On Die, 09 Jan 2001 you wrote:
-> > Robert Kaiser wrote:
-> > > I can't seem to get the new 2.4.0 kernel running on a 386 CPU.
-> > > The kernel was built for a 386 Processor, Math emulation has been enabled.
-> > > I tried three different 386 boards. Execution seems to get as far as
-> > > pagetable_init() in arch/i386/mm/init.c, then it falls back into the BIOS as
-> > > if someone had pressed the reset button. The same kernel boots fine on
-> > > 486 and Pentium Systems.
-> > > 
-> > > Any ideas/suggestions ?
-> > 
-> > 
-> > is "Checking if this processor honours the WP bit even in supervisor
-> > mode... " the last thing you see before the reset?
-> > 
+rdunlap wrote:
 > 
-> No, I don't see _any_ messages from the kernel. The last thing I see is
-> "Uncompressing Linux... Ok, booting the kernel." 
+> Alan-
+> 
+> Here's a patch to 2.2.19-pre7 that is essentially a backport of the
+> 2.4.0 gate-A20 code.
+> 
+> This speeds up booting on my fast-A20 board (Celeron 500 MHz, no KBC)
+> from 2 min:15 seconds to <too small to measure by my wrist watch>.
+> 
+> Kai, you reported that your system was OK with 2.4.0-test12-pre6.
+> Does that mean that it's OK with 2.4.0-final also?
+> 
+> Comments?  Should we be merging Peter's int 0x15-first patch with this?
+> And test for A20-gated after each step, before going to the next
+> method?  Get that working and then backport it to 2.2.19?
+> Have their been any test reports on Peter's last patch?  I didn't see
+> any, but if that should be the goal, I'll give it a whirl.
+> 
+> I'd like to see this applied to 2.2.19.  At least changing the long
+> delay so that it doesn't appear that Linux isn't going to boot...
+> 
 
-I dug up an old amd 386 and started compiling kernels for it with gcc 2.95.2:
+I certainly would appreciate feedback.  I'm probably going to have to
+release a new version of SYSLINUX which will use that method, too.
 
-2.4.0 : doesn't boot, same symptoms as you, Robert, so you're not imagining 
-	things :-)
-2.2.19pre6 : compiles, boots and runs poifectly
-2.3.51 : doesn't compile
-2.3.99-pre1 : hrm, *cough*
-2.3.99-pre2 : *tsjoum*
-2.3.39: compiles and boots okay
+	-hpa
 
-here is where I got bored :-)
-
-okay, anyone, which 2.3.x kernels should compile okay ?
-
-With kind regards,
-Sven
 -- 
-If the odds are a million to one against something occurring, chances
-are 50-50 it will.
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

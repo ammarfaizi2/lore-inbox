@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbUCDCSS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 21:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbUCDCSS
+	id S261402AbUCDCP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 21:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbUCDCP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 21:18:18 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:5263 "EHLO
-	myware.akkadia.org") by vger.kernel.org with ESMTP id S261406AbUCDCR2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 21:17:28 -0500
-Message-ID: <40469194.5080506@redhat.com>
-Date: Wed, 03 Mar 2004 18:16:52 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040302
+	Wed, 3 Mar 2004 21:15:59 -0500
+Received: from nobody.lpr.e-technik.tu-muenchen.de ([129.187.151.1]:30429 "EHLO
+	nobody.lpr.e-technik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S261402AbUCDCP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 21:15:57 -0500
+Message-ID: <40469242.70406@metrowerks.com>
+Date: Thu, 04 Mar 2004 03:19:46 +0100
+From: Bernhard Kuhn <bkuhn@metrowerks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Jamie Lokier <jamie@shareable.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Joel Becker <Joel.Becker@oracle.com>, Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] linux-2.6.4-pre1_vsyscall-gtod_B3-part3 (3/3)
-References: <1078359081.10076.191.camel@cog.beaverton.ibm.com> <1078359137.10076.193.camel@cog.beaverton.ibm.com> <1078359191.10076.195.camel@cog.beaverton.ibm.com> <1078359248.10076.197.camel@cog.beaverton.ibm.com> <20040304005542.GZ4922@dualathlon.random>
-In-Reply-To: <20040304005542.GZ4922@dualathlon.random>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: [patch] real-time interrupts for linux 2.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Andrea Arcangeli wrote:
+Hi everybody!
 
-> This is just like the kernel patches people proposes when they get
-> vmalloc LDT allocation failure, because they run with the i686 glibc
-> instead of the only possibly supported i586 configuration. It makes no
-> sense to hide a glibc inefficiency
+I hope that i can steal enough of your precious time to get
+your attention for a patch that adds hard real time support
+to the linux kernel (worst case response time below
+5 microseconds at a 100 KHz periodic interrupt).
 
-You apparently still haven't gotten any clue since your whining the last
-time around.  Absolute addresses are a fatal mistake.
+The proposed "real time interrupt patch" enables the linux
+kernel for hard-real-time applications such as data aquisition
+and control loops by adding priorities to interrupts and spinlocks.
 
-- -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+New festures since first release
+--------------------------------
 
-iD8DBQFARpGU2ijCOnn/RHQRAhs3AJ0XEZ5VGb40VAIPuO4negyo7cx/WwCbBrN6
-EFZ7UnY7W/it0sUiq6Dodeg=
-=KSMr
------END PGP SIGNATURE-----
+* ported to 2.6 (tested with 2.6.2 and 2.6.3)
+* io-apic priority operation partly implemented
+* enhanced example application
+* performed benchmarks
+
+
+The following document will describe the patch in detail and how
+to install it:
+
+http://home.t-online.de/home/Bernhard_Kuhn/rtirq/20040304/rtirq.html
+
+
+The patch and a demo application can be downloaded from:
+
+http://home.t-online.de/home/Bernhard_Kuhn/rtirq/20040304/rtirq-2.6.2-20040304.tar.bz2
+
+
+Comments are highly appreciated!
+
+
+best regards
+
+Bernhard Kuhn
+
+
+
+P.S.: i had some troubles (re)subscribing to LKML, so i guess i'm
+posting off-list. Please put me on CC in case you reply to the list,
+THX and sorry.
+
+

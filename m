@@ -1,77 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271182AbTHHMzN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 08:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271298AbTHHMzN
+	id S271318AbTHHM4x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 08:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271317AbTHHM4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 08:55:13 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:54370 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S271182AbTHHMzH
+	Fri, 8 Aug 2003 08:56:53 -0400
+Received: from mayhem.byteworld.com ([63.127.169.21]:51368 "EHLO
+	chaos.byteworld.com") by vger.kernel.org with ESMTP id S271307AbTHHM4C
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 08:55:07 -0400
-Date: Fri, 8 Aug 2003 15:55:02 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       gibbs@scsiguy.com, alan@redhat.com
-Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1, aic7xxx-6.2.36: solid hangs)
-Message-ID: <20030808125502.GB150921@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, gibbs@scsiguy.com, alan@redhat.com
-References: <20030729073948.GD204266@niksula.cs.hut.fi> <20030730071321.GV150921@niksula.cs.hut.fi> <Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva> <20030730181003.GC204962@niksula.cs.hut.fi>
+	Fri, 8 Aug 2003 08:56:02 -0400
+Date: Fri, 8 Aug 2003 08:56:04 -0400
+From: William Enck <wenck@wapu.org>
+To: "Nicolas P." <linux@1g6.biz>
+Cc: linux-kernel@vger.kernel.org, David Gibson <hermes@gibson.dropbear.id.au>
+Subject: Re: orinoco_cs: RequestIRQ: Unsupported mode
+Message-ID: <20030808125604.GA22090@chaos.byteworld.com>
+References: <20030808031706.GB20401@chaos.byteworld.com> <200308080829.04842.linux@1g6.biz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030730181003.GC204962@niksula.cs.hut.fi>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200308080829.04842.linux@1g6.biz>
+User-Agent: Mutt/1.3.28i
+X-Sent-From: chaos.byteworld.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 09:10:03PM +0300, you [Ville Herva] wrote:
+I added CONFIG_ISA=y to my -mm5 config and it worked. 
+
+Thanks Nicolas.
+
+Will
+
+On Fri, Aug 08, 2003 at 08:29:04AM +0200, Nicolas P. wrote:
 > 
-> However, I just realized that all of those kernel were compiled with fairly
-> dubious gcc, version 2.96-85. I just compiled otherwise identically
-> configured 2.4.21-jam1 with gcc-3.2.1-2. It'll take some time to tell
-> whether this cures it. This is my main suspect now.
-
-Ok, the kernel compiled with gcc version 3.2.1 20021207 (Red Hat Linux 8.0
-3.2.1-2) has now been up for more than a week. It seems stable, but I'm not
-sure yet.
-
-Which brings me to the question: which gcc version is considered most stable
-for compiling 2.4.x these days?
-
-README says:
-"Make sure you have gcc 2.95.3 available.  gcc 2.91.66 (egcs-1.1.2) may
-also work but is not as safe, and *gcc 2.7.2.3 is no longer supported*"
-
-And Documentation/Changes says:
-
-"You may use gcc 3.0.x instead if you wish, although it may cause problems.
-Later versions of gcc have not received much testing for Linux kernel
-compilation, and there are almost certainly bugs (mainly, but not
-exclusively, in the kernel) that will need to be fixed in order to use these
-compilers."
-
-and
-
-"The Red Hat gcc 2.96 compiler subtree can also be used to build this tree.
-You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not build
-the kernel correctly."
-
-This seems to suggest 2.96-85 would be more stable than gcc-3.2.1-2. Is this
-the case?
-  
-> > Justin, is this problem known to other boards or.. ?
+> Did you try to switch on  :
 > 
-> The lockups may be completely unrelated to aic7xxx and the crashes on boot
-> that I posted kernel logs of. I don't know.
+> CONFIG_ISA=y
+> 
+> I had the same problem on 2.6.0-test2 (it is not your
+> case but who knows ?), and now it works for me.
+> It doesn't come from the driver as the hostap one did
+> the same error.
+> 
+> Nicolas.
+> 
+> 
+> 
+> Le Vendredi 8 Ao?t 2003 05:17, William Enck a ?crit :
+> > dmesg outputs the following
+> >
+> > orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
+> > orinoco_cs: RequestIRQ: Unsupported mode
+> >
+> > It does that in 2.6.0-test2-(bk7|bk7-netdrvr1|mm5).
+> >
+> > It functions correctly in 2.6.0-test2 and -mm4.
+> >
+> > Attached is my config for 2.6.0-test2-mm5 as well as mm4-mm5_config.diff
+> > which is a diff -u on the two .config's used.
+> >
+> > Also, I just noticed that dmesg produces:
+> > orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
+> > orinoco_cs: Unknown parameter `8200'
+> >
+> > But it is in the dmesg output of both mm4 and mm5
+> >
+> > Let me know if anything else is needed to try to figure out what happend
+> > between -mm4 and -mm5
+> >
+> > Will
+> 
+> 
+> >Hi,
+> >
+> >I compiled the kernel with ISA support !
+> >and it worked well, strange but it worked ...
+> >
+> >But now, since few days I am using the hostap driver
+> >(which had the same problem RequestIRQ without ISA,
+> >so it is not related to orinoco but more to irq stuffs in the kernel),
+> >
+> >so no more tests with the orinoco, sorry ...
+> >
+> >Bye.
+> >
+> >Nicolas.
+> 
+> Le Vendredi 1 Ao?t 2003 11:38, vous avez ?crit :
+> > On Tue, Jul 29, 2003 at 11:30:18AM +0200, Nicolas P. wrote:
+> > > Hi,
+> > >
+> > > on kernels 2.6.0-test[12],
+> > > I have this message : orinoco_cs: RequestIRQ: Resource in use,
+> > > on toshiba tecra 8100 (pcmcia netgear MA401 / 802.11b)
+> > > The driver works well on 2.4.xx
+> >
+> > How odd.  It also seems to work for me on 2.5.75, but I've heard
+> > several reports of problems on 2.6.0-test.  Unfortunately I'm overseas
+> > at the moment and don't really have time to investigate.  I'll be back
+> > around the 20th of August, if you remind me then I'll investigate
+> > further.
+> >
+> > At first blush this looks like a problem in the PCMCIA layer though -
+> > it's refusing our request for an interrupt for unclear reasons.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I guess I'll poll Justin when/if the aic7xxx crashes reappear. The hang was
-probably not related to aic7xxx. Sorry for the false accusation.
-
-
-
--- v --
-
-v@iki.fi
+-- 
+William Enck
+wenck@wapu.org

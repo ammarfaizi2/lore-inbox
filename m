@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319151AbSH2NF7>; Thu, 29 Aug 2002 09:05:59 -0400
+	id <S319152AbSH2NG2>; Thu, 29 Aug 2002 09:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319152AbSH2NF7>; Thu, 29 Aug 2002 09:05:59 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:37370
+	id <S319153AbSH2NG2>; Thu, 29 Aug 2002 09:06:28 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:42490
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319151AbSH2NF7>; Thu, 29 Aug 2002 09:05:59 -0400
-Subject: Re: Laptops with SpeedStep technology.
+	id <S319152AbSH2NG1>; Thu, 29 Aug 2002 09:06:27 -0400
+Subject: Re: i845mp support: 82845 (Brookdale) 82801BAM/CAM
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steffen Persvold <sp@scali.com>
+To: "Kerl, Andreas" <andreas.kerl@dts.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208291004550.1952-100000@sp-laptop.isdn.scali.no>
-References: <Pine.LNX.4.44.0208291004550.1952-100000@sp-laptop.isdn.scali.no>
+In-Reply-To: <2BB73D0BED687449BA36B05B1C5FA9F439241A@exchange2000.dts.intra>
+References: <2BB73D0BED687449BA36B05B1C5FA9F439241A@exchange2000.dts.intra>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 29 Aug 2002 11:29:02 +0100
-Message-Id: <1030616946.7290.98.camel@irongate.swansea.linux.org.uk>
+Date: 29 Aug 2002 11:31:07 +0100
+Message-Id: <1030617147.7190.103.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-29 at 09:13, Steffen Persvold wrote:
-> Hi all,
-> 
-> Recently I got myself a Dell Inspiron 8200 with a Intel P4 Mobile wich has 
-> SpeedStep technology. With power plugged in, this processor runs at 1.6 
-> GHz and with battery only, 1.2 GHz. However I've found that the 
-> /proc/cpuinfo doesn't show this and I was wondering if there were some 
-> patches lying around before I began to look at this on my own.
+On Thu, 2002-08-29 at 08:44, Kerl, Andreas wrote:
+> Hi,
+> when will this chipset support be merged into standard kernel (dma works
+> with the ac tree)?
 
-cpufre handles this including switching processor speeds, fixing up
-udelay and ensuring you dont get stuck at random boot speed
+Eventually. I have to get Marcelo all the pci updates and a couple of
+pci bug fixes before I can feed him the pci_enable_bars ide fix. He has
+some of the bits now
 

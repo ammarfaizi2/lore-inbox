@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136279AbRDVTyH>; Sun, 22 Apr 2001 15:54:07 -0400
+	id <S136278AbRDVTx0>; Sun, 22 Apr 2001 15:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136280AbRDVTx6>; Sun, 22 Apr 2001 15:53:58 -0400
-Received: from jalon.able.es ([212.97.163.2]:22456 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S136279AbRDVTxn>;
-	Sun, 22 Apr 2001 15:53:43 -0400
-Date: Sun, 22 Apr 2001 21:53:36 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>, feedback@suse.de
-Subject: Re: Linux 2.4.3-ac12
-Message-ID: <20010422215336.A2240@werewolf.able.es>
-In-Reply-To: <01042219261100.01104@SunWave1>
+	id <S136279AbRDVTxR>; Sun, 22 Apr 2001 15:53:17 -0400
+Received: from [209.250.60.85] ([209.250.60.85]:29200 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S136278AbRDVTxB>; Sun, 22 Apr 2001 15:53:01 -0400
+Date: Sun, 22 Apr 2001 14:52:20 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: andersg@0x63.nu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide dma in /proc/dma
+Message-ID: <20010422145220.A7257@hapablap.dyn.dhs.org>
+In-Reply-To: <20010422135359.A21013@h55p111.delphi.afb.lu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <01042219261100.01104@SunWave1>; from Dieter.Nuetzel@hamburg.de on Sun, Apr 22, 2001 at 19:26:11 +0200
-X-Mailer: Balsa 1.1.4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010422135359.A21013@h55p111.delphi.afb.lu.se>; from andersg@0x63.nu on Sun, Apr 22, 2001 at 01:53:59PM +0200
+X-Uptime: 2:42pm  up 2 days, 23:36,  1 user,  load average: 1.16, 1.06, 1.01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 04.22 Dieter Nützel wrote:
-> > My belief however is that several million people have gcc 2.96-69+, about 50
-> > are likely to have random cvs snapshots and none of them are going to build
-> > kernels with them anyway, as they wont work __builtin_expect or otherwise.
-> >
-> > Alan
+On Sun, Apr 22, 2001 at 01:53:59PM +0200, andersg@0x63.nu wrote:
+> Hi!
 > 
-> I will not add fuel to the fire, but isn't 2.4.XX the "stable" version?
-> And I think most people (here in Europe :-) are running 2.95.2 at the moment.
-> But, yes the previously patches fixed it.
+> why doesnt the dma for ide disks show up in /proc/dma?
 > 
+> heineken:~# hdparm -d /dev/discs/disc0/disc 
+> /dev/discs/disc0/disc:
+>  using_dma    =  1 (on)
+> 
+> heineken:~# cat /proc/dma 
+>  4: cascade
 
-That's going to change in a few weeks, I suspect. Dunno about SuSE, but just
-released Mandrake 8.0 and RedHat 7.1 ship gcc-2.96.
-
+I suspect this is because only ISA DMA's are listed in /proc/dma, and
+your IDE controller is likely PCI.
 -- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
-
-Linux werewolf 2.4.3-ac12 #1 SMP Sun Apr 22 10:27:22 CEST 2001 i686
-
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

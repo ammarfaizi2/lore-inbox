@@ -1,92 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbUCLXbn (ORCPT <rfc822;willy@w.ods.org>);
+	id S262487AbUCLXbn (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 12 Mar 2004 18:31:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbUCLX3K
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUCLX3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 18:29:10 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:64966 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263024AbUCLX0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 18:26:41 -0500
-Date: Fri, 12 Mar 2004 18:26:39 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: long <tlnguyen@snoqualmie.dp.intel.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davidm@napali.hpl.hp.com, grep@kroah.com, jgarzik@pobox.com,
-       jun.nakajima@intel.com, tom.l.nguyen@intel.com, tony.luck@intel.com
-Subject: Re: RE[PATCH]2.6.4-rc3 MSI Support for IA64
-In-Reply-To: <200403130008.i2D08SMQ011709@snoqualmie.dp.intel.com>
-Message-ID: <Pine.LNX.4.58.0403121743310.29087@montezuma.fsmlabs.com>
-References: <200403130008.i2D08SMQ011709@snoqualmie.dp.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Mar 2004 18:29:32 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:62144 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S263038AbUCLX10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 18:27:26 -0500
+Date: Fri, 12 Mar 2004 15:27:13 -0800
+From: Tim Hockin <thockin@sun.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Tim Hockin <thockin@hockin.org>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: calling flush_scheduled_work()
+Message-ID: <20040312232713.GZ1333@sun.com>
+Reply-To: thockin@sun.com
+References: <20040312205814.GY1333@sun.com> <1079128848.3166.44.camel@lade.trondhjem.org> <20040312223811.GA15636@hockin.org> <1079133554.3166.69.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1079133554.3166.69.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Mar 2004, long wrote:
+On Fri, Mar 12, 2004 at 06:19:14PM -0500, Trond Myklebust wrote:
+> Ewww.... That's saying "I'm just going to ignore the problem and pretend
+> I can continue". At least the hang will tell you that there *is* a
+> problem and points to where it is happening.
 
-> Thanks for all inputs received from the previous patch posted a few
-> weeks ago. Based on Zwane Mwaikambo's suggestion of using a
-> standard name like assign_irq_vector(), we made some changes to
-> the previous posted patch. Attached is an update version, based on
-> kernel 2.6.4-rc3.
+Well, it needs to be non-silent.  Whether that is a BUG() or a badness or a
+panic..
 
-Thanks for doing this, i have a few comments;
+> > In short, it's dubious that ANYONE call flush_scheduled_work() on a
+> > workqueue that they don't own.
+> 
+> Huh? You're saying that just because work has been scheduled on some
+> third party thread, you should not be allowed to wait on completion of
+> that work? That is a clearly unreasonable statement... Imagine doing
+> even memory allocation in such an environment...
 
-> diff -urN linux-2.6.4-rc3/arch/ia64/kernel/irq_ia64.c linux-2.6.4-rc3-msi/arch/ia64/kernel/irq_ia64.c
-> --- linux-2.6.4-rc3/arch/ia64/kernel/irq_ia64.c	2004-03-09 19:00:26.000000000 -0500
-> +++ linux-2.6.4-rc3-msi/arch/ia64/kernel/irq_ia64.c	2004-03-11 14:52:57.000000000 -0500
-> @@ -60,12 +60,18 @@
->  int
->  ia64_alloc_vector (void)
->  {
-> +#ifdef CONFIG_PCI_USE_VECTOR
-> +	extern int assign_irq_vector(int irq);
-> +
-> +	return assign_irq_vector(AUTO_ASSIGN);
-> +#else
->  	static int next_vector = IA64_FIRST_DEVICE_VECTOR;
->
->  	if (next_vector > IA64_LAST_DEVICE_VECTOR)
->  		/* XXX could look for sharable vectors instead of panic'ing... */
->  		panic("ia64_alloc_vector: out of interrupt vectors!");
->  	return next_vector++;
-> +#endif
->  }
+Waiting for completion of your work is one thing.  But you can't know what
+else has been scheduled.  In this case RPC doesn't know that our work is
+calling it.  By waiting for ALL work, it is assuming (silently) that it will
+never be called from a keventd.
 
-This one is slightly confusing readability wise since ia64 already does
-the vector based interrupt numbering. Perhaps CONFIG_PCI_USE_VECTOR should
-really be CONFIG_MSI but that's up to you. I wonder if we could
-consolidate these vector allocators as assign_irq_vector(AUTO_ASSIGN) has
-the same semantics as ia64_alloc_vector() and the one for i386 is also
-almost the same as its MSI ilk.
+Either that assumption is true, in which case there needs to be a BUG and a
+way out, or that assumption is false.  I'd like to believe that the
+assumption is false.
 
-> +static inline int vector_resources(void)
-> +{
-> + 	int res;
-> +#ifndef CONFIG_IA64
-> + 	int i, repeat;
-> + 	for (i = NR_REPEATS; i > 0; i--) {
-> + 		if ((FIRST_DEVICE_VECTOR + i * 8) > FIRST_SYSTEM_VECTOR)
-> + 			continue;
-> + 		break;
-> + 	}
-> + 	i++;
-> + 	repeat = (FIRST_SYSTEM_VECTOR - FIRST_DEVICE_VECTOR)/i;
-> + 	res = i * repeat - NR_RESERVED_VECTORS + 1;
->  #else
-> -extern void restore_ioapic_irq_handler(int irq);
-> + 	res = LAST_DEVICE_VECTOR - FIRST_DEVICE_VECTOR - 1;
->  #endif
-> +
-> + 	return res;
-> +}
+> The *real* problem here is that mput() is being run from keventd, and is
+> triggering code that was assumed to be running from an ordinary process
+> context. Let's concentrate on fixing that...
 
-Is this supposed to return number of vectors available for external
-devices? Also regarding vector allocation, assign_irq_vector() in
-drivers/pci/msi.c only can allocate 166 vectors before going -ENOSPC is
-this intentional?
+Well, we did fix it in a different way.  I just wanted to bring this up as
+something that warrants at least a BUG().  But a BUG() and deadlock is
+almost a panic().
 
-Thanks,
-	Zwane
+So if mntput() just CAN NOT be called from keventd, that is a fine answer,
+but something should be written about that.  And all the other things that
+can not be called from keventd.
+
+-- 
+Tim Hockin
+Sun Microsystems, Linux Software Engineering
+thockin@sun.com
+All opinions are my own, not Sun's

@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268950AbUJKNfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268947AbUJKNhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268950AbUJKNfL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268947AbUJKNfL
+	id S268947AbUJKNhK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 09:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268954AbUJKNhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:35:11 -0400
-Received: from smtp.ono.com ([62.42.230.12]:38037 "EHLO mta02.onolab.com")
-	by vger.kernel.org with ESMTP id S268950AbUJKNez (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:34:55 -0400
-Message-ID: <416A8BF2.2020902@hispalinux.es>
-Date: Mon, 11 Oct 2004 15:34:42 +0200
-From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 09:37:09 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:27863 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S268947AbUJKNg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 09:36:58 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1
+Date: Mon, 11 Oct 2004 15:38:32 +0200
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@muc.de>, Tim Cambrant <cambrant@acc.umu.se>, akpm@digeo.com
+References: <2O5L3-5Jq-11@gated-at.bofh.it> <2O6Ho-6ra-51@gated-at.bofh.it> <m3zn2tv35o.fsf@averell.firstfloor.org>
+In-Reply-To: <m3zn2tv35o.fsf@averell.firstfloor.org>
 MIME-Version: 1.0
-To: Tim Cambrant <cambrant@acc.umu.se>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Unable to handle kernel paging request at virtual address 0000ed9c
- [was Re: 2.6.9-rc4-mm1]
-References: <20041011032502.299dc88d.akpm@osdl.org> <416A8019.4050901@hispalinux.es> <20041011131926.GA13258@shaka.acc.umu.se>
-In-Reply-To: <20041011131926.GA13258@shaka.acc.umu.se>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410111538.33299.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 11 of October 2004 14:40, Andi Kleen wrote:
+> Tim Cambrant <cambrant@acc.umu.se> writes:
+> 
+> > On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
+> >>
+> >> optimize-profile-path-slightly.patch
+> >>   Optimize profile path slightly
+> >>
+> >
+> > I'm still getting an oops at startup with this patch. After reversing
+> > it, everything is fine. Weren't you supposed to remove that from your
+> > tree until it was fixed?
+> 
+> There's a fixed version around. I thought Andrew had merged that one?
+[-- snip --]
 
-Tim Cambrant wrote:
+This one does not apply to -mm.
 
-| This problem is left since -mm3, and is (for now) fixed by reversing
-| optimize-profile-path-slightly.patch. Do it like this:
-|
-| cd /usr/src/linux
-| wget
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
-| patch -R -p1 < optimize-profile-path-slightly.patch
+Greets,
+RJW
 
-Ok, thanks, this works :). I skip the rc3-mm3 release
-- --
-Ramón Rey Vicente <ramon.rey en hispalinux.es>
-JID rreylinux@jabber.org - GPG public key id 0x9F28E377
-GPG Fingerprint 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBaovxw4Wp058o43cRAqcdAJ9CCautaLmY8DKli15SyntG4qAdgwCgzoFh
-VVHnYHk8MwYptdymtaoBq28=
-=hEqv
------END PGP SIGNATURE-----
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

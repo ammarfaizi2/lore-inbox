@@ -1,65 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280995AbRKTS6n>; Tue, 20 Nov 2001 13:58:43 -0500
+	id <S281262AbRKTTBN>; Tue, 20 Nov 2001 14:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281202AbRKTS6e>; Tue, 20 Nov 2001 13:58:34 -0500
-Received: from [194.46.8.33] ([194.46.8.33]:25362 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S280995AbRKTS6X>;
-	Tue, 20 Nov 2001 13:58:23 -0500
-Date: Tue, 20 Nov 2001 19:03:16 +0000
-From: Dale Amon <amon@vnl.com>
-To: linux-kernel@vger.kernel.org
-Subject: A return to PCI ordering problems...
-Message-ID: <20011120190316.H19738@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux, the choice of a GNU generation
+	id <S281242AbRKTTA5>; Tue, 20 Nov 2001 14:00:57 -0500
+Received: from sj-msg-core-3.cisco.com ([171.70.157.152]:60869 "EHLO
+	sj-msg-core-3.cisco.com") by vger.kernel.org with ESMTP
+	id <S280894AbRKTTAo>; Tue, 20 Nov 2001 14:00:44 -0500
+Message-ID: <00a201c171f5$4855bff0$163147ab@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: =?iso-8859-1?Q?Lu=EDs_Henriques?= <lhenriques@criticalsoftware.com>,
+        "Andreas Dilger" <adilger@turbolabs.com>
+Cc: "Anton Altaparmakov" <aia21@cam.ac.uk>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <200111201714.fAKHEc276467@criticalsoftware.com> <20011120114124.T1308@lynx.no> <200111201849.fAKInr205178@criticalsoftware.com>
+Subject: Re: copy to suer space
+Date: Tue, 20 Nov 2001 10:58:02 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I looked back on the thread from last year and thought
-that this would be well in hand by now. Either that or
-I've missed something obvious or I've got an overly
-unfriendly BIOS.
+Why not SIGSTOP/SIGCONT instead?
 
-In any case, here is the problem:
+I don't see any reason why you should change the code segment (reminded me
+some ugly Windows hacks of changing DLL entries).
 
-	NIC on motherboard, Realtek
-	NIC on PCI card, Realtek
-	Monolithic (no-module) kernel
-	Motherboard must be set to eth0
+----- Original Message -----
+From: "Luís Henriques" <lhenriques@criticalsoftware.com>
+To: "Andreas Dilger" <adilger@turbolabs.com>
+Cc: "Anton Altaparmakov" <aia21@cam.ac.uk>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, November 20, 2001 10:44 AM
+Subject: Re: copy to suer space
 
-The PCI search order always makes the PCI card 
-eth0.
 
-Tried various command line options:
-	ethers=eth1,eth0
-	ethers=eth0,eth1
-	ether=x1,y1,eth1 ether=x2,y2,eth0
-	ether=x1,y1,eth0 ether=x2,y2,eth1
-	ether=0,0,eth0 ether=0,0,eth1
-	ether=0,0,eth1 ether=0,0,eth0
-	pci=reverse
+>
+> > Maybe if you describe the actual problem that you are trying to solve,
+and
+> > not the actual way you are trying to solve it, there may be a better
+> > method. Usually, if something you are trying to do is very hard to do,
+> > there is a different (much better) way of doing it.
+> >
+> > Cheers, Andreas
+>
+> OK, here it goes:
+>
+> I'm developping a kernel module that needs to delay a process, that is, he
+> receives a PID and, when a specific event occurs, that process shall be
+> delayed. This delay shall be done in a way that the process keeps burning
+CPU
+> time (it can not be, e.g., put in a waiting-list...).
+> The solution I found was to change its code segment, putting a loop in it.
+> After a specified period of time, the original code must be restored and
+the
+> process must keep going as nothing happened.
+> The main problem I found was already explained: can't write to the CS!
+>
+> --
+> Luís Henriques
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-In no case does the ordering get changed by the
-command lines; in addtion, the pci=reverse does
-not seem to be supported in 2.4.13. I see an 
-error message for it in dmesg.
-
-I also played with some of the other pci= options, but 
-none of them seem to affect what is going on in a positive 
-fashion.
-
-I'm now at the point where I'm wondering if something
-in the kernel PCI ordering is just not working quite
-right.
-
--- 
-------------------------------------------------------
-    Nuke bin Laden:           Dale Amon, CEO/MD
-  improve the global          Islandone Society
-     gene pool.               www.islandone.org
-------------------------------------------------------

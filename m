@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262224AbSL2XeA>; Sun, 29 Dec 2002 18:34:00 -0500
+	id <S262317AbSL2XfV>; Sun, 29 Dec 2002 18:35:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSL2XeA>; Sun, 29 Dec 2002 18:34:00 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:39428 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S262224AbSL2Xd7>;
-	Sun, 29 Dec 2002 18:33:59 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212292342.gBTNg9gk000920@darkstar.example.net>
-Subject: [TRIVIAL] Fix two mis-spellings of 'kernel'
-To: trivial@rustcorp.com.au
-Date: Sun, 29 Dec 2002 23:42:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.883.1041205329--%"
+	id <S262296AbSL2XfU>; Sun, 29 Dec 2002 18:35:20 -0500
+Received: from holomorphy.com ([66.224.33.161]:55781 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262266AbSL2XfT>;
+	Sun, 29 Dec 2002 18:35:19 -0500
+Date: Sun, 29 Dec 2002 15:42:03 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Christoph Hellwig <hch@lst.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove CONFIG_X86_NUMA
+Message-ID: <20021229234203.GM9704@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Christoph Hellwig <hch@lst.de>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	linux-kernel@vger.kernel.org
+References: <200212292239.gBTMdPJ12407@localhost.localdomain> <20021229234051.A12535@lst.de> <78170000.1041202589@titus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <78170000.1041202589@titus>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, someone had their attribution removed from:
+>> I already wondered about that, but AFAIK a kernel with X86_NUMAQ set
+>> still boots on a PeeCee, so it's really an option, not a choice.
 
---%--multipart-mixed-boundary-1.883.1041205329--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sun, Dec 29, 2002 at 02:56:40PM -0800, Martin J. Bligh wrote:
+> Nope, it won't boot on a PC - you're probably thinking of Summit,
+> which should. I think Bill had a patch to move NUMA-Q already ...
+> want to publish that one?
 
-Patches against 2.5.53 to fix two mis-spellings of 'kernel', in:
+It's just moving the 2 config decls inside the choice/endchoice bracket,
+not worth bothering with if it's getting fixed anyway.
 
-arch/mips/kernel/pci.c
 
-and
-
-arch/ppc64/kernel/signal32.c
-
-both also apply to 2.4.20.
-
-John.
-
---%--multipart-mixed-boundary-1.883.1041205329--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII text
-Content-Disposition: attachment; filename="patch_2"
-
---- linux-2.5.53-orig/arch/ppc64/kernel/signal32.c	2002-12-29 23:15:07.000000000 +0000
-+++ linux-2.5.53/arch/ppc64/kernel/signal32.c	2002-12-29 23:36:51.000000000 +0000
-@@ -57,7 +57,7 @@
- struct sigregs32 {
- 	/*
- 	 * the gp_regs array is 32 bit representation of the pt_regs
--	 * structure that was stored on the kernle stack during the
-+	 * structure that was stored on the kernel stack during the
- 	 * system call that was interrupted for the signal.
- 	 *
- 	 * Note that the entire pt_regs regs structure will fit in
-
---%--multipart-mixed-boundary-1.883.1041205329--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII text
-Content-Disposition: attachment; filename="patch_1"
-
---- linux-2.5.53-orig/arch/mips/kernel/pci.c	2002-12-29 23:15:03.000000000 +0000
-+++ linux-2.5.53/arch/mips/kernel/pci.c	2002-12-29 23:36:17.000000000 +0000
-@@ -3,7 +3,7 @@
-  * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
-  *
-  * Modified to be mips generic, ppopov@mvista.com
-- * arch/mips/kernl/pci.c
-+ * arch/mips/kernel/pci.c
-  *     Common MIPS PCI routines.
-  *
-  * This program is free software; you can redistribute  it and/or modify it
-
---%--multipart-mixed-boundary-1.883.1041205329--%--
+Bill

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267410AbTBFVYm>; Thu, 6 Feb 2003 16:24:42 -0500
+	id <S267396AbTBFVXh>; Thu, 6 Feb 2003 16:23:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267412AbTBFVYm>; Thu, 6 Feb 2003 16:24:42 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:41991 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267410AbTBFVYl>;
-	Thu, 6 Feb 2003 16:24:41 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302062132.h16LWtTn002739@darkstar.example.net>
-Subject: Re: gcc -O2 vs gcc -Os performance
-To: mbligh@aracnet.com (Martin J. Bligh)
-Date: Thu, 6 Feb 2003 21:32:55 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-In-Reply-To: <263740000.1044563891@[10.10.2.4]> from "Martin J. Bligh" at Feb 06, 2003 12:38:11 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267410AbTBFVXh>; Thu, 6 Feb 2003 16:23:37 -0500
+Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:59776 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267396AbTBFVXg>; Thu, 6 Feb 2003 16:23:36 -0500
+Date: Thu, 6 Feb 2003 15:33:19 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: possible partition corruption
+In-Reply-To: <20030206132346.4b635676.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.44.0302061529240.998-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> All done with gcc-2.95.4 (Debian Woody). These machines (16x NUMA-Q) have 
-> >> 700MHz P3 Xeons with 2Mb L2 cache ... -Os might fare better on celeron 
-> >> with a puny cache if someone wants to try that out
-> > 
-> > gcc 3.2 is a lot smarter about -Os and it makes a very big size
-> > difference according to the numbers the from the ACPI guys.
-> > 
-> > Im not sure testing with a gcc from the last millenium is useful 8)
+On Thu, 6 Feb 2003, Andrew Morton wrote:
+
+> Thomas Molina <tmolina@cox.net> wrote:
+> >
+> > > Everything you describe is consistent with a kernel which does not have ext3
+> > > compiled into it.
+> > ...
+> > I'm aware of that.
 > 
-> Still no use.
-> /me throws gcc-3.2 in the trash can.
+> In that case you may be experiencing the mysterious vanishing
+> ext3_read_super-doesn't-work bug.  Usually a recompile/relink makes it go
+> away.  I haven't seen it in months.
+> 
+> Could you please drop this additional debugging in there and see
+> what happens?
 
-What submodel options are you using?  If you're compiling with
--march=i386, I wouldn't expect -Os to have much effect.
+I'll try it, but a question did occur to me.  I got the hang while booting 
+a freshly-compiled 2.5.59, but the error message was received after 
+supposedly cleaning and recovering the journal.  That was using the stock 
+RedHat 8.0 kernel, 2.4.18-24.8.0, which most certainly does have ext3 
+support.  Would the bug you described affect a following boot into a 
+totally different kernel?
 
-Note that, of all architectures, GCC is almost certainly most
-efficient on IA-32.  Although I haven't done any benchmarks against
-other compilers on $arch!=IA32, the ones I've seen claim that the
-native compiler generates much better code.
-
-John.

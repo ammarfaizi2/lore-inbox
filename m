@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbTIEVwj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 17:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbTIEVwh
+	id S263024AbTIEVzP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 17:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbTIEVwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 17:52:37 -0400
-Received: from pat.uio.no ([129.240.130.16]:3043 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261445AbTIEVvr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 17:51:47 -0400
-To: Joshua Weage <weage98@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS client problems in 2.4.18 to 2.4.20
-References: <20030905204414.74292.qmail@web40404.mail.yahoo.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 05 Sep 2003 17:51:44 -0400
-In-Reply-To: <20030905204414.74292.qmail@web40404.mail.yahoo.com>
-Message-ID: <shshe3qnbtb.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Fri, 5 Sep 2003 17:52:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17803 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265520AbTIEVqn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 17:46:43 -0400
+Message-ID: <3F590437.2050207@pobox.com>
+Date: Fri, 05 Sep 2003 17:46:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+To: Patrick Mochel <mochel@osdl.org>
+CC: Rob Landley <rob@landley.net>, Pavel Machek <pavel@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up power managment in 2.6
+References: <Pine.LNX.4.44.0309051110460.17174-100000@cherise>
+In-Reply-To: <Pine.LNX.4.44.0309051110460.17174-100000@cherise>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Joshua Weage <weage98@yahoo.com> writes:
+Patrick Mochel wrote:
+>>Note that a lot of ThinkPads out in the field need a BIOS update
+>>before their ACPI is working.  (I know this because IBM was quite
+>>helpful and proactive in addressing their Linux-related ACPI BIOS
+>>issues)
+> 
+> 
+> Noted. 
+> 
+> Do you happen to know which series/models this is true for, or where to 
+> find a list? 
 
-     > Any suggestions on what could be causing this?
 
-Have you read through the sections pertaining to these problems in the
-NFS HOWTO and NFS FAQ? If not, see http://nfs.sourceforge.net
+No, but I can ask.  IBMer posted to (public) RH bugzilla bugs with 
+details, too.  I'll search for those as well.
 
-Cheers,
-  Trond
+	Jeff
+
+
+

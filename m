@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUDQMkd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 08:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263926AbUDQMkd
+	id S263953AbUDQMxA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 08:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbUDQMxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 08:40:33 -0400
-Received: from mproxy.gmail.com ([216.239.56.247]:52407 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S261998AbUDQMkc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 08:40:32 -0400
-Message-ID: <7FF8CDFE.64C50807@mail.gmail.com>
-Date: Sat, 17 Apr 2004 08:40:31 -0400
-From: Ross Biro <ross.biro@gmail.com>
-To: ross@datscreative.com.au
-Subject: Re: Kernel writes to RAM it doesn't own on 2.4.24
-Cc: linux-kernel@vger.kernel.org, root@chaos.analogic.com
+	Sat, 17 Apr 2004 08:53:00 -0400
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:28164 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S263953AbUDQMw5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 08:52:57 -0400
+Date: Sat, 17 Apr 2004 14:53:09 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Cc: greg@kroah.com, vsu@altlinux.ru, sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH 2.6] Rework memory allocation in i2c chip drivers
+ (second try)
+Message-Id: <20040417145309.4831f2b6.khali@linux-fr.org>
+In-Reply-To: <20040410165832.08e0c80d.khali@linux-fr.org>
+References: <20040403191023.08f60ff1.khali@linux-fr.org>
+	<20040403202042.GA3898@sirius.home>
+	<20040409173158.GC15820@kroah.com>
+	<20040410165832.08e0c80d.khali@linux-fr.org>
+Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <200404171440.18829.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Apr 2004 14:40:18 +1000, Ross Dickson
-<ross@datscreative.com.au> wrote:
-> This is all most enlightening. If I am understanding correctly then every
-> device driver that the author specifies to use a "mem=" command to
-> reserve some memory for said drivers use at the upper part of physical
-> memory is stuffed by design.
+> > > Instead of splitting one kmalloc in two, it would also be possible
+> > > to add a "struct i2c_client client" field to each of the *_data
+> > > structures - the compiler should align all fields appropriately.
+> > > Probably this way will result in less changes to the code (and
+> > > also less labels and less error paths).
+> > 
+> > I like this version a lot better.  It's simpler and if we do this,
+> > we can easily switch to the proper refcount handling of the
+> > i2c_client structures like we should do in 2.7.
+> > 
+> > Jean, care to redo your patch in this form?
+> 
+> OK, here you go. Thanks Sergey for the insightful example!
 
-The problem is really that Linux doesn't trust the BARs assigned by
-the PCI bios because some BIOSes do it incorrectly.  So it reprograms
-them based on the memory map it got from the BIOS.  However, before it
-does that the mem= parameter overrides the memory map from the BIOS.
+U-ho. I think I've introduced a memory leak with this patch :(
 
-I believe what I did was to save a copy of the e820 maps for later,
-and then take then take the first free address as the max of the first
-free address from the user supplied map and the bios supplied map. 
-I'll send out a patch on Tuesday.
+For drivers that handle subclients (asb100 and w83781d on i2c), the
+sublient memory is never released if I read the code correctly. This is
+because we now free the private data on unload, assuming that it
+contains the i2c client data as well. That's true for the main i2c
+client, but not for the subclients (data == NULL so nothing is freed).
 
-  Ross
+Could someone take a look and confirm?
+
+I can see two different fixes:
+
+1* When freeing the memory, free the data if it's not NULL (main
+client), else free client (subclients). Cleaner (I suppose?).
+
+2* When creating subclients, do data = &client instead of data = NULL.
+Then freeing will work. Less code, faster. Are there side effects? (I
+don't think so)
+
+My preference would go to 2*.
+
+Thanks.
+
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

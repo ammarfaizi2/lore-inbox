@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264092AbRFXQhg>; Sun, 24 Jun 2001 12:37:36 -0400
+	id <S264039AbRFXQf0>; Sun, 24 Jun 2001 12:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264202AbRFXQh0>; Sun, 24 Jun 2001 12:37:26 -0400
-Received: from CM-46-30.chello.cl ([24.152.46.30]:22144 "EHLO
-	CM-46-30.chello.cl") by vger.kernel.org with ESMTP
-	id <S264092AbRFXQhM>; Sun, 24 Jun 2001 12:37:12 -0400
-Date: Sun, 24 Jun 2001 12:33:58 -0400 (CLT)
-From: Fabian Arias <dewback@vtr.net>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-cc: Anatoly Ivanov <avi@levi.spb.ru>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 and gcc v3 final
-In-Reply-To: <20010624095219.A562@bee.lk>
-Message-ID: <Pine.LNX.4.21.0106241230300.876-100000@localhost.localdomain>
+	id <S264202AbRFXQfR>; Sun, 24 Jun 2001 12:35:17 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6665 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S264039AbRFXQfG>;
+	Sun, 24 Jun 2001 12:35:06 -0400
+Date: Sun, 24 Jun 2001 13:34:54 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Colonel <klink@clouddancer.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What are the VM motivations??
+In-Reply-To: <20010624161502.4D75C784C4@mail.clouddancer.com>
+Message-ID: <Pine.LNX.4.21.0106241332540.7419-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 24 Jun 2001, Colonel wrote:
 
+> It's simple.  I want the old reliable behavior back, the one I found
+> in kernels from 1.1.41 thru 2.2.14.
 
-On Sun, 24 Jun 2001, Anuradha Ratnaweera wrote:
+And which one would that be ?   Note that there have been
+4 different VM subsystems in that time and the kernel has
+made the transition from the buffer cache to the page cache
+in that period.
 
-> On Fri, Jun 22, 2001 at 10:29:25AM +0400, Anatoly Ivanov wrote:
-> > 
-> > I hope that lk-developers would fix it one day.
-> 
-> Multi-string literals is a nice little ANSI C feature that appears everywhere.
-> Why it is necessary to "fix" them?
+Please make up your mind before making feature requests ;)
 
-I think that "fix" doesn't necesary mean "kill" the feature.
-But is a problem that some of us, compiling the ac series with gcc-3, have
-had. 
+regards,
 
-PD: My syntaxis of english should be "deprecated", jeje
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-> 
-> Anuradha
-> 
-> -- 
-> 
-> Debian GNU/Linux (kernel 2.4.6-pre5)
-> 
-> For some reason a glaze passes over people's faces when you say
-> "Canada".  Maybe we should invade South Dakota or something.
-> 		-- Sandra Gotlieb, wife of the Canadian ambassador to the U.S.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+http://www.surriel.com/		http://distro.conectiva.com/
 
- ---
- Fabian Arias Mu~oz                    |               Debian GNU/Linux Sid
- Facultad de Cs. Economicas y          |      	Kernel 2.4.5ac17 - ReiserFS
- Administrativas.                      |                   "aka" dewback en
- Universidad de Concepcion   -  Chile  |               #linuxhelp IRC.CHILE
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

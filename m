@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVCIMlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVCIMw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVCIMlf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 07:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVCIMlf
+	id S262344AbVCIMw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 07:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVCIMwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 07:41:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:234 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262351AbVCIMkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 07:40:37 -0500
-Subject: Re: "remap_page_range" compile ERROR
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Mukund JB." <mukundjb@esntechnologies.co.in>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, martin.frey@scs.ch
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348113A4897@mail.esn.co.in>
-References: <4EE0CBA31942E547B99B3D4BFAB348113A4897@mail.esn.co.in>
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 13:40:28 +0100
-Message-Id: <1110372029.6280.94.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 9 Mar 2005 07:52:25 -0500
+Received: from bgerelbas02.asiapac.hp.net ([15.219.201.135]:36055 "EHLO
+	bgerelbas02.ind.hp.com") by vger.kernel.org with ESMTP
+	id S262344AbVCIMwX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 07:52:23 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Problem with DCE with Kernel Patch
+Date: Wed, 9 Mar 2005 18:21:49 +0530
+Message-ID: <3EB96D97711EAA45B291A31082CC865601511595@bgeexc04.asiapacific.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problem with DCE with Kernel Patch
+Thread-Index: AcUkpsJ6XgcoeTkZRrW2x9T1tYfkWQ==
+From: "Singal, Manoj Kumar (STSD)" <manoj-kumar.singal@hp.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 09 Mar 2005 12:51:50.0603 (UTC) FILETIME=[C314F9B0:01C524A6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Please suggest me what could be the problem.
+Hello,
 
-the problem is that you are using a way way way too old kernel. I
-suggest you fix that first ....
+While installing DCE 0.1.13 on RH Linux AS 2.1 Kernel 2.4.18-e.54smp
+running on Itanium, the system hangs and becomes unbootable. It then has
+to be started in single user mode, the dce rpm has to be removed and
+then booted. This happens with kernel patch 52/54. 
+
+Has anyone faced a similar problem and resolved it ? . Any pointers in
+this regard will be really *nice*.
+
+Thanks in advance.
+-- 
+Manoj
 

@@ -1,31 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293691AbSCKLOh>; Mon, 11 Mar 2002 06:14:37 -0500
+	id <S293697AbSCKLVO>; Mon, 11 Mar 2002 06:21:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293692AbSCKLOZ>; Mon, 11 Mar 2002 06:14:25 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:39363 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S293691AbSCKLOM>; Mon, 11 Mar 2002 06:14:12 -0500
-Date: Mon, 11 Mar 2002 06:19:09 -0500
-To: green@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Opss! on 2.5.6 with ReiserFS
-Message-ID: <20020311061909.A25806@rushmore>
-Mime-Version: 1.0
+	id <S293696AbSCKLUz>; Mon, 11 Mar 2002 06:20:55 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32006
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S293692AbSCKLUt>; Mon, 11 Mar 2002 06:20:49 -0500
+Date: Mon, 11 Mar 2002 03:13:10 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Jens Axboe <axboe@suse.de>, Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] BUG check in elevator.c:237
+In-Reply-To: <3C8C857A.5090809@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10203110307370.10533-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have got oops at boot time from 2.5.6-pre3 and 2.5.6 on
-> > system with reiserfs root filesystem on ide.  
+On Mon, 11 Mar 2002, Martin Dalecki wrote:
+
+> Jens Axboe wrote:
 > 
-> This is a known merge problem, attached patch will cure it.
+> > That's nonsense too. I added the expiry hook to let lower levels decide
+> > what should happen when an interrupt timeout occurs. So there's been
+> > _no_ interrupt if we enter this from the timer handler.
+> 
+> No interrupt from the same drive right.
 
-Thanks Oleg.  I can mount reiserfs / with the patch.  :)
+No reported interrupt from the drive.
+If you have gone into one of the old SFF overlap modes then you have
+attempted to release service time.
 
--- 
-Randy Hron
+> >>And plase guess whot? CD-ROM is the only driver which is using
+> >>this facility. Please have a look at the last
+> >>
+> > 
+> > Right, it was added to handle long commands like format unit etc.
+> 
+> Hmm seeks on tapes can take awfully long as well...
+
+See above, streaming media is different.
+It is a noise maker both on the bus and in life.
+
+> >>argument of ide_set_handler(). The second argument is the
+> >>interrutp handler for a command. The third is supposed to be
+> >>the poll timerout function. But if you look at the
+> >>actual poll function found in ide-cd.c (and only there).
+> >>You may as well feel to try to just execute its commands directly in
+> >>ide_timer_expiry, thus reducing tons of possible races ind the
+> >>overall intr handling found currently there.
+> >>
+> > 
+> > I don't know what tangent you are going off on here, I think you should
+> > re-read this code a lot more carefully. There's no polling going on
+> > here.
+> 
+> I think the term polling used by me is the only problem here ;-).
+> (I consider every command controll which goes without irq notification
+> just polling... whatever it polls once or not ;-).
+
+It is not polling, follow Jens' suggestion and read the code.
+Rewind, before you started making changes.  You will begin to have a
+better grasp of the issues.  You will need that since the legacy hardware
+in the device side will remain for a while.
+
+
+Regards,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

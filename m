@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264889AbSKVOxz>; Fri, 22 Nov 2002 09:53:55 -0500
+	id <S264888AbSKVOxF>; Fri, 22 Nov 2002 09:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264915AbSKVOxz>; Fri, 22 Nov 2002 09:53:55 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:13583 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S264889AbSKVOxx>; Fri, 22 Nov 2002 09:53:53 -0500
-Message-Id: <200211221500.gAMF0lh02117@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Sam Ravnborg <sam@ravnborg.org>, john stultz <johnstul@us.ibm.com>,
-       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] subarch cleanup 
-In-Reply-To: Message from "Martin J. Bligh" <mbligh@aracnet.com> 
-   of "Thu, 21 Nov 2002 10:35:43 PST." <228760000.1037903743@flay> 
+	id <S264889AbSKVOxF>; Fri, 22 Nov 2002 09:53:05 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:25566 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S264888AbSKVOxE>;
+	Fri, 22 Nov 2002 09:53:04 -0500
+Date: Fri, 22 Nov 2002 16:00:11 +0100
+From: KELEMEN Peter <fuji@elte.hu>
+To: linux-kernel@vger.kernel.org
+Subject: NFS performance ...
+Message-ID: <20021122150010.GB18778@chiara.elte.hu>
+Reply-To: KELEMEN Peter <fuji@elte.hu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Nov 2002 09:00:47 -0600
-From: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
+Organization: ELTE Eotvos Lorand University of Sciences, Budapest, Hungary
+X-GPG-KeyID: 1024D/EE4C26E8 2000-03-20
+X-GPG-Fingerprint: D402 4AF3 7488 165B CC34  4147 7F0C D922 EE4C 26E8
+X-PGP-KeyID: 1024/45F83E45 1998/04/04
+X-PGP-Fingerprint: 26 87 63 4B 07 28 1F AD  6D AA B5 8A D6 03 0F BF
+X-Comment: Personal opinion.  Paragraphs might have been reformatted.
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Accept-Language: hu,en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mbligh@aracnet.com said:
-> > Why do you need to move the .h files?
-> Because they're in a silly place now. They should be whereever all the
-> other include files are.
+Hello,
 
-> > CFLAGS += -Iarch/i386/$(MACHINE_H) -Iarch/i386/mach-generic
-> > That should achieve the same effect?
+I have a very simple NFS setup over a siwtched 100Mbit/s network.
 
-> Header files go under include .... 
+client is Celeron 400MHz/256M RAM, using XFS
+server is dual Pentium Pro 200MHz/1G RAM, using XFS
+server is running Linux 2.4.19-pre8aa3.
 
-That's not necessarily true.  Externally useful header files go in include.  
-Header files only used internally to the subsystem go in local directories.
+Network bandwith can be utilized, because ICMP flooding the
+server results in ~20000 kbit/s network traffic (as of
+iptraf), but NFS (v3,udp) write performance is unacceptably
+slow (around 300 KiB/sec), same results with the following
+kernels:
+Linux 2.4.18-WOLK3.1
+Linux 2.4.18-wolk3.7.1
+Linux 2.4.20-pre8aa2
 
-The reason I put them under arch/i386 is because I didn't want the guts of the 
-subarch splitup spilling into the kernel core.
+However, with 2.4.19-rmap14b-xfs the very same NFS
+performance tops out at 2.54 MiB/sec.  What's the catch?
 
-While the subarch is local to i386, I think the headers should stay there.  If 
-you want to make the subarch a global framework (and thus get agreement with 
-Russel and ARM to use it) then putting them under the global include 
-directories would probably make sense.
+TIA,
+Peter
 
-James
-
-
+-- 
+    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
+ Kelemen Péter     /       \       /       \       /      fuji@elte.hu
+.+'         `+...+'         `+...+'         `+...+'         `+...+'

@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbULAVv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbULAV41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbULAVv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 16:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbULAVv0
+	id S261465AbULAV41 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 16:56:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbULAV41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 16:51:26 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:36327 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261451AbULAVvN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 16:51:13 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net, Kronos <kronos@people.it>
-Subject: Re: [PATCH 2.4.29-pre1] radeonfb: don't try to ioreamp the entire VRAM [was: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but not in 2.4.29-pre1?]
-Date: Thu, 2 Dec 2004 05:50:38 +0800
-User-Agent: KMail/1.5.4
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20041128184606.GA2537@middle.of.nowhere> <Pine.GSO.4.61.0412011724010.26820@waterleaf.sonytel.be> <20041201203711.GA21008@dreamland.darkstar.lan>
-In-Reply-To: <20041201203711.GA21008@dreamland.darkstar.lan>
+	Wed, 1 Dec 2004 16:56:27 -0500
+Received: from smtp07.web.de ([217.72.192.225]:9396 "EHLO smtp07.web.de")
+	by vger.kernel.org with ESMTP id S261465AbULAV4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 16:56:23 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: cdrecord dev=ATA cannont scanbus as non-root
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+References: <1101763996l.13519l.0l@werewolf.able.es>
+	<Pine.LNX.4.53.0411292246310.15146@yvahk01.tjqt.qr>
+	<1101765555l.13519l.1l@werewolf.able.es>
+	<20041130071638.GC10450@suse.de>
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Wed, 01 Dec 2004 22:56:32 +0100
+In-Reply-To: <20041130071638.GC10450@suse.de> (Jens Axboe's message of "Tue,
+ 30 Nov 2004 08:16:39 +0100")
+Message-ID: <87eki9bs33.fsf@plailis.daheim.bs>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412020550.38324.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 December 2004 04:37, Kronos wrote:
-> Il Wed, Dec 01, 2004 at 05:25:52PM +0100, Geert Uytterhoeven ha scritto:
-> > > Make fb layer aware of the difference between the ioremap()'ed VRAM and
-> > > total available VRAM.
-> > > smem_len in struct fb_fix_screeninfo still contains the amount of
-> > > physical VRAM (reported to userspace via FBIOGET_FSCREENINFO ioctl) and
-> > > the new field mapped_vram contains the amount of VRAM actually
-> > > ioremap()'ed by drivers (used in read/write/mmap operations).
-> > > Since there was unused padding at the end of struct fb_fix_screeninfo
-> > > binary compatibility with userspace utilities is retained.
-> > > If mapped_vram is not set it's assumed that the entire framebuffer is
-> > > mapped, thus other drivers are unaffected by this patch.
-> > >
-> > > The patch has been tested by Jurriaan <thunder7@xs4all.nl>.
-> > >
-> > > Signed-off-by: Luca Tettamanti <kronos@people.it>
-> > >
-> > > --- a/include/linux/fb.h	2004-11-30 18:30:08.000000000 +0100
-> > > +++ b/include/linux/fb.h	2004-11-30 18:33:00.000000000 +0100
-> > > @@ -126,7 +126,8 @@
-> > >  					/* (physical address) */
-> > >  	__u32 mmio_len;			/* Length of Memory Mapped I/O  */
-> > >  	__u32 accel;			/* Type of acceleration available */
-> > > -	__u16 reserved[3];		/* Reserved for future compatibility */
-> > > +	__u32 mapped_vram;		/* Amount of ioremap()'ed VRAM */
-> > > +	__u16 reserved[1];		/* Reserved for future compatibility */
-> > >  };
-> >
-> > I don't really like this patch. mapped_vram doesn't matter for user space
-> > at all, so it does not belong to fb_fix_screeninfo.
+Jens Axboe <axboe@suse.de> writes:
+
+> On Mon, Nov 29 2004, J.A. Magallon wrote:
+>> dev=ATAPI uses ide-scsi interface, through /dev/sgX. And:
+>> 
+>> > scsibus: -1 target: -1 lun: -1
+>> > Warning: Using ATA Packet interface.
+>> > Warning: The related Linux kernel interface code seems to be unmaintained.
+>> > Warning: There is absolutely NO DMA, operations thus are slow.
+>> 
+>> dev=ATA uses direct IDE burning. Try that as root. In my box, as root:
 >
-> Hmm, it looked sensible to me since it's the max amount of data that
-> userspace can read (or write) from /dev/fb%d.
+> Oh no, not this again... Please check the facts: the ATAPI method uses
+> the SG_IO ioctl, which is direct-to-device. It does _not_ go through
+> /dev/sgX, unless you actually give /dev/sgX as the device name. It has
+> nothing to do with ide-scsi. Period.
+>
+> ATA uses CDROM_SEND_PACKET. This has nothing to do with direct IDE
+> burning, it's a crippled interface from the CDROM layer that should not
+> be used for anything.  scsi-linux-ata.c should be ripped from the
+> cdrecord sources, or at least cdrecord should _never_ select that
+> transport for 2.6 kernels. For 2.4 you are far better off using
+> ide-scsi.
 
-Userspace already use fix.line_length * var.yres_virtual to compute the
-amount it can access, which is not necessarily equal to the mapped vram.
+Are you sure you don't mix ATA with ATAPI? I think ATA is equivalent to
+dev=/dev/hdX. 
 
-> Putting mapped_vram in fb_info would be acceptable?
-
-Yes, that is a more sensible solution.
-
-Tony
-
+regards
+Markus
 

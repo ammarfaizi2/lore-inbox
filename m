@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269326AbRHNCP0>; Mon, 13 Aug 2001 22:15:26 -0400
+	id <S269993AbRHNCY6>; Mon, 13 Aug 2001 22:24:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269865AbRHNCPG>; Mon, 13 Aug 2001 22:15:06 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:15804 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S269326AbRHNCOz>;
-	Mon, 13 Aug 2001 22:14:55 -0400
-Message-ID: <3B788A88.B5E7CBA2@sun.com>
-Date: Mon, 13 Aug 2001 19:18:48 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S270003AbRHNCYs>; Mon, 13 Aug 2001 22:24:48 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:35966 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S269885AbRHNCYb>; Mon, 13 Aug 2001 22:24:31 -0400
+Message-ID: <3B788BDC.100@blue-labs.org>
+Date: Mon, 13 Aug 2001 22:24:28 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        torvalds@transmeta.com, jgarzik@mandrakesoft.com, mj@ucw.cz,
-        alan@redhat.com
-Subject: [PATCH] PCI devid ordering 
-Content-Type: multipart/mixed;
- boundary="------------59724ED0E9988EA2993EE390"
+To: PinkFreud <pf-kernel@mirkwood.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Are we going too fast?
+In-Reply-To: <Pine.LNX.4.20.0108131656470.1037-100000@eriador.mirkwood.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------59724ED0E9988EA2993EE390
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+PinkFreud wrote:
 
-All,
+>I wasn't aware VIA nor Matrox were broken.  I've seen someone else mention in
+>this thread that perhaps some old HOWTOs on hardware need to be maintained
+>again - I think I agree with that.
+>
 
-Attached is a VERY small patch against 2.4.8, which I have been sending for
-a while.  It merely re-orders one of the PCI device ids - the list was
-supposed to be kept in order.
+VIA comes up as a bloody thorn quite often it seems.  I have a VIA 586B 
+system and it seems to work decently but I think I'm just lucky 
+considering the large number of broken VIA chipset complaints.
 
-If there is any reason this can't go into the next 2.4.x release, please
-let me know.
+>Perhaps series name should be changed from 'stable' to something else - 
+>'release'?
+>
 
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
---------------59724ED0E9988EA2993EE390
-Content-Type: text/plain; charset=us-ascii;
- name="pci_devid.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pci_devid.diff"
+Erm...they are called release.  2.<even> is a release kernel and 2.<odd> 
+is a development kernel.  Some people (myself included) fight the 
+impression given by a lot of people of stable/unstable naming. 
+ Typically called slashdotters...</humor>
 
-diff -ruN dist+patches-2.4.8/include/linux/pci_ids.h cobalt-2.4.8/include/linux/pci_ids.h
---- dist+patches-2.4.8/include/linux/pci_ids.h	Mon Aug  6 10:11:58 2001
-+++ cobalt-2.4.8/include/linux/pci_ids.h	Mon Aug 13 16:42:50 2001
-@@ -1041,8 +1041,8 @@
- #define PCI_DEVICE_ID_SERVERWORKS_LE	  0x0009
- #define PCI_DEVICE_ID_SERVERWORKS_CIOB30  0x0010
- #define PCI_DEVICE_ID_SERVERWORKS_CMIC_HE 0x0011
--#define PCI_DEVICE_ID_SERVERWORKS_CSB5	  0x0201
- #define PCI_DEVICE_ID_SERVERWORKS_OSB4	  0x0200
-+#define PCI_DEVICE_ID_SERVERWORKS_CSB5	  0x0201
- #define PCI_DEVICE_ID_SERVERWORKS_OSB4IDE 0x0211
- #define PCI_DEVICE_ID_SERVERWORKS_CSB5IDE 0x0212
- #define PCI_DEVICE_ID_SERVERWORKS_OSB4USB 0x0220
 
---------------59724ED0E9988EA2993EE390--
+David
+
 

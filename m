@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272244AbTGYSff (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 14:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272248AbTGYSff
+	id S272243AbTGYSev (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 14:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272244AbTGYSev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 14:35:35 -0400
-Received: from mrout1.yahoo.com ([216.145.54.171]:35334 "EHLO mrout1.yahoo.com")
-	by vger.kernel.org with ESMTP id S272244AbTGYSfb (ORCPT
+	Fri, 25 Jul 2003 14:34:51 -0400
+Received: from main.gmane.org ([80.91.224.249]:47052 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S272243AbTGYSeu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 14:35:31 -0400
-Message-ID: <3F217BE8.5070807@bigfoot.com>
-Date: Fri, 25 Jul 2003 11:50:16 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 25 Jul 2003 14:34:50 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: SATA (Serial ATA) support in 2.4.x?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Subject: Re: Posting format
+Date: Fri, 25 Jul 2003 20:49:06 +0200
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2003.07.25.18.49.06.858947@terra.com.br>
+References: <200307241857.h6OIvWEd000651@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   what's the status of SATA support in 2.4.x kernels?
+On Thu, 24 Jul 2003 19:57:32 +0100, John Bradford wrote:
 
-   it seems like the first kernel that supports SATA is 2.4.21-ac4. I 
-found few messages on lkml but not much more info about status of 
-development.
+> Can we all, please, at least do things like not repeatedly quoting the
+> list's four-line signature, and not quoting things like .config files?
 
-   I am specifically interested whether it should support disks above 
-137GB (as I have problems accessing anything above 137GB on 250GB SATA 
-drive)
+	One more: don't answer to people directly, only thru the list.
+It is quite annoying to receive the same message twice, especially if
+on a flamewar...
 
-   any info/answers/pointers to docs?
+	Actually I was quite surprised to learn these rules aren't
+followed here.
 
-   (I already posted a message here about 137GB & SATA but got no 
-answers so I am trying somewhat different question)
 
-   TIA
+-- 
+ _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
+/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
 
-	erik
 

@@ -1,31 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276907AbRJHOyx>; Mon, 8 Oct 2001 10:54:53 -0400
+	id <S276923AbRJHO7N>; Mon, 8 Oct 2001 10:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276912AbRJHOyn>; Mon, 8 Oct 2001 10:54:43 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:32783 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S276911AbRJHOyg>;
-	Mon, 8 Oct 2001 10:54:36 -0400
-Date: Mon, 8 Oct 2001 08:49:50 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] I still see people using cli()
-Message-ID: <20011008084950.B16204@hq2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S276920AbRJHO7E>; Mon, 8 Oct 2001 10:59:04 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:32698 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S276912AbRJHO6y>;
+	Mon, 8 Oct 2001 10:58:54 -0400
+Date: Mon, 08 Oct 2001 16:01:05 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: "Eric W. Biederman" <ebiederman@uswest.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: %u-order allocation failed
+Message-ID: <1231218688.1002556865@[10.132.113.67]>
+In-Reply-To: <m1wv27wber.fsf@frodo.biederman.org>
+In-Reply-To: <m1wv27wber.fsf@frodo.biederman.org>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3BC1B831.1060601@wipro.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 07:59:05PM +0530, BALBIR SINGH wrote:
-> BTW, that brings me to another issue, once the kernel becomes preemptibel, what
-> are the locking issues? how are semaphores and spin-locks affected? Has anybody
-> defined or come up with the rules/document yet?
 
-IF the kernel becomes preemptible it will be so slow, so buggy, and so painful
-to maintain, that those issues won't matter.
 
+--On Sunday, October 07, 2001 12:30 PM -0600 "Eric W. Biederman" 
+<ebiederman@uswest.net> wrote:
+
+>> Note also that something (not sure what) has made fragmentation
+>> increasingly prevalent over the years since the buddy allocator
+>> was originally put in.
+>
+> Actually it seems to be situations like the stack now being two pages
+
+Instrumentation posted here before appears to corellate fragmentation
+being /caused/ with I/O activity (single bonnie process and thus a
+single 8k stack frame). My own guess is that it is due to
+a different persistence of various caches.
+
+I haven't seen anyone before blaming stack frame allocation
+as a /cause/ of fragmenation - I've heard people say they
+notice fragmentation more as stack frame allocs start to
+fail - but that's a symptom.
+
+--
+Alex Bligh

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314558AbSEPTJt>; Thu, 16 May 2002 15:09:49 -0400
+	id <S314584AbSEPT0c>; Thu, 16 May 2002 15:26:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314562AbSEPTJs>; Thu, 16 May 2002 15:09:48 -0400
-Received: from dsl-213-023-040-248.arcor-ip.net ([213.23.40.248]:64229 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314558AbSEPTJr>;
-	Thu, 16 May 2002 15:09:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>, Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] remove 2TB block device limit
-Date: Thu, 16 May 2002 21:08:25 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org,
-        martin@dalecki.de, neilb@cse.unsw.edu.au
-In-Reply-To: <3CDB4711.1A4FFDAC@zip.com.au> <5.1.0.14.2.20020510093714.01fa9680@pop.cus.cam.ac.uk> <3CDB8D2E.438E99C3@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E178Qc1-0008TM-00@starship>
+	id <S314596AbSEPT0b>; Thu, 16 May 2002 15:26:31 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:47110 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S314584AbSEPT0a>; Thu, 16 May 2002 15:26:30 -0400
+Date: Thu, 16 May 2002 20:26:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa3
+Message-ID: <20020516202626.A13795@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020515212733.GA1025@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 May 2002 11:04, Andrew Morton wrote:
-> Anton Altaparmakov wrote:
-> > 
-> > ...
-> > >This code:
-> > >
-> > >         printk("%lu%s", some_sector, some_string);
-> > >
-> > >will work fine with 32-bit sector_t.  But with 64-bit sector_t it
-> > >will generate a warning at compile-time and an oops at runtime.
-> > >
-> > >The same problem applies to dma_addr_t.  Jeff, davem and I kicked
-> > >that around a while back and ended up deciding that although there
-> > >are a number of high-tech solutions, the dumb one was best:
-> > 
-> > Why not the even dumber one? Forget FMT_SECTOR_T and always use %Lu and
-> > typecast (unsigned long long)sector_t_variable in the printk.
-> > 
+On Wed, May 15, 2002 at 11:27:33PM +0200, Andrea Arcangeli wrote:
+> o	minor bdflush tuning difference to avoid char-writer in bonnie
+> 	to stall and to slowdown too much (can make a difference in real
+> 	life)
+
+...
+
+> Only in 2.4.19pre8aa3: 00_bdflush-tuning-1
 > 
-> Agree.   The nice thing about the typecast is that you
-> can format the output with %06Lx, %9Ld, %Lo or whatever.
-> The FMT_SECTOR_T thing forces you to use the chosen formatting.
+> 	Put the mid watermark at 50% (near the high watermark so we don't stall
+> 	too much).
 
-This approach solves the phys_t printk problem as well.
+As the 2.4.19-pre mainline got your buffer throtteling changes I guess it
+has the same issues?  Do you think it's worth to submit that patch to Marcelo
+even that late in the release cycle?
 
--- 
-Daniel
+> Only in 2.4.19pre8aa2: 05_vm_10_read_write_tweaks-1
+> Only in 2.4.19pre8aa3: 05_vm_10_read_write_tweaks-2
+> 
+> 	Avoid backing out the flush_page_to_ram in this vm patch,
+> 	the one on the pagecache is still needed before the memcpy
+> 	on the pagecache during the early cow (would be cleaner
+> 	to move it up, if Hugh wants to clean it up that's welcome,
+> 	it will be an orthogonal patch, so far I just avoid to
+> 	change that area in my changes, not high prio to clean it up
+> 	as DaveM side it's more high prio to conver the users of
+> 	flush_page_to_ram API to flush_dcache_page/icache new API during 2.5).
+
+It seems to me you ignore the comments akpm put in the split patches you
+merged :)  Not only the comment to this change is superflous now, but also
+I'd really like to get an answer to the remaining part of it as Andrew's
+comment about that part beeing buggy makes a lot of sense to me..
+

@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274438AbRITMIv>; Thu, 20 Sep 2001 08:08:51 -0400
+	id <S274443AbRITMLl>; Thu, 20 Sep 2001 08:11:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274443AbRITMIl>; Thu, 20 Sep 2001 08:08:41 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:7379 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S274438AbRITMI1>; Thu, 20 Sep 2001 08:08:27 -0400
-Message-ID: <3BA9DC30.DA46A008@pp.inet.fi>
-Date: Thu, 20 Sep 2001 15:08:16 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19aa2 i686)
-X-Accept-Language: en
+	id <S274444AbRITMLb>; Thu, 20 Sep 2001 08:11:31 -0400
+Received: from h-213.61.184.2.host.de.colt.net ([213.61.184.2]:13608 "EHLO
+	ms01020.ffm.avinci.de") by vger.kernel.org with ESMTP
+	id <S274443AbRITMLM>; Thu, 20 Sep 2001 08:11:12 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: "steve j. kondik" <shade@chemlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: encrypted swap on loop in 2.4.10-pre12?
-In-Reply-To: <1000912739.17522.2.camel@discord> <3BA907F6.3586811C@pp.inet.fi> <20010920081353.H588@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C141CD.70CF53D2"
+Subject: Linux <-> msdos file system
+Date: Thu, 20 Sep 2001 14:11:55 +0200
+Message-ID: <93A6499FA0307B4C972A56EFBDAE45AD0DAB7F@ms01020.ffm.avinci.de>
+Thread-Topic: Linux <-> msdos file system
+Thread-Index: AcFBzW/0C1eYwdEmRQu+jTzCH5i3wA==
+From: "Maik Picker" <Maik.Picker@avinci.de>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Sep 20 2001, Jari Ruusu wrote:
-> > Cryptoapi can't be used to encrypt swap. It has nasties like sleeping in
-> > make_request_fn() and potential memory allocation deadlock.
-> 
-> sleeping in make_request_fn is not a nasty in itself, btw. in fact loop
-> just needs an emergency page pool for swap to be perfectly safe.
+This is a multi-part message in MIME format.
 
-loop-AES provides emergency page pool for device backed loop. Take a look.
+------_=_NextPart_001_01C141CD.70CF53D2
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+Hi !
 
+I got your address by Matija Nalis.
+It would be veeeeeeery nice to get a reply from you; cause I'm in deep
+trouble.
+
+What happend:
+
+* using kernel 2.2.10 with suse 6.2, no patches, no special module
+handling
+* usualy I mounted the affected msdos partition as 'vfat'
+* the partition was formatted by installing win95 in 1995
+* to use the linux file attributes I decided to mount it as 'umsdos'
+* booting/mounting was successfull
+* all first chars of filenames were lower case
+* to rename a directory I did: $> mv /WIN95/data /WIN95/Data
+* Data/data was gone !
+
+Trying a 'norton' tool or other stuff to recover data failed.
+
+You got ANY hint for me?
+
+
+Cheers,
+Maik
+
+------_=_NextPart_001_01C141CD.70CF53D2
+Content-Type: text/x-vcard;
+	name="Maik Picker (E-Mail).vcf"
+Content-Transfer-Encoding: base64
+Content-Description: Maik Picker (E-Mail).vcf
+Content-Disposition: attachment;
+	filename="Maik Picker (E-Mail).vcf"
+
+
+------_=_NextPart_001_01C141CD.70CF53D2--

@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbULLQfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbULLQf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbULLQfk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 11:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbULLQfk
+	id S262086AbULLQf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 11:35:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbULLQf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 11:35:40 -0500
-Received: from fsmlabs.com ([168.103.115.128]:6290 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262087AbULLQfg (ORCPT
+	Sun, 12 Dec 2004 11:35:27 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:28900 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262086AbULLQfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 11:35:36 -0500
-Date: Sun, 12 Dec 2004 09:35:34 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Rudolf Usselmann <rudi@asics.ws>
-cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel (64bit) 4GB memory support
-In-Reply-To: <1102842902.10322.200.camel@cpu0>
-Message-ID: <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
-References: <1102752990.17081.160.camel@cpu0>  <41BAC68D.6050303@pobox.com>
-  <1102760002.10824.170.camel@cpu0>  <41BB32A4.2090301@pobox.com> 
- <1102824735.17081.187.camel@cpu0>  <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
-  <1102828235.17081.189.camel@cpu0>  <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
- <1102842902.10322.200.camel@cpu0>
+	Sun, 12 Dec 2004 11:35:22 -0500
+Message-ID: <41BC7344.5020101@g-house.de>
+Date: Sun, 12 Dec 2004 17:35:16 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
+References: <E1CdMAc-0002hI-00@calista.eckenfels.6bone.ka-ip.net>
+In-Reply-To: <E1CdMAc-0002hI-00@calista.eckenfels.6bone.ka-ip.net>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Dec 2004, Rudolf Usselmann wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> ok, un-installed nvidia drivers ...
-> 
-> boot3.log shows a kernel panic as it is starting to run fsck
-> without me involving any user commands.
-> 
-> b004.log - I tried again (after doing a fsck with only 2gb)
-> and again it did not make it to a login prompt.
+Bernd Eckenfels schrieb:
+> Please make sure to fix the 404 about the ioscheduler. Sorry dont know a
+> valid alternative url.
 
-Thanks for reproducing that, is there any possible chance you could try 
-2.6.10-rc2-mm4?
+don't find the original mail either, but perhaps
+
+    Documentation/block/deadline-iosched.txt will do
+
+Christian.
+- --
+BOFH excuse #19:
+
+floating point processor overflow
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBvHNE+A7rjkF8z0wRAqM3AKCgquMujlBefOq+luJYbSooI01aLQCfdof2
+xpWeD8RI5/IUKMIkGhOOkfc=
+=Fc5v
+-----END PGP SIGNATURE-----

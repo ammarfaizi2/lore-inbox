@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAXRsi>; Wed, 24 Jan 2001 12:48:38 -0500
+	id <S131075AbRAXRtr>; Wed, 24 Jan 2001 12:49:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbRAXRs2>; Wed, 24 Jan 2001 12:48:28 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:2557 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S129401AbRAXRsV>; Wed, 24 Jan 2001 12:48:21 -0500
-Date: Wed, 24 Jan 2001 11:48:19 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
-        Linux MM mailing list <linux-mm@kvack.org>
-Subject: Page Attribute Table (PAT) support?
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-Id: <20010124174824Z129401-18594+948@vger.kernel.org>
+	id <S131113AbRAXRth>; Wed, 24 Jan 2001 12:49:37 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:29701 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S131075AbRAXRt1>; Wed, 24 Jan 2001 12:49:27 -0500
+Date: Wed, 24 Jan 2001 09:49:05 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+Message-ID: <20010124094905.A15372@twiddle.net>
+In-Reply-To: <20010110163158.F19503@athlon.random> <200101102209.f0AM9N803486@flint.arm.linux.org.uk> <20010111005924.L29093@athlon.random> <20010123235115.A14786@twiddle.net> <20010124100240.A4526@athlon.random> <20010124015149.A14891@twiddle.net> <20010124132144.A13308@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20010124132144.A13308@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Page Attribute Table (PAT) is an extension to the x86 page table format
-that lets you enable Write Combining on a per-page basis.  Details can be found
-in chapter 9.13 of the Intel Architecture Software Developer's Manual, Volume 3
-(System Programming).
+On Wed, Jan 24, 2001 at 01:21:44PM +0100, Andrea Arcangeli wrote:
+> For example you don't know if there's another object that will cast
+> the int pointer back to char pointer before dereferencing. That would
+> get a defined runtime behaviour on all archs.
 
-I noticed that 2.4 doesn't support the Page Attribute Table, despite the fact
-that it has a X86_FEATURE_PAT macro in processor.h.  Are there any plans to add
-this support?  Ideally, I'd like it to be as a parameter for ioremap.
+No.  The representation of "int*" and "char*" needn't be the same.
+And isn't on old word addressed machines.
 
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

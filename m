@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131354AbRADLUw>; Thu, 4 Jan 2001 06:20:52 -0500
+	id <S132799AbRADLVW>; Thu, 4 Jan 2001 06:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132799AbRADLUm>; Thu, 4 Jan 2001 06:20:42 -0500
-Received: from firebox-ext.surrey.redhat.com ([194.201.25.236]:35579 "EHLO
-	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
-	id <S131354AbRADLU3>; Thu, 4 Jan 2001 06:20:29 -0500
-Date: Thu, 4 Jan 2001 11:20:27 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Printing to off-line printer in 2.4.0-prerelease
-Message-ID: <20010104112027.G23469@redhat.com>
-In-Reply-To: <m2k88czda4.fsf@ppro.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="5L6AZ1aJH5mDrqCQ"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m2k88czda4.fsf@ppro.localdomain>; from peter.osterlund@mailbox.swipnet.se on Wed, Jan 03, 2001 at 07:44:19PM +0100
+	id <S132847AbRADLVP>; Thu, 4 Jan 2001 06:21:15 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:50665 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S132799AbRADLVH>;
+	Thu, 4 Jan 2001 06:21:07 -0500
+Date: Thu, 4 Jan 2001 11:23:22 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: "A.D.F." <adefacc@tin.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Confirmation request about new 2.4.x. kernel limits
+In-Reply-To: <3A546385.C50B1092@tin.it>
+Message-ID: <Pine.LNX.4.21.0101041119230.1506-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 4 Jan 2001, A.D.F. wrote:
+> Max. RAM size:			64 GB	(any slowness accessing RAM over 4 GB
+> 					 with 32 bit machines ?)
 
---5L6AZ1aJH5mDrqCQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+realistic benchmarks (unixbench) will show about 3%-6% performance
+degradation with use of PAE. Note that this is not "accessing RAM over
+4G" but (what you probably meant) "accessing any RAM in a machine with
+over 4G of RAM" or even "accessing any RAM in a machine with less than 4G
+or RAM but running kernel capable of accessing >4G". If you really meant
+"accessing RAM over 4G" then you are probably talking about 36bit MTRR
+support which is present in recent 2.4.x kernels and works very nicely!
 
-On Wed, Jan 03, 2001 at 07:44:19PM +0100, Peter Osterlund wrote:
+You can construct artificial benchmarks that will show 10% performance
+degradation. I haven't compared this with other PAE implementation,
+e.g. that of UnixWare 7.1.1+ -- this would be a very useful exercise as I 
+vaguely remember some people claiming that Linux PAE implementation is
+not ideal (if it is true then it ought to be made ideal to be inline with
+the rest of the kernel).
 
-> When trying to print to an off-line printer with 2.4 kernels, the
-> "write" system call to /dev/lp0 stalls for 10 seconds and then returns
-> EIO.
+Regards,
+Tigran
 
-I wonder where the EIO is coming from though.  Grep only shows up
-ieee1284.c (in parport_read) and daisy.c (in cpp_mux, called at
-parport init time).  Neither of those should be getting triggered.
-
-Tim.
-*/
-
---5L6AZ1aJH5mDrqCQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6VFx6ONXnILZ4yVIRAuu8AKCXi5vFu+0DlGIC0ZBXeOJ7YRnthQCgoyzT
-OxzfV2JNJO38aCwgacRN6Qw=
-=/WpH
------END PGP SIGNATURE-----
-
---5L6AZ1aJH5mDrqCQ--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269670AbTGXSUq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 14:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269671AbTGXSUq
+	id S269696AbTGXSWT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 14:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269676AbTGXSWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 14:20:46 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:16512 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S269670AbTGXSUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 14:20:45 -0400
-Date: Thu, 24 Jul 2003 19:45:54 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307241845.h6OIjsYD000632@81-2-122-30.bradfords.org.uk>
-To: linux-kernel@vger.kernel.org, rpjday@mindspring.com
-Subject: Re: some kernel config menu suggested tweaks
+	Thu, 24 Jul 2003 14:22:18 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:8625 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S269696AbTGXSWI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 14:22:08 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Jesse Pollard" <jesse@cats-chateau.net>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: Promise SATA driver GPL'd
+Date: Thu, 24 Jul 2003 11:37:13 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGELPEJAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <03072408233000.14335@tabby>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1) i mentioned this before, i think, but after one deselects
->    Power management, should ACPI Support and CPU Frequency
->    scaling still be available?
->
->    the "make xconfig" menu display suggests a submenu 
->    structure there, which clearly isn't the case.
->
->
-> 2) can all of the low-level SCSI drivers be made deselectable
->    in one swell foop?  folks might want SCSI support just for
->    generic support and SCSI (ide-scsi) emulation, but have no
->    interest in low level SCSI drivers.
->
->    so it would be convenient to be able to select the generic
->    support, and yet not have to deselect low-level drivers
->    and PCMCIA SCSI adapter support painfully, one at a time.
->
-> 3) can all of ATM support be deselected with a single click?
->    in the same way "PCMCIA network device support" is done just
->    above it under "Networking options"?
 
-A lot of these add extra complications for anybody not wanting a
-'simple' kernel config.  _Please_ don't re-design everything the same
-way as the once-simple filesystems menu.
 
-Too much prompting is irritating for advanced users, and they are the
-people who are likely to compiling the most kernels, rather than
-sticking with the kernel that came with their distribution.
+> On Wednesday 23 July 2003 19:21, David Schwartz wrote:
 
-John.
+> > 	No matter how much code I write for which I don't give you
+> > the source, the
+> > amount of code for which you do have the source is not reduced. The more
+> > free code there is, the freer you are. The only thing that
+> > threatens your
+> > freedom is if someone makes free code unfree. How do they do that?
+
+> By claiming they wrote it first, supplying enough lawyers and
+> court fees to
+> put you out of existance.
+
+	Of course, that is certainly true. Someone can attempt, through the legal
+process, to stop you from using software you yourself wrote. Although I
+doubt any company would ever be that evil. ;)
+
+	That is, by the way, one advantage of taking a printout of your code and
+mailing it to yourself in a sealed envelope or seeking a registered
+copyright. It at least provides proof that you had the code on the date you
+wrote it.
+
+	There is one other benefit to a registered copyright on software that a
+lawyer recently mentioned to me. Suppose you're a company and have employees
+who write software. You really can't be 100% sure that the software they
+provide to you isn't stolen from someplace (and you sure as heck can't be
+sure someone can't claim it is).
+
+	By seeking a registered copyright, you can argue that the registration
+provides constructive notice to anyone else that you are claiming copyright
+on that software. This *may* start the 3 year statue of limitations from the
+date or registration rather than the date they found out you had software
+they think is theirs.
+
+	DS
+
+

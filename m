@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263867AbSIQHqV>; Tue, 17 Sep 2002 03:46:21 -0400
+	id <S263874AbSIQHxv>; Tue, 17 Sep 2002 03:53:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263870AbSIQHqV>; Tue, 17 Sep 2002 03:46:21 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18180
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S263867AbSIQHqV>; Tue, 17 Sep 2002 03:46:21 -0400
-Date: Tue, 17 Sep 2002 00:48:41 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Rob Speer <rspeer@MIT.EDU>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA finally works! Thanks!
-In-Reply-To: <20020917045600.GA747@mit.edu>
-Message-ID: <Pine.LNX.4.10.10209170047430.11597-100000@master.linux-ide.org>
+	id <S263878AbSIQHxu>; Tue, 17 Sep 2002 03:53:50 -0400
+Received: from smtpde02.sap-ag.de ([155.56.68.170]:40869 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S263874AbSIQHxu>; Tue, 17 Sep 2002 03:53:50 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@digeo.com>, William Lee Irwin III <wli@holomorphy.com>,
+       <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: dbench on tmpfs OOM's
+References: <Pine.LNX.4.44.0209170726050.19523-100000@localhost.localdomain>
+Organisation: Development SAP J2EE Engine
+Date: Tue, 17 Sep 2002 09:57:18 +0200
+In-Reply-To: <Pine.LNX.4.44.0209170726050.19523-100000@localhost.localdomain> (Hugh
+ Dickins's message of "Tue, 17 Sep 2002 08:01:20 +0100 (BST)")
+Message-ID: <sn092gm9.fsf@sap.com>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) XEmacs/21.4 (Common Lisp
+ (Windows [3]), i586-pc-win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Sep 2002, Rob Speer wrote:
+Hi Hugh,
 
-> Now that I'm using -pre7, DMA finally works on my Intel 845G controller
-> that was being such a pain in the ass.
-> 
-> Someone out there, possibly Andre, rules. Great work.
+On Tue, 17 Sep 2002, Hugh Dickins wrote:
+> What I never did was try GFP_HIGHUSER and kmap on the index pages:
+> I think I decided back then that it wasn't likely to be needed
+> (sparsely filled file indexes are a rarer case than sparsely filled
+> pagetables, once the stupidity is fixed; and small files don't use
+> index pages at all).  But Bill's testing may well prove me wrong.
 
-I did not touch -pre7 directly, maybe Alan Cox filtered some goodies.
+I think that this would be a good improvement. Big database and
+application servers would definitely benefit from it, desktops could
+easier use tmpfs as temporary file systems.
 
-Cheers,
+I never dared to do it with my limited time since I feared deadlock
+situations.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Also I ended up that I would try to go one step further: Make the
+index pages swappable, i.e. make the directory nodes normal tmpfs
+files. This would even make the accounting right.
+
+Greetings
+		Christoph
+
 

@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbUK3Tz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbUK3Tz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbUK3Tz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 14:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbUK3TxG
+	id S262278AbUK3Tz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 14:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUK3TxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 14:53:06 -0500
-Received: from cpc5-hem13-6-0-cust134.lutn.cable.ntl.com ([82.6.21.134]:31996
-	"EHLO arkady.demon.co.uk") by vger.kernel.org with ESMTP
-	id S262278AbUK3TqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 14:46:01 -0500
-Message-ID: <41ACCDF6.5060307@ntlworld.com>
-Date: Tue, 30 Nov 2004 19:45:58 +0000
-From: Bernard Hatt <bernard.hatt@ntlworld.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Yet another filesystem - sffs
-References: <41AC2DBE.1080501@ntlworld.com> <cohlov$s7p$1@news.cistron.nl>
-In-Reply-To: <cohlov$s7p$1@news.cistron.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 30 Nov 2004 14:53:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7892 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262288AbUK3TrA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 14:47:00 -0500
+Date: Tue, 30 Nov 2004 11:46:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm4
+Message-Id: <20041130114633.22eee22d.akpm@osdl.org>
+In-Reply-To: <1101836642.25617.63.camel@localhost.localdomain>
+References: <20041130095045.090de5ea.akpm@osdl.org>
+	<1101837994.2640.67.camel@laptop.fenrus.org>
+	<20041130102105.21750596.akpm@osdl.org>
+	<1101839110.2640.69.camel@laptop.fenrus.org>
+	<20041130103218.513b8ce0.akpm@osdl.org>
+	<1101836642.25617.63.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
-> I've been using such a filesystem for years, since Linux 2.0 ..
-> It's at ftp://ftp.cistron.nl/pub/people/miquels/kernel/v2.[0246]/rawfs-*
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> On Maw, 2004-11-30 at 18:32, Andrew Morton wrote:
+> > "This helps mainly graphic drivers who really need a lot of memory below
+> > the 4GB area.  Previous they could only use IOMMU+16MB GFP_DMA, which was
+> > not enough memory."
+> > 
+> > >  Is there code using the zone GFP mask yet ??
+> > 
+> > Nope.
+> 
+> You mean its a private hook for a proprietary graphics driver, which
+> because it is that can't use it anyway ?
 
-> Mike.
+I wasn't aware that this is what I meant.  I dunno what graphics drivers
+Andi needs it for, and he is away for a couple of weeks.  It's an
+experimental patch, in there for testing.
 
-Yes, it depends how much functionality you *need*, sffs implements
-more file operations so that you can do things like:
-	mkisofs -o /mnt/test/blah.iso  [...]
-and	cdrecord -v -data /mnt/test/blah.iso (without needing isosize).
+> That sounds dubious to me as policy has always been to avoid such hooks.
 
-But what is odd, having run my benchmarks on rawfs, that sffs
-is faster by between (0.5% and 4.6%) where I was expecting
-almost identical results (but then, benchmarks aren't everything).
+I don't know why you're assuming that it is "such a hook".  Sticking
+"gfp_dma32" into google indicates that the applications are quite
+different.
 
-Regards,
-
-Bernard

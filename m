@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVCPTBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVCPTGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbVCPTBc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 14:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVCPTBa
+	id S261350AbVCPTGC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 14:06:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVCPTF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 14:01:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14798 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262746AbVCPTAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 14:00:49 -0500
-Message-ID: <42388247.8050706@pobox.com>
-Date: Wed, 16 Mar 2005 14:00:23 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Guido Villa <piribillo@yahoo.it>
-CC: Manuel Lauss <mano@roarinelk.homelinux.net>, linux-kernel@vger.kernel.org
-Subject: Re: Error with Sil3112A SATA controller and Maxtor 300GB HDD
-References: <20050312160704.22527.qmail@gg.mine.nu>            <4233254F.3000509@roarinelk.homelinux.net> <20050316184523.30672.qmail@gg.mine.nu>
-In-Reply-To: <20050316184523.30672.qmail@gg.mine.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 16 Mar 2005 14:05:58 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:17024 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261350AbVCPTFf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 14:05:35 -0500
+In-Reply-To: <200503161042.03886.jbarnes@engr.sgi.com>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <20050316181042.GA26788@infradead.org> <521a4568db3e955cb245d10aaba2d3ce@cl.cam.ac.uk> <200503161042.03886.jbarnes@engr.sgi.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <c80dab1bc94747ee01d8c0cf9861e6d6@cl.cam.ac.uk>
 Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org, Ian.Pratt@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
+       Rik van Riel <riel@redhat.com>, kurt@garloff.de,
+       Christoph Hellwig <hch@infradead.org>, Christian.Limpach@cl.cam.ac.uk
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+Date: Wed, 16 Mar 2005 19:08:27 +0000
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guido Villa wrote:
-> Manuel Lauss writes:
-> 
->> I happen to have a SiI 3112A controller and a Maxtor 6B300S0 attached to
->> it, formatted with ext2. Never had any problems. I just copied
->> 200GB of data to it, worked flawlessly. (Vanilla 2.6.11)
->> Maybe its the Motherboard?
-> 
-> 
-> Hi Manuel,
-> I was checking my kernel configuration, and some doubts arised in my 
-> mind. Would you please check if my parameters are the same as yours?
-> set:
-> CONFIG_IDE_GENERIC
 
-Unless you are loading an IDE driver at 0x1f0, 0x170 (legacy IDE), don't 
-use the IDE generic driver.
+On 16 Mar 2005, at 18:42, Jesse Barnes wrote:
 
+>> The AGP driver is only configurable for ppc32, alpha, x86, x86_64 and
+>> ia64, all of which have virt_to_bus.
+>
+> Yeah, but that doesn't mean it makes sense on all those platforms.  The
+> biggest problem with virt_to_bus (well, depending on who you talk to) 
+> is that
+> it can't handle systems where the address translation must be done
+> differently depending on *which* bus we're getting a bus address for.  
+> Not
+> sure what makes sense in this case though... is the DMA mapping 
+> interface
+> appropriate?
 
-> CONFIG_BLK_DEV_IDEPCI
-> CONFIG_SCSI
-> CONFIG_BLK_DEV_SD
-> CONFIG_SCSI_SATA
-> CONFIG_SCSI_SATA_SIL
-> unset:
-> CONFIG_BLK_DEV_GENERIC
-> CONFIG_BLK_DEV_SIIMAGE (I'm unsure on this)
+I think that makes sense. How much code refactoring is needed to make 
+use of it, though?
 
-Otherwise, looks OK to me.
+Certainly it will work for Xen and it sounds better than 
+virt_to_bus/bus_to_virt, if someone will cook up the alternative patch. 
+Otherwise, virt_to_bus seems better than the status quo. :-)
 
-	Jeff
-
+  -- Keir
 

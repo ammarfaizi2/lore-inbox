@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135229AbRDLQy7>; Thu, 12 Apr 2001 12:54:59 -0400
+	id <S135231AbRDLRIM>; Thu, 12 Apr 2001 13:08:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135230AbRDLQyo>; Thu, 12 Apr 2001 12:54:44 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:16132 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135229AbRDLQyC>;
-	Thu, 12 Apr 2001 12:54:02 -0400
-Date: Thu, 12 Apr 2001 13:53:21 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: scheduler went mad?
-In-Reply-To: <Pine.LNX.4.21.0104121207130.2774-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0104121352580.18260-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S135232AbRDLRIC>; Thu, 12 Apr 2001 13:08:02 -0400
+Received: from d186.as5200.mesatop.com ([208.164.122.186]:43663 "HELO
+	gopnik.dom-duraki") by vger.kernel.org with SMTP id <S135231AbRDLRHq>;
+	Thu, 12 Apr 2001 13:07:46 -0400
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Thu, 12 Apr 2001 10:12:24 -0600
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: Horst von Brand <vonbrand@inf.utfsm.cl>, elenstev@mesatop.com
+In-Reply-To: <200104121651.f3CGpZHQ002137@pincoya.inf.utfsm.cl>
+In-Reply-To: <200104121651.f3CGpZHQ002137@pincoya.inf.utfsm.cl>
+Subject: Re: [kbuild-devel] Re: CML2 1.0.0 release announcement
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01041210122403.19748@gopnik.dom-duraki>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
+On Thursday 12 April 2001 10:51, Horst von Brand wrote:
+> Steven Cole <elenstev@mesatop.com> said:
+>
+> [...]
+>
+> > It would seem to me that if someone is using an older and slower machine
+> > to build a kernel, they are probably doing this somewhat infrequently,
+> > and the longer build process, although more painful for those few users,
+> > should be endurable if it is indeed infrequent.
+>
+> Please stop a moment and _think_.
+>
+> There are people out there that have got a P/90 or less, or just a Sun IPX,
+> no network access (or slow phone lines at high prices). That _you_ have a
+> dual P3/733 doesn't help them one bit, now does it.
 
-> This should fix it 
-> 
-> --- mm/page_alloc.c.orig   Thu Apr 12 13:47:53 2001
-> +++ mm/page_alloc.c        Thu Apr 12 13:48:06 2001
-> @@ -454,7 +454,7 @@
->                 if (gfp_mask & __GFP_WAIT) {
->                         memory_pressure++;
->                         try_to_free_pages(gfp_mask);
-> -                       wakeup_bdflush(0);
-> +                       balance_dirty(NODEV);
->                         goto try_again;
->                 }
+Actually, I did think, and then thought a little more.  Here is a snippet
+of what I posted earlier:
 
-Remember that we can ONLY do this if we have __GFP_IO ...
+>Upon further reflection, the added several second stall will probably be
+>a thorn in many people's sides, as it comes while the user is impatiently
+>waiting for it to launch.  I don't use StarOffice because it takes 12-15
+>seconds to start up and that just seems too long.
+>
+>So any efforts to reduce the stall will probably have a leveraged
+>effect which is much greater than might otherwise seem at first glance.
 
-regards,
+Sorry, I guess its all too easy to get spoiled quickly with new hardware.
+And I'm one of those with slow phone lines.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+Steven

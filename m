@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbTDNNju (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTDNNju (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:39:50 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:17038 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263299AbTDNNjs (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 09:39:48 -0400
-Date: Mon, 14 Apr 2003 06:50:34 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: root@vanheusden.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: statistics for this mailinglist
-Message-Id: <20030414065034.3c552fa4.rddunlap@osdl.org>
-In-Reply-To: <200304130201.h3D211vu030602@muur.intranet.vanheusden.com>
-References: <200304130201.h3D211vu030602@muur.intranet.vanheusden.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S263301AbTDNNpE (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTDNNpE (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 09:45:04 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:29658 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S263301AbTDNNpC convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 09:45:02 -0400
+Date: Mon, 14 Apr 2003 07:56:45 -0600 (MDT)
+From: James Bourne <jbourne@hardrock.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Ken Brownfield <brownfld@irridia.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Oops: ptrace fix buggy
+In-Reply-To: <20030414134603.GB10347@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.44.0304140748040.22450-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Apr 2003 04:01:01 +0200 root@vanheusden.com wrote:
+On Mon, 14 Apr 2003, Jörn Engel wrote:
 
-| Top user-agents
-| ----------------------------------------------------------
-|  1]   46 Mozilla/5.0
-|  2]   43 Ximian
-|  3]   23 Mutt/1.4i
-|  4]   22 Mutt/1.5.4i
-|  5]   20 Microsoft
-|  6]   19 Mutt/1.3.28i
-|  7]   17 Sylpheed
-|  8]   11 Mutt/1.5.3i
-|  9]   10 KMail/1.5.1
-| 10]    9 VM
+> On Mon, 14 April 2003 07:34:54 -0600, James Bourne wrote:
+> > 
+> > This patch has also been added to the update patch available at
+> > http://www.hardrock.org/kernel/current-updates/linux-2.4.20-updates.patch
+> > 
+> > This patch includes the ptrace patch, tg3 patch, and ext3 patches.  It also
+> > changes the EXTRAVERSION to -uv2.
+> 
+> Privately, I have introduced a variable FIXLEVEL for this. The
+> resulting kernel version is 2.4.20.2 instead of 2.4.20-uv2, which imo
+> is more suiting for a fixed stable kernel.
+> 
+> Are you interested in this patch?
+
+Hi,
+Sure, if you have the patch already please send it along.  I think this was
+suggested once before as well.
+
+Thanks and regards
+James Bourne
 
 
-Could you merge different versions of the same MUA?
-I.e., just use up to the '/'.
-Or is that a bad idea?
+> 
+> Jörn
+> 
+> 
 
---
-~Randy   ["in English any noun can be verbed."  bah!]
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
+

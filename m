@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264272AbUESPno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUESPrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbUESPno (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUESPlM
+	id S264260AbUESPrE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUESPnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:41:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35535 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264247AbUESPiP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:38:15 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
-Date: Wed, 19 May 2004 11:38:04 -0400
-User-Agent: KMail/1.6.2
+	Wed, 19 May 2004 11:43:52 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:14606 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264262AbUESPmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:42:03 -0400
+Date: Wed, 19 May 2004 16:41:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
        Erik Jacobson <erikj@sgi.com>
-References: <200405191109.51751.jbarnes@engr.sgi.com> <20040519163129.A27714@infradead.org>
-In-Reply-To: <20040519163129.A27714@infradead.org>
-MIME-Version: 1.0
+Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
+Message-ID: <20040519164156.A27947@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, pfg@sgi.com,
+	Erik Jacobson <erikj@sgi.com>
+References: <200405191109.51751.jbarnes@engr.sgi.com> <20040519163129.A27714@infradead.org> <200405191138.04086.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405191138.04086.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200405191138.04086.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Wed, May 19, 2004 at 11:38:04AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, May 19, 2004 11:31 am, Christoph Hellwig wrote:
-> On Wed, May 19, 2004 at 11:09:51AM -0400, Jesse Barnes wrote:
-> > The sn2 console driver behaves something like a serial port, but was
-> > missing some of the ioctls that userland apps expected.  This patch
-> > implements the TIOCGSERIAL ioctl, which allows applications to identify
-> > the console as a serial port.
->
-> And whats the point for this one?  TIOCGSERIAL is just some messy internals
-> of the old serial.c driver (and serial_core now) that's exposed for the
-> sake of setserial.  Given that the sn console is quite different I don't
-> see the point to emulate all the mess of a real serial driver - and if you
-> want to do so use the serial_core framework.
+> Pat is working on that and should have a patch ready to post soon (is that 
+> right Pat?).  In the meantime, we need this little bit.
 
-Pat is working on that and should have a patch ready to post soon (is that 
-right Pat?).  In the meantime, we need this little bit.
+Huh?  We need this little bit isn't exactly a patch desciption that gets
+your patch included.
 
-Jesse

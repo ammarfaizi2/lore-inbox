@@ -1,183 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbUDHTRd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUDHTRd
+	id S262293AbUDHTUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 15:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUDHTUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:17:33 -0400
-Received: from pileup.ihatent.com ([217.13.24.22]:28112 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S262263AbUDHTR0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:17:26 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Badness in elv_remove_request at drivers/block/elevator.c:253
-From: Alexander Hoogerhuis <alexh@boxed.no>
-Date: Thu, 08 Apr 2004 20:10:18 +0200
-Message-ID: <87smfexrw5.fsf@dorker.boxed.no>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+	Thu, 8 Apr 2004 15:20:37 -0400
+Received: from struggle.mr.itd.umich.edu ([141.211.14.79]:16302 "EHLO
+	struggle.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S262293AbUDHTUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 15:20:34 -0400
+Date: Thu, 8 Apr 2004 15:20:22 -0400 (EDT)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@ruby.engin.umich.edu
+To: Hugh Dickins <hugh@veritas.com>
+cc: mbligh@aracnet.com, akpm@osdl.org, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: NUMA API for Linux
+In-Reply-To: <1IMik-2is-37@gated-at.bofh.it>
+Message-ID: <Pine.LNX.4.58.0404081503110.28416@ruby.engin.umich.edu>
+References: <1IL3l-1dP-35@gated-at.bofh.it> <1IMik-2is-37@gated-at.bofh.it>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-
-Playing around with some HP servers that are going live soon, I loaded
-up 2.6.5-mm1 and all filesystems are ext3, the disks are mirrored 36Gb
-SCSI using the cciss-driver. After the machine had been exceedingly
-wellbehaved I decided to have fun and did this:
-
-formail -s mail < big.mail.box
-
-and thus injected approx 20k mails into postfix. The machine stayed
-responsive and well behaved throughout, but the kernel log caught a
-few of these:
-
-Badness in elv_remove_request at drivers/block/elevator.c:253
-Call Trace:
- [<c022dc31>] elv_remove_request+0x92/0x94
- [<c023af06>] do_cciss_request+0x290/0x2bf
- [<c0235212>] as_remove_queued_request+0x70/0xf9
- [<c011982a>] scheduler_tick+0x17f/0x4b3
- [<c0234721>] as_find_next_arq+0x63/0x76
- [<c02355d1>] as_move_to_dispatch+0xe8/0x1c4
- [<c02a89b1>] schedule+0x445/0x85c
- [<c02357dd>] as_dispatch_request+0x130/0x2b1
- [<c02364aa>] as_work_handler+0x78/0x7a
- [<c012d20c>] worker_thread+0x1a2/0x245
- [<c0236432>] as_work_handler+0x0/0x7a
- [<c0119b5e>] default_wake_function+0x0/0xc
- [<c0119b5e>] default_wake_function+0x0/0xc
- [<c012d06a>] worker_thread+0x0/0x245
- [<c01307c2>] kthread+0x9c/0xa1
- [<c0130726>] kthread+0x0/0xa1
- [<c010225d>] kernel_thread_helper+0x5/0xb
- 
-The config used is attached.
-
-mvh,
-A
 
 
---=-=-=
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename=config.gz
-Content-Transfer-Encoding: base64
+On Thu, 8 Apr 2004, Hugh Dickins wrote:
 
-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
---=-=-=
+> On Thu, 8 Apr 2004, Martin J. Bligh wrote:
+> > > On Wed, 7 Apr 2004, Andrew Morton wrote:
+> > >>
+> > >> Your patch takes the CONFIG_NUMA vma from 64 bytes to 68.  It would be nice
+> > >> to pull those 4 bytes back somehow.
+> > >
+> > > How significant is this vma size issue?
+> > >
+> > > anon_vma objrmap will add 20 bytes to each vma (on 32-bit arches):
+> > > 8 for prio_tree, 12 for anon_vma linkage in vma,
+> > > sometimes another 12 for the anon_vma head itself.
+> >
+> > Ewwww. Isn't some of that shared most of the time though?
+>
+> The anon_vma head may well be shared with other vmas of the fork group.
+> But the anon_vma linkage is a list_head and a pointer within the vma.
+>
+> prio_tree is already using a union as much as it can (and a pointer
+> where a list_head would simplify the code); Rajesh was thinking of
+> reusing vm_private_data for one pointer, but I've gone and used it
+> for nonlinear swapout.
 
+I guess using vm_private_data for nonlinear is not a problem because
+we use list i_mmap_nonlinear for nonlinear vmas.
 
--- 
-Alexander Hoogerhuis                               | alexh@boxed.no
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+As you have found out vm_private_data is only used if vm_file != NULL
+or VM_RESERVED or VM_DONTEXPAND is set. I think we can revert back to
+i_mmap{_shared} list for such special cases and use prio_tree for
+others. I maybe missing something. Please teach me.
 
---=-=-=--
+If anonmm is merged then I plan to seriously consider removing that
+8 extra bytes for prio_tree. If anon_vma is merged, then I can easily
+point my finger at 12 more bytes added by anon_vma and be happy :)
+
+I still think removing the 8 extra bytes used by prio_tree from
+vm_area_struct is possible.
+
+> > > anonmm objrmap adds just the 8 bytes for prio_tree,
+> > > remaining overhead 28 bytes per mm.
+> >
+> > 28 bytes per *mm* is nothing, and I still think the prio_tree is
+> > completely unneccesary. Nobody has ever demonstrated a real benchmark
+> > that needs it, as far as I recall.
+>
+> I'm sure an Ingobench will shortly follow that observation.
+
+Yeap. If Andrew didn't write his rmap-test.c and Ingo didn't write his
+test-mmap3.c, I wouldn't even have considered developing prio_tree.
+
+Thanks,
+Rajesh

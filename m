@@ -1,89 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268126AbUHQHAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268123AbUHQHAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268126AbUHQHAa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 03:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUHQHA3
+	id S268123AbUHQHAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 03:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUHQHAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 03:00:29 -0400
-Received: from holomorphy.com ([207.189.100.168]:11693 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268126AbUHQHAT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 03:00:19 -0400
-Date: Tue, 17 Aug 2004 00:00:11 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Nathan Lynch <nathanl@austin.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm1
-Message-ID: <20040817070011.GM11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Nathan Lynch <nathanl@austin.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040816143710.1cd0bd2c.akpm@osdl.org> <121120000.1092699569@flay> <1092706344.3081.4.camel@booger> <20040817065901.GB7173@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817065901.GB7173@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 17 Aug 2004 03:00:46 -0400
+Received: from [139.30.44.16] ([139.30.44.16]:56747 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S268123AbUHQHAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 03:00:23 -0400
+Date: Tue, 17 Aug 2004 08:56:10 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: George Anzinger <george@mvista.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       johnstul@us.ibm.com, david+powerix@blue-labs.org
+Subject: Re: boot time, process start time, and NOW time
+In-Reply-To: <412151CA.4060902@mvista.com>
+Message-ID: <Pine.LNX.4.53.0408170851020.15157@gockel.physik3.uni-rostock.de>
+References: <1087948634.9831.1154.camel@cube> <87smcf5zx7.fsf@devron.myhome.or.jp>
+ <20040816124136.27646d14.akpm@osdl.org> <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
+ <412151CA.4060902@mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 08:32:24PM -0500, Nathan Lynch wrote:
->> I hit the same thing on ppc64 with gcc 3.3.2-ish.  Doing a non-parallel
->> make (i.e. without -j) seems to work around it for me.
+(Whoops, this generated quite some traffic while I was asleep.
+I'll just comment on some of the posts in a single mail.)
 
-On Tue, Aug 17, 2004 at 08:59:01AM +0200, Sam Ravnborg wrote:
-> Fix below:
+On Mon, 16 Aug 2004, George Anzinger wrote:
 
-The result of this appears to be:
+> > George is absolutely right that it's more precise. However, it's also
+> > inconsistent with the process start times which use plain uncorrected
+> > jiffies. ps stumbles over this inconsistency.
+> >
+> > Simple fix: revert the patch below.
+> > Complicated fix: correct process start times in fork.c (no patch 
+provided,
+> > too complicated for me to do).
+> >
+> > George?
+>
+> Hm...  That patch was for a reason...  It seems to me that doing 
+anything shor
+t
+> of putting "xtime" (or better, clock_gettime() :)) in at fork time is 
+not goin
+g
+> to fix anything.
 
-$ time make -s -j16 rpm
-Building target platforms: x86_64
-Building for target x86_64
-Executing(%prep): /bin/sh -e /mnt/rpmbuild/tmp/rpm-tmp.55854
-+ umask 022
-+ cd /mnt/rpmbuild/BUILD
-+ cd /mnt/rpmbuild/BUILD
-+ rm -rf kernel-2.6.8.1mm1
-+ /usr/bin/gzip -dc /home/wli/kernel-2.6.8.1mm1.tar.gz
-+ tar -xf -
-+ STATUS=0
-+ '[' 0 -ne 0 ']'
-+ cd kernel-2.6.8.1mm1
-++ /usr/bin/id -u
-+ '[' 1000 = 0 ']'
-++ /usr/bin/id -u
-+ '[' 1000 = 0 ']'
-+ /bin/chmod -Rf a+rX,g-w,o-w .
-+ exit 0
-Executing(%build): /bin/sh -e /mnt/rpmbuild/tmp/rpm-tmp.95241
-+ umask 022
-+ cd /mnt/rpmbuild/BUILD
-+ /bin/rm -rf /var/tmp/kernel-2.6.8.1mm1-root
-++ dirname /var/tmp/kernel-2.6.8.1mm1-root
-+ /bin/mkdir -p /var/tmp
-+ /bin/mkdir /var/tmp/kernel-2.6.8.1mm1-root
-+ cd kernel-2.6.8.1mm1
-+ make clean
-make[2]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
-+ make -j16
-make[2]: warning: -jN forced in submake: disabling jobserver mode.
-  CHK     include/linux/version.h
-  UPD     include/linux/version.h
-  SYMLINK include/asm -> include/asm-x86_64
-  SPLIT   include/linux/autoconf.h -> include/config/*
-cc1: error: output filename specified twice
-make[2]: *** [scripts/kallsyms] Error 1
-make[2]: *** Waiting for unfinished jobs....
-error: Bad exit status from /mnt/rpmbuild/tmp/rpm-tmp.95241 (%build)
+Yep. I think that's the way to go.
+
+>                   As written the start_time in the task_struct is fixed.  
+If
+> "now - uptime + time_from_boot_to_process_start" it is wandering, it 
+must be t
+he
+> fault of "now - uptime".  Since this seems to be wandering, and we 
+corrected
+> uptime in the referenced patch, is it safe to assume that "now" is 
+actually
+> being computed from "jiffies" rather than a gettimeofday()?
+
+No, it's not "now" which is wandering, but the difference between "uptime"
+and "time_from_boot_to_process_start". The former gets corrected by ntp,
+while the latter is computed from "jiffies" and thus uncorrected.
 
 
-RPM build errors:
-    Bad exit status from /mnt/rpmbuild/tmp/rpm-tmp.95241 (%build)
-make[1]: *** [rpm] Error 1
-make: *** [rpm] Error 2
-make -s -j16 rpm  38.38s user 9.50s system 81% cpu 58.513 total
+
+On Mon, 16 Aug 2004, john stultz wrote:
+
+> Hmm. While that patch fixed the uptime proc entry, I thought the issue
+> was with process start times. I'm looking at fixing the start_time
+> assignment in proc_pid_stat(). My suspicion is that we need to use ACTHZ
+> in jiffies64_to_clock_t().
+
+No, we already fixed jiffies64_to_clock_t() by using TICK_NSEC instead of
+HZ.
 
 
--- wli
+
+On Mon, 16 Aug 2004, George Anzinger wrote:
+
+> I really don't see how the start_time that proc_pid_stat() is producing 
+could be
+> anything but a constant.  The complaint is that it moves, not that it is
+> incorrect, right?
+
+No, proc_pid_stat() indeed gives a constant. But userspace somehow has to
+figure out what a value in "jiffies" means. Since "jiffies" started from 
+zero
+at boot time, "uptime" is needed for that. However, we "fixed" uptime to
+get corrected by ntp, so that userspace now has a drifting notion of 
+"jiffies".
+
+
+
+On Tue, 16 Aug 2004, Albert Cahalan wrote:
+
+> If you're interested in reducing (not solving)
+> the problem for the 2.6.x series, you might change
+> HZ to something that works better with the PIT.
+
+No, that's not needed anymore. We've already started to account for the
+difference, e.g. by using TICK_NSEC in jiffies64_to_clock_t().
+
+Problem is, we are only halfway through the attempt to remove the use
+of "jiffies" as a clock, so currently to incompatible time sources get 
+mixed
+up.
+
+The other problem seems to be that this move away from "jiffies" seems to
+happen on an ad-hoc basis whenever we encounter a problem, rather than
+with a big picture in mind.
+John Stultz once laid out a concept for a (coordinated) rewrite in 2.7,
+and I think this still is a good idea.

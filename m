@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314241AbSD0PZm>; Sat, 27 Apr 2002 11:25:42 -0400
+	id <S314243AbSD0P3Q>; Sat, 27 Apr 2002 11:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314243AbSD0PZm>; Sat, 27 Apr 2002 11:25:42 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16656 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314241AbSD0PZl>; Sat, 27 Apr 2002 11:25:41 -0400
-Subject: Re: The tainted message
-To: rthrapp@sbcglobal.net (Richard Thrapp)
-Date: Sat, 27 Apr 2002 16:20:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel), alan@lxorguk.ukuu.org.uk
-In-Reply-To: <1019883102.8819.48.camel@wizard> from "Richard Thrapp" at Apr 26, 2002 11:51:41 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E171TzX-0008PF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S314258AbSD0P3P>; Sat, 27 Apr 2002 11:29:15 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:56230 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S314243AbSD0P3O>; Sat, 27 Apr 2002 11:29:14 -0400
+Date: Sat, 27 Apr 2002 09:29:03 -0600
+Message-Id: <200204271529.g3RFT3413819@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: tanner@real-time.com, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
+In-Reply-To: <E171U2U-0008Pv-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> First of all, the current tainted message is not really useful. 
-> "Warning: Loading %s will taint the kernel..." isn't very informative at
-> all.  Most people don't know what it means to "taint the  kernel".  It's
+Alan Cox writes:
+> > Dual (2) AMD ATHLON MP 1900+ CPUs
+> > ASUA7M266D Motherboard
+> 
+> Either update the BIOS or set it to MP1.1
 
-I'd agree. I wasn't aware I had any responsibility beyond helping Arjan
-who implemented it. The kernel itself has no messages/policy intentionally.
+Which BIOS version was the problem found on? I've got one of these,
+and the original 1004 Award BIOS didn't give this problem, nor does
+the 1005A BIOS I upgraded to.
 
-> I would like to propose that a clearer, more direct message be used. 
-> Something like "Warning: kernel maintainers may not support your kernel
-> since you have loaded %s: %s%s\n" would be much more informative and
-> correct.
+However, I am having memory problems. Anyone else got similar
+experiences (or good experiences)? I got 3 of 1 GiB DDR266 ECC Reg
+DIMMs (36 chips apiece) and a 512 MiB DDR266 ECC Unbuf DIMM (18
+chips). I have various problems:
 
-> Opinions?  Comments?
+- none of the DIMMs are reported by the BIOS as ECC, whether plugged
+  in together or separately
 
-More informative but I think too soft. It still implies we might want to
-hear about it but not reply. That isnt the case.
+- plugging in one 1 GiB DIMM will sometimes yield a bit error with
+  memtest86 test #1
 
-How about
+- plugging in two 1 GiB DIMMs will yield a bit error in test #1
 
-Warning: The module you have loaded (%s) does not seem to have an open
-	 source license. Please send any kernel problem reports to the
-	 author of this module, or duplicate them from a boot without
-	 ever loading this module before reporting them to the community
-	 or your Linux vendor
+- plugging in three 1 GiB DIMMs will yield a stream of bit errors in
+  test #1 (and possibly other tests, but I gave up before then).
 
-??
+The vendor claims the 1 GiB DIMMs are compatible with the A7M266-D,
+but when I received the M/B and DIMMs, I noted the motherboard manual
+said it only supported DIMMs with up to 18 chips each, and of course
+the 1 GiB DIMMs have 36 chips each :-(
+
+According to Asus tech support 18 chip 1 GiB DIMMs are not available
+yet. When I asked why they claimed support for 1 GiB DIMMs, they said
+"for the future". Argh! Anybody know if 18 chip 1 GiB DDR DIMMs are
+available anywhere?
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

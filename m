@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAZLht>; Fri, 26 Jan 2001 06:37:49 -0500
+	id <S129396AbRAZLij>; Fri, 26 Jan 2001 06:38:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129396AbRAZLhk>; Fri, 26 Jan 2001 06:37:40 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:38109 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129562AbRAZLh2>;
-	Fri, 26 Jan 2001 06:37:28 -0500
-Date: Fri, 26 Jan 2001 11:35:07 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Daniel Phillips <phillips@innominate.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: inode->i_dirty_buffers redundant ?
-Message-ID: <20010126113507.J11607@redhat.com>
-In-Reply-To: <200101251047.QAA16434@vxindia.veritas.com> <20010125164432.A12984@redhat.com> <3A708722.C21EC12A@innominate.de>
-Mime-Version: 1.0
+	id <S135406AbRAZLi3>; Fri, 26 Jan 2001 06:38:29 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44688 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129396AbRAZLiQ>;
+	Fri, 26 Jan 2001 06:38:16 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A708722.C21EC12A@innominate.de>; from phillips@innominate.de on Thu, Jan 25, 2001 at 09:05:54PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <14961.24941.129209.889445@pizda.ninka.net>
+Date: Fri, 26 Jan 2001 03:37:17 -0800 (PST)
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Jeremy Hansen <jeremy@xxedgexx.com>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <20010126221220.D11097@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.21.0101251328240.2961-100000@srv2.ecropolis.com>
+	<14960.29127.172573.22453@pizda.ninka.net>
+	<20010126221220.D11097@metastasis.f00f.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, Jan 25, 2001 at 09:05:54PM +0100, Daniel Phillips wrote:
-> "Stephen C. Tweedie" wrote:
-> > We also maintain the 
-> > per-page buffer lists as caches of the virtual-to-physical mapping to
-> > avoid redundant bmap()ping.
-> 
-> Could you clarify that one, please?
+Chris Wedgwood writes:
+ > On Thu, Jan 25, 2001 at 10:34:47AM -0800, David S. Miller wrote:
+ > 
+ >     That's it, in 4 weeks time I am putting a kernel onto
+ >     vger.kernel.org that speaks ECN.  This is my official and only
+ >     warning.
+ > 
+ > Why wait 4 weeks at all? You seem to be very clear how you feel about
+ > the issue; do it now then.
 
-The buffer contains a physical label for the block's location on disk.
-The page cache is indexed purely by logical location, so doing IO
-to/from the page cache requires us to lookup the physical locations of
-each block within the page.
+Because I am at least sympathetic enough with users of the lists that
+I am going to offer them sufficient time to go and get a usable ISP if
+need be.
 
-Caching the buffer_heads for page cache pages means that once those
-lookups are done once, further IO on the same page can bypass the
-lookup and go straight to disk.
-
---Stephen
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

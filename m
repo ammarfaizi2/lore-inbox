@@ -1,61 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263810AbTLTEto (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 23:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTLTEto
+	id S263812AbTLTFP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 00:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTLTFP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 23:49:44 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:61196 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S263810AbTLTEtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 23:49:43 -0500
-Date: Sat, 20 Dec 2003 13:42:40 +0900 (JST)
-Message-Id: <20031220.134240.30421622.yoshfuji@linux-ipv6.org>
-To: rogerhc@pacbell.net, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: install_modules (or) modules_install? (main README in 2.6.0
- stable source)
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200312191838.55569.rogerhc@pacbell.net>
-References: <200312191838.55569.rogerhc@pacbell.net>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Sat, 20 Dec 2003 00:15:27 -0500
+Received: from port-212-202-159-243.reverse.qsc.de ([212.202.159.243]:5101
+	"EHLO mail.onestepahead.de") by vger.kernel.org with ESMTP
+	id S263812AbTLTFPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 00:15:25 -0500
+Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
+From: Christian Meder <chris@onestepahead.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <3FE3D0CB.603@cyberone.com.au>
+References: <1071864709.1044.172.camel@localhost>
+	 <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au>
+	 <200312201355.08116.kernel@kolivas.org>
+	 <1071891168.1044.256.camel@localhost>  <3FE3C6FC.7050401@cyberone.com.au>
+	 <1071893802.1363.21.camel@localhost>  <3FE3D0CB.603@cyberone.com.au>
+Content-Type: text/plain
+Message-Id: <1071897314.1363.43.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 20 Dec 2003 06:15:16 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200312191838.55569.rogerhc@pacbell.net> (at Fri, 19 Dec 2003 18:38:55 -0800), Roger Chrisman <rogerhc@pacbell.net> says:
+On Sat, 2003-12-20 at 05:32, Nick Piggin wrote:
+> Christian Meder wrote:
+> 
+> >On Sat, 2003-12-20 at 04:50, Nick Piggin wrote:
+> >
+> >>(although not much Con)
+> >>
+> >
+> >right. Ok I'm running now 2.6.0 with Nick's v28p1: The results without
+> >load and with kernel compile load are attached. On nice level 0 I get
+> >now the stuttering sound which I described in the previous mail. When I
+> >renice gnomemeeting to -10 it's actually usable but not as good as in
+> >2.4.2x. It's still sensitive to window movement and X activity. Two
+> >subjective observations are that the nice levels haven't got such a big
+> >impact in Nick's scheduler they used to have and that the default
+> >behaviour gnomemeetingwise is better than in earlier Nick schedulers.
+> >
+> 
+> No, nice levels don't have such a big impact. That is the last big
+> think I have to fix, but thats another story...
+> 
+> At nice -10, there is basically nothing more the scheduler can do
+> for it (nice -20 will be a tiny bit better again).
+> 
+> I'd say its due to either sound drivers or your app doing something
+> different when running in 2.6.
 
-> Am I correct that
->                                 install_modules
-> should be
->                                 module_install
-> ?
+I just tried hammering on the sound drivers on the playback side. So I
+put on a kernel compile, a find | cat >/dev/null and ogg123 playback.
+Playback performed largely unimpressed from the load level, no skips or
+whatever. Even adding a gnomemeeting connection didn't decrease audio
+playback. My guess is that the audio drivers are ok even more so because
+otherwise OSS _and_ ALSA would be broken for my soundcard.
 
-Of course not; it should be modules_install :-)
-                                  ~
+That would leave me with two possibilities: 2.6. is doing something
+different in the gnomemeeting case or gnomemeeting is doing something
+different in the 2.6 case. A cursory look at the gnomemeeting sources
+didn't give me the impression that it's doing anything which would be
+affected by 2.6 deployment but I'll ask on the gnomemeeting-devel list
+for advice.
 
-===== README 1.12 vs edited =====
---- 1.12/README	Sun Oct  5 15:50:49 2003
-+++ edited/README	Sat Dec 20 13:38:43 2003
-@@ -119,7 +119,7 @@
-    cd /usr/src/linux-2.6.N
-    make O=/home/name/build/kernel menuconfig
-    make O=/home/name/build/kernel
--   sudo make O=/home/name/build/kernel install_modules install
-+   sudo make O=/home/name/build/kernel modules_install install
- 
-    Please note: If the 'O=output/dir' option is used then it must be
-    used for all invocations of make.
+Thanks for all your help, I hope I can nail it soon,
+
+
+
+			Christian
 
 -- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Christian Meder, email: chris@onestepahead.de
+ 
+What's the railroad to me ?
+I never go to see
+Where it ends.
+It fills a few hollows,
+And makes banks for the swallows, 
+It sets the sand a-blowing,
+And the blackberries a-growing.
+                      (Henry David Thoreau)
+ 
+
+
+
+

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317590AbSHUAYa>; Tue, 20 Aug 2002 20:24:30 -0400
+	id <S317602AbSHUA3v>; Tue, 20 Aug 2002 20:29:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317597AbSHUAY3>; Tue, 20 Aug 2002 20:24:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50684 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317590AbSHUAY0>; Tue, 20 Aug 2002 20:24:26 -0400
-Subject: RE: mdelay causes BUG, please use udelay
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: "'Troy Wilson'" <tcw@tempest.prismnet.com>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-       Martin.Bligh@us.ibm.com, tcw@prismnet.com
-In-Reply-To: <288F9BF66CD9D5118DF400508B68C4460283E4AF@orsmsx113.jf.intel.com>
-References: <288F9BF66CD9D5118DF400508B68C4460283E4AF@orsmsx113.jf.intel.com>
-Content-Type: text/plain
+	id <S317606AbSHUA3v>; Tue, 20 Aug 2002 20:29:51 -0400
+Received: from hoemail2.lucent.com ([192.11.226.163]:51416 "EHLO
+	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S317602AbSHUA3u>; Tue, 20 Aug 2002 20:29:50 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Aug 2002 01:28:52 +0100
-Message-Id: <1029889732.22983.87.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <15714.57320.918331.932316@gargle.gargle.HOWL>
+Date: Tue, 20 Aug 2002 20:33:44 -0400
+From: stoffel@lucent.com
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: automount doesn't "follow" bind mounts
+In-Reply-To: <20020820180956.L21269@redhat.com>
+References: <Pine.LNX.4.44.0208201752430.23681-100000@r2-pc.dcs.qmul.ac.uk>
+	<ajuahu$hf$1@cesium.transmeta.com>
+	<ajucmu$1qd$1@cesium.transmeta.com>
+	<20020820180956.L21269@redhat.com>
+X-Mailer: VM 6.95 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-21 at 01:20, Feldman, Scott wrote:
-> > +    usec_delay(10000);
-> 
-> Jeff, 10000 seems on the border of what's OK.  If it's acceptable, then
-> let's go for that.  Otherwise, we're going to have to chain several
-> mod_timer callbacks together to do a controller reset.
+>>>>> "Benjamin" == Benjamin LaHaise <bcrl@redhat.com> writes:
 
-For some telco and embedded apps 10000 in an IRQ is borderline. One day
-the timer stuff will be needed - how hard is it to fix right first time
-?
+Benjamin> Is there an autofs v4 daemon that's actually released?  The
+Benjamin> only thing I see is code that's over a year old in
+Benjamin> /pub/linux/daemons/autofs/testing-v4/ on kernel.org.  If
+Benjamin> pre10 is okay, it should be released (at least that would
+Benjamin> explain why we're still shipping v3).
+
+Well, HPA says that pre10 has some serious problems, but it was the
+only version I could get to work with our Solaris NIS environment and
+out NetApps reliably.  I'd release the darn thing and let people send
+in patches as needed.
+
+John
+   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
+	 stoffel@lucent.com - http://www.lucent.com - 978-399-0479
 

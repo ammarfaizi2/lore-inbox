@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317351AbSFGWzi>; Fri, 7 Jun 2002 18:55:38 -0400
+	id <S317361AbSFGXS5>; Fri, 7 Jun 2002 19:18:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317355AbSFGWzh>; Fri, 7 Jun 2002 18:55:37 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17845 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317351AbSFGWzg>; Fri, 7 Jun 2002 18:55:36 -0400
-Date: Fri, 7 Jun 2002 15:55:31 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Shane Walton <dsrelist@yahoo.com>, gibbs@scsiguy.com
-Subject: Re: Stream Lined Booting - SCSI Hold Up
-Message-ID: <20020607155531.A13335@eng2.beaverton.ibm.com>
-In-Reply-To: <20020605172240.17081.qmail@web20808.mail.yahoo.com> <20020606134419.A24456@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S317362AbSFGXS5>; Fri, 7 Jun 2002 19:18:57 -0400
+Received: from h64-251-67-69.bigpipeinc.com ([64.251.67.69]:1042 "HELO
+	kelownamail.packeteer.com") by vger.kernel.org with SMTP
+	id <S317361AbSFGXS4>; Fri, 7 Jun 2002 19:18:56 -0400
+From: "Stephane Charette" <stephanecharette@telus.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Fri, 07 Jun 2002 16:18:56 -0700
+Reply-To: "Stephane Charette" <stephanecharette@telus.net>
+X-Mailer: PMMail 2000 Standard (2.10.2010) For Windows 2000 (5.0.2195;2)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: kernel serial debugging question
+Message-Id: <20020607231856Z317361-22020+731@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06, 2002 at 01:44:19PM -0700, Patrick Mansfield wrote:
+Background:
+-----------
 
-> On my system, it saves me about 10 seconds to boot with:
-> 
-> lilo: linux-1 aic7xxx=no_reset aic7xxx=seltime:3
-> 
+In the past, I have had to use the kernel serial debugger with the
+2.2.14 kernel.
 
-BTW, the above results in an infinite loop on shutdown, as the aic
-driver adds a reboot callback for each "aic7xxx=" option, pointing
-to static data, and ends up getting linked on a list pointing to
-itself. Using:
+The steps I followed (if my notes are correct) were:
 
-	aic7xxx=no_reset,seltime:3
+- in "make menuconfig", within "<Kernel Hacking>", select "<Kernel
+support for GDB>"
+- pass the additional options "gdb gdbttyS=1 gdbbaud=115200" to loadlin
+- wait for the message "Waiting for connection from remote gdb on
+ttyS1"
 
-I have no problems.
 
--- Patrick Mansfield
+My question:
+------------
+
+Has any of this changed with the 2.4.x kernel?  I'm currently playing
+with 2.4.19-pre9.  Is there a "serial debugger" patch that has to be
+applied first, or is this support normally built-in?
+
+The reason I ask is because I don't see the option "Kernel support for
+GDB", which leads me to think that maybe this functionality actually
+came from a patch that was applied on top of 2.2.14.
+
+While I'm at it:  is there a "better", or perhaps a "more popular"
+method of debugging the kernel?
+
+Thanks,
+
+Stephane Charette
+

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLEU5K>; Tue, 5 Dec 2000 15:57:10 -0500
+	id <S129436AbQLEVDL>; Tue, 5 Dec 2000 16:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbQLEU5A>; Tue, 5 Dec 2000 15:57:00 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:21470 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129257AbQLEU4y>;
-	Tue, 5 Dec 2000 15:56:54 -0500
-Date: Tue, 5 Dec 2000 15:17:07 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        Alan Cox <alan@redhat.com>, Christoph Rohland <cr@sap.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: Re: test12-pre5
-In-Reply-To: <Pine.LNX.4.10.10012051144060.2178-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0012051502140.12284-100000@weyl.math.psu.edu>
+	id <S129786AbQLEVDC>; Tue, 5 Dec 2000 16:03:02 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:28132 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129436AbQLEVC6>; Tue, 5 Dec 2000 16:02:58 -0500
+Message-ID: <3A2D51A3.DFF47557@uow.edu.au>
+Date: Wed, 06 Dec 2000 07:35:47 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] inode dirty blocks  Re: test12-pre4
+In-Reply-To: <Pine.LNX.4.10.10012031828170.22914-100000@penguin.transmeta.com> <Pine.GSO.4.21.0012040054400.5055-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> 
+> On Sun, 3 Dec 2000, Linus Torvalds wrote:
+> 
+> >
+> > Synching up with Alan and various other stuff. The most important one
+> > being the fix to the inode dirty block list.
+> 
+> It doesn't solve the problem. If you unlink a file with dirty metadata
+> you have a nice chance to hit the BUG() in inode.c:83. I hope that patch
+> below closes all remaining holes. See analysis in previous posting
+> (basically, bforget() is not enough when we free the block; bh should
+> be removed from the inode's list regardless of the ->b_count).
+>                                                         Cheers,
+>                                                                 Al
+> 
+> diff -urN rc12-pre4/fs/buffer.c rc12-pre4-dirty_blocks/fs/buffer.c
+> --- rc12-pre4/fs/buffer.c       Mon Dec  4 01:01:43 2000
+> +++ rc12-pre4-dirty_blocks/fs/buffer.c  Mon Dec  4 01:11:42 2000
 
+That bforget-inode patch ran fine on two machines for ten hours. One
+was SMP.  The other was running the ATA guy's latest set of patches
+including taskfile support.
 
-On Tue, 5 Dec 2000, Linus Torvalds wrote:
+The proposed FS changes are solid.
 
-> And this is not just a "it happens to be like this" kind of thing. It
-> _has_ to be like this, because every time we call clear_inode() we are
-> going to physically free the memory associated with the inode very soon
-> afterwards. Which means that _any_ use of the inode had better be long
-> gone. Dirty buffers included.
-
-Urgh. Linus, AFAICS we _all_ agree on that. The only real question is
-whether we consider calling clear_inode() with droppable dirty buffers
-to be OK. It can't happen on the dispose_list() path and I'ld rather
-see it _not_ happening on the delete_inode() one. It's a policy question,
-not the correctness one.
-
-IOW, I would prefer to have BUG() instead of invalidate_inode_buffers()
-and let the ->delete_inode() make sure that list is empty. I'm not saying
-that current code doesn't work. However, "let's clean after the
-truncate_inode_page()/foo_delete_inode(), they might leave some junk
-on the list" looks like a wrong thing.
-
-Notice that policy wrt pages is already of that kind - clear_inode()
-expects the callers to make sure that ->i_data.nr_pages is zero instead of
-trying to clean after them. I think that we will be better off with
-similar rules wrt dirty buffers list.
-
-Comments?
-
+The third machine died horribly twice - recursive pagefaults.  Without
+IDE patch.  This could be anything, including hardware.  Will investigate.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

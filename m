@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289768AbSAWK0x>; Wed, 23 Jan 2002 05:26:53 -0500
+	id <S289770AbSAWK1o>; Wed, 23 Jan 2002 05:27:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289770AbSAWK0n>; Wed, 23 Jan 2002 05:26:43 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:56449 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289768AbSAWK02>;
-	Wed, 23 Jan 2002 05:26:28 -0500
-Date: Wed, 23 Jan 2002 02:24:41 -0800 (PST)
-Message-Id: <20020123.022441.21593293.davem@redhat.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de, alan@redhat.com,
-        akpm@zip.com.au, vherva@niksula.hut.fi
-Subject: Re: Athlon/AGP issue update
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200201231010.g0NAAuE05886@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <1011779573.9368.40.camel@inventor.gentoo.org>
-	<200201231010.g0NAAuE05886@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S289772AbSAWK1h>; Wed, 23 Jan 2002 05:27:37 -0500
+Received: from [203.143.19.4] ([203.143.19.4]:11024 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S289770AbSAWK1R>;
+	Wed, 23 Jan 2002 05:27:17 -0500
+Date: Wed, 23 Jan 2002 16:26:10 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: ertzog <ertzog@bk.ru>
+Cc: Anuradha Ratnaweera <anuradha@gnu.org>, Pavel Machek <pavel@suse.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] KernelConf
+Message-ID: <20020123162610.A4075@lklug.pdn.ac.lk>
+In-Reply-To: <20020122145723.A19935@bee.lk> <Pine.LNX.4.21.0201221214050.5327-100000@dial-up-2.energonet.ru>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0201221214050.5327-100000@dial-up-2.energonet.ru>; from ertzog@bk.ru on Tue, Jan 22, 2002 at 12:16:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-   Date: Wed, 23 Jan 2002 12:10:57 -0200
+On Tue, Jan 21, 2002 at 12:16:48PM +0000, ertzog wrote:
+> 
+> And what if to write in C with lex and yacc. IMHO it is very easy and
+> beautiful to write, using them. Or the problem is maingly in creating
+> compiller itself.
 
-   Did AMD tell in what 4M page a cache line was speculativery read ant then 
-   written? I mean, there are only a few 4M pages used by Linux, which one had 
-   'cacheable' bit wrongly set? It's all we need to know now.
-   
-See my other email, actually it appears AMD tells us this and my
-previous analysis was wrong.
+So, give it a try and see ;)
 
-   > The problem that has been experienced is caused by a speculative store
-   > instruction that is not ultimately executed.  The logical address of the
-   > store is through the 4MB translation to physical memory also translated
-   > by GART and used by the AGP processor.
-   >
-   > The effect of the store is to write-allocate a cache line in the data
-   > cache and fill that cache line with data from the underlying physical
-   > memory. Because the line was write-allocated it is subsequently written
-   > back to physical memory even though the bits have not been changed by
-   > the processor.  This write-back occurs when the cache-line is
-   > re-allocated based upon replacement policy and is far removed in time
-   > from the point at which the bits were read.
-   
-He can only mean by this that there is some branch protected store
-(not taken) to the 4MB linear mappings used by the kernel (starting
-at PAGE_OFFSET).
+I have come up with a simpler system.  Have got the next snapshot worked out
+which is nearly usable.  Will be releasing it in a day or two.
 
-But the only thing I am still confused about, is what 4MB mappings
-have to do with any of this.  What I take from the description is that
-the problem will still exist after 4MB mappings are disabled.  What
-prevents the processor from doing the speculative store to the
-cacheable mappings once 4MB pages are disabled?
+	Anuradha
 
-At best, I bet turning off 4MB pages makes the bug less likely.
-It does not eliminate the chance to hit the bug.
+NB: I am in the middle of my undergrad exams, but can't help compromising that
+for Linux ;)
 
-So what it sounds like is that if there is any cacheable mapping
-_WHATSOEVER_ to physical memory accessible by the GART, the problem
-can occur due to a speculative store being cancelled.
+-- 
 
-A real fix would be much more involved, therefore.
+Debian GNU/Linux (kernel 2.4.16-xfs)
 
-In fact, we map the GART mapped memory to the user fully cacheable.
-That would have to be fixed, plus we'd need to mark non-cacheable the
-linear PAGE_OFFSET mappings of the kernel (4MB or not) as well.
+'Ooohh.. "FreeBSD is faster over loopback, when compared to Linux
+over the wire". Film at 11.'
+	-- Linus Torvalds
+

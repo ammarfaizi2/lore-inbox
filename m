@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSEGWEO>; Tue, 7 May 2002 18:04:14 -0400
+	id <S314278AbSEGWFD>; Tue, 7 May 2002 18:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSEGWEN>; Tue, 7 May 2002 18:04:13 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:41461 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S314277AbSEGWEL>; Tue, 7 May 2002 18:04:11 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 7 May 2002 16:02:35 -0600
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Possible SCSI (sr) mini-cleanup
-Message-ID: <20020507220235.GB27824@turbolinux.com>
-Mail-Followup-To: Thunder from the hill <thunder@ngforever.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205071445480.4189-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
+	id <S314284AbSEGWFC>; Tue, 7 May 2002 18:05:02 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:49389 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314278AbSEGWEe>; Tue, 7 May 2002 18:04:34 -0400
+Date: Tue, 07 May 2002 16:00:56 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Adrian Bunk <bunk@fs.tum.de>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.5.14-dj1: misc.o: undefined reference to `__io_virt_debug'
+Message-ID: <281270000.1020812456@flay>
+In-Reply-To: <3CD84BA9.95B3E482@didntduck.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 07, 2002  14:50 -0600, Thunder from the hill wrote:
-> I don't see where the variable and the label have been used. Are they 
-> useful for anything? If they are, tell me please!
+>> > Compiling misc.c with -O0 gives a better error message:
+>> > 
+>> > <--  snip  -->
+>> > 
+>> > ...
+>> > ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o
+>> > piggy.o
+>> > misc.o: In function `outb_quad':
+>> > misc.o(.text+0x289c): undefined reference to `__io_virt_debug'
+>> > make[2]: *** [bvmlinux] Error 1
+>> > make[2]: Leaving directory
+>> > `/home/bunk/linux/kernel-2.5/linux-2.5.14-modular/arch/i386/boot/compressed'
+>> 
+>> Seems like you're not linking in lib/iodebug.c for some reason.
+>> 
+>> outb_quad calls readb, which calls __io_virt, which calls __io_virt_debug,
+>> which is defined in iodebug.c
+> 
+> It's in the boot decompression code, before any of that stuff is
+> available.  I'm working on a patch.
 
-> @@ -723,8 +721,6 @@
->  		goto cleanup_cds;
->  	memset(sr_sizes, 0, sr_template.dev_max * sizeof(int));
->  	return 0;
-> -cleanup_sizes:
-> -	kfree(sr_sizes);
->  cleanup_cds:
->  	kfree(scsi_CDs);
->  cleanup_devfs:
+Is this arch/i386/boot/compressed/misc.c ?
+I can't see how it would be doing outb_quad, and even if it was, it
+would be totally pointless, as xquad_portio isn't set yet ....
 
-Note that you are also removing the "kfree(sr_sizes)" which is
-definitely used...
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+M.
 

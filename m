@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276369AbRKAABe>; Wed, 31 Oct 2001 19:01:34 -0500
+	id <S276477AbRKAALy>; Wed, 31 Oct 2001 19:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276468AbRKAABI>; Wed, 31 Oct 2001 19:01:08 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:58636 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S276052AbRKAAAr>;
-	Wed, 31 Oct 2001 19:00:47 -0500
-Date: Wed, 31 Oct 2001 15:53:39 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mike Kravetz <kravetz@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-        Hubertus Franke <frankeh@watson.ibm.com>,
-        <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [PATCH][RFC] Proposal For A More Scalable Scheduler
- ...
-In-Reply-To: <20011031151243.E1105@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.40.0110311544330.1484-100000@blue1.dev.mcafeelabs.com>
+	id <S276429AbRKAALf>; Wed, 31 Oct 2001 19:11:35 -0500
+Received: from [216.151.155.121] ([216.151.155.121]:10760 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S276424AbRKAALY>; Wed, 31 Oct 2001 19:11:24 -0500
+To: Riley Williams <rhw@MemAlpha.cx>
+Cc: Ville Herva <vherva@niksula.hut.fi>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Need blocking /dev/null
+In-Reply-To: <Pine.LNX.4.21.0110312256030.28028-100000@Consulate.UFP.CX>
+From: Doug McNaught <doug@wireboard.com>
+Date: 31 Oct 2001 19:11:47 -0500
+In-Reply-To: Riley Williams's message of "Wed, 31 Oct 2001 23:13:22 +0000 (GMT)"
+Message-ID: <m31yjjz6ws.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, Mike Kravetz wrote:
+Riley Williams <rhw@MemAlpha.cx> writes:
 
-> I'm going to try and merge your 'cache warmth' replacement for
-> PROC_CHANGE_PENALTY into the LSE MQ scheduler, as well as enable
-> the code to prevent task stealing during IPI delivery.  This
-> should still be significantly different than your design because
-> MQ will still attempt to make global decisions.  Results should
-> be interesting.
+> Are you sure?
+> 
+> > find / -name "wanted-but-lost-download" | eat
+> 
+> Doesn't work - you're piping the stdin there, not stderr as per my
+> example above. AFAIK, there's no way to pipe stderr without also piping
+> stdout, hence this sort of solution just doesn't work.
 
-I'm currently evaluating different weights for that.
-Right now I'm using :
+The Bourne shell is more perverse than you realize:
 
-    if (p->cpu_jtime > jiffies)
-        weight += p->cpu_jtime - jiffies;
+$ exec 3>&1; find / -name "wanted-but-lost-download" 2>&1 1>&3 3>&- | eat
 
-that might be too much.
-Solutions :
+[stolen from "Csh Programming Considered Harmful" by Tom Christiansen]
 
-1)
-    if (p->cpu_jtime > jiffies)
-        weight += (p->cpu_jtime - jiffies) >> 1;
+Horrible, but does work.  ;) 
 
-2)
-    int wtable[];
+> > zerofill | head -c 1440k > /tmp/floppy.img
+> 
+> How does zerofill know when to stop writing zeros out?
 
-    if (p->cpu_jtime > jiffies)
-        weight += wtable[p->cpu_jtime - jiffies];
+Easy, it gets EPIPE on the write (or gets killed by SIGPIPE if it's
+stupid). 
 
-Speed will like 1).
-Other optimization is jiffies that is volatile and forces gcc to always
-reload it.
+> > ssh foo@bar | block
+> 
+> Which of my examples is this an equivalent to? I don't recognise it.
 
-static inline int goodness(struct task_struct * p, struct mm_struct
-*this_mm, unsigned long jiff)
+None; he's referring to the /dev/block example that started the
+thread.
 
-might be better, with jiffies taken out of the goodness loop.
-Mike I suggest you to use the LatSched patch to 1) know how really is
-performing the scheduler 2) understand if certain test gives certain
-results due wierd distributions.
+I'm still happy to keep /dev/null and /dev/zero.  ;)
 
-
-
-
-- Davide
-
-
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129567AbRBAWfQ>; Thu, 1 Feb 2001 17:35:16 -0500
+	id <S129550AbRBAWfQ>; Thu, 1 Feb 2001 17:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129743AbRBAWfF>; Thu, 1 Feb 2001 17:35:05 -0500
-Received: from quechua.inka.de ([212.227.14.2]:17436 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S129567AbRBAWe4>;
-	Thu, 1 Feb 2001 17:34:56 -0500
-From: W1012@lina.inka.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: XFS file system Pre-Release 
-Message-Id: <E14OSJc-0000s6-00@sites.inka.de>
-Date: Thu, 1 Feb 2001 23:34:56 +0100
+	id <S129567AbRBAWfG>; Thu, 1 Feb 2001 17:35:06 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:54021 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129550AbRBAWex>; Thu, 1 Feb 2001 17:34:53 -0500
+Date: Thu, 1 Feb 2001 22:33:46 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Joe deBlaquiere <jadb@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <20010201134005.A119@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.30.0102012202040.1102-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200102012138.f11LcV322920@jen.americas.sgi.com> you wrote:
->> What support does XFS provide for clustering?
->> 								Pavel
+On Thu, 1 Feb 2001, Pavel Machek wrote:
 
-> This statement is a little misleading, the clustering software is other
-> stuff from SGI, they just have xfs filesystems on the machines.
+> I thought that Vtech Helio folks already have XIP supported...
 
-One reason for this is, that in a shared nothing cluster on fail over you may
-have to have a filesystem check. and that is simly taking too long if you do
-not have a log filesystem. Thats why reiser, jfs, xfs or ext3 makes sense here.
+Plenty of people are doing XIP of the kernel. I'm not aware of anyone 
+doing XIP of userspace pages. 
 
-Greetings
-Bernd
+-- 
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131599AbQK2PJi>; Wed, 29 Nov 2000 10:09:38 -0500
+        id <S131610AbQK2PZO>; Wed, 29 Nov 2000 10:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131610AbQK2PJ2>; Wed, 29 Nov 2000 10:09:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24850 "EHLO virtualhost.dk")
-        by vger.kernel.org with ESMTP id <S131599AbQK2PJS>;
-        Wed, 29 Nov 2000 10:09:18 -0500
-Date: Wed, 29 Nov 2000 15:38:51 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Helge Hafting <helgehaf@idb.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2 errors in test12-pre2 (freeing blocks not in datazone)
-Message-ID: <20001129153851.D28399@suse.de>
-In-Reply-To: <3A24EB83.5E842526@idb.hist.no>
-Mime-Version: 1.0
+        id <S131649AbQK2PZE>; Wed, 29 Nov 2000 10:25:04 -0500
+Received: from slc347.modem.xmission.com ([166.70.2.93]:7694 "EHLO
+        flinx.biederman.org") by vger.kernel.org with ESMTP
+        id <S131634AbQK2PYz>; Wed, 29 Nov 2000 10:24:55 -0500
+To: "Android" <android@turbosport.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
+In-Reply-To: <E140x2k-0005Ou-00@the-village.bc.nu> <001501c05a06$2267b760$19211518@vnnys1.ca.home.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Nov 2000 07:34:05 -0700
+In-Reply-To: "Android"'s message of "Wed, 29 Nov 2000 05:13:15 -0800"
+Message-ID: <m14s0qvode.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A24EB83.5E842526@idb.hist.no>; from helgehaf@idb.hist.no on Wed, Nov 29, 2000 at 12:41:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29 2000, Helge Hafting wrote:
-> I noticed something strange in my syslog today:
+"Android" <android@turbosport.com> writes:
+
+> > > I've never seen such thing as code without bugs. In my experience,
+> > > the NVIDIA drivers are by far the most complete and solid 3D drivers
+> > > under Linux.
+> >
+> > You are welcome to your opinion. I've got this great bridge to sell you
+> too
 > 
-> Nov 29 10:59:18 hh kernel: Trying to open MFT
-> Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
-> ext2_free_blocks: Freeing blocks not in datazone - block = 3301007960,
-> count = 1
 
-For corruption issues on IDE, you should switch to test12-pre3
-immediately. If you can reproduce there, be sure to send a new
-report.
+> So, unless the company has fully released the details of their NVIDIA card
+> to whomever wrote
+> the Linux driver, then don't think for a moment that it is crash-free. 
+It would be very odd if NVIDIA didn't release the details to themselves.
+What they haven't done is released good source code.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

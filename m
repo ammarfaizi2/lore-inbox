@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280609AbRKFWD2>; Tue, 6 Nov 2001 17:03:28 -0500
+	id <S280612AbRKFWFi>; Tue, 6 Nov 2001 17:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280612AbRKFWDS>; Tue, 6 Nov 2001 17:03:18 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:55711 "EHLO
-	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S280609AbRKFWDO>; Tue, 6 Nov 2001 17:03:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Date: Tue, 6 Nov 2001 23:06:08 +0100
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33L.0111061921240.27028-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0111061921240.27028-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <161EJA-0QMlkmC@fmrl01.sul.t-online.com>
+	id <S280617AbRKFWFV>; Tue, 6 Nov 2001 17:05:21 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:10124 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S280612AbRKFWFI>;
+	Tue, 6 Nov 2001 17:05:08 -0500
+Date: Tue, 6 Nov 2001 23:05:02 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200111062205.XAA23660@harpo.it.uu.se>
+To: bcrl@redhat.com, torvalds@transmeta.com
+Subject: Re: Using %cr2 to reference "current"
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 November 2001 22:24, Rik van Riel wrote:
-> I really fail to see your point, it's trivial to make
-> files which are easy to read by humans and also very
-> easy to parse by shellscripts.
-> PROCESSOR=0
-> VENDOR_ID=GenuineIntel
-> CPU_FAMILY=6
-> MODEL=6
-> MODEL_NAME="Celeron (Mendocino)"
+On Tue, 6 Nov 2001 09:49:15 -0800 (PST), Linus Torvalds wrote:
+>	/* Return "current" in %eax, trash %edx */
+>	do_get_current:
+>		movl $0x0003c000,%eax	// 4 bits at bit 14
+>		movl $-16384,%edx	// remove low 14 bits
+>		andl $esp,%eax
+>		andl $esp,%edx
+>		shrl $7,%eax		// color it by 128 bytes
+>		addl %edx,%eax
+>		ret
+>...
+>I would not be surprised if "mov %cr2,%reg" will break a netburst trace
+>cache entity, or even cause microcode to be executed. While I _guarantee_
+>that all future Intel CPU's will continue to be fast at mixtures of simple
+>arithmetic operations like "add" and "and".
 
-Wow, this is a good one...
+On my Pentium 4:
+- 6.30 cycles to copy %cr2 to %eax
+- 1.05 cycles to compute a non-coloured current by masking %esp
+- 2.31 cycles to compute a coloured current by your code above
 
-bye..
+I did some tests on using %cr2 for get_processor_id() a while ago,
+but it was clearly slower (58% on P6, 20% on K6-III, 3% on P5MMX)
+than *((%esp & mask)+offset), even though the latter also does a load.
+
+/Mikael

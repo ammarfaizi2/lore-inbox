@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbTJPHAU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 03:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbTJPHAU
+	id S262666AbTJPHK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 03:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTJPHK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 03:00:20 -0400
-Received: from alpha.zarz.agh.edu.pl ([149.156.122.231]:772 "EHLO
-	alpha.zarz.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S262659AbTJPHAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 03:00:18 -0400
-Date: Thu, 16 Oct 2003 09:01:44 +0200 (CEST)
-From: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test7, cset-20031014_2306, SMP and ext2 problem.
-Message-ID: <Pine.LNX.4.58L.0310160855440.2846@alpha.zarz.agh.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Oct 2003 03:10:58 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:60636 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262666AbTJPHK4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 03:10:56 -0400
+Date: Thu, 16 Oct 2003 09:10:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ide write barrier support
+Message-ID: <20031016071055.GI1128@suse.de>
+References: <20031013140858.GU1107@suse.de> <871xtfjhhh.fsf@stark.dyndns.tv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <871xtfjhhh.fsf@stark.dyndns.tv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, Oct 14 2003, Greg Stark wrote:
+> 
+> Jens Axboe <axboe@suse.de> writes:
+> 
+> > Hi,
+> > 
+> > Forward ported and tested today (with the dummy ext3 patch included),
+> > works for me. Some todo's left, but I thought I'd send it out to gauge
+> > interest. TODO:
+> 
+> 
+> Is there a user-space interface planned for this? 
 
-I try to use kernel 2.6.0-test7 with cset 20031014_2306 on SMP machine
-and I got strange error :
-".. fs/ext2/ext2.ko Unknown symbol percpu_counter_mod"
-I try to solve this problem, but can't.
+I don't have one planned.
 
-Can anyone tell mi, what was wrong with this ?
+> One possibility may be just to hang it off fsync(2) so fsync doesn't
+> return until until all the buffers it flushed are actually synced to
+> disk. That's its documented semantics anyways.
 
-Thanx.
-					Sas.
+Makes sense, indeed.
+
+> There's also the case of files opened with O_SYNC. Would inserting a
+> write barrier after every write to such a file destroy performance?
+
+If it's mainly sequential io, then no it won't destroy performance. It
+will be lower than without the cache flush of course.
+
 -- 
-{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
-{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}
+Jens Axboe
+

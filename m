@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131636AbRAaRv3>; Wed, 31 Jan 2001 12:51:29 -0500
+	id <S132650AbRAaRv7>; Wed, 31 Jan 2001 12:51:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130880AbRAaRvT>; Wed, 31 Jan 2001 12:51:19 -0500
-Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:6411 "EHLO
-	draco.foogod.com") by vger.kernel.org with ESMTP id <S132293AbRAaRvC>;
-	Wed, 31 Jan 2001 12:51:02 -0500
-Date: Wed, 31 Jan 2001 09:49:29 -0800
-From: alex@foogod.com
-To: Stephen Wille Padnos <stephenwp@adelphia.net>
-Cc: Byron Stanoszek <gandalf@winds.org>,
-        "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VIA VT82C686X
-Message-ID: <20010131094929.B16787@draco.foogod.com>
-In-Reply-To: <Pine.LNX.4.21.0101311148560.20840-100000@winds.org> <3A7847B1.C8ABDDE1@adelphia.net>
+	id <S132648AbRAaRvv>; Wed, 31 Jan 2001 12:51:51 -0500
+Received: from 4dyn210.com21.casema.net ([212.64.95.210]:43790 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S132640AbRAaRvk>;
+	Wed, 31 Jan 2001 12:51:40 -0500
+Date: Wed, 31 Jan 2001 18:51:21 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Nathan Black <NBlack@md.aacisd.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: drive/block device write scheduling, buffer flushing?
+Message-ID: <20010131185120.B3287@home.ds9a.nl>
+Mail-Followup-To: Nathan Black <NBlack@md.aacisd.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <8FED3D71D1D2D411992A009027711D67187E@md>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <3A7847B1.C8ABDDE1@adelphia.net>
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <8FED3D71D1D2D411992A009027711D67187E@md>; from NBlack@md.aacisd.com on Wed, Jan 31, 2001 at 11:52:25AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 31, 2001 at 12:13:21PM -0500, Stephen Wille Padnos wrote:
-> Even though the motherboard *should* perform the same regardless of the amount
-> of RAM, it may not.  Physically, the refresh needs higher current drive when
-> there are more modules.  I have seen a BIOS option to set the DRAM refresh
-> current (RAS, CAS settable to 10 or 16 mA each), but that was only on one
-> motherboard that I can remember - you might want to check for this.
+On Wed, Jan 31, 2001 at 11:52:25AM -0500, Nathan Black wrote:
+> I was wondering if there is a way to make the kernel write to disk faster. 
+> I need to maintain a 10 MB /sec write rate to a 10K scsi disk in a computer,
+> but it caches and doesn't start writing to disk until I hit about 700 MB. At
+> that point, it pauses(presumably while the kernel is flushing some of the
+> buffers) and I will have missed data that I am trying to capture.
 
-It should also be noted that there are several motherboards out there that 
-claim to support 1GB or more of RAM which just plain don't, causing problems 
-like this because the design is inadequate for the power requirements of that 
-many chips (I have, unfortunately, had to work with some of these).  Sometimes 
-you can work around it using different types of RAM (buffered vs. unbuffered, 
-etc) but even this is iffy and not something I'd rely on for anything too 
-important.
+try opening with O_SYNC, or call fsync() every once in a while. Otherwise,
+this sounds like an application for a raw device, whereby you can write
+directly to the disk, with no caching in between.
 
--alex
+Regards,
+
+bert
+
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUAEJKc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 04:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbUAEJKc
+	id S262228AbUAEJDT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 04:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUAEJDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 04:10:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63191 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263107AbUAEJKa (ORCPT
+	Mon, 5 Jan 2004 04:03:19 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:26313 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S262228AbUAEJDP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 04:10:30 -0500
-Date: Mon, 5 Jan 2004 01:10:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Wim Van Sebroeck <wim@iguana.be>
+	Mon, 5 Jan 2004 04:03:15 -0500
 Subject: Re: 2.6.1-rc1-mm2
-Message-Id: <20040105011030.4383b5b0.akpm@osdl.org>
-In-Reply-To: <1073294151.10221.792.camel@mentor.gurulabs.com>
+From: Dax Kelson <dax@gurulabs.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20040105002056.43f423b1.akpm@osdl.org>
 References: <20040105002056.43f423b1.akpm@osdl.org>
-	<1073294151.10221.792.camel@mentor.gurulabs.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-Type: text/plain
+Message-Id: <1073294151.10221.792.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 05 Jan 2004 02:15:51 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dax Kelson <dax@gurulabs.com> wrote:
->
+On Mon, 2004-01-05 at 01:20, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc1/2.6.1-rc1-mm2
 > 
-> build error:
 > 
->   CC [M]  drivers/char/watchdog/amd7xx_tco.o
-> drivers/char/watchdog/amd7xx_tco.c: In function `amdtco_fop_write':
-> drivers/char/watchdog/amd7xx_tco.c:257: error: syntax error before "i"
+> Many new fixes, all over the place.
 
-Sorry.  This pooter, she be too slow for allyesconfig.
+I'm excited about the included laptop-mode patch. I've had great results
+with the 2.4 patch in the Fedora kernel.
 
+build error:
 
-diff -puN drivers/char/watchdog/amd7xx_tco.c~amd7xx_tco-fix drivers/char/watchdog/amd7xx_tco.c
---- 25/drivers/char/watchdog/amd7xx_tco.c~amd7xx_tco-fix	2004-01-05 01:07:57.000000000 -0800
-+++ 25-akpm/drivers/char/watchdog/amd7xx_tco.c	2004-01-05 01:08:24.000000000 -0800
-@@ -253,7 +253,7 @@ static ssize_t amdtco_fop_write(struct f
- 		return -ESPIPE;
- 
- 	if (len) {
--		if (!nowayout)
-+		if (!nowayout) {
- 			size_t i;
- 			char c;
- 			expect_close = 0;
+  CC [M]  drivers/char/watchdog/amd7xx_tco.o
+drivers/char/watchdog/amd7xx_tco.c: In function `amdtco_fop_write':
+drivers/char/watchdog/amd7xx_tco.c:257: error: syntax error before "i"
+drivers/char/watchdog/amd7xx_tco.c:257: error: `i' undeclared (first use in this function)
+drivers/char/watchdog/amd7xx_tco.c:257: error: (Each undeclared identifier is reported only once
+drivers/char/watchdog/amd7xx_tco.c:257: error: for each function it appears in.)
+drivers/char/watchdog/amd7xx_tco.c:258: warning: ISO C90 forbids mixed declarations and code
+drivers/char/watchdog/amd7xx_tco.c:262: warning: type defaults to `int' in declaration of `type name'
+drivers/char/watchdog/amd7xx_tco.c: At top level:
+drivers/char/watchdog/amd7xx_tco.c:272: error: syntax error before "return"
+make[3]: *** [drivers/char/watchdog/amd7xx_tco.o] Error 1
+make[2]: *** [drivers/char/watchdog] Error 2
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
 
-_
 

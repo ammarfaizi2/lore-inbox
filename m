@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131142AbRAASKk>; Mon, 1 Jan 2001 13:10:40 -0500
+	id <S131508AbRAASNl>; Mon, 1 Jan 2001 13:13:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131508AbRAASK3>; Mon, 1 Jan 2001 13:10:29 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14353 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131142AbRAASKR>; Mon, 1 Jan 2001 13:10:17 -0500
-Date: Mon, 1 Jan 2001 09:39:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Adam Sampson <azz@gnu.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Happy new year^H^H^H^Hkernel..
-In-Reply-To: <87ofxsdnns.fsf@cartman.azz.net>
-Message-ID: <Pine.LNX.4.10.10101010938590.2892-100000@penguin.transmeta.com>
+	id <S131954AbRAASNa>; Mon, 1 Jan 2001 13:13:30 -0500
+Received: from mail.dol.net ([204.183.91.8]:32267 "HELO dol.net")
+	by vger.kernel.org with SMTP id <S131508AbRAASNS>;
+	Mon, 1 Jan 2001 13:13:18 -0500
+Message-ID: <3A50BD68.2030002@dol.net>
+Date: Mon, 01 Jan 2001 12:24:56 -0500
+From: Robert Baruch <autophile@dol.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10 i686; en-US; m18) Gecko/20001206
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux USB Storage List <usb-storage@one-eyed-alien.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+        Linux USB Storage List <usb-storage@one-eyed-alien.net>
+Subject: Re: [usb-storage] Re: [patchlet] enable HP 8200e USB CDRW
+In-Reply-To: <Pine.LNX.4.30.0012311255470.29214-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On 1 Jan 2001, Adam Sampson wrote:
+> On Sun, 31 Dec 2000, Matthew Dharm wrote:
 > 
-> It appears to work (even with the reiserfs patch with the obvious
-> Makefile tweak), but the drm modules have unresolved symbols:
+> 
+>> Um, I'm not sure that this driver is even ready for the EXPERIMENTAL label.
+>> What does the driver's author say?
 
-Does this fix it for you (do a "make clean" before re-building your tree)?
+I'd say it's ready for prime-time. So far the problems that have been 
+described to me have to do with not being able to burn CD's because of 
+too high a write speed. There is still an unresolved problem with 
+disk-at-once writing, but nothing that prevents work from being done.
 
-		Linus
+--Rob
 
-----
---- v2.4.0-prerelease/linux/drivers/char/drm/Makefile	Mon Jan  1 09:38:35 2001
-+++ linux/drivers/char/drm/Makefile	Mon Jan  1 09:38:04 2001
-@@ -44,22 +44,22 @@
- mga-objs   := mga_drv.o   mga_dma.o     mga_context.o  mga_bufs.o  mga_state.o
- i810-objs  := i810_drv.o  i810_dma.o    i810_context.o i810_bufs.o
- 
--obj-$(CONFIG_DRM_GAMMA) += gamma.o
--obj-$(CONFIG_DRM_TDFX)  += tdfx.o
--obj-$(CONFIG_DRM_R128)  += r128.o
--obj-$(CONFIG_DRM_FFB)   += ffb.o
--obj-$(CONFIG_DRM_MGA)   += mga.o
--obj-$(CONFIG_DRM_I810)  += i810.o
--
--
- # When linking into the kernel, link the library just once. 
- # If making modules, we include the library into each module
- 
- ifdef MAKING_MODULES
-   lib = drmlib.a
- else
--  obj-y += drmlib.a
-+  extra-obj = drmlib.a  
- endif
-+
-+obj-$(CONFIG_DRM_GAMMA) += gamma.o $(extra-obj)
-+obj-$(CONFIG_DRM_TDFX)  += tdfx.o $(extra-obj)
-+obj-$(CONFIG_DRM_R128)  += r128.o $(extra-obj)
-+obj-$(CONFIG_DRM_FFB)   += ffb.o $(extra-obj)
-+obj-$(CONFIG_DRM_MGA)   += mga.o $(extra-obj)
-+obj-$(CONFIG_DRM_I810)  += i810.o $(extra-obj)
-+
- 
- include $(TOPDIR)/Rules.make
- 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

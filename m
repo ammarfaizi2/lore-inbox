@@ -1,67 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbTFIBZF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 21:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFIBZF
+	id S261428AbTFIC5r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 22:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTFIC5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 21:25:05 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:32778 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id S264075AbTFIBZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 21:25:01 -0400
-Message-Id: <200306090138.h591cJS11030@pincoya.inf.utfsm.cl>
-To: James Stevenson <james@stev.org>
-cc: Lars Unin <lars_unin@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: What are .s files in arch/i386/boot 
-In-reply-to: Your message of "Sat, 07 Jun 2003 21:05:42 +0100."
-             <Pine.LNX.4.44.0306072102580.1776-100000@jlap.stev.org> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 08 Jun 2003 21:38:19 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 8 Jun 2003 22:57:47 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:37020 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261428AbTFIC5p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 22:57:45 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Krzysztof Halasa" <khc@pm.waw.pl>, <linux-kernel@vger.kernel.org>
+Subject: RE: select for UNIX sockets?
+Date: Sun, 8 Jun 2003 20:11:20 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEHBDIAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <m3of19h1tx.fsf@defiant.pm.waw.pl>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Unin <lars_unin@linuxmail.org> said:
-> James Stevenson <james@stev.org> said:
-> > > > What are .s files in arch/i386/boot, are they c sources of some sort?
-> > > > Where can I find the specifications documents they were made from? 
-> > > 
-> > > There are not c files.
-> > > They are assembler files
-> > > 
-> > > Try running gcc on a c file with the -S option
-> > > it will generate the same then you can tweak the
-> > > assembler produced to make it faster.
-> > > 
-> > Where can I find the .c files they were made from,
 
-Those files are smallish routines that can't be sanely written in C, or (in
-the case of the bootstrap stuff) are for running on the 8086 your latest
-CPU thinks it is when booting. No support for that from gcc.
+> "David Schwartz" <davids@webmaster.com> writes:
 
-> > and the spec sheets the .c files were made from? 
+> > 	You are doing something wrong. You are using 'select' along with
+> > blocking
+> > I/O operations. You can't make bricks without clay. If you don't want to
+> > block, you must use non-blocking socket operations. End of story.
 
-If they where around once, they have been long plastered over by patches
-that make them useless now.
+> There is a little problem here. Do you see any place for select() here?
+> There isn't any.
 
-> You would have to find the original author of the person
-> who tweaks the assembler in the .s file chances are the .c
-> file is long gone though.
+	For unconnected UDP sockets, I see no place for 'select'ing for write. No.
 
-Probably never was. Only way out is as they say: "Use the source, Luke".
+> If you have a working select(), you can use (blocking or non-blocking)
+> I/O functions a get a) low latency b) small CPU overhead.
+> If you want to use non-blocking I/O, either with broken select() or
+> without it at all, you get either a) high latency, or b) high CPU
+> overhead.
 
-You'd better get a book on ia32 (caution, the intel sytax almost all are
-written for is truly bletcherous, and does things just different enough
-from the AT&T sytax gcc/the kernel uses to make your head spin when trying
-to map back and forth). There was an HOWTO on assembly language programming
-under Linux, haven't looked at it in a long time. 
+	It is fundamental that an application that sends UDP packets must control
+the transmit timing. That's just the way it is with UDP.
 
-> Why do all .c files have to be generated from a spec sheet ?
+> > 	Just because 'select' indicates a write hit, you are not assured
+> > that some
+> > particular write at a later time will not block. Past
+> > performance does not
+> > guarantee future results.
 
-Now that is a good question... never used one in my life :-)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> The problem is select() on UNIX datagram sockets returns immediately,
+> and thus it could be well substituted by a NOP. There isn't any
+> "performance".
+
+	Right. It's silly to 'select' on an unconnected UDP datagram socket. There
+is no single defined buffer whose fullness or emptiness can be the subject
+of the 'select'ing. It's not like TCP where there's a send queue and the
+network stack is responsible for transmit pacing. With UDP, the application
+is responsible for transmit pacing.
+
+> > 	Suppose, for example, a machine has two network interfaces.
+> One is very
+> > busy, queue full, and one is totally idle, queue empty. What do
+> you think
+> > 'select' for write on an unconnected UDP socket should do? If you say it
+> > should block, then it can block forever even if there's plenty of buffer
+> > space on the network card you were going to send to. So, it
+> can't block, it
+> > must indicate writability.
+
+> That's a little different problem, and a datagram will be transmitted by
+> this busy interface at last (while you will never send a datagram
+> if nobody
+> is reading the socket).
+
+> Hoverer, select() doesn't work on connected sockets either (I missed
+> the fact the example program doesn't connect at first, but it's
+> unimportant here).
+
+	It really doesn't matter. UDP applications have to control the transmit
+pacing at application level. There is absolutely no way for the kernel to
+know whether the path to the recipient is congested or not.
+
+> > 	You have any number of sane choices. My suggestion is that
+> > you make the
+> > socket non-blocking and treat an EWOULDBLOCK return as equivalent to
+> > success. You can additionally take it as a hint that the packet
+> > will be as
+> > if it was dropped.
+
+> You essentially transform a code such as:
+> while () {
+>         select();
+>         blocking_send();
+> }
+>
+> into:
+>
+> while() {
+>         non_blocking_send();
+> }
+>
+> Not very CPU-friendly :-(
+
+	No, no no. This is not how you write UDP applications. If you're sending
+UDP, you must have a transmit scheduler somewhere.
+
+> Having working select() on at least connected sockets is a must.
+
+	The kernel can't tell you when to send because that depends upon factors
+that are remote. The application *MUST* schedule its transmissions. There's
+no two ways about it.
+
+	Yes, it would be nice of the kernel helped more. But the application has to
+deal with remote packet loss as well. It HAS TO decide when to send the
+packet and can't rely upon the availability or unavailability of local
+resources to mean anything with regard to the connection as a whole.
+
+	DS
+
+

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265504AbUBKP6X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 10:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbUBKP6X
+	id S265886AbUBKQSh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 11:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265896AbUBKQSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 10:58:23 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:25860 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S265504AbUBKP6W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 10:58:22 -0500
-Date: Wed, 11 Feb 2004 16:58:13 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: wdebruij@dds.nl, sting sting <zstingx@hotmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: printk and long long
-In-Reply-To: <200402111604.49082.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.44.0402111655170.17933-100000@gaia.cela.pl>
+	Wed, 11 Feb 2004 11:18:37 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:31213 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265886AbUBKQSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 11:18:36 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16426.21977.976512.628437@laputa.namesys.com>
+Date: Wed, 11 Feb 2004 19:18:33 +0300
+To: sander@humilis.net
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiserfs for bkbits.net?
+In-Reply-To: <20040211161358.GA11564@favonius>
+References: <200402111523.i1BFNnOq020225@work.bitmover.com>
+	<20040211161358.GA11564@favonius>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Feb 2004, vda wrote:
+Sander writes:
+ > Larry McVoy wrote (ao):
+ > > We're moving openlogging back to our offices and I'm experimenting
+ > > with filesystems to see what gives the best performance for BK usage.
+ > > Reiserfs looks pretty good and I'm wondering if anyone knows any
+ > > reasons that we shouldn't use it for bkbits.net. Also, would it help
+ > > if the journal was on a different disk? Most of the bkbits traffic is
+ > > read so I doubt it.
+ > > 
+ > > Please cc me, I'm not on the list.
+ > 
+ > I've cc'ed the Reiserfs mailinglist.
+ > 
+ > IME Reiserfs is a fast and stable fs. If you have the time to benchmark
+ > ext3, reiserfs, jfs and xfs (and ..) with bk then you would know first
+ > hand which fs is best for you. It might be worth the time.
 
-> The character L specifying that a following e, E, f, g, or G
-> conversion corresponds to a long double argument, or a following
-> d, i, o, u, x, or X conversion corresponds to a long long argument.
-> Note that long long is not specified in ANSI C and therefore
-> not portable to all architectures.
+I can add that concurrent bk clone of kernel repositories is very good
+file system stress tool that we are using while debugging reiser4.
 
-[ personally I'd say screw the un-portable architectures ;) ]
-Long long is here to stay.
-Besides if a linux architecture utilises long long in the kernel and 
-doesn't support it in printf via %lld then it's horked.
-printf/libc should be fixed instead.
-Maybe that's the problem - the libc support fragment in the kernel tree is 
-not up to date on that architecture - maybe the fixes should applied there 
-instead - instead of trying to work around the problem, fix the cause.
+ > 
+ > With kind regards, Sander
+ > 
 
-Cheers,
-MaZe.
+Nikita.
 

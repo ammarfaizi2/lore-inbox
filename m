@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271792AbRHUShV>; Tue, 21 Aug 2001 14:37:21 -0400
+	id <S271793AbRHUSfk>; Tue, 21 Aug 2001 14:35:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271807AbRHUShH>; Tue, 21 Aug 2001 14:37:07 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15877 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271790AbRHUSfw>; Tue, 21 Aug 2001 14:35:52 -0400
-Subject: Re: PROBLEM: select() says closed socket readable
-To: davids@webmaster.com (David Schwartz)
-Date: Tue, 21 Aug 2001 19:38:51 +0100 (BST)
-Cc: jaggy@purplet.demon.co.uk (Mike Jagdis), linux-kernel@vger.kernel.org
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMIEKBDFAA.davids@webmaster.com> from "David Schwartz" at Aug 21, 2001 10:35:10 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271790AbRHUSfb>; Tue, 21 Aug 2001 14:35:31 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:45699 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S271793AbRHUSfX>; Tue, 21 Aug 2001 14:35:23 -0400
+Date: Tue, 21 Aug 2001 14:35:34 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@touchme.toronto.redhat.com>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Stephen Satchell <satch@fluent-access.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: FYI  PS/2 Mouse problems -- userland issue
+In-Reply-To: <Pine.LNX.4.10.10108211126380.20205-100000@transvirtual.com>
+Message-ID: <Pine.LNX.4.33.0108211432530.14374-100000@touchme.toronto.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZGQN-0008QO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	No, because 'select' is defined to work the same on both blocking and
-> non-blocking sockets. Roughly, select should hit on read if a non-blocking
-> read wouldn't return 'would block'.
+On Tue, 21 Aug 2001, James Simmons wrote:
 
-Select is not reliable for a blocking socket in all cases. There is always 
-a risk select may return "data to read" and the read will find there is now
-none. It isnt going to bite anyone on Linux with our current protocols but
-it may bite portable code
+> Their already is a replacement driver using the input api avaliable that I
+> was planning to intergrate into 2.5. It fixed alot of the issues people
+> are having now.
+
+Whether it uses the input api or the existing scheme doesn't matter to me.
+What's important is that the interrupt disables and udelay()'s are
+removed, so I'll gladly merge my work with whatever else people have
+prepared.  I would've done it sooner, but changing the keyboard driver is
+an area of compatibility with sufficiently many hazzards that it's not
+reasonable for 2.4.
+
+		-ben
+

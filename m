@@ -1,138 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbTJAKWT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 06:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTJAKWT
+	id S261476AbTJAK0i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 06:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTJAK0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 06:22:19 -0400
-Received: from gprs146-6.eurotel.cz ([160.218.146.6]:32384 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261868AbTJAKWK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 06:22:10 -0400
-Date: Wed, 1 Oct 2003 12:18:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Cc: len.brown@intel.com
-Subject: ACPI blacklisting: move year blacklist into acpi/blacklist.c
-Message-ID: <20031001101826.GA3503@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Oct 2003 06:26:38 -0400
+Received: from [212.239.225.111] ([212.239.225.111]:49280 "EHLO precious")
+	by vger.kernel.org with ESMTP id S261476AbTJAK0f convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 06:26:35 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: Dave Jones <davej@redhat.com>, marcelo.tosatti@cyclades.com.br
+Subject: Re: [2.4.23-pre3] Cache size for Centrino CPU incorrect
+Date: Wed, 1 Oct 2003 12:26:09 +0200
+User-Agent: KMail/1.5.3
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
+References: <7F740D512C7C1046AB53446D3720017304A790@scsmsx402.sc.intel.com> <200309301423.18378.lkml@kcore.org> <20030930140102.GA12812@redhat.com>
+In-Reply-To: <20030930140102.GA12812@redhat.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310011226.13899.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This moves year-based blacklisting to blacklist.c, where it belongs
-AFAICS. It also adds some externs to include/linux/acpi.h, but I
-believe *way* more externs are needed. Please apply,
+On Tuesday 30 September 2003 16:01, Dave Jones wrote:
+> On Tue, Sep 30, 2003 at 02:23:15PM +0200, Jan De Luyck wrote:
+>  > > --- linux-2.4.21/arch/i386/kernel/setup.c	2003-06-13
+>  > > 07:51:29.000000000 -0700
+>  > > +++ new/arch/i386/kernel/setup.c	2003-07-08 17:21:48.000000000
+>  > > -0700
+>  > > @@ -2246,6 +2249,8 @@
+>  > >  	{ 0x83, LVL_2,      512 },
+>  > >  	{ 0x84, LVL_2,      1024 },
+>  > >  	{ 0x85, LVL_2,      2048 },
+>  > > +	{ 0x86, LVL_2,      512 },
+>  > > +	{ 0x87, LVL_2,      1024 },
+>  > >  	{ 0x00, 0, 0}
+>  > >  };
+>  >
+>  > This works like a charm. Thanks. Maybe for inclusion in 2.4.23-pre6?
+>
+> If someone cares enough. I got tired of pushing that patch since 2.4.21.
 
-								Pavel
+Marcelo, can this be included in 2.4.23-pre6? It fixed the 0 KB L2 cache for 
+Pentium M cpu's.
 
---- /usr/src/tmp/linux/arch/i386/kernel/dmi_scan.c	2003-09-28 22:05:29.000000000 +0200
-+++ /usr/src/linux/arch/i386/kernel/dmi_scan.c	2003-10-01 11:55:21.000000000 +0200
-@@ -997,24 +998,10 @@
- 	int i;
- 		
- #ifdef	CONFIG_ACPI_BOOT
--#define	ACPI_BLACKLIST_CUTOFF_YEAR	2001
--
- 	if (dmi_ident[DMI_BIOS_DATE]) { 
- 		char *s = strrchr(dmi_ident[DMI_BIOS_DATE], '/'); 
--		if (s) { 
--			int year, disable = 0;
--			s++; 
--			year = simple_strtoul(s,NULL,0); 
--			if (year >= 1000) 
--				disable = year < ACPI_BLACKLIST_CUTOFF_YEAR; 
--			else if (year < 1 || (year > 90 && year <= 99))
--				disable = 1; 
--			if (disable && !acpi_force) { 
--				printk(KERN_NOTICE "ACPI disabled because your bios is from %s and too old\n", s);
--				printk(KERN_NOTICE "You can enable it with acpi=force\n");
--				acpi_disabled = 1; 
--			} 
--		}
-+		if (s && !acpi_force)
-+			acpi_bios_year(s+1);
- 	}
- #endif
- 
---- /usr/src/tmp/linux/drivers/acpi/blacklist.c	2003-02-15 18:51:16.000000000 +0100
-+++ /usr/src/linux/drivers/acpi/blacklist.c	2003-10-01 11:55:19.000000000 +0200
-@@ -83,6 +83,27 @@
- 	{""}
- };
- 
-+#define	ACPI_BLACKLIST_CUTOFF_YEAR	2001
-+
-+/*
-+ * Notice: this is called from dmi_scan.c, which contains second (!) blacklist
-+ */
-+void __init
-+acpi_bios_year(char *s)
-+{
-+	int year, disable = 0;
-+
-+	year = simple_strtoul(s,NULL,0); 
-+	if (year >= 1000) 
-+		disable = year < ACPI_BLACKLIST_CUTOFF_YEAR; 
-+	else if (year < 1 || (year > 90 && year <= 99))
-+		disable = 1; 
-+	if (disable) { 
-+		printk(KERN_NOTICE "ACPI disabled because your bios is from %s and too old\n", s);
-+		printk(KERN_NOTICE "You can enable it with acpi=force\n");
-+		acpi_disabled = 1; 
-+	}
-+}
- 
- int __init
- acpi_blacklisted(void)
---- /usr/src/tmp/linux/include/linux/acpi.h	2003-08-27 12:00:48.000000000 +0200
-+++ /usr/src/linux/include/linux/acpi.h	2003-10-01 11:53:51.000000000 +0200
-@@ -403,8 +403,8 @@
- 
- struct pci_dev;
- 
--int acpi_pci_irq_enable (struct pci_dev *dev);
--int acpi_pci_irq_init (void);
-+extern int acpi_pci_irq_enable (struct pci_dev *dev);
-+extern int acpi_pci_irq_init (void);
- 
- struct acpi_pci_driver {
- 	struct acpi_pci_driver *next;
-@@ -412,21 +412,22 @@
- 	void (*remove)(acpi_handle handle);
- };
- 
--int acpi_pci_register_driver(struct acpi_pci_driver *driver);
--void acpi_pci_unregister_driver(struct acpi_pci_driver *driver);
-+extern int acpi_pci_register_driver(struct acpi_pci_driver *driver);
-+extern void acpi_pci_unregister_driver(struct acpi_pci_driver *driver);
- 
- #endif /*CONFIG_ACPI_PCI*/
- 
- #ifdef CONFIG_ACPI_EC
- 
--int ec_read(u8 addr, u8 *val);
--int ec_write(u8 addr, u8 val);
-+extern int ec_read(u8 addr, u8 *val);
-+extern int ec_write(u8 addr, u8 val);
- 
- #endif /*CONFIG_ACPI_EC*/
- 
- #ifdef CONFIG_ACPI
- 
--int acpi_blacklisted(void);
-+extern int acpi_blacklisted(void);
-+extern void acpi_bios_year(char *s);
- 
- #else
- 
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+iD8DBQE/eqvFUQQOfidJUwQRAvuOAJ446Grj1qUC/sJ2xZ6zjA+sT4xlbACfZXvj
+7YhsYbS8hJvD6BBegovaXU4=
+=U2o3
+-----END PGP SIGNATURE-----
+

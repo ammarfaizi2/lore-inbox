@@ -1,84 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261552AbSIZV6q>; Thu, 26 Sep 2002 17:58:46 -0400
+	id <S261556AbSIZWAH>; Thu, 26 Sep 2002 18:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261554AbSIZV6q>; Thu, 26 Sep 2002 17:58:46 -0400
-Received: from jalon.able.es ([212.97.163.2]:61103 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S261552AbSIZV6p>;
-	Thu, 26 Sep 2002 17:58:45 -0400
-Date: Fri, 27 Sep 2002 00:03:23 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Distributing drivers independent of the kernel source tree
-Message-ID: <20020926220323.GA2773@werewolf.able.es>
-References: <A9713061F01AD411B0F700D0B746CA6802FC14D6@vacho6misge.cho.ge.com> <1033074519.2698.5.camel@localhost.localdomain>
+	id <S261558AbSIZWAH>; Thu, 26 Sep 2002 18:00:07 -0400
+Received: from thunk.org ([140.239.227.29]:53408 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S261556AbSIZWAG>;
+	Thu, 26 Sep 2002 18:00:06 -0400
+Date: Thu, 26 Sep 2002 18:04:32 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ryan Cumming <ryan@completely.kicks-ass.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020926220432.GB10551@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209260041.59855.ryan@completely.kicks-ass.org> <20020926154217.GA10551@think.thunk.org> <200209261208.59020.ryan@completely.kicks-ass.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1033074519.2698.5.camel@localhost.localdomain>; from arjanv@redhat.com on Thu, Sep 26, 2002 at 23:08:39 +0200
-X-Mailer: Balsa 1.4.1
+In-Reply-To: <200209261208.59020.ryan@completely.kicks-ass.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 26, 2002 at 12:08:54PM -0700, Ryan Cumming wrote:
+> On September 26, 2002 08:42, Theodore Ts'o wrote:
+> > Hmm... I just tried biult 2.4.19 with the ext3 patch on my UP P3
+> > machine, using GCC 3.2, and I wasn't able to replicate your problem.
+> > (This was using Debian's gcc 3.2.1-0pre2 release from testing.)
+> The whole GCC 3.2 thing was a red herring. Although it ran stable for a few 
+> hours last night (cvs up, compiled a kernel, etc), the filesystem was once 
+> again read-only when I came to check my mail this morning.
 
-On 2002.09.26 Arjan van de Ven wrote:
->On Thu, 2002-09-26 at 22:55, Heater, Daniel (IndSys, GEFanuc, VMIC) 
->> 2. Assuming the kernel source is in /usr/src/linux is not always valid.
->> 
->> 3. I currently use /usr/src/linux-`uname -r` to locate the kernel source
->> which is just as broken as method #2.
->
->you have to use
->
->/lib/modules/`uname -r`/build
->(yes it's a symlink usually, but that doesn't matter)
->
->
->that's what Linus decreed and that's what all distributions honor, and
->that's that make install does for manual builds.
->
+Was there anything in the logs at all?  There should be, if the
+filesystem was remounted read-only.
 
-And that does not work if you build against a non-running kernel.
-You force a two step (two reboots!!) procedure for a kernel upgrade.
-Say I use alsa drivers. If I jump from kernel 2.4.18 to 2.4.19
-I have to:
+> The interesting fsck errors this time were:
+> 245782 was part of the orphaned inode list FIXED
+> 245792 was part of the orphaned inode list FIXED
+> 245797...
+> 
+> 245782,245792 don't exist according to ncheck.
 
-- build 2.4.19
-- boot on 2.4.19 (without alsa and a ton of messages about failed
-  sound services)
-- build alsa
-- boot again
+That's not surprising. What this means is that those inodes were
+deleted, but since some process still had a file descriptor open for
+that inode, it was placed on the orphaned inode list.  But the
+directory entry would have already been removed, which is why ncheck
+couldn't find an associated pathname.  The e2fsck error message simply
+states that these inodes had a dtime which was small enough that it
+was probably the next entry on the orphaned inode linked list, these
+inodes weren't actually on the list.  At a guess, this probably
+happened when an error was noted in the filesystem, and the filesystem
+was forcibly put into the read-only state.  That probably arrested
+some transactions which were not fully completed, and would explain
+these sorts of fsck errors.
 
-I really hate that 'uname -r'. As far as /usr/src/linux has _nothing_
-to do with current system (glibc has its own headers), you can always
-suppose that /usr/src/linux is the source of the kernel you are working
-with (building, hacking, wahtever), and that it is different from what
-you run. So a kernel upgrade is just
-- build 2.4.19 (on /usr/src/linux-2.4.19, and /usr/src/linux symlinks to it)
-- build alsa against /usr/src/linux
-- reboot and alehop, done in _one_ step.
+The real question is what was the original error that caused the ext3
+filesystme to decide it needed to remount the filesystem read-only.
+That should be in your logs, since calls to ext3_error should always
+cause printk's explaining what the error was to be sent to the logs.
 
-Where to install the out-of-tree module ? Get the version you are building
-against from /usr/src/linux/include/version.h:
+The filesystem wouldn't happen to be running close to full either on
+the number of blocks or the number of inodes, would it?  There's a bug
+in ext3 (for which Stephen has already posted bug fixes to be applied
+to the 2.4.20-preX kernels) where an running out of blocks or inodes
+is being erroneously flagged as a filesystem corruption error, which
+would mount the filesystem read-only.
 
-KREL:=$(shell grep UTS_RELEASE /usr/src/linux/include/linux/version.h | cut -d\" -f2)
-
-You can always not-to-hardcode kernel location using something like:
-LINUX=/usr/src/linux
-KREL=$(shell grep UTS_RELEASE $(LINUX)/include/linux/version.h | cut -d\" -f2)
-CFLAGS=-nostdinc -I$(LINUX)/include
-MODDIR=/lib/modules/$(LINUX)/my_private_dir
-
-I use this for adding nvidia and bproc to a kernel and works fine.
-Just one reboot per upgrade.
-
-/juan
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (Cooker) for i586
-Linux 2.4.20-pre7-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))
+						- Ted

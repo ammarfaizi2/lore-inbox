@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316991AbSFKKYr>; Tue, 11 Jun 2002 06:24:47 -0400
+	id <S316992AbSFKKbe>; Tue, 11 Jun 2002 06:31:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316992AbSFKKYl>; Tue, 11 Jun 2002 06:24:41 -0400
-Received: from pD952A4ED.dip.t-dialin.net ([217.82.164.237]:22726 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316991AbSFKKYL>; Tue, 11 Jun 2002 06:24:11 -0400
-Date: Tue, 11 Jun 2002 04:24:01 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] Double quote patches part one: drivers 1/2
-In-Reply-To: <20020611084758.B1346@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0206110422110.24261-100000@hawkeye.luckynet.adm>
+	id <S316993AbSFKKbd>; Tue, 11 Jun 2002 06:31:33 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:7040 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S316992AbSFKKbc>; Tue, 11 Jun 2002 06:31:32 -0400
+Date: Tue, 11 Jun 2002 12:36:49 +0200
+Organization: Pleyades
+To: kristian.peters@korseby.net, raul@pleyades.net
+Subject: Re: bandwidth 'depredation'
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <3D05D2C1.mailWQ1AVLZ4@viadomus.com>
+In-Reply-To: <3D05AA6E.mailKB1BHA1W@viadomus.com>
+ <20020611095426.59a8b717.kristian.peters@korseby.net>
+User-Agent: nail 9.29 12/10/01
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    Hi Kristian :)
 
-On Tue, 11 Jun 2002, Russell King wrote:
-> 1. Spaces -> source bloat.
+>Maybe QoS (Quality of Service) is the answer.
 
-No spaces -> looks unsatisfying, someone mentioned.
+    All of you say the same. I'll give it a try ;)
 
-> 2. No tab at the start of the file -> yuck when reading the ASM.
+>It does a lot of things for you, i.e. enabling a scheduler for your
+>network, that shares your traffic correctly.
+>But please don't ask me
+>how it exactly works. I haven't enough time yet to get this nice
+>piece working. 
 
-What do you mean by that?
+>You need iproute2-utils for this. (They should be
+>shipped with your distri, "which tc" tells you.)
 
-> My preferred way of fixing these in ARM stuff is to add <tab><tab><tab>\n\
-> to each line (with the appropriate number of tabs.  See
-> arch/arm/kernel/semaphore.c for an example.
+    I'll have them. I use just 'ip' by now, but I have also 'tc'.
 
-Hmm... Wasn't that the behavior we wanted to fix with the concatenated 
-strings?
-
-Regards,
-Thunder
--- 
-German attitude becoming        |	Thunder from the hill at ngforever
-rightaway popular:		|
-       "Get outa my way,  	|	free inhabitant not directly
-    for I got a mobile phone!"	|	belonging anywhere
-
+    Thanks a lot for your answer :)
+    Raul

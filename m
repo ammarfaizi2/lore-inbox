@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274035AbRI0WrW>; Thu, 27 Sep 2001 18:47:22 -0400
+	id <S274018AbRI0Wuc>; Thu, 27 Sep 2001 18:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274034AbRI0WrC>; Thu, 27 Sep 2001 18:47:02 -0400
-Received: from femail43.sdc1.sfba.home.com ([24.254.60.37]:3487 "EHLO
-	femail43.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S274031AbRI0Wqy>; Thu, 27 Sep 2001 18:46:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Luca Adesso <ladesso@libero.it>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Freeze
-Date: Thu, 27 Sep 2001 15:47:18 -0700
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <5.1.0.14.2.20010928002445.00a4d5c0@popmail.libero.it>
-In-Reply-To: <5.1.0.14.2.20010928002445.00a4d5c0@popmail.libero.it>
+	id <S274031AbRI0WuW>; Thu, 27 Sep 2001 18:50:22 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22802 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274018AbRI0WuS>; Thu, 27 Sep 2001 18:50:18 -0400
+Subject: Re: DMA problem (?) w/2.4.6-xfs and ServerWorks OSB4 Chipset
+To: timm@fnal.gov (Steven Timm)
+Date: Thu, 27 Sep 2001 23:55:33 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0109271622520.28262-100000@snowball.fnal.gov> from "Steven Timm" at Sep 27, 2001 04:34:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010927224712.UFTU1138.femail43.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15mk45-0005Li-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 September 2001 03:28 pm, Luca Adesso wrote:
-> I have installed Linux (Slackware 8.0) on a Abit Pt5 with last bios.
-> The kernel with that distribution is 2.4.5 and I'm trying to compile
-> kernel 2.4.9 downloaded from kernel.org
-> I already compiled that kernel on my notebook and it works fine, but
-> everytime I reboot my p133 (the one with the abit) it freeze.
-> It load the kernel and uncompress it and then... nothing!
->
-> I tried to make a light kernel and a big kernel but... nothing.
->
-> What can I do?
->
+> 2.4.7-ac2 patch level and not having any lock-ups with ultraDMA.
+> My question--there was a new file "serverworks.c" inserted in the
+> 2.4.6 ac patches.  Does anyone know if that made it into the kernel
+> and supposedly fixed the problem?  (My guess is that it has *not*
 
-Check to ensure you're not compiling for a 686 or other chip 
-family/revision above the capabilities of your processor (Processor 
-Type and Features - XXX Processor Family where XXX is whatever is 
-currently selected, select that and hit enter)
+Short answer is "it should"
+
+Long answer "I have been chasing a specific problem with OSB4, seagate
+drives and UDMA corruption. We can reliably reproduce it and see it on one
+set of machines. Serverworks cannot reproduce it elsewhere"
+
+So unless your box when running current -ac starts spewing messages about
+DMA completions seeming broken - it should work. I only mention this
+because you write:
+
+> We have seen quite a difference on systems that are otherwise
+> the same (Supermicro 370DLE w/serverworks OSB4 LE chipset) by swapping
+> different models of hard disk drives.  With some types of drive
+> (Seagate) we
+> observe massive corruption of the file system but nothing reported
+> in /var/log/messages or on the console.  Currently we see hda
+> timeouts (but only on about 10 systems over the course of 2 months)
+> which hang the machine but after a reboot things are fine (Western
+> Digital).
+
+I would thus be very interested if the current -ac "hardware just did
+something impossibly stupid" trap is hit.
+
+Alan

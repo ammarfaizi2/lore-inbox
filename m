@@ -1,59 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265171AbUBOTYp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 14:24:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUBOTYp
+	id S265152AbUBOTXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 14:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbUBOTXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 14:24:45 -0500
-Received: from dsl-64-30-195-78.lcinet.net ([64.30.195.78]:14727 "EHLO
-	mail.jg555.com") by vger.kernel.org with ESMTP id S265171AbUBOTYn
+	Sun, 15 Feb 2004 14:23:16 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:45719 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265152AbUBOTXO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 14:24:43 -0500
-Message-ID: <00c101c3f3f9$49e77e20$db00a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-References: <0da201c3f2d8$78c9e1a0$d300a8c0@W2RZ8L4S02> <20040215131123.GR1308@fs.tum.de>
-Subject: Re: [PATCH 2.6] -- Fixes KCONFIG for initrd
-Date: Sun, 15 Feb 2004 11:24:10 -0800
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_00BE_01C3F3B6.3B4D1250"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 15 Feb 2004 14:23:14 -0500
+Subject: Re: ICH5 with 2.6.1 very slow
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Kyle <kyle@southa.com>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <200402152019.34858.bzolnier@elka.pw.edu.pl>
+References: <021801c3f3f4$50f66280$353ffea9@kyle>
+	 <200402152019.34858.bzolnier@elka.pw.edu.pl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fMcJHGdSfg9aqANsLRHj"
+Message-Id: <1076873030.27648.17.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 15 Feb 2004 21:23:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_00BE_01C3F3B6.3B4D1250
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-I resent the patch to rusty's trival area.
-
-------=_NextPart_000_00BE_01C3F3B6.3B4D1250
-Content-Type: application/octet-stream;
-	name="linux-initrd-1.patch"
+--=-fMcJHGdSfg9aqANsLRHj
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="linux-initrd-1.patch"
 
-Description: Prevents initrd from being built if ram device is built as =
-a module. =0A=
-=0A=
---- linux/drivers/block/Kconfig.orig	2004-02-14 08:47:03.911807371 +0000=0A=
-+++ linux/drivers/block/Kconfig	2004-02-14 08:49:37.739118285 +0000=0A=
-@@ -313,6 +313,7 @@=0A=
- =0A=
- config BLK_DEV_INITRD=0A=
- 	bool "Initial RAM disk (initrd) support"=0A=
-+	depends on BLK_DEV_RAM && BLK_DEV_RAM!=3Dm=0A=
- 	help=0A=
- 	  The initial RAM disk is a RAM disk that is loaded by the boot loader=0A=
- 	  (loadlin or lilo) and that is mounted as root before the normal boot=0A=
+On Sun, 2004-02-15 at 21:19, Bartlomiej Zolnierkiewicz wrote:
+> On Sunday 15 of February 2004 19:48, Kyle wrote:
+> > today since one of my mirrored harddisk (/dev/hda) failed, I removed it
+> > from md-raid1 and now /dev/hdc becomes /dev/hda
+> >
+> > hdparm -t /dev/hda gets me ~37MB/s now (before: /dev/hda - 30MB/s,
+> > /dev/hdc - 37MB/s)
+> >
+> > maybe there's problem with /dev/hda so it's relatively slower!
+> >
+> > However, the result still much slower than kernel 2.4.20 (55MB/s)
+>=20
+> Please fill bugzilla entry (htp://bugzilla.kernel.org)
+> and attach 'dmesg' and 'lspci -vvv -xxx' outputs for 2.4.20 and 2.6.x.
+>=20
+> It would be also helpful to narrow down the issue to kernel version when
+> this slowdown started (2.4.20 -> 2.6.x means too much changes to anybody
+> sane to even start thinking about going through all of them).
+>=20
 
-------=_NextPart_000_00BE_01C3F3B6.3B4D1250--
+Also a hdparm -i /dev/hda might help I guess (as the small default
+read-ahead causes this for many users)
+
+--=20
+Martin Schlemmer
+
+--=-fMcJHGdSfg9aqANsLRHj
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAL8dGqburzKaJYLYRAlD7AJ9f8vIB0KiUtdKfTsSaPpiV18eGFgCePIPL
+rWyhsF8OO1cTStv+ikaQKdo=
+=2KvZ
+-----END PGP SIGNATURE-----
+
+--=-fMcJHGdSfg9aqANsLRHj--
 

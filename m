@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261800AbTCLRYA>; Wed, 12 Mar 2003 12:24:00 -0500
+	id <S261818AbTCLRcN>; Wed, 12 Mar 2003 12:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261802AbTCLRX7>; Wed, 12 Mar 2003 12:23:59 -0500
-Received: from pcp01184434pcs.strl301.mi.comcast.net ([68.60.187.197]:17356
-	"EHLO michonline.com") by vger.kernel.org with ESMTP
-	id <S261800AbTCLRX6>; Wed, 12 Mar 2003 12:23:58 -0500
-Date: Wed, 12 Mar 2003 12:34:25 -0500
-From: Ryan Anderson <ryan@michonline.com>
+	id <S261819AbTCLRcN>; Wed, 12 Mar 2003 12:32:13 -0500
+Received: from bitmover.com ([192.132.92.2]:2213 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S261818AbTCLRcL>;
+	Wed, 12 Mar 2003 12:32:11 -0500
+Date: Wed, 12 Mar 2003 09:42:44 -0800
+From: Larry McVoy <lm@bitmover.com>
 To: linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312173424.GF13021@michonline.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int> <20030312161838.GF563@phunnypharm.org> <20030312164741.GN32759@marowsky-bree.de>
+Message-ID: <20030312174244.GC13792@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030312164741.GN32759@marowsky-bree.de>
 User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 05:47:41PM +0100, Lars Marowsky-Bree wrote:
-> On 2003-03-12T11:18:38,
->    Ben Collins <bcollins@debian.org> said:
-> 
-> > Atleast SCCS is mostly ascii. Larry is talking about binary. Who knows,
-> > maybe even encrypted and using some unknown compression method (I'm sure
-> > if it's encrypted, it will be called "compression").
-> 
-> *sigh* However, all Larry _could_ be talking about is that he wants to replace
-> the SCCS format by something more powerful. Nowhere did he say that the format
-> would not be documented.
-> 
-> Granted, he also did not say that it _would_ be, but you all are jumping so
-> hard on him based on the assumption that it would not be without knowing that
-> either, so maybe you could have just written to Larry and asked?
+[BK is locking up our data]
+[BitMover has to give us our data in an open format]
+[The BK pill is oh-so-bitter]
+[My tummy hurts and it's Larry's fault]
 
-This is, I think, an underlying assumption that people are making.
+Boo hoo, cry me a river.
 
-Larry, given that I *think* you've said that the algorithms are the
-important parts, not the file format (at least in the past), would you
-consider publicly documenting the file format?
+Those of you complaining ought to at least look before you complain.
+You just assumed that we were screwing you and you couldn't be bothered
+to verify it before you complained.  We didn't screw you at all, all
+the data is there.  And BK itself has always had the ability to export
+any data in any format, if you read the man pages you might notice that,
+but that would be too much work, it's easier to complain.
 
-Thanks for the CVS gateway, anyway, though.
+If you had actually gone and looked at the CVS repository you would have
+seen that there is nothing of value missing, in almost 100% of the files,
+the full revision history is preserved:
 
+	CVS: 110,076 deltas over all files
+	BK:  121,891 deltas over all files
+
+You guys don't have that much parallelism in your files and the exporter
+is capturing all that it can which is virtually everything.  It's worth
+noting that many deltas in BK are just event recorders, they are just
+empty merge delta noise and in fact many people have asked us to get rid
+of them.  Once again, it's easier to complain than think.  I'm detecting
+a trend.
+
+The graph traversal managed to capture an amazing amount of information,
+it's bloody awesome, which you might have noticed if you had looked.
+But, nooooo, let's just piss and moan.  What a bunch of friggin' whiners.
+
+The next time you open your mouth, the words that come out of it should be
+"thank you".  Nothing else, just that.  If you can't say something nice,
+now is a good time to say nothing at all because we are sick and tired of
+dealing with people who complain far more than they code.  I'm serious,
+we've done way more than anyone could reasonably expect and you react
+with no basis in fact, assume bad things that aren't true, don't bother
+to look to see if there is a real problem, and don't bother to say thanks.
+Aren't you the slightest bit ashamed of your behaviour?  
 -- 
-
-Ryan Anderson
-  sometimes Pug Majere
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUGMKSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUGMKSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264750AbUGMKSY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGMKSY
+	id S264640AbUGMKSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 06:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGMKSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:18:24 -0400
-Received: from snowstorm.hosts.ndo.com ([195.7.228.20]:3995 "EHLO
-	snowstorm.hosts.ndo.com") by vger.kernel.org with ESMTP
-	id S264750AbUGMKSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:18:12 -0400
-Date: Tue, 13 Jul 2004 11:19:08 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chris Babcock <cbabcock@luthresearch.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org
-Subject: Re: [SE/Linux] warning about debian hotplug package 20040329-9!
-Message-ID: <20040713101908.GB3732@lkcl.net>
-Mail-Followup-To: Chris Babcock <cbabcock@luthresearch.com>,
-	SE-Linux <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org
-References: <20040709201413.GB3168@lkcl.net> <200407112050.08313.russell@coker.com.au> <20040711112237.GI3390@lkcl.net> <40F16D8B.4010601@bellsouth.net> <20040711205047.GQ4677@lkcl.net> <2500.68.6.187.64.1089667018.squirrel@mxlx1.surveysavvy.com>
+	Tue, 13 Jul 2004 06:18:13 -0400
+Received: from holomorphy.com ([207.189.100.168]:20884 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264640AbUGMKSK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 06:18:10 -0400
+Date: Tue, 13 Jul 2004 03:14:46 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       ck@vds.kolivas.org, devenyga@mcmaster.ca, linux-kernel@vger.kernel.org
+Subject: Re: Preempt Threshold Measurements
+Message-ID: <20040713101446.GV21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+	ck@vds.kolivas.org, devenyga@mcmaster.ca,
+	linux-kernel@vger.kernel.org
+References: <200407121943.25196.devenyga@mcmaster.ca> <20040713024051.GQ21066@holomorphy.com> <200407122248.50377.devenyga@mcmaster.ca> <20040713025502.GR21066@holomorphy.com> <20040712210701.46e2cd40.akpm@osdl.org> <cone.1089696847.507419.12958.502@pc.kolivas.org> <40F377BD.4080201@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2500.68.6.187.64.1089667018.squirrel@mxlx1.surveysavvy.com>
+In-Reply-To: <40F377BD.4080201@yahoo.com.au>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 12, 2004 at 02:16:58PM -0700, Chris Babcock wrote:
-> So then what if (horror of horrors) somebody puts "/var" on a usb disk
-> device. (or some other type of device initialized by hotplug?)
+On Tue, Jul 13, 2004 at 03:48:45PM +1000, Nick Piggin wrote:
+> cond_resched_lock just below this needs something similar.
+
+Maybe it does.
+
+Index: mm7-2.6.7/include/linux/sched.h
+===================================================================
+--- mm7-2.6.7.orig/include/linux/sched.h	2004-07-13 03:06:12.759495000 -0700
++++ mm7-2.6.7/include/linux/sched.h	2004-07-13 03:14:00.122445032 -0700
+@@ -1053,7 +1053,8 @@
+ 		preempt_enable_no_resched();
+ 		__cond_resched();
+ 		spin_lock(lock);
+-	}
++	} else
++		touch_preempt_timing();
+ }
  
- or an nfs-mounted partition.
-
- the suggestion in that case that i received by one of the hotplug
- developers / people-monitoring-debian-bugs-for-hotplug was that you
- should modify the /etc/hotplug scripts to use /devfs/shm/tmp instead,
- assuming that you have a debian initrd.
-
- now, on SE/Linux that isn't possible, and the reason isn't entirely
- clear, but i believe that the access permissions to the tmpfs
- created by the debian initrd are such that when the umount tmpfs
- occurs, it actually _does_ unmount it.
-
- on a standard debian/linux system (no selinux kernel) the initrd
- scripts attempt, amongst other things, to mount various filesystems
- and these are successful, but they are not _un_mounted properly later
- on.
-
- anyway, i digress: the idea i came up with was that the debian
- package be modified such that it's possible to specify the
- state directory, even if that's one of a list of possible
- locations e.g.  choose one: /etc/hotplug, /etc/hotplug/run,
- /var/run/hotplug, /devfs/shm/tmp, other.
-
- consequently, if this were to be implemented, at least people mad
- enough to use usb disks or nfs mounted stuff, they'd be able to
- at least get going without having to hack the source of hotplug.
-
- 
-> > dear selinux and linux kernel,
-> >
-> > i am after some assistance in clarifying how hotplug works, with
-> > a view to solving an issue with SE/Linux where the default
-> > SE/Linux policy is to deny write permission to /etc/hotplug
-> > (with good reason) but the hotplug package is presently demanding
-> > write permission.
-> >
-> > a simple request for a change to writing to /var/state/hotplug
-> > instead has thrown up a number of issues with kernel (2.6.6)
-> > hotplugging and i would greatly appreciate some confirmation
-> > and some assistance.
+ /* Reevaluate whether the task has signals pending delivery.

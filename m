@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265593AbSKAEBN>; Thu, 31 Oct 2002 23:01:13 -0500
+	id <S265588AbSKAEVY>; Thu, 31 Oct 2002 23:21:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265596AbSKAEBM>; Thu, 31 Oct 2002 23:01:12 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:46608 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265593AbSKAEBI>; Thu, 31 Oct 2002 23:01:08 -0500
-Date: Fri, 1 Nov 2002 04:07:29 +0000
-From: John Levon <levon@movementarian.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, oprofile-list@lists.sf.net
-Subject: [PATCH] fix APIC errors on oprofile restore
-Message-ID: <20021101040729.GB5269@compsoc.man.ac.uk>
+	id <S265589AbSKAEVY>; Thu, 31 Oct 2002 23:21:24 -0500
+Received: from netrealtor.ca ([216.209.85.42]:61703 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S265588AbSKAEVX>;
+	Thu, 31 Oct 2002 23:21:23 -0500
+Date: Thu, 31 Oct 2002 23:29:42 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
+       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+Message-ID: <20021101042942.GB12999@mark.mielke.cc>
+References: <20021031154112.GB27801@bjl1.asuk.net> <Pine.LNX.4.44.0210311211160.1562-100000@blue1.dev.mcafeelabs.com> <20021031230215.GA29671@bjl1.asuk.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *187T5l-000LyG-00*WqMwNrIdDt6* (Manchester Computing, University of Manchester)
+In-Reply-To: <20021031230215.GA29671@bjl1.asuk.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 31, 2002 at 11:02:15PM +0000, Jamie Lokier wrote:
+> The semantics for this are a bit confusing and inconsistent with
+> poll().  User gets POLL_RDNORM event which means something in the
+> directory has changed, not that the directory is now readable or that
+> poll() would return POLL_RDNORM.  It really should be a different
+> flag, made for the purpose.
 
-See comment. Please apply. By Philippe Elie
+Don't be encouraging any of us to expect the ability to poll() for changes
+to regular files (log file parsers that sit on EOF periodically polling for
+further data...). Just get *something* decent out so that we can play with
+it in a production environment. I would put off extensions such as this until
+the API is well established.
 
-tested on two UP boxen and my SMP box
+mark
 
-thanks
-john
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-diff -Naur -X dontdiff linux-linus/arch/i386/oprofile/nmi_int.c linux/arch/i386/oprofile/nmi_int.c
---- linux-linus/arch/i386/oprofile/nmi_int.c	Wed Oct 30 03:28:21 2002
-+++ linux/arch/i386/oprofile/nmi_int.c	Wed Oct 30 03:51:58 2002
-@@ -135,9 +135,19 @@
- 
- static void nmi_cpu_shutdown(void * dummy)
- {
-+	unsigned int v;
- 	int cpu = smp_processor_id();
- 	struct op_msrs * msrs = &cpu_msrs[cpu];
-+ 
-+	/* restoring APIC_LVTPC can trigger an apic error because the delivery
-+	 * mode and vector nr combination can be illegal. That's by design: on
-+	 * power on apic lvt contain a zero vector nr which are legal only for
-+	 * NMI delivery mode. So inhibit apic err before restoring lvtpc
-+	 */
-+	v = apic_read(APIC_LVTERR);
-+	apic_write(APIC_LVTERR, v | APIC_LVT_MASKED);
- 	apic_write(APIC_LVTPC, saved_lvtpc[cpu]);
-+	apic_write(APIC_LVTERR, v);
- 	nmi_restore_registers(msrs);
- }
- 
+                           http://mark.mielke.cc/
+

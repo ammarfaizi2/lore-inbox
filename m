@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267966AbTAKSj6>; Sat, 11 Jan 2003 13:39:58 -0500
+	id <S267958AbTAKSoW>; Sat, 11 Jan 2003 13:44:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267972AbTAKSj6>; Sat, 11 Jan 2003 13:39:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:518 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267966AbTAKSj5>; Sat, 11 Jan 2003 13:39:57 -0500
-Date: Sat, 11 Jan 2003 10:43:50 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: davidm@hpl.hp.com, <linux-kernel@vger.kernel.org>
-Subject: Re: make AT_SYSINFO platform-independent
-In-Reply-To: <20030111110717.A24094@infradead.org>
-Message-ID: <Pine.LNX.4.44.0301111042120.10073-100000@home.transmeta.com>
+	id <S267959AbTAKSoW>; Sat, 11 Jan 2003 13:44:22 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:36004
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S267958AbTAKSoV>; Sat, 11 Jan 2003 13:44:21 -0500
+Message-ID: <3E2067FE.4060803@redhat.com>
+Date: Sat, 11 Jan 2003 10:52:46 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030109
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>
+CC: davidm@hpl.hp.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: make AT_SYSINFO platform-independent
+References: <200301110645.h0B6jQRu026921@napali.hpl.hp.com> <20030111110717.A24094@infradead.org>
+In-Reply-To: <20030111110717.A24094@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig wrote:
 
-On Sat, 11 Jan 2003, Christoph Hellwig wrote:
->
-> On Fri, Jan 10, 2003 at 10:45:26PM -0800, David Mosberger wrote:
-> > How about moving the AT_SYSINFO macro from asm-i386/elf.h to
-> > linux/elf.h?  Several architectures can benefit from it (certainly
-> > pa-risc and ia64) and since glibc also defines it in a
-> > non-platformspecific fashion, there really is no point not doing the
-> > same in the kernel.  I suppose it would be nice if we could renumber
-> > it from 32 to 18, but that would require updating glibc, which is
-> > probably too painful.
-> 
 > I think it should be updated.  There is no released glibc or stable kernel
 > with that number yet.
 
-Sounds like an uncommonly bad idea to me, since the range 19-22 is already 
-used at least by PPC.
+Actually, we've included the support already in some published code.  If
+you want to complain to somebody about this, do it to the person who is
+responsible for distributing this code.  His email address is
 
-Yeah, 18 itself may be free (although I wonder _why_? Maybe it's some old 
-value that is no longer used by the kernel but old binaries may know 
-about?) but the fact is that there just isn't room in the low numbers, 
-which was why I put it up higher.
+   torvalds@transmeta.com
 
-		Linus
+Make sure you react with the same nastiness as if I would have made the
+decision, OK?
+
+-- 
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
 

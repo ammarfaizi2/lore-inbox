@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263864AbUDNOoB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 10:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbUDNOoA
+	id S263654AbUDNPC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 11:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUDNPC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 10:44:00 -0400
-Received: from ns.suse.de ([195.135.220.2]:48770 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263864AbUDNOn5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 10:43:57 -0400
-Date: Wed, 14 Apr 2004 16:41:35 +0200
-From: Andi Kleen <ak@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: dvhltc@us.ibm.com, linux-kernel@vger.kernel.org, mingo@redhat.com,
-       mjbligh@us.ibm.com, ricklind@us.ibm.com, akpm@osdl.org
-Subject: Re: 2.6.5-rc3-mm4 x86_64 sched domains patch
-Message-Id: <20040414164135.75f1856f.ak@suse.de>
-In-Reply-To: <407D473B.8010109@yahoo.com.au>
-References: <1081466480.10774.0.camel@farah>
-	<20040414154456.78893f3f.ak@suse.de>
-	<407D473B.8010109@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 11:02:58 -0400
+Received: from mail4-141.ewetel.de ([212.6.122.141]:14984 "EHLO
+	mail4.ewetel.de") by vger.kernel.org with ESMTP id S263654AbUDNPC5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 11:02:57 -0400
+To: Guillaume@Lacote.name
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Using compression before encryption in device-mapper
+In-Reply-To: <1KTfJ-5gK-25@gated-at.bofh.it>
+References: <1KykU-4VD-17@gated-at.bofh.it> <1KPvh-26S-7@gated-at.bofh.it> <1KSMw-4P1-13@gated-at.bofh.it> <1KTfJ-5gK-25@gated-at.bofh.it>
+Date: Wed, 14 Apr 2004 17:02:53 +0200
+Message-Id: <E1BDluf-00007s-PB@localhost>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Apr 2004 00:14:19 +1000
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Wed, 14 Apr 2004 16:10:20 +0200, you wrote in linux.kernel:
 
-> Andi Kleen wrote:
-> > On Thu, 08 Apr 2004 16:22:09 -0700
-> > Darren Hart <dvhltc@us.ibm.com> wrote:
-> > 
-> > 
-> > 
-> >>This patch is intended as a quick fix for the x86_64 problem, and
-> > 
-> > 
-> > Ingo's latest tweaks seemed to already cure STREAM, but some more
-> > tuning is probably a good idea agreed.
-> > 
-> 
-> Where is STREAM versus other kernels? You said you got
-> best performance on a custom 2.4 kernel. Do we match
-> that?
+> Actually (see my reply to Timothy Miller) I really want to do "compression" 
+> even if it does not reduce space: it is a matter of growing the per-bit 
+> entropy rather than to gain space (see http://jsam.sourceforge.net).
 
-Differences were below the measurement error, so I consider it fixed.
+How is the per-bit entropy higher when the same amount of data (and
+thus entropy on that data) is sometimes contained in *more* bits?
 
-> 
-> How is your performance for other things? I recall you
-> may have told me about some other (smaller) issues you
-> were seeing?
+I can see the argument if data is really compressed, because then more
+bits than would normally fit into, say, a sector, contribute to the
+entropy of the final sector.
 
-I haven't tested much yet.  I can compare kernel compilations later.
-
-Also I'm still somewhat hoping that the IBM benchmark team will take a stab at 
-it - they are much better than me at running many tests.
-
--Andi
+-- 
+Ciao,
+Pascal

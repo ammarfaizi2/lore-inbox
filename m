@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266068AbUA1Pni (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 10:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266061AbUA1Pmv
+	id S266097AbUA1Pse (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 10:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbUA1Pr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 10:42:51 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:14091 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S266063AbUA1PmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 10:42:24 -0500
-Date: Wed, 28 Jan 2004 23:41:27 +0800 (WST)
-From: raven@themaw.net
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: [PATCH 8/8] autofs4-2.6 - to support autofs 4.1.x
-Message-ID: <Pine.LNX.4.58.0401282333200.17471@raven.themaw.net>
+	Wed, 28 Jan 2004 10:47:26 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:19109 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266066AbUA1Pm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 10:42:59 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.3, required 8,
-	NO_REAL_NAME, PATCH_UNIFIED_DIFF, USER_AGENT_PINE)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16407.55422.229863.840323@napali.hpl.hp.com>
+Date: Wed, 28 Jan 2004 07:42:54 -0800
+To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@vger.kernel.org>
+Subject: Re: [RFC/PATCH, 3/4] readX_check() performance evaluation
+In-Reply-To: <00a401c3e541$c1d347f0$2987110a@lsd.css.fujitsu.com>
+References: <00a401c3e541$c1d347f0$2987110a@lsd.css.fujitsu.com>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Wed, 28 Jan 2004 10:54:42 +0900, Hironobu Ishii <ishii.hironobu@jp.fujitsu.com> said:
 
-Patch:
+  Hironobu> This is a patch for rawread 1.0.3.
+  Hironobu> Original rawread 1.0.3 depends on i386.
 
-8-autofs4-2.6.1-vfsmount_lock.patch
+  Hironobu> --- rawread.c.old 2004-01-22 19:33:43.000000000 +0900
+  Hironobu> +++ rawread.c 2004-01-27 23:26:24.406717936 +0900
+  Hironobu> @@ -94,8 +94,14 @@
 
-Exports vfsmount_lock as it's needed by the expire rewrite.
+  Hironobu> __inline__ unsigned long long int rdtsc()
+  Hironobu> {
+  Hironobu> -  unsigned long long int x;
+  Hironobu> -  __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
+  Hironobu> + unsigned long long int x;
+  Hironobu> +#if __i386__
+  Hironobu> + __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
+  Hironobu> +#elif __ia64__
+  Hironobu> + __asm__ volatile ("mov r8 = ar44");
+  Hironobu> +#else
+  Hironobu> + #error "Please write your own rdtsc()"
+  Hironobu> +#endif
+  Hironobu> return x;
+  Hironobu> }
 
-diff -Nur linux-2.6.1/fs/namespace.c linux-2.6.1.vfsmount_lock/fs/namespace.c
---- linux-2.6.1/fs/namespace.c	2004-01-09 14:59:45.000000000 +0800
-+++ linux-2.6.1.vfsmount_lock/fs/namespace.c	2004-01-28 22:10:25.000000000 +0800
-@@ -28,6 +28,9 @@
- 
- /* spinlock for vfsmount related operations, inplace of dcache_lock */
- spinlock_t vfsmount_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-+
-+EXPORT_SYMBOL(vfsmount_lock);
-+
- static struct list_head *mount_hashtable;
- static int hash_mask, hash_bits;
- static kmem_cache_t *mnt_cache; 
+Inline assembly doesn't work with the Intel compiler on ia64.  I
+suggest to use ia64_get_itc() defined in <asm/delay.h> instead.
+
+	--david

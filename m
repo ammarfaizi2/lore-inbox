@@ -1,75 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263302AbTE3Gb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 02:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTE3Gb6
+	id S263311AbTE3Gfj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 02:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbTE3Gfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 02:31:58 -0400
-Received: from ftp-xb.sasken.com ([164.164.56.3]:15346 "EHLO
-	sandesha.sasken.com") by vger.kernel.org with ESMTP id S263302AbTE3Gb5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 02:31:57 -0400
-Date: Fri, 30 May 2003 12:19:54 +0530 (IST)
-From: Madhavi <madhavis@sasken.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: variable dev->hard_header_len 
-Message-ID: <Pine.LNX.4.33.0305301209520.18077-100000@pcz-madhavis.sasken.com>
-MIME-Version: 1.0
-Content-type: multipart/mixed; boundary="=_IS_MIME_Boundary"
+	Fri, 30 May 2003 02:35:39 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43744 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263311AbTE3Gfh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 02:35:37 -0400
+Date: Fri, 30 May 2003 08:48:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andy Polyakov <appro@fy.chalmers.se>
+Cc: Markus Plail <linux-kernel@gitteundmarkus.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: readcd with 2.5 kernels and ide-cd
+Message-ID: <20030530064856.GA845@suse.de>
+References: <fa.hr5v5at.1e5iqab@ifi.uio.no> <fa.cqhesj4.p2oeoc@ifi.uio.no> <3ED67F1C.BE1918E4@fy.chalmers.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ED67F1C.BE1918E4@fy.chalmers.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_IS_MIME_Boundary
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Thu, May 29 2003, Andy Polyakov wrote:
+> > > Is there work going on to get readcd working with 2.5 kernels and
+> > > ide-cd (without ide-scsi)?
+> > >
+> > > strace readcd dev=/dev/dvd f=/dev/null
+> > > ...
+> > > ioctl(4, SNDCTL_TMR_TIMEBASE, 0xbfffedd8) = -1 ENOTTY (Inappropriate ioctl for device)
+> > > ...
+> > > ioctl(3, 0x2285, 0xbfffef9c)            = -1 ENOTTY (Inappropriate ioctl for device)
+> > 
+> > Something _very_ fishy is going on there.
+> 
+> Nothing fishy, nothing at all... It's as simple as
+> driver/block/scsi_ioctl.c doesn't accepts requestes larger than 64KB,
+> while readcd asks for 256KB.
 
+Hmm you are right, well we can increase that without any problems. For
+bio transfers at least, kmalloc() runs into problems much beyond that.
+But for larger transfers, they better be aligned.
 
-Hi
+> > 0x2285 is the SG_IO ioctl.
+> 
+> sg_io returns EINVAL (line 163), but driver/block/ioctl.c transforms it
+> to ENOTTY (see last 8 lines).
 
-I am trying to write a driver on linux-2.4.19. My hardware requires that
-the packets going out should be VLAN tagged and coming in might/might not
-have a tag. I have written a new hard_header function for this and set the
-hard_header_len to ETH_HLEN+VLAN_HLEN. But, when a packet is received
-without a tag, the eth_type_trans function is removing the first
-ETH_HLEN+VLAN_HLEN bytes, as the hard_header_len is this much. so, the
-packets are not being understood by the upper layers properly.
+Ah, so that is the bug.
 
-I changed the eth_type_trans function code as follows:
+> > First call to it completes, second one returns -ENOTTY. Looks very much
+> > like some kernel bug, see the SNDCTL_TMR_TIMEBASE ioctl returning
+> > -ENOTTY in-between.
+> 
+> SNDCTL_TMR_TIMEBASE is actually TCGETS, originates in stdio and is not
+> relevant.
 
-	if the device is my device
-	        skb_pull(skb,ETH_HLEN);
-	else
-	        skb_pull(skb,dev->hard_header_len);
+Well yes it's resolved incorrectly, the line was the interesting part.
+The -ENOTTY was the interesting part, but no not relevant.
 
-Could anyone tell me if it is going to affect any other functionality?
+-- 
+Jens Axboe
 
-Could someone suggest some cleaner solution for my problem?
-
-Thanks & regards
-Madhavi.
-
-Madhavi Suram
-Software Engineer
-Customer Delivery / Networks
-Sasken Communication Technologies Limited
-139/25, Ring Road, Domlur
-Bangalore - 560071 India
-Email: madhavis@sasken.com
-Tel: + 91 80 5355501 Extn: 8062
-Fax: + 91 80 5351133
-URL: www.sasken.com
-
-
---=_IS_MIME_Boundary
-Content-Type: text/plain;charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-************************************************************************
-
-SASKEN BUSINESS DISCLAIMER
-
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email.
-
-***********************************************************************
-
---=_IS_MIME_Boundary--

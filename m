@@ -1,569 +1,1071 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268391AbTGOPGH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 11:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268449AbTGOPGH
+	id S268339AbTGOPEk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 11:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbTGOPEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 11:06:07 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:7582 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268391AbTGOPDZ (ORCPT
+	Tue, 15 Jul 2003 11:04:40 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:35499 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268339AbTGOPCq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 11:03:25 -0400
+	Tue, 15 Jul 2003 11:02:46 -0400
 From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16148.6900.468379.558953@gargle.gargle.HOWL>
-Date: Tue, 15 Jul 2003 10:17:08 -0500
+Message-ID: <16148.6870.780484.906779@gargle.gargle.HOWL>
+Date: Tue, 15 Jul 2003 10:16:38 -0500
 To: linux-kernel@vger.kernel.org
 Cc: karim@opersys.com, bob@watson.ibm.com
-Subject: [RFC][PATCH 3/5] relayfs VFS-related files
+Subject: [RFC][PATCH 2/5] relayfs include files
 X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN -X dontdiff linux-2.6.0-test1/fs/Kconfig linux-2.6.0-test1-relayfs-printk/fs/Kconfig
---- linux-2.6.0-test1/fs/Kconfig	Sun Jul 13 22:34:42 2003
-+++ linux-2.6.0-test1-relayfs-printk/fs/Kconfig	Sun Jul 13 22:32:38 2003
-@@ -1221,7 +1221,25 @@ config SYSV_FS
- 
- 	  If you haven't heard about all of this before, it's safe to say N.
- 
-+config RELAYFS_FS
-+	tristate "Relayfs file system support"
-+	---help---
-+	  Relayfs is a high-speed data relay filesystem designed to provide
-+	  an efficient mechanism for tools and facilities to relay large
-+	  amounts of data from kernel space to user space.  It's not useful
-+	  on its own, and should only be enabled if other facilities that
-+	  need it are enabled, such as for example dynamic printk or the
-+	  Linux Trace Toolkit.
- 
-+	  See <file:Documentation/filesystems/relayfs.txt> for further
-+	  information.
-+
-+	  This file system is also available as a module ( = code which can be
-+	  inserted in and removed from the running kernel whenever you want).
-+	  The module is called relayfs.ko.  If you want to compile it as a
-+	  module, say M here and read <file:Documentation/modules.txt>.
-+
-+	  If unsure, say N.
- 
- config UFS_FS
- 	tristate "UFS file system support (read only)"
-diff -urpN -X dontdiff linux-2.6.0-test1/fs/Makefile linux-2.6.0-test1-relayfs-printk/fs/Makefile
---- linux-2.6.0-test1/fs/Makefile	Sun Jul 13 22:34:42 2003
-+++ linux-2.6.0-test1-relayfs-printk/fs/Makefile	Sun Jul 13 22:32:38 2003
-@@ -67,6 +67,7 @@ obj-$(CONFIG_ISO9660_FS)	+= isofs/
- obj-$(CONFIG_DEVFS_FS)		+= devfs/
- obj-$(CONFIG_HFS_FS)		+= hfs/
- obj-$(CONFIG_VXFS_FS)		+= freevxfs/
-+obj-$(CONFIG_RELAYFS_FS)	+= relayfs/
- obj-$(CONFIG_NFS_FS)		+= nfs/
- obj-$(CONFIG_EXPORTFS)		+= exportfs/
- obj-$(CONFIG_NFSD)		+= nfsd/
-diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/Makefile linux-2.6.0-test1-relayfs-printk/fs/relayfs/Makefile
---- linux-2.6.0-test1/fs/relayfs/Makefile	Wed Dec 31 18:00:00 1969
-+++ linux-2.6.0-test1-relayfs-printk/fs/relayfs/Makefile	Sun Jul 13 22:32:38 2003
-@@ -0,0 +1,7 @@
-+#
-+# relayfs Makefile
-+#
-+
-+obj-$(CONFIG_RELAYFS_FS) += relayfs.o
-+
-+relayfs-objs := relay.o relay_lockless.o relay_locking.o inode.o
-diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/inode.c linux-2.6.0-test1-relayfs-printk/fs/relayfs/inode.c
---- linux-2.6.0-test1/fs/relayfs/inode.c	Wed Dec 31 18:00:00 1969
-+++ linux-2.6.0-test1-relayfs-printk/fs/relayfs/inode.c	Sun Jul 13 22:32:38 2003
-@@ -0,0 +1,487 @@
+diff -urpN -X dontdiff linux-2.6.0-test1/include/linux/relayfs_fs.h linux-2.6.0-test1-relayfs-printk/include/linux/relayfs_fs.h
+--- linux-2.6.0-test1/include/linux/relayfs_fs.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/linux/relayfs_fs.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,675 @@
 +/*
-+ * VFS-related code for RelayFS, a high-speed data relay filesystem.
++ * linux/include/linux/relayfs_fs.h
 + *
-+ * Copyright (C) 2003 - Tom Zanussi <zanussi@us.ibm.com>, IBM Corp
-+ * Copyright (C) 2003 - Karim Yaghmour <karim@opersys.com>
++ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
++ * Copyright (C) 1999, 2000, 2001, 2002 - Karim Yaghmour (karim@opersys.com)
 + *
-+ * Based on ramfs, Copyright (C) 2002 - Linus Torvalds
++ * RelayFS definitions and declarations
 + *
-+ * This file is released under the GPL.
++ * Please see Documentation/filesystems/relayfs.txt for more info.
 + */
 +
-+#include <linux/module.h>
++#ifndef _LINUX_RELAYFS_FS_H
++#define _LINUX_RELAYFS_FS_H
++
++#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/sched.h>
++#include <linux/wait.h>
 +#include <linux/fs.h>
-+#include <linux/mount.h>
-+#include <linux/pagemap.h>
-+#include <linux/highmem.h>
-+#include <linux/init.h>
-+#include <linux/string.h>
-+#include <linux/smp_lock.h>
-+#include <linux/backing-dev.h>
-+#include <linux/namei.h>
-+#include <asm/uaccess.h>
-+#include <asm/relay.h>
-+
-+#define RELAYFS_MAGIC			0x26F82121
-+
-+static struct super_operations		relayfs_ops;
-+static struct address_space_operations	relayfs_aops;
-+static struct inode_operations		relayfs_file_inode_operations;
-+static struct file_operations		relayfs_file_operations;
-+static struct inode_operations		relayfs_dir_inode_operations;
-+
-+static struct vfsmount *		relayfs_mount;
-+
-+static struct backing_dev_info		relayfs_backing_dev_info = {
-+	.ra_pages	= 0,	/* No readahead */
-+	.memory_backed	= 1,	/* Does not contribute to dirty memory */
-+};
-+
-+static struct inode *
-+relayfs_get_inode(struct super_block *sb, int mode, dev_t dev)
-+{
-+	struct inode * inode = new_inode(sb);
-+
-+	if (inode) {
-+		inode->i_mode = mode;
-+		inode->i_uid = current->fsuid;
-+		inode->i_gid = current->fsgid;
-+		inode->i_blksize = PAGE_CACHE_SIZE;
-+		inode->i_blocks = 0;
-+		inode->i_rdev = NODEV;
-+		inode->i_mapping->a_ops = &relayfs_aops;
-+		inode->i_mapping->backing_dev_info = &relayfs_backing_dev_info;
-+		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+		switch (mode & S_IFMT) {
-+		default:
-+			init_special_inode(inode, mode, dev);
-+			break;
-+		case S_IFREG:
-+			inode->i_op = &relayfs_file_inode_operations;
-+			inode->i_fop = &relayfs_file_operations;
-+			break;
-+		case S_IFDIR:
-+			inode->i_op = &relayfs_dir_inode_operations;
-+			inode->i_fop = &simple_dir_operations;
-+
-+			/* directory inodes start off with i_nlink == 2 (for "." entry) */
-+			inode->i_nlink++;
-+			break;
-+		case S_IFLNK:
-+			inode->i_op = &page_symlink_inode_operations;
-+			break;
-+		}
-+	}
-+	return inode;
-+}
 +
 +/*
-+ * File creation. Allocate an inode, and we're done..
++ * Tracks changes to rchan struct
 + */
-+/* SMP-safe */
-+static int 
-+relayfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
++#define RELAYFS_CHANNEL_VERSION		1
++
++/*
++ * Maximum number of simultaneously open channels
++ */
++#define RELAY_MAX_CHANNELS		256
++
++/*
++ * Relay properties
++ */
++#define RELAY_MIN_BUFS			2
++#define RELAY_MIN_BUFSIZE		4096
++#define RELAY_MAX_BUFS			256
++#define RELAY_LOCKLESS_MAX_BUF_SIZE	0x1000000
++#define RELAY_LOCKLESS_MAX_TOTAL_BUF_SIZE 0x8000000
++
++/*
++ * Lockless scheme utility macros
++ */
++#define RELAY_MAX_BUFNO(bufno_bits) (1UL << (bufno_bits))
++#define RELAY_BUF_SIZE(offset_bits) (1UL << (offset_bits))
++#define RELAY_BUF_OFFSET_MASK(offset_bits) (RELAY_BUF_SIZE(offset_bits) - 1)
++#define RELAY_BUFNO_GET(index, offset_bits) ((index) >> (offset_bits))
++#define RELAY_BUF_OFFSET_GET(index, mask) ((index) & (mask))
++#define RELAY_BUF_OFFSET_CLEAR(index, mask) ((index) & ~(mask))
++
++/*
++ * Flags returned by relay_reserve()
++ */
++#define RELAY_BUFFER_SWITCH_NONE 0x00
++#define RELAY_WRITE_DISCARD_NONE 0x00
++#define RELAY_BUFFER_SWITCH      0x01
++#define RELAY_WRITE_DISCARD      0x02
++#define RELAY_WRITE_TOO_LONG     0x04
++
++/*
++ * Relay attribute flags
++ */
++#define RELAY_DELIVERY_BULK		0x1
++#define RELAY_DELIVERY_PACKET		0x2
++#define RELAY_SCHEME_LOCKLESS		0x4
++#define RELAY_SCHEME_LOCKING		0x8
++#define RELAY_SCHEME_ANY		0xC
++#define RELAY_TIMESTAMP_TSC		0x10
++#define RELAY_TIMESTAMP_GETTIMEOFDAY	0x20
++#define RELAY_TIMESTAMP_ANY		0x30
++#define RELAY_USAGE_SMP			0x40
++#define RELAY_USAGE_GLOBAL		0x80
++
++/*
++ * Flags for needs_resize() callback
++ */
++#define RELAY_RESIZE_NONE	0x00
++#define RELAY_RESIZE_EXPAND	0x01
++#define RELAY_RESIZE_SHRINK	0x02
++#define RELAY_RESIZE_REPLACE	0x04
++#define RELAY_RESIZE_REPLACED	0x08
++
++#define MAX_RESIZE_FAILURES	1
++
++/* 
++ * If the channel usage has been below the low water mark for more than
++ * this time, we can shrink the buffer if necessary.
++ */
++#define LOW_WATER_TIME 60 * 1000000
++
++/*
++ * Data structure returned by relay_info()
++ */
++struct rchan_info
 +{
-+	struct inode * inode = relayfs_get_inode(dir->i_sb, mode, dev);
-+	int error = -ENOSPC;
++	u32 flags;		/* relay attribute flags for channel */
++	u32 buf_size;		/* channel's sub-buffer size */
++	char *buf_addr;		/* address of channel start */
++	u32 alloc_size;		/* total buffer size actually allocated */
++	u32 n_bufs;		/* number of sub-buffers in channel */
++	u32 bufs_produced;	/* current count of sub-buffers produced */
++	u32 bufs_consumed;	/* current count of sub-buffers consumed */
++	u32 buf_id;		/* buf_id of current sub-buffer */
++	u32 events_lost;	/* total events lost due to buffers-full */
++	int buffer_complete[RELAY_MAX_BUFS];	/* boolean per sub-buffer */
++	int unused_bytes[RELAY_MAX_BUFS];	/* count per sub-buffer */
++};
 +
-+	if (inode) {
-+		d_instantiate(dentry, inode);
-+		dget(dentry);	/* Extra count - pin the dentry in core */
-+		error = 0;
-+	}
-+	return error;
-+}
-+
-+static int 
-+relayfs_mkdir(struct inode * dir, struct dentry * dentry, int mode)
++/*
++ * Relay channel client callbacks
++ */
++struct rchan_callbacks
 +{
-+	int retval = relayfs_mknod(dir, dentry, mode | S_IFDIR, 0);
++	/*
++	 * buffer_start - called at the beginning of a new sub-buffer
++	 * @rchan_id: the channel id
++	 * @current_write_pos: position in sub-buffer client should write to
++	 * @buffer_id: the id of the new sub-buffer
++	 * @start_time: the timestamp associated with the start of sub-buffer
++	 * @start_tsc: the TSC associated with the timestamp, if using_tsc
++	 * @using_tsc: boolean, indicates whether start_tsc is valid
++	 *
++	 * Return value should be the number of bytes written by the client.
++	 *
++	 * The buffer_start callback gives the client an opportunity to
++	 * write data into space reserved at the beginning of a sub-buffer.
++	 * The client should only write into the buffer if it specified
++	 * a value for start_reserve and/or rchan_start_reserve when the 
++	 * channel was opened.  In the latter case, the client can 
++	 * determine whether to write its one-time rchan_start_reserve
++	 * data by examining the value of buffer_id, which will be 0 for
++	 * the first sub-buffer.
++	 */
++	int (*buffer_start) (int rchan_id,
++			     char *current_write_pos,
++			     u32 buffer_id,
++			     struct timeval start_time,
++			     u32 start_tsc,
++			     int using_tsc);
 +
-+	if (!retval)
-+		dir->i_nlink++;
-+	return retval;
-+}
++	/*
++	 * buffer_end - called at the end of a sub-buffer
++	 * @rchan_id: the channel id
++	 * @current_write_pos: position in sub-buffer of end of data
++	 * @end_of_buffer: the position of the end of the sub-buffer
++	 * @end_time: the timestamp associated with the end of the sub-buffer
++	 * @end_tsc: the TSC associated with the end_time, if using_tsc
++	 * @using_tsc: boolean, indicates whether end_tsc is valid
++	 *
++	 * Return value should be the number of bytes written by the client.
++	 *
++	 * The buffer_end callback gives the client an opportunity to
++	 * perform end-of-buffer processing.  Note that the current_write_pos
++	 * is the position where the next write would occur, but since
++ 	 * the current write wouldn't fit, the buffer is considered full
++ 	 * even though there may be unused space at the end.  The
++ 	 * end_of_buffer value can be used to determine exactly the size
++	 * of the unused space.  The client should only write into the 
++	 * buffer if it specified a value for end_reserve when the channel
++	 * was opened.  If the client doesn't write anything i.e. returns
++	 * 0, the unused space at the end of the sub-buffer is available
++	 * via relay_info() - this data may be needed by the client later
++	 * if it needs to process raw sub-buffers (an alternative would 
++	 * be to save the unused bytes count value in end_reserve space at
++	 * the end of each sub-buffer during buffer_end processing and
++	 * read it when needed at a later time).
++	 */
++	int (*buffer_end) (int rchan_id,
++			   char *current_write_pos,
++			   char *end_of_buffer,
++			   struct timeval end_time,
++			   u32 end_tsc,
++			   int using_tsc);
 +
-+static int 
-+relayfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
++	/*
++	 * deliver - called when data is ready for the client
++	 * @rchan_id: the channel id
++	 * @from: the start of the delivered data
++	 * @len: the length of the delivered data
++	 *
++	 * This callback is used to notify a client when a sub-buffer is 
++	 * complete (bulk delivery) or a single write is complete (packet 
++	 * delivery).  A bulk delivery client might wish to then signal a
++	 * daemon that a sub-buffer is ready.  A packet delivery client
++	 * might wish to process the packet or send it elsewhere..
++	 */
++	void (*deliver) (int rchan_id, char *from, u32 len);
++
++	/*
++	 * buffers_full - called when a buffers-full condition is detected
++	 * @rchan_id: the channel id
++	 *
++	 * This callback is used to notify a client that further writes
++	 * to the channel will result in unread data being overwritten.
++	 * The client can signal that it doesn't want this to happen by
++	 * returning 1, which will 'suspend' the channel.  Further writes
++	 * to the channel will be discarded, and the channel's events_lost
++	 * counter will be incremented for each discarded write.  The 
++	 * channel can be subsequently 'resumed' by calling the relay_resume
++	 * API function.  If the client returns 0, writing will continue 
++	 * unhindered into the next sub-buffer.  This 'feature' could be used
++	 * to implement 'flight recorder' applications, for instance.
++	 */
++	int (*buffers_full)(int rchan_id);
++
++	/*
++	 * needs_resize - called when a resizing event occurs
++	 * @rchan_id: the channel id
++	 * @resize_type: the type of resizing event
++	 * @suggested_buf_size: the suggested new sub-buffer size
++	 * @suggested_buf_size: the suggested new number of sub-buffers
++	 *
++	 * Called when a channel's buffers are in danger of becoming
++	 * full i.e. the number of unread bytes in the channel passes
++	 * a preset threshold, or when the current capacity of a
++	 * channel's buffer is no longer needed.  Also called to
++	 * notify the client when a channel's buffer has been
++	 * replaced.  If resize_type is RELAY_RESIZE_EXPAND or
++	 * RELAY_RESIZE_SHRINK, the kernel client should arrange to
++	 * call relay_realloc_buffer() with the suggested buffer size
++	 * and buffer count, which will allocate (but will not
++	 * replace the old one) a new buffer of the recommended size
++	 * for the channel.  Note that this function should not be
++	 * called with locks held, as it may sleep, but may be called
++	 * from within interrupt context - in this case the
++	 * allocation will be put on a work queue.  When the
++	 * allocation has completed, needs_resize() is again called,
++	 * this time with a resize_type of RELAY_RESIZE_REPLACE.  The
++	 * kernel client should then arrange to call
++	 * relay_replace_buffer() to actually replace the old channel
++	 * buffer with the newly allocated buffer.  Note that this
++	 * function can be called in any context, but clients should
++	 * make sure that the channel isn't currently in use, to
++	 * avoid pulling out the rug from under any current users.
++	 * Finally, once the buffer replacement has completed,
++	 * needs_resize() is again called, this time with a
++	 * resize_type of RELAY_RESIZE_REPLACED, to inform the client
++	 * that the replacement is complete and additionally
++	 * confirming the current sub-buffer size and number of
++	 * sub-buffers.
++	 */
++	void (*needs_resize)(int rchan_id,
++			     int resize_type,
++			     u32 suggested_buf_size,
++			     u32 suggested_n_bufs);
++
++	/*
++	 * resize_offset - called to notify a client to adjust buffer offsets
++	 * @rchan_id: the channel id
++	 * @ge_offset: if the offset is >= this value
++	 * @le_offset: and <= this value
++	 * @delta: adjust the offset by this amount
++	 *
++	 * Called during the buffer copying phase of buffer
++	 * replacement in order to let the client know that if it
++	 * currently holds any offsets into the channel buffer, those
++	 * offsets may be invalid due to resizing and should be
++	 * adjusted.  The client should check any offsets it's using
++	 * that reference the channel buffer to see whether or not
++	 * they fall within the offset range defined by ge_offset and
++	 * le_offset.  If so, it should add the delta value (which
++	 * may be negative) to any offset contained within the range.
++	 * Note that any particular offset can only be affected once
++	 * per resize, so the client should take care that subsequent
++	 * resize_offset() calls don't mistakenly change the offset
++	 * again within the same resize (e.g. set a flag once an
++	 * offset has been adjusted, which doesn't get reset until
++	 * the RELAY_RESIZE_REPLACED needs_resize() call is made
++	 * signifying the completion of the resize.
++	 */
++	void (*resize_offset)(int rchan_id,
++			      u32 ge_offset,
++			      u32 le_offset,
++			      int delta);
++};
++
++/*
++ * Lockless scheme-specific data
++ */
++struct lockless_rchan
 +{
++	u8 bufno_bits;		/* # bits used for sub-buffer id */
++	u8 offset_bits;		/* # bits used for offset within sub-buffer */
++	u32 index;		/* current index = sub-buffer id and offset */
++	u32 offset_mask;	/* used to obtain offset portion of index */
++	u32 index_mask;		/* used to mask off unused bits index */
++	u32 last_event_index;	/* used for channel suspend */
++	struct timeval last_event_timestamp;	/* used for channel suspend */
++	u32 last_event_tsc;	/* used for channel suspend */
++	int resize_order;	/* how large was the last resize */
++	atomic_t fill_count[RELAY_MAX_BUFS];	/* fill count per sub-buffer */
++};
 +
-+	return relayfs_mknod(dir, dentry, mode | S_IFREG, 0);
-+}
-+
-+static int 
-+relayfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
++/*
++ * Locking scheme-specific data
++ */
++struct locking_rchan
 +{
-+	struct inode *inode;
-+	int error = -ENOSPC;
++	char *write_buf;		/* start of write sub-buffer */
++	char *read_buf;			/* start of read sub-buffer */
++	char *write_buf_end;		/* end of write sub-buffer */
++	char *read_buf_end;		/* end of read sub-buffer */
++	char *current_write_pos;	/* current write pointer */
++	char *read_limit;		/* takes reserves into account */
++	char *write_limit;		/* takes reserves into account */
++	char *in_progress_event_pos;	/* used for interrupted writes */
++	u16 in_progress_event_size;	/* used for interrupted writes */
++	char *interrupted_pos;		/* used for interrupted writes */
++	u16 interrupting_size;		/* used for interrupted writes */
++	spinlock_t lock;		/* channel lock for locking scheme */
++	int bytes_produced;		/* # bytes produced in cur sub-buf */
++};
 +
-+	inode = relayfs_get_inode(dir->i_sb, S_IFLNK|S_IRWXUGO, 0);
++struct relay_ops;
 +
-+	if (inode) {
-+		int l = strlen(symname)+1;
-+		error = page_symlink(inode, symname, l);
-+		if (!error) {
-+			d_instantiate(dentry, inode);
-+			dget(dentry);
-+		} else
-+			iput(inode);
-+	}
-+	return error;
++/*
++ * Relay channel data structure
++ */
++struct rchan
++{
++	u32 version;			/* the version of this struct */
++	char *buf;			/* the channel buffer */
++	int id;				/* the channel id */
++	struct rchan_callbacks *callbacks;	/* client callbacks */
++	u32 flags;			/* relay channel attributes */
++	u32 buf_id;			/* current sub-buffer id */
++
++	atomic_t suspended;		/* channel suspended? */
++	u32 events_lost;		/* events lost via buffers-full */
++
++	struct timeval  buf_start_time;	/* current sub-buffer start time */
++	u32 buf_start_tsc;		/* current sub-buffer start TSC */
++	
++	u32 buf_size;			/* sub-buffer size */
++	u32 alloc_size;			/* total buffer size allocated */
++	u32 n_bufs;			/* number of sub-buffers */
++
++	u32 bufs_produced;		/* count of sub-buffers produced */
++	u32 bufs_consumed;		/* count of sub-buffers consumed */
++	u32 bytes_consumed;		/* since last bufs_consumed */
++
++	int initialized;		/* first buffer initialized? */
++	int finalized;			/* channel finalized? */
++
++	u32 start_reserve;		/* reserve at start of sub-buffers */
++	u32 end_reserve;		/* reserve at end of sub-buffers */
++	u32 rchan_start_reserve;	/* additional reserve sub-buffer 0 */
++	
++	int mapped;			/* has channel been mapped? */
++	struct dentry *dentry;		/* channel file dentry */
++
++	wait_queue_head_t read_wait;	/* VFS read wait queue */
++	atomic_t refcount;		/* channel refcount */
++
++	struct relay_ops *relay_ops;	/* scheme-specific channel ops */
++
++	int unused_bytes[RELAY_MAX_BUFS]; /* unused count per sub-buffer */
++
++	struct semaphore resize_sem;	/* serializes alloc/repace */
++	struct timeval  low_water_time;	/* last time above low water */
++	struct work_struct work;	/* resize allocation work struct */
++	
++	u32 resize_min;			/* minimum resized total buffer size */
++	u32 resize_max;			/* maximum resized total buffer size */
++	char *resize_buf;		/* for autosize alloc/free */
++	u32 resize_buf_size;		/* resized sub-buffer size */
++	u32 resize_n_bufs;		/* resized number of sub-buffers */
++	u32 resize_alloc_size;		/* resized actual total size */
++	
++	int resizing;			/* is resizing in progress? */
++	int resize_err;			/* resizing err code */
++	int resize_failures;		/* number of resize failures */
++	int offsets_changed;		/* did potential offsets change? */
++	int replace_buffer;		/* is the alloced buffer ready?  */
++
++	union
++	{
++		struct lockless_rchan lockless;
++		struct locking_rchan locking;
++	} scheme;			/* scheme-specific channel data */
++} ____cacheline_aligned;
++
++/*
++ * Used for deferring resized channel free
++ */
++struct free_rchan_buf
++{
++	char *free_buf;			/* for autosize alloc/free */
++	u32 free_alloc_size;		/* total buffer size allocated */
++	struct work_struct work;	/* resize de-allocation work struct */
++};
++
++/*
++ * These help make union member access less tedious
++ */
++#define channel_buffer(rchan) ((rchan)->buf)
++#define idx(rchan) ((rchan)->scheme.lockless.index)
++#define bufno_bits(rchan) ((rchan)->scheme.lockless.bufno_bits)
++#define offset_bits(rchan) ((rchan)->scheme.lockless.offset_bits)
++#define offset_mask(rchan) ((rchan)->scheme.lockless.offset_mask)
++#define idx_mask(rchan) ((rchan)->scheme.lockless.index_mask)
++#define bulk_delivery(rchan) (((rchan)->flags & RELAY_DELIVERY_BULK) ? 1 : 0)
++#define packet_delivery(rchan) (((rchan)->flags & RELAY_DELIVERY_PACKET) ? 1 : 0)
++#define using_lockless(rchan) (((rchan)->flags & RELAY_SCHEME_LOCKLESS) ? 1 : 0)
++#define using_locking(rchan) (((rchan)->flags & RELAY_SCHEME_LOCKING) ? 1 : 0)
++#define using_tsc(rchan) (((rchan)->flags & RELAY_TIMESTAMP_TSC) ? 1 : 0)
++#define using_gettimeofday(rchan) (((rchan)->flags & RELAY_TIMESTAMP_GETTIMEOFDAY) ? 1 : 0)
++#define usage_smp(rchan) (((rchan)->flags & RELAY_USAGE_SMP) ? 1 : 0)
++#define usage_global(rchan) (((rchan)->flags & RELAY_USAGE_GLOBAL) ? 1 : 0)
++#define fill_count(rchan, i) ((rchan)->scheme.lockless.fill_count[(i)])
++#define last_event_index(rchan) ((rchan)->scheme.lockless.last_event_index)
++#define last_event_timestamp(rchan) ((rchan)->scheme.lockless.last_event_timestamp)
++#define last_event_tsc(rchan) ((rchan)->scheme.lockless.last_event_tsc)
++#define write_buf(rchan) ((rchan)->scheme.locking.write_buf)
++#define read_buf(rchan) ((rchan)->scheme.locking.read_buf)
++#define write_buf_end(rchan) ((rchan)->scheme.locking.write_buf_end)
++#define read_buf_end(rchan) ((rchan)->scheme.locking.read_buf_end)
++#define cur_write_pos(rchan) ((rchan)->scheme.locking.current_write_pos)
++#define read_limit(rchan) ((rchan)->scheme.locking.read_limit)
++#define write_limit(rchan) ((rchan)->scheme.locking.write_limit)
++#define in_progress_event_pos(rchan) ((rchan)->scheme.locking.in_progress_event_pos)
++#define in_progress_event_size(rchan) ((rchan)->scheme.locking.in_progress_event_size)
++#define interrupted_pos(rchan) ((rchan)->scheme.locking.interrupted_pos)
++#define interrupting_size(rchan) ((rchan)->scheme.locking.interrupting_size)
++#define channel_lock(rchan) ((rchan)->scheme.locking.lock)
++#define bytes_produced(rchan) ((rchan)->scheme.locking.bytes_produced)
++#define resize_order(rchan) ((rchan)->scheme.lockless.resize_order)
++
++/**
++ *	calc_time_delta - utility function for time delta calculation
++ *	@now: current time
++ *	@start: start time
++ *
++ *	Returns the time delta produced by subtracting start time from now.
++ */
++static inline u32
++calc_time_delta(struct timeval *now, 
++		struct timeval *start)
++{
++	return (now->tv_sec - start->tv_sec) * 1000000
++		+ (now->tv_usec - start->tv_usec);
 +}
 +
 +/**
-+ *	relayfs_create_entry - create a relayfs directory or file
-+ *	@name: the name of the file to create
-+ *	@parent: parent directory
-+ *	@dentry: result dentry
-+ *	@entry_type: type of file to create (S_IFREG, S_IFDIR)
-+ *	@mode: mode
-+ *	@data: data to associate with the file
-+ *
-+ *	Creates a file or directory with the specifed permissions.
++ *	recalc_time_delta - utility function for time delta recalculation
++ *	@now: current time
++ *	@new_delta: the new time delta calculated
++ *	@cpu: the associated CPU id
 + */
-+static int 
-+relayfs_create_entry(const char * name, struct dentry * parent, struct dentry **dentry, int entry_type, int mode, void * data)
++static inline void 
++recalc_time_delta(struct timeval *now,
++		  u32 *new_delta,
++		  struct rchan *rchan)
 +{
-+	struct qstr qname;
-+	struct dentry * d;
++	if (using_tsc(rchan) == 0)
++		*new_delta = calc_time_delta(now, &rchan->buf_start_time);
++}
++
++/**
++ *	have_cmpxchg - does this architecture have a cmpxchg?
++ *
++ *	Returns 1 if this architecture has a cmpxchg useable by 
++ *	the lockless scheme, 0 otherwise.
++ */
++static inline int 
++have_cmpxchg(void)
++{
++#if defined(__HAVE_ARCH_CMPXCHG)
++	return 1;
++#else
++	return 0;
++#endif
++}
++
++/**
++ *	relay_write_direct - write data directly into destination buffer
++ */
++#define relay_write_direct(DEST, SRC, SIZE) \
++do\
++{\
++   memcpy(DEST, SRC, SIZE);\
++   DEST += SIZE;\
++} while (0);
++
++/**
++ *	relay_lock_channel - lock the relay channel if applicable
++ *
++ *	This macro only affects the locking scheme.  If the locking scheme
++ *	is in use and the channel usage is SMP, does a local_irq_save.  If the 
++ *	locking sheme is in use and the channel usage is GLOBAL, uses 
++ *	spin_lock_irqsave.  FLAGS is initialized to 0 since we know that
++ *	it is being initialized prior to use and we avoid the compiler warning.
++ */
++#define relay_lock_channel(RCHAN, FLAGS) \
++do\
++{\
++   FLAGS = 0;\
++   if (using_locking(RCHAN)) {\
++      if (usage_smp(RCHAN)) {\
++         local_irq_save(FLAGS); \
++      } else {\
++         spin_lock_irqsave(&(RCHAN)->scheme.locking.lock, FLAGS); \
++      }\
++   }\
++} while (0);
++
++/**
++ *	relay_unlock_channel - unlock the relay channel if applicable
++ *
++ *	This macro only affects the locking scheme.  See relay_lock_channel.
++ */
++#define relay_unlock_channel(RCHAN, FLAGS) \
++do\
++{\
++   if (using_locking(RCHAN)) {\
++      if (usage_smp(RCHAN)) {\
++         local_irq_restore(FLAGS); \
++      } else {\
++         spin_unlock_irqrestore(&(RCHAN)->scheme.locking.lock, FLAGS); \
++      }\
++   }\
++} while (0);
++
++/*
++ * Define cmpxchg if we don't have it
++ */
++#ifndef __HAVE_ARCH_CMPXCHG
++#define cmpxchg(p,o,n) 0
++#endif
++
++/*
++ * High-level relayfs kernel API, fs/relayfs/relay.c
++ */
++extern int
++relay_open(char *chanpath,
++	   int bufsize_lockless,
++	   int nbufs_lockless,
++	   int bufsize_locking,
++	   int nbufs_locking,
++	   u32 flags,
++	   struct rchan_callbacks *callbacks,
++	   u32 start_reserve,
++	   u32 end_reserve,
++	   u32 rchan_start_reserve,
++	   u32 resize_min,
++	   u32 resize_max);
++
++extern int 
++relay_write(int rchan_id,
++	    const void *data_ptr, 
++	    size_t count,
++	    int td_offset);
++
++extern ssize_t
++relay_read(int rchan_id, 
++	   char * buf, 
++	   size_t count, 
++	   u32 read_offset, 
++	   u32 *new_offset,
++	   int wait);
++
++extern void 
++relay_buffers_consumed(int rchan_id, u32 buffers_consumed);
++
++extern void
++relay_bytes_consumed(int rchan_id, u32 bytes_consumed, u32 read_offset);
++
++extern void 
++relay_resume(int rchan_id);
++
++extern int 
++relay_info(int rchan_id, struct rchan_info *rchan_info);
++
++extern int 
++relay_close(int rchan_id);
++
++extern ssize_t
++relay_bytes_avail(int rchan_id, u32 read_offset);
++
++extern int
++relay_realloc_buffer(int rchan_id, u32 new_bufsize, u32 new_nbufs);
++
++extern int
++relay_replace_buffer(int rchan_id);
++
++extern ssize_t
++relay_read_last(int rchan_id, char * buf, size_t count);
++
++/*
++ * Low-level relayfs kernel API, fs/relayfs/relay.c
++ */
++extern struct rchan *
++rchan_get(int rchan_id);
++
++extern void
++rchan_put(struct rchan *rchan);
++
++extern char *
++relay_reserve(struct rchan *rchan,
++	      u32 data_len,
++	      struct timeval *time_stamp,
++	      u32 *time_delta,
++	      int *errcode,
++	      int *interrupting);
++
++extern void 
++relay_commit(struct rchan *rchan,
++	     char *from, 
++	     u32 len, 
++	     int reserve_code,
++	     int interrupting);
++
++extern int 
++relay_mmap_buffer(int rchan_id, struct vm_area_struct *vma);
++
++extern int 
++relay_busy(void);
++
++extern u32 
++relay_get_offset(struct rchan *rchan, u32 *max_offset);
++
++/*
++ * VFS functions, fs/relayfs/inode.c
++ */
++extern int 
++relayfs_create_dir(const char *name, 
++		   struct dentry *parent, 
++		   struct dentry **dentry);
++
++extern int
++relayfs_create_file(const char * name,
++		    struct dentry *parent, 
++		    struct dentry **dentry,
++		    void * data);
++
++extern int 
++relayfs_remove_file(struct dentry *dentry);
++
++/*
++ * Scheme-specific channel ops
++ */
++struct relay_ops
++{
++	char * (*reserve) (struct rchan *rchan,
++			   u32 slot_len,
++			   struct timeval *time_stamp,
++			   u32 *tsc,
++			   int * errcode,
++			   int * interrupting);
 +	
-+	int error = 0;
++	void (*commit) (struct rchan *rchan,
++		       char *from,
++		       u32 len, 
++		       int deliver, 
++		       int interrupting);
 +
-+	qname.name = name;
-+	qname.len = strlen(name);
-+	qname.hash = full_name_hash(name, qname.len);
-+
-+	if (parent == NULL)
-+		if (relayfs_mount && relayfs_mount->mnt_sb)
-+			parent = relayfs_mount->mnt_sb->s_root;
-+
-+	if (parent == NULL)
-+		return -EINVAL;
-+
-+	parent = dget(parent);
-+	down(&parent->d_inode->i_sem);
-+	d = lookup_hash(&qname, parent);
-+	if (IS_ERR(d)) {
-+		error = PTR_ERR(d);
-+		goto exit;
-+	}
++	u32 (*get_offset) (struct rchan *rchan,
++			   u32 *max_offset);
 +	
-+	if (d->d_inode) {
-+		error = -EEXIST;
-+		goto exit;
++	void (*resume) (struct rchan *rchan);
++	void (*finalize) (struct rchan *rchan);
++	void (*copy_contents) (struct rchan *rchan,
++			       int newsize,
++			       int oldsize,
++			       char * oldbuf,
++			       u32 old_cur_idx,
++			       u32 old_buf_size,
++			       u32 old_n_bufs);
++};
++
++#endif /* _LINUX_RELAYFS_FS_H */
++
++
++
++
++
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-alpha/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-alpha/relay.h
+--- linux-2.6.0-test1/include/asm-alpha/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-alpha/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_ALPHA_RELAY_H
++#define _ASM_ALPHA_RELAY_H
++
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-arm/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-arm/relay.h
+--- linux-2.6.0-test1/include/asm-arm/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-arm/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_ARM_RELAY_H
++#define _ASM_ARM_RELAY_H
++
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-arm26/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-arm26/relay.h
+--- linux-2.6.0-test1/include/asm-arm26/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-arm26/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_ARM_RELAY_H
++#define _ASM_ARM_RELAY_H
++
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-cris/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-cris/relay.h
+--- linux-2.6.0-test1/include/asm-cris/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-cris/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_CRIS_RELAY_H
++#define _ASM_CRIS_RELAY_H
++
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-generic/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-generic/relay.h
+--- linux-2.6.0-test1/include/asm-generic/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-generic/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,76 @@
++#ifndef _ASM_GENERIC_RELAY_H
++#define _ASM_GENERIC_RELAY_H
++/*
++ * linux/include/asm-generic/relay.h
++ *
++ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
++ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
++ *
++ * Architecture-independent definitions for relayfs
++ */
++
++#include <linux/relayfs_fs.h>
++
++/**
++ *	get_time_delta - utility function for getting time delta
++ *	@now: pointer to a timeval struct that may be given current time
++ *	@rchan: the channel
++ *
++ *	Returns the time difference between the current time and the buffer
++ *	start time.
++ */
++static inline u32
++get_time_delta(struct timeval *now, struct rchan *rchan)
++{
++	u32 time_delta;
++
++	do_gettimeofday(now);
++	time_delta = calc_time_delta(now, &rchan->buf_start_time);
++
++	return time_delta;
++}
++
++/**
++ *	get_timestamp - utility function for getting a time and TSC pair
++ *	@now: current time
++ *	@tsc: the TSC associated with now
++ *	@rchan: the channel
++ *
++ *	Sets the value pointed to by now to the current time. Value pointed to
++ *	by tsc is not set since there is no generic TSC support.
++ */
++static inline void 
++get_timestamp(struct timeval *now, 
++	      u32 *tsc,
++	      struct rchan *rchan)
++{
++	do_gettimeofday(now);
++}
++
++/**
++ *	get_time_or_tsc: - Utility function for getting a time or a TSC.
++ *	@now: current time
++ *	@tsc: current TSC
++ *	@rchan: the channel
++ *
++ *	Sets the value pointed to by now to the current time.
++ */
++static inline void 
++get_time_or_tsc(struct timeval *now, 
++		u32 *tsc,
++		struct rchan *rchan)
++{
++	do_gettimeofday(now);
++}
++
++/**
++ *	have_tsc - does this platform have a useable TSC?
++ *
++ *	Returns 0.
++ */
++static inline int 
++have_tsc(void)
++{
++	return 0;
++}
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-h8300/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-h8300/relay.h
+--- linux-2.6.0-test1/include/asm-h8300/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-h8300/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_H8300_RELAY_H
++#define _ASM_H8300_RELAY_H
++
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-i386/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-i386/relay.h
+--- linux-2.6.0-test1/include/asm-i386/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-i386/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,101 @@
++#ifndef _ASM_I386_RELAY_H
++#define _ASM_I386_RELAY_H
++/*
++ * linux/include/asm-i386/relay.h
++ *
++ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
++ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
++ *
++ * i386 definitions for relayfs
++ */
++
++#include <linux/relayfs_fs.h>
++
++#ifdef CONFIG_X86_TSC
++#include <asm/msr.h>
++
++/**
++ *	get_time_delta - utility function for getting time delta
++ *	@now: pointer to a timeval struct that may be given current time
++ *	@rchan: the channel
++ *
++ *	Returns either the TSC if TSCs are being used, or the time and the
++ *	time difference between the current time and the buffer start time 
++ *	if TSCs are not being used.
++ */
++static inline u32
++get_time_delta(struct timeval *now, struct rchan *rchan)
++{
++	u32 time_delta;
++
++	if ((using_tsc(rchan) == 1) && cpu_has_tsc)
++		rdtscl(time_delta);
++	else {
++		do_gettimeofday(now);
++		time_delta = calc_time_delta(now, &rchan->buf_start_time);
 +	}
 +
-+	if (entry_type == S_IFREG)
-+		error = relayfs_create(parent->d_inode, d, entry_type | mode, NULL);
++	return time_delta;
++}
++
++/**
++ *	get_timestamp - utility function for getting a time and TSC pair
++ *	@now: current time
++ *	@tsc: the TSC associated with now
++ *	@rchan: the channel
++ *
++ *	Sets the value pointed to by now to the current time and the value
++ *	pointed to by tsc to the tsc associated with that time, if the 
++ *	platform supports TSC.
++ */
++static inline void 
++get_timestamp(struct timeval *now,
++	      u32 *tsc,
++	      struct rchan *rchan)
++{
++	do_gettimeofday(now);
++
++	if ((using_tsc(rchan) == 1) && cpu_has_tsc)
++		rdtscl(*tsc);
++}
++
++/**
++ *	get_time_or_tsc - utility function for getting a time or a TSC
++ *	@now: current time
++ *	@tsc: current TSC
++ *	@rchan: the channel
++ *
++ *	Sets the value pointed to by now to the current time or the value
++ *	pointed to by tsc to the current tsc, depending on whether we're
++ *	using TSCs or not.
++ */
++static inline void 
++get_time_or_tsc(struct timeval *now,
++		u32 *tsc,
++		struct rchan *rchan)
++{
++	if ((using_tsc(rchan) == 1) && cpu_has_tsc)
++		rdtscl(*tsc);
 +	else
-+		error = relayfs_mkdir(parent->d_inode, d, entry_type | mode);
-+
-+	if ((entry_type == S_IFREG) && data && !error)
-+		d->d_inode->u.generic_ip = data;
-+exit:	
-+	*dentry = d;
-+	up(&parent->d_inode->i_sem);
-+	dput(parent);
-+
-+	return error;
++		do_gettimeofday(now);
 +}
 +
 +/**
-+ *	relayfs_create_file - create a file in the relay filesystem
-+ *	@name: the name of the file to create
-+ *	@parent: parent directory
-+ *	@dentry: result dentry
-+ *	@data: data to associate with the file
++ *	have_tsc - does this platform have a useable TSC?
 + *
-+ *	The file will be created user rwx on behalf of current user.
++ *	Returns 1 if this platform has a useable TSC counter for
++ *	timestamping purposes, 0 otherwise.
 + */
-+int 
-+relayfs_create_file(const char * name, struct dentry * parent, struct dentry **dentry, void * data)
++static inline int
++have_tsc(void)
 +{
-+	return relayfs_create_entry(name, parent, dentry, S_IFREG,
-+				    S_IRWXU, data);
++	if (cpu_has_tsc)
++		return 1;
++	else
++		return 0;
 +}
 +
-+/**
-+ *	relayfs_create_dir - create a directory in the relay filesystem
-+ *	@name: the name of the directory to create
-+ *	@parent: parent directory
-+ *	@dentry: result dentry
-+ *
-+ *	The directory will be created world rwx on behalf of current user.
-+ */
-+int 
-+relayfs_create_dir(const char * name, struct dentry * parent, struct dentry **dentry)
-+{
-+	return relayfs_create_entry(name, parent, dentry, S_IFDIR,
-+				    S_IRWXU | S_IRUGO | S_IXUGO, NULL);
-+}
++#else /* No TSC support (#ifdef CONFIG_X86_TSC) */
++#include <asm-generic/relay.h>
++#endif /* #ifdef CONFIG_X86_TSC */
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-ia64/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-ia64/relay.h
+--- linux-2.6.0-test1/include/asm-ia64/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-ia64/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_IA64_RELAY_H
++#define _ASM_IA64_RELAY_H
 +
-+/**
-+ *	relayfs_remove_file - remove a file in the relay filesystem
-+ *	@dentry: file dentry
-+ *
-+ *	Remove a file previously created by relayfs_create_file.
-+ */
-+int 
-+relayfs_remove_file(struct dentry *dentry)
-+{
-+	struct dentry *parent;
-+	
-+	parent = dentry->d_parent;
-+	if (parent == NULL)
-+		return -EINVAL;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-m68k/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-m68k/relay.h
+--- linux-2.6.0-test1/include/asm-m68k/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-m68k/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_M68K_RELAY_H
++#define _ASM_M68K_RELAY_H
 +
-+	parent = dget(parent);
-+	down(&parent->d_inode->i_sem);
-+	if (dentry->d_inode) {
-+		simple_unlink(parent->d_inode, dentry);
-+		d_delete(dentry);
-+	}
-+	up(&parent->d_inode->i_sem);
-+	dput(parent);
-+	
-+	return 0;
-+}
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-m68knommu/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-m68knommu/relay.h
+--- linux-2.6.0-test1/include/asm-m68knommu/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-m68knommu/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_M68KNOMMU_RELAY_H
++#define _ASM_M68KNOMMU_RELAY_H
 +
-+/**
-+ *	relayfs_open - open file op for relayfs files
-+ *	@inode: the inode
-+ *	@filp: the file
-+ *
-+ *	Associates the channel with the file, and increments the
-+ *	channel refcount.
-+ */
-+int
-+relayfs_open(struct inode *inode, struct file *filp)
-+{
-+	struct rchan *rchan;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-mips/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-mips/relay.h
+--- linux-2.6.0-test1/include/asm-mips/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-mips/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_RELAY_H
++#define _ASM_RELAY_H
 +
-+	if (inode->u.generic_ip) {
-+		filp->private_data = inode->u.generic_ip;
-+		rchan = (struct rchan *)inode->u.generic_ip;
-+		/* Inc relay channel refcount for file */
-+		rchan_get(rchan->id);
-+	}
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-mips64/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-mips64/relay.h
+--- linux-2.6.0-test1/include/asm-mips64/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-mips64/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_RELAY_H
++#define _ASM_RELAY_H
 +
-+	return 0;
-+}
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-parisc/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-parisc/relay.h
+--- linux-2.6.0-test1/include/asm-parisc/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-parisc/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_PARISC_RELAY_H
++#define _ASM_PARISC_RELAY_H
 +
-+/**
-+ *	relayfs_mmap - mmap file op for relayfs files
-+ *	@filp: the file
-+ *	@vma: the vma describing what to map
-+ *
-+ *	Calls upon relay_mmap_buffer to map the file into user space.
-+ */
-+int 
-+relayfs_mmap(struct file *filp, struct vm_area_struct *vma)
-+{
-+	struct rchan *rchan = (struct rchan *)filp->private_data;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-ppc/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-ppc/relay.h
+--- linux-2.6.0-test1/include/asm-ppc/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-ppc/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_PPC_RELAY_H
++#define _ASM_PPC_RELAY_H
 +
-+	return relay_mmap_buffer(rchan->id, vma);
-+}
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-ppc64/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-ppc64/relay.h
+--- linux-2.6.0-test1/include/asm-ppc64/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-ppc64/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_PPC64_RELAY_H
++#define _ASM_PPC64_RELAY_H
 +
-+/**
-+ *	relayfs_file_read - read file op for relayfs files
-+ *	@filp: the file
-+ *	@buf: user buf to read into
-+ *	@count: bytes requested
-+ *	@offset: offset into file
-+ *
-+ *	Attempt to read count bytes into buffer.  If there are fewer
-+ *	than count bytes available, return available.  if the read would
-+ *	cross a sub-buffer boundary, this function will only return the
-+ *	bytes available to the end of the sub-buffer; a subsequent read
-+ *	would get the remaining bytes (starting from the beginning of the
-+ *	buffer).  Because we're	reading from a circular buffer, if the
-+ *	read would wrap around to sub-buffer 0, offset will be reset
-+ *	to 0 to mark the beginning of the buffer.  If nothing at all
-+ *	is available, the caller will be put on a wait queue until
-+ *	there is.  This function takes into account the 'unused bytes',
-+ *	if any, at the end of each sub-buffer, and will transparently
-+ *	skip over them.
-+ */
-+ssize_t 
-+relayfs_file_read(struct file *filp, char * buf, size_t count, loff_t *offset)
-+{
-+	u32 new_offset;
-+	size_t read_count;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-s390/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-s390/relay.h
+--- linux-2.6.0-test1/include/asm-s390/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-s390/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_S390_RELAY_H
++#define _ASM_S390_RELAY_H
 +
-+	struct rchan *rchan = (struct rchan *)filp->private_data;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-sh/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-sh/relay.h
+--- linux-2.6.0-test1/include/asm-sh/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-sh/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_SH_RELAY_H
++#define _ASM_SH_RELAY_H
 +
-+	read_count = relay_read(rchan->id, buf, count, (u32)*offset, &new_offset, 1);
-+	*offset = (loff_t)new_offset;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-sparc/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-sparc/relay.h
+--- linux-2.6.0-test1/include/asm-sparc/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-sparc/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_SPARC_RELAY_H
++#define _ASM_SPARC_RELAY_H
 +
-+	return read_count;
-+}
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-sparc64/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-sparc64/relay.h
+--- linux-2.6.0-test1/include/asm-sparc64/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-sparc64/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_SPARC64_RELAY_H
++#define _ASM_SPARC64_RELAY_H
 +
-+/**
-+ *	relayfs_file_write - write file op for relayfs files
-+ *	@filp: the file
-+ *	@buf: user buf to write from
-+ *	@count: bytes to write
-+ *	@offset: offset into file
-+ *
-+ *	Reserves a slot in the relay buffer and writes count bytes
-+ *	into it.  The current limit for a single write is 2 pages
-+ *	worth.
-+ */
-+ssize_t 
-+relayfs_file_write(struct file *filp, const char *buf, size_t count, loff_t *offset)
-+{
-+	int bytes_written;
-+	char * write_buf;
-+	
-+	struct rchan *rchan = (struct rchan *)filp->private_data;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-um/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-um/relay.h
+--- linux-2.6.0-test1/include/asm-um/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-um/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef __UM_RELAY_H
++#define __UM_RELAY_H
 +
-+	/* Change this if need to write more than 2 pages at once */
-+	if (count > 2 * PAGE_SIZE)
-+		return -EINVAL;
-+	
-+	write_buf = (char *)__get_free_pages(GFP_KERNEL, 1);
-+	if (write_buf == NULL)
-+		return -ENOMEM;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-v850/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-v850/relay.h
+--- linux-2.6.0-test1/include/asm-v850/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-v850/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef __V850_RELAY_H
++#define __V850_RELAY_H
 +
-+	if (copy_from_user(write_buf, buf, count))
-+		return -EFAULT;
++#include <asm-generic/relay.h>
++#endif
+diff -urpN -X dontdiff linux-2.6.0-test1/include/asm-x86_64/relay.h linux-2.6.0-test1-relayfs-printk/include/asm-x86_64/relay.h
+--- linux-2.6.0-test1/include/asm-x86_64/relay.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/include/asm-x86_64/relay.h	Sun Jul 13 22:32:32 2003
+@@ -0,0 +1,5 @@
++#ifndef _ASM_X86_64_RELAY_H
++#define _ASM_X86_64_RELAY_H
 +
-+	
-+	bytes_written = relay_write(rchan->id, write_buf, count, -1);
-+	if (bytes_written > 0)
-+		*offset += bytes_written;
-+
-+	free_pages((unsigned long)write_buf, 1);
-+	
-+	return bytes_written;
-+}
-+
-+/**
-+ *	relayfs_release - release file op for relayfs files
-+ *	@inode: the inode
-+ *	@filp: the file
-+ *
-+ *	Decrements the channel refcount, as the filesystem is
-+ *	no longer using it.
-+ */
-+int
-+relayfs_release(struct inode *inode, struct file *filp)
-+{
-+	int err = 0;
-+	
-+	struct rchan *rchan = (struct rchan *)filp->private_data;
-+
-+	/* The channel is no longer in use as far as this file is concerned */
-+	rchan_put(rchan);
-+	
-+	return err;
-+}
-+
-+static struct address_space_operations relayfs_aops = {
-+	.readpage	= simple_readpage,
-+	.prepare_write	= simple_prepare_write,
-+	.commit_write	= simple_commit_write
-+};
-+
-+static struct file_operations relayfs_file_operations = {
-+	.open		= relayfs_open,
-+	.read		= relayfs_file_read,
-+	.write		= relayfs_file_write,
-+	.mmap		= relayfs_mmap,
-+	.fsync		= simple_sync_file,
-+	.release	= relayfs_release,
-+};
-+
-+static struct inode_operations relayfs_file_inode_operations = {
-+	.getattr	= simple_getattr,
-+};
-+
-+static struct inode_operations relayfs_dir_inode_operations = {
-+	.create		= relayfs_create,
-+	.lookup		= simple_lookup,
-+	.link		= simple_link,
-+	.unlink		= simple_unlink,
-+	.symlink	= relayfs_symlink,
-+	.mkdir		= relayfs_mkdir,
-+	.rmdir		= simple_rmdir,
-+	.mknod		= relayfs_mknod,
-+	.rename		= simple_rename,
-+};
-+
-+static struct super_operations relayfs_ops = {
-+	.statfs		= simple_statfs,
-+	.drop_inode	= generic_delete_inode,
-+};
-+
-+static int 
-+relayfs_fill_super(struct super_block * sb, void * data, int silent)
-+{
-+	struct inode * inode;
-+	struct dentry * root;
-+
-+	sb->s_blocksize = PAGE_CACHE_SIZE;
-+	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
-+	sb->s_magic = RELAYFS_MAGIC;
-+	sb->s_op = &relayfs_ops;
-+	inode = relayfs_get_inode(sb, S_IFDIR | 0755, 0);
-+
-+	if (!inode)
-+		return -ENOMEM;
-+
-+	root = d_alloc_root(inode);
-+	if (!root) {
-+		iput(inode);
-+		return -ENOMEM;
-+	}
-+	sb->s_root = root;
-+
-+	return 0;
-+}
-+
-+static struct super_block *
-+relayfs_get_sb(struct file_system_type *fs_type,
-+	int flags, const char *dev_name, void *data)
-+{
-+	return get_sb_single(fs_type, flags, data, relayfs_fill_super);
-+}
-+
-+static struct file_system_type relayfs_fs_type = {
-+	.owner		= THIS_MODULE,
-+	.name		= "relayfs",
-+	.get_sb		= relayfs_get_sb,
-+	.kill_sb	= kill_litter_super,
-+};
-+
-+static int __init 
-+init_relayfs_fs(void)
-+{
-+	int err;
-+	
-+	err = register_filesystem(&relayfs_fs_type);
-+	if (!err) {
-+		relayfs_mount = kern_mount(&relayfs_fs_type);
-+		if (IS_ERR(relayfs_mount)) {
-+			err = PTR_ERR(relayfs_mount);
-+			printk(KERN_ERR "Couldn't mount relayfs: errcode %d\n", err);
-+			relayfs_mount = NULL;
-+		}
-+	}
-+	
-+	return err;
-+}
-+
-+static void __exit 
-+exit_relayfs_fs(void)
-+{
-+	unregister_filesystem(&relayfs_fs_type);
-+}
-+
-+module_init(init_relayfs_fs)
-+module_exit(exit_relayfs_fs)
-+
-+MODULE_AUTHOR("Tom Zanussi <zanussi@us.ibm.com> and Karim Yaghmour <karim@opersys.com>");
-+MODULE_DESCRIPTION("Relay Filesystem");
-+MODULE_LICENSE("GPL");
-+
++#include <asm-generic/relay.h>
++#endif
 
 -- 
 Regards,

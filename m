@@ -1,95 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265040AbTFSQ1K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 12:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbTFSQ1K
+	id S265359AbTFSQ14 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 12:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbTFSQ1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 12:27:10 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:65443 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265040AbTFSQ1G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 12:27:06 -0400
-Date: Thu, 19 Jun 2003 09:42:57 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: Greg KH <greg@kroah.com>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       "'Kevin P. Fleming'" <kpfleming@cox.net>,
-       "'Russell King'" <rmk@arm.linux.org.uk>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <Pine.LNX.4.44L0.0306181515520.1231-100000@ida.rowland.org>
-Message-ID: <Pine.LNX.4.44.0306190932160.955-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jun 2003 12:27:55 -0400
+Received: from adsl-157-201-192.dab.bellsouth.net ([66.157.201.192]:23174 "EHLO
+	midgaard.us") by vger.kernel.org with ESMTP id S265359AbTFSQ1q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 12:27:46 -0400
+Subject: Re: [PATCH] sleep_decay for interactivity 2.5.72 - testers  needed
+From: Andreas Boman <aboman@midgaard.us>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Mike Galbraith <efault@gmx.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306200206.00548.kernel@kolivas.org>
+References: <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net>
+	 <200306200202.37745.kernel@kolivas.org>
+	 <200306200206.00548.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1056040950.702.10.camel@asgaard.midgaard.us>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 19 Jun 2003 12:42:30 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Ok, have you _read_ the documentation on the driver model?  In it,
-> > classes and devices are clearly spelled out as to what the differences
-> > are, and what shows up where.
+On Thu, 2003-06-19 at 12:06, Con Kolivas wrote:
+> On Fri, 20 Jun 2003 02:02, Con Kolivas wrote:
+> > On Fri, 20 Jun 2003 01:47, Mike Galbraith wrote:
+> > > At 12:05 AM 6/20/2003 +1000, Con Kolivas wrote:
+> > > >Testers required. A version for -ck will be created soon.
+> > >
+> > > That idea definitely needs some refinement.
+> >
+> > Actually no it needs a bugfix even more than a refinement!
+> >
+> > The best_sleep_decay should be 60, NOT 60*Hz
 > 
-> Yes, of course I've read it.  It's lacking a number of important details.
+> Here's a fixed patch.
 
-Hey, we've tried. I realize it's missing details, and though I know it's 
-important to keep it updated, many other things take precedence. 
+Ok, that doesnt really seem to change behavior much (from just a little
+testing). I can still easily starve xmms by moving a window around over
+mozilla or evolution (I suspect for thoose that use nautilus to draw the
+desktop that would happen on an 'empty' desktop too..). 
 
-> For example, nowhere in devices.txt does it say that a device driver
-> should not create attributes in the struct device's directory since that
-> directory is owned by the bus driver.  (That's a very easy mistake to
-> make; at first sight it appears to be the natural way for a driver to
-> expose details of how it controls a device.)  In fact, nowhere in the
-> documentation does it say that you shouldn't attach an attribute to an 
-> object unless you own that object.  Maybe that seems obvious, but when a 
-> driver is bound to a device can't it be said to "own" that device in some 
-> sense?
+With 2.5.72-mm1, HZ 1000 and MAX_SLEEP_AVG 2 that does *not* happen,
+even with a cpu hog running (mpeg2enc) or during make -j20. However with
+this kernel, after having moved a window around madly for a while the
+mouse pointer is very laggy/jerky for atleast 30 sec after i release the
+window (not so with your patch). 
 
-It's "bound" to the device, but it does not own the object. 
+I'm not hitting swap at all, so thats not a factor here.
 
-Note that only recently have we realized the full importance of creating 
-attributes _only_ for objects that you own. It's exposed bugs recently, 
-and hasn't had a chance to make it in to the documentation. 
-
-> Let me ask you this:  Given a device that doesn't fit clearly into any of 
-> the existing classes, how would you decide whether or not to create a new 
-> class for it?
-
-If it does not fit into the existing classes, then there is probably a new 
-class that needs to be created for it. While you're at it, please update 
-the documentation and set a good example for the rest of us ;)
-
-> Yes, but _which_ physical things correspond to devices?  And how should 
-> the parent-child relationships be decided?
-> 
-> Consider a concrete example: a USB host controller.  Let's say that on my
-> system /sys/devices/pci0/0000:00:07.2 is an OHCI HC.  That particular
-> object is created by the PCI bus driver, and directly below it is
-> /sys/devices/pci0/0000:00:07.2/usb1 -- what physical thing does that
-> correspond to?  Is it the virtual root hub?  It's created by the USB core;
-> where does the object created by the HC driver belong?
-> 
-> Or have I misunderstood, and was it intended from the start that _all_ the
-> objects under /sys/devices/ should be created by bus drivers, while _all_
-> the objects created by device drivers belong somewhere else?  
-
-Yes.
-
-> Is that
-> somewhere else always under /sys/class/ (or /sys/block/)?  
-
-Yes, /sys/class
-
-> And where in
-> the documentation is this spelled out?
-
-It should be in the first sections of each driver model paper - The 
-hierarchy under /sys/devices/ represents the physical hierarchy of the 
-system itself. Each object represented in it is intended to map directly 
-to a physical device. Physical devices are discovered and registered by 
-bus drivers in the system. 
-
-
-	-pat
+	Andreas
 

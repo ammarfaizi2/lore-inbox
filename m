@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263836AbUDFXEX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 19:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263905AbUDFXEX
+	id S263905AbUDFXEr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 19:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUDFXEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 19:04:23 -0400
-Received: from [64.62.253.241] ([64.62.253.241]:53519 "EHLO staidm.org")
-	by vger.kernel.org with ESMTP id S263836AbUDFXEW (ORCPT
+	Tue, 6 Apr 2004 19:04:41 -0400
+Received: from ns.suse.de ([195.135.220.2]:37018 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263905AbUDFXEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 19:04:22 -0400
-Date: Mon, 5 Apr 2004 23:31:31 -0700
-From: Bryan Rittmeyer <bryan@staidm.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink core hashes on small systems
-Message-ID: <20040406063131.GA5186@staidm.org>
-References: <20040405204957.GF6248@waste.org> <20040405140223.2f775da4.akpm@osdl.org> <20040405211916.GH6248@waste.org> <20040405143824.7f9b7020.akpm@osdl.org> <20040405225911.GJ6248@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040405225911.GJ6248@waste.org>
-User-Agent: Mutt/1.3.28i
+	Tue, 6 Apr 2004 19:04:36 -0400
+To: Evan Felix <evan.felix@pnl.gov>
+Cc: linux-raid <linux-raid@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       neilb@cse.unsw.edu.au
+Subject: Re: [PATCH] Linux Raid5/6 abover 2 Terabytes
+References: <1081285240.2219.43.camel@e-linux>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: ..The TENSION mounts as I MASSAGE your RIGHT ANKLE according to
+ ancient Tibetan ACCOUNTING PROCEDURES..are you NEUROTIC yet??
+Date: Wed, 07 Apr 2004 01:02:03 +0200
+In-Reply-To: <1081285240.2219.43.camel@e-linux> (Evan Felix's message of
+ "Tue, 06 Apr 2004 14:00:40 -0700")
+Message-ID: <jey8p8ww0k.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 05:59:11PM -0500, Matt Mackall wrote:
-> On the large end, we obviously have diminishing returns for larger
-> hashes and lots of dirty cachelines for hash misses. We almost
-> certainly want sublinear growth here, but sqrt might be too
-> aggressive.
+Evan Felix <evan.felix@pnl.gov> writes:
 
-Hand wavy.
+> Here is a patch that fixes a major issue in the raid5/6 code.  It seems
+> that the code:
+>
+> logical_sector = bi->bi_sector & ~(STRIPE_SECTORS-1);
+> (sector_t)     = (sector_t)    & (constant)
+>
+> that the right side of the & does not get extended correctly when the
+> constant is promoted to the sector_t type.  I have CONFIG_LBD turned on
+> so sector_t should be 64bits wide.  This fails to properly mask the
+> value of 4294967296 (2TB/512) to 4294967296.  in my case it was coming
+> out 0.  this cause the loop following this code to read from 0 to
+> 4294967296 blocks so it could write one character.
+>
+> As you might imagine this makes a format of a 3.5TB filesystem take a
+> very long time.
+>
+> Here is the patch:
 
-Memory size is not necessarily predictive of optimal hash size;
-certain embedded workloads may want huge TCP hashes but
-render farms may only need a few dozen dentries. Why not
-just start small and rehash when chains get too long (or too short)?
-That gives better cache behavior _and_ memory usage at the
-expensive of increased latency during rehash. Maybe that's OK?
+Alternatively replace ~(STRIPE_SECTORS-1) by -STRIPE_SECTORS, which
+doesn't need a cast.
 
-> For 2.7, I've been thinking about pulling out a generic lookup API,
-> which would allow replacing hashing with something like rbtree, etc.,
-> depending on space and performance criterion.
+Andreas.
 
-rbtrees have different performance characteristics than a hash, and
-hashing seems pretty optimal in the places it's currently used.
-But, I'd love to be wrong if it means a faster kernel.
-
--Bryan
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281429AbRKUCEf>; Tue, 20 Nov 2001 21:04:35 -0500
+	id <S281521AbRKUCJh>; Tue, 20 Nov 2001 21:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281440AbRKUCEQ>; Tue, 20 Nov 2001 21:04:16 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:55812 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281429AbRKUCEG>; Tue, 20 Nov 2001 21:04:06 -0500
-Message-ID: <3BFB0B6E.147EBABF@zip.com.au>
-Date: Tue, 20 Nov 2001 18:03:26 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bernd Eckenfels <ecki@lina.inka.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: slab: avoid linear search in kmalloc? (GCC Guru wanted :)
-In-Reply-To: <20011121024525.A18750@lina.inka.de>
+	id <S281531AbRKUCJZ>; Tue, 20 Nov 2001 21:09:25 -0500
+Received: from zipcon.net ([209.221.136.5]:31507 "HELO zipcon.net")
+	by vger.kernel.org with SMTP id <S281521AbRKUCJU>;
+	Tue, 20 Nov 2001 21:09:20 -0500
+Date: Tue, 20 Nov 2001 18:07:15 -0800
+From: Adam Feuer <adamf@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Machek <pavel@suse.cz>,
+        Swsusp mailing list <swsusp@lister.fornax.hu>,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Gabor Kuti <seasons@falcon.sch.bme.hu>
+Subject: Re: [swsusp] Re: swsusp for 2.4.14
+Message-ID: <20011120180715.N11355@sunflower.zipcon.net>
+In-Reply-To: <20011121001858.B183@elf.ucw.cz> <E166M8H-0003QH-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E166M8H-0003QH-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 21, 2001 at 01:24:57AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
-> 
-> Hello,
-> 
-> I noticed that kmalloc and kmem_find_general_cachep are doing a linear
-> search in the cache_sizes array. Isnt it better to speed that up by doing a
-> binary search or a b-tree if like the following patch?
-> 
+Quoting Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> Has anyone tried porting swsusp to user mode linux. That way you could
+> actually "suspend" a copy, resume it in parallel with the original and
+> compare the two memory images ?
 
-Possibly.  I've never seen it on a profile though.
+Alan,
+  I got swsusp-2.4.13 (from Florent) to compile on User Mode Linux
+2.4.13, with a couple of changes... it seems to suspend, but will not
+resume afterwards... just boots normally. Suspending doesn't seem to
+write the swsusp signature to the swap partition... 
+  I haven't gone any farther than that yet. I can provide a diff
+against uml-2.4.13 if anyone is interested in helping. :-)
 
-Just for kicks, try feeding this into gcc and take a look
-at the assembly output:
-
-int thing(int size)
-{
-	int ret;
-
-	switch (size) {
-	case 0 ... 2:
-		return 1;
-	case 3 ... 4:
-		return 2;
-	case 5 ... 8:
-		return 3;
-	case 9 ... 16:
-		return 4;
-	case 17 ... 31:
-		return 5;
-	case 32 ... 64:
-		return 6;
-	case 65 ... 128:
-		return 7;
-	case 129 ... 256:
-		return 8;
-	case 257 ... 512:
-		return 9;
-	case 513 ... 1024:
-		return 10;
-	case 1025 ... 2048:
-		return 11;
-	case 2049 ... 4096:
-		return 12;
-	case 4097 ... 8192:
-		return 13;
-	case 8193 ... 16384:
-		return 14;
-	case 16385 ... 32768:
-		return 15;
-	case 32769 ... 65536:
-		return 16;
-	}
-	return -1;
-}
+cheers
+adam
+--
+Adam Feuer <adamf@pobox.com>      http://www.pobox.com/~adamf/

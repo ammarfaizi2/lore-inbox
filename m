@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbUKHVit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbUKHVmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbUKHVit (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 16:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbUKHVis
+	id S261251AbUKHVmH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 16:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUKHVmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 16:38:48 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:50790 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261248AbUKHVij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 16:38:39 -0500
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc1-mm3
-Date: Mon, 8 Nov 2004 22:40:02 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <200411081334.18751.annabellesgarden@yahoo.de>
-In-Reply-To: <200411081334.18751.annabellesgarden@yahoo.de>
-MIME-Version: 1.0
+	Mon, 8 Nov 2004 16:42:07 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:58338 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261253AbUKHVlg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 16:41:36 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 8 Nov 2004 22:28:32 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Gregoire Favre <Gregoire.Favre@freesurf.ch>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+Message-ID: <20041108212832.GB4217@bytesex>
+References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net> <87bre88zt8.fsf@bytesex.org> <20041108185249.GK5360@magma.epfl.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411082240.02787.annabellesgarden@yahoo.de>
+In-Reply-To: <20041108185249.GK5360@magma.epfl.ch>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag 08 November 2004 13:34 schrieb Karsten Wiese:
-> Hi
+On Mon, Nov 08, 2004 at 07:52:49PM +0100, Gregoire Favre wrote:
+> On Mon, Nov 08, 2004 at 10:17:39AM +0100, Gerd Knorr wrote:
 > 
-> This bug is triggered by logging on to bash (runlevel 3),
-> typing "cat /proc/acpi", then <TAB> gives the correct "/" to complete,
-> the 2nd <TAB> has no visual effect, the 3rd <TAB> generates this oops:
+> > Well, if it happens almost independant of the kernel/driver version it
+> > most likely is buggy hardware.  I can't do much about it ...
 > 
-> Unable to handle kernel paging request at virtual address f89e7b00
->  printing eip:
-> c0187452
-> *pde = 37ff1067
-> *pte = 00000000
-> Oops: 0000 [#1]
-> PREEMPT SMP
-> Modules linked in: binfmt_misc video ohci1394 ieee1394 uhci_hcd intel_agp agpgart i2c_i801 i2c_core snd_emu10k1 snd_rawmidi snd_seq_device snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd_util_mem snd_hwdep snd soundcore ext3 jbd ata_piix libata sd_mod scsi_mod
-> CPU:    0
-> EIP:    0060:[<c0187452>]    Not tainted VLI
-> EFLAGS: 00010286   (2.6.10-rc1-mm3)
-> EIP is at proc_get_inode+0xa0/0x184
+> ? Why couldn't it be a bug present in all kernels/drivers ?
 
-Found out, what happened:
-By accident I had ibm_acpi.ko built. Its name "ibm" was still present under "/proc/acpi".
-This is not an ibm(-laptop)-machine, so ibm_acpi.ko is useless here.
-"Unable to handle kernel paging request at virtual address f89e7b00":
-this address corresponds to the "struct module *" of ibm_acpi.ko, which was not loaded anymore.
-So the real bug here is that there is a non NULL "struct module *", where the corresponding module is unloaded.
-Or so I guess.....
+bttv runs rock solid for many people.  Well, at least most versions,
+some *are* buggy.  I'm not perfect after all ;)
 
-Best regards,
-Karsten
+> > Well known example are some via chipsets which have trouble with
+> > multiple devices doing DMA at the same time (those tend to run stable
+> > with bttv once you've turned off ide-dma ...).
+> 
+> I had those xawtv crash with an SCSI only system, and on all my
+> MB/CPU/RAM test I doubt that all hardware configuration were buggy.
+
+The point isn't IDE, the point is two devices doing DMA at the same
+time.  The usual system diagnose tools don't do that btw, they test one
+device after another.  For simliar reasons memtest may run perfectly
+fine and neverless gcc segfaults on kernel builds due to bad RAM ...
+
+What most people see is that the machine freezes are much more likely as
+soon as they do disk I/O in parallel to watching TV.  It doesn't really
+matter whenever the IDE controller or the SCSI hostadapter does the DMA.
+
+PCI-PCI transfers (i.e. DMA from bt878 to graphics card for overlay) are
+another case which often broken in chipsets.
+
+> I only have DVB hardware, is that also considered as bttv ?
+
+Full-featured DVB cards (i.e. those with hardware mpeg decoder) do
+things compareble to b878.
+
+> Some things I have noticed : xawtv and kdetv don't need CPU to achieve
+> the best quality I know about BUT they make the system crash.
+> kvdr and tvtime needs lots of time and there quality are really lower
+> than the two others, BUT they don't crash my system.
+
+Then it's likely the PCI-PCI transfers which kill the system.
+
+Try switching xawtv into grabdisplay mode, it most likely shows the
+same behavior like tvtime then, i.e. eat CPU time and don't crash the
+machine.  Thats simply the fact that PCI-PCI transfers are not used
+then.  And it's almost certainly not a driver bug then, the driver
+just has to setup stuff once and then let the hardware run on its
+own (which sometimes has the funny effect that the video overlay
+continues to run even after a kernel panic ;)
+
+  Gerd
+
+-- 
+#define printk(args...) fprintf(stderr, ## args)

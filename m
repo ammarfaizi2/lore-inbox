@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136091AbRECALS>; Wed, 2 May 2001 20:11:18 -0400
+	id <S136092AbRECAwF>; Wed, 2 May 2001 20:52:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136092AbRECALI>; Wed, 2 May 2001 20:11:08 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:10254 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136091AbRECAK4>; Wed, 2 May 2001 20:10:56 -0400
-Date: Wed, 2 May 2001 17:10:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Duc Vianney <dvianney@us.ibm.com>
-cc: <castortz@nmu.edu>, Bill Hartner <bhartner@us.ibm.com>,
-        <staelin@hpl.hp.com>, Larry McVoy <lm@bitmover.com>,
-        <lse-tech@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-        <lmbench-users@bitmover.com>
-Subject: Re: your mail
-In-Reply-To: <OF8F1A4043.9087C91A-ON85256A40.0079DA30@raleigh.ibm.com>
-Message-ID: <Pine.LNX.4.31.0105021658170.24914-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136097AbRECAvz>; Wed, 2 May 2001 20:51:55 -0400
+Received: from mail.intrex.net ([209.42.192.246]:8199 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S136092AbRECAvh>;
+	Wed, 2 May 2001 20:51:37 -0400
+Date: Wed, 2 May 2001 20:52:02 -0400
+From: jlnance@intrex.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: Compiling kernel
+Message-ID: <20010502205202.A18296@bessie.localdomain>
+In-Reply-To: <65256A40.00441BB5.00@sandesh.hss.hns.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <65256A40.00441BB5.00@sandesh.hss.hns.com>; from alad@hss.hns.com on Wed, May 02, 2001 at 06:00:00PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 02, 2001 at 06:00:00PM +0530, alad@hss.hns.com wrote:
 
+> suppose I am making some change in sched.c and now I want to build my kernel
+> that reflects the change..
+> Is there any way I can avoid answering all the questions when I do make zImage ?
+> 
+> In short how should I compile the kernel (in very small time) to see my changes.
 
-On Wed, 2 May 2001, Duc Vianney wrote:
->
-> Has anyone seen performance degradations between 2.2.19 and 2.4.x
+It sounds like you are running "make config" after you make your changes.
+If you run "make oldconfig" instead of "make config" it will not ask you
+questions unless you have added config options to the configure scripts.
 
-Yes.
+Its probably not necessary to run either on of these if you have just made
+minor changes to the code.  It does not hurt to do it though, and 
+"make oldconfig" is fast.
 
-The signal handling one is because 2.4.x will save off the full SSE2
-state, which means that the signal stack is almost 700 bytes, as compared
-to <200 before. This is sadly necessary to be able to take advantage of
-the SSE2 instructions - and on special applications the win can be quite
-noticeable. This one you won't be able to avoid, although you shouldn't
-see it on older hardware that do not have SSE2 (you see it because you
-have a PIII).
+Hope this helps,
 
-You don't say how much memory you have, but the file handling ones might
-be due to a really unfortunate hash thinko that cause the dentry hash to
-be pretty much useless on machines that have 512MB of RAM (it can show up
-in other cases, but 512M is the case that makes the hash really become a
-non-hash). If so, it should be fixed in 2.4.2.
-
-2.4.4 will give noticeably better numbers for fork and fork+exec. However,
-the scheduling optimization that does that actually breaks at least
-"bash", and it appears that we will just undo it during the stable series.
-Even if the bug is obviously in user land (and a fix is available), stable
-kernels shouldn't try to hide the problems.
-
-			Linus
-
+Jim

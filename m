@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264959AbUF1Nnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUF1NxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264959AbUF1Nnf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 09:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUF1Nnf
+	id S264953AbUF1NxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 09:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUF1NxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 09:43:35 -0400
-Received: from ms-smtp-03-smtplb.ohiordc.rr.com ([65.24.5.137]:4307 "EHLO
-	ms-smtp-03-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S264959AbUF1Nnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 09:43:33 -0400
-From: Rob Couto <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe 41:11
-To: linux-kernel@vger.kernel.org
-Subject: Re: Elastic Quota File System (EQFS)
-Date: Mon, 28 Jun 2004 09:43:28 -0400
-User-Agent: KMail/1.6.2
-References: <004e01c45abd$35f8c0b0$b18309ca@home> <40DDEC76.8060101@capitalgenomix.com> <40DE03DF.7090404@sover.net>
-In-Reply-To: <40DE03DF.7090404@sover.net>
-MIME-Version: 1.0
+	Mon, 28 Jun 2004 09:53:25 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11727 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264953AbUF1NxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 09:53:24 -0400
+Date: Thu, 24 Jun 2004 21:57:35 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Len Brown <len.brown@intel.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrey Panin <pazke@donpac.ru>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] 2.6.7-mm1, remove unused ASUS K7V-RM DMI quirk
+Message-ID: <20040624195734.GF698@openzaurus.ucw.cz>
+References: <10879946911371@donpac.ru> <40D9996C.3080904@pobox.com> <1088009583.4319.289.camel@dhcppc4>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406280943.28150.rpc@cafe4111.org>
+In-Reply-To: <1088009583.4319.289.camel@dhcppc4>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 26 June 2004 07:16 pm, Stephen Wille Padnos wrote:
+Hi!
 
-> I think you missed one of the main points - you don't get any extra
-> space until you mark some of your files as elastic.
-> You're right - under this system, nobody would get any space from
-> deletion of your files because you would use the system as a normal hard
-> quota system - you would mark no files as elastic, and would therefore
-> be limited to your quota (in the example you gave, you would not be
-> using 110M, because your quota would have limited you to 100M).  If you
-> were so kind as to mark something as elastic (say, that recently
-> doneloaded install tarball of the Gimp), then you would remove the
-> storage taken by those files from your quota usage and would have more
-> space available, with the risk that the elastic files might not stick
-> around.
->
-> Under no circumstance would you lose any file that fits under your quota.
+> Dead code, go ahead and clean it out.
 
--snip-
+My fault, thanks for cleaning.
 
-> Controlled by you using one of the methods that have been suggested:
-> a .elastic file/directory structure
-> /scratch/ space usage
-> a filesystem that can keep track of these things, and a program like chmod
-> xattrs and other userspace tools
->
-> etc.
->
-> - Steve
+> Indeed, in the upstream kernel, I'm thinking about deleting
+> all the ACPI related blacklist entries.
+> Maintaining them is more trouble than it is worth.
+> When they do work, they generally are masking bugs
+> that we should instead fix.
 
-It looks (to my untrained eyes) like a user-driven caching "algorithm", where 
-I can keep these KDE tarballs around next to the kernel sources, and a few 
-shiny new slackware ISOs, and all are of course  replaceable, but I mark them 
-elastic or put them in /scratch/... to recover my space at the cost of an 
-increased probability that I'll have to download some of them again. I like 
-it.
-
+Well, I guess that for 2.6 we want them masked.
+For 2.7, proper fix is better...
 -- 
-Rob Couto [rpc@cafe4111.org]
-computer safety tip: use only a non-conducting, static-free hammer.
---
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

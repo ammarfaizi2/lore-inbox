@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbRGWXjF>; Mon, 23 Jul 2001 19:39:05 -0400
+	id <S265024AbRGWXkG>; Mon, 23 Jul 2001 19:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265024AbRGWXi4>; Mon, 23 Jul 2001 19:38:56 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:49935 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S264976AbRGWXin>; Mon, 23 Jul 2001 19:38:43 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Gordon Lack <gmlack@freenet.co.uk>
-Date: Tue, 24 Jul 2001 09:38:37 +1000 (EST)
+	id <S265042AbRGWXj4>; Mon, 23 Jul 2001 19:39:56 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:53257 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S265024AbRGWXjh>;
+	Mon, 23 Jul 2001 19:39:37 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200107232339.f6NNdXB30979@oboe.it.uc3m.es>
+Subject: what's the semaphore in requests for?
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Tue, 24 Jul 2001 01:39:33 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15196.46461.777316.202665@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFSv3 pathname problems in 2.4 kernels
-In-Reply-To: message from Gordon Lack on Monday July 23
-In-Reply-To: <3B5B32B2.B96E6BD3@freenet.co.uk>
-	<15195.35313.83387.515099@notabene.cse.unsw.edu.au>
-	<3B5CA338.890F9586@freenet.co.uk>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Monday July 23, gmlack@freenet.co.uk wrote:
-> Neil Brown wrote:
-> > 
-> > This shouldn't be a problem for Solaris 2.6, but definately is for
-> > Irix.
-> 
->    Well, there are many 2.6 systems and they all fail in the same aay
-> as Irix.  So does Solaris 2.7.  (2.8 seems to be Ok).
+What's the semaphore field in requests for?  Are driver writers supposed
+to be using it?
 
-Odd indeed.  I use 2.6 systems and they seem fine.  I have only had
-the problem when using an old version of mountd.  What verion of
-nfs-utils are you using?
+The reason I ask is that I've been chasing an smp bug in a block driver
+of mine for a week.  The bug only shows up in 2.4 kernels (not in same
+code under 2.2.18) and only with smp ("nosmp" squashes it).  It only
+shows up when running dd in user space copying from my device to
+a disk device.  It doesn't show when copying to /dev/null.
 
-> > Look in fs/nfsd/nfsfh.c, in fh_compose.
-> > If you change:
-> >         if (ref_fh &&
-> >             ref_fh->fh_handle.fh_version == 0xca &&
-> >             parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
-> > to
-> >         if (parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
-> > you will probably get what you want, for ext2 at least.
-> 
->    Thanks, but this is for xfs (I didn't fancy fsck'ing a 470GB file
-> system!).  I suppose it's suck it and see....
+The symptom is a complete kernel lockup. Not even sysreq works.
+It's driving me crazy. It sems to get very easy to trigger in 2.4.6,
+while it was hard or impossible to trigger back in 2.4.0 and 2.4.1.
 
-It should work for xfs, and infact everything but reiserfs as it is
-the only filesys that currently sets dentry_to_fh.
-However a better, more general solution would be to add a line:
+I have added the sgi kdb stuff in order to get a handle. For a while I
+was getting some ouches from the nmi watchdog saying that one cpu was
+locked, followed by a jump into the kdb monitor. But I'm not getting that
+now.  In any case I haven't learned how to use kdb properly yet, so
+I couldn't make out much from the stack info.
 
- if (fhp->fh_handle.fh_size < NFS_FHSIZE)
-     fhp->fh_handle.fh_size = NFS_FHSIZE;
+The bug maybe shows on write from a local disk to the device too, but
+it's at least 10 times as hard to trigger that way.  It does NOt trigger
+when writing to the device from /dev/zero.  I'm not sure it shows in all
+my smp machines either ..  most of them have been slightly unstable
+under 2.4.* anyway, locking up on timescales of 1 day to a week.  Could
+be apic (asus and dell bx), but I was running my own machine noapic and
+it didn't affect the bug.
 
-just before the "return 0" in fh_update, and
+The block driver is largely in userspace. All the kernel half does
+is transfer requests to a local queue (with the io lock still held, of
+course). The userspace daemon cycles continously doing ioctls that
+copy the requests (bh by bh) into userspace, where its treated via
+some networking calls, then return an ack via another ioctl. 
 
- if (inode && fhp->fh_handle.fh_size < NFS_FHSIZE)
-     fhp->fh_handle.fh_size = NFS_FHSIZE;
+The drivers local queue is protected by a semaphore.  The thing that
+puzzles me is that the bug shows only when copying to a disk device,
+not to /dev/null, through userspace! Is it that the lifetime of a
+request is much longer than expected?
 
-before the "return 0" in fh_compose.
+I have some impression that the bug is dependent on speed too. If I
+limit the speed of the device, I think I don't see the bug - but
+definitive results are very hard to come by because I have to copy
+about 2GB from the device to be sure of triggering it.
 
-NeilBrown
+Oh well, if anyone has any insight or any plans for further hunting,
+please let me know.
+
+Peter

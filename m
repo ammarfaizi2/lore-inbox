@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267401AbUG2BLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267399AbUG2BPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267401AbUG2BLv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 21:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUG2BLu
+	id S267399AbUG2BPm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 21:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267407AbUG2BPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 21:11:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16558 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267398AbUG2BJK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 21:09:10 -0400
-Message-ID: <41084DBE.1070802@redhat.com>
-Date: Wed, 28 Jul 2004 18:07:10 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040728
-X-Accept-Language: en-us, en
+	Wed, 28 Jul 2004 21:15:41 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63416 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267399AbUG2BOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 21:14:36 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
+       mbligh@aracnet.com, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<200407280903.37860.jbarnes@engr.sgi.com>
+	<m1bri06mgw.fsf@ebiederm.dsl.xmission.com>
+	<200407281106.17626.jbarnes@engr.sgi.com>
+	<20040728124405.1a934bec.akpm@osdl.org>
+	<m1pt6f681y.fsf@ebiederm.dsl.xmission.com>
+	<1091055192.31923.1.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Jul 2004 19:12:14 -0600
+In-Reply-To: <1091055192.31923.1.camel@localhost.localdomain>
+Message-ID: <m14qnr62hd.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Peter Chubb <peter@chubb.wattle.id.au>,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: stat very inefficient
-References: <233602095@toto.iv>	<16648.10711.200049.616183@wombat.chubb.wattle.id.au> <20040728154523.20713ef1.davem@redhat.com>
-In-Reply-To: <20040728154523.20713ef1.davem@redhat.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> "find . -type f" is probably the most often run command somewhere
-> in a shell pipeline [...]
+> On Iau, 2004-07-29 at 00:11, Eric W. Biederman wrote:
+> > If we can ensure the addresses where the new kernel will run will never
+> > have DMA pointed at them I actually don't think so.  This is why last
+> > year I recommended building a kernel that runs at a non-default address
+> > and finding a way to simply preload it there.
+> 
+> We DMA into arbitary allocated pages anywhere in the memory space, so
+> you never know where is safe other than areas preallocated during the
+> old kernel run.
 
-I hope you're testing this on a recent system with a good find
-implementation.  Nowadays find calls stat for this command line only for
-directories and symlinks.  Those types along with normal files are all
-known to find through the readdir calls (i.e., the d_type field).
+Alan I just reread what you said and it appears we are in violent agreement
+about the facts.
 
-Check your strace output to see whether your system is recent enough.
+Different methods but...
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+> Since you can just clear the master bit on each PCI device it isnt a big
+> deal to protect against. (except a couple of devices that forget
+> to honour it)
+
+Or those devices that hang the machine when you clear it.
+Or the ioapics which loose the ability to generate interrupts
+when you clear the master bit, and with the i82559 timer behind
+them you can't get your new kernel to boot.
+
+Plus there are all of the non-pci devices.  
+
+And there is the fact that the pci configuration access methods
+are frequently BIOS calls.
+
+So I do see just clearing the master bit on each PCI devices to
+as dangerous as calling the shutdown methods.
+
+Eric
+
+
+

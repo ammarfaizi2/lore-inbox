@@ -1,103 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274859AbRIUWWE>; Fri, 21 Sep 2001 18:22:04 -0400
+	id <S274855AbRIUW0E>; Fri, 21 Sep 2001 18:26:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274858AbRIUWVy>; Fri, 21 Sep 2001 18:21:54 -0400
-Received: from mueller.uncooperative.org ([216.254.102.19]:7438 "EHLO
-	mueller.datastacks.com") by vger.kernel.org with ESMTP
-	id <S274855AbRIUWVo>; Fri, 21 Sep 2001 18:21:44 -0400
-Date: Fri, 21 Sep 2001 18:22:07 -0400
-From: Crutcher Dunnavant <crutcher@datastacks.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH:v2] fix register_sysrq() in 2.4.9++
-Message-ID: <20010921182207.M8188@mueller.datastacks.com>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15k86n-0005lE-00@the-village.bc.nu> <3BAA3C17.557A2C4E@osdlab.org>
-Mime-Version: 1.0
+	id <S274858AbRIUWZy>; Fri, 21 Sep 2001 18:25:54 -0400
+Received: from pop.timesn.com ([216.30.51.65]:38911 "EHLO srvaus02.timesn.com")
+	by vger.kernel.org with ESMTP id <S274855AbRIUWZl>;
+	Fri, 21 Sep 2001 18:25:41 -0400
+Message-ID: <3BABC1D9.CCA61963@timesn.com>
+Date: Fri, 21 Sep 2001 17:40:25 -0500
+From: Ray Bryant <raybry@timesn.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AIC-7XXX driver problems with 2.4.9 and L440GX+
+In-Reply-To: <200109212100.f8LL08Y61889@aslan.scsiguy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BAA3C17.557A2C4E@osdlab.org>; from rddunlap@osdlab.org on Thu, Sep 20, 2001 at 11:57:27AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if this is sufficient. The low level interfaces need to be
-exposed, and if we are not expecting modules to pay attention to the
-CONFIG_MAGIC_SYSRQ setting, then the all of these interfaces need to be
-overridden.
+I found a note about a bugzilla comment written by Doug Ledford at
+RedHat at
+http://www.cs.helsinki.fi/linux/linux-kernel/2001-18/0508.html
+that suggests a work around is to build the kernel with IO-APIC support.
+This appears to fix the current problem.  So unless something else comes
+up,
+I am "fixed" at the moment.  
 
-However, do we even need this #ifdef CONFIG_MAGIC_SYSRQ block at all?
-What does it matter if modules register or unregister events, if they
-cannot be called?
-
-The old code only zaped the enable if sysrq was not defined, and that is
-what I'm doing in the table. Some real changes would be neccessary to
-actually drop out the whole system.
-
-There is also no real reason to try and no-op these functions for speed,
-as they are trivial and FAR outside of the main call path.
-
-So the way to go I see here is:
- a) allow the registration functions to always be defined.
-and either:
- b) handle the return failure in the __sysrq_XXX functions themselves,
- c) or not.
-
-++ 20/09/01 11:57 -0700 - Randy.Dunlap:
-> Alan Cox wrote:
-> > 
-> > > Yeah, I considered that, and it doesn't matter to me whether it
-> > > reports 0 or -1, but it's the data pointer that (mostly) requires
-> > > the #ifdefs, unless the data is always present or a dummy data pointer
-> > > is used.... ?
-> > 
-> > #define it to an inline without some arguments ?
-> ~~~~~~~~~~~~~~~~~~
-> I can't get that to work, but someone else may be able to...
+"Justin T. Gibbs" wrote:
 > 
-> Here's another version for you to consider.
+> >The AIC-7XXX version 6.2.1 driver hangs at startup under 2.4.x  (we've
+> >tried 2.4.2-2 (RH 7.1), 2.4.5, and 2.4.9).
+> >The complete boot output is attached; the interesting parts are
+> >as follows:
 > 
-> The [un]register_sysrq_key() calls return 0 when CONFIG_MAGIC_SYSRQ
-> is not defined/configured.
-> However, it sacrifices one small data structure of 3 pointers.
+> This again looks like an interrupt problem (driver not seeing interrupts).
+> To know for sure, I'd need to see the messages from an "aic7xxx=verbose"
+> boot.
 > 
-> ~Randy
-> --- linux/arch/i386/kernel/apm.c.org	Mon Sep 17 10:15:45 2001
-> +++ linux/arch/i386/kernel/apm.c	Thu Sep 20 11:51:25 2001
-> @@ -703,6 +703,8 @@
->  	help_msg:       "Off",
->  	action_msg:     "Power Off\n"
->  };
-> +#else
-> +struct sysrq_key_op sysrq_poweroff_op;
->  #endif
->  
->  
-> --- linux/include/linux/sysrq.h.org	Mon Sep 17 10:21:07 2001
-> +++ linux/include/linux/sysrq.h	Thu Sep 20 11:42:15 2001
-> @@ -87,8 +87,17 @@
->  }
->  
->  #else
-> -#define register_sysrq_key(a,b)		do {} while(0)
-> -#define unregister_sysrq_key(a,b)	do {} while(0)
-> +
-> +static inline int register_sysrq_key(int key, struct sysrq_key_op *op_p)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline int unregister_sysrq_key(int key, struct sysrq_key_op *op_p)
-> +{
-> +	return 0;
-> +}
-> +
->  #endif
->  
->  /* Deferred actions */
-
+> --
+> Justin
 
 -- 
-Crutcher        <crutcher@datastacks.com>
-GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+----------------------------------------------------------- 
+  Ray Bryant,  Linux Performance Analyst, Times N Systems
+   1908 Kramer Lane, Bldg. B, Suite P, Austin, TX 78758
+              512-977-5366, raybry@timesn.com
+-----------------------------------------------------------

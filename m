@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265988AbUAEWkI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265987AbUAEWi4
+	id S265974AbUAEW5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 17:57:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbUAEW5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:38:56 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:40628 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265849AbUAEWh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:37:26 -0500
-Message-ID: <3FF9E5DB.6020604@us.ibm.com>
-Date: Mon, 05 Jan 2004 14:31:55 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       mbligh@aracnet.com
-Subject: Re: [PATCH] Simplify node/zone field in page->flags
-References: <3FE74B43.7010407@us.ibm.com> <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com> <20040105213736.GA19859@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jan 2004 17:57:23 -0500
+Received: from ip-213-226-226-138.ji.cz ([213.226.226.138]:32249 "HELO
+	machine.sinus.cz") by vger.kernel.org with SMTP id S265974AbUAEWzP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 17:55:15 -0500
+Date: Mon, 5 Jan 2004 23:55:08 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Diego Calleja <grundig@teleline.es>, Robert.L.Harris@rdlg.net,
+       vherva@niksula.hut.fi, ihaquer@isec.pl, cliph@isec.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: mremap() bug IMHO not in 2.2
+Message-ID: <20040105225508.GM2093@pasky.ji.cz>
+Mail-Followup-To: Diego Calleja <grundig@teleline.es>,
+	Robert.L.Harris@rdlg.net, vherva@niksula.hut.fi, ihaquer@isec.pl,
+	cliph@isec.pl, linux-kernel@vger.kernel.org
+References: <20040105145421.GC2247@rdlg.net> <Pine.LNX.4.58L.0401051323520.1188@logos.cnet> <20040105181053.6560e1e3.grundig@teleline.es> <20040105182607.GB2093@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040105182607.GB2093@pasky.ji.cz>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
+Dear diary, on Mon, Jan 05, 2004 at 07:26:07PM CET, I got a letter,
+where Petr Baudis <pasky@ucw.cz> told me, that...
+> Dear diary, on Mon, Jan 05, 2004 at 06:10:53PM CET, I got a letter,
+> where Diego Calleja <grundig@teleline.es> told me, that...
+> > El Mon, 5 Jan 2004 13:26:23 -0200 (BRST) Marcelo Tosatti <marcelo.tosatti@cyclades.com> escribió:
+> > 
+> > > On Mon, 5 Jan 2004, Robert L. Harris wrote:
+> > > > Just read this on full disclosure:
+> > > >
+> > > > http://isec.pl/vulnerabilities/isec-0013-mremap.txt
+> > [...]
+> > > It is possible that the problem is exploitable. There is no known public
+> > > exploit yet, however.
+> > > 
+> > > 2.4.24 includes a fix for this (mm/mremap.c diff)
+> > 
+> > It names 2.2 too. Is there a fix for 2.2?
 > 
->>Jesse had acked the patch in an earlier itteration.  The only thing 
->>that's changed is some line offsets whilst porting the patch forward.
->>
->>Jesse (or anyone else?), any objections to this patch as a superset of 
->>yours?
+> I'm trying to investigate that right now. In 2.2, mremap() doesn't yet
+> take yet the new_addr argument, therefore the "official" 2.4 fix
+> wouldn't apply at all to it. There are four possibilities:
 > 
+> * The isec.pl guys just made a mistake.
 > 
-> No objections here.  Of course, you'll have to rediff against the
-> current tree since that stuff has been merged for awhile now.  On a
-> somewhat related note, Martin mentioned that he'd like to get rid of
-> memblks.  I'm all for that too; they just seem to get in the way.
+> * 2.2's get_unmapped_area() can return dangerous pages for len == 0,
+> whilst the 2.4's get_unmapped_area() cannot. (I'm not sure, looking into
+> that code right now.)
 > 
-> Jesse
+> * 2.4's fix is incorrect.
+> 
+> * I'm missing something obvious.
 
-Here's an updated version against 2.6.1-rc1.  Small comment fix (there 
-are actually up to (MAX_NUMNODES * MAX_NR_ZONES) possible zones total, 
-not log2(MAX_NUMNODES * MAX_NR_ZONES) as your comment stated.  That is 
-the number of bits necessary to index every possible zone.
+Actually, after looking at the code again, I'm now quite convinced 2.2
+has not this particular vulnerability. In order for the exploit to work,
+you'd need mremap() to relocate you.
 
-After this goes in, we (I) can convert a number of places that are doing 
-several pointer dereferences/arithmetic and other things to determine 
-which node/zone a page belongs to simply calling 
-page_nodenum()/page_zonenum().
+But mremap() won't take newaddr argument, so you can't get yourself
+relocated explicitly. And mremap() will not relocate yourself implicitly
+to some random spot neither, because since newlen is zero, it will
+always trigger the shrinking code, which will just munmap() and bail
+out.
 
-Cheers!
+ihaquer, any comments? Is there something we don't know about? If not,
+please correct your announcement.
 
--Matt
+Kind regards,
 
+-- 
+ 
+				Petr "Pasky" Baudis
+.
+The brain is a wonderful organ; it starts working the moment you get up
+in the morning, and does not stop until you get to work.
+.
+Stuff: http://pasky.or.cz/

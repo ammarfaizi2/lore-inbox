@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbTEUPFN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 11:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTEUPFN
+	id S262161AbTEUPLH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 11:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTEUPLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 11:05:13 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:44944 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262163AbTEUPFM (ORCPT
+	Wed, 21 May 2003 11:11:07 -0400
+Received: from holomorphy.com ([66.224.33.161]:36486 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262161AbTEUPLH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 11:05:12 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 21 May 2003 11:11:07 -0400
+Date: Wed, 21 May 2003 08:23:56 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, kaos@ocs.com.au,
+       James.Bottomley@steeleye.com, mort@wildopensource.com,
+       davidm@napali.hpl.hp.com, jun.nakajima@intel.com, tomita@cinet.co.jp
+Subject: Re: [Lse-tech] cpu-2.5.69-bk14-1
+Message-ID: <20030521152356.GI2444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	lse-tech@lists.sourceforge.net, kaos@ocs.com.au,
+	James.Bottomley@steeleye.com, mort@wildopensource.com,
+	davidm@napali.hpl.hp.com, jun.nakajima@intel.com,
+	tomita@cinet.co.jp
+References: <20030520170331.GK29926@holomorphy.com> <20030521094317.A6612@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16075.39093.200508.885460@napali.hpl.hp.com>
-Date: Wed, 21 May 2003 08:18:13 -0700
-To: arjanv@redhat.com
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: web page on O(1) scheduler
-In-Reply-To: <1053507692.1301.1.camel@laptop.fenrus.com>
-References: <16075.8557.309002.866895@napali.hpl.hp.com>
-	<1053507692.1301.1.camel@laptop.fenrus.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20030521094317.A6612@infradead.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 21 May 2003 11:01:33 +0200, Arjan van de Ven <arjanv@redhat.com> said:
+On Tue, May 20, 2003 at 10:03:31AM -0700, William Lee Irwin III wrote:
+>> Extended cpumasks for larger systems. Now featuring bigsmp, Summit,
+>> and Voyager updates in addition to PC-compatible, NUMA-Q, and SN2
+>> bits from SGI.
 
-  Arjan> On Wed, 2003-05-21 at 08:49, David Mosberger wrote:
-  >>  I think the web pages should be most relevant to the HPTC (high
-  >> performance technical computing) community, since this is the
-  >> community that is most likely affected by some of the performance
-  >> oddities of the O(1) scheduler.  Certainly anyone using OpenMP on
-  >> Intel platforms (x86 and ia64) may want to take a look.
+On Wed, May 21, 2003 at 09:43:17AM +0100, Christoph Hellwig wrote:
+> Here's the PPC32 UP bits.  I'll look into SMP once it starts to actually
+> compile again.
 
-  Arjan> oh you mean the OpenMP broken behavior of calling
-  Arjan> sched_yield() in a tight loop to implement spinlocks ?
+Thanks, merged.
 
-Please have the courtesy of reading the web page before jumping to
-conclusions.
 
-	--david
+-- wli

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbTGEHGI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 03:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbTGEHGH
+	id S266292AbTGEHQo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 03:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266294AbTGEHQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 03:06:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:41410 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S266291AbTGEHGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 03:06:06 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 ServerWorks DMA Bugs
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-References: <Pine.LNX.4.53.0307042325430.3837@mackman.net>
-From: Markus Plail <linux-kernel@gitteundmarkus.de>
-Date: Sat, 05 Jul 2003 09:21:13 +0200
-In-Reply-To: <Pine.LNX.4.53.0307042325430.3837@mackman.net> (Ryan Mack's
- message of "Fri, 4 Jul 2003 23:45:29 -0700 (PDT)")
-Message-ID: <87fzllh21i.fsf@gitteundmarkus.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Jul 2003 03:16:43 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:6374 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S266292AbTGEHQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 03:16:42 -0400
+Date: Sat, 5 Jul 2003 09:30:31 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: benh@kernel.crashing.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
+Message-ID: <20030705073031.GB32363@wohnheim.fh-wedel.de>
+References: <20030704201840.GH22152@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0307041725180.1744-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0307041725180.1744-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jul 2003, Ryan Mack wrote:
-
-> I've real the other threads but nothing touches on my specific issue.
-> I have a dual P4 Xeon Dell PowerEdge 1600SC with a Fusion MPT SCSI
-> controller and a ServerWorks CSB5 IDE chipset.  All the HDs are on the
-> SCSI bus, and only my CD reader and my DVD writer are on the IDE bus
-> (one on each channel).  Hyperthreading is enabled (4 logical
-> processors).  I am using GCC 3.2.2.
+On Fri, 4 July 2003 17:39:01 -0700, Linus Torvalds wrote:
 > 
-> The CD readers is the blacklisted 'SAMSUNG CD-ROM SC-148C' and I never
-> use it so I can remove it if needed.  The DVD writer is a 'SONY DVD RW
-> DRU-500A'.  Both are going through the ide-scsi driver.  Whenever I
-> read/write CDs in the DVD writer, I get very high system load (50% on
-> one CPU), even though DMA seems to be enabled.
+> I think we should just continue to do what we do now - sure, we'll loop on 
+> SIGSEGV, but hey, it's a user space bug, it's not the kernels problem. 
+> It's better to let people continue to do stupid things than try to force 
+> changes.
+> 
+> So how about something like the appended? Very simple patch,i and in fact 
+> it's more logical than the old behaviour (the old behaviour punched 
+> through blocked signals, the new ones says "if you block or ignore the 
+> signal we will just kill you through the default action").
 
-If you are writing CDs with unusual block sizes (audio CDs, (S)VCDs,
-RAW mode -> blocksize != 2048) you won't get DMA with ide-scsi, no
-matter what you do. It's simply not supported.
+That seems to be the best solution.  Thanks!
 
-regards
-Markus
+> ---
+> --- 1.86/kernel/signal.c	Mon Jun  2 13:37:11 2003
+> +++ edited/kernel/signal.c	Fri Jul  4 17:29:43 2003
+> @@ -797,10 +797,11 @@
+>  	int ret;
+>  
+>  	spin_lock_irqsave(&t->sighand->siglock, flags);
+> -	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN)
+> +	if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
+>  		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
+> -	sigdelset(&t->blocked, sig);
+> -	recalc_sigpending_tsk(t);
+> +		sigdelset(&t->blocked, sig);
+> +		recalc_sigpending_tsk(t);
+> +	}
+>  	ret = specific_send_sig_info(sig, info, t);
+>  	spin_unlock_irqrestore(&t->sighand->siglock, flags);
+>  
+> 
 
+Jörn
+
+-- 
+Simplicity is prerequisite for reliability.
+-- Edsger W. Dijkstra

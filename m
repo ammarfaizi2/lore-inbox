@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267231AbTAPTgW>; Thu, 16 Jan 2003 14:36:22 -0500
+	id <S267227AbTAPTkF>; Thu, 16 Jan 2003 14:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267227AbTAPTgW>; Thu, 16 Jan 2003 14:36:22 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:8198 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267231AbTAPTgV>;
-	Thu, 16 Jan 2003 14:36:21 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301161944.h0GJic4p002523@darkstar.example.net>
-Subject: Re: [PATCH 2.5.58] new NUMA scheduler: fix
-To: mingo@elte.hu
-Date: Thu, 16 Jan 2003 19:44:38 +0000 (GMT)
-Cc: hch@infradead.org, rml@tech9.net, efocht@ess.nec.de, mbligh@aracnet.com,
-       hohnbaum@us.ibm.com, habanero@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.44.0301162025300.9563-100000@localhost.localdomain> from "Ingo Molnar" at Jan 16, 2003 08:44:01 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267233AbTAPTkE>; Thu, 16 Jan 2003 14:40:04 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:18183 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267227AbTAPTkD>; Thu, 16 Jan 2003 14:40:03 -0500
+Date: Thu, 16 Jan 2003 14:47:16 -0500 (EST)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: Ezra Nugroho <ezran@goshen.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: raid 5 algorithm docs
+In-Reply-To: <1042736032.32536.170.camel@ezran.goshen.edu>
+Message-ID: <Pine.LNX.4.10.10301161420400.32390-100000@clements.sc.steeleye.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > well, it needs to settle down a bit more, we are technically in a
-> > > codefreeze :-)
-> > 
-> > We're in feature freeze.  Not sure whether fixing the scheduler for one
-> > type of hardware supported by Linux is a feature 8)
+On 16 Jan 2003, Ezra Nugroho wrote:
 
-Yes, we are definitely _not_ in a code freeze yet, and I doubt that we
-will be for at least a few months.
+> I don't know if linux-raid mailing list is still active, the archive
+> sites look very old...
 
-John.
+Yes, linux-raid is still alive and kicking...
+it's at: linux-raid@vger.kernel.org
+ 
+> Raidtab's man page tells about left/right (a)synchronous algorithm, but
+> doesn't tell how they differ.
+
+I haven't seen much documentation either, but here's what I got from 
+looking at the code (BTW, the relevant section of code is 
+raid5.c:raid5_compute_sector(), if you're curious):
+
+Basically, the left/right refers to how the parity information is laid 
+out and the symmetric/asymmetric refers to how the data is laid out. 
+
+The "left" algorithms start with parity on the last disk, moving the 
+parity one disk closer to the first disk for each stripe (wrapping 
+as necessary). The "right" algorithms do just the opposite, starting 
+with parity on the first disk, moving it one disk closer to the last 
+disk for each stripe (wrapping as necessary).
+
+The "asymmetric" algorithms place the data blocks for a given stripe in 
+simple sequential order, skipping over the parity block as necessary
+and always starting with the first data block of a stripe on the 
+first disk. The "symmetric" algorithms differ from this in that they
+do not always place the first block of a stripe on the first disk,
+but continue to lay out the data blocks in sequential disk order,
+simply wrapping back to the first disk when it's necessary.
+So the symmetric algorithms tend to give better performance on large
+sequential reads, for example, since the actual disk reads are 
+evenly spread across all disks.
+
+There's a pretty good diagram of the left-symmetric disk layout here: 
+www.pdl.cmu.edu/PDL-FTP/Declustering/ASPLOS.ps (see figure 2-1)
+
+-- 
+Paul Clements
+Paul.Clements@SteelEye.com
+

@@ -1,77 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263871AbTIICYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 22:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTIICYK
+	id S263728AbTIICW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 22:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbTIICW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 22:24:10 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:55182
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263871AbTIICYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 22:24:06 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>, Steven Pratt <slpratt@austin.ibm.com>
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-Date: Tue, 9 Sep 2003 12:31:48 +1000
-User-Agent: KMail/1.5.3
+	Mon, 8 Sep 2003 22:22:27 -0400
+Received: from mail.kroah.org ([65.200.24.183]:47754 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263728AbTIICWS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 22:22:18 -0400
+Date: Mon, 8 Sep 2003 19:22:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Momes <momes@mundo-r.com>
 Cc: linux-kernel@vger.kernel.org
-References: <3F5D023A.5090405@austin.ibm.com> <200309091210.06333.kernel@kolivas.org> <200309091216.32964.kernel@kolivas.org>
-In-Reply-To: <200309091216.32964.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: USB hang
+Message-ID: <20030909022236.GB4420@kroah.com>
+References: <200309041951.37523.momes@mundo-r.com> <200309052332.10022.momes@mundo-r.com> <20030905213528.GA13018@kroah.com> <200309061824.51409.momes@mundo-r.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309091231.48709.kernel@kolivas.org>
+In-Reply-To: <200309061824.51409.momes@mundo-r.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003 12:16, Con Kolivas wrote:
-> On Tue, 9 Sep 2003 12:10, Con Kolivas wrote:
-> > On Tue, 9 Sep 2003 08:56, Andrew Morton wrote:
-> > > Steven Pratt <slpratt@austin.ibm.com> wrote:
-> > > > For specjbb things are looking good from a throughput point of view.
-> > > > ...
-> > > > Volanomark, on the other hand is still off by quite a bit from test4
-> > > > stock
-> > >
-> > > hmm, thanks.
-> > >
-> > > I'm not sure that volanomark is very representative of any real-world
-> > > thing.
-> > >
-> > > > ...
-> > > > If thre is any particular patch/tree combination you would like me to
-> > > > try out, please let me know and I will see if I can get the results
-> > > > for you.
-> > >
-> > > Could we please see test5 versus test5 plus Andrew's patch?
-> > >
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-tes
-> > >t4 /2 .6.0-test4-mm6/broken-out/sched-CAN_MIGRATE_TASK-fix.patch
-> > >
-> > > and if you have time, also test5 plus sched-CAN_MIGRATE_TASK-fix.patch
-> > > plus
-> > >
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-tes
-> > >t4 /2
-> > > .6.0-test4-mm6/broken-out/sched-balance-fix-2.6.0-test3-mm3-A0.patch
-> >
-> > Interestingly enough this drops the volano results the same proportion as
-> > Ingo's A3 patch. 11000 ->10400 throughput with same idle, but more
-> > schedule().
-> >
-> > I've posted some results for test5 volano and test5-A0 here:
-> > http://kernel.kolivas.org/2.5/volano
-> >
-> > More testing underway.
->
-> Correction sorry: These changes were due to
-> sched-CAN_MIGRATE_TASK-fix.patch and the test results say
-> volano-results-2.6.0-test5-A0-*
+On Sat, Sep 06, 2003 at 06:24:51PM +0200, Momes wrote:
+> I've enabled CONFIG_USB_DEBUG and kernel debugging. Below are dmesg and debug 
+> files, with and without noapic option.
+> I've also used "nmi_watchdog=N" and  "nmi_watchdog=1" in lilo.conf with no 
+> apparent result. Sorry, I don't know how to mange this feature.
+> Most significant thing I've found after this are two things:
+> 
+> 1.- after this kernel modifications when the system boots with no USB device 
+> plugged in there is no response at the moment of plug in a device. No 
+> message, no hang, and device do not work.
+> 
+> 2.-when system is hang and press the power botton this message appears:
+> "host/usb-ohci.c: USB suspend: usb-00.02.2
+> host/usb-ohci.c: USB suspend: usb-00.02.3
+> host/usb-ohci.c: USB continue: usb-00.02.2 from host wakeup
+> host/usb-ohci.c: USB continue: usb-00.02.3 from host wakeup
+> SiS pirq: advanced IDE/ACPI/DAQ mapping not yet implemented
+> advanced SiS pirq mapping not  yet implemented"
 
-Further testing shows the patch: sched-balance-fix-2.6.0-test3-mm3-A0.patch to 
-have no effect on volano results by itself. 
+"suspend"?  Huh?  It's as if when you plug in your usb device, the
+machine decides to power down to sleep.
 
-Con
+Very odd, I really have no idea, sorry.
 
+greg k-h

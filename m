@@ -1,91 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbUKCVtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbUKCVwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbUKCVtK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 16:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbUKCVtI
+	id S261891AbUKCVwd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 16:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUKCVt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 16:49:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1806 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261921AbUKCVsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 16:48:05 -0500
-Date: Wed, 3 Nov 2004 22:47:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
-       trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] lockd: fix two struct definitions
-Message-ID: <20041103214732.GD31830@stusta.de>
+	Wed, 3 Nov 2004 16:49:56 -0500
+Received: from gprs214-112.eurotel.cz ([160.218.214.112]:12931 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261891AbUKCVr3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 16:47:29 -0500
+Date: Wed, 3 Nov 2004 22:47:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: Type-checking for pci layer
+Message-ID: <20041103214711.GA1885@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under fs/lockd/, there are two structs declared extern although they are 
-in the same file. Furtheremore, they don't have to be global since their 
-only users are in the same file.
+Hi!
 
-Most of the changes to svc.c are only indent fixes caused by making the 
-struct static.
+This adds type-checking to PCI layer. u32 has been replaced with
+defines, so it is no longer easy to confuse it with system suspend
+level. Patrick included it in his power tree, but I guess direct
+merging to you (Andrew) is faster/easier way to go? Please apply,
 
+								Pavel
 
-diffstat output:
- fs/lockd/mon.c |    4 ++--
- fs/lockd/svc.c |   16 ++++++++--------
- 2 files changed, 10 insertions(+), 10 deletions(-)
+Acked-by: Greg KH <greg@kroah.com>
+Acked-by: Patrick Mochel
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm2-full/fs/lockd/mon.c.old	2004-11-03 22:29:13.000000000 +0100
-+++ linux-2.6.10-rc1-mm2-full/fs/lockd/mon.c	2004-11-03 22:29:44.000000000 +0100
-@@ -19,7 +19,7 @@
+--- clean/include/linux/pci.h	2004-10-01 00:30:30.000000000 +0200
++++ linux/include/linux/pci.h	2004-11-01 21:24:17.000000000 +0100
+@@ -480,6 +480,14 @@
+ #define DEVICE_COUNT_COMPATIBLE	4
+ #define DEVICE_COUNT_RESOURCE	12
  
- static struct rpc_clnt *	nsm_create(void);
- 
--extern struct rpc_program	nsm_program;
-+static struct rpc_program	nsm_program;
- 
++typedef int __bitwise pci_power_t;
++
++#define PCI_D0	((pci_power_t __force) 0)
++#define PCI_D1	((pci_power_t __force) 1)
++#define PCI_D2	((pci_power_t __force) 2)
++#define PCI_D3hot	((pci_power_t __force) 3)
++#define PCI_D3cold	((pci_power_t __force) 4)
++
  /*
-  * Local NSM state
-@@ -237,7 +237,7 @@
+  * The pci_dev structure is used to describe PCI devices.
+  */
+@@ -508,7 +526,7 @@
+ 					   this if your device has broken DMA
+ 					   or supports 64-bit transfers.  */
  
- static struct rpc_stat		nsm_stats;
+-	u32             current_state;  /* Current operating state. In ACPI-speak,
++	pci_power_t     current_state;  /* Current operating state. In ACPI-speak,
+ 					   this is D0-D3, D0 being fully functional,
+ 					   and D3 being off. */
  
--struct rpc_program		nsm_program = {
-+static struct rpc_program	nsm_program = {
- 		.name		= "statd",
- 		.number		= SM_PROGRAM,
- 		.nrvers		= sizeof(nsm_version)/sizeof(nsm_version[0]),
---- linux-2.6.10-rc1-mm2-full/fs/lockd/svc.c.old	2004-11-03 22:26:30.000000000 +0100
-+++ linux-2.6.10-rc1-mm2-full/fs/lockd/svc.c	2004-11-03 22:30:05.000000000 +0100
-@@ -38,7 +38,7 @@
- #define LOCKD_BUFSIZE		(1024 + NLMSVC_XDRSIZE)
- #define ALLOWED_SIGS		(sigmask(SIGKILL))
- 
--extern struct svc_program	nlmsvc_program;
-+static struct svc_program	nlmsvc_program;
- 
- struct nlmsvc_binding *		nlmsvc_ops;
- EXPORT_SYMBOL(nlmsvc_ops);
-@@ -476,11 +476,11 @@
- static struct svc_stat		nlmsvc_stats;
- 
- #define NLM_NRVERS	(sizeof(nlmsvc_version)/sizeof(nlmsvc_version[0]))
--struct svc_program	nlmsvc_program = {
--	.pg_prog	= NLM_PROGRAM,		/* program number */
--	.pg_nvers	= NLM_NRVERS,		/* number of entries in nlmsvc_version */
--	.pg_vers	= nlmsvc_version,	/* version table */
--	.pg_name	= "lockd",		/* service name */
--	.pg_class	= "nfsd",		/* share authentication with nfsd */
--	.pg_stats	= &nlmsvc_stats,	/* stats table */
-+static struct svc_program	nlmsvc_program = {
-+	.pg_prog		= NLM_PROGRAM,		/* program number */
-+	.pg_nvers		= NLM_NRVERS,		/* number of entries in nlmsvc_version */
-+	.pg_vers		= nlmsvc_version,	/* version table */
-+	.pg_name		= "lockd",		/* service name */
-+	.pg_class		= "nfsd",		/* share authentication with nfsd */
-+	.pg_stats		= &nlmsvc_stats,	/* stats table */
+@@ -645,7 +663,7 @@
+ 	struct pci_dynids dynids;
  };
+ 
+-#define	to_pci_driver(drv) container_of(drv,struct pci_driver, driver)
++#define	to_pci_driver(drv) container_of(drv, struct pci_driver, driver)
+ 
+ /**
+  * PCI_DEVICE - macro used to describe a specific pci device
+@@ -781,8 +799,8 @@
+ /* Power management related routines */
+ int pci_save_state(struct pci_dev *dev, u32 *buffer);
+ int pci_restore_state(struct pci_dev *dev, u32 *buffer);
+-int pci_set_power_state(struct pci_dev *dev, int state);
+-int pci_enable_wake(struct pci_dev *dev, u32 state, int enable);
++int pci_set_power_state(struct pci_dev *dev, pci_power_t state);
++int pci_enable_wake(struct pci_dev *dev, pci_power_t state, int enable);
+ 
+ /* Helper functions for low-level code (drivers/pci/setup-[bus,res].c) */
+ void pci_bus_assign_resources(struct pci_bus *bus);
+--- clean/drivers/pci/pci.c	2004-10-01 00:30:16.000000000 +0200
++++ linux/drivers/pci/pci.c	2004-10-25 23:24:37.000000000 +0200
+@@ -242,7 +242,7 @@
+  */
+ 
+ int
+-pci_set_power_state(struct pci_dev *dev, int state)
++pci_set_power_state(struct pci_dev *dev, pci_power_t state)
+ {
+ 	int pm;
+ 	u16 pmcsr;
+@@ -422,7 +422,7 @@
+  * 0 if operation is successful.
+  * 
+  */
+-int pci_enable_wake(struct pci_dev *dev, u32 state, int enable)
++int pci_enable_wake(struct pci_dev *dev, pci_power_t state, int enable)
+ {
+ 	int pm;
+ 	u16 value;
 
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

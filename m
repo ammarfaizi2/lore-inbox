@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314275AbSECP2r>; Fri, 3 May 2002 11:28:47 -0400
+	id <S314274AbSECPct>; Fri, 3 May 2002 11:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314328AbSECP2r>; Fri, 3 May 2002 11:28:47 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:42000 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S314275AbSECP2q> convert rfc822-to-8bit; Fri, 3 May 2002 11:28:46 -0400
-Date: Fri, 3 May 2002 11:27:38 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre8
-In-Reply-To: <200205031516.29892.Dieter.Nuetzel@hamburg.de>
-Message-ID: <Pine.LNX.4.21.0205031123290.10896-100000@freak.distro.conectiva>
+	id <S314330AbSECPcs>; Fri, 3 May 2002 11:32:48 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:3771 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S314274AbSECPcr>;
+	Fri, 3 May 2002 11:32:47 -0400
+Date: Fri, 03 May 2002 08:32:16 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+        Andrea Arcangeli <andrea@suse.de>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <4056172818.1020414735@[10.10.2.3]>
+In-Reply-To: <20020503092426.GH24506@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 3 May 2002, Dieter [iso-8859-15] Nützel wrote:
-
-> Sorry for my ignorance Marcelo,
-> 
-> but why don't we see the "outstanding" VM fixes even if the -19 cycle is so 
-> long, then?
-
-Andrea VM changes are touching performance and stability critical parts of
-the code. I cannot simply merge of all them at one time.
-
-What I'm doing is to merge each part separately (for example, 2.4.19 will
-have the writeout scheduling changes) so they can be tested separately by
-lots of people when final releases are done.
-
-Also I'm trying to understand his changes. I'm not going to merge
-senseless stuff.
-
-The writeout scheduling changes were excellent.
-
-> So we see posts like "...hurray, the O(1)-scheduler is so much faster..." and 
-> "...-jam6, too..." (including the spiltted vm33), etc.
+>> Again note that nonlinear can do nothing to help you there, the
+>> limitation you deal with is pci32 and the GFP API, not at all about
+>> discontigmem or nonlinear. 
 >
-> All this numbers are known for months.
-> 
-> Do you think the pending VM stuff goes into -20, at least?
+> While I don't have a particular plan to address what changes to the
+> GFP API might be required to make these scenarios work, a quick thought
+> is to pass in indices into a table of zones corresponding to regions of
+> memory addressible by some devices and not others. It'd give rise to a
+> partition like what is already present with foreknowledge of ISA DMA
+> and 32-bit PCI, but there would be strange corner cases, for instance,
+> devices claiming to be 32-bit PCI that don't wire all the address lines.
+> I'm not entirely sure how smoothly these cases are now handled anyway.
 
-Hopefully.
+In my mind, one possibility for a powerful API would be to specify a
+mask of acceptable physical addresses, and a "state" for what kind of
+mapping you wanted - global kernel permanently mapped address, unmapped
+address, per-task kernel mapped address, per-address space kernel
+mapped address, etc.
+
+Without thinking about it too much (aka I'm sticking my neck out and
+am going to get shot down ;-)) it would seem possible to do the phys
+mask idea inside the current buddy system without too much problem
+if the mask was aligned on 2^MAX_ORDER * sizeof(struct page) boundarys?
+I need to think about that one some more, but I thought I'd throw it
+out to see what people think ...
+
+M.
 

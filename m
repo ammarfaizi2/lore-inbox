@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290742AbSARQrB>; Fri, 18 Jan 2002 11:47:01 -0500
+	id <S290746AbSARQrL>; Fri, 18 Jan 2002 11:47:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290738AbSARQqw>; Fri, 18 Jan 2002 11:46:52 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:7179 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S290739AbSARQqj>;
-	Fri, 18 Jan 2002 11:46:39 -0500
-Date: Sat, 12 Jan 2002 06:27:36 +0000
+	id <S290745AbSARQrC>; Fri, 18 Jan 2002 11:47:02 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:11275 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290741AbSARQqn>;
+	Fri, 18 Jan 2002 11:46:43 -0500
+Date: Fri, 11 Jan 2002 23:36:22 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
+To: Steve Whitehouse <Steve@ChyGwyn.com>
+Cc: Luc Robalo Marques <robalomarquesl@yahoo.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-Message-ID: <20020112062735.D511@toy.ucw.cz>
-In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de> <E16Oocq-0005tX-00@the-village.bc.nu>
+Subject: Re: nbd request too big
+Message-ID: <20020111233621.D260@toy.ucw.cz>
+In-Reply-To: <20020107152423.78321.qmail@web14906.mail.yahoo.com> <200201071538.PAA28211@gw.chygwyn.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E16Oocq-0005tX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 10, 2002 at 11:28:48PM +0000
+In-Reply-To: <200201071538.PAA28211@gw.chygwyn.com>; from steve@gw.chygwyn.com on Mon, Jan 07, 2002 at 03:38:29PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI!
+Hi!
 
-> > is it possible to include an emulation for the CMOV* (and possible other
-> > i686 instructions) for processors that dont have these (k6, pentium
-> > etc.)? I think this should work like the fpu emulation. Even if its slow
+> I presume you are using Pavel's server from his web page ? You need to increase
+> the buffer size that the server uses. This happens as a result of the change
+> a little while ago of nbd to use the elevator to merge requests at the nbd
+> client end. If memory serves the maximum size of request is sizeof(header) +
+> 128 * block_size, so you need to alter the server to use that size.
 > 
-> The kernel isnt there to fix up the fact authors can't read. Its also very
-> hard to get emulations right. I grant that this wasn't helped by the fact
-> the gcc x86 folks also couldnt read the pentium pro manual correctly.
+> You'll find the buffer size in the main loop of the mainloop() function
+> char buf[20480]; needs increasing (to (131072 + 28) for 1k blocks for example)
+> and also you'll need to increase the value here (to 131072 in this example):
+> 
+>                 if (len > 10240)
+>                         err("Request too big!");
 
-How long does it take until netscape binaries contain CMOV? We already do
-FPU emulation (you can do soft-float, so you do NOT need FP emulation!), so
-I guess this would begood freature.
+Thanx for explanation and would-be patch. I'll apply it into CVS.
+
+Perhaps have acount on sourceforge and you want write access to the CVS?
+
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

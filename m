@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271861AbRH1R2r>; Tue, 28 Aug 2001 13:28:47 -0400
+	id <S271881AbRH1Swb>; Tue, 28 Aug 2001 14:52:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271860AbRH1R2i>; Tue, 28 Aug 2001 13:28:38 -0400
-Received: from mx9.port.ru ([194.67.57.19]:7562 "EHLO mx9.port.ru")
-	by vger.kernel.org with ESMTP id <S271857AbRH1R2Y>;
-	Tue, 28 Aug 2001 13:28:24 -0400
+	id <S271882AbRH1SwV>; Tue, 28 Aug 2001 14:52:21 -0400
+Received: from mx9.port.ru ([194.67.57.19]:15067 "EHLO mx9.port.ru")
+	by vger.kernel.org with ESMTP id <S271881AbRH1SwI>;
+	Tue, 28 Aug 2001 14:52:08 -0400
 From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109272151.f8RLp8c03589@vegae.deep.net>
-Subject: 2.4.9-ac1 slight RT sluggishness
+Message-Id: <200109272314.f8RNErL04549@vegae.deep.net>
+Subject: page_launder() on 2.4.9/10 issue
 To: lkml@vegae.deep.net
-Date: Thu, 27 Sep 2001 21:51:07 +0000 (UTC)
+Date: Thu, 27 Sep 2001 23:14:52 +0000 (UTC)
+Cc: Linus@vegae.deep.net
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -18,11 +19,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-       Shame on me! That was plain 2.4.7...
-    Sorry for that folks... Hard to keep track on things when
- switching between kernels...
-    But, stop, koules intro 1/10 sec stalls are there nevertheless...
- and they seems to be stable, whenever i start it.
+  Linus wrote:
+> Think about it - do you really want the system to actively try to reach
+> the point where it has no "regular" pages left, and has to start writing
+> stuff out (and wait for them synchronously) in order to free up memory? I
+   I`m 100% agreed with you here: i had been hit by this issue 
+ alot of times... This is absolutely reproducible with streaming io case.
+   I think the lower is the number of processes simultaneously accessing data, the
+ harder this beats us... (cant explain, but this is how i feel that)
+> strongly feel that the old code was really really wrong - it may have been
+
+sorry if im a noise here...
 
 cheers,
  Sam
+

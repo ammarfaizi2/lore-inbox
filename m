@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbTIYWe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 18:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTIYWe0
+	id S261825AbTIYXD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 19:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTIYXD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 18:34:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37263 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262011AbTIYWeX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 18:34:23 -0400
-Message-Id: <200309252234.h8PMYI106613@mail.osdl.org>
-Date: Thu, 25 Sep 2003 15:34:15 -0700 (PDT)
-From: markw@osdl.org
-Subject: OSDL DBT-2 AS vs. Deadline 2.6.0-test5-mm4
-To: linux-kernel@vger.kernel.org, linstab@osdl.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	Thu, 25 Sep 2003 19:03:57 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:34063 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S261825AbTIYXDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 19:03:53 -0400
+Date: Thu, 25 Sep 2003 16:03:51 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: How do I access ioports from userspace?
+Message-ID: <20030925160351.E26493@one-eyed-alien.net>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="ZRyEpB+iJ+qUx0kp"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DBT-2 is an on-line transaction processing (OLTP) workload, a fair use
-implementation of the TPC-C.
 
-Results between the two elevators differ by about 4.5%, with the AS
-elevator having the edge this time.  Results between the AS and deadline
-elevator are still pretty close.  I don't believe results have changed
-dramatically since 2.6.0-test5-mm3 and I don't see any significant
-changes in the profile, so things are still looking ok.
+--ZRyEpB+iJ+qUx0kp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+I'd like to be able to access some ioports to some custom hardware directly
+from userspace, without creating a specialized kernel-level driver.  Is
+there a way to do that?
 
-METRICS OVER LAST 20 MINUTES:
---------------- -------- ----- ---- -------- -----------------------------------
-Kernel          Elevator NOTPM CPU% Blocks/s URL                                
---------------- -------- ----- ---- -------- -----------------------------------
-2.6.0-test5-mm4 as        1382 91.6   9955.5 http://khack.osdl.org/stp/280312/  
-2.6.0-test5-mm4 deadline  1321 90.9  10021.5 http://khack.osdl.org/stp/280314/  
+Matt
 
-FUNCTIONS SORTED BY TICKS:
--- ------------------------- ------- ------------------------- -------
- # as 2.6.0-test5-mm4        ticks   deadline 2.6.0-test5-mm4  ticks  
--- ------------------------- ------- ------------------------- -------
- 1 default_idle              5643426 default_idle              5751035
- 2 schedule                    53434 schedule                    52592
- 3 scsi_request_fn             29810 do_softirq                  26151
- 4 do_softirq                  25399 scsi_request_fn             24589
- 5 __make_request              23210 __make_request              18191
- 6 scsi_end_request            13485 try_to_wake_up              12158
- 7 try_to_wake_up              12017 dio_bio_end_io              11051
- 8 dio_bio_end_io              11206 scsi_end_request             9051
- 9 do_anonymous_page            8097 do_anonymous_page            7993
-10 ipc_lock                     6941 ipc_lock                     6949
-11 sysenter_past_esp            5269 sysenter_past_esp            5347
-12 sys_semtimedop               4784 sys_semtimedop               4924
-13 __might_sleep                4280 direct_io_worker             4352
-14 __copy_to_user_ll            4269 __might_sleep                4138
-15 direct_io_worker             4202 __copy_to_user_ll            3566
-16 __mod_timer                  3571 blk_run_queue                3524
-17 dio_await_one                3502 dio_await_one                3514
-18 blk_run_queue                3388 kmem_cache_alloc             3465
-19 kmem_cache_alloc             3358 __mod_timer                  3366
-20 __generic_file_aio_read      3104 __generic_file_aio_read      3114
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
--- 
-Mark Wong - - markw@osdl.org
-Open Source Development Lab Inc - A non-profit corporation
-12725 SW Millikan Way - Suite 400 - Beaverton, OR 97005
-(503) 626-2455 x 32 (office)
-(503) 626-2436      (fax)
+M:  No, Windows doesn't have any nag screens.
+C:  Then what are those blue and white screens I get every day?
+					-- Mike and Cobb
+User Friendly, 1/4/1999
+
+--ZRyEpB+iJ+qUx0kp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/c3RXIjReC7bSPZARArTPAKDUl1BzTLAAyB81U8rMoBfBRiRdfACfd4m4
+X4/VMALFWEwcCy0OptyprmY=
+=zUDd
+-----END PGP SIGNATURE-----
+
+--ZRyEpB+iJ+qUx0kp--

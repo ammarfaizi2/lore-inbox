@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262814AbRE3Vv3>; Wed, 30 May 2001 17:51:29 -0400
+	id <S262819AbRE3Vvj>; Wed, 30 May 2001 17:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262816AbRE3VvV>; Wed, 30 May 2001 17:51:21 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:22204 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262814AbRE3VvI>;
-	Wed, 30 May 2001 17:51:08 -0400
-From: s-jaschke@t-online.de (Stefan Jaschke)
-Reply-To: stefan@jaschke-net.de
-Organization: jaschke-net.de
-To: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Status of ALi MAGiK 1 support in 2.4.?
-Date: Wed, 30 May 2001 23:48:10 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-In-Reply-To: <E154iiK-0004Mb-00@the-village.bc.nu> <3B136639.D883F0C8@mail.utexas.edu>
-In-Reply-To: <3B136639.D883F0C8@mail.utexas.edu>
+	id <S262822AbRE3Vv3>; Wed, 30 May 2001 17:51:29 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5641 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262821AbRE3VvX>; Wed, 30 May 2001 17:51:23 -0400
+Subject: Re: ln -s broken on 2.4.5
+To: Marcus.Meissner@caldera.de (Marcus Meissner)
+Date: Wed, 30 May 2001 22:49:18 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mm@ns.caldera.de (Marcus Meissner),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010530233005.A27497@caldera.de> from "Marcus Meissner" at May 30, 2001 11:30:05 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <01053023481000.00375@antares>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E155DqA-0006g7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 May 2001 11:04, Bobby D. Bryant wrote:
-> Alan Cox wrote:
-> > > May 22 21:45:07 pollux kernel: ALI15X3: simplex device:  DMA disabled
-> > > May 22 21:45:07 pollux kernel: ide0: ALI15X3 Bus-Master DMA disabled
-> > > (BIOS)
-> > > May 22 21:45:07 pollux kernel: ALI15X3: simplex device:  DMA disabled
-> > > May 22 21:45:07 pollux kernel: ide1: ALI15X3 Bus-Master DMA disabled
-> >
-> > The DMA was off because the BIOS left it off.
->
-> I just checked, and the BIOS auto-detect page for that drive shows PIO Mode
-> 4 and Ultra DMA Mode 5.  The BIOS also shows a summary chart during boot,
-> just before the LILO prompt, and that summary also reports UDMA 5 for that
-> drive. It really looks like the kernel is not getting the correct device
-> info from the BIOS.
+> The problem is only there if you specify a directory for the linked to
+> component.
+> 
+> [marcus@wine /tmp]$ strace -f ln -s fupp/berk xxx
+> execve("/bin/ln", ["ln", "-s", "fupp/berk", "xxx"], [/* 39 vars */]) = 0
+> ... ld stuff ... locale stuff ... 
 
-Just a blind guess, but this reminds me of a similar problem I had with 
-a different Athlon board a while ago. The BIOS and the driver disagreed
-on the bits through which DMA capability was signalled. The fix that worked
-for me was to enable both IDE channels (and use up two interrupts) though
-I needed only the first channel.
-
--- 
-Stefan R. Jaschke <stefan@jaschke-net.de>
-http://www.jaschke-net.de
+bash-2.04$ ln -s foo/frob eep
+bash-2.04$ ls -l eep
+lrwxrwxrwx    1 alan     users           8 May 30 22:19 eep -> foo/frob

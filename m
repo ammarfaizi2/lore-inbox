@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313075AbSDSVkK>; Fri, 19 Apr 2002 17:40:10 -0400
+	id <S312997AbSDSVmK>; Fri, 19 Apr 2002 17:42:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313054AbSDSVkJ>; Fri, 19 Apr 2002 17:40:09 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:18166 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S313075AbSDSVkJ>; Fri, 19 Apr 2002 17:40:09 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 19 Apr 2002 15:38:35 -0600
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbol: __udivdi3
-Message-ID: <20020419213835.GA559@turbolinux.com>
-Mail-Followup-To: Ben Greear <greearb@candelatech.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CC08632.8020102@candelatech.com>
+	id <S313054AbSDSVmJ>; Fri, 19 Apr 2002 17:42:09 -0400
+Received: from ns.suse.de ([213.95.15.193]:20746 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312997AbSDSVmH>;
+	Fri, 19 Apr 2002 17:42:07 -0400
+Date: Fri, 19 Apr 2002 23:42:06 +0200
+From: Andi Kleen <ak@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: andrea@suse.de, ak@suse.de, linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: SSE related security hole
+Message-ID: <20020419234206.A15187@wotan.suse.de>
+In-Reply-To: <20020419230454.C1291@dualathlon.random> <2459.131.107.184.74.1019252157.squirrel@www.zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 19, 2002  14:03 -0700, Ben Greear wrote:
-> I would like to be able to devide 64bit numbers in a kernel module,
-> but I get unresolved symbols when trying to insmod.
+On Fri, Apr 19, 2002 at 02:35:57PM -0700, H. Peter Anvin wrote:
+> >>
+> >> Ummm...last I knew, fxrstor is *expensive*.  The fninit/xor regs setup
+> >> is  likely *very* much faster.  Someone should check this before we
+> >> sacrifice  100 cycles needlessly or something.
+> >
+> > most probably yes, fxrestor needs to read ram, pxor also takes some
+> > icache and bytecode ram but it sounds like it will be faster.
+> >
+> > Maybe we could also interleave the pxor with the xorps, since they uses
+> > different parts of the cpu, Honza?
+> >
 > 
-> Does anyone have any ideas how to get around this little issue
-> (without the obvious of casting the hell out of all my __u64s
-> when doing division and throwing away precision.)?
+> You almost certainly should.  The reason I suggested FXRSTOR is that it
+> would initialize the entire FPU, including any state that future
+> processors may add, thus reducing the likelihood of any funnies in the
+> future.
 
-When you talk about precision, it makes me think you want to have
-a floating-point divide.  In fact, no floating-point math can be
-done in the kernel.
+That's also why I like it. 
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+-Andi

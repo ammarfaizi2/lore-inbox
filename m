@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUDCRK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 12:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbUDCRKZ
+	id S261843AbUDCRNx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 12:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUDCRNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 12:10:25 -0500
-Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:52609 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id S261551AbUDCRKP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 12:10:15 -0500
-Subject: Re: [PATCH] shrink inode when quota is disabled
-From: Ray Lee <ray@madrabbit.org>
-To: mpm@selenic.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: http://madrabbit.org/
-Message-Id: <1081012212.1505.71.camel@orca.madrabbit.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 03 Apr 2004 09:10:13 -0800
+	Sat, 3 Apr 2004 12:13:53 -0500
+Received: from CS2075.cs.fsu.edu ([128.186.122.75]:31218 "EHLO mail.cs.fsu.edu")
+	by vger.kernel.org with ESMTP id S261852AbUDCRNt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 12:13:49 -0500
+Message-ID: <1081012426.5c22c66499b13@system.cs.fsu.edu>
+Date: Sat,  3 Apr 2004 12:13:46 -0500
+From: khandelw@cs.fsu.edu
+To: karim@opersys.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.4.16
+References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>
+	<406C79E4.1060700@opersys.com>
+In-Reply-To: <406C79E4.1060700@opersys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 192.168.122.50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
+Hello Karim,
+   I had few issues related to compiling 2.6.3 on redhat 9.0. I have got that up
+and running except for the (networking)eth0 support. I see Ltt 0.9.6pre2 and
+not pre3 on the site am I missing sm thing??
 
->          struct address_space i_data; 
-> +#ifdef CONFIG_QUOTA 
->          struct dquot *i_dquot[MAXQUOTAS]; 
-> +#endif 
->          /* These three should probably be a union */ 
->          struct list_head i_devices; 
- 
-Forgive me if I'm asking a stupid question, but did this actually make a
-difference in the inode size? On gcc 2.95 and 3.3, if MAXQUOTAS is zero,
-gcc will silently elide that struct member. (Though it will leave a
-residue of sorts behind -- it participates as far as structure field
-alignment is concerned, but that isn't an issue here.) I believe
-zero-length arrays are actually an ANSI C thing, but I didn't see it in
-a quick perusal of my K&R.
+Quoting Karim Yaghmour <karim@opersys.com>:
 
-Or, hmm... <does grep> Oh, MAXQUOTAS is set to 2 unconditionally in
-include/linux/quota.h. How about putting the #ifdef's in there, and
-setting it to zero if CONFIG_QUOTA is not set? That'd localize the
-preprocessor noise.
+>
+> Hello Amit,
+>
+> khandelw@cs.fsu.edu wrote:
+> >     I need linux2.4.16 because i want to use LTT and the documentation of
+> LTT
+> > says that it can be used with that version. Can somebody gimme sm pointer
+> > realted to this.
+>
+> You may want to try fixing this patch for the latest kernel (and I could
+> then host the updated patch on the project's site.) Or you may want to try
+> LTT 0.9.6pre3 with linux 2.6.3 and relayfs. This is the latest development
+> version. It's got rough edges, but it shouldn't be too hard to get working.
+>
+> Karim
+> --
+> Author, Speaker, Developer, Consultant
+> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+>
 
-Like this (compiled with CONFIG_QUOTA unset, but not booted):
-
-Shrink struct inode by two pointers if CONFIG_QUOTA is unset.
-
-diff -NurX ../dontdiff linus-2.6/include/linux/quota.h linus-2.6-inode-shrinkage/include/linux/quota.h
---- linus-2.6/include/linux/quota.h	2004-04-03 08:46:35.000000000 -0800
-+++ linus-2.6-inode-shrinkage/include/linux/quota.h	2004-04-03 08:45:19.000000000 -0800
-@@ -57,7 +57,11 @@
- #define kb2qb(x) ((x) >> (QUOTABLOCK_BITS-10))
- #define toqb(x) (((x) + QUOTABLOCK_SIZE - 1) >> QUOTABLOCK_BITS)
- 
-+#ifdef CONFIG_QUOTA
- #define MAXQUOTAS 2
-+#else
-+#define MAXQUOTAS 0
-+#endif
- 
- #define USRQUOTA  0		/* element used for user quotas */
- #define GRPQUOTA  1		/* element used for group quotas */
-
-
---
-Ray Lee  ~  http://madrabbit.org
 

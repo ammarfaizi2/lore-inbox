@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284520AbRLERR2>; Wed, 5 Dec 2001 12:17:28 -0500
+	id <S284517AbRLERQR>; Wed, 5 Dec 2001 12:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283773AbRLERRR>; Wed, 5 Dec 2001 12:17:17 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:55172 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S284519AbRLERRF>;
-	Wed, 5 Dec 2001 12:17:05 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
+	id <S284512AbRLERQG>; Wed, 5 Dec 2001 12:16:06 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:2031 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S283773AbRLERQB>;
+	Wed, 5 Dec 2001 12:16:01 -0500
+Date: Wed, 5 Dec 2001 18:15:59 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Todo] Remove usage of (f)suser in kernel
+Message-ID: <20011205181558.R360@khan.acc.umu.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15374.22142.86391.322681@harpo.it.uu.se>
-Date: Wed, 5 Dec 2001 18:16:46 +0100
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: APIC Error when doing apic_pm_suspend
-In-Reply-To: <Pine.LNX.4.33.0112051123500.18928-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.33.0112051123500.18928-100000@netfinity.realnet.co.sz>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo writes:
- > I get an APIC error 0x40 when resuming from an apm -s. If i'm correct
- > that would be an illegal register access wouldn't it? I tried putting
- > enter/exit printks in the apic_pm_resume/suspend functions and it showed
- > that both returned before the APIC error printk. Is there anyway of finding out
- > which register access it was? I "thought" it would be one of the
- > apic_writes in the pm functions but looks like i might be wrong.
- > 
- > The kernel is compiled with local APIC and gets detected and enabled on
- > boot (UP machine).
+After a quick round of grep:ing, I came up with the following files
+needing fixes to substitute usage of (f)suser for proper capabilities:
 
-No, 0x40 is an illegal vector error. It's a (semi-) known quirk in the P6 family
-of processors that you get this error when writing a null vector to any of the
-LVT entries, even if you are also setting the mask bit at the same time.
-Both the clear_local_APIC() call at PM suspend and the reinitialisation at PM
-resume can trigger this.
+linux/include/linux/sched.h -- definitions of suser/fsuser
+linux/include/linux/compatmac.h -- compability-macro for suser
 
-The "error" is mostly harmless. Ignore it for now, I'll do a patch to silence it later.
+linux/fs/ufs/balloc.c -- 1 occurence of fsuser
 
-/Mikael
+linux/drivers/net/wan/lmc/lmc_main.c -- 6 occurences of suser
+linux/drivers/net/pcmcia/xircom_tulip_cb.c -- 1 occurence of suser
+linux/drivers/net/fealnx.c -- 1 occurence of suser
+
+linux/drivers/block/cciss.c -- 2 occurences of suser
+linux/drivers/block/cpqarray.c -- 3 occurences of suser
+linux/drivers/block/swim3.c -- 1 occurence of suser
+linux/drivers/block/swim_iop.c -- 1 occurence of suser
+
+linux/drivers/char/tty_io.c -- 4 occurences of suser
+linux/drivers/char/vt.c -- 3 occurences of suser
+linux/drivers/char/rocket.c -- 1 occurence of suser
+linux/drivers/char/mxser.c -- 1 occurence of suser
+linux/drivers/char/serial167.c -- 1 occurence of suser
+linux/drivers/char/ip2main.c -- 1 occurence of suser
+linux/drivers/char/rio/rio_linux.c -- 1 occurence of suser
+linux/drivers/char/moxa.c -- 1 occurence of suser
+
+linux/drivers/scsi/cpqfcTSinit.c -- 1 occurence of suser
+
+linux/drivers/pcmcia/ds.c -- 1 occurence of suser
+
+linux/drivers/s390/char/tubtty.c -- 1 occurence of suser
+
+linux/drivers/media/video/zr36120.c -- 1 occurence of suser
+
+linux/arch/i386/kernel/mtrr.c --  9 occurences of suser
+
+linux/arch/sparc64/kernel/ioctl32.c -- 1 occurence of suser
+
+Since I don't know what the maintainers of some of these files want
+as capabilities, I've decided not to fix this myself. zr36120.c is
+only a matter of removing an #ifdef/#else/#endif combo and doing some
+reindenting, though.
+
+
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266321AbUBQQgK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 11:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUBQQgK
+	id S266281AbUBQQcY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 11:32:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUBQQcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 11:36:10 -0500
-Received: from mail.timesys.com ([65.117.135.102]:63806 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S266321AbUBQQgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 11:36:06 -0500
-Message-ID: <403242DF.7030204@timesys.com>
-Date: Tue, 17 Feb 2004 11:35:43 -0500
-From: Pratik Solanki <pratik.solanki@timesys.com>
-Organization: TimeSys Corporation
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040213)
-X-Accept-Language: en-us, en
+	Tue, 17 Feb 2004 11:32:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56044 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266281AbUBQQcW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 11:32:22 -0500
+Date: Tue, 17 Feb 2004 08:32:15 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Marc Lehmann <pcg@schmorp.de>
+cc: Jamie Lokier <jamie@shareable.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
+ JFS default behavior)
+In-Reply-To: <20040217161111.GE8231@schmorp.de>
+Message-ID: <Pine.LNX.4.58.0402170820070.2154@home.osdl.org>
+References: <200402150107.26277.robin.rosenberg.lists@dewire.com>
+ <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de>
+ <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de>
+ <Pine.LNX.4.58.0402161205120.30742@home.osdl.org> <20040216222618.GF18853@mail.shareable.org>
+ <Pine.LNX.4.58.0402161431260.30742@home.osdl.org> <20040217071448.GA8846@schmorp.de>
+ <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217161111.GE8231@schmorp.de>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor cross-compile issues
-References: <4027B7D3.2020107@timesys.com> <20040216205800.GC2977@mars.ravnborg.org>
-In-Reply-To: <20040216205800.GC2977@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Feb 2004 16:29:11.0703 (UTC) FILETIME=[2CBB6A70:01C3F573]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/16/2004 03:58 PM, Sam Ravnborg wrote:
 
->On Mon, Feb 09, 2004 at 11:39:47AM -0500, Pratik Solanki wrote:
->  
->
->>Attached are 2 patches
->>
->>asm-boot.patch - Fixes include path for build.c so that it finds 
->>asm/boot.h. /usr/include/asm/boot.h may not be present when 
->>cross-compiling on a non-Linux machine.
->>    
->>
->OK - but see minor comemnt.
->
+
+On Tue, 17 Feb 2004, Marc Lehmann wrote:
 > 
->  
->
->>shell.patch - Use $(CONFIG_SHELL) instead of sh.
->>    
->>
->OK
->
->	Sam
->
->  
->
->>===== arch/i386/boot/Makefile 1.28 vs edited =====
->>--- 1.28/arch/i386/boot/Makefile	Thu Sep 11 06:01:23 2003
->>+++ edited/arch/i386/boot/Makefile	Thu Feb  5 15:56:28 2004
->>@@ -31,6 +31,8 @@
->> 
->> host-progs	:= tools/build
->> 
->>+HOSTCFLAGS_build.o := -I$(TOPDIR)/include
->>    
->>
->Do not use absolute paths here.
->
->  
->
->>+HOSTCFLAGS_build.o := -Iinclude
->>    
->>
->Is the preferred way to do it.
->  
->
+> Because there is a fundamental difference between file contents and
+> filenames. Filenames are supposed to be text.
 
-Thanks Sam. Would you be checking in your proposed change or should I 
-send a new patch?
+I think this is actually the fundamental point where we disagree.
 
-Pratik.
+You think of filenames as something the user types in, and that is 
+"readable text". And I don't.
+
+I think the filenames are just ways for a _program_ to look up stuff, and
+the human readability is a secondary thing (it's "polite", but not a
+fundamental part of their meaning).
+
+So the same way I think text is good in config files and I dislike binary
+blobs (hey, look at /proc), I think readable filenames are good. But that
+doesn't mean that they have to be readable. I can well imagine encoding
+meta-data in the filename for some database that uses the filesystem as
+its backing store and generates files for large blobs. And then there
+would be little if any "goodness" to keeping the filenames readable.
+
+That's also a situation where case-insensitivity can _really_ screw you
+(just one of the many).
+
+It may be rare, but unlike you, I don't think there is anything "wrong" 
+with considering path components to be just "data".
+
+			Linus

@@ -1,99 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVAOVrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVAOVrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbVAOVrs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 16:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVAOVpM
+	id S262342AbVAOVrp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 16:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVAOVqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 16:45:12 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25873 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262337AbVAOVkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 16:40:22 -0500
-Date: Sat, 15 Jan 2005 22:40:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, ak@suse.de,
-       discuss@x86-64.org
-Subject: [2.6 patch] i386/x86_64 msr.c: make two functions static (fwd)
-Message-ID: <20050115214017.GA4274@stusta.de>
+	Sat, 15 Jan 2005 16:46:03 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:54799 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262342AbVAOVne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 16:43:34 -0500
+Date: Sat, 15 Jan 2005 22:43:31 +0100
+From: Willy TARREAU <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.29-rc3
+Message-ID: <20050115214330.GA765@pcw.home.local>
+References: <20050115151320.GB7397@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050115151320.GB7397@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below (already ACK'ed by H. Peter Anvin) still 
-applies and compiles against 2.6.11-rc1-mm1.
+Hi Marcelo,
 
-Please apply.
+On Sat, Jan 15, 2005 at 01:13:20PM -0200, Marcelo Tosatti wrote:
+> Hi, 
+> 
+> Here goes the third release candidate.
+> 
+> This one comes out to release a bunch of pending networking fixes from 
+> David Miller: netfilter, sctp, ipvs, etc.
+> 
+> Also changes the tty ldisc locking patches to not export a couple of API functions 
+> as GPL, because that breaks compatibility with older modutils.
+> 
+> This will become final if no problems appear.
+> 
+> Please help with testing!
+
+OK, it builds and runs on my dual athlon (gcc-2.95.3,e1000,scsi), my
+notebook (gcc-3.3.5,tg3,acpi), and on an ultra60 (ultrasparc SMP,gcc-3.3.4,
+scsi,sunhme). I also built it on an alpha ev6 with gcc-3.3.5, but I didn't
+want to reboot it.
+
+While compiling, I noticed that hosts using gcc-3 gave a few warnings such
+as this one, which is easily fixed with the following patch :
+
+  bond_alb.c: In function `bond_alb_xmit':
+  bond_alb.c:1278: warning: use of cast expressions as lvalues is deprecated
 
 
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Mon, 6 Dec 2004 01:41:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, discuss@x86-64.org
-Subject: [2.6 patch] i386/x86_64 msr.c: make two functions static
-
-The patch below makes two needlessly global functions static.
-
-
-diffstat output:
- arch/i386/kernel/msr.c   |    4 ++--
- arch/x86_64/kernel/msr.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/msr.c.old	2004-12-06 01:23:13.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/msr.c	2004-12-06 01:23:26.000000000 +0100
-@@ -291,7 +291,7 @@
- 	.notifier_call = msr_class_cpu_callback,
- };
- 
--int __init msr_init(void)
-+static int __init msr_init(void)
+--- ./drivers/net/bonding/bond_alb.c.bad	Sat Mar 20 10:08:18 2004
++++ ./drivers/net/bonding/bond_alb.c	Sat Jan 15 22:14:32 2005
+@@ -1275,7 +1275,7 @@
+ int bond_alb_xmit(struct sk_buff *skb, struct net_device *bond_dev)
  {
- 	int i, err = 0;
- 	i = 0;
-@@ -328,7 +328,7 @@
- 	return err;
- }
- 
--void __exit msr_exit(void)
-+static void __exit msr_exit(void)
- {
- 	int cpu = 0;
- 	for_each_online_cpu(cpu)
---- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/msr.c.old	2004-12-06 01:23:35.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/msr.c	2004-12-06 01:23:48.000000000 +0100
-@@ -255,7 +255,7 @@
- 	.open = msr_open,
- };
- 
--int __init msr_init(void)
-+static int __init msr_init(void)
- {
- 	if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
- 		printk(KERN_ERR "msr: unable to get major %d for msr\n",
-@@ -266,7 +266,7 @@
- 	return 0;
- }
- 
--void __exit msr_exit(void)
-+static void __exit msr_exit(void)
- {
- 	unregister_chrdev(MSR_MAJOR, "cpu/msr");
- }
+ 	struct bonding *bond = bond_dev->priv;
+-	struct ethhdr *eth_data = (struct ethhdr *)skb->mac.raw = skb->data;
++	struct ethhdr *eth_data = (struct ethhdr *)(skb->mac.raw = skb->data);
+ 	struct alb_bond_info *bond_info = &(BOND_ALB_INFO(bond));
+ 	struct slave *tx_slave = NULL;
+ 	static u32 ip_bcast = 0xffffffff;
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 
------ End forwarded message -----
+> Summary of changes from v2.4.29-rc2 to v2.4.29-rc3
+> ============================================
+(...) 
+> Patrick McHardy:
+>   o [NETFILTER]: Associate locally generated ICMP errors with conntrack of original packet
+>   o [NETFILTER]: Remove CONFIG_IP_NF_NAT_LOCAL config option
+
+at first, I though that both the config option and the feature were removed !
+fortunately, it's only the option ;-)
+
+Cheers,
+Willy
 

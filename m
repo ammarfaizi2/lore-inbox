@@ -1,60 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289357AbSAOCR5>; Mon, 14 Jan 2002 21:17:57 -0500
+	id <S289364AbSAOC15>; Mon, 14 Jan 2002 21:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289361AbSAOCRs>; Mon, 14 Jan 2002 21:17:48 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:21125
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S289357AbSAOCRg>; Mon, 14 Jan 2002 21:17:36 -0500
-Date: Mon, 14 Jan 2002 21:25:50 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Unable to compile 2.4.14 on alpha
-Message-ID: <20020114212550.A17323@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+	id <S289367AbSAOC1r>; Mon, 14 Jan 2002 21:27:47 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:27909 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S289364AbSAOC1h>; Mon, 14 Jan 2002 21:27:37 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 14 Jan 2002 18:33:26 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ed Tomlinson <tomlins@cam.org>
+cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+        Dave Jones <davej@suse.de>
+Subject: Re: [patch] O(1) scheduler-H6/H7 and nice +19
+In-Reply-To: <20020115021837.4A63969E@oscar.casa.dyndns.org>
+Message-ID: <Pine.LNX.4.40.0201141829230.937-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[2]: Entering directory `/usr/src/2.4.14-test/arch/alpha/math-emu'
-make[2]: Nothing to be done for `all_targets'.
-make[2]: Leaving directory `/usr/src/2.4.14-test/arch/alpha/math-emu'
-make[1]: Leaving directory `/usr/src/2.4.14-test/arch/alpha/math-emu'
-ld -static -T arch/alpha/vmlinux.lds -N  arch/alpha/kernel/head.o init/main.o init/version.o \
-        --start-group \
-        arch/alpha/kernel/kernel.o arch/alpha/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/alpha/math-emu/math-emu.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/md/mddev.o \
-        net/network.o \
-        /usr/src/2.4.14-test/arch/alpha/lib/lib.a /usr/src/2.4.14-test/lib/lib.a /usr/src/2.4.14-test/arch/alpha/lib/lib.a \
-        --end-group \
-        -o vmlinux
-arch/alpha/kernel/kernel.o(.exitcall.exit+0x0): undefined reference to `local symbols in discarded section .text.exit'
-mm/mm.o(.exitcall.exit+0x0): undefined reference to `local symbols in discarded section .text.exit'
-fs/fs.o(.exitcall.exit+0x0): undefined reference to `local symbols in discarded section .text.exit'
-fs/fs.o(.exitcall.exit+0x8): undefined reference to `local symbols in discarded section .text.exit'
-fs/fs.o(.exitcall.exit+0x10): undefined reference to `local symbols in discarded section .text.exit'
-fs/fs.o(.exitcall.exit+0x18): more undefined references to `local symbols in discarded section .text.exit' follow
-make: *** [vmlinux] Error 1
+On Mon, 14 Jan 2002, Ed Tomlinson wrote:
 
-[root@kakarot:/usr/src/2.4.14-test] ld --version
-GNU ld version 2.11.92.0.12.3 20011121 Debian/GNU Linux
-Copyright 2001 Free Software Foundation, Inc.
-This program is free software; you may redistribute it under the terms of
-the GNU General Public License.  This program has absolutely no warranty.
-[root@kakarot:/usr/src/2.4.14-test] gcc --version
-2.95.4
-[root@kakarot:/usr/src/2.4.14-test] 
+> On January 14, 2002 08:50 pm, Davide Libenzi wrote:
+> > On Mon, 14 Jan 2002, Ed Tomlinson wrote:
+> > > On January 13, 2002 10:45 pm, Davide Libenzi wrote:
+> > > > On Sun, 13 Jan 2002, Ed Tomlinson wrote:
+> > > > > With pre3+H7, kernel compiles still take 40% longer with a setiathome
+> > > > > process running at nice +19.  This is _not_ the case with the old
+> > > > > scheduler.
+> > > >
+> > > > Did you try to set MIN_TIMESLICE to 10 ( sched.h ) ?make bzImage with
+> > > > setiathome running nice +19
+> > >
+> > > This makes things a worst - note the decreased cpu utilizaton...
+> > >
+> > > make bzImage  424.33s user 32.21s system 48% cpu 15:48.69 total
+> > >
+> > > What is this telling us?
+> >
+> > Doh !
+> > Did you set this ?
+> >
+> > #define MIN_TIMESLICE  (10 * HZ / 1000)
+>
+> I set:
+>
+> #define MIN_TIMESLICE  10
+>
+> Now I am tring
+>
+> #define MIN_TIMESLICE  1
+>
+> which, looksing at monitors, gives about 80% cpu to the compile
 
-gcc 3.0.3 didn't work either (I don't feel that's the problem)
+try to replace :
 
-2.4.16 did the same thing, except it was in char.o
+PRIO_TO_TIMESLICE() and RT_PRIO_TO_TIMESLICE() with :
 
-I tried to link the kernel by removing arch/alpha/kernel/kernel.o and
-replacing with the actual files.  the error is in arch/alpha/kernel/srm_env.o
+#define NICE_TO_TIMESLICE(n)    (MIN_TIMESLICE + ((MAX_TIMESLICE - \
+	MIN_TIMESLICE) * ((n) + 20)) / 39)
 
-I really need something to work as I have a DAC960 controller that I want to
-try.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+NICE_TO_TIMESLICE(p->__nice)
+
+
+I'm currently running it on my machine but i don't want that this changes
+that 'liquid' interactive feel that me and Ingo have got with the new code
+
+
+
+
+- Davide
+
+

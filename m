@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269316AbUH0JY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269394AbUH0J2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269316AbUH0JY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 05:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUH0JY0
+	id S269394AbUH0J2k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 05:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269386AbUH0JZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 05:24:26 -0400
-Received: from nysv.org ([213.157.66.145]:21658 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S269402AbUH0JXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 05:23:05 -0400
-Date: Fri, 27 Aug 2004 12:21:31 +0300
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Christophe Saout <christophe@saout.de>, Will Dyson <will_dyson@pobox.com>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
+	Fri, 27 Aug 2004 05:25:29 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:47114 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269263AbUH0JVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 05:21:05 -0400
+Date: Fri, 27 Aug 2004 10:19:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeremy Allison <jra@samba.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Rik van Riel <riel@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
+       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
+       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
+       wichert@wiggy.net, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040827092131.GA1284@nysv.org>
-References: <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <20040826100530.GA20805@taniwha.stupidest.org> <20040826110258.GC30449@mail.shareable.org> <412E06B2.7060106@pobox.com> <1093552705.5678.96.camel@krustophenia.net> <1093553429.13881.48.camel@leto.cs.pocnet.net> <1093553846.5678.102.camel@krustophenia.net>
+Message-ID: <20040827101956.B29672@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeremy Allison <jra@samba.org>, Jamie Lokier <jamie@shareable.org>,
+	Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+	Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+	vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+	spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net,
+	reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, flx@namesys.com,
+	reiserfs-list@namesys.com
+References: <Pine.LNX.4.58.0408261217140.2304@ppc970.osdl.org> <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <20040826204841.GC5733@mail.shareable.org> <20040826205218.GE1570@legion.cup.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093553846.5678.102.camel@krustophenia.net>
-User-Agent: Mutt/1.5.6i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040826205218.GE1570@legion.cup.hp.com>; from jra@samba.org on Thu, Aug 26, 2004 at 01:52:18PM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 04:57:26PM -0400, Lee Revell wrote:
->On Thu, 2004-08-26 at 16:50, Christophe Saout wrote:
->> are read-only and system-wide and the user-overridden changes. I don't
->> know if all of these things would really make sense inside the kernel.
->True.  FWIW, I never use most of those features.  It's just too damn
->slow.  Windows seems to implement all of the useful features of
->GnomeVFS, and they are 10x faster.
+On Thu, Aug 26, 2004 at 01:52:18PM -0700, Jeremy Allison wrote:
+> On Thu, Aug 26, 2004 at 09:48:41PM +0100, Jamie Lokier wrote:
+> > 
+> > This is why I favour storing all essential metadata (about the file's
+> > content) inside the file's contents, the primary stream.
+> > 
+> > We have another problem: what happens when users want to transfer data
+> > from Windows (with secondary streams) and MacOS (with resource forks)?
+> 
+> I can tell you that - right now we (Samba) has to drop all but the primary stream,
+> because the Linux filesystems don't have data stream support. Oh look,
+> we're losing user data (that's a *bad* thing :-).
 
-Are they in the kernel in Windows?
-
--- 
-mjt
+Maybe you should learn from netatalk.
 

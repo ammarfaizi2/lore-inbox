@@ -1,36 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265039AbTBEV5f>; Wed, 5 Feb 2003 16:57:35 -0500
+	id <S264954AbTBEWDH>; Wed, 5 Feb 2003 17:03:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbTBEV5f>; Wed, 5 Feb 2003 16:57:35 -0500
-Received: from quechua.inka.de ([193.197.184.2]:29114 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S265039AbTBEV5e>;
-	Wed, 5 Feb 2003 16:57:34 -0500
+	id <S264992AbTBEWDE>; Wed, 5 Feb 2003 17:03:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18446 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264954AbTBEWDC>; Wed, 5 Feb 2003 17:03:02 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: disabling nagle
-References: <F137jnt61tqeaVRMPjc00012673@hotmail.com>
-Organization: private Linux site, southern Germany
-Date: Wed, 05 Feb 2003 22:58:25 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E18gXYn-0002si-00@bigred.inka.de>
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Date: Wed, 5 Feb 2003 22:09:56 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b1s23k$3je$1@penguin.transmeta.com>
+References: <20030205174021.GE19678@dualathlon.random> <20030205201055.GL19678@dualathlon.random> <20030205203445.GA4467@mars.ravnborg.org> <20030205205127.GP19678@dualathlon.random>
+X-Trace: palladium.transmeta.com 1044483140 12660 127.0.0.1 (5 Feb 2003 22:12:20 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 5 Feb 2003 22:12:20 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> would be to create a patch to disable TCP's timeout and retransmit
-> mechanisms on a given interface?  This would allow those of us who have no
-> alternative other than PPP over ssh for VPN to greatly improve performance.
-> Over a well behaved connection this works acceptably, but given any delays
-> or packet loss it is essentially unusable.  I know the real answer is using
-> something other than TCP as the transport layer for the tunnel (IPSEC, IP
-> over IP, UDP, etc.) but that isn't always possible.  So I'd like a way to
-> treat the ppp interface the VPN tunnel creates as a completely reliable
-> transport for which normal TCP/IP retransmits and timeouts don't apply.
+In article <20030205205127.GP19678@dualathlon.random>,
+Andrea Arcangeli  <andrea@suse.de> wrote:
+>
+>What I care is how can I find the order of the changesets that are
+>applied to Linus's tree? That's all I need to know. I thought the order
+>shown on the web would just provide this information, but now I'mlost...
 
-As I see it, this wouldn't help when the TCP retransmits are
-originated by a machine other than the VPN routers, because they don't
-know about the new reliability characteristics of their transport
-medium. So in any network with more than two machines its usefulness
-is rather limited. (Or am I missing something?)
+You are lost because no such simple order exists.
 
-Olaf
+You're trying to force a partially ordered set (BK changesets) into a
+strictly ordered set (CVS-like thing), and you can't do it.
 
+Assuming a static BK tree, you can always find _one_ ordering that will
+work. But when the next merge comes around, you'll notice that you may
+well have to re-order. You can never get it right.
+
+The fact is, a BK tree is fundamentally more powerful than a linear CVS
+tree. If you want to get the BK information into CVS, you have to
+either:
+
+ - throw away information (every time I do a merge, you commit all the
+   new code as one patch or possibly a set of "linearized" patches at
+   the top-of-tree)
+
+ - you use a CVS branch/merge to emulate every non-linear BK event (and
+   you'll probably have to rebuild the whole CVS tree every time a merge
+   occurs)
+
+>Also note that the fact changesets can be merged in the past, and not
+>alwayas in the head
+
+No.  ChangeSets _cannot_ be merged in the past.  ChangeSet's can be
+_based_ on past events, and have times in the past, and be merged
+through a to the top of tree.
+
+I don't think you can emulate this in CVS easily, since the branch has
+to be "pre-created" in the CVS repository (when it was HEAD), I don't
+think you can go back and create a branch "in the past" to graft onto. 
+Which is why I think you have to recreate the whole CVS tree (and insert
+the branch point at the right point) when this happens in order to
+really get the full BK information. 
+
+So please realize that BK is different from (and strictly more powerful
+than) CVS.  But this difference is the whole _point_ of it, and the
+reason for why I use it for the kernel, and refuse to use CVS. 
+
+			Linus

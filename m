@@ -1,78 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132608AbRALETx>; Thu, 11 Jan 2001 23:19:53 -0500
+	id <S129675AbRALE1Y>; Thu, 11 Jan 2001 23:27:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133020AbRALETn>; Thu, 11 Jan 2001 23:19:43 -0500
-Received: from acct2.voicenet.com ([207.103.26.205]:45823 "HELO voicenet.com")
-	by vger.kernel.org with SMTP id <S132608AbRALET2>;
-	Thu, 11 Jan 2001 23:19:28 -0500
-Message-ID: <3A5E85CC.40606@voicefx.com>
-Date: Thu, 11 Jan 2001 23:19:24 -0500
-From: "John O'Donnell" <johnod@voicefx.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S132608AbRALE1P>; Thu, 11 Jan 2001 23:27:15 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44302 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129675AbRALE1H>; Thu, 11 Jan 2001 23:27:07 -0500
+Date: Thu, 11 Jan 2001 20:26:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+In-Reply-To: <20010112044554.A809@athlon.random>
+Message-ID: <Pine.LNX.4.10.10101112018220.28973-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: IDE DMA problems on 2.4.0 with vt82c686a driver
-In-Reply-To: <E14Gj32-0002ND-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
->> us who have via chipset motherboards, suggesting that it is limited 
->> to that chipset, that chipset is ubiquitous, or via chipset 
->> motherboard owners are generally the complaining type. no idea which 
->> applies there, either.
-> 
-> 
-> Or there are a lot of them. 90% of scsi bug reports I get are adaptec 29xx
-> driver. Thats not because the adaptec 29xx is the most sucky driver 8)
-> 
-> Firstly there are numerous reasons for CRC errors. At ATA100 even the track
-> length and the capacitance of the connectors becomes an issue. It is quite
-> possibly a driver issue. It could even be that specific combination of drives
-> and ide controller is right on the edge of the spec limits and just slightly
-> dipping over. It might be the odd power spike.
-> 
-> Providing the code is working sanely the odd CRC error shouldnt be a 
-> problem and should be causing a command retry. The CRC checking used in ATA
-> is very robust so unlike scsi parity errors which couldnt be ignored ATA
-> ones on occassion are probably fine
-> 
-> ATA100 is another testimony to the fact that pigs can be made to fly given 
-> sufficient thrust (to borrow an RFC)
-> 
-> Alan
 
-I acquired a VIA Mobo (ASUS CUV4X) for home and it is workin pretty damn
-spiffy with Linux - Even better with 2.4.0 with regards to IDE!!!
-Once a month I boot WinDOS to play a game I can't play in Linux, THEN
-my troubles begin!!!
-parport_pc: Via 686A parallel port: io=0x378, irq=7, dma=3
-VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:4.1
-etc... etc... etc...
-yadda yadda yadda ....
+On Fri, 12 Jan 2001, Andrea Arcangeli wrote:
+> 
+> Note that there was a precise reason for not implementing it as the TSC disable
+> (infact at first in 2.2.x I was clearing the bigflag in x86_capabilities too).
+> The reason is that the way TSC gets disabled breaks /proc/cpuinfo.
 
-Alan,
-My father repaired F-4 Phantoms in Vietnam.  He said the F-4 Phantom was
-proof that if you put enough power behind a brick, it would fly!!!
-Your comment remonded me of that - just had to share  :-)
+No.
 
--- 
-<SomeLamer> what's the difference between chattr and chmod?
-<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
-	-- Seen on #linux on irc
-=== Never ask a geek why, just nod your head and slowly back away.===
-+==============================+====================================+
-| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
-| Voice FX Corporation (a subsidiary of Student Advantage)          |
-| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
-| Suite 610                    |           www.voicefx.com          |
-| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
-+==============================+====================================+
+It FIXES /proc/cpuinfo.
+
+Your alternative patch is the thing that breaks.
+
+We _want_ /proc/cpuinfo to reflect the fact that the kernel considers
+FSXR/XMM to not exist. That is true information, and is in fact something
+that install scripts etc can find extremely useful.
+
+In particular, imagine an installation script that wants to install the
+proper optimized version of a library on a machine. How is it supposed to
+know whether it should use the mmx version, the xmm version, or the
+integer version?
+
+This is _exactly_ the kind of thing that /proc/cpuinfo was supposed to be
+able to deal with, and that means that if the kernel doesn't like to use
+xmm for some reason (ie the user explicitly told it to), then it shouldn't
+show up in /proc/cpuinfo - because on that machine XMM simply does not
+exist as far as user-land is concerned.
+
+Similarly, when we disable TSC, it's also telling user-land that this
+machine does not appear to have a working TSC for some reason. User-land
+applications may also care about the fact that TSC seems to skip time if
+the machine is idle etc (which was apparently the problem with some broken
+Cyrix chips).
+
+After all, a user can always do a "cpuid" to get to know what the CPU
+itself reports. /proc/cpuinfo is supposed to be a higher-level interface,
+where the buggy bits have been removed or renamed (ie AMD extensions are
+properly renamed and can be easily recognized as such, without each
+user-mode application having to know about the magic meaning of bits in
+"cpuid" on different machines).
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

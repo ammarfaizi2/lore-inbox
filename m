@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbTA1O6t>; Tue, 28 Jan 2003 09:58:49 -0500
+	id <S267385AbTA1PNT>; Tue, 28 Jan 2003 10:13:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267348AbTA1O6s>; Tue, 28 Jan 2003 09:58:48 -0500
-Received: from lennier.cc.vt.edu ([198.82.162.213]:48396 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S265154AbTA1O6i>; Tue, 28 Jan 2003 09:58:38 -0500
-Subject: Re: Bootscreen
-From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030128145856.GE4868@wiggy.net>
-References: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com>
-	<200301281144.h0SBi0ld000233@darkstar.example.net>
-	<20030128114840.GV4868@wiggy.net>
-	<1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk>
-	<20030128130953.GW4868@wiggy.net>
-	<1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk>
-	<20030128143235.GY4868@wiggy.net>
-	<20030128153533.X28781-100000@snail.stack.nl>
-	<20030128144714.GC4868@wiggy.net>
-	<1043765872.6760.27.camel@oubop4.bursar.vt.edu> 
-	<20030128145856.GE4868@wiggy.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 Jan 2003 10:07:57 -0500
-Message-Id: <1043766477.6794.32.camel@oubop4.bursar.vt.edu>
-Mime-Version: 1.0
+	id <S267387AbTA1PNT>; Tue, 28 Jan 2003 10:13:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11855 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S267385AbTA1PNS>; Tue, 28 Jan 2003 10:13:18 -0500
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: kexec reboot code buffer
+References: <3E31AC58.2020802@us.ibm.com> <m1znppco1w.fsf@frodo.biederman.org>
+	<3E35AAE4.10204@us.ibm.com> <m1r8ax69ho.fsf@frodo.biederman.org>
+	<20030128071826.GI780@holomorphy.com>
+	<m1isw968e3.fsf@frodo.biederman.org>
+	<20030128073117.GJ780@holomorphy.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Jan 2003 08:21:23 -0700
+In-Reply-To: <20030128073117.GJ780@holomorphy.com>
+Message-ID: <m1el6x5mh8.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Then, not supporting loadable modules *is* more secure. By not
-supporting them, you are decreasing the ease in which the kernel can be
-modified. There are fewer people who can "fiddle with memory by hand"
-than there are that can insert a loadable module... a lot fewer, don't
-you agree?
+William Lee Irwin III <wli@holomorphy.com> writes:
 
-On Tue, 2003-01-28 at 09:58, Wichert Akkerman wrote:
-> Previously Richard B. Tilley  (Brad) wrote:
-> > Could you explain this in more detail? It seems to me that if the kernel
-> > does not support loadable modules that it would be inherently more
-> > secure because it could not be dynamically modified with a module. How
-> > is my understanding of this wrong?
+> William Lee Irwin III <wli@holomorphy.com> writes:
+> >> Seriously, just plop down the fresh zone type and all will be well.
+> >> It's really incredibly easy.
 > 
-> You can fiddle with kernel memory by hand and insert code and modules.
-> There are a couple of tools available to do that for you, google can
-> probably find them for you.
+> On Tue, Jan 28, 2003 at 12:28:04AM -0700, Eric W. Biederman wrote:
+> > I will certainly take a look, tracing through that code can get a little
+> > hairy.
 > 
-> Wichert.
+> It can really be approached much more cavalierly than that. The only
+> extant example aside from the original ZONE_DMA32 implementation I've
+> seen is Simon Winwood's MPSS patch, which needed something on the order
+> of 10 lines of code for a fresh zone type (for one arch).
 > 
-> -- 
-> Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-> A random hacker
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> And most of the bulk of the ZONE_DMA32 implementation was stringing up
+> the block layer to utilize it, not inserting the new zone type itself.
 
+Primarily it appears that just another ZONE needs to be added, and then
+free_area_init needs to be passed the proper parameters.  
 
+I still want to look closely at how the discontig mem case for NUMA is
+setup.  It is probably nothing to worry about but I want to make
+certain it does not have any perverse behavior and also I want to be
+certain I know how to setup a NUMA system properly, since I am looking
+at the code anyway.
+
+Eric

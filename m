@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUHTCRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUHTCfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265245AbUHTCRR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 22:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUHTCRR
+	id S266006AbUHTCfY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 22:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUHTCfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 22:17:17 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:44735 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265245AbUHTCRP convert rfc822-to-8bit (ORCPT
+	Thu, 19 Aug 2004 22:35:24 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:19608 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266006AbUHTCfQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 22:17:15 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 19 Aug 2004 22:35:16 -0400
+Subject: Re: Memory Stick Pro driver
+From: "Raf D'Halleweyn" <raf@noduck.net>
+To: Emmanuel Fleury <fleury@cs.auc.dk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092317583.13824.114.camel@rade7.e.cs.auc.dk>
+References: <1092312640.13824.89.camel@rade7.e.cs.auc.dk>
+	 <yw1xu0v8cyw0.fsf@kth.se>  <1092315367.13824.95.camel@rade7.e.cs.auc.dk>
+	 <1092315960.13824.97.camel@rade7.e.cs.auc.dk>
+	 <1092317583.13824.114.camel@rade7.e.cs.auc.dk>
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 19 Aug 2004 22:35:13 -0400
+Message-Id: <1092969313.5230.7.camel@alto.dhalleweyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.93 
 Content-Transfer-Encoding: 8BIT
-Subject: RE: PATCH futex on fusyn (Was: RE: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1)
-Date: Thu, 19 Aug 2004 19:15:42 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A011F942C@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH futex on fusyn (Was: RE: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1)
-Thread-Index: AcSFuZ3C5alHcAPgQc2D7zSaR6ZIQAAoKNkA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>, <robustmutexes@lists.osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Ulrich Drepper" <drepper@redhat.com>
-X-OriginalArrivalTime: 20 Aug 2004 02:16:11.0285 (UTC) FILETIME=[A93F2450:01C4865B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Ingo Molnar [mailto:mingo@elte.hu]
-> * Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
+
+You need to upgrade the firmware of the memory stick reader. Sony
+provides software to do that, which runs under Windows.
+
+I have done this, and Linux successfully can read pro sticks.
+
+Raf.
+
+On Thu, 2004-08-12 at 15:33 +0200, Emmanuel Fleury wrote:
+> Hi again,
 > 
-> > Performance:
+> After some small investigation, it seems that:
 > 
-> > Environment                       Seconds (10 continuous runs averaged)
-> > -----------                       -------------------
-> > plain NPTL and futexes            0.97
-> > plain NPTL, futexes use fuqueues  1.15
-> > Under RTNPTL, using fulocks       1.48
+> Â« Some products in some categories (PC, PDA) will be able to accept
+> Memory Stick PRO media by upgrading firmware or software. (Available
+> advantage is high capacity only.) Â»
 > 
-> hm, nice - only ~18% slowdown for a very locking-intense workload. If
-> that could be made somewhat lower (without bad compromises) it would
-> kill most of the performance-based objections.
+> Read at the bottom of this page:
+> http://www.memorystick.com/en/ms/features2.html
+> 
+> Moreover, on this page:
+> http://ciscdb.sel.sony.com/perl/news-display.pl?news_id=15
+> 
+> I can see that Vaio laptop similar to mine (C1MW and C1MWP) can be
+> upgraded to read Memory stick Pro...
+> 
+> So, I guess that it is possible. But why is the Linux driver refusing it
+> ?
+> 
+> I'll try this out.
+> 
+> PS: Who is the maintainer of the Memory Stick driver ?
+> 
+> Regards
 
-That's what I am working on now. As I cannot find no obvious 
-bottlenecks, I am playing with some simple, small random optimizations
-[mostly centered around the hash table lookup code, vl_find*()].
-If that doesn't yield any quick improvements, I'll have to dig
-further and think some more.
-
-Volanomark is showing some slowdown too, although smaller. However,
-seems on the right track.
-
-> the RTNPTL overhead (+~30%) is to be expected i guess - but it's
-> optional so no pain.
-
-Still it is too much--I need to at least cut that in half.
-
-Will let you know as soon as I have some new stuff.
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

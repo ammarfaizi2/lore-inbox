@@ -1,146 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263326AbSKDDJS>; Sun, 3 Nov 2002 22:09:18 -0500
+	id <S264672AbSKDDRJ>; Sun, 3 Nov 2002 22:17:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264633AbSKDDJS>; Sun, 3 Nov 2002 22:09:18 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:55424 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S263326AbSKDDJQ>; Sun, 3 Nov 2002 22:09:16 -0500
-Date: Mon, 4 Nov 2002 14:15:09 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Vojtech Pavlik <vojtech@suse.cz>, gpm@lists.linux.it
-Subject: 2.5.45 / touchpad no longer works right
-Message-ID: <20021104031509.GC3088@zip.com.au>
+	id <S264683AbSKDDRJ>; Sun, 3 Nov 2002 22:17:09 -0500
+Received: from holomorphy.com ([66.224.33.161]:914 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264672AbSKDDRH>;
+	Sun, 3 Nov 2002 22:17:07 -0500
+Date: Sun, 3 Nov 2002 19:22:15 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Love <rml@tech9.net>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: interrupt checks for spinlocks
+Message-ID: <20021104032215.GW23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Love <rml@tech9.net>, Pete Zaitcev <zaitcev@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <mailman.1036362421.16883.linux-kernel2news@redhat.com> <200211040028.gA40S8600593@devserv.devel.redhat.com> <20021104002813.GZ16347@holomorphy.com> <20021103194249.A1603@devserv.devel.redhat.com> <20021104005339.GA16347@holomorphy.com> <1036372685.752.7.camel@phantasy> <20021104014224.GR23425@holomorphy.com> <1036378887.750.96.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+In-Reply-To: <1036378887.750.96.camel@phantasy>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just did an upgrade from 2.4.19-ac1 to 2.5.45 so that I could start
-testing the new kernel. All's more or less well (apart from a few
-compile errors and an oops) except that my touchpad no longer appears to
-work with gpm. It works fine as a 2 button ps2 mouse (-t ps2 or exps2)
-but as a synps2 it now gives the following errors:
+On Sun, Nov 03, 2002 at 10:01:24PM -0500, Robert Love wrote:
+> You can do #1, but you need to figure out if your interrupt is the only
+> interrupt using the lock or not (possibly hard).
+> In other words, a lock unique to your interrupt handler does not need to
+> disable interrupts (since only that handler can grab the lock and it is
+> disabled).
+> If other handlers can grab the lock, interrupts need to be disabled.
+> So a test of irqs_disabled() would show a false-positive in the first
+> case.  No easy way to tell..
+> 	Robert Love
 
-Nov  4 13:21:27 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** info [gpn.c(369)]: 
-Nov  4 13:21:27 theirongiant /usr/local/gpm/sbin/gpm[2967]: Started gpm successfully. Entered daemon mode.
-Nov  4 13:21:27 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** info [synaptics.c(2468)]: 
-Nov  4 13:21:27 theirongiant /usr/local/gpm/sbin/gpm[2967]: PS/2 Touchpad sending additional READY, ID CODE. 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** err [synaptics.c(2474)]: 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: Sending reset command to PS/2 TouchPad failed: No ACK, got 08. 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** err [synaptics.c(2481)]: 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: Reseting PS/2 TouchPad failed: No READY, got 00. 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** err [synaptics.c(2484)]: 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: Reseting PS/2 TouchPad failed: Wrong ID, got 02. 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** err [synaptics.c(2338)]: 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: PS/2 device doesn't appear to be a synaptics touchpad 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** err [synaptics.c(2378)]: 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: PS/2 device doesn't appear to be a synaptics touchpad 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: *** info [synaptics.c(1895)]: 
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]:      Firmware version 0.0 
-...
-Nov  4 13:21:29 theirongiant /usr/local/gpm/sbin/gpm[2967]: Unrecognized Synaptic PS/2 Touchpad packet: 28 AA 55 FF 01 08
-...
+Attempt #1:
 
-This is with gpm 1.20.1-cvs (rc1 on the tarball) and whilst using
-/dev/psaux and /dev/input/mouse0.
 
-I've had similar issues with early 2.4.x kernels, which is what
-prevented me from going to them early on. Now it's happening again. :/
 
-Any help would be appreciated as with this as it stands I need to go
-back to 2.4.19-ac1 so that I can use the touchpad properly. Also, if
-there's anything I can do to help debug, please holler.
-
-Thanks.
-
-Relevant bit of .config:
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=y
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-# CONFIG_SERIO_SERPORT is not set
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-# CONFIG_INPUT_UINPUT is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_CS=y
-# CONFIG_SERIAL_8250_EXTENDED is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-# CONFIG_LP_CONSOLE is not set
-# CONFIG_PPDEV is not set
-# CONFIG_TIPAR is not set
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-# CONFIG_QIC02_TAPE is not set
-
--- 
-        All people are equal,
-        But some are more equal then others.
-            - George W. Bush Jr, President of the United States
-              September 21, 2002 (Abridged version of security speech)
+===== include/linux/spinlock.h 1.18 vs edited =====
+--- 1.18/include/linux/spinlock.h	Sun Aug 25 10:25:45 2002
++++ edited/include/linux/spinlock.h	Sun Nov  3 19:21:44 2002
+@@ -38,6 +38,44 @@
+ #include <asm/spinlock.h>
+ 
+ /*
++ * if a lock is ever taken in interrupt context, it must always be
++ * taken with interrupts disabled. If a locking call is made that
++ * unconditionally disables and then re-enables interrupts, it must
++ * be made with interrupts enabled.
++ */
++#ifndef irq_tainted_lock
++#define irq_tainted_lock(lock)	0 
++#endif
++
++#ifndef irq_taint_lock
++#define irq_taint_lock(lock)	do { } while (0)
++#define
++
++#ifndef CONFIG_DEBUG_SPINLOCK
++#define check_spinlock_irq(lock)		do { } while (0)
++#define check_spinlock_irqs_disabled(lock)	do { } while (0)
++#else
++#define check_spinlock_irq(lock)					\
++	do {								\
++		if (irqs_disabled()) {					\
++			printk("spinlock taken unconditionally "	\
++				"re-enabling interrupts\n");		\
++			dump_stack();					\
++		}							\
++	} while (0)
++#define check_spinlock_irqs_disabled(lock)				\
++	do {								\
++		if (in_interrupt())				\
++			irq_taint_lock(lock);				\
++		else if (irq_tainted_lock(lock)) {			\
++			printk("spinlock taken in process context "	\
++				"without disabling interrupts\n");	\
++			dump_stack();					\
++		}							\
++	} while (0)
++#endif
++
++/*
+  * !CONFIG_SMP and spin_lock_init not previously defined
+  * (e.g. by including include/asm/spinlock.h)
+  */
+@@ -87,6 +125,7 @@
+  */
+ #define spin_lock(lock)	\
+ do { \
++	check_spinlock_irqs_disabled(lock); \
+ 	preempt_disable(); \
+ 	_raw_spin_lock(lock); \
+ } while(0)
+@@ -102,6 +141,7 @@
+ 
+ #define read_lock(lock)	\
+ do { \
++	check_spinlock_irqs_disabled(lock); \
+ 	preempt_disable(); \
+ 	_raw_read_lock(lock); \
+ } while(0)
+@@ -114,6 +154,7 @@
+ 
+ #define write_lock(lock) \
+ do { \
++	check_spinlock_irqs_disabled(lock); \
+ 	preempt_disable(); \
+ 	_raw_write_lock(lock); \
+ } while(0)
+@@ -136,6 +177,7 @@
+ 
+ #define spin_lock_irq(lock) \
+ do { \
++	check_spinlock_irq(lock); \
+ 	local_irq_disable(); \
+ 	preempt_disable(); \
+ 	_raw_spin_lock(lock); \
+@@ -157,6 +199,7 @@
+ 
+ #define read_lock_irq(lock) \
+ do { \
++	check_spinlock_irq(lock); \
+ 	local_irq_disable(); \
+ 	preempt_disable(); \
+ 	_raw_read_lock(lock); \
+@@ -178,6 +221,7 @@
+ 
+ #define write_lock_irq(lock) \
+ do { \
++	check_spinlock_irq(lock); \
+ 	local_irq_disable(); \
+ 	preempt_disable(); \
+ 	_raw_write_lock(lock); \

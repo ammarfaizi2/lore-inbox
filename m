@@ -1,92 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262823AbREVU61>; Tue, 22 May 2001 16:58:27 -0400
+	id <S262819AbREVU6R>; Tue, 22 May 2001 16:58:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262820AbREVU6R>; Tue, 22 May 2001 16:58:17 -0400
-Received: from teranet244-12-200.monarch.net ([24.244.12.200]:60676 "HELO
-	lustre.us.mvd") by vger.kernel.org with SMTP id <S262818AbREVU6J>;
-	Tue, 22 May 2001 16:58:09 -0400
-Date: Tue, 22 May 2001 14:59:32 -0600 (MDT)
-From: "Peter J. Braam" <braam@mountainviewdata.com>
-X-X-Sender: <braam@lustre.us.mvd>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
-        Ben LaHaise <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>, <linux-lvm@vger.kernel.org>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <200105222010.f4MKAWZk011755@webber.adilger.int>
-Message-ID: <Pine.LNX.4.33.0105221415540.2271-100000@lustre.us.mvd>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262815AbREVU6H>; Tue, 22 May 2001 16:58:07 -0400
+Received: from are.twiddle.net ([64.81.246.98]:31873 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S262818AbREVU5z>;
+	Tue, 22 May 2001 16:57:55 -0400
+Date: Tue, 22 May 2001 13:57:42 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: alpha iommu fixes
+Message-ID: <20010522135742.A4662@twiddle.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru> <20010521105339.A1907@twiddle.net> <20010522025658.A1116@athlon.random> <20010522162916.B15155@athlon.random> <20010522184409.A791@jurassic.park.msu.ru> <20010522170016.D15155@athlon.random> <20010522132815.A4573@twiddle.net> <3B0ACEB1.F3806F00@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B0ACEB1.F3806F00@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 22, 2001 at 04:40:17PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 22, 2001 at 04:40:17PM -0400, Jeff Garzik wrote:
+> ISA cards can do sg?
 
-Andreas,
-
-
-I think that the issue is something different.  Suppose the snapshot has
-been created. I know that this can be done safely with the API's you
-allude to. Life goes on and the journal FS keeps changing the file system
-and if the system doesn't crash, everything is fine: blocks get copied
-correctly from the primary volume to the snapshot volume.
-
-Now consider a crash -- not during snapshot creation, but way after that
-when "life is going on".  Suppose there is a two block transaction that
-has made it to the journal and after writing one block to the fs location
-the system crashes.  The journal replay will try to write that block
-again.
-
-But during recovery, LVM cannot possibly know if the whole process of
-copying out the data from the current to the snapshot area completed
-during the previous run. Yes, LVM updates the redirection table first and
-then copies, but, still, you don't know _where exactly_ the writes stopped
-happening and in particular you don't know if the block was copied already
-or not.
-
-So during replay it is quite possible that LVM corrupts the snapshot.
-
-It's better to keep the snapshot in the old volume and write the new data
-to a separate area (that's what most commercial systems do I think).  It
-avoid redirections and copying upon write.  When you delete the snapshot
-you have to copy, but you can do that as a low priority process.
-Finally, as you pointed out a full volume is handled better too in that
-way, since you don't terminate the snapshot but you tell the current
-volume that it is full.
-
-Hmm, I was expecting a storm of email explaining what I have
-misunderstood, but it has in fact been rather quiet...
-
-- Peter -
+No, but the host iommu can.  The isa card sees whatever
+view of memory presented to it by the iommu.
 
 
-
-
-
-
-On Tue, 22 May 2001, Andreas Dilger wrote:
-
-> Peter Braam writes:
-> > On Tue, 22 May 2001, Andreas Dilger wrote:
-> > > Actually, the LVM snapshot
-> > > interface has (optional) hooks into the filesystem to ensure that it
-> > > is consistent at the time the snapshot is created.
-> >
-> > File system journal recovery can corrupt a snapshot, because it copies
-> > data that needs to be preserved in a snapshot. During journal replay such
-> > data may be copied again, but the source can have new data already.
->
-> The way it is implemented in reiserfs is to wait for existing transactions
-> to complete, entirely flush the journal and block all new transactions from
-> starting.  Stephen implemented a journal flush API to do this for ext3, but
-> the hooks to call it from LVM are not in place yet.  This way the journal is
-> totally empty at the time the snapshot is done, so the read-only copy does
-> not need to do journal recovery, so no problems can arise.
->
-> Cheers, Andreas
->
-
--- 
-
+r~

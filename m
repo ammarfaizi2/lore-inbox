@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316895AbSFQKuB>; Mon, 17 Jun 2002 06:50:01 -0400
+	id <S316408AbSFQK7O>; Mon, 17 Jun 2002 06:59:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316896AbSFQKuA>; Mon, 17 Jun 2002 06:50:00 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:35333 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316895AbSFQKuA>; Mon, 17 Jun 2002 06:50:00 -0400
-Date: Mon, 17 Jun 2002 11:49:57 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/19] writeback tunables
-Message-ID: <20020617114957.A4130@flint.arm.linux.org.uk>
-References: <3D0D86D7.644F0C13@zip.com.au> <3D0DBAEE.2030409@evision-ventures.com>
+	id <S316896AbSFQK7O>; Mon, 17 Jun 2002 06:59:14 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:44319 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316408AbSFQK7N>;
+	Mon, 17 Jun 2002 06:59:13 -0400
+Date: Mon, 17 Jun 2002 12:59:05 +0200
+From: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.22 compile problems
+Message-Id: <20020617125905.5511b12c.hanno@gmx.de>
+Organization: Mecronome Webdesign - http://www.mecronome.de/
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D0DBAEE.2030409@evision-ventures.com>; from dalecki@evision-ventures.com on Mon, Jun 17, 2002 at 12:33:18PM +0200
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 17, 2002 at 12:33:18PM +0200, Martin Dalecki wrote:
-> 
-> > + * The interval between `kupdate'-style writebacks.
-> > + */
-> > +int dirty_writeback_centisecs = 5 * 100;
-> > +
-> > +/*
-> > + * The largest amount of time for which data is allowed to remain dirty
-> > + */
-> > +int dirty_expire_centisecs = 30 * 100;
-> > +
-> 
-> Blind guess - didn't the 100 wan't to be HZ?!
+I tried to compile 2.5.22 and got the following errors:
 
-The units are centiseconds (as the name suggests). 5 * 100 centiseconds = 5
-seconds, so the dirty writeback timeout is 5 seconds.  Check the code a
-little further and you'll see HZ gets factored into them on use.
+   ld -m elf_i386  -r -o init.o main.o version.o do_mounts.o
+make[1]: Verlassen des Verzeichnisses Verzeichnis »/usr/src/linux-2.5.22/init«
+  ld -m elf_i386 -T /usr/src/linux-2.5.22/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o --start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o /usr/src/linux-2.5.22/arch/i386/lib/lib.a lib/lib.a /usr/src/linux-2.5.22/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
+arch/i386/kernel/kernel.o: In function `intel_thermal_interrupt':
+arch/i386/kernel/kernel.o(.text+0x7821): undefined reference to `ack_APIC_irq'
+arch/i386/kernel/kernel.o: In function `intel_init_thermal':
+arch/i386/kernel/kernel.o(.text.init+0x1450): undefined reference to `apic_read'
+arch/i386/kernel/kernel.o(.text.init+0x149b): undefined reference to `apic_write_around'
+arch/i386/kernel/kernel.o(.text.init+0x14cd): undefined reference to `apic_read'
+arch/i386/kernel/kernel.o(.text.init+0x14e0): undefined reference to `apic_write_around'
+make: *** [vmlinux] Fehler 1
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 
+
+I have tried kernels 2.5.18, 2.5.20, 2.5.21 and 2.5.22 and I always had compile problems. Can't someone test the kernel-source with all options activated before it is released?
+I think it doesn't matter if this happens sometimes in the 2.5-series, but it should not become usual.

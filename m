@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271368AbTHOVuK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 17:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271373AbTHOVuJ
+	id S271380AbTHOVuf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 17:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271416AbTHOVu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 17:50:09 -0400
-Received: from marblerye.cs.uga.edu ([128.192.101.172]:14208 "HELO
-	marblerye.cs.uga.edu") by vger.kernel.org with SMTP id S271368AbTHOVuG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 17:50:06 -0400
-To: Ed L Cashin <ecashin@uga.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] do_wp_page: BUG on invalid pfn
-From: Ed L Cashin <ecashin@uga.edu>
-Date: Fri, 15 Aug 2003 17:50:05 -0400
-In-Reply-To: <20030815223912.E21529@flint.arm.linux.org.uk> (Russell King's
- message of "Fri, 15 Aug 2003 22:39:12 +0100")
-Message-ID: <87smo27fqq.fsf@uga.edu>
-User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2
- (i386-debian-linux-gnu)
-References: <20030815184720.A4D482CE79@lists.samba.org>
-	<877k5e8vwe.fsf@uga.edu>
-	<20030815223912.E21529@flint.arm.linux.org.uk>
+	Fri, 15 Aug 2003 17:50:26 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:60630 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S271380AbTHOVuW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 17:50:22 -0400
+Message-ID: <3F3D558D.5050803@colorfullife.com>
+Date: Fri, 15 Aug 2003 23:50:05 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] slab debug vs. L1 alignement
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
+Ben wrote:
 
-> On Fri, Aug 15, 2003 at 05:15:45PM -0400, Ed L Cashin wrote:
->> +		dump_stack();
->> +		BUG();
+>Currently, when enabling slab debugging, we lose the property of
+>having the objects aligned on a cache line size.
+>  
 >
-> Is there much point to both dump_stack and BUG() - BUG is supposed to
-> provide a calltrace, which dump_stack also does.  Do we really need two
-> copies?
+Correct. Cache line alignment is advisory. Slab debugging is not the 
+only case that violates the alignment, for example 32-byte allocations 
+are not padded to the 128 byte cache line size of the Pentium 4 cpus. I 
+really doubt we want that.
 
-On i386 WARN_ON calls dump_stack, but BUG just prints some minimal
-helpful info on the console, like this:
+Have you looked at pci_pool_{create,alloc,free,destroy}? The functions 
+were specifically written to provide aligned buffers for DMA operations. 
+Perhaps SCSI should use them?
 
-------------[ cut here ]------------
-kernel BUG at kernel/any.c:36!
-invalid operand: 0000 [#1]
-
-
--- 
---Ed L Cashin            |   PGP public key:
-  ecashin@uga.edu        |   http://noserose.net/e/pgp/
+--
+    Manfred
 

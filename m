@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265992AbTGAF6u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 01:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbTGAF6t
+	id S265985AbTGAF4J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 01:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbTGAF4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 01:58:49 -0400
-Received: from anumail5.anu.edu.au ([150.203.2.45]:5025 "EHLO anu.edu.au")
-	by vger.kernel.org with ESMTP id S265992AbTGAF6s (ORCPT
+	Tue, 1 Jul 2003 01:56:09 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:58067 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265985AbTGAF4I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 01:58:48 -0400
-Message-ID: <3F012663.5040704@cyberone.com.au>
-Date: Tue, 01 Jul 2003 16:12:51 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.2.1) Gecko/20021217
-MIME-Version: 1.0
-To: Peter Wong <wpeter@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Mike Sullivan <mksully@us.ibm.com>, Bill Hartner <bhartner@us.ibm.com>,
-       Ray Venditti <venditti@us.ibm.com>
-Subject: Re: Evaluation of three I/O schedulers
-References: <OF9393D547.0D1D003C-ON85256D55.004DFAA4@pok.ibm.com>
-In-Reply-To: <OF9393D547.0D1D003C-ON85256D55.004DFAA4@pok.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 1 Jul 2003 01:56:08 -0400
+Date: Mon, 30 Jun 2003 23:03:29 -0700 (PDT)
+Message-Id: <20030630.230329.35692088.davem@redhat.com>
+To: hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI domain stuff
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3F0124FC.1010001@zytor.com>
+References: <bdr7a6$4eu$1@cesium.transmeta.com>
+	<1057039376.32118.3.camel@rth.ninka.net>
+	<3F0124FC.1010001@zytor.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Sender-Domain: cyberone.com.au
-X-Spam-Score: (-2.8)
-X-Spam-Tests: DATE_IN_PAST_06_12,EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,SPAM_PHRASE_00_01,USER_AGENT,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Wong wrote:
+   From: "H. Peter Anvin" <hpa@zytor.com>
+   Date: Mon, 30 Jun 2003 23:06:52 -0700
 
->We used 2.5.72+mm1 to evaluate three I/O schedulers, namely
->anticipatory, deadline and complete fair queueing under a very heavy
->database workload on an 8-way Pentium 4 machine. The workload is a
->decision support system doing mostly sequential I/O and each run takes
->about one hour. All three runs finished completely without encountering
->functional problems, and achieved similar performance level.
->
->The 8-way machine has Pentium 4 2.0 GHz processors, 16 GB physical
->memory, 2MB L3 cache, 8 FC controllers with 80 disks. Hyperthreading
->was turned on for the three runs. The CPU utilization is similar for all
->three runs: 65% user, 7% system and 28% idle.
->
+   Perhaps a libdirectio would be useful?
+   
+The details are very PCI specific, so what you'd be working
+on initially is a PCI centric library.
 
-Hi Peter,
-How many block devices are being used at once in your tests?
-I would be interested to see profiles of AS and DL if possible.
-Thanks.
-
-Nick
-
+Over time things can be abstracted, but the initial PCI specific
+one would be good enough for xfree86 to link to and make use
+of which is a huge step in the right direction.

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263444AbRFFPcf>; Wed, 6 Jun 2001 11:32:35 -0400
+	id <S263434AbRFFPcF>; Wed, 6 Jun 2001 11:32:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263445AbRFFPcZ>; Wed, 6 Jun 2001 11:32:25 -0400
-Received: from cloven-ext.nks.net ([216.139.204.130]:23065 "EHLO
-	homer.mkintl.com") by vger.kernel.org with ESMTP id <S263444AbRFFPcJ>;
-	Wed, 6 Jun 2001 11:32:09 -0400
-Message-ID: <3B1E4CD0.D16F58A8@illusionary.com>
+	id <S263444AbRFFPbz>; Wed, 6 Jun 2001 11:31:55 -0400
+Received: from mercury.ultramaster.com ([208.222.81.163]:2688 "EHLO
+	mercury.ultramaster.com") by vger.kernel.org with ESMTP
+	id <S263434AbRFFPbi>; Wed, 6 Jun 2001 11:31:38 -0400
+Message-ID: <3B1E4CD0.FAB71F91@dm.ultramaster.com>
 Date: Wed, 06 Jun 2001 11:31:28 -0400
-From: Derek Glidden <dglidden@illusionary.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+From: David Mansfield <lkml@dm.ultramaster.com>
+Organization: Ultramaster Group LLC
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.6-pre1 hard lockup
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This morning I was running 2.4.6-pre1 and it locked up hard in
+X-windows.  The mouse cursor was frozen, and I couldn't ping the box
+from another one on the network.  The sysrq did work - to an extent.  A
+tried the 's u b' combination, and although the sync and remount didn't
+work (filesystems needed fsck at boot - I think this means the sync and
+remount never finished), the re-boot did.
 
-> Funny. I can count many ways in which 4.3BSD, SunOS{3,4} and post-4.4 BSD
-> systems I've used were broken, but I've never thought that swap==2*RAM rule
-> was one of them.
+System activity at the time was running a CPU intensive audio
+application, which implies taking a lot of audio interrupts.  System had
+been up for less than 24 hours.
 
-Yes, but Linux isn't 4.3BSD, SunOS or post-4.4 BSD.  Not to mention, all
-other OS's I've had experience using *don't* break severely if you don't
-follow the "swap==2*RAM" rule.  Except Linux 2.4.
+I wish I had more info.
 
-> Not that being more kind on swap would be a bad thing, but that rule for
-> amount of swap is pretty common. ISTR similar for (very old) SCO, so it's
-> not just BSD world. How are modern Missed'em'V variants in that respect, BTW?
-
-Yes, but that has traditionally been one of the big BENEFITS of Linux,
-and other UNIXes.  As Sean Hunter said, "Virtual memory is one of the
-killer features of
-unix."  Linux has *never* in the past REQUIRED me to follow that rule. 
-Which is a big reason I use it in so many places.
-
-Take an example mentioned by someone on the list already: a laptop.  I
-have two laptops that run Linux.  One has a 4GB disk, one has a 12GB
-disk.  Both disks are VERY full of data and both machines get pretty
-heavy use.  It's a fact that I just bumped one laptop (with 256MB of
-swap configured) from 128MB to 256MB of RAM.  Does this mean that if I
-want to upgrade to the 2.4 kernel on that machine I now have to back up
-all that data, repartition the drive and restore everything just so I
-can fastidiously follow the "swap == 2*RAM" rule else the 2.4 VM
-subsystem will break?  Bollocks, to quote yet another participant in
-this silly discussion.
-
-I'm beginning to be amazed at the Linux VM hackers' attitudes regarding
-this problem.  I expect this sort of behaviour from academics - ignoring
-real actual problems being reported by real actual people really and
-actually experiencing and reporting them because "technically" or
-"theoretically" they "shouldn't be an issue" or because "the "literature
-[documentation] says otherwise - but not from this group.  
+My system is a 700mhz Athlon, 256mb ram, Adaptec 2940UW, eepro100, and
+sound card is emu10k1 (sb live). 
 
 -- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+David Mansfield                                           (718) 963-2020
+david@ultramaster.com
+Ultramaster Group, LLC                               www.ultramaster.com

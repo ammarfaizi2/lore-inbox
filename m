@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbTJRRyr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 13:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbTJRRyr
+	id S261784AbTJRSHc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 14:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTJRSHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 13:54:47 -0400
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:5761
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S261764AbTJRRyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 13:54:33 -0400
-From: John Mock <kd6pag@qsl.net>
-To: linux-kernel@vger.kernel.org
-Subject: re: software suspend / 2.6.0-test7,8
-Message-Id: <E1AAvHj-0000zH-00@penngrove.fdns.net>
-Date: Sat, 18 Oct 2003 10:54:39 -0700
+	Sat, 18 Oct 2003 14:07:32 -0400
+Received: from gprs144-147.eurotel.cz ([160.218.144.147]:10624 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261784AbTJRSH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 14:07:27 -0400
+Date: Sat, 18 Oct 2003 20:05:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Aviram Jenik <aviram@beyondsecurity.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp in test8 fails with intel-agp and i830
+Message-ID: <20031018180551.GB461@elf.ucw.cz>
+References: <200310152347.04263.aviram@beyondsecurity.com> <20031016202105.GL1659@openzaurus.ucw.cz> <200310181717.04001.aviram@beyondsecurity.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310181717.04001.aviram@beyondsecurity.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Software suspend (both flavors) works to me, under limited circumstances
-and with X, only using VESA rather than native mode.  Note that it seems to
-get confused if ones swap partition doesn't have a valid signature.  Lots
-of other things could be going on.
+Hi!
 
-I'm not sure how helpful these remarks are, as software suspend appears to
-be somewhat hardware dependent and you haven't provided any information on
-your hardware or software configuration.  You'll probably need to provide
-more information to get a useful response here.  It is alot to read in its
-entirety, but please have a look at relevant parts of the FAQ:
+> I am not sure which of the two modules causes the problem, I can only load 
+> them both. Unfortunately, without those modules the vaio laptop can only give 
+> 640x480, so this is not much of a workaround...
 
-	http://www.kernel.org/pub/linux/docs/lkml/
+With vesafb, you should be able to get any resultion you want at
+60Hz. Which is okay, because you have LCD.
 
-which may be helpful in understanding what to include.  (I'm relatively new 
-to this list, so i'm not sure what else to suggest.)
+> To summarize:
+> If the intel-agp and i830 modules are not loaded during startup, suspend via 
+> echo 4 > /proc/acpi/sleep and restore work beautifully. If those modules 
+> _are_ loaded, and X is running, resume reboots.
 
-				   -- JM
+Okay, 
+
+static int agp_intel_resume(struct pci_dev *pdev)
+{
+        struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
+
+        if (bridge->driver == &intel_generic_driver)
+                intel_configure();
+        else if (bridge->driver == &intel_845_driver)
+                intel_845_configure();
+
+        return 0;
+}
+
+intel_agp tries to implement resume, try to put printk("something");
+mdelay(1000); in it and debug it this way.
+
+drivers/char/drm/i830_drv driver is apparently using DMA _and_  has no
+suspend/resume support. That looks dangerous to me, perhaps you'll
+need to implement those, too.
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

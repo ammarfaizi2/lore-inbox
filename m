@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263428AbTETBbU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 21:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTETBbT
+	id S263451AbTETBfi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 21:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTETBfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 21:31:19 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:52866 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263428AbTETBbN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 21:31:13 -0400
-Date: Tue, 20 May 2003 02:44:03 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [patch] futex API cleanups, futex-api-cleanup-2.5.69-A2
-Message-ID: <20030520014403.GA14851@mail.jlokier.co.uk>
-References: <20030520010913.3300F2C05E@lists.samba.org> <Pine.LNX.4.55.0305191813240.6565@bigblue.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0305191813240.6565@bigblue.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 19 May 2003 21:35:38 -0400
+Received: from dp.samba.org ([66.70.73.150]:40601 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263451AbTETBfh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 21:35:37 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3 
+In-reply-to: Your message of "Mon, 19 May 2003 17:40:54 MST."
+             <3EC97996.1080800@redhat.com> 
+Date: Tue, 20 May 2003 11:46:45 +1000
+Message-Id: <20030520014836.C7BDE2C069@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> > In message <20030519233353.GD13706@mail.jlokier.co.uk> you write:
-> > > Ingo Molnar wrote:
-> > > > FUTEX_FD is an instant DoS, it allows the pinning of one page per file
-> > > > descriptor, per thread. With a default limit of 1024 open files per
-> > > > thread, and 256 threads (on a sane/conservative setup), this means 1 GB of
-> > > > RAM can be pinned down by a normal unprivileged user.
-> > >
-> > > The correct solution [;)] is EP_FUTEX - allow a futex to be specified
-> > > as the source of an epoll event.
+In message <3EC97996.1080800@redhat.com> you write:
+> Rusty Russell wrote:
 > 
-> Futexes do support f_op->poll(), isn't it Rusty ? If so, they're supported
-> by epoll ...
+> > 1) Overload the last futex arg (change from timeval * to void *),
+> >    don't add YA arg at the end.
+> 
+> It wasn't Ingo's idea.  I suggested it.  Overloading parameter types is
+> evil.  This isn't an issue anymore if the extension is implemented as a
+> new syscall which certainly is better.
 
-Yes, they do and it should work (I haven't tried, though).
+People are using the interface, so I don't think changing it because
+"it's nicer this way" is worthwhile: Ingo's "new syscall" patch has
+backwards compat code for the old syscalls.  That's fugly 8(
 
-There is a practical problem when waiting on a futex in multiple
-threads using epoll: you need a separate fd per waiter, rather than an
-fd per waited-on futex.  This is because some uses of futexes depend
-on waiters being woken in the exact order that they were queued.
+So I'd say if we're going to multiplex, then overloading is easiest,
+and in fact already done for FUTEX_FD.
 
-To get this ordering, every waiter must allocate its own fd.  The only
-practical way to do this is allocate the fd just prior to waiting, and
-release it afterwards.
+But it's an issue over which sane people can disagree, IMHO.
 
-As you can imagine, with many threads this implies a lot of fds, which
-are in limited supply, and a high rate of allocation and deallocation,
-which may be relatively slow.
+> > 2) Use __alignof__(u32) not sizeof(u32).  Sure, they're the same, but
+> >    you really mean __alignof__ here.
+> 
+> I would always use sizeof() in this situation.
 
--- Jamie
+Comment says: /* Must be "naturally" aligned */.  This used to be true
+in a much earlier version of the code, now AFAICT the requirement test
+should be:
+
+	/* Handling futexes on multiple pages?  -ETOOHARD */
+	if (pos_in_page + sizeof(u32) > PAGE_SIZE)
+		return -EINVAL;
+
+Ingo?
+
+Thanks for the comments!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

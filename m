@@ -1,337 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282257AbRKWWBo>; Fri, 23 Nov 2001 17:01:44 -0500
+	id <S282269AbRKWWHQ>; Fri, 23 Nov 2001 17:07:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282258AbRKWWBh>; Fri, 23 Nov 2001 17:01:37 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:34323 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S282257AbRKWWB0>;
-	Fri, 23 Nov 2001 17:01:26 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15358.49623.794320.258248@cargo.ozlabs.ibm.com>
-Date: Sat, 24 Nov 2001 08:38:31 +1100 (EST)
+	id <S282266AbRKWWHJ>; Fri, 23 Nov 2001 17:07:09 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60146 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S282258AbRKWWGw>;
+	Fri, 23 Nov 2001 17:06:52 -0500
+Date: Fri, 23 Nov 2001 17:06:46 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix 2.4.15 compile on PPC
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH][CFT] Re: 2.4.15-pre9 breakage (inode.c)
+In-Reply-To: <Pine.GSO.4.21.0111231634310.2422-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0111231701440.2422-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus' 2.4.15 tree doesn't compile on PPC because the #ifdef around
-the show_trace_task call got removed in 2.4.15-pre9.  I sent the patch
-below to Linus yesterday but it didn't get to him in time for 2.4.15
-final.
 
-There is also a more comprehensive patch available at:
-ftp://ftp.kernel.org/pub/linux/kernel/ports/ppc/ppc-patch-2.4.15.bz2
 
-Paul.
+On Fri, 23 Nov 2001, Alexander Viro wrote:
 
-diff -urN linux-2.4.15-pre9/arch/ppc/kernel/entry.S linuxppc_2_4/arch/ppc/kernel/entry.S
---- linux-2.4.15-pre9/arch/ppc/kernel/entry.S	Mon Sep 24 09:31:16 2001
-+++ linuxppc_2_4/arch/ppc/kernel/entry.S	Sat Feb 23 16:40:48 2002
-@@ -1,5 +1,5 @@
- /*
-- * BK Id: SCCS/s.entry.S 1.22 08/15/01 22:43:06 paulus
-+ * BK Id: SCCS/s.entry.S 1.24 11/23/01 16:38:29 paulus
-  */
- /*
-  *  PowerPC version 
-@@ -216,6 +216,7 @@
- 	SAVE_8GPRS(14, r1)
- 	SAVE_10GPRS(22, r1)
- 	mflr	r20		/* Return to switch caller */
-+	stw	r20,INT_FRAME_SIZE+4(r1)
- 	mfmsr	r22
- 	li	r0,MSR_FP	/* Disable floating-point */
- #ifdef CONFIG_ALTIVEC
-@@ -223,10 +224,12 @@
- 	oris	r0,r0,MSR_VEC@h	/* Disable altivec */
- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- #endif /* CONFIG_ALTIVEC */
-+	and.	r0,r0,r22	/* FP or altivec enabled? */
-+	beq+	1f
- 	andc	r22,r22,r0
- 	mtmsr	r22
- 	isync
--	stw	r20,_NIP(r1)
-+1:	stw	r20,_NIP(r1)
- 	stw	r22,_MSR(r1)
- 	stw	r20,_LINK(r1)
- 	mfcr	r20
-@@ -391,9 +394,9 @@
- 	mfmsr	r9
- 	stw	r9,8(r1)
- 	li	r0,0
--	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE
-+	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_FE0|MSR_FE1
- 	andc	r0,r9,r0
--	li	r10,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP
-+	li	r10,MSR_IR|MSR_DR|MSR_FP
- 	andc	r9,r0,r10
- 	SYNC			/* disable interrupts so SRR0/1 */
- 	mtmsr	r0		/* don't get trashed */
-diff -urN linux-2.4.15-pre9/arch/ppc/kernel/misc.S linuxppc_2_4/arch/ppc/kernel/misc.S
---- linux-2.4.15-pre9/arch/ppc/kernel/misc.S	Tue Nov  6 18:21:29 2001
-+++ linuxppc_2_4/arch/ppc/kernel/misc.S	Sat Feb 23 16:40:48 2002
-@@ -1,5 +1,5 @@
- /*
-- * BK Id: SCCS/s.misc.S 1.32 10/18/01 17:29:53 trini
-+ * BK Id: SCCS/s.misc.S 1.34 11/23/01 16:38:29 paulus
-  */
- /*
-  * This file contains miscellaneous low-level functions.
-@@ -866,10 +866,8 @@
- 	sc
- 	cmpi	0,r3,0		/* parent or child? */
- 	bnelr			/* return if parent */
--	li	r0,0		/* clear out p->thread.regs */
--	stw	r0,THREAD+PT_REGS(r2)	/* since we don't have user ctx */
--	addi	r1,r2,TASK_UNION_SIZE-STACK_FRAME_OVERHEAD
--	stw	r0,0(r1)
-+	li	r0,0		/* make top-level stack frame */
-+	stwu	r0,-16(r1)
- 	mtlr	r6              /* fn addr in lr */
- 	mr	r3,r4	        /* load arg and call fn */
- 	blrl
-diff -urN linux-2.4.15-pre9/arch/ppc/kernel/process.c linuxppc_2_4/arch/ppc/kernel/process.c
---- linux-2.4.15-pre9/arch/ppc/kernel/process.c	Wed Oct 10 12:38:52 2001
-+++ linuxppc_2_4/arch/ppc/kernel/process.c	Sat Feb 23 16:40:48 2002
-@@ -1,5 +1,5 @@
- /*
-- * BK Id: SCCS/s.process.c 1.31 10/02/01 09:51:41 paulus
-+ * BK Id: SCCS/s.process.c 1.34 11/23/01 16:38:29 paulus
-  */
- /*
-  *  linux/arch/ppc/kernel/process.c
-@@ -336,9 +336,10 @@
- 		/* for kernel thread, set `current' and stackptr in new task */
- 		childregs->gpr[1] = sp + sizeof(struct pt_regs);
- 		childregs->gpr[2] = (unsigned long) p;
--	}
-+		p->thread.regs = NULL;	/* no user register state */
-+	} else
-+		p->thread.regs = childregs;
- 	childregs->gpr[3] = 0;  /* Result from fork() */
--	p->thread.regs = childregs;
- 	sp -= STACK_FRAME_OVERHEAD;
- 	childframe = sp;
- 
-@@ -463,6 +464,27 @@
- 			break;
+> 	Untested fix follows.  And please, pass the brown paperbag... ;-/
+
+... and now for something that really builds:
+
+diff -urN S15/fs/inode.c S15-fix/fs/inode.c
+--- S15/fs/inode.c	Fri Nov 23 06:45:43 2001
++++ S15-fix/fs/inode.c	Fri Nov 23 17:04:05 2001
+@@ -1065,24 +1065,27 @@
+ 			if (inode->i_state != I_CLEAR)
+ 				BUG();
+ 		} else {
+-			if (!list_empty(&inode->i_hash) && sb && sb->s_root) {
++			if (!list_empty(&inode->i_hash)) {
+ 				if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
+ 					list_del(&inode->i_list);
+ 					list_add(&inode->i_list, &inode_unused);
+ 				}
+ 				inodes_stat.nr_unused++;
+ 				spin_unlock(&inode_lock);
+-				return;
+-			} else {
+-				list_del_init(&inode->i_list);
++				if (!sb || sb->s_flags & MS_ACTIVE)
++					return;
++				write_inode_now(inode, 1);
++				spin_lock(&inode_lock);
++				inodes_stat.nr_unused--;
+ 				list_del_init(&inode->i_hash);
+-				inode->i_state|=I_FREEING;
+-				inodes_stat.nr_inodes--;
+-				spin_unlock(&inode_lock);
+-				if (inode->i_data.nrpages)
+-					truncate_inode_pages(&inode->i_data, 0);
+-				clear_inode(inode);
+ 			}
++			list_del_init(&inode->i_list);
++			inode->i_state|=I_FREEING;
++			inodes_stat.nr_inodes--;
++			spin_unlock(&inode_lock);
++			if (inode->i_data.nrpages)
++				truncate_inode_pages(&inode->i_data, 0);
++			clear_inode(inode);
+ 		}
+ 		destroy_inode(inode);
  	}
- 	printk("\n");
-+}
-+
-+void show_trace_task(struct task_struct *tsk)
-+{
-+	unsigned long stack_top = (unsigned long) tsk + THREAD_SIZE;
-+	unsigned long sp, prev_sp;
-+	int count = 0;
-+
-+	if (tsk == NULL)
-+		return;
-+	sp = (unsigned long) &tsk->thread.ksp;
-+	do {
-+		prev_sp = sp;
-+		sp = *(unsigned long *)sp;
-+		if (sp <= prev_sp || sp >= stack_top || (sp & 3) != 0)
-+			break;
-+		if (count > 0)
-+			printk("[%08lx] ", *(unsigned long *)(sp + 4));
-+	} while (++count < 16);
-+	if (count > 1)
-+		printk("\n");
- }
+diff -urN S15/fs/super.c S15-fix/fs/super.c
+--- S15/fs/super.c	Fri Nov 23 06:45:43 2001
++++ S15-fix/fs/super.c	Fri Nov 23 16:56:50 2001
+@@ -462,6 +462,7 @@
+ 	lock_super(s);
+ 	if (!type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
+ 		goto out_fail;
++	s->s_flags |= MS_ACTIVE;
+ 	unlock_super(s);
+ 	/* tell bdcache that we are going to keep this one */
+ 	if (bdev)
+@@ -614,6 +615,7 @@
+ 	lock_super(s);
+ 	if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
+ 		goto out_fail;
++	s->s_flags |= MS_ACTIVE;
+ 	unlock_super(s);
+ 	get_filesystem(fs_type);
+ 	path_release(&nd);
+@@ -695,6 +697,7 @@
+ 		lock_super(s);
+ 		if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
+ 			goto out_fail;
++		s->s_flags |= MS_ACTIVE;
+ 		unlock_super(s);
+ 		get_filesystem(fs_type);
+ 		return s;
+@@ -739,6 +742,7 @@
+ 	dput(root);
+ 	fsync_super(sb);
+ 	lock_super(sb);
++	sb->s_flags &= ~MS_ACTIVE;
+ 	invalidate_inodes(sb);	/* bad name - it should be evict_inodes() */
+ 	if (sop) {
+ 		if (sop->write_super && sb->s_dirt)
+diff -urN S15/include/linux/fs.h S15-fix/include/linux/fs.h
+--- S15/include/linux/fs.h	Fri Nov 23 06:45:44 2001
++++ S15-fix/include/linux/fs.h	Fri Nov 23 17:01:18 2001
+@@ -110,6 +110,7 @@
+ #define MS_BIND		4096
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
  
- #if 0
-diff -urN linux-2.4.15-pre9/arch/ppc/kernel/ptrace.c linuxppc_2_4/arch/ppc/kernel/ptrace.c
---- linux-2.4.15-pre9/arch/ppc/kernel/ptrace.c	Mon Sep 24 09:31:17 2001
-+++ linuxppc_2_4/arch/ppc/kernel/ptrace.c	Sat Feb 23 16:40:48 2002
-@@ -1,5 +1,5 @@
  /*
-- * BK Id: SCCS/s.ptrace.c 1.8 07/07/01 17:00:08 paulus
-+ * BK Id: SCCS/s.ptrace.c 1.12 11/23/01 16:38:30 paulus
-  */
- /*
-  *  linux/arch/ppc/kernel/ptrace.c
-@@ -132,14 +132,9 @@
- 		ret = ptrace_attach(child);
- 		goto out_tsk;
- 	}
--	ret = -ESRCH;
--	if (!(child->ptrace & PT_PTRACED))
--		goto out_tsk;
--	if (child->state != TASK_STOPPED) {
--		if (request != PTRACE_KILL)
--			goto out_tsk;
--	}
--	if (child->p_pptr != current)
-+
-+	ret = ptrace_check_attach(child, request == PTRACE_KILL);
-+	if (ret < 0)
- 		goto out_tsk;
- 
- 	switch (request) {
-diff -urN linux-2.4.15-pre9/arch/ppc/kernel/signal.c linuxppc_2_4/arch/ppc/kernel/signal.c
---- linux-2.4.15-pre9/arch/ppc/kernel/signal.c	Sat May 26 12:39:42 2001
-+++ linuxppc_2_4/arch/ppc/kernel/signal.c	Sat Feb 23 16:40:48 2002
-@@ -1,5 +1,5 @@
- /*
-- * BK Id: SCCS/s.signal.c 1.7 05/17/01 18:14:22 cort
-+ * BK Id: SCCS/s.signal.c 1.10 11/23/01 16:38:30 paulus
-  */
- /*
-  *  linux/arch/ppc/kernel/signal.c
-@@ -180,7 +180,7 @@
- 		siginitset(&new_ka.sa.sa_mask, mask);
- 	}
- 
--	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
-+	ret = do_sigaction(sig, (act? &new_ka: NULL), (oact? &old_ka: NULL));
- 
- 	if (!ret && oact) {
- 		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
-@@ -254,6 +254,8 @@
- 	current->blocked = set;
- 	recalc_sigpending(current);
- 	spin_unlock_irq(&current->sigmask_lock);
-+	if (regs->msr & MSR_FP)
-+		giveup_fpu(current);
- 
- 	rt_sf++;			/* Look at next rt_sigframe */
- 	if (rt_sf == (struct rt_sigframe *)(sigctx.regs)) {
-@@ -263,8 +265,6 @@
- 		 * see handle_signal()
- 		 */
- 		sr = (struct sigregs *) sigctx.regs;
--		if (regs->msr & MSR_FP )
--			giveup_fpu(current);
- 		if (copy_from_user(saved_regs, &sr->gp_regs,
- 				   sizeof(sr->gp_regs)))
- 			goto badframe;
-@@ -298,6 +298,7 @@
- 		if (get_user(prevsp, &sr->gp_regs[PT_R1])
- 		    || put_user(prevsp, (unsigned long *) regs->gpr[1]))
- 			goto badframe;
-+		current->thread.fpscr = 0;
- 	}
- 	return ret;
- 
-@@ -328,6 +329,7 @@
- 		goto badframe;
- 	flush_icache_range((unsigned long) &frame->tramp[0],
- 			   (unsigned long) &frame->tramp[2]);
-+	current->thread.fpscr = 0;	/* turn off all fp exceptions */
- 
- 	/* Retrieve rt_sigframe from stack and
- 	   set up registers for signal handler
-@@ -379,13 +381,13 @@
- 	current->blocked = set;
- 	recalc_sigpending(current);
- 	spin_unlock_irq(&current->sigmask_lock);
-+	if (regs->msr & MSR_FP )
-+		giveup_fpu(current);
- 
- 	sc++;			/* Look at next sigcontext */
- 	if (sc == (struct sigcontext_struct *)(sigctx.regs)) {
- 		/* Last stacked signal - restore registers */
- 		sr = (struct sigregs *) sigctx.regs;
--		if (regs->msr & MSR_FP )
--			giveup_fpu(current);
- 		if (copy_from_user(saved_regs, &sr->gp_regs,
- 				   sizeof(sr->gp_regs)))
- 			goto badframe;
-@@ -413,6 +415,7 @@
- 		if (get_user(prevsp, &sr->gp_regs[PT_R1])
- 		    || put_user(prevsp, (unsigned long *) regs->gpr[1]))
- 			goto badframe;
-+		current->thread.fpscr = 0;
- 	}
- 	return ret;
- 
-@@ -431,8 +434,8 @@
- 
- 	if (verify_area(VERIFY_WRITE, frame, sizeof(*frame)))
- 		goto badframe;
--		if (regs->msr & MSR_FP)
--			giveup_fpu(current);
-+	if (regs->msr & MSR_FP)
-+		giveup_fpu(current);
- 	if (__copy_to_user(&frame->gp_regs, regs, GP_REGS_SIZE)
- 	    || __copy_to_user(&frame->fp_regs, current->thread.fpr,
- 			      ELF_NFPREG * sizeof(double))
-@@ -441,6 +444,7 @@
- 		goto badframe;
- 	flush_icache_range((unsigned long) &frame->tramp[0],
- 			   (unsigned long) &frame->tramp[2]);
-+	current->thread.fpscr = 0;	/* turn off all fp exceptions */
- 
- 	newsp -= __SIGNAL_FRAMESIZE;
- 	if (put_user(regs->gpr[1], (unsigned long *)newsp)
-diff -urN linux-2.4.15-pre9/arch/ppc/kernel/smp.c linuxppc_2_4/arch/ppc/kernel/smp.c
---- linux-2.4.15-pre9/arch/ppc/kernel/smp.c	Thu Nov 22 22:06:50 2001
-+++ linuxppc_2_4/arch/ppc/kernel/smp.c	Sat Feb 23 16:40:48 2002
-@@ -1,5 +1,5 @@
- /*
-- * BK Id: SCCS/s.smp.c 1.34 10/11/01 12:06:01 trini
-+ * BK Id: SCCS/s.smp.c 1.37 11/23/01 16:38:30 paulus
-  */
- /*
-  * Smp support for ppc.
-@@ -37,8 +37,6 @@
- #include <asm/residual.h>
- #include <asm/time.h>
- 
--#include "open_pic.h"
--
- int smp_threads_ready;
- volatile int smp_commenced;
- int smp_num_cpus = 1;
-@@ -324,21 +322,8 @@
- 		struct pt_regs regs;
- 		
- 		/* create a process for the processor */
--		/* we don't care about the values in regs since we'll
--		   never reschedule the forked task. */
--		/* We DO care about one bit in the pt_regs we
--		   pass to do_fork.  That is the MSR_FP bit in 
--		   regs.msr.  If that bit is on, then do_fork
--		   (via copy_thread) will call giveup_fpu.
--		   giveup_fpu will get a pointer to our (current's)
--		   last register savearea via current->thread.regs 
--		   and using that pointer will turn off the MSR_FP,
--		   MSR_FE0 and MSR_FE1 bits.  At this point, this 
--		   pointer is pointing to some arbitrary point within
--		   our stack. */
--
-+		/* only regs.msr is actually used, and 0 is OK for it */
- 		memset(&regs, 0, sizeof(struct pt_regs));
--		
- 		if (do_fork(CLONE_VM|CLONE_PID, 0, &regs, 0) < 0)
- 			panic("failed fork for CPU %d", i);
- 		p = init_task.prev_task;
-@@ -505,8 +490,6 @@
- 	cpu_callin_map[cpu] = 1;
- 
- 	smp_ops->setup_cpu(cpu);
--
--	init_idle();
- 
- 	/*
- 	 * This cpu is now "online".  Only set them online
-diff -urN linux-2.4.15-pre9/arch/ppc/mm/ppc_mmu.c linuxppc_2_4/arch/ppc/mm/ppc_mmu.c
---- linux-2.4.15-pre9/arch/ppc/mm/ppc_mmu.c	Mon Sep 24 09:31:17 2001
-+++ linuxppc_2_4/arch/ppc/mm/ppc_mmu.c	Sat Feb 23 16:40:48 2002
-@@ -304,6 +304,9 @@
- 
- 	if (Hash == 0 || nopreload)
- 		return;
-+	/* We only want HPTEs for linux PTEs that have _PAGE_ACCESSED set */
-+	if (!pte_young(pte))
-+		return;
- 	mm = (address < TASK_SIZE)? vma->vm_mm: &init_mm;
- 	pmd = pmd_offset(pgd_offset(mm, address), address);
- 	if (!pmd_none(*pmd)) {
+

@@ -1,105 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbTBNSHL>; Fri, 14 Feb 2003 13:07:11 -0500
+	id <S263544AbTBNSFs>; Fri, 14 Feb 2003 13:05:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264681AbTBNSHK>; Fri, 14 Feb 2003 13:07:10 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:30936 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S263256AbTBNSGi>; Fri, 14 Feb 2003 13:06:38 -0500
-Message-ID: <3E4D327C.6050007@namesys.com>
-Date: Fri, 14 Feb 2003 21:16:28 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S264681AbTBNSFs>; Fri, 14 Feb 2003 13:05:48 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:42400 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263544AbTBNSFo>; Fri, 14 Feb 2003 13:05:44 -0500
+Date: Fri, 14 Feb 2003 10:15:30 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 356] New: htree appears to leak memory
+Message-ID: <69150000.1045246530@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [[BK][PATCH] 2.5 trivial reiserfs resizer patch (needed now that
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    mark_buffer_dirty requires buffer to be uptodate already)
-Content-Type: multipart/mixed;
- boundary="------------050908040703060205000401"
 
-This is a multi-part message in MIME format.
---------------050908040703060205000401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+http://bugme.osdl.org/show_bug.cgi?id=356
 
-
--- 
-Hans
+           Summary: htree appears to leak memory
+    Kernel Version: 2.5.60-bk4
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: bwindle-kbt@fint.org
 
 
---------------050908040703060205000401
-Content-Type: message/rfc822;
- name="Trivial resizer fix for 2.5, please forward to Linus."
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Trivial resizer fix for 2.5, please forward to Linus."
+Distribution: Debian Testing
+Hardware Environment: single x86 CPU, Intel Corp. 82371AB/EB/MB PIIX4 IDE
+(rev  01), Maxtor 91728D8, ATA DISK drive, 256mb RAM
+Software Environment:
+Problem Description:
+In playing with ext3+htree, something is leaking memory on deletes (I
+think).
 
-Return-Path: <green@namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 5381 invoked from network); 14 Feb 2003 08:46:38 -0000
-Received: from angband.namesys.com (postfix@212.16.7.85)
-  by thebsh.namesys.com with SMTP; 14 Feb 2003 08:46:38 -0000
-Received: by angband.namesys.com (Postfix on SuSE Linux 7.3 (i386), from userid 521)
-	id 92208452F0A; Fri, 14 Feb 2003 11:46:36 +0300 (MSK)
-Date: Fri, 14 Feb 2003 11:46:36 +0300
-From: Oleg Drokin <green@namesys.com>
-To: reiser@namesys.com
-Subject: Trivial resizer fix for 2.5, please forward to Linus.
-Message-ID: <20030214114636.F10351@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+razor:/giant# cat /proc/meminfo
+MemTotal:       255884 kB
+MemFree:         28416 kB
+Buffers:          3812 kB
+Cached:           6544 kB
+SwapCached:          0 kB
+Active:          21228 kB
+Inactive:         6520 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       255884 kB
+LowFree:         28416 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:              16 kB
+Writeback:           0 kB
+Mapped:          19668 kB
+Slab:           197068 kB
+Committed_AS:    95668 kB
+PageTables:        484 kB
+ReverseMaps:      6098
 
-Hello!
+SysRq : Show Memory
+Mem-info:
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 30, high 90, batch 15
+cpu 0 cold: low 0, high 30, batch 15
+HighMem per-cpu: empty
 
-   This trivial changeset fixes reiserfs resizer crash now that
-   mark_buffer_dirty requires buffer to be uptodate already.
-   Noticed by Alex Tomas <bzzz@tmi.comex.ru>
+Free pages:        2040kB (0kB HighMem)
+Active:13749 inactive:0 dirty:0 writeback:0 free:510
+DMA free:1148kB min:128kB low:256kB high:384kB active:11336kB inactive:0kB
+Normal free:892kB min:1020kB low:2040kB high:3060kB active:43660kB
+inactive:0kB HighMem free:0kB min:0kB low:0kB high:0kB active:0kB
+inactive:0kB DMA: 1*4kB 1*8kB 1*16kB 1*32kB 1*64kB 0*128kB 0*256kB 0*512kB
+1*1024kB 0*2048kB 0*4096kB = 1148kB
+Normal: 1*4kB 1*8kB 1*16kB 1*32kB 1*64kB 0*128kB 1*256kB 1*512kB 0*1024kB
+0*2048 kB 0*4096kB = 892kB
+HighMem: empty
+Swap cache: add 0, delete 0, find 0/0, race 0+0
+Free swap:            0kB
+65536 pages of RAM
+0 pages of HIGHMEM
+1581 reserved pages
+518 pages shared
+0 pages swap cached
 
-   Please pull from bk://namesys.com/bk/reiser3-linux-2.5-resizer-fix
+And the memory won't free if I try to use it...
 
-Diffstat:
- resize.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+bwindle@razor:~/C$ ./alloc 50
+Allocating 50 megs...
 
-Plain text patch:
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1060  -> 1.1061 
-#	fs/reiserfs/resize.c	1.11    -> 1.12   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/02/14	green@angband.namesys.com	1.1061
-# reiserfs: Move mark_buffer_uptodate in front of mark_buffer_dirty in resizer.
-#   This is needed because mark_buffer_dirty is now checking if buffer is up to date.
-#   Noticed by Alex Tomas <bzzz@tmi.comex.ru>
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/resize.c b/fs/reiserfs/resize.c
---- a/fs/reiserfs/resize.c	Fri Feb 14 11:39:28 2003
-+++ b/fs/reiserfs/resize.c	Fri Feb 14 11:39:28 2003
-@@ -118,8 +118,8 @@
- 		memset(bitmap[i].bh->b_data, 0, sb_blocksize(sb));
- 		reiserfs_test_and_set_le_bit(0, bitmap[i].bh->b_data);
- 
--		mark_buffer_dirty(bitmap[i].bh) ;
- 		set_buffer_uptodate(bitmap[i].bh);
-+		mark_buffer_dirty(bitmap[i].bh) ;
- 		sync_dirty_buffer(bitmap[i].bh);
- 		// update bitmap_info stuff
- 		bitmap[i].first_zero_hint=1;
+      malloc(52428800): Cannot allocate memory
 
 
+Steps to reproduce:
+I unmountd an existing ext3 partition, ran tune2fs -O dir_index on it, did
+an  e2fsck -fD, then mounted it. Created a bunch of directories and files,
+and did  a 'rm -rf *' on them.
 
---------------050908040703060205000401--
 

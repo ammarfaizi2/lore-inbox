@@ -1,43 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314559AbSE0ItK>; Mon, 27 May 2002 04:49:10 -0400
+	id <S314643AbSE0Iy1>; Mon, 27 May 2002 04:54:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314643AbSE0ItJ>; Mon, 27 May 2002 04:49:09 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:14330 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314559AbSE0ItI>; Mon, 27 May 2002 04:49:08 -0400
-Subject: Re: PROBLEM: memory corruption with i815 chipset variant
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Cc: Alessandro Morelli <alex@alphac.it>, linux-kernel@vger.kernel.org
-In-Reply-To: <3CF1EA3F.4070608@epfl.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 May 2002 10:51:26 +0100
-Message-Id: <1022493086.11859.191.camel@irongate.swansea.linux.org.uk>
+	id <S314670AbSE0Iy0>; Mon, 27 May 2002 04:54:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20938 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314643AbSE0Iy0>;
+	Mon, 27 May 2002 04:54:26 -0400
+Date: Mon, 27 May 2002 10:54:14 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+        Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org,
+        "chen, xiangping" <chen_xiangping@emc.com>
+Subject: Re: Poor read performance when sequential write presents
+Message-ID: <20020527085414.GD17674@suse.de>
+In-Reply-To: <3CED4843.2783B568@zip.com.au> <XFMail.20020524105942.pochini@shiny.it> <3CEE0758.27110CAD@zip.com.au> <20020524094606.GH14918@holomorphy.com> <3CEE1035.1E67E1B8@zip.com.au> <20020527080632.GC17674@suse.de> <3CF1ECD1.A1BB2CF1@zip.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-05-27 at 09:11, Nicolas Aspert wrote:
-> Alessandro reported the problem to me also. I went through the i815 
-> specs and found 2 'strange' things (maybe they are not but...)
-> 1) No 'ERRSTS' register (well... a bus that does no error should be a 
-> feature ;-)
-> 2) The ATTBASE register to which the *_configure functions write is 
-> different from other Intel chipsets. In the i815, the ATT base adress 
-> should be written between bits 12 and 28, whereas in all other Intel 
-> chipsets, it should be written between bits 12 and 31 (don't ask me why 
-> Intel feels like changing the adresses/specs for registers at each new 
-> chipsets....) .
-> Alan, do you think this could cause all those troubles ?
+On Mon, May 27 2002, Andrew Morton wrote:
+> Jens Axboe wrote:
+> > 
+> > ...
+> > > But in 2.5, head-activeness went away and as far as I know, IDE and SCSI are
+> > > treated the same.  Odd.
+> > 
+> > It didn't really go away, it just gets handled automatically now.
+> > elv_next_request() marks the request as started, in which case the i/o
+> > scheduler won't consider it for merging etc. SCSI removes the request
+> > directly after it has been marked started, while IDE leaves it on the
+> > queue until it completes. For IDE TCQ, the behaviour is the same as with
+> > SCSI.
+> 
+> It won't consider the active request at the head of the queue for 
+> merging (making the request larger).  But it _could_ consider the
+> request when making decisions about insertion (adding a new request
+> at the head of the queue because it's close-on-disk to the active
+> one).   Does it do that?
 
-It certainly could be. If bits 29-31 maybe control things like memory
-timings then it could do quite horrible things. Fixing it to leave the
-ERRSTS register alone and keep bits 29-31 is definitely worth trying. If
-that fixes it then its going to be easy enough to drop a fix into the
-mainstream code
+Only when the front request isn't active is it safe to consider
+insertion in front of it. 2.5 does that exactly because it knows if the
+request has been started, while 2.4 has to guess by looking at the
+head-active flag and the plug status.
 
-Alan
+If the request is started, we will only consider placing in front of the
+2nd request not after the 1st. We could consider in between 1st and 2nd,
+that should be safe. In fact that should be perfectly safe, just move
+the barrier and started test down after the insert test. *req is the
+insert-after point.
+
+diff -Nru a/drivers/block/elevator.c b/drivers/block/elevator.c
+--- a/drivers/block/elevator.c	Mon May 27 10:53:53 2002
++++ b/drivers/block/elevator.c	Mon May 27 10:53:53 2002
+@@ -174,9 +174,6 @@
+ 	while ((entry = entry->prev) != &q->queue_head) {
+ 		__rq = list_entry_rq(entry);
+ 
+-		if (__rq->flags & (REQ_BARRIER | REQ_STARTED))
+-			break;
+-
+ 		/*
+ 		 * simply "aging" of requests in queue
+ 		 */
+@@ -189,6 +186,9 @@
+ 
+ 		if (!*req && bio_rq_in_between(bio, __rq, &q->queue_head))
+ 			*req = __rq;
++
++		if (__rq->flags & (REQ_BARRIER | REQ_STARTED))
++			break;
+ 
+ 		if ((ret = elv_try_merge(__rq, bio))) {
+ 			if (ret == ELEVATOR_FRONT_MERGE)
+
+-- 
+Jens Axboe
 

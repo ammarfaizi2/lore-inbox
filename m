@@ -1,141 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266528AbTAJWHj>; Fri, 10 Jan 2003 17:07:39 -0500
+	id <S266520AbTAJWIS>; Fri, 10 Jan 2003 17:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266537AbTAJWHj>; Fri, 10 Jan 2003 17:07:39 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:62982 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id <S266528AbTAJWHf>; Fri, 10 Jan 2003 17:07:35 -0500
-Date: Fri, 10 Jan 2003 17:16:16 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@oddball.prodigy.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] IPC performance of recent kernels (ctxbench)
-Message-ID: <Pine.LNX.4.44.0301101708380.1212-100000@oddball.prodigy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266379AbTAJWIS>; Fri, 10 Jan 2003 17:08:18 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:4992 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S266520AbTAJWIQ>;
+	Fri, 10 Jan 2003 17:08:16 -0500
+Date: Fri, 10 Jan 2003 23:16:49 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] module-init-tools-0.9.7, depmod and GPL-only symbols
+Message-ID: <20030110221649.GA5371@vana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sad to say, the IPC rates have been going down since 2.4.18, and I suspect 
-that will show up in the performance of threaded and cooperating 
-applications. To some extent the new pthread will help some of this, but 
-comparing results with a new library vs. old is not useful for measuring 
-what the kernel is doing.
+Hi Rusty,
+   I finally got 2.5.56 running with configuration I always used (== almost
+everything modular), and I found that module-init-tools-0.9.7 has small
+problem with GPL-only symbols: depmod ignores them :-(
 
-The column avg/MHz is used for comparing the same system at several CPU 
-speeds, and getting some feel for P-II, P-II, Athlon and P-IV performance 
-normalized to clock speed. These test are all on one system at the same 
-speed, so it's just a number. Likewise the spinlock test is not useful on 
-uni machines and can be ignored here.
+   As I did not notice any newer version, please apply patch below if you
+did not do something simillar already.
 
-I will have similar results on other systems as I get the chance.
-
-Config descriptions and results follow.
-
+   Of course you can create better solution, which will actually check
+license and so on, but I just decided to leave this task on kernel, as
+I believe that we do not want such code duplication between kernel and
+module-init-tools.
+						Thanks,
+							Petr Vandrovec
 
 
-================================================================
-    Run information
-================================================================
-
-Run: 2.4.18-5.out
-  CPU_MHz              348.489
-  CPUtype              Pentium II (Deschutes)
-  HostName             oddball.prodigy.com
-  KernelName           2.4.18-5
-  Ncpu                 1
-Run: 2.4.20.out
-  CPU_MHz              348.492
-  CPUtype              Pentium II (Deschutes)
-  HostName             oddball.prodigy.com
-  KernelName           2.4.20
-  Ncpu                 1
-Run: 2.5.52.out
-  CPU_MHz              348.395
-  CPUtype              Pentium II (Deschutes)
-  HostName             oddball.prodigy.com
-  KernelName           2.5.52
-  Ncpu                 1
-Run: 2.5.53.out
-  CPU_MHz              348.404
-  CPUtype              Pentium II (Deschutes)
-  HostName             oddball.prodigy.com
-  KernelName           2.5.53
-  Ncpu                 1
-Run: 2.5.54-mm3-1.out
-  CPU_MHz              348.404
-  CPUtype              Pentium II (Deschutes)
-  HostName             oddball.prodigy.com
-  KernelName           2.5.54-mm3
-  Ncpu                 1
-Run: 2.5.54.out
-  CPU_MHz              348.444
-  CPUtype              Pentium II (Deschutes)
-  HostName             oddball.prodigy.com
-  KernelName           2.5.54
-  Ncpu                 1
-
-
-================================================================
-    Results by IPC type
-================================================================
-
-                                   loops/sec
-SIGUSR1                     low       high    average    avg/MHz
-  2.4.18-5.out            46246      47550      46728    134.087
-  2.4.20.out              47304      47514      47424    136.083
-  2.5.52.out              40961      41699      41290    118.517
-  2.5.53.out              40567      41995      41434    118.926
-  2.5.54-mm3-1.out        39406      39510      39449    113.228
-  2.5.54.out              39573      39699      39647    113.785
-
-                                   loops/sec
-message queue               low       high    average    avg/MHz
-  2.4.18-5.out            89631      90591      90027    258.336
-  2.4.20.out              75206      83700      80822    231.920
-  2.5.52.out              78427      79163      78675    225.823
-  2.5.53.out              75709      75848      75759    217.448
-  2.5.54-mm3-1.out        76276      76795      76598    219.854
-  2.5.54.out              74131      75390      74969    215.156
-
-                                   loops/sec
-pipes                       low       high    average    avg/MHz
-  2.4.18-5.out            86181      95386      91954    263.865
-  2.4.20.out              87640      88381      87889    252.198
-  2.5.52.out              77020      77586      77365    222.061
-  2.5.53.out              67799      68893      68310    196.065
-  2.5.54-mm3-1.out        73346      73981      73632    211.343
-  2.5.54.out              70445      70572      70489    202.297
-
-                                   loops/sec
-semiphore                   low       high    average    avg/MHz
-  2.4.18-5.out            98259      98479      98383    282.315
-  2.4.20.out              92052      92569      92307    264.876
-  2.5.52.out              84367      84639      84516    242.589
-  2.5.53.out              77355      77724      77540    222.560
-  2.5.54-mm3-1.out        81461      81732      81552    234.075
-  2.5.54.out              77304      77521      77379    222.072
-
-                                   loops/sec
-spin+yield                  low       high    average    avg/MHz
-  2.4.18-5.out           200889     203649     201999    579.644
-  2.4.20.out             211801     211957     211855    607.921
-  2.5.52.out             219279     219658     219470    629.947
-  2.5.53.out             180547     180625     180584    518.319
-  2.5.54-mm3-1.out       179318     179818     179519    515.261
-  2.5.54.out             160157     178830     172598    495.341
-
-                                   loops/sec
-spinlock                    low       high    average    avg/MHz
-  2.4.18-5.out                3          3          3      0.010
-  2.4.20.out                  4          4          4      0.014
-  2.5.52.out                  3          3          3      0.009
-  2.5.53.out                  3          3          3      0.009
-  2.5.54-mm3-1.out            3          3          3      0.010
-  2.5.54.out                  3          3          3      0.009
-
--- 
-bill davidsen <davidsen@tmr.com>
-
+diff -ur module-init-tools-0.9.7.src/moduleops_core.c module-init-tools-0.9.7/moduleops_core.c
+--- module-init-tools-0.9.7.src/moduleops_core.c	2002-12-26 07:04:42.000000000 +0100
++++ module-init-tools-0.9.7/moduleops_core.c	2003-01-10 23:08:47.000000000 +0100
+@@ -30,6 +30,9 @@
+ 	ksyms = PERBIT(load_section)(module->mmap, "__ksymtab", &size);
+ 	for (i = 0; i < size / sizeof(struct PERBIT(kernel_symbol)); i++)
+ 		add_symbol(ksyms[i].name, module);
++	ksyms = PERBIT(load_section)(module->mmap, "__gpl_ksymtab", &size);
++	for (i = 0; i < size / sizeof(struct PERBIT(kernel_symbol)); i++)
++		add_symbol(ksyms[i].name, module);
+ }
+ 
+ /* Calculate the dependencies for this module */

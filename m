@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUIJCPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUIJCWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267170AbUIJCPD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 22:15:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUIJCPD
+	id S266880AbUIJCWP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 22:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUIJCWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 22:15:03 -0400
-Received: from mf2.realtek.com.tw ([220.128.56.22]:37894 "EHLO
-	mf2.realtek.com.tw") by vger.kernel.org with ESMTP id S267386AbUIJCMa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 22:12:30 -0400
-Message-ID: <011001c496db$99dc6aa0$8b1a13ac@realtek.com.tw>
-From: "colin" <colin@realtek.com.tw>
-To: "Robert Love" <rml@ximian.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <1094723597.2801.8.camel@laptop.fenrus.com> <41408B41.4030306@am.sony.com> <1094751525.6833.61.camel@betsy.boston.ximian.com>
-Subject: Re:  Re: What File System supports Application XIP
-Date: Fri, 10 Sep 2004 10:12:14 +0800
-MIME-Version: 1.0
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MIMETrack: Itemize by SMTP Server on msx/Realtek(Release 6.0.2CF1|June 9, 2003) at
- 2004/09/10 =?Big5?B?pFekyCAxMDoxMzoxOA==?=,
-	Serialize by Router on msx/Realtek(Release 6.0.2CF1|June 9, 2003) at 2004/09/10
- =?Big5?B?pFekyCAxMDoxMzoyMw==?=,
-	Serialize complete at 2004/09/10 =?Big5?B?pFekyCAxMDoxMzoyMw==?=
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain;
-	charset="big5"
+	Thu, 9 Sep 2004 22:22:14 -0400
+Received: from holomorphy.com ([207.189.100.168]:34176 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266880AbUIJCWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 22:22:12 -0400
+Date: Thu, 9 Sep 2004 19:22:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
+Message-ID: <20040910022204.GA2616@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Anton Blanchard <anton@samba.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+	"Nakajima, Jun" <jun.nakajima@intel.com>
+References: <20040909171954.GW3106@holomorphy.com> <16704.52551.846184.630652@cargo.ozlabs.ibm.com> <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org> <20040910003505.GG11358@krispykreme> <Pine.LNX.4.58.0409091750300.5912@ppc970.osdl.org> <20040910014228.GH11358@krispykreme> <20040910015040.GI11358@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040910015040.GI11358@krispykreme>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
-Sorry. I donot quite understand. My English is poor... :-(
-Do you mean there wonot be another duplicated text section in RAM when
-application in Ramfs is executed?
+On Fri, Sep 10, 2004 at 11:50:41AM +1000, Anton Blanchard wrote:
+> Lets just make __preempt_spin_lock inline, then everything should work
+> as is.
 
-Regards,
-Colin
-
-
------ Original Message ----- 
-From: "Robert Love" <rml@ximian.com>
-To: "Tim Bird" <tim.bird@am.sony.com>
-Cc: <arjanv@redhat.com>; "colin" <colin@realtek.com.tw>;
-<linux-kernel@vger.kernel.org>
-Sent: Friday, September 10, 2004 1:38 AM
-Subject: ¡@[*©U§£¶l¥ó*] Re: What File System supports Application XIP
+Well, there are patches that do this along with other more useful
+things in the works (my spin on this is en route shortly, sorry the
+response was delayed due to a power failure).
 
 
-> On Thu, 2004-09-09 at 09:56 -0700, Tim Bird wrote:
->
-> > Most other filesystems populate the pagecache with I/O, presumably.
-> > In the case of a ramfs, is the page mapped directly from the fs
-> > into the pagecache without a copy?
->
-> ramfs _is_ pagecache.
->
-> it is cool like that.
->
-> Robert Love
->
->
->
-
-
+-- wli

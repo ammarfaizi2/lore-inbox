@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283711AbRK3T7c>; Fri, 30 Nov 2001 14:59:32 -0500
+	id <S283771AbRK3T5v>; Fri, 30 Nov 2001 14:57:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283773AbRK3T7P>; Fri, 30 Nov 2001 14:59:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22028 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283766AbRK3T6n>;
-	Fri, 30 Nov 2001 14:58:43 -0500
-Date: Fri, 30 Nov 2001 20:58:20 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gertjan van Wingerde <gwingerde@home.nl>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Compile fixes for 2.5.1-pre4
-Message-ID: <20011130205820.D25987@suse.de>
-In-Reply-To: <3C07D770.3010807@home.nl> <20011130201231.G22698@suse.de> <3C07DD68.30707@home.nl> <20011130203155.A25987@suse.de> <3C07E4B7.1060109@home.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C07E4B7.1060109@home.nl>
+	id <S283711AbRK3T5m>; Fri, 30 Nov 2001 14:57:42 -0500
+Received: from butterblume.comunit.net ([192.76.134.57]:18436 "EHLO
+	butterblume.comunit.net") by vger.kernel.org with ESMTP
+	id <S283769AbRK3T5b>; Fri, 30 Nov 2001 14:57:31 -0500
+Date: Fri, 30 Nov 2001 20:57:28 +0100 (CET)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: haegar@space.comunit.de
+To: Mauricio Culibrk <mauricio@infohit.si>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Device (LAN Cards) Naming
+In-Reply-To: <A57F0FE23B31C14E84E38657C03A44982BB3@Godzilla>
+Message-ID: <Pine.LNX.4.40.0111302055540.7425-100000@space.comunit.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30 2001, Gertjan van Wingerde wrote:
-> >Note that there is no straight conversion between before having a 1-1
-> >mapping between a buffer_head and a data element and now potentially a
-> >1-n mapping with bio. If you are just remapping, no problem.
-> >
-> >So I'd rather not take these patches unless you've looked into why it
-> >_does_ (or maybe does not) work. I'll make note to review them soon, ok?
-> >
-> >
-> 
-> Okay. BTW I'm currently setting up my machine to run some tests on this 
-> code (I'll have to find some current version of raidtools first :-(.
+On Fri, 30 Nov 2001, Mauricio Culibrk wrote:
 
-Excellent, thanks for doing this. We definitely need more people
-starting to pick up the pieces.
+> Is it possible to define a name for each interface instead of having
+> eth0, eth1 etc?
+
+ip link set eth0 down
+ip link set eth0 name buggy
+ip link set buggy up
+
+c'ya
+sven
 
 -- 
-Jens Axboe
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
+

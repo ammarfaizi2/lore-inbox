@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318289AbSGRRpA>; Thu, 18 Jul 2002 13:45:00 -0400
+	id <S318303AbSGRSAo>; Thu, 18 Jul 2002 14:00:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318290AbSGRRpA>; Thu, 18 Jul 2002 13:45:00 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:35970 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318289AbSGRRo7>; Thu, 18 Jul 2002 13:44:59 -0400
-Date: Thu, 18 Jul 2002 13:50:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: reviewuate (Off-topic-but-funny)
-Message-ID: <Pine.LNX.3.95.1020718134734.924A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318304AbSGRSAn>; Thu, 18 Jul 2002 14:00:43 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:59463 "EHLO
+	devil.stev.org") by vger.kernel.org with ESMTP id <S318303AbSGRSAn>;
+	Thu, 18 Jul 2002 14:00:43 -0400
+Message-ID: <001701c22e85$240635b0$0501a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: "Kevin Curtis" <kevin.curtis@farsite.co.uk>,
+       <linux-kernel@vger.kernel.org>
+References: <7C078C66B7752B438B88E11E5E20E72E0EF451@GENERAL.farsite.co.uk>
+Subject: Re: Closing a socket
+Date: Thu, 18 Jul 2002 19:01:28 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-Gates does it again! Seems that 'evaluate' got changed to reviewuate
-on most (all?) Web search engines!
+either use non-blocking sockets
+or send a signal to the other process
+to make it exit from the read.
 
-Cheers,
-Dick Johnson
+> I have implemented a new socket address family and have noted that
+> from a multi-threaded application, if a thread calls close(fd) while a
+> second thread has a blocking read outstanding, the sockets release() is
+not
+> called.  Is this correct?  How can one unblock the read in order to do the
+> close.
+>
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-                 How do you spell reviewuate? What does it mean?
-                 Search for it on your Web Crawler!
 
 

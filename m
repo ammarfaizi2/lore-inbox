@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264938AbTF0XYg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 19:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbTF0XYg
+	id S264935AbTF0X20 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 19:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbTF0X2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 19:24:36 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:57062 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S264934AbTF0XYe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 19:24:34 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre2
-References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 28 Jun 2003 01:38:34 +0200
-In-Reply-To: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
-Message-ID: <m31xxfhz0l.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Fri, 27 Jun 2003 19:28:25 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:7848 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264935AbTF0X2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 19:28:23 -0400
+Date: Fri, 27 Jun 2003 18:30:24 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: davidel@xmailserver.org, davem@redhat.com, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+Message-ID: <20030627223024.GT501@phunnypharm.org>
+References: <20030626.224739.88478624.davem@redhat.com> <21740000.1056724453@[10.10.2.4]> <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com> <20030627.143738.41641928.davem@redhat.com> <Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com> <20030627213153.GR501@phunnypharm.org> <20030627162527.714091ce.akpm@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030627162527.714091ce.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> - The bugs which are affecting people the most get reported the most.
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+Not to mention the "breeding" affect. A bug that many people have seen
+only once, but can never pinpoint because they can't reproduce it. One
+of those people reports the problem to the mailing list, and suddenly
+half a dozen respond with "me too, but here's some extra info that I
+saw". You can't get that with a bug database.
 
-> Here goes -pre2 with a big number of changes, including the new aic7xxx
-> driver.
-> 
-> I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
-> short.
-
-What's wrong with the generic HDLC update then? Are you going to apply it?
-
-ftp://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
-or http://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
-
-Yes, it applies to 2.4.21-pre7 and later kernels, including 2.4.22-pre2.
-I hope it will require "-R" to apply it to pre3...
-
-TIA.
 -- 
-Krzysztof Halasa
-Network Administrator
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

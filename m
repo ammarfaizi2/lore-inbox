@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263602AbTIBIhc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 04:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTIBIhc
+	id S263689AbTIBIcO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 04:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbTIBIcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 04:37:32 -0400
-Received: from hera.kernel.org ([63.209.29.2]:36517 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S263602AbTIBIhb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 04:37:31 -0400
+	Tue, 2 Sep 2003 04:32:14 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:11985 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263689AbTIBIcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 04:32:10 -0400
+From: dan carpenter <error27@email.com>
 To: linux-kernel@vger.kernel.org
-From: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] might_sleep() improvements
-Date: Tue, 02 Sep 2003 01:36:51 -0700
-Organization: OSDL
-Message-ID: <bj1kr3$a2g$1@build.pdx.osdl.net>
-References: <20030902075145.GA12817@sfgoth.com> <3F545175.1080505@cyberone.com.au>
-Reply-To: torvalds@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: build.pdx.osdl.net 1062491812 10320 172.20.1.2 (2 Sep 2003 08:36:52 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 2 Sep 2003 08:36:52 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Subject: file system race condition testing
+Date: Tue, 2 Sep 2003 01:33:31 -0700
+User-Agent: KMail/1.5.3
+Cc: shaggy@austin.ibm.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309020133.31923.error27@email.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> 
-> I think these should be pushed down to where the sleeping
-> actually happens if possible.
+Racer is a bunch of shell scripts that I wrote to try find race conditions in 
+JFS code.  I have expanded them to be a general purpose race condition 
+tester.  The scripts also found a couple bugs XFS and Reiserfs in 2.6.0-test1 
+but those have been fixed in 2.6.0-test4.  
 
-No, that ends up doing the wrong thing for most of the really common cases.
+How it works is that the scripts randomly creates files 0 - 20, renames them, 
+deletes them, and links to them etc.  If the filesystem survives for a couple 
+hours of beating that's considerred a pass.
 
-In particular, most of the memory allocation functions very seldom actually
-sleep. After all, they'll find plenty of free memory (or easily freeable
-memory) without having to wait for any pageouts or anything like that.
+The scripts are at:
+http://kbugs.org/racer.tar.gz
 
-Yet the bug is there - the call _could_ have slept.
+Just use `./racer.sh` to run the scripts.  Obviously, you won't want to run 
+the script on a production system.
 
-So "might_sleep()" really does what the name suggests: it is used to say
-that a particular case _may_ sleep, even if it ends up being unlikely.
+When I wrote the scripts I tried to think about all the different types of 
+operations that you can do on a file but I probably missed a lot of them.  
+Probably someone more familiar with filesystem code could provide useful 
+feedback.
 
-Because what we're after is not a bug actually happening, but a latent bug
-that has been hidden by the fact that it happens so rarely in practice.
+thanks,
+Dan Carpenter
 
-This is why "might_sleep()" should happen as early as possible, and not
-get pushed down.
 
-                Linus

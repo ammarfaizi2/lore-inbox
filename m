@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131865AbQL3Fq1>; Sat, 30 Dec 2000 00:46:27 -0500
+	id <S132706AbQL3G00>; Sat, 30 Dec 2000 01:26:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132708AbQL3FqS>; Sat, 30 Dec 2000 00:46:18 -0500
-Received: from entropy.muc.muohio.edu ([134.53.213.10]:1154 "EHLO
-	entropy.muc.muohio.edu") by vger.kernel.org with ESMTP
-	id <S131865AbQL3FqL>; Sat, 30 Dec 2000 00:46:11 -0500
-Date: Sat, 30 Dec 2000 00:15:44 -0500 (EST)
-From: George <greerga@entropy.muc.muohio.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: bttv in 2.2.18 worse than 2.2.17
-Message-ID: <Pine.LNX.4.30.0012300009240.23919-100000@entropy.muc.muohio.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132999AbQL3G0Q>; Sat, 30 Dec 2000 01:26:16 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:29457 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132706AbQL3G0G>;
+	Sat, 30 Dec 2000 01:26:06 -0500
+Date: Sat, 30 Dec 2000 06:55:36 +0100
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Byron Stanoszek <gandalf@winds.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, "Marco d'Itri" <md@Linux.IT>,
+        Jeff Lightfoot <jeffml@pobox.com>, Dan Aloni <karrde@callisto.yi.org>,
+        Anton Blanchard <anton@linuxcare.com.au>
+Subject: Re: test13-pre6 (Fork Bug with Athlons? Temporary Fix)
+Message-ID: <20001230065536.A10221@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.21.0012292156200.11714-200000@winds.org> <Pine.LNX.4.10.10012291929250.1722-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012291929250.1722-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 29, 2000 at 07:36:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 29, 2000 at 07:36:21PM -0800, Linus Torvalds wrote:
+> Maybe your libc is different on the different machines? Normal programs
+> shouldn't use segments at all, so I really do not see how this patch could
+> matter in the least, even if it was completely and utterly buggy (which is
+> not obvious at first glance).
+> 
+> I wonder why you seem to have an LDT at all..
 
-With 2.2.18, I've noticed a few problems with my Hauppauge Win/TV 401
-(bt878) card not present in 2.2.17 (using XawTV 2.46 in overlay mode for
-both):
+glibc 2.2 linuxthreads sets up an LDT to use %gs as thread local data base 
+pointer.
 
-1) Switching channels causes a brief flicker where the picture shrinks to
-1/4 the size in the upper left corner, then changes to the next channel.
 
-2) JPEG captures cause a purple and green fuzzy screen to briefly flash in
-place of the television image.
-
-3) The first time I run XawTV after loading the module, I get no picture
-until I change Television -> Composite -> Television.  Subsequent runs are
-fine.
-
-Video card is an S3 Virge DX.
-
-00:14.0 Multimedia video controller: Brooktree Corporation Bt878 (rev 02)
-        Subsystem: Hauppage computer works Inc.: Unknown device 13eb
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 16 min, 40 max, 32 set
-        Interrupt: pin A routed to IRQ 16
-        Region 0: Memory at e4001000 (32-bit, prefetchable)
-
-00:14.1 Multimedia controller: Brooktree Corporation Bt878 (rev 02)
-        Subsystem: Hauppage computer works Inc.: Unknown device 13eb
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 4 min, 255 max, 32 set
-        Interrupt: pin A routed to IRQ 16
-        Region 0: Memory at e4002000 (32-bit, prefetchable)
-
-00:11.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01)
-(prog-if 00 [VGA])
-        Subsystem: S3 Inc. ViRGE/DX
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 4 min, 255 max, 32 set
-        Interrupt: pin A routed to IRQ 19
-        Region 0: Memory at e0000000 (32-bit, non-prefetchable)
-
-Two Pentium 233MMX, Tyan Tomcat IV SMP motherboard (Triton HX chipset)
-
-Just changing the array value back to 3 that was flipped 3->4 in the 2.2.18
-patch doesn't do anything by itself.
-
--George Greer
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

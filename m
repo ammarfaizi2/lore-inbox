@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265367AbTFFHIn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 03:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbTFFHIn
+	id S265366AbTFFHTj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 03:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265371AbTFFHTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 03:08:43 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:32850 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265367AbTFFHIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 03:08:42 -0400
-Date: Fri, 6 Jun 2003 00:22:25 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: Re: 2.5.70-bk10 oops when trying to mount root from raid-1 device
-Message-Id: <20030606002225.5aba2572.akpm@digeo.com>
-In-Reply-To: <3EE03F64.70501@aitel.hist.no>
-References: <3EE03F64.70501@aitel.hist.no>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 Jun 2003 03:19:39 -0400
+Received: from AMarseille-201-1-3-239.w193-253.abo.wanadoo.fr ([193.253.250.239]:18983
+	"EHLO gaston") by vger.kernel.org with ESMTP id S265366AbTFFHTi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 03:19:38 -0400
+Subject: Re: [2.5.70][PPC] Small change to config
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Daniele Pala <dandario@libero.it>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <19040101015154.GA346@libero.it>
+References: <19040101015154.GA346@libero.it>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Jun 2003 07:22:15.0343 (UTC) FILETIME=[5AE843F0:01C32BFC]
+Organization: 
+Message-Id: <1054884786.766.64.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 Jun 2003 09:33:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helgehaf@aitel.hist.no> wrote:
->
-> 2.5.70-bk10 has some raid fixes, but raid-1 still fails unlike
-> 2.5.70-mm4.
-> 
-> bk10 successfully discovers raid-1 and raid-0 arrays,
-> but this happens when the kernel tries to mount root:
-> 
-> <lots of ordinary boot messages>
-> md ... autorun DONE
-> <this is where I normally get VFS: Mounted root (ext2 filesystem) readonly.
->   I got this instead:>
-> unable to handle kernel paging request at 5a5a5a86
+On Wed, 1969-12-31 at 23:59, Daniele Pala wrote:
+> Since "control" and "platinum" display support doesn't compile if /dev/nvram suppor is selected as a module, here's this
+> small patch. The problem is that the suppor for /dev/nvram is asked after the "control" and "platinum" support...
+> Cheers,
 
+The proper fix is for those drivers to use the low level nvram access
+functions and have those always built in on pmac, the config option
+beeing only useful for the char device wrapper...
 
-This is "use of uninitialised memory".  0x6b6b6b6b is "use of freed memory".
+Anyway, pmac stuff in 2.5 is about to be significantly changed once
+I'm done with the move to the new driver model, hopefully, I'll fix
+those things along.
 
-It's supposed to be that way in Linus's tree too, but I screwed it up.
-
-> EIP at put_all_bios+0x047/0x80
-
-I'd be suspecting that the write_bios[] array isn't being memset somewhere.
-
-                struct bio **bio = r1_bio->write_bios + i;
-
+Ben.
 

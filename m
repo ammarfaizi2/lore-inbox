@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281609AbRKPWlX>; Fri, 16 Nov 2001 17:41:23 -0500
+	id <S281607AbRKPWlN>; Fri, 16 Nov 2001 17:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281604AbRKPWlN>; Fri, 16 Nov 2001 17:41:13 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:10244 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S281603AbRKPWlE>; Fri, 16 Nov 2001 17:41:04 -0500
-Date: Fri, 16 Nov 2001 23:40:58 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: synchronous mounts
-Message-ID: <20011116234058.B4415@emma1.emma.line.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BF376EC.EA9B03C8@zip.com.au> <20011115214525.C14221@redhat.com> <3BF45B9F.DEE1076B@mandrakesoft.com> <20011116122855.C2389@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20011116122855.C2389@redhat.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S281604AbRKPWlD>; Fri, 16 Nov 2001 17:41:03 -0500
+Received: from MAILGW01.bang-olufsen.dk ([193.89.221.116]:24329 "EHLO
+	mailgw01.bang-olufsen.dk") by vger.kernel.org with ESMTP
+	id <S281603AbRKPWkq>; Fri, 16 Nov 2001 17:40:46 -0500
+To: "H . J . Lu" <hjl@lucon.org>
+Cc: Kristian Hogsberg <hogsberg@users.sourceforge.net>,
+        Andrew Morton <akpm@zip.com.au>, jamesg@filanet.com,
+        linux-1394devel@lists.sourceforge.net,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sbp2.c on SMP
+In-Reply-To: <3BEF27D1.7793AE8E@zip.com.au> <3BEF27D1.7793AE8E@zip.com.au>
+	<20011113191721.A9276@lucon.org> <3BF21B79.5F188A0D@zip.com.au>
+	<20011115193234.A22081@lucon.org>
+	<m3snbeofnw.fsf@dk20037170.bang-olufsen.dk>
+	<20011116132520.A6204@lucon.org>
+From: Kristian Hogsberg <hogsberg@users.sourceforge.net>
+Date: 16 Nov 2001 23:40:39 +0100
+In-Reply-To: <20011116132520.A6204@lucon.org>
+Message-ID: <m3zo5ml4pk.fsf@dk20037170.bang-olufsen.dk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on BeoSmtp/Bang & Olufsen/DK(Release 5.0.6a |January
+ 17, 2001) at 16-11-2001 23:40:43,
+	Serialize by Router on dzln11/Bang & Olufsen/DK(Release 5.0.6 |December 14, 2000) at
+ 16-11-2001 23:40:38,
+	Serialize complete at 16-11-2001 23:40:38
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, Stephen Tweedie wrote:
+"H . J . Lu" <hjl@lucon.org> writes:
 
-> If you want to sync _everything_, it's at least 5 seeks per write
-> syscall when you're writing a new file: superblock, group descriptor,
-> block bitmap, inode, data, and potentially inode indirect.
+> On Fri, Nov 16, 2001 at 05:15:47PM +0100, Kristian Hogsberg wrote:
+> > This is true, but only because the struct list_head is the first
+> > element in struct node_entry.  If it wasn't, lh would have been -16 or
+> > so, as Andrew says.
+> > 
+> > In any case, it's the wrong fix, because the error is elsewhere:
+> > neither the host_info list or the node list should contain NULL
+> > entries.  This is just curing the symptoms.  HJ, could you provide
+> > some details on the crash?  Do you have the sbp2 module loaded when
+> > you insmod/rmmod ohci1394, and if so, does it crash without sbp2
+> > loaded?
+> > 
 > 
-> There's no point doing all that, especially since some of that data is
-> redundant and will be rebuilt by e2fsck anyway after a crash.
+> Found it. You have to use list_for_each_safe when you remove things.
+> Here is a patch.
 
-The file system cannot judge on what's needed, neither can the file
-system developer.
+Thanks for looking into this, however these bugs have been fixed in
+the cvs version of the drivers, except for the loop in video1394.c
+(which wouldn't cause problems, since there's a break immediately
+after the call to remove_card).
 
-The developer however can offer the administrator
-and/or application developer the corresponding interfaces. In the sense
-of portability, however, it may be rather useful to correspond to BSD
-semantics, so I vote to change sync and offer dirsync -- it might be
-useful to use BSD nomenclature though and offer a synonymous noasync
-option (which also has dirsync semantics as laid out in this thread
-before).
+Kristian
 
-It does not matter whether you look at BSD or Linux man pages, either
-one documents "sync - All I/O to the file system should be done
-synchronously." It should behave like documented. Let's not introduce
-compatibility problems by fixing the documentation.
-
-> Is it really such an important feature that we're willing to suffer a
-> factor-of-100 or more slowdown for it?
-
-It depends on the task. If the machine regularly reads data from an
-external interface and records it to disk, like in a log, synchronous
-data writes may be important.
-
-BTW, Wietse Venema was dazzled when he got to know that Linux values its
-syslog (defaults to all-synchronous writes) more than its mail (defaults
-to all-asynchronous writes that not even a file fsync() rectifies).
-
-> Not-scalable is doing 5000 seeks to write a 4MB file.  
-
-If that's what the admin wants, let him do so.
-
-> what the inode is like during the write.  All that is desired in that
-> example is fsync-on-close, and it is insane to implement
-> fsync-on-close by writing every single block of the file
-> synchronously.
-
-Yes, but you cannot generalize this example.
-
-> appropriate.  If we want that, lets add it as a new option, but I
-> don't see the benefit in making o- sync do all file data writes 100%
-> synchronously.
-
-Compatibility and reliability are good points.
-
--- 
-Matthias Andree
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin

@@ -1,64 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbULNEPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbULNEPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbULNEPm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 23:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbULNEOz
+	id S261400AbULNEPp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 23:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbULNEOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 23:14:55 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33289 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261405AbULNEKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 23:10:09 -0500
-Date: Tue, 14 Dec 2004 05:10:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       tulip-users@lists.sourceforge.net, linux-net@vger.kernel.org
-Subject: [patch] 2.6.10-rc3-mm1: fix net/tulip/xircom_tulip_cb.c warning
-Message-ID: <20041214041005.GY23151@stusta.de>
-References: <20041213020319.661b1ad9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041213020319.661b1ad9.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 13 Dec 2004 23:14:03 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36553 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261400AbULND74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 22:59:56 -0500
+Date: Mon, 13 Dec 2004 19:59:52 -0800
+Message-Id: <200412140359.iBE3xqVE008083@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: akpm@osdl.org, torvalds@osdl.org
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 7/7] timer.c cleanups
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 02:03:19AM -0800, Andrew Morton wrote:
->...
-> All 794 patches:
->...
-> xircom_tulip_cb-build-fix.patch
->   xircom_tulip_cb.c build fix
->...
 
-This patch causes the following warning:
-
-<--  snip  -->
-
-...
-  CC      drivers/net/tulip/xircom_tulip_cb.o
-drivers/net/tulip/xircom_tulip_cb.c:134: warning: 'num_units' defined but not used
-...
-
-<--  snip  -->
+After my recent patches, it becomes apparent that there are some useless
+layers of function calls in timer.c, and a little outright dead code, that
+really just confuse the situation and have no point.  This patch wipes out
+some cruft.  (Despite the comment, run_local_timers is called by nothing.)
 
 
-The fis is simple:
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc3-mm1-full/drivers/net/tulip/xircom_tulip_cb.c.old	2004-12-14 04:37:43.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/drivers/net/tulip/xircom_tulip_cb.c	2004-12-14 04:37:48.000000000 +0100
-@@ -131,7 +131,6 @@
- module_param(rx_copybreak, int, 0);
- module_param(csr0, int, 0);
+--- linux-2.6/kernel/timer.c
++++ linux-2.6/kernel/timer.c
+@@ -800,21 +800,6 @@ static void update_wall_time(unsigned lo
+ 	} while (ticks);
+ }
  
--static int num_units;
- module_param_array(options, int, NULL, 0);
- module_param_array(full_duplex, int, NULL, 0);
+-static inline void do_process_times(struct task_struct *p,
+-	unsigned long user, unsigned long system)
+-{
+-	unsigned long psecs;
+-
+-	psecs = (p->utime += user);
+-	psecs += (p->stime += system);
+-}
+-
+-static void update_one_process(struct task_struct *p, unsigned long user,
+-			unsigned long system, int cpu)
+-{
+-	do_process_times(p, user, system);
+-}	
+-
+ /*
+  * Called from the timer interrupt handler to charge one tick to the current 
+  * process.  user_tick is 1 if the tick is user time, 0 for system.
+@@ -822,10 +807,13 @@ static void update_one_process(struct ta
+ void update_process_times(int user_tick)
+ {
+ 	struct task_struct *p = current;
+-	int cpu = smp_processor_id(), system = user_tick ^ 1;
++	int system = user_tick ^ 1;
++
++	p->utime += user_tick;
++	p->stime += system;
++
++	raise_softirq(TIMER_SOFTIRQ);
  
-
-
+-	update_one_process(p, user_tick, system, cpu);
+-	run_local_timers();
+ 	scheduler_tick(user_tick, system);
+ 	run_posix_cpu_timers(p);
+ }
+@@ -892,14 +880,6 @@ static void run_timer_softirq(struct sof
+ }
+ 
+ /*
+- * Called by the local, per-CPU timer interrupt on SMP.
+- */
+-void run_local_timers(void)
+-{
+-	raise_softirq(TIMER_SOFTIRQ);
+-}
+-
+-/*
+  * Called by the timer interrupt. xtime_lock must already be taken
+  * by the timer IRQ!
+  */
+--- linux-2.6/include/linux/timer.h
++++ linux-2.6/include/linux/timer.h
+@@ -96,7 +96,6 @@ static inline void add_timer(struct time
+ #endif
+ 
+ extern void init_timers(void);
+-extern void run_local_timers(void);
+ extern void it_real_fn(unsigned long);
+ 
+ #endif

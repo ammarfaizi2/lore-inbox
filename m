@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUGPFPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266337AbUGPFP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUGPFPw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUGPFPv
+	id S266337AbUGPFP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 01:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUGPFP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:15:51 -0400
-Received: from ns0.usq.edu.au ([139.86.2.5]:11015 "EHLO ns0.usq.edu.au")
-	by vger.kernel.org with ESMTP id S266477AbUGPETE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 00:19:04 -0400
-Message-ID: <40F75738.4040601@usq.edu.au>
-Date: Fri, 16 Jul 2004 14:19:04 +1000
-From: Ron House <house@usq.edu.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-au, en-us, en
+	Fri, 16 Jul 2004 01:15:56 -0400
+Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:44683 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S266337AbUGPE33
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 00:29:29 -0400
+Message-ID: <40F75984.4010002@zytor.com>
+Date: Thu, 15 Jul 2004 21:28:52 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Bug or Feature? Multiply mounted device
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.6-rc3] gcc-3.4.0 fixes
+References: <200404292146.i3TLkfI0019612@harpo.it.uu.se> <c892nk$5pf$1@terminus.zytor.com> <16572.38987.239160.819836@alkaid.it.uu.se> <Pine.LNX.4.58.0406011020310.14095@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406011020310.14095@ppc970.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, apologies for posting here, but I need to ask the guys who know 
-for sure. In my fstab, I have two entries for my DOS HD so I can mount 
-it with or without CRLF mangling, as follows (sorry for the line splitting):
+Linus Torvalds wrote:
+> 
+> I don't see any point where we cast any function pointers to anything 
+> else.
+> 
+> We cast data pointers all over the place, but that is actually guaranteed
+> to work in C for some "large enough" integer type, and "unsigned long" is
+> pretty much it. 
+> 
 
-/dev/hda5   /d      vfat 
-rw,suid,dev,async,users,umask=033,uid=1500,gid=1001,conv=b 0 0
-/dev/hda5   /dc     vfat 
-rw,suid,dev,async,users,umask=033,uid=1500,gid=1001,noauto,conv=a 0 0
+It would be nice at some point to switch that to [u]intptr_t, before someone 
+comes up with 128-bit machines (in other words, no rush whatsoever, but after 
+seeing Sony build processors with 128-bit integer registers I'm willing to 
+believe it's just a matter of time...)  The other thing about it is that it's 
+nice to be explicit about the "pointer-sized integerness" of it all.
 
-I just noticed with my new Linux setup (kernel 2.4.20-8smp - don't know 
-what all that means) that it will let me mount both at once, so I can 
-see the partition as either /d or /dc at the same time. I may be going 
-mad, but I seem to recall with my previous kernel that I couldn't do this.
+> And even function pointers should be safeish. The fact that some broken
+> architecture (can you say "ia64"?) has totally idiotic calling conventions
+> and requires the caller to load the GP value is _their_ problem. The
+> architecture will either die or hide the fact that it's being silly. For
+> now it's hiding it.
+> 
+> Repeat after me: practice is more important than theory. A _lot_ more 
+> important.
 
-My question: Bug or feature? If I write all sorts of stuff to both 
-logical devices, will it correctly sort it all out on the same physical 
-device, or will I wreck the partition? All help much appreciated!
+Indeed.
 
--- 
-Ron House     house@usq.edu.au
-               http://www.sci.usq.edu.au/staff/house
+	-hpa

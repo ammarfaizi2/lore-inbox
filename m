@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbUJaTQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUJaTef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbUJaTQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 14:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUJaTQ5
+	id S261638AbUJaTef (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 14:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbUJaTef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 14:16:57 -0500
-Received: from cantor.suse.de ([195.135.220.2]:2224 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261334AbUJaTQz (ORCPT
+	Sun, 31 Oct 2004 14:34:35 -0500
+Received: from quechua.inka.de ([193.197.184.2]:49386 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261638AbUJaTee (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 14:16:55 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Configurable Magic Sysrq
-References: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz>
-	<20041031185222.GB5578@elf.ucw.cz>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: YOW!!  Now I understand advanced MICROBIOLOGY
- and th' new TAX REFORM laws!!
-Date: Sun, 31 Oct 2004 20:12:10 +0100
-In-Reply-To: <20041031185222.GB5578@elf.ucw.cz> (Pavel Machek's message of
- "Sun, 31 Oct 2004 19:52:22 +0100")
-Message-ID: <jelldmbt2t.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 31 Oct 2004 14:34:34 -0500
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Raid1 DM vs MD
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <Pine.LNX.4.61.0410311902300.1819@merlin.sk-tech.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1COLTE-0003TV-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 31 Oct 2004 20:34:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+In article <Pine.LNX.4.61.0410311902300.1819@merlin.sk-tech.net> you wrote:
+> I had one MD-Raid1 where a good copy of the mirror was overwritten by the 
+> bad (old) copy ... I lost 3 Month worth of data and I am expecting loosing 
+> a linux project and in the worst case - even a court case :(
 
-> Actually, there's one more thing that wories me... Original choice of
-> PC hotkey (alt-sysrq-key) works *very* badly on many laptop
-> keyboards. Like sysrq is only recognized with fn, but key is not
-> recognized when you hold fn => you have no chance to use magic sysrq.
+This is the expected behaviour in  your situation.
 
-Doesn't it work to release fn (without releasing sysrq) before typing key?
+I mean, if you dont do backup for month something has to go wrong :)
 
-Andreas.
+But more seriouly, when did that overwrite happen? After reboot or have you
+changed media? Was the data lost because of corruption or because the old
+copy did not contained the data?
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Bernd

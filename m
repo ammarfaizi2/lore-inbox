@@ -1,70 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbTHYE14 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 00:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbTHYE14
+	id S261434AbTHYEdF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 00:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTHYEdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 00:27:56 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:43140 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261421AbTHYE1y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 00:27:54 -0400
-Date: Mon, 25 Aug 2003 05:22:35 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030825042235.GB20529@mail.jlokier.co.uk>
-References: <16188.54799.675256.608570@gargle.gargle.HOWL> <20030815135248.GA7315@win.tue.nl> <20030815141328.GA16176@ucw.cz> <16189.58357.516036.664166@gargle.gargle.HOWL> <20030821003606.A3165@pclin040.win.tue.nl> <20030820225812.GB24639@mail.jlokier.co.uk> <20030821015258.A3180@pclin040.win.tue.nl> <20030821080145.GA11263@ucw.cz> <20030822022709.A3640@pclin040.win.tue.nl> <20030822073328.GA7473@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030822073328.GA7473@ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Mon, 25 Aug 2003 00:33:05 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.36.231]:27362 "EHLO
+	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261434AbTHYEc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 00:32:56 -0400
+Message-ID: <3F499176.8090408@austin.rr.com>
+Date: Sun, 24 Aug 2003 23:32:54 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: via rhine network failure on 2.6.0-test4
+References: <3F491E69.5090206@austin.rr.com> <3F497614.4090600@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   Serge van den Boom reports that his LiteOn MediaTouch Keyboard
-> >   has 18 additional keys: Suspend, Coffee, WWW, Calculator, Xfer,
-> >   Switch window, Close, |<<, >|, [], >>|, Record, Rewind, Menu,
-> >   Eject, Mute, Volume +, and Volume -. Of these, the keys |<<,
-> >   >>|, Volume +, Volume - repeat.  The others do not, except for
-> >   the rather special Switch window key.  Upon press it produces
-> >   the LAlt-down, LShift-down, Tab-down, Tab-up sequence; it
-> >   repeats Tab-down; and upon release it produces the sequence
-> >   Tab-up, LAlt-up, LShift-up.
-> > (Up events are as usual for the other 17 keys.)
+Looks like IRQ misassignment. Disabling ACPI on test4 got networking to 
+work again and the IRQ assignment is back to IRQ11 for via rhine. The 
+assigned interrupt in the failing case (linux-2.6.0-test4) was IRQ5 
+instead of 11 which presumably it should be - see contents of 
+/proc/interrupts in the failing case (test4):
 
-Vojtech Pavlik wrote:
-> The code as is now (with the autorepeat and the forced up if the
-> keyboard itself doesn't start repeating) won't have any problems with
-> this keyboard.
+CPU0
+0: 1013475 XT-PIC timer
+1: 1309 XT-PIC i8042
+2: 0 XT-PIC cascade
+5: 0 XT-PIC eth0
+9: 0 XT-PIC acpi
+10: 0 XT-PIC uhci-hcd, uhci-hcd
+12: 30047 XT-PIC i8042
+14: 15193 XT-PIC ide0
+15: 24 XT-PIC ide1
+NMI: 0
+ERR: 13
 
-That works well for typing, but if someone tries to use these keys in
-an action game, they will disappointed with the forced-up code - the
-game will see the key pressed and released, even when the user holds
-the key down for a long time.
+The excerpt from the good boot.msg (linux-2.6.0-test3) follows:
 
-Unfortunately, not doing the forced-up thing causes much worse
-problems, with the keys which started this thread.
+<6>ACPI: Subsystem revision 20030714
+<4> tbxface-0117 [03] acpi_load_tables : ACPI Tables successfully acquired
+<4>Parsing all Control 
+Methods:..................................................................................
+<4>Table [DSDT](id F004) - 326 Objects with 29 Devices 82 Methods 21 Regions
+<4>ACPI Namespace successfully loaded at root c054f95c
+<4>evxfevnt-0093 [04] acpi_enable : Transition to ACPI mode successful
+<4>evgpeblk-0748 [06] ev_create_gpe_block : GPE 00 to 15 [_GPE] 2 regs 
+at 0000000000004020 on int 9
+<4>Completing Region/Field/Buffer/Package 
+initialization:..............................................
+<4>Initialized 21/21 Regions 0/0 Fields 15/15 Buffers 10/10 Packages 
+(334 nodes)
+<4>Executing all Device _STA and_INI methods:..............................
+<4>30 Devices found containing: 30 _STA, 1 _INI methods
+<6>ACPI: Interpreter enabled
+<6>ACPI: Using PIC for interrupt routing
+<6>ACPI: PCI Root Bridge [PCI0] (00:00)
+<4>PCI: Probing PCI hardware (bus 00)
+<7>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+<4>ACPI: PCI Interrupt Link [LNKA] (IRQs 1 3 4 5 6 7 10 *11 12 14 15)
+<4>ACPI: PCI Interrupt Link [LNKB] (IRQs 1 3 4 5 6 7 10 11 12 14 15, 
+disabled)
+<4>ACPI: PCI Interrupt Link [LNKC] (IRQs 1 3 4 5 6 7 10 11 12 14 15, 
+disabled)
+<4>ACPI: PCI Interrupt Link [LNKD] (IRQs 1 3 4 5 6 7 *10 11 12 14 15)
+<6>Linux Plug and Play Support v0.97 (c) Adam Belay
+<5>SCSI subsystem initialized
+<6>Linux Kernel Card Services 3.1.22
+<6> options: [pci] [pm]
+<6>drivers/usb/core/usb.c: registered new driver usbfs
+<6>drivers/usb/core/usb.c: registered new driver hub
+<4>ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 5
+<4>ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+<6>PCI: Using ACPI for IRQ routing
 
-There is only one solution which works well that I can see: do the
-forced-up thing by default, but as soon as you see a real UP event
-from a key, disabled forced-up _for that key_ in future.
 
-That gives perfect results for typing, and after the first press of a
-key it is perfect for games too.
+The corresponding excerpt from the failing (linux-2.6.0-test4) boot.msg
 
--- Jamie
+<6>ACPI: Subsystem revision 20030813
+<6>ACPI: Interpreter enabled
+<6>ACPI: Using PIC for interrupt routing
+<6>ACPI: PCI Root Bridge [PCI0] (00:00)
+<4>PCI: Probing PCI hardware (bus 00)
+<7>PM: Adding info for No Bus:pci0000:00
+<7>PM: Adding info for pci:0000:00:00.0
+<7>PM: Adding info for pci:0000:00:01.0
+<7>PM: Adding info for pci:0000:00:0e.0
+<7>PM: Adding info for pci:0000:00:11.0
+<7>PM: Adding info for pci:0000:00:11.1
+<7>PM: Adding info for pci:0000:00:11.2
+<7>PM: Adding info for pci:0000:00:11.3
+<7>PM: Adding info for pci:0000:00:12.0
+<7>PM: Adding info for pci:0000:01:00.0
+<7>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+<4>ACPI: PCI Interrupt Link [LNKA] (IRQs 1 3 4 5 6 7 10 *11 12 14 15)
+<4>ACPI: PCI Interrupt Link [LNKB] (IRQs 1 3 4 5 6 7 10 11 12 14 15, 
+disabled)
+<4>ACPI: PCI Interrupt Link [LNKC] (IRQs 1 3 4 5 6 7 10 11 12 14 15, 
+disabled)
+<4>ACPI: PCI Interrupt Link [LNKD] (IRQs 1 3 4 5 6 7 *10 11 12 14 15)
+<6>Linux Plug and Play Support v0.97 (c) Adam Belay
+<5>SCSI subsystem initialized
+<6>drivers/usb/core/usb.c: registered new driver usbfs
+<6>drivers/usb/core/usb.c: registered new driver hub
+<4>ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 5
+<4>ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 10
+<6>PCI: Using ACPI for IRQ routing
 
 
-> 
-> -- 
-> Vojtech Pavlik
-> SuSE Labs, SuSE CR
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+Jeff Garzik wrote:
+
+> Steve French wrote:
+>
+>> The via rhine driver fails to get a dhcp address on my test system on 
+>> 2.6.0-test4. ethereal shows no dhcp request leaving the box but 
+>> ifconfig does show the device and it is detected in /proc/pci. 
+>> Switching from the test3 vs. test4 snapshots built with equivalent 
+>> configure options on the same system (SuSE 8.2) - test3 works but 
+>> test4 does not. This is using essentially the default config for both 
+>> the test3 and test4 cases - the only changes are SMP disabled, scsi 
+>> devices disabled, Athlon, via-rhine enabled in network devices and a 
+>> handful of additional filesystems enabled, debug memory allocations 
+>> enabled. This is the first time in many months that I have seen 
+>> problems with the via-rhine driver on 2.6
+>>
+>> Analyzing the code differences between 2.6.0-test3 and test4 (in 
+>> via-rhine.c) is not very promising since the only line that has 
+>> changed (kfree to free_netdev) is in the routine via_rhine_remove_one 
+>> that seems unlikely to cause problems sending data on the network.
+>>
+>> Ideas as to what could have caused the regression?
+>
+>
+>
+> Does /proc/interrupts show any interrupts being received on your eth 
+> device? Does dmesg report any irq assignment problems, or similar?
+>
+> This sounds like ACPI or irq routing related.
+>
+> Jeff
+>
+>
+>
+>
+
+

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271085AbRHTF63>; Mon, 20 Aug 2001 01:58:29 -0400
+	id <S271095AbRHTGQw>; Mon, 20 Aug 2001 02:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271086AbRHTF6T>; Mon, 20 Aug 2001 01:58:19 -0400
-Received: from kanga.comsys.ideon.se ([194.237.138.68]:43525 "EHLO
-	kanga.comsys.se") by vger.kernel.org with ESMTP id <S271085AbRHTF6B>;
-	Mon, 20 Aug 2001 01:58:01 -0400
-Message-ID: <3B80A6C3.6050909@comsys.se>
-Date: Mon, 20 Aug 2001 07:57:23 +0200
-From: Lars Segerlund <lars.segerlund@comsys.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010815
-X-Accept-Language: en-us
+	id <S271093AbRHTGQc>; Mon, 20 Aug 2001 02:16:32 -0400
+Received: from [194.102.102.3] ([194.102.102.3]:4612 "EHLO ns1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S271092AbRHTGQW>;
+	Mon, 20 Aug 2001 02:16:22 -0400
+Date: Mon, 20 Aug 2001 09:16:18 +0300 (EEST)
+From: <lk@Aniela.EU.ORG>
+To: tristan <fattymikefx@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: installing Linux over a network
+In-Reply-To: <20010820012137.8E169501DB@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0108200915040.1016-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
-Subject: BUG: pc_keyb.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If you use slackware, you can install it over nfs. you will need another
+machine connectted to your machine which exports the directory where
+you're slackware packages are.
 
-  Digital Hinote II will hang on kernals 2.4.X if ps2 mouse ( built in 
-trackball is used ), not present in 2.0.38-39 kernels .... this will 
-hapen after a bit of use, but is repeatable.
+On Sun, 19 Aug 2001, tristan wrote:
 
-  Due to writing to the status register before it's ready as far as I 
-can se.
-
-  fix: change all mdelay(1) in pc_keyb.c to mdelay(2)'s .. ( mdelay(1) 
-will be on the timing limit.
-( /usr/src/linux/drivers/char/pc_keyb.c )
-
-  Might also be present during high load on machines running GL on AGP 
-video cards, not 100 % sure same symptoms, above seem's to fix ???? ( 
-strange ).
-
-  / best regards, Lars Segerlund.
+> I havent been able to find a way of installing
+> Linux slackware or red hat with out using 90 or more
+> floppies, and i have no cd rom on my 386. Is there
+> a way to install Linux over a network on such an old machine.
+> It currently has windows 3.1 and DOS running. And
+> has one 60 mb hard drive and one 120 mb hard drive.
+> I have found a small easy to install minix 386 that goes over
+> DOS so I may just use that to start off, in order to install
+> a very old linux kernel .01 or .02
+>
+> Tristan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268461AbTANA4m>; Mon, 13 Jan 2003 19:56:42 -0500
+	id <S268471AbTANBLL>; Mon, 13 Jan 2003 20:11:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268459AbTANA4m>; Mon, 13 Jan 2003 19:56:42 -0500
-Received: from h80ad26f3.async.vt.edu ([128.173.38.243]:59264 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S268461AbTANA4l>; Mon, 13 Jan 2003 19:56:41 -0500
-Message-Id: <200301140105.h0E158qZ002813@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Felix von Leitner <leitner-linuxkernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel nfsd module depmod error 
-In-Reply-To: Your message of "Tue, 14 Jan 2003 01:33:24 +0100."
-             <20030114003324.GA18358@fefe.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030114003324.GA18358@fefe.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1440036616P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 13 Jan 2003 20:05:08 -0500
+	id <S268472AbTANBLL>; Mon, 13 Jan 2003 20:11:11 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:59524 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S268471AbTANBLJ>; Mon, 13 Jan 2003 20:11:09 -0500
+To: andrea.glorioso@binary-only.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Are linux network drivers really affected by this?
+References: <1042116723.2556.3.camel@station3>
+	<87iswx4eaw.fsf@topo.binary-only.priv>
+	<1042199207.28469.49.camel@irongate.swansea.linux.org.uk>
+	<8765sx2r8u.fsf@topo.binary-only.priv>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 14 Jan 2003 10:19:01 +0900
+In-Reply-To: <8765sx2r8u.fsf@topo.binary-only.priv>
+Message-ID: <buo3cnw7cl6.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1440036616P
-Content-Type: text/plain; charset=us-ascii
+andrea.glorioso@binary-only.com writes:
+>     ac> Most of  them will pad with zero.  We have a couple of drivers
+>     ac> that already pad with something along  the lines of "NetBSD is
+>     ac> a cool OS too.."
+> 
+> Let's talk about subliminal messages, then. :)
 
-On Tue, 14 Jan 2003 01:33:24 +0100, Felix von Leitner <leitner-linuxkernel@fefe.de>  said:
-> Compiling the kernel nfsd as module fails at "make modules_install" with
-> depmod reporting a gazillion unresolved symbols.  This has been broken
-> for several versions now, it should really be fixed.  I have not tried
-> to compile the kernel nfsd into the kernel.
+How about `Printer on fire'?
 
-Have you tried Rusty's latest module-init-tools? 0.9.8 fixed a lot of
-problems for me....
-
---==_Exmh_1440036616P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+I2JDcC3lWbTT17ARAradAJ9uoghdlXZ/peya4Wo2xihZkP3YhwCeId5n
-sH4yOATjyKPWHFJeNPMhFnA=
-=nt7h
------END PGP SIGNATURE-----
-
---==_Exmh_1440036616P--
+-Miles
+-- 
+I have seen the enemy, and he is us.  -- Pogo

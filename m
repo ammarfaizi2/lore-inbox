@@ -1,82 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133084AbRDRL0y>; Wed, 18 Apr 2001 07:26:54 -0400
+	id <S133086AbRDRLfP>; Wed, 18 Apr 2001 07:35:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133086AbRDRL0o>; Wed, 18 Apr 2001 07:26:44 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:7947 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S133084AbRDRL0c>; Wed, 18 Apr 2001 07:26:32 -0400
-Date: Wed, 18 Apr 2001 06:45:40 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: generic_osync_inode/ext2_fsync_inode still not safe
-In-Reply-To: <20010417140928.C2505@redhat.com>
-Message-ID: <Pine.LNX.4.21.0104180632490.4382-100000@freak.distro.conectiva>
+	id <S133087AbRDRLfG>; Wed, 18 Apr 2001 07:35:06 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:7950 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S133086AbRDRLew>; Wed, 18 Apr 2001 07:34:52 -0400
+Date: Wed, 18 Apr 2001 13:34:43 +0200 (CEST)
+From: axel <axel@rayfun.org>
+To: linux-kernel@vger.kernel.org
+Subject: NETDEV WATCHDOG eth transmit timed out
+Message-ID: <Pine.LNX.4.21.0104181319220.1226-100000@neon.rayfun.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hallo,
+
+on my router which is serving as a gateway for my lan, the adsl connection
+is irregularly killed due to the following:
+(eth1 is a RTL8139C, kernel 2.4.4pre3, incl. latest rtl8139 driver 0.9.16)
 
 
-On Tue, 17 Apr 2001, Stephen C. Tweedie wrote:
+Apr 18 12:11:09 bello kernel: eth1: Setting half-duplex based on
+auto-negotiated partner ability 0000.
+Apr 18 12:11:27 bello kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Apr 18 12:11:27 bello kernel: eth1: Tx queue start entry 69  dirty entry
+65.
+Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 0 is 00002000.
+Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 1 is 00002000. (queue
+head)
+Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 2 is 00002000.
+Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 3 is 00002000.
+Apr 18 12:11:27 bello kernel: eth1: Setting half-duplex based on
+auto-negotiated partner ability 0000.
+Apr 18 12:17:33 bello kernel: eth1: Setting half-duplex based on
+auto-negotiated partner ability 0000.
+Apr 18 12:17:51 bello kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Apr 18 12:17:51 bello kernel: eth1: Tx queue start entry 93  dirty entry
+89.
+Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 0 is 00002000.
+Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 1 is 00002000. (queue
+head)
+Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 2 is 00002000.
+Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 3 is 00002000.
+Apr 18 12:17:51 bello kernel: eth1: Setting half-duplex based on
+auto-negotiated
+ partner ability 0000.
+Apr 18 12:19:14 bello pppd[26928]: No response to 5 echo-requests
+Apr 18 12:19:14 bello pppd[26928]: Serial link appears to be disconnected.
+Apr 18 12:19:14 bello ip-down: Restored original /etc/resolv.conf
+Apr 18 12:19:20 bello pppd[26928]: Connection terminated.
+Apr 18 12:19:20 bello pppd[26928]: Connect time 11.2 minutes.
+Apr 18 12:19:20 bello pppd[26928]: Sent 5627 bytes, received 59949 bytes.
+Apr 18 12:19:20 bello pppoe[26929]: read (asyncReadFromPPP): Input/output
+error
+Apr 18 12:19:20 bello pppoe[26929]: Sent PADT
+Apr 18 12:19:20 bello pppd[26928]: Exit.
+Apr 18 12:19:20 bello adsl-connect: ADSL connection lost; attempting
+re-connection.
 
-> Hi,
-> 
-> On Sat, Apr 14, 2001 at 07:24:42AM -0300, Marcelo Tosatti wrote:
-> > 
-> > As described earlier, code which wants to write an inode cannot rely on
-> > the I_DIRTY bits (on inode->i_state) being clean to guarantee that the
-> > inode and its dirty pages, if any, are safely synced on disk.
-> 
-> Indeed --- for all such structures, including pages, buffer_heads and
-> inodes, you can only assume that the object is safely on disk if you
-> have checked both the dirty bit AND the locked bit. 
+I have heard from some people who had this problem as well but there had
+been no real solution to that. Is there some way to debug this, get deeper
+to the origin of the problem?
+Any help would be FANTASTIC..
 
-No.
-
-> If you find it locked but clean, then a writeout may be in progress,
-> so you need to do a wait_on_* to be really sure that the write has
-> completed.
-
-As far as I can see, you cannot guarantee that an inode which is unlocked
-_and_ clean (accordingly to the inode->i_state) is safely on disk.
-
-The reason for that are calls to sync_one() which write the inode
-asynchronously: 
-
-sync_one(struct inode *inode, int sync) {
-...
-        dirty = inode->i_state & I_DIRTY;
-        inode->i_state |= I_LOCK;
-        inode->i_state &= ~I_DIRTY;
-        spin_unlock(&inode_lock);
-
-        filemap_fdatasync(inode->i_mapping);
-
-        /* Don't write the inode if only I_DIRTY_PAGES was set */
-        if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
-                write_inode(inode, sync);               <-------------
-
-        filemap_fdatawait(inode->i_mapping);
-
-        spin_lock(&inode_lock);
-        inode->i_state &= ~I_LOCK;
-        wake_up(&inode->i_wait);
-}
-
-The fs-specific write_inode() function will simply "generate" the dirty
-buffer_head and add it to the dirty list.  After that, it unlocks the
-inode.  
-
-Where is the guarantee that this dirty buffer head has hitted the disk?
-
-Do you see what I mean now ?
-
-I don't see a clean "for 2.4" fix except writting the inode
-unconditionally at _each_ call which needs to write the inode
-synchronously.
+Thank you very much,
+Axel Siebenwirth
 

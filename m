@@ -1,86 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbRADPap>; Thu, 4 Jan 2001 10:30:45 -0500
+	id <S129525AbRADPbP>; Thu, 4 Jan 2001 10:31:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbRADPag>; Thu, 4 Jan 2001 10:30:36 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:38699 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S129428AbRADPa0>; Thu, 4 Jan 2001 10:30:26 -0500
-Date: Thu, 4 Jan 2001 09:30:12 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200101041530.JAA92328@tomcat.admin.navo.hpc.mil>
-To: twaugh@redhat.com, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Printing to off-line printer in 2.4.0-prerelease
-Cc: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>,
-        linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S130007AbRADPbH>; Thu, 4 Jan 2001 10:31:07 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:22547 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129525AbRADPav>; Thu, 4 Jan 2001 10:30:51 -0500
+Date: Thu, 04 Jan 2001 10:30:31 -0500
+From: Chris Mason <mason@suse.com>
+To: Christoph Rohland <cr@sap.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] filemap_fdatasync & related changes
+Message-ID: <774720000.978622231@tiny>
+In-Reply-To: <m3ae982yq5.fsf@linux.local>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
-Tim Waugh <twaugh@redhat.com>:
-> On Thu, Jan 04, 2001 at 03:39:10PM +0100, Andrea Arcangeli wrote:
-> 
-> > As noted yesterday falling into parport_write will silenty lose data when the
-> > printer is off.
-> 
-> (Actually it depends; I think FIFO/DMA paths are fine, but yes, the
-> software implementation can lose data.)
-> 
-> > If it's not feasible to make parport_write reliable against
-> > power-off printer, then I recommend to loop in interruptible mode
-> > before entering the main loop (waiting the printer to power-on) like
-> > in latest patch from Peter.
-> 
-> Have I missed a patch?  How do you know whether or not the printer is
-> on yet?
-> 
-> As I understand it, you can't guarantee anything about any of the
-> signals when the printer is off, so all you can do is look for
-> 'suspicous' things (like 'no error' and 'paper out').  But some
-> printers do this during normal operation, and hence the LP_CAREFUL
-> switch.
-> 
-> Return -EIO when the printer is on and off-line is a bug, sure enough.
-> That's what the -EAGAIN patch was for, and Peter's patch fixes this
-> too.
-> 
-> But if you want to avoid losing data when your printer is off you need
-> to use LP_CAREFUL, and hope printing still works at all (depends on
-> your printer).
-> 
-> If this goes away:
-> 
->         if ((status & LP_PERRORP) && !(LP_F(minor) & LP_CAREFUL))
->                 /* No error. */
->                 last = 0;
-> 
-> then some people might not be able to print at all.
 
-I don't believe this is a problem that CAN be fixe, either by hardware
-or software.
 
-Originally, (wayback machine on) this was handled by a pull-up resistor
-in the parallel interface, on the "off-line" signal. ANY time the printer
-was powered off, set offline, or cable unplugged, the "off-line" signal
-was raised by the pull-up. No data lost.
+On Thursday, January 04, 2001 10:48:13 AM +0100 Christoph Rohland
+<cr@sap.com> wrote:
 
-Now the parallel interface is bidirectional, and can have multiple devices
-attached - this "fix" cannot be used. The interface is now more of a 
-buss than a single attached interface, and signals from a missing device
-(powered off or disconnected) are floating. They may float high or low,
-and depending on the environment (and which end of the cable is unplugged)
-any thing in between.
+> Chris Mason <mason@suse.com> writes:
+>> Just noticed the filemap_fdatasync code doesn't check the return value
+>> from writepage.  Linus, would you take a patch that redirtied the page,
+>> puts it back onto the dirty list (at the tail), and unlocks the page
+>> when writepage returns 1?
+>> 
+>> That would loop forever if the writepage func kept returning 1 though...I
+>> think that's what we want, unless someone like ramfs made a writepage
+>> func that always returned 1.
+> 
+> shmem has such a writepage for locked shm segments. It also always
+> return 1 if the swap space is exhausted. So everybody using shared
+> anonymous, SYSV shared or POSIX shared memory can hit this.
+> 
+> I invented the return code 1 exactly to be able to handle this.
+> 
 
-Yes, I've lost printouts this way, but there's nothing I can really do
-about it other than than tell the users "don't do that - make sure the
-printer is turned on before you print".
+Yes, right now the shmem writepage calls are the only ones returning one at
+all.  But, the question of how to properly fsync/msync these kinds of pages
+still stands.  Returning from an fsync before writing them isn't correct.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Either way, filemap_fdatasync needs fixing, since it drops the dirty bit on
+these pages.  They'll never get written after going through it.
 
-Any opinions expressed are solely my own.
+-chris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

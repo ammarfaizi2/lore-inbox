@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129688AbQLGF3m>; Thu, 7 Dec 2000 00:29:42 -0500
+	id <S129733AbQLGFtJ>; Thu, 7 Dec 2000 00:49:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbQLGF3c>; Thu, 7 Dec 2000 00:29:32 -0500
-Received: from grunt.okdirect.com ([209.54.94.12]:7 "HELO mail.pyxos.com")
-	by vger.kernel.org with SMTP id <S129688AbQLGF3Z>;
-	Thu, 7 Dec 2000 00:29:25 -0500
-Message-Id: <5.0.2.1.2.20001206223822.03997008@209.54.94.12>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Wed, 06 Dec 2000 22:56:32 -0600
-To: linux-kernel@vger.kernel.org
-From: Daniel Walton <zwwe@opti.cgi.net>
-Subject: Out of socket memory? (2.4.0-test11)
+	id <S129231AbQLGFs7>; Thu, 7 Dec 2000 00:48:59 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:5641 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129361AbQLGFsu>; Thu, 7 Dec 2000 00:48:50 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Thu, 7 Dec 2000 16:15:54 +1100
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br, davej@suse.de
+Subject: [PATCH]: sysctl to tune async and sync bdflush triggers
+Message-ID: <20001207161554.A9375@linuxcare.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+Hi,
 
-I've been having a problem with a high volume Linux web server.  This 
-particular web server used to be a FreeBSD machine and I've been trying to 
-successfully make the switch for some time now.  I've been trying the 2.4 
-development kernels as they come out and I've been tweaking the /proc 
-filesystem variables but so far nothing seems to have fixed the 
-problem.  The problem is that I get "Out of socket memory" errors and the 
-networking locks up.  Sometimes the server will go for weeks without 
-running into the problem and other times it'll last 30 minutes.  The 
-hardware in question is an 1Ghz Athalon system with 256Mb of ram and an IDE 
-hard disk.  I've tried every 2.4 test kernel to date.  The web server is a 
-specialized web server running about 10 million hits a day.  Of the 256Mb 
-of ram the web server uses 40Mb and there are no other significant memory 
-consuming processes on the system.  Currently I am using the following 
-/proc modifications in the rc.local file.
+At the moment the synchronous flush trigger for bdflush is hardwired to be
+double the asynchronous one. This is a pain for people with lots of RAM.
 
-echo "7168 11776 16384" > /proc/sys/net/ipv4/tcp_mem
-echo 32768 > /proc/sys/net/ipv4/tcp_max_orphans
+This patch adds a new variable to the bdflush sysctl so both can be
+tuned independently. It also sets the defaults to 40% and 80% for async and
+sync flushing. This has worked fine on my test machines (128M RAM and 2G RAM).
 
-What am I doing wrong?  Is this a kernel problem or a configuration 
-problem?  Is there any way I can get runtime information from the kernel on 
-things like amount of socket memory used and amount available?  Am I using 
-the right variables to increase available socket memory and just not giving 
-it enough yet?
+btw: does anything still touch these dummy entries?
 
-I appreciate any help provided.
-
-Thank you,
-Daniel Walton
+Cheers,
+Anton
 
 
+diff -urN linux/fs/buffer.c linux_intel/fs/buffer.c
+--- linux/fs/buffer.c	Thu Dec  7 11:24:40 2000
++++ linux_intel/fs/buffer.c	Thu Dec  7 00:08:06 2000
+@@ -122,16 +122,17 @@
+ 				  when trying to refill buffers. */
+ 		int interval; /* jiffies delay between kupdate flushes */
+ 		int age_buffer;  /* Time for normal buffer to age before we flush it */
+-		int dummy1;    /* unused, was age_super */
++		int nfract_sync; /* Percentage of buffer cache dirty to 
++				    activate bdflush synchronously */
+ 		int dummy2;    /* unused */
+ 		int dummy3;    /* unused */
+ 	} b_un;
+ 	unsigned int data[N_PARAM];
+-} bdf_prm = {{40, 500, 64, 256, 5*HZ, 30*HZ, 5*HZ, 1884, 2}};
++} bdf_prm = {{40, 500, 64, 256, 5*HZ, 30*HZ, 80, 0, 0}};
+ 
+ /* These are the min and max parameter values that we will allow to be assigned */
+-int bdflush_min[N_PARAM] = {  0,  10,    5,   25,  0,   1*HZ,   1*HZ, 1, 1};
+-int bdflush_max[N_PARAM] = {100,50000, 20000, 20000,600*HZ, 6000*HZ, 6000*HZ, 2047, 5};
++int bdflush_min[N_PARAM] = {  0,  10,    5,   25,  0,   1*HZ,   0, 0, 0};
++int bdflush_max[N_PARAM] = {100,50000, 20000, 20000,600*HZ, 6000*HZ, 100, 0, 0};
+ 
+ /*
+  * Rewrote the wait-routines to use the "new" wait-queue functionality,
+@@ -1036,9 +1037,9 @@
+ 	dirty = size_buffers_type[BUF_DIRTY] >> PAGE_SHIFT;
+ 	tot = nr_free_buffer_pages();
+ 
+-	dirty *= 200;
++	dirty *= 100;
+ 	soft_dirty_limit = tot * bdf_prm.b_un.nfract;
+-	hard_dirty_limit = soft_dirty_limit * 2;
++	hard_dirty_limit = tot * bdf_prm.b_un.nfract_sync;
+ 
+ 	/* First, check for the "real" dirty limit. */
+ 	if (dirty > soft_dirty_limit) {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

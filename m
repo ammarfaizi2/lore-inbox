@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290678AbSARLkN>; Fri, 18 Jan 2002 06:40:13 -0500
+	id <S290675AbSARLim>; Fri, 18 Jan 2002 06:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290677AbSARLkD>; Fri, 18 Jan 2002 06:40:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:23819 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S290676AbSARLj4>; Fri, 18 Jan 2002 06:39:56 -0500
-Message-ID: <3C4808AA.3010805@namesys.com>
-Date: Fri, 18 Jan 2002 14:36:10 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S290676AbSARLiW>; Fri, 18 Jan 2002 06:38:22 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:775 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S290675AbSARLiQ>; Fri, 18 Jan 2002 06:38:16 -0500
+Date: Fri, 18 Jan 2002 12:38:07 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Craig Christophel <merlin@transgeek.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: attr.c::notify_change() -- locking_change
+In-Reply-To: <20020118043308.B9A75B581@smtp.transgeek.com>
+Message-ID: <Pine.LNX.4.33.0201181226180.14369-100000@serv>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jose Luis Domingo Lopez <jdomingo@internautas.org>,
-        Guillaume Boissiere <boissiere@mediaone.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  January 17, 2001
-In-Reply-To: <E16RN2p-0005VC-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi,
 
->>Have you heard anything about when Linus intends to code freeze?  In my 
->>planning I am assuming Sept. 30 is way earlier than 2.6 would ship.  I 
->>remember how long 2.4 took, and I simply assume 2.6 will be the same. 
->> At any rate, there is no way we'll be done earlier than September: it 
->>is a deep rewrite.  Code looks so much better than the old code...., but 
->>it is completely new code.
->>
->
->If Linus says september freezes in september and ships for christmas I will
->be most suprised. If he says september freezes the may after and ships the
->december after that I'd count it normal 
->
->Personally I'd really like to see the block I/O stuff straightened out. The
->neccessary VM bits done, device driver updates and a September freeze. I
->think it can be done, and I think the resulting kernel will be way way
->better for people with 1Gb+ of RAM, so much better that its worth making a
->clear release at that point.
->
->Alan
->
->
-Let us encourage him to give us some warning, like 60 days of warning. 
- Let us also encourage him to code freeze VM and VFS first not last (I 
-think he agrees with this fortunately).  I am not going to say anything 
-about when I would like that freeze to hit, except that we won't be 
-ready before September/October because I am finally able to take the 
-time to do things right in the design and so I will.  If he freezes in 
-~September, we'll have an experimental Reiser4 for him.  Or so I fondly 
-hope and vaporize.;-)  
+On Thu, 17 Jan 2002, Craig Christophel wrote:
 
-What about the zero-copy stuff I keep hearing rumors about?  How ready 
-to go is it?  We want ReiserFS to be well-integrated with it if possible.
+> +		spin_lock(&inode_lock);
+> +		if(inode->i_state & I_ATTR_LOCK) {
+> +			spin_unlock(&inode_lock);
+> +		}
+> +		else {
+> +			inode->i_state =| I_ATTR_LOCK;
+> +			tflag = 1;
+> +			spin_unlock(&inode_lock);
+> +		}
 
-Hans
+There are other write accesses to i_state, so you either have to protect
+them all with this lock or you could convert all accesses to use bitfield
+instructions.
+
+> +static inline void wait_on_inode(struct inode *inode, int flag);
+
+Instead of the flag two separate functions wait_on_inode_lock,
+wait_on_inode_attr_lock are IMO more readable and cleaner.
+
+bye, Roman
 

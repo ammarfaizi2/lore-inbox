@@ -1,342 +1,785 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264540AbRFMEjL>; Wed, 13 Jun 2001 00:39:11 -0400
+	id <S264549AbRFMEum>; Wed, 13 Jun 2001 00:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264541AbRFMEiw>; Wed, 13 Jun 2001 00:38:52 -0400
-Received: from moon.govshops.com ([207.32.111.5]:54538 "HELO mail.govshops.com")
-	by vger.kernel.org with SMTP id <S264540AbRFMEit>;
-	Wed, 13 Jun 2001 00:38:49 -0400
-From: "Alok K. Dhir" <alok@dhir.net>
-To: "'Rik van Riel'" <riel@conectiva.com.br>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.4.6-pre2 page_launder() improvements
-Date: Wed, 13 Jun 2001 00:42:45 -0400
-Message-ID: <000e01c0f3c3$4a71fb10$1e01a8c0@dhir.net>
+	id <S264547AbRFMEue>; Wed, 13 Jun 2001 00:50:34 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1728 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264541AbRFMEuT>;
+	Wed, 13 Jun 2001 00:50:19 -0400
+Date: Wed, 13 Jun 2001 00:50:16 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: linux-fsdevel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: [CFT][PATCH] superblock handling changes (2.4.6-pre3)
+In-Reply-To: <Pine.GSO.4.21.0106112359050.27704-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0106130044390.942-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-In-Reply-To: <Pine.LNX.4.33.0106100128100.4239-100000@duckman.distro.conectiva>
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Are these page_launder improvements included in 2.4.6-pre3?  Linus
-mentions "VM tuning has also happened" in the announcement - but there
-doesn't seem to be mention of it in his list of changes from -pre2...
 
-Thanks
+> 	Please, help with testing and code review. I don't want to
+> send 11 patches (10 chunks + 1 combined), so I'm sending the combined
+> version in this posting and putting the split-up for review on
+> ftp.math.psu.edu/pub/viro/[0-9]*S6-pre2
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Rik van Riel
-> Sent: Sunday, June 10, 2001 12:41 AM
-> To: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Subject: [PATCH] 2.4.6-pre2 page_launder() improvements
+Updated to -pre3: ftp.math.psu.edu/pub/viro/[0-7]*S6-pre3
+
+> 	Please, be careful with that one. _If_ it blows up it's more than
+> likely to leave box in a state when any activity on sync/mount/umount
+> stops dead. It is pretty straightforward (in split state) and I believe
+> that if there are bugs they will be easy to find, but until then...
+> Reviewing the code should be completely safe, though ;-) Seriously, I
+> think that it's OK, but I've missed one in it, so no warranties.
 > 
-> 
-> [Request For Testers ... patch below]
-> 
-> Hi,
-> 
-> during my holidays I've written the following patch 
-> (forward-ported to 2.4.6-pre2 and improved a tad today), 
-> which implements these improvements to page_launder():
-> 
-> 1) don't "roll over" inactive_dirty pages to the back of the
->    list, but reclaim them in something more resembling LRU
->    order;  this is especially good when the system has tons
->    of inactive_dirty pages due to eg. background scanning
-> 
-> 2) eliminate the infinite penalty clean pages had over dirty
->    pages by not scanning the complete inactive_dirty list and
->    letting real dirty pages build up near the front of the
->    list ... we flush them asynchronously when we have enough
->    of them
-> 
-> 3) when going into the launder_loop, we scan a larger fraction
->    of the inactive_dirty list; under most workloads this means
->    we can always flush the dirty pages asynchronously because
->    we'll have clean, freeable pages in the part of the list we
->    only scan in the launder_loop
-> 
-> 4) when we have only dirty pages and cannot free pages, we
->    remember this for the next run of page_launder() and won't
->    waste CPU by scanning pages without flushing them in the
->    launder loop (after maxlaunder goes negative)
-> 
-> 5) this same logic is used to control when we use synchronous
->    IO; only when we cannot free any pages now do we wait on
->    IO, this stops kswapd CPU wastage under heavy write loads
-> 
-> 6) the "sync" argument to page_launder() now means whether
->    we're _allowed_ to do synchronous IO or not ... page_launder()
->    is now smart enough to determine if we should use asynchronous
->    IO only or if we should wait on IO
-> 
-> This patch has given excellent results on my laptop and my 
-> workstation here and seems to improve kernel behaviour in 
-> tests quite a bit. I can play mp3's unbuffered during 
-> moderate write loads or moderately heavy IO ;)
-> 
-> YMMV, please test it. If it works great for everybody I'd 
-> like to get this improvement merged into the next -pre kernel.
-> 
-> regards,
-> 
-> Rik
-> --
-> Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-> 
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
-> 
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com/
-> 
-> 
-> diff -ur linux-2.4.6-pre2-virgin/include/linux/mm.h 
-> linux-2.4.6-pre2/include/linux/mm.h
-> --- linux-2.4.6-pre2-virgin/include/linux/mm.h	Sun Jun 
-> 10 00:44:01 2001
-> +++ linux-2.4.6-pre2/include/linux/mm.h	Sat Jun  9 23:19:54 2001
-> @@ -169,6 +169,7 @@
->  #define PG_inactive_clean	11
->  #define PG_highmem		12
->  #define PG_checked		13	/* kill me in 2.5.<early>. */
-> +#define PG_marker		14
->  				/* bits 21-29 unused */
->  #define PG_arch_1		30
->  #define PG_reserved		31
-> @@ -242,6 +243,9 @@
->  #define PageInactiveClean(page)	
-> test_bit(PG_inactive_clean, &(page)->flags)
->  #define SetPageInactiveClean(page)	
-> set_bit(PG_inactive_clean, &(page)->flags)
->  #define ClearPageInactiveClean(page)	
-> clear_bit(PG_inactive_clean, &(page)->flags)
-> +
-> +#define PageMarker(page)	test_bit(PG_marker, &(page)->flags)
-> +#define SetPageMarker(page)	set_bit(PG_marker, &(page)->flags)
-> 
->  #ifdef CONFIG_HIGHMEM
->  #define PageHighMem(page)		test_bit(PG_highmem, 
-> &(page)->flags)
-> diff -ur linux-2.4.6-pre2-virgin/include/linux/swap.h 
-> linux-2.4.6-pre2/include/linux/swap.h
-> --- linux-2.4.6-pre2-virgin/include/linux/swap.h	Sun Jun 
-> 10 00:44:01 2001
-> +++ linux-2.4.6-pre2/include/linux/swap.h	Sat Jun  9 23:19:54 2001
-> @@ -205,6 +205,16 @@
->  	page->zone->inactive_dirty_pages++; \
->  }
-> 
-> +/* Like the above, but add us after the bookmark. */
-> +#define add_page_to_inactive_dirty_list_marker(page) { \
-> +	DEBUG_ADD_PAGE \
-> +	ZERO_PAGE_BUG \
-> +	SetPageInactiveDirty(page); \
-> +	list_add(&(page)->lru, marker_lru); \
-> +	nr_inactive_dirty_pages++; \
-> +	page->zone->inactive_dirty_pages++; \
-> +}
-> +
->  #define add_page_to_inactive_clean_list(page) { \
->  	DEBUG_ADD_PAGE \
->  	ZERO_PAGE_BUG \
-> diff -ur linux-2.4.6-pre2-virgin/mm/vmscan.c 
-> linux-2.4.6-pre2/mm/vmscan.c
-> --- linux-2.4.6-pre2-virgin/mm/vmscan.c	Sun Jun 10 00:44:02 2001
-> +++ linux-2.4.6-pre2/mm/vmscan.c	Sun Jun 10 00:57:25 2001
-> @@ -407,7 +407,7 @@
->  /**
->   * page_launder - clean dirty inactive pages, move to 
-> inactive_clean list
->   * @gfp_mask: what operations we are allowed to do
-> - * @sync: should we wait synchronously for the cleaning of pages
-> + * @sync: are we allowed to do synchronous IO in emergencies ?
->   *
->   * When this function is called, we are most likely low on free +
->   * inactive_clean pages. Since we want to refill those pages 
-> as @@ -428,20 +428,54 @@
->  #define CAN_DO_BUFFERS		(gfp_mask & __GFP_BUFFER)
->  int page_launder(int gfp_mask, int sync)
->  {
-> +	static int cannot_free_pages;
->  	int launder_loop, maxscan, cleaned_pages, maxlaunder;
-> -	struct list_head * page_lru;
-> +	struct list_head * page_lru, * marker_lru;
->  	struct page * page;
-> 
-> +	/* Our bookmark of where we are in the inactive_dirty list. */
-> +	struct page marker_page_struct = {
-> +		flags: (1<<PG_marker),
-> +		lru: { NULL, NULL },
-> +	};
-> +	marker_lru = &marker_page_struct.lru;
-> +
->  	launder_loop = 0;
->  	maxlaunder = 0;
->  	cleaned_pages = 0;
-> 
->  dirty_page_rescan:
->  	spin_lock(&pagemap_lru_lock);
-> -	maxscan = nr_inactive_dirty_pages;
-> -	while ((page_lru = inactive_dirty_list.prev) != 
-> &inactive_dirty_list &&
-> -				maxscan-- > 0) {
-> +	/*
-> +	 * By not scanning all inactive dirty pages we'll write out
-> +	 * really old dirty pages before evicting newer clean pages.
-> +	 * This should cause some LRU behaviour if we have a large
-> +	 * amount of inactive pages (due to eg. drop behind).
-> +	 *
-> +	 * It also makes us accumulate dirty pages until we have enough
-> +	 * to be worth writing to disk without causing excessive disk
-> +	 * seeks and eliminates the infinite penalty clean 
-> pages incurred
-> +	 * vs. dirty pages.
-> +	 */
-> +	maxscan = nr_inactive_dirty_pages / 4;
-> +	if (launder_loop)
-> +		maxscan *= 2;
-> +	list_add_tail(marker_lru, &inactive_dirty_list);
-> +	while ((page_lru = marker_lru->prev) != &inactive_dirty_list &&
-> +			maxscan-- > 0 && free_shortage()) {
->  		page = list_entry(page_lru, struct page, lru);
-> +		/* We move the bookmark forward by flipping the 
-> page ;) */
-> +		list_del(page_lru);
-> +		list_add(page_lru, marker_lru);
-> +
-> +		/* Don't waste CPU if chances are we cannot 
-> free anything. */
-> +		if (launder_loop && maxlaunder < 0 && cannot_free_pages)
-> +			break;
-> +
-> +		/* Skip other people's marker pages. */
-> +		if (PageMarker(page)) {
-> +			continue;
-> +		}
-> 
->  		/* Wrong page on list?! (list corruption, 
-> should not happen) */
->  		if (!PageInactiveDirty(page)) {
-> @@ -454,7 +488,6 @@
-> 
->  		/* Page is or was in use?  Move it to the 
-> active list. */
->  		if (PageReferenced(page) || page->age > 0 ||
-> -				page->zone->free_pages > 
-> page->zone->pages_high ||
->  				(!page->buffers && 
-> page_count(page) > 1) ||
->  				page_ramdisk(page)) {
->  			del_page_from_inactive_dirty_list(page);
-> @@ -464,11 +497,9 @@
-> 
->  		/*
->  		 * The page is locked. IO in progress?
-> -		 * Move it to the back of the list.
-> +		 * Skip the page, we'll take a look when it unlocks.
->  		 */
->  		if (TryLockPage(page)) {
-> -			list_del(page_lru);
-> -			list_add(page_lru, &inactive_dirty_list);
->  			continue;
->  		}
-> 
-> @@ -482,10 +513,8 @@
->  			if (!writepage)
->  				goto page_active;
-> 
-> -			/* First time through? Move it to the 
-> back of the list */
-> +			/* First time through? Skip the page. */
->  			if (!launder_loop || !CAN_DO_IO) {
-> -				list_del(page_lru);
-> -				list_add(page_lru, 
-> &inactive_dirty_list);
->  				UnlockPage(page);
->  				continue;
->  			}
-> @@ -544,7 +573,7 @@
-> 
->  			/* The buffers were not freed. */
->  			if (!clearedbuf) {
-> -				add_page_to_inactive_dirty_list(page);
-> +				
-> add_page_to_inactive_dirty_list_marker(page);
-> 
->  			/* The page was only in the buffer cache. */
->  			} else if (!page->mapping) {
-> @@ -600,6 +629,8 @@
->  			UnlockPage(page);
->  		}
->  	}
-> +	/* Remove our marker. */
-> +	list_del(marker_lru);
->  	spin_unlock(&pagemap_lru_lock);
-> 
->  	/*
-> @@ -615,16 +646,29 @@
->  	 */
->  	if ((CAN_DO_IO || CAN_DO_BUFFERS) && !launder_loop && 
-> free_shortage()) {
->  		launder_loop = 1;
-> -		/* If we cleaned pages, never do synchronous IO. */
-> -		if (cleaned_pages)
-> +		/*
-> +		 * If we, or the previous process running 
-> page_launder(),
-> +		 * managed to free any pages we never do synchronous IO.
-> +		 */
-> +		if (cleaned_pages || !cannot_free_pages)
->  			sync = 0;
-> +		/* Else, do synchronous IO (if we are allowed to). */
-> +		else if (sync)
-> +			sync = 1;
->  		/* We only do a few "out of order" flushes. */
->  		maxlaunder = MAX_LAUNDER;
-> -		/* Kflushd takes care of the rest. */
-> +		/* Let bdflush take care of the rest. */
->  		wakeup_bdflush(0);
->  		goto dirty_page_rescan;
->  	}
-> 
-> +	/*
-> +	 * If we failed to free pages (because all pages are dirty)
-> +	 * we remember this for the next time. This will prevent us
-> +	 * from wasting too much CPU here.
-> +	 */
-> +	cannot_free_pages = !cleaned_pages;
-> +
->  	/* Return the number of pages moved to the 
-> inactive_clean list. */
->  	return cleaned_pages;
->  }
-> @@ -852,7 +896,7 @@
->  	 * list, so this is a relatively cheap operation.
->  	 */
->  	if (free_shortage()) {
-> -		ret += page_launder(gfp_mask, user);
-> +		ret += page_launder(gfp_mask, 1);
->  		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
->  		shrink_icache_memory(DEF_PRIORITY, gfp_mask);
->  	}
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the 
-> FAQ at  http://www.tux.org/lkml/
-> 
+> 	If it gets no complaints in a reasonable time I'm going to
+> resubmit it to Linus, so... Please, help testing it. And yes, I'll
+> keep torturing it myself (obviously). 
+
+Rediffed to -pre3:
+
+diff -urN S6-pre3/arch/parisc/hpux/sys_hpux.c S6-pre3-get_super/arch/parisc/hpux/sys_hpux.c
+--- S6-pre3/arch/parisc/hpux/sys_hpux.c	Fri Feb 16 20:46:44 2001
++++ S6-pre3-get_super/arch/parisc/hpux/sys_hpux.c	Wed Jun 13 00:27:52 2001
+@@ -109,9 +109,11 @@
+ 
+ 	lock_kernel();
+ 	s = get_super(to_kdev_t(dev));
++	unlock_kernel();
+ 	if (s == NULL)
+ 		goto out;
+ 	err = vfs_statfs(s, &sbuf);
++	drop_super(s);
+ 	if (err)
+ 		goto out;
+ 
+@@ -124,7 +126,6 @@
+ 	/* Changed to hpux_ustat:  */
+ 	err = copy_to_user(ubuf,&tmp,sizeof(struct hpux_ustat)) ? -EFAULT : 0;
+ out:
+-	unlock_kernel();
+ 	return err;
+ }
+ 
+diff -urN S6-pre3/fs/block_dev.c S6-pre3-get_super/fs/block_dev.c
+--- S6-pre3/fs/block_dev.c	Tue Jun 12 21:42:37 2001
++++ S6-pre3-get_super/fs/block_dev.c	Wed Jun 13 00:25:21 2001
+@@ -678,8 +678,10 @@
+ 	down(&bdev->bd_sem);
+ 	/* syncing will go here */
+ 	lock_kernel();
+-	if (kind == BDEV_FILE || kind == BDEV_FS)
++	if (kind == BDEV_FILE)
+ 		fsync_dev(rdev);
++	else if (kind == BDEV_FS)
++		fsync_no_super(rdev);
+ 	if (atomic_dec_and_test(&bdev->bd_openers)) {
+ 		/* invalidating buffers will go here */
+ 		invalidate_buffers(rdev);
+diff -urN S6-pre3/fs/buffer.c S6-pre3-get_super/fs/buffer.c
+--- S6-pre3/fs/buffer.c	Tue Jun 12 21:42:37 2001
++++ S6-pre3-get_super/fs/buffer.c	Wed Jun 13 00:25:21 2001
+@@ -318,6 +318,12 @@
+ 	return sync_buffers(dev, 1);
+ }
+ 
++int fsync_no_super(kdev_t dev)
++{
++	sync_buffers(dev, 0);
++	return sync_buffers(dev, 1);
++}
++
+ int fsync_dev(kdev_t dev)
+ {
+ 	sync_buffers(dev, 0);
+diff -urN S6-pre3/fs/dquot.c S6-pre3-get_super/fs/dquot.c
+--- S6-pre3/fs/dquot.c	Tue Jun 12 21:42:37 2001
++++ S6-pre3-get_super/fs/dquot.c	Wed Jun 13 00:27:52 2001
+@@ -1597,6 +1597,8 @@
+ 	if (sb && sb_has_quota_enabled(sb, type))
+ 		ret = set_dqblk(sb, id, type, flags, (struct dqblk *) addr);
+ out:
++	if (sb)
++		drop_super(sb);
+ 	unlock_kernel();
+ 	return ret;
+ }
+diff -urN S6-pre3/fs/inode.c S6-pre3-get_super/fs/inode.c
+--- S6-pre3/fs/inode.c	Tue Jun 12 21:42:37 2001
++++ S6-pre3-get_super/fs/inode.c	Wed Jun 13 00:35:20 2001
+@@ -258,23 +258,6 @@
+ 		__sync_one(list_entry(tmp, struct inode, i_list), 0);
+ }
+ 
+-static inline int wait_on_dirty(struct list_head *head)
+-{
+-	struct list_head * tmp;
+-	list_for_each(tmp, head) {
+-		struct inode *inode = list_entry(tmp, struct inode, i_list);
+-		if (!inode->i_state & I_DIRTY)
+-			continue;
+-		__iget(inode);
+-		spin_unlock(&inode_lock);
+-		__wait_on_inode(inode);
+-		iput(inode);
+-		spin_lock(&inode_lock);
+-		return 1;
+-	}
+-	return 0;
+-}
+-
+ static inline void wait_on_locked(struct list_head *head)
+ {
+ 	struct list_head * tmp;
+@@ -319,61 +302,96 @@
+ 	return 1;
+ }
+ 
+-/**
+- *	sync_inodes
+- *	@dev: device to sync the inodes from.
+- *
+- *	sync_inodes goes through the super block's dirty list, 
+- *	writes them out, and puts them back on the normal list.
+- */
+-
+-/*
+- * caller holds exclusive lock on sb->s_umount
+- */
+- 
+ void sync_inodes_sb(struct super_block *sb)
+ {
+ 	spin_lock(&inode_lock);
+-	sync_list(&sb->s_dirty);
+-	wait_on_locked(&sb->s_locked_inodes);
++	while (!list_empty(&sb->s_dirty)||!list_empty(&sb->s_locked_inodes)) {
++		sync_list(&sb->s_dirty);
++		wait_on_locked(&sb->s_locked_inodes);
++	}
+ 	spin_unlock(&inode_lock);
+ }
+ 
++/*
++ * Note:
++ * We don't need to grab a reference to superblock here. If it has non-empty
++ * ->s_dirty it's hadn't been killed yet and kill_super() won't proceed
++ * past sync_inodes_sb() until both ->s_dirty and ->s_locked_inodes are
++ * empty. Since __sync_one() regains inode_lock before it finally moves
++ * inode from superblock lists we are OK.
++ */
++
+ void sync_unlocked_inodes(void)
+ {
+-	struct super_block * sb = sb_entry(super_blocks.next);
++	struct super_block * sb;
++	spin_lock(&inode_lock);
++	spin_lock(&sb_lock);
++	sb = sb_entry(super_blocks.next);
+ 	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
+ 		if (!list_empty(&sb->s_dirty)) {
+-			spin_lock(&inode_lock);
++			spin_unlock(&sb_lock);
+ 			sync_list(&sb->s_dirty);
+-			spin_unlock(&inode_lock);
++			spin_lock(&sb_lock);
++		}
++	}
++	spin_unlock(&sb_lock);
++	spin_unlock(&inode_lock);
++}
++
++/*
++ * Find a superblock with inodes that need to be synced
++ */
++
++static struct super_block *get_super_to_sync(void)
++{
++	struct list_head *p;
++restart:
++	spin_lock(&inode_lock);
++	spin_lock(&sb_lock);
++	list_for_each(p, &super_blocks) {
++		struct super_block *s = list_entry(p,struct super_block,s_list);
++		if (list_empty(&s->s_dirty) && list_empty(&s->s_locked_inodes))
++			continue;
++		s->s_count++;
++		spin_unlock(&sb_lock);
++		spin_unlock(&inode_lock);
++		down_read(&s->s_umount);
++		if (!s->s_root) {
++			drop_super(s);
++			goto restart;
+ 		}
++		return s;
+ 	}
++	spin_unlock(&sb_lock);
++	spin_unlock(&inode_lock);
++	return NULL;
+ }
+ 
++/**
++ *	sync_inodes
++ *	@dev: device to sync the inodes from.
++ *
++ *	sync_inodes goes through the super block's dirty list, 
++ *	writes them out, and puts them back on the normal list.
++ */
++
+ void sync_inodes(kdev_t dev)
+ {
+-	struct super_block * sb = sb_entry(super_blocks.next);
++	struct super_block * s;
+ 
+ 	/*
+ 	 * Search the super_blocks array for the device(s) to sync.
+ 	 */
+-	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
+-		if (!sb->s_dev)
+-			continue;
+-		if (dev && sb->s_dev != dev)
+-			continue;
+-		down_read(&sb->s_umount);
+-		if (sb->s_dev && (sb->s_dev == dev || !dev)) {
+-			spin_lock(&inode_lock);
+-			do {
+-				sync_list(&sb->s_dirty);
+-			} while (wait_on_dirty(&sb->s_locked_inodes));
+-			spin_unlock(&inode_lock);
++	if (dev) {
++		if ((s = get_super(dev)) != NULL) {
++			sync_inodes_sb(s);
++			drop_super(s);
++		}
++	} else {
++		while ((s = get_super_to_sync()) != NULL) {
++			sync_inodes_sb(s);
++			drop_super(s);
+ 		}
+-		up_read(&sb->s_umount);
+-		if (dev)
+-			break;
+ 	}
+ }
+ 
+@@ -382,13 +400,19 @@
+  */
+ static void try_to_sync_unused_inodes(void)
+ {
+-	struct super_block * sb = sb_entry(super_blocks.next);
++	struct super_block * sb;
++
++	spin_lock(&sb_lock);
++	sb = sb_entry(super_blocks.next);
+ 	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
+ 		if (!sb->s_dev)
+ 			continue;
++		spin_unlock(&sb_lock);
+ 		if (!try_to_sync_unused_list(&sb->s_dirty))
+ 			break;
++		spin_lock(&sb_lock);
+ 	}
++	spin_unlock(&sb_lock);
+ }
+ 
+ /**
+@@ -598,15 +622,18 @@
+  
+ int invalidate_device(kdev_t dev, int do_sync)
+ {
+-	struct super_block *sb = get_super(dev);
++	struct super_block *sb;
+ 	int res;
+ 
+ 	if (do_sync)
+ 		fsync_dev(dev);
+ 
+ 	res = 0;
+-	if (sb)
++	sb = get_super(dev);
++	if (sb) {
+ 		res = invalidate_inodes(sb);
++		drop_super(sb);
++	}
+ 	invalidate_buffers(dev);
+ 	return res;
+ }
+diff -urN S6-pre3/fs/super.c S6-pre3-get_super/fs/super.c
+--- S6-pre3/fs/super.c	Tue Jun 12 21:42:38 2001
++++ S6-pre3-get_super/fs/super.c	Wed Jun 13 00:35:20 2001
+@@ -59,9 +59,8 @@
+ /* this is initialized in init/main.c */
+ kdev_t ROOT_DEV;
+ 
+-int nr_super_blocks;
+-int max_super_blocks = NR_SUPER;
+ LIST_HEAD(super_blocks);
++spinlock_t sb_lock = SPIN_LOCK_UNLOCKED;
+ 
+ /*
+  * Handling of filesystem drivers list.
+@@ -386,7 +385,6 @@
+ 	mnt->mnt_parent = mnt;
+ 
+ 	spin_lock(&dcache_lock);
+-	list_add(&mnt->mnt_instances, &sb->s_mounts);
+ 	list_add(&mnt->mnt_list, vfsmntlist.prev);
+ 	spin_unlock(&dcache_lock);
+ 	if (sb->s_type->fs_flags & FS_SINGLE)
+@@ -395,10 +393,11 @@
+ 	return mnt;
+ }
+ 
+-static struct vfsmount *clone_mnt(struct vfsmount *old_mnt, struct dentry *root)
++static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
+ {
+-	char *name = old_mnt->mnt_devname;
++	char *name = old->mnt_devname;
+ 	struct vfsmount *mnt = alloc_vfsmnt();
++	struct super_block *sb = old->mnt_sb;
+ 
+ 	if (!mnt)
+ 		goto out;
+@@ -408,14 +407,12 @@
+ 		if (mnt->mnt_devname)
+ 			strcpy(mnt->mnt_devname, name);
+ 	}
+-	mnt->mnt_sb = old_mnt->mnt_sb;
++	mnt->mnt_sb = sb;
+ 	mnt->mnt_root = dget(root);
+ 	mnt->mnt_mountpoint = mnt->mnt_root;
+ 	mnt->mnt_parent = mnt;
+ 
+-	spin_lock(&dcache_lock);
+-	list_add(&mnt->mnt_instances, &old_mnt->mnt_instances);
+-	spin_unlock(&dcache_lock);
++	atomic_inc(&sb->s_active);
+ out:
+ 	return mnt;
+ }
+@@ -487,16 +484,12 @@
+ 	struct super_block *sb = mnt->mnt_sb;
+ 
+ 	dput(mnt->mnt_root);
+-	spin_lock(&dcache_lock);
+-	list_del(&mnt->mnt_instances);
+-	spin_unlock(&dcache_lock);
+ 	if (mnt->mnt_devname)
+ 		kfree(mnt->mnt_devname);
+ 	kmem_cache_free(mnt_cache, mnt);
+ 	kill_super(sb);
+ }
+ 
+-
+ /* Use octal escapes, like mount does, for embedded spaces etc. */
+ static unsigned char need_escaping[] = { ' ', '\t', '\n', '\\' };
+ 
+@@ -645,6 +638,49 @@
+ #undef MANGLE
+ #undef FREEROOM
+ }
++
++static inline void __put_super(struct super_block *sb)
++{
++	spin_lock(&sb_lock);
++	if (!--sb->s_count)
++		kfree(sb);
++	spin_unlock(&sb_lock);
++}
++
++static inline struct super_block * find_super(kdev_t dev)
++{
++	struct list_head *p;
++
++	list_for_each(p, &super_blocks) {
++		struct super_block * s = sb_entry(p);
++		if (s->s_dev == dev) {
++			s->s_count++;
++			return s;
++		}
++	}
++	return NULL;
++}
++
++void drop_super(struct super_block *sb)
++{
++	up_read(&sb->s_umount);
++	__put_super(sb);
++}
++
++static void put_super(struct super_block *sb)
++{
++	up_write(&sb->s_umount);
++	__put_super(sb);
++}
++
++static inline void write_super(struct super_block *sb)
++{
++	lock_super(sb);
++	if (sb->s_root && sb->s_dirt)
++		if (sb->s_op && sb->s_op->write_super)
++			sb->s_op->write_super(sb);
++	unlock_super(sb);
++}
+  
+ /*
+  * Note: check the dirty flag before waiting, so we don't
+@@ -655,21 +691,29 @@
+ {
+ 	struct super_block * sb;
+ 
+-	for (sb = sb_entry(super_blocks.next);
+-	     sb != sb_entry(&super_blocks); 
+-	     sb = sb_entry(sb->s_list.next)) {
+-		if (!sb->s_dev)
+-			continue;
+-		if (dev && sb->s_dev != dev)
+-			continue;
+-		if (!sb->s_dirt)
+-			continue;
+-		lock_super(sb);
+-		if (sb->s_dev && sb->s_dirt && (!dev || dev == sb->s_dev))
+-			if (sb->s_op && sb->s_op->write_super)
+-				sb->s_op->write_super(sb);
+-		unlock_super(sb);
++	if (dev) {
++		sb = get_super(dev);
++		if (sb) {
++			if (sb->s_dirt)
++				write_super(sb);
++			drop_super(sb);
++		}
++		return;
+ 	}
++restart:
++	spin_lock(&sb_lock);
++	sb = sb_entry(super_blocks.next);
++	while (sb != sb_entry(&super_blocks))
++		if (sb->s_dirt) {
++			sb->s_count++;
++			spin_unlock(&sb_lock);
++			down_read(&sb->s_umount);
++			write_super(sb);
++			drop_super(sb);
++			goto restart;
++		} else
++			sb = sb_entry(sb->s_list.next);
++	spin_unlock(&sb_lock);
+ }
+ 
+ /**
+@@ -687,17 +731,21 @@
+ 	if (!dev)
+ 		return NULL;
+ restart:
+-	s = sb_entry(super_blocks.next);
+-	while (s != sb_entry(&super_blocks))
+-		if (s->s_dev == dev) {
+-			/* Yes, it sucks. As soon as we get refcounting... */
+-			lock_super(s);
+-			unlock_super(s);
+-			if (s->s_dev == dev)
+-				return s;
+-			goto restart;
+-		} else
+-			s = sb_entry(s->s_list.next);
++	spin_lock(&sb_lock);
++	s = find_super(dev);
++	if (s) {
++		spin_unlock(&sb_lock);
++		/* Yes, it sucks. As soon as we get refcounting... */
++		/* Almost there - next two lines will go away RSN */
++		lock_super(s);
++		unlock_super(s);
++		down_read(&s->s_umount);
++		if (s->s_root)
++			return s;
++		drop_super(s);
++		goto restart;
++	}
++	spin_unlock(&sb_lock);
+ 	return NULL;
+ }
+ 
+@@ -714,6 +762,7 @@
+         if (s == NULL)
+                 goto out;
+ 	err = vfs_statfs(s, &sbuf);
++	drop_super(s);
+ 	if (err)
+ 		goto out;
+ 
+@@ -735,35 +784,23 @@
+  *	the request.
+  */
+  
+-static struct super_block *get_empty_super(void)
++static struct super_block *alloc_super(void)
+ {
+-	struct super_block *s;
+-
+-	for (s  = sb_entry(super_blocks.next);
+-	     s != sb_entry(&super_blocks); 
+-	     s  = sb_entry(s->s_list.next)) {
+-		if (s->s_dev)
+-			continue;
+-		return s;
+-	}
+-	/* Need a new one... */
+-	if (nr_super_blocks >= max_super_blocks)
+-		return NULL;
+-	s = kmalloc(sizeof(struct super_block),  GFP_USER);
++	struct super_block *s = kmalloc(sizeof(struct super_block),  GFP_USER);
+ 	if (s) {
+-		nr_super_blocks++;
+ 		memset(s, 0, sizeof(struct super_block));
+ 		INIT_LIST_HEAD(&s->s_dirty);
+ 		INIT_LIST_HEAD(&s->s_locked_inodes);
+-		list_add (&s->s_list, super_blocks.prev);
+ 		INIT_LIST_HEAD(&s->s_files);
+-		INIT_LIST_HEAD(&s->s_mounts);
+ 		init_rwsem(&s->s_umount);
+ 		sema_init(&s->s_lock, 1);
++		s->s_count = 1;
++		atomic_set(&s->s_active, 1);
+ 		sema_init(&s->s_vfs_rename_sem,1);
+ 		sema_init(&s->s_nfsd_free_path_sem,1);
+ 		sema_init(&s->s_dquot.dqio_sem, 1);
+ 		sema_init(&s->s_dquot.dqoff_sem, 1);
++		s->s_maxbytes = MAX_NON_LFS;
+ 	}
+ 	return s;
+ }
+@@ -773,16 +810,16 @@
+ 				       void *data, int silent)
+ {
+ 	struct super_block * s;
+-	s = get_empty_super();
++	s = alloc_super();
+ 	if (!s)
+ 		goto out;
+ 	s->s_dev = dev;
+ 	s->s_bdev = bdev;
+ 	s->s_flags = flags;
+-	s->s_dirt = 0;
+ 	s->s_type = type;
+-	s->s_dquot.flags = 0;
+-	s->s_maxbytes = MAX_NON_LFS;
++	spin_lock(&sb_lock);
++	list_add (&s->s_list, super_blocks.prev);
++	spin_unlock(&sb_lock);
+ 	lock_super(s);
+ 	if (!type->read_super(s, data, silent))
+ 		goto out_fail;
+@@ -798,6 +835,11 @@
+ 	s->s_bdev = 0;
+ 	s->s_type = NULL;
+ 	unlock_super(s);
++	atomic_dec(&s->s_active);
++	spin_lock(&sb_lock);
++	list_del(&s->s_list);
++	spin_unlock(&sb_lock);
++	__put_super(s);
+ 	return NULL;
+ }
+ 
+@@ -863,9 +905,25 @@
+ 	if (sb) {
+ 		if (fs_type == sb->s_type &&
+ 		    ((flags ^ sb->s_flags) & MS_RDONLY) == 0) {
++/*
++ * We are heavily relying on mount_sem here. We _will_ get rid of that
++ * ugliness RSN (and then atomicity of ->s_active will play), but first
++ * we need to get rid of "reuse" branch of get_empty_super() and that
++ * requires reference counters. Chicken and egg problem, but fortunately
++ * we can use the fact that right now all accesses to ->s_active are
++ * under mount_sem.
++ */
++			if (atomic_read(&sb->s_active)) {
++				spin_lock(&sb_lock);
++				sb->s_count--;
++				spin_unlock(&sb_lock);
++			}
++			atomic_inc(&sb->s_active);
++			up_read(&sb->s_umount);
+ 			path_release(&nd);
+ 			return sb;
+ 		}
++		drop_super(sb);
+ 	} else {
+ 		mode_t mode = FMODE_READ; /* we always need it ;-) */
+ 		if (!(flags & MS_RDONLY))
+@@ -926,6 +984,7 @@
+ 	sb = fs_type->kern_mnt->mnt_sb;
+ 	if (!sb)
+ 		BUG();
++	atomic_inc(&sb->s_active);
+ 	do_remount_sb(sb, flags, data);
+ 	return sb;
+ }
+@@ -938,12 +997,8 @@
+ 	struct file_system_type *fs = sb->s_type;
+ 	struct super_operations *sop = sb->s_op;
+ 
+-	spin_lock(&dcache_lock);
+-	if (!list_empty(&sb->s_mounts)) {
+-		spin_unlock(&dcache_lock);
++	if (!atomic_dec_and_test(&sb->s_active))
+ 		return;
+-	}
+-	spin_unlock(&dcache_lock);
+ 	down_write(&sb->s_umount);
+ 	lock_kernel();
+ 	sb->s_root = NULL;
+@@ -975,12 +1030,15 @@
+ 	sb->s_type = NULL;
+ 	unlock_super(sb);
+ 	unlock_kernel();
+-	up_write(&sb->s_umount);
+ 	if (bdev) {
+ 		blkdev_put(bdev, BDEV_FS);
+ 		bdput(bdev);
+ 	} else
+ 		put_unnamed_dev(dev);
++	spin_lock(&sb_lock);
++	list_del(&sb->s_list);
++	spin_unlock(&sb_lock);
++	put_super(sb);
+ }
+ 
+ /*
+@@ -1045,9 +1103,6 @@
+ 	mnt->mnt_root = dget(sb->s_root);
+ 	mnt->mnt_mountpoint = mnt->mnt_root;
+ 	mnt->mnt_parent = mnt;
+-	spin_lock(&dcache_lock);
+-	list_add(&mnt->mnt_instances, &sb->s_mounts);
+-	spin_unlock(&dcache_lock);
+ 	type->kern_mnt = mnt;
+ 	return mnt;
+ }
+@@ -1092,7 +1147,7 @@
+ 
+ 	spin_lock(&dcache_lock);
+ 
+-	if (mnt->mnt_instances.next != mnt->mnt_instances.prev) {
++	if (atomic_read(&sb->s_active) > 1) {
+ 		if (atomic_read(&mnt->mnt_count) > 2) {
+ 			spin_unlock(&dcache_lock);
+ 			return -EBUSY;
+@@ -1324,9 +1379,6 @@
+ 	mnt->mnt_root = dget(sb->s_root);
+ 	mnt->mnt_mountpoint = mnt->mnt_root;
+ 	mnt->mnt_parent = mnt;
+-	spin_lock(&dcache_lock);
+-	list_add(&mnt->mnt_instances, &sb->s_mounts);
+-	spin_unlock(&dcache_lock);
+ 
+ 	/* Something was mounted here while we slept */
+ 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
+@@ -1583,7 +1635,10 @@
+ 	check_disk_change(ROOT_DEV);
+ 	sb = get_super(ROOT_DEV);
+ 	if (sb) {
++		/* FIXME */
+ 		fs_type = sb->s_type;
++		atomic_inc(&sb->s_active);
++		up_read(&sb->s_umount);
+ 		goto mount_it;
+ 	}
+ 
+diff -urN S6-pre3/include/linux/fs.h S6-pre3-get_super/include/linux/fs.h
+--- S6-pre3/include/linux/fs.h	Tue Jun 12 21:42:39 2001
++++ S6-pre3-get_super/include/linux/fs.h	Wed Jun 13 00:32:04 2001
+@@ -61,7 +61,6 @@
+ };
+ extern struct inodes_stat_t inodes_stat;
+ 
+-extern int max_super_blocks, nr_super_blocks;
+ extern int leases_enable, dir_notify_enable, lease_break_time;
+ 
+ #define NR_FILE  8192	/* this can well be larger on a larger system */
+@@ -662,6 +661,7 @@
+ #include <linux/usbdev_fs_sb.h>
+ 
+ extern struct list_head super_blocks;
++extern spinlock_t sb_lock;
+ 
+ #define sb_entry(list)	list_entry((list), struct super_block, s_list)
+ struct super_block {
+@@ -679,13 +679,14 @@
+ 	struct dentry		*s_root;
+ 	struct rw_semaphore	s_umount;
+ 	struct semaphore	s_lock;
++	int			s_count;
++	atomic_t		s_active;
+ 
+ 	struct list_head	s_dirty;	/* dirty inodes */
+ 	struct list_head	s_locked_inodes;/* inodes being synced */
+ 	struct list_head	s_files;
+ 
+ 	struct block_device	*s_bdev;
+-	struct list_head	s_mounts;	/* vfsmount(s) of this one */
+ 	struct quota_mount_options s_dquot;	/* Diskquota specific options */
+ 
+ 	union {
+@@ -1147,6 +1148,7 @@
+ extern void sync_dev(kdev_t);
+ extern int fsync_dev(kdev_t);
+ extern int fsync_super(struct super_block *);
++extern int fsync_no_super(kdev_t);
+ extern void sync_inodes_sb(struct super_block *);
+ extern int fsync_inode_buffers(struct inode *);
+ extern int osync_inode_buffers(struct inode *);
+@@ -1344,11 +1346,12 @@
+ 
+ extern struct file_system_type *get_fs_type(const char *name);
+ extern struct super_block *get_super(kdev_t);
++extern void drop_super(struct super_block *sb);
+ static inline int is_mounted(kdev_t dev)
+ {
+ 	struct super_block *sb = get_super(dev);
+ 	if (sb) {
+-		/* drop_super(sb); will go here */
++		drop_super(sb);
+ 		return 1;
+ 	}
+ 	return 0;
+diff -urN S6-pre3/include/linux/mount.h S6-pre3-get_super/include/linux/mount.h
+--- S6-pre3/include/linux/mount.h	Tue Jun 12 21:42:39 2001
++++ S6-pre3-get_super/include/linux/mount.h	Wed Jun 13 00:23:46 2001
+@@ -18,7 +18,6 @@
+ 	struct vfsmount *mnt_parent;	/* fs we are mounted on */
+ 	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */
+ 	struct dentry *mnt_root;	/* root of the mounted tree */
+-	struct list_head mnt_instances;	/* other vfsmounts of the same fs */
+ 	struct super_block *mnt_sb;	/* pointer to superblock */
+ 	struct list_head mnt_mounts;	/* list of children, anchored here */
+ 	struct list_head mnt_child;	/* and going through their mnt_child */
+diff -urN S6-pre3/kernel/ksyms.c S6-pre3-get_super/kernel/ksyms.c
+--- S6-pre3/kernel/ksyms.c	Tue Jun 12 21:42:39 2001
++++ S6-pre3-get_super/kernel/ksyms.c	Wed Jun 13 00:27:52 2001
+@@ -129,6 +129,7 @@
+ EXPORT_SYMBOL(update_atime);
+ EXPORT_SYMBOL(get_fs_type);
+ EXPORT_SYMBOL(get_super);
++EXPORT_SYMBOL(drop_super);
+ EXPORT_SYMBOL(getname);
+ EXPORT_SYMBOL(names_cachep);
+ EXPORT_SYMBOL(fput);
+diff -urN S6-pre3/kernel/sysctl.c S6-pre3-get_super/kernel/sysctl.c
+--- S6-pre3/kernel/sysctl.c	Sat Apr 14 21:41:29 2001
++++ S6-pre3-get_super/kernel/sysctl.c	Wed Jun 13 00:32:04 2001
+@@ -286,10 +286,6 @@
+ 	 0444, NULL, &proc_dointvec},
+ 	{FS_MAXFILE, "file-max", &files_stat.max_files, sizeof(int),
+ 	 0644, NULL, &proc_dointvec},
+-	{FS_NRSUPER, "super-nr", &nr_super_blocks, sizeof(int),
+-	 0444, NULL, &proc_dointvec},
+-	{FS_MAXSUPER, "super-max", &max_super_blocks, sizeof(int),
+-	 0644, NULL, &proc_dointvec},
+ 	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
+ 	 0444, NULL, &proc_dointvec},
+ 	{FS_MAXDQUOT, "dquot-max", &max_dquots, sizeof(int),
 

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273635AbRIQOmL>; Mon, 17 Sep 2001 10:42:11 -0400
+	id <S273638AbRIQOnX>; Mon, 17 Sep 2001 10:43:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273637AbRIQOmB>; Mon, 17 Sep 2001 10:42:01 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:7186 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S273635AbRIQOlt>; Mon, 17 Sep 2001 10:41:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: broken VM in 2.4.10-pre9
-Date: Mon, 17 Sep 2001 16:49:16 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0109170936010.2990-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0109170936010.2990-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010917144206Z16393-2758+146@humbolt.nl.linux.org>
+	id <S273639AbRIQOnN>; Mon, 17 Sep 2001 10:43:13 -0400
+Received: from t2.redhat.com ([199.183.24.243]:4342 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S273638AbRIQOnB>; Mon, 17 Sep 2001 10:43:01 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010917120428.A13815@emma1.emma.line.org> 
+In-Reply-To: <20010917120428.A13815@emma1.emma.line.org>  <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu> 
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lazy umount (1/4) 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 17 Sep 2001 15:43:16 +0100
+Message-ID: <22094.1000737796@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 17, 2001 02:41 pm, Rik van Riel wrote:
-> > On the other hand, Matt Dillon, the reigning champion of
-> > virtual memory managment, was quite firm in stating that we should
-> > drop the current virtually scanning strategy in favor of 100%
-> > physical scanning as BSD uses, relying on reverse mapping.
-> >
-> >    http://mail.nl.linux.org/linux-mm/2000-05/msg00419.html
-> >    (Matt Dillon holds forth on the design of BSD's memory manager)
-> 
-> His claims are backed up by FreeBSD's VM performance,
-> so I'm inclined to believe them. If you think you can
-> come up with something better, I'll believe you when
-> you show it...
 
-Rik, read the post, I'm supporting you.  Please don't be so paranoid ;-)
+matthias.andree@stud.uni-dortmund.de said:
+>  Well, from a practical point of view two things that would really
+> help Linux:
+
+> 1) Be able kill -9 processes from "D" state. 
+
+'D' state means _uninterruptible_ sleep. To be interruptible, we need to
+have appropriate cleanup code at the point at which the code sleeps. Often,
+parts of the kernel sleep in 'D' state instead of in 'S' state just because
+someone's been too lazy to implement the cleanup.
+
+Each one of those bugs needs to be fixed individually - and many need core
+changes. Fixing read_inode() so that well-behaved filesystems can deal with
+being interrupted during its operation is on the list for 2.5. Others will
+be required too, I'm sure.
 
 --
-Daniel
+dwmw2
+
+

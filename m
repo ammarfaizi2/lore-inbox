@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbTCOCr6>; Fri, 14 Mar 2003 21:47:58 -0500
+	id <S261339AbTCOCzm>; Fri, 14 Mar 2003 21:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261310AbTCOCr6>; Fri, 14 Mar 2003 21:47:58 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:54540 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S261309AbTCOCr5>;
-	Fri, 14 Mar 2003 21:47:57 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Fri, 14 Mar 2003 18:58:40 -0800
-To: achirica@users.sourceforge.net
-Cc: Brad Laue <brad@brad-x.com>, James Morris <jmorris@intercode.com.au>,
-       Marc Giger <gigerstyle@gmx.ch>, jt@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Cisco Aironet 340 oops with 2.4.20
-Message-ID: <20030314185840.A19764@jose.vato.org>
-Mail-Followup-To: Tim Pepper <tpepper>, achirica@users.sourceforge.net,
-	Brad Laue <brad@brad-x.com>,
-	James Morris <jmorris@intercode.com.au>,
-	Marc Giger <gigerstyle@gmx.ch>, jt@hpl.hp.com,
-	linux-kernel@vger.kernel.org
-References: <3E6238EE.7050802@brad-x.com> <Pine.SOL.4.30.0303022313500.17887-100000@tudela.mad.ttd.net>
-Mime-Version: 1.0
+	id <S261341AbTCOCzm>; Fri, 14 Mar 2003 21:55:42 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:24207 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261339AbTCOCzk>; Fri, 14 Mar 2003 21:55:40 -0500
+Date: Fri, 14 Mar 2003 18:56:37 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@digeo.com>, anton@samba.org
+Subject: Re: [PATCH] concurrent block allocation for ext3
+Message-ID: <251250000.1047696997@flay>
+In-Reply-To: <227420000.1047676948@flay>
+References: <m3zno3grfz.fsf@lexa.home.net> <227420000.1047676948@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.SOL.4.30.0303022313500.17887-100000@tudela.mad.ttd.net>; from achirica@users.sourceforge.net on Sun, Mar 02, 2003 at 11:14:59PM +0100
-X-PGP-Key: http://vato.org/~tpepper/pubkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems to be working for me.
+> SDET on my machine (16x NUMA-Q) has fallen in love with your patch, 
+> and has decided to elope with it to a small desert island. This is 
+> despite it's one disk hung off node 0, and the IO througput of a 
+> slightly damp piece of cotton thread. Apologies for the loss of your 
+> patch as it gets whisked away ;-)
 
-Re: the tainting...when I got this cvs version it reported no license and thus
-tainted the kernel.
+Dbench (1 disk, x440 8 real cpus, 16 HT ones)
 
-Tim
--- 
-*********************************************************
-*  tpepper@vato dot org             * Venimus, Vidimus, *
-*  http://www.vato.org/~tpepper     * Dolavimus         *
-*********************************************************
+before: 
+Throughput 265.032 MB/sec (NB=331.29 MB/sec  2650.32 MBit/sec)  256 procs
+after:
+Throughput 381.964 MB/sec (NB=477.454 MB/sec  3819.64 MBit/sec)  256 procs
+
+(I took the second run, first ones are slower, seems to be stable after)
+
+NUMA-Q 16-way (1 disk. 16 cpus)
+
+before:
+Throughput 48.5304 MB/sec (NB=60.663 MB/sec  485.304 MBit/sec)  256 procs
+after:
+Throughput 58.8483 MB/sec (NB=73.5603 MB/sec  588.483 MBit/sec)  256 procs
+
+NUMA-Q has slower disks, old adaptors, and a slow cross-node interconnect.
+

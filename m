@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266381AbUGJUOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUGJUQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266381AbUGJUOk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 16:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbUGJUOk
+	id S266386AbUGJUQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 16:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUGJUQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 16:14:40 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:5110 "EHLO
-	mail.kroptech.com") by vger.kernel.org with ESMTP id S266381AbUGJUO0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 16:14:26 -0400
-Message-ID: <099101c466ba$7d75aa30$03c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Dmitry Torokhov" <dtor_core@ameritech.net>,
-       <linux-kernel@vger.kernel.org>
-Cc: "Tim Bird" <tim.bird@am.sony.com>,
-       "CE Linux Developers List" <celinux-dev@tree.celinuxforum.org>,
-       "Todd Poynor" <tpoynor@mvista.com>,
-       "Geert Uytterhoeven" <geert@linux-m68k.org>
-References: <40EEF10F.1030404@am.sony.com> <20040710115413.A31260@mail.kroptech.com> <20040710142800.A5093@mail.kroptech.com> <200407101319.31147.dtor_core@ameritech.net>
-Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
-Date: Sat, 10 Jul 2004 16:14:22 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 10 Jul 2004 16:16:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41665 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266386AbUGJUQQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 16:16:16 -0400
+Date: Sat, 10 Jul 2004 13:14:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: bert hubert <ahu@ds9a.nl>
+Cc: albertogli@telpin.com.ar, linux-kernel@vger.kernel.org
+Subject: Re: Syncing a file's metadata in a portable way
+Message-Id: <20040710131459.13ffec23.akpm@osdl.org>
+In-Reply-To: <20040710115404.GA11420@outpost.ds9a.nl>
+References: <20040709030637.GB5858@telpin.com.ar>
+	<20040709023948.59497dca.akpm@osdl.org>
+	<20040710115404.GA11420@outpost.ds9a.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Saturday 10 July 2004 01:28 pm, Adam Kropelin wrote:
->> + Note that on SMP systems the preset will be applied to all CPUs
->> + which will cause problems if for some reason your CPUs need
->> + significantly divergent settings.
->> +
->> + If unsure, set this to 0. An incorrect value will cause delays in
->> + the kernel to be wrong, leading to unpredictable I/O errors and
->> + other breakage. Although unlikely, in the extreme case this might
->> + damage your hardware.
+bert hubert <ahu@ds9a.nl> wrote:
 >
-> Note that it may also not work correctly on laptops that switch
-> frequency when working on battery/AC. Also one needs to be careful
-> when changing timesource (pit, tsc, pm, hpet). And always look out
-> for timer code changes in next version of kernel.
+> On Fri, Jul 09, 2004 at 02:39:48AM -0700, Andrew Morton wrote:
+> 
+> > It depends on the Linux filesystem.  On ext3, for example, fsync() will
+> > sync all of the filesytem's metadata (and data in journalled and ordered
+> > data mode).
+> 
+> I've noticed that on ext3, SQLite transactions are nearly useless, with the
+> smallest transactions causing 5 megabyte/s writout activity based on
+> relatively small writes. kjournald bore a large part of that according to
+> laptop_mode's block dump.
 
-Certainly many demons lurk around the corner, but embedded guys are used to
-that.
+If only the one file has been written to, an fsync on ext3 shouldn't
+produce any more writeout than an fsync on ext2.
 
-> Does 250 ms worth all this pain?
+If there are other files on the same fs which have been written to then
+they will be accidentally fsynced too, unless you're using data=writeback.
 
-On a desktop box, almost certainly not. On a massive SMP machine, maybe. On
-an embedded system that is required to boot in a ridiculously short time,
-absolutely.
+Either that, or SQLite is broken.
 
---Adam
+> Do we actually need to flush the journal on fsync? I'm no fs theorist but I
+> wonder if having data in the journal isn't good enough - in case of failure,
+> the data will be there on recovery?
 
+fsync in ordered data mode will sync file data to the main fs and will sync
+metadata tothe journal.  It will not sync previously-journalled metadata
+back to the main fs, because that's not required for a succesful recovery.

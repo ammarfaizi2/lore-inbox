@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbUKGKOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbUKGKZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbUKGKOp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 05:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbUKGKOp
+	id S261572AbUKGKZn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 05:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbUKGKZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 05:14:45 -0500
-Received: from cantor.suse.de ([195.135.220.2]:54163 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261570AbUKGKOi (ORCPT
+	Sun, 7 Nov 2004 05:25:42 -0500
+Received: from smtpout.mac.com ([17.250.248.85]:61657 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261572AbUKGKZi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 05:14:38 -0500
-Date: Sun, 7 Nov 2004 11:14:35 +0100
-From: Andi Kleen <ak@suse.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] panic_blink and i8042 unloading
-Message-ID: <20041107101435.GA2752@wotan.suse.de>
-References: <200411070134.31775.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411070134.31775.dtor_core@ameritech.net>
+	Sun, 7 Nov 2004 05:25:38 -0500
+In-Reply-To: <aad1205e0411062306690c21f8@mail.gmail.com>
+References: <aad1205e0411062306690c21f8@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <595C7524-30A7-11D9-8C52-000D9352858E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: [PATCH]tar filesystem for 2.6.10-rc1-mm3(easily access tar file)
+Date: Sun, 7 Nov 2004 11:25:30 +0100
+To: andyliu <liudeyan@gmail.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 07, 2004 at 01:34:31AM -0500, Dmitry Torokhov wrote:
-> Hi,
-> 
-> At unload i8042 sets panic_blink to 0. This will cause problems if kernel
-> panics later as it will just use it assuming that the pointer is correct.
-> 
-> Please consider the patch below that checks if panic_blink is NULL right
-> in panic() and sets it to no_blink instead.
+On Nov 7, 2004, at 08:06, andyliu wrote:
 
-Thanks, looks good.
+>   but with the help of the tarfs,we can mount a tar file to some dir 
+> and access
+> it easily and quickly.it's like the tarfs in mc.
+>
+>  just mount -t tarfs tarfile.tar /dir/to/mnt -o loop
+> then access the files easily.
 
--Andi
+Simply wonderful!
+

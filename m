@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVBSOI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVBSOdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVBSOI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 09:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVBSOI1
+	id S261720AbVBSOdG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 09:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVBSOdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 09:08:27 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:55704 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261717AbVBSOHg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 09:07:36 -0500
-Subject: Re: [PATCH] 2.6.9 Use skb_padto() in drivers/net/8390.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Paul Gortmaker <penguin@muskoka.com>,
+	Sat, 19 Feb 2005 09:33:06 -0500
+Received: from smtpq2.home.nl ([213.51.128.197]:32930 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S261720AbVBSOcx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 09:32:53 -0500
+Message-ID: <42174DD4.9010506@keyaccess.nl>
+Date: Sat, 19 Feb 2005 15:31:48 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Dreier <roland@topspin.com>
+CC: Vicente Feito <vicente.feito@gmail.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4216CCAC.1050807@pobox.com>
-References: <41DED9FA.7080106@pobox.com>  <41DF9AC1.2010609@muskoka.com>
-	 <1105197689.10505.22.camel@localhost.localdomain>
-	 <41E1EB68.5000709@muskoka.com>
-	 <1105381093.12028.81.camel@localhost.localdomain>
-	 <4216CCAC.1050807@pobox.com>
-Content-Type: text/plain
+Subject: Re: workqueue - process context
+References: <200502190148.11334.vicente.feito@gmail.com> <52is4ptae0.fsf@topspin.com>
+In-Reply-To: <52is4ptae0.fsf@topspin.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1108821972.15518.49.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 19 Feb 2005 14:06:13 +0000
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-02-19 at 05:20, Jeff Garzik wrote:
-> > It means that padto has improved a lot (or the underlying allocators).
-> > It also still means the patch makes the code slower and introduces
-> > changes that have no benefit into the kernel, so while its good to see
-> > its not relevant its still a pointless change.
-> 
-> So the verdict is to revert?
+Roland Dreier wrote:
 
-Not sure. The old code is known to work and a fraction faster, the new
-code makes the driver use the same logic as the others. Having seen the
-numbers from Paul I personally don't care either way.
+> Not destroying its workqueue is a bug in the module just like any
+> other resource leak.  It's analogous to a module allocating some
+> memory with kmalloc() and not calling kfree() when it's unloaded.
 
+Except though that with kmalloc() it's indeed just a leak while in this 
+case things might blow up violently if run_workqueue() later accesses a 
+workqueue_struct (or work_struct) which is already gone as part of the 
+modules' datasection, for example. That's to say, if I'm reading this 
+right...
+
+I have no idea about the module refcounting stuff. Is there a chance 
+that create_workqueue() could increase a reference somewhere so that the 
+module wouldn't be allowed to unload untill after a destroy_workqueue()?
+
+Rene.

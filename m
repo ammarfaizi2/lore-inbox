@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVCPQ6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVCPRAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVCPQ6O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 11:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVCPQ6N
+	id S261301AbVCPRAe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 12:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVCPRAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 11:58:13 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55431 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261291AbVCPQ6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 11:58:08 -0500
-Date: Wed, 16 Mar 2005 08:53:12 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Martin MOKREJ?? <mmokrejs@ribosome.natur.cuni.cz>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Unresolved symbols in	/lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
-Message-ID: <20050316115312.GA12881@logos.cnet>
-References: <42384AB9.1080905@ribosome.natur.cuni.cz> <1110986170.6292.20.camel@laptopd505.fenrus.org> <42384EE8.9000003@ribosome.natur.cuni.cz>
+	Wed, 16 Mar 2005 12:00:34 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59858 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261301AbVCPRAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 12:00:30 -0500
+Subject: Re: 2.6.11.x, EXTRAVERSION and module compatibility
+From: Arjan van de Ven <arjan@infradead.org>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42386368.5030604@tls.msk.ru>
+References: <42386368.5030604@tls.msk.ru>
+Content-Type: text/plain
+Date: Wed, 16 Mar 2005 18:00:22 +0100
+Message-Id: <1110992423.6292.34.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42384EE8.9000003@ribosome.natur.cuni.cz>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 04:21:12PM +0100, Martin MOKREJ? wrote:
-> Arjan van de Ven wrote:
-> >On Wed, 2005-03-16 at 16:03 +0100, Martin MOKREJ?? wrote:
-> >
-> >>Hi,
-> >> does anyone still use 2.4 series kernel? ;)
+On Wed, 2005-03-16 at 19:48 +0300, Michael Tokarev wrote:
+> As far as I can see, the "super-stable" kernel releases
+> should not affect module ABI in any way
 >
-> >># make dep; make bzImage; make modules
-> >>[cut]
-> >># make modules_install
-> >>[cut]
-> >>cd /lib/modules/2.4.30-pre3-bk2; \
-> >>mkdir -p pcmcia; \
-> >>find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} 
-> >>pcmcia
-> >>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  
-> >>2.4.30-pre3-bk2; fi
-> >>depmod: *** Unresolved symbols in 
-> >>/lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
-> >
-> >
-> >this is not the module shipped by the kernel.org kernel...
-> 
-> Right. Sorry that I didn't say it more clearly, but I'm installing 
-> 2.4.30-pre3-bk2 kernel.
-> cd /usr/src/linux-2.4.30-pre3-bk2
-> make dep
-> make bzImage
-> make modules
-> make modules_install
-> 
-> and then I hit the error about some totally unrelated kernel version in 
-> /lib/modules? :(
 
-Martin,
+that is an assumption that seems quite invalid to me in general at
+least.
 
-Can you find out why is depmod trying to open /lib/modules/2.4.28-pre2/ ?
 
-I've got no clue.

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314123AbSEXEDh>; Fri, 24 May 2002 00:03:37 -0400
+	id <S317083AbSEXEEf>; Fri, 24 May 2002 00:04:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317083AbSEXEDg>; Fri, 24 May 2002 00:03:36 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:159 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S314123AbSEXEDe>; Fri, 24 May 2002 00:03:34 -0400
-Date: Fri, 24 May 2002 14:06:56 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kasper Dupont <kasperd@daimi.au.dk>
+	id <S317081AbSEXEEd>; Fri, 24 May 2002 00:04:33 -0400
+Received: from adsl-216-62-200-54.dsl.austtx.swbell.net ([216.62.200.54]:50816
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S317083AbSEXEE1>; Fri, 24 May 2002 00:04:27 -0400
+Subject: Re: Recent kernel SMP scalability Benchmark/White-paper References.
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Hanna Linder <hannal@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] trivial - remove unused field
-Message-Id: <20020524140656.419a522e.rusty@rustcorp.com.au>
-In-Reply-To: <3CED6510.4FB31E7A@daimi.au.dk>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <3500000.1022196878@w-hlinder.des>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: http://www.digitalroadkill.net
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 23 May 2002 23:04:04 -0500
+Message-Id: <1022213044.23882.35.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 May 2002 23:54:24 +0200
-Kasper Dupont <kasperd@daimi.au.dk> wrote:
+On Thu, 2002-05-23 at 18:34, Hanna Linder wrote:
+> Hi Austin,
+> 
+> 	Check out http://lse.sourceforge.net
+> and	http://sourceforge.net/projects/lse
+> 
+> (lse= linux scalability effort)
+> 
+> That might be more information than you were looking for.
+> Another good resource is the lse mailing list at: 
+> lse-tech@lists.sourceforge.net
+> 
+> We have bi-weekly conference calls where anyone is welcome
+> to join and ask questions or report your work or whatever.
+> 
 
-> This patch removes the unused v86mode field from the
-> thread_struct. It was tested against 2.4.19-pre8-ac5,
-> and I also verified that 2.5.17 did compile with
-> this patch.
+Kewl, I might just see if I can work that in. I saw the LSE, but the
+documentation out there hadn't been updated in quite some time as well.
+Same with the SGI Linux Scalability Project. It is old, and seems to
+center around only MIPS. :(
 
-<plug>
-	Trivial Patch Monkey - trivial at rustcorp.com.au
-</plug>
+> As a developer working on SMP scalability on Linux I would 
+> say it is getting better but we still have work to do. 
+> 
+> Hanna Linder
+> IBM Linux Technology Center
+> 
+Would that be the ^^^ one here in tx?
 
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+
+Austin

@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292131AbSCIAxx>; Fri, 8 Mar 2002 19:53:53 -0500
+	id <S292229AbSCIA5N>; Fri, 8 Mar 2002 19:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292130AbSCIAxo>; Fri, 8 Mar 2002 19:53:44 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:51450
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292131AbSCIAxc>; Fri, 8 Mar 2002 19:53:32 -0500
-Date: Fri, 8 Mar 2002 16:54:23 -0800
-To: urban@teststation.com
-Cc: linux-kernel@vger.kernel.org
-Subject: LFS support for smbfs in 2.5, and other improvements
-Message-ID: <20020309005423.GB896@matchmail.com>
-Mail-Followup-To: urban@teststation.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S292150AbSCIA5E>; Fri, 8 Mar 2002 19:57:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14852 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292130AbSCIA4t>; Fri, 8 Mar 2002 19:56:49 -0500
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+To: george@mvista.com (george anzinger)
+Date: Sat, 9 Mar 2002 01:11:55 +0000 (GMT)
+Cc: frankeh@watson.ibm.com, torvalds@transmeta.com (Linus Torvalds),
+        rusty@rustcorp.com.au (Rusty Russell), linux-kernel@vger.kernel.org
+In-Reply-To: <3C894D87.FF70DD12@mvista.com> from "george anzinger" at Mar 08, 2002 03:47:19 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-mFrom: Mike Fedyk <mfedyk@matchmail.com>
-From: Mike Fedyk <mfedyk@matchmail.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16jVOt-0008Eh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > cmpxchg-doubleword, still its not fool proof.
+> 
+> Uh, just the pid would do.  Maybe reserve a bit to indicate contention,
+> but surly one word would be enough.
 
-I noticed that LFS support has made it into 2.5, but it's not on the status
-list (http://kernelnewbies.org/status/latest.html).
-
-IIRC there were some plans to add oplock support to smbfs (newbie alert:
-linux smb client, oplocks are already in samba server).  Maybe that should
-be tracked on the status too.
-
-Mike
+Make it a dword, the 16bit pid is beginning to look strained on big
+boxes

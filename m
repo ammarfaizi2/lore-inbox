@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbTJLMGI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 08:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbTJLMGI
+	id S263461AbTJLMNc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 08:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTJLMNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 08:06:08 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:35726 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263467AbTJLMGG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 08:06:06 -0400
-Date: Sun, 12 Oct 2003 13:06:05 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Peter Matthias <espi@epost.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-Message-ID: <20031012120605.GD13427@mail.shareable.org>
-References: <FwYB.Z9.25@gated-at.bofh.it> <q14bmb.j9.ln@127.0.0.1>
+	Sun, 12 Oct 2003 08:13:32 -0400
+Received: from smtp0.adl1.internode.on.net ([203.16.214.194]:20996 "EHLO
+	smtp0.adl1.internode.on.net") by vger.kernel.org with ESMTP
+	id S263461AbTJLMNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 08:13:31 -0400
+Date: Sun, 12 Oct 2003 21:43:31 +0930
+From: "Mark Williams (MWP)" <mwp@internode.on.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Promise Ultra133-TX2 (PCD20269).
+Message-ID: <20031012121331.GA665@linux.comp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <q14bmb.j9.ln@127.0.0.1>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Matthias wrote:
-> Sound good, but I don't have /sys/ (nor do I have /proc/sys/bus/) with the
-> OHCI driver.
+Hi all,
+Sorry if this post to the list is inapropriate, i havnt been on the
+kernel mailing list for long.
 
-You're using 2.6.0-test7, so you have sysfs in the kernel.
-Do this:
+I am having rather ugly problems with this card using the PDC20269 chip.
+Almost as soon as either of the HDDs on the controller are used, the
+kernel hangs solid with a dump of debugging info.
 
-	mkdir /sys
-	mount none /sys -t sysfs
+Ive tried moving cards, diff, ram, cpu, etc everything short of changing
+MB (never been a problem before installing this card), so im sure that
+its this new IDE controller card that is the problem.
+I have also tried changing interrupts via the BIOS to remove possible
+clashes, but it also has not helped.
 
--- Jamie
+I am getting this problem with both the 2.4.22 and the 2.6.0-test7
+kernels (tried different minimal configs).
+
+Can anyone help me with this problem?
+If any other info is needed, please let me know.
+
+Thanks,
+ Mark Williams.

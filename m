@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273180AbRIJD3E>; Sun, 9 Sep 2001 23:29:04 -0400
+	id <S273181AbRIJDdo>; Sun, 9 Sep 2001 23:33:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273181AbRIJD2y>; Sun, 9 Sep 2001 23:28:54 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:14859 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S273180AbRIJD2s>; Sun, 9 Sep 2001 23:28:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: linux-2.4.10-pre5
-Date: Mon, 10 Sep 2001 05:36:07 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010910001556Z16150-26183+680@humbolt.nl.linux.org> <20010910023312Z16066-26183+700@humbolt.nl.linux.org> <1381380000.1000090938@tiny>
-In-Reply-To: <1381380000.1000090938@tiny>
+	id <S273184AbRIJDde>; Sun, 9 Sep 2001 23:33:34 -0400
+Received: from oe39.law11.hotmail.com ([64.4.16.96]:49162 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S273181AbRIJDdS>;
+	Sun, 9 Sep 2001 23:33:18 -0400
+X-Originating-IP: [142.179.28.112]
+From: "David Grant" <davidgrant79@hotmail.com>
+To: <jacob@chaos2.org>, "Joe Fago" <cfago@tconl.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0109091843220.31509-100000@inbetween.blorf.net>
+Subject: Re: 2.4.9: PDC20267 not working
+Date: Sun, 9 Sep 2001 20:30:25 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010910032901Z16134-26183+710@humbolt.nl.linux.org>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <OE39Zeh7UmNgW6VPMzP00004bf8@hotmail.com>
+X-OriginalArrivalTime: 10 Sep 2001 03:33:34.0606 (UTC) FILETIME=[5ED072E0:01C139A9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 10, 2001 05:02 am, Chris Mason wrote:
-> On Monday, September 10, 2001 04:40:21 AM +0200 Daniel Phillips
-> <phillips@bonn-fries.net> wrote:
-> 
-> >> How about subsequent calls for the same offset with the same blocksize
-> >> need to return the same buffer head?
-> > 
-> > Are we picking nits?  Better add "the same dev" and "until the buffer
-> > head is  freed" ;-)
-> 
-> ;-)  Really, wasn't trying for that.  If we just say later calls for the
-> same offset, we get in trouble later on if we also want variable, very
-> large blocksizes.
 
-Well, I really wonder if buffers are the right transport medium for variable, 
-large blocks, aka extents.  Personally, I think buffers will have disappeared 
-or mutated unrecognizably by the time we get around to adding extents to ext2 
-or its descendents.  Note that XFS already implements extents on Linux, by 
-mapping them onto the pagecache I believe.
+----- Original Message -----
+From: "Jacob Luna Lundberg" <kernel@gnifty.net>
+To: "Joe Fago" <cfago@tconl.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, September 09, 2001 6:46 PM
+Subject: Re: 2.4.9: PDC20267 not working
 
-> If we relax the rules to allow multiple buffer heads for
-> the same physical spot on disk, things get easier, and the FS is
-> responsible for not doing something stupid with it.  
-> 
-> The data is still consistent either way, there are just multiple io handles.
 
-Were you thinking of one mapping for all buffers on a given partition?  If 
-so, how did you plan to handle different buffer sizes?  Were you planning to 
-keep the existing buffer hash chain or use the page cache hash chain, as I 
-did for ext2_getblk?
+>
+> On Sun, 9 Sep 2001, Joe Fago wrote:
+>
+> > System hangs on boot:
+>
+> > PDC20267: IDE controller on PCI bus 00 dev 40
+>
+> > This is the only device attached to the controller. Any suggestions?
+>
+> I have seen this before.  I have a system that will do it every time right
+> now, in fact.  You can try setting interrupts to edge-triggered in your
+> BIOS if it has such an option; this usually ``fixes'' the problem for me.
+> Of course, it will mean you can't share PCI interrupts, if I understand it
+> correctly.  However, I'm not sure what's going on and nobody has commented
+> on it thus far that I know of.  :(
 
---
-Daniel
+Mine has problems as well.  I know there are workarounds, but I'm not
+experienced enough to do these.  Joe: what error messages do you get?  I get
+the "hde: timeout waiting for dma" errors.  After that I have to cold start
+my PC to get it working.  BTW, I have a PDC20265, but I think these are
+probably almost identical (or at least the behaviour we are getting is
+probably due to the same problem in the code).
+
+I also suspect that maybe what kind of hard drive you have makes a
+difference as well, because some people can get their Promise IDE to work
+fine, while others can't.  I have a Quantum Fireball Plus AS.
+
+In case you didn't know, Andre Hedrick met with some dude from Promise
+called Craig Lyons on Wednesday.  I haven't heard of any news from the
+meeting, but supposedly Craig was going to give Andre some API for the
+Ultra/Fastrack line of chips.  Hopefully it went down on Wednesday.
+
+David Grant

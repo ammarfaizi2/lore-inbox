@@ -1,92 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbUCRP4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 10:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbUCRP4o
+	id S262729AbUCRQAh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 11:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbUCRQAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 10:56:44 -0500
-Received: from mail.convergence.de ([212.84.236.4]:65432 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262721AbUCRP4j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 10:56:39 -0500
-Message-ID: <4059C6AE.7010102@convergence.de>
-Date: Thu, 18 Mar 2004 16:56:30 +0100
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sensors@stimpy.netroedge.com
-Subject: Re: [RFC][2.6] Additional i2c adapter flags for i2c client isolation
-References: <4056C805.8090004@convergence.de> <20040316154454.GA13854@kroah.com>
-In-Reply-To: <20040316154454.GA13854@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Mar 2004 11:00:36 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33417
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262729AbUCRQA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 11:00:27 -0500
+Date: Thu, 18 Mar 2004 17:01:09 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert Love <rml@ximian.com>
+Cc: Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-ID: <20040318160109.GJ2246@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <1079624062.2136.21.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1079624062.2136.21.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Robert,
 
-On 16.03.2004 16:44, Greg KH wrote:
-> On Tue, Mar 16, 2004 at 10:25:25AM +0100, Michael Hunold wrote:
-> 
->>Here, all client drivers are unconditionally told to try and attach to
->>the adapter. There is no way that an i2c adapter can keep an i2c driver
->>away from the bus.
-> 
-> 
-> Yes, but the different i2c chip drivers all check for the class setting
-> to be correct before they really do anything, right?
+On Thu, Mar 18, 2004 at 10:34:22AM -0500, Robert Love wrote:
+> I also feel you underestimate the improvements kernel preemption gives. 
 
-As you've already noticed below, it's completely up to the driver -- and 
-I don't trust i2c drivers I haven't written... ;-)
+Takashi benchmarked the worst case latency in very good detail.  2.6
+stock with PREEMPT=y has a worst case latency of 2.4-aa. This is a fact.
 
->>Currently, adapters can already specify a class, for DVB
->>I2C_ADAP_CLASS_TV_DIGITAL matches perfectly.
+With Takashi's lowlatency fixes the latency goes below 2.4-aa, w/ or w/o
+PREEMPT.
 
-> Yes, and that is what you should check for.  It's a bug if any of the
-> non-DVB i2c drivers probe devices with the .class set to
-> I2C_ADAP_CLASS_TV_DIGITAL.  Fix that and you should be fine, right?
+PREEMPT=y doesn't and cannot improve the worst case latency. This is
+true today like it was true 4 years ago.
 
-In theory this should be sufficient, but doesn't help if you have some 
-"I don't care which bus this is and I'll probe it anyway" device.
+> Yes, the absolute worst case latency probably remains because it tends
+> to occur under lock (although, it is now easier to pinpoint that latency
+> and work some magic on the locks).  But the variance of the latency goes
+> way down, too.  We smooth out the curve.  And these are differences that
+> matter.
 
-Just think of all the i2c client drivers that are not part of the 
-official kernel. I don't want to fix all these, just keep them away from 
-"my" i2c busses...
+I don't think they can matter when the worst case is below 0.2msec.
 
->>What I'd like to have is that client can specify some sort of "class",
->>too, and that i2c adapters can tell the core that only clients where the
->>class is matching are allowed to probe their existence.
+> And it can be turned off, so if you don't care about that and are not
+> debugging atomicity (which preempt is a big help with, right?) then turn
+> it off.
 
-> Yeah, right now it's up to the chip drivers to be honest.  If you want
-> to implement a change to do this instead, I'll be glad to apply it.
+I want to implement my aged idea that is to do the opposite of preempt.
 
-Ok, thanks. I'm heading for the small solution that doesn't break any 
-existing "functionality" (if it's desired or not) and that doesn't 
-require to touch every i2c driver in the kernel.
+I believe that is a much more efficient way to smooth the curve at lower
+overhead and no kernel complexity.
 
-Here is the agenda:
+Preempt is always enabled as soon as the cpu enters kernel. And it can
+be disabled on demand.
 
-- add a "class" field to the i2c client driver struct (ie. let the 
-driver specify "I'm a DVB device" for example)
-- add a flag to the adapter struct telling the i2c core "I only want 
-drivers with a matching class to probe on this bus"
-- make the i2c core actually check if an adapter has set the flag 
-mentioned above and only let any i2c clientprobe on the bus if it has 
-the matching class field
+I want preempt to be disabled as soon as teh cpu enters kernel, and I
+want to enable it on demand _only_ during the copy user, or similar cpu
+intensive operations, also guaranteeing that those operations comes to
+an end to avoid RCU starvation.
 
-This won't break existing functionality (because all "old" i2c client 
-drivers don't have the "class" field set and all "old" i2c adapters 
-don't have the new flag specified) and will keep all i2c client drivers 
-away from my DVB i2c busses.
+Then I would like to ompare the average latency (the curve) I doubt
+they'll be any different, and the overhead will be zero (we've to check
+need_resched anyways after a copy-user, so we can as well do
+preempt_enable preembt_disable around it).
 
-The DVB i2c drivers, however, will be able to probe on the DVB i2c bus.
+> Oh, and if the PREEMPT=n overhead is really an issue, then I agree that
+> needs to be fixed :)
 
-> thanks,
-> greg k-h
-
-CU
-Michael.
-
+It's not a big issue of course (very low prio thing ;).

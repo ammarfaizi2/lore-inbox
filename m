@@ -1,96 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVCPATp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVCPAVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVCPATp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 19:19:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVCPATn
+	id S262182AbVCPAVv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 19:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVCPAVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 19:19:43 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:56020 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262182AbVCPATP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 19:19:15 -0500
-Subject: Re: Capabilities across execve
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: rmk+lkml@arm.linux.org.uk, alexn@dsv.su.se, chrisw@osdl.org, akpm@osdl.org,
-       pavel@ucw.cz
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 19:04:57 -0500
-Message-Id: <1110931497.1949.269.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Tue, 15 Mar 2005 19:21:51 -0500
+Received: from smtpout.mac.com ([17.250.248.89]:5861 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262182AbVCPAVm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 19:21:42 -0500
+In-Reply-To: <42375119.3000506@lsrfire.ath.cx>
+References: <1110771251.1967.84.camel@cube> <42355C78.1020307@lsrfire.ath.cx> <1110816803.1949.177.camel@cube> <Pine.LNX.4.58.0503142333480.6357@be1.lrz> <1110854667.7893.203.camel@cube> <42375119.3000506@lsrfire.ath.cx>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <be44570eada10800cf41d7317f4f2739@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: pj@engr.sgi.com, Bodo Eggert <7eggert@gmx.de>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
+Date: Tue, 15 Mar 2005 19:21:20 -0500
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King, the latest person to notice defects, writes:
+On Mar 15, 2005, at 16:18, Rene Scharfe wrote:
+> It's easily visible in the style of public toilets: in some contries 
+> you have one big room with no walls in between where all men or women 
+> merrily shit together, in other countries (like mine) every person can 
+> lock himself into a private closet.  Both ways work, there's nothing 
+> too special about using a toilet, but I'm simply used to the privacy 
+> provided by those thin walls.  I assure you, I don't do anything evil 
+> in there. :]
 
-> However, the way the kernel is setup today, this seems
-> impossible to achieve, which tends to make the whole
-> idea of capabilities completely and utterly useless.
->
-> How is this stuff supposed to work?  Are my ideas of
-> what's supposed to be achievable completely wrong,
-> although they look completely reasonable to me.
->
-> Don't get me wrong - the capability system seems great at
-> permanently revoking capabilities via /proc/sys/kernel/cap-bound,
-> and dropping them within an application provided it remains UID0.
-> Apart from that, capabilities seem completely useless.
-...
-> it seems to be something of a lost cause.
-...
-> my goal of running the script with minimal capabilities
-> was completely *impossible* to achieve.
+Just as long as our labs "bathrooms" don't mysteriously get a
+bazillion walls all over the place on kernel upgrade, we're ok.
+I don't mind adding new options for advanced security, as long
+as you don't change the defaults.  It's hard enough managing
+a boatload of workstations under ideal conditions.  When the
+default settings change every month it gets really annoying
+really quickly. :-D.
 
-Uh huh. First, some history.
+Cheers,
+Kyle Moffett
 
-Capability bits were implemented in DG-UX and IRIX.
-The two systems did not agree on operation. The draft
-POSIX standard, withdrawn for good reason, greatly
-changed between draft 16 and draft 17. Settings that
-work for one draft are horribly insecure on the other.
-Linux capabilities were partly done by the IRIX crew,
-working from draft 16. Everyone else had draft 17 or
-even draft 13. (and DG-UX had a better system anyway)
-
-Tytso put things well when he wrote: "A lot of innocent
-bits have been deforested  while trying work out the
-differences between what Linux is doing (which is basically
-following Draft 17), and what Trusted Irix is doing (which 
-apparently is following Draft 16)."
-
-Then along comes a sendmail exploit. An emergency fix
-was produced, breaking an already-defective capability
-design.
-
-Note that, unlike DG-UX, our IRIX-inspired design did
-not reserve any capability bits for non-kernel use.
-This causes an inconsistent security model, with things
-like the X server relying on UID. Inconsistency is bad.
-
-OK, so that's how we got into this mess.
-
-Now, how do we get out?
-
-We will always have to deal with old-style apps. Those
-few apps that handle capabilities can handle the bad
-system we have now, and can handle a system without the
-capability syscalls. (for old kernels) These apps can
-not handle a changed setup though; to change things we
-must make the old syscalls return failure. ANYTHING ELSE
-IS VERY UNSAFE.
-
-There is exactly one capability system in popular use.
-That would be the one that comes with Solaris. Moving
-toward that, via a kernel config option, appears to be
-a sane way to get ourselves unstuck from this big mess.
-An added advantage that that the Solaris-style method
-instantly becomes the standard, especially if Linux is
-strongly compatible. This helps with admin training and
-portable software.
-
-See if you can find any holes:
-http://docs.sun.com/app/docs/doc/816-5175/6mbba7f39?a=view
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 

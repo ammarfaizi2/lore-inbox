@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267342AbTAQA35>; Thu, 16 Jan 2003 19:29:57 -0500
+	id <S267344AbTAQAwA>; Thu, 16 Jan 2003 19:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267343AbTAQA35>; Thu, 16 Jan 2003 19:29:57 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:11492 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S267342AbTAQA34>; Thu, 16 Jan 2003 19:29:56 -0500
-Date: Thu, 16 Jan 2003 16:38:45 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Joel Becker <Joel.Becker@oracle.com>, lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Wim Coekaerts <Wim.Coekaerts@oracle.com>
-Subject: Re: [PATCH] hangcheck-timer
-Message-ID: <20030117003845.GX20972@ca-server1.us.oracle.com>
-References: <20030116231727.GV20972@ca-server1.us.oracle.com> <Pine.LNX.4.44.0301161841570.24250-100000@montezuma.mastecende.com>
+	id <S267346AbTAQAv7>; Thu, 16 Jan 2003 19:51:59 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:962 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267344AbTAQAv6>;
+	Thu, 16 Jan 2003 19:51:58 -0500
+Date: Fri, 17 Jan 2003 01:00:45 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Jim Houston <jim.houston@attbi.com>
+Cc: linux-kernel@vger.kernel.org,
+       high-res-timers-discourse@lists.sourceforge.net, jim.houston@ccur.com
+Subject: Re: [PATCH] improved boot time TSC synchronization
+Message-ID: <20030117010045.GA14664@bjl1.asuk.net>
+References: <200301161644.h0GGitX02052@linux.local> <20030116213332.GA14040@bjl1.asuk.net> <3E274FB1.EF85F6E0@attbi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301161841570.24250-100000@montezuma.mastecende.com>
+In-Reply-To: <3E274FB1.EF85F6E0@attbi.com>
 User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 06:43:47PM -0500, Zwane Mwaikambo wrote:
-> NMI watchdog? Doesn't look like this can catch cases where you have 
-> interrupts disabled and spinning on a lock, if you manage to run this code 
-> then the box isn't really locked up. In which case the software watchdog 
-> should be as good as this.
+Jim Houston wrote:
+> The patch currently prints the round-trip time and the max_delta.
+> On a Quad P4 Xeon, I got round-trip times in the 0.7 microsecond
+> range which is disappointing. The max_delta was almost always
+> zero cycles meaning that the feedback loop thinks that the TSC values
+> are perfectly synchronized.
 
-	Please read again.  This isn't about catching a complete lockup.
-This is about catching a pause and resume that jiffies does not notice.
+Is it reasonable to repeat the test over a duration of 10^6 cycles (or
+more) such that you could detect any drift after synchronisation, as
+well as variation _during_ that time interval?
 
-Joel
+I'm thinking of those spread spectrum clocks, which I gather are done
+by frequency modulating the clock.  It may be possible to detect:
 
--- 
+	(a) whether multiple CPUs with spread spectrum clocks are
+	    actually locked to each other, or if the modulation
+	    of each is independent
 
-Life's Little Instruction Book #15
+	(b) whether multiple CPUs are drifting w.r.t. each other
+	    because of independent clock sources
 
-	"Own a great stereo system."
+Although drift tends to be small, it should be possible to determine
+"these clocks drifted by <1ppm during the test interval", which is a
+pretty good indication of whether it is safe to use the TSC for
+gettimeofday() or not.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+-- Jamie
+

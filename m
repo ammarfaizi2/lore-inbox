@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVBUF2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVBUFj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbVBUF2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 00:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVBUF2l
+	id S261866AbVBUFj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 00:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVBUFj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 00:28:41 -0500
-Received: from h80ad25e9.async.vt.edu ([128.173.37.233]:60425 "EHLO
-	h80ad25e9.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261870AbVBUF2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 00:28:01 -0500
-Message-Id: <200502210527.j1L5RX44032376@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Ian Kent <raven@themaw.net>
-Cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       autofs mailing list <autofs@linux.kernel.org>
-Subject: Re: [autofs] automount does not close file descriptors at start 
-In-Reply-To: Your message of "Mon, 21 Feb 2005 12:57:22 +0800."
-             <Pine.LNX.4.58.0502211244540.9892@wombat.indigo.net.au> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050216125350.GA6031@uio.no>
-            <Pine.LNX.4.58.0502211244540.9892@wombat.indigo.net.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1108963650_4668P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 21 Feb 2005 00:27:30 -0500
+	Mon, 21 Feb 2005 00:39:26 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:7671 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261866AbVBUFjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 00:39:22 -0500
+To: Dustin Sallings <dustin@spy.net>
+Cc: Andrea Arcangeli <andrea@suse.de>, lm@bitmover.com,
+       Tupshin Harper <tupshin@tupshin.com>, darcs-users@darcs.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [darcs-users] Re: [BK] upgrade will be needed
+References: <20050214020802.GA3047@bitmover.com>
+	<200502172105.25677.pmcfarland@downeast.net>
+	<421551F5.5090005@tupshin.com> <20050218090900.GA2071@opteron.random>
+	<bc647aafb53842b58dd0279161fb48e0@spy.net>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Mon, 21 Feb 2005 14:39:05 +0900
+In-Reply-To: <bc647aafb53842b58dd0279161fb48e0@spy.net> (Dustin Sallings's
+ message of "Fri, 18 Feb 2005 09:50:52 -0800")
+Message-ID: <buosm3q5v5y.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1108963650_4668P
-Content-Type: text/plain; charset=us-ascii
+Dustin Sallings <dustin@spy.net> writes:
+> but the nicest thing about arch is that a given commit is immutable.
+> There are no tools to modify it.  This is also why the crypto
+> signature stuff was so easy to fit in.
+>
+> RCS and SCCS storage throws away most of those features.
 
-On Mon, 21 Feb 2005 12:57:22 +0800, Ian Kent said:
+Yeah, the basic way arch organizes its repository seems _far_ more sane
+than the crazy way CVS (or BK) does, for a variety of reasons[*].  No
+doubt there are certain usage patterns which stress it, but I think it
+makes a lot more sense to use a layer of caching to take care of those,
+rather than screwing up the underlying organization.
 
-> This is the first time I've heard this and the first time I wrote a Unix
-> daemon was fifteen years ago.
-> 
-> As far as I'm concerned redirecting stdin, stdout and stderr to the null 
-> device, then closing it and setting the process to a be the group leader 
-> (as autofs does) should be all that's needed to daemonize a process.
-> 
-> So are we saying that we don't trust the kernel to reliably duplicate the 
-> state of file handles when we fork?
+[*] (a) Immutability of repository files (_massively_ good idea)
+    (b) Deals with tree-changes "naturally" (CVS-style ,v files are a
+        complete mess for anything except file-content changes)
+    (c) Directly corresponds to traditional diff 'n' patch, easy to
+        think about, no surprises
 
-No, you have it 180 degrees off. ;)
-
-We *do* trust the kernel to reliably duplicate the state of file handles.
-So if we're about to do the whole double-fork thing and all that, we want to
-loop around and close all the file descriptors we don't want leaking to
-the double-forked daemon.  Yes, we do something reasonable with fd 0,1,2 -
-but we probably also want to do something with that unclosed fd 3 that's still
-open on /etc/mydaemon.cf, and any other file descriptors we've left dangling
-in the breeze after initialization.
-
-And yes, this sort of error happens in Real Live - I need to go and figure out
-why the /sbin/lvm.static on my initrd is throwing 'File descriptor 3 left open'
-messages... 
-
-
---==_Exmh_1108963650_4668P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCGXFCcC3lWbTT17ARAvBrAJ9xqEbdN92RWECoLPPk378yIIiK9gCgxx+/
-tSq+gNne87iTC6xB8QGxDwM=
-=7M30
------END PGP SIGNATURE-----
-
---==_Exmh_1108963650_4668P--
+-Miles
+-- 
+Saa, shall we dance?  (from a dance-class advertisement)

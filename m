@@ -1,63 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTGXLg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 07:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbTGXLg0
+	id S262593AbTGXLfN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 07:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTGXLfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 07:36:26 -0400
-Received: from in02-fes2.whowhere.com ([209.202.220.219]:48520 "HELO
-	whowhere.com") by vger.kernel.org with SMTP id S262714AbTGXLgM
+	Thu, 24 Jul 2003 07:35:13 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:7821 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S262593AbTGXLfG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 07:36:12 -0400
-To: "Miles Bader" <miles@gnu.org>, "Miles Bader" <miles@lsi.nec.co.jp>,
-       "Andre Hedrick" <andre@linux-ide.org>
-Date: Thu, 24 Jul 2003 11:51:13  0000
-From: "Dean McEwan" <dean.mcewan@eudoramail.com>
-Message-ID: <NBFFHOEKJOIDDEAA@whowhere.com>
+	Thu, 24 Jul 2003 07:35:06 -0400
+Date: Thu, 24 Jul 2003 21:50:09 +1000
+From: David McCullough <davidm@snapgear.com>
+To: Ihar Philips Filipau <filia@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
+Message-ID: <20030724115009.GB16168@beast>
+References: <3F1F9887.5010703@softhome.net>
 Mime-Version: 1.0
-Cc: dean.mcewan@eudoramail.com, linux-kernel@vger.kernel.org
-X-Sent-Mail: off
-Reply-To: dean.mcewan@eudoramail.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Re: Switching to the OSL License, in a dual way.
-X-Sender-Ip: 80.0.111.88
-Organization: Lycos Mail  (http://www.mail.eudoramail.com)
 Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3F1F9887.5010703@softhome.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->Yeah the bit about "Nasal Sex with Dead Plants" just >makes one wonder, is
->a rose just a rose?  (note to self, don't read RMS's >diary again)
-
-:-) not the point I was talking about, but , still :-)
- Anyway,  I hear you are going to court, y'know 10
-months ago I would be in no doubt about verbally murdering
-you, but after reading the diary where he says one 
-particular type of scum of the universe can trade their 
-photos as far as he's concerned. Eurrggh. I feel dirty 
-inside for calling myself a "GPL FUNDAMETALIST" to him and
-the community.
-
-I believe in FOSS, just not his vision of FOSS. Euuggh.
-
-This court case, do tell.
-
----
-Cheers, Dean.
-No Warrantee for incorrectness
-after all, Dubya doesn't have one...
-
-One of 4 members of the board of DM. TECH.
-a.k.a. Everybody at DM. TECH's Boss.
-Member of ATI Open Source development project.
-NDA's signed to date = 29.
-Number of people who've blocked me = priceless.
+Jivin Ihar Philips Filipau lays it down ...
+> David McCullough wrote:
+> >
+> >A general comment on the use of inline throughout the kernel.  Although
+> >they may show gains on x86 platforms,  they often perform worse on 
+> >embedded processors with limited cache,  as well as adding size.  I
+> >can't see any way of coding around this though.  As long as x86 is
+> >driving influence,  other platforms will jut have to deal with it as
+> >best they can.
+> >
+> 
+>   Actually I'm victim on over inlining too. Was at least.
+>   I was running some router on old Pentium's. I remember almost 
+> dramatical drop of performance with newer kernels because of inlining in 
+> net/*. But sure on Xeon P4 it boosts performance...
+> 
+>   Actually what I'm about.
+>   We have classical situation when we have mess of representation and 
+> intentions.
+> 
+>   Representation == 'inline', but intentions - 'inline or it will 
+> break' _and_ 'inline - it runs faster'.
+>   This obviously should be separated.
 
 
-Need a new email address that people can remember
-Check out the new EudoraMail at
-http://www.eudoramail.com
+The biggest problem I see is that the inlines are done in header files
+generally,  and to stop them from inlining,  you need to be able to
+switch from an inline to a prototype in the header file.  The code from
+the header then needs to be added to a .o somewhere in the build for the
+case where inlines are stripped out.
+
+
+Other than providing non-critical inlines either on or off,  I can't see
+the level approach working all that well.  A combination of levels that
+work well on a few platforms may not work well at all on another.
+Still, just the ability to reduce the inlines would be very useful.
+
+
+Cheers,
+Davidm
+
+
+
+
+>   even more.
+> 
+> #define INLINE_LEVEL some_platform_specific_number
+> 
+> ---------
+> 
+> #define inline0 inline_always
+> 
+> #if INLINE_LEVEL >= 1
+> #  define inline1 inline_always
+> #else
+> #  define inline1
+> #endif
+> ...
+> #if INLINE_LEVEL >= N
+> #  define inlineN inline_always
+> #else
+> #  define inlineN
+> #endif
+> 
+>    and so on, giving a platform chance to influence amount of inlining.
+>    better to put it into config with defined by platform defaults.
+-- 
+David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
+Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

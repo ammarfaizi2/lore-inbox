@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317622AbSIJUDg>; Tue, 10 Sep 2002 16:03:36 -0400
+	id <S317434AbSIJUCC>; Tue, 10 Sep 2002 16:02:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317673AbSIJUDg>; Tue, 10 Sep 2002 16:03:36 -0400
-Received: from mail.uklinux.net ([80.84.72.21]:7950 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S317622AbSIJUDf>;
-	Tue, 10 Sep 2002 16:03:35 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Tue, 10 Sep 2002 20:34:37 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Alan Cox <alan@redhat.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre5-ac4 hda lost interrupt
-In-Reply-To: <200209092236.g89MamX04399@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.21.0209102031340.5006-100000@ppg_penguin.linux.bogus>
+	id <S317622AbSIJUCC>; Tue, 10 Sep 2002 16:02:02 -0400
+Received: from otter.mbay.net ([206.55.237.2]:13842 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S317434AbSIJUCB> convert rfc822-to-8bit;
+	Tue, 10 Sep 2002 16:02:01 -0400
+From: John Alvord <jalvo@mbay.net>
+To: Shawn <core@enodev.com>
+Cc: Mike Galbraith <efault@gmx.de>, Shawn <core@enodev.com>,
+       Andi Kleen <ak@suse.de>,
+       Thunder from the hill <thunder@lightweight.ods.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+Date: Tue, 10 Sep 2002 13:06:27 -0700
+Message-ID: <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com>
+References: <p73wupuq34l.fsf@oldwotan.suse.de> <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909162050.B4781@q.mn.rr.com> <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> <20020910142347.A5000@q.mn.rr.com>
+In-Reply-To: <20020910142347.A5000@q.mn.rr.com>
+X-Mailer: Forte Agent 1.92/32.570
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Sep 2002, Alan Cox wrote:
+On Tue, 10 Sep 2002 14:23:47 -0500, Shawn <core@enodev.com> wrote:
 
-> 
-> The timeout is interesting in itself. Does it go away if you disable
-> IDE taskfile I/O ?
-> 
+>I'm not sure what this is intended to communicate.
+>
+>The question was specifically regarding filesystem support, so I'll
+>assume you meant to point out that XFS does not always work like it
+>should.
+>
+>Then, am I incorrect that since almost all of XFS that's left to merge
+>is XFS code and not changes to the kernel at large?
+>
+>If this is correct, could I then make the assumption that merging XFS
+>would be minimally impactful for those kernel user who do not enable it?
+>
+>Linus incorporated reiserfs long before it "always functioned as it is
+>supposed to", so I find myself wondering where your point was.
 
- If you mean, do the "lost interrupt" messages go away, the answer is yes,
-and the system is as responsive as any other with a chronically slow disk.
-Ctrl-alt-del is working again too.
+If memory serves, Linus incorporated reiserfs after several major
+distributors started including it. Linus seems to pay a lot of
+attention to distributions in areas where he isn't so much interested.
 
-Ken
--- 
- Out of the darkness a voice spake unto me, saying "smile, things could be
-worse". So I smiled, and lo, things became worse.
+So does Redhat/Suse/??? ship XFS yet?
 
-
+john
 

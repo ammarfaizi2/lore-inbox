@@ -1,90 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318899AbSG1Dga>; Sat, 27 Jul 2002 23:36:30 -0400
+	id <S318900AbSG1Dsp>; Sat, 27 Jul 2002 23:48:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318900AbSG1Dga>; Sat, 27 Jul 2002 23:36:30 -0400
-Received: from cambot.suite224.net ([209.176.64.2]:43528 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S318899AbSG1Dg3>;
-	Sat, 27 Jul 2002 23:36:29 -0400
-Message-ID: <001201c235e9$000d02e0$6ff583d0@pcs686>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: "Hans Reiser" <reiser@namesys.com>, "Daniel Mose" <imcol@unicyclist.com>
-Cc: "Jose Luis Domingo Lopez" <linux-kernel@24x7linux.org.gilby.com>,
-       <linux-kernel@vger.kernel.org>
-References: <20020726160742.GA951@ksu.edu> <20020726190520.GA3192@localhost> <3D41ADD3.9010509@namesys.com> <20020727220826.A31431@unicyclist.com> <3D434CD3.7010807@namesys.com>
-Subject: Re: How to start on new db-based FS?
-Date: Sat, 27 Jul 2002 23:43:54 -0400
+	id <S318901AbSG1Dsp>; Sat, 27 Jul 2002 23:48:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1028 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318900AbSG1Dso>;
+	Sat, 27 Jul 2002 23:48:44 -0400
+Message-ID: <3D436A44.8080505@mandrakesoft.com>
+Date: Sat, 27 Jul 2002 23:51:32 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, torvalds@transmeta.com
+Subject: Re: [PATCH] automatic initcalls
+References: <20020728033359.7B2A2444C@lists.samba.org>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans,
+Rusty Russell wrote:
+> The more I play with these magic approaches, the more I prefer an
+> explicit "Must be done after this" and "must be done before this":
+> otherwise we're going to need to keep adding new levels as we discover
+> something that doesn't fit in the magic 7.
 
-I think Daniel is referring to filesystems in general, when he uses "root"
+I've always preferred a system where one simply lists dependencies [as 
+you describe above], and some program actually does the hard work of 
+chasing down all the initcall dependency checking and ordering.
 
-Matthew
------ Original Message -----
-From: "Hans Reiser" <reiser@namesys.com>
-To: "Daniel Mose" <imcol@unicyclist.com>
-Cc: "Jose Luis Domingo Lopez" <linux-kernel@24x7linux.org.gilby.com>;
-<linux-kernel@vger.kernel.org>
-Sent: Saturday, July 27, 2002 9:45 PM
-Subject: Re: How to start on new db-based FS?
+Linus has traditionally poo-pooed this so I haven't put any work towards 
+it... but I still think it's a good idea, and something we will 
+eventually need as our system grows more complex.  If someone stood up 
+and did the work, it should be pretty easy to generate a human-readable 
+list of dependencies so we can check the ordering and make sure it's 
+getting things right.
+
+I wonder if there is some nifty ld feature I'm missing, that could do 
+this for us...
+
+	Jeff
 
 
-> Daniel Mose wrote:
->
-> >Hans Reiser wrote:
-> >
-> >
-> >>We would be happy to cooperate with persons interested in implementing
-> >>LDAP optimizing plugins for reiser4.
-> >>
-> >>
-> >
-> >I'm doing a scan on the web for disk storage layout documentation on
-> >different file systems. I have I think, downloaded just about all
-> >there is to download on www.namesys.com, but I fail to find anything
-> >that does describe the reiserfs storage layout in any detail.
-> >Is there such documentation available?
-> >I would be very happy for directions to it in this case.
-> >
-> >Reason? I want to know if the root file system that I my self is
-> >about to develop perhaps is already implemented to some extent in
-> >any existing root FS:s ?
-> >
->
-> What is a root filesystem? (I am accustomed to the term as describing
-> what the OS uses for storing the semantic layer's root directory).
->
-> >No need to re-invent the wheel. =)
-> >
-> >I now know for sure that neither the JFS or the XFS does work in the
-> >same ways as my drafts from reading their on disk storage scheemes.
-> >
-> >kind regards
-> >Daniel Mose.
-> >
-> >
-> >
-> >
->
->
-> --
-> Hans
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

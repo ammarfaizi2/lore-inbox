@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131148AbRAHUFD>; Mon, 8 Jan 2001 15:05:03 -0500
+	id <S129415AbRAHUJN>; Mon, 8 Jan 2001 15:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130580AbRAHUEn>; Mon, 8 Jan 2001 15:04:43 -0500
-Received: from f175.law8.hotmail.com ([216.33.241.175]:27148 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S131148AbRAHUEa>;
-	Mon, 8 Jan 2001 15:04:30 -0500
-X-Originating-IP: [170.148.65.7]
-From: "Jason Perlow" <perlow@hotmail.com>
-To: ilh@sls.lcs.mit.edu
-Cc: redhat-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Adaptec 19160 Problems
-Date: Mon, 08 Jan 2001 20:04:24 
+	id <S129534AbRAHUJE>; Mon, 8 Jan 2001 15:09:04 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:18670 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S129401AbRAHUIp>;
+	Mon, 8 Jan 2001 15:08:45 -0500
+Date: Mon, 8 Jan 2001 12:09:55 -0800
+From: Greg KH <greg@wirex.com>
+To: Hisaaki Shibata <shibata@luky.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: typo in linux-2.2.18/Documentation/usb/usb-serial.txt
+Message-ID: <20010108120955.B23439@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	Hisaaki Shibata <shibata@luky.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010109022407R.shibata@luky.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F1757dcLdZs3JcXu98s00012935@hotmail.com>
-X-OriginalArrivalTime: 08 Jan 2001 20:04:24.0294 (UTC) FILETIME=[32623060:01C079AE]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010109022407R.shibata@luky.org>; from shibata@luky.org on Tue, Jan 09, 2001 at 02:24:07AM +0900
+X-Operating-System: Linux 2.4.0-prerelease (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So you are saying this was fixed in 2.2.18? Which distro uses that by 
-default now?
+On Tue, Jan 09, 2001 at 02:24:07AM +0900, Hisaaki Shibata wrote:
+> Hi!
+> 
+> I tried to use USB-SERIAL converter shown in 
+> http://www.century.co.jp/products/usb_serial1a.html
+> that uses Prolific chip.
+> 
+> Prolific USB2SERIAL is not supported yet,
+> so I tried to "generic".
+> Then I found typo in the document.
+> 
+> Here is a tiny patch.
 
-We need to get the distros to come up with boot floppy images for this then 
-because 19160 is a very popular host adapter. Its not like its weirdo 
-hardware. Waiting for an updated distro is a real pain in the ass if this 
-can be fixed easily by just updating the boot disk images.
+Thanks for the patch, but it's already in the queue in Alan Cox's tree.
 
-Jason
+You might want to copy the maintainer of the driver with any questions
+or patches in the future.
 
+As for this specific device, do you have any specs on the converter?
+What does the output of /proc/bus/usb/devices look like with the device
+plugged in?
 
-From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
-To: Jason Perlow <perlow@hotmail.com>
-Subject: Re: Adaptec 19160 Problems
-Date: Mon, 08 Jan 2001 14:45:26 -0500
+thanks,
 
-Well, 2.2.18 is newer than what Red Hat 6.2 installer uses.
+greg k-h
 
-You could use Ghost or Drive Image to copy things over, or if you can
-mount both simultaneously (booted from IDE), you can just make your SCSI
-partition and cp -a everything over.  That is, everything except for
-/lost+found, /proc, and any other mount points.
-
-I agree this is ugly, but what can you do when the Red Hat (or
-otherwise) install kernel doesn't really support your hardware?
-I suppose it is possible to update the install kernel or specific
-modules, and I think I once succeeded in doing this, but it is even
-uglier!
-
---Lee
-
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
-
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

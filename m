@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268457AbUJJTof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUJJVMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268457AbUJJTof (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 15:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268458AbUJJTof
+	id S268479AbUJJVMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 17:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJJVMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 15:44:35 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64914 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268457AbUJJTod (ORCPT
+	Sun, 10 Oct 2004 17:12:16 -0400
+Received: from blfd-d9bb97c9.pool.mediaWays.net ([217.187.151.201]:19216 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S268479AbUJJVMN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 15:44:33 -0400
-Date: Sun, 10 Oct 2004 21:46:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       linux-kernel@vger.kernel.org,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041010194604.GA10561@elte.hu>
-References: <41677E4D.1030403@mvista.com> <20041010084633.GA13391@elte.hu> <1097437314.17309.136.camel@dhcp153.mvista.com>
+	Sun, 10 Oct 2004 17:12:13 -0400
+Date: Sun, 10 Oct 2004 23:12:08 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Olaf =?unknown-8bit?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to umount a busy filesystem?
+Message-ID: <20041010211208.GA6986@citd.de>
+References: <1097441558.2235.9.camel@venus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097437314.17309.136.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1097441558.2235.9.camel@venus>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Daniel Walker <dwalker@mvista.com> wrote:
-
-> On Sun, 2004-10-10 at 01:46, Ingo Molnar wrote:
-> >  - the generic irq subsystem: irq threading is a simple ~200-lines,
-> >    architecture-independent add-on to this. It makes no sense to offer 3
-> >    different implementations - pick one and help make it work well.
-> > 
-> >  - preemptible BKL. Related to this is new debugging infrastructure in
-> >    -mm that allows the safe and slow conversion of spinlocks to mutexes. 
-> >    In the case of the BKL this conversion is expected to be permanent, 
-> >    for most of the other spinlocks it will be optional - but the 
-> >    debugging code can still be used.
+On 10.10.2004 22:52, Olaf Fr?czyk wrote:
+> Hi,
 > 
-> 	Are you referring to the lock metering? I've ported our changes
-> to -mm3-VP-T3 on top of lock metering. It needs some clean up but It
-> will be released soon. It's very similar to our rc3 release only
-> without the IRQ threads patch.
+> Why I cannot umount filesystem if it is being accessed?
+> I tried MNT_FORCE option but it doesn't work.
+> 
+> Killing all processes that access a filesystem is not an option. They
+> should just get an error when accessing filesystem that is umounted.
+> 
+> Any idea how to do it?
 
-no, i mean the smp_processor_id() debugger, and the other bits triggered
-by CONFIG_DEBUG_PREEMPT.
+umount -l
 
-	Ingo
+removes the mount in "lazy"-mode, this way the mount-point "vanishes"
+for all programs whose working-dirs aren't "within" that mount-point.
+After all files are closed the filesystem is unmounted totally.
+You can "reuse" the mount-point immediatly.
+
+iow. If a programs want to open a file with an absolute path (including
+the "<path_to_mountpoint>") then it will fail (or see the other
+mountpoint). A program whose working dir is "inside" the mountpoint
+(e.g. if it was started from a path "inside" the mountpoint) can still
+open file if they use relative paths. Also when you have a bash whose
+working dir is "inside" the mountpoint, you can still start programs
+that can access the files within that mountpoint.
+
+If you have luck then the program(s) can't open new files (or "see" the
+new mountpint). But many (maybe most) programs don't have problems with
+a lazy-unmounted mountpoint. Personally i have only encountered one
+program that (failed/saw the "other"), which was "acroread" (xpdf on the
+other side still can open files in a lazy unmounted mountpoint)
+
+Seems this is the best you can do.
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261605AbSKLPb7>; Tue, 12 Nov 2002 10:31:59 -0500
+	id <S261599AbSKLPnf>; Tue, 12 Nov 2002 10:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261664AbSKLPb7>; Tue, 12 Nov 2002 10:31:59 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:37030 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261605AbSKLPb5>; Tue, 12 Nov 2002 10:31:57 -0500
-Subject: Re: ATI Radeon IGP 320M Linux support
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Cheney <ccheney@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021112151622.GC16414@cheney.cx>
-References: <20021112151622.GC16414@cheney.cx>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Nov 2002 16:03:49 +0000
-Message-Id: <1037117029.8313.59.camel@irongate.swansea.linux.org.uk>
+	id <S266607AbSKLPnf>; Tue, 12 Nov 2002 10:43:35 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:22795 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S261599AbSKLPne>; Tue, 12 Nov 2002 10:43:34 -0500
+Date: Wed, 13 Nov 2002 00:50:34 +0900 (JST)
+Message-Id: <20021113.005034.03327449.yoshfuji@wide.ad.jp>
+To: alan@lxorguk.ukuu.org.uk
+Cc: roland@topspin.com, davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <1037116836.8500.55.camel@irongate.swansea.linux.org.uk>
+References: <1037111029.8321.12.camel@irongate.swansea.linux.org.uk>
+	<521y5qn7l5.fsf@topspin.com>
+	<1037116836.8500.55.camel@irongate.swansea.linux.org.uk>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-12 at 15:16, Chris Cheney wrote:
+In article <1037116836.8500.55.camel@irongate.swansea.linux.org.uk> (at 12 Nov 2002 16:00:36 +0000), Alan Cox <alan@lxorguk.ukuu.org.uk> says:
+
+> 2. Add some new address setting ioctls, and ensure the old ones keep the
+> old address length limit. That is needed because the old caller wont
+> have allocated enough address space for a 20 byte address return.
 > 
-> I recently purchased a Compaq Presario 900Z laptop and discovered it
-> used a ATI Radeon IGP 320M chipset.
-> 
-> http://mirror.ati.com/technology/hardware/radeonigp/rigp320m.html
-> 
-> >From the pci output it looks like it uses ALi parts but at least with
-> kernel 2.4.18 it will not boot properly (Yes, Windows XP runs on it).
-> I tried to install Debian on it (2.4.18 kernel) and at first it hangs
-> with a machine check exception unless nomce is passed, then it will
-> give errors like this:
+> You have to solve both though, and the first patch should probably be
+> the one to add more sensible address set/get functions.
 
-Nobody has managed to make Linux run on this laptop that I know of. As a
-starting point you might want to build a kernel with no PCI IDE support,
-and no USB support and work from there.
+*BSDs have SIOCGLIFPHYADDR etc., but, they're obsolete; 
+we should use rtnetlink (or routing socket in BSDs) to manage 
+addresses.  So, not having such ioctls for long addresses 
+would be ok.
 
-We have no documentation on the ATI IDE or other components in the
-system.
-
-Alan
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

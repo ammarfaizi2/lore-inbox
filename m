@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264689AbUEXUkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264527AbUEXUmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264689AbUEXUkv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 16:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264688AbUEXUkv
+	id S264527AbUEXUmi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 16:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264688AbUEXUmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 16:40:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26848 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264689AbUEXUkj (ORCPT
+	Mon, 24 May 2004 16:42:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40416 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264527AbUEXUme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 16:40:39 -0400
-Date: Mon, 24 May 2004 13:43:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] msync shouldn't go over bss sections
-Message-Id: <20040524134314.508bd514.akpm@osdl.org>
-In-Reply-To: <1085408042.27361.17.camel@boxen>
-References: <1085408042.27361.17.camel@boxen>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 24 May 2004 16:42:34 -0400
+Date: Mon, 24 May 2004 13:42:33 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: errorpath in expand_stack() [2.6.7-rc1]
+Message-ID: <20040524134233.M22989@build.pdx.osdl.net>
+References: <20040524202852.GB28273@MAIL.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040524202852.GB28273@MAIL.13thfloor.at>; from herbert@13thfloor.at on Mon, May 24, 2004 at 10:28:52PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg <alexn@telia.com> wrote:
->
-> This changes the behaviour of msync_interval() to make it impossible to
-> try to sys_msync() anything not file mapped.
+* Herbert Poetzl (herbert@13thfloor.at) wrote:
 > 
+> another question:
+> 
+> I'm not sure the vm_unacct_memory(grow) is 
+> correct here, but if, shouldn't there be the
+> same in the security_vm_enough_memory(grow)
+> path?
 
-Well the patch doesn't "make it impossible".  It makes it return -ENOMEM.
+Currently, this is done inside the call to security_vm_enough_memory.
 
->From my reading of the spec your patch converts correct behaviour to
-incorrect behaviour, and even if that's untrue, I think we're stuck with
-the current behaviour - this change can break current applications.
-
-
-> --- mm/msync_orig.c     2004-05-23 21:31:32.000000000 +0200
-> +++ mm/msync.c  2004-05-24 16:10:24.000000000 +0200
-> @@ -137,7 +137,7 @@ static int filemap_sync(struct vm_area_s
->  static int msync_interval(struct vm_area_struct * vma,
->         unsigned long start, unsigned long end, int flags)
->  {
-> -       int ret = 0;
-> +       int ret = -ENOMEM;
->         struct file * file = vma->vm_file;
->   
->         if ((flags & MS_INVALIDATE) && (vma->vm_flags & VM_LOCKED))
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

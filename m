@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129079AbQKNRLy>; Tue, 14 Nov 2000 12:11:54 -0500
+	id <S129483AbQKNRPP>; Tue, 14 Nov 2000 12:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129518AbQKNRLo>; Tue, 14 Nov 2000 12:11:44 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:62338 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129079AbQKNRLi>; Tue, 14 Nov 2000 12:11:38 -0500
-Date: Tue, 14 Nov 2000 11:41:33 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
-In-Reply-To: <3A117696.1C9B3856@holly-springs.nc.us>
-Message-ID: <Pine.LNX.3.95.1001114113240.23765A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129518AbQKNRPG>; Tue, 14 Nov 2000 12:15:06 -0500
+Received: from ganymede.isdn.uiuc.edu ([192.17.19.210]:41735 "EHLO
+	ganymede.isdn.uiuc.edu") by vger.kernel.org with ESMTP
+	id <S129092AbQKNROv>; Tue, 14 Nov 2000 12:14:51 -0500
+Date: Tue, 14 Nov 2000 10:44:50 -0600
+From: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Laggin Mouse on IBM Thinkpad 240
+Message-ID: <20001114104450.D13719@ganymede.isdn.uiuc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000, Michael Rothwell wrote:
+Hi all,
 
-> "Richard B. Johnson" wrote:
-> > Multics???  [..] way too many persons on this list who know the history of
-> > Unix to try this BS.
-> 
-> So, you're saying their nine goals were bullshit? Multics had a lot of
-> problems. But it did a lot of ground-breaking. Perhaps you should reply
-> to the nine goals, or the general topic of "Enterpriseness," rather than
-> merely express your irrelevant hatred for Multics.
->
+Whenever my IBM Thinkpad 240 (running 2.2.17 with apmd) goes into
+``sleep'' mode and then wakes up, the mouse and typing tend to lag quite
+a bit. So much so that it becomes very hard to get anything done on the
+machine. This happens mostly when it's in battery mode (not plugged in)
+but occaisionally occurs when it's plugged in.
 
-Relating some "nine goals of 'Enterprise Computing'" to Multics is
-the bullshit. When Multics was being developed, the singular goal
-was to make an operating system that worked on DEC Equipment without
-having to use DEC software. The emphasis was on trying to make it
-work period.
+The .config file options I have turned on for power management are:
 
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_IGNORE_MULTIPLE_SUSPEND=y
+CONFIG_APM_IGNORE_SUSPEND_BOUNCE=y
+# CONFIG_APM_RTC_IS_GMT is not set
+# CONFIG_APM_ALLOWS_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
 
-Cheers,
-Dick Johnson
+I've tried the 2.4.0test* kernels with similar results...
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-- 
+|| Bill Wendling			wendling@ganymede.isdn.uiuc.edu
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

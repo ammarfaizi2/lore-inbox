@@ -1,39 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVDCSNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVDCSuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVDCSNX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 14:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVDCSNX
+	id S261844AbVDCSuU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 14:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVDCSuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 14:13:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20188 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261569AbVDCSNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 14:13:20 -0400
-Date: Sun, 3 Apr 2005 19:13:18 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Dag Arne Osvik <da@osvik.no>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: Use of C99 int types
-Message-ID: <20050403181318.GW8859@parcelfarce.linux.theplanet.co.uk>
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no>
+	Sun, 3 Apr 2005 14:50:19 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:26827 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261844AbVDCSuI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 14:50:08 -0400
+Date: Sun, 3 Apr 2005 11:50:16 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, shemminger@osdl.org,
+       manfred@colorfullife.com, bunk@stusta.de
+Subject: Re: [RFC,PATCH 2/4] Deprecate synchronize_kernel, GPL replacement
+Message-ID: <20050403185016.GB1481@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050403062149.GA1656@us.ibm.com> <20050403085650.GA4563@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <424FE1D3.9010805@osvik.no>
+In-Reply-To: <20050403085650.GA4563@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 03, 2005 at 02:30:11PM +0200, Dag Arne Osvik wrote:
-> Yes, but wouldn't it be much better to avoid code like the following, 
-> which may also be wrong (in terms of speed)?
+On Sun, Apr 03, 2005 at 02:26:50PM +0530, Dipankar Sarma wrote:
+> On Sat, Apr 02, 2005 at 10:21:50PM -0800, Paul E. McKenney wrote:
+> > The synchronize_kernel() primitive is used for quite a few different
+> > purposes: waiting for RCU readers, waiting for NMIs, waiting for interrupts,
+> > and so on.  This makes RCU code harder to read, since synchronize_kernel()
+> > might or might not have matching rcu_read_lock()s.  This patch creates
+> > a new synchronize_rcu() that is to be used for RCU readers and a new
+> > synchronize_sched() that is used for the rest.  These two new primitives
+> > currently have the same implementation, but this is might well change
+> > with additional real-time support.  Both new primitives are GPL-only,
+> > the old primitive is deprecated.
+> > 
+> > Signed-off-by: <paulmck@us.ibm.com>
+> > ---
+> > Depends on earlier "Add deprecated_for_modules" patch.
+> > 
+> > +/*
+> > + * Deprecated, use synchronize_rcu() or synchronize_sched() instead.
+> > + */
+> > +void synchronize_kernel(void)
+> > +{
+> > +	synchronize_rcu();
+> > +}
+> > +
 > 
-> #ifdef CONFIG_64BIT  // or maybe CONFIG_X86_64?
->  #define fast_u32 u64
-> #else
->  #define fast_u32 u32
-> #endif
+> We should probably mark it deprecated - 
+> 
+> void __deprecated synchronize_kernel(void)
+> {
+> 	synchronize_rcu();
+> }
 
-... and with such name 99% will assume (at least at the first reading)
-that it _is_ 32bits.  We have more than enough portability bugs as it
-is, no need to invite more by bad names.
+Hello, Dipankar,
+
+That was the first thing I tried.  ;-)
+
+When I did that, I got a "deprecated" warning from gcc on the
+EXPORT_SYMBOL() later in that same file.  After futzing around a
+bit, I hit on the compromise of marking the rcupdate.h declaration
+of synchronize_kernel() as "__deprecated_for_modules".
+
+That said, you are quite right that it would be better if gcc also gave
+the "deprecated" warning for use of synchronize_kernel() within in-tree
+non-module code.  I suppose I could do something like the following
+before the #includes in rcupdate.c:
+
+	#define SUPPRESS_DEPRECATION_OF_SYNCHRONIZE_KERNEL
+
+and then something like this in rcupdate.h:
+
+	#ifdef SUPPRESS_DEPRECATION_OF_SYNCHRONIZE_KERNEL
+	extern void synchronize_kernel(void);
+	#else /* #ifdef SUPPRESS_DEPRECATION_OF_SYNCHRONIZE_KERNEL */
+	extern __deprecated void synchronize_kernel(void);
+	#endif /* #else #ifdef SUPPRESS_DEPRECATION_OF_SYNCHRONIZE_KERNEL */
+
+but this seemed a bit ugly at the time.  Maybe it is worthwhile.
+
+I couldn't find any way to suppress the "deprecated" warning that is
+generated by the "&sym" in the last line of the __EXPORT_SYMBOL()
+macro.  Anyone know a way of doing this?  There doesn't seem to me
+to be any point to giving the warning on the EXPORT_SYMBOL() -- and
+it does clutter up compiler output with useless "deprecated" warnings.
+
+						Thanx, Paul

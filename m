@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbUK3I41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUK3I4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbUK3I41 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 03:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbUK3I40
+	id S262026AbUK3I4u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 03:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUK3I4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 03:56:26 -0500
-Received: from [213.85.13.118] ([213.85.13.118]:17280 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S262022AbUK3I4Z (ORCPT
+	Tue, 30 Nov 2004 03:56:50 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:23174 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262026AbUK3I4r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 03:56:25 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Rik van Riel <riel@redhat.com>,
-       Chris Mason <mason@suse.com>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] CKRM: 0/10 Class Based Kernel Resource Management
-References: <E1CYqW1-00056B-00@w-gerrit.beaverton.ibm.com>
-	<20041129223251.GA12192@infradead.org>
-From: Nikita Danilov <nikita@clusterfs.com>
-Date: Tue, 30 Nov 2004 11:55:52 +0300
-In-Reply-To: <20041129223251.GA12192@infradead.org> (Christoph Hellwig's
- message of "Mon, 29 Nov 2004 22:32:51 +0000")
-Message-ID: <m11xebd8br.fsf@clusterfs.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Nov 2004 03:56:47 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, "David S. Miller" <davem@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN 
+In-reply-to: Your message of "Tue, 30 Nov 2004 04:08:12 +0100."
+             <20041130030812.GN4365@dualathlon.random> 
+Date: Tue, 30 Nov 2004 08:56:29 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CZ3oT-0001tU-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+> On Fri, Nov 19, 2004 at 11:22:51PM +0000, Ian Pratt wrote:
+> > 
+> > This patch modifies /dev/mem to call io_remap_page_range rather than
+> > remap_pfn_range under CONFIG_XEN.  This is required because in arch
+> 
+> Why don't we change /dev/mem to use io_remap_page_range unconditionally
+> for ranges above high_memory? Clearly io_remap_page_range can map device
+> space, and I guess that's what io_remap_page_range is there for. 
 
-[...]
+In the Xen case, we actually need to use io_remap_page_range for
+all /dev/mem accesses, so as to be able to map the BIOS area, DMI
+tables etc.
 
->
-> And where's the people who wrote the code?  Are people at IBM really
-> all anxious cowards these days that can't submit their own code but have
-> to abuse a highlevel manager for it.
+Are people generally happy with the introduction of
+ARCH_HAS_DEV_MEM as a way of migrating away from the nest of
+#ifdef's in mem.c ?
 
-Once upon a time everybody and his dog (old dogs and puppies alike) at
-namesys used to send patches directly to Linus. Which resulted in the
-latter being confused in a maze of @namesys.com addresses all similar,
-and so he asked Hans to send all patches to him from Hans' address.
+I wasn't sure how best to handle the fact that /dev/kmem shared
+its mmap implementation with /dev/mem.  BTW: Does anyone know of
+any programs that make use of mmap'ing /dev/kmem?
 
-Nikita.
+Thanks,
+Ian

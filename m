@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282812AbRLKUEl>; Tue, 11 Dec 2001 15:04:41 -0500
+	id <S282816AbRLKUFV>; Tue, 11 Dec 2001 15:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282815AbRLKUEb>; Tue, 11 Dec 2001 15:04:31 -0500
-Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:31665 "EHLO
-	stud.fbi.fh-darmstadt.de") by vger.kernel.org with ESMTP
-	id <S282814AbRLKUEX>; Tue, 11 Dec 2001 15:04:23 -0500
-Date: Tue, 11 Dec 2001 20:58:46 +0100 (CET)
-From: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
-To: Samuel Maftoul <maftoul@esrf.fr>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT?] SuSe kernel
-In-Reply-To: <20011211193048.A22075@pcmaftoul.esrf.fr>
-Message-ID: <Pine.LNX.4.30.0112112051310.7727-100000@stud.fbi.fh-darmstadt.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282815AbRLKUFM>; Tue, 11 Dec 2001 15:05:12 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:51722 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S282814AbRLKUE5>;
+	Tue, 11 Dec 2001 15:04:57 -0500
+Date: Tue, 11 Dec 2001 21:04:12 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: orf@mailbag.com, linux-kernel@vger.kernel.org, brownfld@irridia.com,
+        andrea@suse.de, akpm@zip.com.au
+Subject: Re: 2.4.16 memory badness (reproducible)
+Message-Id: <20011211210412.59491313.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.21.0112111850090.1164-100000@localhost.localdomain>
+In-Reply-To: <200112082142.fB8LgAb02089@orp.orf.cx>
+	<Pine.LNX.4.21.0112111850090.1164-100000@localhost.localdomain>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam
+On Tue, 11 Dec 2001 19:07:41 +0000 (GMT)
+Hugh Dickins <hugh@veritas.com> wrote:
 
-> In SuSe's kernel there is a nice feature but I cannot  found where is
-> the code that does it and so I cannot play with it 8-).
-> The thing I'm talking about is grpahical boot + graphical first console.
-> I glanced at include/asm-i386/linux_logo.h but it doesn't differ.
-> Can someone help me ?
+> I believe this error comes, not from a (genuine or mistaken) shortage
+> of free memory,
 
-Install the package "kernel-source" from zq (source) series.
-The patch in the archives you have to look for is named ...boot-splash...
-The important files in the patched kernel tree are:
+Me, too. 
 
-linux/drivers/video/fbcon-splash.[ch]
+> but from shortage or fragmentation of vmalloc's virtual
+> address space.  Does patch below (to 2.4.17-pre4-aa1 since I think that's
+> what you tried last; easily adaptible to other trees) doubling vmalloc's
+> address space (on your 1GB machine or larger) make any difference?
+> Perhaps there's a vmalloc leak and this will only delay the error.
 
-There are some more changes in the whole fbcon* files (for alpha blending
-etc.).
+At least I think this direction to search the bug looks a lot more promising than a general mem shortage problem. After reviewing modify_ldt this looked like the only useable idea to Leighs problem.
 
-HTH
+Regards,
+Stephan
 
-Jan-Marek
 

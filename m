@@ -1,49 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUIOSou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUIOSwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUIOSou (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUIOSou
+	id S266704AbUIOSwo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUIOSwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:44:50 -0400
-Received: from av9-1-sn1.fre.skanova.net ([81.228.11.115]:24268 "EHLO
-	av9-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S267278AbUIOSoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:44:46 -0400
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc2
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
-	<m3ekl5de7b.fsf@telia.com> <20040914094928.GF27258@bytesex>
-	<m33c1kxz3f.fsf@telia.com> <20040915070841.GA29586@bytesex>
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 Sep 2004 20:44:41 +0200
-In-Reply-To: <20040915070841.GA29586@bytesex>
-Message-ID: <m3zn3rpe1y.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Sep 2004 14:52:44 -0400
+Received: from grendel.firewall.com ([66.28.58.176]:26279 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S266704AbUIOSwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 14:52:37 -0400
+Date: Wed, 15 Sep 2004 20:52:30 +0200
+From: Marek Habersack <grendel@caudium.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Kernel BUG() triggerred by Tux
+Message-ID: <20040915185230.GA4502@beowulf.thanes.org>
+Reply-To: grendel@caudium.net
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Content-Disposition: inline
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr <kraxel@bytesex.org> writes:
 
-> > I found the change that crashes my computer. This patch is enough to
-> > fix it for me:
-> > 
-> > -			if (!yoffset)
-> > -				chroma = (line & 1) == 0;
-> > -			else
-> > -				chroma = (line & 1) == 1;
-> 
-> Does the one below work as well?
-...
-> -				chroma = (line & 1) == 0;
-> +				chroma = ((line & 1) == 0);
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No, that patch makes no difference, because == has higher precedence
-than = in C. (I also verified that this patch doesn't change the
-generated object code, so compiler bugs aren't an issue either.)
+Hello,
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+  I realize that this question might be out of topic for this list, but
+since I've already tried to get help from the Tux mailing list and had no
+response, I'm hoping I will find some guidance here. The bug can be
+triggerred very easily by installing and using the demo4.c module shipped
+with the tux userland (tested with the 3 last versions of the Tux patch for
+both 2.4 and the 2.6 kernels). BUG() gets called when the request is
+redirected by Tux to the userland server and _after_ the latter handles the
+connection and delivers the content to the browser. Here's the message:
+
+Sep 15 12:39:30 quantum kernel: ------------[ cut here ]------------
+Sep 15 12:39:30 quantum kernel: kernel BUG at fs/inode.c:1098!
+Sep 15 12:39:30 quantum kernel: invalid operand: 0000 [#1]
+Sep 15 12:39:30 quantum kernel: PREEMPT=20
+Sep 15 12:39:30 quantum kernel: Modules linked in: ds eth1394 ohci1394 ieee=
+1394 via_ircc yenta_socket pcmcia_core ircomm_tty ircomm irda crc_ccitt
+Sep 15 12:39:30 quantum kernel: CPU:    0
+Sep 15 12:39:30 quantum kernel: EIP:    0060:[iput+114/128]    Not tainted
+Sep 15 12:39:30 quantum kernel: EFLAGS: 00010246   (2.6.8.1-tux-a4)=20
+Sep 15 12:39:30 quantum kernel: EIP is at iput+0x72/0x80
+Sep 15 12:39:30 quantum kernel: eax: c040a860   ebx: cbb32b84   ecx: 000000=
+00   edx: cbb32b94
+Sep 15 12:39:30 quantum kernel: esi: c9e5c2d0   edi: cbb32b84   ebp: cbb32b=
+84   esp: cd71ee48
+Sep 15 12:39:30 quantum kernel: ds: 007b   es: 007b   ss: 0068
+Sep 15 12:39:30 quantum kernel: Process tux (pid: 2465, threadinfo=3Dcd71e0=
+00 task=3Dcdc9a7a0)
+Sep 15 12:39:30 quantum kernel: Stack: c016b202 cb49db00 cd71e000 c016800a =
+cbb32b84 c04997b0 cb49db00 c02da7a0=20
+Sep 15 12:39:30 quantum kernel:        cefbd4a0 c0151999 c9e5c2d0 cb49db00 =
+c9e5c2d0 cb49db00 00000000 cdb03a20=20
+Sep 15 12:39:30 quantum kernel:        00000000 c0150009 cb49db00 cdb03a20 =
+cdb03a20 cb49db00 cbaf34a4 c03381a1=20
+Sep 15 12:39:30 quantum kernel: Call Trace:
+Sep 15 12:39:30 quantum kernel:  [iput+98/128] iput+0x62/0x80
+Sep 15 12:39:30 quantum kernel:  [dput+250/528] dput+0xfa/0x210
+Sep 15 12:39:30 quantum kernel:  [sock_close+0/80] sock_close+0x0/0x50
+Sep 15 12:39:30 quantum kernel:  [__fput+201/304] __fput+0xc9/0x130
+Sep 15 12:39:30 quantum kernel:  [filp_close+89/144] filp_close+0x59/0x90
+Sep 15 12:39:30 quantum kernel:  [tux_close+97/160] tux_close+0x61/0xa0
+Sep 15 12:39:30 quantum kernel:  [flush_request+1475/2496] flush_request+0x=
+5c3/0x9c0
+Sep 15 12:39:30 quantum kernel:  [redirect_request+215/416] redirect_reques=
+t+0xd7/0x1a0
+Sep 15 12:39:30 quantum kernel:  [tux_schedule_atom+73/272] tux_schedule_at=
+om+0x49/0x110
+Sep 15 12:39:30 quantum kernel:  [process_requests+288/496] process_request=
+s+0x120/0x1f0
+Sep 15 12:39:30 quantum kernel:  [event_loop+501/624] event_loop+0x1f5/0x270
+Sep 15 12:39:30 quantum kernel:  [__sys_tux+763/5920] __sys_tux+0x2fb/0x1720
+Sep 15 12:39:30 quantum kernel:  [redirect_request+0/416] redirect_request+=
+0x0/0x1a0
+Sep 15 12:39:30 quantum kernel:  [sys_chdir+117/144] sys_chdir+0x75/0x90
+Sep 15 12:39:30 quantum kernel:  [capable+35/96] capable+0x23/0x60
+Sep 15 12:39:30 quantum kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Sep 15 12:39:30 quantum kernel: Code: 0f 0b 4a 04 5f 38 37 c0 eb a5 8d 74 26
+00 83 ec 0c 8b 44 24=20
+Sep 15 12:39:30 quantum kernel:  Possibly unexpected TUX-thread exit(11) at=
+ c0105228?
+-------
+
+After that, TUX enters an endless loop, spewing the following message to the
+console:
+
+Sep 15 15:52:59 quantum kernel: PRINT req cbe9c7f8 <c03c8f73>, sock 00000000
+Sep 15 15:52:59 quantum kernel: ... idx: 0
+Sep 15 15:52:59 quantum kernel: ... meth:{<null>}, uri:{<null>}, query:{<nu=
+ll>}, ver:{<null>}
+Sep 15 15:52:59 quantum kernel: ... post_data:{<NULL>}(0).
+Sep 15 15:52:59 quantum kernel: ... headers: {<NULL>}
+
+The machine is responsive, can be accessed and used, but there is no way to
+get tux working after the above happens and it is not possible to reboot the
+machine using shutdown/reboot, power button etc - it has to be forcibly
+powered down.
+
+The configuration of the machine the BUG gets triggerred on doesn't matter,
+it is happening in exactly the same way on any machine I could try this on.
+
+I've tried to investigate the issue on my own, but so far I've failed
+miserably and I would appreciate any kind of pointers to help me solve the
+issue,
+
+tia,
+
+marek
+
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBSI9uq3909GIf5uoRAo2AAJ4/hKKbiCiWgjGkjIPSpvl4rRA+mgCdEhJS
+GRCsS1EbEbIzGckcYEeG2N0=
+=aPnW
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--

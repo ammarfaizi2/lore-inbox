@@ -1,96 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262029AbSIYRDS>; Wed, 25 Sep 2002 13:03:18 -0400
+	id <S262026AbSIYQ4j>; Wed, 25 Sep 2002 12:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262030AbSIYRDS>; Wed, 25 Sep 2002 13:03:18 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:33472 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262029AbSIYRDR> convert rfc822-to-8bit; Wed, 25 Sep 2002 13:03:17 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: wolk-devel@lists.sourceforge.net, wolk-announce@lists.sourceforge.net
-Subject: [ANNOUNCE] WOLK v3.6.1 UPDATE for v3.6 FINAL
-Date: Wed, 25 Sep 2002 19:07:22 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209251905.45357.m.c.p@wolk-project.de>
+	id <S262027AbSIYQ4j>; Wed, 25 Sep 2002 12:56:39 -0400
+Received: from stingr.net ([212.193.32.15]:55303 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S262026AbSIYQ4i>;
+	Wed, 25 Sep 2002 12:56:38 -0400
+Date: Wed, 25 Sep 2002 21:01:52 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OOPS] Using poll speedup
+Message-ID: <20020925170152.GA27904@stingr.net>
+Mail-Followup-To: Andi Kleen <ak@muc.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+You might be interested. This was got by using 1st version of patch
+from -aa tree
 
-this is an update (v3.6.1) for v3.6 FINAL of WOLK. Sorry for the delay.
-I really wanted to fix the strange ALSA unresolved symbols problem :)
+----- Forwarded message from stingray@proxy.sgu.ru -----
 
+ksymoops 2.4.1 on i686 2.4.19-pre5-ac3-s60.  Options used
+     -v /lib/modules/2.4.20-pre7-ac3-s3/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.20-pre7-ac3-s3 (specified)
+     -m /boot/System.map-2.4.20-pre7-ac3-s3 (specified)
 
-Here we go, Changelog from v3.6 -> v3.6.1
------------------------------------------
-o   add:    Fair Scheduler v2.4.19 2nd edition          (Rik van Riel)
-o   fixed:  ext3 htree build/linking problem            (me)
-o   fixed:  ext2 compression (e2compr) build problem    (me)
-o   fixed:  cryptoloop.c: 'loop_iv_t'
-             previously declared here                   (me)
-o   fixed:  timepeg INTLAT build problem
-             when CONFIG_PREEMPT is set                 (me)
-o   fixed:  unix.o: unresolved symbols:
-             gr_handle_create/gr_check_create           (me)
-o   fixed:  HTB Configure.help entry missed
-             while updating to HTB3.6                   (me)
-o   fixed:  FINALLY: the unresolved symbols for
-             midi/synth stuff with ALSA                 (me)
-o   fixed:  irda-usb: irda-usb.c compile error          (me)
-o   fixed:  HID (full support) compile error            (me)
-o   fixed:  zftape: zftape-init.c compile error         (Eyal Lebedinsky)
-o   fixed:  missed AIO <-> grsec stuff in
-             include/asm-i386/a.out.h                   (Brad Spengler)
-o   update: htree ext3 v2.4.19-2-dxdir                  (Theodore Ts'o)
-o   update: CPU Frequency Scaling v2.4.19-4             (Dominik Brodowski)
+Sep 25 19:01:50 proxy kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep 25 19:01:50 proxy kernel: c011a064
+Sep 25 19:01:50 proxy kernel: *pde = 00000000
+Sep 25 19:01:50 proxy kernel: Oops: 0002
+Sep 25 19:01:50 proxy kernel: CPU:    0
+Sep 25 19:01:50 proxy kernel: EIP:    0010:[remove_wait_queue+4/32]    Not tainted
+Sep 25 19:01:50 proxy kernel: EIP:    0010:[<c011a064>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Sep 25 19:01:50 proxy kernel: EFLAGS: 00010092
+Sep 25 19:01:50 proxy kernel: eax: 00000000   ebx: 00000292   ecx: 00000001   edx: e4a84ffc
+Sep 25 19:01:50 proxy kernel: esi: e4a84000   edi: e4a84008   ebp: f706be90   esp: f706be54
+Sep 25 19:01:50 proxy kernel: ds: 0018   es: 0018   ss: 0018
+Sep 25 19:01:50 proxy kernel: Process squid (pid: 1322, stackpage=f706b000)
+Sep 25 19:01:50 proxy kernel: Stack: e4a84ff8 c015067e e572eb80 000000ba 00000000 000000ba c01513fc f706be90 
+Sep 25 19:01:50 proxy kernel:        f706a000 000000ba 00000000 f706be90 e572eb80 00000000 00000000 00000000 
+Sep 25 19:01:50 proxy kernel:        e4a73000 00000000 f706bfa8 f7e0f620 00000000 f706a000 ead9bf24 ead9bf24 
+Sep 25 19:01:50 proxy kernel: Call Trace:    [poll_freewait+46/96] [sys_poll+940/960] [system_call+51/56]
+Sep 25 19:01:50 proxy kernel: Call Trace:    [<c015067e>] [<c01513fc>] [<c0108bab>]
+Sep 25 19:01:50 proxy kernel: Code: f0 fe 08 0f 88 e0 12 00 00 8b 4a 0c 8b 52 08 89 4a 04 89 11 
 
+>>EIP; c011a064 <remove_wait_queue+4/20>   <=====
+Trace; c015067e <poll_freewait+2e/60>
+Trace; c01513fc <sys_poll+3ac/3c0>
+Trace; c0108bab <system_call+33/38>
+Code;  c011a064 <remove_wait_queue+4/20>
+00000000 <_EIP>:
+Code;  c011a064 <remove_wait_queue+4/20>   <=====
+   0:   f0 fe 08                  lock decb (%eax)   <=====
+Code;  c011a067 <remove_wait_queue+7/20>
+   3:   0f 88 e0 12 00 00         js     12e9 <_EIP+0x12e9> c011b34d <.text.lock.fork+18/11b>
+Code;  c011a06d <remove_wait_queue+d/20>
+   9:   8b 4a 0c                  mov    0xc(%edx),%ecx
+Code;  c011a070 <remove_wait_queue+10/20>
+   c:   8b 52 08                  mov    0x8(%edx),%edx
+Code;  c011a073 <remove_wait_queue+13/20>
+   f:   89 4a 04                  mov    %ecx,0x4(%edx)
+Code;  c011a076 <remove_wait_queue+16/20>
+  12:   89 11                     mov    %edx,(%ecx)
 
-!!! Do not use htree in userspace with versions < 1.29 of e2fsprogs !!!
-    See e2fsprogs release notes for 1.29:
-    http://e2fsprogs.sourceforge.net/e2fsprogs-release.html#1.29
-
-    "Fixed a bug in e2fsck which could corrupt a directory when optimizing it
-     (via the -D option) or rebuiliding the hash tree index with a 1 in 512
-     probability, due to a fence post error."
-
-Debian packages (unofficial, by me) are available at:
-- http://wolk.sf.net/e2fsprogs/
-
-
-
-Release Info:
--------------
-Date   : September, 25th, 2002
-Time   : 7:00 pm CET
-URL    : http://sf.net/projects/wolk
-
-
-md5sums:
---------
-9ecbb8911ce3da94a0eaa2d132a60965 *linux-2.4.18-wolk3.6-to-3.6.1.patch.bz2
-c92b1a47785bd3bd96aad3debb721dd2 *linux-2.4.18-wolk3.6-to-3.6.1.patch.gz
-
-
-Direkt download links:
-----------------------
-http://prdownloads.sf.net/wolk/linux-2.4.18-wolk3.6-to-3.6.1.patch.bz2
-http://prdownloads.sf.net/wolk/linux-2.4.18-wolk3.6-to-3.6.1.patch.gz
-
-
-Have fun!
+----- End forwarded message -----
 
 -- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

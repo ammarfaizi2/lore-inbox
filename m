@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263149AbRGEVVg>; Thu, 5 Jul 2001 17:21:36 -0400
+	id <S263927AbRGEVZh>; Thu, 5 Jul 2001 17:25:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263793AbRGEVV0>; Thu, 5 Jul 2001 17:21:26 -0400
-Received: from eagle.physics.drexel.edu ([129.25.7.156]:2830 "EHLO
-	eagle.physics.drexel.edu") by vger.kernel.org with ESMTP
-	id <S263149AbRGEVVS>; Thu, 5 Jul 2001 17:21:18 -0400
-Message-ID: <3B44DA51.10D3F0C0@newton.physics.drexel.edu>
-Date: Thu, 05 Jul 2001 17:21:21 -0400
-From: "Ernest N. Mamikonyan" <ernest@newton.physics.drexel.edu>
-Organization: Department of Physics, Drexel University
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S263933AbRGEVZ1>; Thu, 5 Jul 2001 17:25:27 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:33284 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S263927AbRGEVZR>;
+	Thu, 5 Jul 2001 17:25:17 -0400
+To: hunghochak@netscape.net (Ho Chak Hung)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __alloc_pages: 4-order allocation failed
+In-Reply-To: <6586AA62.338A01A4.0F76C228@netscape.net>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 05 Jul 2001 23:25:10 +0200
+In-Reply-To: hunghochak@netscape.net's message of "Mon, 02 Jul 2001 12:59:52 -0400"
+Message-ID: <d3lmm3vzk9.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: increasing the TASK_SIZE
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering how I can increase the process address space, TASK_SIZE
-(PAGE_OFFSET), in the current kernel. It looks like the 3 GB value is
-hardcoded in a couple of places and is thus not trivial to alter. Is
-there any good reason to limit this value at all, why not just have it
-be the same as the max addressable space (64 GB)? We have an ix86 SMP
-box with 4 GB of RAM and want to be able to allocate all of it to a
-single program (physics simulation). I would greatly appreciate any help
-on this.
+>>>>> "Ho" == Ho Chak Hung <hunghochak@netscape.net> writes:
 
+Ho> Hi, I got the error __alloc_pages: 4-order allocation failed in a
+Ho> module that uses and frees a lot of pages.  Basically, I am trying
+Ho> implement a page cache for the module. First, I keep allocating
+Ho> pages using page_cache_alloc() until it fails, then I free a whole
+Ho> bunch of pages using freepages((unsigned long)page_address(page))
 
-Thanks a great deal,
-Ernie
+Ho> Would anyone please give me some advice about how to solve this
+Ho> problem?  Thanks a lot.
 
-PS. Please `CC' me the answer!
+You ran out of memory, ie. there were no more free blocks of 16
+consecutive pages available in the system. This is what happens on a
+system with little memory or which is loaded with memory intensive
+applications.
 
-/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-Ernest N. Mamikonyan     E-Mail: ernest@newton.physics.drexel.edu
-Department of Physics,   Phone: (215) 895-1544
-Drexel University        Fax: (215) 895-5934
-Philadelphia, PA  19104  Web: www.physics.drexel.edu/research/astro
-/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+Jes

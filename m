@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266453AbTBMEsf>; Wed, 12 Feb 2003 23:48:35 -0500
+	id <S267810AbTBME4I>; Wed, 12 Feb 2003 23:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267809AbTBMEse>; Wed, 12 Feb 2003 23:48:34 -0500
-Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:772
+	id <S267958AbTBME4H>; Wed, 12 Feb 2003 23:56:07 -0500
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:1796
 	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S266453AbTBMEse>; Wed, 12 Feb 2003 23:48:34 -0500
-Date: Wed, 12 Feb 2003 23:59:15 -0500 (EST)
+	id <S267810AbTBME4H>; Wed, 12 Feb 2003 23:56:07 -0500
+Date: Thu, 13 Feb 2003 00:06:54 -0500 (EST)
 From: Shawn Starr <spstarr@sh0n.net>
-To: Adam Belay <ambx1@neo.rr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Update on IRQ/DMA conflict w/ 2.5.60 and ISA PnP SB...
-In-Reply-To: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>
-Message-ID: <Pine.LNX.4.44.0302122350330.183-100000@coredump.sh0n.net>
+To: Paul Laufer <paul@laufernet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: OSS Sound Blaster sb_card.c rewrite (PnP, module options, etc)
+ - UPDATE
+In-Reply-To: <Pine.LNX.4.44.0302121043260.167-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.44.0302130004470.247-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It appears if I disable IBM's OS PnP BIOS support. I get no more conflicts
-with the SB card. As for the ISA PnP USRobotics modem, I can't tell if it
-works or not.
+With Adam's new PnP changes, and the disabling of the OS PnP BIOS on the
+IBM. I can say that your sb_card.c/h changes (with some small
+modifications with the new PnP structure changes) works!
 
-ttyS0 at I/O 0x3f8 (irq = 3) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-ttyS2 at I/O 0x3e8 (irq = 4) is a 16550A
-
-We report duplicate IRQs for COM1/COM2 however, the IBM BIOS *REFUSES*
-all conflicts and will not allow shared communication ports. This is
-bogus.
-
-BIOS has this set:
-ttyS0 = IRQ 4
-ttyS1 = IRQ 3
--
-ttyS2 = Determined by PnP
+I suppose, this weekend I could see if I can get the AWE itself detected
+on 2.5.60 now :-)
 
 Shawn.
 

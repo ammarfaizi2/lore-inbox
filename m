@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbTFKUs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbTFKUsm
+	id S264535AbTFKUgn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 16:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbTFKUgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:48:42 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:57048 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S264491AbTFKUsI convert rfc822-to-8bit
+	Wed, 11 Jun 2003 16:36:13 -0400
+Received: from lorien.emufarm.org ([66.93.131.57]:4843 "EHLO
+	lorien.emufarm.org") by vger.kernel.org with ESMTP id S264505AbTFKUet
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:48:08 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780DA1749F@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'john@grabjohn.com'" <john@grabjohn.com>,
-       "'lkml (linux-kernel@vger.kernel.org)'" 
-	<linux-kernel@vger.kernel.org>
-Subject: RE: cachefs on linux
-Date: Wed, 11 Jun 2003 14:01:20 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 11 Jun 2003 16:34:49 -0400
+Date: Wed, 11 Jun 2003 13:48:28 -0700
+From: Danek Duvall <duvall@emufarm.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc7-ac1
+Message-ID: <20030611204828.GC8952@lorien.emufarm.org>
+Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I tried putting this on my Fujitsu Lifebook P2120 (Crusoe based), and it
+freezes the system hard when using hwclock to sync the system clock with the
+hardware clock.
 
+Running hwclock under strace in the init script prints out it opening
+/dev/rtc (for the second time), and then sometimes dying in the middle
+of printing out the following ioctl: "ioctl(3, RTC_UIE_ON, 0)", and more
+often in printing out the following read().
 
-> From: john@grabjohn.com [mailto:john@grabjohn.com]
-> 
-> ...
->
-> There are a lot of things we _could_ add to filesystems, E.G.:
-> 
-> * Appending to a read-only filesystem on a separate volume
+Removing the rtc module lets the system boot up.
 
-That can be done with a union fs.
+2.4.21-rc7 works fine.  The config file I'm using can be found at
 
-> * File versioning
+    http://lorien.emufarm.org/~duvall/.config
 
-There was a thread one or two months ago regarding all this,
-grep the archives.
+What bits should I start hacking away to narrow down the problem, or is
+this known?
 
-> * Transparent, variable compression
-
-There was a project to do this in ext2, but I don't remember
-what happened to it - I think that at the end is simpler to
-do that at the user level (think something like Gnome VFS or
-KDE's KIOs).
-
-> * Format conversion, (I.E. write a png file to a filesystem, and it is
-> 			   automatically visible as half a dozen other
-> 			   formats, without them actually existing on
-> 			   the disk)
-
-Mr. Van Riel? Where are you?
-
-> * Priorities, (E.G. temp files could have a bit to indicate that we
-> 		    don't really care how long they remain in
-> 		    write-cache, instead of flushing them along with
-> 		    other more-important-to-get-to-the-oxide data)
-
-Having a tmpfs mounted in /tmp does the trick, more or less. 
-Then it is a matter of discipline: if a file is temporary, 
-stick it somewhere in /tmp.
-
-> * WORM mode, (I.E. start at block 1 and use blocks sequentially, never
-> 		   re-using blocks - makes a tape somewhat usable as a
-> 		   block device)
-
-What for? They are too slow; given the price of a gigabyte now, 
-and taking into account that IDE drives can store more than tapes,
-it makes little sense (I would even say for long-term storage).
-YMMV, though.
-
-Cheers,
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+Thanks,
+Danek

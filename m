@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280585AbRKFVYp>; Tue, 6 Nov 2001 16:24:45 -0500
+	id <S280588AbRKFV3Z>; Tue, 6 Nov 2001 16:29:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280583AbRKFVYf>; Tue, 6 Nov 2001 16:24:35 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1028 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280579AbRKFVYY>; Tue, 6 Nov 2001 16:24:24 -0500
-Date: Tue, 6 Nov 2001 19:24:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <erik@hensema.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-In-Reply-To: <slrn9ugh1g.dld.spamtrap@dexter.hensema.xs4all.nl>
-Message-ID: <Pine.LNX.4.33L.0111061921240.27028-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S280587AbRKFV3G>; Tue, 6 Nov 2001 16:29:06 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:31484 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S280581AbRKFV2z>; Tue, 6 Nov 2001 16:28:55 -0500
+Message-ID: <3BE855D6.15E16626@redhat.com>
+Date: Tue, 06 Nov 2001 16:27:50 -0500
+From: Bob Matthews <bmatthews@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre8 stress testing
+In-Reply-To: <3BE85187.B9454EA2@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Nov 2001, Erik Hensema wrote:
+Manfred Spraul wrote:
+> 
+> >  Magic Sysrq doesn't give me anything except the name of the
+> > corresponding command.  The machine does not appear to have generated
+> > any oops output.
+> 
+> Was just one command name printed, or multiple commands?
+> The sysrq handlers are protected by a spinlock.
+> If multiple command names were printed it means that the sysrq handlers
+> themself returned, and that printk works.
 
-> >1)  IT SHOULD NOT BE PRETTY.  No tabs to line up columns.  No "progress
-> >bars."  No labels except as "proc comments" (see later).  No in-line labelling.
->
-> It should not be pretty TO HUMANS. Slight difference. It should
-> be pretty to shellscripts and other applications though.
+Multiple command names were printed, i.e.
 
-I really fail to see your point, it's trivial to make
-files which are easy to read by humans and also very
-easy to parse by shellscripts.
+<alt><SysRq>T produces SysRq: Show State, but nothing more
+<alt><SysRq>P produces SysRq: Show Regs, but nothing else, etc.
 
-PROCESSOR=0
-VENDOR_ID=GenuineIntel
-CPU_FAMILY=6
-MODEL=6
-MODEL_NAME="Celeron (Mendocino)"
-.....
+> 
+> I bet that the console loglevel got corrupted.
+> The sysrq handler should run with forced loglevel 7, like the print of
+> the command name.
+> 
+> Did you try SysRQ+7?
 
-As you can see, this is easily readable by humans,
-while "parsing" by a shell script would be as follows:
+I tried resetting the loglevel to 7.  Same results.
 
-. /proc/cpuinfo
 
-After which you could just "echo $PROCESSOR" or
-something like that ...
-
-Yes, this is probably a bad example, but it does show
-that machine-readable and human-readable aren't mutually
-exclusive.
-
-regards,
-
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Bob Matthews
+Red Hat, Inc.

@@ -1,64 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268998AbUIMXfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUIMXid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268998AbUIMXfd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 19:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269040AbUIMXfd
+	id S269032AbUIMXid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 19:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269040AbUIMXid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 19:35:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12708 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268998AbUIMXfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 19:35:06 -0400
-Date: Mon, 13 Sep 2004 16:34:48 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: kronos@kronoz.cjb.net, linux-kernel <linux-kernel@vger.kernel.org>,
-       joq@io.com, torbenh@gmx.de
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20040913163448.T1973@build.pdx.osdl.net>
-References: <20040912155035.GA17972@dreamland.darkstar.lan> <1095117752.1360.5.camel@krustophenia.net>
+	Mon, 13 Sep 2004 19:38:33 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:18344
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269032AbUIMXfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 19:35:36 -0400
+Date: Mon, 13 Sep 2004 16:33:33 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: jolt@tuxbox.org, pp@ee.oulu.fi, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] Fix for b44 warnings.
+Message-Id: <20040913163333.2fadaf93.davem@davemloft.net>
+In-Reply-To: <20040913163001.7fa560c6@dell_ss3.pdx.osdl.net>
+References: <200408292218.00756.jolt@tuxbox.org>
+	<20040913163001.7fa560c6@dell_ss3.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1095117752.1360.5.camel@krustophenia.net>; from rlrevell@joe-job.com on Mon, Sep 13, 2004 at 07:22:33PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> +Once the LSM has been installed and the kernel for which it was built
-> +is running, the root user can load it and pass parameters as follows:
-> +
-> +  # modprobe realtime any=1
-> +
-> +  Any program can request realtime privileges.  This allows any local
-> +  user to crash the system by hogging the CPU in a tight loop or
-> +  locking down too much memory.  But, it is simple to administer.  :-)
-> +
-> +  # modprobe realtime gid=29
-> +
-> +  All users belonging to group 29 and programs that are setgid to that
-> +  group have realtime privileges.  Use any group number you like.
-> +
-> +  # modprobe realtime mlock=0
-> +
-> +  Grants realtime scheduling privileges without the ability to lock
-> +  memory using mlock() or mlockall() system calls.  This option can be
-> +  used in conjunction with any of the other options.
-> +
-> +  # modprobe realtime allcaps=1
-> +
-> +  Enables all capabilities, including CAP_SETPCAP.  This is equivalent
-> +  to the 2.4 kernel capabilities patch.  It is needed for root
-> +  programs to assign realtime capabilities to other processes.  This
-> +  option can be used in conjunction with any of the other options.
+On Mon, 13 Sep 2004 16:30:01 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-The mlock() bit is unecessary now.  Use rlimits on the audio users.
-Which leaves realtime bits, plus others.  I had a more generic module
-(per-capability) that would be a superset of this.  Perhaps that's a
-better fit.  I'm travelling this week, so forgive the spotty replies.
+> B44 driver was using unsigned long as an io memory address.
+> Recent changes caused this to be a warning.  This patch fixes that
+> and makes the readl/writel wrapper into inline's instead of macros
+> with magic variable side effect (yuck).
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Jeff, I'll merge this one.
+
+Thanks Stephen.

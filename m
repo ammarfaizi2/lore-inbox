@@ -1,73 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbRBGPRW>; Wed, 7 Feb 2001 10:17:22 -0500
+	id <S129213AbRBGP1x>; Wed, 7 Feb 2001 10:27:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbRBGPRM>; Wed, 7 Feb 2001 10:17:12 -0500
-Received: from gatekeeper.gozer.weebeastie.net ([61.8.7.91]:37637 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S129245AbRBGPRE>; Wed, 7 Feb 2001 10:17:04 -0500
-Date: Thu, 8 Feb 2001 02:14:47 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: suspecious ide hdparm results with 2.4.1 (and a minor capacity question)
-Message-ID: <20010208021447.C352@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: Furball Inc.
+	id <S129063AbRBGP1o>; Wed, 7 Feb 2001 10:27:44 -0500
+Received: from cr636385-a.nmkt1.on.wave.home.com ([24.112.44.117]:2034 "helo
+	cr636385-a.nmkt1.on.wave.home.com") by vger.kernel.org with SMTP
+	id <S129027AbRBGP1c>; Wed, 7 Feb 2001 10:27:32 -0500
+From: <glouis@dynamicro.on.ca>
+Subject: 2.4.1-ac4 aic7xxx driver, heads-up re possible problem
+Message-Id: <20010207152737Z129027-513+3874@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+Date: Wed, 7 Feb 2001 10:27:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-well I got my ATA100 IBM HD and my Promise ATA100 card to go with it and
-shoved them into my ultrafast VX MB (cough). I then ran hdparm
-to see how fast the sucker could get and got this:
+Last night I installed 2.4.1-ac4 remotely on two machines that had been
+running -ac3.  Neither was essential to production so I rebooted
+remotely to try it.  One of them works fine.  The other hangs at boot
+with an interrupt synch problem (sorry, but I'm away from the office and
+have only sketchy secondhand info; will reproduce Friday and supply
+details if needed).  The contents of /proc/scsi/aic7xxx/0 follow for
+each (the machine that failed has been rebooted with -ac3).
 
-[02:02:24] root@gozer:/root>> free; hdparm -tT /dev/hde; free
-             total       used       free     shared    buffers     cached
-Mem:         94520      91760       2760          0      63272       6780
--/+ buffers/cache:      21708      72812
-Swap:       266032          4     266028
+No failure, 2.4.1-ac4 running:
 
-/dev/hde:
- Timing buffer-cache reads:   128 MB in  3.54 seconds = 36.16 MB/sec
- Timing buffered disk reads:  64 MB in  3.13 seconds = 20.45 MB/sec
-Hmm.. suspicious results: probably not enough free memory for a proper test.
-             total       used       free     shared    buffers     cached
-Mem:         94520      91828       2692          0      63608       6524
--/+ buffers/cache:      21696      72824
-Swap:       266032         12     266020
+Adaptec AIC7xxx driver version: 5.2.2/5.2.0
+Compile Options:
+  TCQ Enabled By Default : Disabled
+  AIC7XXX_PROC_STATS     : Enabled
 
-Now... that suspicious results note makes me ponder that the results
-aren't for real but... if they are, gawddamn. That's more then I hoped
-for. 8)
+Adapter Configuration:
+           SCSI Adapter: Adaptec AHA-294X Ultra2 SCSI host adapter
+                           Ultra-2 LVD/SE Wide Controller at PCI 0/11/0
+    PCI MMAPed I/O Base: 0xe9000000
+ Adapter SEEPROM Config: SEEPROM found and used.
+      Adaptec SCSI BIOS: Enabled
+                    IRQ: 11
+                   SCBs: Active 0, Max Active 1,
+                         Allocated 31, HW 32, Page 255
+             Interrupts: 67123
+      BIOS Control Word: 0x18a6
+   Adapter Control Word: 0x1c5d
+   Extended Translation: Enabled
+Disconnect Enable Flags: 0xffff
+     Ultra Enable Flags: 0x0000
+ Tag Queue Enable Flags: 0x0000
+Ordered Queue Tag Flags: 0x0000
+Default Tag Queue Depth: 8
+    Tagged Queue By Device array for aic7xxx host instance 0:
+      {255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255}
+    Actual queue depth per device for aic7xxx host instance 0:
+      {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 
-Also, as an aside question, I want to get as much capacity out of this
-HD as possible, back and windows compatability be damned. It's currently
-in LBA mode (I believe) and that, to my knowledge, wastes the most space.
-Is there anything I can do to get more of my HD back for use?
+Statistics:
 
-[02:02:41] root@gozer:/root>> hdparm -i /dev/hde
+(scsi0:0:0:0)
+  Device using Wide/Sync transfers at 80.0 MByte/sec, offset 15
+  Transinfo settings: current(10/15/1/0), goal(10/15/1/0),
+user(10/127/1/0)
+  Total transfers 67029 (23273 reads and 43756 writes)
+             < 2K      2K+     4K+     8K+    16K+    32K+   64K+ 128K+
+   Reads:    8996     455    8712    1511    1063    1328    900    308
+  Writes:   10272    4717   10359    7676    3064    2896    2715  2057
 
-/dev/hde:
+(scsi0:0:4:0)
+  Device using Narrow/Async transfers.
+  Transinfo settings: current(0/0/0/0), goal(0/0/0/0), user(10/127/1/0)
+  Total transfers 0 (0 reads and 0 writes)
 
- Model=IBM-DTLA-307045, FwRev=TX6OA50C, SerialNo=YMDYMT8X423
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=3(DualPortCache), BuffSize=1916kB, MaxMultSect=16, MultSect=16
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=90069840
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2 
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4 
- UDMA modes: mode0 mode1 mode2 mode3 mode4 *mode5 
+===========================
+2.4.1-ac4 fails to access disk, said to be an "interrupt synch
+problem," 2.4.1-ac3 running:
+
+Adaptec AIC7xxx driver version: 5.2.1/5.2.0
+Compile Options:
+  TCQ Enabled By Default : Disabled
+  AIC7XXX_PROC_STATS     : Enabled
+
+Adapter Configuration:
+           SCSI Adapter: Adaptec AHA-294X Ultra SCSI host adapter
+                           Ultra Wide Controller at PCI 0/11/0
+    PCI MMAPed I/O Base: 0xe1800000
+ Adapter SEEPROM Config: SEEPROM found and used.
+      Adaptec SCSI BIOS: Enabled
+                    IRQ: 10
+                   SCBs: Active 0, Max Active 1,
+                         Allocated 31, HW 16, Page 255
+             Interrupts: 8065
+      BIOS Control Word: 0x18b6
+   Adapter Control Word: 0x005b
+   Extended Translation: Enabled
+Disconnect Enable Flags: 0xffff
+     Ultra Enable Flags: 0x0001
+ Tag Queue Enable Flags: 0x0000
+Ordered Queue Tag Flags: 0x0000
+Default Tag Queue Depth: 8
+    Tagged Queue By Device array for aic7xxx host instance 0:
+      {255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255}
+    Actual queue depth per device for aic7xxx host instance 0:
+      {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+
+Statistics:
+
+(scsi0:0:0:0)
+  Device using Narrow/Sync transfers at 20.0 MByte/sec, offset 15
+  Transinfo settings: current(12/15/0/0), goal(12/15/0/0),
+user(12/15/1/0)
+  Total transfers 7976 (4527 reads and 3449 writes)
+             < 2K      2K+     4K+     8K+    16K+    32K+   64K+  128K+
+   Reads:      84       0    3281     166     493     233     264      6
+  Writes:       0       0    2449     810     145      28       7     10
+
+
+(scsi0:0:4:0)
+  Device using Narrow/Sync transfers at 10.0 MByte/sec, offset 15
+  Transinfo settings: current(25/15/0/0), goal(12/15/0/0),
+user(12/15/1/0)
+  Total transfers 0 (0 reads and 0 writes)
+
+(scsi0:0:6:0)
+  Device using Narrow/Sync transfers at 4.0 MByte/sec, offset 15
+  Transinfo settings: current(59/15/0/0), goal(12/15/0/0),
+user(12/15/1/0)
+  Total transfers 0 (0 reads and 0 writes)
+
+=================
+More info Friday as mentioned; let me know if there's anything specific
+i should try.
 
 -- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
-
+Greg Louis <glouis@dynamicro.on.ca>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

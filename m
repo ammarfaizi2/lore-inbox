@@ -1,97 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276231AbRJPNgz>; Tue, 16 Oct 2001 09:36:55 -0400
+	id <S276255AbRJPNjF>; Tue, 16 Oct 2001 09:39:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276249AbRJPNgp>; Tue, 16 Oct 2001 09:36:45 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:61189 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S276231AbRJPNg3>;
-	Tue, 16 Oct 2001 09:36:29 -0400
-Date: Tue, 16 Oct 2001 15:36:13 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM
-In-Reply-To: <20011016141429.A29907@bee.lk>
-Message-ID: <Pine.LNX.4.33.0110161503300.17096-100000@Expansa.sns.it>
+	id <S276249AbRJPNiz>; Tue, 16 Oct 2001 09:38:55 -0400
+Received: from [212.162.12.2] ([212.162.12.2]:55187 "EHLO d101.x-mailer.de")
+	by vger.kernel.org with ESMTP id <S276247AbRJPNiq>;
+	Tue, 16 Oct 2001 09:38:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gietl <a.gietl@e-admin.de>
+To: linux-kernel@vger.kernel.org
+Subject: tyan K7 thunder
+Date: Tue, 16 Oct 2001 15:39:04 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15tUQp-0000h3-00@d101.x-mailer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I used bot VM in many situations and with many different HWs.
-I came to the conclusion that  actually  none of the two VMs is suitable
-for every use.
-aa VM deals better because of its design on my web servers, with a non
-eccessive amount of memory, and with mysql and oracle databases.
+hi,
 
-When I talk of AA vm i mean the 2.4.13preXaa1 versions.
+First every thing was just fine with our new tyan k7 thunder server and we 
+did some load testing and the machine ran fine for 4 weeks. But after we 
+started to use it in production we had major stability problems with that new 
+Dual Athlon 1200 machine. we found tons of mails in this mailling list about 
+this configuration crashing. We tried to stabilize the SMP-kernel (v.2.4.9) 
+for 4 days w/o luck. We played around with the bios and especially the use 
+pci table in MP table switch gave us a lot more stability but the machine 
+still keeped on crashing every few hours with a kernel panic:
 
-Unfortunatelly I have also found a problem with
-some situations when the VM is higly stressed, but Andrea was very kind to
-this report, and now I hope it has gone away (will test this afternoon).
+kernel panic aiee, killing interrupt handler
+in interrupt handler - not syncing'
 
-aa VM was also good with dualAthlon servers used for montecarlo
-simulations, but also here, VM was not really stressed, and the system has
-just 1 GB of RAM.
+We tried noapic, and all the things that were recommended. We also read that 
+Alan Cox thinks that some of these MBs simply are kind of damaged.
 
-Rik VM in its later version is dealing better with Ultrasparc64
-quadriprocessor with 4 GB RAM. But in this case we are talking of very
-very stressed system, with hundreds of huge processes, doing a lot of swap
-in/out, and with 8 GB swap space.
-I am just sorry that i have access to this machine just from times to
-times, when a critical problem appears, but this is a production server.
+Right now we are running this machine with v2.4.12 uniprocessor kernel and it 
+seems to be stable. What i wanna know is whether there are some improvements 
+in the support for this mainboard in the kernel from 2.4.9 to 2.4.12 so we 
+could risk another try with the SMP kernel.
 
-The reason is the aa VM is more predictable, but rik's one actually
-seems to be smarter under very very stressed situations.
+thank you for you help
 
-I do not care which VM is simpler, nor which is faster. I loock for
-predictability, since this is the most important thing on the servers I am
-administering. Under a special situation I need something maybe less
-predictable, but smarter to manage a stressed system.
+andreas
 
-80%... 5%... I do not care for exact numbers actually, I will care in
-future, if the situation comes to the point that both VMs will be quite
-good for everything. anyway it is a good strategy to follow two different
-way, since they are progressing quite welll together, with competition,
-and also (I hope) reciprocal help (just to be able to read the code of the
-other is a good help:) ).
-
-Just now I am sorry I have to deal with this choice for every mission
-critical server I have. I would like a single VM that is good for
-everything, but I understand that this is the most difficoult thing to
-reach, because the casistinc is going to be more and more complex, with
-technology evolution, and
-with time it will be even worse.
-
-
-Luigi
-
-
-On Tue, 16 Oct 2001, Anuradha Ratnaweera wrote:
-
-> On Tue, Oct 16, 2001 at 01:57:41AM +0000, Linus Torvalds wrote:
-> >
-> > oh..  say ..  everything.
-> >
-> > "complex" != "smart".
->
-> and almost always
->
->     "simple" == "better"
->
-> Anuradha
->
-> --
->
-> Debian GNU/Linux (kernel 2.4.12)
->
-> Absolutum obsoletum.  (If it works, it's out of date.)
-> 		-- Stafford Beer
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+P.S.: The tyan support (after 5 days we were frustrated enough to call them 
+up) said the don't support Linux, and their boards are just certified for 
+Windows. But of course this is not alternative for us....
+-- 
+e-admin internet gmbh
+Andreas Gietl
+Roter-Brach-Weg 124a
+tel +49 941 3810884
+fax +49 941 3810891
+mobil +49 171 6070008

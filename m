@@ -1,74 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272842AbTGaH7d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 03:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272870AbTGaH7d
+	id S272430AbTGaHwU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 03:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272808AbTGaHwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 03:59:33 -0400
-Received: from dyn-ctb-210-9-243-68.webone.com.au ([210.9.243.68]:3332 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S272842AbTGaH71
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 03:59:27 -0400
-Message-ID: <3F28CC40.3030100@cyberone.com.au>
-Date: Thu, 31 Jul 2003 17:58:56 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Andrew Morton <akpm@osdl.org>, Johoho <johoho@hojo-net.de>, wodecki@gmx.de,
-       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O10int for interactivity
-References: <200307280112.16043.kernel@kolivas.org> <20030728143545.1d989946.akpm@osdl.org> <3F28B8D5.4040600@cyberone.com.au> <200307311743.17370.kernel@kolivas.org>
-In-Reply-To: <200307311743.17370.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Jul 2003 03:52:20 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:62472 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S272430AbTGaHwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 03:52:18 -0400
+Date: Thu, 31 Jul 2003 00:52:13 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Greg KH <greg@kroah.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Grant Miner <mine0057@mrs.umn.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Zio! compactflash doesn't work
+Message-ID: <20030731005213.B7207@one-eyed-alien.net>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Andries Brouwer <aebr@win.tue.nl>,
+	Grant Miner <mine0057@mrs.umn.edu>, linux-kernel@vger.kernel.org
+References: <3F26F009.4090608@mrs.umn.edu> <20030730231753.GB5491@kroah.com> <20030731011450.GA2772@win.tue.nl> <20030731041103.GA7668@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030731041103.GA7668@kroah.com>; from greg@kroah.com on Wed, Jul 30, 2003 at 09:11:03PM -0700
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--R3G7APHDIzY6R/pk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Con Kolivas wrote:
+On Wed, Jul 30, 2003 at 09:11:03PM -0700, Greg KH wrote:
+> On Thu, Jul 31, 2003 at 03:14:50AM +0200, Andries Brouwer wrote:
+> > On Wed, Jul 30, 2003 at 04:17:53PM -0700, Greg KH wrote:
+> > > On Tue, Jul 29, 2003 at 05:07:05PM -0500, Grant Miner wrote:
+> > > > I have a Microtech CompactFlash ZiO! USB
+> > > > P:  Vendor=3D04e6 ProdID=3D1010 Rev=3D 0.05
+> > > > S:  Manufacturer=3DSHUTTLE
+> > > > S:  Product=3DSCM Micro USBAT-02
+> > > >=20
+> > > > but it does not show up in /dev; this is in 2.6.0-pre1.  (It never=
+=20
+> > > > worked in 2.4 either.)  config is attached.  Any ideas?
+> > >=20
+> > > Linux doesn't currently support this device, sorry.
+> >=20
+> > Hmm. I think I recall seeing people happily using that.
+> > Do I misremember?
+> >=20
+> > Google gives
+> >   http://www.scm-pc-card.de/service/linux/zio-cf.html
+> > and
+> >   http://usbat2.sourceforge.net/
+>=20
+> In looking at the kernel source, I don't see support for this device.  I
+> do see support for others like it, but with different product ids.
 
->On Thu, 31 Jul 2003 16:36, Nick Piggin wrote:
->
->>Oh, and the process scheduler can definitely be a contributing factor.
->>Even if it looks like your process is getting enough cpu, if your
->>process doesn't get woken in less than 5ms after its read completes,
->>then AS will give up waiting for it.
->>
->
->This part interests me. It would seem that either 
->1. The AS scheduler should not bother waiting at all if the process is not 
->going to wake up in that time
->
+Zio! apparently makes multiple CF readers.  Some of them are supported, but
+this particular one is not, and likely never will be.
 
-It doesn't. Lacking a crystal ball, it relies on heuristics
-to achive this. It generally works.
+Matt
 
->
->2. The process should be woken in that time to ensure the AS scheduler is not 
->wasting it's time waiting.
->or a combination of 1 and 2 depending on some heuristic deciding on how 
->important it is for 2 instead of 1.
->
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Well yes, for any IO scheduler its important that a process being
-woken for IO is run ASAP. It is realy up to the process scheduler
-to hash out the policy here, just keep in mind that this is an
-important metric.
+G:   Baaap booop BAHHHP.
+Mir: 9600 Baud?
+Mik: No, no!  9600 goes baap booop, not booop bahhhp!
+					-- Greg, Miranda and Mike
+User Friendly, 12/31/1998
 
-If the scheduler / CPU can't keep up, then AS's heuristic should
-kick in quickly.
+--R3G7APHDIzY6R/pk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
->
->No, I'm not planning on trying to implement either of these <insert usual 
->complaint about time and knowledge here>, but I thought I should at least 
->contribute my thoughts.
->
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-No need! Just keep in mind that newly waking processes are important.
-Not just for disk but any sort of IO: network, soundcard buffers, etc.
+iD8DBQE/KMqtIjReC7bSPZARAnamAJ9HdubtYwwZrRZKZY4Z8iiTZmlUDACfYxmd
+I/fgUXUOcFLu6pQGxS8sUtw=
+=y9Zm
+-----END PGP SIGNATURE-----
 
-
+--R3G7APHDIzY6R/pk--

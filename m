@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135273AbRDZKDD>; Thu, 26 Apr 2001 06:03:03 -0400
+	id <S135277AbRDZK0L>; Thu, 26 Apr 2001 06:26:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135275AbRDZKCx>; Thu, 26 Apr 2001 06:02:53 -0400
-Received: from www.wen-online.de ([212.223.88.39]:3343 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S135273AbRDZKCl>;
-	Thu, 26 Apr 2001 06:02:41 -0400
-Date: Thu, 26 Apr 2001 12:02:06 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0104261121390.313-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.33.0104261159370.409-100000@mikeg.weiden.de>
+	id <S135281AbRDZK0C>; Thu, 26 Apr 2001 06:26:02 -0400
+Received: from mail.informatik.uni-ulm.de ([134.60.68.63]:61972 "EHLO
+	mail.informatik.uni-ulm.de") by vger.kernel.org with ESMTP
+	id <S135277AbRDZKZo>; Thu, 26 Apr 2001 06:25:44 -0400
+Message-ID: <3AE7F794.220E905C@student.uni-ulm.de>
+Date: Thu, 26 Apr 2001 12:25:24 +0200
+From: Markus Schaber <markus.schaber@student.uni-ulm.de>
+Organization: University of Ulm
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: de,de-DE,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: The further way? (was: Re: AHA-154X/1535 not recognized any more)
+In-Reply-To: <3AE56932.A62BF389@student.uni-ulm.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Mike Galbraith wrote:
+Hello,
 
-> > limit the runtime of refill_inactive_scan(). This is similar to Rik's
-> > reclaim-limit+aging-tuning patch to linux-mm yesterday. could you try
-> > Rik's patch with your patch except this jiffies hack, does it still
-> > achieve the same improvement?
->
-> No.  It livelocked on me with almost all active pages exausted.
+Markus Schaber wrote:
+[some Test results]
 
-Misspoke.. I didn't try the two mixed.  Rik's patch livelocked me.
-Still want me to try mixing?
+So what's the further way to go?
 
-	-Mike
+We found out that the kernel isapnp fails, while the isapnptools (with
+"check" entry removed and the driver as a module) and a non-pnp
+environment (where the BIOS initialzies it, and either a modularized and
+a compiled in driver) work with this card.
 
+Do I (as a non-kernel-hacker, and with only basic C experience) have any
+chance to quickly read into the code and find and correct the bug? Or is
+there anyone around here who just needs five minutes to adjust a few
+lines?
+
+As I said, I don't need the card any more, and am just waiting for this
+thing to be resolved, and then I remove this ancient thing. I could even
+send it to one of you per snail mail for some weeks to let you do
+further tests. My intention was to give a possibility to get the bug
+fixed :-)
+
+markus
+-- 
+Markus Schaber -- http://www.schabi.de/ -- ICQ: 22042130
++-------------------------------------------------------------+
+| Allgemeine Sig-Verletzung 0815/4711  <nicht OK> <Erbrechen> |
++-------------------------------------------------------------+

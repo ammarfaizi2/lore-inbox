@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129752AbQK3KMv>; Thu, 30 Nov 2000 05:12:51 -0500
+        id <S132120AbQK3KNv>; Thu, 30 Nov 2000 05:13:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132120AbQK3KMc>; Thu, 30 Nov 2000 05:12:32 -0500
-Received: from [195.3.86.158] ([195.3.86.158]:26896 "EHLO smtp1.lix.aon.at")
-        by vger.kernel.org with ESMTP id <S129752AbQK3KMY>;
-        Thu, 30 Nov 2000 05:12:24 -0500
-Message-ID: <90A461C34D90D111BA690020AFF7B3C873C5DE@x2-winnt.axioma.co.at>
-From: Franz Reitinger <FranzR@axioma.co.at>
+        id <S132718AbQK3KNl>; Thu, 30 Nov 2000 05:13:41 -0500
+Received: from pusa.informat.uv.es ([147.156.24.61]:60170 "EHLO
+        pusa.informat.uv.es") by vger.kernel.org with ESMTP
+        id <S132120AbQK3KNb>; Thu, 30 Nov 2000 05:13:31 -0500
+Date: Thu, 30 Nov 2000 10:43:01 +0100
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test11, 3c509
-Date: Thu, 30 Nov 2000 10:44:23 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-        charset="iso-8859-1"
+Subject: innofensive BUG and fix: area->map's size is not calculated ok
+Message-ID: <20001130104301.A22355@pusa.informat.uv.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-After patching & recompiling the kernel/modules the system cannot find the
-3com NIC (3c509). The init_module() tells, that such a card cannot be found.
-I played a little bit with several parameters (irq, xcvr), but it didn't
-help. The driver refuses simple to reconize the card. 
-It goes without saying that former versions did reconize the card.
 
-ThanX
-franzReitinger
+In a 2.4 kernel, mm/page_alloc.c:free_area_init_core(), in the following
+assignement...
 
-"What you want is irrelevant. What you have chosen is at hand!" 
----Spock, Star Trek VI
+	bitmap_size = size >> i;
+
+...makes bitmap_size be the double of the needed size, this calculum
+assumes that with a 512 byte map size the kernel is mapping 8*512= 4096 chunks 
+of memory, that is: one bit of the map is used for each chunk of memory, 
+and that's not true. 
+
+Really one bit of area->map is used to map two chunks of memory, so in the 
+example above an area->map of just 256 bytes is really needed, the other 256
+bytes are _never accessed_.
+
+So the righ thing would be to do is:
+
+	bitmap_size = size >> (i+1);
+
+
+also I tested it and it works ok, so I believe I'm right...
+
+
+Please CC: your replies to (I'm not subscribed to this list)
+
+Ulisses Alonso Camaró	<uaca@NOSPAM.alumni.uv.es>	
+
+PD: my nick on #kernelnewbies is despistao
+
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
+
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
  
-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

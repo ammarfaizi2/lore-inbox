@@ -1,70 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277528AbRKDSwZ>; Sun, 4 Nov 2001 13:52:25 -0500
+	id <S274789AbRKDSwp>; Sun, 4 Nov 2001 13:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273588AbRKDSwI>; Sun, 4 Nov 2001 13:52:08 -0500
-Received: from 49.ppp1-2.ski.worldonline.dk ([212.54.89.177]:49025 "EHLO
-	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S273796AbRKDSwB>; Sun, 4 Nov 2001 13:52:01 -0500
-Date: Sun, 4 Nov 2001 19:51:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: SYM-2 patches against latest kernels available
-Message-ID: <20011104195145.J10022@suse.de>
-In-Reply-To: <3BE564A4.D88D1951@mandrakesoft.com> <20011104160540.X1663-100000@gerard>
+	id <S274248AbRKDSw3>; Sun, 4 Nov 2001 13:52:29 -0500
+Received: from unthought.net ([212.97.129.24]:51928 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S273881AbRKDSwK>;
+	Sun, 4 Nov 2001 13:52:10 -0500
+Date: Sun, 4 Nov 2001 19:52:09 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Tim Jansen <tim@tjansen.de>, Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011104195209.J14001@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Alexander Viro <viro@math.psu.edu>, Tim Jansen <tim@tjansen.de>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <160Rpw-0rLDCyC@fmrl05.sul.t-online.com> <Pine.GSO.4.21.0111041321300.21449-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011104160540.X1663-100000@gerard>
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0111041321300.21449-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Nov 04, 2001 at 01:30:38PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04 2001, G?rard Roudier wrote:
+On Sun, Nov 04, 2001 at 01:30:38PM -0500, Alexander Viro wrote:
 > 
 > 
-> On Sun, 4 Nov 2001, Jeff Garzik wrote:
+> On Sun, 4 Nov 2001, Tim Jansen wrote:
 > 
-> > Gérard Roudier wrote:
-> > > The patch against linux-2.4.13 has been sent to Alan Cox for inclusion in
-> > > newer stable kernels. Alan wants to test it on his machines which is a
-> > > good thing. Anyway, those patches just add the new driver version to
-> > > kernel tree and leave stock sym53c8xx and ncr53c8xx in place.
-> >
-> > Are the older sym/ncr drivers going away in 2.5?
-> >
-> >
-> > > Any report, especially on large memory machines using 64 bit DMA (2.4
-> > > kernels + PCI DAC capable controllers only), is welcome. I can't test 64
-> > > bit DMA, since my fatest machine has only 512 MB of memory.
-> > >
-> > > To configure the driver, you must select "SYM53C8XX version 2 driver" from
-> > > kernel config. For large memory machines, a new "DMA addressing mode"
-> > > option is to be configured as follows (help texts have been added to
-> > > Configure.help):
-> > >
-> > > Value 0: 32 bit DMA addressing
-> > > Value 1: 40 bit DMA addressing (upper 24 bytes set to zero)
-> > > Value 2: 64 bit DMA addressing limited to 16 segments of 4 GB (64 GB) max.
-> >
-> > Are you using the new pci64 API under 2.4.x?
+> > So if only some programs use the 'dot-files' and the other still use the 
+> > crappy text interface we still have the old problem for scripts, only with a 
+> > much larger effort.
 > 
-> Didn't see any. Only the dma_addr_t thing can be 32 bit or 64 bit
-> depending on some magic. Apart this, the driver is asking for the
-> appropriate dma mask given the configured dma adressing mode.
+> Folks, could we please deep-six the "ASCII is tough" mentality?  Idea of
+> native-endian data is so broken that it's not even funny.  Exercise:
+> try to export such thing over the network.  Another one: try to use
+> that in a shell script.  One more: try to do it portably in Perl script.
 
-I've looked over the sym-2 and it is using pci_map_sg so it's 64-bit
-safe for sg transfers at least. For non-sg requests you are using
-pci_map_single, but you can't do any better because the mid layer is
-handing you virtual addresses in request_buffer currently anyways...
+So make it network byte order.
 
-> PS: There is some pci64* API on some arch., but nobody will want to
-> ever use it, in my opinion.
+How many bugs have you heard of with bad use of sscanf() ?
 
-You are doing it right :-)
+The counters *are* host specific. Available memory is 32 bits somewhere, 64
+other places.  That's the world we live in and hiding the difficulties in ASCII
+that *can* be parsed so that it only breaks "sometimes" doesn't help the
+application developers.
+
+Better to face the facts, and get over it.
+
+> It had been tried.  Many times.  It had backfired 100 times out 100.
+> We have the same idiocy to thank for fun trying to move a disk with UFS
+> volume from Solaris sparc to Solaris x86.  We have the same idiocy to
+> thank for a lot of ugliness in X.
+> 
+> At the very least, use canonical bytesex and field sizes.  Anything less
+> is just begging for trouble.  And in case of procfs or its equivalents,
+> _use_ the_ _damn_ _ASCII_ _representations_.  scanf(3) is there for
+> purpose.
+> 
+
+scanf can be used wrongly in more ways than the two of us can imagine
+together, even if we try.
+
+I disagree with harmonizing field sizes - that doesn't make sense. What's
+64 bits today is 128 tomorrow (IPv6 related things, crypto, ...), what
+used to fit in 32 is in 64, some places.
+
+Having a library that gives you either compile-time errors if you use it
+wrong, or barfs loudly at run-time is one hell of a lot better than having
+silent mis-parsing of ASCII values.
 
 -- 
-Jens Axboe
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

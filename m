@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266340AbUFPWv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUFPWx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266340AbUFPWv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 18:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266339AbUFPWv1
+	id S264297AbUFPWx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 18:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266339AbUFPWx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 18:51:27 -0400
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:41580 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264297AbUFPWvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 18:51:08 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH 0/3] Couple of sysfs patches
-Date: Wed, 16 Jun 2004 17:51:03 -0500
-User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20040610144658.31403.qmail@web81309.mail.yahoo.com> <20040610191740.B6833@flint.arm.linux.org.uk> <20040610212552.C6833@flint.arm.linux.org.uk>
-In-Reply-To: <20040610212552.C6833@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 16 Jun 2004 18:53:57 -0400
+Received: from shockwave.systems.pipex.net ([62.241.160.9]:47827 "EHLO
+	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S264297AbUFPWxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 18:53:52 -0400
+Subject: Re: [PATCH] Stairacse scheduler v6.E for 2.6.7-rc3
+From: Alastair Stevens <alastair@altruxsolutions.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406161751.03574.dtor_core@ameritech.net>
+Organization: Haverhill UK
+Message-Id: <1087426430.13988.4.camel@dolphin.chalkstone.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 16 Jun 2004 23:53:51 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 June 2004 03:25 pm, Russell King wrote:
-> On Thu, Jun 10, 2004 at 07:17:40PM +0100, Russell King wrote:
-> > On Thu, Jun 10, 2004 at 09:14:42AM -0700, Greg KH wrote:
-> > > On Thu, Jun 10, 2004 at 05:06:07PM +0100, Russell King wrote:
-> > > > 
-> > > > Now that I can see the platform device interfaces multipling like rabbits,
-> > > > (to GregKH) I think that the patch I submitted for platform_add_device
-> > > > suffers from this problem as well, and I should've thrown that code
-> > > > into platform_register_device itself.
-> > > > 
-> > > > Greg - comments?  Would you like a new patch which does that, or do you
-> > > > think that's too risky?
-> > > 
-> > > Hm, I don't think it's too risky.  Make up a patch and let's see how it
-> > > looks.
-> > > 
-> > > I'm just worried that this "simple" interface really isn't so simple, as
-> > > it's almost just as much work to manage it as a normal platform device.
-> > 
-> > Ok, here's a patch so you can see what I'm suggesting above.  This is
-> > on top of the previous patch I sent.  Merely discards one over-eager
-> > rabbit [1] and moves the code into platform_device_register().
-> > 
-> > [1]: No animals were harmed in the creation of this patch.
-> 
-> And for added good behaviour, particularly when things go wrong.
-> 
->  
-> +	for (i = 0; i < pdev->num_resources; i++) {
-> +		struct resource *p, *r = &pdev->resource[i];
-> +
-> +		r->name = pdev->dev.bus_id;
-> +
-> +		p = NULL;
-> +		if (r->flags & IORESOURCE_MEM)
-> +			p = &iomem_resource;
-> +		else if (r->flags & IORESOURCE_IO)
-> +			p = &ioport_resource;
-> +
-> +		if (p && request_resource(p, r)) {
-> +			printk(KERN_ERR
-> +			       "%s: failed to claim resource %d\n",
-> +			       pdev->dev.bus_id, i);
-> +			ret = -EBUSY;
-> +			goto failed;
-> +		}
-> +	}
-> +
+>> Hi, does this resolve the issue with ut2004? (Or is another setting
+>> for it needed?) I haven't tried myself, but others reported that
+>> setting interactive to 0 didn't help, nor giving ut2004 more priority
+>> via (re)nice.
+>
+>Good question. I don't own UT2004 so I was hoping a tester might
+>enlighten me.
+>
+>Con
 
-What about freeing the resources? Can it be put in platform_device_unregister
-or is it release handler task? I'd put it in unregister because when I call
-unregister I expect device be half-dead and release as much resources as it
-can.
+Well, I can report that it looks just fine from here.  I'm running 2.6.7
+with the staircase patch, and UT2004 - as well as everything else -
+works great.  Machine is an Athlon XP 2600+ with nVidia FX 5600.  I
+haven't tweaked any nice values or /proc settings.
+
+FWIW, the whole 2.6.7 experience seems great.  All of the mysterious
+troubles I had with 2.6.6 (eg failing to call init) seem to have
+vanished, and everything is running beautifully again.  For me, at
+least, 2.6.6 was a very ungreased turkey, but now I'm happy again!
+
+Cheers
+Alastair
 
 -- 
-Dmitry
+                                        o
+Alastair Stevens : child of 1976       /-'_              LPI (Level 1)
+>> www.altruxsolutions.co.uk          |\/(*)   /\__     Linux Certified
+_________________________________ . .(*) _____/    \___________________
+Still browsing with IE?  GET WITH THE PROGRAM @ www.mozilla.org/firefox
+

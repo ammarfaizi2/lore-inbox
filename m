@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318265AbSHDV3c>; Sun, 4 Aug 2002 17:29:32 -0400
+	id <S318281AbSHDVd2>; Sun, 4 Aug 2002 17:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318266AbSHDV3c>; Sun, 4 Aug 2002 17:29:32 -0400
-Received: from pD9E2319C.dip.t-dialin.net ([217.226.49.156]:37068 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318265AbSHDV3b>; Sun, 4 Aug 2002 17:29:31 -0400
-Date: Sun, 4 Aug 2002 15:32:59 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
+	id <S318283AbSHDVd2>; Sun, 4 Aug 2002 17:33:28 -0400
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:31723 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318281AbSHDVd1>; Sun, 4 Aug 2002 17:33:27 -0400
+Message-Id: <5.1.0.14.2.20020804223536.045cf3b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 04 Aug 2002 22:37:18 +0100
 To: Nico Schottelius <nico-mutt@schottelius.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: floppy issue also in 2.4.18 ?  / 2.5 solution
-In-Reply-To: <20020804053705.GA9854@schottelius.org>
-Message-ID: <Pine.LNX.4.44.0208041529520.10270-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: 2.5.29 / 2.5.31 floppy/apm support
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020804054317.GB11639@schottelius.org>
+References: <200208032054.WAA25022@harpo.it.uu.se>
+ <200208032054.WAA25022@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 06:43 04/08/02, Nico Schottelius wrote:
+>Mikael Pettersson [Sat, Aug 03, 2002 at 10:54:53PM +0200]:
+> > For 100% working floppy you'd need to downgrade to 2.5.12 or earlier.
+>
+>tried 2.5.10...which fails, too.
 
-On Sun, 4 Aug 2002, Nico Schottelius wrote:
-> 1) Why does 2.4.18 kernel hangs when I try to boot it from floppy ?
->    Symptoms: After 'Loading ... ' progress finished, the disk drive's
->    led is still lighting and nothing happens anymore.
->    What can be wrong ? CPU is correct (I even tried 386,586,p-classic,p-mmx,..),
->    it's a P133. And howto fix it?
+My wild guess would be 2.5.1-pre1 or 2.5.0 itself. I know my atapi cdrom 
+drive broke in 2.5.1-pre1 and never worked since (admittedly I haven't 
+tried in a very long while now).
 
-Yo. Some days ago there was a patch that fixed the floppy I/O driver. I'll 
-append it, against 2.5.29.
+Cheers,
 
-> 2) Somebody explain me what changed in vfs, where to find doc and give me some
->    time to fix that damn 2.5 floppy driver. I'm gonna fight it.
+         Anton
 
-It was in 2.5.12. Just look at the changes, I don't have a pointer right 
-now. (I'm busy writing something about the downturn of the first ancient 
-egypt empire...)
 
-			Thunder
 -- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,76 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265473AbSKACli>; Thu, 31 Oct 2002 21:41:38 -0500
+	id <S265560AbSKACqQ>; Thu, 31 Oct 2002 21:46:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbSKACli>; Thu, 31 Oct 2002 21:41:38 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:8196 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265473AbSKAClh>;
-	Thu, 31 Oct 2002 21:41:37 -0500
-Date: Thu, 31 Oct 2002 18:45:04 -0800
-From: Greg KH <greg@kroah.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>,
-       "Lee, Jung-Ik" <jung-ik.lee@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: bare pci configuration access functions ?
-Message-ID: <20021101024504.GC13031@kroah.com>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A495@orsmsx119.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A495@orsmsx119.jf.intel.com>
-User-Agent: Mutt/1.4i
+	id <S265575AbSKACqQ>; Thu, 31 Oct 2002 21:46:16 -0500
+Received: from h00010256f583.ne.client2.attbi.com ([66.30.243.14]:55168 "EHLO
+	portent.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265560AbSKACqI>; Thu, 31 Oct 2002 21:46:08 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Lev Makhlis <mlev@despammed.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.5.45] SARQ (Run Queue Statistics) [Update]
+Date: Thu, 31 Oct 2002 21:52:19 -0500
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200210312152.19067.mlev@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 06:07:31PM -0800, Grover, Andrew wrote:
-> > From: Greg KH [mailto:greg@kroah.com] 
-> > Nice, thanks for pointing that out.  But what about the fact that I
-> > think we can now start optimizing certain parts of the "generic"
-> > code to play nicer with Linux?
-> 
-> It is much much more important that ACPI be *correct* than fast or small.
+I am not sure if there is any interest in this, but here is an update
+of my previous patch for 2.5.45.  This version is less intrusive --
+it doesn't touch calc_load() or count_active_tasks().  (I figure
+that since nr_running()/nr_uninterruptible() are now O(NR_CPUS),
+calling them one extra time per second is no big deal.)
 
-I agree.  I was just thinking that ACPI was correct already, and we
-could move on toward making it fast and small.  Sorry for thinking that
-:)
+The patch adds two counters in /proc/stat, runque and runocc, similar
+to those in traditional UNIX systems (usually reported by sar -q),
+that track the system run queue occupancy.
+Every second, 'runque' is incremented by the run queue size, and
+'runocc' is incremented by one if the run queue is not empty.
 
-> I'm used to ACPI ranting from all quarters, you know that ;-) but let me
-> just say this:
-> 
-> - ACPI is not performance-critical
-> - ACPI will never be simple and elegant, even if you made it Linux-specific
-> - Portability enhances correctness and maximizes developer productivity
-> - Read my lips, no new taxes!
-> 
-> (dunno where that last one came from ;-)
+Lev
 
-You already said 3 other lies, so a fourth one rounded them all out?  :)
+--------------------------------------------------------------------------
 
-(sorry, couldn't help myself.  For the readers in the peanut gallery,
- I consider Andy a friend, this was not a personal attack, just a chance
- to make a joke.)
-
-To address the above:
-
-> - ACPI is not performance-critical
-
-But it can't hurt in both stack size, and execution speed to fix obvious
-things that cause it to slow down.  And if ACPI is too slow, booting
-takes longer, and getting ACPI events to other places start taking
-unacceptable amounts of times.  Not that this is happening right now :)
-
-> - ACPI will never be simple and elegant, even if you made it Linux-specific
-
-Heh, you said it, I didn't.
-
-> - Portability enhances correctness and maximizes developer productivity
-
-Only if the developers are being forced to work on multiple platforms.
-For the majority of Linux kernel developers, luckily we do not have to
-do this.  For your group, I understand the constraints, and am willing
-to live with it, in order to get a working ACPI implementation.  Beggars
-can't be choosy :)
-
-thanks,
-
-greg k-h
+diff -urN linux-2.5.45.orig/fs/proc/proc_misc.c 
+linux-2.5.45/fs/proc/proc_misc.c
+--- linux-2.5.45.orig/fs/proc/proc_misc.c	Thu Oct 31 15:34:01 2002
++++ linux-2.5.45/fs/proc/proc_misc.c	Thu Oct 31 15:47:19 2002
+@@ -419,12 +419,15 @@
+ 		"btime %lu\n"
+ 		"processes %lu\n"
+ 		"procs_running %lu\n"
+-		"procs_blocked %u\n",
++		"procs_blocked %u\n"
++		"runque %u %u\n",
+ 		nr_context_switches(),
+ 		xtime.tv_sec - jif / HZ,
+ 		total_forks,
+ 		nr_running(),
+-		atomic_read(&nr_iowait_tasks));
++		atomic_read(&nr_iowait_tasks),
++		kstat.runque,
++		kstat.runocc);
+ 
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+diff -urN linux-2.5.45.orig/include/linux/kernel_stat.h 
+linux-2.5.45/include/linux/kernel_stat.h
+--- linux-2.5.45.orig/include/linux/kernel_stat.h	Sat Oct 19 00:01:50 2002
++++ linux-2.5.45/include/linux/kernel_stat.h	Thu Oct 31 15:45:44 2002
+@@ -26,6 +26,7 @@
+ 	unsigned int dk_drive_wio[DK_MAX_MAJOR][DK_MAX_DISK];
+ 	unsigned int dk_drive_rblk[DK_MAX_MAJOR][DK_MAX_DISK];
+ 	unsigned int dk_drive_wblk[DK_MAX_MAJOR][DK_MAX_DISK];
++	unsigned int runque, runocc;
+ #if !defined(CONFIG_ARCH_S390)
+ 	unsigned int irqs[NR_CPUS][NR_IRQS];
+ #endif
+diff -urN linux-2.5.45.orig/kernel/timer.c linux-2.5.45/kernel/timer.c
+--- linux-2.5.45.orig/kernel/timer.c	Thu Oct 31 15:34:05 2002
++++ linux-2.5.45/kernel/timer.c	Thu Oct 31 15:54:53 2002
+@@ -720,6 +720,25 @@
+ 	}
+ }
+ 
++/*
++ * calc_runq - given tick count, update the runque/runocc counters.
++ */
++static inline void calc_runq(unsigned long ticks)
++{
++	unsigned long active_tasks;
++	static int count = HZ;
++
++	count -= ticks;
++	if (count < 0) {
++		count += HZ;
++		active_tasks = nr_running() + nr_uninterruptible();
++		if (active_tasks) {
++			kstat.runque += active_tasks;
++			kstat.runocc ++;
++		}
++	}
++}
++
+ /* jiffies at the most recent update of wall time */
+ unsigned long wall_jiffies;
+ 
+@@ -764,6 +783,7 @@
+ 	}
+ 	last_time_offset = 0;
+ 	calc_load(ticks);
++	calc_runq(ticks);
+ }
+   
+ /*

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129175AbRAYRCT>; Thu, 25 Jan 2001 12:02:19 -0500
+	id <S129807AbRAYRFa>; Thu, 25 Jan 2001 12:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130188AbRAYRCK>; Thu, 25 Jan 2001 12:02:10 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:43017 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129175AbRAYRB7>; Thu, 25 Jan 2001 12:01:59 -0500
-Date: Thu, 25 Jan 2001 12:07:08 -0500
-From: Chris Mason <mason@suse.com>
-To: Ondrej Sury <ondrej@globe.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre10 slowdown at boot.
-Message-ID: <118870000.980442428@tiny>
-In-Reply-To: <87k87jzjlt.fsf@ondrej.office.globe.cz>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+	id <S129737AbRAYRFU>; Thu, 25 Jan 2001 12:05:20 -0500
+Received: from cmn2.cmn.net ([206.168.145.10]:13896 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S129311AbRAYRFD>;
+	Thu, 25 Jan 2001 12:05:03 -0500
+Message-ID: <3A705CAF.70909@valinux.com>
+Date: Thu, 25 Jan 2001 10:04:47 -0700
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Timur Tabi <ttabi@interactivesi.com>
+CC: Roman Zippel <roman@augan.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: ioremap_nocache problem?
+In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> 
+		<20010123165117Z131182-221+34@kanga.kvack.org> ; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600 <20010125155345Z131181-221+38@kanga.kvack.org> <20010125165001Z132264-460+11@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timur Tabi wrote:
 
-
-On Thursday, January 25, 2001 05:23:26 PM +0100 Ondrej Sury
-<ondrej@globe.cz> wrote:
-
+> ** Reply to message from Roman Zippel <roman@augan.com> on Thu, 25 Jan 2001
+> 17:44:51 +0100
 > 
-> 2.4.1-pre10 slows down after printing those (maybe ACPI or reiserfs
-> issue), and even SysRQ-(s,u,b) is not imediate and waits several (two+)
-> seconds before (syncing,remounting,booting).
 > 
-> ACPI: System description tables found
-> ACPI: System description tables loaded
-> ACPI: Subsystem enabled
-> ACPI: System firmware supports: C2
-> ACPI: System firmware supports: S0 S1 S4 S5
-> reiserfs: checking transaction log (device 03:04) ...
-> Warning, log replay starting on readonly filesystem
 > 
+>> set_bit(PG_reserved, &page->flags);
+>> 	ioremap();
+>> 	...
+>> 	iounmap();
+>> 	clear_bit(PG_reserved, &page->flags);
+> 
+> 
+> The problem with this is that between the ioremap and iounmap, the page is
+> reserved.  What happens if that page belongs to some disk buffer or user
+> process, and some other process tries to free it.  Won't that cause a problem?
 
-Here, reiserfs is telling you that it has started replaying transactions in
-the log.  You should also have a reiserfs message telling you how many
-transactions it replayed, and how long it took.  Do you have that message?
+	The page can't belong to some other process/kernel component.  You own 
+the page if you allocated it.  The kernel will only muck with memory you 
+allocated if its GFP_HIGHMEM, or under certain circumstances if you map 
+it into a user process (There are several rules here and I won't go into 
+them, look at the DRM mmap setup for a start if your interested.)  This 
+is the correct ordering of the calls (I was the one who added support to 
+the kernel to ioremap real ram, trust me.)
 
--chris
+-Jeff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

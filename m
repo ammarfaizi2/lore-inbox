@@ -1,198 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269750AbUJMQv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269752AbUJMQx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269750AbUJMQv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 12:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269748AbUJMQv1
+	id S269752AbUJMQx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 12:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269753AbUJMQx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 12:51:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55761 "HELO
+	Wed, 13 Oct 2004 12:53:56 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:23250 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269750AbUJMQvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 12:51:19 -0400
+	id S269752AbUJMQxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 12:53:46 -0400
 Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
 From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
        Rui Nuno Capela <rncbc@rncbc.org>,
        Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <20041007105230.GA17411@elte.hu>
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
-	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20041012091740.GA18736@elte.hu>
+References: <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
 	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
 	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
 	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
 	 <20041007105230.GA17411@elte.hu>
+	 <1097555404.1553.18.camel@krustophenia.net>
+	 <20041012091740.GA18736@elte.hu>
 Content-Type: text/plain
-Message-Id: <1097686095.6538.27.camel@krustophenia.net>
+Message-Id: <1097686342.6538.31.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 13 Oct 2004 12:48:15 -0400
+Date: Wed, 13 Oct 2004 12:52:23 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-07 at 06:52, Ingo Molnar wrote:
-> i've released the -T3 VP patch:
+On Tue, 2004-10-12 at 05:17, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
 > 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+> > Just to recap, these are the three problem areas that still produce
+> > latencies over 500 usec on my machine.
+> > 
+> > 	journal_clean_checkpoint_list
+> 
+> you might want to send this trace to Andrew too - the primary master of
+> ext3 latency-breaking.
 > 
 
-Ingo, here's the data from an 87 million sample run (about 24 hours) of
-my jackd test.  Note the 1292 usec outlier.  This is definitely not
-latency trace overhead as it was disabled.  I suspect either the
-rt_garbage_collect or journal_clean_checkpoint_list code path is
-responsible.
+OK, Andrew, here it is.  This is one of the last 2 or 3 code paths that
+can still produce latencies > 200 usecs on a typical machine.
 
-Delay   # samples
------   ---------
-0       86798124
-1       122
-2       113
-3       118
-4       109
-5       96
-6       78
-7       66
-8       66
-9       51
-10      52
-11      41
-12      39
-13      43
-14      43
-15      30
-16      17
-17      18
-18      28
-19      17
-20      18
-21      16
-22      19
-23      19
-24      19
-25      15
-26      26
-27      13
-28      13
-29      10
-30      17
-31      19
-32      12
-33      12
-34      17
-35      7
-36      16
-37      13
-38      7
-39      10
-40      9
-41      9
-42      9
-43      8
-44      11
-45      18
-46      12
-47      13
-48      6
-49      12
-50      12
-51      13
-52      8
-53      11
-54      14
-55      5
-56      5
-57      11
-58      8
-59      11
-60      8
-61      5
-62      11
-63      8
-64      9
-65      11
-66      9
-67      8
-68      8
-69      8
-70      8
-71      8
-72      11
-73      10
-74      10
-75      8
-76      2
-77      7
-78      4
-79      9
-80      5
-81      4
-82      2
-83      7
-84      6
-85      1
-86      7
-87      5
-88      10
-89      7
-90      3
-91      7
-92      7
-93      7
-94      1
-95      7
-96      5
-97      7
-98      2
-99      3
-100     3
-101     4
-102     4
-103     4
-104     5
-105     3
-106     5
-107     2
-108     4
-109     1
-110     2
-111     2
-112     3
-113     2
-115     1
-116     3
-117     2
-118     3
-119     3
-120     1
-121     2
-122     2
-123     2
-124     1
-127     1
-128     2
-129     2
-130     2
-133     1
-135     1
-139     1
-141     2
-145     1
-147     1
-152     1
-156     1
-169     1
-173     1
-177     1
-187     1
-194     2
-233     1
-242     1
-290     1
-352     1
-1292    1
+--
+
+Also, I am still seeing some long latencies in the ext3 journaling code:
+
+preemption latency trace v1.0.7 on 2.6.9-rc3-mm3-VP-T3
+-------------------------------------------------------
+ latency: 607 us, entries: 1087 (1087)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:1]
+    -----------------
+    | task: kjournald/687, uid:0 nice:0 policy:0 rt_prio:0
+    -----------------
+ => started at: journal_commit_transaction+0x75/0x2830
+ => ended at:   __journal_clean_checkpoint_list+0xb2/0xf0
+=======>
+00000001 0.000ms (+0.003ms): journal_commit_transaction (kjournald)
+
+Here is the loop:
+
+00000002 0.003ms (+0.001ms): kfree (journal_commit_transaction)
+00000001 0.004ms (+0.001ms): journal_refile_buffer (journal_commit_transaction)
+00000003 0.006ms (+0.000ms): __journal_refile_buffer (journal_refile_buffer)
+00000003 0.006ms (+0.001ms): __journal_unfile_buffer (journal_refile_buffer)
+00000002 0.008ms (+0.000ms): journal_remove_journal_head (journal_refile_buffer)
+00000003 0.008ms (+0.000ms): __journal_remove_journal_head (journal_remove_journal_head)
+00000003 0.009ms (+0.000ms): __brelse (__journal_remove_journal_head)
+00000003 0.010ms (+0.000ms): journal_free_journal_head (journal_remove_journal_head)
+00000003 0.010ms (+0.001ms): kmem_cache_free (journal_free_journal_head)
+00000001 0.011ms (+0.000ms): __brelse (journal_commit_transaction)
+
+[end loop]
+
+00000002 0.012ms (+0.000ms): kfree (journal_commit_transaction)
+00000001 0.013ms (+0.000ms): journal_refile_buffer (journal_commit_transaction)
 
 Lee
-
 

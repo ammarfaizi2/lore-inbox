@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262454AbSJTMoP>; Sun, 20 Oct 2002 08:44:15 -0400
+	id <S262469AbSJTMpH>; Sun, 20 Oct 2002 08:45:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262469AbSJTMoP>; Sun, 20 Oct 2002 08:44:15 -0400
-Received: from freemail.agrinet.ch ([212.28.134.90]:27916 "EHLO
-	freemail.agrinet.ch") by vger.kernel.org with ESMTP
-	id <S262454AbSJTMoO>; Sun, 20 Oct 2002 08:44:14 -0400
-Date: Sun, 20 Oct 2002 14:50:13 +0200
-From: Andreas Tscharner <starfire@dplanet.ch>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH][TRIVIAL] 2.5.44 Typo in include/linux/pnp.h
-Message-Id: <20021020145013.4e609712.starfire@dplanet.ch>
-Organization: No Such Penguin
-X-Mailer: Sylpheed version 0.8.5claws20 (GTK+ 1.2.10; )
+	id <S262474AbSJTMpG>; Sun, 20 Oct 2002 08:45:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32516 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262469AbSJTMpF>;
+	Sun, 20 Oct 2002 08:45:05 -0400
+Date: Sun, 20 Oct 2002 13:51:09 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Erik Andersen <andersen@codepoet.org>, Matthew Wilcox <willy@debian.org>,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] work around duff ABIs
+Message-ID: <20021020135109.D5285@parcelfarce.linux.theplanet.co.uk>
+References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk> <20021020045149.GA27887@codepoet.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sun__20_Oct_2002_14:50:13_+0200_09f14680"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021020045149.GA27887@codepoet.org>; from andersen@codepoet.org on Sat, Oct 19, 2002 at 10:51:49PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Sat, Oct 19, 2002 at 10:51:49PM -0600, Erik Andersen wrote:
+> Nonono.  Please see __LONG_LONG_PAIR in /usr/include/endian.h.
+> Your user space code should be doing something like this:
+> 
+>     static inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
+> 	    size_t, count, off_t, offset_hi, off_t, offset_lo);
+> 
+>     ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
+>     {
+> 	return(__syscall_pread(fd,buf,count,__LONG_LONG_PAIR((off_t)0,offset)));
+>     }
+> 
+>     ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
+>     {
+> 	return(__syscall_pread(fd, buf, count,
+> 		    __LONG_LONG_PAIR((off_t)(offset>>32),
+> 		    (off_t)(offset&0xffffffff))));
+>     }
+> 
+> Your patch is going to break GNU libc, uClibc, and anyone else in
+> userspace that is doing pread and pread64 correctly....
 
---Multipart_Sun__20_Oct_2002_14:50:13_+0200_09f14680
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Well... since you just proved that you don't understand the problem,
+I'd hazard a guess that uClibc is also broken, as well as glibc.
 
-Heelo World,
+Here's how the ABI specifies that pread() shall take its arguments:
 
-The attached patch corrects a typo in include/linux/pnp.h (A ')' instead
-of a '}') that avoids compiling.
+asmlinkage ssize_t sys_pread64(unsigned int fd, char *buf, size_t count,
+				loff_t pos)
 
-Regards
-	Andreas
+fd	arg0
+buf	arg1
+count	arg2
+pos	arg4 & arg5
+
+Here's what __LONG_LONG_PAIR does:
+
+fd	arg0
+buf	arg1
+count	arg2
+pos(HI)	arg3
+pos(LO)	arg4
+
 -- 
-Andreas Tscharner                                  starfire@dplanet.ch
-----------------------------------------------------------------------
-"Programming today is a race between software engineers striving to
-build bigger and better idiot-proof programs, and the Universe trying
-to produce bigger and better idiots. So far, the Universe is winning."
-                                                          -- Rich Cook 
-
---Multipart_Sun__20_Oct_2002_14:50:13_+0200_09f14680
-Content-Type: application/octet-stream;
- name="pnp_h.patch"
-Content-Disposition: attachment;
- filename="pnp_h.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIGluY2x1ZGUvbGludXgvcG5wLmgub3JpZwkyMDAyLTEwLTIwIDE0OjI3OjA2LjAwMDAwMDAw
-MCArMDIwMAorKysgaW5jbHVkZS9saW51eC9wbnAuaAkyMDAyLTEwLTIwIDE0OjI5OjI0LjAwMDAw
-MDAwMCArMDIwMApAQCAtMjQ1LDcgKzI0NSw3IEBACiAKIC8qIGp1c3QgaW4gY2FzZSBhbnlvbmUg
-ZGVjaWRlcyB0byBjYWxsIHRoZXNlIHdpdGhvdXQgUG5QIFN1cHBvcnQgRW5hYmxlZCAqLwogc3Rh
-dGljIGlubGluZSBpbnQgcG5wX3Byb3RvY29sX3JlZ2lzdGVyKHN0cnVjdCBwbnBfcHJvdG9jb2wg
-KnByb3RvY29sKSB7IHJldHVybiAtRU5PREVWOyB9Ci1zdGF0aWMgaW5saW5lIHZvaWQgcG5wX3By
-b3RvY29sX3VucmVnaXN0ZXIoc3RydWN0IHBucF9wcm90b2NvbCAqcHJvdG9jb2wpIHsgOyApCitz
-dGF0aWMgaW5saW5lIHZvaWQgcG5wX3Byb3RvY29sX3VucmVnaXN0ZXIoc3RydWN0IHBucF9wcm90
-b2NvbCAqcHJvdG9jb2wpIHsgOyB9CiBzdGF0aWMgaW5saW5lIGludCBwbnBfaW5pdF9kZXZpY2Uo
-c3RydWN0IHBucF9kZXYgKmRldikgeyByZXR1cm4gLUVOT0RFVjsgfQogc3RhdGljIGlubGluZSBp
-bnQgcG5wX2FkZF9kZXZpY2Uoc3RydWN0IHBucF9kZXYgKmRldikgeyByZXR1cm4gLUVOT0RFVjsg
-fQogc3RhdGljIGlubGluZSB2b2lkIHBucF9yZW1vdmVfZGV2aWNlKHN0cnVjdCBwbnBfZGV2ICpk
-ZXYpIHsgOyB9Cg==
-
---Multipart_Sun__20_Oct_2002_14:50:13_+0200_09f14680--
+Revolutions do not require corporate support.

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264400AbRFHXXX>; Fri, 8 Jun 2001 19:23:23 -0400
+	id <S264402AbRFHXYx>; Fri, 8 Jun 2001 19:24:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264402AbRFHXXO>; Fri, 8 Jun 2001 19:23:14 -0400
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:46576 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S264401AbRFHXXE>; Fri, 8 Jun 2001 19:23:04 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880AA8@xsj02.sjs.agilent.com>
-From: hiren_mehta@agilent.com
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: question about scsi generic behavior
-Date: Fri, 8 Jun 2001 17:22:56 -0600 
+	id <S264403AbRFHXYn>; Fri, 8 Jun 2001 19:24:43 -0400
+Received: from waste.org ([209.173.204.2]:40542 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S264402AbRFHXY1>;
+	Fri, 8 Jun 2001 19:24:27 -0400
+Date: Fri, 8 Jun 2001 18:26:57 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Dawson Engler <engler@csl.Stanford.EDU>
+cc: <linux-kernel@vger.kernel.org>, <mc@cs.Stanford.EDU>
+Subject: Re: [CHECKER] 15 probable security holes in 2.4.5-ac8
+In-Reply-To: <200106082134.OAA12792@csl.Stanford.EDU>
+Message-ID: <Pine.LNX.4.30.0106081808420.16106-100000@waste.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+On Fri, 8 Jun 2001, Dawson Engler wrote:
 
-I am trying to use sg_dd which goes through the scsi generic driver.
-This is how use it.
+> You can look at this checker as essentially tracking whether the
+> information from an untrusted source (e.g., from copy_from_user) can reach
+> a trusting sink (e.g., an array index).  The main limiting factor on its
+> effectiveness is that we have a very incomplete notion of trusting sinks.
+> If anyone has suggestions for other general places where it's dangerous
+> to consume bad data, please send me an email.
 
-sg_dd if=/dev/zero of=/dev/sg5 bs=4096 count=1
+I wrote something similar to this for userspace (via ld preload). Most of
+my checks followed strings around and made sure they were length checked
+so as to avoid stack overflows, but I also checked args to open, etc..
 
-And sg5 is actually a disk. 
+In your case, basically all destinations are trusting sinks at some level:
+userspace gives you data to put it somewhere. You might want to instead
+check that data is passing through functions that 'detaint', by checking
+capabilities, etc. I bet that you'll find that something like 90% of code
+paths are covered by a few common security checks. And that most of the
+remainder could be rewritten to be.
 
-The question that I have is, does the scsi generic driver have a knowledge
-about what kind of device it is dealing with ? As you know, all disk drives
-have block size of 512 bytes. So, according to the above command, I am
-suppose
-write 4096 bytes of data. But when my driver gets the CDB, I see that
-the transfer length is set to 1 block instead of 8 blocks. And to transfer
-4096 bytes, obviously we need transfer length=8 in CDB. Since, the transfer
-length
-is set to 1, the drive comes back with 1 512 byte block and then comes back
-with 
-a good status because of which sg_dd command is not able to transfer all
-4096 bytes
-of data.
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-Any input on this ?
-
-Regards,
--hiren
-hiren_mehta@agilent.com

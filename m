@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284138AbSBDSZ2>; Mon, 4 Feb 2002 13:25:28 -0500
+	id <S284180AbSBDSaI>; Mon, 4 Feb 2002 13:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287439AbSBDSZM>; Mon, 4 Feb 2002 13:25:12 -0500
-Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:41453 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S284933AbSBDSYm>;
-	Mon, 4 Feb 2002 13:24:42 -0500
-Message-ID: <3C5ED1D5.3050204@candelatech.com>
-Date: Mon, 04 Feb 2002 11:24:21 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <E16XmqC-0007lb-00@the-village.bc.nu> <3C5EC104.A3412D56@uni-mb.si> <E16Xmjc-0001uS-00@Princess> <E16XnUr-0004mf-00@starship.berlin> <3C5ECF8C.1744549C@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S285023AbSBDS36>; Mon, 4 Feb 2002 13:29:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23816 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S284180AbSBDS3z>;
+	Mon, 4 Feb 2002 13:29:55 -0500
+Date: Mon, 4 Feb 2002 18:29:42 +0000
+From: Joel Becker <jlbec@evilplan.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Steve Lord <lord@sgi.com>, Chris Wedgwood <cw@f00f.org>,
+        Jeff Garzik <garzik@havoc.gtf.org>, Chris Mason <mason@suse.com>,
+        Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        Ricardo Galli <gallir@uib.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT fails in some kernel and FS
+Message-ID: <20020204182942.C2092@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+	Chris Wedgwood <cw@f00f.org>, Jeff Garzik <garzik@havoc.gtf.org>,
+	Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
+	Andrew Morton <akpm@zip.com.au>, Ricardo Galli <gallir@uib.es>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1012835730.26397.519.camel@jen.americas.sgi.com> <E16XlK0-0007Wu-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16XlK0-0007Wu-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 04, 2002 at 03:46:20PM +0000
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Arjan van de Ven wrote:
-
->>>What he is saying is that you can't do that, generically. Some options are
->>>available at runtime through /proc, but most are not. You need to check what
->>>happend back at compile time.
->>>
->>Right, there is a religious issue here: some core kernel hackers believe
->>that it is wrong to encode kernel configuration in the kernel, and that
->>is why it's not available.  Technically it is not difficult, nor is it
->>difficult to make it memory-efficient.
->>
+On Mon, Feb 04, 2002 at 03:46:20PM +0000, Alan Cox wrote:
+> > If an application is multithreaded and is doing mmap and direct I/O
+> > from different threads without doing its own synchronization, then it
+> > is broken, there is no ordering guarantee provided by the kernel as
+> > to what happens first.
 > 
-> It's silly to put it permanently in unswappable memory; putting it in 
-> /lib/modules/`uname -r/
-> somewhere does make tons of sense instead.
+> Providing we don't allow asynchronous I/O with O_DIRECT once asynchronous
+> I/O is merged.
 
+	Oh, but async + O_DIRECT is a good thing.  The fundamental
+ordering comes down at the block layer.  Things are synchronous there.
+An application using async I/O knows that ordering is not guaranteed.
+Applications using O_DIRECT know they are skipping the buffer cache.
+"Caveat emptor" and "Don't do that then" apply to stupid applications.
+	The big issues I see are O_DIRECT alignment size (see my patch
+to allow hardsectsize alignment on O_DIRECT ops) and whether or not to
+synchronize with the caches upon O_DIRECT write.  Keeping the
+page/buffer caches in sync with O_DIRECT writes is a bit of work,
+especially with writes smaller than sb_blocksize.  You can either do
+that work, or you can say that applications and people using O_DIRECT
+should know the caches might be inconsistent.  Large O_DIRECT users,
+such as databases, already know this.  They are happily ignorant of
+cache inconsistencies.  All they care about is hardsectsize O_DIRECT
+operations.
 
-That is not guaranteed to be correct though.  Why not allow the
-builder of the kernel to choose an option to keep it in the
-kernel unswappable memory, or to place it in the lib/modules
-directory?  That should allow the builder to choose tho option that
-is best for them, with no adverse impacts on those who choose
-a different option...
-
-
+Joel
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
+Life's Little Instruction Book #267
 
+	"Lie on your back and look at the stars."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

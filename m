@@ -1,66 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281859AbRKXAlv>; Fri, 23 Nov 2001 19:41:51 -0500
+	id <S281860AbRKXArW>; Fri, 23 Nov 2001 19:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281860AbRKXAlm>; Fri, 23 Nov 2001 19:41:42 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:24823 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281859AbRKXAli>;
-	Fri, 23 Nov 2001 19:41:38 -0500
-Date: Fri, 23 Nov 2001 17:41:20 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Moving ext3 journal file
-Message-ID: <20011123174120.Q1308@lynx.no>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E167Fuw-00001K-00@DervishD> <Pine.LNX.4.33.0111231944430.2891-100000@fargo> <20011123155901.C1308@lynx.no> <9tmocg$jfn$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <9tmocg$jfn$1@cesium.transmeta.com>; from hpa@zytor.com on Fri, Nov 23, 2001 at 04:07:44PM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S282312AbRKXArM>; Fri, 23 Nov 2001 19:47:12 -0500
+Received: from dark.pcgames.pl ([195.205.62.2]:42960 "EHLO dark.pcgames.pl")
+	by vger.kernel.org with ESMTP id <S281860AbRKXArA>;
+	Fri, 23 Nov 2001 19:47:00 -0500
+Date: Sat, 24 Nov 2001 01:45:46 +0100 (CET)
+From: Krzysztof Oledzki <ole@ans.pl>
+X-X-Sender: <ole@dark.pcgames.pl>
+To: Nelson Lee <nelson@sis.com.tw>
+cc: kmliu <kmliu@sis.com.tw>, <linux-kernel@vger.kernel.org>,
+        ron <ronchang@sis.com.tw>, JasonTsai <jstsai@sis.com.tw>,
+        charles <charles@sis.com.tw>, <andre@linux-ide.org>
+Subject: Re: SiS601?!
+In-Reply-To: <047701c17426$19b64740$b5d20ac0@sis.com.tw>
+Message-ID: <Pine.LNX.4.33.0111240137010.21639-100000@dark.pcgames.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 23, 2001  16:07 -0800, H. Peter Anvin wrote:
-> By author:    Andreas Dilger <adilger@turbolabs.com>
-> > Don't do that.  That is only good if the filesystem thinks that there
-> > is no journal, or it is using a hidden inode for the journal (i.e. if
-> > you run "tune2fs -l /dev/whatever" and it doesn't have "has_journal"
-> > listed in the filesystem features (this is what happened with 2.4.10).
-> > Otherwise, you will delete your real journal, tune2fs will complain,
-> > and then you will need to run e2fsck to clean up after yourself, before
-> > re-creating your journal again.
-> > 
-> > If you have a filesystem with a .journal file, and you want to "hide"
-> > it, just run e2fsck 1.25 while the filesystem is unmounted, and it
-> > will do it for you.  If you don't want to have a .journal in the first
-> > place, run tune2fs -j while the filesystem is unmounted.
-> 
-> This is all fine and good except for the root partition (I'm pleased
-> to hear that e2fsck 1.25 will move the journal to the hidden inode for
-> non-root partitions.)  It would be nice if this was done automagically
-> by the mounting code instead of by fsck; that way migration would
-> truly be painless.
 
-Hmm, it could be added into the in-kernel ext3 journal recovery code, maybe,
-possibly, but it would be ugly I think.  I really don't see it as being a
-problem (other than a purely cosmetic one) to have a .journal file in your
-root fs.  I lived with these for a couple of years OK (even some of the
-early ext3 tools called them "journal.dat" (i.e. not a leading dot, ugh).
 
-In 2.5 it would be easy (and preferrable for other reasons) to have e2fsck
-run from the initramfs on the root fs before it is mounted.  That solves
-the problem nicely without adding bloat into the kernel.  We could even
-remove the in-kernel journal recovery at that point if we thought that the
-initramfs was a reliable environment to host _critical_ boot tools. 
+On Fri, 23 Nov 2001, Nelson Lee wrote:
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> ----- Original Message -----
+> From: "kmliu" <kmliu@sis.com.tw>
+> Sent: Friday, November 23, 2001 8:11 AM
+>
+> > Hi,
+> >
+> > We do not have any product which name is SiS601,
+> >
+> > The IDE controller is SiS5513, the north bridge is
+> SiS620/530/630/540/550/635/735/730/740/640/645/640.
+> >
+> > Please make sure what is the name of the chipset.
+> >
+> > Nelson:
+> >
+> > Do we have SiS601 in notebook market?
+> K.M.:
+>
+> No, we do not have.
+
+Ok, let's try this:
+
+$ lspci
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 85C501/2
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 85C601 (rev 01)
+00:11.0 VGA compatible controller: Trident Microsystems TGUI 9660/968x/968x (rev d3)
+00:13.0 PCMCIA bridge: Cirrus Logic CL 6729 (rev 07)
+
+$ lspci -n
+00:00.0 Class 0600: 1039:0406
+00:01.0 Class 0601: 1039:0008 (rev 01)
+00:01.1 Class 0101: 1039:0601 (rev 01)
+00:11.0 Class 0300: 1023:9660 (rev d3)
+00:13.0 Class 0605: 1013:1100 (rev 07)
+
+$ lspci -v
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 85C501/2
+        Flags: bus master, fast devsel, latency 0
+
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
+        Flags: bus master, medium devsel, latency 0
+
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 85C601 (rev 01)
+(prog-if 00 [])
+        Flags: medium devsel, IRQ 14
+        I/O ports at 0174
+        I/O ports at 01f4
+        I/O ports at 0374
+        I/O ports at 03f4
+
+00:11.0 VGA compatible controller: Trident Microsystems TGUI
+9660/968x/968x (rev d3) (prog-if 00 [VGA])
+        Flags: medium devsel
+        Memory at fe400000 (32-bit, non-prefetchable)
+        Memory at fedf0000 (32-bit, non-prefetchable)
+        Memory at fe800000 (32-bit, non-prefetchable)
+
+00:13.0 PCMCIA bridge: Cirrus Logic CL 6729 (rev 07)
+        Flags: stepping, slow devsel
+        I/O ports at 03e0
+
+$ lspci -s 00:01.1 -vvvxxx
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 85C601 (rev 01) (prog-if 00 [])
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 14
+	Region 0: I/O ports at 0174
+	Region 1: I/O ports at 01f4
+	Region 2: I/O ports at 0374
+	Region 3: I/O ports at 03f4
+00: 39 10 01 06 01 00 00 02 01 00 01 01 00 00 80 00
+10: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0e 01 00 00
+40: f2 f2 f2 f2 00 f3 00 f3 88 00 00 00 00 00 80 00
+50: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 39 10 01 06 01 00 00 02 01 00 01 01 00 00 80 00
+90: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 39 10 01 06 01 00 00 02 01 00 01 01 00 00 80 00
+d0: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+So, you can see that this mus be an IDE interface, it has:
+        Interrupt: pin A routed to IRQ 14
+        Region 0: I/O ports at 0174
+        Region 1: I/O ports at 01f4
+        Region 2: I/O ports at 0374
+        Region 3: I/O ports at 03f4
+
+and according to lspci it is Silicon Integrated Systems [SiS] 85C601 (rev 01).
+
+
+My notebook is ARISTO model FT-9000.
+
+
+Best regards,
+
+
+				Krzysztof Oledzki
 

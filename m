@@ -1,25 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262887AbRFCL1w>; Sun, 3 Jun 2001 07:27:52 -0400
+	id <S263760AbRFCV27>; Sun, 3 Jun 2001 17:28:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262885AbRFCL1m>; Sun, 3 Jun 2001 07:27:42 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17427 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262873AbRFCL1g>; Sun, 3 Jun 2001 07:27:36 -0400
-Subject: Re: [CHECKER] security rules?  (and 2.4.5-ac4 security bug)
-To: engler@csl.Stanford.EDU (Dawson Engler)
-Date: Sun, 3 Jun 2001 12:22:57 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200106030807.BAA02597@csl.Stanford.EDU> from "Dawson Engler" at Jun 03, 2001 01:07:37 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S263761AbRFCVWh>; Sun, 3 Jun 2001 17:22:37 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:25868
+	"EHLO Opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S263694AbRFCUwd>; Sun, 3 Jun 2001 16:52:33 -0400
+Date: Sun, 3 Jun 2001 13:50:55 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Oleg Drokin <green@linuxhacker.ru>, Alan Cox <laughing@shared-source.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac7
+Message-ID: <20010603135055.C6375@opus.bloom.county>
+In-Reply-To: <E156VvF-0004D1-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E156VyD-0004D9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E156VvF-0004D1-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-n /u2/engler/mc/oses/linux/2.4.5-ac4/drivers/char/random.c:1813:uuid_strategy: ERROR:RANGE:1809:1813: Using user length "len" as argument to "copy_to_user" [type=LOCAL] set by 'get_user':1813
 
-Sigh I thought I had all of the sysctl ones
+On Sun, Jun 03, 2001 at 12:19:52PM +0100, Alan Cox wrote:
+> > AC> 2.4.5-ac7
+> > AC> o       Make USB require PCI                            (me)
+> > Huh?!
+> > How about people from StrongArm sa11x0 port, who have USB host controller (in
+> > sa1111 companion chip) but do not have PCI?
+> 
+> The strongarm doesnt have a USB master but a slave.
+
+Er, eh?
+
+> > Probably there are more such embedded architectures with USB controllers,
+> > but not PCI bus.
+> 
+> Currently we don't support any of them.
+
+I don't know off the top of my head, but I don't _think_ the MPC823 has a
+USB controller but not off of a PCI bus..
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

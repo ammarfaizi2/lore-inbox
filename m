@@ -1,175 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262459AbTCRPas>; Tue, 18 Mar 2003 10:30:48 -0500
+	id <S262465AbTCRPnm>; Tue, 18 Mar 2003 10:43:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262461AbTCRPas>; Tue, 18 Mar 2003 10:30:48 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:17555 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S262459AbTCRPaf>; Tue, 18 Mar 2003 10:30:35 -0500
-Date: Wed, 19 Mar 2003 02:42:06 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.65: shutting down on 'shutdown -r now'
-Message-ID: <20030318154206.GJ504@zip.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="8t9RHnE3ZwKMSgU+"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S262471AbTCRPnm>; Tue, 18 Mar 2003 10:43:42 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:40175 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262465AbTCRPni>; Tue, 18 Mar 2003 10:43:38 -0500
+Message-ID: <A5974D8E5F98D511BB910002A50A66470580D6D7@hdsmsx103.hd.intel.com>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "'Terry Barnaby'" <terry@beam.ltd.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Reproducible SCSI Error with Adaptec 7902 & ST336607LW
+Date: Tue, 18 Mar 2003 07:58:08 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Terry,
 
---8t9RHnE3ZwKMSgU+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>From your description in (1) below it sounds like the disk firmware did go
+out to lunch.
+Disk firmware is complex, and there are always possibilities that it can
+hang/crash so that it won't respond, especially since a new disk model comes
+out every 9-12 months.  
 
-This has been happening for ages on my laptop. It's gotten to the stage
-where I play a game with shutdown -r now in that if it shuts down I go
-to sleep and if it resets then I play a game for a while longer. Been
-getting a fair bit of sleep for a while now. :/
+To get a disk firmware problem escalated you will need to gather some
+evidence:
+  1) The current firmware level (you have this already)
+  2) The mode pages of the drive (you can use sgmode or other tools to
+get/set these)
+     See http://scsirastools.sourceforge.net for sgmode
+     One thing to check, is whether SMART on or off has an effect (page 1c
+0a 88 means completely off).  
+     SMART processing on the drive runs in background on the disk and can
+cause strange errors.
+  3) A SCSI trace of the problem (requires a SCSI analyzer)
+     If you don't have a SCSI analyzer, the bug conditions would have to be
+very well-defined so 
+     that it could be reproduced readily by Seagate.
 
-Essentially everything proceeds as normal and I see the 'Restarting
-system.' message printed out by the kernel. Then the computer either
-shuts down or it actually does a reboot. I have no idea what's causing
-this but I can try some debugging maybe if that's what's wanted. My
-.config is attached. Not sure what exactly is needed from it but it's
-gzipped to keep it small.
+Hopefully you can devise a workaround by tweaking the disk mode pages, since
+reporting, analyzing, and producing a new disk firmware version would take
+longer.
 
-Any help required, just yell out and I'll do my best. :)
+Andy
+
+-----Original Message-----
+From: Terry Barnaby [mailto:terry@beam.ltd.uk] 
+Sent: Tuesday, March 18, 2003 4:38 AM
+To: Cress, Andrew R
+Cc: 'Ingo Oeser'; Michael Madore; Justin T. Gibbs;
+linux-kernel@vger.kernel.org
+Subject: Re: Reproducible SCSI Error with Adaptec 7902
+
+
+Hi Andy,
+
+We have just updated to the latest driver 1.3.4. This has stopped the
+drive locking up, but we are now getting nasty SCSI error reports
+in /var/log/messages. Will continue to delve into this.
+
+However, what ever the fault that triggers our drive to lock-up, the
+drive certainly locks up. It locks up with LED on and will not respond
+to a SCSI bus reset. We need to power cycle the system to get the drive
+working again. We have tried two Seagate ST336607LW drives both exibit
+the same behaviour. It appears to only happen when Linux is running in
+SMP mode and when the drive is running in packetized mode.
+
+So there is certainly the possibility of the Seagate ST336607LW not 
+responding to resets. This may be a firmware fault so we have talked
+to Seagate about the issue. The statement is the result of our direct 
+question:
+
+> I realise that the problem could be due to the Linux SCSI driver, the
+Motherboard SCSI controller, the SCSI lead or the drive. We are used to
+> tracking down such nasty problems. However, I have one firm pointer:
+> 
+> 1. Once the drive is locked up, with its LED on, a SCSI bus reset will
+>     not clear the drive. A full poweroff/poweron cycle is needed.
+> 
+> So I ask again, is there a case where the drive will not respond to a
+> SCSI bus reset ? 
+
+Is there any way of getting this information to higher level Seagate 
+support ?
+
+Terry
+
+
+Cress, Andrew R wrote:
+> Ingo,
+> 
+> Our testing with that drive (same firmware, using same aic7902 chipset)
+has
+> not shown any problems like this.  However, we were using a later aic79xx
+> driver versions (1.3.x).  That upgrade should be the first step.
+> 
+> I wouldn't get too excited about the statement by a level-1 Seagate
+support
+> guy, probably just a blanket statement when they want to disclaim
+> responsibility.  
+> 
+> Andy
+> 
+> -----Original Message-----
+> From: Ingo Oeser [mailto:ingo.oeser@informatik.tu-chemnitz.de] 
+> Sent: Saturday, March 15, 2003 8:12 AM
+> To: Terry Barnaby
+> Cc: Michael Madore; Justin T. Gibbs; linux-kernel@vger.kernel.org
+> Subject: Re: Reproducible SCSI Error with Adaptec 7902
+> 
+> 
+> On Fri, Mar 14, 2003 at 04:17:59PM +0000, Terry Barnaby wrote:
+> 
+>>The Seagate ST336607LW has firmware: 0004.
+>>Seagate have stated to me that this is the latest.
+>>They have also stated to me:
+>>
+>>  Issuing an unrecognized or illegal command to the drive can cause the
+>>  drive to go into a hardware fault mode where it will no longer respond,
+>>  and may or may not respond to a SCSI BUS reset. It seems, in this case,
+>>  the drive will no longer respond to any commands issued by the
+>>  controller.
+>>
+>>Is this "feature" now common on SCSI drives ????
+> 
+> 
+> Could we add a KERN_WARNING printk in sd.c quoting/referencing
+> this message on inquiry detecting this device? 
+> 
+> So sysadmins who are used to SCSI being robust could return the
+> drive to their vendors in exchange to a drive working along the
+> SCSI specs after reading this message.
+> 
+> Thanks in the name of the sysadmins.
+> 
+> Regards
+> 
+> Ingo Oeser
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, 'President' of Regime of the United States
-          September 26, 2002 (from a political fundraiser in Houston, Texas)
-
---8t9RHnE3ZwKMSgU+
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---8t9RHnE3ZwKMSgU+--
+Dr Terry Barnaby                     BEAM Ltd
+Phone: +44 1454 324512               Northavon Business Center, Dean Rd
+Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
+Email: terry@beam.ltd.uk             Web: www.beam.ltd.uk
+BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software
+                       "Tandems are twice the fun !"

@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264689AbUEKMtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264669AbUEKMyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264689AbUEKMtb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 08:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264721AbUEKMsH
+	id S264669AbUEKMyS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 08:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUEKMyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 08:48:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53480 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264683AbUEKMqt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 08:46:49 -0400
-Date: Tue, 11 May 2004 13:46:47 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: Chris Wedgwood <cw@f00f.org>, nautilus-list@gnome.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-Message-ID: <20040511124647.GE17014@parcelfarce.linux.theplanet.co.uk>
-References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org> <1084227460.28663.8.camel@vertex> <20040511024701.GA19489@taniwha.stupidest.org> <1084278001.1225.9.camel@vertex>
+	Tue, 11 May 2004 08:54:18 -0400
+Received: from smtp.golden.net ([199.166.210.31]:3844 "EHLO smtp.golden.net")
+	by vger.kernel.org with ESMTP id S264669AbUEKMyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 08:54:11 -0400
+Date: Tue, 11 May 2004 08:54:05 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: shemminger@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix 8139too ring size for dreamcast/embedded
+Message-ID: <20040511125405.GA14578@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Jeff Garzik <jgarzik@pobox.com>, shemminger@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
 Content-Disposition: inline
-In-Reply-To: <1084278001.1225.9.camel@vertex>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 08:20:01AM -0400, John McCutchan wrote:
- 
-> Inotify will support watching a hierarchy. The reason it was not
-> implemented yet is because the one app that I really care about is
-> nautilus and the maintainer of it says he doesn't care. 
 
-How are you going to implement that?
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> The big feature that inotify is trying to provide is not having to keep
-> a file open (So that unmounting is not affected). I asked for some
-> guidance from people more familiar with the kernel so that I can
-> implement this feature, it requires changes made to the inode cache, and
-> how unmounting is done.
+Presently 2.6.6 backs out the CONFIG_8139_RXBUF_IDX in favor of using a
+hardcoded 8139_RXBUF_IDX (again). This seems to have been done due to
+some issues occuring with 8139_RXBUF_IDX =3D=3D 3, however (as the Kconfig
+pointed out), we still need 8139_RXBUF_IDX =3D=3D 1 in the CONFIG_SH_DREAMC=
+AST
+case.
 
-Bzzert.  First of all, on quite a few filesystems inumbers are stable
-only when object is pinned down.  What's more, if it's not pinned down
-you've got nothing even remotely resembling a reliable way to tell if
-two events had happened to the same object - inumbers can be reused.
+The patch which made this change can be seen at:
 
-Besides, your "doesn't pin down" is racy as hell - not to mention the
-way you manage the lists, pretty much every function is an exploitable
-hole.  Hell, just take a look at your "find inode" stuff - you grab
-superblock, find an inode by inumber (great idea, that - especially
-since on a bunch of filesystems it will get you BUG() or equivalent)
-then drop refernce to superblock (at which point it can be destroyed by
-umount()) _and_ do iput() (which will do lovely, lovely things if that
-umount did happen).  Moreover, you return a pointer to inode, even
-though there's nothing to hold it alive anymore.  And dereference that
-pointer later on, not caring if it had been freed/reused/whatever.
+http://linux.bkbits.net:8080/linux-2.5/user=3Dshemminger/cset@1.1371.719.67=
+?nav=3D!-|index.html|stats|!+|index.html|ChangeSet@-8w
 
-Overall: hopeless crap.  And that's a direct result of your main feature -
-it's really broken by design.
+Before that, CONFIG_8139_RXBUF_IDX was set to 1 both in the CONFIG_SH_DREAM=
+CAST
+and CONFIG_EMBEDDED cases. This patch adds that back into the current 8139t=
+oo.
+
+Additionally, why remove the config option at all? Wouldn't it just be
+easier to drop the range from 0 - 3 to 0 - 2 until problems with a 64K ring
+size are resolved?
+
+--- linux-2.6.6/drivers/net/8139too.c.orig	Tue May 11 08:36:24 2004
++++ linux-2.6.6/drivers/net/8139too.c	Tue May 11 08:36:29 2004
+@@ -171,7 +171,11 @@
+  * Receive ring size=20
+  * Warning: 64K ring has hardware issues and may lock up.
+  */
++#if defined(CONFIG_SH_DREAMCAST) || defined(CONFIG_EMBEDDED)
++#define RX_BUF_IDX	1	/* 16K ring */
++#else
+ #define RX_BUF_IDX	2	/* 32K ring */
++#endif
+ #define RX_BUF_LEN	(8192 << RX_BUF_IDX)
+ #define RX_BUF_PAD	16
+ #define RX_BUF_WRAP_PAD 2048 /* spare padding to handle lack of packet wra=
+p */
+
+
+--ReaqsoxgOBHFXBhH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQFAoMzt1K+teJFxZ9wRApPBAJ9lm8LJiCcpbo0m3mv3oCvIyFLctQCfVm7D
+SG8pMhTiz/s3YaPvyTVMY9M=
+=OKVZ
+-----END PGP SIGNATURE-----
+
+--ReaqsoxgOBHFXBhH--

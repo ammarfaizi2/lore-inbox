@@ -1,57 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269864AbUJHLrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269866AbUJHLzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269864AbUJHLrf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269866AbUJHLrf
+	id S269866AbUJHLzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269867AbUJHLzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:47:35 -0400
-Received: from zero.aec.at ([193.170.194.10]:37135 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S269864AbUJHLra (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:47:30 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, khawar.chaudhry@amd.com,
-       reeja.john@amd.com
-Subject: Re: [PATCH] amd8111e endian & barrier fixes
-References: <2MWTy-5mO-5@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 08 Oct 2004 13:47:18 +0200
-In-Reply-To: <2MWTy-5mO-5@gated-at.bofh.it> (Benjamin Herrenschmidt's
- message of "Fri, 08 Oct 2004 09:00:12 +0200")
-Message-ID: <m3u0t5a0u1.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Oct 2004 07:55:14 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:8877 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S269866AbUJHLzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 07:55:00 -0400
+Date: Fri, 08 Oct 2004 21:00:27 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [PATCH] no buddy bitmap patch revist : intro and includes [0/2]
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-mm <linux-mm@kvack.org>,
+       LHMS <lhms-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>,
+       Tony Luck <tony.luck@intel.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Hirokazu Takahashi <taka@valinux.co.jp>
+Message-id: <4166815B.8030001@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
+ Gecko/20040113
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Hi
 
-> Hi Jeff !
->
-> This patch against the amd8111e makes it work on some about-to-be-released
-> piece of PPC hardware. It does:
->
->  - Fix endian
->  - Search for the PHY on MII instead of hard coding the ID
->  - Add a couple of wmb's where needed on descriptor updates
->
-> I must appologize for having re-indented one of the rx functions, but I
-> just couldn't read/understand it without doing so, it was going back
-> leftward in the middle of a { } block ...
+Followings are patches for removing bitmaps from the buddy allocator,
+against 2.6.9-rc3.
+This is  benefical to memory-hot-plug stuffs, because this removes
+a data structure which must meet to a host's physical memory layout.
 
-It's basically impossible to review the patch properly because
-of that change. Can you please separate the arbitary white space
-change into a different patch? 
+Difference from one I posted yesterday is using CONFIG_HOLES_IN_ZONE
+instead of HOLES_IN_ZONE and some fixes on comments.
 
-Also I would suggest you send the patch to the driver 
-maintainers for review first (cc'ed) 
+This patch removes bitmaps in zone->free_area[] used in the buddy system.
+Instead of using bitmaps, this patch records a free page's order in a page
+struct itself using page->private field.
 
->From a quick look the change to clear the ring rx flags completely
-instead of clearing the bit looks bogus. Why did you not just add a
-endian conversion there?
+I removed "#define HOLES_IN_ZONE in asm/page.h" and added CONFIG_HOLES_IN_ZONE
+to Kconfig. An architecuture which has memory holes in a zone has to set this CONFIG.
+As far as I know, only ia64 with virtual memmap has to set this now.
 
-I can test it when it's properly reviewd.
+In my performance test on ia64 SMP, there is no performance influence of this patch.
 
--Andi
+Kame <kamezawa.hiroyu@jp.fujitsu.com>
+============= patches for include files ==================
+
+
+This patch set removes bitmaps from the page allocator.
+
+Purpose:
+This is one step to manage physical memory in nonlinear / discontiguous way
+and will reduce some amounts of codes to implement memory-hot-plug.
+
+About this part:
+This patch removes bitmaps from zone->free_area[] in include/linux/mmzone.h,
+and adds some comments on page->private field in include/linux/mm.h.
+
+non-atomic ops for changing PG_private bit is added in include/page-flags.h.
+zone->lock is always acquired when PG_private of "a free page" is changed.
+
+Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+
+---
+
+ test-kernel-kamezawa/include/linux/mm.h         |    2 ++
+ test-kernel-kamezawa/include/linux/mmzone.h     |    1 -
+ test-kernel-kamezawa/include/linux/page-flags.h |    2 ++
+ 3 files changed, 4 insertions(+), 1 deletion(-)
+
+diff -puN include/linux/mm.h~eliminate-bitmap-includes include/linux/mm.h
+--- test-kernel/include/linux/mm.h~eliminate-bitmap-includes	2004-10-07 17:18:34.000000000 +0900
++++ test-kernel-kamezawa/include/linux/mm.h	2004-10-07 17:18:34.000000000 +0900
+@@ -209,6 +209,8 @@ struct page {
+ 					 * usually used for buffer_heads
+ 					 * if PagePrivate set; used for
+ 					 * swp_entry_t if PageSwapCache
++					 * When page is free, this indicates
++					 * order in the buddy system.
+ 					 */
+ 	struct address_space *mapping;	/* If low bit clear, points to
+ 					 * inode address_space, or NULL.
+diff -puN include/linux/mmzone.h~eliminate-bitmap-includes include/linux/mmzone.h
+--- test-kernel/include/linux/mmzone.h~eliminate-bitmap-includes	2004-10-07 17:18:34.000000000 +0900
++++ test-kernel-kamezawa/include/linux/mmzone.h	2004-10-07 17:18:34.000000000 +0900
+@@ -22,7 +22,6 @@
+
+ struct free_area {
+ 	struct list_head	free_list;
+-	unsigned long		*map;
+ };
+
+ struct pglist_data;
+diff -puN include/linux/page-flags.h~eliminate-bitmap-includes include/linux/page-flags.h
+--- test-kernel/include/linux/page-flags.h~eliminate-bitmap-includes	2004-10-07 17:18:34.000000000 +0900
++++ test-kernel-kamezawa/include/linux/page-flags.h	2004-10-07 17:18:34.000000000 +0900
+@@ -238,6 +238,8 @@ extern unsigned long __read_page_state(u
+ #define SetPagePrivate(page)	set_bit(PG_private, &(page)->flags)
+ #define ClearPagePrivate(page)	clear_bit(PG_private, &(page)->flags)
+ #define PagePrivate(page)	test_bit(PG_private, &(page)->flags)
++#define __SetPagePrivate(page)  __set_bit(PG_private, &(page)->flags)
++#define __ClearPagePrivate(page) __clear_bit(PG_private, &(page)->flags)
+
+ #define PageWriteback(page)	test_bit(PG_writeback, &(page)->flags)
+ #define SetPageWriteback(page)						\
+
+_
+
 

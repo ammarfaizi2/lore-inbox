@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261619AbSIWONR>; Mon, 23 Sep 2002 10:13:17 -0400
+	id <S261487AbSIWOIp>; Mon, 23 Sep 2002 10:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261666AbSIWONQ>; Mon, 23 Sep 2002 10:13:16 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57019 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S261619AbSIWONQ>;
-	Mon, 23 Sep 2002 10:13:16 -0400
-Date: Mon, 23 Sep 2002 16:26:34 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux-kernel@vger.kernel.org, <gcc@gcc.gnu.org>
+	id <S261509AbSIWOIp>; Mon, 23 Sep 2002 10:08:45 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:54658 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261487AbSIWOIo>; Mon, 23 Sep 2002 10:08:44 -0400
+Date: Mon, 23 Sep 2002 10:15:30 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ryan Anderson <ryan@michonline.com>
+cc: Con Kolivas <conman@kolivas.net>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, gcc@gcc.gnu.org
 Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-In-Reply-To: <1032777021.3d8eed3d55f53@kolivas.net>
-Message-ID: <Pine.LNX.4.44.0209231622100.23588-100000@localhost.localdomain>
+In-Reply-To: <20020923140241.GQ1425@mythical.michonline.com>
+Message-ID: <Pine.LNX.3.95.1020923101125.3233A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 23 Sep 2002, Ryan Anderson wrote:
 
-On Mon, 23 Sep 2002, Con Kolivas wrote:
-
-> Agreed. There probably is no statistically significant difference in the
-> different gcc versions.
+> On Mon, Sep 23, 2002 at 08:30:21PM +1000, Con Kolivas wrote:
+> > Quoting Ingo Molnar <mingo@elte.hu>:
+> > > On Mon, 23 Sep 2002, Con Kolivas wrote:
+> > > 
+> > > how many times are you running each test? You should run them at least
+> > > twice (ideally 3 times at least), to establish some sort of statistical
+> > > noise measure. Especially IO benchmarks tend to fluctuate very heavily
+> > > depending on various things - they are also very dependent on the initial
+> > > state - ie. how the pagecache happens to lay out, etc. Ie. a meaningful
+> > > measurement result would be something like:
+> > 
+> > Yes you make a very valid point and something I've been stewing over privately
+> > for some time. contest runs benchmarks in a fixed order with a "priming" compile
+> > to try and get pagecaches etc back to some sort of baseline (I've been trying
+> > hard to make the results accurate and repeatable). 
 > 
-> Contest is very new and I appreciate any feedback I can get to make it
-> as worthwhile a benchmark as possible to those who know.
+> Well, run contest once, discard the results.  Run it 3 more times, and
+> you should have started the second, third and fourth runs with similar initial conditions.
+> 
+> Or you could run the contest 3 times, rebooting between each run....
+> (automating that is a little harder, of course.)
+> 
+> IANAS, however.
+> 
 
-your measurements are really useful i think, and people like Andrew
-started to watch those numbers - this is why at this point a bit more
-effort can/should be taken to filter out fluctuations better. Ie. a single
-fluctuation could send Andrew out on a wild goose chase while perhaps in
-reality his kernel was the fastest. Running every test twice should at
-least give a ballpart figure wrt. fluctuations, without increasing the
-runtime unrealistically.
+(1)	Obtain statistics from a number of runs.
+(2)	Throw away the smallest and largest.
+(3)	Average whatever remains.
 
-i agree that only the IO benchmarks are problematic from this POV - things
-like the process load and your other CPU-saturating numbers look perfectly
-valid.
+This works for many "real-world" things because it removes noise-spikes
+that could unfairly poison the average.
 
-obviously another concern to to make testing not take days to accomplish.  
-This i think is one of the hardest things - making timely measurements
-which are still meaningful and provide stable results.
-
-	Ingo
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

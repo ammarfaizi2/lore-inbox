@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVCGIaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVCGIaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVCGIaW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 03:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVCGIaV
+	id S261691AbVCGIaF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 03:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVCGIaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 03:30:21 -0500
-Received: from cantor.suse.de ([195.135.220.2]:32927 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261695AbVCGI36 (ORCPT
+	Mon, 7 Mar 2005 03:30:04 -0500
+Received: from ns.suse.de ([195.135.220.2]:26783 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261691AbVCGI3t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 03:29:58 -0500
-Message-ID: <422C0A6B.1060700@suse.de>
-Date: Mon, 07 Mar 2005 09:01:47 +0100
+	Mon, 7 Mar 2005 03:29:49 -0500
+Message-ID: <422C0228.1000709@suse.de>
+Date: Mon, 07 Mar 2005 08:26:32 +0100
 From: Stefan Seyfried <seife@suse.de>
 User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, barryn@pobox.com,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [Bug 4298] swsusp fails to suspend if CONFIG_DEBUG_PAGEALLOC
- is   also enabled
-References: <20050306030852.23eb59db.akpm@osdl.org>	<20050306225730.GA1414@elf.ucw.cz> <20050306195954.6d13cff9.akpm@osdl.org>
-In-Reply-To: <20050306195954.6d13cff9.akpm@osdl.org>
+To: Jan Niehusmann <jan@gondor.com>
+Cc: len.brown@intel.com, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: bouncing keys and skipping sound with 2.6.11
+References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org> <20050228184414.GA31929@gondor.com> <20050302200632.GA24529@gondor.com> <20050306185539.GA2149@gondor.com>
+In-Reply-To: <20050306185539.GA2149@gondor.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Pavel Machek <pavel@ucw.cz> wrote:
+Jan Niehusmann wrote:
 
->> Okay, that is because low-level assembly requires PSE (4mb pages for
->> kernel) and DEBUG_PAGEALLOC disables that capability.
->> 
->> If you feel like rewriting assembly code to turn off paging (and thus
->> working with PSE), go ahead, but I do not think it is worth the
->> trouble.
->> 
->> OTOH we should at least tell people what went wrong, some people seen
->> same problem on VIA cpus... Please apply,
->> 
-> 
-> Isn't some Kconfig solution appropriate here?
+> By trying different kernel versions, I traced down the problem to the
+> changes introduced between linux-2.6.11-rc2-bk9 and
+> linux-2.6.11-rc2-bk10, and, more specifically, to the ACPI changes
+> within that patch. (Therefore the Cc: to Len Brown, who wrote or
+> submitted most of these changes, as far as I can tell from the
+> changelog)
 
-Yes, but only for the CONFIG_DEBUG_PAGEALLOC case, it does not solve the
-"cpu has no PSE" case for VIA CPUs. So the Kconfig solution is an extra
-bonus.
+I bet you have CONFIG_ACPI_DEBUG enabled. Disable it or try to put
+#define ACPI_ENABLE_OBJECT_CACHE 1
+at the end of include/acpi/acpi.h (before the last #endif)
+This fixed it for me (and some others).
+There is also a patch for a "CONFIG_ACPI_DEBUG_LITE" from Thomas
+Renninger on the acpi-devel list, which leaves some of the debugging in,
+but disables the worst offenders IIUC.
 
-    Stefan
+Hope that helps,
+
+     Stefan
 

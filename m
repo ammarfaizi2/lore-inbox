@@ -1,47 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317589AbSGEWYE>; Fri, 5 Jul 2002 18:24:04 -0400
+	id <S317591AbSGEWmX>; Fri, 5 Jul 2002 18:42:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317590AbSGEWYE>; Fri, 5 Jul 2002 18:24:04 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:25216 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S317589AbSGEWYD>;
-	Fri, 5 Jul 2002 18:24:03 -0400
-Subject: Re: prevent breaking a chroot() jail?
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ag51e7$rru$1@abraham.cs.berkeley.edu>
-References: <1025877004.11004.59.camel@zaphod>
-	<ag48ui$fb5$1@ncc1701.cistron.net> <1025879850.11004.75.camel@zaphod> 
-	<ag51e7$rru$1@abraham.cs.berkeley.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 06 Jul 2002 00:26:30 +0200
-Message-Id: <1025907990.848.2.camel@tux>
-Mime-Version: 1.0
+	id <S317592AbSGEWmW>; Fri, 5 Jul 2002 18:42:22 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35082
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317591AbSGEWmW>; Fri, 5 Jul 2002 18:42:22 -0400
+Date: Fri, 5 Jul 2002 15:43:16 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org,
+       sullivan@austin.ibm.com
+Subject: Re: [BUG-2.5.24-BK] DriverFS panics on boot!
+In-Reply-To: <20020705073845.GJ1007@suse.de>
+Message-ID: <Pine.LNX.4.10.10207051526400.25668-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-05 at 23:00, David Wagner wrote:
 
-> Chroot is a lot better than nothing, but it doesn't provide a
-> secure jail, especially not for root.  However, the following
-> tools are intended to provide a secure jail, and may be of interest
-> to you: SubDomain (http://www.immunix.org/subdomain.html), Janus
-> (http://www.cs.berkeley.edu/~daw/janus/), and BSD's jail() system call
-> come to mind.  Also, may I point you to the Linux Security Modules project
-> (http://lsm.immunix.org/)?  I think you may find it of interest.
+Jens, those numbers have meaning regardless.
+The simple fact that "reads" were nearly constant dictats that small reads
+suffer a penality, while small writes only suffered disk limitations for
+the most part.
 
-I havn't seen vserver mentioned in this thread.
+To prove it yourself just set the max_sectors to 16 or 8k.
 
-http://www.solucorp.qc.ca/miscprj/s_context.hc
+The object is to get you to try it out and see, and maybe backport
+something to try async io's based on direction for 2.4.
 
-It disables a lot of capabilities (configurable) and other stuff.
-Worth taking a look at.
+Cheers,
 
--- 
-/Martin
+On Fri, 5 Jul 2002, Jens Axboe wrote:
 
-Never argue with an idiot. They drag you down to their level, then beat
-you with experience.
+> On Thu, Jul 04 2002, Andre Hedrick wrote:
+> > On Fri, 5 Jul 2002, Jens Axboe wrote:
+> > 
+> > > On Thu, Jul 04 2002, Andre Hedrick wrote:
+> > > > 	1) 8K writes and 64K (or larger) reads.
+> > > 
+> > > I've heard this before, but noone seems to have tested it yet. You know,
+> > > this is a couple of lines of change in ll_rw_blk.c and blkdev.h to
+> > > support this. Any reason you haven't done that, benched, and submitted
+> > > something to that effect? I'll even walk you through the 2.5 changes
+> > > needed to do this:
+> > 
+> > 
+> > [root@localhost mnt2]# bonnie -s 256
+> 
+> [snip bonnie results]
+> 
+> These mean nothing to me -- what are they, the base line or the changed
+> kernel? Or none of the above?!
+> 
+> > Using the hardware to help us and by working with it it, once can
+> > basically boost the write and slash the cpu usage.
+> 
+> You need to add some context to that statement.
+> 
+> > > > 	2) ONE maybe TWO passes on elevator operations.
+> > > 
+> > > Explain.
+> > 
+> > On writes restrict which are small the ordering is almost instant.
+> > Specifically ONE maybe TWO passes will sort.
+> > 
+> > Reads may need more as we optimize best on big reads.
+> 
+> So you are saying that writes don't need to be reordered as much,
+> because the drive typically does that? I guess that will always be true
+> with write back caching, I doubt that holds for write through.
+> 
+> And I don't quite follow the number of passes you compare, passes of
+> what? Insert and merge are a single pass per request, tops.
+> 
+> -- 
+> Jens Axboe
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

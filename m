@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319327AbSH2Tnq>; Thu, 29 Aug 2002 15:43:46 -0400
+	id <S319325AbSH2Tlt>; Thu, 29 Aug 2002 15:41:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319328AbSH2Tnq>; Thu, 29 Aug 2002 15:43:46 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:24079
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319327AbSH2Tnp>; Thu, 29 Aug 2002 15:43:45 -0400
-Date: Thu, 29 Aug 2002 12:46:02 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: /pub/linux/kernel/people/hedrick/ide-2.5.32
-Message-ID: <Pine.LNX.4.10.10208291240560.24156-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319326AbSH2Tlt>; Thu, 29 Aug 2002 15:41:49 -0400
+Received: from www.microgate.com ([216.30.46.105]:42759 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S319325AbSH2Tls>; Thu, 29 Aug 2002 15:41:48 -0400
+Subject: [PATCH] Configure.help (synclinkmp/_cs)
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.4 
+Date: 29 Aug 2002 14:46:16 -0500
+Message-Id: <1030650376.961.2.camel@diemos.microgate.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patch contains the help sections for
+the SyncLink MP/CS drivers added to 2.4.20-pre5.
 
-Stuff has arrived.
+--- linux-2.4.20-pre5/Documentation/Configure.help	Thu Aug 29 13:32:18 2002
++++ linux-2.4.20-pre5-mg/Documentation/Configure.help	Thu Aug 29 14:40:19 2002
+@@ -3411,6 +3411,16 @@
+   a module, say M here and read <file:Documentation/modules.txt>.
+   If unsure, say N.
+ 
++CONFIG_SYNCLINK_CS
++  Enable support for the SyncLink PC Card serial adapter, running
++  asynchronous and HDLC communications up to 512Kbps. The port is
++  selectable for RS-232, V.35, RS-449, RS-530, and X.21
++
++  This driver may be built as a module ( = code which can be
++  inserted in and removed from the running kernel whenever you want).
++  The module will be called synclink_cs.o.  If you want to do that, say M
++  here.
++
+ ACP Modem (Mwave) support
+ CONFIG_MWAVE
+   The ACP modem (Mwave) for Linux is a WinModem. It is composed of a
+@@ -16874,6 +16884,17 @@
+   This driver can only be built as a module ( = code which can be
+   inserted in and removed from the running kernel whenever you want).
+   The module will be called synclink.o.  If you want to do that, say M
++  here.
++
++CONFIG_SYNCLINKMP
++  Enable support for the SyncLink Multiport (2 or 4 ports)
++  serial adapter, running asynchronous and HDLC communications up
++  to 2.048Mbps. Each ports is independently selectable for
++  RS-232, V.35, RS-449, RS-530, and X.21
++
++  This driver may be built as a module ( = code which can be
++  inserted in and removed from the running kernel whenever you want).
++  The module will be called synclinkmp.o.  If you want to do that, say M
+   here.
+ 
+ Synchronous HDLC line discipline support
 
-
-ide-viro-2.5.32.patch
-ide-lad-2.5.32.patch
-
-	ide-all-2.5.32.patch == ide-viro-2.5.32.patch + ide-lad-2.5.32.patch
-
-ide-taskfile-2.5.32.patch
-scsi-st-2.5.32.patch
-
-There is one more thing to fix.
-
-./fs/mpage.c
-
-/*
- * The largest-sized BIO which this code will assemble, in bytes.  Set this
- * to PAGE_CACHE_SIZE if your drivers are broken.
- */
-#define MPAGE_BIO_MAX_SIZE 32768        //BIO_MAX_SIZE
-
-This is confirmed with Al Viro and was required to make things sane!
-
-We are back.
-We is a development team being composed to reduce my load and import fresh
-ideas.  If you wnat to help please join in, we can make the halloween
-party.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
 

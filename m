@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbUKEUin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbUKEUko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbUKEUin (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbUKEUim
+	id S261214AbUKEUko (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbUKEUkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:38:42 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:22440 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261211AbUKEUiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 15:38:14 -0500
-Date: Fri, 5 Nov 2004 12:32:56 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, rml@novell.com,
-       linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
-       acpi-devel@lists.sourceforge.net, rusty@rustycorp.com.au
-Subject: Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
-Message-ID: <20041105123254.A17224@unix-os.sc.intel.com>
-References: <20041105201012.GA24063@vrfy.org>
+	Fri, 5 Nov 2004 15:40:43 -0500
+Received: from main.gmane.org ([80.91.229.2]:46315 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261214AbUKEUkJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 15:40:09 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Alexander Fieroch <Fieroch@web.de>
+Subject: kernel module grip with gravis Xterminator gamepad
+Date: Fri, 05 Nov 2004 21:17:02 +0100
+Message-ID: <cmgn3s$fb0$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041105201012.GA24063@vrfy.org>; from kay.sievers@vrfy.org on Fri, Nov 05, 2004 at 12:10:12PM -0800
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-de, en-us, en
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 12:10:12PM -0800, Kay Sievers wrote:
-> 
->    On Fri, Nov 05, 2004 at 10:05:13AM -0800, Greg KH wrote:
->    >  >  The  following  error (compin from Linus' tree) is caused by the
->    fact that
->    > > hotplug_path is no longer EXPORT_SYMBOL'ed:
->    > >
->    > >
->    > > <--  snip  -->
->    > >
->    >  >  if  [  -r  System.map  ];  then  /sbin/depmod  -ae -F System.map
->    2.6.10-rc1-mm3; fi
-> 
->    I've  found  it.  This  wants  to introduce a new direct /sbin/hotplug
->    call,
->    with "add" and "remove" events, without sysfs support.
-> 
->    It  should  use  class  support  or kobject_hotplug() instead.  Nobody
->    should
->    fake hotplug events anymore, cause every other notification transport
->    will not get called (currently uevent over netlink).
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-we were discussing this exact thing recently.. we maybe able to clean this up.. here is why
-we are doing this manual thingy...
+Hello,
 
-When we support physical component hotplug, we want to create the sysfs entries, but that doesnt
-mean the component (i.e CPU or memory) is hotplugged. The reason is for node level hotplug
-there are sequencing requirements, memory needs to be brought up first before cpu, and also
-the error handling/policy requirments which we want the user space to handle it and not from 
-kernel side.
+I've got the gravis Xterminator gamepad and I think, the driver grip has
+to be adapted.
+The gamepad works, but the order of its axes and buttons is not correct.
+The gamepad has got a proportional directional pad (joystick-like
+control) and a 8-way digital directional pad. There are other
+proportional flippers and throttle buttons so that they are 9 axes all
+together.
 
+The jscalibrator detects axis 0 and axis 1 for the proportional
+directional pad, then the other axes and at last the 8-way directional
+pad as axis 7 and axis 8.
+Because of the 8-way directional pad is the main directional pad and
+many games only use axis 0 and axis 1 for control, this directional pad
+should be axis 0 and axis 1. Axis 2 and axis 3 should be for the
+proportional directional pad and then the other ones should follow.
 
-the sequence is when physical arrival of cpu is seen, we will just create a sysfs entry 
-which will also send an add event (which really is just cpu arrival, and sysfs created). 
+It's the same with the buttons. Button 0 and button 1 are on
+the bottom side and hard to reach. Button 0 - 5 should be the six main
+buttons.
 
-In our model the event is just consumed by the script cpu.agent, which would in turn decide and 
-bring the cpu up by 
+Is it possible to change this or is there any possibility for me as user
+to change the order of the axes and button ids?
 
-#echo 1> /sys/devices/system/cpu/cpu#/online
+Thanks in advance,
+Alexander
 
-what apps really would care about is the ONLINE (which doesnt exist) event itself, and the 
-OFFLINE. The ADD/REMOVE only indicate sysfs entries appear and disappear.
+PS: I'm running kernel 2.6.9 with module grip for the gamepad
+Xterminator (gameport, not usb)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-I dont know if adding ONLINE/OFFLINE is the right thing, or use the CHANGE notification 
-to inform. 
+iD8DBQFBi9++lLqZutoTiOMRAnmVAJ9vtcuj/fbvgPd56j7xVF3rVFnprgCfThXn
+63lsUaJfAxCvCh/TV1VQul8=
+=+cg9
+-----END PGP SIGNATURE-----
 
-This is an area that needs more though which is slightly different from how other devices are being handled.
-
-Greg-kh/Rusty .. any suggestions
-
-
-Cheers,
-Ashok Raj
-- Linux OS & Technology Team

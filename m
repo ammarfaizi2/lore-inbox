@@ -1,332 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262178AbSJNUVv>; Mon, 14 Oct 2002 16:21:51 -0400
+	id <S262180AbSJNUYw>; Mon, 14 Oct 2002 16:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262180AbSJNUVv>; Mon, 14 Oct 2002 16:21:51 -0400
-Received: from ns0.cobite.com ([208.222.80.10]:56582 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S262178AbSJNUVk>;
-	Mon, 14 Oct 2002 16:21:40 -0400
-Date: Mon, 14 Oct 2002 16:27:34 -0400 (EDT)
-From: David Mansfield <lkml@dm.cobite.com>
-X-X-Sender: david@admin
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] Compile failure (gcc 2.96 bug?). 2.5.42 raid0.c
-Message-ID: <Pine.LNX.4.44.0210141622460.2876-100000@admin>
+	id <S262181AbSJNUYw>; Mon, 14 Oct 2002 16:24:52 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:26755 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262180AbSJNUYu>; Mon, 14 Oct 2002 16:24:50 -0400
+Date: Mon, 14 Oct 2002 16:33:50 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Daniele Lugli <genlogic@inrete.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: unhappy with current.h
+In-Reply-To: <3DAB1F00.667B82B5@inrete.it>
+Message-ID: <Pine.LNX.3.95.1021014162539.16867B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Oct 2002, Daniele Lugli wrote:
 
-Trying to compile 2.5.42 I encountered the following error, which looks a 
-lot like a GCC bug.  I did a 'make mrproper; make oldconfig; make bzImage' 
-and it still failed.
+> I recently wrote a kernel module which gave me some mysterious problems.
+> After too many days spent in blood, sweat and tears, I found the cause:
+> 
+> *** one of my data structures has a field named 'current'. ***
+> 
+> Pretty common word, isn't it? Would you think it can cause such a
+> trouble? But in some of my files I happen to indirectly include
+> <asm/current.h> (kernel 2.4.18 for i386), containing the following line:
+> 
+> #define current get_current()
+> 
+> so that my structure becomes the owner of a function it has never asked
+> for, while it looses a data member. gcc has nothing to complain about
+> that.
+>
 
-The system is a mostly updated 7.3 system, running 2.5.41.
+This cannot be the reason for your problem. The name of a structure
+member has no connection whatsoever with the name of any function or
+definition.
 
-make -f drivers/md/Makefile 
-  gcc -Wp,-MD,drivers/md/.raid0.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=raid0   -c -o drivers/md/raid0.o drivers/md/raid0.c
-drivers/md/raid0.c: In function `raid0_make_request':
-drivers/md/raid0.c:353: Unrecognizable insn:
-(insn 51 497 491 (parallel[ 
-            (set (reg:SI 0 eax)
-                (asm_operands ("") ("=a") 0[ 
-                        (reg:DI 1 edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("drivers/md/raid0.c") 290))
-            (set (reg:SI 1 edx)
-                (asm_operands ("") ("=d") 1[ 
-                        (reg:DI 1 edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("drivers/md/raid0.c") 290))
-            (clobber (reg:QI 19 dirflag))
-            (clobber (reg:QI 18 fpsr))
-            (clobber (reg:QI 17 flags))
-        ] ) -1 (insn_list 42 (nil))
-    (nil))
-drivers/md/raid0.c:353: confused by earlier errors, bailing out
-make[2]: *** [drivers/md/raid0.o] Error 1
-make[1]: *** [drivers/md] Error 2
-make: *** [drivers] Error 2
-
-I needed the following really stupid patch to compile:
-
---- raid0.c.orig        Sat Sep 14 09:20:30 2002
-+++ raid0.c     Sat Sep 14 11:31:22 2002
-@@ -283,10 +283,11 @@
-        chunk_size = mddev->chunk_size >> 10;
-        chunksize_bits = ffz(~chunk_size);
-        block = bio->bi_sector >> 1;
-
-        {
--               sector_t x = block;
-+               volatile sector_t y = 0;
-+               sector_t x = block - y;
-                sector_div(x, (unsigned long)conf->smallest->size);
-                hash = conf->hash_table + x;
-        }
+The following code will correctly write "Hello world!" to the screen
+even though the text initializes a member of a structure called "current"
+while "current" has been defined to be a function called puts.
 
 
-My Gcc version is:
+#include <stdio.h>
+#define current puts
+struct foo {
+    char *current;
+    int foo;
+    } bar; 
+main()
+{
+    bar.current = "Hello world!";
+    current(bar.current);
+    return 0;
+}
 
-gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-112)
 
-My config is:
+For your code to get "confused", you really have something else
+wrong. That said, some name-space polution may make it difficult
+to find the problem. For instance, a structure member is expected
+to have a ";" after it. It's possible for some previous definition
+to make a syntax error invisible.
 
-CONFIG_X86=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-CONFIG_M686=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_NR_CPUS=2
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PM=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=m
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_LBD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_IDE_TASK_IOCTL=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_PCI_WIP=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_TUN=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_PPP=m
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_PPPOE=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_PPDEV=m
-CONFIG_RTC=y
-CONFIG_RAW_DRIVER=y
-CONFIG_REISERFS_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_JFS_FS=y
-CONFIG_MINIX_FS=y
-CONFIG_NTFS_FS=m
-CONFIG_NTFS_RW=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SMB_FS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_CRC32=y
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
 
--- 
-/==============================\
-| David Mansfield              |
-| lkml@dm.cobite.com           |
-\==============================/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143645AbRAHNQK>; Mon, 8 Jan 2001 08:16:10 -0500
+	id <S143674AbRAHNRA>; Mon, 8 Jan 2001 08:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143595AbRAHNQA>; Mon, 8 Jan 2001 08:16:00 -0500
-Received: from pop.gmx.net ([194.221.183.20]:59197 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S143575AbRAHNP4>;
-	Mon, 8 Jan 2001 08:15:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Cajus Pollmeier <C.Pollmeier@gmx.net>
-To: "Mohammad A. Haque" <mhaque@haque.net>, "Karl O. Pinc" <kop@meme.com>
-Subject: Re: Bug: Frame-buffer (icon) rotates right in 2.4.0 when SMP
-Date: Mon, 8 Jan 2001 11:26:29 +0100
-X-Mailer: KMail [version 1.2]
-Cc: "<linux-kernel@vger.kernel.org>" <lpp@freelords.org>
-In-Reply-To: <Pine.LNX.4.30.0101072157330.17399-100000@viper.haque.net>
-In-Reply-To: <Pine.LNX.4.30.0101072157330.17399-100000@viper.haque.net>
+	id <S143637AbRAHNQu>; Mon, 8 Jan 2001 08:16:50 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:48135 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S143703AbRAHNQh>;
+	Mon, 8 Jan 2001 08:16:37 -0500
+Mail-Copies-To: never
+To: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: suggest: diff-2.4.0-test12_to_2.4.0
+In-Reply-To: <3A59C971.11051.151608E@localhost>
+From: Andreas Jaeger <aj@suse.de>
+Date: 08 Jan 2001 14:16:31 +0100
+In-Reply-To: <3A59C971.11051.151608E@localhost>
+Message-ID: <hohf3a18wg.fsf@gee.suse.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Message-Id: <01010811262903.00883@quark>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag,  8. Januar 2001 04:00 schrieb Mohammad A. Haque:
-> when you use SMP there's suppOsed to be one icon that shows up for
-> every CPU you have. 2 cpu = 2 icons, 4 cpu = 4 icon. That's what the for
-> loop in fbcon_show_logo().
->
-> So this really isnt a bug, depending on how you look at it. It's
-> definitely something the lpp author needs to account for.
+>>>>> Ulrich Windl writes:
 
-It is already fixed in the new (not yet released) version.
+ > I thought I'd find a diff between 2.4.0test12 (last test release) to 
+ > the final 2.4.0 release, but did not. Wouldn't it be (have been) a good 
+ > idea?
 
--Cajus
+Apply:
+patch-2.4.0-prerelease.bz2 and then prerelease-to-final.bz2 to test12
+and you get 2.4.0 final.
 
+You'll find both in ftp.*.kernel.org/...kernel/v2.4/test-kernels/
+
+Andreas
+
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVC1Tjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVC1TkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbVC1Tjl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 14:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVC1Tje
+	id S262036AbVC1TkA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 14:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVC1TkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 14:39:34 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:25352 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262020AbVC1TjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 14:39:23 -0500
-Date: Mon, 28 Mar 2005 21:39:22 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Olivier Fourdan <fourdan@xfce.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Various issues after rebooting
-Message-ID: <20050328193921.GW30052@alpha.home.local>
-References: <1112039799.6106.16.camel@shuttle> <20050328192054.GV30052@alpha.home.local> <1112038226.6626.3.camel@shuttle>
+	Mon, 28 Mar 2005 14:40:00 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:52115 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S262038AbVC1Tjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 14:39:37 -0500
+Date: Mon, 28 Mar 2005 21:39:35 +0200
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: 20050323135317.GA22959@roonstrasse.net, linux-kernel@vger.kernel.org
+Subject: Re: forkbombing Linux distributions
+Message-ID: <20050328193933.GH943@vanheusden.com>
+References: <20050328172820.GA31571@linux.ensimag.fr>
+	<20050328175614.GG943@vanheusden.com>
+	<Pine.LNX.4.61.0503282131560.11428@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112038226.6626.3.camel@shuttle>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.61.0503282131560.11428@yvahk01.tjqt.qr>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Reply-By: Sat Mar 26 23:38:20 CET 2005
+X-MSMail-Priority: High
+User-Agent: Mutt/1.5.6+20040907i
+From: folkert@vanheusden.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 09:30:26PM +0200, Olivier Fourdan wrote:
-> Hi Willy
-> 
-> On Mon, 2005-03-28 at 21:20 +0200, Willy Tarreau wrote:
-> > Now I have a compaq (nc8000) which does not exhibit such buggy behaviour,
-> > but you can try disabling the APIC too just in case it's a similar problem
-> > (at least in 32 bits, I don't know if you can disable it in 64 bits mode).
-> 
-> Thanks for the hint, but unfortunately, it's one of the first things I
-> tried, and that makes no difference.
+> I already posted one, posts ago.
+> >>[snip]
+> >Imporved version:
+> >[snip]
+> >char *dummy = (char *)malloc(1);
+> That cast is not supposed to be there, is it? (To pretake it: it's bad.)
 
-Sorry, at first I only noticed ACPI in your mail, but after reading it
-again, I also noticed APIC. So now, you can only try not to initialize
-some peripherals (IDE, network, display, etc...) by removing their drivers
-from the kernel. You may end up with a kernel panic, but that does not
-matter is you boot it with "panic=5" so that it automatically reboots
-5 seconds after the panic. You should then finally identify the subsystem
-which is responsible for your problems. Perhaps you'll even need to remove
-PCI support :-(
+What is so bad about it?
 
-Regards,
-Willy
 
+Folkert van Heusden
+
+Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
++------------------------------------------------------------------+
+|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
+|a try, it brings monitoring logfiles to a different level! See    |
+|http://vanheusden.com/multitail/features.html for a feature list. |
++------------------------------------------= www.unixsoftware.nl =-+
+Phone: +31-6-41278122, PGP-key: 1F28D8AE
+Get your PGP/GPG key signed at www.biglumber.com!

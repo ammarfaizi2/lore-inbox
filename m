@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266203AbUHBAB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266205AbUHBAFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266203AbUHBAB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 20:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUHBAB5
+	id S266205AbUHBAFb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 20:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUHBAFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 20:01:57 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:1549 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S266203AbUHBAB4 convert rfc822-to-8bit (ORCPT
+	Sun, 1 Aug 2004 20:05:31 -0400
+Received: from zero.aec.at ([193.170.194.10]:54796 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266205AbUHBAFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 20:01:56 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sun, 1 Aug 2004 20:05:24 -0400
+To: Andrea Arcangeli <andrea@cpushare.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: secure computing for 2.6.7
+References: <2ejhQ-4lc-5@gated-at.bofh.it> <2fqhq-1RU-45@gated-at.bofh.it>
+	<2olLt-4wI-5@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 02 Aug 2004 02:05:20 +0200
+In-Reply-To: <2olLt-4wI-5@gated-at.bofh.it> (Andrea Arcangeli's message of
+ "Sun, 01 Aug 2004 12:30:11 +0200")
+Message-ID: <m3ekmq2ym7.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
-Date: Sun, 1 Aug 2004 17:00:32 -0700
-Message-ID: <3689AF909D816446BA505D21F1461AE4C750EA@cacexc04.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
-Thread-Index: AcR37Zlh+p4q6jCYQgigGGIpzNlPiAANVAmg
-From: "Walker, Bruce J" <bruce.walker@hp.com>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       "Daniel Phillips" <phillips@istop.com>
-Cc: "Discussion of clustering software components including GFS" 
-	<linux-cluster@redhat.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <opengfs-devel@lists.sourceforge.net>,
-       <opengfs-users@lists.sourceforge.net>,
-       <opendlm-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 02 Aug 2004 00:00:32.0890 (UTC) FILETIME=[BAF31DA0:01C47823]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When processes can freely and transparently move around the cluster (at
-exec time, fork time or during any system call), being able to
-transparently access your controlling tty is pretty handy.  In 2.4 we
-stack our CFS  on top of each node's devfs to give us naming of and
-access to all devices on all nodes.  TBD on how will do this in 2.6.
+Andrea Arcangeli <andrea@cpushare.com> writes:
 
-Bruce
+> +/*
+> + * bump this sequence number after fixing any kernel security bug
+> + * that could render insecure some userspace application. This
+> + * way future versions of the userpace application will be able
+> + * to reliably make sure to run on a secure kernel.
+> + * I hope 31bit are enough... ;).
+> + */
+> +static int security_sequence;
 
+I don't think a sequence number is a good idea. Consider a
+vendor/third party kernel fixing a security bug, but mainline hasn't
+taken the patch yet for some reason.
 
-> > 
-> > I wonder if device-mapper (slightly hacked) wouldn't be a 
-> better approach for 
-> > 2.6+.
-> 
-> It appeared from the original posting that their "cluster-wide devfs" 
-> actually supported all types of device nodes, not just block 
-> devices. I 
-> don't know whether accessing a character device on another node would 
-> ever be useful, but certainly using device-mapper wouldn't 
-> help for that 
-> case.
-> 
+The vendor kernel could not safely increase this number, because it 
+could conflict with some other security bug fixed in mainline at the 
+same time. 
+
+The end result would be that the kernel would be fixed, but 
+the application has no way to tell.
+
+Better may be a bitmap, but even there you still have an problem 
+with allocating these bits. 
+
+A safe solution would be a file in /proc that lists CAN idenitifiers of
+fixed bugs or similar, but that may be quite some overhead to maintain
+and parse.
+
+-Andi
+

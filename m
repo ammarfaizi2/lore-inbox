@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbUKGTd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUKGTfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbUKGTd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 14:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUKGTd6
+	id S261232AbUKGTfY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 14:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbUKGTfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 14:33:58 -0500
-Received: from jaures31-1-82-228-83-187.fbx.proxad.net ([82.228.83.187]:25495
-	"HELO valhalla.twilight-hall.net") by vger.kernel.org with SMTP
-	id S261591AbUKGTd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 14:33:56 -0500
-Message-ID: <418E78A3.9020500@twilight-hall.net>
-Date: Sun, 07 Nov 2004 20:33:55 +0100
-From: =?ISO-8859-1?Q?Rapha=EBl_Rigo_LKML?= <lkml@twilight-hall.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shawn Starr <shawn.starr@rogers.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-References: <200411071227.43058.shawn.starr@rogers.com>
-In-Reply-To: <200411071227.43058.shawn.starr@rogers.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 7 Nov 2004 14:35:24 -0500
+Received: from ozlabs.org ([203.10.76.45]:388 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261232AbUKGTfN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 14:35:13 -0500
+Date: Mon, 8 Nov 2004 06:30:07 +1100
+From: Anton Blanchard <anton@samba.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, Adam Litke <agl@us.ibm.com>,
+       Andy Whitworth <apw@shadowen.org>
+Subject: Re: [RFC] Consolidate lots of hugepage code
+Message-ID: <20041107193007.GC16976@krispykreme.ozlabs.ibm.com>
+References: <20041029033708.GF12247@zax> <20041029034817.GY12934@holomorphy.com> <20041107172030.GA16976@krispykreme.ozlabs.ibm.com> <20041107192024.GM2890@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041107192024.GM2890@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
-> I dont know if this has been brought up but, a company called sveasoft is 
-> blatently violating the GPL by not releasing any code:
-> 
-> case in point:
-> 
-> ' Talisman activation will be very simple. Just enter your Sveasoft account 
-> password once and it will pop up working. This even survives a full reset. 
->  
->  This is a bummer but we have a group of folks that are not satisfied with our 
-> public, no-cost firmware and want to end this project so we need to adapt in 
-> order to survive and continue our work. I've tried to make this as simple and 
-> unobtrusive as possible. '
-> 
-> Its time for the GPL authors Linux kernel, busybox and others to notify this 
-> 'company' that they are violating the GPL. You cannot revoke existing GPL 
-> code with a different license. 
-> 
-> If Linksys had to release the code Sveasoft must follow suit.
-> 
-> Shawn.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ 
+Hi,
 
-Hello,
-I think you are wrong, just check this page :
-http://www.sveasoft.com/modules/phpBB2/viewtopic.php?t=3033
+> It's all pretty obvious. The first is checking page size vs. cache size
+> and whether it's VI or does anything unusual; thus far things look
+> hopeful that flush_dcache_page() analogues are unnecessary. More
+> information about Super-H is needed to wrap up what will probably be no
+> more than an audit. 
 
-My 2 cents,
-Raphaël Rigo
+Good to hear.
+
+> The second is a triplefault on x86-64 under some
+> condition involving a long-running database regression test. There has
+> obviously been considerably less progress there in no small part due to
+> the amount of time required to reproduce the issue.
+
+OK. We have not seen a similar issue on ppc64 even with extensive
+testing (although with HPC apps). The question is how long we should
+hold off on further hugetlb development waiting for this one bug report
+on a single architecture to be chased.
+
+Anton

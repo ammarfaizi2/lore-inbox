@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284617AbRLHUGL>; Sat, 8 Dec 2001 15:06:11 -0500
+	id <S284664AbRLHUS7>; Sat, 8 Dec 2001 15:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284620AbRLHUGE>; Sat, 8 Dec 2001 15:06:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:34060 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284617AbRLHUFp>;
-	Sat, 8 Dec 2001 15:05:45 -0500
-Date: Sat, 8 Dec 2001 21:05:29 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ivanovich <ivanovich@menta.net>
-Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
-Subject: Re: Impact of HIGHMEM?
-Message-ID: <20011208200529.GA11567@suse.de>
-In-Reply-To: <3C1263FE.EBD973FA@starband.net> <01120820485101.01267@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01120820485101.01267@localhost.localdomain>
+	id <S284684AbRLHUSt>; Sat, 8 Dec 2001 15:18:49 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:25609 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S284627AbRLHUSf>; Sat, 8 Dec 2001 15:18:35 -0500
+Message-ID: <3C127551.90305@namesys.com>
+Date: Sat, 08 Dec 2001 23:17:21 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nathan Scott <nathans@sgi.com>
+CC: "Stephen C . Tweedie" <sct@redhat.com>,
+        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [PATCH] Revised extended attributes interface
+In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08 2001, Ivanovich wrote:
-> A Dissabte 08 Desembre 2001 20:03, war va escriure:
-> > Does anyone have any benchmarks as to how much HIGHMEM affects
-> > performance in Linux?
-> >
-> > Searched google.com + groups.google.com, couldn't find anything solid
-> > though.
-> 
-> why don't you try to compile a kernel with HIGHMEM and another without it and 
-> then run some benchmarks in each one and compare?
+Nathan Scott wrote:
 
-You'll very quickly spend a significant amount of sys time copying pages
-back and forth. 
+>
+>
+>In a way there's consensus wrt how to do POSIX ACLs on Linux
+>now, as both the ext2/ext3 and XFS ACL projects will be using
+>the same tools, libraries, etc.  In terms of other ACL types,
+>I don't know of anyone actively working on any.
+>
+>
+We are taking a very different approach to EAs (and thus to ACLs) as 
+described in brief at www.namesys.com/v4/v4.html.  We don't expect 
+anyone to take us seriously on it before it works, but silence while 
+coding does not equal consensus.;-)
 
-> not everyone have the amount of ram to test this (i only have 
-> 256...(sigh)) if i had that amount i would run some bench...
+In essence, we think that if a file can't do what an EA can do, then you 
+need to make files able to do more.
 
-You don't need lots of mem to test highmem impact, just grab the highmem
-debug patch from Andrea:
+It is very important not to reduce the amount of closure (as in 
+mathematical closure) within the namespace, and creating EAs that cannot 
+be accessed as files reduces closure.
 
-kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17pre4aa1/20_highmem-debug-7
+The same argument applies to streams, but it is kind of interesting to 
+see people argue against streams for this reason, and then embrace EAs. 
+ Kind of leaves you wondering whether their hatred of streams was really 
+any deeper than streams aren't what they are used to from Unix.
 
--- 
-Jens Axboe
+Hans
+
 

@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313412AbSDLHVB>; Fri, 12 Apr 2002 03:21:01 -0400
+	id <S313413AbSDLH03>; Fri, 12 Apr 2002 03:26:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313413AbSDLHVA>; Fri, 12 Apr 2002 03:21:00 -0400
-Received: from h139n1fls24o900.telia.com ([213.66.143.139]:19429 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id <S313412AbSDLHU7>;
-	Fri, 12 Apr 2002 03:20:59 -0400
-Date: Fri, 12 Apr 2002 09:28:38 +0200
-From: Voluspa <voluspa@bigfoot.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS: Unable to mount root fs on 08:06 - 2.4.19-pre6
-Message-Id: <20020412092838.5e617b89.voluspa@bigfoot.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S313414AbSDLH03>; Fri, 12 Apr 2002 03:26:29 -0400
+Received: from spielberg.vip.uk.com ([194.176.218.9]:8913 "EHLO
+	spielberg.vip.uk.com") by vger.kernel.org with ESMTP
+	id <S313413AbSDLH02>; Fri, 12 Apr 2002 03:26:28 -0400
+From: "Rowan Ingvar Wilson" <rowan.ingvar.wilson@0800dial.com>
+To: "'Frank Schaefer'" <frank.schafer@setuza.cz>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: /dev/zero
+Date: Fri, 12 Apr 2002 08:26:22 +0100
+Message-ID: <002c01c1e1f3$5bf7e600$c82d3c3e@m3v0u8>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <1018595942.2918.2.camel@ADMIN>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just as a matter of interest myself...what is it's actual function? It
+is used during kernel debugging to supply an input?
 
-On 2002-04-11 14:12:19 Randy Hron wrote:
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Frank Schaefer
+Sent: 12 April 2002 08:19
+To: linux-kernel@vger.kernel.org
+Subject: Re: /dev/zero
 
-> This machine worked with 2.4.19-pre5.  2.4.19-pre6 has
-> worked on another machine (entirely different hardware). 
->
-> Boot message:
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> VFS: Cannot open root device "806" or 08:06
-> Please append a correct "root=" boot option
-> Kernel panic: VFS: Unable to mount root fs on 08:06 
+On Fri, 2002-04-12 at 08:46, blesson paul wrote:
+> Hi all
+>                I am newbie to linux kernel. What is the use of
+/dev/zero. 
+> Why it is created and how to use it
+> regards
+> Blesson Paul
+> 
+> 
+> 
+> _________________________________________________________________
+> Chat with friends online, try MSN Messenger: http://messenger.msn.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+Hi,
 
-I had the exact same problem (but much different hardware) with the 2.5.6-pre3 kernel. See:
+/dev/zero is a data source. It delivers zeroes ( maybe that's why this
+name ;-).
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101548222601049&w=2
+BTW: You are new to the linux kernel or new to linux / unix?
 
-It seemed to be preemptive related, but since successive kernels in the 2.5 series worked, I figured they'd fixed things. Now you crash in 2.4 without preempt... Not being a programmer, I'd try CONFIG_SMP=n just to change the playing field (and then prod Alexander Viro ;-)
+Regards
+Frank
 
-Regards,
-Mats Johannesson
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

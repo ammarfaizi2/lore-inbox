@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbTJAJZT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 05:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTJAJZT
+	id S262056AbTJAJdw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 05:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTJAJdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 05:25:19 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:42720 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S262080AbTJAJZO
+	Wed, 1 Oct 2003 05:33:52 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:51590 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262056AbTJAJdv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 05:25:14 -0400
-Date: Wed, 1 Oct 2003 12:25:13 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: linux-kernel@vger.kernel.org
-Subject: Re: chstk - URL?
-In-Reply-To: <Pine.LNX.4.58.0310011218290.22797@hosting.rdsbv.ro>
-Message-ID: <Pine.LNX.4.58.0310011223260.22797@hosting.rdsbv.ro>
-References: <Pine.LNX.4.58.0310011218290.22797@hosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Oct 2003 05:33:51 -0400
+Date: Wed, 1 Oct 2003 10:33:29 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20031001093329.GA2649@mail.shareable.org>
+References: <20031001073132.GK1131@mail.shareable.org> <Pine.LNX.4.44.0310010900280.5501-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310010900280.5501-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi list, Ingo!
->
-> Where I can find the modified (by Info) chstk.c?
-> Thanks!
+Hugh Dickins wrote:
+> On Wed, 1 Oct 2003, Jamie Lokier wrote:
+> > 
+> > See recent message from me.  All you need is a check "address >=
+> > TASK_SIZE", which is thread already at the start of do_page_fault.
+> 
+> What about the 4G+4G split?
 
-I take a closer look at Ingo's announce and I see that chstk is obsolete.
+Whoever is looking after the 4G+4G patch can deal with it, presumably.
+It'll be the same condition ad 4G+4G uses to decide if it's an access
+to userspace (needing a search of the vma list), or not.
 
-I use kernel 2.6.0-test6-mm1 with ecec-shield and X gives me sig 11.
-
-A program must be compiled with new gcc to work with exec-shield and
-without chstk?
-
-Thank you for your time.
-
->
-> ---
-> Catalin(ux) BOIE
-> catab@deuroconsult.ro
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+-- Jamie

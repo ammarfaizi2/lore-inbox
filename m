@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbTATSPQ>; Mon, 20 Jan 2003 13:15:16 -0500
+	id <S266438AbTATSVA>; Mon, 20 Jan 2003 13:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266528AbTATSPQ>; Mon, 20 Jan 2003 13:15:16 -0500
-Received: from smtp-server2.tampabay.rr.com ([65.32.1.39]:44454 "EHLO
-	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S266527AbTATSPP>; Mon, 20 Jan 2003 13:15:15 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: egcs (or compatible) compiler
-Date: Mon, 20 Jan 2003 13:24:39 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJOENFEEAA.scott@coyotegulch.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20030120180626.GA30745@redhat.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S266443AbTATSVA>; Mon, 20 Jan 2003 13:21:00 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:40681 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S266438AbTATSU7>;
+	Mon, 20 Jan 2003 13:20:59 -0500
+Date: Mon, 20 Jan 2003 10:30:03 -0800
+To: irda-users@lists.sourceforge.net,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: irport_net_open issue in 2.5.59
+Message-ID: <20030120183003.GA7798@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alessandro Suardi wrote :
+> 
+> [crossposted to IrDA-users and l-k]
 
-The page you found is out-of-date by about a month; for example, it doesn't
-list the new parser added on 27 December, or the precompiled header support
-added on 10 January.
+	Hum... This means that the IrDA mailing list archive is broken
+again. Thanks SourceForge.
 
-In my experience, http://gcc.gnu.org is the most current resource.
+> The quest to set up properly (or give up where not possible) my new
+> Dell Latitude C640 is moving forward... next target, IrDA. This
+> laptop has a chip that is not detected by the 'findchip' tool but is
+> detected by kernel code (SMC LPC47N252).
 
-..Scott
+	Ok.
 
-> -----Original Message-----
-> From: Christopher Faylor [mailto:cgf@redhat.com]
-> Sent: Monday, January 20, 2003 13:06
-> To: Scott Robert Ladd
-> Cc: Linux kernel
-> Subject: Re: egcs (or compatible) compiler
->
->
-> On Mon, Jan 20, 2003 at 12:52:52PM -0500, Scott Robert Ladd wrote:
-> >Hi,
-> >
-> >Try: http://gcc.gnu.org
->
-> Or even (after three minutes of searching)
-> http://www.gnu.org/software/gcc/gcc.html .
->
-> cgf
->
+> When irport is loaded (or perhaps when irattach is run), the module
+> complains saying
+> 
+> irport_net_open(), unable to allocate irq=0
+> 
+> It does load, but as expected it doesn't seem to work - irdadump
+> doesn't come up with any line at all.
+
+	Personally, I've never managed to make irport work, and I know
+that in 2.5.X it's worse.
+	But, the message above indicate that you fed the driver with
+improper module options. Try to set the proper irq, that would help.
+	Also, Daniele did lot's of work on the new SMC driver (smsc2,
+available on my web page). Maybe you could test this one.
+
+> Any hints ? Thanks in advance, ciao,
+> 
+> --alessandro
+
+	Good luck...
+
+	Jean
 

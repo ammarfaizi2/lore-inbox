@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbUDGLIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 07:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUDGLIJ
+	id S262849AbUDGLKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 07:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUDGLKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 07:08:09 -0400
-Received: from bay8-f31.bay8.hotmail.com ([64.4.27.31]:25618 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262584AbUDGLIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 07:08:06 -0400
-X-Originating-IP: [82.84.122.148]
-X-Originating-Email: [bnfg@hotmail.com]
-From: "Giorgio Massimi" <bnfg@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: sysctl documentation
-Date: Wed, 07 Apr 2004 11:08:05 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Message-ID: <BAY8-F31amQFOGYJDUd00037599@hotmail.com>
-X-OriginalArrivalTime: 07 Apr 2004 11:08:05.0574 (UTC) FILETIME=[99E0EE60:01C41C90]
+	Wed, 7 Apr 2004 07:10:15 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:13798 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S262849AbUDGLKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 07:10:09 -0400
+Message-ID: <4073C33B.7B7808E7@nospam.org>
+Date: Wed, 07 Apr 2004 11:00:43 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: David Gibson <david@gibson.dropbear.id.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev@lists.linuxppc.org
+Subject: Re: RFC: COW for hugepages
+References: <20040407074239.GG18264@zax>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to find documentation about the sysctl library function on kernel  
-2.4.
-The sysctl man pages are not so detailed.I need examples to understand the
-function and its behaviour.
+David,
 
-I found on the web only two articles :
-1)www.geocities.com/chrootstrap/writing_sysctl_drivers_on_linux.html
-2)www.linuxjournal.com/article.php?sid=2365
+Why not just add a flag for a VMA telling if you want / do not want to
+copy it on "fork()" ? E.g.:
 
-The first is good but a bit short and the 2th is good but too old.
+dup_mmap():
 
-I tried to find more infos (how-to , guides, manuals, articles) but I found
-no more docs.
-Does someone know where to find other sysctl detailed infos ?
-Thanks
+	for (= current->mm->mmap ; mpnt ; mpnt = mpnt->vm_next) {
 
-_________________________________________________________________
-Personalizza MSN Messenger con sfondi e fotografie! 
-http://www.ilovemessenger.msn.it/
+		if (mpnt->vm_flags & VM_HUGETLB_DONT_COPY)
+			<do nothing>
+	}
 
+Regards,
+
+Zoltán Menyhárt

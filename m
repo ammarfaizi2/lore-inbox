@@ -1,157 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283756AbRK3Skl>; Fri, 30 Nov 2001 13:40:41 -0500
+	id <S283763AbRK3SnB>; Fri, 30 Nov 2001 13:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283757AbRK3Skd>; Fri, 30 Nov 2001 13:40:33 -0500
-Received: from vti01.vertis.nl ([145.66.4.26]:59153 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S283756AbRK3SkX>;
-	Fri, 30 Nov 2001 13:40:23 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: [PATCH] vanilla 2.4.15 iptables/REDIRECT kernel oops
-Date: Fri, 30 Nov 2001 19:33:19 -0800
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20011128165224.5f3dcd8e.skraw@ithnet.com> <01112822302000.01349@home01> <20011130151342.0ef3f171.skraw@ithnet.com>
-In-Reply-To: <20011130151342.0ef3f171.skraw@ithnet.com>
-Cc: davem@redhat.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+	id <S283759AbRK3Smq>; Fri, 30 Nov 2001 13:42:46 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:35972 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S283758AbRK3SlA>; Fri, 30 Nov 2001 13:41:00 -0500
+Message-ID: <3C07D27F.A44CD742@randomlogic.com>
+Date: Fri, 30 Nov 2001 10:39:59 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01113019331901.04864@home01>
-Content-Transfer-Encoding: 8bit
+To: kplug-lpsg@kernel-panic.org
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <3C07CCCD.EA5E340A@randomlogic.com> <20011130102915.C22264@ucsd.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 November 2001 06:13, Stephan von Krawczynski wrote:
-> we have a problem: I talked to David Miller (one of the network
-> maintainers), and he told me, that sk _must_ be non NULL in this code. He
-> states netfilter is broken.
-> So our patch won't make it. We have to investigate the cause of sk=NULL.
-> Can you describe a possible test-setup?
+"John H. Robinson, IV" wrote:
+> 
+> On Fri, Nov 30, 2001 at 10:15:41AM -0800, Paul G. Allen wrote:
+> >
+> > IMEO, there is but one source as reference for coding style: A book by
+> > the name of "Code Complete". (Sorry, I can't remember the author and I
+> > no longer have a copy. Maybe my Brother will chime in here and fill in
+> > the blanks since he still has his copy.)
+> 
+> Code Complete: A Practical Handbook of Software Construction.
+> Redmond, Wa.: Microsoft Press, 880 pages, 1993.
+> Retail price: $35.
+> ISBN: 1-55615-484-4.
+> 
 
-I think I know what may have caused the problem: I patch from Rusty Russell 
-that I forgot about. I use RPM to build kernels, and I forgot to deactivate 
-this patch. So it wasn't a vanilla kernel.
+Thanks John. You beat my bro. to it. Of course, he's probably still in
+bed since it's not even noon yet. :)
 
-    Stuped me!
+(Note to self: Order a new copy of the book. I should have done it last
+night when I ordered 3 other programming books. :/)
 
-Sorry about the confusion. I'll forward you the patch, just for your 
-information:
-
-Rolf
-
-On Mon, 29 Oct 2001 21:31:57 -0800 (PST)
-"David S. Miller" <davem@redhat.com> wrote:
-
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Tue, 30 Oct 2001 15:28:12 +1100
->    
->    should the NAT layer be doing skb_unshare() before altering the packet?
-> 
-> I think it should.
-
-
-Agreed.  The 2.2 masq code didn't do this, and hence the "don't tcpdump on 
-masq host"
-recommendation.
-
-Please try this patch (compiles at least),
-Rusty.
-
-diff -urN -I \$.*\$ --exclude TAGS -X 
-/home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal 
-linux-2.4.13-official/net/ipv4/netfilter/ip_fw_compat.c 
-working-2.4.13-nfunshare/net/ipv4/netfilter/ip_fw_compat.c
---- linux-2.4.13-official/net/ipv4/netfilter/ip_fw_compat.c      Sat Apr 28 
-07:15:01 2001
-+++ working-2.4.13-nfunshare/net/ipv4/netfilter/ip_fw_compat.c   Wed Oct 31 
-17:05:53 2001
-@@ -78,11 +78,19 @@
- {
-         int ret = FW_BLOCK;
-         u_int16_t redirpt;
-+        struct sk_buff *nskb;
- 
-         /* Assume worse case: any hook could change packet */
-         (*pskb)->nfcache |= NFC_UNKNOWN | NFC_ALTERED;
-         if ((*pskb)->ip_summed == CHECKSUM_HW)
-                 (*pskb)->ip_summed = CHECKSUM_NONE;
-+
-+        /* Firewall rules can alter TOS: raw socket may have clone of
-+           skb: don't disturb it --RR */
-+        nskb = skb_unshare(*pskb, GFP_ATOMIC);
-+        if (!nskb)
-+                return NF_DROP;
-+        *pskb = nskb;
- 
-         switch (hooknum) {
-         case NF_IP_PRE_ROUTING:
-diff -urN -I \$.*\$ --exclude TAGS -X 
-/home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal 
-linux-2.4.13-official/net/ipv4/netfilter/ip_nat_core.c 
-working-2.4.13-nfunshare/net/ipv4/netfilter/ip_nat_core.c
---- linux-2.4.13-official/net/ipv4/netfilter/ip_nat_core.c       Thu May 17 
-03:31:27 2001
-+++ working-2.4.13-nfunshare/net/ipv4/netfilter/ip_nat_core.c    Wed Oct 31 
-16:52:06 2001
-@@ -734,6 +734,15 @@
-           synchronize_bh()) can vanish. */
-         READ_LOCK(&ip_nat_lock);
-         for (i = 0; i < info->num_manips; i++) {
-+                struct sk_buff *nskb;
-+                /* raw socket may have clone of skb: don't disturb it --RR */
-+                nskb = skb_unshare(*pskb, GFP_ATOMIC);
-+                if (!nskb) {
-+                        READ_UNLOCK(&ip_nat_lock);
-+                        return NF_DROP;
-+                }
-+                *pskb = nskb;
-+
-                 if (info->manips[i].direction == dir
-                    && info->manips[i].hooknum == hooknum) {
-                         DEBUGP("Mangling %p: %s to %u.%u.%u.%u %u\n",
-diff -urN -I \$.*\$ --exclude TAGS -X 
-/home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal 
-linux-2.4.13-official/net/ipv4/netfilter/ipt_TCPMSS.c 
-working-2.4.13-nfunshare/net/ipv4/netfilter/ipt_TCPMSS.c
---- linux-2.4.13-official/net/ipv4/netfilter/ipt_TCPMSS.c        Mon Oct  1 
-05:26:08 2001
-+++ working-2.4.13-nfunshare/net/ipv4/netfilter/ipt_TCPMSS.c     Wed Oct 31 
-17:00:42 2001
-@@ -48,6 +48,13 @@
-         u_int16_t tcplen, newtotlen, oldval, newmss;
-         unsigned int i;
-         u_int8_t *opt;
-+        struct sk_buff *nskb;
-+
-+        /* raw socket may have clone of skb: don't disturb it --RR */
-+        nskb = skb_unshare(*pskb, GFP_ATOMIC);
-+        if (!nskb)
-+                return NF_DROP;
-+        *pskb = nskb;
- 
-         tcplen = (*pskb)->len - iph->ihl*4;
- 
-diff -urN -I \$.*\$ --exclude TAGS -X 
-/home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal 
-linux-2.4.13-official/net/ipv4/netfilter/ipt_TOS.c 
-working-2.4.13-nfunshare/net/ipv4/netfilter/ipt_TOS.c
---- linux-2.4.13-official/net/ipv4/netfilter/ipt_TOS.c   Mon Oct  1 05:26:08 
-2001
-+++ working-2.4.13-nfunshare/net/ipv4/netfilter/ipt_TOS.c        Wed Oct 31 
-17:03:11 2001
-@@ -19,7 +19,14 @@
-         const struct ipt_tos_target_info *tosinfo = targinfo;
- 
-         if ((iph->tos & IPTOS_TOS_MASK) != tosinfo->tos) {
-+                struct sk_buff *nskb;
-                 u_int16_t diffs[2];
-+
-+                /* raw socket may have clone of skb: don't disturb it --RR */
-+                nskb = skb_unshare(*pskb, GFP_ATOMIC);
-+                if (!nskb)
-+                        return NF_DROP;
-+                *pskb = nskb;
- 
-                 diffs[0] = htons(iph->tos) ^ 0xFFFF;
-                 iph->tos = (iph->tos & IPTOS_PREC_MASK) | tosinfo->tos;
+PGA
+-- 
+Paul G. Allen
+UNIX Admin II ('til Dec. 3)/FlUnKy At LaRgE (forever!)
+Akamai Technologies, Inc.
+www.akamai.com

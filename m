@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbRAAXRa>; Mon, 1 Jan 2001 18:17:30 -0500
+	id <S129460AbRAAXfw>; Mon, 1 Jan 2001 18:35:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131433AbRAAXRV>; Mon, 1 Jan 2001 18:17:21 -0500
-Received: from [199.239.160.155] ([199.239.160.155]:17288 "EHLO
+	id <S129627AbRAAXfn>; Mon, 1 Jan 2001 18:35:43 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:17544 "EHLO
 	tenchi.datarithm.net") by vger.kernel.org with ESMTP
-	id <S131246AbRAAXRM>; Mon, 1 Jan 2001 18:17:12 -0500
-Date: Mon, 1 Jan 2001 23:05:53 +0000
+	id <S129460AbRAAXf0>; Mon, 1 Jan 2001 18:35:26 -0500
+Date: Mon, 1 Jan 2001 23:24:54 +0000
 From: Robert Read <rread@datarithm.net>
-To: Rafael Diniz <rafael2k@terra.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PC-speaker control
-Message-ID: <20010101230553.B8481@tenchi.datarithm.net>
-Mail-Followup-To: Rafael Diniz <rafael2k@terra.com.br>,
+To: Ari Pollak <compwiz@datarithm.net>, linux-kernel@vger.kernel.org
+Subject: Re: devices.txt inconsistency
+Message-ID: <20010101232454.C8481@tenchi.datarithm.net>
+Mail-Followup-To: Ari Pollak <compwiz@datarithm.net>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <01010118360105.00896@rafael>
+In-Reply-To: <20010101170654.A5856@sourceware.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <01010118360105.00896@rafael>; from rafael2k@terra.com.br on Mon, Jan 01, 2001 at 06:30:37PM -0200
+In-Reply-To: <20010101170654.A5856@sourceware.net>; from compwiz@bigfoot.com on Mon, Jan 01, 2001 at 05:06:54PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try this on the console:
-
-setterm -blength 0
-
-no assembly required. :)
+devices.txt does need some updating. It still lists char-major-13 as
+the PC Speaker, but 13 appears to be the major for new input driver,
+and the joystick driver is now a minor off the that.  Are there now
+two Joystick drivers, or can char-major-15 be obsoleted/deleted?
 
 robert
 
-
-On Mon, Jan 01, 2001 at 06:30:37PM -0200, Rafael Diniz wrote:
-> Hey, Is there a way to control the PC-speaker with the Linux kernel 2.2?
-> I want to disable it.
-> I guy told me that with this assembly code I can disable it:
-> 	in al , 97
-> 	and al,253
-> 	out 97,al
-> Linux 2.4 will have any syscall to do this?
-> 
-> Thanks
-> Rafael Diniz
-> Brazil
-> =================================================
-> Conectiva Linux 6.0 (2.2.17)  XFree86-4.0.1
-> PII 233mhz 96Mb ram
-> SB16, USR56k, S3 VirgeDX/GX 4Mb, CD creative48X 
-> HDa 10Gb Quantum  HDb 4.1Gb Fugitsu
-> MSX2.0 256k MegaRam 256k Mapper 128k Vram
-> MSX is the future
-> =================================================
+On Mon, Jan 01, 2001 at 05:06:54PM -0500, Ari Pollak wrote:
+> This has not been fixed for at least a year that i can remember - in
+> Documentation/devices.txt, it says /dev/js* should be char-major-15*,
+> but in Documentation/joystick.txt it says it should be char-major-13.
+> I'm assuming joystick.txt is the correct one, and devices.txt should be
+> updated to reflect this.. before 2.4.0 would be nice.
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbUC3VIa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 16:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUC3VIa
+	id S261232AbUC3VQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 16:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUC3VQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 16:08:30 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:57069 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261231AbUC3VI2 (ORCPT
+	Tue, 30 Mar 2004 16:16:09 -0500
+Received: from mail.gmx.net ([213.165.64.20]:15849 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261232AbUC3VQG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 16:08:28 -0500
-Date: Wed, 31 Mar 2004 02:36:48 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Robert Olsson <Robert.Olsson@data.slu.se>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Dave Miller <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@osdl.org>
-Subject: Re: route cache DoS testing and softirqs
-Message-ID: <20040330210648.GB3956@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040329184550.GA4540@in.ibm.com> <20040329222926.GF3808@dualathlon.random> <20040330144324.GA3778@in.ibm.com> <20040330195315.GB3773@in.ibm.com> <20040330204731.GG3808@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040330204731.GG3808@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Mar 2004 16:16:06 -0500
+X-Authenticated: #1892127
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Transfer-Encoding: 7bit
+Message-Id: <321B041D-8298-11D8-AC61-0003931E0B62@gmx.li>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Martin Schaffner <schaffner@gmx.li>
+Subject: booting 2.6.4 from OpenFirmware
+Date: Tue, 30 Mar 2004 23:18:39 +0100
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 10:47:32PM +0200, Andrea Arcangeli wrote:
-> I see what's going on now, yes my patch cannot help. the workload is
-> simply generating too much hardirq load, and it's like if we don't use
-> softirq at all but that we process the packet inside the hardirq for
-> this matter. As far as RCU is concerned it's like if there a no softirq
-> at all but that we process everything in the hardirq.
-> 
-> so what you're looking after is a new feature then:
-> 
-> 1) rate limit the hardirqs
-> 2) rate limit only part of the irq load (i.e. the softirq, that's handy
->    since it's already splitted out) to scheduler-aware context (not
->    inside irq context anymore)
+Hi,
 
-There were a number of somewhat ugly softirq limiting patches that
-Robert tried out (not spitting them to scheduler-aware context) and some 
-combination of that worked well in Robert's setup. I will see if I can 
-revive that. That said, we would need to find out how badly we affect network
-performance with that thing.
+I try to boot linux-2.6.4 from OpenFirmware on my Apple iBook2 (dual 
+USB). I'm using the image named "vmlinux.elf-pmac". While linux-2.4.25 
+boots fine, linux-2.6.4 doesn't without the following modifications:
 
-> 3) stop processing packets in irqs in the first place (NAPI or similar)
-> 
-> however I start to think they can be all wrong, and that rcu is simply
-> not suitable for purerely irq usages like this. w/o rcu there would be
-> no need of the scheduler keeping up with the irq load, and in some usage
-> I can imagine that it is a feature to prioritize heavily on the
-> irq load vs scheduler-aware context.
+http://membres.lycos.fr/schaffner/howto/linux26-boot-of.txt
 
-Not necessarily, we can do a call_rcu_bh() just for softirqs with 
-softirq handler completion as a quiescent state. That will likely
-help with the route cache overflow problem atleast.
+(I found this procedure by trial and error, by mixing stuff from 2.4 
+into the build of 2.6.)
 
-Thanks
-Dipankar
+If I try to boot the stock kernel, OpenFirmware tells me "Claim 
+failed", and returns to the command prompt.
+
+Does anybody have an idea what is the cause of this?
+
+Thanks,
+
+Martin
+

@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVB0XQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVB0Xc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVB0XQo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 18:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVB0XQo
+	id S261513AbVB0Xc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 18:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVB0Xc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 18:16:44 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:33713 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261511AbVB0XQl convert rfc822-to-8bit (ORCPT
+	Sun, 27 Feb 2005 18:32:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17106 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261513AbVB0XcZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 18:16:41 -0500
-Message-ID: <1109546013.4222541d5db16@webmail.grupopie.com>
-Date: Sun, 27 Feb 2005 23:13:33 +0000
-From: "" <pmarques@grupopie.com>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: "" <linux-kernel@vger.kernel.org>, "" <perex@suse.cz>,
-       "" <luming.yu@intel.com>
-Subject: Re: sizeof(ptr) or sizeof(*ptr)?
-References: <1109535904.42222ca0b0b78@webmail.grupopie.com> <20050227204524.GA29026@one-eyed-alien.net>
-In-Reply-To: <20050227204524.GA29026@one-eyed-alien.net>
+	Sun, 27 Feb 2005 18:32:25 -0500
+Date: Sun, 27 Feb 2005 18:32:22 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Christian Schmid <webmaster@rapidforum.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Slowdown on high-load machines with 3000 sockets
+In-Reply-To: <422239A8.1090503@rapidforum.com>
+Message-ID: <Pine.LNX.4.61.0502271830380.19979@chimarrao.boston.redhat.com>
+References: <4221FB13.6090908@rapidforum.com>
+ <Pine.LNX.4.61.0502271216050.19979@chimarrao.boston.redhat.com>
+ <Pine.LNX.4.61.0502271606220.19979@chimarrao.boston.redhat.com>
+ <422239A8.1090503@rapidforum.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 82.154.89.181
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Matthew Dharm <mdharm-kernel@one-eyed-alien.net>:
-> [...]
-> 	us->host = scsi_host_alloc(&usb_stor_host_template, sizeof(*us));
+On Sun, 27 Feb 2005, Christian Schmid wrote:
+
+> > Christian, how big are the data blocks you sys_readahead, and
+> > how many do you have outstanding at a time ?
 > 
-> This is actually correct as-is.  We're allocating a host, and asking for
-> the sizeof(pointer) in the 'extra storage' section.  We then store the
-> pointer (not what it points to) in the extra storage section a few lines
-> down.
+> I am reading 800000 bytes of data as soon as there is less than 200000 
+> data in the cache. I do assume the cache doesnt kill itself. I have 8 GB 
+> machine with 7,5 GB free for caching.
 
-Thanks for clarifying that. I guess the weekend effect got me, because at a
-certain point I was starting to read the scsi_host_alloc as if it were a
-kmalloc or something... :P
+OK, so you read 800kB with 4000 threads, or 3.2GB of
+readahead data.  The inactive list is quite possibly
+smaller than that, at 1/3 of memory or around 2.6 GB.
 
-Anyway, after improving the tool and checking for false positives, there is only
-one more suspicious piece of code in drivers/acpi/video.c:561
+It looks like the cache might be killing itself, through
+readahead thrashing.
 
-	status = acpi_video_device_lcd_query_levels(device, &obj);
-
-	if (obj && obj->type == ACPI_TYPE_PACKAGE && obj->package.count >= 2) {
-		int count = 0;
-		union acpi_object *o;
-
-		br = kmalloc(sizeof &br, GFP_KERNEL);
-		if (!br) {
-			printk(KERN_ERR "can't allocate memory\n");
-		} else {
-			memset(br, 0, sizeof &br);
-			br->levels = kmalloc(obj->package.count * sizeof &br->levels, GFP_KERNEL);
-			if (!br->levels)
-				goto out;
-
-"br" if of type "struct acpi_video_device_brightness *". 
-
-"sizeof &br" doesn't make much sense there (besides the unconventional use of
-sizeof without parenthesis) because the rest of the code seem to suggest that a
-whole structure should have been allocated. This is the last case I've seen,
-and I've added the maintainer to the cc list, so that he can check the code for
-correctness.
-
-Well, sorry about bothering you with a false positive (that I should've
-recognised on my own, anyway), and thanks for the help.
-
---
-Paulo Marques - www.grupopie.com
- 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,29 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261608AbTCGOeq>; Fri, 7 Mar 2003 09:34:46 -0500
+	id <S261617AbTCGO3l>; Fri, 7 Mar 2003 09:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261614AbTCGOeq>; Fri, 7 Mar 2003 09:34:46 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:63169 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261608AbTCGOep>;
-	Fri, 7 Mar 2003 09:34:45 -0500
-Date: Fri, 7 Mar 2003 15:45:01 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
-In-Reply-To: <Pine.LNX.4.44.0303071049500.7326-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303071543480.12493-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261618AbTCGO3l>; Fri, 7 Mar 2003 09:29:41 -0500
+Received: from B5036.pppool.de ([213.7.80.54]:60296 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261617AbTCGO3k>; Fri, 7 Mar 2003 09:29:40 -0500
+Subject: Re: Kernel bloat 2.4 vs. 2.5
+From: Daniel Egger <degger@fhm.edu>
+To: Andreas Boman <aboman@midgaard.us>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1046993653.30701.3.camel@asgaard.midgaard.us>
+References: <20030306142252.22630.qmail@linuxmail.org>
+	 <1046980273.18897.30.camel@sonja>
+	 <1046993653.30701.3.camel@asgaard.midgaard.us>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eMkDiZTKXO6VHidlMp9s"
+Organization: 
+Message-Id: <1047043988.25089.36.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 07 Mar 2003 14:33:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-btw., could you please revert the kernel/softirq.c change, and re-test
--j25 interactivity with that patch? That way we'll know exactly which
-component of -B2 caused the improvement on your box.
+--=-eMkDiZTKXO6VHidlMp9s
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	Ingo
+Am Fre, 2003-03-07 um 00.34 schrieb Andreas Boman:
+
+> apt-get install module-init-tools, it will install 'right' and let you
+> use modules with 2.4 and 2.5 kernels.
+
+Close but not cigar. Trying to load modules blocks the system quite a
+bit and I get lots of failures like realloc errors which unfortunately
+disappear too fast from the screen to capture. The system is still
+booting after 6 mins...
+
+  257 root      15 -10  257m 227m 1176 D 80.8 45.1   0:22.67 modprobe
+
+The system is fully saturated by modprobes... :(
+
+--=20
+Servus,
+       Daniel
+
+--=-eMkDiZTKXO6VHidlMp9s
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+aJ+Uchlzsq9KoIYRApspAKCEHD6ERwFtR91/F3NDSDGs6l0gigCggheU
+LU6qW1UKPDGu47WYi2fgNhk=
+=JHwI
+-----END PGP SIGNATURE-----
+
+--=-eMkDiZTKXO6VHidlMp9s--
 

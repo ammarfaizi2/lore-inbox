@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130111AbQLRWrD>; Mon, 18 Dec 2000 17:47:03 -0500
+	id <S129525AbQLRW41>; Mon, 18 Dec 2000 17:56:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbQLRWqx>; Mon, 18 Dec 2000 17:46:53 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:57329 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S130111AbQLRWqi>; Mon, 18 Dec 2000 17:46:38 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012182215.eBIMFsb14852@webber.adilger.net>
-Subject: Re: /dev/random: really secure?
-In-Reply-To: <200012182133.QAA02136@tsx-prime.MIT.EDU> "from Theodore Y. Ts'o
- at Dec 18, 2000 04:33:13 pm"
-To: "Theodore Y. Ts'o" <tytso@mit.edu>
-Date: Mon, 18 Dec 2000 15:15:54 -0700 (MST)
-CC: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	id <S130791AbQLRW4J>; Mon, 18 Dec 2000 17:56:09 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:52998 "HELO kabuki.eyep.net")
+	by vger.kernel.org with SMTP id <S129525AbQLRWzw>;
+	Mon, 18 Dec 2000 17:55:52 -0500
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
         David Schwartz <davids@webmaster.com>,
         Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>,
         linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+Subject: Re: /dev/random: really secure? 
+In-Reply-To: Your message of "Mon, 18 Dec 2000 15:15:54 MDT."
+             <200012182215.eBIMFsb14852@webber.adilger.net> 
+In-Reply-To: <200012182215.eBIMFsb14852@webber.adilger.net> 
+Date: Tue, 19 Dec 2000 20:27:44 +1100
+From: Daniel Stone <daniel@kabuki.eyep.net>
+Message-Id: <20001218225557Z129525-439+4788@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <lk@tantalophile.demon.co.uk> writes:
-> >  A potential weakness.  The entropy estimator can be manipulated by
-> >  feeding data which looks random to the estimator, but which is in fact
-> >  not random at all.
+> This would allow you to say "eth0 is my internal network and I'm not
+> trying to hack my own system, so use IP traffic on that interface to add
+> entropy to the pool, but not packets that are on port 6699/21/23 or reply
+> packets".  It would probably just be a matter of adding a new flag to a
+> filter rule to say "use packets that match this rule for entropy", and
+> then it is up to the user to determine what is safe to use.  The fact
+> that it is user configurable makes it even harder for a cracker to know
+> what affects the entropy pool.
 
-Ted Ts'o replied:
-> Yes, absolutely.  That's why you have to be careful before you make
-> changes to the kernel code to feed additional data to the estimator.
-> *Usually* relying on interrupt timing is safe, but not always.  For
-> example, an adversary can observe, and in some cases control the
-> arrivial of network packets which control the network card's interrupt
-> timings.  Is it enough to be able to predict with cpu-counter
-> resolution the inputs to the /dev/random pool?  Maybe; it depends on how
-> paranoid you are.
+This isn't from the kernel, but works great in userspace:
 
-I think that for the case of dedicated firewall/IPSec machines, it
-_should_ be possible to generate some entropy from network packets,
-because this may be the only place where they get any activity (no
-keyboard/mouse/disk).  Given the fact we are dealing with a router,
-there shouldn't be any way one person can control all of the network
-traffic to/through/from the router, and if they can you probably have
-another security problem entirely.
+iptables -n RANDOM
+iptables -A INPUT -i eth0 -j RANDOM
+iptables -A RANDOM -p tcp --dport 6699 -j <otherchain/rule>
+iptables -A RANDOM -p tcp --dport 21 -j <asabove>
+iptables -A RANDOM -p tcp --dport 32 -j <ditto,etc>
+iptables -A RANDOM -m state --state ! NEW -j <thisisgettingstupidnow>
+iptables -P RANDOM -j ULOG --ulog-nlgroup 32
 
-Maybe a hook into the ipchains/netfilter code to allow selecting only
-traffic from certain interfaces, and discarding "repeat" source and/or
-destination addresses or packets arriving less than X ticks apart, just
-like we discard repeated keystrokes.  The larger X is, the harder it is
-to estimate the low-order bits on the timers when a packet arrives.
+This sends a message down netlink in ULOG format.
+ULOG is a userspace logging extension written by Harald Welte, but it's
+extensible like you wouldn't believe, so you could easily do some whacky
+stuff with it. Or just hook in to a Netfilter hook and do it all from kernel
+land.
+ULOG's homepage: http://www.gnumonks.org/gnumonks/projects/project_details?p_id=1
 
-This would allow you to say "eth0 is my internal network and I'm not
-trying to hack my own system, so use IP traffic on that interface to add
-entropy to the pool, but not packets that are on port 6699/21/23 or reply
-packets".  It would probably just be a matter of adding a new flag to a
-filter rule to say "use packets that match this rule for entropy", and
-then it is up to the user to determine what is safe to use.  The fact
-that it is user configurable makes it even harder for a cracker to know
-what affects the entropy pool.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+:) d
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbTILFUo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 01:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTILFUo
+	id S261678AbTILFVr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 01:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTILFVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 01:20:44 -0400
-Received: from [66.241.84.54] ([66.241.84.54]:1664 "EHLO bigred.russwhit.org")
-	by vger.kernel.org with ESMTP id S261676AbTILFUn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 01:20:43 -0400
-Date: Mon, 8 Sep 2003 12:35:46 -0700 (PDT)
-From: Russell Whitaker <russ@ashlandhome.net>
-X-X-Sender: russ@bigred.russwhit.org
-To: Ricky Beam <jfbeam@bluetronic.net>
-cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0: module char_10_135
-In-Reply-To: <Pine.GSO.4.33.0309021727440.13584-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.LNX.4.53.0309030009380.183@bigred.russwhit.org>
-References: <Pine.GSO.4.33.0309021727440.13584-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Sep 2003 01:21:47 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:3562 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S261678AbTILFVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 01:21:46 -0400
+Subject: Re: [Bluez-devel] Re: [BUG] BlueTooth socket busted in 2.6.0-test5
+From: David Woodhouse <dwmw2@infradead.org>
+To: jt@hpl.hp.com
+Cc: Marcel Holtmann <marcel@holtmann.org>, Max Krasnyansky <maxk@qualcomm.com>,
+       BlueZ mailing list <bluez-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030911203249.GA15575@bougret.hpl.hp.com>
+References: <20030910225810.GA7712@bougret.hpl.hp.com>
+	 <1063237174.28890.6.camel@pegasus>
+	 <20030911203249.GA15575@bougret.hpl.hp.com>
+Content-Type: text/plain
+Message-Id: <1063344094.7869.396.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5.dwmw2.1) 
+Date: Fri, 12 Sep 2003 06:21:34 +0100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-09-11 at 13:32 -0700, Jean Tourrilhes wrote:
+> 	My testing was too light :
+> ------------------------------------------------------
+> kernel BUG at include/linux/module.h:296!
+ <...>
+> EIP is at bnep_sock_create+0x69/0xb2 [bnep]
 
+Er, if we're actually _running_ code from the bnep module, how can it
+have a zero refcount? This bug is elsewhere, surely?
 
-On Tue, 2 Sep 2003, Ricky Beam wrote:
+Either that or it affects _all_ users of sk_set_owner() and wants fixing
+there.
 
-> On Sat, 30 Aug 2003, Russell Whitaker wrote:
-> >module-init-tools 0.9.13-pre 2
-> >
-> >That was the latest version I could find on Aug 3rd. Please let me know
-> >if there is a later version I should try.
->
-> Check the order of calls during boot.  In most cases, the rtc will be
-> required before modules are setup -- /proc/sys/kernel/modprobe isn't
-> set yet.
+-- 
+dwmw2
 
-**update**  Had written the following and then updated to 2.6.0-test4-bk8
-and found the module_char_10_135 problem has gone away.
-  Thanks,
-    Russ
-
-Had changed "Enhanced Real Time Clock" from module to built-in so next
-itteration will change it back and check it out. In the meanwhile here's
-a recap of what I've done:
-
-Started with a Slackware 9.0 installation, booting kernel 2.4.xx.
-Custom kernel, these (amoung others) are modules: lp, floppy, and
-"Enhanced Real Time Clock". Have this line in fstab so can mount floppy
-as user:
-  /dev/fd0   /mnt/floppy   auto   noauto,user
-
-Everything works as expected. Then kernel-2.6 came out. So I "cp /vmlinuz
-/vmlinuz.4", changed lilo's first entry to lin6, adding 2nd entry lin4,
-installed lilo, edited lilo.config to change the 2nd vmlinuz to vmlinuz.4
-and recycled lilo.
 

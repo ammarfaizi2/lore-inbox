@@ -1,29 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317068AbSGNUVf>; Sun, 14 Jul 2002 16:21:35 -0400
+	id <S317081AbSGNUYe>; Sun, 14 Jul 2002 16:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317083AbSGNUVe>; Sun, 14 Jul 2002 16:21:34 -0400
-Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:49536 "EHLO
-	mail.ohdarn.net") by vger.kernel.org with ESMTP id <S317068AbSGNUVc>;
-	Sun, 14 Jul 2002 16:21:32 -0400
-Date: Sun, 14 Jul 2002 16:24:25 -0400
-From: Michael Cohen <me@ohdarn.net>
+	id <S317083AbSGNUYd>; Sun, 14 Jul 2002 16:24:33 -0400
+Received: from esteel10.client.dti.net ([209.73.14.10]:18629 "EHLO
+	shookay.newview.com") by vger.kernel.org with ESMTP
+	id <S317081AbSGNUYc>; Sun, 14 Jul 2002 16:24:32 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] 2.4.19-pre10-mjc3
-Message-Id: <20020714162425.74c0c7e4.me@ohdarn.net>
-Organization: OhDarn.net
-X-Mailer: Sylpheed version 0.8.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: IDE/ATAPI in 2.5
+References: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de>
+	<xltznwujc0u.fsf@shookay.newview.com>
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+Date: 14 Jul 2002 16:27:18 -0400
+In-Reply-To: <xltznwujc0u.fsf@shookay.newview.com>
+Message-ID: <xltvg7ijbrt.fsf@shookay.newview.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--rc1-mjc1 is on the way, so here's a belated announcement for -pre10-mjc3.
+mathieu@newview.com (Mathieu Chouquet-Stringer) writes:
+> I'm running tar (the regular version not star) right now on an Athlon @
+> 850. The fs is ext3 and the disk is a scsi drive.
+> So far, tar has been running for 17 min 25 sec, and that's what top says:
+> CPU states:  1.7% user, 98.2% system,  0.0% nice,  0.0% idle
+> 
+> (FYI, nothing else is taking some large amount of cpu time)
+> 
+> So I would say Joerg is right... :-(
 
-ChangeLog: http://ohdarn.net/ChangeLog
+BTW my kernel is 2.4.18 vanilla. I'll keep you posted when it's done.
 
-http://kernel.org/pub/linux/kernel/people/mjc
-
-------
-Michael Cohen
+-- 
+Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
+    It is exactly because a man cannot do a thing that he is a
+                      proper judge of it.
+                      -- Oscar Wilde

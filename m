@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291289AbSBMBq5>; Tue, 12 Feb 2002 20:46:57 -0500
+	id <S291290AbSBMBvK>; Tue, 12 Feb 2002 20:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291290AbSBMBqs>; Tue, 12 Feb 2002 20:46:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33796 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291289AbSBMBqd>; Tue, 12 Feb 2002 20:46:33 -0500
-Subject: Re: 2.4.x ram issues?
-To: ace@credit.com (Eugene Chupkin)
-Date: Wed, 13 Feb 2002 02:00:22 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, tmeagher@credit.com
-In-Reply-To: <Pine.LNX.4.10.10202121726530.683-100000@mail.credit.com> from "Eugene Chupkin" at Feb 12, 2002 05:40:01 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S291298AbSBMBvA>; Tue, 12 Feb 2002 20:51:00 -0500
+Received: from codepoet.org ([166.70.14.212]:14820 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S291290AbSBMBux>;
+	Tue, 12 Feb 2002 20:50:53 -0500
+Date: Tue, 12 Feb 2002 18:50:54 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Ro0tSiEgE <ro0tsiege@bjstuff.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stable Kernel
+Message-ID: <20020213015054.GA11021@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Ro0tSiEgE <ro0tsiege@bjstuff.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <000501c1b42e$6d4f66a0$ed00000a@citrix.bjstuff.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16aoic-0003of-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <000501c1b42e$6d4f66a0$ed00000a@citrix.bjstuff.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a problem with high ram support on 2.4.7 to 2.4.17 all behave the
-> same. I have a quad Xeon 700 box with 16gb of ram on an Intel SKA4 board.
-> The ram is all the same 16 1gb PC100 SDRAM modules from Crucial. If I
-> compile the kernel with high ram (64gb) support, my system runs very slow,
-> it takes about 15 minutes for make menuconfig to come up. If I  recompile
-> the kernel with 4gb support, it runs perfectly normal and very fast, but I
-> have 12 gigs that I can't use. Is this a known issue? Is there a fix? I
-> tried just about everything and I am all out of options. Please help!
+On Tue Feb 12, 2002 at 07:33:23PM -0600, Ro0tSiEgE wrote:
+> What is the most stable/secure kernel version at this point?
 
-Thats almost certainly indicating that the memory type range registers
-were not set up correcly by the BIOS. Check /proc/mtrr and also ask your
-vendor about BIOS updates to address the problem
+2.0.39
 
-(If there aren't any you can hack around it but its not nice to let vendors
- get away with bugs if that indeed is what it is)
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

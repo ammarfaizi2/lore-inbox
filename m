@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267569AbTAXG6c>; Fri, 24 Jan 2003 01:58:32 -0500
+	id <S267577AbTAXHHu>; Fri, 24 Jan 2003 02:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267573AbTAXG6c>; Fri, 24 Jan 2003 01:58:32 -0500
-Received: from blount.mail.mindspring.net ([207.69.200.226]:39204 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S267569AbTAXG6b>; Fri, 24 Jan 2003 01:58:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Bisping <rbisping@mindspring.com>
-Reply-To: rbisping@mindspring.com
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: belkin f5u022 pcmcia usb card/ PCI-CardBus Bridge
-Date: Fri, 24 Jan 2003 02:00:42 -0500
-X-Mailer: KMail [version 1.3.2]
-References: <E18as8b-0001FS-00@tisch.mail.mindspring.net>
-In-Reply-To: <E18as8b-0001FS-00@tisch.mail.mindspring.net>
+	id <S267578AbTAXHHu>; Fri, 24 Jan 2003 02:07:50 -0500
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:19722 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S267577AbTAXHHt>; Fri, 24 Jan 2003 02:07:49 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Fri, 24 Jan 2003 08:17:44 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E18bxwE-0002YL-00@blount.mail.mindspring.net>
+Content-type: Multipart/Mixed; boundary=Message-Boundary-14518
+Subject: 2.4.19: drivers/usb/wacom.c: Intuos tablet broken
+Message-ID: <3E30F658.5317.108EE8@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+X-Content-Conformance: HerringScan-0.13/Sophos-3.65+2.10+2.03.098+06 January 2003+79052@20030124.071149Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 January 2003 01:36, Robert Bisping wrote:
-> ----------  Forwarded Message  ----------
->
-> Subject: belkin f5u022 pcmcia usb card
-> Date: Mon, 20 Jan 2003 18:33:21 -0500
-> From: Robert Bisping <rbisping@mindspring.com>
-> To: debian-laptop@lists.debian.org
->
-> I am having problems getting this card to work on my thinkpad 760ED
-> I keep getting No IRQ known for interrupt pin A of device 04:00.0 Please
-> try using pci=biosirq
->
-> I have found out that the card does work under linux and it is supposed to
-> use IRQ 11 but how do I get it to set pin A to IRQ 11?
->
-> also what exactly is it refering to pci=biosirq where would I use that?
-> i have tried to use it in boot up but it does not seem to have any affect
-> unless I am using it wrong. if it supposed to be in a config file I need to
-> know which one and where it should be put. if i need to RTFM i need to know
-> which one to look at cause none of them seem to be helping. Thanx for your
-> assistance
->
-> Robert
->
-> added notes for kernel mailing list.
-> I am using 2.4.18 kernel I have recompiled multiple times trying to find
-> what might be causing this and if i need to send my kernel parameters I
-> can.  In the pcmcia-cs on sourceforge I was told i would probably have to
-> ask here as this is handled by the yenta driver in the kernel.
->
-> thanx
 
-ok, since I recieved no response from first try here goes more info:
-I am using a thinkpad 760ED and I have tried puting APCI code in my kernel 
-but it appears my laptop does not support it.  The problem appears to be in 
-the PCMCIA-CardBus bridge not being able to assign an IRQ.
+--Message-Boundary-14518
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 
-I am uncertain if this is in the yenta driver code or in the PCI systems 
-code. so I do not know who to even ask for direct assistance in correcting 
-the problem.
-I have heard the yenta driver is linus' but I do not know if the problem is 
-before it loads or during.  any assistance would be appreciated.
+Hello,
+
+my apologies if that's old news, but I had reported the effect 
+that my Intuos GD-1212 that worked with SuSE-8.0 (2.4.18) no 
+longer worked with SuSE-8.1 (2.4.19). The bug was knows at SuSE 
+as #22403, but they were unable to provide a solution so far.
+
+Thus I did a diff to the kernel sources. It seems that the 
+change in drivers/usb/wacom.c from RCS revision .122 to 1.23 
+(made by vijtech@suse.cz) broke detection of move events in an 
+obvious way (see lines 241 in 2.4.18 and lines 285 in 2.4.19):
+
+wacom->x and wacom->y are no longer set in 2.4.19!
+
+I'll attach my suggested fix (not tested).
+
+Regards,
+Ulrich Windl
+P.S. I failed to get any programming info from Wacom, even if 
+the documentation provided with the tablet said Wacom would 
+support developers. If anybody here knows a source of 
+information, please tell me...
 
 
-Rober Bisping
+--Message-Boundary-14518
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Text from file 'wacom.diff'
 
+--- wacom.c	2002-08-18 22:11:08.000000000 +0200
++++ wacom.c.new	2003-01-23 19:47:19.000000000 +0100
+@@ -288,8 +288,8 @@
+ 	x = ((__u32)data[2] << 8) | data[3];
+ 	y = ((__u32)data[4] << 8) | data[5];
+ 	
+-	input_report_abs(dev, ABS_X, wacom->x);
+-	input_report_abs(dev, ABS_Y, wacom->y);
++	input_report_abs(dev, ABS_X, wacom->x = x);
++	input_report_abs(dev, ABS_Y, wacom->y = y);
+ 	input_report_abs(dev, ABS_DISTANCE, data[9] >> 4);
+ 	
+ 	if ((data[1] & 0xb8) == 0xa0) {						/* general pen packet */
+
+--Message-Boundary-14518--

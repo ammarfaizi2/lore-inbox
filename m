@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281779AbRLFSFo>; Thu, 6 Dec 2001 13:05:44 -0500
+	id <S281772AbRLFSEy>; Thu, 6 Dec 2001 13:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281835AbRLFSFf>; Thu, 6 Dec 2001 13:05:35 -0500
-Received: from twardziel.tenbit.pl ([195.205.163.235]:26511 "EHLO tenbit.pl")
-	by vger.kernel.org with ESMTP id <S281779AbRLFSFT>;
-	Thu, 6 Dec 2001 13:05:19 -0500
-Date: Thu, 6 Dec 2001 19:04:54 +0100
-From: =?iso-8859-2?Q?Mateusz_=A3oskot?= <m.loskot@chello.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Strange problem with 2.4.x kernel
-Message-ID: <20011206190454.B848@cheetah.chello.pl>
-Reply-To: m.loskot@chello.pl
-Mail-Followup-To: =?iso-8859-2?Q?Mateusz_=A3oskot?= <m.loskot@chello.pl>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Os: Linux cheetah 2.4.4 
-X-Mailer: MUTT http://www.mutt.org
-X-Accept-Language: en pl
-X-Location: Europe, Poland, Warsaw
+	id <S281779AbRLFSEr>; Thu, 6 Dec 2001 13:04:47 -0500
+Received: from femail37.sdc1.sfba.home.com ([24.254.60.31]:9397 "EHLO
+	femail37.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S281772AbRLFSEe>; Thu, 6 Dec 2001 13:04:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, stoffel@casc.com (John Stoffel)
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Date: Thu, 6 Dec 2001 05:03:12 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: riel@conectiva.com.br (Rik van Riel), esr@thyrsus.com (Eric S. Raymond),
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <E16C2HM-0002JR-00@the-village.bc.nu>
+In-Reply-To: <E16C2HM-0002JR-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011206180432.IHMU19462.femail37.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
-I'm writing first time to you, so let me say HELLO !
+On Thursday 06 December 2001 12:25 pm, Alan Cox wrote:
+> > So has anyone had time to test the Python version 1.5 based CML2 that
+> > was posted?  Would that make it more acceptable?
+>
+> For 2.5 its a great leap forward. For 2.4 its irrelevant. Its simply not
+> the way stable kernel trees are run, even for people who think they are
+> above the rules and traditions
 
-I installed Slackware 8.0 month ago, it is my firewall with NAT (iptables).
-I have two kernels: 2.2.19 and 2.4.5 - this is my default kernel.
-Everything went fine but three days ago I tried to compile some 2.4.x kernel (2.4.0, 2.4.4, 2.4.5, ...., 2.4.12, 2.4.16).
-I went to ftp.kernel.org and got some kernels (zipped and bzipped)
-(transfered in BINARY mode, not ASCII).
-So the problem is:
-When I tried to gunzip or bunzip2 any ftp'd kernel I got terrible ;) message:
+Ooh, I can't resist...
 
-invalid compressed data: CRC-ERROR 
+"You mean like Linus?"
 
-...whats going on, I thought...
+(Ducks, runs, looks innocent, runs some more...)
 
-I know that it is possible to broke archives by ftp'd in ASCII mode, but as I
-said I ftp's kernels in BINARY mode, so it isn't the reason.
-I have some kernels on cdrom's and I got the same problem during trying gunzip or bunzip2 kernel (2.4.x).
-I tested to gunzip or bunzip2 2.2.x kernels 
-(from cdrom or ftp'd in binary mode) and everything works fine.
-So, it is possible that any 2.4.x kernel is broken ? 
-I'm sure that isn't !
+Rob
 
-So, I tried to find some information about CRC-ERROR's by google, so I found
-only that it could be caused by ftp'd archies in ASCII mode.
-Other tip was that there could be a problem with CMD640 
-chipset/controller etc.
-...I'm not so experienced user and I'm very confused ;)))
-
-I found on www.gzip.org some programm writen by Jean-loup Gailly called fixgz
-(www.gzip.org/fixgz.c) and some explanation about CRC ERROR's, I tried avery
-Gailly's advice but it still doesn't work. I can't gunzip any kernel 2.4.x .
-
-I found in man's that it could be a problem with checksum, so I run sum  
-for ftp'd kernel archive and for  the same archive after fixgz'd and sum's 
-was really different but fixgz'd doesn't help - doesn't fix these archives.
-
-So, I make every try under my 2.4.5 and 2.2.19 kernel - no positive result.
-
-I haven't any idea where to looking for any bug, any solution, any information how to fix it.
-
-Please, help me and explain what may be broken in my system.
-How to try to fix it ?
-
-I'll be very thankful.
-
-Best regards
-
--- 
-Mateusz Loskot
-E-mail: m.loskot@chello.pl
-GG#: 792434
+P.S.  Can we seperate "add new subsystem y prime" and "remove old subsystem 
+y".  LIke the new and old SCSI error handling, which have been in the tree in 
+parallel for some time?  Did I hear Eric ever suggest removing the old 
+configurator for 2.4?  Anybody?

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131146AbRCJTfq>; Sat, 10 Mar 2001 14:35:46 -0500
+	id <S131092AbRCJTh0>; Sat, 10 Mar 2001 14:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131147AbRCJTfg>; Sat, 10 Mar 2001 14:35:36 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22537 "EHLO
+	id <S131149AbRCJThJ>; Sat, 10 Mar 2001 14:37:09 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23049 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131146AbRCJTfY>; Sat, 10 Mar 2001 14:35:24 -0500
-Subject: Re: Kernel 2.4.1 on RHL 6.2
-To: jjs@mirai.cx (J Sloan)
-Date: Sat, 10 Mar 2001 19:37:45 +0000 (GMT)
-Cc: miquels@cistron-office.nl (Miquel van Smoorenburg),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <3AAA7D5F.A16AA1C7@mirai.cx> from "J Sloan" at Mar 10, 2001 11:15:43 AM
+	id <S131147AbRCJTgz>; Sat, 10 Mar 2001 14:36:55 -0500
+Subject: Re: VMware 2.0.3 & Kernel 2.4.2-ac17
+To: ajschrotenboer@lycosmail.com (Adam Schrotenboer)
+Date: Sat, 10 Mar 2001 19:39:24 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AAA7FA2.2000803@lycosmail.com> from "Adam Schrotenboer" at Mar 10, 2001 02:25:22 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14bpBU-0007GH-00@the-village.bc.nu>
+Message-Id: <E14bpD6-0007GQ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> He probably removed the original kernel-devel package,
-> which contained the links above, so they would have to
-> be remade.
+> I have traced this back to 2.4.2-ac4 by looking for where this function 
+> was removed.
 
-Linking them to /usr/src and thus people linking them to current kernel sources
-while basically harmless is indeed not the preferred approach. So he's right
-that older RH should have put the headers for the kernel that match glibc into
-/usr/include directly
+> yes, technically this probably is OT, and properly belong on the VMware 
+> list, but I can't access their nntp server.
+
+Right so if I cant access microsofts mailing lists I should post my windows
+problems here ?  I dont think your logic works that way.
+
+Also if you had checked the list archive its already been answered when the
+last off topic poster asked..
 

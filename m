@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315660AbSEDARm>; Fri, 3 May 2002 20:17:42 -0400
+	id <S315753AbSEDASX>; Fri, 3 May 2002 20:18:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315753AbSEDARl>; Fri, 3 May 2002 20:17:41 -0400
-Received: from surf.viawest.net ([216.87.64.26]:2954 "EHLO surf.viawest.net")
-	by vger.kernel.org with ESMTP id <S315660AbSEDARl>;
-	Fri, 3 May 2002 20:17:41 -0400
-Date: Fri, 3 May 2002 17:17:35 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: khromy <khromy@lnuxlab.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.x announcements
-Message-ID: <20020504001735.GA2786@wizard.com>
-In-Reply-To: <20020504001713.GA4917@lnuxlab.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux/2.5.13 (i686)
-X-uptime: 5:16pm  up  2:19,  2 users,  load average: 0.00, 0.00, 0.00
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+	id <S315754AbSEDAST>; Fri, 3 May 2002 20:18:19 -0400
+Received: from CPE-203-51-25-114.nsw.bigpond.net.au ([203.51.25.114]:12275
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S315753AbSEDASQ>; Fri, 3 May 2002 20:18:16 -0400
+Message-ID: <3CD328C5.2C6D389A@eyal.emu.id.au>
+Date: Sat, 04 May 2002 10:18:13 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa1 & vm-34: zftape-init.c compile error
+In-Reply-To: <20020503203738.E1396@dualathlon.random>
+Content-Type: multipart/mixed;
+ boundary="------------462F16E97E6D87740EF2DCF8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03, 2002 at 08:17:13PM -0400, khromy wrote:
-> Can the list be notified everytime a new version of 2.5 is released?
+This is a multi-part message in MIME format.
+--------------462F16E97E6D87740EF2DCF8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-        See the linux-kernel-announce mailing list. available at 
-vger.kernel.org.
+Andrea Arcangeli wrote:
+> 
+> Full patchkit:
+> http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa1.gz
 
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+linux-2.4-pre-aa/drivers/char/ftape/zftape/zftape-init.c fails to build,
+a declaration is put in an illegal place.
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+--------------462F16E97E6D87740EF2DCF8
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.19-pre8-aa1-zftape-init.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.19-pre8-aa1-zftape-init.patch"
+
+*** linux-2.4-pre-aa/drivers/char/ftape/zftape/zftape-init.c.orig	Sat May  4 10:13:57 2002
+--- linux-2.4-pre-aa/drivers/char/ftape/zftape/zftape-init.c	Sat May  4 10:14:28 2002
+***************
+*** 204,214 ****
+  	sigfillset(&current->blocked);
+  	lock_kernel();
+  	if ((result = ftape_mmap(vma)) >= 0) {
+- 		vma->vm_flags &= ~VM_IO;
+  #ifndef MSYNC_BUG_WAS_FIXED
+  		static struct vm_operations_struct dummy = { NULL, };
+  		vma->vm_ops = &dummy;
+  #endif
+  	}
+  	unlock_kernel();
+  	current->blocked = old_sigmask; /* restore mask */
+--- 204,214 ----
+  	sigfillset(&current->blocked);
+  	lock_kernel();
+  	if ((result = ftape_mmap(vma)) >= 0) {
+  #ifndef MSYNC_BUG_WAS_FIXED
+  		static struct vm_operations_struct dummy = { NULL, };
+  		vma->vm_ops = &dummy;
+  #endif
++ 		vma->vm_flags &= ~VM_IO;
+  	}
+  	unlock_kernel();
+  	current->blocked = old_sigmask; /* restore mask */
+
+--------------462F16E97E6D87740EF2DCF8--
 

@@ -1,54 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270464AbRITSJQ>; Thu, 20 Sep 2001 14:09:16 -0400
+	id <S268835AbRITSOQ>; Thu, 20 Sep 2001 14:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274586AbRITSI4>; Thu, 20 Sep 2001 14:08:56 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:8405 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270464AbRITSIr>; Thu, 20 Sep 2001 14:08:47 -0400
-Date: Thu, 20 Sep 2001 12:10:05 -0600
-Message-Id: <200109201810.f8KIA5j04307@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: drivers/char/sonypi.h broken
-In-Reply-To: <E15k7uP-0005im-00@the-village.bc.nu>
-In-Reply-To: <200109201418.f8KEIjG01625@vindaloo.ras.ucalgary.ca>
-	<E15k7uP-0005im-00@the-village.bc.nu>
+	id <S274586AbRITSOH>; Thu, 20 Sep 2001 14:14:07 -0400
+Received: from helen.CS.Berkeley.EDU ([128.32.131.251]:1702 "EHLO
+	helen.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id <S268835AbRITSN4>; Thu, 20 Sep 2001 14:13:56 -0400
+Date: Thu, 20 Sep 2001 11:14:19 -0700
+From: Josh MacDonald <jmacd@CS.Berkeley.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: RFC: Cache-optimized concurrent skip lists in kernel?
+Message-ID: <20010920111419.A2635@helen.CS.Berkeley.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > in 12 hours. I think this just highlights the need for BitKeeper or
-> > equivalent, where automated regression testing (even a simple "does it
-> > compile and link?") is performed, and if the test fails, it gets
-> > bounced and doesn't even get to Linus.
-> 
-> I do compile/link tests but not a million combinations of them. Its
-> o(N!) remember..
 
-Yes, and even if you were able to do so, there is still the problem of
-testing against the version that Linus applies the patch to (which as
-you said earlier, is a moving target). I guess one solution would be
-to have the tool Linus uses (or should use:-) also do a test, and if
-it fails, to bounce it. That would be done against Linus' working
-tree.
+I have a solution just waiting for the right problem to come along
+and find it useful.  Some of you on l-k may have an application
+in mind so I will share it with you.
 
-However, that would reduce Linus' flexibility in applying a series of
-patches which involves global API changes. Hm. Perhaps an option so
-that Linus can accept a patch if he knows it's part of a global API
-change.
+I developed this data structure originally as part of a class
+project, the topic of which was to measure the cache-efficiency
+of in-memory tree data structures.  One of the data structures
+we tested was the "Deterministic Top-down Skip List".  The basic
+algorithms for maintaining balanced top-down skip lists were the
+simplest I had ever seen, but the examples in the literature
+use a "linked" structure--essentially making it a binary tree
+with two pointers per node.  Binary search trees utilize the
+cache poorly, so an improvement was needed.  The "paged skip
+list" organizes larger nodes, similar to a B+tree, to make better
+use of the cache.
 
-Another alternative, which has been raised before, is Linus' patch
-queue is made public. As I understand it, Linus files pending patches
-into a special folder, and then later feeds that folder, en-masse,
-into patch(1), and a release/pre-patch is born. That patch queue could
-be distributed using the kernel.org mirror system. This would be a
-generally useful thing, and with automated regression testing, reduces
-the window for merge errors.
+We ran experiments with linked skip list, paged skip list, 
+B+tree, and AVL tree to determine their cache performance using
+both a real (x86) and simulated (simplescalar) processors.
+The B+tree and paged skip list support variable node sizes, 
+which is a cache-tuning parameter.  The best node size on x86
+for the processors I've tested is either 128 or 256 bytes.
+The skip list and B-tree perform similarly, but the top-down
+algorithms require no recursion, just a single downward pass,
+resulting in a shorter code path.  The paged skip list won in
+all of our comparisons.  
 
-				Regards,
+The cost of a cache-miss (DRAM latency) in clock cycles is rising
+with time, so cache-efficiency is a rising concern.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Since the original experiments over two years ago I have written 
+two polished versions of the paged skip list data structure--
+the algorithms are stable and quite well understood.
+
+The latest version of the paged skip list adds (optional) 
+node-level concurrency control.  I have used the Linux 2.4 
+read/write spinlock to accomplish this with the intention 
+that it may find a use in the kernel.  Top-down balancing 
+routines have a very natural kind of concurrency using lock-
+coupling to descend the tree.  Readers and writers aquire 
+read locks on internal nodes.  Writers upgrade to a write 
+lock when necessary.  Insertion never locks more than two 
+nodes, deletion never locks more than three nodes, when 
+rebalancing is required.  The algorithms are deadlock-free.
+
+I have run concurrency tests on this code, unfortunatly 
+I have only been able to test on 1- and 2-processors so far, 
+but the results for a 2-way SMP were promising.  The speedup
+is not linear, due to the cost of cache consistency 
+protocols, but at the very least I have measured speedup
+of 10-25% with two processors for a update-intensive
+workload (25% insert, 25% delete, 50% search) on trees 
+ranging in size of 400 to 4000000 keys.
+
+Enough description, here's the code:
+
+	http://prdownloads.sourceforge.net/skiplist/slpc-20010917.tar.gz
+
+There is a file named RESULTS with some experimental data.
+
+Here's the term paper giving our original results:
+
+	http://prdownloads.sourceforge.net/skiplist/skiplist.pdf
+
+(On sourceforge you'll also find an older, templatized C++ 
+class implementing the same algorithm w/o concurrency.)
+
+I am seeking your comments.  I know of only one tree structure
+in the kernel (mm/mmap_avl.c), but I wonder if there are any
+other applications people would have if the right data structure
+came along.  What in the kernel needs dynamic, sorted mappings?
+
+If you have any comments or suggestions I would appreciate 
+feedback.  Thanks,
+
+-josh

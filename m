@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265045AbUBOPXq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUBOPWa
+	id S265059AbUBOPah (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUBOPad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:22:30 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46303 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264981AbUBOPWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:22:21 -0500
-Date: Sat, 14 Feb 2004 01:46:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Hayes <mike@aiinc.ca>
+	Sun, 15 Feb 2004 10:30:33 -0500
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:16790 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265059AbUBOP2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:28:36 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Emmeran Seehuber <rototor@rototor.de>
+Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
+Date: Sun, 15 Feb 2004 10:28:24 -0500
+User-Agent: KMail/1.6
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spelling in 2.6.2
-Message-ID: <20040214004643.GA470@openzaurus.ucw.cz>
-References: <200402102009.i1AK91T20554@aiinc.aiinc.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200402112344.23378.rototor@rototor.de> <200402141205.52316.dtor_core@ameritech.net> <200402151425.15478.rototor@rototor.de>
+In-Reply-To: <200402151425.15478.rototor@rototor.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200402102009.i1AK91T20554@aiinc.aiinc.ca>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402151028.25284.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Relax, this is not a spelling patch.
+On Sunday 15 February 2004 09:25 am, Emmeran Seehuber wrote:
+> On Saturday 14 February 2004 17:05, Dmitry Torokhov wrote:
+> [...]
+> > Could you please #define DEBUG in drivers/input/serio/i8042.c and post your
+> > dmesg? Also, what kind of PC is that (manufacturer/model)?
+> I've attached the output of dmesg with the i8042.nomux option and without. The 
+> laptop is a Xeron Sonic Power Plus (Similar to this one: 
+> http://www.xeron.com/index.php4?id=1255 -- sorry, there seems to be no 
+> english translation of this page). Xeron puts together laptops in exact the 
+> configuration you like. Only the motherboards are the same. But I don`t know 
+> the motherboard vendor/type.  
 > 
-> I was curious how fast spelling errors flow into the kernel, so I
-> looked at the + lines in the 2.6.2 patch.  A few of the errors
-> already existed, but most of them are new.  It turns out that there
-> are around 200 new spelling errors in 2.6.2.
-> 
-> A "wether" (castrated goat) has appeared, along with a "Rusell" that
 
-:-)
-
-> Documentation/power/video.txt             carefull         careful            1
-
-My fault, can you submit it through trivial?
-
-> arch/i386/kernel/acpi/boot.c              recogznied       recognized         1
-> arch/x86_64/kernel/acpi/boot.c            recogznied       recognized         1
-> arch/x86_64/kernel/time.c                 everytime        every time         1
-> arch/x86_64/kernel/time.c                 interuppts       interrupts         1
-
-These too, please...
+I see that the kernel correctly identifies both devices so I suspect there
+could be a problem with your setup. Could you also post your XF86Config
+and tell me the the options you are passing to GPM, please?
 
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Dmitry

@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbUK3IWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbUK3IYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbUK3IWA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 03:22:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUK3IWA
+	id S262014AbUK3IYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 03:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbUK3IYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 03:22:00 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:57031 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262016AbUK3IT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 03:19:59 -0500
-Date: Tue, 30 Nov 2004 09:19:56 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       castet.matthieu@free.fr
-Subject: [WATCHDOG] v2.6.10-rc2 i8xx_tco.c-request_region-patch
-Message-ID: <20041130081956.GA3789@infomag.infomag.iguana.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Nov 2004 03:24:39 -0500
+Received: from cpc5-hem13-6-0-cust134.lutn.cable.ntl.com ([82.6.21.134]:2814
+	"EHLO arkady.demon.co.uk") by vger.kernel.org with ESMTP
+	id S262014AbUK3IW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 03:22:28 -0500
+Message-ID: <41AC2DBE.1080501@ntlworld.com>
+Date: Tue, 30 Nov 2004 08:22:22 +0000
+From: Bernard Hatt <bernard.hatt@ntlworld.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Yet another filesystem - sffs
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Andrew,
 
-please do a
+I had an idea for a filesystem as an alternative to using a raw disk
+partition for storing a single (large) data file (eg. a DVD image or a
+database data file), adding the convenience of a file length, permissions
+and a uid/gid.
 
-	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
+As I now have some functional code (a 'compile outside the kernel'
+module, only tested against i386/2.6.9) I thought I'd share the sffs
+(single file file-system) code for comments/testing.
 
-This will update the following files:
+Performance for a single file is between 0 and 40% faster than ext2,
+(though sffs is not a general purpose filesystem).
 
- drivers/char/watchdog/i8xx_tco.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+Some more details/benchmarks:
+         http://www.arkady.demon.co.uk/sffs
+the code can be downloaded from:
+         http://www.arkady.demon.co.uk/sffs/sffs-latest.tar.gz (13.5k)
 
-through these ChangeSets:
+Regards,
 
-<castet.matthieu@free.fr> (04/10/29 1.2026.42.1)
-   [WATCHDOG] i8xx_tco.c-request_region-patch
-   
-   Fix: in i8xx_tco.c, during the initialisation, the driver accesses io
-   without checking if the port is free.
+Bernard
 
 
-The ChangeSets can also be looked at on:
-	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
 
-For completeness, I added the patches below.
 
-Greetings,
-Wim.
-
-================================================================================
-diff -Nru a/drivers/char/watchdog/i8xx_tco.c b/drivers/char/watchdog/i8xx_tco.c
---- a/drivers/char/watchdog/i8xx_tco.c	2004-11-30 09:08:10 +01:00
-+++ b/drivers/char/watchdog/i8xx_tco.c	2004-11-30 09:08:10 +01:00
-@@ -415,12 +415,15 @@
- 			}
- 		}
- 		/* Set the TCO_EN bit in SMI_EN register */
-+		if (!request_region (SMI_EN + 1, 1, "i8xx TCO")) {
-+			printk (KERN_ERR PFX "I/O address 0x%04x already in use\n",
-+				SMI_EN + 1);
-+			return 0;
-+		}
- 		val1 = inb (SMI_EN + 1);
- 		val1 &= 0xdf;
- 		outb (val1, SMI_EN + 1);
--		/* Clear out the (probably old) status */
--		outb (0, TCO1_STS);
--		outb (3, TCO2_STS);
-+		release_region (SMI_EN + 1, 1);
- 		return 1;
- 	}
- 	return 0;
-@@ -442,6 +445,10 @@
- 		ret = -EIO;
- 		goto out;
- 	}
-+
-+	/* Clear out the (probably old) status */
-+	outb (0, TCO1_STS);
-+	outb (3, TCO2_STS);
- 
- 	/* Check that the heartbeat value is within it's range ; if not reset to the default */
- 	if (tco_timer_set_heartbeat (heartbeat)) {

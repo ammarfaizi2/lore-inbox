@@ -1,59 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262628AbSJBVx1>; Wed, 2 Oct 2002 17:53:27 -0400
+	id <S262622AbSJBVsw>; Wed, 2 Oct 2002 17:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262638AbSJBVx1>; Wed, 2 Oct 2002 17:53:27 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:18416 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262628AbSJBVxZ>; Wed, 2 Oct 2002 17:53:25 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 2 Oct 2002 15:56:49 -0600
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH]  4KB stack + irq stack for x86
-Message-ID: <20021002215649.GY3000@clusterfs.com>
-Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
-	linux-kernel@vger.kernel.org,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-mm@kvack.org
-References: <3D9B62AC.30607@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D9B62AC.30607@us.ibm.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S262620AbSJBVso>; Wed, 2 Oct 2002 17:48:44 -0400
+Received: from hdfdns02.hd.intel.com ([192.52.58.11]:30173 "EHLO
+	mail2.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S262628AbSJBVrw>; Wed, 2 Oct 2002 17:47:52 -0400
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DEFA@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI patches updated (20021002)
+Date: Wed, 2 Oct 2002 14:53:14 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 02, 2002  14:18 -0700, Dave Hansen wrote:
-> I've resynced Ben's patch against 2.5.40.  However, I'm getting some 
-> strange failures.  The patch is good enough to pass LTP, but 
-> consistently freezes when I run tcpdump on it.
-> 
-> Although I don't have CONFIG_PREEMPT on, I have the feeling that I 
-> need to disable preemption in common_interrupt() like it was before. 
->   Any insights would be appreciated.
+Hi all,
 
-I'm a little bit worried about this patch.  Have you tried something
-like NFS-over-ext3-over-LVM-over-MD or so, which can have a deep stack?
+There is a new release available at http://sf.net/projects/acpi . It
+incorporates many fixes from people on the acpi-devel list (thanks to
+everyone) as well as some interpreter enhancements.
 
-We hit a bunch of deep stack problems like this (overflowing an 8kB stack)
-even without interrupts involved when developing Lustre.  Granted, we
-fixed some large stack allocations in the ext3 indexed-directory code
-and in our own code, but I'm still worried that a 4kB stack is too small.
+Regards -- Andy
 
-The Stanford checker folks would probably be able to run a test for
-large stack allocations in 2.5.40 if you asked them nicely, and maybe
-even do stack depths for call chains.
+----------------------------------------
 
-Alternately, you could set up an 8kB stack + IRQ stack and "red-zone"
-the high page of the current 8kB stack and see if it is ever used.
+02 October 2002.  Summary of changes for this release.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+1) Linux
+
+Initialize thermal driver's timer before it is used. (Knut
+Neumann)
+
+Allow handling negative celsius values. (Kochi Takayoshi)
+
+Fix thermal management and make trip points. R/W (Pavel
+Machek)
+
+Fix /proc/acpi/sleep. (P. Christeas)
+
+IA64 fixes. (David Mosberger)
+
+Fix reversed logic in blacklist code. (Sergio Monteiro Basto)
+
+Replace ACPI_DEBUG define with ACPI_DEBUG_OUTPUT. (Dominik
+Brodowski)
+
+2) ACPI CA Core Subsystem version 20021002:
+
+Fixed a problem where a store/copy of a string to an existing
+string did not always set the string length properly in the
+String object.
+
+Fixed a reported problem with the ToString operator where the
+behavior was identical to the ToHexString operator instead of
+just simply converting a raw buffer to a string data type.
+
+Fixed a problem where CopyObject and the other "explicit"
+conversion operators were not updating the internal namespace
+node type as part of the store operation.
+
+Fixed a memory leak during implicit source operand conversion
+where the original object was not deleted if it was converted
+to a new object of a different type.
+
+Enhanced error messages for all problems associated with
+namespace lookups.  Common procedure generates and prints the
+lookup name as well as the formatted status.
+
+Completed implementation of a new design for the Alias support
+within the namespace.  The existing design did not handle the
+case where a new object was assigned to one of the two names
+due to the use of an explicit conversion operator, resulting
+in the two names pointing to two different objects.  The new
+design simply points the Alias name to the original name node
+- not to the object.  This results in a level of indirection
+that must be handled in the name resolution mechanism.
+
+
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
 

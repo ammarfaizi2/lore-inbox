@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267414AbTALT2A>; Sun, 12 Jan 2003 14:28:00 -0500
+	id <S267413AbTALTWl>; Sun, 12 Jan 2003 14:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267415AbTALT2A>; Sun, 12 Jan 2003 14:28:00 -0500
-Received: from packet.digeo.com ([12.110.80.53]:11954 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267414AbTALT17> convert rfc822-to-8bit;
-	Sun, 12 Jan 2003 14:27:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Morton <akpm@digeo.com>
-To: David Ford <david+cert@blue-labs.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.56 panics PostgreSQL
-Date: Sun, 12 Jan 2003 11:37:07 -0800
-User-Agent: KMail/1.4.3
-References: <3E21B839.4060902@blue-labs.org>
-In-Reply-To: <3E21B839.4060902@blue-labs.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301121137.07735.akpm@digeo.com>
-X-OriginalArrivalTime: 12 Jan 2003 19:36:42.0331 (UTC) FILETIME=[EEFB42B0:01C2BA71]
+	id <S267414AbTALTWl>; Sun, 12 Jan 2003 14:22:41 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40854
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267413AbTALTWj>; Sun, 12 Jan 2003 14:22:39 -0500
+Subject: Re: Nervous with 2.4.21-pre3 and -pre3-ac*
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: ghugh Song <ghugh@mit.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030112185500.6157F475C9@bellini.mit.edu>
+References: <20030112185500.6157F475C9@bellini.mit.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042402716.16288.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 12 Jan 2003 20:18:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun January 12 2003 10:47, David Ford wrote:
->
-> Yesterday I put 2.5.56 on my SQL server and PostgreSQL started panicking 
-> repeatedly and frequently complaining about missing commit logs.
+On Sun, 2003-01-12 at 18:55, ghugh Song wrote:
+> Many people including me are getting unusual Kernel 
+> trouble recently with 2.4.21-pre3-ac*. In my case, with 
+> 2.4.21-pre3-ac2 I got segmentation fault from 
+> a command (tar) where I never suspected.   Yet no one seems to know 
+> what part of the the kernel update caused all this 
+> trouble.
+> 
+> Does anyone have any guess?
 
-Which filesystems were in use?
+At the moment I am not sure. Its stable on my boxes using gcc 3.1 and
+built from make distclean. At least one reporter found a patch and
+build over an old built tree failed but a clean tree did not.
 
+The obvious candidates assuming 2.4.21-pre3 is stable are the mm/shmem.c 
+changes (you can back out just the diff to that file and retest which
+would be interesting), or the buffer cache changes which I plan to drop
+out to test soon.
 
+Neither of these two changes are due for Marcelo.
+
+Are you using highmem (> 900Mb RAM in the box)
+
+Alan
 

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318146AbSGRQMu>; Thu, 18 Jul 2002 12:12:50 -0400
+	id <S318141AbSGRQKG>; Thu, 18 Jul 2002 12:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318148AbSGRQMu>; Thu, 18 Jul 2002 12:12:50 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:63493 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318146AbSGRQMt>;
-	Thu, 18 Jul 2002 12:12:49 -0400
-Date: Thu, 18 Jul 2002 09:14:29 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020718161429.GB15037@kroah.com>
-References: <3D361091.13618.16DC46FB@localhost> <20020718060841.GC12626@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020718060841.GC12626@kroah.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 20 Jun 2002 15:05:16 -0700
+	id <S318146AbSGRQKG>; Thu, 18 Jul 2002 12:10:06 -0400
+Received: from a208-141.dialup.iol.cz ([194.228.141.208]:16133 "EHLO devix")
+	by vger.kernel.org with ESMTP id <S318141AbSGRQKF>;
+	Thu, 18 Jul 2002 12:10:05 -0400
+Date: Thu, 18 Jul 2002 17:44:56 +0200 (CEST)
+From: devik <devik@cdi.cz>
+X-X-Sender: <devik@devix>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18 is not SMP friendly
+In-Reply-To: <1026999905.9727.13.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0207181722080.535-100000@devix>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 11:08:41PM -0700, Greg KH wrote:
-> On Thu, Jul 18, 2002 at 12:49:21AM -0400, Guillaume Boissiere wrote:
-> > o USB gadget support         (Stuart Lynne, Greg Kroah-Hartman)
-> 
-> Unless I start to get some help with this, or a Zarus or some other USB
-> gadget type device to test with, I don't think this will happen.
+Hi,
+Yes I use smbfs.
+Regarding my oops report, is there known
+bug where waitqueue would be corrupted ? When I analyzed
+it I found that invalid address 8bd4189c was loaded from
+tasklist pointer in wait_queue_head_t (sched.c, __wake_up_common
+line "p = curr->task").
+The wakeup was called from get_new_inode and seems like
+if list of tasks was not initialized of what :(
 
-Just to be a bit clearer (as it seems some people don't fully understand
-this item), I need people who have Linux running WITHIN a USB gadget,
-like a Zarus.  This does not include the Palm devices, which are USB
-gadgets, but do not run Linux themselves.
+thanks, devik
 
-thanks,
+On 18 Jul 2002, Alan Cox wrote:
 
-greg k-h
+> On Thu, 2002-07-18 at 11:51, devik wrote:
+> > I someone here running 2.4.18 on PII SMP successfully ?
+>
+> PPro in my case but yes. 2.4.18 ought to be pretty solid except for some
+> annoying bugs you'll only hit if you use smbfs.
+>
+>
+

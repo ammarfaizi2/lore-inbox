@@ -1,62 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTFYGpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 02:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbTFYGpL
+	id S264277AbTFYGsb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 02:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTFYGsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 02:45:11 -0400
-Received: from adsl-67-124-159-170.dsl.pltn13.pacbell.net ([67.124.159.170]:5344
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S262426AbTFYGpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 02:45:08 -0400
-Date: Tue, 24 Jun 2003 23:59:18 -0700
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Synaptics driver won't work properly (2.5.73-mm1)
-Message-ID: <20030625065918.GA28404@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	Wed, 25 Jun 2003 02:48:31 -0400
+Received: from bundit.graduate.kmitl.ac.th ([161.246.39.3]:30592 "EHLO
+	bundit.graduate.kmitl.ac.th") by vger.kernel.org with ESMTP
+	id S264277AbTFYGsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 02:48:31 -0400
+Message-ID: <3EF94908.6030504@graduate.kmitl.ac.th>
+Date: Wed, 25 Jun 2003 14:02:32 +0700
+From: Warodom Werapun <ple@graduate.kmitl.ac.th>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: =?TIS-620?Q?=D5=D7=D5=D7unsubscribe?=
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+unsubscribe
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Appending psmouse_noext to the kernel works, but basically i get a lot
-of this when I try to move my synaptics touchpad without it:
-
-Synaptics driver lost sync at 4th byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver resynced.
-
-But the cursor goes nowhere. Would gpm work at all with the new
-driver? I know I would need a new X11 driver for the mouse...
-
--Josh
-
---=20
-A man may be so much of everything that he is nothing of anything.
-        -- Samuel Johnson
-
-
---OgqxwSJOaUobr8KG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE++UhFT2bz5yevw+4RAoVMAKCUH7dS+Nu5pE+3QpzetotizWEmrwCaAqP+
-H7GwwIqDSAleRd+VE23LtKY=
-=9N8f
------END PGP SIGNATURE-----
-
---OgqxwSJOaUobr8KG--

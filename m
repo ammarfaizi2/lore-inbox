@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262051AbSJHLqM>; Tue, 8 Oct 2002 07:46:12 -0400
+	id <S262183AbSJHL6l>; Tue, 8 Oct 2002 07:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262064AbSJHLqM>; Tue, 8 Oct 2002 07:46:12 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:43136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262051AbSJHLqL>; Tue, 8 Oct 2002 07:46:11 -0400
-Date: Tue, 8 Oct 2002 07:53:19 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: jbradford@dial.pipex.com
-cc: simon@baydel.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-In-Reply-To: <200210081111.g98BBFfv010140@darkstar.example.net>
-Message-ID: <Pine.LNX.3.95.1021008074333.5870A-100000@chaos.analogic.com>
+	id <S262199AbSJHL6k>; Tue, 8 Oct 2002 07:58:40 -0400
+Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:61519 "EHLO
+	elipse.com.br") by vger.kernel.org with ESMTP id <S262183AbSJHL6j>;
+	Tue, 8 Oct 2002 07:58:39 -0400
+Message-ID: <019401c26ec2$d46e62b0$1c00a8c0@elipse.com.br>
+Reply-To: "Felipe W Damasio" <felipewd@elipse.com.br>
+From: "Felipe W Damasio" <felipewd@elipse.com.br>
+To: "Stig Brautaset" <stig@brautaset.org>, <linux-kernel@vger.kernel.org>,
+       <jgarzik@mandrakesoft.com>
+References: <20021007220752.GA471@arwen.brautaset.org>
+Subject: Re: [patch] 2.5.41: mii breakage in xircom_tulip_cb
+Date: Tue, 8 Oct 2002 09:04:18 -0300
+Organization: Elipse Software
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-OriginalArrivalTime: 08 Oct 2002 12:04:16.0593 (UTC) FILETIME=[D3345C10:01C26EC2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002 jbradford@dial.pipex.com wrote:
 
-> > These modules again drive gate array hardware for which nobody 
-> > else will ever have a compatible. Although I would dearly love to 
-> > use Linux as the platform for my project I feel I cannot release this 
-> > code under the GPL.
-> 
-> That just doesn't make sense.  If nobody else will ever have a
-> compatible piece of hardware, I don't see why you wouldn't want to
-> release the driver code under the GPL.
-> 
-> _Unless_ you fear that somebody will derive your hardware design from
-> the code.  Is that what you're worried about?
-> 
-> John.
-
-Maybe he's afraid that customers will see that the hardware design is
-absolute garbage with thousands of defective-hardware-work-arounds in
-software. If so, don't worry! I don't think there is a piece of digital
-hardware remaining on the planet that doesn't require software playing
-nurse-maid. And everybody knows that if a decision has to be made to
-re-do a PWB at $150,000 a pop, or to invent some software work-arounds,
-the work-arounds will always win. Besides, software is "free". Once it's
-done and the software engineers laid-off, you just clone in over-and-over
-again. Ask any production manager.
-
-I know of a company that has WOM (Write Only Memory) right in the
-middle of some RAM address space. Guess what? It's memory-mapped and
-'owned' by some sleeping giant!
+----- Original Message -----
+From: "Stig Brautaset" <stig@brautaset.org>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, October 07, 2002 7:07 PM
+Subject: [patch] 2.5.41: mii breakage in xircom_tulip_cb
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+> In 2.5.41 (and .40, at least) the mii-capabilities is not there, I have
+> not tested earlier development kernels. The changes between the driver
+> in 2.4.19 and 2.5.41 are miniscule, so I was able to make mii work
+> again (this is my first attempt at kernel hacking; don't laugh :). It's
+> most definately _not_ the correct fix, it is just a revert from 2.4.19
+> that makes mii work for me again in 2.5.
+
+   Isn't this (or shouldn't this) be supported by the 2.4 version of the
+"generic_mii_ioctl"? Jeff?
+
+   Since this is a rather new function (in since 2.5.40) the fix is valid,
+though the net drivers should use this function (I'll look into this).
+
+Felipe
 

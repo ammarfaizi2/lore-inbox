@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265777AbUBGUpj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 15:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUBGUpj
+	id S266048AbUBGUmm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 15:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUBGUml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 15:45:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49077 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265777AbUBGUpd
+	Sat, 7 Feb 2004 15:42:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44213 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265838AbUBGUl6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 15:45:33 -0500
-Date: Sat, 7 Feb 2004 20:45:32 +0000
+	Sat, 7 Feb 2004 15:41:58 -0500
+Date: Sat, 7 Feb 2004 20:41:56 +0000
 From: Matthew Wilcox <willy@debian.org>
 To: Adrian Bunk <bunk@fs.tum.de>
-Cc: matthew@wil.cx, linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
+Cc: Gerard Roudier <groudier@free.fr>, matthew@wil.cx,
+       linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch] sym53c8xx_2 uses SYM_MEM_CLUSTER_SHIFT before its #define'd
-Message-ID: <20040207204532.GA24334@parcelfarce.linux.theplanet.co.uk>
-References: <20040207203058.GA7388@fs.tum.de>
+Subject: Re: [patch] sym53c8xx_2: warning: "BYTE_ORDER" is not defined
+Message-ID: <20040207204156.GZ24334@parcelfarce.linux.theplanet.co.uk>
+References: <20040207190051.GN26093@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040207203058.GA7388@fs.tum.de>
+In-Reply-To: <20040207190051.GN26093@fs.tum.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 07, 2004 at 09:30:58PM +0100, Adrian Bunk wrote:
-> This seems to be a bug:
-> SYM_MEM_CLUSTER_SIZE is used before it's #define'd.
+On Sat, Feb 07, 2004 at 08:00:51PM +0100, Adrian Bunk wrote:
+> Hi,
 > 
-> The patch below fixes this issue.
+> when compiling 2.6.2-mm1 (this problem doesn't seem to be specific
+> to -mm)) with -Wundef I got many of the following warnings:
 
-Thanks, I've taken this patch too.
+Thanks for the patch; I've taken it into my tree.
 
 -- 
 "Next the statesmen will invent cheap lies, putting the blame upon 

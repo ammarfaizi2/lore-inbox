@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268691AbRGZUSr>; Thu, 26 Jul 2001 16:18:47 -0400
+	id <S268688AbRGZU0S>; Thu, 26 Jul 2001 16:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268688AbRGZUS1>; Thu, 26 Jul 2001 16:18:27 -0400
-Received: from [208.134.143.150] ([208.134.143.150]:59806 "EHLO
-	mail.playnet.com") by vger.kernel.org with ESMTP id <S268686AbRGZUST>;
-	Thu, 26 Jul 2001 16:18:19 -0400
-Message-ID: <016801c11610$4ad44e40$0b32a8c0@playnet.com>
-From: "Marty Poulin" <mpoulin@playnet.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: oops/bug in tcp, SACK doesn't work?
-Date: Thu, 26 Jul 2001 15:19:37 -0500
+	id <S268696AbRGZU0J>; Thu, 26 Jul 2001 16:26:09 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:6931 "HELO postfix2-1.free.fr")
+	by vger.kernel.org with SMTP id <S268688AbRGZUZv> convert rfc822-to-8bit;
+	Thu, 26 Jul 2001 16:25:51 -0400
+Date: Thu, 26 Jul 2001 22:23:18 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <E15Pn4D-0003vy-00@the-village.bc.nu>
+Message-ID: <20010726221515.B1567-100000@gerard>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Perhaps this has been covered somewhere before, but for some reason it
-doesn't look like the 2.4.7 (and previous 2.4.x?)  kernels responds to SACK
-correctly. Instead of just resending the missing packet Linux resends the
-entire packet stream as if it never received the SACK.
-
-Only reason I noticed this was that I was debugging connection problems with
-our servers that were running 2.4.5. I didn't figure the problem out for
-several days, when I exhausted all else I decided it must be the checksum of
-the retransmitted packets.  With that in hand a simple google search turned
-up that there was already a patch for this included in the 2.4.7 kernel.
-Doh!
-
-Hence I am now scanning through 100-200 emails a day with the rest of you
-just trying to keep up on the issues and bugs that affect me. There must be
-a place to look for current and fixed bugs without pouring over change logs
-and the entire mailing list?
-
-In any case both of these problems were easily duplicated with three
-machines. One of the machines was used as a router running NIST net emulator
-( http://snad.ncsl.nist.gov/itg/nistnet/ ) that allows you to set packet
-delay, bandwidth  and loss. This is a free implementation for Linux that is
-currently in useable alpha (yup sometimes it crashes the router when
-loaded), but hey it works reliable enough to get some testing done.
 
 
-Marty Poulin
-vandal@playnet.com
-Lead Programmer
-Host/Client Communications
-Playnet Inc./Cornered Rat Software
+On Thu, 26 Jul 2001, Alan Cox wrote:
+
+> > them, and MTAs are portable, they choose chattr +S on Linux. And that's
+> > a performance problem because it doesn't come for free, but also with
+> > synchronous data updates, which are unnecessary because there is
+> > fsync().
+>
+> chattr +S and atomic updates hitting disk then returning to the app will
+> give the same performance. You can also fsync() the directory.
+>
+> > the "my rename call has returned 0" event. They expect that with the
+> > call returning the rename operation has completed ultimately, finally,
+> > for good, definitely and the old file will not reappear after a crash.
+>
+> Actually the old file re-appearing after the crash is irrelevant. It will
+> have a previously logged message id. And if you are not doing message id
+> histories then you have replay races at the SMTP level anyway
+>
+> > This still implies the drive doesn't lie to the OS about the completion
+> > of write requests: write cache == off.
+>
+> Write cache off is not a feature available on many modern disks. You
+> already lost the battle before you started.
+
+Losing the battle of brain-dead hardware is not a problem... :-)
+
+SCSI hard disks are expected to follow the specifications. But, may be,
+you are referring to IDE disks, only ...
+
+With SCSI, you can enable write caching and also ask the device to signal
+completion of actual write to the media by setting the FUA bit in the SCSI
+command block (not available in WRITE(6), but available in WRITE(10)).
+
+  Gérard.
 

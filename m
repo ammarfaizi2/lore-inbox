@@ -1,29 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274102AbRI0X0d>; Thu, 27 Sep 2001 19:26:33 -0400
+	id <S274097AbRI0X3D>; Thu, 27 Sep 2001 19:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274100AbRI0X0X>; Thu, 27 Sep 2001 19:26:23 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:8723 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S274097AbRI0X0K>; Thu, 27 Sep 2001 19:26:10 -0400
-Date: Thu, 27 Sep 2001 16:26:21 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
-In-Reply-To: <E15mjyC-0005Km-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10109271626000.20787-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274100AbRI0X2x>; Thu, 27 Sep 2001 19:28:53 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:57873 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S274097AbRI0X2s>;
+	Thu, 27 Sep 2001 19:28:48 -0400
+To: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
+Message-Id: <E15mkaf-0000ms-00@mail.tv-sign.ru>
+From: Oleg Nesterov <oleg@tv-sign.ru>
+Date: Fri, 28 Sep 2001 03:29:13 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-> > different VCs. The current system allows it too but it is more of a later
-> > add on hack. I have a much cleaner implementation which does what you ask 
-> > of the above.         
-> 
-> The requirements of ACPI may yet see you get your wish ...
+I am trying to understand the basics of softirq handling.
 
-Let me guess. Insane like the rest of it.
+It seems to me that ksoftirqd()'s loop can be cleanuped a bit
+with following (untested) patch on top of 2.4.10-softirq-A7.
 
+It also removes	the 'mask' variable in do_softirq().
+
+	Oleg
+
+--- 2.4.10-softirq-A7/kernel/softirq.c.orig	Thu Sep 27 22:31:06 2001
++++ 2.4.10-softirq-A7/kernel/softirq.c	Thu Sep 27 22:54:37 2001
+@@ -85,7 +85,7 @@
+ {
+ 	int max_restart = MAX_SOFTIRQ_RESTART;
+ 	int cpu = smp_processor_id();
+-	__u32 pending, mask;
++	__u32 pending;
+ 	long flags;
+ 
+ 	if (in_interrupt())
+@@ -98,7 +98,6 @@
+ 	if (pending) {
+ 		struct softirq_action *h;
+ 
+-		mask = ~pending;
+ 		local_bh_disable();
+ restart:
+ 		/* Reset the pending bitmask before enabling irqs */
+@@ -381,26 +380,22 @@
+ #endif
+ 
+ 	current->nice = 19;
+-	schedule();
+-	__set_current_state(TASK_INTERRUPTIBLE);
+ 	ksoftirqd_task(cpu) = current;
+ 
+ 	for (;;) {
+-back:
++		schedule();
++		__set_current_state(TASK_INTERRUPTIBLE);
++
+ 		do {
+ 			do_softirq();
+ 			if (current->need_resched)
+ 				goto preempt;
+ 		} while (softirq_pending(cpu));
+-		schedule();
+-		__set_current_state(TASK_INTERRUPTIBLE);
+-	}
+ 
++		continue;
+ preempt:
+-	__set_current_state(TASK_RUNNING);
+-	schedule();
+-	__set_current_state(TASK_INTERRUPTIBLE);
+-	goto back;
++		__set_current_state(TASK_RUNNING);
++	}
+ }
+ 
+ static __init int spawn_ksoftirqd(void)

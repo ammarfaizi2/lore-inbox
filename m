@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbTLIXqT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 18:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTLIXqT
+	id S263475AbTLIXsH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 18:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbTLIXsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 18:46:19 -0500
-Received: from hibernia.jakma.org ([213.79.33.168]:6302 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263435AbTLIXqR
+	Tue, 9 Dec 2003 18:48:06 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:420 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S263475AbTLIXr7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 18:46:17 -0500
-Date: Tue, 9 Dec 2003 23:46:13 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
-Subject: Re: Device-mapper submission for 2.4
-In-Reply-To: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org>
-References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+	Tue, 9 Dec 2003 18:47:59 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Dale Whitchurch" <dalew@sealevel.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: Linux GPL and binary module exception clause?
+Date: Tue, 9 Dec 2003 15:47:53 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKCELIIJAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1070979148.16262.63.camel@oktoberfest>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Dec 2003, Marcelo Tosatti wrote:
 
-> Its nothing against your or DM itself.
-> 
-> Let DM be in 2.6. 
 
-Well, how does this leave 2.4 LVM1 users? From my vague 
-understanding:
+> Is the GPL in effect for the kernel so that anybody can enhance the
+> current drivers and add support for any other device?  If two companies
+> develop competing products and those products (albeit a few slight
+> differences) perform the same operations using almost the same hardware,
+> do we want one company to use the others driver?
 
-- 2.6 DM does not support the LVM1 interface
-- The DM tools library is dropping support for the LVM1 interface
+	Assuming all the drivers are offered under the GPL, the kernel inclusion
+process is a meritocracy. In other words, good code gets added and bad code
+doesn't.
 
-This leaves 2.4 LVM1 users with a /huge/ leap to take if they wish to
-test 2.6. Backward compatibility is awkward because of the DM tools
-issue (need both old and new installed and some way to pick at boot,
-or manually setup LVM), and you're ruling out the other option of
-adding forwards compatibility to 2.4.
+	The GPL provides unrestricted joinder and severance, so if the driver is
+GPL and the kernel is GPL, anyone who wants to can join them together under
+the GPL can do so. Linus would likely do this officially if the driver is
+reasonable, and anyone who cares enough can do the work needed to get it
+suitable for inclusion if the original company that offered the driver
+doesn't want to.
 
-This isnt a new fs which 2.4 users wont be using, its an existing 
-feature that has been reworked during 2.5 and is now incompatible in 
-2.6 with 2.4. More over, its a feature on which access to data 
-depends.
+	DS
 
-I'd really like to see one of:
 
-- backwards compat: 2.6 have LVM1 support
-
-- forward compat: 2.4 to have DM support to allow 2.4 users to 
-migrate
-LVM->DM first /before/ taking the risk on running 2.6.
-
-- the DM tools to support both LVM1 and LVMx in 2.6, on a *long-term* 
-  basis
-
-I or others may not migrate to 2.6 for many a year, and when we do,
-it'd nice to be able to migrate our data in place (not
-backup&restore). Kernel interface compat at least tends to be the
-most set in stone and is what I would prefer. Whether forward or
-backward doesnt matter, adding compat cruft to a soon-to-be obsolete 
-kernel is possibly better than weighing 2.6 down with it for the next 
-3+ years.
-
-There are people who store their data in LVM, we need compatibility,
-and ideally we'd like to be able to migrate in small steps.
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-You can write a small letter to Grandma in the filename.
-		-- Forbes Burkowski, CS, University of Washington

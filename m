@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVCKDME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263136AbVCKDY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVCKDME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 22:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVCKDMD
+	id S263136AbVCKDY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 22:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVCKDY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 22:12:03 -0500
-Received: from waste.org ([216.27.176.166]:32226 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261289AbVCKDLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 22:11:50 -0500
-Date: Thu, 10 Mar 2005 19:11:37 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: current linus bk, error mounting root
-Message-ID: <20050311031137.GC3163@waste.org>
-References: <20050310075049.GA30243@suse.de> <9e4733910503100658ff440e3@mail.gmail.com> <20050310153151.GY2578@suse.de> <9e473391050310074556aad6b0@mail.gmail.com> <20050310154830.GB2578@suse.de> <9e47339105031007595b1e0cc3@mail.gmail.com> <20050310160155.GC2578@suse.de> <9e4733910503100818df5fb2@mail.gmail.com> <20050310162918.GD2578@suse.de> <9e47339105031010527aa0e3af@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Mar 2005 22:24:57 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:63627
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S263136AbVCKDUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 22:20:19 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 3/9] UML - "Hardware" random number generator
+Date: Thu, 10 Mar 2005 13:41:37 -0500
+User-Agent: KMail/1.6.2
+Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200503100215.j2A2FuDN015227@ccure.user-mode-linux.org>
+In-Reply-To: <200503100215.j2A2FuDN015227@ccure.user-mode-linux.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <9e47339105031010527aa0e3af@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503101341.37346.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 01:52:59PM -0500, Jon Smirl wrote:
-> Here's a big clue, if I build ata_piix in I can boot. If it is a
-> module I can't. The console output definitely shows that the module is
-> being loaded.
+On Wednesday 09 March 2005 09:15 pm, Jeff Dike wrote:
+> This implements a hardware random number generator for UML which attaches
+> itself to the host's /dev/random.
 
-Can you post your config?
+Direct use of /dev/random always makes me nervous.  I've had a recurring 
+problem with /dev/random blocking, and generally configure as much as 
+possible to use /dev/urandom instead.  It's really easy for a normal user to 
+drain the /dev/random entropy pool on a server (at least one that doesn't 
+have a sound card you can tell it to read white noise from).  cat /dev/random 
+> /dev/null
 
--- 
-Mathematics is the supreme nostalgia of our time.
+I like /dev/urandom because it'll feed you as much entropy as it's got, but 
+won't block, and will presumably round-robin insert real entropy in the 
+streams that multiple users get from /dev/urandom.  (I realize this may not 
+be the best place to get gpg keys from.)
+
+I'm just thinking about those UML hosting farms, with several UML instances 
+per machine, on machines which haven't got a keyboard attached constantly 
+feeding entropy into the pool.  If just ONE of them is serving ssl 
+connections from its own /dev/urandom, that would drain the /dev/random 
+entropy pool on the host machine almost immediately...
+
+Admittedly if UML used /dev/urandom instead of /dev/random, it wouldn't know 
+how much "real" randomness it was getting and how much synthetic randomness, 
+but this makes predicting the numbers it's producing easier how?
+
+Rob

@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbTIUMpj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 08:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTIUMpj
+	id S262386AbTIUMsW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 08:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbTIUMsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 08:45:39 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:45578 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262385AbTIUMpi (ORCPT
+	Sun, 21 Sep 2003 08:48:22 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:53907 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262386AbTIUMsU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 08:45:38 -0400
-Date: Sun, 21 Sep 2003 14:45:36 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: John Bradford <john@grabjohn.com>
-Cc: ndiamond@wta.att.ne.jp, vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5 vs. Japanese keyboards
-Message-ID: <20030921144536.B11315@pclin040.win.tue.nl>
-References: <200309211200.h8LC05jM000122@81-2-122-30.bradfords.org.uk>
+	Sun, 21 Sep 2003 08:48:20 -0400
+Date: Sun, 21 Sep 2003 14:48:17 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Norman Diamond <ndiamond@wta.att.ne.jp>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5 vs. Japanese keyboards [3]
+Message-ID: <20030921124817.GA19820@ucw.cz>
+References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60> <20030914122034.C3371@pclin040.win.tue.nl> <206701c37ab2$6a8033e0$2dee4ca5@DIAMONDLX60> <20030916154305.A1583@pclin040.win.tue.nl> <20030921110629.GC18677@ucw.cz> <20030921143934.A11315@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200309211200.h8LC05jM000122@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Sun, Sep 21, 2003 at 01:00:05PM +0100
+In-Reply-To: <20030921143934.A11315@pclin040.win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 21, 2003 at 01:00:05PM +0100, John Bradford wrote:
-> > > Exception 2:  a shifted 0 doesn't really produce a ~ but it is enough that a
-> > > shifted ^ does so, but it doesn't matter that Linux has added real input for
-> > > a shifted 0.)
+On Sun, Sep 21, 2003 at 02:39:34PM +0200, Andries Brouwer wrote:
+> On Sun, Sep 21, 2003 at 01:06:29PM +0200, Vojtech Pavlik wrote:
 > 
-> This is wrong for some keyboards.
+> > There is a slight problem, and that is that NR_KEYS is (KEY_MAX+1) in
+> > recent 2.6's and that's 512. And that doesn't fit into a byte. There
+> > were some patches floating around to enhance the keymap loading ioctls.
+> > They will be needed, along with a new version of loadkeys.
 > 
-> ~ is indeed shifted 0 on my keyboard - shifted ^ is an overbar.
+> Yes - a lot of trouble.
+> As far as I can see, the space between 256 and 511 is never used.
 > 
-> Also, on my keyboard, - has a U.K. pound symbol as the fourth
-> character on the key, (the top-right character).
+> More in particular, there are lots of places where the kernel
+> seems to assume that only 256 is used.
+> 
+> So, instead of requiring new ioctls and new loadkeys etc
+> I would prefer to make NR_KEYS 256, if possible.
+> So the question is: why did you require 512?
 
-This discussion is superfluous.
-Keyboards differ - there is no way the kernel can guess at
-the key label given the scancode.
-That is why keymaps exist.
-So, if Norman and John have keyboards with different behaviour
-that just means that they must load different keymaps.
+Excerpt from input.h:
 
-Andries
+#define KEY_RESTART             0x198
+#define KEY_SLOW                0x199
+#define KEY_SHUFFLE             0x19a
+#define KEY_BREAK               0x19b
+#define KEY_PREVIOUS            0x19c
+#define KEY_DIGITS              0x19d
+#define KEY_TEEN                0x19e
+#define KEY_TWEN                0x19f
 
+#define KEY_DEL_EOL             0x1c0
+#define KEY_DEL_EOS             0x1c1
+#define KEY_INS_LINE            0x1c2
+#define KEY_DEL_LINE            0x1c3
+
+So far the last defined key is KEY_DEL_LINE, with a code of 0x1c3.
+That's above 256. If there are other places that require less than 256,
+well, then those will need to be fixed or we're heading for trouble.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

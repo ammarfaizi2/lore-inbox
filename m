@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318795AbSIITm1>; Mon, 9 Sep 2002 15:42:27 -0400
+	id <S318805AbSIITol>; Mon, 9 Sep 2002 15:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318809AbSIITm1>; Mon, 9 Sep 2002 15:42:27 -0400
-Received: from waste.org ([209.173.204.2]:58082 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318795AbSIITmZ>;
-	Mon, 9 Sep 2002 15:42:25 -0400
-Date: Mon, 9 Sep 2002 14:47:07 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Message-ID: <20020909194707.GB31597@waste.org>
-References: <1029760150.19376.14.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0209072328240.21724-100000@redshift.mimosa.com> <alg3ct$pru$1@abraham.cs.berkeley.edu> <20020909165303.GA31597@waste.org> <alik0a$70c$1@abraham.cs.berkeley.edu>
+	id <S318806AbSIITol>; Mon, 9 Sep 2002 15:44:41 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:20390 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S318805AbSIIToj>; Mon, 9 Sep 2002 15:44:39 -0400
+Date: Mon, 9 Sep 2002 20:48:34 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Alexander Viro <viro@math.psu.edu>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question about pseudo filesystems
+Message-ID: <20020909204834.A5243@kushida.apsleyroad.org>
+References: <20020907192736.A22492@kushida.apsleyroad.org> <Pine.GSO.4.21.0209071544090.23598-100000@weyl.math.psu.edu> <20020908032121.A23455@kushida.apsleyroad.org> <E17o4UE-0006Zh-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alik0a$70c$1@abraham.cs.berkeley.edu>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17o4UE-0006Zh-00@starship>; from phillips@arcor.de on Sun, Sep 08, 2002 at 06:00:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 09, 2002 at 04:58:50PM +0000, David Wagner wrote:
+Daniel Phillips wrote:
+> > But you've rather cutely arranged that these kinds of mount _do_
+> > disappear when the last file being used on them disappears.  Clever, if
+> > a bit disturbing.
 > 
-> Whether you like it or not, you're already trusting Intel, if you're
-> using an Intel chip.  If Intel were malicious and out to get you, they
-> could have put a backdoor in the chip.  And a RNG is *much* easier to
-> reverse-engineer and audit than an entire CPU, so it would probably be
-> riskier for Intel to hide a backdoor in the RNG than in, say, the CPU.
+> And it's not a good way to drive module unloading.  It is rmmod that
+> should cause a module to be unloaded, not close.  The final close
+> *allows* the module to be unloaded, it does not *cause* it to be.  So
+> to get the expected behaviour, you have to lather on some other fanciful
+> construction to garbage collect modules ready to be unloaded, or to let
+> rmmod inquire the state of the module in the process of attempting to
+> unload it, and not trigger the nasty races we've discussed.  Enter
+> fancy locking regime that 3 people in the world actually understand.
 
-Not sure I buy that. Consider that with a CPU, you control the inputs,
-you've got a complete spec of the core functionality, you've got a
-huge testbed of code to test that functionality, and you've got a
-whole industry of people reverse engineering your work. 
+Eh?  In this case, Al Viro's scheme is really simple and works: the
+kern_mount keeps the module use-count non-zero so long as any file
+descriptors are using the module's filesystem.  fput() decrements the
+use-count at a safe time -- no race conditions.
 
-More to the point, the backdoor we're worried about is one that
-compromises our encryption keys to passive observers. Doing that by
-making the RNG guessable is relatively easy. On the other hand
-determining whether a given snippet of code is doing RSA, etc. is
-equivalent to solving the halting problem, so it's seems to me pretty
-damn hard to usefully put this sort of back door into a CPU without
-sacrificing general-purpose functionality.
+The expected behaviour is as it has always been: rmmod fails if anyone
+is using the module, and succeeds if nobody is using the module.  The
+garbage collection of modules is done using "rmmod -a" periodically, as
+it always has been.
 
-For other types of back doors, it seems likely that the NSA would go
-straight to the OS vendor, or, given the state of mainstream OSes,
-just use existing holes.
-
-> >What right-thinking paranoid would place any faith in an analysis with
-> >an Intel copyright? This is practically marketing fluff anyway.
-> 
-> Marketing fluff?  I take it that's a joke: I wish the marketing fluff
-> I get had this much technical content and documented its experimental
-> procedure like this.
-
-Yes, I was being hyperbolic. 
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+-- Jamie

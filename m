@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVC2FjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVC2F6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVC2FjU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 00:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVC2FjU
+	id S262419AbVC2F6a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 00:58:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVC2F6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 00:39:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:31192 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262344AbVC2Fit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 00:38:49 -0500
-Date: Mon, 28 Mar 2005 21:05:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Aaron Gyes <floam@sh.nu>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+	Tue, 29 Mar 2005 00:58:30 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:3053 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262419AbVC2F6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 00:58:21 -0500
+Date: Tue, 29 Mar 2005 00:58:14 -0500
+From: Jim Crilly <jim@why.dont.jablowme.net>
+To: Coywolf Qi Hunt <coywolf@lovecn.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Greg KH <greg@kroah.com>,
+       Mark Fortescue <mark@mtfhpc.demon.co.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050329050555.GC7937@kroah.com>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <20050327181221.GB14502@kroah.com> <1112058277.14563.4.camel@localhost> <20050329033350.GA6990@kroah.com> <1112070511.32594.4.camel@localhost> <20050329044533.GG7362@kroah.com> <1112072487.27364.4.camel@localhost>
+Message-ID: <20050329055814.GG11458@mail>
+Mail-Followup-To: Coywolf Qi Hunt <coywolf@lovecn.org>,
+	Lee Revell <rlrevell@joe-job.com>, Greg KH <greg@kroah.com>,
+	Mark Fortescue <mark@mtfhpc.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk> <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe> <4248BF80.7090805@lovecn.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112072487.27364.4.camel@localhost>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <4248BF80.7090805@lovecn.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 09:01:27PM -0800, Aaron Gyes wrote:
-> On Mon, 2005-03-28 at 20:45 -0800, Greg KH wrote:
-> > If after removed, that's not what udev is set up to do, sorry.
+On 03/29/05 10:37:52AM +0800, Coywolf Qi Hunt wrote:
+> Lee Revell wrote:
+> >On Sat, 2005-03-26 at 10:28 -0800, Greg KH wrote:
+> >
+> >>On Sat, Mar 26, 2005 at 05:52:20PM +0000, Mark Fortescue wrote:
+> >>
+> >>>I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
+> >>>I have found that I can't use SYSFS on Linux-2.6.10.
+> >>>
+> >>>Why ?. 
+> >>
+> >>What ever gave you the impression that it was legal to create a
+> >>"Proprietry" kernel driver for Linux in the first place.
+> >
+> >
+> >The fact that Nvidia and ATI get away with it?
 > 
-> There's no way to either a) Hack udev.conf to always create a node with
-> a certain major and minor
+> I have the nvidia GeForce4 driver: NVIDIA-Linux-x86-1.0-6629-pkg1.
+> 
+> $ ls NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/
+> Makefile@            makedevices.sh*  nv-vm.c  nv_compiler.h  os-agp.c      
+> os-registry.c
+> Makefile.kbuild      makefile         nv-vm.h  nvidia.ko      os-agp.h      
+> os-registry.o
+> Makefile.nvidia      nv-kernel.o      nv-vm.o  nvidia.mod.c   os-agp.o      
+> pat.h
+> README               nv-linux.h       nv.c     nvidia.mod.o   
+> os-interface.c  precompiled/
+> conftest.sh          nv-memdbg.h      nv.h     nvidia.o       
+> os-interface.h  rmretval.h
+> gcc-version-check.c  nv-misc.h        nv.o     nvtypes.h      os-interface.o
+> 
+> 
+> So it seems nvidia has their kernel module `open'. Is it?
 
-No.
+See that 4.2M binary file called nv-kernel.o? That's the real driver, the open
+part is the glue, a sort of middle-ware so that the driver can be
+recompiled and loaded into any kernel.
 
-> or b) A way to make sysfs trick udev?
-
- From userspace?  No.
-
-> I'll kind of need to do this for nvidia and any other modules affected
-> by this change, or else switch back to the inferior devfs.
-
-I know debian provides a way for the udev startup script to create any
-static device node that you want to have be created.  I suggest you look
-at that as an example to do what you wish.
-
-Also, vmware already supports using udev, yet it does not use sysfs.  It
-does so by creating the device nodes in its startup script.  There is no
-reason why you can't do the same thing in the nvidia driver.
-
-thanks,
-
-greg k-h
+> 
+> 
+> 	Coywolf
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

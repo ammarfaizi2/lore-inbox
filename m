@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292094AbSBAV4Q>; Fri, 1 Feb 2002 16:56:16 -0500
+	id <S292108AbSBAWDG>; Fri, 1 Feb 2002 17:03:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292096AbSBAV4G>; Fri, 1 Feb 2002 16:56:06 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:48040 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S292094AbSBAVz6>;
-	Fri, 1 Feb 2002 16:55:58 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 1 Feb 2002 21:55:54 GMT
-Message-Id: <UTC200202012155.VAA123193.aeb@cwi.nl>
-To: Andries.Brouwer@cwi.nl, p_gortmaker@yahoo.com
-Subject: Re: [PATCH] clipped disk reports clipped lba size
-Cc: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org,
-        linux-kernel@vger.kernel.org
+	id <S292109AbSBAWCq>; Fri, 1 Feb 2002 17:02:46 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:14745 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S292108AbSBAWCl>;
+	Fri, 1 Feb 2002 17:02:41 -0500
+Date: Fri, 1 Feb 2002 23:01:42 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: <linux-embedded@waste.org>, Arnd Bergmann <abe@ist1.de>
+Subject: New version of AMD Elan patch available
+In-Reply-To: <Pine.LNX.4.33.0201222347301.893-100000@callisto.local>
+Message-ID: <Pine.LNX.4.33.0202012258240.2047-100000@callisto.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Paul Gortmaker <p_gortmaker@yahoo.com>
 
-    Andries.Brouwer@cwi.nl wrote:
+Here is another bugfix release of the AMD Elan patch. Changelog included,
+the patch is as usual on
 
-    > Some disk types fake LBA at 33.8GB, but allow access past this point.
-    > Some disks actually give I/O errors past the 33.8GB (when jumpered),
-    > and a SETMAX command is needed to make the rest accessible.
-    > 
-    > Two years ago I wrote a tiny utility setmax that does this.
-    > If I am not mistaken this stuff is now part of the 2.5 kernel.
-    > No doubt some of it will eventually be backported to 2.4 / 2.2 / 2.0.
-    > It is in 2.4.18-pre7-ac1.
+  http://www.pengutronix.de/software/elan_en.html
 
-    Alan has said (quite reasonably) that he is not interested in inclusion
-    of the big IDE patch that exists for 2.2.x -- however, a minimal cut and 
-    paste backport from 2.4.x IDE to just support HDIO_DRIVE_CMD_AEB (and thus
-    support setmax) is only about a 100 line diff which I did a while ago.
 
-    If there is any interest in this I can check it still applies cleanly to 
-    current 2.2 pre kernel and send it along for inclusion.
+----------8<----------8<----------8<----------8<----------
+02/01/2002	Robert Schwebel <robert@schwebel.de>
 
-(1) *_AEB is intended as private namespace for me, not for inclusion
-in an official kernel. So, some official name, like HDIO_DRIVE_TASK,
-must be better.
+		- Revision 2.4.18-pre7.2 released.
+		- Bugfix in serial.c; the problem occured if
+		  CONFIG_ELAN was not activated.
+		  Thanks to Arnd Bergmann <abe@ist1.de>
+----------8<----------8<----------8<----------8<----------
 
-(2) Long ago very little information was available and I wrote a small
-program that worked for me and solicited experiences from others.
-By now we have a better idea of the variations that exist.
-Moreover, this is beginning 2.5 time, so experiments are allowed.
-That means that we can delete CONFIG_IDEDISK_STROKE, and make the
-kernel do what we think is right. Once this gets to a state where
-there are no complaints anymore we can move it to some 2.4 tree,
-and if that still does not produce complaints to 2.2 and 2.0.
-
-In the area of big disks there are two main hurdles these days:
-(a) capacity-limiting jumpers to overcome BIOS problems
-(b) disks larger than 137 GB, the old ATA limit.
-
-Both problems can be solved with relatively small patches,
-no big monolithic IDE patch required. And I would prefer
-to solve both problems without involving ioctl's, or boot
-parameters, or config parameters. All should just work
-in the common case.
-
-Andries
+Robert
+--
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
 

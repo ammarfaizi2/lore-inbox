@@ -1,77 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281827AbRK0RmZ>; Tue, 27 Nov 2001 12:42:25 -0500
+	id <S281748AbRK0RpF>; Tue, 27 Nov 2001 12:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282178AbRK0RmQ>; Tue, 27 Nov 2001 12:42:16 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:5504 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S281827AbRK0RmI>; Tue, 27 Nov 2001 12:42:08 -0500
-Message-ID: <007d01c1776a$d11d4680$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Matthias Andree" <matthias.andree@stud.uni-dortmund.de>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011125221418.A9672@weta.f00f.org> <0111261159080F.02001@localhost.localdomain> <20011127173904.C13416@emma1.emma.line.org>
-Subject: Re: Journaling pointless with today's hard disks?
-Date: Tue, 27 Nov 2001 18:42:00 +0100
+	id <S282182AbRK0Ro6>; Tue, 27 Nov 2001 12:44:58 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:40226 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S281748AbRK0Roq>; Tue, 27 Nov 2001 12:44:46 -0500
+Message-ID: <3C03D197.7050605@paulbristow.net>
+Date: Tue, 27 Nov 2001 18:47:03 +0100
+From: Paul Bristow <paul@paulbristow.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
+Subject: Re: ide-floppy.c vs devfs
+In-Reply-To: <000601c1773f$d80d9ba0$21c9ca95@mow.siemens.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Matthias Andree" <matthias.andree@stud.uni-dortmund.de>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 27, 2001 5:39 PM
-Subject: Re: Journaling pointless with today's hard disks?
 
 
-<snip>
->
-> Two things:
->
-> 1- power loss. Fixing things to write to disk is bound to fail in
->    adverse conditions. If the drive suffers from write problems and the
->    write    takes longer than the charge of your capacitor lasts, your
->    data is still toasted. nonvolatile memory with finite write time
->    (like NVRAM/Flash) will help to save the Cache. I don't think vendors
->    will do that soon.
->
-> 2- error handling with good power: with automatic remapping turned on,
->    there's no problem, the drive can re-write a block it has taken
->    responsibility of, IBM DTLA drives will automatically switch off the
->    write cache when the number of spare block gets low.
->
->    with automatic remapping turned off, write errors with enabled write
->    cache get a real problem because the way it is now, when the drive
->    reports the problem, the block has already expired from the write
->    queue and is no longer available to be rescheduled. That may mean
->    that although fsync() completed OK your block is gone.
+Borsenkow Andrej wrote:
 
-I think we have gotten away from the original subject. The problem (as I
-understood it) wasn't that we don't have time to write the whole cache...
-the problem is that the hard disk stops in the middle of a write, not
-updating the CRC of the sector, thus making it report as a bad sector when
-trying to recover from the failure. No?
+>>This is made somewhat more complicated by the fact that ide-floppy
+>>
+> disks
+> 
+>>can use either the whole disk, with no partition table or, more
+>>commonly, partition4.  So a user-friendly solution would be to create
+>>
+> a
+> 
+>>floppy node that pointed to the partition, if it existed, or the whole
+>>disk if it didn't.  With appropriate code to handle that fact that
+>>anyone can partition these disks in any way they like.
+>>
+>>
+> 
+> Where's the problem? Use .../disc for whole disc or .../part4 for
+> "normal" access. (Or /dev/hdc and /dev/hdc4 if you prefer) It is nice if
+> partition code can detect it but it is not ide-floppy driver problem.
 
-I think most people here are convinced that there is not time to write a
-several-MB (worst case) cache to the platters in case of a power failure.
-Special drives for this case could of course be manufactured, and here's for
-a theory of mine: Wouldn't a battery backed-up SRAM cache do the thing?
 
-Anyway, maybe it is just me who have been thrown off-track? Are we
-discussing something else now maybe?
+Just wondering if we should be clever for the users here.  Maybe I 
+should leave that to user-space tools?  Or is there anything in devfs 
+that can take care of this?  The nice solution for end-users might be
+a /dev/idefloppy that is a symlink to the relevant node in the 
+/dev/ide... tree.
 
-<snap>
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+>>Note this doesn't take account of the nice ATAPI command that sets the
+>>disk into "ignore track 0" mode, making a partition 4 look like an
+>>entire floppy with 1 less track.
+>>
+>>
+> 
+> Why complicate things more than needed?
 
+Because you can boot from a zip or ls-120 drive, with the BIOS setting 
+it to this mode.  There are disks out there that are unreadable unless 
+you ignore track zero, by formatting them in a PC like this.
+
+
+>>Anyone up to telling me how this is handled in the SCSI layer?
+>>
+>>
+> 
+> When I boot without media in Jaz drive I get something like "no media
+> inserted, assuming 1GB 512B per sector". Actually I modeled my patch
+> from this - use some default values reported by drive when no media
+> currently exists.
+
+
+OK.  This makes the most sense here.  I'm happy to go with this.
+
+I'll dig out your patch - discovered I was on holiday when you 
+originally submitted it - and code and test something over the next day 
+or so.  Thanks for the help
+
+
+> -andrej
+
+
+-- 
+
+Paul
+
+Email: 
+paul@paulbristow.net
+Web: 
+http://paulbristow.net
+ICQ: 
+11965223
 

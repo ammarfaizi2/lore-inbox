@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288855AbSANGuu>; Mon, 14 Jan 2002 01:50:50 -0500
+	id <S287868AbSANHDN>; Mon, 14 Jan 2002 02:03:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288870AbSANGua>; Mon, 14 Jan 2002 01:50:30 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:38661 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288850AbSANGuT>; Mon, 14 Jan 2002 01:50:19 -0500
-Date: Mon, 14 Jan 2002 09:50:13 +0300
-From: Oleg Drokin <green@namesys.com>
-To: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
-        ewald.peiszer@gmx.at, matthias.andree@stud.uni-dortmund.de
-Subject: Re: [reiserfs-list] Boot failure: msdos pushes in front of reiserfs
-Message-ID: <20020114095013.A4760@namesys.com>
-In-Reply-To: <20020113223803.GA28085@emma1.emma.line.org>
+	id <S288864AbSANHDE>; Mon, 14 Jan 2002 02:03:04 -0500
+Received: from [203.143.19.4] ([203.143.19.4]:11017 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S288850AbSANHCt>;
+	Mon, 14 Jan 2002 02:02:49 -0500
+Date: Mon, 14 Jan 2002 13:02:05 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] kernelconf-0.1.1 - menu dependencies working
+Message-ID: <20020114130205.A10156@lklug.pdn.ac.lk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020113223803.GA28085@emma1.emma.line.org>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Sun, Jan 13, 2002 at 11:38:03PM +0100, Matthias Andree wrote:
+Here goes another release of kernelconf...
 
-> 3. I presume that msdos is linked into the kernel, and is thus tried
->    first as root file system, the kernel then panicks as it cannot find
->    /sbin/init (of course, it's in ReiserFS format, not msdos).
-It is tried _and_ somewhat succesfuly, because there is still MSDOS "superblock".
- 
-> 4. I asked Ewald to boot with rootfstype=reiserfs, but he reported that
->    this did not help, news:<a1sb7b$t2d2e$1@ID-47183.news.dfncis.de>
->    (German-language).
-Hm, probably because reiserfs is not in kernel, but is an external module.
+Highlights are, expression parsing (almost complate), expression evaluation,
+and menu dependencies.  Most work was done on menuconfig.
 
-> 5. It seems as though some traces of FAT16 shining through reiserfs
->    still make msdos think it can actually mount the file system.
-Exactly.
+0.2.0 will contain full support for dependencies, derived values and menu
+dependencies. 0.1.1 has most necessary infrastructure to handle expressions,
+but I want to go through the code again to make sure that everything is fine,
+before trying anything further.  Also, refinements and cleanups are necessary
+for some parts of the code.
 
-> I see various points where this can be attacked:
-> 1. SuSE and other distributors' installation tools, when formatting a
->    partition with mkfs, should zero out the first couple of MBytes with
->    dd if=/dev/zero of=/dev/hda13 bs=4096 count=1024 or something. I'm
->    not exactly sure how much is needed to get rid of the msdos traces.
-Erasing first 512 bytes block is enough to get rid fo msdos superblock, I think.
+Notice that I am trying to keep kernelconf interface compatible with CML1 at
+the initial stages.
 
-> 2. mkreiserfs could also zero out so much of old data on the FS so that
->    the kernel reliably recognizes the FS as reiserfs and fails to mount
->    that stuff as msdos
-External tools (lilo and stuff) can live there, this will destroy them.
+URLs:
+    http://www.bee.lk/people/anuradha/kernelconf/
+    http://www.lklug.pdn.ac.lk/~anuradha/kernelconf/
 
-Correct solution, if you create filesystem with mkreiserfs, and you
-have no reliable way to pass fstype to kernel, when this partition is mounted 
-should be to destroy all occurences of other fs's superblocks by yourself, obviously.
+Version 0.1.1
+  - Menu dependancies in menuconfig
+  - Expression evaluating (mostly boolean)
+  - Expression parsing (almost complete)
+  - Fixed menuconfig not to alter parent menu items twice
+  - Prompt for saving new configuration on exit
+  - Return to parent menu after radio button selection (menuconfig)
+  - Radio button menus display current selection (menuconfig)
+  - Unlink tempory files created by menuconfig
+  - More symbols and dependencies in config files
 
-> 3. Distributors, when making their initrd stuff, should make sure that
->    all Linux-native file systems are tried first.
-FS tryout order is hard-wired into the kernel (and depends on linking order, AFAIK).
+Version 0.1.0
+  - Added menuconfig using lxdialog
+  - Added help support (doesn't use Configure.help)
+  - Added selection support in ttyconfig
+  - Made ttyconfig much better
+  - Added more symbols and menu-items to i386.conf file from CML1
+  - Added some comments from Configure.help to i386.conf file
+  - A lot (too numerous to mention) of code cleanups and bugfixes
+  - New bugs ;)
 
-> Ewald has only recently migrated from Windows to Linux and direly wants
-> his installation to boot. For now, I asked him to recompile his kernel
-> to let msdos, umsdos and vfat be only modules rather than linked into
-> the kernel, rebuild his initrd with SuSE's mk_initrd and rerun lilo,
-> that should work around his problem, but it's certainly not good and may
-> turn away people from Linux who are less enduring and patient than
-> Ewald.
-why have not you asked him to do 'dd if=/dev/zero of=/dev/his_partition bs=512 count=1'?
-(and this won't destroy existing reiserfs filesystem).
+Version 0.0.1
+  - Reads and parses symbols and menus from .conf files into a binary tree
+  - Menu hiearachy is functional for boolean and tristate symbols
+  - make ttyconfig works for boolean and tristate symbols
+  - Writing .config and autoconf.h works for boolean and tristate symbols
+  - Just a couple of symbols and menu items in the i386.conf file
 
-Bye,
-    Oleg
+	Anuradha
+
+-- 
+
+Debian GNU/Linux (kernel 2.4.16-xfs)
+
+When a float occurs on the same page as the start of a supertabular
+you can expect unexpected results.
+	-- Documentation of supertabular.sty
+

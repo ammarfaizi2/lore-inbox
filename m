@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131963AbRCVK3J>; Thu, 22 Mar 2001 05:29:09 -0500
+	id <S131981AbRCVKaT>; Thu, 22 Mar 2001 05:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131979AbRCVK3B>; Thu, 22 Mar 2001 05:29:01 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15113 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131963AbRCVK2u>; Thu, 22 Mar 2001 05:28:50 -0500
-Date: Thu, 22 Mar 2001 06:24:57 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Patrick O'Rourke" <orourke@missioncriticallinux.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <m18zly2pam.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.21.0103220622390.21415-100000@imladris.rielhome.conectiva>
+	id <S131979AbRCVKaK>; Thu, 22 Mar 2001 05:30:10 -0500
+Received: from munk.apl.washington.edu ([128.95.96.184]:30214 "EHLO
+	munk.apl.washington.edu") by vger.kernel.org with ESMTP
+	id <S131966AbRCVK3z>; Thu, 22 Mar 2001 05:29:55 -0500
+Date: Thu, 22 Mar 2001 02:25:45 -0800 (PST)
+From: Brian Dushaw <dushaw@munk.apl.washington.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VIA vt82c686b  and UDMA(100)
+In-Reply-To: <20010322010507.A3170@better.net>
+Message-ID: <Pine.LNX.4.30.0103220224160.3867-100000@munk.apl.washington.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Mar 2001, Eric W. Biederman wrote:
+And for the record:
 
-> Is there ever a case where killing init is the right thing to do? My
-> impression is that if init is selected the whole machine dies. If you
-> can kill init and still have a machine that mostly works, then I guess
-> it makes some sense not to kill it.
->
-> Guaranteeing not to select init can buy you piece of mind because
-> init if properly setup can put the machine back together again, while
-> not special casing init means something weird might happen and init
-> would be selected.
+"hdparm -d1 -t -X69 /dev/hda" gives:
 
-When something weird happens, it might be better to kill
-init and have the machine reset itself after the panic
-(echo 30 > /proc/sys/kernel/panic).
+/dev/hda:
+ setting using_dma to 1 (on)
+ setting xfermode to 69 (UltraDMA mode5)
+ using_dma    =  1 (on)
+ Timing buffered disk reads:  64 MB in  5.64 seconds = 11.35 MB/sec
 
-Killing all other things and leaving just init intact
-makes for a machine which is as good as dead, without a
-chance for recovery-by-reboot...
+-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OTOH, I haven't heard of the OOM killer ever chosing init,
-not even of people who tried creating these special kinds
-of situations to trigger it on purpose.
+Brian Dushaw
+Applied Physics Laboratory
+University of Washington
+1013 N.E. 40th Street
+Seattle, WA  98105-6698
+(206) 685-4198   (206) 543-1300
+(206) 543-6785 (fax)
+dushaw@apl.washington.edu
 
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Web Page:  http://staff.washington.edu/dushaw/index.html
 

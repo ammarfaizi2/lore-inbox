@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130021AbRBHBeT>; Wed, 7 Feb 2001 20:34:19 -0500
+	id <S129725AbRBHBf3>; Wed, 7 Feb 2001 20:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129214AbRBHBeJ>; Wed, 7 Feb 2001 20:34:09 -0500
-Received: from [202.108.221.16] ([202.108.221.16]:53947 "EHLO ds20.viewcn.com")
-	by vger.kernel.org with ESMTP id <S130021AbRBHBd4>;
-	Wed, 7 Feb 2001 20:33:56 -0500
-From: <ava77lper@aol.com>
-To: linux-kernel@vger.kernel.org
-Subject: turn $2000.00 into $16000.00 in 2 weeks
-Date: Wed, 7 Feb 2001 17:32:15
-Message-Id: <564.402242.750161@unknown>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S129161AbRBHBfU>; Wed, 7 Feb 2001 20:35:20 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:26130 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S131010AbRBHBfA>; Wed, 7 Feb 2001 20:35:00 -0500
+Message-ID: <3A8205D4.7C7E358E@Hell.WH8.TU-Dresden.De>
+Date: Thu, 08 Feb 2001 03:35:00 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac5 i686)
+X-Accept-Language: en, de-DE
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: PS/2 Mouse/Keyboard conflict and lockup
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-New Concept in Gifting!
-Join A Team Of 6 And 7 Figure Earners
+Hi Alan et. all
 
-The sole purpose of this Activity is to enable us to bless more people and to change lives by helping others receive gifts, which will enable the receiver to share their blessings with others!
+I'm not sure whether this is related to the ominous ps/2 mouse bug
+you have been chasing, but this problem is 100% reproducible and
+very annoying.
 
-* Gift $2000 to prosper over $16,000
+After upgrading my Asus A7V Bios from 1003 to 1005D, gpm no longer
+receives any mouse events and the mouse doesn't work in text
+consoles. Once I kill gpm and restart gpm -t ps2 the keyboard
+locks up.
 
-* No dues or membership fees
+Logging in remotely and looking at dmesg revealed the following:
 
-* Introduce only two into this private activity
+keyboard: Timeout - AT keyboard not present?
+keyboard: unrecognized scancode (70) - ignored
 
-* No purchases, no quotas, no selling!
+If I don't kill and restart gpm, but start X, the mouse works
+perfectly, but only in X.
 
-* No meetings, conference calls, no pressure! 
+Any ideas?
 
-* Participation is by invitation only and of your own free will.
-
-* 6 & 7 figure income earners as leadership
-
-Interested? The program is moving fast.  Go to: http://serfd.pokeadot.com for more details.
-
-If you can not get to the website call 1-310-706-2050 ext. 4594 and please leave your:
-
-Name
-Email address
-Phone number (with area code)
-Time zone and best time to call
-
-
-
-To be removed send an email to: nothanks390@yahoo.com
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

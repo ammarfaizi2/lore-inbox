@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266382AbRGGOq7>; Sat, 7 Jul 2001 10:46:59 -0400
+	id <S266400AbRGGO65>; Sat, 7 Jul 2001 10:58:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266352AbRGGOqu>; Sat, 7 Jul 2001 10:46:50 -0400
-Received: from ns0.ogilvy.net ([193.41.71.28]:12809 "HELO ogilvy.net")
-	by vger.kernel.org with SMTP id <S266345AbRGGOqp>;
-	Sat, 7 Jul 2001 10:46:45 -0400
-Message-ID: <3B4720B3.7C16F6AA@ogilvy.net>
-Date: Sat, 07 Jul 2001 16:46:11 +0200
-From: Francois Scala <fscala@ogilvy.net>
-Organization: Ogilvy Interactive
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+	id <S266429AbRGGO6r>; Sat, 7 Jul 2001 10:58:47 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:36040 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S266400AbRGGO6h>;
+	Sat, 7 Jul 2001 10:58:37 -0400
+Message-ID: <3B47239B.69E72F18@mandrakesoft.com>
+Date: Sat, 07 Jul 2001 10:58:35 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: crazy timer on dual pentium-mmx (2.4.5 and 2.4.6)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Filesystem bug?  "sync" hangs...
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kernel 2.4.7-pre3 on alpha.
 
-hello,
+The initial phase of an RPM build is unpacking a tarball and applying
+patches, which is a bunch of writes followed by a update of read/write
+updates.  A lot of write activity, basically.  RPM build is running at
+normal priority as a normal user.
 
-I have a serious problem since 2.4.5 kernel, the timer go crazy (about
-10 time normal speed)
-I can't login because the 60 secondes timeout get only a few second in
-real life.
-Same thing about harddrive timeout error.
+In another xterm, su'd in a shell that is renice'd to -14, I run "sync"
+during all this write activity.  It hangs for 17 seconds before I get
+impatient, stop counting, and suspend the RPM build process.  sync
+continues to block, not returning to the command prompt.  I run dmesg
+(generated read activity?), and sync finally returns.
 
-The motherboard is a dual pentium-mmx 200
+The RPM build process continues unpacking/writing files without
+appearing to slow in window 1 while sync blocks in window 2.
 
-http://www.asus.com/products/motherboard/pentium/p65up5-p55t2d/p65up5-p55t2d-spec.html
-http://www.asus.com/Products/Motherboard/Pentiumpro/P65up5-p6nd/c-p55t2d.html
+I have not seen this behavior before, but I do not recall trying 'sync'
+specifically during heavy write activity before.  This behavior is
+reproducible.
 
-kernel is compiled on the computer with kernel 2.4.4 and following
-tools:
-
-Gnu C                  2.95.2
-Gnu make               3.79.1
-binutils               2.9.5.0.37
+-- 
+Jeff Garzik      | A recent study has shown that too much soup
+Building 1024    | can cause malaise in laboratory mice.
+MandrakeSoft     |

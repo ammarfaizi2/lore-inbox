@@ -1,26 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132478AbRAXX4n>; Wed, 24 Jan 2001 18:56:43 -0500
+	id <S129406AbRAXX7e>; Wed, 24 Jan 2001 18:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130336AbRAXX4e>; Wed, 24 Jan 2001 18:56:34 -0500
-Received: from quechua.inka.de ([212.227.14.2]:13364 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S129406AbRAXX4P>;
-	Wed, 24 Jan 2001 18:56:15 -0500
-From: Bernd Eckenfels <inka-user@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data available
-Message-Id: <E14LZlt-00034J-00@sites.inka.de>
-Date: Thu, 25 Jan 2001 00:56:13 +0100
+	id <S132111AbRAXX7Y>; Wed, 24 Jan 2001 18:59:24 -0500
+Received: from jalon.able.es ([212.97.163.2]:38615 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130336AbRAXX7Q>;
+	Wed, 24 Jan 2001 18:59:16 -0500
+Date: Thu, 25 Jan 2001 00:59:07 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: pcmcia modules install path
+Message-ID: <20010125005907.A5811@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> can someone explain what is nagle or pinpoint explanation :)
+Hi everyone,
 
-nagel's algorithm is used to "wait" with sending of small packets until more
-data is available, because sending biger packets has less overhead.
+Just a silly question. The pcmcia modules in 2.4.x get installed in
+/lib/modules/`uname -r`/pcmcia, instead of
+/lib/modules/`uname -r`/kernel/<whatever>
 
-greetings
-Bernd
+Is there any special reason for that or is just a harmelss buglet ?
+
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.1-pre10 #4 SMP Wed Jan 24 00:20:15 CET 2001 i686
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265295AbRFUXax>; Thu, 21 Jun 2001 19:30:53 -0400
+	id <S265300AbRFUXh4>; Thu, 21 Jun 2001 19:37:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265296AbRFUXan>; Thu, 21 Jun 2001 19:30:43 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:13955
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S265295AbRFUXa3>; Thu, 21 Jun 2001 19:30:29 -0400
-Date: Thu, 21 Jun 2001 16:32:42 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@gw.soze.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] What are the VM motivations??
-In-Reply-To: <20010621190103.A888@jmcmullan.resilience.com>
-Message-ID: <Pine.LNX.4.33.0106211631150.13638-100000@gw.soze.net>
+	id <S265299AbRFUXhp>; Thu, 21 Jun 2001 19:37:45 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9632 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265298AbRFUXhc>;
+	Thu, 21 Jun 2001 19:37:32 -0400
+Date: Thu, 21 Jun 2001 19:37:31 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads) 
+In-Reply-To: <m15CvoL-001UJEC@mozart>
+Message-ID: <Pine.GSO.4.21.0106211931180.209-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Jason McMullan wrote:
-
-> 	One we know how we would 'train' our little VM critter, we
-> will know how to measure its performance. Once we have measures, we
-> can have good benchmarks. Once we have good benchmarks - we can pick
-> a good VM alg.
->
-> 	Or heck, let's just make the VM a _real_ Neural Network, that
-> self trains itself to the load you put on the system. Hideously
-> complex and evil? Well, why not wire up that roach on the floor, eating
-> that stale cheese doodle. It can't do any worse job on VM that some of the
-> VM patches I've seen...
-
-I can see it now... "Care and Feeding of your linux kernel VM for Dummies"
 
 
-justin
+On Thu, 21 Jun 2001, Rusty Russell wrote:
+
+> Disagree.  A significant percentage of the netfilter bugs have been
+> SMP only (the whole thing is non-reentrant on UP).
+
+I really doubt it. <looking through the thing> <raised brows>
+Well, if you use GFP_ATOMIC for everything... grep...
+Erm... AFAICS, you call create_chain() with interrupts disabled
+(under write_lock_irq_save()). Unless I'm _very_ mistaken,
+kmalloc(..., GFP_KERNEL) is a Bad Thing(tm) in that situation.
+And create_chain() leads to it.
 

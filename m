@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272321AbTGYUsB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 16:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272367AbTGYUrn
+	id S272362AbTGYUvB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 16:51:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272367AbTGYUsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 16:47:43 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64017
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S272321AbTGYUrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 16:47:02 -0400
-Date: Fri, 25 Jul 2003 14:02:09 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Meelis Roos <mroos@math.ut.ee>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, neilb@cse.unsw.edu.au
-Subject: Re: NFS server broken in 2.4.22-pre6?
-Message-ID: <20030725210209.GC1686@matchmail.com>
-Mail-Followup-To: Meelis Roos <mroos@math.ut.ee>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>, neilb@cse.unsw.edu.au
-References: <Pine.LNX.4.55L.0307251001480.12492@freak.distro.conectiva> <Pine.GSO.4.44.0307252330160.23197-100000@math.ut.ee>
+	Fri, 25 Jul 2003 16:48:11 -0400
+Received: from nika.frontier.iarc.uaf.edu ([137.229.94.16]:46501 "EHLO
+	nika.frontier.iarc.uaf.edu") by vger.kernel.org with ESMTP
+	id S272364AbTGYUo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 16:44:26 -0400
+Date: Fri, 25 Jul 2003 13:02:42 -0800
+From: Christopher Swingley <cswingle@iarc.uaf.edu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.6-test1, PCMCIA cards require two insertions
+Message-ID: <20030725210242.GH15537@iarc.uaf.edu>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0307252330160.23197-100000@math.ut.ee>
+X-gpg-fingerprint: B96C 58DC 0643 F8FE C9D0  8F55 1542 1A4F 0698 252E
+X-gpg-key: [http://www.frontier.iarc.uaf.edu/~cswingle/gnupgkey.asc]
+X-URL: [http://www.frontier.iarc.uaf.edu/~cswingle/]
+X-Editor: VIM [http://www.vim.org]
+X-message-flag: Consider Linux: fast, reliable, secure & free!
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 11:30:49PM +0300, Meelis Roos wrote:
-> > > NFS serving seems to be broken in 2.4.22-pre6. I had 2 computers running
-> > > 2.4.22-pre6 (x86, debian unstable current). Tried to acces them via NFS
-> > > (using am-utils actually) from a 3rd computer, IO error. Tried to
-> > > mount directly, mount: RPC: timed out. Rebooted one computer to 2.4.18
-> > > and NFS started to work.
-> > >
-> > > No more details currently but I can test more thoroughly tomorrow.
-> >
-> > Meelis,
-> >
-> > Please report more details.
-> 
-> Seems to be a debian unstable problem with nfs-kernel-server:
-> http://bugs.debian.org/201598
+Greetings!
 
-I just shut down 2.4.22-pre7 to test a 2.6-test kernel, and it hung trying
-to shut down the kernel nfs server.
+I'm running 2.6.0-test1 on an SiS based laptop with all the PCMCIA 
+network and serial drivers built into the kernel.  When the system boots 
+with a PCMCIA cardbus card in place, the card doesn't show up.  I unplug 
+the card and plug it back in, and then the kernel "sees" it and it 
+works.  If I unplug it again, I have to go through a plug - unplug - 
+plug cycle before it recognizes it.  As if it only recognizes the card 
+on even numbered insertion events.
 
-And I just checked my version and it is a reported good version, 1.0.3-1.
+My modem card is not a cardbus card (no gold colored strip on the top) 
+and it exhibits the same plug - unplug - plug requirement.  If it's in 
+the slot when the computer boots, however, it will get set up, because 
+the pcmcia-cs cardmgr sets it up via the sysinit scripts.
 
-I only saw it once, and I seem to recall rebooting pre7 before without
-trouble, so maybe it is hard to produce. :-/
+Any thoughts on why these cards require more than one insertion before 
+they're recognized?  Bug / feature?
 
-Mike
+Thanks,
+
+Chris
+-- 
+Christopher S. Swingley          email: cswingle@iarc.uaf.edu
+IARC -- Frontier Program         Please use encryption.  GPG key at:
+University of Alaska Fairbanks   www.frontier.iarc.uaf.edu/~cswingle/
+

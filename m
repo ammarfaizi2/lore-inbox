@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVCNXWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVCNX1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbVCNXWp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 18:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVCNXU5
+	id S262022AbVCNX1i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 18:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVCNX1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 18:20:57 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:27526 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262068AbVCNXTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 18:19:31 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: script to send changesets per mail
-To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       Martin Waitz <tali@admingilde.org>
-Reply-To: 7eggert@gmx.de
-Date: Tue, 15 Mar 2005 00:22:56 +0100
-References: <fa.f2usg94.a5sd8q@ifi.uio.no> <fa.hdaug7i.n7qkqg@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
+	Mon, 14 Mar 2005 18:27:37 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28178 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262022AbVCNX1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 18:27:10 -0500
+Date: Mon, 14 Mar 2005 23:26:53 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Stefan Roas <sroas@roath.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Fix compiler warning in drivers/scsi/dpt_i2o.c
+Message-ID: <20050314232653.B4705@flint.arm.linux.org.uk>
+Mail-Followup-To: Stefan Roas <sroas@roath.org>,
+	linux-kernel@vger.kernel.org
+References: <20050313224351.GA1731@roath.org> <20050314182444.GA6903@home.fluff.org> <20050314200626.GD1733@roath.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DAytl-00026G-S2@be1.7eggert.dyndns.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050314200626.GD1733@roath.org>; from sroas@roath.org on Mon, Mar 14, 2005 at 09:06:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> wrote:
+On Mon, Mar 14, 2005 at 09:06:26PM +0100, Stefan Roas wrote:
+> On Mon Mar 14, 2005 at 18:24:44, Ben Dooks wrote:
+> 
+> > This patch looks suspiciously like it is sweeping the problem
+> > `under the carpet`. Does bus_to_virt() return an `void __iomem *`?
+> > 
+> > reply should really be an `void __iomem *` 
+> 
+> bus_to_virt returns void *.
+> 
+> adpt_isr casts the return value to ulong though and adpt_i2o_to_scsi
+> takes an ulong as its first argument and passes it to readl without a
+> cast then.
+> 
+> But I agree, the patch just silences the compiler warning. Maybe it
+> would be a better solution to change the types of reply and msg in
+> adpt_isr as well as the first argument to adpt_i2o_to_scsi to void
+> __iomem *.
 
-> sub make_message_id
-> {
-> my $date = `date "+\%s"`;
-> chomp($date);
-> my $pseudo_rand = int (rand(4200));
-> $message_id = "<$date$pseudo_rand\@kroah.com>";
-> print "new message id = $message_id\n";
-> }
+However, bus_to_virt() can only be used on addresses which correspond
+with system RAM.  readl and friends should not be used on such a memory
+space.  So, this driver is doing lots of bogus stuff.
 
-Why not
+The warnings are perfectly valid and should therefore stay.
 
-use Email::MessageID;
-use Net::Domain qw(hostfqdn);
+If "reply" is actually referring to some system memory, the readl/writel
+shouldn't be there, and we should be accessing system memory directly
+via a bona-fide structure.  If it isn't, then the bus_to_virt() is
+completely bogus and unportable, and that's where we _must_ raise a
+warning.
 
-sub make_message_id()
-{
-        return Email::MessageID->new(host => hostfqdn());
-}
+However, I do agree with changing "msg" to be void __iomem *, and
+removing the (ulong) cast, since pHba->msg_addr_virt is already
+void __iomem *.
 
+(note: I'm just taking a passing interest in this thread, from the
+point of view of an architecture maintainer who wants these types of
+things to be Correct(tm)...)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

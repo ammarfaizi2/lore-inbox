@@ -1,33 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbUK0QW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUK0Q0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbUK0QW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 11:22:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUK0QW5
+	id S261252AbUK0Q0E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 11:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUK0Q0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 11:22:57 -0500
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:38378 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S261251AbUK0QWs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 11:22:48 -0500
-Message-ID: <41A8A97D.2010905@ttnet.net.tr>
-Date: Sat, 27 Nov 2004 18:21:17 +0200
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re:  Linux 2.4.29-pre1 (resend)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Nov 2004 11:26:04 -0500
+Received: from gprs214-10.eurotel.cz ([160.218.214.10]:34688 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261252AbUK0QYO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 11:24:14 -0500
+Date: Sat, 27 Nov 2004 17:23:58 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: hugang@soulinfo.com
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend2 merge: 1/51: Device trees
+Message-ID: <20041127162358.GC1012@elf.ucw.cz>
+References: <20041125165413.GB476@openzaurus.ucw.cz> <20041125185304.GA1260@elf.ucw.cz> <1101421336.27250.80.camel@desktop.cunninghams> <20041127161319.GB2472@hugang.soulinfo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041127161319.GB2472@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Where is the patch file?  zeus.kernel.org is less responsive than
-my old 8088 at the moment, and the only file in v2.4/testing is
-patch-2.4.22.log, which never gets removed ;)  (what's so special
-about that file, anyway?)
+> > SUSPEND all but swap device and parents
+> > WRITE LRU pages
+> > SUSPEND swap device and parents (+sysdev)
+> > Snapshot
+> > RESUME swap device and parents (+sysdev)
+> > WRITE snapshot
+> > SUSPEND swap device and parents
+> > POWERDOWN everything
+> > 
+> -device-tree.diff-
 
-Ozkan Sezer
+(snipped 420 lines of diff)
 
-
+No, this one should not be neccessary. It is there only to solve some
+memory problems, and it does not solve them anyway.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

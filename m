@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129361AbRBCJTq>; Sat, 3 Feb 2001 04:19:46 -0500
+	id <S129110AbRBCJnO>; Sat, 3 Feb 2001 04:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129163AbRBCJT0>; Sat, 3 Feb 2001 04:19:26 -0500
-Received: from jalon.able.es ([212.97.163.2]:33762 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129185AbRBCJTE>;
-	Sat, 3 Feb 2001 04:19:04 -0500
-Date: Sat, 3 Feb 2001 10:18:56 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Paul Jakma <paul@clubi.ie>
-Cc: Jakub Jelinek <jakub@redhat.com>, "J . A . Magallon" <jamagallon@able.es>,
-        Hans Reiser <reiser@namesys.com>, Alan Cox <alan@redhat.com>,
-        Chris Mason <mason@suse.com>, Jan Kasprzak <kas@informatics.muni.cz>,
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        "Yury Yu . Rupasov" <yura@yura.polnet.botik.ru>
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-Message-ID: <20010203101856.A1766@werewolf.able.es>
-In-Reply-To: <20010202191701.Y16592@devserv.devel.redhat.com> <Pine.LNX.4.31.0102030420031.20193-100000@fogarty.jakma.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.31.0102030420031.20193-100000@fogarty.jakma.org>; from paul@clubi.ie on Sat, Feb 03, 2001 at 05:25:20 +0100
-X-Mailer: Balsa 1.1.0
+	id <S129163AbRBCJnF>; Sat, 3 Feb 2001 04:43:05 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:45415 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129110AbRBCJmw>; Sat, 3 Feb 2001 04:42:52 -0500
+Date: Sat, 3 Feb 2001 03:42:48 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Darren Tucker <dtucker@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Etherworks3 driver now obsolete?
+In-Reply-To: <200102010822.f118Mlu02001@gate.dodgy.net.au>
+Message-ID: <Pine.LNX.3.96.1010203034048.26992C-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 02.03 Paul Jakma wrote:
+On Thu, 1 Feb 2001, Darren Tucker wrote:
+> I decided to try a shiny new 2.4.0 kernel but I couldn't configure the driver
+> for my etherworks3 ISA ethernet card (AMD K6III PC hardware).
 > 
-> didn't barf here with 2.96-70.
->
+> A bit of grepping showed that it only appears if CONFIG_OBSOLETE is defined
+> but nothing in the configuration tools seems to set it (at least for i386).
 
-Does not barf nor 1 nor 0. Check return core (ie, echo $?).
+If you are willing to be a target^H^H^Htester, then I can probably whip
+up a patch to fix it.
 
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+> CONFIG_OBSOLETE is checked for by Config.in for a couple of drivers (net and
+> char), but the only place it seems to be defined is for the ARM architecture. 
+> 
+> Is this deliberate? Are some of the older drivers to be phased out?
+> Should there be a "bool 'Prompt for obsolete code/drivers' CONFIG_OBSOLETE"
+> in the config.in for other architectures, too?
 
-Linux werewolf 2.4.1-ac1 #2 SMP Fri Feb 2 00:19:04 CET 2001 i686
+CONFIG_OBSOLETE really means "this driver is broken, don't EVER show it
+in the kernel config."
+
+	Jeff
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

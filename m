@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136218AbRDVQ7W>; Sun, 22 Apr 2001 12:59:22 -0400
+	id <S136222AbRDVRIG>; Sun, 22 Apr 2001 13:08:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136219AbRDVQ7L>; Sun, 22 Apr 2001 12:59:11 -0400
-Received: from paloma15.e0k.nbg-hannover.de ([62.159.219.15]:18682 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S136218AbRDVQ65>; Sun, 22 Apr 2001 12:58:57 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S136223AbRDVRH4>; Sun, 22 Apr 2001 13:07:56 -0400
+Received: from leng.mclure.org ([64.81.48.142]:54788 "EHLO
+	leng.internal.mclure.org") by vger.kernel.org with ESMTP
+	id <S136222AbRDVRHs>; Sun, 22 Apr 2001 13:07:48 -0400
+Date: Sun, 22 Apr 2001 10:07:38 -0700
+From: Manuel McLure <manuel@mclure.org>
+To: John Cavan <johnc@damncats.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.3-ac12
-Date: Sun, 22 Apr 2001 19:26:11 +0200
-X-Mailer: KMail [version 1.2]
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>,
-        "Andrea Arcangeli" <andrea@suse.de>, feedback@suse.de
-MIME-Version: 1.0
-Message-Id: <01042219261100.01104@SunWave1>
-Content-Transfer-Encoding: 8bit
+Message-ID: <20010422100738.A7557@ulthar.internal.mclure.org>
+In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu> <3AE30609.21692820@damncats.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3AE30609.21692820@damncats.org>; from johnc@damncats.org on Sun, Apr 22, 2001 at 09:25:45 -0700
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My belief however is that several million people have gcc 2.96-69+, about 50
-> are likely to have random cvs snapshots and none of them are going to build
-> kernels with them anyway, as they wont work __builtin_expect or otherwise.
->
-> Alan
 
-I will not add fuel to the fire, but isn't 2.4.XX the "stable" version?
-And I think most people (here in Europe :-) are running 2.95.2 at the moment.
-But, yes the previously patches fixed it.
+On 2001.04.22 09:25 John Cavan wrote:
+> Alan Cox wrote:
+> > 2.4.3-ac12
+> > o       Further semaphore fixes                         (David Howells)
+> 
+> Getting unresolved symbols in some modules (notably, for me, microcode.o
+> and radeon.o)...
+> 
+> Using /lib/modules/2.4.3-ac12/kernel/drivers/char/drm/radeon.o
+> /lib/modules/2.4.3-ac12/kernel/drivers/char/drm/radeon.o: unresolved
+> symbol rwsem_up_write_wake
+> /lib/modules/2.4.3-ac12/kernel/drivers/char/drm/radeon.o: unresolved
+> symbol rwsem_down_write_failed
 
-Thanks,
-	Dieter
+Same thing with tdfx.o...
+
 -- 
-Dieter Nützel
-Graduate Student, Computer Science
+Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
+<manuel@mclure.org>     | and significant law, no man may kill a cat.
+<http://www.mclure.org> |             -- H.P. Lovecraft
 
-University of Hamburg
-Department of Computer Science
-Cognitive Systems Group
-Vogt-Kölln-Straße 30
-D-22527 Hamburg, Germany
-
-email: nuetzel@kogs.informatik.uni-hamburg.de
-@home: Dieter.Nuetzel@hamburg.de

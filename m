@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270527AbTGSTvz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 15:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270532AbTGSTvz
+	id S270513AbTGST6X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 15:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270571AbTGST6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 15:51:55 -0400
-Received: from a3hr6fay45cl.bc.hsia.telus.net ([216.232.206.119]:24327 "EHLO
-	cyclops.implode.net") by vger.kernel.org with ESMTP id S270527AbTGSTu7
+	Sat, 19 Jul 2003 15:58:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39613 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270502AbTGST6S
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 15:50:59 -0400
-Date: Sat, 19 Jul 2003 13:05:56 -0700
-From: John Wong <kernel@implode.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: DMA timeouts with 2.4.22-pre6
-Message-ID: <20030719200556.GA249@gambit.implode.net>
-References: <20030719150728.GA265@gambit.implode.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030719150728.GA265@gambit.implode.net>
-User-Agent: Mutt/1.5.4i
+	Sat, 19 Jul 2003 15:58:18 -0400
+Message-ID: <3F19A651.2080503@pobox.com>
+Date: Sat, 19 Jul 2003 16:13:05 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: azarah@gentoo.org
+CC: Catalin BOIE <util@deuroconsult.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: libata driver update posted
+References: <3F1711C8.6040207@pobox.com>	 <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>	 <3F17F28C.9050105@pobox.com>	 <1058542771.13515.1599.camel@workshop.saharacpt.lan>	 <20030718154322.GB27152@gtf.org> <1058645294.23174.7.camel@nosferatu.lan>
+In-Reply-To: <1058645294.23174.7.camel@nosferatu.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thinking it may be the "fix ida dma timeout bug", I booted up 2.4.21 and 
-the DMA problems were gone.
+Martin Schlemmer wrote:
+> On Fri, 2003-07-18 at 17:43, Jeff Garzik wrote:
+> 
+> Slower this side.  The Maxtor 40GB (ata133) is however just set to
+> udma33, where the Seagate 20GB (ata100) driver is set correctly to
+> udma100.
 
-One difference in the sytems though.  With 2.4.21, I am using ACPI and APIC.  
-With 2.4.22-preX, I have to set acpi=off otherwise, system interrupts get
-crazy.  I tried pci=noacpi where the system is usuable for a short 
-period of time and no IRQ higher than 15 are assigned.
+Yeah, that's expected:  Parallel ATA (PATA) requires cable detection to 
+go beyond UDMA/33, and my driver doesn't do that yet [since I'm 
+concentrating on SATA].
 
-John
 
-On Sat, Jul 19, 2003 at 08:07:29AM -0700, John Wong wrote:
-> I am having dma timeouts with my Maxtor 6Y120P0.  It is connected as the
-> slave on the primary channel of the nVidia nForce2 based Asus A7N8X DX.
-> 
-> I did not have this problem with 2.4.21.  On the 2.4.22-pre series, I
-> have encountered this problem in pre4, pre5, and pre6.  I did not try 
-> earlier pre's.  In the pre2 -> pre3 change log, there was a mention of 
-> fix ide dma timeout bugs.  I am wondering if this fix is causing my newly
-> experienced problems.
-> 
-> gambit:/root# hdparm /dev/hdb
-> 
-> /dev/hdb:
->  multcount    = 16 (on)
->  IO_support   =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    =  8 (on)
->  geometry     = 14946/255/63, sectors = 240121728, start = 0
-> 
-> 
-> Jul 11 18:59:26 gambit kernel: hdb: dma_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Jul 11 18:59:26 gambit kernel: hdb: dma_intr: error=0x40 {
-> UncorrectableError }, LBAsect=98468, sector=98405
-> Jul 11 18:59:26 gambit kernel: end_request: I/O error, dev 03:41 (hdb),
-> sector 98405
-> Jul 11 18:59:36 gambit kernel: hdb: dma_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Jul 11 18:59:36 gambit kernel: hdb: dma_intr: error=0x40 {
-> UncorrectableError }, LBAsect=98470, sector=98407
-> Jul 11 18:59:36 gambit kernel: end_request: I/O error, dev 03:41 (hdb),
-> sector 98407
-> Jul 11 18:59:42 gambit kernel: hdb: dma_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Jul 11 18:59:42 gambit kernel: hdb: dma_intr: error=0x40 {
-> UncorrectableError }, LBAsect=98471, sector=98408
-> Jul 11 18:59:42 gambit kernel: end_request: I/O error, dev 03:41 (hdb),
-> sector 98408
-> 
-> John
+> The Seagate start off ok (about 35mb/s), but then after doing some heavy
+> disk io, it also just drops to the 20mb/s region.
+
+That's definitely interesting.  Is "heavy disk I/O" the hdparm stuff you 
+described, or something else too?
+
+	Jeff
+
+
+

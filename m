@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266226AbUGAS52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUGAS7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266226AbUGAS52 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 14:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUGAS52
+	id S266233AbUGAS7C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 14:59:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266225AbUGAS5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 14:57:28 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:10903 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266232AbUGASzn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 14:55:43 -0400
-Date: Thu, 1 Jul 2004 11:53:40 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Tom L Nguyen <tom.l.nguyen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: MSI to memory?
-Message-ID: <20040701115339.A4265@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <200407011215.59723.bjorn.helgaas@hp.com>
+	Thu, 1 Jul 2004 14:57:38 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:19197 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266228AbUGAS4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 14:56:00 -0400
+Date: Thu, 1 Jul 2004 11:55:55 -0700
+From: John Sage <jsage@finchhaven.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Parentage of BPF code in Linux
+Message-ID: <20040701185555.GH6445@sparky.finchhaven.net>
+References: <20040701181002.GG6445@sparky.finchhaven.net> <20040701184354.GJ5414@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200407011215.59723.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Thu, Jul 01, 2004 at 12:15:59PM -0600
+In-Reply-To: <20040701184354.GJ5414@waste.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 12:15:59PM -0600, Bjorn Helgaas wrote:
-> The conventional use of MSI is for a PCI adapter to generate processor
-> interrupts by writing to a local APIC.  But I've seen some things
+Matt:
 
-On Intel architecture at least, the MSI writes are targeted 
-to the chipset (north bridge), not directly to a local APIC.
-The chipset knows the special MSI address and data values 
-programmed into the PCI device and interprets the data written, 
-e.g.  for interrupt redirection hints.
+On Thu, Jul 01, 2004 at 01:43:55PM -0500, Matt Mackall wrote:
+> Date: Thu, 1 Jul 2004 13:43:55 -0500
+> From: Matt Mackall <mpm@selenic.com>
+> To: John Sage <jsage@finchhaven.com>
+> Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+> Subject: Re: Parentage of BPF code in Linux
+> User-Agent: Mutt/1.3.28i
+> 
+> On Thu, Jul 01, 2004 at 11:10:02AM -0700, John Sage wrote:
+> > [Non-subscriber: please cc on replies]
+> > 
+> > WRT to the SCO/IBM/Linux imbroglio, there was an interesting
+> > assertion made on the Yahoo! Finance message board for SCOX, and I
+> > wondered if anyone could shed some light.
+> > 
+> > The assertion is this:
+> > 
+> > "...among other things, the Berkeley Packet Filter code, which was
+> > written by an independent developer for the Missouri School
+> > District, licensed under the BSD license terms that never was part
+> > of SysV at any time..."
+> 
+> There's a from-scratch reimplementation of BPF in Linux (called
+> Linux Socket Filter) by Jay Schulist in net/core/filter.c. And he
+> appears to have worked for the _Wisconsin_ school district at the
+> time. A Google search on "schulist filter wisconsin" reveals:
+> 
+>   Jay Schulist, a senior software engineer with Pleasanton,
+>   California's Bivio Networks says he wrote the 500 lines of code in
+>   1997 as part of a volunteer project for the Stevens Point Area
+>   Catholic Schools in Wisconsin. "I used it for helping a local
+>   school district in my home town to connect their old Apple
+>   Macintosh machines to the Internet," he said.
 
-> If so, is that a useful capability that should be exposed through
-> the Linux MSI interface?
+Interesting.
 
-With MSI, you get a single address/data pair. So MSI interrupts
-won't work unless this single entry is programmed to the 
-special interrupt specific values that the chipset expects. 
-With MSI-X, you get multiple address/data pairs but this is 
-presumably because the device thinks it can benefit from 
-multiple interrupts.
+Thank you.
 
-What type of usage model did you have in mind to have the 
-device write to memory instead of using MSI for interrupts?
+And there it is:
 
-Rajesh
+/*
+ * Linux Socket Filter - Kernel level socket filtering
+ *
+ * Author:
+ *     Jay Schulist <jschlst@samba.org>
+ *
+ * Based on the design of:
+ *     - The Berkeley Packet Filter
 
+/* snip */
+
+
+The only other reference I've been able to find to this "Missouri
+School District/BPF" meme was in a post to a ZDNet message board back
+in November, 2003...
+
+
+- John
+-- 
+10 print "Home"
+20 print "Sweet"
+30 goto 10

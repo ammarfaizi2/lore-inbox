@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267836AbRHATeM>; Wed, 1 Aug 2001 15:34:12 -0400
+	id <S267986AbRHATjm>; Wed, 1 Aug 2001 15:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267986AbRHATeC>; Wed, 1 Aug 2001 15:34:02 -0400
-Received: from [47.129.117.131] ([47.129.117.131]:32652 "HELO
-	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S267836AbRHATeA>; Wed, 1 Aug 2001 15:34:00 -0400
-Message-ID: <3B6859B2.F1E2C95B@nortelnetworks.com>
-Date: Wed, 01 Aug 2001 15:34:10 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S268008AbRHATjc>; Wed, 1 Aug 2001 15:39:32 -0400
+Received: from d122251.upc-d.chello.nl ([213.46.122.251]:17419 "EHLO
+	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
+	id <S267986AbRHATj1>; Wed, 1 Aug 2001 15:39:27 -0400
+From: bvermeul@devel.blackstar.nl
+Date: Wed, 1 Aug 2001 21:42:19 +0200 (CEST)
+To: Jussi Laako <jlaako@pp.htv.fi>
+cc: Russell King <rmk@arm.linux.org.uk>, Per Jessen <per.jessen@enidan.com>,
+        <linux-kernel@vger.kernel.org>, <linux-laptop@vger.kernel.org>
+Subject: Re: PCMCIA control I82365 stops working with 2.4.4
+In-Reply-To: <3B68557B.7816FE4B@pp.htv.fi>
+Message-ID: <Pine.LNX.4.33.0108012139330.31291-100000@devel.blackstar.nl>
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <3B683AC4.E0F2BF9E@mvista.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
+On Wed, 1 Aug 2001, Jussi Laako wrote:
 
-> The testing I have done seems to indicate a lower overhead on a lightly
-> loaded system, about the same overhead with some load, and much more
-> overhead with a heavy load.  To me this seems like the wrong thing to
+> Russell King wrote:
+> >
+> > Use the yenta module instead of the i82365 module.
+>
+> Kills (deadlocks) my Toshiba Satellite when loaded as module (complains
+> about missing interrupts). When built into kernel it just complains but
+> doesn't lockup the machine.
+>
+> Older kernels/pcmcia-cs i82365 was working fine. (2.2.x and early 2.4.x)
+>
+> I should have stayed with RedHat 6.2, but I wanted journaling filesystem...
+>
+> Maybe I'm doing something wrong but dunno what.
 
-What about something that tries to get the best of both worlds?  How about a
-tickless system that has a max frequency for how often it will schedule?  This
-would give the tickless advantage for big iron running many lightly loaded
-virtual instances, but have some kind of cap on the overhead under heavy load.
+Try going to your bios and setting the PCMCIA adapter to Cardbus/16bit
+instead of Auto. The Toshiba Topic chipsets are buggy, change their PCI
+identifiers with different bios settings, and are just a plain pain in the
+ass to get working. Then use the yenta driver (preferrably in kernel), and
+I think you will find it works now. :)
 
-Does this sound feasable?
+Bas Vermeulen, who has had some bad experiences with Toshiba laptops. And
+it's impossible to get specs for em too.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+"God, root, what is difference?"
+	-- Pitr, User Friendly
+
+"God is more forgiving."
+	-- Dave Aronson
+

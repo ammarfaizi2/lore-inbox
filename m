@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbUK3RAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbUK3RIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262199AbUK3RAb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 12:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbUK3Q7F
+	id S262227AbUK3RIu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 12:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbUK3RFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 11:59:05 -0500
-Received: from mail4.utc.com ([192.249.46.193]:9909 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S262192AbUK3Q53 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 11:57:29 -0500
-Message-ID: <41ACA668.3090809@cybsft.com>
-Date: Tue, 30 Nov 2004 10:57:12 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Tue, 30 Nov 2004 12:05:35 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:50868 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262227AbUK3RDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 12:03:10 -0500
+Message-ID: <41ACA7C9.1070001@namesys.com>
+Date: Tue, 30 Nov 2004 09:03:05 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-13
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <200411292354.05995.gene.heskett@verizon.net> <41AC9121.8020001@cybsft.com> <200411301124.18628.gene.heskett@verizon.net>
-In-Reply-To: <200411301124.18628.gene.heskett@verizon.net>
-X-Enigmail-Version: 0.86.1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
+       Christian Mayrhuber <christian.mayrhuber@gmx.net>,
+       reiserfs-list@namesys.com,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>
+In-Reply-To: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> On Tuesday 30 November 2004 10:26, K.R. Foley wrote:
-> 
->>"<some process> is being piggy... Read missed before next interrupt"
->>
->>2) tvtime is probably running at a RT priority of 99. The IRQ
->>handler for the rtc defaults to 48-49 (I think). If you didn't
->>already do so, you should bump the priority up as in:
->>
->>chrt -f -p 99 `/sbin/pidof 'IRQ 8'`
-> 
-> 
-> [root@coyote root]# chrt -f -p 99 `/sbin/pidof 'IRQ 8'`
-> bash: chrt: command not found
-> 
-> chrt is an unknown command here. WTH?  Basicly an FC2 system.
+Horst von Brand wrote:
 
-It's part of schedutils pkg.
+>Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk> said:
+>  
+>
+>>On Tue, 2004-11-30 at 14:51, Horst von Brand wrote:
+>>    
+>>
+>>>>I was suggesting this idea mainly form XML files, where the tags define 
+>>>>the parts clearly.
+>>>>        
+>>>>
+>
+>  
+>
+>>>Use a XML parsing library then.
+>>>      
+>>>
+>
+>  
+>
+>>But namespace unification is important,
+>>    
+>>
+>
+>Why? Directories are directories, files are files, file contents is file
+>contents. Mixing them up is a bad idea. Sure, you could build a filesystem
+>of sorts (perhaps more in the vein of persistent programming, or even data
+>base systems) where there simply is no distinction (because there are no
+>differences to show), but that is something different.
+>  
+>
+This is kind of like explaining to people around the office that they 
+could ever possibly need a disk drive of more than 10mb back in 1982 or 
+so.  I could not convince them then, Peter, you cannot convince this guy 
+now, just spend the time coding it instead.  Peter, you expect people to 
+understand the value of features they have never used.  Works for some 
+of them.  Only some of them.
 
-kr
+>  
+>
+>>                                        and to unify the namespace, you
+>>have to use the same syntax. I guess you disagree with me on that. (If
+>>not, how would you do it?)
+>>    
+>>
+>
+>I'd go one level up: Eliminate the distinctions that bother you, not try to
+>patch over them.
+>  
+>
+Are you saying you'd rewrite xml to put separate objects in separate 
+files? 

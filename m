@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbTHZSUp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTHZSUp
+	id S262115AbTHZSjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 14:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTHZSjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:20:45 -0400
-Received: from 66-65-113-21.nyc.rr.com ([66.65.113.21]:29390 "EHLO
-	siri.morinfr.org") by vger.kernel.org with ESMTP id S261226AbTHZSUo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:20:44 -0400
-Date: Tue, 26 Aug 2003 14:21:02 -0400
-From: Guillaume Morin <guillaume@morinfr.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH resend #1] fix cu3088 group write
-Message-ID: <20030826182101.GF1111@siri.morinfr.org>
-Mail-Followup-To: Arnd Bergmann <arnd@arndb.de>,
-	linux-kernel@vger.kernel.org
-References: <mi9I.54n.13@gated-at.bofh.it> <oqcQ.6L8.11@gated-at.bofh.it> <200308261804.h7QI4OxB057826@d12relay02.megacenter.de.ibm.com>
+	Tue, 26 Aug 2003 14:39:17 -0400
+Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:31202 "EHLO
+	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
+	id S262115AbTHZSjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 14:39:13 -0400
+Date: Tue, 26 Aug 2003 11:50:44 -0400
+From: Arvind Sankar <arvinds@MIT.EDU>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vesafb mtrr setup question
+Message-ID: <20030826155044.GA27105@m66-080-18.mit.edu>
+References: <20030825194304.GA14893@m66-080-17.mit.edu> <1061912542.20846.50.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200308261804.h7QI4OxB057826@d12relay02.megacenter.de.ibm.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1061912542.20846.50.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dans un message du 25 aoû à 12:47, Arnd Bergmann écrivait :
-> Your fix doesn't look right either. The input string should not be
-> longer than BUS_ID_SIZE, including the trailing zero.  AFAICS, the
-> correct way to solve this is the patch below, but I did not test it.
+On Tue, Aug 26, 2003 at 04:42:23PM +0100, Alan Cox wrote:
+> On Llu, 2003-08-25 at 20:43, Arvind Sankar wrote:
+> > In the first place, the power of two computation computes the largest
+> > power of 2 that is _smaller_ than video_size, so it looks like an
+> > off-by-1 bug.
+> 
+> Not a bug - we don't know what lives above it so we can't extend the
+> mtrr safely
+> 
+Ah. On a side not, could you drop a quick hint as to how
+screen_info.lfb_size is obtained?
 
-Well, I did not know that BUS_ID_SIZE was including the trailing zero.
-The name does not appear to suggest that. BUS_ID_LEN would have been a
-better chose for that imho. 
+In older (or just different?) versions of vesafb, the video_size was
+actually computed by multiplying xres, yres, and the bpp.
 
-I don't know what you call "not right". My fix was the safest bet. It is
-right but yours is cleaner.
+> > >         /* Try and find a power of two to add */
+> > >         while (temp_size && mtrr_add(video_base, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
+> > >                 temp_size >>= 1;
+> > >         }
+> > > }
+> > 
+> > Secondly, what's the point of requesting a smaller write-combining
+> > segment that won't cover all the video memory being used?
+> 
+> Generally we don't use all the videoram. Its a heuristic rather than
+> perfection. You might want to play with improvements
+> 
 
--- 
-Guillaume Morin <guillaume@morinfr.org>
+I thought the yres_virtual was computed based on how much video_ram was
+being used, so all of it _is_ being used, for scrollback?
 
-              Marry me girl, be my only fairy to the world (RHCP)
+-- arvind

@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312790AbSDFUYs>; Sat, 6 Apr 2002 15:24:48 -0500
+	id <S312798AbSDFUan>; Sat, 6 Apr 2002 15:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312798AbSDFUYr>; Sat, 6 Apr 2002 15:24:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32273 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312790AbSDFUYq>; Sat, 6 Apr 2002 15:24:46 -0500
-Subject: Re: [WTF] ->setattr() locking changes
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sat, 6 Apr 2002 21:41:08 +0100 (BST)
-Cc: viro@math.psu.edu (Alexander Viro),
-        trond.myklebust@fys.uio.no (Trond Myklebust),
-        haveblue@us.ibm.com (Dave Hansen), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204061020140.24305-100000@home.transmeta.com> from "Linus Torvalds" at Apr 06, 2002 10:23:10 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S312799AbSDFUam>; Sat, 6 Apr 2002 15:30:42 -0500
+Received: from tele-post-20.mail.demon.net ([194.217.242.20]:21521 "EHLO
+	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S312798AbSDFUam>; Sat, 6 Apr 2002 15:30:42 -0500
+Date: Sat, 6 Apr 2002 21:30:36 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre5-ac3: unresolved in radeonfb
+Message-ID: <20020406203036.GA503@berserk.demon.co.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200204051945.g35JjnX23183@devserv.devel.redhat.com> <3CAE3608.8DDE18EB@eyal.emu.id.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16twzk-0002c8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Peter Horton <pdh@berserk.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Hmm...  While we are at it, why don't we remove suid/sgid on truncate(2)?
+On Sat, Apr 06, 2002 at 09:40:56AM +1000, Eyal Lebedinsky wrote:
+> Alan Cox wrote:
+> > Linux 2.4.19pre5-ac3
+> > o       Small fix for the radeonfb                      (Peter Horton)
 > 
-> Are there any standards saying either way? But yes, it sounds logical.
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.19-pre5-ac3/kernel/drivers/video/radeonfb.o
+> depmod:         radeon_engine_init_var
+> 
+> I could not find this symbol in the tree.
+> 
 
-SuS v2 specifically says they may be cleared
+Darn - I'm not very good at this :-(
+
+Change the call to radeon_engine_init_var() to
+
+	radeon_engine_init(rinfo);
+
+P.

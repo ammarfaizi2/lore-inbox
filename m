@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAZMFP>; Fri, 26 Jan 2001 07:05:15 -0500
+	id <S129562AbRAZMGP>; Fri, 26 Jan 2001 07:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129562AbRAZMFF>; Fri, 26 Jan 2001 07:05:05 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129143AbRAZME7>;
-	Fri, 26 Jan 2001 07:04:59 -0500
-Message-ID: <20010126102302.B124@bug.ucw.cz>
-Date: Fri, 26 Jan 2001 10:23:02 +0100
+	id <S135654AbRAZMFz>; Fri, 26 Jan 2001 07:05:55 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:1796 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129562AbRAZMFw>;
+	Fri, 26 Jan 2001 07:05:52 -0500
+Message-ID: <20010126101422.A124@bug.ucw.cz>
+Date: Fri, 26 Jan 2001 10:14:22 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Schmitt <alan.schmitt@inria.fr>, linux-kernel@vger.kernel.org
-Subject: Re: kapm-idled and cpu heating ...
-In-Reply-To: <20010122165141.A2888@alan-schm1p.inria.fr>
+To: yodaiken@fsmlabs.com, Jay Ts <jay@toltec.metran.cx>
+Cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
+        lad <linux-audio-dev@ginette.musique.umontreal.ca>, xpert@xfree86.org,
+        "mcrichto@mpp.ecs.umass.edu" <mcrichto@mpp.ecs.umass.edu>
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <3A5D994A.1568A4D5@uow.edu.au> <200101130245.TAA02910@toltec.metran.cx> <20010120171045.B15918@hq.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <20010122165141.A2888@alan-schm1p.inria.fr>; from Alan Schmitt on Mon, Jan 22, 2001 at 04:51:41PM +0100
+In-Reply-To: <20010120171045.B15918@hq.fsmlabs.com>; from yodaiken@fsmlabs.com on Sat, Jan 20, 2001 at 05:10:45PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I've read the december thread, I've searched the web and I could not
-> come out with an answer, so here I dare to ask (please cc me for any
-> answer as I am not subscribed to the list, I just read the kernel
-> cousin version).
+> > And making the kernel preemptive might be the best way to do that
+> > (and I'm saying "might"...).
 > 
-> I just installed 2.4.0 on my laptop (dell cpi a366x). I noticed the
-> kapm-idled process, which doesn't really bother me, with one
-> exception: my cpu is getting hot enough to start the fan, even without
-> any load. I compiled with the apm cpu idle option (here is a quick
-> grep of my .config file):
-> 
-> [schmitta@alan-schm1p linux]$ grep APM .config
-> CONFIG_APM=y
-> # CONFIG_APM_IGNORE_USER_SUSPEND is not set
-> CONFIG_APM_DO_ENABLE=y
-> CONFIG_APM_CPU_IDLE=y
-> CONFIG_APM_DISPLAY_BLANK=y
-> CONFIG_APM_RTC_IS_GMT=y
-> # CONFIG_APM_ALLOW_INTS is not set
-> # CONFIG_APM_REAL_MODE_POWER_OFF is not set
-> 
-> This behaviour, with the same options, does not occur with 2.2.18.
-> 
-> So my question is: how idle is kapm-idled ? Is my bios buggy ? Did I
-> miss something when configuring the kernel ? Is this a really stupid
-> question ;-)
+> Keep in mind that Ken Thompson & Dennis Ritchie did not decide on a 
+> non-preemptive strategy for UNIX because they were unaware of such 
+> methods or because they were stupid. And when Rob Pike redesigned a new
+> "unix" Plan9  note there is no-preemptive kernel, and the core Linux
+> designers have rejected preemptive kernels too. Now it is certainly possible
+> that things have change and/or all these folks are just plain wrong. But
+> I wouldn't bet too much on it.
 
-kapm-idled should make cpu more cool, not more hot. Buggy bios?
+Wrong. It was linus who suggested how to do preemptive kernel nicely. I
+guess he counts as core Linux designer ;-).
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

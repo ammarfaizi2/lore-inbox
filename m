@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264083AbRFFSxE>; Wed, 6 Jun 2001 14:53:04 -0400
+	id <S264025AbRFFS4E>; Wed, 6 Jun 2001 14:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264062AbRFFSwz>; Wed, 6 Jun 2001 14:52:55 -0400
-Received: from iris.mc.com ([192.233.16.119]:64438 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S264020AbRFFSwh>;
-	Wed, 6 Jun 2001 14:52:37 -0400
-From: Mark Salisbury <mbs@mc.com>
-To: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>, Kurt Roeckx <Q@ping.be>
+	id <S264048AbRFFSzy>; Wed, 6 Jun 2001 14:55:54 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7724 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S264025AbRFFSzs>; Wed, 6 Jun 2001 14:55:48 -0400
+To: Derek Glidden <dglidden@illusionary.com>
+Cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
 Subject: Re: Break 2.4 VM in five easy steps
-Date: Wed, 6 Jun 2001 14:40:41 -0400
-X-Mailer: KMail [version 1.0.29]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.3.96.1010606184337.19288A-100000@virgo.cus.cam.ac.uk>
-In-Reply-To: <Pine.SOL.3.96.1010606184337.19288A-100000@virgo.cus.cam.ac.uk>
+In-Reply-To: <3B1E4CD0.D16F58A8@illusionary.com>
+	<3b204fe5.4014698@mail.mbay.net> <3B1E5316.F4B10172@illusionary.com>
+	<m1wv6p5uqp.fsf@frodo.biederman.org>
+	<3B1E7ABA.EECCBFE0@illusionary.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 06 Jun 2001 12:52:07 -0600
+In-Reply-To: <3B1E7ABA.EECCBFE0@illusionary.com>
+Message-ID: <m1ofs15tm0.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Message-Id: <0106061450480H.00684@pc-eng24.mc.com>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 06 Jun 2001, Dr S.M. Huen wrote:
-> The whole screaming match is about whether a drastic degradation on using
-> swap with less than the 2*RAM swap specified by the developers should lead
-> one to conclude that a kernel is "broken".
+Derek Glidden <dglidden@illusionary.com> writes:
 
-I would argue that any system that performs substantially worse with swap==1xRAM
-than a system with swap==0xRAM is fundamentally broken.  it seems that w/
-todays 2.4.x kernel, people running programs totalling LESS THAN their physical
-dram are having swap problems.  they should not even be using 1 byte of swap.
 
-the whole point of swapping pages is to give you more memory to execute
-programs.
+> The problem I reported is not that 2.4 uses huge amounts of swap but
+> that trying to recover that swap off of disk under 2.4 can leave the
+> machine in an entirely unresponsive state, while 2.2 handles identical
+> situations gracefully.  
+> 
 
-if I want to execute 140MB of programs+kernel on a system with 128 MB of ram,
-I should be able to do the job effectively with ANY amount of "total memory"
-exceeding 140MB. not some hokey 128MB RAM + 256MB swap just because the kernel
-it too fscked up to deal with a small swap file.
+The interesting thing from other reports is that it appears to be kswapd
+using up CPU resources.  Not the swapout code at all.  So it appears
+to be a fundamental VM issue.  And calling swapoff is just a good way
+to trigger it. 
 
--- 
-/*------------------------------------------------**
-**   Mark Salisbury | Mercury Computer Systems    **
-**------------------------------------------------*/
+If you could confirm this by calling swapoff sometime other than at
+reboot time.  That might help.  Say by running top on the console.
+
+Eric
+
+
 

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318980AbSH1U1E>; Wed, 28 Aug 2002 16:27:04 -0400
+	id <S318955AbSH1UW2>; Wed, 28 Aug 2002 16:22:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318990AbSH1U1E>; Wed, 28 Aug 2002 16:27:04 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:54184 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318980AbSH1U0F>;
-	Wed, 28 Aug 2002 16:26:05 -0400
-Date: Wed, 28 Aug 2002 22:30:05 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.32 doesn't beep?
-Message-ID: <20020828223005.A21207@ucw.cz>
-References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <15724.51593.23255.339865@kim.it.uu.se> <20020828150522.A13090@ucw.cz> <15725.11451.335811.149069@kim.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15725.11451.335811.149069@kim.it.uu.se>; from mikpe@csd.uu.se on Wed, Aug 28, 2002 at 10:04:11PM +0200
+	id <S318957AbSH1UW2>; Wed, 28 Aug 2002 16:22:28 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6407 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318955AbSH1UW0>; Wed, 28 Aug 2002 16:22:26 -0400
+Date: Wed, 28 Aug 2002 13:29:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dominik Brodowski <devel@brodo.de>, <cpufreq@www.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
+In-Reply-To: <1030566353.7290.71.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0208281327140.8978-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 10:04:11PM +0200, Mikael Pettersson wrote:
-> Vojtech Pavlik writes:
->  > On Wed, Aug 28, 2002 at 03:00:56PM +0200, Mikael Pettersson wrote:
->  > 
->  > > Linus Torvalds 2.5.32 announcement:
->  > >  > ... The input layer switch-over may also end up being a bit painful
->  > >  > for a while, since that not only adds a lot of config options that you
->  > >  > have to get right to have a working keyboard and mouse (we'll fix that
->  > >  > usability nightmare), but the drivers themselves are different and there
->  > >  > are likely devices out there that depended on various quirks.
->  > > 
->  > > I've noticed that in 2.5.32 with CONFIG_KEYBOARD_ATKBD=y, the kernel no
->  > > longer beeps via the PC speaker. Both (at the console) hitting DEL or BS
->  > > at the start of input or doing a simple echo ^G are now silent.
->  > > 
->  > > Call me old-fashioned, but I want those beeps back :-)
->  > 
->  > 2.5.32 still has quite complex input core config options - sorry, my
->  > fault, and I'll fix it soon. You have to enable CONFIG_INPUT_MISC and
->  > CONFIG_INPUT_PCSPKR.
-> 
-> That worked. Thanks.
-> 
-> Another issue: I enabled CONFIG_INPUT_MOUSEDEV_PSAUX, but /dev/psaux
-> gave an ENODEV when opened. Turns out CONFIG_INPUT_MOUSEDEV is
-> also required, but for some reason 'make config' let me set the
-> former without also setting the latter. A bug in input's config.in?
 
-Yes, a bug. Fixed now.
+On 28 Aug 2002, Alan Cox wrote:
+> 
+> If you look at the papers on the original ARM cpufreq code you'll see a
+> case where very long granuality user driven policy is pretty much
+> essential. The kernel sometimes does not have enough information.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Alan, that is _not_ the point here.
+
+It's ok to tell the kernel these "long-term" policies. But it has to be 
+told as a POLICY, not as a random number. Because I can show you a hundred 
+other cases where the user mode code does _not_have_a_clue_.
+
+That's my argument. The kernel should be given a _policy_, not a "this 
+frequency". Because a frequency is provably not enough, and can be quite 
+hurtful.
+
+And I do not want to get people used to passing in frequencies, when I can 
+absolutely _prove_ that it's the wrong thing for 99% of all uses.
+
+		Linus
+

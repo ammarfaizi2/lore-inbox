@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286347AbRLTT2T>; Thu, 20 Dec 2001 14:28:19 -0500
+	id <S286339AbRLTT37>; Thu, 20 Dec 2001 14:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286346AbRLTT2J>; Thu, 20 Dec 2001 14:28:09 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:6600 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S286339AbRLTT14>;
-	Thu, 20 Dec 2001 14:27:56 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A26@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'nknight@pocketinet.com'" <nknight@pocketinet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.hel
-	 p.
-Date: Thu, 20 Dec 2001 11:27:57 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S286346AbRLTT3m>; Thu, 20 Dec 2001 14:29:42 -0500
+Received: from ns.caldera.de ([212.34.180.1]:60354 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S286339AbRLTT32>;
+	Thu, 20 Dec 2001 14:29:28 -0500
+Date: Thu, 20 Dec 2001 20:28:20 +0100
+Message-Id: <200112201928.fBKJSKY11300@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: Gergely Nagy <algernon@debian.org>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <andrewm@uow.edu.au>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.17rc2aa1
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.4.33.0112201034390.1138-100000@penguin.transmeta.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Everyone I know has been using KB/MB/GB for 1024 forever.
+Hi Linus,
 
-Ahhh, now I see the problem.  You don't know many people :) :) :) :) :)
+In article <Pine.LNX.4.33.0112201034390.1138-100000@penguin.transmeta.com> you wrote:
+> Ok, it _is_ in 2.5.x, so I guess this was a fix that I didn't point
+> Marcelo to well enough..
 
-> The *only* exception is networking, and the occasional FLASH/ROM size. 
+I was a bad interaction between Marcelo and me - I send him the incomplete
+patch first and then the old one.  It seems like he apllied the first one
+and I didn't check which one went in :P
 
-bullshit.
-
-check out any recent hard drive : 
-
-drive size = 40235MB*
-* 1MB = 1000000 Bytes
-
-there is _no_ standard for what 1MB means.  There is a LOT of
-confusion, and most places will accept both
-
-for example, the gnu ls command has :
-  -h, --human-readable  print sizes in human readable format (e.g., 1K 234M
-2G)
-      --si                   likewise, but use powers of 1000 not 1024
-
-This move might look weird, but in 6 months nobody will even remember
-the change happening.  Less ambiguity is a Good Thing :)
-
-Dana Lacoste
-Ottawa, Canada

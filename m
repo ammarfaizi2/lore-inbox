@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261851AbSJVS5i>; Tue, 22 Oct 2002 14:57:38 -0400
+	id <S264818AbSJVS7O>; Tue, 22 Oct 2002 14:59:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264806AbSJVS5i>; Tue, 22 Oct 2002 14:57:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48606 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261851AbSJVS5h>; Tue, 22 Oct 2002 14:57:37 -0400
-Date: Tue, 22 Oct 2002 16:26:35 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Jan Kasprzak <kas@informatics.muni.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre11 /proc/partitions read
-In-Reply-To: <20021022185958.GB26585@win.tue.nl>
-Message-ID: <Pine.LNX.4.44L.0210221625440.27942-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264813AbSJVS7O>; Tue, 22 Oct 2002 14:59:14 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:38308 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264812AbSJVS7J>;
+	Tue, 22 Oct 2002 14:59:09 -0400
+Date: Tue, 22 Oct 2002 12:05:03 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: andy barlak <andyb@island.net>
+Cc: Mike Anderson <andmike@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: INQUIRY VPD page 0 hangs disk [was scsi_error device offline fix]
+Message-ID: <20021022120503.A4185@eng2.beaverton.ibm.com>
+Mail-Followup-To: andy barlak <andyb@island.net>,
+	Mike Anderson <andmike@us.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <20021022083815.A61@eng2.beaverton.ibm.com> <Pine.LNX.4.30.0210220905560.20878-100000@tosko.alm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0210220905560.20878-100000@tosko.alm.com>; from andyb@island.net on Tue, Oct 22, 2002 at 09:14:55AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 22, 2002 at 09:14:55AM -0700, andy barlak wrote:
+> 
+> On Tue, 22 Oct 2002, Patrick Mansfield wrote:
+> > Try removing the scsi_load_identifier call in scsi_scan.c and
+> > see if you can boot. And/or get sg_utils and on your 2.4 system
+> > send a INQUIRY page 0 to the device, and see if that hangs or
+> > not, like:
+> 
+> 
+> On this 2.4.19 box with the Buslogic 958, that command hangs:
+> # ./sg_inq -e -o=0 /dev/sg1
+> EVPD INQUIRY, page code=0x00:
+> 
 
+That really sucks.
 
-On Tue, 22 Oct 2002, Andries Brouwer wrote:
+If you remove the scsi_load_identifier, does 2.5 boot?
 
-> On Tue, Oct 22, 2002 at 07:45:14PM +0100, Christoph Hellwig wrote:
->
-> > Andries, have you actually CHECKED whether he has it enabled?
->
-> No.  I do not claim that his problem was caused by the stats.
-> It is just that I get reports from people with mysterious mount
-> and fdisk problems that go away when CONFIG_BLK_STATS is disabled.
+We can black list your device, never sending it INQUIRY page 0.
 
-Could you forward me these reports, please?
+Since there is one disk like yours out there, there are probably more,
+so we should add a module/boot and maybe config time option to disable
+the INQUIRY page 0.
 
-Thats really bad.
+Anyone have some other suggestion, besides throwing away the disk?
 
-> And requests from RedHat to put ugly patches into mount to
-> tell stdio to use a larger buffer, increasing the probability that
-> all is read in one go.
->
->
-> > I rather suspect it's the following bug (introduce by me, but not
-> > depend on CONFIG_BLK_STATS):
->
-> Good!
->
-> So the very reproducible problem is solved, and only the
-> sporadic random problem is left.
->
-> I still hope that you will remove it again.
-
+-- Patrick Mansfield

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbUBWU10 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbUBWU10
+	id S262033AbUBWU3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUBWU1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:27:26 -0500
-Received: from imap.gmx.net ([213.165.64.20]:2790 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262029AbUBWU1Y (ORCPT
+	Mon, 23 Feb 2004 15:27:37 -0500
+Received: from mail.kroah.org ([65.200.24.183]:3767 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262038AbUBWU12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:27:24 -0500
-X-Authenticated: #20799612
-Date: Mon, 23 Feb 2004 21:13:40 +0100
-From: Hansjoerg Lipp <hjlipp@web.de>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
-Message-ID: <20040223201340.GA13914@hobbes>
-References: <20040216133418.GA4399@hobbes> <20040222020911.2c8ea5c6.pj@sgi.com> <20040222155410.GA3051@hobbes> <20040222125312.11749dfd.pj@sgi.com>
+	Mon, 23 Feb 2004 15:27:28 -0500
+Date: Mon, 23 Feb 2004 12:23:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Pat Gefre <pfg@sgi.com>
+Cc: davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [2.6 PATCH] Altix hotplug
+Message-ID: <20040223202313.GA22207@kroah.com>
+References: <200402231455.i1NEtEqJ041950@fsgi900.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040222125312.11749dfd.pj@sgi.com>
+In-Reply-To: <200402231455.i1NEtEqJ041950@fsgi900.americas.sgi.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 12:53:12PM -0800, Paul Jackson wrote:
-> > BTW, which shell expects the name of the script in argv[2]?
+On Mon, Feb 23, 2004 at 08:55:14AM -0600, Pat Gefre wrote:
 > 
-> Which ones don't?  The burden is on you, not me. The Bourne like shells
-> that I happen to try just now _do_ display syntax error messages in
-> shell scripts with the name of the shell script file in the error
-> message.  Look and see how they are getting that script file name.
+> 2.6 Altix patch for kernel hotplug support
 
-Although I still don't think, this is relevant (because scripts for
-interpreters having these problems don't have to pass multiple arguments
-on the shebang line), I just tested some example scripts like this:
-  ----
-#!/bin/zsh -v -x
-echo "argv0: $0"
-/foo/bar
-  ----
-(the last line to get an error message).
-Everything works as expected using those shells:
-  ksh:      PD KSH v5.2.14
-  GNU bash: 2.05b
-  ash:      0.2
-  zsh:      4.1.1
-  tcsh:     6.12.00
+You mean "PCI hotplug support" right?
 
-I could have a look at the sources, but as this is the behaviour the man
-pages and susv3 describe, this should be "evidence" enough(?).
+If so, how?  I do not see a single call to pci_hp_register() or friends
+here.  What is the userspace interface to your pci hotplug system?
 
-Regards,
+thanks,
 
-	Hansjoerg Lipp
+greg k-h

@@ -1,59 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262625AbSJTHCO>; Sun, 20 Oct 2002 03:02:14 -0400
+	id <S262662AbSJTHTs>; Sun, 20 Oct 2002 03:19:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSJTHCO>; Sun, 20 Oct 2002 03:02:14 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:35852 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262625AbSJTHCN>;
-	Sun, 20 Oct 2002 03:02:13 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: only produce one record in fib_seq_show 
-In-reply-to: Your message of "Sun, 20 Oct 2002 02:08:49 -0300."
-             <20021020050849.GD15254@conectiva.com.br> 
+	id <S262667AbSJTHTr>; Sun, 20 Oct 2002 03:19:47 -0400
+Received: from rth.ninka.net ([216.101.162.244]:42631 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S262662AbSJTHTq>;
+	Sun, 20 Oct 2002 03:19:46 -0400
+Subject: Re: [PATCH] 2.5.44: net/ipv4/ip_proc.c compile error fix for AX25
+	enabled
+From: "David S. Miller" <davem@rth.ninka.net>
+To: dd8ne@bnv-bamberg.de
+Cc: linux-kernel@vger.kernel.org, ralf@linux-mips.org.linux-hams,
+       acme@conectiva.com.br
+In-Reply-To: <200210200648.g9K6mkD05952@dd8ne.ampr.org>
+References: <200210200648.g9K6mkD05952@dd8ne.ampr.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Oct 2002 00:36:39 -0700
+Message-Id: <1035099399.4137.7.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 20 Oct 2002 17:08:05 +1000
-Message-ID: <22353.1035097685@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002 02:08:49 -0300, 
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
->CONFIG_PROC_FS=y
->[acme@oops net-2.5]$ l net/ipv4/built-in.o
->-rw-rw-r--    1 acme     acme       328783 Out 20 01:44 net/ipv4/built-in.o
->
->CONFIG_PROC_FS=n
->[acme@oops net-2.5]$ l net/ipv4/built-in.o
->-rw-rw-r--    1 acme     acme       320708 Out 20 02:03 net/ipv4/built-in.o
+On Sat, 2002-10-19 at 23:48, Hans-Joachim Hetscher wrote:
+> ip_proc.c does't compile for CONFIG_AX25.
+> 
+> Here the patch ...
 
-The size of an object on disk is misleading, it contains comments,
-notes, relocations, debug sections etc. which are discarded when
-vmlinux is built, as well as init sections which are reused after the
-kernel has booted.  Also the on disk size completely excludes bss, the
-bss area is created and zeroed at load time.  ls -l on a kernel object
-is not a good test, use size -A instead.  On a 2.4.19 system :-
+This points out another problem, that it doesn't handle
+CONFIG_AX25_MODULE either.
 
-# ls -l net/ipv4/ipv4.o
--rw-r--r--    1 kaos     ocs        338885 Sep 29 13:59 net/ipv4/ipv4.o
+I've fixed all of this in my tree as follows:
 
-# size -A net/ipv4/ipv4.o 
-net/ipv4/ipv4.o  :
-section                     size   addr
-.text                     216368      0
-.text.init                  2784      0   reused after boot
-.fixup                       411      0
-.rodata                     1442      0
-.rodata.str1.32            13280      0
-.rodata.str1.1              2992      0
-__ex_table                   288      0
-.data                      11024      0
-.data.cacheline_aligned      192      0
-.initcall.init                 4      0   reused after boot
-.bss                       46464      0   not on disk, but occupies kernel space
-.comment                    1815      0   not loaded into the kernel
-.note                        660      0   not loaded into the kernel
-Total                     297724          misleading!
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.812   -> 1.813  
+#	  net/ipv4/ip_proc.c	1.10    -> 1.11   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/20	davem@nuts.ninka.net	1.813
+# net/ipv4/ip_proc.c: Include linux/ax25.h and handle modular AX25.
+# --------------------------------------------
+#
+diff -Nru a/net/ipv4/ip_proc.c b/net/ipv4/ip_proc.c
+--- a/net/ipv4/ip_proc.c	Sun Oct 20 00:20:53 2002
++++ b/net/ipv4/ip_proc.c	Sun Oct 20 00:20:53 2002
+@@ -31,7 +31,9 @@
+ extern int tcp_get_info(char *, char **, off_t, int);
+ 
+ #ifdef CONFIG_PROC_FS
+-#ifdef CONFIG_AX25
++#if defined(CONFIG_AX25) || defined(CONFIG_AX25_MODULE)
++
++#include <linux/ax25.h>
+ 
+ /* ------------------------------------------------------------------------ */
+ /*
+@@ -64,7 +66,7 @@
+ 	return buf;
+ 
+ }
+-#endif /* CONFIG_AX25 */
++#endif /* CONFIG_AX25 || CONFIG_AX25_MODULE */
+ 
+ struct arp_iter_state {
+ 	int is_pneigh, bucket;
+@@ -196,7 +198,7 @@
+ 
+ 	read_lock(&n->lock);
+ 	/* Convert hardware address to XX:XX:XX:XX ... form. */
+-#ifdef CONFIG_AX25
++#if defined(CONFIG_AX25) || defined(CONFIG_AX25_MODULE)
+ 	if (hatype == ARPHRD_AX25 || hatype == ARPHRD_NETROM)
+ 		ax2asc2((ax25_address *)n->ha, hbuffer);
+ 	else {
+@@ -207,7 +209,7 @@
+ 		hbuffer[k++] = ':';
+ 	}
+ 	hbuffer[--k] = 0;
+-#ifdef CONFIG_AX25
++#if defined(CONFIG_AX25) || defined(CONFIG_AX25_MODULE)
+ 	}
+ #endif
+ 	sprintf(tbuf, "%u.%u.%u.%u", NIPQUAD(*(u32*)n->primary_key));

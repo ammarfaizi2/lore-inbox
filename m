@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286197AbRL0Dt0>; Wed, 26 Dec 2001 22:49:26 -0500
+	id <S286207AbRL0ELX>; Wed, 26 Dec 2001 23:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286209AbRL0DtP>; Wed, 26 Dec 2001 22:49:15 -0500
-Received: from dsl-213-023-038-250.arcor-ip.net ([213.23.38.250]:6663 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S286207AbRL0DtK>;
-	Wed, 26 Dec 2001 22:49:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Legacy Fishtank <garzik@havoc.gtf.org>
-Subject: Re: [RFC] [PATCH] Clean up fs.h union for ext2
-Date: Thu, 27 Dec 2001 04:52:46 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Alexander Viro <viro@math.psu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <E16JR71-0000cU-00@starship.berlin> <20011226222809.A8233@havoc.gtf.org>
-In-Reply-To: <20011226222809.A8233@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16JRb5-0000cg-00@starship.berlin>
+	id <S286210AbRL0ELN>; Wed, 26 Dec 2001 23:11:13 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:47374 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286207AbRL0ELE>;
+	Wed, 26 Dec 2001 23:11:04 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.arm.linux.org.uk
+Subject: [RFC] Remove section .text.lock
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 27 Dec 2001 15:10:50 +1100
+Message-ID: <11665.1009426250@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 27, 2001 04:28 am, Legacy Fishtank wrote:
-> On Thu, Dec 27, 2001 at 04:21:42AM +0100, Daniel Phillips wrote:
-> > --- ../2.4.17.clean/include/linux/fs.h	Fri Dec 21 12:42:03 2001
-> > +++ ./include/linux/fs.h	Wed Dec 26 23:30:55 2001
-> > @@ -478,7 +478,7 @@
-> >  	__u32			i_generation;
-> >  	union {
-> >  		struct minix_inode_info		minix_i;
-> > -		struct ext2_inode_info		ext2_i;
-> > +		struct ext2_inode_info		ext2_inode_info;
-> >  		struct ext3_inode_info		ext3_i;
-> >  		struct hpfs_inode_info		hpfs_i;
-> >  		struct ntfs_inode_info		ntfs_i;
-> 
-> Change in principle looks good except IMHO you should go ahead and
-> remove the ext2 stuff from the union...  (with the additional changes
-> that implies)
+I plan to stop using section .text.lock for out of line code.  Using a
+special section for out of line code can generate dangling refernces to
+discarded sections, the dangling references are flagged as an error by
+binutils 2.11.92.0.12 onwards.  See the l-k discussion in thread
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100909932003300&w=2
 
-Hi Jeff,
+After the above discussion there is general agreement (well, nobody
+disagreed) that .text.lock can be replaced with .subsection 1.  It
+still gives out of line code but without the dangling reference problem
+because all references are within the same section.  It can even
+generate better code, intra section branches can be smaller than inter
+section branches.
 
-Thanks for your confidence, but that would be a considerably bigger patch.  
-It's not just a matter of removing the includes - other bits and pieces have 
-to be put in place, such as per-filesystem inode slab.  The support for this 
-goes outside ext2.
+I am going through 2.4.18-pre1 looking at all references to .text.lock
+and converting them, removing vmlinux.lds entries and dead comments at
+the same time.  Most of the changes are obvious, only i386, ia64, m68k
+and arm are really using .text.lock, the rest are copy and paste lines
+in vmlinux.lds and are already redundant.
 
-My idea is to just let people have a look and test this minimally intrusive 
-change.  Getting rid of the includes for ext2 inodes will be a two-patch 
-change:
+ARM is a problem.  It does not use .text.lock for spinlocks (UP only),
+instead it uses .text.lock for __do_softirq, __down_failed and friends.
+AFAICT this is completely pointless, these routines only occur once so
+they are already out of line.  .text.lock should be used for the code
+that calls these functions and only on the fail path, I see no point in
+putting the functions themselves in .text.lock.  Can somebody explain
+why these arm functions are in section .text.lock instead of normal
+.text?
 
-  1) Abstract away the ext2 .u's (done)
-  2) Per-fs inode slab, initially only for ext2 (partly done)
-
-Removing the includes for ext2 superblocks will need another two patches.  By 
-the time all filesystems are done, it would be thousands of lines if it was 
-all in one patch.  I think it's better to keep it broken up, and do it 
-incrementally.
-
---
-Daniel

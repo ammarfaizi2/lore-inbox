@@ -1,88 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132601AbRDNAyw>; Fri, 13 Apr 2001 20:54:52 -0400
+	id <S132747AbRDNBF5>; Fri, 13 Apr 2001 21:05:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132698AbRDNAyc>; Fri, 13 Apr 2001 20:54:32 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:61192 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132601AbRDNAyZ>; Fri, 13 Apr 2001 20:54:25 -0400
-Date: Fri, 13 Apr 2001 18:47:40 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org,
-        Linus Torvalds <torvalds@transmeta.com>, Linux390@de.ibm.com
-Subject: Re: EXPORT_SYMBOL for chrdev_open 2.4.3
-Message-ID: <20010413184740.A14659@vger.timpanogas.org>
-In-Reply-To: <20010413173256.A14267@vger.timpanogas.org> <Pine.GSO.4.21.0104132004320.24992-100000@weyl.math.psu.edu> <20010413183810.A14604@vger.timpanogas.org>
-Mime-Version: 1.0
+	id <S132745AbRDNBFr>; Fri, 13 Apr 2001 21:05:47 -0400
+Received: from web5201.mail.yahoo.com ([216.115.106.95]:9487 "HELO
+	web5201.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S132739AbRDNBFf>; Fri, 13 Apr 2001 21:05:35 -0400
+Message-ID: <20010414010504.2967.qmail@web5201.mail.yahoo.com>
+Date: Fri, 13 Apr 2001 18:05:04 -0700 (PDT)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: How do I make a circular pipe?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010413183810.A14604@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Fri, Apr 13, 2001 at 06:38:10PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 13, 2001 at 06:38:10PM -0600, Jeff V. Merkey wrote:
-> On Fri, Apr 13, 2001 at 08:13:41PM -0400, Alexander Viro wrote:
-> > 
-> > 
-> > On Fri, 13 Apr 2001, Jeff V. Merkey wrote:
-> > 
-> > > It would be nice if chrdev_open were added to ksyms.c along with
-> > > blkdev_open since tape devices seem are always registered as character
-> > > rather than block devices.  
-> > > 
-> > > I am finding that kernel modules that need to open and close a tape 
-> > > drive have to export chrdev_open manually on 2.4.3.  Can this get 
-> > > exported as well?  Closing is not a problem since the method of 
-> > > calling (->release) seems to work OK with SCSI tape devices.
-> > 
+How do I do the following:
 
+#  --> pppd notty | pppoe -I eth1 | --
+   |_________________________________|
 
-> > They don't need it. 
+I.E. connect the stdout of a process  (or chain
+thereof) to its own stdin?
 
-Al,
+So I wrote a program to do it, along the lines of:
 
-Not meaning to offend, but how could you know what everyone 
-who uses Linux needs in every instance?  NT, NetWare, etc. all
-expose these types of APIs for Backup and anti-virus software,
-etc.  The APIs in question are the very calls user space apps
-call through the syscall to indicate who is using a device. 
+sixty-nine /bin/sh -c "pppd notty | pppoe -I eth1"
 
-Sure, I can send blind I/O requests to a device and I guess 
-someone running fdisk in user space can blow the device away from beneath 
-me since I have no way of locking those partitions I exclusively
-own and stopping this is these apis are removed and modules 
-cannot call them.  
+With an executable approximately along the lines of
+(warning, pseudo-code, the other machine isn't hooked
+up to the internet at the moment for obvious reasons):
 
+int main(int argc, char *argv[], char *envp[])
+{
+  int fd[2];
+  pipe(fd);
+  dup2(fd[0],0);
+  dup2(fd[0],1);
+  execve(argv[1],argv+1,envp);
+  fprintf(stderr,"Bad.\n");
+  exit(1);
+}
 
-Jeff
+And it didn't work.  I made a little test program that
+writes to stdout and reads from stdin and reports to
+stderr, and it gets nothing.  Apparently, the pipe
+fd's evaporate when the process does an execve.
 
-> > Moreover, blkdev_open shouldn't be exported too -
-> > the only potentially modular piece of code that refers to it is
-> > drivers/block/rd.c and it's in initrd loading, so it isn't even
-> > compiled when we do rd as a module.
-> > 
-> > BTW, Linus, could we remove blkdev_open() from the export list?
-> > I don't see any legitimate reason to export it - certainly not in
-> > the official tree.
-> > 
-> > BTW, fs/partitions/ibm.c also doesn't need blkdev_open() - it should
-> > use ioctl_by_bdev() and be done with that.
-> 
-> 
-> Al,
-> 
-> How are folks supposed to open disk and tape devices from kernel modules
-> without these?  Not everything should be done in user space Al.  If you 
-> remove blkdev_open I will not be able to properly increment the use 
-> count an a disk device I may be reading or writing to.  
-> 
-> Jeff
-> 
-> 
-> > 							Al
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+What do I do?  (If anybody else knows an easier way to
+get pppoe working, that would be helpful too.
+
+Rob
+
+(P.S.  WHY does pppd want to talk to a tty by default
+instead of stdin and stdout?  Were the people who
+wrote it at all familiar with the unix philosophy? 
+Just curious...)
+
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/

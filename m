@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbTJXEQn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 00:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJXEQm
+	id S261974AbTJXEk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 00:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTJXEk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 00:16:42 -0400
-Received: from gandalf.tausq.org ([64.81.244.94]:30701 "EHLO pippin.tausq.org")
-	by vger.kernel.org with ESMTP id S261966AbTJXEQl (ORCPT
+	Fri, 24 Oct 2003 00:40:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37348 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261974AbTJXEk4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 00:16:41 -0400
-Date: Thu, 23 Oct 2003 21:20:03 -0700
-From: Randolph Chung <tausq@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] fix __div64_32 to do division properly
-Message-ID: <20031024042002.GA24406@tausq.org>
-Reply-To: Randolph Chung <tausq@debian.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
-User-Agent: Mutt/1.5.3i
+	Fri, 24 Oct 2003 00:40:56 -0400
+Date: Thu, 23 Oct 2003 21:40:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jon Smirl <jonsmirl@yahoo.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Eric Anholt <eta@lclark.edu>,
+       <kronos@kronoz.cjb.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>,
+       dri-devel <dri-devel@lists.sourceforge.net>
+Subject: Re: Multiple drivers for same hardware:, was: DRM and pci_driver
+ conversion
+In-Reply-To: <20031024034701.16514.qmail@web14915.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0310232132410.4894-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The generic __div64_32 in lib/div64.c only handles "small" divisors. If
-the divisor is full 32-bits, it returns invalid results. This patch 
-fixes it. (this is used e.g. in nanosleep)
 
-thanks
-randolph
+On Thu, 23 Oct 2003, Jon Smirl wrote:
+>
+> What about the fundamental question? We have several pairs of device drivers
+> that want to control the same hardware. One example would be radeon DRM and
+> radeon Framebuffer. How should these drivers coordinate probing and claiming
+> resources?
 
-Index: lib/div64.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/lib/div64.c,v
-retrieving revision 1.1
-diff -u -p -r1.1 div64.c
---- lib/div64.c	29 Jul 2003 17:02:19 -0000	1.1
-+++ lib/div64.c	24 Oct 2003 04:10:59 -0000
-@@ -25,25 +25,27 @@
- 
- uint32_t __div64_32(uint64_t *n, uint32_t base)
- {
--	uint32_t low, low2, high, rem;
-+	uint64_t rem = *n;
-+	uint64_t b = base;
-+	uint64_t res = 0, d = 1;
- 
--	low   = *n   & 0xffffffff;
--	high  = *n  >> 32;
--	rem   = high % (uint32_t)base;
--	high  = high / (uint32_t)base;
--	low2  = low >> 16;
--	low2 += rem << 16;
--	rem   = low2 % (uint32_t)base;
--	low2  = low2 / (uint32_t)base;
--	low   = low  & 0xffff;
--	low  += rem << 16;
--	rem   = low  % (uint32_t)base;
--	low   = low  / (uint32_t)base;
-+	if (b > 0) {
-+		while (b < rem) {
-+			b <<= 1;
-+			d <<= 1;
-+		}
-+	}
- 
--	*n = low +
--		((uint64_t)low2 << 16) +
--		((uint64_t)high << 32);
-+	do {
-+		if (rem >= b) {
-+			rem -= b;
-+			res += d;
-+		}
-+		b >>= 1;
-+		d >>= 1;
-+	} while (d);
- 
-+	*n = res;
- 	return rem;
- }
- 
+Since they have to co-operate some way on the resources _anyway_, they'll 
+just need to work it out amongst themselves.
 
--- 
-Randolph Chung
-Debian GNU/Linux Developer, hppa/ia64 ports
-http://www.tausq.org/
+One common case is to have a "arbitration driver" that tends to do the
+actual low-level accesses and is one level of abstraction over the
+hardware (papers over trivial differences in hardware). An example of this
+would be the old-style ISA DMA infrastructure (now happily pretty much
+dead), where the "DMA driver" was just a trivial layer that had some basic
+allocation/deallocation and had somewhat nicer access routines than the
+raw IO accesses, but didn't do much more.
+
+Another case is the PS/2 keyboard driver, where the mouse and the keyboard
+actually share the controller, and they shared a spinlock and some helper
+routines to guarantee some basic serialization (that eventually got 
+replaced with the current i8042 driver, but the old setup was trivial).
+
+> 1) try new probe first and fall back to old scheme. First driver that loads
+> gets the new probe, second gets the old. First driver reserves resources.
+> 2) Require a mini driver that handles probing. Then both drivers attach to the
+> mini driver.
+> 3) Declare it illegal and make the drivers merge.
+> 4) Declare it illegal and only allow first one loaded to run.
+
+I'd suggest the minidriver case. You _will_ find common issues anyway
+(locking and certain access patterns etc), and the minidriver ends up
+being a place to put the trivial shared code too.
+
+			Linus
+

@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270515AbUJUAVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270603AbUJTXyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270515AbUJUAVW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 20:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270439AbUJUAUw
+	id S270603AbUJTXyi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270599AbUJTXsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:20:52 -0400
-Received: from fire.osdl.org ([65.172.181.4]:42668 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S270592AbUJUATc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 20:19:32 -0400
-Message-ID: <4176FE65.4000507@osdl.org>
-Date: Wed, 20 Oct 2004 17:10:13 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Wed, 20 Oct 2004 19:48:22 -0400
+Received: from pop-a065c05.pas.sa.earthlink.net ([207.217.121.183]:44445 "EHLO
+	pop-a065c05.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S270499AbUJTXr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:47:59 -0400
+From: Eric Bambach <eric@cisu.net>
+Reply-To: eric@cisu.net
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Date: Wed, 20 Oct 2004 18:48:02 -0500
+User-Agent: KMail/1.6.2
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <200410201843.49835.eric@cisu.net>
+In-Reply-To: <200410201843.49835.eric@cisu.net>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       joern@wohnheim.fh-wedel.de, sam@ravnborg.org
-Subject: [PATCH] checkstack: add x86_64 arch. support
-Content-Type: multipart/mixed;
- boundary="------------050902080507080904060700"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410201848.02106.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050902080507080904060700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Sorry, I have been having this nasty habit of sending out unfinished e-mail 
+lately(mis-clicks). Anyways in summary a large affirmative no from key 
+players would solidify Linux's position as being a collaborative and open 
+project ultimately never for sale. I think it would also show large companies 
+who are giving support like Novell and IBM a better idea and a concrete 
+example of what open source and collaborative development is all about.
 
+----------------------------------------
+EB
 
----
+> All is fine except that I can reliably "oops" it simply by trying to read
+> from /proc/apm (e.g. cat /proc/apm).
+> oops output and ksymoops-2.3.4 output is attached.
+> Is there anything else I can contribute?
 
---------------050902080507080904060700
-Content-Type: text/x-patch;
- name="checkstack_x64.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="checkstack_x64.patch"
+The latitude and longtitude of the bios writers current position, and
+a ballistic missile.
 
+		--Alan Cox 2000-12-08 
 
-Add support for x86_64 arch. to 'make checkstack' (checkstack.pl).
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
- scripts/checkstack.pl |    3 +++
- 1 files changed, 3 insertions(+)
-
-diff -Naurp ./scripts/checkstack.pl~checkstack_x64 ./scripts/checkstack.pl
---- ./scripts/checkstack.pl~checkstack_x64	2004-10-18 14:53:45.000000000 -0700
-+++ ./scripts/checkstack.pl	2004-10-20 16:52:14.434261304 -0700
-@@ -39,6 +39,9 @@ my (@stack, $re, $x, $xs);
- 	} elsif ($arch =~ /^i[3456]86$/) {
- 		#c0105234:       81 ec ac 05 00 00       sub    $0x5ac,%esp
- 		$re = qr/^.*[as][du][db]    \$(0x$x{1,8}),\%esp$/o;
-+	} elsif ($arch eq 'x86_64') {
-+		#    2f60:	48 81 ec e8 05 00 00 	sub    $0x5e8,%rsp
-+		$re = qr/^.*[as][du][db]    \$(0x$x{1,8}),\%rsp$/o;
- 	} elsif ($arch eq 'ia64') {
- 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
- 		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
-
---------------050902080507080904060700--
+----------------------------------------

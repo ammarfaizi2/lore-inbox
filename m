@@ -1,85 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUJUO1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270680AbUJUO1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUJUO1r (ORCPT <rfc822;willy@w.ods.org>);
+	id S270680AbUJUO1r (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 10:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268526AbUJUOXd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUJUOXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:23:33 -0400
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:61131
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S264881AbUJUOVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:21:34 -0400
-Date: Thu, 21 Oct 2004 10:27:45 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Instances of visor us devices are not deleted (2.6.9-rc4-mm1)
-Message-ID: <20041021142745.GB24257@kurtwerks.com>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+	Thu, 21 Oct 2004 10:23:52 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:32470 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S270693AbUJUOUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:20:55 -0400
+Date: Thu, 21 Oct 2004 16:22:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041021142215.GA3972@elte.hu>
+References: <OF7C037699.07E90948-ON86256F34.0047151D@raytheon.com> <20041021141439.GB2875@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.9
-X-Woot: Woot!
+In-Reply-To: <20041021141439.GB2875@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 12:00:56AM -0700, Greg KH took 41 lines to write:
-> On Wed, Oct 20, 2004 at 08:16:47AM +0200, Norbert Preining wrote:
-> > Hi USB developers!
-> > 
-> > I have the following problem with 2.6.9-rc4-mm1 which includes bk-usb:
-> > 
-> > Everytime I sync my palm I get a new device id:
-> > 
-> > ...start sync...
-> > usb 4-2.1: new full speed USB device using address 8
-> > visor 4-2.1:1.0: Handspring Visor / Palm OS converter detected
-> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB2
-> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB3
-> > ...
-> > ...many usb usb2: string descriptor 0 read error: -113 ...
-> > ...
-> > ...end of sync...
-> > usb 4-2.1: USB disconnect, address 8
-> > visor 4-2.1:1.0: device disconnected
-> > visor ttyUSB3: visor_write - usb_submit_urb(write bulk) failed with status = -19
-> > ...new sync...
-> > usb 4-2.1: new full speed USB device using address 9
-> > visor 4-2.1:1.0: Handspring Visor / Palm OS converter detected
-> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB4
-> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB5
-> > 
-> > etc etc.
-> > 
-> > Is this a known problem?
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> the soundcard IRQ trace you got is interesting:
 > 
-> Hm, no it isn't.  Are you sure that userspace doesn't still have the
-> device nodes open?  If they do, the ttyUSB number will not be released
-> until that happens.
+>  BUG: sleeping function called from invalid context X(2948) at kernel/mutex.c:25 Oct 21 07:53:02 localhost kernel: in_atomic():1 [00010000], irqs_disabled():0
+>   [<c011f06a>] __might_sleep+0xca/0xe0 (12)
+>   [<c01387e6>] _mutex_lock+0x26/0x50 (36)
+>   [<e0a549b6>] snd_audiopci_interrupt+0x46/0xf0 [snd_ens1371] (20)
+>   [<c01436f6>] handle_IRQ_event+0x46/0x80 (24)
+>   [<c0143837>] __do_IRQ+0x107/0x160 (32)
+>   [<c010a299>] do_IRQ+0x59/0x90 (36)
+>   [<c0108510>] common_interrupt+0x18/0x20 (20)
+>  preempt count: 00010001
+> 
+> do you have PREEMPT_REALTIME enabled? The above trace is a direct
+> interrupt - only the timer interrupt is allowed to execute directly in
+> the PREEMPT_REALTIME model - things break badly if it happens for any
+> other interrupt (such as the soundcard IRQ).
 
-I'm seeing the same thing here, but without the read errors:
+this also seems to be the major cause of the other problems in your log:
+kernel preempting off a hardirq context and then confusing other kernel
+code. It's surprising that it booted up at all! Now how did the
+soundcard IRQ end up being non-threaded?
 
-drivers/usb/serial/usb-serial.c: USB Serial support registered for
-Handspring Visor / Palm OS
-drivers/usb/serial/usb-serial.c: USB Serial support registered for Sony
-Clie 3.5
-drivers/usb/serial/usb-serial.c: USB Serial support registered for Sony
-Clie 5.0
-usbcore: registered new driver visor
-drivers/usb/serial/visor.c: USB HandSpring Visor / Palm OS driver v2.1
-usb 1-2: new full speed USB device using address 2
-visor 1-2:1.0: Handspring Visor / Palm OS converter detected
-usb 1-2: Handspring Visor / Palm OS converter now attached to ttyUSB0
-usb 1-2: Handspring Visor / Palm OS converter now attached to ttyUSB1
-usb 1-2: USB disconnect, address 2
-visor ttyUSB0: Handspring Visor / Palm OS converter now disconnected from
-ttyUSB0
-visor ttyUSB1: Handspring Visor / Palm OS converter now disconnected from
-ttyUSB1
-visor 1-2:1.0: device disconnected
-
-Kurt
--- 
-Furious activity is no substitute for understanding.
-	-- H. H. Williams
+	Ingo

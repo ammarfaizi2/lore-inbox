@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310515AbSCGUjb>; Thu, 7 Mar 2002 15:39:31 -0500
+	id <S310514AbSCGUiv>; Thu, 7 Mar 2002 15:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310517AbSCGUjZ>; Thu, 7 Mar 2002 15:39:25 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:14466 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S310515AbSCGUjL>; Thu, 7 Mar 2002 15:39:11 -0500
-Date: Thu, 7 Mar 2002 15:38:09 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        riel@surriel.com, hch@infradead.org, phillips@bonn-fries.net
-Subject: Re: 2.4.19pre2aa1
-In-Reply-To: <20020307201819.GF786@holomorphy.com>
-Message-ID: <Pine.LNX.3.95.1020307152948.22256A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310515AbSCGUil>; Thu, 7 Mar 2002 15:38:41 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:35601 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S310514AbSCGUie>;
+	Thu, 7 Mar 2002 15:38:34 -0500
+Date: Thu, 7 Mar 2002 13:38:33 -0700
+From: yodaiken@fsmlabs.com
+To: Larry McVoy <lm@work.bitmover.com>, Andrew Morton <akpm@zip.com.au>,
+        Troy Benjegerdes <hozer@drgw.net>, Pavel Machek <pavel@ucw.cz>,
+        Kent Borg <kentborg@borg.org>,
+        The Open Source Club at The Ohio State University 
+	<opensource-admin@cis.ohio-state.edu>,
+        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020307133833.A3040@hq.fsmlabs.com>
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305163809.D1682@altus.drgw.net> <20020305165123.V12235@work.bitmover.com> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz>, <20020306221305.GA370@elf.ucw.cz>; <20020307101701.S1682@altus.drgw.net> <3C87C583.C8565E4B@zip.com.au> <20020307121509.I20271@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20020307121509.I20271@work.bitmover.com>; from lm@bitmover.com on Thu, Mar 07, 2002 at 12:15:09PM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Mar 2002, William Lee Irwin III wrote:
+On Thu, Mar 07, 2002 at 12:15:09PM -0800, Larry McVoy wrote:
+> Our goal is to get him more relaxed.  Try and
 
-> On Thu, Mar 07, 2002 at 06:03:00PM +0100, Andrea Arcangeli wrote:
-> > For the other points I think you shouldn't really complain (both at
-> > runtime and in code style as well, please see how clean it is with the
-> > wait_table_t thing), I made a definitive improvement to your code, the
-> > only not obvious part is the hashfn but I really cannot see yours
-> > beating mine because of the total random input, infact it could be the
-> > other way around due the fact if something there's the probability the
-> > pages are physically consecutive and I take care of that fine.
-> 
-> 
-> I don't know whose definition of clean code this is:
-> 
-> +static inline wait_queue_head_t * wait_table_hashfn(struct page * page, wait_table_t * wait_table)
-> +{
-> +#define i (((unsigned long) page)/(sizeof(struct page) & ~ (sizeof(struct page) - 1)))
-> +#define s(x) ((x)+((x)>>wait_table->shift))
-> +	return wait_table->head + (s(i) & (wait_table->size-1));
-> +#undef i
-> +#undef s
-> +}
-> 
-> 
-> I'm not sure I want to find out.
-> 
-> 
-> Bill
+This is not a problem that bitkeeper can address. Torvalds' guilt
+for having stiffed me on the $5 bet he lost probably preys on his mind.
+Just pay, Torvalds. I'll donate the money to charity. 
 
-Methinks there is entirely too much white-space in the code. It
-is almost readable *;). It probably could be fixed up to slip through
-the compiler with no possibility of human interpretation, but that would
-take a bit more work ;^)
 
-The choice of temporaries makes me think of a former President
-who, when confronted with a lie, said; "It depends upon what 'is' is!"
-Keep up the good work!
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (799.53 BogoMips).
-
-	Bill Gates? Who?
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,83 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317140AbSF1Leq>; Fri, 28 Jun 2002 07:34:46 -0400
+	id <S317148AbSF1Lrw>; Fri, 28 Jun 2002 07:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317142AbSF1Lep>; Fri, 28 Jun 2002 07:34:45 -0400
-Received: from elin.scali.no ([62.70.89.10]:30220 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S317140AbSF1Leo>;
-	Fri, 28 Jun 2002 07:34:44 -0400
-Subject: Re: Maximum core file size in Linux
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Amrith Kumar <akumar@netezza.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <GMEPJBOPOAKOBODMIKMGMEMHCAAA.akumar@netezza.com>
-References: <GMEPJBOPOAKOBODMIKMGMEMHCAAA.akumar@netezza.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 28 Jun 2002 13:36:55 +0200
-Message-Id: <1025264218.19968.156.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+	id <S317165AbSF1Lrw>; Fri, 28 Jun 2002 07:47:52 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:42445 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317148AbSF1Lru>; Fri, 28 Jun 2002 07:47:50 -0400
+Subject: Re: efficient copy_to_user and copy_from_user routines in Linux Kernel
+To: Andrew Morton <akpm@zip.com.au>
+Cc: akpm@us.ibm.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net, Mala Anand <manand@us.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF89BA678E.7BBDA367-ON85256BE6.00403732@raleigh.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Fri, 28 Jun 2002 06:50:00 -0500
+X-MIMETrack: Serialize by Router on D04NM108/04/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 06/28/2002 07:50:04 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is likely a gdb issue. Unless you're carefull to use 64 bit
-functions of *seek*() and ftell(), your only able to access the first
-2GB of a file. gdb may have issues here.
+>Mala Anand wrote:
+>>
+>> Here is a 2.5.19 patch that improves the performance of IA32
+copy_to_user
+>> and copy_from_user routines used by :
+>>
+>> (1) tcpip protocol stack
+>> (2) file systems
+>>
 
-I don't recall the elf header but you may want to check the 32 bit elf
-format and see if is even capable to be used with core file that exceed
-2GB. Said in anothre way there *could* be elf-header offsets that is 32
-bit and try pointing beyond 2GB.  
 
-Terje
+>This came up about a year back when zerocopy networking was merged.
+>Intel boxes started running more slowly purely because of the 8+8
+>alignment thing.
 
-On tor, 2002-06-27 at 14:30, Amrith Kumar wrote:
-> Appears that there's an implicit 2Gb limit on the size of core files because
-> it's being created without O_LARGEFILE.
-> 
-> A small change in fs/exec.c (do_coredump) gets me past the limit and I can
-> now generate a core file in excess of 2Gb but then gdb complains that the
-> core dump is too large ...
-> 
-> Looks like there's a broader underlying issue here that would involve
-> changes to other places than I had thought would be required.
-> 
-> Anyone else out there run into a similar problem ? And if so, could you let
-> me know what other things I may run into ... Also, is this something that
-> has been fixed in a forthcoming release ?
-> 
-> Thanks,
-> 
-> /a
-> 
-> --
-> Amrith Kumar
-> akumar@netezza.com
-> 508-665-6835
-> 
-> #include <std_disclaimer.h>
-> This e-mail message is for the sole use of the intended recipient(s) and may
-> contain Netezza Corporation confidential and privileged information.  Any
-> unauthorized review, use, disclosure, or distribution is prohibited.  If you
-> are not the intended recipient, please contact the sender by reply e-mail
-> and destroy all copies of the original message.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-_________________________________________________________________________
+>I changed tcp to use a different copy if either source or dest were
+>not eight-byte aligned, and found that the resulting improvement
+>across a mixed networking load was only 1%.  Your numbers are higher,
+>so perhaps there are different alignments in the mix...
 
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
+I will test on other workloads when I return back to work after OLS
+and vacation.  However we tested an earlier version of this patch on
+Netbench using sendfile and gained around 3% improvement. The baseline
+profiling showed that Netbench was spending 10% in generic_copy_to_user.
+The tcp options are aligned on an 4-byte boundary, so depending on the
+options used the address to the data (source address to the
+generic_copy_to_user) should fall on an 4 or 8 byte boundary. I agree
+with you more test is needed.
 
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+
+>One question:  have you tested on other CPU types?  This problem is
+>very specific to Intel hardware.  On AMD, the eight-byte alignement
+>artifact does not exist at all.  It could be that your patch is not
+>desirable on such CPUs?
+
+I tested only Pentium II and III. I will test it on Pentium IV.
+When I said 8-byte alignment, it is 8 and greater.  I will
+try to check out AMD also.
+
+
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   E-mail:manand@us.ibm.com
+   Linux Technology Center - Performance
+   Phone:838-8088; Tie-line:678-8088
+
+
+
+
+                                                                                                                                       
+                      Andrew Morton                                                                                                    
+                      <akpm@zip.com.au>        To:       Mala Anand/Austin/IBM@IBMUS                                                   
+                      Sent by:                 cc:       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,                     
+                      akpm@us.ibm.com           lse-tech@lists.sourceforge.net                                                         
+                                               Subject:  Re: efficient copy_to_user and copy_from_user routines in Linux Kernel        
+                                                                                                                                       
+                      06/25/2002 12:03                                                                                                 
+                      PM                                                                                                               
+                                                                                                                                       
+                                                                                                                                       
+
+
+
+
+-
+
+
 

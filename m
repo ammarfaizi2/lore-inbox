@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbTDIUuR (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:50:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTDIUuR (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:50:17 -0400
-Received: from smtp03.web.de ([217.72.192.158]:55334 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263815AbTDIUuP (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 16:50:15 -0400
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Subject: Re: Process falls into uninterruptible sleep
-Date: Wed, 9 Apr 2003 22:48:45 +0200
-User-Agent: KMail/1.5
-References: <A46BBDB345A7D5118EC90002A5072C780BEBA496@orsmsx116.jf.intel.com>
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780BEBA496@orsmsx116.jf.intel.com>
-Cc: linux-kernel@vger.kernel.org
+	id S263820AbTDIUys (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTDIUys (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:54:48 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:8928 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S263820AbTDIUyr (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 16:54:47 -0400
+Date: Wed, 9 Apr 2003 14:06:26 -0700
+Message-Id: <200304092106.h39L6Qu0010881@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304092248.45600.freesoftwaredeveloper@web.de>
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Reply-To: davidm@hpl.hp.com
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.rutgers.edu
+Subject: export map_vm_area()/get_vm_area()
+X-Mailer: VM 7.07 under Emacs 21.2.1
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 April 2003 22:39, Perez-Gonzalez, Inaky wrote:
-> Do this, try to get again kmail [or any other app to freeze]. When it is
-> hung in there, do:
-> [...]
+[Oops, bad cc---fingers suffering from long-term-memory effects...]
 
-Yea, I'll try it. But you know: If you try to trigger something,
-it doesn't happen. :)
-I'll do my very best...
+Unless there are good reasons not to export
+map_vm_area()/get_vm_area(), please accept the attached patch.  We
+need the routines for AGP/DRM support on ia64.
 
-Regards
-Michael Buesch.
+	--david
 
--- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
-
+diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
+--- a/kernel/ksyms.c	Wed Apr  9 13:28:52 2003
++++ b/kernel/ksyms.c	Wed Apr  9 13:28:52 2003
+@@ -109,6 +109,8 @@
+ EXPORT_SYMBOL(vunmap);
+ EXPORT_SYMBOL(vmalloc_to_page);
+ EXPORT_SYMBOL(remap_page_range);
++EXPORT_SYMBOL(map_vm_area);
++EXPORT_SYMBOL(get_vm_area);
+ #ifndef CONFIG_DISCONTIGMEM
+ EXPORT_SYMBOL(contig_page_data);
+ EXPORT_SYMBOL(mem_map);

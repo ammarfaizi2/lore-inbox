@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbUJ1PMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUJ1PMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbUJ1PMc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 11:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbUJ1PIR
+	id S261711AbUJ1PMa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 11:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbUJ1PHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:08:17 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:31395 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S261697AbUJ1PBP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:01:15 -0400
-From: james4765@verizon.net
-To: kernel-janitors@lists.osdl.org
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, james4765@verizon.net
-Message-Id: <20041028150111.2776.47585.86377@localhost.localdomain>
-In-Reply-To: <20041028150029.2776.69333.50087@localhost.localdomain>
-References: <20041028150029.2776.69333.50087@localhost.localdomain>
-Subject: [PATCH 7/9] to arch/sparc/Kconfig
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.211.53] at Thu, 28 Oct 2004 10:01:11 -0500
-Date: Thu, 28 Oct 2004 10:01:12 -0500
+	Thu, 28 Oct 2004 11:07:51 -0400
+Received: from holomorphy.com ([207.189.100.168]:8585 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261705AbUJ1PEH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 11:04:07 -0400
+Date: Thu, 28 Oct 2004 08:03:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: "michael@optusnet.com.au" <michael@optusnet.com.au>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       "'Bill Davidsen'" <davidsen@tmr.com>, Massimo Cetra <mcetra@navynet.it>,
+       Ed Tomlinson <edt@aei.ca>,
+       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       John Richard Moser <nigelenki@comcast.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041028150329.GK12934@holomorphy.com>
+References: <200410280907_MC3-1-8D5A-FF57@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410280907_MC3-1-8D5A-FF57@compuserve.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Add default for SUN4 in arch/sparc/Kconfig.
-Apply against 2.6.9.
+On Thu, 28 Oct 2004 at 00:13:44 -0700 William Lee Irwin III wrote:
+>> I'd expect vastly less than 1%, starting from the arch count, and then
+>> making some conservative guesses about drivers. Drivers probably
+>> actually take it down to far, far less than 1%.
 
-Signed-off by: James Nelson <james4765@gmail.com>
+On Thu, Oct 28, 2004 at 09:04:41AM -0400, Chuck Ebbert wrote:
+>   Sure, but pretty much each installation uses a different 1%.
+>   If there's a bug in there it's bound to hit someone; that's
+> what makes OS writing so difficult.  (And that's why "It works
+> for me" is not really a useful statement about the overall quality
+> of an operating system.)
 
-diff -u ./arch/sparc/Kconfig.orig ./arch/sparc/Kconfig
---- ./arch/sparc/Kconfig.orig	2004-10-16 09:53:49.626021592 -0400
-+++ ./arch/sparc/Kconfig	2004-10-16 10:09:58.304756208 -0400
-@@ -222,6 +222,7 @@
- config SUN4
- 	bool "Support for SUN4 machines (disables SUN4[CDM] support)"
- 	depends on !SMP
-+	default n
- 	help
- 	  Say Y here if, and only if, your machine is a sun4. Note that
- 	  a kernel compiled with this option will run only on sun4.
+99.99% of users use one arch, i386.
+99.99% of users use one disk driver, IDE.
+The intersection of these users is probably well over 99.999% of all
+users.
+
+Then probably a small list of secondary drivers varies. Statistically,
+users with anything but the crappiest x86 s**tboxen and a tiny subset
+of all drivers (arjan's 20) are hopelessly outnumbered.
+
+
+-- wli

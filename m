@@ -1,83 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315481AbSFEQOm>; Wed, 5 Jun 2002 12:14:42 -0400
+	id <S315479AbSFEQRa>; Wed, 5 Jun 2002 12:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315517AbSFEQOl>; Wed, 5 Jun 2002 12:14:41 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:49377 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315481AbSFEQOk>;
-	Wed, 5 Jun 2002 12:14:40 -0400
-Date: Wed, 5 Jun 2002 18:14:17 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.20 IDE 85
-Message-ID: <20020605161417.GG16600@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com> <3CFE0C16.1020203@evision-ventures.com> <20020605141717.GB16257@suse.de> <3CFE1974.9080509@evision-ventures.com> <20020605154853.GF16600@suse.de> <20020605155241.GD16257@suse.de> <3CFE29FE.90402@evision-ventures.com>
+	id <S315483AbSFEQRa>; Wed, 5 Jun 2002 12:17:30 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:61173 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S315479AbSFEQR3>; Wed, 5 Jun 2002 12:17:29 -0400
+Subject: Re: [PATCH] scheduler hints
+From: Robert Love <rml@tech9.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CFDC796.C05FC7E2@aitel.hist.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Jun 2002 09:17:13 -0700
+Message-Id: <1023293838.917.283.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05 2002, Martin Dalecki wrote:
-> Jens Axboe wrote:
-> >On Wed, Jun 05 2002, Jens Axboe wrote:
-> >
-> >>On Wed, Jun 05 2002, Martin Dalecki wrote:
-> >>
-> >>>Jens Axboe wrote:
-> >>>
-> >>>>On Wed, Jun 05 2002, Martin Dalecki wrote:
-> >>>>
-> >>>>AFAICS, you just introduced some nasty list races in the interrupt
-> >>>>handlers. You must hold the queue locks when calling
-> >>>>blkdev_dequeue_request() and end_that_request_last(), for instance.
-> >>>>
-> >>>
-> >>>No. Please be more accurate. Becouse:
-> >>>
-> >>>1. If anything I have made existing races only "obvious".
-> >>
-> >>If anything, you've made a race you introduced earlier more obvious.
-> >>
-> >>
-> >>>2. It is called in the context of do_ide_request or ide_raw_taskfile
-> >>>  where we already have the lock.
-> >>
-> >>?? Both tcq and ata_special_intr look like interrupt handlers to me.
-> >
-> >
-> >BTW, I wanted to look at the code (and not just read the patch), but
-> >it's not clear from the patch what it is against. Where do you keep
-> >older patches so I can get them? Maybe the ide code could do with a bit
-> >of peer review :-)
-> >
+On Wed, 2002-06-05 at 01:11, Helge Hafting wrote:
+
+> Seems to me this particular case is covered by increasing
+> priority when grabbing the semaphore and normalizing
+> priority when releasing.  
 > 
-> Well IDE 83 and 84 are already inside the bk repository at linux.bkbits.com.
-> No as far as of now I don't have any public FTP or whatever area for
-> the patches (Well send you everything in one go.)
+> Only root can do that - but only root does real-time
+> anyway. And I guess only rood should be able to increase 
+> its timeslice too...
 
-Thanks. Just ask hpa for a kernel.org dir, if you don't have anywhere
-else to keep it.
+Increasing its priority has no bearing on whether it runs out of
+timeslice, however.  The idea here is to help the task complete its
+critical section (and thus not block other tasks) before being
+preempted.  Only way to achieve that is boost its timeslice.
 
-> And I of course agree that the code needs a peer review in this area.
-> Adding the locking isn't difficult.
+Boosting its priority will assure there is no priority inversion and
+that, eventually, the task will run - but it does nothing to avoid the
+nasty "grab resource, be preempted, reschedule a bunch, finally find
+yourself running again since everyone else blocked" issue.
 
-Of course not, discovering the missing locking is most of the work. And
-of course acknowedging that there's a problem :-)
+And I don't think only root should be able to do this.  If we later
+punish the task (take back the timeslice we gave it) then this is fair.
 
-> However I wonder a bit whatever we couldn't just blkdev_dequeue_request()
-> once at request handling start? We drag drive->rq around anyway...
+> > Other hints could be "I am interactive" 
+>
+> Already shows up as a thread who always ends its timeslice
+> blocking for io.  Such threads do get an priority
+> boost for the next timeslice.
+> 
+> > or "I am a batch (i.e. cpu hog)
+>
+> shows up as a thread who spends its entire timeslice - these
+> don't get the above mentioned boost as it is assumed it gets
+> "enough cpu" while the interactive threads blocks.
+>
+> Well, hog/interactive is determined in one timeslice already...
 
-I did that once a long time ago, but it was very broken because the IDE
-code would end up in ide_do_request() several times at times before a
-request was started. I think there are advantages both ways: leaving the
-request on the queue until it is done allows the i/o scheduler to know
-what the disk is currently working on. Removing it is potentially a bit
-cleaner, however most of the reason for that has long been reworked in
-2.5 (the plugging and head active stuff).
+In the O(1) scheduler it is determined based on a running sleep average,
+not timeslice used (this is effectively the same thing - although we
+turn it into a heuristic so it is more accurate over time).
 
--- 
-Jens Axboe
+The problem is it takes time to figure these out.  One whole schedule of
+the app to determine anything, and then a series of schedules to perfect
+it.  My idea here was let the app tell the system what it is to give the
+system a head start.  The scheduler will slowly readjust whatever it is
+told, based on the task's behavior, anyhow.
+
+Giving a hint at the start of an interactive task, for example, skips
+the second or two of low priority where the task is not receiving its
+full boost.
+
+> The problem is that this may be abused.  Someone nasty could
+> write a cpu hog that drops a lot of hints about being
+> interactive, starving real interactive programs.
+
+Agreed.  The code does require CAP_SYS_NICE and the comments explain the
+issue... One thing worth saying is I don't think this is as useful as
+the HINT_TIME hint anyhow.
+
+> Generally, it degenerates into application programmers
+> using _all_ the hints to get performance, so they
+> can beat some competitor in benchmarks.  And all
+> other programs just get penalized.
+
+Well they can already nice themselves or make themselves real-time, so
+we have to trust them in numerous ways already not to cheat.
+
+	Robert Love
 

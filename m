@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263467AbUELAcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUELAlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbUELAcF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 20:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUELA2X
+	id S265086AbUELAlr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 20:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUELAlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 20:28:23 -0400
-Received: from mail.shareable.org ([81.29.64.88]:33926 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263467AbUELA0Z
+	Tue, 11 May 2004 20:41:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21756 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265086AbUELAjw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 20:26:25 -0400
-Date: Wed, 12 May 2004 01:26:06 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-Message-ID: <20040512002606.GB22081@mail.shareable.org>
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405081645.06969.vda@port.imtp.ilyichevsk.odessa.ua> <20040508221017.GA29255@atrey.karlin.mff.cuni.cz> <200405091709.37518.vda@port.imtp.ilyichevsk.odessa.ua> <20040509215351.GA15307@atrey.karlin.mff.cuni.cz> <20040510154450.GA16182@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040510154450.GA16182@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 11 May 2004 20:39:52 -0400
+Message-ID: <40A17251.2000500@mvista.com>
+Date: Tue, 11 May 2004 17:39:45 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: mochel@digitalimplant.org, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hotplug events for system suspend/resume
+References: <20040511010015.GA21831@dhcp193.mvista.com> <20040511230001.GA26569@kroah.com>
+In-Reply-To: <20040511230001.GA26569@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> What about ino?  I currently return 1, so diff remains fast without
-> any changes.  If someone really needs the difference between inode 2
-> and 3, I would introduce a cstat() system call similar to lstat(),
-> which would return ino=2.
-> 
-> Is this sane?  Should it be reversed and cstat() return ino=1, while
-> stat returns ino=2?  I can imagine that "tar -x" would create hard
-> links for every cowlink that "tar -c" saw, but I'm not sure yet.
+Greg KH wrote:
 
-I think it should be reversed.
+> I still do not see the need for this.  As a user, you caused the
+> suspend/resume event to happen, why get notified of it again?  :)
 
-One very useful application for cowlinks is for virtual machine (UML)
-and chroot jail setups, where an entire filesystem tree is copied
-perhaps hundreds of times on a single disk.  I'm surprised we didn't
-think of this earlier, as it's potentially one of the most useful
-applications for cowlinks.
+The idea is to notify the "power management application" of impending 
+suspend and just-completed resume, regardless of who or what asked for 
+the suspend.  Actions taken at suspend might include dropping network 
+connections and saving application state to stable storage.
 
-In that scenario, cowlinks would save enormous amounts of storage and
-potentially save memory too.  However to be useful at all, they'd need
-to have accurate POSIX semantics: that is, cowlinks must behave very
-much as a storage optimisation only.
+The reasons for which this was requested of me as a kernel-to-userspace 
+notifier, that I am aware of, are:
 
-That means stat() should return ino==2.
+(a) some embedded platforms currently trigger suspend within kernel 
+drivers (in response to a button press or some sort of device timeout).
 
--- Jamie
+(b) the system designer wants to make sure certain actions are always 
+taken regardless of the interface used to suspend (not only in the case 
+of a certain application that incorporates these actions and triggers 
+the suspend via the standard interfaces at the appropriate time).  For 
+example, a user manually enters a command from a shell prompt.
+
+But again, I'll let the embedded system designers jump in here if they'd 
+like to add some insight.  In both of the above cases, some ad-hoc 
+method of kernel-to-userspace notification could be used, but I am 
+trying to gauge interest in using hotplug as a generic notifier for these.
+
+Thanks -- Todd

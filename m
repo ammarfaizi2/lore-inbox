@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315695AbSETCJe>; Sun, 19 May 2002 22:09:34 -0400
+	id <S315720AbSETCLf>; Sun, 19 May 2002 22:11:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315708AbSETCJd>; Sun, 19 May 2002 22:09:33 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:8951 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S315695AbSETCJc>; Sun, 19 May 2002 22:09:32 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S315722AbSETCLe>; Sun, 19 May 2002 22:11:34 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:26889 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S315720AbSETCLe>;
+	Sun, 19 May 2002 22:11:34 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200205200211.g4K2BPH504914@saturn.cs.uml.edu>
+Subject: Re: [RFC/PATCH] improve interaction with ccache
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sun, 19 May 2002 22:11:25 -0400 (EDT)
+Cc: kai-germaschewski@uiowa.edu (Kai Germaschewski),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1764.1021857248@kao2.melbourne.sgi.com> from "Keith Owens" at May 20, 2002 11:14:08 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15592.23251.419179.408509@wombat.chubb.wattle.id.au>
-Date: Mon, 20 May 2002 12:09:23 +1000
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: Andrew Morton <akpm@zip.com.au>, Andreas Dilger <adilger@clusterfs.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 6/15] larger b_size, and misc fixlets
-In-Reply-To: <368842013@toto.iv>
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Anton" == Anton Altaparmakov <aia21@cantab.net> writes:
+Keith Owens writes:
+> Kai Germaschewski <kai-germaschewski@uiowa.edu> wrote:
 
->> > Not that I'm a 64-bit system user/developer, but it is my
->> understanding > that u64 == long on a 64-bit platform, so your cast
->> to u64 does not > actually change the type of b_blocknr as far as
->> printk is concerned.  > You would need to cast it to unsigned long
->> long instead.
->> 
->> Yes, I suppose so.  That more closely matches what "%L" does.
+>> As various people pointed out, ccache is a great win for people compiling 
+>> a lot of kernels. (For info on ccache, see ccache.samba.org)
+...
+> You are fixing the symptom, not the cause.  The symptom is too many
+> compiles, people are using ccache to attempt to fix the symptom.  The
+> cause is a kernel build system that forces people to make clean or
+> mrproper between builds instead of reusing existing objects.
+>
+> Fix the cause, not the symptom.
 
-Anton> /me can't help it: Didn't I say earlier on that one has to use
-Anton> (unsigned) long long and not u64? (-; But noone would listen...
+Cause: gcc is slow
+Symptom: builds are slow
+Fix: make gcc fast
 
-The current C standard guarantees that long long is *at least* 64
-bits.
+That fix won't happen, so we cache the results.
+We have two ways to do this:
 
-So you're right.  Can we introduce a new pair of types, ull_t and ll_t
-to reduce typing?  (unsigned long long) tends to make lines overflow
-the 80-char boundary bit much, but (ull_t) is a lot shorter.
+a. use "make", relying solely on timestamps
+b. use "ccache", which uses an md5 checksum AFAIK
 
-Peter C
+With ccache, one could even get rid of make.
+It's redundant; just use a shell script. :-)
 

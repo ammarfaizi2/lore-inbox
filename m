@@ -1,71 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbULCRA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbULCRBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbULCRA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 12:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbULCRA6
+	id S262374AbULCRBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 12:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbULCRBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 12:00:58 -0500
-Received: from mail.tmr.com ([216.238.38.203]:39347 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S262369AbULCRAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 12:00:48 -0500
-Message-ID: <41B09D4B.3090906@tmr.com>
-Date: Fri, 03 Dec 2004 12:07:23 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Fri, 3 Dec 2004 12:01:18 -0500
+Received: from astro.systems.pipex.net ([62.241.163.6]:13734 "EHLO
+	astro.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S262372AbULCRAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 12:00:50 -0500
+Date: Fri, 3 Dec 2004 17:01:57 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@ezer.homenet
+To: linux-kernel@vger.kernel.org
+Subject: [patch-2.6.x] fix compile failure if CONFIG_PROC_KCORE not set.
+Message-ID: <Pine.LNX.4.61.0412031632310.4221@ezer.homenet>
 MIME-Version: 1.0
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: wakeup_pmode_return jmp failing?
-References: <41B084B4.1050402@sun.com>
-In-Reply-To: <41B084B4.1050402@sun.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hello,
-> 
-> Not sure who to direct this to.  I've been trying to get acpi s3 to work
-> on my pentium M laptop (tecra m2).  Without the nvidia driver loaded, I
-> can echo 3 > /proc/acpi/sleep and the machine does indeed suspend (power
-> light throbs and all).  However, when I try to wake up the thing, it
-> would flash the bios screen and throw me back to grub.
-> 
-> I've been investigating the code at arch/i386/kernel/acpi/wakeup.S, and
-> have discovered that if I place a busy wait directory before the ljmpl
-> to wakeup_pmode_return, that I indeed do see 'Lin' on the screen instead
-> of the bios screen.
-> 
-> The joke is, if I place a busy wait first thing after the
-> wakeup_pmode_return label, it never gets executed and I get a regular boot.
-> 
-> It would appear as though the jump from 16bit code into the 32bit code
-> is failing and the bios is kicking in with a regular startup.
-> 
-> Anybody have any suggestions?
+Hello,
 
-Install a 2.4 kernel with apm enabled and use that.
+I know that /proc/kcore support cannot be disabled by normal means but 
+since it is conditional upon CONFIG_PROC_KCORE in fs/proc/Makefile it 
+makes sense to make sure that kernel compiles even if it is disabled 
+manually by editing .config and include/linux/autoconf.h or if in the 
+future CONFIG_PROC_KCORE becomes a real CONFIG_ variable.
 
-That's serious, I have an IBM, Tecra, Dell, and Acer, and 5-6 friends 
-running Linux on laptops. Every one (other than the Acer) works with 
-"apm -s" and recovers. Some work with "apm -S". The Acer never had a 2.4 
-kernel, and I haven't rebuilt with apm on 2.6 (or even looked to see if 
-it was supported). All of these suspend fine with ACPI, none ever wakes up.
+The patch below only fixes i386 arch. Similar changes are needed for ia64, 
+ppc64 and x86_64 architectures (trivial to do but I don't like sending 
+untested patches). Note that the proc initialization part in 
+fs/proc/proc_misc.c was already correctly checking CONFIG_PROC_KCORE so it 
+didn't need fixing. Tested that the kernel compiles and boots fine.
 
-Is suspend even supposed to be generally functional? I thought it was a 
-WIP not expected to work except on certain models which have been hand 
-tuned by the developers. In fact I have a message somewhere saying you 
-have to get out of X to a text console, manually shutdown the network, 
-and then it might work. Then start everything up again.
+Probably CONFIG_PROC_KCORE should be added to a Kconfig to make this more 
+useful.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Kind regards
+Tigran
+
+--- arch/i386/mm/init.c.0	2004-12-03 16:24:55.000000000 +0000
++++ arch/i386/mm/init.c	2004-12-03 16:25:34.182931952 +0000
+@@ -559,7 +559,9 @@
+  extern void set_max_mapnr_init(void);
+  #endif /* !CONFIG_DISCONTIGMEM */
+
++#ifdef CONFIG_PROC_KCORE
+  static struct kcore_list kcore_mem, kcore_vmalloc; 
++#endif
+
+  void __init mem_init(void)
+  {
+@@ -610,9 +612,11 @@
+  	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
+  	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
+
++#ifdef CONFIG_PROC_KCORE
+  	kclist_add(&kcore_mem, __va(0), max_low_pfn << PAGE_SHIFT);
+  	kclist_add(&kcore_vmalloc, (void *)VMALLOC_START,
+  		   VMALLOC_END-VMALLOC_START);
++#endif
+
+  	printk(KERN_INFO "Memory: %luk/%luk available (%dk kernel code, %dk reserved, %dk data, %dk init, %ldk highmem)\n",
+  		(unsigned long) nr_free_pages() << (PAGE_SHIFT-10),
+--- include/linux/proc_fs.h.0	2004-12-03 16:31:28.177116656 +0000
++++ include/linux/proc_fs.h	2004-12-03 16:44:52.383858648 +0000
+@@ -68,11 +68,13 @@
+  	int deleted;		/* delete flag */
+  };
+
++#ifdef CONFIG_PROC_KCORE
+  struct kcore_list {
+  	struct kcore_list *next;
+  	unsigned long addr;
+  	size_t size;
+  };
++#endif
+
+  #ifdef CONFIG_PROC_FS
+
+@@ -221,15 +223,7 @@
+
+  #endif /* CONFIG_PROC_FS */
+
+-#if !defined(CONFIG_PROC_FS)
+-static inline void kclist_add(struct kcore_list *new, void *addr, size_t size)
+-{
+-}
+-static inline struct kcore_list * kclist_del(void *addr)
+-{
+-	return NULL;
+-}
+-#else
++#ifdef CONFIG_PROC_KCORE
+  extern void kclist_add(struct kcore_list *, void *, size_t);
+  extern struct kcore_list *kclist_del(void *);
+  #endif

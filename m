@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270672AbTHQTYh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 15:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270681AbTHQTYg
+	id S270505AbTHQTTI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 15:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270510AbTHQTTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 15:24:36 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:44686 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270672AbTHQTYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 15:24:35 -0400
-Subject: Re: Centrino support
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Rychter <jan@rychter.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m2isoxgys4.fsf@tnuctip.rychter.com>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com>
-	 <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
-	 <3F3D469B.2020507@yahoo.com> <20030816123410.56cbb550.skraw@ithnet.com>
-	 <m2isoxgys4.fsf@tnuctip.rychter.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061148246.23525.3.camel@dhcp23.swansea.linux.org.uk>
+	Sun, 17 Aug 2003 15:19:08 -0400
+Received: from main.gmane.org ([80.91.224.249]:14279 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270505AbTHQTTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 15:19:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: Requested FAQ addition - Mandrake and partial-i686 platforms
+Date: Sun, 17 Aug 2003 11:51:50 -0700
+Message-ID: <m2r83kce2h.fsf@tnuctip.rychter.com>
+References: <3F38FE5B.1030102@yahoo.com> <1060705037.12532.49.camel@dhcp22.swansea.linux.org.uk>
+ <864r0lwmov.fsf@trasno.mitica>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 17 Aug 2003 20:24:08 +0100
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@sea.gmane.org
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:TaEZ4nCrE1fiFidF51gR6Ay+vmw=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-08-16 at 20:58, Jan Rychter wrote
-> Unfortunately, we live in a world of compromises. If I were RedHat, I'd
-> stay real quiet and play nice in order to get Intel's cooperation on
-> servers (which brings revenue) instead of fighting for laptops (which is
-> a niche market for Linux, in a chicken-and-egg sort of way).
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Vendors are beginning to make commitments to Linux support on some
-laptops, in addition Intel and ATI in paticular have been doing nice
-things to the laptop chipset market by drastically shrinking the number
-of variants. Centrino in some ways is a help as is the ATI+ALI setup
-used by all the nice mobile Athlon laptops - now when we get one working
-the rest tend to just follow.
+>>>>> "Juan" =3D=3D Juan Quintela <quintela@mandrakesoft.com> writes:
+[...]
+ Juan> To make things worse, via c3 implement cmov instruction if all
+ Juan> operands are in registers (i.e. no operand in memory), I know
+ Juan> that this faked somebody that did a test on cmov :(
 
-Alan
+ Juan> To make history more intersting, new Via C3 have a complet cmov
+ Juan> instruction.
+
+Does anybody have the actual CPU revisions corresponding to these
+changes? There has been a lot of confusion over this.
+
+=2D-J.
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/P87GLth4/7/QhDoRAs8WAKCHz9mhtI+HMOzMR/8Ifpi3Gu1V2gCfU5Vz
+LqrRMPYuSbowwYV9w/jE6cM=
+=3LBP
+-----END PGP SIGNATURE-----
+--=-=-=--
 

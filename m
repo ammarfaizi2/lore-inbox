@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129804AbQJaCJJ>; Mon, 30 Oct 2000 21:09:09 -0500
+	id <S129789AbQJaC3p>; Mon, 30 Oct 2000 21:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130050AbQJaCI7>; Mon, 30 Oct 2000 21:08:59 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:11273 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129804AbQJaCIp>; Mon, 30 Oct 2000 21:08:45 -0500
-Date: Tue, 31 Oct 2000 03:08:38 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kiobuf/rawio fixes for 2.4.0-test10-pre6
-Message-ID: <20001031030838.A30461@athlon.random>
-In-Reply-To: <20001027222143.A8059@caldera.de> <200010272123.OAA21478@penguin.transmeta.com> <20001030124513.A28667@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001030124513.A28667@caldera.de>; from hch@caldera.de on Mon, Oct 30, 2000 at 12:45:13PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129817AbQJaC3Z>; Mon, 30 Oct 2000 21:29:25 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:59403 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129789AbQJaC3Q>;
+	Mon, 30 Oct 2000 21:29:16 -0500
+Message-Id: <200010310229.e9V2TCF29473@sleipnir.valparaiso.cl>
+To: Riley Williams <rhw@MemAlpha.CX>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.X patch query 
+In-Reply-To: Message from Riley Williams <rhw@MemAlpha.CX> 
+   of "Mon, 30 Oct 2000 20:01:32 -0000." <Pine.LNX.4.10.10010301935480.10495-100000@infradead.org> 
+Date: Mon, 30 Oct 2000 23:29:12 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 12:45:13PM +0100, Christoph Hellwig wrote:
-> @@ -393,10 +396,15 @@
->  	pmd = pmd_offset(pgd, address);
->  	if (pmd) {
->  		pte_t * pte = pte_offset(pmd, address);
-> -		if (pte && pte_present(*pte))
-> +		if (pte && pte_present(*pte)) {
-> +			if (writeacc && !pte_write(*pte))
-> +				goto retry;
->  			return pte_page(*pte);
-> +		}
->  	}
+Riley Williams <rhw@MemAlpha.CX> said:
 
-It should also make sure the pte is dirty before starting the read-from-disk
-I/O and then things will currently break in the swapout because the page is not
-locked (see discussion of last week). The fix for that problem proposed by SCT
-and Linus is that the page (not pte) will be marked dirty during swapout and
-written back to disk _only_ once reference count is 1 (btw I now noticed
-invalidate_inode_pages+MAP_SHARED will mess with that fix and it will trigger a
-BUG() in free_pages).
+[...]
 
-> +
-> +faultin:
->  		if (handle_mm_fault(current->mm, vma, ptr, datain) <= 0) 
->  			goto out_unlock;
->  		spin_lock(&mm->page_table_lock);
-> -		map = follow_page(ptr);
-> -		if (!map) {
-> +		map = follow_page(ptr, datain, &failed);
-> +		if (failed) {
-> +			/*
-> +			 * Page got stolen before we could lock it down.
-> +			 * Retry.
-> +			 */
->  			spin_unlock(&mm->page_table_lock);
-> -			dprintk (KERN_ERR "Missing page in map_user_kiobuf\n");
-> -			goto out_unlock;
-> +			goto faultin;
+> Before I go any further with this, I would like to ask a few questions
+> relating to it:
+> 
+>  1. Is there any likelihood of this making it into the official
+>     kernel, or am I just wasting my time?
 
-This is suboptimal (walks the pagetables twice if the page is just mapped). It
-should be a follow page first and handle_mm_fault only if follow page failed.
+Depends, I'd say... perhaps after a long shakeout and much use.
 
-Andrea
+>  2. Would I be right in thinking it's too late for either the
+>     2.2 or 2.4 kernels ???
+
+No way.
+
+> Assuming it'd be of interest to Linus and yourself...
+
+[...]
+
+>  5. I was wondering about providing some means of selecting
+>     whether to dump to /dev/fd0 or /dev/fd1 (or others if
+>     present). What would be your opinion on this?
+
+Keep it as simple as possible. I'd leave the option open if not hard, but
+not implement it at all at first.
+
+>  6. A while back, I developed a high-level floppy formatter
+>     that produces a non-standard DOS-compatible format that
+>     allows 1436k of data on a 1440k floppy, and produced a
+>     bash script that would produce disks formatted in this
+>     format.
+> 
+>     My current plans are for SYSRQ-D to raw write direct to
+>     /dev/fd0 and effectively reformat the disks in this
+>     format, dropping the log file thereon in the process. I
+>     don't plan on doing the low-level format, just the
+>     high-level one.
+
+KISS, again. What use is a non-standard 1436Kb DOS format when writing at
+most 1Mb? I'd just dump it raw to /dev/fd0, whoever wants to read it later
+will have all kinds of tools at hand.
+
+Remember:
+
+- Bloat
+- This will have to work even in a thoroughly hosed system to be of any use
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

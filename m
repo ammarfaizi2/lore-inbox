@@ -1,29 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289465AbSAJObo>; Thu, 10 Jan 2002 09:31:44 -0500
+	id <S289469AbSAJOjE>; Thu, 10 Jan 2002 09:39:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289469AbSAJOb2>; Thu, 10 Jan 2002 09:31:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46345 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289463AbSAJObK>; Thu, 10 Jan 2002 09:31:10 -0500
-Subject: Re: Bigggg Maxtor drives (fwd)
-To: tao@acc.umu.se (David Weinehall)
-Date: Thu, 10 Jan 2002 13:47:15 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), riel@conectiva.com.br (Rik van Riel),
-        noth@noth.is.eleet.ca (Jim Crilly), chris@void.printf.net (Chris Ball),
-        ben@xmission.com (Benjamin S Carrell), linux-kernel@vger.kernel.org
-In-Reply-To: <20020110134504.E5235@khan.acc.umu.se> from "David Weinehall" at Jan 10, 2002 01:45:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289468AbSAJOiz>; Thu, 10 Jan 2002 09:38:55 -0500
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:6786 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S289463AbSAJOij>;
+	Thu, 10 Jan 2002 09:38:39 -0500
+Message-ID: <3C3DA7E0.3050106@acm.org>
+Date: Thu, 10 Jan 2002 08:40:32 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Thomas Capricelli <tcaprice@logatique.fr>
+CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Moving zlib so that others may use it
+In-Reply-To: <24675.1010641200@kao2.melbourne.sgi.com> <20020110105313.3ED7023CBB@persephone.dmz.logatique.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16OfY3-0004Py-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Its also the only thing that is stable on my highpoint secondary controllers
-> 
-> What is, the new or the old driver?
+I'll do it, since I already have most of it, unless Keith already has or 
+wants to.
 
-New driver. With the old driver I have to run them PIO non UDMA
+-Corey
+
+Thomas Capricelli wrote:
+
+>On Thursday 10 January 2002 06:40, Keith Owens wrote:
+>
+>>On Wed, 09 Jan 2002 23:13:28 -0600,
+>>
+>>Corey Minyard <minyard@acm.org> wrote:
+>>
+>>>Hmm.  It worked fine for me.  I made it a module, and it put it into
+>>>kernel/lib in
+>>>/lib/modules/2.4.17 and it did not put it in lib/lib.a  I make it a
+>>>non-module, and
+>>>it gets included in lib/lib.a. My diff was the same as yours for the
+>>>Makefile.
+>>>
+>>Worked for me this time as well.  I had a typo the first time then did
+>>an ugly fix to a non-existent problem :(
+>>
+>
+>
+>	Could you give a patch for all of this ? either Keith or Corey ?
+>
+>
+>Thomas
+>
+
+
+

@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUFNKpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUFNKru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUFNKpT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 06:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUFNKpT
+	id S262370AbUFNKru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 06:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUFNKru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 06:45:19 -0400
-Received: from bay14-f22.bay14.hotmail.com ([64.4.49.22]:61714 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262356AbUFNKpO
+	Mon, 14 Jun 2004 06:47:50 -0400
+Received: from smtp-out1.xs4all.nl ([194.109.24.11]:34319 "EHLO
+	smtp-out1.xs4all.nl") by vger.kernel.org with ESMTP id S262370AbUFNKrt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 06:45:14 -0400
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [qwejohn@hotmail.com]
-From: "John Que" <qwejohn@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: insmod of ov511 failes
-Date: Mon, 14 Jun 2004 13:45:13 +0300
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY14-F22zmWecm9t0C00089a46@hotmail.com>
-X-OriginalArrivalTime: 14 Jun 2004 10:45:13.0454 (UTC) FILETIME=[AC1F08E0:01C451FC]
+	Mon, 14 Jun 2004 06:47:49 -0400
+Date: Mon, 14 Jun 2004 12:47:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.local
+To: Christoph Hellwig <hch@infradead.org>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [12/12] fix thread_info.h ignoring __HAVE_THREAD_FUNCTIONS
+In-Reply-To: <20040614102352.GA11844@infradead.org>
+Message-ID: <Pine.LNX.4.58.0406141246160.10292@scrub.local>
+References: <20040614003835.GT1444@holomorphy.com> <20040614003929.GU1444@holomorphy.com>
+ <20040614004034.GV1444@holomorphy.com> <20040614004147.GW1444@holomorphy.com>
+ <20040614004354.GX1444@holomorphy.com> <20040614004516.GY1444@holomorphy.com>
+ <20040614004701.GZ1444@holomorphy.com> <20040614004855.GA1444@holomorphy.com>
+ <20040614081639.GI7162@infradead.org> <Pine.LNX.4.58.0406141032210.10292@scrub.local>
+ <20040614102352.GA11844@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I have tried to perform build modules from the kernel tree ;
-Now , when I try to insmod the module (it's a video driver,ov511.o), I get
-many unresolved symbol errors like  the follwing error of
+On Mon, 14 Jun 2004, Christoph Hellwig wrote:
 
-unresolved symbol video_register_device_Re376151777
+> ia64 actually has thread_info and task_info in a single allocation and
+> uses a thread register to find that one.
 
-I have a backup old version of the module binary (ov511.o); when I
-insert it I do succeed.
-I tried
-cat /proc/ksyms |grep video_register_device
+Hmm, it's a possible solution, although it rather just works around the 
+include mess.
 
-de975b90 video_register_device_R31b9699b        [videodev]
-
-I also tried
-nm -a ov511.o  and I got:
-U video_register_device_R31b9699b
-
-but  the same nm operation on the new one gives a different result:
-nm -a ov511.o  and I got:
-U video_register_device_Re3761517
-
-from where are the differences ? what is the meaning of the
-differences in the "R" (relocation) extension?
-
-I assume that if I will build the bzImage and install it I will succeed to
-insmod the new module;
-
-But I am curious - does this problem have a workaround?
-
-Could this problem be cause because I also installed 2.6.0 kernel on the 
-same machine?
-regards,
-John
-
-_________________________________________________________________
-Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
-
+bye, Roman

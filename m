@@ -1,361 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbULQTfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbULQTd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbULQTfp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 14:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbULQTfo
+	id S262153AbULQTd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 14:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbULQTaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 14:35:44 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:57316 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262140AbULQTcg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 14:32:36 -0500
-Date: Fri, 17 Dec 2004 13:32:33 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Split bprm_apply_creds into two functions
-Message-ID: <20041217193233.GA1776@IBM-BWN8ZTBWA01.austin.ibm.com>
-References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com> <1103145355.32732.55.camel@moss-spartans.epoch.ncsc.mil> <20041216182529.GC3260@IBM-BWN8ZTBWA01.austin.ibm.com> <1103292602.3437.40.camel@moss-spartans.epoch.ncsc.mil> <20041217090317.V2357@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041217090317.V2357@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+	Fri, 17 Dec 2004 14:30:30 -0500
+Received: from neopsis.com ([213.239.204.14]:41603 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S262137AbULQTaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 14:30:06 -0500
+Message-ID: <41C334DF.107@dbservice.com>
+Date: Fri, 17 Dec 2004 20:34:55 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jmorris@redhat.com, kaber@trash.net, bryan@coverity.com,
+       netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Coverity] Untrusted user data in kernel
+References: <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>	<41C2DCBC.1080302@dbservice.com> <20041217111634.740d4d46.davem@davemloft.net>
+In-Reply-To: <20041217111634.740d4d46.davem@davemloft.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached version renames bprm_final_setup to bprm_post_apply_creds
-and moves the comment about closing file descriptors from the
-bprm_apply_creds description to the bprm_post_apply_creds description
-in security.h.
-
-thanks,
--serge
-
-Quoting Chris Wright (chrisw@osdl.org):
-> * Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> > On Thu, 2004-12-16 at 13:25, Serge E. Hallyn wrote:
-> > > Thanks.  Here is an updated patch.
-> > > 
-> > > -serge
-> > > 
-> > > Signed-off-by: Serge Hallyn <serue@us.ibm.com>
-> > 
-> > Ok with me.  Chris, would it help alleviate your concerns to give the
-> > hook a clearer name and description, e.g. bprm_post_apply_creds and move
-> > the discussion about performing other state changes on the process like
-> > closing descriptors from the current description of bprm_apply_creds to
-> > it?
+David S. Miller wrote:
+> On Fri, 17 Dec 2004 14:18:52 +0100
+> Tomas Carnecky <tom@dbservice.com> wrote:
 > 
-> Yes.
 > 
-> thanks,
-> -chris
+>>IMHO such things (passing values between user/kernel space) should 
+>>always be checked.
+> 
+> 
+> As per Patrick's posting, which James was responding to, it is
+> checked at the level above this function.
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+Is only the capability checked or also the data passed to the kernel?
+It's not clear from Patricks reply:
+ > It is already checked in do_ip6t_set_ctl(). Otherwise anyone could
+ > replace iptables rules :)
+For me it seems that only CAP_NET_ADMIN is checked and not the data.
 
-Index: linux-2.6.10-rc3-mm1/fs/exec.c
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/fs/exec.c	2004-12-15 15:57:23.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/fs/exec.c	2004-12-17 13:07:54.000000000 -0600
-@@ -962,6 +962,7 @@ void compute_creds(struct linux_binprm *
- 	unsafe = unsafe_exec(current);
- 	security_bprm_apply_creds(bprm, unsafe);
- 	task_unlock(current);
-+	security_bprm_post_apply_creds(bprm);
- }
- 
- EXPORT_SYMBOL(compute_creds);
-Index: linux-2.6.10-rc3-mm1/include/linux/security.h
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/include/linux/security.h	2004-12-15 17:14:39.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/include/linux/security.h	2004-12-17 14:40:35.000000000 -0600
-@@ -109,13 +109,20 @@ struct swap_info_struct;
-  *	and the information saved in @bprm->security by the set_security hook.
-  *	Since this hook function (and its caller) are void, this hook can not
-  *	return an error.  However, it can leave the security attributes of the
-- *	process unchanged if an access failure occurs at this point. It can
-- *	also perform other state changes on the process (e.g.  closing open
-- *	file descriptors to which access is no longer granted if the attributes
-- *	were changed). 
-+ *	process unchanged if an access failure occurs at this point.
-  *	bprm_apply_creds is called under task_lock.  @unsafe indicates various
-  *	reasons why it may be unsafe to change security state.
-  *	@bprm contains the linux_binprm structure.
-+ * @bprm_post_apply_creds:
-+ *	Runs after bprm_apply_creds with the task_lock dropped, so that
-+ *	functions which cannot be called safely under the task_lock can
-+ *	be used.  This hook is a good place to perform state changes on
-+ *	the process such as closing open file descriptors to which access
-+ *	is no longer granted if the attributes were changed). 
-+ *	Note that a security module might need to save state between
-+ *	bprm_apply_creds and bprm_post_apply_creds to store the decision
-+ *	on whether the process may proceed.
-+ *	@bprm contains the linux_binprm structure.
-  * @bprm_set_security:
-  *	Save security information in the bprm->security field, typically based
-  *	on information about the bprm->file, for later use by the apply_creds
-@@ -1047,6 +1054,7 @@ struct security_operations {
- 	int (*bprm_alloc_security) (struct linux_binprm * bprm);
- 	void (*bprm_free_security) (struct linux_binprm * bprm);
- 	void (*bprm_apply_creds) (struct linux_binprm * bprm, int unsafe);
-+	void (*bprm_post_apply_creds) (struct linux_binprm * bprm);
- 	int (*bprm_set_security) (struct linux_binprm * bprm);
- 	int (*bprm_check_security) (struct linux_binprm * bprm);
- 	int (*bprm_secureexec) (struct linux_binprm * bprm);
-@@ -1320,6 +1328,10 @@ static inline void security_bprm_apply_c
- {
- 	security_ops->bprm_apply_creds (bprm, unsafe);
- }
-+static inline void security_bprm_post_apply_creds (struct linux_binprm *bprm)
-+{
-+	security_ops->bprm_post_apply_creds (bprm);
-+}
- static inline int security_bprm_set (struct linux_binprm *bprm)
- {
- 	return security_ops->bprm_set_security (bprm);
-@@ -2003,6 +2015,11 @@ static inline void security_bprm_apply_c
- 	cap_bprm_apply_creds (bprm, unsafe);
- }
- 
-+static inline void security_bprm_post_apply_creds (struct linux_binprm *bprm)
-+{ 
-+	return;
-+}
-+
- static inline int security_bprm_set (struct linux_binprm *bprm)
- {
- 	return cap_bprm_set_security (bprm);
-Index: linux-2.6.10-rc3-mm1/security/dummy.c
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/security/dummy.c	2004-12-15 15:57:23.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/security/dummy.c	2004-12-17 13:08:16.000000000 -0600
-@@ -201,6 +201,11 @@ static void dummy_bprm_apply_creds (stru
- 	current->sgid = current->egid = current->fsgid = bprm->e_gid;
- }
- 
-+static void dummy_bprm_post_apply_creds (struct linux_binprm *bprm)
-+{
-+	return;
-+}
-+
- static int dummy_bprm_set_security (struct linux_binprm *bprm)
- {
- 	return 0;
-@@ -921,6 +926,7 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, bprm_alloc_security);
- 	set_to_dummy_if_null(ops, bprm_free_security);
- 	set_to_dummy_if_null(ops, bprm_apply_creds);
-+	set_to_dummy_if_null(ops, bprm_post_apply_creds);
- 	set_to_dummy_if_null(ops, bprm_set_security);
- 	set_to_dummy_if_null(ops, bprm_check_security);
- 	set_to_dummy_if_null(ops, bprm_secureexec);
-Index: linux-2.6.10-rc3-mm1/security/selinux/hooks.c
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/security/selinux/hooks.c	2004-12-15 17:25:55.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/security/selinux/hooks.c	2004-12-17 13:08:28.000000000 -0600
-@@ -1810,10 +1810,7 @@ static void selinux_bprm_apply_creds(str
- 	struct task_security_struct *tsec;
- 	struct bprm_security_struct *bsec;
- 	u32 sid;
--	struct av_decision avd;
--	struct itimerval itimer;
--	struct rlimit *rlim, *initrlim;
--	int rc, i;
-+	int rc;
- 
- 	secondary_ops->bprm_apply_creds(bprm, unsafe);
- 
-@@ -1823,91 +1820,101 @@ static void selinux_bprm_apply_creds(str
- 	sid = bsec->sid;
- 
- 	tsec->osid = tsec->sid;
-+	bsec->unsafe = 0;
- 	if (tsec->sid != sid) {
- 		/* Check for shared state.  If not ok, leave SID
- 		   unchanged and kill. */
- 		if (unsafe & LSM_UNSAFE_SHARE) {
--			rc = avc_has_perm_noaudit(tsec->sid, sid,
--					  SECCLASS_PROCESS, PROCESS__SHARE, &avd);
-+			rc = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
-+					PROCESS__SHARE, NULL);
- 			if (rc) {
--				task_unlock(current);
--				avc_audit(tsec->sid, sid, SECCLASS_PROCESS,
--				    PROCESS__SHARE, &avd, rc, NULL);
--				force_sig_specific(SIGKILL, current);
--				goto lock_out;
-+				bsec->unsafe = 1;
-+				return;
- 			}
- 		}
- 
- 		/* Check for ptracing, and update the task SID if ok.
- 		   Otherwise, leave SID unchanged and kill. */
- 		if (unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
--			rc = avc_has_perm_noaudit(tsec->ptrace_sid, sid,
--					  SECCLASS_PROCESS, PROCESS__PTRACE, &avd);
--			if (!rc)
--				tsec->sid = sid;
--			task_unlock(current);
--			avc_audit(tsec->ptrace_sid, sid, SECCLASS_PROCESS,
--				  PROCESS__PTRACE, &avd, rc, NULL);
-+			rc = avc_has_perm(tsec->ptrace_sid, sid,
-+					  SECCLASS_PROCESS, PROCESS__PTRACE,
-+					  NULL);
- 			if (rc) {
--				force_sig_specific(SIGKILL, current);
--				goto lock_out;
-+				bsec->unsafe = 1;
-+				return;
- 			}
--		} else {
--			tsec->sid = sid;
--			task_unlock(current);
- 		}
-+		tsec->sid = sid;
-+	}
-+}
- 
--		/* Close files for which the new task SID is not authorized. */
--		flush_unauthorized_files(current->files);
-+/*
-+ * called after apply_creds without the task lock held
-+ */
-+static void selinux_bprm_post_apply_creds(struct linux_binprm *bprm)
-+{
-+	struct task_security_struct *tsec;
-+	struct rlimit *rlim, *initrlim;
-+	struct itimerval itimer;
-+	struct bprm_security_struct *bsec;
-+	int rc, i;
- 
--		/* Check whether the new SID can inherit signal state
--		   from the old SID.  If not, clear itimers to avoid
--		   subsequent signal generation and flush and unblock
--		   signals. This must occur _after_ the task SID has
--                  been updated so that any kill done after the flush
--                  will be checked against the new SID. */
--		rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
--				  PROCESS__SIGINH, NULL);
--		if (rc) {
--			memset(&itimer, 0, sizeof itimer);
--			for (i = 0; i < 3; i++)
--				do_setitimer(i, &itimer, NULL);
--			flush_signals(current);
--			spin_lock_irq(&current->sighand->siglock);
--			flush_signal_handlers(current, 1);
--			sigemptyset(&current->blocked);
--			recalc_sigpending();
--			spin_unlock_irq(&current->sighand->siglock);
--		}
-+	tsec = current->security;
-+	bsec = bprm->security;
- 
--		/* Check whether the new SID can inherit resource limits
--		   from the old SID.  If not, reset all soft limits to
--		   the lower of the current task's hard limit and the init
--		   task's soft limit.  Note that the setting of hard limits 
--		   (even to lower them) can be controlled by the setrlimit 
--		   check. The inclusion of the init task's soft limit into
--	           the computation is to avoid resetting soft limits higher
--		   than the default soft limit for cases where the default
--		   is lower than the hard limit, e.g. RLIMIT_CORE or 
--		   RLIMIT_STACK.*/
--		rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
--				  PROCESS__RLIMITINH, NULL);
--		if (rc) {
--			for (i = 0; i < RLIM_NLIMITS; i++) {
--				rlim = current->signal->rlim + i;
--				initrlim = init_task.signal->rlim+i;
--				rlim->rlim_cur = min(rlim->rlim_max,initrlim->rlim_cur);
--			}
--		}
-+	if (bsec->unsafe) {
-+		force_sig_specific(SIGKILL, current);
-+		return;
-+	}
-+	if (tsec->osid == tsec->sid)
-+		return;
- 
--		/* Wake up the parent if it is waiting so that it can
--		   recheck wait permission to the new task SID. */
--		wake_up_interruptible(&current->parent->signal->wait_chldexit);
-+	/* Close files for which the new task SID is not authorized. */
-+	flush_unauthorized_files(current->files);
- 
--lock_out:
--		task_lock(current);
--		return;
-+	/* Check whether the new SID can inherit signal state
-+	   from the old SID.  If not, clear itimers to avoid
-+	   subsequent signal generation and flush and unblock
-+	   signals. This must occur _after_ the task SID has
-+	  been updated so that any kill done after the flush
-+	  will be checked against the new SID. */
-+	rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
-+			  PROCESS__SIGINH, NULL);
-+	if (rc) {
-+		memset(&itimer, 0, sizeof itimer);
-+		for (i = 0; i < 3; i++)
-+			do_setitimer(i, &itimer, NULL);
-+		flush_signals(current);
-+		spin_lock_irq(&current->sighand->siglock);
-+		flush_signal_handlers(current, 1);
-+		sigemptyset(&current->blocked);
-+		recalc_sigpending();
-+		spin_unlock_irq(&current->sighand->siglock);
-+	}
-+
-+	/* Check whether the new SID can inherit resource limits
-+	   from the old SID.  If not, reset all soft limits to
-+	   the lower of the current task's hard limit and the init
-+	   task's soft limit.  Note that the setting of hard limits 
-+	   (even to lower them) can be controlled by the setrlimit 
-+	   check. The inclusion of the init task's soft limit into
-+	   the computation is to avoid resetting soft limits higher
-+	   than the default soft limit for cases where the default
-+	   is lower than the hard limit, e.g. RLIMIT_CORE or 
-+	   RLIMIT_STACK.*/
-+	rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
-+			  PROCESS__RLIMITINH, NULL);
-+	if (rc) {
-+		for (i = 0; i < RLIM_NLIMITS; i++) {
-+			rlim = current->signal->rlim + i;
-+			initrlim = init_task.signal->rlim+i;
-+			rlim->rlim_cur = min(rlim->rlim_max,initrlim->rlim_cur);
-+		}
- 	}
-+
-+	/* Wake up the parent if it is waiting so that it can
-+	   recheck wait permission to the new task SID. */
-+	wake_up_interruptible(&current->parent->signal->wait_chldexit);
- }
- 
- /* superblock security operations */
-@@ -4235,6 +4242,7 @@ struct security_operations selinux_ops =
- 	.bprm_alloc_security =		selinux_bprm_alloc_security,
- 	.bprm_free_security =		selinux_bprm_free_security,
- 	.bprm_apply_creds =		selinux_bprm_apply_creds,
-+	.bprm_post_apply_creds =	selinux_bprm_post_apply_creds,
- 	.bprm_set_security =		selinux_bprm_set_security,
- 	.bprm_check_security =		selinux_bprm_check_security,
- 	.bprm_secureexec =		selinux_bprm_secureexec,
-Index: linux-2.6.10-rc3-mm1/security/selinux/include/objsec.h
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/security/selinux/include/objsec.h	2004-12-15 15:57:23.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/security/selinux/include/objsec.h	2004-12-17 13:17:45.000000000 -0600
-@@ -87,6 +87,12 @@ struct bprm_security_struct {
- 	struct linux_binprm *bprm;     /* back pointer to bprm object */
- 	u32 sid;                       /* SID for transformed process */
- 	unsigned char set;
-+
-+	/*
-+	 * unsafe is used to share failure information from bprm_apply_creds()
-+	 * to bprm_post_apply_creds().
-+	 */
-+	char unsafe;
- };
- 
- struct netif_security_struct {
+tom

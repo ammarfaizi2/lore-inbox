@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261348AbSI3Uck>; Mon, 30 Sep 2002 16:32:40 -0400
+	id <S261308AbSI3UYs>; Mon, 30 Sep 2002 16:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261352AbSI3Uck>; Mon, 30 Sep 2002 16:32:40 -0400
-Received: from ns.suse.de ([213.95.15.193]:65298 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261348AbSI3Ucj>;
-	Mon, 30 Sep 2002 16:32:39 -0400
-Date: Mon, 30 Sep 2002 22:38:04 +0200
-From: Andi Kleen <ak@suse.de>
-To: Thomas Molina <tmolina@cox.net>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard/mouse driver in 2.5 broken was Re: v2.6 vs v3.0
-Message-ID: <20020930223804.A29396@wotan.suse.de>
-References: <p73zntzqwxz.fsf_-_@oldwotan.suse.de> <Pine.LNX.4.44.0209301417530.3692-100000@dad.molina>
+	id <S261310AbSI3UYs>; Mon, 30 Sep 2002 16:24:48 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:34855 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id <S261308AbSI3UYf>;
+	Mon, 30 Sep 2002 16:24:35 -0400
+Subject: Re: [uml-devel] uml-patch-2.5.39
+From: James Stevenson <james@stev.org>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+In-Reply-To: <200209301955.OAA03608@ccure.karaya.com>
+References: <200209301955.OAA03608@ccure.karaya.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 30 Sep 2002 21:26:21 +0100
+Message-Id: <1033417581.1854.1.camel@god.stev.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209301417530.3692-100000@dad.molina>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 02:19:38PM -0500, Thomas Molina wrote:
-> On 30 Sep 2002, Andi Kleen wrote:
-> 
-> > I have a similar problem. The 2.5 keyboard/psmouse driver does not work
-> > at all with my KVM. It's a bit unusual combination in that I run an 
-> > Intellimouse on it and the KVM doesn't let all Intellimouse extensions
-> > through, but it is still autodetected as that. Normally (xfree86, 2.4 gpm,
-> > other OS) it works fine when just setting PS/2 mouse maually. Even when I 
-> > hack the kernel to force PS/2 instead of the IMPS/2 then I just get 
-> > endless "psmouse: lost synchronization .." messages.
-> 
-> I have some other reports on my status page showing problems with the KVM 
-> and mice/keyboards.  What is the last kernel version you've seen this with?
+> The build works again.
 
-2.5.39
+not as far as i can tell.
 
--Andi
+just after typing make
+
+Makefile:363: target `arch/um/os-Linux' given more than once in the same
+rule.
+Makefile:363: target `arch/um/kernel' given more than once in the same
+rule.
+Makefile:363: target `arch/um/drivers' given more than once in the same
+rule.
+Makefile:363: target `arch/um/sys-i386' given more than once in the same
+rule.
+Makefile:533: target `_modinst_arch/um/os-Linux' given more than once in
+the same rule.
+Makefile:533: target `_modinst_arch/um/kernel' given more than once in
+the same rule.
+Makefile:533: target `_modinst_arch/um/drivers' given more than once in
+the same rule.
+Makefile:533: target `_modinst_arch/um/sys-i386' given more than once in
+the same rule.
+  Generating include/linux/version.h (unchanged)
+make[1]: Entering directory
+`/home2/james/kernel-build/linux-2.5.39/scripts'
+  gcc -Wp,-MD,./.fixdep.d -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer   -o fixdep fixdep.c
+  gcc -Wp,-MD,./.split-include.d -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer   -o split-include split-include.c
+  gcc -Wp,-MD,./.docproc.d -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer   -o docproc docproc.c
+  gcc -Wp,-MD,./.conmakehash.d -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer   -o conmakehash conmakehash.c
+make[1]: Leaving directory
+`/home2/james/kernel-build/linux-2.5.39/scripts'
+***
+*** You changed .config w/o running make *config?
+*** Please run "make oldconfig"
+***
+make: *** [include/linux/autoconf.h] Error 1
+
+
+
+
+
+

@@ -1,46 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVBCCRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVBCCVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262653AbVBCCRH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 21:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVBCCRG
+	id S262420AbVBCCVB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 21:21:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbVBCCVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 21:17:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32898 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262653AbVBCCQo (ORCPT
+	Wed, 2 Feb 2005 21:21:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56208 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262481AbVBCCT3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 21:16:44 -0500
-Message-Id: <200502030220.j132KFBZ013397@pasta.boston.redhat.com>
-To: linux-kernel@vger.kernel.org
-cc: Ernie Petrides <petrides@redhat.com>
-Subject: [2.6 patch] minor conceptual fix for /proc/kcore header size
-Date: Wed, 02 Feb 2005 21:20:15 -0500
-From: Ernie Petrides <petrides@redhat.com>
+	Wed, 2 Feb 2005 21:19:29 -0500
+Date: Wed, 2 Feb 2005 18:19:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Olien <dmo@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, agk@sourceware.org,
+       dm-devel@redhat.com
+Subject: Re: [PATCH] add local bio pool support and modify dm
+Message-Id: <20050202181924.395165fe.akpm@osdl.org>
+In-Reply-To: <20050202064720.GA7436@osdl.org>
+References: <20050202064720.GA7436@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, folks.  While investigating the 2.4 memory corruption problem fixed
-by the patch previously posted, it was noticed that the 2.6 version of
-get_kcore_size() inappropriately uses sizeof(struct memelfnote) in its
-calculation of the /proc/kcore ELF header size.  What is actually stored
-in the header is an "elf_note" structure plus the 4 ASCII chars "CORE".
+Dave Olien <dmo@osdl.org> wrote:
+>
+>  +extern inline void zero_fill_bio(struct bio *bio)
+>  +{
+>  +	unsigned long flags;
+>  +	struct bio_vec *bv;
+>  +	int i;
+>  +
+>  +	bio_for_each_segment(bv, bio, i) {
+>  +		char *data = bvec_kmap_irq(bv, &flags);
+>  +		memset(data, 0, bv->bv_len);
+>  +		flush_dcache_page(bv->bv_page);
+>  +		bvec_kunmap_irq(data, &flags);
+>  +	}
+>  +}
 
-It just so happens that on 32-bit arches, both calculations result in
-the same value (16).  But on 64-bit arches, the allocated size (24) is
-larger than necessary (16).  This does not result in any possible data
-corruption, but it might be nice to correct this "conceptual" error.
+heavens.  Why was this made inline?  And extern inline?
 
-Cheers.  -ernie
+It's too big for inlining (and is super-slow anyway) and will cause all
+sorts of unpleasant header file dependencies for all architectures.  bio.h
+now needs to see the implementation of everyone's flush_dcache_page(), for
+example.
 
 
+Something like this?
 
---- linux-2.6.10/fs/proc/kcore.c.orig	2004-12-24 16:34:58.000000000 -0500
-+++ linux-2.6.10/fs/proc/kcore.c	2005-02-02 20:44:13.000000000 -0500
-@@ -101,7 +101,7 @@ static size_t get_kcore_size(int *nphdr,
- 	}
- 	*elf_buflen =	sizeof(struct elfhdr) + 
- 			(*nphdr + 2)*sizeof(struct elf_phdr) + 
--			3 * sizeof(struct memelfnote) +
-+			3 * (sizeof(struct elf_note) + 4) +
- 			sizeof(struct elf_prstatus) +
- 			sizeof(struct elf_prpsinfo) +
- 			sizeof(struct task_struct);
+--- 25/include/linux/bio.h~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio	2005-02-02 18:17:18.225901376 -0800
++++ 25-akpm/include/linux/bio.h	2005-02-02 18:17:18.230900616 -0800
+@@ -286,6 +286,7 @@ extern void bio_set_pages_dirty(struct b
+ extern void bio_check_pages_dirty(struct bio *bio);
+ extern struct bio *bio_copy_user(struct request_queue *, unsigned long, unsigned int, int);
+ extern int bio_uncopy_user(struct bio *);
++void zero_fill_bio(struct bio *bio);
+ 
+ #ifdef CONFIG_HIGHMEM
+ /*
+@@ -335,18 +336,4 @@ extern inline char *__bio_kmap_irq(struc
+ 	__bio_kmap_irq((bio), (bio)->bi_idx, (flags))
+ #define bio_kunmap_irq(buf,flags)	__bio_kunmap_irq(buf, flags)
+ 
+-extern inline void zero_fill_bio(struct bio *bio)
+-{
+-	unsigned long flags;
+-	struct bio_vec *bv;
+-	int i;
+-
+-	bio_for_each_segment(bv, bio, i) {
+-		char *data = bvec_kmap_irq(bv, &flags);
+-		memset(data, 0, bv->bv_len);
+-		flush_dcache_page(bv->bv_page);
+-		bvec_kunmap_irq(data, &flags);
+-	}
+-}
+-
+ #endif /* __LINUX_BIO_H */
+diff -puN fs/bio.c~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio fs/bio.c
+--- 25/fs/bio.c~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio	2005-02-02 18:17:18.227901072 -0800
++++ 25-akpm/fs/bio.c	2005-02-02 18:17:18.231900464 -0800
+@@ -182,6 +182,21 @@ struct bio *bio_alloc(int gfp_mask, int 
+ 	return bio_alloc_bioset(gfp_mask, nr_iovecs, fs_bio_set);
+ }
+ 
++void zero_fill_bio(struct bio *bio)
++{
++	unsigned long flags;
++	struct bio_vec *bv;
++	int i;
++
++	bio_for_each_segment(bv, bio, i) {
++		char *data = bvec_kmap_irq(bv, &flags);
++		memset(data, 0, bv->bv_len);
++		flush_dcache_page(bv->bv_page);
++		bvec_kunmap_irq(data, &flags);
++	}
++}
++EXPORT_SYMBOL(zero_fill_bio);
++
+ /**
+  * bio_put - release a reference to a bio
+  * @bio:   bio to release reference to
+_
+

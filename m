@@ -1,186 +1,210 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291281AbSBSLiZ>; Tue, 19 Feb 2002 06:38:25 -0500
+	id <S291301AbSBSLpg>; Tue, 19 Feb 2002 06:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291284AbSBSLiQ>; Tue, 19 Feb 2002 06:38:16 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:9999 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S291281AbSBSLiK>;
-	Tue, 19 Feb 2002 06:38:10 -0500
-Message-ID: <3C723904.4060903@evision-ventures.com>
-Date: Tue, 19 Feb 2002 12:37:40 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S291305AbSBSLp1>; Tue, 19 Feb 2002 06:45:27 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:6151 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S291301AbSBSLpK>; Tue, 19 Feb 2002 06:45:10 -0500
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: gnome-terminal acts funny in recent 2.5 series
+In-Reply-To: <3C719641.3040604@oracle.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 19 Feb 2002 20:44:39 +0900
+In-Reply-To: <3C719641.3040604@oracle.com>
+Message-ID: <87d6z11ys8.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.5-pre1 IDE cleanup
-In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------080904080803000903020600"
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080904080803000903020600
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+--=-=-=
 
-The attached patch does:
+Alessandro Suardi <alessandro.suardi@oracle.com> writes:
 
-1. Kill two exports which mankind will never know what they where good for
+> Running Ximian-latest for rh72/i386, latest 2.5 kernels (including
+>   2.5.4-pre2, 2.5.4, 2.5.5-pre1).
+> 
+> Symptom:
+>    - clicking on the panel icon for gnome-terminal shows a flicker
+>       of the terminal window coming up then the window disappears.
+>      No leftover processes.
+> 
+> What works 100%:
+>    - regular xterm in 2.5.x
+>    - gnome-terminal in 2.4.x (x in .17, .18-pre9, .18-rc2)
+> 
+> More info:
+>    - doesn't happen 100% of the time, but close
+>    - trying to start gnome-terminal either vanilla or with the
+>       parameters in the icon from an xterm causes
+>        * gnome-terminal window comes up, but no shell prompt; the
+>           window *does not* disappear and program is in a CPU loop
+>        * program detaches from calling xterm even when '&' is
+>           not used
+>        * calling xterm's tty is left in a funny state (sometimes
+>           stty sane^J is required, sometimes tput reset)
+> 
+> Any ideas would be quite welcome - I can go back and try and narrow
+>   down what kernel breaks gnome-terminal if nothing comes up.
 
-2. Kill duplicated comments.
+Probably, this problem had occurred in libzvt which gnome-terminal is
+using.
 
-3. Kill declarations of never defined functions
+libzvt was using file descriptor passing via UNIX domain socket for
+pseudo terminal. Then because ->passcred was not initialized in
+sock_alloc(), unexpected credential data was passing to libzvt.
 
-4. Some other minor tidups here and there.
+The following patch fixed this problem, but I'm not sure.
+Could you review the patch? (attached file are test program)
 
-It is created on top of the other patches I already send to you however 
-it should
-apply independantly.
+--- socket.c.orig	Mon Feb 11 18:21:59 2002
++++ socket.c	Tue Feb 19 16:20:18 2002
+@@ -501,6 +501,8 @@ struct socket *sock_alloc(void)
+ 	sock->ops = NULL;
+ 	sock->sk = NULL;
+ 	sock->file = NULL;
++//	init_waitqueue_head(&sock->wait);	this is needed?
++	sock->passcred = 0;
+ 
+ 	sockets_in_use[smp_processor_id()].counter++;
+ 	return sock;
 
---------------080904080803000903020600
-Content-Type: text/plain;
- name="ide-clean-8.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-clean-8.diff"
+Regards
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-diff -ur linux-2.5.4/drivers/ide/ide-probe.c linux/drivers/ide/ide-probe.c
---- linux-2.5.4/drivers/ide/ide-probe.c	Fri Feb 15 04:36:43 2002
-+++ linux/drivers/ide/ide-probe.c	Mon Feb 18 01:46:29 2002
-@@ -406,22 +406,19 @@
- }
- 
- /*
-- * probe_for_drive() tests for existence of a given drive using do_probe().
-- *
-- * Returns:	0  no device was found
-- *		1  device was found (note: drive->present might still be 0)
-+ * Tests for existence of a given drive using do_probe().
-  */
--static inline byte probe_for_drive (ide_drive_t *drive)
-+static inline void probe_for_drive (ide_drive_t *drive)
- {
- 	if (drive->noprobe)			/* skip probing? */
--		return drive->present;
-+		return;
- 	if (do_probe(drive, WIN_IDENTIFY) >= 2) { /* if !(success||timed-out) */
--		(void) do_probe(drive, WIN_PIDENTIFY); /* look for ATAPI device */
-+		do_probe(drive, WIN_PIDENTIFY); /* look for ATAPI device */
- 	}
- 	if (drive->id && strstr(drive->id->model, "E X A B Y T E N E S T"))
- 		enable_nest(drive);
- 	if (!drive->present)
--		return 0;			/* drive not found */
-+		return;			/* drive not found */
- 	if (drive->id == NULL) {		/* identification failed? */
- 		if (drive->media == ide_disk) {
- 			printk ("%s: non-IDE drive, CHS=%d/%d/%d\n",
-@@ -432,7 +429,6 @@
- 			drive->present = 0;	/* nuke it */
- 		}
- 	}
--	return 1;	/* drive was found */
- }
- 
- /*
-@@ -548,7 +544,7 @@
- 	 */
- 	for (unit = 0; unit < MAX_DRIVES; ++unit) {
- 		ide_drive_t *drive = &hwif->drives[unit];
--		(void) probe_for_drive (drive);
-+		probe_for_drive (drive);
- 		if (drive->present && !hwif->present) {
- 			hwif->present = 1;
- 			if (hwif->chipset != ide_4drives || !hwif->mate->present) {
-@@ -931,19 +927,6 @@
- 	return hwif->present;
- }
- 
--void export_ide_init_queue (ide_drive_t *drive)
--{
--	ide_init_queue(drive);
--}
--
--byte export_probe_for_drive (ide_drive_t *drive)
--{
--	return probe_for_drive(drive);
--}
--
--EXPORT_SYMBOL(export_ide_init_queue);
--EXPORT_SYMBOL(export_probe_for_drive);
--
- int ideprobe_init (void);
- static ide_module_t ideprobe_module = {
- 	IDE_PROBE_MODULE,
-diff -ur linux-2.5.4/drivers/ide/ide.c linux/drivers/ide/ide.c
---- linux-2.5.4/drivers/ide/ide.c	Fri Feb 15 06:39:29 2002
-+++ linux/drivers/ide/ide.c	Mon Feb 18 01:48:31 2002
-@@ -1965,11 +1965,10 @@
- #endif
- 
- /*
-- * Note that we only release the standard ports,
-- * and do not even try to handle any extra ports
-- * allocated for weird IDE interface chipsets.
-+ * Note that we only release the standard ports, and do not even try to handle
-+ * any extra ports allocated for weird IDE interface chipsets.
-  */
--void hwif_unregister (ide_hwif_t *hwif)
-+static void hwif_unregister(ide_hwif_t *hwif)
- {
- 	if (hwif->straight8) {
- 		ide_release_region(hwif->io_ports[IDE_DATA_OFFSET], 8);
-@@ -2063,11 +2062,6 @@
- 	if (irq_count == 1)
- 		free_irq(hwif->irq, hwgroup);
- 
--	/*
--	 * Note that we only release the standard ports,
--	 * and do not even try to handle any extra ports
--	 * allocated for weird IDE interface chipsets.
--	 */
- 	hwif_unregister(hwif);
- 
- 	/*
-@@ -3718,7 +3712,6 @@
- EXPORT_SYMBOL(ide_register);
- EXPORT_SYMBOL(ide_unregister);
- EXPORT_SYMBOL(ide_setup_ports);
--EXPORT_SYMBOL(hwif_unregister);
- EXPORT_SYMBOL(get_info_ptr);
- EXPORT_SYMBOL(current_capacity);
- 
-diff -ur linux-2.5.4/include/linux/ide.h linux/include/linux/ide.h
---- linux-2.5.4/include/linux/ide.h	Fri Feb 15 06:40:48 2002
-+++ linux/include/linux/ide.h	Mon Feb 18 02:04:57 2002
-@@ -1101,7 +1101,6 @@
- #  define OFF_BOARD		NEVER_BOARD
- #endif /* CONFIG_BLK_DEV_OFFBOARD */
- 
--unsigned long ide_find_free_region (unsigned short size) __init;
- void ide_scan_pcibus (int scan_direction) __init;
- #endif
- #ifdef CONFIG_BLK_DEV_IDEDMA
-@@ -1115,14 +1114,10 @@
- int ide_dmaproc (ide_dma_action_t func, ide_drive_t *drive);
- int ide_release_dma (ide_hwif_t *hwif);
- void ide_setup_dma (ide_hwif_t *hwif, unsigned long dmabase, unsigned int num_ports) __init;
--unsigned long ide_get_or_set_dma_base (ide_hwif_t *hwif, int extra, const char *name) __init;
-+/* FIXME spilt this up into a get and set function */
-+extern unsigned long ide_get_or_set_dma_base (ide_hwif_t *hwif, int extra, const char *name) __init;
- #endif
- 
--void hwif_unregister (ide_hwif_t *hwif);
--
--void export_ide_init_queue (ide_drive_t *drive);
--byte export_probe_for_drive (ide_drive_t *drive);
--
- extern spinlock_t ide_lock;
- 
- extern int drive_is_ready(ide_drive_t *drive);
 
---------------080904080803000903020600--
+--=-=-=
+Content-Type: text/x-csrc
+Content-Disposition: attachment; filename=test.c
 
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+static void client(int fd)
+{
+	int send_fd;
+	struct msghdr msg;
+	struct iovec iov[1];
+	char buf[1];
+	union {
+		struct cmsghdr cm;
+		char cntl[CMSG_SPACE(sizeof(int))];
+	} cntl_u;
+	struct cmsghdr *cmsgptr;
+
+	send_fd = open("/dev/null", O_RDWR);
+	
+	iov[0].iov_base = buf;
+	iov[0].iov_len = 1;
+	msg.msg_iov = iov;
+	msg.msg_iovlen = 1;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+
+	msg.msg_control = cntl_u.cntl;
+	msg.msg_controllen = sizeof(cntl_u.cntl);
+
+	cmsgptr = CMSG_FIRSTHDR(&msg);
+	cmsgptr->cmsg_len = CMSG_LEN(sizeof(int));
+	cmsgptr->cmsg_level = SOL_SOCKET;
+	cmsgptr->cmsg_type = SCM_RIGHTS;
+	*((int *)CMSG_DATA(cmsgptr)) = send_fd;
+
+	if (sendmsg(fd, &msg, 0) <= 0)
+		perror("sendmsg");
+}
+
+static void server(int fd)
+{
+	int recv_fd;
+	struct stat statbuf;
+	struct msghdr msg;
+	struct iovec iov[1];
+	char buf[1];
+	union {
+		struct cmsghdr cm;
+		char cntl[CMSG_SPACE(sizeof(int))];
+	} cntl_u;
+	struct cmsghdr *cmsgptr;
+
+	iov[0].iov_base = buf;
+	iov[0].iov_len = 1;
+	msg.msg_iov = iov;
+	msg.msg_iovlen = 1;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+
+	msg.msg_control = cntl_u.cntl;
+	msg.msg_controllen = sizeof(cntl_u.cntl);
+	
+	if (recvmsg(fd, &msg, 0) <= 0) {
+		perror("recvmsg");
+		exit(1);
+	}
+	cmsgptr = CMSG_FIRSTHDR(&msg);
+	if (cmsgptr == NULL) {
+		fprintf(stderr, "no control message\n");
+		exit(1);
+	}
+	if (cmsgptr->cmsg_len != CMSG_LEN(sizeof(int)))
+		fprintf(stderr, "bad length: %d\n", cmsgptr->cmsg_len);
+	if (cmsgptr->cmsg_level != SOL_SOCKET)
+		fprintf(stderr, "not SOL_SOCKET: %d\n", cmsgptr->cmsg_level);
+	if (cmsgptr->cmsg_type != SCM_RIGHTS)
+		fprintf(stderr, "not SCM_RIGHTS: %d\n", cmsgptr->cmsg_type);
+	recv_fd = *((int *)CMSG_DATA(cmsgptr));
+	if (fstat(recv_fd, &statbuf) == -1) {
+		perror("stat");
+		exit(1);
+	}
+
+	printf("fd: %d, dev: %llx, mode: %o\n",
+	       recv_fd, statbuf.st_rdev, statbuf.st_mode);
+}
+
+int main()
+{
+	pid_t pid;
+	int status, fd[2];
+
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == -1) {
+		perror("socketpair");
+		exit(1);
+	}
+
+	pid = fork();
+	if (pid == -1) {
+		perror("fork");
+		exit(1);
+	}
+	if (pid == 0) {
+		close(fd[1]);
+		client(fd[0]);
+		exit(0);
+	}
+
+	close(fd[0]);
+	if (waitpid(pid, &status, 0) != pid) {
+		perror("waitpid");
+		exit(1);
+	}
+	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+		fprintf(stderr, "client abnormal end\n");
+		exit(1);
+	}
+
+	server(fd[1]);
+
+	return 0;
+}
+
+--=-=-=--

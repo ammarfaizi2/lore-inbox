@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282815AbRK0GZt>; Tue, 27 Nov 2001 01:25:49 -0500
+	id <S282817AbRK0G27>; Tue, 27 Nov 2001 01:28:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282816AbRK0GZk>; Tue, 27 Nov 2001 01:25:40 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:27901 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282815AbRK0GZ0>;
-	Tue, 27 Nov 2001 01:25:26 -0500
-Date: Mon, 26 Nov 2001 23:25:15 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-Message-ID: <20011126232515.V730@lynx.no>
-Mail-Followup-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1006831902.842.0.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <1006831902.842.0.camel@phantasy>; from rml@tech9.net on Mon, Nov 26, 2001 at 10:31:41PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S282819AbRK0G2t>; Tue, 27 Nov 2001 01:28:49 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:62947 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S282818AbRK0G2j>;
+	Tue, 27 Nov 2001 01:28:39 -0500
+Date: Tue, 27 Nov 2001 09:26:17 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linux maillist account <l-k@mindspring.com>
+Cc: Robert Love <rml@tech9.net>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: a nohup-like interface to cpu affinity
+In-Reply-To: <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
+Message-ID: <Pine.LNX.4.33.0111270921020.3061-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 26, 2001  22:31 -0500, Robert Love wrote:
-> Reading and writing /proc/<pid>/affinity will get and set the affinity.
-> 
-> Security is implemented: the writer must possess CAP_SYS_NICE or be the
-> same uid as the task in question.  Anyone can read the data.
 
-Hmm, now that I think about it, anyone should be able to restrict the
-CPUs that their processes should run on, but like "nice", you should
-have CAP_SYS_NICE in order to increase the number of CPUs your process
-can run on.  This makes it possible to "throttle" a user so that they
-can only max out a single CPU.
+On Mon, 26 Nov 2001, Linux maillist account wrote:
 
-Why would you do that?  Maybe because "ulimit" and friends only allow
-you to set an absolute limit on the number of CPU seconds you can use
-per process, but not a "percentage" of a processor or some equivalent
-"cycles per second" unit.
+> A nohup-like interface to the cpu affinity service would be useful.  It
+> could work like the
+> following example:
+>
+>     $ cpuselect -c 1,3-5 gcc -c module.c
 
-Not that I see this as being hugely necessary, but it may as well be
-consistent with current behaviour (c.f. nice, ulimit, etc, can all go
-down, but not necessarily up).
+yep, this can be done via the chaff utility i posted:
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+	gcc -c module.c & ./chaff $! 0x6
+
+or, it can be done by changing the affinity of the current shell, every
+new child process will inherit it:
+
+	./chaff $$ 0x6; gcc -c module.c
+
+(or a cpuselect utility can be written.)
+
+> On another subject -- capabilities -- any process should be able to
+> reduce the number of cpus in its own cpu affinity mask without any
+> special permission.  To add cpus to a reduced mask, or to change the
+> cpu affinity mask of other processes, should require the appropriate
+> capability, be it CAP_SYS_NICE, CAP_SYS_ADMIN, or whatever is decided.
+
+yep, this is how sched_set_affinity() is workig - it allows the setting of
+affinities if either CAP_SYS_NICE is set, or the process' uid/gid matches
+that of the target process' effective uid/gid.
+
+	Ingo
 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285962AbRLHVLq>; Sat, 8 Dec 2001 16:11:46 -0500
+	id <S285963AbRLHVM6>; Sat, 8 Dec 2001 16:12:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285961AbRLHVLb>; Sat, 8 Dec 2001 16:11:31 -0500
-Received: from stine.vestdata.no ([195.204.68.10]:42203 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S285960AbRLHVLO>; Sat, 8 Dec 2001 16:11:14 -0500
-Date: Sat, 8 Dec 2001 22:10:26 +0100
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-Message-ID: <20011208221026.H12687@vestdata.no>
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <3C110B3F.D94DDE62@zip.com.au> <9useu4$f4o$1@penguin.transmeta.com> <E16ClLY-000124-00@starship.berlin> <3C1277D0.8000706@namesys.com>
+	id <S285961AbRLHVMq>; Sat, 8 Dec 2001 16:12:46 -0500
+Received: from marine.sonic.net ([208.201.224.37]:13829 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S285960AbRLHVMf>;
+	Sat, 8 Dec 2001 16:12:35 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Sat, 8 Dec 2001 13:12:23 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel freezing....
+Message-ID: <20011208131223.A11727@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011206022037.27ABA4729C@server.localdomain> <20011206031210.A11885@qfire.net> <20011207183442.A2699@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C1277D0.8000706@namesys.com>; from reiser@namesys.com on Sat, Dec 08, 2001 at 11:28:00PM +0300
+In-Reply-To: <20011207183442.A2699@elf.ucw.cz>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08, 2001 at 11:28:00PM +0300, Hans Reiser wrote:
-> Using a union of filesystems, that might not even be compiled into the 
-> kernel or as modules, in struct inode is just.....  bad.
-> 
-> It is really annoying when the filesystems with larger inodes bloat up 
-> the size for those who are careful with their bytes, can we do something 
-> about that generally?
+On Fri, Dec 07, 2001 at 06:34:42PM +0100, Pavel Machek wrote:
+> I remember vojtech repairing Toshiba's keyboard (my little brother
+> managed to get beer into it) by just showering it with hot water,
+> waiting it to dry, and reinstalling.
 
-I believe it has been desided to solve this either by:
-* including a filesystem-specific pointer in the general inode
-or
-* have the filesystem build the inode, and include all the general inode
-  variables in it's data-structure.
+I do this on a somewhat regular basis with all of my keyboards.
 
-If it's not alreaddy done in 2.5 I think it's just a question of time.
+Actually, let them soak in the tub for a while, then dry.
 
+Older keyboards probalby work better for this actually.
 
+mrc
 -- 
-Ragnar Kjørstad
-Big Storage
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

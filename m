@@ -1,43 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130070AbQKQGJM>; Fri, 17 Nov 2000 01:09:12 -0500
+	id <S129314AbQKQGUh>; Fri, 17 Nov 2000 01:20:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131757AbQKQGJC>; Fri, 17 Nov 2000 01:09:02 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:22680 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130070AbQKQGIz>;
-	Fri, 17 Nov 2000 01:08:55 -0500
-Date: Fri, 17 Nov 2000 00:38:53 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Frank Davis <fdavis112@juno.com>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: 2.4.0-test11-pre6 ntfs compile error
-In-Reply-To: <384606296.974438172647.JavaMail.root@web395-wra.mail.com>
-Message-ID: <Pine.GSO.4.21.0011170037010.14822-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130070AbQKQGU2>; Fri, 17 Nov 2000 01:20:28 -0500
+Received: from gemini.tcg-software.com ([208.221.13.100]:30731 "HELO
+	gemini.tcg-software.com") by vger.kernel.org with SMTP
+	id <S129314AbQKQGUW>; Fri, 17 Nov 2000 01:20:22 -0500
+X-Lotus-FromDomain: TCG-SOFTWARE
+From: "Rajiv Majumdar" <rmajumda@tcg-software.com>
+To: linux-kernel@vger.kernel.org
+Message-ID: <6525699A.001E7349.00@gemini.tcg-software.com>
+Date: Fri, 17 Nov 2000 11:02:35 +0530
+Subject: FW: help needed]
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 17 Nov 2000, Frank Davis wrote:
 
-> Hello,
->   I just try to compile 2.4.0-test11-pre6, and received the following error (make modules):
-> 
-> inode.c:1054 conflicting types for 'new_inode'
-> /usr/src/liunux/include/linux/fs.h:1153 previous declaration of 'new_inode'
+---------------------- Forwarded by Rajiv Majumdar/CAL/NOTES on 11/17/2000
+11:00 AM ---------------------------
 
-My fault. Hell knows how that part of patch didn't get into the posting
-(damnit, it was described there)...
 
-Fix:
+A.CHANDA@eur.ponl.com on 11/17/2000 10:24:00 PM
 
-ed fs/ntfs/inode.c <<EOF
-%s/new_inode/ntfs_&/g
-w
-q
-EOF
+To:   ravi.sinha@oracle.com
+cc:   Rajiv Majumdar/CAL/NOTES, psguha@caltiger.net.in,
+      chandrajit.saha@tatainfotech.com, KAPIL.BHATIA@ponl.com
+
+Subject:  FW: help needed]
+
+
+
+
+
+
+
+
+Dreams are just tomorrow away......
+------------------( Forwarded letter 1 follows )---------------------
+Date: Thu, 16 Nov 2000 23:50:57 -0500
+To: A.CHANDA, abhari@lot.tatasteel.com, amritabhattacharyya@hotmail.com,
+ turbo@jsr.tatasteel.com, mohitbedi@hotmail.com, nirupamc@hotmail.com,
+ parama_chatterjee@hotmail.com, g.parthapratim@lycos.com,
+ pranita@cal3.vsnl.net.in, Prasad_Taiwade@putnaminv.com,
+ RKUMAR1@Walker.com, Kalyani.Ramalingam@nike.com,
+ rashmi@lot.tatasteel.com, rksinx@lot.tatasteel.com,
+ royr@tatahoneywell.co.in, SSanjeev@CAL.CTS-CORP.COM,
+ Sameer.Seksaria@1geind.GE.com, Sriram.Sethuraman@nike.com,
+ SRanjay@CAL.CTS-CORP.COM, sonali_bhattacharya@yahoo.com,
+ sonu@lot.tatasteel.com, uma@jsr.tatasteel.com
+From: Anindita.Chatterjee@gecis.ge.com
+Subject: FW: help needed]
+
+
+
+
+
+-----Original Message-----
+From: sonu@lot.tatasteel.com [mailto:sonu@lot.tatasteel.com]
+Sent: Saturday, November 11, 2000 9:16 AM
+To: rashmi@lot.tatasteel.com; sparna@lot.tatasteel.com;
+sucharita@lot.tatasteel.com; pamela@lot.tatasteel.com;
+anshus@lot.tatasteel.com; ARUNL@amdocs.com; kmidha@jsr.tatasteel.com;
+NavinA@InterraIT.COM; Chatterjee, Anindita (CAP);
+meenap@aut.tatasteel.com
+Subject: help needed]
+
+
+
+> >      Help needed! Don't delete
+> >      From Divya Singh(Siemens)
+> >      Dear Friends
+> >      Please help , if possible. This is important to me...so
+> >      I am asking you to please forward it. Please send this to
+> >    all your
+> >      contacts.
+> >      If anyone you know has survived NON SMALL CELL LUNG CANCER,
+> >    please
+> >    inform
+> >      me at the address given below.
+> >      My husband has it and I would like to know what treatment
+> >    was used.
+> >      Please forward to everyone on your contact list.
+> >      From the bottom of my heart I thank you.
+> >      Thank you,
+> >      Divya Singh
+> >
+> >      Inform here :
+> >      SIEMENS
+> >      Siemens Information System Limited
+> >      #84,Keonics Electronics City
+> >      Hosur Road,Bangalore-561229
+> >      India
+> >
+> >      Keep forwarding this, even if u r unable to help. Somebody
+> >    else might be
+> >      able to....
+> >      MAY GOD BE WITH U AND BLESS U ALWAYS
+>
+>
+
+
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

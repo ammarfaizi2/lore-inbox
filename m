@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275563AbTHNVcf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 17:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275576AbTHNVcf
+	id S275508AbTHNV2D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 17:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275535AbTHNV2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 17:32:35 -0400
-Received: from mail.kroah.org ([65.200.24.183]:29116 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S275563AbTHNVcd (ORCPT
+	Thu, 14 Aug 2003 17:28:03 -0400
+Received: from law14-f6.law14.hotmail.com ([64.4.21.6]:19984 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S275508AbTHNV2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 17:32:33 -0400
-Date: Thu, 14 Aug 2003 14:32:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-Cc: LM Sensors <sensors@stimpy.netroedge.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.0-test3]bugfix for initialization bug in adm1021 driver
-Message-ID: <20030814213242.GA4058@kroah.com>
-References: <1060731495.11264.8.camel@vmhack>
+	Thu, 14 Aug 2003 17:28:01 -0400
+X-Originating-IP: [194.85.81.178]
+X-Originating-Email: [john_r_newbie@hotmail.com]
+From: "John Newbie" <john_r_newbie@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Boot sequence in 2.4
+Date: Fri, 15 Aug 2003 01:28:00 +0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060731495.11264.8.camel@vmhack>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; format=flowed
+Message-ID: <Law14-F6YEuZFkTEPcO00055075@hotmail.com>
+X-OriginalArrivalTime: 14 Aug 2003 21:28:00.0868 (UTC) FILETIME=[F019A240:01C362AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 04:38:13PM -0700, Rusty Lynch wrote:
-> While initializing the adm1021 device, the driver is performing a conversion
-> from fixed point to Celcius on values that were declaired as Celcius.  On
-> my Dell Precision 220 this results in a shutdown after a couple of minutes
-> running.
-> 
-> This is a very simple patch against the 2.6.0-test3 tree that just removes the
-> conversion.
+Please explain me couple of things.
 
-Applied, thanks.
+1) I have / on filesystem, compiled as module, and have initial ram disk 
+(initrd), with
+    FS module, static insmod binary, linuxrc and so. So how kernel access 
+initrd file at the boot time,
+    when it doesn't understand FS on /? Which role plays lilo?
 
-Next time you might want to CC: me to make sure I catch this.
+2) How to intercept system calls in 2.6 ? Old technique dont work any more 
+'cause absence of
+    syscall_table[].
 
-greg k-h
+_________________________________________________________________
+The new MSN 8: advanced junk mail protection and 2 months FREE* 
+http://join.msn.com/?page=features/junkmail
+

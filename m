@@ -1,168 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277595AbRJREuw>; Thu, 18 Oct 2001 00:50:52 -0400
+	id <S277592AbRJREum>; Thu, 18 Oct 2001 00:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277598AbRJREun>; Thu, 18 Oct 2001 00:50:43 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:53009 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277595AbRJREuX>;
-	Thu, 18 Oct 2001 00:50:23 -0400
-Date: Thu, 18 Oct 2001 02:50:45 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <linux-mm@kvack.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] free more swap space on exit()
-Message-ID: <Pine.LNX.4.33L.0110180247460.6440-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277598AbRJREud>; Thu, 18 Oct 2001 00:50:33 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:38853 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S277592AbRJREuW>; Thu, 18 Oct 2001 00:50:22 -0400
+From: rwhron@earthlink.net
+Date: Thu, 18 Oct 2001 00:52:55 -0400
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: mmap test on 2.4.12-ac3+vmpatch and 2.4.13-pre3aa1
+Message-ID: <20011018005255.A196@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+LTP mmap001 test:  mmap, touch, msync munmap 50000 pages
+Listen to mp3blaster.  Light IRC and shell use.
 
-At the moment, the kernel frees the following things at
-exit() / exec() time:
-1) memory in the process page tables + swapcache belonging
-   to these pages
-2) swap space used by the process (refcount decrement)
+Hardware:
+AMD Athlon 1333
+512 MB ram
+1024 MB swap
 
-However, it does NOT free:
-3) swap cache and space belonging to the process, where the
-   page is in RAM (and the swap cache) but NOT in the process'
-   page tables
+Notes: 
 
-The attached patch fixes the problem by simply looking up the
-address in the swap cache and freeing the page if it's there.
+Interactive response was noticeably better with 2.4.12-ac3+vmpatch.  
+2.4.12-ac3+vmpatch was tested right after a reboot.  
 
-Comments ?
 
-regards,
+2.4.12-ac3+vmpatch (page-cluster=4)
+Averages for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.322
+System time (seconds):              16.576
+Elapsed (wall clock seconds) time:  152.87
+Percent of CPU this job got:        22.80
+Major (requiring I/O) page faults:  500175.2
+Minor (reclaiming a frame) faults:  20.0
 
-Rik
+This is the tail end of vmstat 1 on 2.4.12-ac3+vmpatch:
+
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 4  0  1   9280   3064   2012 481536   0   0   168 16188  438   448   0  26  74
+ 4  0  1   9280   3064   2020 481520   0   0   136 16372  512   447   1  21  78
+ 0  2  1   9280   3064   2036 481480   0   0   284 12148  461   465   0  20  80
+ 5  2  1   9280 480788   2524   5124   0   0   632 11396  451   421   0  42  58
+ 2  0  0   9280 479316   2592   6440  60   0  1872   140  671   935   0   9  91
+
+
+
+2.4.13-pre3aa1 was tested after running 6 runalltest.sh LTP suites, 
+as well as normal use.  uptime 40 hours.
+
+2.4.13-pre3aa1 page-cluster=2
+
+Averages for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.590
+System time (seconds):              14.846
+Elapsed (wall clock seconds) time:  213.90
+Percent of CPU this job got:        15.60
+Major (requiring I/O) page faults:  500171.2
+Minor (reclaiming a frame) faults:  29.8
+
+2.4.13-pre3aa1 page-cluster=4
+
+Averages for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.220
+System time (seconds):              15.378
+Elapsed (wall clock seconds) time:  209.41
+Percent of CPU this job got:        16.00
+Major (requiring I/O) page faults:  500155.6
+Minor (reclaiming a frame) faults:  31.2
+
+
+2.4.13-pre3aa1 page-cluster=6
+
+Averages for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                20.368
+System time (seconds):              16.218
+Elapsed (wall clock seconds) time:  206.08
+Percent of CPU this job got:        17.20
+Major (requiring I/O) page faults:  500166.6
+Minor (reclaiming a frame) faults:  28.8
+
+Just to make sure the previous tests didn't skew the results, 
+I rebooted into 2.4.13-pre3aa1 and ran with the default 
+page-cluster value:
+
+2.4.13-pre3aa1 page-cluster=6 (after reboot)
+Averages for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                20.364
+System time (seconds):              15.798
+Elapsed (wall clock seconds) time:  204.09
+Percent of CPU this job got:        17.40
+Major (requiring I/O) page faults:  500165.6
+Minor (reclaiming a frame) faults:  30.0
+
+tail end of vmstat from final iteration on 2.4.13-pre3aa1:
+
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 2  1  1   8644   3372   1808 484988 248   0   324 32980  873   671   0  22  77
+ 2  3  1   8616   3316   1824 485000  32   0    60 16192  467   405   1  27  72
+ 1  4  1   8600   3100   1848 485012  88   0   124 12148  422   427   1  22  77
+ 1  1  0   8532 488648   1508   1680  76   0   600  7108  439   561   4  28  68
+ 1  1  0   8340 485796   3384   2548 240   0  2984     0  858  1484   0  41  59
+
+
+This test does use a little swap with both kernels.  That puzzled me,
+since I thought 50000 pages was about 195 megs of RAM.
+
+page-cluster=6 makes mp3blaster skip more on this test.
+
+
+The "free -mt" output below is after the test on 2.4.13pre3aa1 to give an idea of
+what memory usage is like when there is no test running.
+
+
+             total       used       free     shared    buffers     cached
+Mem:           502         32        470          0          4          6
+-/+ buffers/cache:         21        480
+Swap:         1027          7       1019
+Total:        1530         39       1490
+
+Actually, kernel hackers can probably tell that from the vmstat snippets. :)
+
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-
-
---- linux-2.4.12-ac3/mm/memory.c.freemore	Thu Oct 18 01:20:48 2001
-+++ linux-2.4.12-ac3/mm/memory.c	Thu Oct 18 01:37:32 2001
-@@ -302,7 +302,7 @@
- 			/* This will eventually call __free_pte on the pte. */
- 			tlb_remove_page(tlb, ptep, address + offset);
- 		} else {
--			swap_free(pte_to_swp_entry(pte));
-+			free_swap_and_swap_cache(pte_to_swp_entry(pte));
- 			pte_clear(ptep);
- 		}
- 	}
---- linux-2.4.12-ac3/mm/swap_state.c.freemore	Thu Oct 18 01:20:59 2001
-+++ linux-2.4.12-ac3/mm/swap_state.c	Thu Oct 18 02:32:47 2001
-@@ -147,6 +147,29 @@
- }
-
- /*
-+ * Like the above, but used to clean up the non-resident pages of
-+ * a process. If the page exists but we couldn't get the trylock,
-+ * the pageout code will remove the page later.
-+ */
-+void free_swap_and_swap_cache(swp_entry_t entry)
-+{
-+	struct page * page;
-+
-+	/* Free our own reference to the swap space */
-+	swap_free(entry);
-+
-+	/* If the swapcache is the only remaining user, free that too. */
-+	page = find_trylock_page(&swapper_space, entry.val);
-+	if (page) {
-+		if (exclusive_swap_page(page)) {
-+			delete_from_swap_cache(page);
-+		}
-+		UnlockPage(page);
-+		page_cache_release(page);
-+	}
-+}
-+
-+/*
-  * Lookup a swap entry in the swap cache. A found page will be returned
-  * unlocked and with its refcount incremented - we rely on the kernel
-  * lock getting page table operations atomic even if we drop the page
---- linux-2.4.12-ac3/mm/filemap.c.freemore	Thu Oct 18 01:21:04 2001
-+++ linux-2.4.12-ac3/mm/filemap.c	Thu Oct 18 02:03:03 2001
-@@ -740,12 +740,8 @@
- 	 * the hash-list needs a held write-lock.
- 	 */
- repeat:
--	spin_lock(&pagecache_lock);
--	page = __find_page_nolock(mapping, offset, *hash);
-+	page = __find_get_page(mapping, offset, hash);
- 	if (page) {
--		page_cache_get(page);
--		spin_unlock(&pagecache_lock);
--
- 		lock_page(page);
-
- 		/* Is the page still hashed? Ok, good.. */
-@@ -757,7 +753,36 @@
- 		page_cache_release(page);
- 		goto repeat;
- 	}
--	spin_unlock(&pagecache_lock);
-+	return NULL;
-+}
-+
-+/*
-+ * Find a page in the page cache and return it to us locked and
-+ * with the page count incremented, but only if nobody else has
-+ * it locked already.  Used by the VM to opportunistically grab
-+ * a page in places where we don't want to sleep.
-+ */
-+struct page * find_trylock_page (struct address_space *mapping,
-+		unsigned long offset)
-+{
-+	struct page *page;
-+
-+	page = __find_get_page(mapping, offset, page_hash(mapping, offset));
-+	if (page) {
-+		/* If we cannot get the page, drop it and return NULL. */
-+		if (TryLockPage(page)) {
-+			page_cache_release(page);
-+			return NULL;
-+		}
-+
-+		/* The page didn't get removed/remapped behind our backs ? */
-+		if (page->mapping == mapping && page->index == offset)
-+			return page;
-+
-+		/* Hrrrm, it did; release the page and return NULL. */
-+		UnlockPage(page);
-+		page_cache_release(page);
-+	}
- 	return NULL;
- }
-
---- linux-2.4.12-ac3/include/linux/swap.h.freemore	Thu Oct 18 01:31:15 2001
-+++ linux-2.4.12-ac3/include/linux/swap.h	Thu Oct 18 01:34:57 2001
-@@ -141,6 +141,7 @@
- extern void __delete_from_swap_cache(struct page *page);
- extern void delete_from_swap_cache(struct page *page);
- extern void free_page_and_swap_cache(struct page *page);
-+extern void free_swap_and_swap_cache(swp_entry_t);
- extern struct page * lookup_swap_cache(swp_entry_t);
- extern struct page * read_swap_cache_async(swp_entry_t);
-
---- linux-2.4.12-ac3/include/linux/pagemap.h.freemore	Thu Oct 18 01:31:35 2001
-+++ linux-2.4.12-ac3/include/linux/pagemap.h	Thu Oct 18 01:45:35 2001
-@@ -77,6 +77,7 @@
- 	__find_get_page(mapping, index, page_hash(mapping, index))
- extern struct page * __find_lock_page (struct address_space * mapping,
- 				unsigned long index, struct page **hash);
-+extern struct page * find_trylock_page (struct address_space *, unsigned long);
- extern void lock_page(struct page *page);
- #define find_lock_page(mapping, index) \
- 	__find_lock_page(mapping, index, page_hash(mapping, index))
+Randy Hron
 

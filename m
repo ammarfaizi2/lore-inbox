@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311180AbSD1Pc6>; Sun, 28 Apr 2002 11:32:58 -0400
+	id <S311320AbSD1QMz>; Sun, 28 Apr 2002 12:12:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311262AbSD1Pc5>; Sun, 28 Apr 2002 11:32:57 -0400
-Received: from 213-96-224-204.uc.nombres.ttd.es ([213.96.224.204]:46600 "EHLO
-	manty.net") by vger.kernel.org with ESMTP id <S311180AbSD1Pc4>;
-	Sun, 28 Apr 2002 11:32:56 -0400
-Date: Sun, 28 Apr 2002 17:32:53 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcnet32 on 2.4.18 doesn't init on IBM rs/6000 B50 (powerpc)
-Message-ID: <20020428153253.GA2924@man.beta.es>
-In-Reply-To: <20020425220402.GA3654@man.beta.es> <20020425221519.GA13245@krispykreme>
-Mime-Version: 1.0
+	id <S311564AbSD1QMy>; Sun, 28 Apr 2002 12:12:54 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:59568 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S311320AbSD1QMy>;
+	Sun, 28 Apr 2002 12:12:54 -0400
+To: Jarno Paananen <jpaana@s2.org>
+Cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+        lkml <linux-kernel@vger.kernel.org>, mingo@elte.hu
+Subject: Re: 2.5.9 - HPT366 ide unexpected interrupts
+In-Reply-To: <3CC5BAA3.3080705@wanadoo.fr> <m3u1q0smou.fsf@kalahari.s2.org>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Sun, 28 Apr 2002 18:12:37 +0200
+Message-ID: <878z77er9m.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-          TX packets:494 errors:226 dropped:0 overruns:0 carrier:226
-Hi again!
+Jarno Paananen <jpaana@s2.org> writes:
 
-> Can you try something newer (eg 2.4.19-pre7)? There have been a number
-> of changes to the pcnet32 driver, one of them (from Paul Mackerras)
-> should fix your problem.
+> Pierre Rousselet <pierre.rousselet@wanadoo.fr> writes:
+>
+> | PIII 650/Abit BE6 HPT366(ide2, ide3)
+> | 
+> | dmesg gives 482 times the same line :
+> | ide: unexpected interrupt 0 11
 
-It fixes indeed the problem on the init of the card, but I have made a
-deeper diagnosis of the problem and there are things left.
+I'm having the same problems on dual PIII (VIA chipset) with addon
+Promise IDE card:
 
-I have even got it to work with 2.4.18 without any patch. The problems
-appear just when you do a netboot of the machine, if you just boot from the
-disk 2.4.18 does ok. But if you boot from the net you get the problem with
-detection on 2.4.18 which is solved on 2.4.19 pres, but also you get another
-problem with the card, and it is that communication doesn't work like it
-should, this problem is not corrected on 2.4.19preX as of pre7 at least.
+Apr 24 19:34:51 atlas kernel: ide: unexpected interrupt 1 11
 
-This problems as I said before are caused when booting from the net and not
-when the machine is booted from disk. It looks like the card is left on a
-bad state by the openfirmware, in fact I've seen openfirmware fail several
-times to retrieve big kernel files (more than 1 MB) and afterwards even fail
-to do a bootp request, so I think that the card is left on a bad state that
-drives as to things like this one:
+Lots of those...
 
-A scp of a kernel to another machine connected to the same switched 10Mb LAN:
-vmlinux-2.4.18       100% |*****************************|  2399 KB    05:10
+Looks like it favors additional IDE interfaces. As system appears to
+behave sanely, modulo flooded logs, I decided to comment the printk
+for the time being.
 
-          RX packets:1619 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:2831 errors:1417 dropped:0 overruns:0 carrier:1417
-
-If I have time I'll test the driver that Tom Gall was sugesting me.
-
-Thanks a lot!
+Ingo, does it have anything to do with your interrupt balancing code?
+If you need additional testing, let me know.
 -- 
-Manty/BestiaTester -> http://manty.net
+Zlatko

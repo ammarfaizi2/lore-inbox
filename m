@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291151AbSBXUex>; Sun, 24 Feb 2002 15:34:53 -0500
+	id <S291236AbSBXUq4>; Sun, 24 Feb 2002 15:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291121AbSBXUen>; Sun, 24 Feb 2002 15:34:43 -0500
-Received: from marge.bucknell.edu ([134.82.9.1]:48900 "EHLO mail.bucknell.edu")
-	by vger.kernel.org with ESMTP id <S291117AbSBXUea>;
-	Sun, 24 Feb 2002 15:34:30 -0500
-Subject: Re: 2.4.18rc4aa1
-From: Eric Krout <ekrout@bucknell.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020224222531.04f44502.DiegoCG@teleline.es>
-In-Reply-To: <20020224165531.A14179@dualathlon.random> 
-	<20020224222531.04f44502.DiegoCG@teleline.es>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 24 Feb 2002 15:34:37 -0500
-Message-Id: <1014582877.16567.15.camel@ekrout.resnet.bucknell.edu>
+	id <S291214AbSBXUqp>; Sun, 24 Feb 2002 15:46:45 -0500
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:55507 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S291236AbSBXUql>;
+	Sun, 24 Feb 2002 15:46:41 -0500
+Date: Sun, 24 Feb 2002 20:45:13 +0000
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [PATCH] IDE clean 12 3rd attempt
+Message-ID: <20020224204513.A32303@fenrus.demon.nl>
+In-Reply-To: <200202241954.g1OJsPA32151@fenrus.demon.nl> <3C7946D9.1020908@evision-ventures.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C7946D9.1020908@evision-ventures.com>; from dalecki@evision-ventures.com on Sun, Feb 24, 2002 at 09:02:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-02-24 at 16:25, Diego Calleja wrote:
-> On Sun, 24 Feb 2002 16:55:31 +0100
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> 
-> > URL:
+On Sun, Feb 24, 2002 at 09:02:33PM +0100, Martin Dalecki wrote:
 > > 
-> > 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc4aa1.gz
-> > 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc4aa1/
+> > it was about the i386 architecture, not just 80386 cpus. And yes 2.4 still
+> > runs on those; you'be surprised how many
+> > embedded systems run 80386 equivalents...
 > 
-> 
-> Andrea, I think there's an error on compressed files.
-> -2 times downloaded .gz file(1'3 MB?)= unexpected end of file 
-> -1 time downloaded .bz2 file: Compressed file ends unexpectedly
+> Interresting. But do they still incorporate ST509 and other
+> archaic controllers? Or do they have broken BIOS-es which don't
+> setup the geometry information properly? I don't think so.
 
-Diego: It works fine for me as far as I can tell.  Try re-downloading.
+You bet that embedded systems use controllers that emulate archaic ones.
+Oh and bios.... well...... 
 
+> Well now I'm quite convinced. We can point those people to the legacy
+> single host driver anyway... And then the tradeoff goes just in favour
+> of supporting more and more common new hardware - it will just make
+> more people happy than it will make people loose :-).
+
+If you drop hardware support for no good reason.... you scare me. you
+really do. Now dropping hardware support (or moving support
+elsewhere) isn't always avoidable, but I'd think you need a pretty
+good reason to do so. 

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264393AbTF0Ojd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 10:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTF0Ojd
+	id S264394AbTF0OmF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTF0OmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 10:39:33 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:28308 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264393AbTF0Ojc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 10:39:32 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [RFC] My research agenda for 2.7
-Date: Fri, 27 Jun 2003 16:54:46 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <200306250111.01498.phillips@arcor.de> <Pine.LNX.4.53.0306271345330.14677@skynet> <23430000.1056725030@[10.10.2.4]>
-In-Reply-To: <23430000.1056725030@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jun 2003 10:42:05 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:55471 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264394AbTF0OmD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 10:42:03 -0400
+Date: Fri, 27 Jun 2003 07:56:07 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jan de Groot <admin@jgc.homeip.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serverworks OSB4 issues
+Message-ID: <20030627145607.GA18676@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jan de Groot <admin@jgc.homeip.net>, linux-kernel@vger.kernel.org
+References: <1256.212.187.32.129.1056725249.squirrel@jgc.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306271654.46491.phillips@arcor.de>
+In-Reply-To: <1256.212.187.32.129.1056725249.squirrel@jgc.homeip.net>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 June 2003 16:43, Martin J. Bligh wrote:
-> The buddy allocator is not a good system for getting rid of fragmentation.
+For what it is worth, I have this on bkbits.net:
+    ServerWorks OSB4: IDE controller on PCI bus 00 dev 79
+    ServerWorks OSB4: chipset revision 0
+    ServerWorks OSB4: not 100% native mode: will probe irqs later
 
-We've talked in the past about throwing out the buddy allocator and adopting 
-something more modern and efficient and I hope somebody will actually get 
-around to doing that.  In any event, defragging is an orthogonal issue.  Some 
-allocation strategies may be statistically more resistiant to fragmentation 
-than others, but no allocator has been invented, or ever will be, that can 
-guarantee that terminal fragmentation will never occur - only active 
-defragmentation can provide such a guarantee.
+and I ran 2.4.21 for a day or so before chickening out and downgrading to
+2.4.20.  I did not see any errors and I did run a full set of integrity
+checks over all the data (BK checks, not an fsck, BK checks read and 
+checksum all the data).
 
-Regards,
-
-Daniel
-
+I did get what looked like nasty corruption under 2.5.70.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

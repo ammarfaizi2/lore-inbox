@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282821AbRLGJXZ>; Fri, 7 Dec 2001 04:23:25 -0500
+	id <S282819AbRLGJb3>; Fri, 7 Dec 2001 04:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282819AbRLGJXP>; Fri, 7 Dec 2001 04:23:15 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:36035 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S282821AbRLGJW5>; Fri, 7 Dec 2001 04:22:57 -0500
-Subject: Re: make xconfig fails
-From: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
-To: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C1068BB.6070100@xmission.com>
-In-Reply-To: <3C1068BB.6070100@xmission.com>
+	id <S285445AbRLGJbU>; Fri, 7 Dec 2001 04:31:20 -0500
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:12810 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S282819AbRLGJbE>; Fri, 7 Dec 2001 04:31:04 -0500
+Subject: Re: kernel: ldt allocation failed
+From: James Davies <james_m_davies@yahoo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kiril Vidimce <vkire@pixar.com>, Dan Maas <dmaas@dcine.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16CH6i-00059b-00@the-village.bc.nu>
+In-Reply-To: <E16CH6i-00059b-00@the-village.bc.nu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Dec 2001 10:22:06 +0100
-Message-Id: <1007716926.742.0.camel@nc1701d>
+Date: 07 Dec 2001 19:26:28 +1000
+Message-Id: <1007717194.1342.1.camel@Lord>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I remember this happening when DISPLAY variable is not set or X11 server
-doesn't allow connections.
-(run 'xhost +localhost' as the user of the display, and "export
-DISPLAY="localhost:0.0"' as root)
+The nVidia kernel drivers are open source. You can get them from
+ftp://ftp.nvidia.com/pub/drivers/english/XFree86_40/1.0-2313/NVIDIA_kernel-1.0-2313.tar.gz
 
-George
+the 0.9 serious of drivers were buggy and crashed a lot, earning them a
+bad rep. But the 1.0 series are faster and more stable than their
+windows counterparts- I havn't had one crash, even with a faulty card
+that kills windows constantly. 
 
-On Fri, 2001-12-07 at 07:59, Ben Carrell wrote:
-> Is anyone else experiencing errors like the below when trying to run 
-> 'make xconfig'.   I have tcl/tk install fine, I'm not sure what else to 
-> check...please help :)
+
+On Fri, 2001-12-07 at 19:15, Alan Cox wrote:
+> > I don't see how one can magically tell that this is an NVIDIA problem. 
 > 
-> root@london:/usr/src/linux# make xconfig
-> rm -f include/asm
-> ( cd include ; ln -sf asm-i386 asm)
-> make -C scripts kconfig.tk
-> make[1]: Entering directory `/usr/src/linux-2.4.16/scripts'
-> cat header.tk >> ./kconfig.tk
-> ./tkparse < ../arch/i386/config.in >> kconfig.tk
-> echo "set defaults \"arch/i386/defconfig\"" >> kconfig.tk
-> echo "set ARCH \"i386\"" >> kconfig.tk
-> cat tail.tk >> kconfig.tk
-> chmod 755 kconfig.tk
-> make[1]: Leaving directory `/usr/src/linux-2.4.16/scripts'
-> wish -f scripts/kconfig.tk
-> Application initialization failed: unknown color name "Black"
-> Error in startup script: can't invoke "button" command: application has 
-> been destroyed
->     while executing
-> "button .ref"
->     (file "scripts/kconfig.tk" line 51)
-> make: *** [xconfig] Error 1
+> We don't know. But since we don't have their source and they have our
+> source only they can tell you.
 > 
+> > in the kernel and I imagine that even if the NVIDIA drivers are 
+> > triggering the problem, there are other modules/apps that can bring 
+> > about the same behavior.
 > 
+> Possibly, but you'll have to ask Nvidia to debug it for you. If you can
+> reproduce a bug by 
+> 	-	removing the nvidia modules so they wont be loaded
+> 	-	hard booting the machine
+> 	-	triggering the bug without loading the nvidia drivers
 > 
+> then please report it. If not, its between you and nvidia.
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Juergen Sawinski
-Max-Planck-Institute for Medical Research
-Dept. of Biomedical Optics
-Jahnstr. 29
-D-69120 Heidelberg
-Germany
 
-Phone:  +49-6221-486-309
-Fax:    +49-6221-486-325
 
-priv.
-Phone:  +49-6221-418 848
-Mobile: +49-171-532 5302
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

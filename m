@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUHWNuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUHWNwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbUHWNuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 09:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUHWNuQ
+	id S264377AbUHWNwx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 09:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUHWNwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 09:50:16 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:18415 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S264346AbUHWNuK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 09:50:10 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Support for HIGHMEM ...can any one explain my Q&A .. 
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Mon, 23 Aug 2004 19:21:22 +0530
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB348110B1385@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Support for HIGHMEM ...can any one explain my Q&A .. 
-Thread-Index: AcSJFmI+u4Qp6wiGSzKZkoa8i6vKRAAAIisg
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+	Mon, 23 Aug 2004 09:52:53 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:46078 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264377AbUHWNwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 09:52:51 -0400
+Subject: Re: PROBLEM: Linux system clock is running 3x too fast
+From: Fast Clock <fastclock@earthlink.net>
+To: Zan Lynx <zlynx@acm.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1093234996.5055.5.camel@titania.zlynx.org>
+References: <1093233957.3094.49.camel@apc>
+	 <1093234996.5055.5.camel@titania.zlynx.org>
+Content-Type: text/plain
+Message-Id: <1093269176.2805.23.camel@apc>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 23 Aug 2004 08:52:56 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The stock Fedora Core 2 x86_64 kernel is compiled with powernow-k8. It
+does not fix the system clock problem.
 
-Hi all,
-Sorry if I asked any thing that basic level stuff?
-This is the paasge I found in the net while surfing for details about
-HIGHMEM stuff.
-
-During 2.3 kernel development (I think), "HIGHMEM" support was added.
-Normally, the kernel can only address (4GB-PAGE_OFFSET)/PAGE_SIZE pages
-of RAM, since all physical pages must be mapped to kernel addresses
-between PAGE_OFFSET and 4GB. (So if PAGE_OFFSET is 3GB, only 1GB of
-physical RAM can be used - not even that, in practice, due to fixed
-kernel mappings and so forth.) The HIGHMEM patches allow the kernel to
-use more than 1G of memory by mapping the additional pages into the high
-part of the kernel address space just below 4GB as necessary. They also
-allow high-memory pages to be mapped into user process address space.
+# dmesg | grep powernow
+powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version
+1.00.09b)
+powernow-k8:    0 : fid 0xa (1800 MHz), vid 0x2 (1500 mV)
+powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x6 (1400 mV)
+powernow-k8:    2 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
+powernow-k8: cpu_init done, current fid 0x0, vid 0x12
 
 
-***) Does the above passage mean that PAGE_OFFSET is the starting
-address of my RAM ?
-I understood so from the below line
-"since all physical pages must be mapped to kernel addresses between
-PAGE_OFFSET and 4GB".
-
-***) Does it mean that the lowest portion of the 4GB os nothing but RAM
-?
-
-thanks in advance Guys,
-
-regards,
-Mukund Jampala
+On Sun, 2004-08-22 at 23:23, Zan Lynx wrote:
+> Have you tried compiling in or loading the module powernow-k8?
+> 
+> On Sun, 2004-08-22 at 22:05, Fast Clock wrote:
+> > My Athlon 64 laptop (HP Pavilion zv5000z) dual-boots Linux and Windows
+> > XP. The Windows system clock is running accurately but the Linux system
+> > clock is running 3 times too fast.
 

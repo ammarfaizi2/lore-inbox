@@ -1,197 +1,437 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314497AbSDXAus>; Tue, 23 Apr 2002 20:50:48 -0400
+	id <S314503AbSDXA6Y>; Tue, 23 Apr 2002 20:58:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314498AbSDXAup>; Tue, 23 Apr 2002 20:50:45 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:56009 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S314497AbSDXAuo>; Tue, 23 Apr 2002 20:50:44 -0400
-Date: Tue, 23 Apr 2002 20:56:01 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
-Message-ID: <20020423205601.A21267@rushmore>
+	id <S314510AbSDXA6X>; Tue, 23 Apr 2002 20:58:23 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48067 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S314503AbSDXA6U>; Tue, 23 Apr 2002 20:58:20 -0400
+Date: Tue, 23 Apr 2002 20:57:49 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: viro@math.psu.edu
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: One more approach to fs/partitions/ibm.c
+Message-ID: <20020423205749.A14878@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It sounds like Jens and Martin have a handle on this
-already.  Just in case this helps.  No modules.  
+Al,
 
-Oops on 2.5.9 at boot time.
+the failure of our experiment with check_partitions that did
+do_open keeps nagging me like a bad tooth. Here's another
+way to word around that problem. Observe that we do have
+one backdoor already, so I am not making it any worse than
+it was. What do you think?
 
-Here is the last part of the boot message:
+-- Pete
 
-Uniform Multi-Platform E-IDE driver ver.:7.0.0
-ide: system bus speed 33MHz
-VIA Technologies, Inc. Bus Master IDE: IDE controller on PCI slot 00:07.1
-VIA Technologies, Inc. Bus Master IDE: chipset revision 6
-VIA Technologies, Inc. Bus Master IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c586b (rev 47) IDE UDMA33 controller on pci00:07.1
-    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: Maxtor 51536U3, ATA DISK drive
-hdb: ATAPI CDROM, ATAPI CD/DVD-ROM drive
-hdc: Maxtor 52049U4, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide: unexpected interrupt 0 14
-hda: 30015216 sectors (15368 MB) w/2048KiB Cache, CHS=29777/16/63, UDMA(33)
-ide: unexpected interrupt 1 15
-hdc: 40020624 sectors (20491 MB) w/2048KiB Cache, CHS=39703/16/63, UDMA(33)
-ide: unexpected interrupt 0 14
-(oops here)
-
-
-ksymoops output
-
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-c01bf5f6
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01bf5f6>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010002
-eax: 00000004   ebx: d7f61eb4   ecx: 00000001   edx: 00000000
-esi: d7f61e30   edi: c02c8b6c   ebp: 00000292   esp: c026bedc
-ds: 0018   es: 0018   ss: 0018
-Stack: d7f61e30 00000001 c02c8b6c 00000003 00000001 c01c2f1b c02c8b6c 00000001
-       00000000 c01c9a52 c02c8b6c 00000001 00000018 d7f61eb4 d7f61e30 c01ca783
-       c02c8b6c 00000001 00000000 c02c8b6c d7f622c0 c02c8840 c02c8f0c d7f62380
-Call Trace: [<c01c2f1b>] [<c01c9a52>] [<c01ca783>] [<c01c11ba>] [<c01ca6bc>]
-   [<c01080fc>] [<c0108262>] [<c0105000>] [<c0106eff>] [<c0105240>] [<c0105000>]
-   [<c0105263>] [<c01052d4>] [<c0105019>]
-Code: c7 04 02 00 00 00 00 8b 53 0c 8b 87 34 02 00 00 0f b3 10 8b
-
-
->>EIP; c01bf5f6 <__ide_end_request+fe/140>   <=====
-
->>ebx; d7f61eb4 <END_OF_CODE+17c930f8/????>
->>esi; d7f61e30 <END_OF_CODE+17c93074/????>
->>edi; c02c8b6c <ide_hwifs+32c/3a70>
->>esp; c026bedc <init_thread_union+1edc/2000>
-
-Trace; c01c2f1b <ide_end_request+f/14>
-Trace; c01c9a52 <cdrom_end_request+42/4c>
-Trace; c01ca783 <cdrom_pc_intr+c7/1d0>
-Trace; c01c11ba <ide_intr+c6/13c>
-Trace; c01ca6bc <cdrom_pc_intr+0/1d0>
-Trace; c01080fc <handle_IRQ_event+30/5c>
-Trace; c0108262 <do_IRQ+6a/a8>
-Trace; c0105000 <_stext+0/0>
-Trace; c0106eff <common_interrupt+1f/30>
-Trace; c0105240 <default_idle+0/28>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105263 <default_idle+23/28>
-Trace; c01052d4 <cpu_idle+28/38>
-Trace; c0105019 <rest_init+19/1c>
-
-Code;  c01bf5f6 <__ide_end_request+fe/140>
-00000000 <_EIP>:
-Code;  c01bf5f6 <__ide_end_request+fe/140>   <=====
-   0:   c7 04 02 00 00 00 00      movl   $0x0,(%edx,%eax,1)   <=====
-Code;  c01bf5fd <__ide_end_request+105/140>
-   7:   8b 53 0c                  mov    0xc(%ebx),%edx
-Code;  c01bf600 <__ide_end_request+108/140>
-   a:   8b 87 34 02 00 00         mov    0x234(%edi),%eax
-Code;  c01bf606 <__ide_end_request+10e/140>
-  10:   0f b3 10                  btr    %edx,(%eax)
-Code;  c01bf609 <__ide_end_request+111/140>
-  13:   8b 00                     mov    (%eax),%eax
-
- <0>Kernel panic: Aiee, killing interrupt handler!
-
-This config has been working with other kernels, including 2.5.8.
-
-grep ^CONFIG .config
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_MK6=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_TSC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=64
-CONFIG_REISERFS_FS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-
-lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] (rev 47)
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 02)
-00:07.3 Host bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
-00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-01:00.0 VGA compatible controller: nVidia Corporation Vanta [NV6] (rev 15)
-
--- 
-Randy Hron
-
+diff -ur -X dontdiff linux-2.4.19-pre7/drivers/s390/block/dasd.c linux-2.4.19-pre7-390/drivers/s390/block/dasd.c
+--- linux-2.4.19-pre7/drivers/s390/block/dasd.c	Mon Feb 25 11:38:03 2002
++++ linux-2.4.19-pre7-390/drivers/s390/block/dasd.c	Tue Apr 23 17:13:57 2002
+@@ -4187,6 +4187,7 @@
+ 		goto failed;
+ 	}
+ 	genhd_dasd_name = dasd_device_name;
++	genhd_dasd_ioctl = dasd_ioctl;
+ 
+ 	if (dasd_autodetect) {	/* update device range to all devices */
+ 		for (irq = get_irq_first (); irq != -ENODEV;
+@@ -4309,7 +4310,9 @@
+ 	printk (KERN_INFO PRINTK_HEADER
+ 		"De-Registered ECKD discipline successfully\n");
+ #endif /* CONFIG_DASD_ECKD_BUILTIN */
+-        
++
++	genhd_dasd_name = NULL;
++	genhd_dasd_ioctl = NULL;
+ 	dasd_proc_cleanup ();
+         
+ 	list_for_each_safe (l, n, &dasd_major_info[0].list) {
+diff -ur -X dontdiff linux-2.4.19-pre7/drivers/s390/block/dasd_int.h linux-2.4.19-pre7-390/drivers/s390/block/dasd_int.h
+--- linux-2.4.19-pre7/drivers/s390/block/dasd_int.h	Tue Apr 23 17:08:36 2002
++++ linux-2.4.19-pre7-390/drivers/s390/block/dasd_int.h	Tue Apr 23 17:21:31 2002
+@@ -367,6 +367,8 @@
+ 
+ extern debug_info_t *dasd_debug_area;
+ extern int (*genhd_dasd_name) (char *, int, int, struct gendisk *);
++extern int (*genhd_dasd_ioctl) (struct inode *inp, struct file *filp,
++                            unsigned int no, unsigned long data);
+ 
+ #endif /* __KERNEL__ */
+ 
+diff -ur -X dontdiff linux-2.4.19-pre7/fs/partitions/Makefile linux-2.4.19-pre7-390/fs/partitions/Makefile
+--- linux-2.4.19-pre7/fs/partitions/Makefile	Tue Apr 23 17:08:48 2002
++++ linux-2.4.19-pre7-390/fs/partitions/Makefile	Tue Apr 23 17:14:26 2002
+@@ -9,7 +9,7 @@
+ 
+ O_TARGET := partitions.o
+ 
+-export-objs := check.o ibm.o msdos.o
++export-objs := check.o msdos.o
+ 
+ obj-y := check.o
+ 
+diff -ur -X dontdiff linux-2.4.19-pre7/fs/partitions/check.c linux-2.4.19-pre7-390/fs/partitions/check.c
+--- linux-2.4.19-pre7/fs/partitions/check.c	Mon Feb 25 11:38:09 2002
++++ linux-2.4.19-pre7-390/fs/partitions/check.c	Tue Apr 23 17:13:57 2002
+@@ -77,13 +77,17 @@
+ 
+ /*
+  *	This is ucking fugly but its probably the best thing for 2.4.x
+- *	Take it as a clear reminder than we should put the device name
++ *	Take it as a clear reminder that: 1) we should put the device name
+  *	generation in the object kdev_t points to in 2.5.
++ *	and 2) ioctls better work on half-opened devices.
+  */
+  
+ #ifdef CONFIG_ARCH_S390
+ int (*genhd_dasd_name)(char*,int,int,struct gendisk*) = NULL;
++int (*genhd_dasd_ioctl)(struct inode *inp, struct file *filp,
++			    unsigned int no, unsigned long data);
+ EXPORT_SYMBOL(genhd_dasd_name);
++EXPORT_SYMBOL(genhd_dasd_ioctl);
+ #endif
+ 
+ /*
+diff -ur -X dontdiff linux-2.4.19-pre7/fs/partitions/ibm.c linux-2.4.19-pre7-390/fs/partitions/ibm.c
+--- linux-2.4.19-pre7/fs/partitions/ibm.c	Mon Oct  1 20:03:26 2001
++++ linux-2.4.19-pre7-390/fs/partitions/ibm.c	Tue Apr 23 17:40:52 2002
+@@ -8,6 +8,7 @@
+  * History of changes (starts July 2000)
+  * 07/10/00 Fixed detection of CMS formatted disks     
+  * 02/13/00 VTOC partition support added
++ * 12/27/01 fixed PL030593 (CMS reserved minidisk not detected on 64 bit)
+  */
+ 
+ #include <linux/config.h>
+@@ -29,47 +30,6 @@
+ #include "check.h"
+ #include <asm/vtoc.h>
+ 
+-typedef enum {
+-  ibm_partition_lnx1 = 0,
+-  ibm_partition_vol1 = 1,
+-  ibm_partition_cms1 = 2,
+-  ibm_partition_none = 3
+-} ibm_partition_t;
+-
+-static char* part_names[] = {   [ibm_partition_lnx1] = "LNX1",
+-			     [ibm_partition_vol1] = "VOL1",
+-			     [ibm_partition_cms1] = "CMS1",
+-			     [ibm_partition_none] = "(nonl)"
+-};
+-
+-static ibm_partition_t
+-get_partition_type ( char * type )
+-{
+-	int i;
+-	for ( i = 0; i < 3; i ++) {
+-		if ( ! strncmp (type,part_names[i],4) ) 
+-			break;
+-	}
+-        return i;
+-}
+-
+-/*
+- * add the two default partitions
+- * - whole dasd
+- * - whole dasd without "offset"
+- */
+-static inline void
+-two_partitions(struct gendisk *hd,
+-	       int minor,
+-	       int blocksize,
+-	       int offset,
+-	       int size) {
+-
+-        add_gd_partition( hd, minor, 0, size);
+-	add_gd_partition( hd, minor+1, offset*blocksize, size-offset*blocksize);
+-}
+-
+-
+ /*
+  * compute the block number from a 
+  * cyl-cyl-head-head structure
+@@ -92,119 +52,187 @@
+ 		ptr->b;
+ }
+ 
++/*
++ * We used to use ioctl_by_bdev in early 2.4, but it broke
++ * between 2.4.9 and 2.4.18 somewhere.
++ */
++extern int (*genhd_dasd_ioctl)(struct inode *inp, struct file *filp,
++                            unsigned int no, unsigned long data);
++
++static int
++ibm_ioctl_unopened(struct block_device *bdev, unsigned cmd, unsigned long arg)
++{
++	int res;
++	mm_segment_t old_fs = get_fs();
++
++	if (genhd_dasd_ioctl == NULL)
++		return -ENODEV;
++#if 0
++	lock_kernel();
++	if (bd_ops->owner)
++		__MOD_INC_USE_COUNT(bdev->bd_op->owner);
++	unlock_kernel();
++#endif
++	set_fs(KERNEL_DS);
++	res = (*genhd_dasd_ioctl)(bdev->bd_inode, NULL, cmd, arg);
++	set_fs(old_fs);
++#if 0
++	lock_kernel();
++	if (bd_ops->owner)
++		__MOD_DEV_USE_COUNT(bd_ops->owner);
++	unlock_kernel();
++#endif
++	return res;
++}
++
++/*
++ */
+ int 
+ ibm_partition(struct gendisk *hd, struct block_device *bdev,
+-		unsigned long first_sector, int first_part_minor)
++	      unsigned long first_sector, int first_part_minor)
+ {
+-	Sector sect, sect2;
+-	unsigned char *data;
+-	ibm_partition_t partition_type;
++	int blocksize, offset, size;
++	dasd_information_t *info;
++	struct hd_geometry *geo;
+ 	char type[5] = {0,};
+ 	char name[7] = {0,};
+-	struct hd_geometry *geo;
+-	int blocksize;
+-	int offset=0, size=0, psize=0, counter=0;
+-	unsigned int blk;
+-	format1_label_t f1;
+-	volume_label_t vlabel;
+-	dasd_information_t *info;
+-	kdev_t dev = to_kdev_t(bdev->bd_dev);
++	volume_label_t *vlabel;
++	unsigned char *data;
++	Sector sect;
+ 
+ 	if ( first_sector != 0 )
+ 		BUG();
+ 
+-	info = (struct dasd_information_t *)kmalloc(sizeof(dasd_information_t),
+-						    GFP_KERNEL);
+-	if ( info == NULL )
+-		return 0;
+-	if (ioctl_by_bdev(bdev, BIODASDINFO, (unsigned long)(info)))
+-		return 0;
+-	geo = (struct hd_geometry *)kmalloc(sizeof(struct hd_geometry),
+-					    GFP_KERNEL);
+-	if ( geo == NULL )
+-		return 0;
+-	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo);
+-		return 0;
+-	blocksize = hardsect_size[MAJOR(dev)][MINOR(dev)];
+-	if ( blocksize <= 0 ) {
+-		return 0;
+-	}
+-	blocksize >>= 9;
+-	
+-	data = read_dev_sector(bdev, inode->label_block*blocksize, &sect);
+-	if (!data)
+-		return 0;
+-
++	if ((info = kmalloc(sizeof(dasd_information_t), GFP_KERNEL)) == NULL)
++		goto out_noinfo;
++	if ((geo = kmalloc(sizeof(struct hd_geometry), GFP_KERNEL)) == NULL)
++		goto out_nogeo;
++	if ((vlabel = kmalloc(sizeof(volume_label_t), GFP_KERNEL)) == NULL)
++		goto out_novlab;
++
++	if (ibm_ioctl_unopened(bdev, BIODASDINFO, (unsigned long)info) != 0 ||
++	    ibm_ioctl_unopened(bdev, HDIO_GETGEO, (unsigned long)geo) != 0)
++		goto out_noioctl;
++
++	if ((blocksize = get_hardsect_size(to_kdev_t(bdev->bd_dev))) <= 0)
++		goto out_badsect;
++
++	/*
++	 * Get volume label, extract name and type.
++	 */
++	data = read_dev_sector(bdev, info->label_block*(blocksize/512), &sect);
++	if (data == NULL)
++		goto out_readerr;
+ 	strncpy (type, data, 4);
+-	if ((!info->FBA_layout) && (!strcmp(info->type,"ECKD"))) {
+-		strncpy ( name, data + 8, 6);
+-	} else {
+-		strncpy ( name, data + 4, 6);
+-	}
+-	memcpy (&vlabel, data, sizeof(volume_label_t));
++	if ((!info->FBA_layout) && (!strcmp(info->type, "ECKD")))
++		strncpy(name, data + 8, 6);
++	else
++		strncpy(name, data + 4, 6);
++	memcpy (vlabel, data, sizeof(volume_label_t));
++	put_dev_sector(sect);
++
++	EBCASC(type, 4);
++	EBCASC(name, 6);
+ 
+-	EBCASC(type,4);
+-	EBCASC(name,6);
+-	
+-	partition_type = get_partition_type(type);
+-	printk ( "%4s/%8s:",part_names[partition_type],name);
+-	switch ( partition_type ) {
+-	case ibm_partition_cms1:
+-		if (* ((long *)data + 13) != 0) {
++	/*
++	 * Three different types: CMS1, VOL1 and LNX1/unlabeled
++	 */
++	if (strncmp(type, "CMS1", 4) == 0) {
++		/*
++		 * VM style CMS1 labeled disk
++		 */
++		int *label = (int *) data;
++
++		if (label[13] != 0) {
++			printk("CMS1/%8s(MDSK):", name);
+ 			/* disk is reserved minidisk */
+-			long *label=(long*)data;
+-			blocksize = label[3]>>9;
++			blocksize = label[3];
+ 			offset = label[13];
+-			size = (label[7]-1)*blocksize; 
+-			printk ("(MDSK)");
++			size = (label[7] - 1)*(blocksize >> 9);
+ 		} else {
++			printk("CMS1/%8s:", name);
+ 			offset = (info->label_block + 1);
+-			size = hd -> sizes[MINOR(dev)]<<1;
+-		}
+-		two_partitions( hd, MINOR(dev), blocksize, offset, size);
+-		break;
+-	case ibm_partition_lnx1: 
+-	case ibm_partition_none:
+-		offset = (info->label_block + 1);
+-		size = hd -> sizes[MINOR(dev)]<<1;
+-		two_partitions( hd, MINOR(dev), blocksize, offset, size);
+-		break;
+-	case ibm_partition_vol1: 
+-		size = hd -> sizes[MINOR(dev)]<<1;
+-		add_gd_partition(hd, MINOR(dev), 0, size);
+-		
+-		/* get block number and read then first format1 label */
+-		blk = cchhb2blk(&vlabel.vtoc, geo) + 1;
+-		data = read_dev_sector(bdev, blk * blocksize, &sect2);
+-		if (data) {
+-		        memcpy (&f1, data, sizeof(format1_label_t));
+-			put_dev_sector(sect2);
++			size = hd->sizes[first_part_minor - 1] << 1;
+ 		}
++		// add_gd_partition(hd, first_part_minor - 1, 0, size);
++		add_gd_partition(hd, first_part_minor,
++				 offset*(blocksize >> 9),
++				 size-offset*(blocksize >> 9));
++	} else if (strncmp(type, "VOL1", 4) == 0) {
++		/*
++		 * New style VOL1 labeled disk
++		 */
++		unsigned int blk;
++		int counter;
++
++		printk("VOL1/%8s:", name);
++		// add_gd_partition(hd, first_part_minor - 1, 0,
++		// 		 hd->sizes[first_part_minor - 1]<<1);
+ 		
+-		while (f1.DS1FMTID == _ascebc['1']) {
++		/* get block number and read then go through format1 labels */
++		blk = cchhb2blk(&vlabel->vtoc, geo) + 1;
++		counter = 0;
++		while ((data = read_dev_sector(bdev, blk*(blocksize/512),
++					       &sect)) != NULL) {
++			format1_label_t f1;
++
++			memcpy(&f1, data, sizeof(format1_label_t));
++			put_dev_sector(sect);
++
++			/* skip FMT4 / FMT5 / FMT7 labels */
++			if (f1.DS1FMTID == _ascebc['4']
++			    || f1.DS1FMTID == _ascebc['5']
++			    || f1.DS1FMTID == _ascebc['7']) {
++			        blk++;
++				continue;
++			}
++
++			/* only FMT1 valid at this point */
++			if (f1.DS1FMTID != _ascebc['1'])
++				break;
++
++			/* OK, we got valid partition data */
+ 		        offset = cchh2blk(&f1.DS1EXT1.llimit, geo);
+-			psize  = cchh2blk(&f1.DS1EXT1.ulimit, geo) - 
++			size  = cchh2blk(&f1.DS1EXT1.ulimit, geo) - 
+ 				offset + geo->sectors;
+-			
++			if (counter >= hd->max_p)
++				break;
++			add_gd_partition(hd, first_part_minor + counter, 
++					 offset * (blocksize >> 9),
++					 size * (blocksize >> 9));
+ 			counter++;
+-			add_gd_partition(hd, MINOR(dev) + counter, 
+-					 offset * blocksize,
+-					 psize * blocksize);
+-			
+ 			blk++;
+-			data = read_dev_sector(bdev, blk * blocksize, &sect2);
+-			if (data) {
+-			        memcpy (&f1, data, sizeof(format1_label_t));
+-				put_dev_sector(sect2);
+-			}
+ 		}
+-		break;
+-	default:
+-		add_gd_partition( hd, MINOR(dev), 0, 0);
+-		add_gd_partition( hd, MINOR(dev) + 1, 0, 0);
++	} else {
++		/*
++		 * Old style LNX1 or unlabeled disk
++		 */
++		if (strncmp(type, "LNX1", 4) == 0)
++			printk ("LNX1/%8s:", name);
++		else
++			printk("(nonl)/%8s:", name);
++		offset = (info->label_block + 1);
++		size = hd->sizes[first_part_minor - 1] << 1;
++		// add_gd_partition(hd, first_part_minor - 1, 0, size);
++		add_gd_partition(hd, first_part_minor,
++				 offset*(blocksize >> 9),
++				  size-offset*(blocksize >> 9));
+ 	}
+-	
+-	printk ( "\n" );
+-	put_dev_sector(sect);
++
++	printk("\n");
++	kfree(vlabel);
++	kfree(geo);
++	kfree(info);
+ 	return 1;
++
++out_readerr:
++out_badsect:
++out_noioctl:
++	kfree(vlabel);
++out_novlab:
++	kfree(geo);
++out_nogeo:
++	kfree(info);
++out_noinfo:
++	return 0;
+ }

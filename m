@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUFBS7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUFBTBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbUFBS7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUFBS7r
+	id S263818AbUFBTBc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 15:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbUFBTBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:59:47 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:61852 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263815AbUFBS7n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 14:59:43 -0400
-Date: Wed, 2 Jun 2004 20:58:32 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>,
+	Wed, 2 Jun 2004 15:01:32 -0400
+Received: from vogsphere.datenknoten.de ([212.12.48.49]:34971 "EHLO
+	vogsphere.datenknoten.de") by vger.kernel.org with ESMTP
+	id S263818AbUFBTAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 15:00:31 -0400
+Subject: Re: Strange DMA-errors and system hang with SMART (was: ...and
+	system hang with Promise 20268)
+From: Sebastian <sebastian@expires0604.datenknoten.de>
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-Message-ID: <20040602185832.GA2874@wohnheim.fh-wedel.de>
-References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl> <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org> <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <Pine.LNX.4.58.0406020724040.22204@bigblue.dev.mdolabs.com> <20040602182019.GC30427@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406021124310.22742@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.GSO.4.21.0405230737040.9783-100000@dirac.phys.uwm.edu>
+References: <Pine.GSO.4.21.0405230737040.9783-100000@dirac.phys.uwm.edu>
+Content-Type: text/plain
+Message-Id: <1086202839.4439.11.camel@coruscant.datenknoten.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0406021124310.22742@bigblue.dev.mdolabs.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 02 Jun 2004 21:00:39 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 June 2004 11:37:50 -0700, Davide Libenzi wrote:
+Am So, den 23.05.2004 schrieb Bruce Allen um 14:46:
+> Hi Sebastian,
 > 
-> You're requesting to add and maintain data to feed a tool that catches 
-> only trivially visible recursion. I don't want to waste mine and your time 
-> explaining why your tool will never work, but if you want an hint, you can 
-> start thinking about all functions that sets/pass callbacks and/or sets 
-> operational functions. I don't know if you noticed that, but Linux is 
-> heavily function-pointer driven. Eg, one function setups a set of function 
-> pointers, and another 317 indirectly calls them. Having such comments, not 
-> only makes the maintainance heavier, but gives the false sense of safeness 
-> that once you drop that data in, you're protected against recursion.
+> Sorry it's taken me so long to reply.  My usual googling of smartmontools
+> didn't turn this up because you changed the subject line and started a new
+> thread.
 
-Yeah, I know about the problems to generate a complete call graph.
-With function pointers, it is plain impossible to get it right in the
-most general case.
+Sorry for my late reply, too. I had been out of country and away from
+Internet.
 
-Note the "in the most general case" part.  You can get things right if
-you make some assumptions and those assumptions are actually valid.
-In my case the assumptions are:
-1. all relevant function pointers are stuffed into some struct and
-2. no casts are used to disguise function pointer as something else.
+> I hadn't realized until now that the drive is an IBM GXP60.
+> 
+> smartctl is *supposed* to print a warning message for these drives, to
+> tell users to look at http://www.geocities.com/dtla_update/index.html#rel
+> for pointers to updated firmware for this drive!  What firmware version do
+> you have?
 
-If you stick with those rules, the resulting code is quite sane, which
-is much more important than any tools being usable.  If the kernel
-doesn't stick to those rules for a good reason, I'd like to know about
-it, so I can adjust my tool.  And if the kernel doesn't stick to those
-rules for no good reason, the code if broken and needs to be fixed.
+Yes, the warning is there. However, there never had been a problem with
+it for years until I upgraded the kernel. I probably should have paid
+more attention to that warning... The problem is that most of the links
+are broken on the page that you refer to.
 
-Is this sane?
+I am pretty sure now that the DMA-error is related to smart as the
+server run without problems for a couple of weeks until someone started
+smartd again by mistake. Three days later the box froze again just after
+1 am. 
 
-Jörn
+> Meanwhile, what firmware version do you have?  I suggest you upgrade it --
+> this may fix the problem.  The final firmware with the SMART fixes seems
+> to be A46A.
 
--- 
-A victorious army first wins and then seeks battle.
--- Sun Tzu
+ER4OA44A
+
+Thanks for the infos,
+
+Sebastian
+

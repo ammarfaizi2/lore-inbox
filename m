@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUJZUd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbUJZUeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUJZUd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 16:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUJZUdZ
+	id S261448AbUJZUeu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 16:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUJZUdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 16:33:25 -0400
-Received: from holomorphy.com ([207.189.100.168]:51175 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261440AbUJZUdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 16:33:11 -0400
-Date: Tue, 26 Oct 2004 13:33:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Let's make a small change to the process
-Message-ID: <20041026203302.GF15367@holomorphy.com>
-References: <200410260644.47307.edt@aei.ca> <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin> <4d8e3fd3041026050823d012dc@mail.gmail.com> <877jpdcnf5.fsf@barad-dur.crans.org> <4d8e3fd304102613165b2fb283@mail.gmail.com> <20041026202224.GE15367@holomorphy.com> <4d8e3fd30410261326741a809@mail.gmail.com>
+	Tue, 26 Oct 2004 16:33:44 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:12818 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261448AbUJZUdY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 16:33:24 -0400
+Date: Wed, 27 Oct 2004 00:33:51 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: Tom Rini <trini@kernel.crashing.org>, sam@ravnborg.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/take 2] ppc: fix build with O=$(output_dir)
+Message-ID: <20041026223351.GD30918@mars.ravnborg.org>
+Mail-Followup-To: Roland Dreier <roland@topspin.com>,
+	Tom Rini <trini@kernel.crashing.org>, sam@ravnborg.org,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <52is979pah.fsf@topspin.com> <20041019164449.GF6298@smtp.west.cox.net> <521xfua835.fsf_-_@topspin.com> <20041019182928.GA12544@smtp.west.cox.net> <52wtxm8ric.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d8e3fd30410261326741a809@mail.gmail.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <52wtxm8ric.fsf@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 13:22:24 -0700, William Lee Irwin III wrote:
->> Not normally the first thing I'd volunteer for. I probably won't at
->> all unless demand comes down from on high.
+On Tue, Oct 19, 2004 at 11:58:03AM -0700, Roland Dreier wrote:
+>     Tom> This misses the bit to invoke the checker as well (when I
+>     Tom> first thought this up I poked Al Viro about the general
+>     Tom> question of checker on boot code, and he wanted it, so...).
+>     Tom> And having 2 'magic' rules not just 1 is why I don't like
+>     Tom> this too much and was hoping Sam would have some idea of a
+>     Tom> good fix.
+> 
+> Hmm, good point, forgot about the checker.  I tried various magic ways
+> of fixing this with vpath etc. but I couldn't mke it work.  Sam,
+> you're our last hope I guess.
 
-On Tue, Oct 26, 2004 at 10:26:40PM +0200, Paolo Ciarrocchi wrote:
-> Well, I wrote your name because you are a great developer but I
-> understand you prefer doing something else ;)
-> What about just the *idea* ?
+ppc seems to come pretty low in my todo list these days - sorry.
+Will take a deep look one day.
 
-The idea is fine.
+[um, m232r needs a great deal of attention also..]
 
-
--- wli
+	Sam

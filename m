@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265505AbUBJCAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 21:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbUBJCAV
+	id S265391AbUBJCHc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 21:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUBJCHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 21:00:21 -0500
-Received: from mail.tmr.com ([216.238.38.203]:61197 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S265505AbUBJCAP (ORCPT
+	Mon, 9 Feb 2004 21:07:32 -0500
+Received: from hera.kernel.org ([63.209.29.2]:22447 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265391AbUBJCHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 21:00:15 -0500
+	Mon, 9 Feb 2004 21:07:30 -0500
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.3-rc1-mm1
-Date: 10 Feb 2004 01:59:35 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <c09du7$qnj$1@gatekeeper.tmr.com>
-References: <1076320225.671.7.camel@chevrolet.hybel> <20040209022453.44e7f453.akpm@osdl.org>
-X-Trace: gatekeeper.tmr.com 1076378375 27379 192.168.12.62 (10 Feb 2004 01:59:35 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: Does anyone still care about BSD ptys?
+Date: Tue, 10 Feb 2004 02:07:22 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c09ecq$h11$1@terminus.zytor.com>
+References: <c07c67$vrs$1@terminus.zytor.com> <c07i5r$ctq$1@news.cistron.nl> <20040209100940.GF21151@parcelfarce.linux.theplanet.co.uk> <c09ccl$qkl$1@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1076378842 17442 63.209.29.3 (10 Feb 2004 02:07:22 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 10 Feb 2004 02:07:22 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040209022453.44e7f453.akpm@osdl.org>,
-Andrew Morton  <akpm@osdl.org> wrote:
-| Stian Jordet <liste@jordet.nu> wrote:
-| >
-| > man, 09.02.2004 kl. 10.40 skrev Andrew Morton:
-| > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc1/2.6.3-rc1-mm1/
-| > 
-| > Pretty, pretty please take Karstein Keil's big isdn update from
-| > 
-| > ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
-| > 
-| 
-| Boggle.  That thing is 1.8MB.
-| 
-|  163 files changed, 25877 insertions(+), 22424 deletions(-)
-| 
-| This is the first time that anyone told me that it even existed.  How on
-| earth could a patch to a major subsystem grow to such a size in such
-| isolation?  When we're at kernel version 2.6.3!
+Followup to:  <c09ccl$qkl$1@gatekeeper.tmr.com>
+By author:    davidsen@tmr.com (bill davidsen)
+In newsgroup: linux.dev.kernel
+>
+> In article <20040209100940.GF21151@parcelfarce.linux.theplanet.co.uk>,
+>  <viro@parcelfarce.linux.theplanet.co.uk> wrote:
+> 
+> | So what's the problem with calling mount(2)?
+> 
+> Other than making an optional part of the kernel required... Not
+> impossible but something to consider.
+> 
 
-If I read the reply right, Linus neither accepted nor rejected it?
+With my changes the devpts filesystem will be pretty much an integral
+part of the pty system (since the whole idea is to use the devpts
+filesystem to keep track of the tty structures) so that's not an
+issue.
 
-| How mature is this code?  What is its testing status?  What is the size of
-| its user base?  Is it available as individual, changelogged patches?
-| 
-| It would be crazy to simply shut our eyes and slam something of this
-| magnitude into the tree.  And it is totally unreasonable to expect
-| interested parties to be able to review and understand it.
-| 
-| Could someone please tell me how this situation came about, and what we can
-| do to prevent any reoccurrence?
-
-We've had this discussion before, haven't we? And all the solutions
-seemed to involve not having just one person approve things, which isn't
-likely to change. I don't recall seeing WHEN it was sent to Linus, but
-clearly something working in 2.4 and not in 2.6 probably shouldn't wait
-years for 2.8.
-
-I guess the real question is how invasive it is, this isn't the first
-time I've heard that 2.6 ISDN doesn't work, so it's not as if putting it
-in -mm would break ISDN, the question is how many other things are
-touched and might break.
-
-At least it seems to have been widely tested, and is based on something
-which is in a stable kernel. A maintainer's lot is not a happy one, and
-you have my sympathy.
-
-Maybe leave it in -mm for a bit and not promote it until people have a
-chance to really beat on it?
+	-hpa
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+PGP public key available - finger hpa@zytor.com
+Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
+Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262791AbREVU3R>; Tue, 22 May 2001 16:29:17 -0400
+	id <S262799AbREVUgh>; Tue, 22 May 2001 16:36:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262798AbREVU3H>; Tue, 22 May 2001 16:29:07 -0400
-Received: from mnh-1-24.mv.com ([207.22.10.56]:37896 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S262791AbREVU2w>;
-	Tue, 22 May 2001 16:28:52 -0400
-Message-Id: <200105222013.PAA03768@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Ryan Cumming <bodnar42@bodnar42.dhs.org>
-cc: Jan Harkes <jaharkes@cs.cmu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: UML cross-platform build problems (was Re: [PATCH] 
- include/linux/coda.h)
-In-Reply-To: Your message of "Tue, 22 May 2001 12:56:26 -0400."
-             <20010522125625.A3985@cs.cmu.edu> 
+	id <S262800AbREVUg1>; Tue, 22 May 2001 16:36:27 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:22021 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262799AbREVUgN>;
+	Tue, 22 May 2001 16:36:13 -0400
+Date: Tue, 22 May 2001 16:38:45 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jonathan Morton <chromi@cyberspace.org>
+Cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Background to the argument about CML2 design philosophy
+Message-ID: <20010522163845.B3880@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jonathan Morton <chromi@cyberspace.org>,
+	Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> <20010520111856.C3431@thyrsus.com> <15823.990372866@redhat.com> <20010520114411.A3600@thyrsus.com> <16267.990374170@redhat.com> <20010520131457.A3769@thyrsus.com> <3B08DC75.C466BA66@idb.hist.no> <l03130304b72ea286711e@[192.168.239.105]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 22 May 2001 15:13:52 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <l03130304b72ea286711e@[192.168.239.105]>; from chromi@cyberspace.org on Mon, May 21, 2001 at 12:32:49PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jaharkes@cs.cmu.edu said:
-> I agree that a UML kernel on FreeBSD should be a native binary and not
-> cross-compiled. However, this could be an UML specific problem and
-> -D__linux__ should be added to CFLAGS in arch/uml/Makefile
+Jonathan Morton <chromi@cyberspace.org>:
+> I'm going to assume for now that CML2 saves two files - one storing a
+> relatively small number of symbols (which is strictly limited to those
+> explicitly set by the user), and one containing the full set for
+> consumption by the Makefiles.
 
-Exactly.  Don't be shy about fiddling CFLAGS in UML-specific Makefiles.  This 
-is already done quite a bit (-D__i386__ and the construction of userspace 
-CFLAGS are examples).
+No, that's not the case.  Would it be too much to ask that you learn how
+the existing language works brfore proposing improvements?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-This is very UML-specific, so there's no reason to bother the rest of the 
-kernel (unless, of course, you find a bug that could affect other ports).
-
-				Jeff
-
-
+The prestige of government has undoubtedly been lowered considerably
+by the Prohibition law. For nothing is more destructive of respect for
+the government and the law of the land than passing laws which cannot
+be enforced. It is an open secret that the dangerous increase of crime
+in this country is closely connected with this.
+	-- Albert Einstein, "My First Impression of the U.S.A.", 1921

@@ -1,441 +1,919 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154272AbPKNMq5>; Sun, 14 Nov 1999 07:46:57 -0500
-Received: by vger.rutgers.edu id <S154220AbPKNMqr>; Sun, 14 Nov 1999 07:46:47 -0500
-Received: from chiara.csoma.elte.hu ([157.181.71.18]:25690 "EHLO chiara.csoma.elte.hu") by vger.rutgers.edu with ESMTP id <S154231AbPKNMqf>; Sun, 14 Nov 1999 07:46:35 -0500
-Date: Sun, 14 Nov 1999 14:52:53 +0100 (CET)
-From: Ingo Molnar <mingo@chiara.csoma.elte.hu>
-To: linux-kernel@vger.rutgers.edu, MM mailing list <linux-mm@kvack.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, "Stephen C. Tweedie" <sct@redhat.com>
-Subject: [patch] zoned-2.3.28-H2, NFS
-Message-ID: <Pine.LNX.4.10.9911141444150.3601-101000@chiara.csoma.elte.hu>
-MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="650352740-779522946-942528763=:5769"
-Content-ID: <Pine.LNX.4.10.9911132232560.5769@chiara.csoma.elte.hu>
+Received: by vger.rutgers.edu via listexpand id <S154973AbPKRAGU>; Wed, 17 Nov 1999 19:06:20 -0500
+Received: by vger.rutgers.edu id <S154258AbPKRAGA>; Wed, 17 Nov 1999 19:06:00 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:12313 "EHLO sgi.com") by vger.rutgers.edu with ESMTP id <S155080AbPKRAFn>; Wed, 17 Nov 1999 19:05:43 -0500
+Date: Wed, 17 Nov 1999 16:05:35 -0800
+From: Dimitris Michailidis <dimitris@darkside.engr.sgi.com>
+Message-Id: <199911180005.QAA03724@darkside.engr.sgi.com>
+To: linux-kernel@vger.rutgers.edu
+Subject: [PATCH] kernel profiling driver/module
+Cc: dimitris@cthulhu.engr.sgi.com
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This patch against 2.3.26 turns profiling into a module and adds a profile 
+driver with associated ioctls for controlling the profiling facilities.  The
+benefit of having this as a module is that one can profile a running kernel
+(presently profile is a boot option) and allows profiling to be turned off
+so that it doesn't waste resources when not needed.
 
---650352740-779522946-942528763=:5769
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.10.9911132232561.5769@chiara.csoma.elte.hu>
+This version provides just timer-based PC sampling profiling, similar to
+what is now in Linux (however, it includes user and idle time in the profile).
+In the near future this module will be expanded to provide additional
+facilities such as call graphs and sampling driven by the performance 
+monitoring counters.
 
+Comments, suggestions, wishes welcome.
 
-Changes:
+---
+Dimitris Michailidis		dimitris@engr.sgi.com
 
-- fixed NFS to work out of high memory - tested with moderate load. All
-  NFS caches (directory, symlink, data, etc.) are in high memory.
-
-- modules fix ...
-
-- page->virtual is filled out for non-highmem pages too, this is a
-  nice speedup in certain cases.
-
-- fixed a bug in highmem support which might cause user-datapage
-  corruption in certain cases.
-
-Changes in zoned-2.3.28-G5:
-
-- this one should actually compile if modules support is turned on ...
-
-Changes in zoned-2.3.28-G4:
-
-- implemented 'zone chains' zonelist_t and gfp_mask indexed zonelists[]
-  speedups (Linus' idea) to handle fallback zones. This should enable
-  advanced NUMA-style allocations as well. [fallback to different CPUs is 
-  possible via changing build_zonelists().]
-
-- <=16MB RAM boxes should boot just fine now.
-
-- added page->zone for easier deallocation and generic cleanliness. This
-  also helps NUMA.
-
-- cleaned up the page-allocator namespace, there are only two 'core'
-  page-allocation functions left: __alloc_pages() and __free_pages_ok().
-
-- modules should compile again.
-
-- we are now inlining the 'put_page_testzero()' part of __free_page_ok.
-  This is subtle as page->count for reserved pages is now 'rotating' -
-  this is fine though and lets us to put the rare PageReserved() branch
-  into __free_page_ok().
-
-- cleaned up pgtable.h, split into lowlevel and highlevel parts, this
-  fixes dependencies in mm.h & misc.c.
-
-- serial.c didnt clear freshly allocated bootmem - as a result now all
-  bootmem allocations are explicitly cleared, it's not performance
-  critical anyway.
-
-- fixed code,data,initmem reporting.
-
-- fixed boot task's swapper_pg_dir clearing
-
--- mingo
-
---650352740-779522946-942528763=:5769
-Content-Type: APPLICATION/octet-stream; name="zoned-2.3.28-H2.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.9911141452530.3601@chiara.csoma.elte.hu>
-Content-Description: 
-Content-Disposition: attachment; filename="zoned-2.3.28-H2.gz"
-
-H4sICAW+LjgAA3pvbmVkLTIuMy4yOC1IMgC0W3lz2ziy/1v5FMhsbUKZpK3L
-l5x4R4mdxDW+yk42eTubYlESZTGiSA4PO555mc/++gBJgKIcZ97uVMaSQDTQ
-aPz6BGjbtgj8MP+6NUu3Qvj/LvEzb3OyGSX+Tes6D8V5dCu6A9HpDbd7w8Gu
-6O7v7z8xTbORTKPoD7udYVdS/PyzsPf3rV1h0t+ff34iWq2pF2bJvX04dWI3
-ge/4LXSX3ib+sUT1uGpEskmUh5klYvfGsw/9cOp9tUQ0m6Ve1j54Ip7YrXE+
-m3mJeCmMfE9stKmn406niZemBv5oC1NSHDwxV7ovlm680k20+JswX6ozixcv
-xOXo7bHzevT63bFz/e7kzXtkQrSmkfiDlt3t96wdYeKHXPg3cTf3A08YtBJi
-WviR4yVJlAyBoUUelizgzFsbINTMG4o7T0yj8HkmEm8Gi5kLfyayuScmbhCI
-mQtjToUxc7MsEX546wb+tC02tmAE6GcUNM+eAXmaB5k4fCk6beASZApTXHsw
-ULRcgtRTIBewr87d2J0sHNkdRsL19LsDXE+/u12s5y7xfrMP78bO+D7zUgGS
-pC8H6iNaauul6B3QZBehJ2ZRQtyfXMD+yd95SgyjEDQRuHHshVOHcAb8/JZ7
-aWY8O39z7Xy8Onl//Gr0+hfDD6Op17YEzslCpXWHiU6WAngPhUbqnI0+bfS3
-Bm1a4E4Pd8rc6Q2KBRaLcJObdHM2F/jfSxrizTuDYUpcav0kXgBW38ELwqyg
-rOCmjUXSwzk1SR8A1rVuFZJvI3+KWDYasa/P1kYleNQ4tzjQ+lFQ4kk8cRCO
-DjTlsZG56cJCSV1eXbxmgVvimTqZ8pOQawEmcSjaib1dhNrOXmkzcEM/vnJO
-zv85Oj05Gr0/NnCz2wjh14HnJpfA24c4i6Zu5pXoaVApxwFl8Bz8XTUm3jK6
-9R4HMomx1gq6bBu2pW5WE8+dNlvVPhjWzhqrylQawWDY2xv2+5VR3e0iVukv
-CgiVOc2SfJKR/ibAVSv5LSVE5WHq34RgIoIovGmV8PyuNbNbk7mbtFobFSyw
-odmyIpa07jizD6rfSlL/d0+qzfXx1T+Pr6Qw7UN6VHUkc2OVRg6sVPmMFeEl
-c3l98q/jA5bCPuIE/nZ7JAa0v3ECFAvjJ5hvyMIAcRLD6X04Mf4et/8d/sRu
-RIJkawP+iA3xfu6n4i5KFqkIozsx9iZunnpkq9JosgCpBe49CCL0buFvlvhg
-9LJIHJ2NmB7mjaA3DCIlNvUTb5IF95v0fEvzOYUoFXvXemIWDgRwjZDnZb8Q
-JChCeylOesRS6HZ3yNP0epXhIsvNEnzYyXwIA1jbpaYQj3M8CWh6griisb/r
-cEqnuItOcf8B4G7AHxRRrR2lhXbFPswWZGtA2d2Dih7Zb23g38JgJi5pOkJZ
-VwIJXakFq0h+sLdiDWvYhR4lg2nmZnnK7LmZP0F0tNJ8MsFdschrF/tDgtnm
-aGG7CpOwi2keUMSkgfrvU4EDAUuzHLfBnYI1hUYkyIETwjf24GmIy2+P3PrK
-PMpVl0a5u9OnrSttjqZbLimX3Al2jWKDP4EXbia1Fxv0QRGdunOCdq6NiKjt
-lvih3Sp6H6wB1uqW2V2QU+DepOVKd8n9dPe2VffzFE0/cn0TgZpHeeZMPbZz
-wELFoqbPpEonoZ/5EJSB2kpnwbqCWrb5alN89EGZUKuk2MAduRCHURxHwVHg
-zzwISAvqfzB5IX5olU4Xvlm16MT6npm3aMW9TgdX3OuU6CsWCcvDpSIshivW
-VYae0NMLgbXcEwQDcXU8Oiq43QQ00i7V0bfAMY3CnyrzfWOWtjEMM3s7RTSG
-bEgr1gjdik27pTt5HTHETFMcAAMMyV3i0M7CA9sWGDJAQEvHdq7By4OZX5M6
-7Q63t9c4eSLS+m8Pu/0yKKCIe7Bj7UHEDR/70iaQmBIv9tyMtXo1ZE6mZby6
-Gqva+BhksbniiFYEBSZ2MmcFe5CmZg6rvuCoCo8tAUd+u+wyiaKFj7Z6g7/F
-B2r61N/ZpnRjB2WgLF5uArr6ay9rivtMAppD27kCO7m7cq+bYTRkBnbJVfV3
-CyvwRJTwkzMf4++C0mb+qglQcrJJ8kPghnE461qIPEbdwSgBvLybplE68WEh
-U3HnZ3MyCTG0wm8wBywjVtdBfw+BMRh0rW5HsVDIk6OLo7JYPA2ZDKcQonQj
-pDJ+ENuHMyeO0IqhcZlGDjQGQGcYjpP3e82Rn1VDoPlDQynoYZfQoixLGcKS
-nFtCDtFoTSrEwgohI0i1+J7Ul3ztivKm90v4vWhS4P6wsw//1ihwSVivfgCZ
-osR7HasLMIKPXuexSmyyd/gI+x+4E45AAy+8AVC4Gf0aezd+GPrg7qKZBMoN
-+VQKQ8U8AieDuaKIkqkHudUsCoLoDpA0vud4FqLX8GZTQMzrMdWnoysM1+Io
-hJAX4lt/5k8gbolCACP4p/MPp6ci85KlHwK2hJ9tEhk6oiR42OAE9eRyAnNk
-QqaYD9qdR5BWACoJZRgqM1IDWXp9enJ8/r7M4orEFB3V6cn5LwQ9At4zOadF
-K8akFMLvTnvF/KwzPpqBeVTIJU2RBCnHqxzV961uF8IQiO5levMILUf1Rliu
-1fOYCl7rlBmlrvbQXQtgEM11zFEpMoMth5juwBdigrtwA3aaRPG9k0UOJFKJ
-wfsIMYmFcP6reswjs4wGZAgxeN5/rIRYFf5rMirDygAMdh47rAlGme8ZsTBF
-FzA4hrUVivlXRcGTNdo1MJaNBV0yUL2dNUaNqVYJtpV6LmcAlAjslTkchd5l
-zoPFWKoJ2pioAgJmSbRkDBj5XoPSVyVXC8FjcSWRxPLgQA0125UB6nJlLjHw
-P34z+nD6vsAyU3DyXQsBNel6X71JKVmwxySoPsZvg50haOqqZJmiFhx2d4fd
-bSXY26Zoowg2/uaHkyCHdOkFjzL3b+ZLb7k5P8QAonrqpsut3CXk4jNbfxLf
-ZO4YdhSemPUnYBqjCY2nP1kucwfMbOZ9zcrZZpDqiNcX529O3jq/nF0c6QJh
-tW4C22DY2Sm9oSaSgqbucHeGva4CtS4kJog1/mT3yV6nNZ7bh2MHawBKRGp0
-ShzQXntB6gEY13R+AIaEnIfI9JpoNaUM8GRSv9Nj+0SfzH5ZgMNhlcIv49zU
-2oVdHUTAMjLwTF7mgOweCtzV44uSpraGRiKNIfOB2ZrWrlA0zaWT6EtXzfYp
-Ftqmis1+9eEtaiCJc6+/Q2jgTxZnqwUGnJT55OKAG3RH3YIACxDQkoUhbeVg
-F3ijtafMKz8TNII8t5Ex2GF5fAIIQUsRIgPjX0FSkGeb5ueawRj74WwJyWsw
-W2M29oeDfpOOKHQNJPuK8SCL3O+uMR5+6Gf/FcuxOhVYjpl/ww+bhOBCuNOc
-LHd7w37TOaNGuEozUMxFb5dKBrtlwqZznt6nmTSh/2kxVDU+8PsQVCC3DnDu
-guuXVShaELbFyVJslEWxGFOymxQicPxAxDWOFfjjBAfD1tlUc0m4u1tYMmpC
-V3e4vTMcrFhghUbrDiLtahZ4sEuntwOqtLPG4f+yCB0n0czBkG9DYEs0M8pa
-HDCKml4W7O0uKSNRKCevSneMjkimzjiKMnB2BlW90Yi14BfYCkOhtrCKKjtw
-DiUgh/KWMmLCBeqem7351ixKFs1q2O0M+4O6oDSqBoIdxVnRYUR3f40S3i6b
-9eav+mkFtN/z4CtCWEDymjZIATYf1tVbUUOdrK6E3fKCAB33Yyxu7hcR+fGn
-y4ur9871/5y9ujg1vK9+5sCWz91wytZ1i85NYHw3EDyNgF2MknuxdEOwxngu
-jR7f1gdyHPQ0ZREPFafW46FnSvkP7X/9IaOwoF15XI3sRIvVDr9HsAg/zUiZ
-9UcEUHQSwH3oJW7AaI3X9GQoTyBNybwHu0w9sCbRfRPel9E0VzIBZa8hDRgM
-eyumoUbXQKI4HqrRDlYQvx6fq7pQf5YuYwed6n8gnF3xfhCXVQJaLrekoVlv
-OFfyJJVI67+PolFPaLv7HKzsl7EK1vINH8weWPgkOxC+eMFfTRe2mM5ChW+a
-7eL0D+JB8HsAlhTDMLBnPqQ1PLmD0QkfCMoAyYYwRlrJBJMg1TqW2WJRgdSE
-wBERie+H5KDS1aN+oOopfnnH2qZavgUZD4oCrX2YOEGSsx4BW6cn1++dd8ej
-IwNby1LOExv3DPzLG1A6gXJS7AI+oIfv554grcQODiofdE3c+1TEEc5F57Ke
-4DOKOR6YFXWzWTFsSgNB69RH94JWB+VHzWB9EIplCjS6hHykg6zRGKNLU4Se
-N6XTYBIIlsj2zl4JtML+TR7lqQUP2NNN5nm4oPkTdwmji/JCDJbk5NExXYex
-/wZplx964mz0ybm4Ojq+Et0etHJS0/Cwgw9DWADym93HHqZtMs6oxCMb8Jyt
-DE0AaCgW7oU/tTNTcs4g9xhavykjYa+KkX9dnB87R2ejVqtTazy/uDobnbZa
-XSlHJZt8d/L23dnxGTQLlUI2t1o95cn5lYMPr1utfiWF1Ye9B6SAtlkTQOxz
-vQ5jrcli5aRYSaT0dr65IE+aWBiVYH4t9+QzSahGW/mP1XHZrQTRnSW/YuKP
-3TgcvHOi0GH/WFzQgJ3BK3K0NbQ83hUZRXILfaS/FjL6LF4+MRs6CGJc7SVa
-lOf8QVMMxU+wvT+Jb5bWdh4lYM6pec3mqr3fwXrOvCV0L7cJwjc6RS0cp2SH
-fKhApt++uTw5Pzr+9JlK42AQhDQIfIDXxjPftCyDF9pOqk2DbPLVDvgXxZm/
-hK2jg1UaZuaCsQhpCWLipiAEI5TZo/iSL2MY111AhMtdgvv2Jlv3zp7Vg9R+
-B2xan2wajPUONmko7KWbLsDKd80/8Rs+wattdhnXB4hXqmFrkUR54aE6DreE
-jg48RwqTeivV+NvljqoTgGDY6Blynzfws0o+qpkoC279wHSqAVkxLhv4Y+Xy
-kZC3Nslz+FP4tqR7YlUF4QfHK47t9YsE43w6JfVQ11zokM8aiV4Fjz0+zv3J
-nOCG8KDLOzTI2MMJ0CBn0SZ15f5GoR3YndQUHDTfkwGIZOLOhTmMew+SH4Ah
-TJhAHDXxmDjOM3kez7vg450IDO8QdnQsg2kVeAbp4X/9zHR5GHoYS3mJH9xL
-MKeIRiwyx8jJGMIHPOy4F95vuX/rBuQdkVYqQ5x4tz74oaKY9yUPbwIEQgyO
-y77zU2+zTQRbKCc8yJHrxLyNJQmNbCVMEiKHMwLDGLzfA5+2bVEP28ahKIRh
-BGEHenAo62RUkBnDwhdcYZEaY/zZ+XDaxmsKhDHl9q1OL8tBu3tWn+49da2+
-DLHAIIaALQyWDAJbWxweCqNrGozatiUMhFLbPsQICoJF6T5GR0dXx9fXBhAY
-lLNevHlzffwe1mpgW3Fzgi9utlGdEUxKLtCgvaCSpIS1jOEReq6qWFkau/IA
-ALdFcQyvVwGeaFQHI8XfvSSSdTOiI0Kku75z49cYTxVVNRQ+rQZDx/L0uuyv
-l+CaOtev3PAuY7uucVizbGlrN3i1pAQS5Hzx024VUSrh7RtdcS2Obe1vyi29
-63ycQQ5QXqkr2NbF00Z7xiMcFLtVcaIUHso7Q2v2wF69jyRB/RJCr0vwlnRT
-iqSyVuJmkwyb5d3QVUgUyHlfAANfUXJhIndaStKRURpwJlsAvsXeyA3WkYQ6
-0Awkyi949IZlcfaBzypmuV6q9pcLe7izDg/CQ+F2eAe4mwoOQoeOkAoeikGf
-Rt6qSSd7jj25u6FGPD9o082/aNPN/4dNN3/UphdqUoJW1b0ChpWZrqCFSJS5
-pSk1u7w1zOpt8sU3CjAMXj2rd30D+VBED090lTr+dDk6P3owSiFoNIUTMsXc
-oxts3fIkWIIDj/ElB6aWlLwanY7OXx8f0Zxt8W9YjGHwD/tQMRWHomgsY3PS
-GeNp0a6F5ajC9bWi8Rm7gRtOPNmrvlLscTOLHXSEbT5RLSzWlL1db48u+fb6
-fQtybH6fBP5nt6hxgKGnfrH5JCS8uFm0BKZkhopXOzDgRaBHIaDs+cKfLJ5j
-T6bCNXiwl5O5jyyOAehSIfCWIp6kY4BNQmGCKE9SL7j1Ut04PzWKlYln4Ash
-mHc+jk7eqyYaGcZLL5M84ReCKLAT//tSXL5xIIMYnZ5evC6up07xmm1Ctwqq
-bSrnoIJHbZxnL8Wf2kAk0P1tvD1l9rY7pUQrbrhMom+jBkfBFUjpTvTd1BLn
-gjGL7Fhz5I4bVVxA99lsPId8PMmeF3UKHHgqKLItNpDuc5OY64wp9UthKFnV
-RvF9fbxRufDCh69e0iWroaysOsKjcdCMlAlwde8ijKq7Lf3ODmVPvZ1tq99l
-2WNaR2Cdgfm9R2uDxi/FWQSe+nOZOMnjDK/nhwxmMo8gnxDsLpPTbaU0AvpE
-4N1ZwDDd1Y9jWGwe4wUoV6TgxLC8abQ3i6BXyQlOZuw14J8rEg/AlPq3zI4F
-2vIc9sHLYFjuPcV7qwk0pVRn+pJj8akoAsE4IQAQ7/NFuYzIZ3kCHGPJJ8pv
-5lnJgVSWOnZVFWiXgfVT3Z5I81sqAftbTe52YQ5YTh+p7AXpbxBQ2cmdLJB9
-vCWW2IF36wUy2ofZKovBK/BDEAwWJmAV5BfwInCRZbtpmi+9lHp4iZuA+QDJ
-SVl5+DqXF07uUYR3HuwbTWLhm3HgthH7CWSrUgboGE9mTHof5VRkg71deiRW
-gRUg3nx8f4f3jJwniDr1pzLpouZZHk6Qf6t4SYM1ygZXOcGbbpVObRbvcjQu
-UV56M9WECBWKXWJKVz4LY6c+VVSFr7ja5ZFzslQdaOEyTbnNxoZ0MvwGiFkV
-fM0Wb+gPIZa7/whkmWIFs2ZLCuJxqEW+mduWrLnEbjaXv2kYHkf3zLx2pmYw
-S9TD6vHu1j1esavLcUMXpKylcz4mqkiyUIrypUzOXMVTmeW2BYq4fLphmCZz
-I9jcKebqDiUdlkbFQvmmEUeRS3cBjiNPqCp173vBdFPe7aak1ex3Sn/+RKrq
-sB68QPpj131RYaVLlUd3SKA09FiC8pdaIUQrZpcVWJLTiquWj8mg1KoAaqUW
-RSkrsrL22moe7+hsxMapaTB4SAF+cW2nsRNXkw+q+F+uiqSk+7X6KaEunIcy
-vganh2mYxJri+436BlSRiKXMVOUyhHOGY5X0dpTlNN04LCCg+nnNyz92XXKO
-v76AKlbB2BAvpuN5RhGmsH6icZ7guz4+vVFMpimazQi44wQ6zIvIRerzsAgV
-a15tY8WtmTWvZlbXXu9rt6/6e/TCUr96La5enYDYJl/yW1iynKXi7YAN/wv+
-ZRZJIjfjMZ35PRpArJpeVpR4gwJmNouylnoiUCo/9Cjfhhn06BpGH7Kc8vUw
-oCGSTUxZ9RZ0XLJwQCziKQitU9C3F6JiCRuAJQr9mvvqS6j6i5YmUEVNsQ/M
-LurhbhZlrvbW22CbX/LYH1jbfDLI1qMlEzaJtVe5H0xTNXHBsIVCFppZFvll
-SFPlzYQKGgHff4jAnJ6N7GqU1OLER4sQxNylc7wxwDsCVnxvSiOgMS/CBj6Z
-oBNG6ucC1GMIm15fftgsQ/KVWvwYV+FU9PSSNaDoDxlO+5b4YokF59XlWXGH
-z4mVUxA+JKYNazUF9wfFgwrqptpXCUxkLdcsL9hUCYI8P45mRjlwu10bqYpr
-YEwe5wtvL3zDNs1ey1jBX3Ut6N/L7qVDWelPrkPrS/6CWEohXoEA0lhIwbQg
-1XfzgC7hazGTFoYEQTZPMKIZaqEIpcUqM3KUB/0f9UCGWaUpXkNewNWGDWdi
-1L3kSzpNbqwFlb9+Mc3Pclo5zbcamyziB7hU9mCFycfOWk0HYlfmWkOkO3VT
-Mr2GgAMdjLeemN+wFFCUak4vzt86o9OTt+dUmsdivGlIYKJNabftbvvZn8ZK
-W1vxBAO+sT6oXq7VMnQyS2Q4LaFeSq3aNR+ha6U0i77iEJQOuu0sLncoA0sX
-kP5fcVf+3DaOrH9W/gpMXg4plGRJPqLYcWqdxDObmjhxxckeNZvH0kHLTERJ
-K0o+Jpv3t78+ABAgQImyk9qtrbFCAiCOBtD4+utGiPX/I/5MxH/pY5kl2xcP
-W91r8uvNHmrP3J1nXWoeIUTUPKZIIwwniXpZrieyowxdgrRkhRgf5swTeU6e
-KpR0GblqZEg+Y3+KeGKqyewEOyb0gkEjWqznEooWDYaTSHDoYIpIDzVvt71T
-b3dFsNtq1zvPNPRlGodaBxU1OrwAiS/W6HyxdjgjiT0+X9ZtbF/oPJG3BtDy
-J/mNPpaAMBiTxmB/+UzTQo02qV4Px8MaDPZ4yF3UpCH/YlB5KtnERSIRla8O
-YdlsJt7JZBkxqlYxbWeQK+Ocyzca2ISXllrhpEHFwkrE9ASdKg9EthiIdOZF
-RnaSy7Wjb1tGDBWDR24ylQyFtlYo7IUveIIzV2a5vnGWy3i+WJIOEoY+PZuX
-KYOmH6hOFm4jNMilWyIchK8fL9SMYOhrFw5+OyDM28/qu4rCLqeRjrqi5pKR
-mQf/+z325M+pElXG2C1WVzKbTxfRYOHnum4/22+3PZyuLFeecG6T2zikUwHT
-NUl6k59EN/eoVdLkO8NYLPirOkuGdDKGv/mTkBztukMkwC6ui9kImw+ZJ9EV
-/qrluhQGo4DBv+1x9NY5PIkNCmWbOJRtl0QpGfAxd8tP6MwtBOTSwTyekeIL
-R7jo/BwGn8hpUPMZ0R/wEIDKL3YIOSIz0iPiZDYmFh7p0k0iwCgQarjULJxx
-nMTo0nzd3ePZLSWMVe358AoWe/ZDFdH1DF7Aqm/3Oq0l/n5vdTxkZSOPK8Qm
-eRWmYHsHTx8KgXEF2Uso1fLtUFevYLjt8eAX2PCE363ku3pLHCzGfl7rtL88
-9wyyIRgbsGQNB7NgVfXzwlZKDMU9h8gkzYxyj7DfTpZJOLu4SU3dyxQJnBPF
-c7Hj8XcwM3nSGyz+DoEG9N+VrjQFsvIjPPBM5vTKgbLnyby4T1rd/bavT1Qe
-z2K/a3rhsQ9eQZcoqf8JK1R0jZ4BpKRfJmE0waOawoYyumTNdoCFdil+ub8z
-nsKYezpDZ/Kkf2ZufXvFW98qJ49y8/KeMjNCgxX5DX7Lg7u0ZtutTce9vq+p
-XYxfsNP1NJVz5BK3W9ZEaLd2tjFmQUA/pAc6jMQ9YTgepBegvX41XRGgutKn
-waAvySfS7sEK7+/HH96Fxx8+iPuUm0va50ADs8Wcw8ZkCGlH0YIIE5iE2hpY
-rZUq9xV0MawvwyWxrFGiGuIhh0ri2jVeDCjgpPerqiFxGoK+AbrHMMzaXJXN
-K1WPNxygkT9KCol4OMNqYFbB/9NOIU5FAqs/TYqGr1+c92vqb6QXGQ4Zhu6A
-Z24r3/MzLx30JgUefjv7LcfP0cjjLsy7XWNhJk/gTquEg3SxDnVrTYnUG1RS
-cLVrTJcLDRimQrEGZHS0GyM61/jG7h5Vy6L+6fiUcp0pFy5o+6me3RQMr4WO
-V/RfPldYli4+Mzcq5Nxqx6lCIjn61hOZWh1CLpkTVy0K01GjfLZvfWCXjvXW
-b8p9wXATNn33jZIYVBCnEjiQ4egGF0YsFByikMIuNBkIUdlVHCwr+KEkk+49
-xd7DP8rPMWORMBPmUHw8Ovs9/PTuzbuPMK8/nX588/LtMbsYQ7XDq168CNkG
-+WiGHUCcPHxaF4/wD5/hyOcg5DAh1UeUDn9KntvWlogXj1Oi2fx7CZqzmE3T
-NAYhRYU67cGIspE2UsnpU5BqOhYgUhdIZr9q0ks1lfGbmvBwII2gHPJykyq7
-FaZp2aGwsJ1OW8rdN+dwRYPqkreJMaoWJuQLStcAgwlpLEYFVRBa5KwDvu0f
-S/N6K9PT3K2ys7/dhUOx6yabz5pzdMI1asfYMzkQo/L4MtQXkm4oLF1wyLi8
-Ayi89q5CmQptv2H6S7Y8sZ5GHLh2+5kKNpAfhzEu2DA/5PQICegMXN8Y08/i
-I5O9vkbRjGZXgrGFMGAw2U5Yp0F/CrRtk7kvjZGGKDc4PKenVM5FNI9Etb3H
-kTmQmzMix8Z5jY5/aCJEEyPO4/RiuhwjZwG6bQ7n/eW4N4eVlNrIPt7t7Zac
-p8jVSMUyjVSsvEnUm4s0QuIJGkajUVMMUFhEbzyCcV9cJAK3mxQ+K10zcj5C
-dEr9RnwZbHAKTUaCBNTmPJ7Dj6r2GRPoxor0GRlu2XGnYnOMfiHXzxAONgNm
-NOIRu8BNQq5L2+xVvKO0bxspezJDEmh40UsvjO+wDxlX4YnyKHM/o+YKAgGT
-6QR5v7iF4fRCshQZQzx+U8p8+l0BdCxGGrJXluXqrAYLI8kpaCWD6iN4AEoW
-xb6WlEbQK2HRRWpju/XMnDIWo1lxVaUDp0mUixPowMYAhhVNfqDSkXTKfQDe
-IvcSK7RAseohrkMdR4WMphy/dYABhAnqkA5ESDoivhERf3vc1ZIPw/uNzMEu
-g5fRHHu6zjwajBibox1Ua1kk2Kb2Wfx7BOKDG9jV1LRsogpK8pFCa/BjT6As
-QkSfQDmX8F2oFDsryv1dYZrSe1oKGbeNaJ+S2cOYcjWt1Xn7sCgEZuGq4MeW
-qD1uSldINc75VmorvUO7qBqUglYtX8Iw6eWYCIptsKog8R8hbYJ15dtxryGl
-xxbzX4/OPr46euv6jJcgTeCuLAu1yRe6UIOFUbI81fosp9Eqs7isKOi0QPnA
-ut7xDT87VJmiyQSZc10NfoDrarDCdTXwuq4G7LTpe9nKbKD3gvWuq4G71hqu
-q4HXdTXIua66HzJXuW8Gf/pVwW63r3nOjh9p3kUmc3Er9gUNfE6e+QzaVmM7
-iAZGdTOfZp8/s6ryes9Vs8w5vIUOWPoab3mh5usrTVSZb2qQ4+FLj+GgwGPY
-fm74BQeaHoK0DkFEUwSWMQIys4BpeYVejBTbyJQ705k4K+r9JDIXYxWvdzqL
-UO2G/kRaqLK7NMWR/k25iX5JSA30uyS2kicq6Q1T5WMYicejaW+suN1ML9Ef
-5SzThWKeppqnqwkvKdJYxTAiNxPch7CE2TxG9QbOPO8n3CVXEe9gSNVHqyvl
-R6Cfyn51+gnOGVQc1wB6LRqPadWgBx/UacJoMjnDpsijHmO44wUoQPCWVD3U
-vIiDQ+HRqQQi0NygS0wPFTmmcaMhubGcMT2SZ5U4h30ZlJ54IFuLYlanItIp
-2ihmMZ95zHrgkagf4boDkgk9d4ny2Y9HdX0k5J49h+8RJMPdDSNAQSQ5InWK
-oS5v2PFGrZeeRYFWGWNh0OxLHiDLbTpofwaNaouBrGEk7R8OZV7OCCbvWLPC
-oPrAxLhu43J9L5C7kEH4yUg8jo+0QdKbk9BRP6MA0ilJbxEGL5r4TaCKEKfP
-UEIWUxbtRZPgj400BioU5CpdDi6oFKTJ6l1GwhpCMi8KdR1ZOBWwsa6jBnX1
-Jm65TGzgMcGEKH3M83iJbKYeMBnMKiEM57xvKNYODfkfqpzPTU3B+uUwo9vm
-sD8qhIzevnamgUn5zBjoGv/jGnw3hdSrvKAPVaVYg8n31A/g6rr9JeEu3Lsk
-jcBfoayZBiE3qFg+hboDvFQBqz+KlWHqlDUasVPQCp14XXk+xdg0pXi6HsvC
-01805Mo73mgcY65D8Wh3WruKhkOnXvPYl3lD54rkQC5C2WXFIwLpmgOcmoVr
-1eMB7N2PecnCknGtVwtWbl4ThmhMZ9ur1BWQ8tPZ8eAu7b3NxE4SrgI/7Uze
-cjHpDVdpLac5ccvFr7eryFl9cy4XdqK8HzS1ppwf9D3LqfR5zqfUqmjeT9lq
-r4Ep2NdS1MwW8BM6Vxp4m5aFW7TVOPRZRZmdbnPkGKM0ZTG9ADVeq9Upc30P
-dJqcROJlErCz3Vhl41UimQlwgUuAJ2wHExmIALirr29Q3SYXAux0+VPyPn4d
-90ZwbiSdixRb0ORkZHGOzYc7dT+SsU9IbyPqlzx8am+tyXRBIYwUvqF2ZNbO
-ONa43KtxtkJK0KTh6ErOXUICTU46YbdAKf0Wa1hxH3coytbursLtVUY2mYZ8
-YlNwe5LUbPg9SZjZFpI+yaCyUwarsaEuoWKXrZ4X5TO+XVSpew1qMx2AcXjC
-EK2Hx2/DUMaOKQCztdGrgOO1DtHW+VfD2uxH4Ymq6cT8XMEcuXWAUW9EIQYQ
-+YqQnTzcbm9xMtgYTUZlCZITUnwTer9HjwM1gLN5hFcThrJ/QtyspsuFXGp5
-Q1NpISkG6Q8RIFQZzIQa7zFiVbv6RLa0G8l8ikf2YdP2ht4N34T2VmvVbHmy
-e49QvAKJ0gPmShQyADVzrUiidP41hpJtvhtx00itfqnxhcg2TLa0XLI5Ape1
-IR3EJ2KM0YrnCtTCo6ynV+CjjXi7u6e+3Ngm31hf/3CkPMeAu7akPN0E/m/H
-tEWti/+YC9zpxw9n4enxh/D043Flt90xV00kQx5/+PD+Q5UiGzQ0yfhhuv9w
-uC/6vSGmEQ9b7b2318wyDsNf37w9DkP89fbNO/qF5Vz2xlXWVYoKmVW5nFpx
-QY+qeO2CWVxW12S4vq7JcH1doZzVdcVCytfVKC6r66hEXUcl6jpaV9fRRnU1
-istEnwPlEFR0enSMYEwkXVXRuEzgGGno0kcPDcwI64BM8iWMMEU7IoA/zFNG
-rSHG8/xE8D1VMlcawfo/lC7jNNV4ijat0wF2J2OgVdAV6kpPQJcOydetUTNI
-AXqCaWoYPvhfZH6GdTDLrnLipqnUtDDkRR/2S1kaGaHgZzqeXklHK/J/lK/n
-8oZO+en86Q31DN6Bawea/DOXgatyUTZ1hOOa4cNJJ2Z22lxbRfSGNqtoq6RP
-uChZhypXHLP9exkPvpJbFp78EW1S/CPzpRVkmQusVbFMzS76o/VZubdU5NKk
-uD7xnxFda1n5LpRHruy4fJFWd5sdobt4ZY8YpxLVITIf/JHd8sT5KE7ofF1q
-dt8cyCFf2R+YhRI6rceLTsrVmRru1DmTqFwtMUmuaKm2GOx1BmuqOC2w1FER
-nV1+jI+aoyEJqYoKa9xMp2YORkQ7PXmtLqF9JKrZVnLyGk4Fbe2njJ+eoF8K
-fr1myNdCO2lYUixnS87HuZJLmglJ5ppvhJryfhRlkxc5eooxbmB5QAXJiGBG
-h8vxMr0IF+N+VT0zaFCQRV8PiO8yuVaBqLT46UKNNLZXvhmCSot5toZRNc3v
-fc/p+G9AGQhPf/t49BJW9e23x38Dff+vft0srzv41bMdvFa2rPqxVkN7Vu9Q
-+GJ5rtLqNYsjasRwlAtnIzy5/tFudXY+y3C9gmKEEZCPV4f257140hiiiW7K
-OwZSFMdNy5bMo8YTD+9sqqEHZ16l9aZOEj6TlUzOLiJJUufIy3XYy4a1knlp
-XC+TXh0OeAQ6rP8ony2n8Fl5JihR0disqVlLT04dHvnj25ecPZ6M9jXHAL3q
-svnAv2VYMuXGkSQKVYAiUicXj4bOSc578+mAQXd/Dh4R62MyzAqsW/A5GZoe
-cz/2ZHd6WZek7BduHu+oZpUW9B7tP3T2093TbPYlowNnBnl+Y3SZK8RClN8K
-FK87FnSnWa8fj+NFHKV1ZlBM2NTQGME3kKeUfXUeid5lLx4TFiJBTRHvwIcw
-03Km+BSZkmStXqj70IDnfOgTOJyODhDKTxPYhsLwcormL9i3wur9ZHo5Fg8f
-Dubb9Yetf03+teAHrTo9u79//3B+X1S5jJrYF/v3GdG5XzvInR7ZsbS+t4v8
-HEnt89QzxIWahwnq669UPLkcz0ZQi/v0wfsYTUVdh0VZa2pdhB6h2CTkMB2G
-ZyenYWiGmDa7x+osTxIpuQXJ0Ew0DleU54/Xawq5nDZJxtMnJEdtxSDph4dC
-c0h7AzRRhpTE3ac8EV5yHzSRwcvEDo6Ls8VRHKlns+pAmsYLyFi2WtnAlqqe
-Wq3cLnFrJueo/RBn7F06T8YD1wsiB4PADYgsvIMxXdrd6zOHK07FDV2vJEDG
-8C7t8VAMovkCtiqkbOPEZhgXlgMxGk/7vbGa2M2mERLeAi0SxrlWCRmeGR1B
-M3FjW3wlalyQQnZPiEDxmqRecS1OvkrYcgNXOyiYoJWCitaKYmGvlSWBC/xG
-opTflDJh4cDjmTb2SxgenZ0dn7x8+08Nupqn/uwAoUJdhYPZkq66aur3xvpi
-Hzo8eRJPnkW0Oo96b+ZxzizeClqJ/iS82QDI3qKmqDw0iSlpkGkQ5n88mCYz
-WM0bRKkcLnvjBsIJj+sUdg/pAcoZNBX9qby7djHvDWO01cHc6Uh8QHuBUoVS
-FVVForlM7X3akvRlKPdUWQv0JeCwifckS/N9n8KfoiEBmZfEOxH9iDIO2N1n
-qsK4KaJBk62WWf85AKuofhMqgq3NSBd8qBL5+NAyX0MxVfPhomFrNfBd+qJ5
-HZr83i/8T01h15/LPbdL80HEP6kFwmxBilpt0uegHDLKdqfVsINkm4JNSwqm
-lp8I1MPJHB4rjaPz9Cn55HZabeWUK5UsScNl6ElpXdLuNGWKenYBADrhzPF2
-dor2qwLw5w7aC6TwJF/Rc9xn09XO4PxD4UeUK8RMfNZVmCY9qhGo1MsC7Nby
-qAUtmRoyEoE629K3sBz5NQNCUR/7no26rDVVVGZAXkD1W0X9D1kCZl2Nx/kk
-du2ltJWtv5AlelogP2F9H598lyAls7iZUAaje3FDYZt4DNRsJ7Ok4vdLOyH5
-rM5MMkBqQY3cOeRAXFVexGo4sZuYzABy1u2g8Si7Q7vCdXWBxox4fqTISyiB
-Ov6tXM2YIXV9fa1vDkXdI6UKwhZKBVBDTK5tT9k9s4KI+I1dA6NPlMOjs3cY
-C4IPSzHFR82UEA++OMrwxZEHAh1ZEOhoQwgU8RgkFLdQdClkaoWIkwQyKxoj
-se2vLqZj2UFI64C++Iq0zAYRE+GXzBrFxEeMkn40HMoQApNs30dKAB6EeuLs
-7dFLtuM0OeuWhGMHsxuGY21Uom7YSH57nd1RR01mKrY8dRgE6X8gKHN0TOCU
-vC7Cjfzx6YzsLlnhMrZPg2UIyicXAUJrAxHzpySKlIOPnaJW1dNsLRTs5M33
-gD9N1fpcw01S89XBhLtWw9u2+N0G3h6tgrdH/yV4e+SFt0ebwduqQzJQtxje
-Hnnh7VEe3l7XH5jlTvC2arhT52J4e+TA27wZsVTAzxxeXoBshzMM4Yd+NZF5
-uMmVxQvoLYv0SrBdfnkJVgLsjqWp2jsSben9JSUaf7Q/rxZrU065SaXlVDVb
-5kPtoFBOyTfWkVOzUQdSUVojp6Tm3F5OtVjl61wsp4ssuKqprFIGuYmTYoSu
-Lvlv1Nw89LiyLjGuAZQYZkmW2JhlucRsBqpxdABrWa157EfcePrLzFfVjrVh
-kSw7UlLOjpTp+7Yh6eOxbUhKtE0nyQxJqqpsHtIyKqyJx3LvsSpJ0S5YBTIT
-84EyWrH1KCHrEek2p7+FZH1xLUmFNqPvRoP6vaHVnjAkf9AIX5AlKet5q1Sv
-/Ui1HfNJA1LiGJDWj3b5Yb71gPqHFNtHoXhhPCbR1YG3n3Si8/j6wNP6FY3n
-Yvd9K7CSn9wK5ErRvYLoy/lNyZYdR3Soj/yC4zQoL0AwhtD2fYIBbWnRYuKJ
-/S1PH6Z2Lc8frGmjJZxi58eXcW+8T8ekdoPPyvyOjw4TDIvP52S0JqdTsnng
-fXfXi3lPsTt7aTodxORFgaQ29P2g7FV5jwgq+urmEDoDacfZWs5FlMyptNQl
-5lJn2Mtr1tIrk8uJw7MWH9hJzGWtoh9YkwOvKglh+xjAWXC0kGFO4DHF/7e2
-fROCTHltjeceqjCGjZOqLfWrHSfc5urOlF7G2tKBvhdRmzT02ULFO27QwIMk
-MC8VyyOqqA4NAUeQMIJmMIg6M+74+mXWeCGRcSPwI/wLv60Os5Smrlk3h9yI
-bBWCLytOrPNtxyDD5yGpnyoN2FZMSekUuSReHbcmlfo/zFXot9dvPvAy9Nmo
-qzpDIXYwzbbGLbWj1slECKfOYYphOfHmD3m45gAAkyH5kyHlCe8/IIwwomnA
-vCgoGmRUeq1h3QdsyZ6eZz5zqXaUE40vX/gM6gkLCynPskOhr78UOvtH/DlD
-kDftt9Idx+dHtZgo4JfMntgfaCchRlhvciMN/b2xODn5BPPjfLpv8rOZ/YqM
-dIZwUeTQZwxNw5iMr7XqEUHsHC/N1OEBt7yTbjmDXkDbjrz1t8juIAqtXDw1
-acXVOp8BljkfwIJUPtLufORZkLHjCQWxR7EZRg3+TQdsiUKaoNPZ30/Dj/88
-Pa5eo4mf4hQ3YdPAMWnjTtq63j6vrWZ2SNazN2RZy3NRd3ERq5kdrToG9ap3
-OOK6jk+t+Ch0ZUf4VwNizr9wqbcZAzzP5WauwHTueQf7oKSGO+UtLnBF4lBp
-BnJe3g4T3MIOE9zCDhPc0Q5jO+cr7Cn4H+FjxGvG8IvMk96fsGMmVF710s/q
-ThBmcGcIMzAgTBWfYBMIk/yQbgFhKq8kCWF6u11Dfp6IxUWQX1AI+akxuhXk
-Z0SE/69BfgEFnDMhP3ZC2wTy87iNMWCixmMt5BdsAPkFNuQXFGEjgYL8gtKQ
-X+CH/Ip6ZA3kR91yS8gvKAv5BQVQSrk6O5Af1XkN5GcV/SMgv4Ky7gL5+SW4
-EPJbI8G3gPyCDSC/wAP5rRJrU05NyK/EmPsgvyI5LQP5BWUhvzvIqQ/yWyOn
-C9d5ewPIz8mzCvILNoH8grKQn+PTeyfIz/BSxtO4GTXgtghRUAD5BRtAfpBW
-32swU775G0B+wWaQX1AI+QU66qoD+QXrIL8gB/n55+cKyM+aAXeC/GiYbz2g
-/iG9F+QgP18/6UQE+bmtX9F4Bfl5VuCSkF9QKYrvsAryCzaA/DwNygsQjCFB
-fkER5BfkpOS7oa3fBfIL7gb5BSUhPzu2UhnIL3CTu5BfUALyMyfHOsjPHwph
-M8jPDDfiQH6BBfkFOcgv0GcLBfkFNPCFkF/gg/wCG/LL3fVSDvJTq9AKyC/I
-Q37BD4b8gpLIlT5D/TTIL7gN5Oe9n82A/IKfBfkFZSE/fX6Ui8kGTjl64pVy
-yvGmLnbK8SYv6ZTjzVvGKSeXsZRTTi7PBk45RvgtyylHxVXb3Cknn2u9U46T
-YzOnHCd7CaccJ8+GTjmqe+7olKPuary1U44RNNNeAvMi4XMbcZN43VB0snVu
-KIH3JskSbiharS/2pAgcTwpeLO7mhpLX1NgNRVdnvRtKUOiGUqJ6q9xQnMiU
-hb4Dd+g8uV/pJeAubijBGjeUTFI9bijBKiFjXm5O0Na6oRSk8LmhFCQtckMp
-SL6ZG4p/gha7odxWljZyQ2EwwnFDUcKisHnXLVhaW9b6A9uWAa/xaHt/x7kk
-a21J+UJ29ne2HRvSXneFCUm5NBdZkrL3era8QSVEnCoq+JHUco5BOiZohIDT
-6dFxTZygKQ4tDKAAGoEn+KZftkpC2tPT+TQg/a0p0BWiwZYJM7wrzEKoV5rF
-PH01nd3wLQrVVzVqLtRpNIUvjiewjTzHcOPTv8yjIexGzcE0ebHKhlEYiYJt
-GJtHojBtGB67ghmJoiRuXxiJojRuXxiJItggEsWPxu0TL26fbIbb+yJRFOGh
-ZSJRBGUjUdwBD/VFoliDhyYObn+XSBQGnDgqByeui0QRFASFCNZFogg8AGJB
-JIrAjkSh7hL1fnR9JIrAE4kiWBGJIsgiUQSFkSgCK80qWHFtJApz83G3nM0i
-UWhTs3fn2d1vl9l57JLyheztbxvXku106M4I+MPuYU670SfsgO+P3zz2Tr6w
-1m1j1uCZcPOoMZzrZ4eEcXqMOWrfKRRBQXySTlmpsAkIBVLRcS6lW1uSKxWt
-py6nZXuFPtJZo490XH3EdGGl0+jiapopHKAL1E3Og0ez2C+vH+Q3X48o3m7T
-IqHaeNvgXD97T/CL4uoFqqQoxlO/+HXaK8JiWrnXBMhpUVhM/LOngxhKyFdF
-7/TcONcb5a9z8t0ciYRf3bThPEYSzhbGzNgyb4+zr8vb9Vxr6Wb15DIv2aOr
-PjvtgriM5s2k9hvsrx8U4/Ps/ad3r+9JeH66nAwxDHSIF6/qIAe6a9BRfYsG
-DK8V2EI3dQoIP9xK4rTg/s/2tqej1hVkltFuYxmdHfNO0HYLLwXVfuvodg2z
-oDeEyZAulufn6Lz6194kFW+jeRJNQNf5O8LUc3E0TqK0H2Eoyrr4Neo3sdQ9
-7bPsv2Y2H3kiGqHvvZdKZ8qVd8h0JIDRn/EML5UY9+a0iKWSs1nU2Se9rxHd
-rFgQCXNvTR+r/LlrSLd39S2IdF96G3o1gP/K8JeYNcUbytP97PeZUIWJB9WX
-799/DN+8e/W2BtrBg+qr09OaaJgr+YPq2d9+OwpP3r+Gs+SD6oejk9dvzn6H
-n89FYyoeoNw3+qps+Ir+zFT04by1nDWnsIs+qL59DQV/JNi0dd0SjQ/6tWik
-UBSzX0U/niAbVpceFJWtfodfYZBgmZjCAun9ipNw9feML+oc+xVvs/QH5+LB
-/+reMKtp1jmlDj46q3FK+CQNWXcHb7jvPlUX3M8T0TgXi+l0nG7RzfX6GX1W
-D6P4801CoVqzyYcBk0F0mrCd6kx9mUtn67v5+mbGQGV0O1hU/vKgenL0OwhC
-45VRAF3xNfHKfpLwJdCetYXl3rkI3pM3t5xAzo6h49LldsG2e9Xpyti4xYvz
-bS6hHiY9z9OMs5t7EXU7LXzM97rt0i7S3VMxuV2upSg6YaEbvjxOa6WArb84
-ehiWAC9I4hjOduhNjYfQNkGHcgcWEZ7jGx/dmHzQum5zIklkQEBjlsUeZRM6
-gn0YFaCS3bFJzX5G8Uvwj7pClIyAB6L6RTwX5tEWzrqPuJwDLD4I6uJLEKjm
-+9kz9DlJvNLUkbI9k++aReTtmpKcGaJQUXqqKtQJuymLnMA9r7rI7KNtvr5x
-u7On+0jd3xk/kZZMqM5BkczcUjJKCcZ6uWBw360GKa3UvN0ONW+3ld0iS2Ef
-7zB05UZuk4HLhKx45Oio3abW7LSeqc0XwzVQSA7kgtSa9AAvvixNlvazrjP2
-tM1lDgwatTFAudiT8eeahA1VWKdKzvom4QC+L6BbhzU32Nl5Vu/IRtF9sqRf
-1g50JDpRIQcrK4o83fZEcNwf28zDLHptXgiFoOa3Fo1a67ubC2/HgMWWgmdW
-KkYZhIZi0B+0VVM0ExU1D0t/fXIUHr1+/eH47Iw9gSoVm8x1kCuujcXhx0jU
-zify2kD9sXz6DqbH0EnQH7709r8lL1U2pmzF8zUWCokz6/lcdRFDeMZH1f1x
-uZZRTVBoJGC3Igd1vC8NX0C3tssC//UEvhLlOyiSUb7NujZzB/hOG4u+vI/k
-Nktdkzd963tlSIfugNDvgha9/RSFn0928mIbzE9hn7ID1j3yLUTZRJ8nWpVU
-CA18KG/eHjovkNriPMRizYdFHaY+h42o29+oU8n8AovjKwUFZVkkfDEs4wsq
-ahF2kcIYisaIrwWn2x1wIw4lNJzdSIOv5SuUKbp2nG8RQHKCykwX22TXjGeP
-DvMF0EjABrGH15U8UwPBtwzH8srC2XJBdA4QOEXNm05kaCscc77vjb62mC56
-43kvkbdlBYfyFsfxWG0qfHU2gizOgEkCE/QeL9r447k1h/CRpDLRHZAc5Gd8
-I+gCXz1AAk5PisBRkfdBaiw9jFMi2UBRpPGgFe6DzKjjgOFLxe416okGj6LL
-P8zK250sG2LMLdUQ1qCcOF/WiJMw0TDtdQll3u12JKbIk8rtc3qCn1OXeAo9
-U5U0wycc09CjMKITXcPzBl/gCCmhL8iPr735I1WAmiv+AmjCh1BZbyH8th+N
-YlxOoenqkoITksp98XC8/LqF/zH4NNWHw6+Kfoetrwt8oIaV/4XV5l/4Bfg1
-hp9y5tTwngMcpnx91PUtrCFRdLpqtm802q0aZdMXTXkTNCqVbD3zJQgq2Zih
-32aLCrVnT0HB2dJXkCBbBgu+rEdbfjmoZOOXVSbfMdWc/HlKx8VQ8P9q8uZ5
-j2ZNyyfyEy96KRTF4RFmvUk8qN6XN0ZE19FgSe5+kKURTXDIh2q4KdAiPodT
-IfKxQBpenX765b6k4t+iILpgVJWRaWVYUVzfMq/Kq1l4NZ1/xTvTYOq3aPHH
-i9ZCeNFnpa7oHD+lWHIFMGF7v+343Pqze3LumUAx3XXTKrw/aR1EtxI79VBY
-qFasHVCUwMxhoACid+gsuNU618WjJhf6bk07H/dGaa2ok897y7EXLdnd322t
-62KZ2ZPPDlXPkeo3vEzIAExuBVzbb0DDhdPIv+WwmISmYRxV6c5ZwWpwXe1C
-i3AejWA7r6tAup4e5GmBrC6U+mLUybl3qLiIvAmgq3PzCQnFdWfHAZ+kRSEa
-9268Foxk0N7Z67a784Wve5LF3OcEbgsz6EJn0QL9g9HPgG6bES9BxCOO9wir
-AagJqP1oqV8IaFbYD3UaUm/o/podRuX34DAuj6+20osZ0wXaFnApwWAFdPGl
-VoDlKMFLfBdi6Nong8NHGYl7SGcebzKohkqH3sBD1lHpubV4oVo5aLzQjnJK
-O8NniizCzzjdyPfMdipXr+JhNFng/XPwrepA4i9Pea481RYeVOuOaQUWR6dv
-XqkTvajAQXsZif8cimr7+fOuDAMiWnyEb7PeKjOeTwfLVGhXf1if48XhYatm
-lfToUPwfFvWspoEUwoo7hO93O+oqMFI0mQm5TCMZ8LM3pquKGhzKE/nB8eJx
-KtLeeTSXWViH7t2g8BBdsr8cjW5IDRFX83ih7giGVKT3NZtNzklBJHuzeEBH
-VZfGY+M0a+ElOOXqwjysrFVfEus+JezshOnoB/rkhy4tjNNWf33zjxCHNXx5
-dHZcF2Za6nw4D2Lnb3d159P+ijPjHC1vIQd20PBjPDW/D6n4QYoODclsEOI/
-cIdgTIr5Kur+Fjvv5p3sdLNRoK+j13yxTGfni6AONx7JVHQiN7s9Hl7X7WQr
-VvbLpLtXYNF9utJQaeX3ZDXoEW26KLFdtKbjeKO7jDbH/rxdkjWavIXbt1cV
-9El3pcpgZvfk7Bhd0iWtrPvf2ebQtFo5w2UKFGKmq2brJ6xc6f6q3kE1o0hi
-3Dgx/uyenEbvbDNM/3QzC5QcXPshbAbT2Y8SH9+w8PPUK22sj60SNDJ8up3Z
-bqHAtByeUlEBbt62QavY26YJiH+kXcCCLXJAK2OOEnRSaCi+eCFOjv5xcnwS
-nv76Tq7J+XKyBLRoFharzvNoJgjfvf/45tWxuA9n8ZOXQt0Sqs/1TXUsr5iR
-32380qpHTe5F/w/Thnk3Z+YAAA==
---650352740-779522946-942528763=:5769--
+diff -rcP linux-2.3.26.orig/arch/i386/kernel/i386_ksyms.c linux-2.3.26/arch/i386/kernel/i386_ksyms.c
+*** linux-2.3.26.orig/arch/i386/kernel/i386_ksyms.c	Mon Nov  1 13:28:43 1999
+--- linux-2.3.26/arch/i386/kernel/i386_ksyms.c	Tue Nov 16 17:13:56 1999
+***************
+*** 105,110 ****
+--- 105,115 ----
+  EXPORT_SYMBOL(__global_save_flags);
+  EXPORT_SYMBOL(__global_restore_flags);
+  EXPORT_SYMBOL(smp_call_function);
++ 
++ #if defined(CONFIG_PROFILING) || defined(CONFIG_PROFILING_MODULE)
++ EXPORT_SYMBOL(prof_multiplier);
++ EXPORT_SYMBOL(setup_profiling_timer);
++ #endif
+  #endif
+  
+  #ifdef CONFIG_MCA
+diff -rcP linux-2.3.26.orig/arch/i386/kernel/smp.c linux-2.3.26/arch/i386/kernel/smp.c
+*** linux-2.3.26.orig/arch/i386/kernel/smp.c	Thu Oct  7 10:17:08 1999
+--- linux-2.3.26/arch/i386/kernel/smp.c	Tue Nov 16 17:01:51 1999
+***************
+*** 15,20 ****
+--- 15,21 ----
+  #include <linux/kernel_stat.h>
+  #include <linux/smp_lock.h>
+  #include <linux/irq.h>
++ #include <linux/profile.h>
+  
+  #include <linux/delay.h>
+  #include <linux/mc146818rtc.h>
+***************
+*** 586,603 ****
+  }
+  
+  /*
+!  * This part sets up the APIC 32 bit clock in LVTT1, with HZ interrupts
+   * per second. We assume that the caller has already set up the local
+   * APIC.
+   *
+!  * The APIC timer is not exactly sync with the external timer chip, it
+   * closely follows bus clocks.
+   */
+  
+- int prof_multiplier[NR_CPUS] = { 1, };
+- int prof_old_multiplier[NR_CPUS] = { 1, };
+- int prof_counter[NR_CPUS] = { 1, };
+- 
+  /*
+   * The timer chip is already set up at HZ interrupts per second here,
+   * but we do not accept timer interrupts yet. We only allow the BP
+--- 587,600 ----
+  }
+  
+  /*
+!  * This part sets up the APIC 32-bit clock in LVTT1, with HZ interrupts
+   * per second. We assume that the caller has already set up the local
+   * APIC.
+   *
+!  * The APIC timer is not exactly in sync with the external timer chip, it
+   * closely follows bus clocks.
+   */
+  
+  /*
+   * The timer chip is already set up at HZ interrupts per second here,
+   * but we do not accept timer interrupts yet. We only allow the BP
+***************
+*** 810,818 ****
+  	__restore_flags(flags);
+  }
+  
+  /*
+!  * the frequency of the profiling timer can be changed
+!  * by writing a multiplier value into /proc/profile.
+   */
+  int setup_profiling_timer(unsigned int multiplier)
+  {
+--- 807,823 ----
+  	__restore_flags(flags);
+  }
+  
++ #undef APIC_DIVISOR
++ 
++ #if defined(CONFIG_PROFILING) || defined(CONFIG_PROFILING_MODULE)
++ 
++ int prof_multiplier[NR_CPUS] = { [0 ... NR_CPUS - 1] = 1 };
++ int prof_old_multiplier[NR_CPUS] = { [0 ... NR_CPUS - 1] = 1 };
++ int prof_counter[NR_CPUS] = { [0 ... NR_CPUS - 1] = 1 };
++ 
+  /*
+!  * Change the frequency of the profiling timer.  The multiplier is specified
+!  * by an appropriate ioctl() on /dev/profile.
+   */
+  int setup_profiling_timer(unsigned int multiplier)
+  {
+***************
+*** 837,844 ****
+  
+  	return 0;
+  }
+! 
+! #undef APIC_DIVISOR
+  
+  /*
+   * Local timer interrupt handler. It does both profiling and
+--- 842,848 ----
+  
+  	return 0;
+  }
+! #endif
+  
+  /*
+   * Local timer interrupt handler. It does both profiling and
+***************
+*** 855,873 ****
+  	int user = (user_mode(regs) != 0);
+  	int cpu = smp_processor_id();
+  
+! 	/*
+! 	 * The profiling function is SMP safe. (nothing can mess
+! 	 * around with "current", and the profiling counters are
+! 	 * updated with atomic operations). This is especially
+! 	 * useful with a profiling multiplier != 1
+! 	 */
+! 	if (!user)
+! 		x86_do_profile(regs->eip);
+  
+! 	if (--prof_counter[cpu] <= 0) {
+  		int system = 1 - user;
+  		struct task_struct * p = current;
+  
+  		/*
+  		 * The multiplier may have changed since the last time we got
+  		 * to this point as a result of the user writing to
+--- 859,877 ----
+  	int user = (user_mode(regs) != 0);
+  	int cpu = smp_processor_id();
+  
+! #if defined(CONFIG_PROFILING) || defined(CONFIG_PROFILING_MODULE)
+! 	prof_hook_p prof_hook = prof_timer_hook;
+! 	
+! 	if (prof_hook)
+! 		prof_hook(regs);
+  
+! 	if (--prof_counter[cpu] <= 0)
+! #endif
+! 	{
+  		int system = 1 - user;
+  		struct task_struct * p = current;
+  
++ #if defined(CONFIG_PROFILING) || defined(CONFIG_PROFILING_MODULE)
+  		/*
+  		 * The multiplier may have changed since the last time we got
+  		 * to this point as a result of the user writing to
+***************
+*** 881,886 ****
+--- 885,891 ----
+  			__setup_APIC_LVTT(calibration_result/prof_counter[cpu]);
+  			prof_old_multiplier[cpu] = prof_counter[cpu];
+  		}
++ #endif
+  
+  		/*
+  		 * After doing the above, we need to make like
+***************
+*** 947,950 ****
+  	ack_APIC_irq();
+  	smp_local_timer_interrupt(regs);
+  }
+- 
+--- 952,954 ----
+diff -rcP linux-2.3.26.orig/arch/i386/kernel/smpboot.c linux-2.3.26/arch/i386/kernel/smpboot.c
+*** linux-2.3.26.orig/arch/i386/kernel/smpboot.c	Wed Oct 27 18:40:00 1999
+--- linux-2.3.26/arch/i386/kernel/smpboot.c	Thu Nov 11 17:21:26 1999
+***************
+*** 1415,1424 ****
+   * Cycle through the processors sending APIC IPIs to boot each.
+   */
+  
+- extern int prof_multiplier[NR_CPUS];
+- extern int prof_old_multiplier[NR_CPUS];
+- extern int prof_counter[NR_CPUS];
+- 
+  void __init smp_boot_cpus(void)
+  {
+  	int i;
+--- 1415,1420 ----
+***************
+*** 1429,1443 ****
+  #endif
+  	/*
+  	 * Initialize the logical to physical CPU number mapping
+- 	 * and the per-CPU profiling counter/multiplier
+  	 */
+  
+! 	for (i = 0; i < NR_CPUS; i++) {
+  		cpu_number_map[i] = -1;
+- 		prof_counter[i] = 1;
+- 		prof_old_multiplier[i] = 1;
+- 		prof_multiplier[i] = 1;
+- 	}
+  
+  	/*
+  	 * Setup boot CPU information
+--- 1425,1434 ----
+  #endif
+  	/*
+  	 * Initialize the logical to physical CPU number mapping
+  	 */
+  
+! 	for (i = 0; i < NR_CPUS; i++)
+  		cpu_number_map[i] = -1;
+  
+  	/*
+  	 * Setup boot CPU information
+diff -rcP linux-2.3.26.orig/arch/i386/kernel/time.c linux-2.3.26/arch/i386/kernel/time.c
+*** linux-2.3.26.orig/arch/i386/kernel/time.c	Thu Oct  7 10:17:08 1999
+--- linux-2.3.26/arch/i386/kernel/time.c	Tue Nov 16 17:02:27 1999
+***************
+*** 41,46 ****
+--- 41,47 ----
+  #include <linux/delay.h>
+  #include <linux/init.h>
+  #include <linux/smp.h>
++ #include <linux/profile.h>
+  
+  #include <asm/processor.h>
+  #include <asm/uaccess.h>
+***************
+*** 56,67 ****
+  #include <asm/fixmap.h>
+  #include <asm/cobalt.h>
+  
+- /*
+-  * for x86_do_profile()
+-  */
+- #include <linux/irq.h>
+- 
+- 
+  unsigned long cpu_hz;	/* Detected as we calibrate the TSC */
+  
+  /* Number of usecs that the last interrupt was delayed */
+--- 57,62 ----
+***************
+*** 370,377 ****
+   * system, in that case we have to call the local interrupt handler.
+   */
+  #ifndef __SMP__
+! 	if (!user_mode(regs))
+! 		x86_do_profile(regs->eip);
+  #else
+  	if (!smp_found_config)
+  		smp_local_timer_interrupt(regs);
+--- 365,374 ----
+   * system, in that case we have to call the local interrupt handler.
+   */
+  #ifndef __SMP__
+! #if defined(CONFIG_PROFILING) || defined(CONFIG_PROFILING_MODULE)
+! 	if (prof_timer_hook)
+! 		prof_timer_hook(regs);
+! #endif
+  #else
+  	if (!smp_found_config)
+  		smp_local_timer_interrupt(regs);
+diff -rcP linux-2.3.26.orig/drivers/char/Config.in linux-2.3.26/drivers/char/Config.in
+*** linux-2.3.26.orig/drivers/char/Config.in	Fri Oct 29 10:59:17 1999
+--- linux-2.3.26/drivers/char/Config.in	Mon Nov 15 13:22:08 1999
+***************
+*** 96,101 ****
+--- 96,103 ----
+    dep_tristate '  Include support for Iomega Buz' CONFIG_VIDEO_BUZ $CONFIG_VIDEO_ZORAN
+  fi
+  
++ tristate 'Kernel Profiling Support' CONFIG_PROFILING
++ 
+  bool 'Watchdog Timer Support'	CONFIG_WATCHDOG
+  if [ "$CONFIG_WATCHDOG" != "n" ]; then
+    mainmenu_option next_comment
+diff -rcP linux-2.3.26.orig/drivers/char/Makefile linux-2.3.26/drivers/char/Makefile
+*** linux-2.3.26.orig/drivers/char/Makefile	Tue Nov  2 21:35:46 1999
+--- linux-2.3.26/drivers/char/Makefile	Mon Nov 15 13:25:31 1999
+***************
+*** 256,261 ****
+--- 256,269 ----
+    endif
+  endif
+  
++ ifeq ($(CONFIG_PROFILING),y)
++ O_OBJS += profile.o
++ else
++   ifeq ($(CONFIG_PROFILING),m)
++   M_OBJS += profile.o
++   endif
++ endif
++ 
+  ifeq ($(CONFIG_SOFT_WATCHDOG),y)
+  O_OBJS += softdog.o
+  else
+diff -rcP linux-2.3.26.orig/drivers/char/profile.c linux-2.3.26/drivers/char/profile.c
+*** linux-2.3.26.orig/drivers/char/profile.c	Wed Dec 31 16:00:00 1969
+--- linux-2.3.26/drivers/char/profile.c	Wed Nov 17 14:52:08 1999
+***************
+*** 0 ****
+--- 1,276 ----
++ /*
++  * linux/drivers/char/profile.c
++  *
++  * Implementation of profiling devices.  We reserve minor number 255 for a 
++  * control interface.  ioctl()s on this device control various profiling
++  * settings. 
++  * 
++  * Written by Dimitris Michailidis (dimitris@engr.sgi.com)
++  */
++ 
++ #include <linux/module.h>
++ #include <linux/profile.h>
++ #include <linux/init.h>
++ #include <linux/fs.h>
++ #include <linux/major.h>
++ #include <linux/proc_fs.h>
++ #include <linux/slab.h>
++ #include <linux/vmalloc.h>
++ #include <linux/smp.h>
++ 
++ #include <asm/uaccess.h>
++ #include <asm/profile.h>
++ 
++ #define PROF_CNTRL_MINOR 255
++ #define DFL_PC_RES 4
++ 
++ int prof_enabled = 0;
++ unsigned int prof_shift, PC_resolution = DFL_PC_RES;
++ unsigned long jiffies_at_stop = 0;
++ 
++ /* This buffer holds PC samples */
++ PC_sample_count_t *PC_sample_buf = NULL;
++ size_t PC_buf_sz;
++ 
++ MODULE_AUTHOR("Dimitris Michailidis");
++ MODULE_DESCRIPTION("Kernel profile driver");
++ 
++ MODULE_PARM(PC_resolution, "i");
++ MODULE_PARM_DESC(PC_resolution, "resolution of PC samples "
++ 		                "(rounded down to a power of 2)");
++ 
++ /* The next few definitions deal with procfs */
++ static ssize_t read_prof_buf(char *prof_buf, char *user_buf, size_t count,
++ 			     loff_t *ppos)
++ {
++ 	if (!prof_buf)
++ 		return -EIO;
++ 	if (*ppos >= PC_buf_sz)
++ 		return 0;
++ 	if (count > PC_buf_sz - *ppos)
++ 		count = PC_buf_sz - *ppos;
++ 	copy_to_user(user_buf, prof_buf + *ppos, count);
++ 	*ppos += count;
++ 	return count;
++ }
++ 
++ static ssize_t read_PC_samples(struct file *file, char *user_buf,
++ 			       size_t count, loff_t *ppos)
++ {
++ 	return read_prof_buf((char *)PC_sample_buf, user_buf, count, ppos);
++ }
++ 
++ static struct file_operations proc_PC_sample_ops = {
++ 	NULL,            /* lseek */
++ 	read_PC_samples,
++ };
++ 
++ static struct inode_operations proc_PC_sample_inode_ops = {
++         &proc_PC_sample_ops,
++ };
++ 
++ /* Clear profiling buffers */
++ static int prof_clear_mem(void)
++ {
++ 	if (!PC_sample_buf)
++ 		return -ENOMEM;
++ 	memset(PC_sample_buf, 0, PC_buf_sz);
++ 	return 0;
++ }
++ 
++ /* Allocate memory for the various profiling buffers.
++  * We are lazy and only do this if we really try to use
++  * the profiling facilities.
++  */
++ static int prof_alloc_mem(void)
++ {
++ 	PC_sample_buf = (PC_sample_count_t *) vmalloc(PC_buf_sz);
++ 	if (PC_sample_buf == NULL)
++ 		return -ENOMEM;
++ 	return prof_clear_mem();
++ }
++ 
++ /* Deallocate profiling buffers */
++ static void prof_free_mem(void)
++ {
++ 	/* vfree() handles NULL pointers */
++ 	vfree(PC_sample_buf);
++ 	PC_sample_buf = NULL;
++ }
++ 
++ /* This function records PC samples.
++  * Typically called from interrupt handlers.  SMP safe.
++  */
++ static void PC_sample(struct pt_regs *regs)
++ {
++ 	unsigned long pc;
++ 
++ 	if (user_mode(regs))
++ 		pc = (unsigned long) &USER;
++ 	else {
++ 		pc = GET_PC_FROM_REGS(regs);
++ 		if (pc >= (unsigned long) &_etext)
++ 			pc = (unsigned long) &IN_MODULE;
++ 	}
++ 	pc -= (unsigned long) &_stext;
++ 	atomic_inc((atomic_t *) &PC_sample_buf[pc >> prof_shift]);
++ }
++ 
++ /* Open a profiling device */
++ static int prof_open(struct inode *inode, struct file *filp)
++ {
++ 	int minor = MINOR(inode->i_rdev);
++ 
++ 	if (minor != PROF_CNTRL_MINOR)    /* no other devices presently */
++ 		return -ENODEV;
++ 
++ 	MOD_INC_USE_COUNT;
++ 	return 0;
++ }
++ 
++ /* close a profiling device */
++ static int prof_release(struct inode *inode, struct file *filp)
++ {
++ 	MOD_DEC_USE_COUNT;
++         return 0;
++ }
++ 
++ /*
++  * ioctl handler for the profile control device.
++  */
++ int prof_ctl_ioctl(struct inode *inode, struct file *filp,
++ 		   unsigned int command, unsigned long arg)
++ {
++ 	int err = 0;
++ 
++ 	switch (command) {
++ 	case PROF_START:
++ 		if (PC_sample_buf == NULL && (err = prof_alloc_mem()))
++ 			return err;
++ 		MOD_INC_USE_COUNT;
++ 		prof_enabled = 1;
++ 		prof_timer_hook = PC_sample;
++ 		break;
++ 	case PROF_STOP:
++ 		prof_timer_hook = NULL;
++ 		jiffies_at_stop = jiffies;
++ 		prof_enabled = 0;
++ 		MOD_DEC_USE_COUNT;
++ 		break;
++ 	case PROF_RESET:
++ 		err = prof_clear_mem();
++ 		break;
++ 	case PROF_SET_SAMPLE_FREQ: {
++ #ifdef __SMP__
++ 		err = setup_profiling_timer(arg / HZ);
++ #else
++ 		err = -EINVAL;
++ #endif
++ 		break;
++ 	}
++ 	case PROF_GET_SAMPLE_FREQ: {
++ 		unsigned int freq = HZ;
++ #ifdef __SMP__
++ 		freq *= prof_multiplier[0];
++ #endif
++ 		err = copy_to_user((void *)arg, &freq, sizeof freq);
++ 		break;
++ 	}
++ 	case PROF_GET_PC_RES:
++ 		err = copy_to_user((void *)arg, &PC_resolution,
++ 				   sizeof PC_resolution);
++ 		break;
++ 	case PROF_GET_ON_OFF_STATE:
++ 		err = copy_to_user((void *)arg, &prof_enabled,
++ 				   sizeof prof_enabled);
++ 		break;
++ 	default:
++ 		err = -EINVAL;
++ 	}
++ 
++ 	return err;
++ }
++ 
++ static struct file_operations prof_ctl_fops = {
++ 	NULL,		/* llseek */
++ 	NULL,		/* read */
++ 	NULL,		/* write */
++ 	NULL,		/* readdir */
++ 	NULL,		/* poll */
++ 	prof_ctl_ioctl,	/* ioctl */
++ 	NULL,		/* mmap */
++ 	prof_open,	/* open */
++ 	NULL,		/* flush */
++ 	prof_release,	/* release */
++ 	NULL		/* fsync */
++ };
++ 
++ #ifndef MODULE
++ static int __init profile_setup(char *str)
++ {
++ 	int res;
++ 
++ 	if (get_option(&str, &res)) PC_resolution = res;
++ 	return 1;
++ }
++ 
++ __setup("profile=", profile_setup);
++ #else
++ static int can_unload(void)
++ {
++ 	int ret = atomic_read(&__this_module.uc.usecount);
++ 
++ 	/* It is conceivable that we may try to delete this module just as 
++ 	 * an interrupt handler is trying to write into a profile buffer.
++ 	 * Since unloading the module frees the buffers that would be
++ 	 * unfortunate.  To avoid such races this module may not be unloaded 
++ 	 * within one second after profiling is turned off.
++ 	 */
++ 	if (jiffies - jiffies_at_stop < HZ)
++ 		ret = 1;
++ 
++ 	return ret;
++ }
++ #endif
++ 
++ static int __init profile_init(void)
++ {
++ 	struct proc_dir_entry *ent;
++ 
++ 	size_t text_size = (size_t) &_etext - (size_t) &_stext;
++ 
++ 	/* round PC_resolution down to a power of 2 and compute its log */
++ 	if (PC_resolution == 0)
++ 		PC_resolution = DFL_PC_RES;
++ 	while ((PC_resolution & (PC_resolution - 1)) != 0)
++ 		PC_resolution &= PC_resolution - 1;
++ 	for (prof_shift = 0; (1 << prof_shift) < PC_resolution; prof_shift++);
++ 	
++ 	PC_buf_sz = (text_size >> prof_shift) * sizeof(PC_sample_count_t);
++ 
++ #ifdef MODULE
++ 	__this_module.can_unload = can_unload;
++ #endif
++ 
++ 	if (!create_proc_entry("profile", S_IFDIR, 0)) {
++ 		printk(KERN_ERR "profile: unable to create /proc entries\n");
++ 		return -ENODEV;
++ 	}
++ 	if ((ent = create_proc_entry("profile/PC_samples", 0, 0)) != NULL) {
++ 		ent->size = PC_buf_sz;
++ 		ent->ops = &proc_PC_sample_inode_ops;
++ 	}
++ 
++ 	return register_chrdev(PROF_MAJOR, "profile", &prof_ctl_fops);
++ }
++ 
++ static void __exit profile_exit(void)
++ {
++ 	unregister_chrdev(PROF_MAJOR, "profile");
++ 	remove_proc_entry("profile/PC_samples", 0);
++ 	remove_proc_entry("profile", 0);
++ 	prof_free_mem();
++ }
++ 
++ module_init(profile_init);
++ module_exit(profile_exit);
+diff -rcP linux-2.3.26.orig/fs/proc/array.c linux-2.3.26/fs/proc/array.c
+*** linux-2.3.26.orig/fs/proc/array.c	Fri Nov  5 10:22:51 1999
+--- linux-2.3.26/fs/proc/array.c	Wed Nov 17 14:37:17 1999
+***************
+*** 94,99 ****
+--- 94,100 ----
+  	&proc_kcore_operations,
+  };
+  
++ #if 0
+  /*
+   * This function accesses profiling information. The returned data is
+   * binary: the sampling step and the actual contents of the profile
+***************
+*** 157,165 ****
+  	read_profile,
+  	write_profile,
+  };
+! 
+  struct inode_operations proc_profile_inode_operations = {
+! 	&proc_profile_operations,
+  };
+  
+  static struct page * get_phys_addr(struct mm_struct * mm, unsigned long ptr)
+--- 158,166 ----
+  	read_profile,
+  	write_profile,
+  };
+! #endif
+  struct inode_operations proc_profile_inode_operations = {
+! //	&proc_profile_operations,
+  };
+  
+  static struct page * get_phys_addr(struct mm_struct * mm, unsigned long ptr)
+diff -rcP linux-2.3.26.orig/fs/proc/proc_misc.c linux-2.3.26/fs/proc/proc_misc.c
+*** linux-2.3.26.orig/fs/proc/proc_misc.c	Mon Nov  1 11:37:00 1999
+--- linux-2.3.26/fs/proc/proc_misc.c	Mon Nov 15 13:12:30 1999
+***************
+*** 614,621 ****
+  	proc_register(&proc_root, &proc_root_kmsg);
+  	proc_register(&proc_root, &proc_root_kcore);
+  	proc_root_kcore.size = (MAP_NR(high_memory) << PAGE_SHIFT) + PAGE_SIZE;
+! 	if (prof_shift) {
+  		proc_register(&proc_root, &proc_root_profile);
+  		proc_root_profile.size = (1+prof_len) * sizeof(unsigned int);
+! 	}
+  }
+--- 614,621 ----
+  	proc_register(&proc_root, &proc_root_kmsg);
+  	proc_register(&proc_root, &proc_root_kcore);
+  	proc_root_kcore.size = (MAP_NR(high_memory) << PAGE_SHIFT) + PAGE_SIZE;
+! /*	if (prof_shift) {
+  		proc_register(&proc_root, &proc_root_profile);
+  		proc_root_profile.size = (1+prof_len) * sizeof(unsigned int);
+! 	} */
+  }
+diff -rcP linux-2.3.26.orig/include/asm-i386/hw_irq.h linux-2.3.26/include/asm-i386/hw_irq.h
+*** linux-2.3.26.orig/include/asm-i386/hw_irq.h	Sat Nov  6 19:07:56 1999
+--- linux-2.3.26/include/asm-i386/hw_irq.h	Wed Nov 17 14:36:46 1999
+***************
+*** 201,226 ****
+  	"pushl $"#nr"-256\n\t" \
+  	"jmp common_interrupt");
+  
+- /*
+-  * x86 profiling function, SMP safe. We might want to do this in
+-  * assembly totally?
+-  */
+- static inline void x86_do_profile (unsigned long eip)
+- {
+- 	if (prof_buffer && current->pid) {
+- 		eip -= (unsigned long) &_stext;
+- 		eip >>= prof_shift;
+- 		/*
+- 		 * Don't ignore out-of-bounds EIP values silently,
+- 		 * put them into the last histogram slot, so if
+- 		 * present, they will show up as a sharp peak.
+- 		 */
+- 		if (eip > prof_len-1)
+- 			eip = prof_len-1;
+- 		atomic_inc((atomic_t *)&prof_buffer[eip]);
+- 	}
+- }
+- 
+  #ifdef __SMP__ /*more of this file should probably be ifdefed SMP */
+  static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {
+  	if (IO_APIC_IRQ(i))
+--- 201,206 ----
+diff -rcP linux-2.3.26.orig/include/asm-i386/profile.h linux-2.3.26/include/asm-i386/profile.h
+*** linux-2.3.26.orig/include/asm-i386/profile.h	Wed Dec 31 16:00:00 1969
+--- linux-2.3.26/include/asm-i386/profile.h	Mon Nov 15 13:51:48 1999
+***************
+*** 0 ****
+--- 1,10 ----
++ #ifndef _ASM_PROFILE_H
++ #define _ASM_PROFILE_H
++ 
++ #ifdef __KERNEL__
++ 
++ #define GET_PC_FROM_REGS(regs) ((regs)->eip)
++ 
++ #endif /* __KERNEL__ */
++ 
++ #endif /* !_ASM_PROFILE_H */
+diff -rcP linux-2.3.26.orig/include/asm-i386/smp.h linux-2.3.26/include/asm-i386/smp.h
+*** linux-2.3.26.orig/include/asm-i386/smp.h	Sat Nov  6 19:06:14 1999
+--- linux-2.3.26/include/asm-i386/smp.h	Wed Nov 17 14:35:47 1999
+***************
+*** 180,185 ****
+--- 180,187 ----
+  extern void smp_local_timer_interrupt(struct pt_regs * regs);
+  extern void (*mtrr_hook) (void);
+  extern void setup_APIC_clocks(void);
++ extern int setup_profiling_timer(unsigned int);
++ extern int prof_multiplier[];
+  extern void zap_low_mappings (void);
+  extern volatile int cpu_number_map[NR_CPUS];
+  extern volatile int __cpu_logical_map[NR_CPUS];
+diff -rcP linux-2.3.26.orig/include/linux/kernel.h linux-2.3.26/include/linux/kernel.h
+*** linux-2.3.26.orig/include/linux/kernel.h	Tue Oct 19 10:22:19 1999
+--- linux-2.3.26/include/linux/kernel.h	Thu Nov 11 12:36:40 1999
+***************
+*** 23,28 ****
+--- 23,31 ----
+  
+  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+  
++ #define ROUNDDOWN(x,y)  (((x)/(y))*(y))
++ #define ROUNDUP(x,y)    ((((x)+(y)-1)/(y))*(y))
++ 
+  #define	KERN_EMERG	"<0>"	/* system is unusable			*/
+  #define	KERN_ALERT	"<1>"	/* action must be taken immediately	*/
+  #define	KERN_CRIT	"<2>"	/* critical conditions			*/
+diff -rcP linux-2.3.26.orig/include/linux/major.h linux-2.3.26/include/linux/major.h
+*** linux-2.3.26.orig/include/linux/major.h	Wed Nov  3 17:50:32 1999
+--- linux-2.3.26/include/linux/major.h	Wed Nov 10 16:11:49 1999
+***************
+*** 117,122 ****
+--- 117,124 ----
+  
+  #define AURORA_MAJOR 79
+  
++ #define PROF_MAJOR	112
++ 
+  #define RTF_MAJOR	150
+  #define RAW_MAJOR	162
+  
+diff -rcP linux-2.3.26.orig/include/linux/profile.h linux-2.3.26/include/linux/profile.h
+*** linux-2.3.26.orig/include/linux/profile.h	Wed Dec 31 16:00:00 1969
+--- linux-2.3.26/include/linux/profile.h	Mon Nov 15 17:33:40 1999
+***************
+*** 0 ****
+--- 1,31 ----
++ #ifndef _LINUX_PROFILE_H
++ #define _LINUX_PROFILE_H
++ 
++ typedef unsigned int PC_sample_count_t;
++ 
++ /* profiling ioctl codes */
++ enum {
++ 	PROF_START,
++ 	PROF_STOP,
++ 	PROF_RESET,
++ 	PROF_SET_SAMPLE_FREQ,
++ 	PROF_GET_SAMPLE_FREQ,
++ 	PROF_GET_PC_RES,
++ 	PROF_GET_ON_OFF_STATE
++ };
++ 
++ #ifdef __KERNEL__
++ 
++ #include <asm/ptrace.h>
++ 
++ typedef void (*prof_hook_p)(struct pt_regs *);
++ 
++ extern char _stext, _etext;
++ extern prof_hook_p prof_timer_hook;
++ 
++ extern void USER(void);            /* these can not be in a module */
++ extern void IN_MODULE(void);
++ 
++ #endif /* __KERNEL__ */
++ 
++ #endif /* !_LINUX_PROFILE_H */
+diff -rcP linux-2.3.26.orig/include/linux/sched.h linux-2.3.26/include/linux/sched.h
+*** linux-2.3.26.orig/include/linux/sched.h	Sat Nov  6 19:06:19 1999
+--- linux-2.3.26/include/linux/sched.h	Wed Nov 17 14:35:49 1999
+***************
+*** 488,497 ****
+  extern struct timeval xtime;
+  extern void do_timer(struct pt_regs *);
+  
+- extern unsigned int * prof_buffer;
+- extern unsigned long prof_len;
+- extern unsigned long prof_shift;
+- 
+  #define CURRENT_TIME (xtime.tv_sec)
+  
+  extern void FASTCALL(__wake_up(wait_queue_head_t *q, unsigned int mode));
+--- 488,493 ----
+diff -rcP linux-2.3.26.orig/init/main.c linux-2.3.26/init/main.c
+*** linux-2.3.26.orig/init/main.c	Tue Oct 19 10:22:19 1999
+--- linux-2.3.26/init/main.c	Thu Nov 11 17:55:54 1999
+***************
+*** 71,77 ****
+  #error sorry, your GCC is too old. It builds incorrect kernels.
+  #endif
+  
+- extern char _stext, _etext;
+  extern char *linux_banner;
+  
+  extern int console_loglevel;
+--- 71,76 ----
+***************
+*** 160,175 ****
+  	return(str);
+  }
+  
+- static int __init profile_setup(char *str)
+- {
+-     int par;
+-     if (get_option(&str,&par)) prof_shift = par;
+- 	return 1;
+- }
+- 
+- __setup("profile=", profile_setup);
+- 
+- 
+  static struct dev_name_struct {
+  	const char *name;
+  	const int num;
+--- 159,164 ----
+***************
+*** 471,487 ****
+  #ifdef CONFIG_MODULES
+  	init_modules();
+  #endif
+- 	if (prof_shift) {
+- 		unsigned int size;
+- 		/* only text is profiled */
+- 		prof_len = (unsigned long) &_etext - (unsigned long) &_stext;
+- 		prof_len >>= prof_shift;
+- 		
+- 		size = prof_len * sizeof(unsigned int) + PAGE_SIZE-1;
+- 		prof_buffer = (unsigned int *) alloc_bootmem(size);
+- 		memset(prof_buffer, 0, size);
+- 	}
+- 
+  	kmem_cache_init();
+  	sti();
+  	calibrate_delay();
+--- 460,465 ----
+diff -rcP linux-2.3.26.orig/kernel/Makefile linux-2.3.26/kernel/Makefile
+*** linux-2.3.26.orig/kernel/Makefile	Sun Jul  4 13:41:08 1999
+--- linux-2.3.26/kernel/Makefile	Tue Nov 16 04:36:57 1999
+***************
+*** 25,30 ****
+--- 25,34 ----
+  OX_OBJS  += ksyms.o
+  endif
+  
++ ifdef CONFIG_PROFILING
++ OX_OBJS += profile.o
++ endif
++ 
+  CFLAGS_sched.o := $(PROFILING) -fno-omit-frame-pointer
+  
+  include $(TOPDIR)/Rules.make
+diff -rcP linux-2.3.26.orig/kernel/profile.c linux-2.3.26/kernel/profile.c
+*** linux-2.3.26.orig/kernel/profile.c	Wed Dec 31 16:00:00 1969
+--- linux-2.3.26/kernel/profile.c	Tue Nov 16 17:22:15 1999
+***************
+*** 0 ****
+--- 1,19 ----
++ #include <linux/config.h>
++ #include <linux/profile.h>
++ #include <linux/module.h>
++ 
++ /* profiling function to call in timer interrupt */
++ prof_hook_p prof_timer_hook __attribute__ ((aligned (__alignof__(char*)))) = 0;
++ 
++ /*
++  * The following functions are defined so their names may appear in profiles.
++  * They are not intended to be called.
++  */
++ void USER(void) {}
++ void IN_MODULE(void) {}
++ 
++ EXPORT_SYMBOL(USER);
++ EXPORT_SYMBOL(IN_MODULE);
++ EXPORT_SYMBOL(prof_timer_hook);
++ EXPORT_SYMBOL(_stext);
++ EXPORT_SYMBOL(_etext);
+diff -rcP linux-2.3.26.orig/kernel/sched.c linux-2.3.26/kernel/sched.c
+*** linux-2.3.26.orig/kernel/sched.c	Thu Oct 14 14:28:12 1999
+--- linux-2.3.26/kernel/sched.c	Thu Nov 11 17:57:35 1999
+***************
+*** 80,88 ****
+  unsigned long event = 0;
+  
+  extern int do_setitimer(int, struct itimerval *, struct itimerval *);
+- unsigned int * prof_buffer = NULL;
+- unsigned long prof_len = 0;
+- unsigned long prof_shift = 0;
+  
+  extern void mem_use(void);
+  
+--- 80,85 ----
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

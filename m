@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276907AbRJVSq3>; Mon, 22 Oct 2001 14:46:29 -0400
+	id <S277576AbRJVSsj>; Mon, 22 Oct 2001 14:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277601AbRJVSqJ>; Mon, 22 Oct 2001 14:46:09 -0400
-Received: from riker.skynet.be ([195.238.3.132]:11638 "EHLO riker.skynet.be")
-	by vger.kernel.org with ESMTP id <S276907AbRJVSqE>;
-	Mon, 22 Oct 2001 14:46:04 -0400
-Message-Id: <200110221846.f9MIkE416013@riker.skynet.be>
-Date: Mon, 22 Oct 2001 20:45:22 +0200 (CEST)
-From: jarausch@belgacom.net
-Reply-To: jarausch@belgacom.net
-Subject: 2.4.13-pre6 breaks Nvidia's kernel module
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	id <S277581AbRJVSsU>; Mon, 22 Oct 2001 14:48:20 -0400
+Received: from AMontpellier-201-1-4-3.abo.wanadoo.fr ([217.128.205.3]:44040
+	"EHLO awak") by vger.kernel.org with ESMTP id <S277576AbRJVSsA> convert rfc822-to-8bit;
+	Mon, 22 Oct 2001 14:48:00 -0400
+Subject: Re: old but actual HPT370 & VIA IDE issue
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: "Alexandre N. Safiullin" <alex_@unis-ru.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87lmi6ldo2.fsf@storm.dorms.msu.ru>
+In-Reply-To: <87lmi6ldo2.fsf@storm.dorms.msu.ru>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.21 (Preview Release)
+Date: 22 Oct 2001 20:42:13 +0200
+Message-Id: <1003776133.9180.22.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+le sam 20-10-2001 à 14:05, Alexandre N. Safiullin a écrit :
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+>  Hello!
+> 
+>  I have an ABIT KT7-RAID motherboard. It has two IDE controllers
+>  VIA (UDMA66) and HPT370 (UDMA100 w/ RAID capabilities). 
+>  The harddrive IBM DTLA 307030 is attached to HPT370 as a primary
+>  master and usually detected as hde
+> 
+>  But after 2.4.6 or 2.4.7 the kernel begun to hang before the message 
+> 
+>  hde: IBM-DTLA-307030, ATA DISK drive
 
-yes I know, you don't like modules without full sources available.
-But Nvidia is the leading vendor of video cards and all 2.4.x
-kernels up to 2.4.13-pre5 work nice with this module.
+disable ACPI
 
-Running pre6 I get
-(==) NVIDIA(0): Write-combining range (0xf0000000,0x2000000)
-(EE) NVIDIA(0): Failed to allocate LUT context DMA
-(EE) NVIDIA(0):  *** Aborting ***
-
-
-This is Nvidia's 1.0-1541 version of its Linux drivers
-
-Please keep this driver going during the 2.4.x series of the
-kernel if at all possible.
-
-Thanks for looking into it,
-
-Helmut Jarausch
-
-Inst. of Technology
-RWTH Aachen
-Germany
-
-
-Please CC to my private email
-
-jarausch@belgacom.net
-
+	Xav
 

@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287865AbSA0Gst>; Sun, 27 Jan 2002 01:48:49 -0500
+	id <S287872AbSA0ISW>; Sun, 27 Jan 2002 03:18:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287866AbSA0Gsi>; Sun, 27 Jan 2002 01:48:38 -0500
-Received: from mx7.sac.fedex.com ([199.81.194.38]:30724 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S287865AbSA0Gsc>; Sun, 27 Jan 2002 01:48:32 -0500
-Date: Sun, 27 Jan 2002 14:49:06 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.18-pre7 slow
-Message-ID: <Pine.LNX.4.44.0201271446001.681-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
- 02:48:29 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
- 02:48:31 PM,
-	Serialize complete at 01/27/2002 02:48:31 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287874AbSA0ISJ>; Sun, 27 Jan 2002 03:18:09 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:30154 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S287872AbSA0ISD>;
+	Sun, 27 Jan 2002 03:18:03 -0500
+Date: Sun, 27 Jan 2002 09:17:58 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200201270817.JAA27327@harpo.it.uu.se>
+To: byzantinehk@yahoo.com.hk
+Subject: Re: Is Local APIC work with Athlon?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 27 Jan 2002 11:48:00 +0800 (CST), Ka Fai Lau wrote:
+>I am using ECS K7VZA (KT133a chipset) and Athlon. I
+>complied my 2.4.17 kernel with Local APIC support. How
+>do I know is it working or not? I have to use the
+>performance counter and local timer interrupt feature.
 
+All K7s except the very first model (K7 model 1) work, unless
+your BIOS is broken. Since you have a VIA chipset, you may see
+spurious IRQ7/ERR interrupts. We don't quite know why, but it's
+not fatal. Disabling LPT support in the BIOS _may_ help.
 
-1) keyboard rate is a bit slow on 2.4.18-pre7 compared to 2.4.18-pre6.
-
-2) On vmware 3.0, ping localhost is very slow. 2.4.18-pre6 has not such
-problem.
-
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
+/Mikael

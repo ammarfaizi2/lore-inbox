@@ -1,57 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314078AbSINMAU>; Sat, 14 Sep 2002 08:00:20 -0400
+	id <S315439AbSINMVJ>; Sat, 14 Sep 2002 08:21:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSINMAU>; Sat, 14 Sep 2002 08:00:20 -0400
-Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:39436 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S314078AbSINMAT>; Sat, 14 Sep 2002 08:00:19 -0400
-Date: Sat, 14 Sep 2002 14:05:07 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ADMIN: DON'T try to be clever with email headers!
-Message-ID: <20020914120507.GA16598@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020910225530.A17094@mars.ravnborg.org> <20020910230656.D18386@mars.ravnborg.org> <9500000.1031706478@aslan.btc.adaptec.com> <20020911071219.A1352@mars.ravnborg.org> <slrnao427d.si3.abuse@madhouse.demon.co.uk> <20020913173709.GG30392@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020913173709.GG30392@mea-ext.zmailer.org>
-User-Agent: Mutt/1.4i
+	id <S315449AbSINMVJ>; Sat, 14 Sep 2002 08:21:09 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:17832 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S315439AbSINMVI>;
+	Sat, 14 Sep 2002 08:21:08 -0400
+Message-ID: <1032006359.3d832ad704793@kolivas.net>
+Date: Sat, 14 Sep 2002 22:25:59 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: System response benchmarks in performance patches
+References: <1031933335.3d820d97a13c6@kolivas.net> <3D824634.480EFA32@digeo.com>
+In-Reply-To: <3D824634.480EFA32@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Sep 2002, Matti Aarnio wrote:
+Quoting Andrew Morton <akpm@digeo.com>:
 
->   Folks, when aiming to post into VGER's lists, DO NOT
->   try to make any cute things in headers.  Any such
->   are bound to cause TONS of bounces, which did happen
->   in this particular case...
+> Con Kolivas wrote:
+> > I came up with a very simple way of measuring responsiveness that gives
+> me
+> > numbers that are meaningful to me. What I've done is the old faithful
+> kernel
+> > compile and measured it under different loads to simulate the pc's ability
+> to
+> > perform under various loads. I have so far benchmarked 2.4.19 versus
+> 2.4.19-ck7,...
+> Yes, this is a wonderful test.  Very real-world, easy to do and it
+> tickles a few fairly serious performance problems which we have.
 
-The fix is to normalize headers. Any mailing list should do that. I have
-seen ISODE PP 5.0, running the uni-dortmund secondary MX (which is in
-fact the only reachable outside the intranet), bounce on perfectly-legal
-addresses, and mails containing double Date: headers and for other
-frivolous reasons. Recently I got unsubscribed for reasons Dave Miller
-could not recall, he had not kept the bounce :-(
+Thank you. I've been thinking hard about this for some time. I hope it becomes 
+useful
 
-Does anybody know of an opensource real-time anti-relay SMTP proxy that
-can do aliasing?
+> > The loads were taken from BMatthew's iman found here:
+> > http://people.redhat.com/bmatthews/irman/
+> I have issues with irman (I think - didn't read the code really
+> closely).
 
-I like the way ezmlm-idx, a mailing list manager, handles things, it
-stores bounces, and after some days, notifies the list members, and if
-the notice does not get through, kills the subscription after another
-verification. I'd be good if the vger lists could do the same, so users
-could actually figure what goes through and what is rejected.
+irman isn't really the key to this benchmark, it was only the source of a
+constant load in each different area. The actual irman app isn't used, only the
+child load apps.
 
-Anyhow, by all means, DO KEEP THE BOUNCES YOU GET, use a script and keep
-them for two weeks, and then weed them out. Feel free to weed all
-subsequent bounces from one address that has the same bounce reason.
-This should be possible with low effort, but allows users to figure
-what's up should they ask.
+> It appears to always perform file overwrites - seeking over files,
+> rewriting them.
+> 
+> This tends to cause best-case behaviour in the VM.  The affected pages
+> are tucked up out of the way on the active list and we do quite well.
+> 
+> If instead the background application is writing _new_ files then
+> everything falls apart.
+> 
+> I'd suggest that you stick with the kernel compile as the workload,
+> and vary the background activity a bit.  Try tiobench.
 
-BTW, his header showed up escaped at my site:
+I've had a look at tiobench and it looks like a serious IO load. However the
+load varies quite a bit and I'd like something that remains relatively constant
+throughout. I'd have to strip the guts out of it and do it as numerous different
+IO tests. It does start taking away from the simplicity of it at the moment, and
+as you can see from the numbers, it is still very revealing in it's current
+incarnation.
 
-Reply-To: "andy@"@his.domain
+> (oh, and try turning on everything in the `input' menu; that might
+> get the keyboard working again in 2.5)
 
-And, FWIW, this looks legal to me according to RFC-2822 EBNF.
+Thanks for that. I've managed to get the keyboard working but haven't been up to
+speed with development of 2.5.x so I haven't figured out what to do about the
+changing IDE partitions. All of that is moot at the moment, though, as my
+benchmark won't yet work on 2.5.x because of changes to the /proc filesystem.
+Rik Van Riel is helping me sort out this problem.
+
+In the meantime I have created a tarball of this benchmark in a usable form.
+I've called it contest (thanks Rik for the name idea) and it's basically a
+script and the relevant workload tasks. I've posted it on my kernel page at
+http://kernel.kolivas.net under the FAQ. A final reminder note: it won't work on
+2.5.x
+
+Con.

@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263007AbVBCUWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263873AbVBCUYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbVBCUWK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 15:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263773AbVBCUWJ
+	id S263873AbVBCUYO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 15:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbVBCUWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 15:22:09 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:16288 "EHLO
-	postbox.bitmover.com") by vger.kernel.org with ESMTP
-	id S263007AbVBCUVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 15:21:01 -0500
-Date: Thu, 3 Feb 2005 12:20:49 -0800
-To: Stelian Pop <stelian@popies.net>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050203202049.GC20389@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Stelian Pop <stelian@popies.net>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-References: <20050202155403.GE3117@crusoe.alcove-fr> <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org>
+	Thu, 3 Feb 2005 15:22:32 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:31934 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263605AbVBCUUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 15:20:51 -0500
+Date: Thu, 3 Feb 2005 21:20:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: pageexec@freemail.hu
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Message-ID: <20050203202032.GA24192@elte.hu>
+References: <4201DBE7.30569.2F5D446@localhost> <4202BFDB.24670.67046BC@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050203193220.GB29712@sd291.sivit.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+In-Reply-To: <4202BFDB.24670.67046BC@localhost>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As Peter said, once every 6 hours is fine. Or even more often, what
-> the heck, as I said in a previous post I don't think an incremental
-> export is that much costly. It could be done at the same time as
-> the -bkX patches...
 
-I'll see what I can do.
+* pageexec@freemail.hu <pageexec@freemail.hu> wrote:
 
-> Speaking from the out-BK point of view, what would really be nice
-> is better granularity in the CVS export (a 1-1 changeset to CVS commit
-> mapping). I know this involves playing with CVS branches and could
-> be a bit tricky but should be doable.
+> > > dl_make_stack_executable() will nicely return into user_input
+> > > (at which time the stack has already become executable).
+> > 
+> > wrong, _dl_make_stack_executable() will not return into user_input() in
+> > your scenario, and your exploit will be aborted. Check the glibc sources
+> > and the implementation of _dl_make_stack_executable() in particular. 
+> 
+> oh, you mean the invincible __check_caller(). one possibility:
+> 
+> [...]
+> [field1 and other locals replaced with shellcode]
+> [value of __libc_stack_end]
+> [some space for the local variables of dl_make_stack_executable and others]
+> [saved EBP replaced with anything in this case]
+> [saved EIP replaced with address of a 'pop eax'/'retn' sequence]
+> [address of [value of __libc_stack_end], loads into eax]
+> [address of dl_make_stack_executable()]
+> [address of a suitable 'retn' insn in ld.so/libpthread.so]
+> [user_input left in place, i.e., overflows end before this]
+> [...]
 
-I have two problems with this request:
+still wrong. What you get this way is a nice, complicated NOP.
 
-    - The idea that the granularity in CVS is unreasonable is pure
-      nonesense.  Here's the data as of this email:
-
-		CVS		BitKeeper [*]
-	Deltas	235,956		280,212
-
-    - It is not at all an easy thing to do in CVS, we looked at it and 
-      guessed it is about 3 man months of work.
-
-So let's see what's reasonable.  In order for you to get the last 16%
-of the granularity, which you need because you want to compete with us,
-you'd like us to do another 3 man months of work.  What would you say if
-you were me in this situation?
-
---lm
-
-[*]  Commands used to generate the above data:
-
-BK:
-	bk -r prs -hnd:I: | wc -l
-
-CVS:	
-	#!/usr/bin/perl -w
-
-	open(F, "find linux-2.5 -name '*,v' |");
-	$files = $revs = 0;
-	while (<F>) {
-		chop;
-		open(F2, $_);
-		$head = <F2>;
-		close(F2);
-		unless ($head =~ /head\s+1\.(\d+)/) {
-			warn "\n$_ is junk\n";
-			next;
-		}
-		$files++;
-		$revs += $1;
-		print STDERR "files=$files revs=$revs\r";
-	}
-	print "\n\nfiles=$files revs=$revs\n";
-
+	Ingo

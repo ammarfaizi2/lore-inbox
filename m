@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270681AbTHLP3d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 11:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270724AbTHLP3d
+	id S270490AbTHLPVi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 11:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270499AbTHLPVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 11:29:33 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:38418 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S270681AbTHLP3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 11:29:30 -0400
-Message-ID: <3F390B36.5050709@techsource.com>
-Date: Tue, 12 Aug 2003 11:43:50 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add an -Os config option
-References: <20030811211145.GA569@fs.tum.de> <20030812080634.A19427@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Aug 2003 11:21:38 -0400
+Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:43493
+	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S270490AbTHLPVg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 11:21:36 -0400
+Date: Tue, 12 Aug 2003 17:23:58 +0200
+From: Voluspa <lista1@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: WINE + Galciv + 2.6.0-test3-mm1-O15
+Message-Id: <20030812172358.5afe0cc1.lista1@telia.com>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 2003-08-12 14:42:02 gaxt wrote:
 
-Christoph Hellwig wrote:
-> On Mon, Aug 11, 2003 at 11:11:45PM +0200, Adrian Bunk wrote:
-> 
->>The patch below adds an option OPTIMIZE_FOR_SIZE (depending on EMBEDDED) 
->>that changes the optimization from -O2 to -Os.
-> 
-> 
-> Please dropt the if EMBEDDED - this makes perfecty sense for lots of
-> todays hardware..
-> 
-> In fact we should probably rather do some some benchmarking whether it
-> would be a good idea to make -Os the default.
+[...]
+> Galciv plays videos quite smoothly but as soon as I run it it will
+> freeze the cursor for 12-15 seconds every half-minute or so even
+> within the game itself which is turn-based strategy without a lot of
+> whizbang stuff. In the past, the videos would stutter but the game
+> would not suffer from more than short pauses now and then.
 
+Similar experience here running the game-test (xfree86 4.3.99.10, winex
+3.1 and "Baldurs Gate I") on a PII 400 with 128 meg ram. Using
+2.6.0-test3-O14.1int + O14.1-O15int.
 
-Interesting thought...  In reality, we want the system to spend as 
-little time in the kernel as possible.  If we've done that job right, 
-then optimizing for size shouldn't matter as much.  We're still spending 
-most of our time in user space.
+I would say this is the best _and_ worst scheduler I've tried since Con
+had to adopt his work to the new Ingo infrastructure. Slightly
+smoother than pure A3 unless you manage to trigger badness. Then you (or
+I, at least) get exactly 15 seconds of total freezes, mixed with
+different periods of normality. And by freezes, I mean total freezes.
 
-Furthermore, it may be that we could benefit from compiling some source 
-files with -Os and others with -O2, depending on how critical they are 
-and how much they are ACTUALLY affected.
+I can switch to an already opened text console, but there
+a running "top" is dead and it won't take any keystrokes until the
+freeze has gone. The only thing not dead is the "sound repeats" that
+Daniel Phillips explained in:
 
-So... we need profiling to determine what is used and how much.  And we 
-need benchmarking to determine what is affected and by how much.  Over 
-the next couple of years, it might be good for Linus and others to adopt 
-a policy where the default optimization for individual files is 
-determined based on experience and need.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105966612027670&w=2
 
-If only 5% of the source files are compiled with -O2, that's not going 
-to bloat the kernel much, we'll get an optimal balance of performance 
-and size, and everyone will be happy.
+--quote--
+To convince yourself of this, note that when DMA refill fails to meet
+its deadline you will hear repeats, not skipping, because the DMA
+hardware on the sound card has been set up to automatically restart the
+DMA each time the buffer expires.  Try running the kernel under kgdb and
+breaking to the monitor while sound is playing.
+--unquote--
 
-We may find it valuable to divide up the sources differently.  There may 
-be source files with both critical and noncritical functions that needed 
-to be separated out so they can be compiled differently.
-
-And while we're at it, if there is ever any benefit to -O3, that could 
-be used on a per-file basis as well.
-
-Comments?
-
+Mvh
+Mats Johannesson

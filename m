@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVAAUaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVAAUce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVAAUaP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 15:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVAAUaP
+	id S261177AbVAAUce (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 15:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVAAUce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 15:30:15 -0500
-Received: from mail.tmr.com ([216.238.38.203]:41160 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261173AbVAAUaJ (ORCPT
+	Sat, 1 Jan 2005 15:32:34 -0500
+Received: from hera.kernel.org ([209.128.68.125]:55508 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261177AbVAAUc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 15:30:09 -0500
-Message-ID: <41D70AF4.7030901@tmr.com>
-Date: Sat, 01 Jan 2005 15:41:24 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: mingo@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: 2.6.10 - Misrouted IRQ recovery for review
-References: <1104249508.22366.101.camel@localhost.localdomain>
-In-Reply-To: <1104249508.22366.101.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Jan 2005 15:32:28 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: initramfs: is it supposed to work?
+Date: Sat, 1 Jan 2005 20:31:42 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cr71be$1sv$1@terminus.zytor.com>
+References: <41D4A2A6.3060607@tls.msk.ru> <cr319b$31b$1@terminus.zytor.com> <pan.2005.01.01.15.40.12.264342@dungeon.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1104611502 1952 127.0.0.1 (1 Jan 2005 20:31:42 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sat, 1 Jan 2005 20:31:42 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ported to the new kernel/irq code.
+Followup to:  <pan.2005.01.01.15.40.12.264342@dungeon.inka.de>
+By author:    Andreas Jellinghaus <aj@dungeon.inka.de>
+In newsgroup: linux.dev.kernel
+>
+> Hi,
+> 
+> run-init seems to mount the new root, rm files in the old root,
+> mount, chroot, open the console, exec. any reason we can't do
+> that in shell script commands?
+>  
+> > You don't pivot_root initramfs, because initramfs *IS* rootfs.
+> > 
+> > Instead, use the run-init program
+> 
+> ok, but still: is it ok for the kernel to die?
+> after all pivot_root works fine, unless /initrd is unmounted.
+> what exactly is the kernel internal that makes pivot_root special?
+> 
 
-	[snip]
+Your /initrd here is rootfs, and by unmounting rootfs, you've pulled
+the rug out from underneath the kernel any time it needs to spawn a
+kernel thread.
 
->  	} else {
-> -		printk(KERN_ERR "irq %d: nobody cared!\n", irq);
-> +		printk(KERN_ERR "irq %d: nobody cared (try booting with the \"irqpoll\" option.\n", irq);
->  	}
->  	dump_stack();
->  	printk(KERN_ERR "handlers:\n");
-	[snip]
-
-I saw this message coming out of ac2 with my runaway IRQ 18 problem, so 
-I tried irqpoll, and it just "went away" beyond sysreq or other gentle 
-recovery.
-
-I suspect that the problem lies in sharing the shared IRQ, and that 
-polling doesn't solve the problem, just changes it to a hang witing for 
-the misrouted IRQ. Still poking for the real cause, no patch or 
-anything, but acpi={off,ht}, noapic, pci=routeirq, etc have no benefit 
-(for me).
-
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+	-hpa

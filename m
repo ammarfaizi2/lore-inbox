@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbTI2SVl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTI2SVj
+	id S264184AbTI2SMW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbTI2SH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:21:39 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:1090 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S264198AbTI2SVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:21:19 -0400
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'John Bradford'" <john@grabjohn.com>, "'Rob Landley'" <rob@landley.net>,
-       "'Larry McVoy'" <lm@bitmover.com>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: log-buf-len dynamic
-Date: Mon, 29 Sep 2003 11:21:14 -0700
-Organization: Cisco Systems
-Message-ID: <027a01c386b6$77de67e0$ca41cb3f@amer.cisco.com>
+	Mon, 29 Sep 2003 14:07:56 -0400
+Received: from heron.mail.pas.earthlink.net ([207.217.120.189]:15096 "EHLO
+	heron.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264174AbTI2SHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 14:07:36 -0400
+Message-ID: <3F78745B.7000606@earthlink.net>
+Date: Mon, 29 Sep 2003 14:05:15 -0400
+From: Stephen Clark <stephen.clark@earthlink.net>
+Reply-To: sclark46@earthlink.net
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: transmit timeout problem
+X-Enigmail-Version: 0.76.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <200309291124.h8TBOlam000872@81-2-122-30.bradfords.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-Importance: Normal
+X-ELNK-Trace: a437fbc6971e80f61aa676d7e74259b7b3291a7d08dfec790891091c63127daa7abbe66cdb4fa407350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 'Enhanced' is, of course, a complete understatement.  What I am
-> suggesting is basicaly adding A.I. functionality to diff and patch, to
-> the point where they can merge three pieces of C code as efficiently
-> as a good developer can.
+Help needed please,
 
-Or maybe we don't need Linus Torvalds either. We just need an 'enhanced'
-robot who can code.
+In frequently I start getting the following:
 
-/sorry can't resist this one
+Sep 29 10:32:49 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Sep 29 10:32:49 joker kernel: eth0: Transmit timed out, status fc1e4010, 
+CSR12 0
+0000000, resetting...
+Sep 29 10:32:57 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Sep 29 10:32:57 joker kernel: eth0: Transmit timed out, status fc1e4010, 
+CSR12 0
+0000000, resetting...
+Sep 29 10:33:05 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Sep 29 10:33:05 joker kernel: eth0: Transmit timed out, status fc1e4010, 
+CSR12 0
+0000000, resetting...
+Sep 29 10:33:13 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Sep 29 10:33:13 joker kernel: eth0: Transmit timed out, status fc1e4010, 
+CSR12 0
+0000000, resetting...
+Sep 29 10:33:21 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Sep 29 10:33:21 joker kernel: eth0: Transmit timed out, status fc1e4010, 
+CSR12 0
+0000000, resetting...
+Sep 29 10:33:29 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Sep 29 10:33:29 joker kernel: eth0: Transmit timed out, status fc1e4010, 
+CSR12 0
+0000000, resetting...
 
-Hua
+
+This usally happens while I at work - so I have my wife restart my 
+system. I have two of these cards
+and have seen it happen on both of them. Anybody have an idea on how to 
+fix this.
+
+Below is the kernel version and info on the cards.
+
+Sep 29 10:35:37 joker kernel: Linux version 2.4.20-20.9custom 
+(root@joker.seclar
+k.com) (gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #3 Wed Sep 
+17 16:28:
+06 EDT 2003
+
+Sep 29 10:35:38 joker kernel: Linux Tulip driver version 0.9.15-pre12 
+(Aug 9, 20
+02)
+Sep 29 10:35:38 joker kernel: eth0: ADMtek Comet rev 17 at 0xb000, 
+00:04:5A:6D:D
+8:CC, IRQ 5.
+Sep 29 10:35:38 joker kernel: eth1: ADMtek Comet rev 17 at 0xb400, 
+00:04:5A:40:5
+1:24, IRQ 11.
+
+Thanks,
+Steve
 

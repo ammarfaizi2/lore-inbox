@@ -1,55 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315459AbSHAPfs>; Thu, 1 Aug 2002 11:35:48 -0400
+	id <S315517AbSHAPj5>; Thu, 1 Aug 2002 11:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315463AbSHAPfs>; Thu, 1 Aug 2002 11:35:48 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:30996 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315459AbSHAPfq>; Thu, 1 Aug 2002 11:35:46 -0400
-Date: Thu, 1 Aug 2002 17:39:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Terrible VM in 2.4.19rc3aa4 once again?
-Message-ID: <20020801153911.GC1132@dualathlon.random>
-References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz> <20020708225816.GA1948@werewolf.able.es> <20020709124807.D1510@mail.muni.cz> <20020710163422.GB2513@dualathlon.random> <20020801113124.GA755@mail.muni.cz> <20020801140348.GM1132@dualathlon.random> <20020801141940.GB755@mail.muni.cz>
+	id <S315529AbSHAPj5>; Thu, 1 Aug 2002 11:39:57 -0400
+Received: from dsl-65-186-160-165.telocity.com ([65.186.160.165]:44550 "EHLO
+	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
+	id <S315517AbSHAPj4>; Thu, 1 Aug 2002 11:39:56 -0400
+Date: Thu, 1 Aug 2002 11:39:37 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Schwartz <davids@webmaster.com>, trond.myklebust@fys.uio.no,
+       Christoph Hellwig <hch@infradead.org>, Bill Davidsen <davidsen@tmr.com>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6] The List, pass #2
+Message-ID: <20020801153936.GA17759@fieldses.org>
+References: <1028209375.14871.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020801141940.GB755@mail.muni.cz>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <1028209375.14871.3.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 04:19:40PM +0200, Lukas Hejtmanek wrote:
-> On Thu, Aug 01, 2002 at 04:03:48PM +0200, Andrea Arcangeli wrote:
-> > you can use elvtune, in my more recent trees I returned in sync with
-> > mainline with the parameters to avoid being penalized in the benchmarks,
-> > but if you need lower latency you can execute stuff like this by yourself.
+On Thu, Aug 01, 2002 at 02:42:55PM +0100, Alan Cox wrote:
+> On Thu, 2002-08-01 at 10:33, David Schwartz wrote:
 > > 
-> > 	elvtune -r 10 -w 20 /dev/hd[abcd] /dev/sd[abcd]
+> > >An additional problem with a BSD like license is that it makes no
+> > >statement on patents - regrettably a critical issue now days in the
+> > >USSA. That means nothing prevents CITI from providing BSD licensed code
+> > >and then 6 months later sueing everyone who used it. I don't see CITI
+> > >doing that but the basic problem is still there.
 > > 
-> > etc... (hda or hda[1234] will be the same, it only care about disks)
-> > 
-> > the smaller the lower latency you will get. In particular you care about
-> > the read latency, so the -r parameters is the one that has to be small
-> > for you, writes can be as well big.
+> > 	Sure something prevents them. You can't induce people to violate your patent 
+> > and then complain when they do what you induced them to do. Remember Rambus?
 > 
-> Hmm however I think i/o subsystem should allow parallel reading/writing don't
-> you think?
+> You don't have to induce them, you just announce release 1 and wait for
+> someone to pick it up and merge it.
 
-of course it does, what you're tuning is the "how many requests can
-delay a read request" or "how many requests can delay a write request"?
+I don't know about that.  But I don't accept the claim that the
+GPL's statements on patents adds any additional protection against a
+copyright-owner later deciding to pursue a patent.  Here's the relevant
+clause of the GPL:
 
-it's not putting synchronous barriers, it only controls the ordering.
+  7. If, as a consequence of a court judgment or allegation of patent
+  infringement or for any other reason (not limited to patent issues),
+  conditions are imposed on you (whether by court order, agreement or
+  otherwise) that contradict the conditions of this License, they do not
+  excuse you from the conditions of this License.  If you cannot
+  distribute so as to satisfy simultaneously your obligations under this
+  License and any other pertinent obligations, then as a consequence you
+  may not distribute the Program at all.  For example, if a patent
+  license would not permit royalty-free redistribution of the Program by
+  all those who receive copies directly or indirectly through you, then
+  the only way you could satisfy both it and this License would be to
+  refrain entirely from distribution of the Program.
 
-If a read requests can ba passed by 10mbytes of data you will
-potentially read one block every 10mbyte written to disk. Of course
-there will be less seeks and the global workload will be faster (faster
-at least for most cases), but your read latency will be very very bad.
+Note that the "you" referred to in this clause is the licensee, not the
+copyright owner.  Thus the effect of this clause is only to prevent
+licensees from redistributing a work with patent problems.
 
-You can see the default values by not passing arguments to elvtune IIRC.
+In the case of a contributor to a project like the Linux kernel,
+however, two things are happening at once:
 
-Andrea
+  1. The contributor is creating original works which are copyright to
+     that contributor.
+  2. The contributor is creating a derived work of the Linux kernel,
+     which is copyright to a whole bunch of other people.
+
+The only thing that permits a contributor like CITI to create and
+distribute derived works of the Linux kernel is the contributor's
+acquiescence to the GPL on *other* people's works.  So if CITI a year
+from now decided to start collecting royalties on some hypothetical
+patent, it would be violating the GPL on other people's code; the
+license on the particular files that CITI added would be irrelevant.
+
+Feel free to correct me if I've missed something here.
+--Bruce Fields

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUDIXvK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 19:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUDIXvK
+	id S261689AbUDIX6M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 19:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbUDIX6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 19:51:10 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:35086 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261943AbUDIXvH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 19:51:07 -0400
-Date: Sat, 10 Apr 2004 09:50:40 +1000
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ALPHA] Fix unaligned stxncpy again
-Message-ID: <20040409235040.GA14950@gondor.apana.org.au>
-References: <20040409103244.GA1904@gondor.apana.org.au> <20040409233511.B727@den.park.msu.ru>
+	Fri, 9 Apr 2004 19:58:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11755 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261689AbUDIX6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 19:58:11 -0400
+Date: Fri, 9 Apr 2004 16:53:14 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: jt@hpl.hp.com
+Cc: jt@bougret.hpl.hp.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       irda-users@lists.sourceforge.net
+Subject: Re: [PATCH 2.6] IrDA header move
+Message-Id: <20040409165314.6d29ecbc.davem@redhat.com>
+In-Reply-To: <20040408232420.GA5100@bougret.hpl.hp.com>
+References: <20040408232420.GA5100@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040409233511.B727@den.park.msu.ru>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 09, 2004 at 11:35:11PM +0400, Ivan Kokshaysky wrote:
-> 
-> Here is simpler equivalent of that and ev6 fix.
+On Thu, 8 Apr 2004 16:24:20 -0700
+Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
 
-Thanks.  But is there any reason why we need to have code that
-is different from glibc?
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> 	The attached shell script+patch move some IrDA driver headers
+> around.
+
+I'll add these changes, thanks a lot Jean.

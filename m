@@ -1,143 +1,136 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSFBVMT>; Sun, 2 Jun 2002 17:12:19 -0400
+	id <S314278AbSFBVPE>; Sun, 2 Jun 2002 17:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSFBVMS>; Sun, 2 Jun 2002 17:12:18 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:3079 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S314277AbSFBVMQ>;
-	Sun, 2 Jun 2002 17:12:16 -0400
-Message-ID: <3CFA7C7E.4020501@evision-ventures.com>
-Date: Sun, 02 Jun 2002 22:13:50 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
+	id <S314284AbSFBVPD>; Sun, 2 Jun 2002 17:15:03 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54023
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S314278AbSFBVPB>; Sun, 2 Jun 2002 17:15:01 -0400
+Date: Sun, 2 Jun 2002 14:14:15 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: FUD or FACTS ?? but a new FLAME!
+In-Reply-To: <Pine.SOL.4.30.0206021405070.1886-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.10.10206021330120.5846-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.19 IDE 82
-In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------010602000509040909070100"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010602000509040909070100
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 2 Jun 2002, Bartlomiej Zolnierkiewicz wrote:
 
-Sun Jun  2 22:41:45 CEST 2002 ide-clean-82
+> > So any BIOS/BH's traversed are at risk of there is a media error or any
+> > other error event.
+> 
+> Yes, broken multi-PIO.
 
-- PPC compilation fix by Paul Mackerras.
+Worse than broken, there is not an acceptable interface to honor the
+hardware and protect the data, and meet the requirement of the development
+kernel.
 
-- Various fixes by Bartek:
+So I can make it technically correct and operate clean.
+I can not promise driver level protection of the data above.
+This very issue breaks the requirement of the state diagram for data
+transfers.
 
-   fix ata_irq_enable() and ata_reset() for legacy ATA-1 devices
+Offline I will walk you throught the process and requirements.
+I am tired of explaining it to people who can not and will not understand
+the issue.  Even though I have spent time on may occassions with several
+people to explain, they all claim to understand yet none prove it.
 
-   in start_request() for REQ_DRIVE_ACB
-   a) don't run ->prehandler() twice
-   b) return ata_taskfile() value
+For some reason, I trust you get the points and see the magnitude of the
+problem.  The issue can you explain it to the rest who you will have to
+deal with, because I am done.
 
---------------010602000509040909070100
-Content-Type: text/plain;
- name="ide-clean-82.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-clean-82.diff"
+So you now it is up to you to fix it, I will answer your questions.
 
-diff -urN linux-2.5.19/drivers/ide/device.c linux/drivers/ide/device.c
---- linux-2.5.19/drivers/ide/device.c	2002-06-02 23:03:00.000000000 +0200
-+++ linux/drivers/ide/device.c	2002-06-02 22:48:12.000000000 +0200
-@@ -105,11 +105,12 @@
- 	if (!ch->io_ports[IDE_CONTROL_OFFSET])
- 		return 0;
- 
-+	/* 0x08 is for legacy ATA-1 devices */
- 	if (on)
--		OUT_BYTE(0x00, ch->io_ports[IDE_CONTROL_OFFSET]);
-+		OUT_BYTE(0x08 | 0x00, ch->io_ports[IDE_CONTROL_OFFSET]);
- 	else {
- 		if (!ch->intrproc)
--			OUT_BYTE(0x02, ch->io_ports[IDE_CONTROL_OFFSET]);
-+			OUT_BYTE(0x08 | 0x02, ch->io_ports[IDE_CONTROL_OFFSET]);
- 		else
- 			ch->intrproc(drive);
- 	}
-@@ -131,9 +132,11 @@
- 		return;
- 
- 	printk("%s: reset\n", ch->name);
--	OUT_BYTE(0x04, ch->io_ports[IDE_CONTROL_OFFSET]);
-+	/* 0x08 is for legacy ATA-1 devices */
-+	OUT_BYTE(0x08 | 0x04, ch->io_ports[IDE_CONTROL_OFFSET]);
- 	udelay(10);
--	OUT_BYTE(0x00, ch->io_ports[IDE_CONTROL_OFFSET]);
-+	/* 0x08 is for legacy ATA-1 devices */
-+	OUT_BYTE(0x08 | 0x00, ch->io_ports[IDE_CONTROL_OFFSET]);
- 	do {
- 		mdelay(50);
- 		stat = IN_BYTE(ch->io_ports[IDE_STATUS_OFFSET]);
-diff -urN linux-2.5.19/drivers/ide/ide.c linux/drivers/ide/ide.c
---- linux-2.5.19/drivers/ide/ide.c	2002-06-02 23:03:06.000000000 +0200
-+++ linux/drivers/ide/ide.c	2002-06-02 22:48:20.000000000 +0200
-@@ -754,14 +754,7 @@
- 		if (!(ar))
- 			goto args_error;
- 
--		ata_taskfile(drive, ar, NULL);
--
--		if (((ar->command_type == IDE_DRIVE_TASK_RAW_WRITE) ||
--		     (ar->command_type == IDE_DRIVE_TASK_OUT)) &&
--				ar->prehandler && ar->handler)
--			return ar->prehandler(drive, rq);
--
--		return ide_started;
-+		return ata_taskfile(drive, ar, NULL);
- 	}
- 
- 	/* The normal way of execution is to pass and execute the request
-diff -urN linux-2.5.19/drivers/ide/ide-pmac.c linux/drivers/ide/ide-pmac.c
---- linux-2.5.19/drivers/ide/ide-pmac.c	2002-06-02 23:03:06.000000000 +0200
-+++ linux/drivers/ide/ide-pmac.c	2002-06-02 22:57:41.000000000 +0200
-@@ -431,7 +431,7 @@
- 		goto out;
- 	}
- 	udelay(10);
--	ata_irq_enale(drive, 0);
-+	ata_irq_enable(drive, 0);
- 	OUT_BYTE(command, IDE_NSECTOR_REG);
- 	OUT_BYTE(SETFEATURES_XFER, IDE_FEATURE_REG);
- 	OUT_BYTE(WIN_SETFEATURES, IDE_COMMAND_REG);
-@@ -1577,9 +1577,9 @@
- 	 */
- 	if (used_dma && !ide_spin_wait_hwgroup(drive)) {
- 		/* Lock HW group */
--		set_bit(IDE_BUSY, &drive->channel->active);
-+		set_bit(IDE_BUSY, drive->channel->active);
- 		pmac_ide_check_dma(drive);
--		clear_bit(IDE_BUSY, &drive->channel->active);
-+		clear_bit(IDE_BUSY, drive->channel->active);
- 		spin_unlock_irq(drive->channel->lock);
- 	}
- #endif
-@@ -1626,7 +1626,7 @@
- 		return;
- 	else {
- 		/* Lock HW group */
--		set_bit(IDE_BUSY, &drive->channel->active);
-+		set_bit(IDE_BUSY, drive->channel->active);
- 		/* Stop the device */
- 		idepmac_sleep_device(drive, idx, base);
- 		spin_unlock_irq(drive->channel->lock);
-@@ -1656,7 +1656,7 @@
- 
- 	/* We resume processing on the lock group */
- 	spin_lock_irq(drive->channel->lock);
--	clear_bit(IDE_BUSY, &drive->channel->active);
-+	clear_bit(IDE_BUSY, drive->channel->active);
- 	if (!list_empty(&drive->queue.queue_head))
- 		do_ide_request(&drive->queue);
- 	spin_unlock_irq(drive->channel->lock);
+> So what should we do in case of overclocked PCI bus?
 
---------------010602000509040909070100--
+Same as in the past, do not support overclocking.
+
+> Get overclocked ATA or try to mess with timings?
+
+Forest Gump, "Stupid is as Stupid does" best answer.
+
+> It is legal according to ATA spec.
+
+For the HOST hardware not for the HOST drivers.
+One of the issues in the spec, is the lack of separation of layers.
+The spec is two layers not three, and described but the effects on each
+end of the cable/ribbon.  Additionally the spec is a one sided set of
+rules of how to talk to a device (disk,atapi,etc).  Much like how one has
+to address Torvalds.  Talk to a device the wrong way, the operation is
+aborted with an error.  Talk to Torvalds the wrong way, you get aborted.
+
+But the SPEC and Torvalds are mutual dictators and react the same way.
+
+> So all hosts are broken in this respect?
+
+This one does not parse well, so I will ask you to clarify it.
+However let me define HOST first.
+
+HOST == Interface + Driver.
+
+On the hardware side of the HOST, those values describe are for the
+manufactures to make the hardware.  They intern provide tables and rules
+for setting the hardware to match discretely to the capablitites of the
+devices attached.
+
+Additionally any sane driver would pre-determine the values to be
+programmed to insure the communications are proper.  I have a preference
+to obtain these values from the vender and then compare on paper before
+publishing.  If there is a problem, one would go back the vender of the
+hardware and verify the differences.
+
+> > Instead of using the fixed and bounded PIO timing values as set forward by
+> > the OEM Chip makers, who know best how their product works.  2.5 now has
+> > this charming piece of crap which admits to dorking up the command block
+> > transfer timing execution.  OUCH.
+> 
+> So they are generally broken? If so why there are even registers for
+> setting timings, they could have done tables in hardware?
+
+Upon completion of POST it is observed and reported all drives default
+their fast io mode.  The origin of the host tuning code happened when most
+interfaces were ATA-2 and the drives were ATA-3.  Few people recall the
+issues, but they happened like this.
+
+PIIX3 limited to Mult-Word DMA 2 and an Ultra-33 drive attached.
+Instant deadlock upon writing to the interface.  The host would wait for
+data which was already sent but missed.  The system never booted.
+
+> > Now recall me being called a LIAR by PINHEAD.
+
+I realized a mistake was made here, and should not have stepped into the
+sandbox to throw sand.  This was wrong of me to drop to name calling.
+I just wish other people were big enough to admit when they are wrong.
+I hold little hope of ever seeing an apology from the otherside.
+
+> > I wish somebody would inform Maxtor so it can be made public.
+> > On monday I will call one of my contacts there who writes the
+> > diskware/firmware, I am sure he will need a good laugh at the beginning of
+> > the week.
+> 
+> Why, I cant get it.
+
+Would you please re-ask the question because I missed it.
+
+> > The latter will not provide usable reports to fix it, while the former
+> > will allow one to make it elegant.
+> 
+> I will try to make the best of the two worlds.
+
+You are my hope in it working, and if I had a choice you would be
+Maintainer in 2.5!
+
+> Anyway, thanks for input Andre...
+
+Hey, I own you the thanks for trying to understand and your ablitity to
+follow the points.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 

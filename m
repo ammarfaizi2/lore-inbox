@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289657AbSBSX5f>; Tue, 19 Feb 2002 18:57:35 -0500
+	id <S289817AbSBTAN6>; Tue, 19 Feb 2002 19:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289794AbSBSX50>; Tue, 19 Feb 2002 18:57:26 -0500
-Received: from bitmover.com ([192.132.92.2]:45763 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S289657AbSBSX5I>;
-	Tue, 19 Feb 2002 18:57:08 -0500
-Date: Tue, 19 Feb 2002 15:57:06 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Larry McVoy <lm@bitmover.com>
-Subject: Re: [PATCH] struct page, new bk tree
-Message-ID: <20020219155706.H26350@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	Larry McVoy <lm@bitmover.com>
-In-Reply-To: <Pine.LNX.4.33L.0202192044140.7820-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33L.0202192044140.7820-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Feb 19, 2002 at 08:47:17PM -0300
+	id <S290657AbSBTANt>; Tue, 19 Feb 2002 19:13:49 -0500
+Received: from maila.telia.com ([194.22.194.231]:7932 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S289817AbSBTANm>;
+	Tue, 19 Feb 2002 19:13:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jakob Kemi <jakob.kemi@telia.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: [PATCH] hex <-> int conve
+Date: Wed, 20 Feb 2002 01:12:26 +0100
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <02021919474003.00447@jakob> <20020219125622.B25713@lynx.adilger.int>
+In-Reply-To: <20020219125622.B25713@lynx.adilger.int>
+MIME-Version: 1.0
+Message-Id: <02022001122600.01789@jakob>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 08:47:17PM -0300, Rik van Riel wrote:
-> I've removed the old (broken) bitkeeper tree with the
-> struct page changes and have put a new one in the same
-> place ... with the struct page changes in one changeset
-> with ready checkin comment.
-> 
-> You can resync from bk://linuxvm.bkbits.net/linux-2.5-struct_page
-> and you'll see that the stupid etc/config change is no longer there.
+On Tuesday 19 February 2002 20.56, Andreas Dilger wrote:
+> If it is a matter of UUID parsing, just add (or use existing) function
+> uuid_parse() similar to that in libuuid.  Some UUID-related functions were
+> added to the kernel for ia64 GPM partitions, so this would just make the
+> UUID support in the kernel more complete.
 
-Since you two are doing the BK dance, here's a question for you: 
-I can imagine that this sort of back and forth will happen quite a bit,
-someone makes a change, then Linus (or whoever) says "no way", and the
-developer goes back, cleans up the change, and repeats.  That's fine for
-Linus & Rik because Linus tosses the changeset and Rik tosses it, but
-what about the other people who have pulled?  Those changesets are now
-wandering around in the network, just waiting to pop back into a tree.
+Yes it might be appropriate to use and/or extend those functions.
 
-This is at the core of my objections to the "reorder the events" theme
-which we had a while back.  You can reorder all you want, but if there
-are other copies of the events floating around out there, they may come
-back.
 
-A long time ago, there was some discussion of a changeset blacklist.
-The idea being that if you want to reorder/rewrite/whatever, and your
-changes have been pulled/pushed/whatever, then it would be good to be
-able to state that in the form of some list which may be used to see 
-if you have garbage changesets.
+> Note that unless LDM has some serious brain-damage, there should not be any
+> need to have these special functions, as the user-space UUID-related code
+> works just fine without them.
 
-We could have a --blacklist option to undo which says "undo these
-changes but remember their "names" in the BitKeeper/etc/blacklist file.
-The next changeset you make will check in that file.  Note that each
-changeset has a unique name which is used internally, somewhat like a
-file has an inode number.  So we can save those names.  Then if you do
-a pull or someone does a push, the incoming csets can be compared with
-the blacklist and rejected if found.
+Unfortunately LDM has some serious brain-damage, nothing we can't handle
+though. We don't need these special functions, we can continue to have them
+in ldm.c (I'm talking about the new cvs version, soon to hit 2.5). However,
+for those who read the beginning of this thread, I also gave the reason for
+adding them where others can use them. As I grepped through the kernel I
+found 27 (!) different _implementations_ (I might have missed some with non-
+obvious names) of hex to int functions all of them were using variations of a
+form which compiles to (on x86) twice the size and double execution time of
+this one. Not that speed really matters in this context. I also found a dozen
+or so of different int to hex implementations. In order to reduce code
+duplication and increase the homogeneity of the kernel I think it's a good
+idea to use _one_ implementation.
 
-Do you think this would be useful?  Would you use it if we made it?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Cheers,
+	Jakob Kemi

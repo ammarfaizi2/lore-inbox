@@ -1,60 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbUC3XRK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 18:17:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUC3XRJ
+	id S261541AbUC3XRs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 18:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbUC3XRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 18:17:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29573 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261524AbUC3XQO
+	Tue, 30 Mar 2004 18:17:47 -0500
+Received: from smtp.terra.es ([213.4.129.129]:30911 "EHLO tsmtp15.mail.isp")
+	by vger.kernel.org with ESMTP id S261541AbUC3XQc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 18:16:14 -0500
-Message-ID: <4069FFB1.3060503@pobox.com>
-Date: Tue, 30 Mar 2004 18:16:01 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Sebor <petr@scssoft.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [sata] libata update
-References: <4064E691.2070009@pobox.com> <4069FBC3.2080104@scssoft.com>
-In-Reply-To: <4069FBC3.2080104@scssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 18:16:32 -0500
+Date: Wed, 31 Mar 2004 01:10:40 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: root@chaos.analogic.com
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, greearb@candelatech.com,
+       cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org
+Subject: Re: sched_yield() version 2.4.24
+Message-Id: <20040331011040.273b04f4.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.4.53.0403301526100.7833@chaos>
+References: <Pine.LNX.4.53.0403301138260.6967@chaos>
+	<4069AED1.4020102@nortelnetworks.com>
+	<4069B3CC.1040904@candelatech.com>
+	<200403302140.05820.vda@port.imtp.ilyichevsk.odessa.ua>
+	<Pine.LNX.4.53.0403301526100.7833@chaos>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Sebor wrote:
-> Hi Jeff,
-> 
-> I have upgraded from 2.6.3 to 2.6.5-rc3 and can't see the secondary
-> sata drive anymore...
-> 
-> I am seeing this:
-> -------------------------------------------------------------------
-> libata version 1.02 loaded.
-> sata_via version 0.20
-> sata_via(0000:00:0f.0): routed to hard irq line 11
-> ata1: SATA max UDMA/133 cmd 0xC400 ctl 0xC802 bmdma 0xD400 irq 20
-> ata2: SATA max UDMA/133 cmd 0xCC00 ctl 0xD002 bmdma 0xD408 irq 20
-> ata1: dev 0 cfg 49:2f00 82:346b 83:7f21 84:4003 85:3469 86:3c01 87:4003 
-> 88:203f
-> ata1: dev 0 ATA, max UDMA/100, 488397168 sectors (lba48)
-> ata1: dev 0 configured for UDMA/100
-> scsi0 : sata_via
-> ata2: no device found (phy stat 00000000)
-> ata2: thread exiting
-> scsi1 : sata_via
+El Tue, 30 Mar 2004 15:29:29 -0500 (EST) "Richard B. Johnson" <root@chaos.analogic.com> escribió:
 
-oh, and are both disks SATA?
+> Wonderful!  Now, where do I find the sources now that RedHat has
+> gone "commercial" and is keeping everything secret?
 
-Or is the 37G drive a PATA drive on a PATA->SATA adapter (a.k.a. bridge)?
-
-Do you have any special settings like BIOS RAID turned on, that might 
-interfere with things?
-
-	Jeff
+Exactly *why* are you trying to spread FUD? Use other distro if you don't like
+instead of usign stupid arguments.
 
 
+> I followed the http://sources.redhat.com/procps/  instructions
+> __exactly__ and get this:
 
+Me too. 
+
+diego@estel:/tmp$ cvs -d :pserver:anoncvs@sources.redhat.com:/cvs/procps login anoncvs
+Logging in to :pserver:anoncvs@sources.redhat.com:2401/cvs/procps
+CVS password: 
+diego@estel:/tmp$ cvs -d :pserver:anoncvs@sources.redhat.com:/cvs/procps co procps
+cvs server: Updating procps
+U procps/.cvsignore
+U procps/BUGS
+U procps/COPYING
+U procps/COPYING.LIB
+U procps/INSTALL
+U procps/Makefile
+U procps/NEWS
+U procps/TODO
+U procps/free.1
+U procps/free.c
+U procps/pgrep.1
+U procps/pgrep.c
+U procps/pkill.1
+U procps/pmap.1
+U procps/pmap.c
+U procps/procps.spec
+U procps/skill.1
+U procps/skill.c
+U procps/slabtop.1
+U procps/slabtop.c
+U procps/snice.1
+U procps/sysctl.8
+U procps/sysctl.c
+U procps/sysctl.conf.5
+U procps/tload.1
+U procps/tload.c
+U procps/top.1
+U procps/top.c
+U procps/uptime.1
+U procps/uptime.c
+U procps/vmstat.8
+U procps/vmstat.c
+U procps/w.1
+U procps/w.c
+U procps/watch.1
+U procps/watch.c
+cvs server: Updating procps/proc
+U procps/proc/.cvsignore
+U procps/proc/Makefile
+U procps/proc/compare.c
+U procps/proc/devname.c
+U procps/proc/ksym.c
+U procps/proc/procps.h
+U procps/proc/pwcache.c
+U procps/proc/readproc.c
+U procps/proc/readproc.h
+U procps/proc/signals.c
+U procps/proc/slab.c
+U procps/proc/slab.h
+U procps/proc/status.c
+U procps/proc/sysinfo.c
+U procps/proc/sysinfo.h
+U procps/proc/version.c
+U procps/proc/version.h
+U procps/proc/vmstat.c
+U procps/proc/vmstat.h
+U procps/proc/whattime.c
+cvs server: Updating procps/ps
+U procps/ps/.cvsignore
+U procps/ps/HACKING
+U procps/ps/Makefile
+U procps/ps/common.h
+U procps/ps/display.c
+U procps/ps/escape.c
+U procps/ps/global.c
+U procps/ps/help.c
+U procps/ps/output.c
+U procps/ps/parser.c
+U procps/ps/ps.1
+U procps/ps/regression
+U procps/ps/select.c
+U procps/ps/sortformat.c
+U procps/ps/stacktrace.c
+cvs server: Updating procps/xproc
+diego@estel:/tmp$

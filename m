@@ -1,373 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275052AbTHGCAb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 22:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275044AbTHGCAa
+	id S275082AbTHGCOp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 22:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275084AbTHGCOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 22:00:30 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:55493 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S275052AbTHGCAL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 22:00:11 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 7 Aug 2003 03:59:56 +0200 (MEST)
-Message-Id: <UTC200308070159.h771xup04247.aeb@smtp.cwi.nl>
-To: B.Zolnierkiewicz@elka.pw.edu.pl, aebr@win.tue.nl
-Subject: Re: [PATCH] ide-disk.c rev 1.13 killed CONFIG_IDEDISK_STROKE
-Cc: alan@lxorguk.ukuu.org.uk, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+	Wed, 6 Aug 2003 22:14:45 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:5792 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S275082AbTHGCOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 22:14:42 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Thu, 7 Aug 2003 04:14:40 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, green@namesys.com
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-Id: <20030807041440.12341286.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.44.0308061506170.4979-100000@logos.cnet>
+References: <20030806094150.4d7b0610.skraw@ithnet.com>
+	<Pine.LNX.4.44.0308061506170.4979-100000@logos.cnet>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	From aebr@win.tue.nl  Thu Aug  7 03:54:02 2003
+On Wed, 6 Aug 2003 15:15:39 -0300 (BRT)
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 
-	Ha - and you didnt even tell me you had this patch out.
+> Stephan,
+> 
+> I'm pretty worried about this problem.
+> 
+> Your oopses seem to be the result of some kind of memory corruption. On
+> the other oopses we could see the kernel oopsing on
+> remove_page_from_hash_queue due to corrupted pointers (as Willy pointed 
+> out). 
+> 
+> Can you please try to crash your box again with 
+> 
+> CONFIG_DEBUG_SLAB=y 
+> 
+> Again, thanks a lot for your reports.
 
-	Looks good.
-
-	[will try to find the appropriate fragment of my patch again
-	for comparison purposes]
-
-Here it is:
+Ok, I have two things. 
+First, another oops. I upgraded the system to rc1 yesterday and it did not
+survive a single day. Here's the decoded oops, the box was "clean" meaning no
+weird modules or the like:
 
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
---- a/drivers/ide/ide-disk.c	Wed Aug  6 23:02:38 2003
-+++ b/drivers/ide/ide-disk.c	Thu Aug  7 04:49:18 2003
-@@ -85,11 +85,6 @@
- {
- 	unsigned long lba_sects, chs_sects, head, tail;
- 
--	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
--		printk("48-bit Drive: %llu \n", id->lba_capacity_2);
--		return 1;
--	}
--
- 	/*
- 	 * The ATA spec tells large drives to return
- 	 * C/H/S = 16383/16/63 independent of their size.
-@@ -811,7 +806,7 @@
- 			} else {
- 				u8 cur = hwif->INB(IDE_SELECT_REG);
- 				if (cur & 0x40) {	/* using LBA? */
--					printk(", LBAsect=%ld", (unsigned long)
-+					printk(", LBAsect=%lu", (unsigned long)
- 					 ((cur&0xf)<<24)
- 					 |(hwif->INB(IDE_HCYL_REG)<<16)
- 					 |(hwif->INB(IDE_LCYL_REG)<<8)
-@@ -981,8 +976,8 @@
- 	args.tfRegister[IDE_SELECT_OFFSET]	= 0x40;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_READ_NATIVE_MAX_EXT;
- 	args.command_type			= ide_cmd_type_parser(&args);
--        /* submit command request */
--        ide_raw_taskfile(drive, &args, NULL);
-+	/* submit command request */
-+	ide_raw_taskfile(drive, &args, NULL);
- 
- 	/* if OK, compute maximum address value */
- 	if ((args.tfRegister[IDE_STATUS_OFFSET] & 0x01) == 0) {
-@@ -1002,6 +997,8 @@
- /*
-  * Sets maximum virtual LBA address of the drive.
-  * Returns new maximum virtual LBA address (> 0) or 0 on failure.
-+ *
-+ * Must be immediately preceded by read_native_max.
-  */
- static unsigned long
- idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
-@@ -1031,6 +1028,7 @@
- 	return addr_set;
- }
- 
-+/* Note: must be immediately preceded by read_native_max_ext */
- static unsigned long long
- idedisk_set_max_address_ext(ide_drive_t *drive, unsigned long long addr_req)
- {
-@@ -1071,114 +1069,153 @@
- 
- static unsigned long long
- sectors_to_MB(unsigned long long n) {
--	n <<= 9;			/* make it bytes */
--	do_div(n, 1000000);	 /* make it MB */
-+	n <<= 9;		/* make it bytes */
-+	do_div(n, 1000000);	/* make it MB */
- 	return n;
- }
- 
-+static inline int
-+idedisk_supports_lba(const struct hd_driveid *id)
-+{
-+	return (id->capability & 2);
-+}
-+
- /*
-- * Tests if the drive supports Host Protected Area feature.
-- * Returns true if supported, false otherwise.
-+ * Bits 10 of command_set_1 and cfs_enable_1 must be equal,
-+ * so on non-buggy drives we need test only one.
-+ * However, we should also check whether these fields are valid.
-  */
--static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
-+static inline int
-+idedisk_supports_host_protected_area(const struct hd_driveid *id)
- {
--	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
--	if (flag)
--		printk(KERN_INFO "%s: host protected area => %d\n", drive->name, flag);
--	return flag;
-+	return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
- }
- 
- /*
-- * Compute drive->capacity, the full capacity of the drive
-- * Called with drive->id != NULL.
-- *
-- * To compute capacity, this uses either of
-- *
-- *    1. CHS value set by user       (whatever user sets will be trusted)
-- *    2. LBA value from target drive (require new ATA feature)
-- *    3. LBA value from system BIOS  (new one is OK, old one may break)
-- *    4. CHS value from system BIOS  (traditional style)
-- *
-- * in above order (i.e., if value of higher priority is available,
-- * reset will be ignored).
-+ * The same here.
-  */
--#define IDE_STROKE_LIMIT	(32000*1024*2)
--static void init_idedisk_capacity (ide_drive_t  *drive)
-+static inline int
-+idedisk_supports_lba48(const struct hd_driveid *id)
- {
--	struct hd_driveid *id = drive->id;
--	unsigned long capacity = drive->cyl * drive->head * drive->sect;
--	unsigned long set_max = idedisk_read_native_max_address(drive);
--	unsigned long long capacity_2 = capacity;
--	unsigned long long set_max_ext;
--
--	drive->capacity48 = 0;
--	drive->select.b.lba = 0;
-+	return (id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400);
-+}
- 
--	(void) idedisk_supports_host_protected_area(drive);
-+static inline unsigned long long
-+lba48_capacity(const struct hd_driveid *id)
-+{
-+	return id->lba_capacity_2;
-+}
- 
--	if (id->cfs_enable_2 & 0x0400) {
--		capacity_2 = id->lba_capacity_2;
--		drive->head		= drive->bios_head = 255;
--		drive->sect		= drive->bios_sect = 63;
--		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
--		drive->select.b.lba	= 1;
--		set_max_ext = idedisk_read_native_max_address_ext(drive);
--		if (set_max_ext > capacity_2 && capacity_2 > IDE_STROKE_LIMIT) {
-+/*
-+ * See whether some part of the disk was set off as Host Protected Area.
-+ * If so, report this, and possible enable access to it.
-+ */
-+static void
-+do_add_hpa(ide_drive_t *drive) {
-+	unsigned int capacity;
-+	unsigned long set_max;
-+
-+	capacity = drive->capacity;
-+	set_max = idedisk_read_native_max_address(drive);
-+
-+	if (set_max > capacity) {
-+		/* Report */
-+		printk(KERN_INFO "%s: Host Protected Area detected.\n"
-+		       "    current capacity is %u sectors (%u MB)\n"
-+		       "    native  capacity is %lu sectors (%lu MB)\n",
-+		       drive->name, capacity,
-+		       (capacity - capacity/625 + 974)/1950,
-+		       set_max, (set_max - set_max/625 + 974)/1950);
- #ifdef CONFIG_IDEDISK_STROKE
--			set_max_ext = idedisk_read_native_max_address_ext(drive);
--			set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
--			if (set_max_ext) {
--				drive->capacity48 = capacity_2 = set_max_ext;
--				drive->cyl = (unsigned int) set_max_ext / (drive->head * drive->sect);
--				drive->select.b.lba = 1;
--				drive->id->lba_capacity_2 = capacity_2;
--                        }
--#else /* !CONFIG_IDEDISK_STROKE */
--			printk(KERN_INFO "%s: setmax_ext LBA %llu, native  %llu\n",
--				drive->name, set_max_ext, capacity_2);
--#endif /* CONFIG_IDEDISK_STROKE */
-+		/* Raise limit */
-+		set_max = idedisk_set_max_address(drive, set_max);
-+		if (set_max) {
-+			drive->capacity = set_max;
-+			printk(KERN_INFO "%s: Host Protected Area Disabled\n",
-+			       drive->name);
- 		}
--		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
--		drive->bios_cyl		= drive->cyl;
--		drive->capacity48	= capacity_2;
--		drive->capacity		= (unsigned long) capacity_2;
--		return;
--	/* Determine capacity, and use LBA if the drive properly supports it */
--	} else if ((id->capability & 2) && lba_capacity_is_ok(id)) {
--		capacity = id->lba_capacity;
--		drive->cyl = capacity / (drive->head * drive->sect);
--		drive->select.b.lba = 1;
-+#endif
- 	}
-+}
-+
-+static void
-+do_add_hpa48(ide_drive_t *drive) {
-+	unsigned long long set_max_ext;
- 
--	if (set_max > capacity && capacity > IDE_STROKE_LIMIT) {
-+	set_max_ext = idedisk_read_native_max_address_ext(drive);
-+	if (set_max_ext > drive->capacity48) {
-+		unsigned long long nativeMB, currentMB;
-+
-+		/* Report on additional space */
-+		nativeMB = sectors_to_MB(set_max_ext);
-+		currentMB = sectors_to_MB(drive->capacity48);
-+		printk(KERN_INFO
-+		       "%s: Host Protected Area detected.\n"
-+		       "    current capacity is %llu sectors (%llu MB)\n"
-+		       "    native  capacity is %llu sectors (%llu MB)\n",
-+		       drive->name, drive->capacity48, currentMB,
-+		       set_max_ext, nativeMB);
- #ifdef CONFIG_IDEDISK_STROKE
--		set_max = idedisk_read_native_max_address(drive);
--		set_max = idedisk_set_max_address(drive, set_max);
--		if (set_max) {
--			drive->capacity = capacity = set_max;
--			drive->cyl = set_max / (drive->head * drive->sect);
--			drive->select.b.lba = 1;
--			drive->id->lba_capacity = capacity;
--		}
--#else /* !CONFIG_IDEDISK_STROKE */
--		printk(KERN_INFO "%s: setmax LBA %lu, native  %lu\n",
--			drive->name, set_max, capacity);
--#endif /* CONFIG_IDEDISK_STROKE */
-+		/* Raise limit */
-+		set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
-+		if (set_max_ext) {
-+			drive->capacity48 = set_max_ext;
-+			printk(KERN_INFO
-+			       "%s: Host Protected Area Disabled\n",
-+			       drive->name);
-+		}
-+#endif
- 	}
-+}
- 
--	drive->capacity = capacity;
-+/*
-+ * Compute drive->capacity, the amount accessible with CHS/LBA commands,
-+ * and drive->capacity48, the amount accessible with LBA48 commands.
-+ * Also sets drive->select.b.lba.
-+ *
-+ * Called with drive->id != NULL.
-+ */
-+static void init_idedisk_capacity(ide_drive_t *drive)
-+{
-+	struct hd_driveid *id;
-+	unsigned long capacity;
-+	unsigned long long capacity48;
-+
-+	id = drive->id;
-+
-+	if (idedisk_supports_lba48(id)) {
-+		/* drive speaks 48-bit LBA */
-+		drive->capacity48 = capacity48 = lba48_capacity(id);
-+		capacity = capacity48;		/* truncate to 32 bits */
-+		if (capacity == capacity48)
-+			drive->capacity = capacity;
-+		else
-+			drive->capacity = 0xffffffff;
-+		drive->select.b.lba = 1;
-+	} else if (idedisk_supports_lba(id) && lba_capacity_is_ok(id)) {
-+		/* drive speaks 28-bit LBA */
-+		drive->capacity = capacity = id->lba_capacity;
-+		drive->capacity48 = 0;
-+		drive->select.b.lba = 1;
-+	} else {
-+		/* drive speaks CHS only */
-+		capacity = drive->cyl * drive->head * drive->sect;
-+		drive->capacity = capacity;
-+		drive->capacity48 = 0;
-+		drive->select.b.lba = 0;
-+	}
- 
--	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
--		drive->capacity48 = id->lba_capacity_2;
--		drive->head = 255;
--		drive->sect = 63;
--		drive->cyl = (unsigned long)(drive->capacity48) / (drive->head * drive->sect);
-+	if (idedisk_supports_host_protected_area(id)) {
-+		if (idedisk_supports_lba48(id))
-+			do_add_hpa48(drive);
-+		else
-+			do_add_hpa(drive);
- 	}
- }
- 
- static sector_t idedisk_capacity (ide_drive_t *drive)
- {
--	if (drive->id->cfs_enable_2 & 0x0400)
-+	if (idedisk_supports_lba48(drive->id))
- 		return (drive->capacity48 - drive->sect0);
- 	return (drive->capacity - drive->sect0);
- }
-@@ -1469,7 +1506,7 @@
- 	if (HWIF(drive)->addressing)
- 		return 0;
- 
--	if (!(drive->id->cfs_enable_2 & 0x0400))
-+	if (!idedisk_supports_lba48(drive->id))
- 		return -EIO;
- 	drive->addressing = arg;
- 	return 0;
-@@ -1639,19 +1676,29 @@
- 	 * by correcting bios_cyls:
- 	 */
- 	capacity = idedisk_capacity (drive);
--	if (!drive->forced_geom && drive->bios_sect && drive->bios_head) {
--		unsigned int cap0 = capacity;   /* truncate to 32 bits */
--		unsigned int cylsz, cyl;
--
--		if (cap0 != capacity)
--			drive->bios_cyl = 65535;
--		else {
--			cylsz = drive->bios_sect * drive->bios_head;
--			cyl = cap0 / cylsz;
--			if (cyl > 65535)
--				cyl = 65535;
--			if (cyl > drive->bios_cyl)
--				drive->bios_cyl = cyl;
-+	if (!drive->forced_geom) {
-+		int lba48 = idedisk_supports_lba48(id);
-+
-+		if (lba48) {
-+			/* compatibility */
-+			drive->bios_sect = 63;
-+			drive->bios_head = 255;
-+		}
-+
-+		if (drive->bios_sect && drive->bios_head) {
-+			unsigned int cap0 = capacity; /* truncate to 32 bits */
-+			unsigned int cylsz, cyl;
-+
-+			if (cap0 != capacity)
-+				drive->bios_cyl = 65535;
-+			else {
-+				cylsz = drive->bios_sect * drive->bios_head;
-+				cyl = cap0 / cylsz;
-+				if (cyl > 65535)
-+					cyl = 65535;
-+				if (cyl > drive->bios_cyl || lba48)
-+					drive->bios_cyl = cyl;
-+			}
- 		}
- 	}
- 	printk(KERN_INFO "%s: %llu sectors (%llu MB)",
+ksymoops 2.4.8 on i686 2.4.22-rc1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc1/ (default)
+     -m /boot/System.map-2.4.22-rc1 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+c0145060
+*pde = 00000000
+Oops: 0002
+CPU:    1
+EIP:    0010:[<c0145060>]    Not tainted   
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010283
+eax: 00000000   ebx: c822feb4   ecx: c822fe60   edx: e07e7780
+esi: 00000000   edi: e07e7780   ebp: f59bfe3c   esp: f59bfe2c
+ds: 0018   es: 0018   ss: 0018
+Process nfsd (pid: 1737, stackpage=f59bf000)
+Stack: f0cce7a0 00000001 f59bfe38 c822fe60 f0cce7f4 eec54ef4 00000000 e07e7760
+       f59be000 f59bfea8 c0183ef5 e07e7780 e07e77cc c02ed880 e07e7760 f8c84fc8
+       f59bfea8 dfe6c960 00000000 e07e7760 dfe6c960 00000000 f59c6e04 f59bfea8
+Call Trace:    [<c0183ef5>] [<f8c84fc8>] [<f8c856f1>] [<f8c8cee4>] [<f8c8e295>]
+  [<f8c923f4>] [<f8c80699>] [<f8c65938>] [<f8c923f4>] [<f8c91a38>] [<f8c91a58>]
+  [<f8c80411>] [<c010592e>] [<f8c80210>]
+Code: 89 50 04 c7 41 54 00 00 00 00 c7 43 04 00 00 00 00 8b 44 24
+
+
+>>EIP; c0145060 <fsync_buffers_list+50/1b0>   <=====
+
+>>ebx; c822feb4 <_end+7e84c94/3852ee40>
+>>ecx; c822fe60 <_end+7e84c40/3852ee40>
+>>edx; e07e7780 <_end+2043c560/3852ee40>
+>>edi; e07e7780 <_end+2043c560/3852ee40>
+>>ebp; f59bfe3c <_end+35614c1c/3852ee40>
+>>esp; f59bfe2c <_end+35614c0c/3852ee40>
+
+Trace; c0183ef5 <reiserfs_sync_file+65/d0>
+Trace; f8c84fc8 <[nfsd]nfsd_sync+78/d0>
+Trace; f8c856f1 <[nfsd]nfsd_commit+a1/b0>
+Trace; f8c8cee4 <[nfsd]nfsd3_proc_commit+94/130>
+Trace; f8c8e295 <[nfsd]nfs3svc_decode_commitargs+35/e0>
+Trace; f8c923f4 <[nfsd]nfsd_procedures3+2f4/320>
+Trace; f8c80699 <[nfsd]nfsd_dispatch+119/21d>
+Trace; f8c65938 <[sunrpc]svc_process+4d8/570>
+Trace; f8c923f4 <[nfsd]nfsd_procedures3+2f4/320>
+Trace; f8c91a38 <[nfsd]nfsd_version3+0/10>
+Trace; f8c91a58 <[nfsd]nfsd_program+0/28>
+Trace; f8c80411 <[nfsd]nfsd+201/370>
+Trace; c010592e <arch_kernel_thread+2e/40>
+Trace; f8c80210 <[nfsd]nfsd+0/370>
+
+Code;  c0145060 <fsync_buffers_list+50/1b0>
+00000000 <_EIP>:
+Code;  c0145060 <fsync_buffers_list+50/1b0>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c0145063 <fsync_buffers_list+53/1b0>
+   3:   c7 41 54 00 00 00 00      movl   $0x0,0x54(%ecx)
+Code;  c014506a <fsync_buffers_list+5a/1b0>
+   a:   c7 43 04 00 00 00 00      movl   $0x0,0x4(%ebx)
+Code;  c0145071 <fsync_buffers_list+61/1b0>
+  11:   8b 44 24 00               mov    0x0(%esp,1),%eax
+
+
+1 warning issued.  Results may not be reliable.
+
+
+As you can see reiserfs seems involved. Regarding reiserfs and my last postings
+I can assure you that all reiserfs partitions were checked via reiserfsck right
+before installation of rc1 - as Oleg advised - and found:
+"Comparing bitmaps.. vpf-10640: The on-disk and the correct bitmaps differs"
+I was told to use --fix-fixable option which I did and it indeed fixed the
+problem. Trying reiserfsck after that found no errors any more. So I see no
+chance that corrupt data on the media (through former crashes) is responsible
+for this one. Hint: spelling in reiserfsck should be checked ;-)
+
+Second, I re-install the box with CONFIG_DEBUG_SLAB="y" right now. Please tell
+me if I should perform special steps (SYSRQ or the like) after the next crash
+happens, or if the decoded oops will be sufficient.
+
+Regards,
+Stephan

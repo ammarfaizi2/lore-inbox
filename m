@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263738AbTFTVCb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 17:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTFTVCb
+	id S264741AbTFTVTW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 17:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTFTVTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 17:02:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6111 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S263738AbTFTVCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 17:02:24 -0400
-Date: Fri, 20 Jun 2003 18:13:53 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, stoffel@lucent.com,
-       gibbs@scsiguy.com, linux-kernel@vger.kernel.org, willy@w.ods.org,
-       green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-In-Reply-To: <3EF375BA.80901@cox.net>
-Message-ID: <Pine.LNX.4.55L.0306201812190.3808@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
- <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
- <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
- <41560000.1055306361@caspian.scsiguy.com> <20030611222346.0a26729e.skraw@ithnet.com>
- <16103.39056.810025.975744@gargle.gargle.HOWL> <20030613114531.2b7235e7.skraw@ithnet.com>
- <Pine.LNX.4.55L.0306171744280.10802@freak.distro.conectiva>
- <20030618130533.1f2d7205.skraw@ithnet.com> <Pine.LNX.4.55L.0306201658210.2607@freak.distro.conectiva>
- <3EF375BA.80901@cox.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Jun 2003 17:19:21 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:32443 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264741AbTFTVTT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 17:19:19 -0400
+Date: Fri, 20 Jun 2003 14:24:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Anton Blanchard <anton@samba.org>, David Mosberger <davidm@hpl.hp.com>
+Subject: Re: [PATCH] reimplement pci proc name
+Message-ID: <20030620212413.GA13694@kroah.com>
+References: <20030620134811.GR24357@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620134811.GR24357@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 20, 2003 at 02:48:11PM +0100, Matthew Wilcox wrote:
+> 
+> Hi Greg.  Ivan's not happy with the solution I came up with for naming
+> /proc/bus/pci and Anton would prefer something slightly different too,
+> so I abstracted the name out so each architecture can do its own thing.
+> 
+> This is against 2.5.72 so won't apply cleanly to your tree (it
+> applies to bitkeeper as of a few minutes ago with only minor offsets).
+> I've implemented the original name for non-PCI-domain machines; done what
+> ia64 and alpha need, respectively (assuming I didn't misunderstand Ivan),
+> and plopped in the Old Way of doing things for Sparc64, PPC and PPC64.
+> Maintainers may alter this to whatever degree of complexity they wish.
 
-On Fri, 20 Jun 2003, Kevin P. Fleming wrote:
+Thanks, I've reverted your previous patch, and fixed the one typo in
+this patch and applied it all to my bk tree.  Hopefully Linus will pull
+from it sometime soon :)
 
-> Marcelo Tosatti wrote:
->
-> > So the data is intact when it arrives on the 3ware and gets corrupted
-> > on the write to the tape?
-> >
->
-> Actually, without another copy of the data on a different system to
-> verify it with, you can't know that for sure. It could easily be getting
-> to the tape (the actual media) just fine, but then get corrupted during
-> the verify readback.
+thanks,
 
-Right. Stephan, if you could use a bit of your time to isolate the problem
-I would be VERY grateful.
-
+greg k-h

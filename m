@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbUKEASK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbUKEAXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbUKEASK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 19:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbUKEASK
+	id S262499AbUKEAXY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 19:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbUKEAXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 19:18:10 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:14044
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262494AbUKEASG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 19:18:06 -0500
-Date: Thu, 4 Nov 2004 16:06:55 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Patrick McHardy <kaber@trash.net>
-Cc: matthias.andree@gmx.de, netfilter-devel@lists.netfilter.org,
-       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that
- breaks amanda dumps
-Message-Id: <20041104160655.1c66b7ef.davem@davemloft.net>
-In-Reply-To: <418AC0F2.7020508@trash.net>
-References: <20041104121522.GA16547@merlin.emma.line.org>
-	<418A7B0B.7040803@trash.net>
-	<20041104231734.GA30029@merlin.emma.line.org>
-	<418AC0F2.7020508@trash.net>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Nov 2004 19:23:24 -0500
+Received: from smtpout.mac.com ([17.250.248.84]:11724 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262499AbUKEAXS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 19:23:18 -0500
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCENFPIAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKCENFPIAA.davids@webmaster.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <E2235068-2EC0-11D9-857E-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Possible GPL infringement in Broadcom-based routers
+Date: Thu, 4 Nov 2004 19:23:14 -0500
+To: davids@webmaster.com
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 05 Nov 2004 00:53:22 +0100
-Patrick McHardy <kaber@trash.net> wrote:
+On Nov 04, 2004, at 18:57, David Schwartz wrote:
+>
+>> Can Broadcom and the vendors "escape" the obligations of the GPL by
+>> shipping those proprietary drivers as modules, or are they violating 
+>> the
+>> GPL plain and simple by removing the related source code (and showing
+>> irrelevant code to show "proof of good will") ?
+>
+> 	That is a contentious issue that has been debated on this group far 
+> too
+> much. In the United States, at least, the answer comes down to the 
+> complex
+> legal question of whether the module is a "derived work" of the Linux 
+> kernel
+> and whether the kernel as shipped with those modules is a "mere
+> aggregation".
 
-> Your observation and your patch were correct, thanks. It is supposed
-> to be just a copy, I missed that it wasn't anymore. While your patch
-> works too, and is even faster with non-linear skbs, I don't like the
-> idea of using the skb as a scratch-area, so I sent this patch to Dave
-> instead.
+Well, from what I can see of the makefiles and sources they distribute, 
+they
+_don't_ distribute it as kernel+modules, they compile their drivers 
+directly
+into their kernel:
 
-His patch isn't correct, even making a temporary change to
-a shared SKB is illegal.  Things like tcpdump could see
-corrupt SKB contents if they look during that tiny window
-when the newline character has been changed to NULL by
-the amanda conntrack module.
+  ./arch/mips/brcm-boards/bcm96345/Makefile:EXTRA_CFLAGS += 
+-I$(TOPDIR)/../../targets
+  ./drivers/char/bcm96345/board/Makefile:EXTRA_CFLAGS += -I. 
+-I$(HPATH)/asm/bcm96345 -I$(TOPDIR)/../../targets -fno-exceptions
+  ./Makefile:SUBDIRS              +=modulesrc/drivers ../../targets
+  ./Makefile:DRIVERS-y += modulesrc/drivers/kermods.o ../../targets/bp.o
+
+They may call the directory "modulesrc", but it does _NOT_ appear to be
+linked as a kernel module, but directly into the kernel.  I think that 
+in this
+case their build process is too tightly integrated with the kernel to 
+_not_
+be a derivative work.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

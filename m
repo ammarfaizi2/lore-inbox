@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272126AbTGYO1v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272127AbTGYO1v
+	id S272127AbTGYO2H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272128AbTGYO2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:27:51 -0400
-Received: from smtp4.wanadoo.fr ([193.252.22.26]:38466 "EHLO
-	mwinf0502.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S272126AbTGYO1n convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:27:43 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: [2.4.22-pre7] speedtouch.o unresolved symbols
-Date: Fri, 25 Jul 2003 16:43:31 +0200
-User-Agent: KMail/1.5.2
-Cc: koraq@xs4all.nl, linux-kernel@vger.kernel.org
-References: <20030724202048.GA16411@spearhead> <200307250855.24218.baldrick@wanadoo.fr> <200307251426.h6PEQs9g003992@turing-police.cc.vt.edu>
-In-Reply-To: <200307251426.h6PEQs9g003992@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200307251643.32003.baldrick@wanadoo.fr>
+	Fri, 25 Jul 2003 10:28:06 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:33470 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S272127AbTGYO17
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 10:27:59 -0400
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+From: Yury Umanets <umka@namesys.com>
+To: Daniel Egger <degger@fhm.edu>
+Cc: Nikita Danilov <Nikita@Namesys.COM>, Hans Reiser <reiser@namesys.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       reiserfs mailing list <reiserfs-list@namesys.com>
+In-Reply-To: <1059142851.6962.18.camel@sonja>
+References: <3F1EF7DB.2010805@namesys.com>
+	 <1059062380.29238.260.camel@sonja>
+	 <16160.4704.102110.352311@laputa.namesys.com>
+	 <1059093594.29239.314.camel@sonja>
+	 <16161.10863.793737.229170@laputa.namesys.com>
+	 <1059142851.6962.18.camel@sonja>
+Content-Type: text/plain
+Organization: NAMESYS
+Message-Id: <1059143985.19594.3.camel@haron.namesys.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 25 Jul 2003 18:39:45 +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 July 2003 16:26, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 25 Jul 2003 08:55:24 +0200, Duncan Sands <baldrick@wanadoo.fr>  said:
-> > On Thursday 24 July 2003 22:20, koraq@xs4all.nl wrote:
-> > > /lib/modules/2.4.22-pre7/kernel/drivers/usb/speedtch.o depmod:
-> > > shutdown_atm_dev_R0b9b1467
-> > > depmod:         atm_charge_Rf874f17b
-> > > depmod:         atm_dev_register_Rc23701a4
-> > > make: *** [_modinst_post] Error 1
-> >
-> > You need to enable ATM support (CONFIG_ATM).  To do this, you
-> > need to enable support for experimental code (CONFIG_EXPERIMENTAL).
->
-> Also, the Speedtouch driver appears to be missing a #ifdef CONFIG_ATM or
-> two?
+On Fri, 2003-07-25 at 18:20, Daniel Egger wrote:
+> Am Fre, 2003-07-25 um 15.02 schrieb Nikita Danilov:
+> 
+> > No special measures are taken to level block allocation. Wandered blocks
+> > are allocated to improve packing i.e., place blocks of the same file
+> > close to each other. Actually, it tries to place tree nodes in the
+> > parent-first order.
 
->From drivers/usb/Config.in
+> 
+> So the new blocks are created as close as possible to the old blocks
+> instead of say spreading them as far as possible. This is pretty bad for
+> usage in the embedded world but I guess this is not the market you're
+> aiming at. :(
 
-   if [ "$CONFIG_ATM" = "y" -o "$CONFIG_ATM" = "m" ]; then
-      dep_tristate '  Alcatel Speedtouch USB support' CONFIG_USB_SPEEDTOUCH $CONFIG_ATM $CONFIG_USB
-   fi
+Reiser4 has plugin-based architecture. So, anybody is able to write new
+block allocator plugin.
 
-Now the question is: why is this not enough?
 
-Duncan.
+Speaking about possible embedded usage... What kind of embedded devices
+do you mean. Reiser4 driver is big enough in size for some of them (for
+instance, for mine MPIO MP3 player :))
+-- 
+We're flying high, we're watching the world passes by...
+

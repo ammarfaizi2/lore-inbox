@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261402AbSJMCNM>; Sat, 12 Oct 2002 22:13:12 -0400
+	id <S261400AbSJMCL6>; Sat, 12 Oct 2002 22:11:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261403AbSJMCNM>; Sat, 12 Oct 2002 22:13:12 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:6545 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S261402AbSJMCNJ>;
-	Sat, 12 Oct 2002 22:13:09 -0400
-Date: Sun, 13 Oct 2002 12:18:51 +1000
+	id <S261402AbSJMCL6>; Sat, 12 Oct 2002 22:11:58 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:49552 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S261400AbSJMCL5>;
+	Sat, 12 Oct 2002 22:11:57 -0400
+Date: Sun, 13 Oct 2002 12:17:19 +1000
 From: Nathan Scott <nathans@sgi.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Andreas Gruenbacher <agruen@suse.de>, "Theodore Ts'o" <tytso@mit.edu>,
        Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2][RESEND] POSIX ACL configuration option
-Message-ID: <20021013121851.B276740@wobbly.melbourne.sgi.com>
+Subject: [PATCH 1/2][RESEND] Applying the umask in the VFS optionally
+Message-ID: <20021013121719.A276740@wobbly.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,118 +22,73 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Linus,
 
-This patch provides the configuration entry, help text and basic
-header file definitions for filesystems that support POSIX ACLs.
+Here's a patch based on Andreas' recent mail describing a stumbling
+block in the VFS which prevents filesystems that wish to implement
+POSIX ACLs from doing so.  Details here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102831541509385&w=2
 
 cheers.
 
 -- 
 Nathan
 
- fs/Config.help                  |    8 ++++
- fs/Config.in                    |    3 +
- include/linux/posix_acl_xattr.h |   67 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 78 insertions(+)
+ fs/namei.c         |   13 ++++++++-----
+ include/linux/fs.h |    2 ++
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-diff -Naur linux-2.5.42-pristine/fs/Config.help linux-2.5.42-posixacl/fs/Config.help
---- linux-2.5.42-pristine/fs/Config.help	Sat Oct 12 14:22:18 2002
-+++ linux-2.5.42-posixacl/fs/Config.help	Sun Oct 13 11:04:30 2002
-@@ -18,6 +18,14 @@
-   need this functionality say Y here. Note that you will need latest
-   quota utilities for new quota format with this kernel.
+diff -Naur linux-2.5.42-pristine/fs/namei.c linux-2.5.42-posixacl/fs/namei.c
+--- linux-2.5.42-pristine/fs/namei.c	Sat Oct 12 14:21:39 2002
++++ linux-2.5.42-posixacl/fs/namei.c	Sun Oct 13 11:03:55 2002
+@@ -1279,8 +1279,9 @@
  
-+CONFIG_FS_POSIX_ACL
-+  POSIX Access Control Lists (ACLs) support permissions for users and
-+  groups beyond the owner/group/world scheme.
-+
-+  Refer to <http://acl.bestbits.at/> for more information about POSIX
-+  ACLs on Linux.  If you wish to use ACLs, you'll need the getfacl(1)
-+  and setfacl(1) utilities.  If unsure, say N.
-+
- CONFIG_MINIX_FS
-   Minix is a simple operating system used in many classes about OS's.
-   The minix file system (method to organize files on a hard disk
-diff -Naur linux-2.5.42-pristine/fs/Config.in linux-2.5.42-posixacl/fs/Config.in
---- linux-2.5.42-pristine/fs/Config.in	Sat Oct 12 14:22:12 2002
-+++ linux-2.5.42-posixacl/fs/Config.in	Sun Oct 13 11:04:30 2002
-@@ -10,6 +10,9 @@
- if [ "$CONFIG_QUOTA" = "y" ]; then
-    define_bool CONFIG_QUOTACTL y
- fi
-+
-+bool 'POSIX Access Control Lists' CONFIG_FS_POSIX_ACL
-+
- tristate 'Kernel automounter support' CONFIG_AUTOFS_FS
- tristate 'Kernel automounter version 4 support (also supports v3)' CONFIG_AUTOFS4_FS
+ 	/* Negative dentry, just create the file */
+ 	if (!dentry->d_inode) {
+-		error = vfs_create(dir->d_inode, dentry,
+-				   mode & ~current->fs->umask);
++		if (!IS_POSIXACL(dir->d_inode))
++			mode &= ~current->fs->umask;
++		error = vfs_create(dir->d_inode, dentry, mode);
+ 		up(&dir->d_inode->i_sem);
+ 		dput(nd->dentry);
+ 		nd->dentry = dentry;
+@@ -1442,7 +1443,8 @@
+ 	dentry = lookup_create(&nd, 0);
+ 	error = PTR_ERR(dentry);
  
-diff -Naur linux-2.5.42-pristine/include/linux/posix_acl_xattr.h linux-2.5.42-posixacl/include/linux/posix_acl_xattr.h
---- linux-2.5.42-pristine/include/linux/posix_acl_xattr.h	Thu Jan  1 10:00:00 1970
-+++ linux-2.5.42-posixacl/include/linux/posix_acl_xattr.h	Sun Oct 13 11:04:30 2002
-@@ -0,0 +1,67 @@
-+/*
-+  File: linux/posix_acl_xattr.h
-+
-+  Extended attribute system call representation of Access Control Lists.
-+
-+  Copyright (C) 2000 by Andreas Gruenbacher <a.gruenbacher@computer.org>
-+  Copyright (C) 2002 SGI - Silicon Graphics, Inc <linux-xfs@oss.sgi.com>
-+ */
-+#ifndef _POSIX_ACL_XATTR_H
-+#define _POSIX_ACL_XATTR_H
-+
-+/* Extended attribute names */
-+#define POSIX_ACL_XATTR_ACCESS	"system.posix_acl_access"
-+#define POSIX_ACL_XATTR_DEFAULT	"system.posix_acl_default"
-+
-+/* Supported ACL a_version fields */
-+#define POSIX_ACL_XATTR_VERSION	0x0002
-+
-+
-+/* An undefined entry e_id value */
-+#define ACL_UNDEFINED_ID	(-1)
-+
-+/* ACL entry e_tag field values */
-+#define ACL_USER_OBJ		(0x01)
-+#define ACL_USER		(0x02)
-+#define ACL_GROUP_OBJ		(0x04)
-+#define ACL_GROUP		(0x08)
-+#define ACL_MASK		(0x10)
-+#define ACL_OTHER		(0x20)
-+
-+/* ACL entry e_perm bitfield values */
-+#define ACL_READ		(0x04)
-+#define ACL_WRITE		(0x02)
-+#define ACL_EXECUTE		(0x01)
-+
-+
-+typedef struct {
-+	__u16			e_tag;
-+	__u16			e_perm;
-+	__u32			e_id;
-+} posix_acl_xattr_entry;
-+
-+typedef struct {
-+	__u32			a_version;
-+	posix_acl_xattr_entry	a_entries[0];
-+} posix_acl_xattr_header;
-+
-+
-+static inline size_t
-+posix_acl_xattr_size(int count)
-+{
-+	return (sizeof(posix_acl_xattr_header) +
-+		(count * sizeof(posix_acl_xattr_entry)));
-+}
-+
-+static inline int
-+posix_acl_xattr_count(size_t size)
-+{
-+	if (size < sizeof(posix_acl_xattr_header))
-+		return -1;
-+	size -= sizeof(posix_acl_xattr_header);
-+	if (size % sizeof(posix_acl_xattr_entry))
-+		return -1;
-+	return size / sizeof(posix_acl_xattr_entry);
-+}
-+
-+#endif	/* _POSIX_ACL_XATTR_H */
+-	mode &= ~current->fs->umask;
++	if (!IS_POSIXACL(nd.dentry->d_inode))
++		mode &= ~current->fs->umask;
+ 	if (!IS_ERR(dentry)) {
+ 		switch (mode & S_IFMT) {
+ 		case 0: case S_IFREG:
+@@ -1508,8 +1510,9 @@
+ 		dentry = lookup_create(&nd, 1);
+ 		error = PTR_ERR(dentry);
+ 		if (!IS_ERR(dentry)) {
+-			error = vfs_mkdir(nd.dentry->d_inode, dentry,
+-					  mode & ~current->fs->umask);
++			if (!IS_POSIXACL(nd.dentry->d_inode))
++				mode &= ~current->fs->umask;
++			error = vfs_mkdir(nd.dentry->d_inode, dentry, mode);
+ 			dput(dentry);
+ 		}
+ 		up(&nd.dentry->d_inode->i_sem);
+diff -Naur linux-2.5.42-pristine/include/linux/fs.h linux-2.5.42-posixacl/include/linux/fs.h
+--- linux-2.5.42-pristine/include/linux/fs.h	Sat Oct 12 14:21:35 2002
++++ linux-2.5.42-posixacl/include/linux/fs.h	Sun Oct 13 11:03:55 2002
+@@ -110,6 +110,7 @@
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_POSIXACL	65536	/* VFS does not apply the umask */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+@@ -164,6 +165,7 @@
+ #define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
+ #define IS_NOATIME(inode)	(__IS_FLG(inode, MS_NOATIME) || ((inode)->i_flags & S_NOATIME))
+ #define IS_NODIRATIME(inode)	__IS_FLG(inode, MS_NODIRATIME)
++#define IS_POSIXACL(inode)	__IS_FLG(inode, MS_POSIXACL)
+ 
+ #define IS_DEADDIR(inode)	((inode)->i_flags & S_DEAD)
+ 

@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbTJPH3O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 03:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbTJPH3E
+	id S262746AbTJPHsd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 03:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbTJPHsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 03:29:04 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:13248 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262754AbTJPH3A (ORCPT
+	Thu, 16 Oct 2003 03:48:33 -0400
+Received: from main.gmane.org ([80.91.224.249]:55180 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262746AbTJPHsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 03:29:00 -0400
-Date: Thu, 16 Oct 2003 09:23:55 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH][2.6] Fix 4G/4G and WP test lockup
-In-Reply-To: <Pine.LNX.4.53.0310160244150.2328@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.56.0310160923460.32667@earth>
-References: <Pine.LNX.4.53.0310160244150.2328@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Oct 2003 03:48:32 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: About _real_ free memory
+Date: Thu, 16 Oct 2003 09:48:30 +0200
+Message-ID: <yw1xsmltaai9.fsf@users.sourceforge.net>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F6EA74@mesadm.epl.prov-liege.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:xVFe6nkfpolXVHDoel9wB3XkIyE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Frederick, Fabian" <Fabian.Frederick@prov-liege.be> writes:
 
-fine with me.
+> Is there a way to clean cache from unwanted data or something to
+> unlink the stuff and regain some more 'free' mem. ?
 
-	Ingo
+If a process tries to allocate and use more than the really free
+amount, some cache will be dropped automatically.  From a performance
+point of view, this could of course be undesirable, but normally
+there's no need to think about it.
 
-On Thu, 16 Oct 2003, Zwane Mwaikambo wrote:
+-- 
+Måns Rullgård
+mru@users.sf.net
 
-> Hi Ingo,
-> 	It looks like when we do the WP test and trigger a 
-> (write) protection fault, the 4G/4G page fault handling path doesn't 
-> expect this kind of fault and instead results in recursive fault handling 
-> (or so it appears).
-> 
-> How does the following look?
-> 
-> Index: linux-2.6.0-test7-mm1/arch/i386/mm/fault.c
-> ===================================================================
-> RCS file: /build/cvsroot/linux-2.6.0-test7-mm1/arch/i386/mm/fault.c,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 fault.c
-> --- linux-2.6.0-test7-mm1/arch/i386/mm/fault.c	15 Oct 2003 09:01:14 -0000	1.1.1.1
-> +++ linux-2.6.0-test7-mm1/arch/i386/mm/fault.c	16 Oct 2003 06:42:42 -0000
-> @@ -260,8 +260,12 @@ asmlinkage void do_page_fault(struct pt_
->  	/*
->  	 * On 4/4 all kernels faults are either bugs, vmalloc or prefetch
->  	 */
-> -	if (unlikely((regs->xcs & 3) == 0))
-> +	if (unlikely((regs->xcs & 3) == 0)) {
-> +		if (error_code & 3)
-> +			goto bad_area_nosemaphore;
-> +
->   		goto vmalloc_fault;
-> +	}
->  #else
->  	if (unlikely(address >= TASK_SIZE)) { 
->  		if (!(error_code & 5))
-> 

@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267801AbUHEREk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267822AbUHERIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267801AbUHEREk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 13:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUHERDy
+	id S267822AbUHERIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 13:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUHERIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 13:03:54 -0400
-Received: from cantor.suse.de ([195.135.220.2]:35495 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267811AbUHERBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 13:01:51 -0400
-Date: Thu, 5 Aug 2004 19:00:44 +0200
-From: Olaf Hering <olh@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Giuliano Pochini <pochini@shiny.it>, kumar.gala@freescale.com,
-       tnt@246tNt.com, linuxppc-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14 c
-Message-ID: <20040805170044.GA5388@suse.de>
-References: <20040728220733.GA16468@smtp.west.cox.net> <XFMail.20040729100549.pochini@shiny.it> <20040729144347.GE16468@smtp.west.cox.net> <20040730205901.4d4181f4.pochini@shiny.it> <20040730190731.GQ16468@smtp.west.cox.net> <20040730224828.0f06e37a.pochini@shiny.it> <20040730210318.GS16468@smtp.west.cox.net> <20040805141257.GA14826@suse.de> <20040805165410.GA555@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040805165410.GA555@smtp.west.cox.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Thu, 5 Aug 2004 13:08:00 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38354 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267816AbUHERGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 13:06:07 -0400
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: "Jesse Barnes" <jbarnes@engr.sgi.com>, <khalid.aziz@hp.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, fastboot@osdl.org
+Subject: Re: [Fastboot] RE: [BROKEN PATCH] kexec for ia64
+References: <200407261524.40804.jbarnes@engr.sgi.com>
+	<20040730155504.2a51b1fa.rddunlap@osdl.org>
+	<m18ycvhx1j.fsf@ebiederm.dsl.xmission.com>
+	<B8E391BBE9FE384DAA4C5C003888BE6F01CB2705@scsmsx401.amr.corp.intel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Aug 2004 11:05:01 -0600
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F01CB2705@scsmsx401.amr.corp.intel.com>
+Message-ID: <m1vffxh5xe.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Aug 05, Tom Rini wrote:
 
-> On Thu, Aug 05, 2004 at 04:12:57PM +0200, Olaf Hering wrote:
-> >  On Fri, Jul 30, Tom Rini wrote:
-> > 
-> > > 
-> > > +aflags-$(CONFIG_PPC64BRIDGE)	+= -mppc64bridge
-> > 
-> > this should be -Wa,-mppc64bridge for some reasons.
+Hmm. Your mailer did not add any references lines.
+
+
+"Luck, Tony" <tony.luck@intel.com> writes:
+
+> Jesse Barnes wrote:
+> >With the addition of some ACPI tables and such.  I don't think 
+> >those are freed by the kernel right now though, so it should
+> >be pretty easy to point at the originals from the newly kexec'd
+> >kernel, or make copies.
 > 
-> That, er, doesn't make sense.  The assembler needs -Wa,?
+> The "trim_bottom" and "trim_top" functions currently modify
+> the memory map in place.  But this would only make a difference
+> if you tried to kexec a kernel with a smaller granule size than
+> the originally running kernel, and even then would only
+> result in missing seeing some memory that you might have been
+> able to use.
 
-The cmdline was 'gcc .. -mppc64bridge ..'
-But there is more breakage with g5 32bit, I'm looking at it right now.
+On x86 and x86-64 we can recover the memory map from /proc/iomem.
 
--- 
-USB is for mice, FireWire is for men!
+Does that work on ia64?  Can that be fixed to work on ia64?
 
-sUse lINUX ag, nÜRNBERG
+All of that information needs to get exported to user space so
+/sbin/kexec can pass it to the new kernel.
+
+Eric

@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbTHWNXv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 09:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265451AbTHWNXu
+	id S263609AbTHWNgA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 09:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTHWNf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 09:23:50 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:27147 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S265395AbTHWNXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 09:23:39 -0400
-Subject: Re: [PATCH 2.6.0-test4][NET] sk_mca.c: fix linker error
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-Cc: netdev@oss.sgi.com, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1061644938.2787.22.camel@lima.royalchallenge.com>
-References: <1061644938.2787.22.camel@lima.royalchallenge.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 23 Aug 2003 19:15:15 +0530
-Message-Id: <1061646315.1141.26.camel@lima.royalchallenge.com>
+	Sat, 23 Aug 2003 09:35:59 -0400
+Received: from [193.10.185.236] ([193.10.185.236]:45072 "HELO
+	smtp.dormnet.his.se") by vger.kernel.org with SMTP id S263609AbTHWNf6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 09:35:58 -0400
+Date: Sat, 23 Aug 2003 15:35:41 +0200
+From: Patrick =?ISO-8859-1?Q?B=F6rjesson?= <psycho@rift.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with memstick for Sony DSC-P9
+Message-Id: <20030823153541.652e1f3f.psycho@rift.ath.cx>
+Organization: HiS
+X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-23 at 18:52, Vinay K Nallamothu wrote:
-> Hi,
-> 
-> This patch fixes the following linker error due to a typo:
-> 
-> *** Warning: "spin_lock_irqrestore" [drivers/net/sk_mca.ko] undefined!
-Oops. missed out few more. Here is the updated patch.
+I've got a Sony DSC-P9 digital camera and when trying to use Sony's own
+memstick I can't mount it over USB. When using a Lexar memstick there's
+no problem at all. The error-message I get from mount when trying to
+mount the Sony stick is:
+mount: you must specify the filesystem type
+And when specifying vfat that the Lexar memstick uses I get a wrong
+fs-type error instead.
+Anyone know which filesystem I should use or is it a lost cause getting
+the Sony memstick working?
 
---- linux-2.6.0-test4/drivers/net/sk_mca.c	2003-07-28 10:43:57.000000000 +0530
-+++ linux-2.6.0-test4-nvk/drivers/net/sk_mca.c	2003-08-23 19:12:16.000000000 +0530
-@@ -280,7 +280,7 @@
- 
- 	/* reenable interrupts */
- 
--	spin_lock_irqrestore(&priv->lock, flags);
-+	spin_unlock_irqrestore(&priv->lock, flags);
- }
- 
- /* get LANCE register */
-@@ -319,7 +319,7 @@
- 
- 	/* reenable interrupts */
- 
--	spin_lock_irqrestore(&priv->lock, flags);
-+	spin_unlock_irqrestore(&priv->lock, flags);
- 
- 	return res;
- }
-@@ -993,7 +993,7 @@
- 	if (priv->txbusy == 0)
- 		SetLANCE(dev, LANCE_CSR0, CSR0_INEA | CSR0_TDMD);
- 
--	spin_lock_irqrestore(&priv->lock, flags);
-+	spin_unlock_irqrestore(&priv->lock, flags);
- 
-       tx_done:
- 
+Patrick Börjesson
 
+-- 
+Public key id: 4C5AB0BF
+Public key available at search.keyserver.net[:11371]

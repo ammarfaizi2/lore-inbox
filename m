@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVBRVnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVBRVxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVBRVnT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 16:43:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVBRVj1
+	id S261525AbVBRVxB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 16:53:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVBRVxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 16:39:27 -0500
-Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:25505 "EHLO
-	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261514AbVBRVfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 16:35:15 -0500
-Date: Fri, 18 Feb 2005 21:34:47 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: "d.c" <aradorlinux@yahoo.es>
-cc: "David S. Miller" <davem@davemloft.net>, seanlkml@sympatico.ca,
-       tytso@mit.edu, vonbrand@inf.utfsm.cl, cfriesen@nortel.com,
-       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-In-Reply-To: <20050218131326.650c77ad.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.60.0502182133490.30371@hermes-1.csi.cam.ac.uk>
-References: <seanlkml@sympatico.ca> <4912.10.10.10.24.1108675441.squirrel@linux1>
- <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl>
- <1451.10.10.10.24.1108713140.squirrel@linux1> <20050218162729.GA5839@thunk.org>
- <4075.10.10.10.24.1108751663.squirrel@linux1> <20050218214555.1f71c2e4.aradorlinux@yahoo.es>
- <20050218131326.650c77ad.davem@davemloft.net>
+	Fri, 18 Feb 2005 16:53:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28586 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261525AbVBRVws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 16:52:48 -0500
+Date: Fri, 18 Feb 2005 16:52:25 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>, linux-mm <linux-mm@kvack.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: [RFC][PATCH] Memory Hotplug
+In-Reply-To: <1108685111.6482.40.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0502181650381.4052@chimarrao.boston.redhat.com>
+References: <1108685033.6482.38.camel@localhost> <1108685111.6482.40.camel@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; format=flowed
+Content-ID: <Pine.LNX.4.61.0502181650383.4052@chimarrao.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Feb 2005, David S. Miller wrote:
-> On Fri, 18 Feb 2005 21:45:55 +0100
-> "d.c" <aradorlinux@yahoo.es> wrote:
-> 
-> > 2) And more important, *nobody* works against "linus' bk head".
-> 
-> I do, %100 exclusively, for all the networking and sparc
-> development.
-> 
-> I never work against the -mm tree.
+On Thu, 17 Feb 2005, Dave Hansen wrote:
 
-Dito.  All my kernel development happens against Linus' bk head and I 
-almost never work against -mm tree.
+> The attached patch is a prototype implementation of memory hot-add.  It
+> allows you to boot your system, and add memory to it later.  Why would
+> you want to do this?
 
-Best regards,
+I want it so I can grow Xen guests after they have been booted
+up.  Being able to hot-add memory is essential for dynamically
+resizing the memory of various guest OSes, to readjust them for
+the workload.
 
-	Anton
+Memory hot-remove isn't really needed with Xen, the balloon
+driver takes care of that.
+
+> I can post individual patches if anyone would like to comment on them.
+
+I'm interested.  I want to get this stuff working with Xen ;)
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,85 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTFOEgm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 00:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbTFOEgm
+	id S261852AbTFOEld (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 00:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTFOEld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 00:36:42 -0400
-Received: from niobium.golden.net ([199.166.210.90]:42718 "EHLO
-	niobium.golden.net") by vger.kernel.org with ESMTP id S261845AbTFOEgk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 00:36:40 -0400
-Date: Sun, 15 Jun 2003 00:50:18 -0400
-From: Paul Mundt <lethal@linux-sh.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SH Port - Makefile
-Message-ID: <20030615045017.GA29131@linux-sh.org>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	linux-kernel@vger.kernel.org
-References: <20030614193055.GA3673@mars.ravnborg.org> <20030614194510.GD2216@linux-sh.org> <20030614200744.GA3921@mars.ravnborg.org>
+	Sun, 15 Jun 2003 00:41:33 -0400
+Received: from iucha.net ([209.98.146.184]:53098 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S261852AbTFOEl3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 00:41:29 -0400
+Date: Sat, 14 Jun 2003 23:55:19 -0500
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.71
+Message-ID: <20030615045519.GE25303@iucha.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030615014221.GA25303@iucha.net> <Pine.LNX.4.44.0306141849290.20728-100000@home.transmeta.com> <20030615020055.GB25303@iucha.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+	protocol="application/pgp-signature"; boundary="eGwqSfc1DN4LzNjY"
 Content-Disposition: inline
-In-Reply-To: <20030614200744.GA3921@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030615020055.GB25303@iucha.net>
+X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.4i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---T4sUOijqQbZv57TR
+--eGwqSfc1DN4LzNjY
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jun 14, 2003 at 10:07:44PM +0200, Sam Ravnborg wrote:
-> On Sat, Jun 14, 2003 at 02:45:12PM -0500, Paul Mundt wrote:
-> > Okay, the main reason why I needed to do this was so that a make clean
-> > would get the proper directory path. The problem was that machdir-y
-> > wasn't getting the board name correctly since at make clean time the
-> > CONFIG_SH_xxx names weren't being resolved.
+On Sat, Jun 14, 2003 at 09:00:55PM -0500, Florin Iucha wrote:
+> On Sat, Jun 14, 2003 at 06:58:26PM -0700, Linus Torvalds wrote:
+> > Ok, that does look like the list poisoning. The poisoning uses 0x001001=
+00
+> > as the poison value, and that's the address that oopsed for you:
+> [snip]=20
+> > Florin, does it work for you if you remove the poisoning in=20
+> > <linux/list.h>? (Just search for "POISON" and remove those lines).
+> >=20
+> > Trond, any ideas?
 >=20
-> The following should do the trick.
-> I also rearranged a few things.
->=20
-Unfortunately this still yields the same problem as before when it comes to
-resolving machdir-y properly at make clean time:
+> I am compiling now 2.5.71 with Tron's patch
+> (http://bugme.osdl.org/attachment.cgi?id=3D414&action=3Dview). If that
+> does not fix it I will try without the poison.
 
-[lethal@unusual linux-sh-2.5.71]$ make ARCH=3Dsh CROSS_COMPILE=3Dsh-uclibc-=
- clean
-scripts/Makefile.clean:10: arch/sh/boards/Makefile: No such file or directo=
-ry
-make[1]: *** No rule to make target `arch/sh/boards/Makefile'.  Stop.
-make: *** [_clean_arch/sh/boards] Error 2
+Trond's patch fixes the problem. The box has been up an running for
+three hours under normal usage (web, mail, nfs share browsing) it even
+rebooted without problem.
 
-At make clean time, .config isn't available properly due to it not being
-included since its a noconfig_targets target, which causes the above proble=
-m.
-This will also happen for the rest of the noconfig_targets, hence the manual
-inclusion of .config to fixup the path lookup issue.
+florin
 
-Any other suggestions?
+diff -u --recursive --new-file linux-2.5.71/net/sunrpc/rpc_pipe.c linux-2.5=
+=2E71-fix_rpcpipe/net/sunrpc/rpc_pipe.c
+--- linux-2.5.71/net/sunrpc/rpc_pipe.c	2003-06-11 19:24:29.000000000 -0700
++++ linux-2.5.71-fix_rpcpipe/net/sunrpc/rpc_pipe.c	2003-06-14 16:58:21.0000=
+00000 -0700
+@@ -472,30 +472,37 @@
+ rpc_depopulate(struct dentry *parent)
+ {
+ 	struct inode *dir =3D parent->d_inode;
+-	HLIST_HEAD(head);
+ 	struct list_head *pos, *next;
+-	struct dentry *dentry;
++	struct dentry *dentry, *dvec[10];
++	int n =3D 0;
+=20
+ 	down(&dir->i_sem);
++repeat:
+ 	spin_lock(&dcache_lock);
+ 	list_for_each_safe(pos, next, &parent->d_subdirs) {
+ 		dentry =3D list_entry(pos, struct dentry, d_child);
++		spin_lock(&dentry->d_lock);
+ 		if (!d_unhashed(dentry)) {
+ 			dget_locked(dentry);
+ 			__d_drop(dentry);
+-			hlist_add_head(&dentry->d_hash, &head);
+-		}
++			spin_unlock(&dentry->d_lock);
++			dvec[n++] =3D dentry;
++			if (n =3D=3D ARRAY_SIZE(dvec))
++				break;
++		} else
++			spin_unlock(&dentry->d_lock);
+ 	}
+ 	spin_unlock(&dcache_lock);
+-	while (!hlist_empty(&head)) {
+-		dentry =3D list_entry(head.first, struct dentry, d_hash);
+-		/* Private list, so no dcache_lock needed and use __d_drop */
+-		__d_drop(dentry);
+-		if (dentry->d_inode) {
+-			rpc_inode_setowner(dentry->d_inode, NULL);
+-			simple_unlink(dir, dentry);
+-		}
+-		dput(dentry);
++	if (n) {
++		do {
++			dentry =3D dvec[--n];
++			if (dentry->d_inode) {
++				rpc_inode_setowner(dentry->d_inode, NULL);
++				simple_unlink(dir, dentry);
++			}
++			dput(dentry);
++		} while (n);
++		goto repeat;
+ 	}
+ 	up(&dir->i_sem);
+ }
 
-> Whith respect to removing the framepointer from CFLAGS.
-> There is already a CONFIG option for that CONFIG_FRAME_POINTER.
-> It would be much cleaner using that one in combination
-> with CONFIG_SH_KGDB
->=20
-Agreed, I'll add this in. Thanks.
+--=20
 
+"NT is to UNIX what a doughnut is to a particle accelerator."
 
---T4sUOijqQbZv57TR
+--eGwqSfc1DN4LzNjY
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+6/sJ1K+teJFxZ9wRAgooAKCCmRKK0w79K1ekDDntguzIsGTyygCdEPYx
-5UQzQw7Guo8/KUTa6NSCqkw=
-=Y6wS
+iD8DBQE+6/w3NLPgdTuQ3+QRAgTeAJ4royVjBiyhjSYS7qrirUOuTAO6pgCfVHud
+lXE1ATV0WWcFIZBnPvwxk24=
+=BSDn
 -----END PGP SIGNATURE-----
 
---T4sUOijqQbZv57TR--
+--eGwqSfc1DN4LzNjY--

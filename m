@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263403AbSJOTCn>; Tue, 15 Oct 2002 15:02:43 -0400
+	id <S264720AbSJOTKC>; Tue, 15 Oct 2002 15:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263794AbSJOTCm>; Tue, 15 Oct 2002 15:02:42 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:32913 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S263403AbSJOTCl>; Tue, 15 Oct 2002 15:02:41 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 15 Oct 2002 12:16:39 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] async poll for 2.5
-In-Reply-To: <20021015150201.K14596@redhat.com>
-Message-ID: <Pine.LNX.4.44.0210151213170.1554-100000@blue1.dev.mcafeelabs.com>
+	id <S264722AbSJOTKC>; Tue, 15 Oct 2002 15:10:02 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:29858 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S264720AbSJOTKB>; Tue, 15 Oct 2002 15:10:01 -0400
+Message-ID: <20021015191545.20319.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Wed, 16 Oct 2002 03:15:45 +0800
+Subject: Re:Benchmark results from resp1 trivial response time test
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Oct 2002, Benjamin LaHaise wrote:
+From: Bill Davidsen <davidsen@tmr.com>
+> On Tue, 15 Oct 2002, Paolo Ciarrocchi wrote:
+> 
+> > Hi Bill,
+> > I'm back with the results of others tests, here all my results:
+> 
+> Thanks, I'll cip them in the response, but this test sure does make some
+> kernels unhappy, doesn't it? And the sad truth is that this isn't
+> artifact, if you get a similar "real load" on the machine the response
+> will be really unusable in real life.
+Yeah, but it also means that 2.5.42-mm2 is the winner, and I have the same feeling just using it, so I think we'll see a 2.5.43 very responsive ;-)
 
-> On Tue, Oct 15, 2002 at 12:00:30PM -0700, Davide Libenzi wrote:
-> > Something like this might work :
-> >
-> > int sys_epoll_create(int maxfds);
-> > void sys_epoll_close(int epd);
-> > int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
-> >
-> > where sys_epoll_wait() return the number of events available, 0 for
-> > timeout, -1 for error.
->
-> There's no reason to make epoll_wait a new syscall -- poll events can
-> easily be returned via the aio_complete mechanism (with the existing
-> aio_poll experiment as a possible means for doing so).
+Did you try 2.5.42-mm3 ?
 
-Ben, one of the reasons of the /dev/epoll speed is how it returns events
-and how it collapses them. A memory mapped array is divided by two and
-while the user consumes events in one set, the kernel fill the other one.
-The next wait() will switch the pointers. There is no copy from kernel to
-user space. Doing :
-
-int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
-
-the only data the kernel has to copy to userspace is the 4(8) bytes for
-the "pevts" pointer.
+Ciao,
+         Paolo
+-- 
+Get your free email from www.linuxmail.org 
 
 
-
-- Davide
-
-
+Powered by Outblaze

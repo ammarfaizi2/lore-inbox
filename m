@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268372AbUIPX6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268304AbUIQABt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268372AbUIPX6D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 19:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIPX57
+	id S268304AbUIQABt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 20:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIPX6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 19:57:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268348AbUIPX4q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 19:56:46 -0400
-Date: Thu, 16 Sep 2004 17:00:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ncunningham@linuxmail.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Suspend2 Merge: Supress various actions/errors while
- suspending [0/5]
-Message-Id: <20040916170017.0f14d202.akpm@osdl.org>
-In-Reply-To: <1095378659.5897.96.camel@laptop.cunninghams>
-References: <1095378659.5897.96.camel@laptop.cunninghams>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	Thu, 16 Sep 2004 19:58:17 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:11908 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S268304AbUIPXzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 19:55:33 -0400
+X-OB-Received: from unknown (205.158.62.133)
+  by wfilter.us4.outblaze.com; 16 Sep 2004 23:55:32 -0000
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Panos Polychronis" <maxsoft@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 17 Sep 2004 07:55:32 +0800
+Subject: Strange reiserfs 3.6 msg warning.
+X-Originating-Ip: 62.38.235.186
+X-Originating-Server: ws5-3.us4.outblaze.com
+Message-Id: <20040916235532.6216523C12@ws5-3.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@linuxmail.org> wrote:
->
-> The following patches suppress various actions and errors while we're
-> suspending.
+hello i'm running 2.6.8.1-ck7 (reiserfs 3.6) and i got this message
 
-Sorry, I'm not in a position to merge all this stuff up.
+Sep 17 00:53:26 phobos kernel: ReiserFS: hda1: warning: vs-8115: get_num_ver: not directory item
+can anyone explain me what is this and if is something dangerous ?
+thanks :)
+-- 
+______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org 
+This allows you to send and receive SMS through your mailbox.
 
-There's a significant rewrite of the suspend code in -mm and we're having
-trouble getting that merged up because Pat has limited time to work on
-these things.
 
-Until we get the existing rework settled and Pat has time to look at
-suspend2 I'd rather not have to take it on.
+Powered by Outblaze

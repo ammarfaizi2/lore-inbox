@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbUBWNQH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 08:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbUBWNQG
+	id S261844AbUBWNXP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 08:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbUBWNXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 08:16:06 -0500
-Received: from tuxhome.net ([217.160.179.19]:24772 "EHLO tuxhome.net")
-	by vger.kernel.org with ESMTP id S261841AbUBWNPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 08:15:47 -0500
-From: Markus Hofmann <markus@gofurther.de>
-Organization: gofurther.de
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.2 - System clock runs too fast
-Date: Mon, 23 Feb 2004 14:13:27 +0100
-User-Agent: KMail/1.6.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <200402101332.26552.markus@gofurther.de> <200402111007.50549.markus@gofurther.de> <1076524588.795.28.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1076524588.795.28.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
+	Mon, 23 Feb 2004 08:23:14 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59574 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261844AbUBWNXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 08:23:12 -0500
+Date: Thu, 19 Feb 2004 16:14:41 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS locking: f_pos thread-safe ?
+Message-ID: <20040219151441.GD467@openzaurus.ucw.cz>
+References: <pan.2004.02.06.18.59.44.936432@smurf.noris.de> <92VRVYaHw-B@khms.westfalen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402231413.27757.markus@gofurther.de>
+In-Reply-To: <92VRVYaHw-B@khms.westfalen.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello John
+Hi!
 
-After a recompiling kernel my system clock runs now again too slow. Your patch 
-helps with a fast running clock but not with a slow clock. Do you have an 
-idea what to do now?!?
+> POSIX says on <http://www.opengroup.org/onlinepubs/007904975/functions/ 
+> read.html>:
+> 
+> [...]
+> DESCRIPTION
+> 
+> The read() function shall attempt to read nbyte bytes from the file
+> associated with the open file descriptor, fildes, into the buffer pointed
+> to by buf. The behavior of multiple concurrent reads on the same pipe,
+> FIFO, or terminal device is unspecified.
 
-best wishes
-Markus
+...which implies that concurrent reads on regular files are okay :-P.
 
-Am Mittwoch, 11. Februar 2004 19:36 schrieb john stultz:
-> On Wed, 2004-02-11 at 01:07, Markus Hofmann wrote:
-> > Thank you for answering.
-> > In the meantime I heard that apm could cause this problem. I tested this
-> > by compiling acpi. The result was that the clock runs normal with acpi.
-> > But I want to use apm. So I removed the acpi and now the system clock is
-> > too slow with only apm.
-> >
-> > I think this is a very curious thing! :-(
->
-> Indeed, normally its ACPI that causes more problems. That's a new one.
->
-> I'd be curious how this drift changes using the attached patch.
->
-> thanks
-> -john
->
-> ===== arch/i386/kernel/timers/timer_tsc.c 1.35 vs edited =====
-> --- 1.35/arch/i386/kernel/timers/timer_tsc.c	Wed Jan  7 00:31:11 2004
-> +++ edited/arch/i386/kernel/timers/timer_tsc.c	Tue Jan 20 13:22:54 2004
-> @@ -226,7 +226,7 @@
->  	delta += delay_at_last_interrupt;
->  	lost = delta/(1000000/HZ);
->  	delay = delta%(1000000/HZ);
-> -	if (lost >= 2) {
-> +	if (0 && (lost >= 2)) {
->  		jiffies_64 += lost-1;
->
->  		/* sanity check to ensure we're not always losing ticks */
+				Pavel
+
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

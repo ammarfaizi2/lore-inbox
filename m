@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278397AbRJMUXW>; Sat, 13 Oct 2001 16:23:22 -0400
+	id <S278398AbRJMUZC>; Sat, 13 Oct 2001 16:25:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278398AbRJMUXN>; Sat, 13 Oct 2001 16:23:13 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:54287 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S278397AbRJMUXB>; Sat, 13 Oct 2001 16:23:01 -0400
-Date: Sat, 13 Oct 2001 22:25:18 +0200
-From: Leopold Gouverneur <lgouv@planetinternet.be>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Problem with store fence fixes
-Message-ID: <20011013222518.A1559@loclhost>
-Reply-To: lgouv@planetinternet.be
-Mime-Version: 1.0
+	id <S278399AbRJMUYw>; Sat, 13 Oct 2001 16:24:52 -0400
+Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:29063 "EHLO
+	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S278398AbRJMUYi>; Sat, 13 Oct 2001 16:24:38 -0400
+Message-ID: <3BC8A28F.AC768AE3@home.com>
+Date: Sat, 13 Oct 2001 16:22:39 -0400
+From: John Gluck <jgluckca@home.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.12 parport module compile error in ieee1284_ops.c
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.10-ac9 locks after 
-	Console: colour VGA+ 80x25
-	Unexpected IRQ trap at vector 75
-	Calibrating delay loop ..
-Only the reset button helps. 2.4.10-ac8 works perfectly, ac9 also
-if I suppress the line "define_bool CONFIG_X86_PPRO_FENCE y".
-Since nobody is complaining, I suppose i am doing something wrong.
-My system: Abit BP6, 2 Celeron 433( not OC )
+Hi
 
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-CONFIG_M686=y
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-# CONFIG_TOSHIBA is not set
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=y
-# CONFIG_X86_CPUID is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-CONFIG_SMP=y
-# CONFIG_MULTIQUAD is not set
-CONFIG_HAVE_DEC_LOCK=y
+Compiling IEEE1284 in the parport module produces the following errors:
 
-What other information would be helpful?
+ieee1284_ops.c: In function `ecp_forward_to_reverse':
+ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
+this function)
+ieee1284_ops.c:365: (Each undeclared identifier is reported only once
+ieee1284_ops.c:365: for each function it appears in.)
+ieee1284_ops.c: In function `ecp_reverse_to_forward':
+ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
+this function)
+make[2]: *** [ieee1284_ops.o] Error 1
 
-Thanks!
-Thanks
+I search for IEEE1284_PH_DIR_UNKNOWN in all headers. It doesn't exist.
+In linux/parport.h i can find IEEE1284_PH_ECP_DIR_UNKNOWN which is what
+I think it should be.
 
-A
+Can someone confirm this??
+
+TIA
+
+John
 

@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265435AbUEUIGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUEUIJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265435AbUEUIGL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 04:06:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265456AbUEUIGL
+	id S265144AbUEUIJu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 04:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265459AbUEUIJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 04:06:11 -0400
-Received: from outmx007.isp.belgacom.be ([195.238.3.234]:33183 "EHLO
-	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S265435AbUEUIGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 04:06:06 -0400
-Subject: Re: [2.6.6-mm4-ff1] I/O context isolation
-From: FabF <Fabian.Frederick@skynet.be>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40ADB671.8060904@yahoo.com.au>
-References: <1085124268.8064.15.camel@bluerhyme.real3>
-	 <40ADB20C.8090204@yahoo.com.au> <1085125564.8071.23.camel@bluerhyme.real3>
-	 <40ADB671.8060904@yahoo.com.au>
-Content-Type: text/plain
-Message-Id: <1085126738.8071.32.camel@bluerhyme.real3>
+	Fri, 21 May 2004 04:09:50 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:10375 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265144AbUEUIJs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 04:09:48 -0400
+Date: Fri, 21 May 2004 10:11:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs lfs limit
+Message-ID: <20040521081128.GA4834@elte.hu>
+References: <20040521073702.GM3044@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 21 May 2004 10:05:38 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040521073702.GM3044@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-05-21 at 09:57, Nick Piggin wrote:
-> FabF wrote:
-> > On Fri, 2004-05-21 at 09:38, Nick Piggin wrote:
-> > 
-> >>FabF wrote:
-> >>
-> >>>Jens,
-> >>>
-> >>>	Here's ff1 patchset to have generic I/O context.
-> >>>ff1 : Export io context operations from blkdev/ll_rw_blk (ok)
-> >>>ff2 : Make io_context generic plateform by importing IO stuff from
-> >>>as_io.
-> >>>
-> >>
-> >>Can I just ask why you want as_io_context in generic code?
-> >>It is currently nicely hidden away in as-iosched.c where
-> >>nobody else needs to ever see it.
-> > 
-> > I do want I/O context to be generic not the whole as_io.
-> > That export should bring:
-> > 	-All elevators to use io_context
-> > 	-source tree to be more self-explanatory
-> > 	-have a stronger elevator interface
-> > 
+
+* Andrea Arcangeli <andrea@suse.de> wrote:
+
+> Hi Andrew,
 > 
-> Sorry, my mistake. as_io_context is not nicely hidden away at
-> the moment. I can't remember why, I think it is only needed
-> for the declaration... I'll look into moving it into as-iosched.c
+> this fixes the 2G limit on ramfs
 > 
-> *But*, io_context is already exported to all elevators and generic
-> code.
+> --- sles/fs/ramfs/inode.c.~1~	2003-10-31 05:54:29.000000000 +0100
+> +++ sles/fs/ramfs/inode.c	2004-05-21 07:55:07.394369104 +0200
+> @@ -181,6 +181,7 @@ static int ramfs_fill_super(struct super
+>  	struct inode * inode;
+>  	struct dentry * root;
+>  
+> +	sb->s_maxbytes = MAX_LFS_FILESIZE;
+>  	sb->s_blocksize = PAGE_CACHE_SIZE;
+>  	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
+>  	sb->s_magic = RAMFS_MAGIC;
 
-Well ff1 does that "concept split".We have
-	-Elevator
-	-Elevator interface
-	-I/O context 
-	-Block management
+yep - fixed this for RHEL3 half a year ago but forgot about it. It works
+well, people are using multi-GB ramfs instances without problems.
 
-As none of you seems OK with further changes, I'll stop my effort right
-here but keep thinking ff1 is good :)
-
-Regards,
-FabF
-
+	Ingo

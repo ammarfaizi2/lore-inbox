@@ -1,320 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTJJOGF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 10:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTJJOGF
+	id S262765AbTJJOOA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 10:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTJJOOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 10:06:05 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.36.229]:4268 "EHLO
-	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262482AbTJJOFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 10:05:54 -0400
-Date: Fri, 10 Oct 2003 09:05:47 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@dell.com>
-X-X-Sender: mdomsch@iguana.domsch.com
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 2.4] EDD 4-byte MBR disk signature for the boot disk
-Message-ID: <Pine.LNX.4.44.0310100903360.2846-100000@iguana.domsch.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Oct 2003 10:14:00 -0400
+Received: from relay.dera.gov.uk ([192.5.29.49]:13727 "HELO relay.dstl.gov.uk")
+	by vger.kernel.org with SMTP id S262765AbTJJONy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 10:13:54 -0400
+Subject: Re: Linux 2.4.23-pre7 - boot failure
+From: Tony Gale <gale@syntax.dstl.gov.uk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0310091939100.6403-100000@dstl.gov.uk>
+References: <Pine.LNX.4.44.0310091939100.6403-100000@dstl.gov.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ESC2MkYVKZoTkzleCIwl"
+Message-Id: <1065795232.2908.2.camel@syntax.dstl.gov.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 10 Oct 2003 15:13:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For comment. -Matt
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+
+--=-ESC2MkYVKZoTkzleCIwl
+Content-Type: multipart/mixed; boundary="=-Wzs8mn1iLZQXWiOIA1EN"
 
 
-You can import this changeset into BK by piping this whole message to
-'| bk receive [path to repository]' or apply the patch as usual.
+--=-Wzs8mn1iLZQXWiOIA1EN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-===================================================================
+Hi,
 
+Both pre6 and pre7 fail to boot on my P2 450Mhz. Pre5 boots fine. I have
+attached my pre7 .config file.
 
-ChangeSet@1.1182, 2003-10-10 08:50:32-05:00, Matt_Domsch@dell.com
-  EDD: read disk80 MBR signature, export through edd module
-  
-  There are 4 bytes in the MSDOS master boot record, at offset 0x228,
-  which may contain a per-system-unique signature.  By writing into this
-  signature from a tool that makes real-mode int13 calls a unique
-  signature such as "BOOT" for the boot disk (int13 dev 80h), Linux may
-  then retrieve this information and use it to compare against disks it
-  knows as named /dev/[hs]d[a-z].
-  
-  This is useful in the case where the BIOS is not EDD3.0 compliant,
-  thus doesn't provide the PCI bus/dev/fn and IDE/SCSI location of the
-  boot disk, yet you need to know which disk is the boot disk.
-  
-  This patch retrieves the signature from the disk in setup.S and stores
-  it in a space reserved in the empty_zero_page, copies it somewhere
-  safe in setup.c, and exports it via
-  /proc/bios/edd/int13_disk80/mbr_signature in edd.c.  Code is covered
-  under CONFIG_EDD=[ym].
+I get the Uncompressing kernel boot message, and that is all. Nothing
+after that.
+
+Cheers,
+-tony
 
 
- Documentation/i386/zero-page.txt |    4 +++-
- arch/i386/boot/setup.S           |   21 +++++++++++++++++++++
- arch/i386/kernel/edd.c           |   27 +++++++++++++++++++++++++--
- arch/i386/kernel/i386_ksyms.c    |    1 +
- arch/i386/kernel/setup.c         |    3 +++
- include/asm-i386/edd.h           |    7 ++++++-
- 6 files changed, 59 insertions(+), 4 deletions(-)
+--=-Wzs8mn1iLZQXWiOIA1EN
+Content-Disposition: attachment; filename=config.pre7.gz
+Content-Type: application/x-gzip; name=config.pre7.gz
+Content-Transfer-Encoding: base64
 
+H4sICEm8hj8AA2NvbmZpZy5wcmU3AIw8W3PbttLv/RU804cvmWkb3S2fGT9AICghIkgYAHXpC0ex
+mUQnsuUjy238778FSYkACbKnM50Yu4vFbbE3LPXrL7966O18fNqd9w+7w+Hd+5Y9Z6fdOXv0nnY/
+Mu/h+Px1/+3f3uPx+f/OXva4P//y6y84jgI6TzfTyd07MCibcpZIb//qPR/P3mt2vlAl1O9rOugH
+pMfHDBif307787t3yP7KDt7x5bw/Pr9WfMmGE0EZiRQKLx3D4+5x9+UAnY+Pb/DP69vLy/FkTIbF
+fhISCfQVYEWEpHFkAJcAvbDkp+ND9vp6PHnn95fM2z0/el8zPbXstZhryWc4nZjLqhCjNsS4A6Ek
+bsUxtnFsIJvY+8w47AxNGKXUzanEj9zYZcvcljct8KkbTkIUuTFYJDImbtyaRnhBOW6ZRIkedGKH
+fsu4W0E3rbuyoggP04Fjg0GO0zVP17FYyjReVtKiETRahXxuwzDjG7yoATfI923ITK4Rt0E85sgv
+xrjOTKwlYemcRCD0OJWcRmGMl455FoR6ZBgqReE8FlQtmD1C2E8xwguSygUN1N3YxC2QTEH+7A7z
+OAZmnGJzTvlc56RlsxJJUs5FnMI4eCmT2hRyVEAiTGx40OsFLbvMctrr8CqG2c+Q8yDpdOk+YIpF
+jGPfLXj5IFK04jAHPeXEEt93bEMUL+h8wQgzp12CRnMnoxI76Ua714bUIiUsCZECfebSEUqIakcl
+M8QuEnpx8m44sFccJcy9wRoJUpL6VKJZ2CYDlhwt0IqkPsGpltyLfp3nluSgO769VIo6Iqp2w+KL
++JliHGMU1uAcU3O3oQnCO6OxdC6jQPtUEKwcayjQKNpa/FPNzoYUHCoY7IpNECGW251KYoCkRUO5
+4YtY8TBxiwXHDNPObnoSjgXKrVyBoq3mOpN+CjcTEylThM0lASlWoWElcSxISsLAXFUBRHHi2s0Z
+jQKmcuzdUw1Y41NCGW0xhNx9BZANzyUMYU49efUEKloNb05Sg9NZHKuLhLLs6Xh691T28P35eDh+
+e/f87K89OAXeB6b8j5YXoPzG8HwH4n0AD0aP3/RIOBI8FsZ+lAA4LxcMrErYbyIkWAVwg56MDaq6
+BDSI3ZtY0chEe1PdZIjRuVvGLhQswMNuFgoJt+W9UMzbDvyy0iSacd5JEqsFEa7LXOL7g+no6t4d
+3r7lTh0/7N5LP/YNPFvwNc2D5ZF7SLjDNVTea3Y4PvzwHgsxqc56Fi5B/63SwLdEvYRu3JYFZk1b
+zJXuifl96rtP5YLGFO5yC02Ok1jSVCHuHiUnYXFEVSxStRAEuSd6WYeP8O2k10mS1ExYDR3GMTdl
++QKPZt0jC+TWChc8hTUIl53WBFIhJa93/u1w3v9eHODlznofBALrr4UlXDH73nfPqwXN/DSkEUFu
+fwOwejz3RpbIfhdy3IYED0FRDs5C56RhjQ25jrLz38fTj/3zt2Y8xhFemka7aKeM5d7tlT0Ydlh0
+PoTLYSIqoKEiotalAEKnmW0AS4prn7KdRHRj2OLCmaguLS+2ACOp3Leap8hfIXBNYSfBWBH3CQFZ
+m16AEQFNu5Bz4b5uoKTc4qKXkRLscuzkNkpxHC8puUqw51H+b31gX/eHc3aCmNpWbdUaogD6RpES
+cGCVZSkQgeJ1EGIo8lEdqhyUVOA66D4hCWnQcaVdSMOjKuDgz+IFXBFGVb1LgWKoMUCB4Eultrwx
+0KWXaKyzxOQXw7LGJhriDVMrmShw/iCcdpyMSQRn52bsS9zYvAKDoJdswYUkmqtFy1RV2ILAnEnp
+xi1ICE6AG6e1Y8t+tgpPgU4iHBLUsvJ4HTVHrN/mUsKQmMMFEOSz7WibSEaFiEXzkCLUdTbRPGws
+rWRYHLkL4zjMEuM6zcv8HKJXosJ43rKoRKNapuc8TdAg5YVqIsq9bewQoMqdaCj9QpOs9qfzG8Rp
+Mjv95VAnJruVO9SifOXO5ywXSvGm4wz/QcDB7aG8D2be76OpyFaTVNOnaU3X50ycmla53YVViKJ0
+2hv075tzspe6aeGLwmWjK3p5OWTn3cH0C69dtMFFnIek3tWgwKD/3RYbHMR5S0Jj4PYCQsRnbkTo
+dr+17fHpigj3FAj82zK7NWxmhxHVjAMwxDlJK8VinQZhvAYIEIaNvb0/Su2XfTqevK+7/cn771v2
+loGXYm6xZiPxgjQFrfRqvHP2enZ0AmMyJ1Gjl8oO2cv34/O7K7bkC9gPtzuvMSndfO7GOiL6QooU
++gThwCcWsE8iDJvxJCAvLgD8+ZvukLus8C+Eu/8QmBid+SHbvYLvm2Wef3x4e8qez/kF/LR/zP44
+/zx7X2Gzv2eHl0/7569HD26mjlIeT/u/bMm+sF74aVcYU5B0xATQ2afSSAiWgMJo6zy+lRu8YLVg
+LbuHBVLsepIw8b6Rr6jAOmRyIkBWOd+6gjxA6mjLrSB9AoodJk1jrJpCrrfv4fv+BQCXY//05e3b
+1/1P945j5k9G3XFYQZKSaJE7u93b1Ah1m0srcm81eJmztk5OZ8TkAgmQdXHf7KJPj6F6Ku+CjYNg
+FiPxD9MtWASxqC3MEJBiiBQlKq7LDqDiKNxqGfoHoWTI0VezXbe4/5fOCAj7ve4DQgRPBhu3mbnS
+hLQ/3rjzLmsfd+KvPJh/M2oZp8SlMWj/zlTEVaK656sEDULSTYO30wGe3HZPGsvxeNi9fwuuhi3T
+KVD54fstOW6Ty2TSIQec5vFmM2EhpzejvtsEX6WZKzoZuCP5K38fD3oDfQZhS5LoQjBLREtQ2+AV
+kXV3NuVPkM7u7ZW4P/gnktV66fYHrxSUMtTiv1Q0cNb9bnGQIb7tkYnbx6yEjw1uu2e8ogiEb9Ny
+G7SS1s+LkiiX0Sjvf4tKoSu316VxURy5U/SGssnNnHRJmk6sopa3qRqNloD/iQ7E/n+ik/Zjam6L
+ciPXcE409OJgmBTF2/qHx/3rj9+88+4l+83D/u8iZh+bPoo03k+ln5INxJ4aIe9GvQscL0RBa0Ty
+F1gsTeiVq3DB0hWJ/Nh8MxPWgI3xdKBWrO74lBVLfLw8FmR/fPsDluX95+1H9uX48+N18U862QjB
+gRcmkWXJ87xsnvMqEifue5RTFV4QMGgngb8hio9UBxeINOc0mrtP83D8+/eiFiP38k5Op2O4TuHm
+bNJWYczHuQHFAk5/i6bKSRBus/AFeoH644H7ilYEI3eJwJXgpsU/KggQrq/CQlN8AyutxKYEaBMo
+U55nK1cUk7vBeFgnEUTqeIqEaJsyedcfw34YBrek4iKekfydEEJSt2kuKWcJDf00oIKtUVtasSQt
+xIlELY+2NhkDb/TOMTNBwOQIotQW/qFR1zFCj9sWVWpuY6tlK+4AVykduF+nCi46XSu3HaJNo0Gb
+NSs4sPEQ3964y2GKK0bm7TrWouiQulki4ZJRtwIurim/D3DXJfXZZti/7Xdtl8LDwbRjsURHhZ3Y
+tM0nqih4y3NhThEkKgHv3o8Zoh06ae63vEIU2LLaJcJiPOxaD5jjrpOnqmuqgG/1w3MCzju2gjJ3
+EilH5hPHo96kg0FBc/PzZzuJ3GrhnMIt6ZCsgs+0665d+XSsFcm+24Mq0Jh2XyNNMBj03AFuQSHp
+YNRFcJ9fEJ0U+kcaKt0hlsWn466VJP3OyyIJmqOW3FRBQNlNv4tBvu2jrn318fC216FGFUyxHZv0
+R+lwFHQQhOCzSBW7U3CF+Eg+7JCuxstbbvyDt1edk2XgKNpvpaZrECSyVo5UQ+XVFl14Kkkk3QdQ
+UtTyJXV0rQixSKcQQrz+8HbkfQj2p2wN/1cuWSPLXHny0C3v1eAH9ql9E9qsF8DrlTkWblav8rOw
+bcWVGteeZtJDihg3VnDJgzZWUXaMiCpcmusjIxL4OTu7EtqAqSWEL6FOwtjW8LXjyAePswKQ+wSF
+9E/zVUglxlML0cUdCvGLo03O37OTnsQHuILHkweanH3Znz9a0y561Z6BZRKFOu3lmOQCcb5lxK6o
+0ZUnDLVokyS6dzEC+JywavZ6LkVMkQ5xbFREErOqh4QDs8HDRJrt/sRsDavGEI/7Y3PKJGTu+WpE
+Sl3R5ioWihherdryRRwbB5DvmXNFkhlJvrU/7f0cmpPJlVCtuM1ENWiHrjJcGOS2fztyTkBA0GAU
+qEV03Ov3DEo6Hpitydhw3lUfgpKqrVOUxiP3gvdNbP6Cb1b4kUGBrzZ4LZZDx/QJKBbw/s3zLCH6
+TpoD6kco++RzmHEQfDSdEOtm9CfUnKQ21fakrQQt11d0aGwJYv603+9rTgbQR1wRrF+ABUQYxoAI
+vExzAASxAI6VVbkzGjk2Acvp7U+jo0pCahX85ABdye3oXOIYjauV+GS0MQ7Tnwtj23x22++ZF4rA
+TtePq4TVndoLukYeRmRoZ5Eu9gZ0RmTcnggpSZh9KMv8FAxuwGzQ4j8QWUeViCnYIPOZWbdVHJts
+S1Crn37Bg3olqVpTqZxVcxeyaX9wa6pPDddRWyrKeNZ1Wam8NSWEcIqtiwT60bf1yQVSO2Flif6K
+olQsaETM9V6BeVfHbNY00uYmnY7qtyK2S5eQWcvik4mtGCaDnsv4gFdcMzwIk4hic4oFJI0ZVami
+c+3auExkODCqBLTs2bKqASBZvOUThq2gbV/ZRHI6nA6M1SwQWLSFIZ9bEobxOqDGZotpf3JrHNDy
+dhqa+HwhhhUKfJ+aVzMwkyRyGVg3fUG5swqXFxrh0uJ2o0h36ToyQ5sBuF45omFIbiNs99aQVKmt
+DdXPdkWRS5VWB/BM+mCpXQ9fgI1NybWmrFup7qh1OzFzlhohGRKqBtO53fyv63dQ2ic9ZK+vnvbz
+Pjwfn3//vns67R73x5p7I5BvXhaphDmVNVoR6/ogYTep0K/3o7GlzCugTk1j6UbxyPiIwEKYlsZE
+WHbTQgzBILt5gbdqD29IMBHMrHTh4aaCVQaF+SXUdY6YNtjoXV2DtQu1rS6PQx1/ZM+e0NWPjRd0
+ZdYrzZgyi5pmLA6tZmgMNMTDsXG7FJPDac/sDpDCXlRtvYXVdsy20lorQz74nNjtO5mc89IL812W
+L5Ak4/HA8C8FtgaX4Bnnrnkhn7tnb/98zk5fd9ZmrEG6qq8+YjAsush41TdcXBxLy+GDm+LOSvgS
+Y3dSDmSYEZ+6/EmkaLrZmIoOgviQwDVIR71B3/LqQRfkBan6D95SWb7wQ9d+AtTYG92CdSSRuhuM
+LCBDm7vpdSZ+aK1cl+KQesX6FbsZjLUGcx3mLDIPBlpXrXgt4kBPu3P2dvKE1hmusBT0f647mtHs
+yUfeh/3z19PulD1+dIa0wm/Wp1DpR0D85fX99Zw9WeQaUyePD4/lS8/lUUHruXP+4PBbTkp9YsXf
+2Ad15CqjKIZ/fnk7ew/HkyN8pRE3vzvJm+mSbGcQ1NbBLE5AabfDIboWhETp5g5cy1E3zfbuZjK1
+ST7HWwdzsiqAxXK/7067B12529A1K8NyrFT+rhOHxld05ccgtXYbnX7QgvDJMlEFgqFom+pyWNlA
+mbUb1VUqcD6BcEFppEtqS9bXSlvzw7hk1pIiKzpFxQOWj5w1/Lrm+3aacrU1plsBLzezN7qeRf50
+YSYaQt7cJM6tk9KF81f9RwfYIWYDsyh5gPNPMGdWCTMA+QIuKpcFMwNOwpUNAJ0VEpabayMj93Og
+DeagLbWZoxGeObbpMiOOg/rIZKni2nQwnLMtqXruhTkuPpQA0TTeaBOZS78ZV9NN6IDrxGsTyqSD
+tGhWByJrgOkA3/R7aa0Xx30AcmRUbrHlTX9wpcun//kIemr/8OO1pibSOWKkVgmewyM5Hk/rwJDO
+Fyqy0lgFAmynZlQHYzma9DeN68+Sfm/Zr4O18McOYDm77mWgCNnVwwV06DdAPm3MMp4JVAfOAzM2
+KWGWt1nA8puFcGP/wBHDjcWANofYzK/VJRd88gKuNJFOWTZJBmYmo8CskYC9E3WwrjYJLQ+4nAeH
++CwWMyd8hsKwgVBw5qTB35/dNrYIpADHjRFVImbxXKBgY678nuLeoPE91tVJY+CtghYM62XcTL/e
+6PAS/JzIXe/OaPkoXZxPgLBV+A7oJZY1yFoX6vvxtbJhvTs/fH88fvPw7vRoOX0lnaHRLzBQ3Wu0
+dX8UivB9Ao52uvYNYcnfc8GMLGrgkLL+eDhuQkED9G2oxONBzwZxbCymhJFExM2B6OymV+u8RgER
+NaopqBiFrawLoxvwZdfu19lJb7PRLJw1BbqUquRfV+UtXeJApc0VrSHGv7kJarOvNWopKICk417f
+MYjOD/xZ22/m38A6agsvpzp3Z9CQ/ijNVpAKvPECVHkAawhlIz92fRyoOXAGrpQRwKwEMpLrQhnB
+jK9CQ1GJ4e1kZGViOA8pdg4k42jL6UXcg6Ic6fw9874eji8v73l90uWNpHBaq0sQ2CXBfzbbqR+E
+qvjg8M/ceexdvnZQ3/UPqTy9nIqfG/l7fzh4XzLvy9v+cPZ2r97u8qsmx+fD+7+qMTXTS6LBVHYA
+jgTY0wDkVt4NjUcxlZvwNHAFw7pXLFjux80S6zYDKkjCsPkWaFKAc64/Bmp5ravw4BnAxW1WOS9A
+q/wNMUfjW9yKhVR+Gvi4NjUtqO4HzGK9MwLBbkuaNdBzUZqpe0cAob98rYK4EgaBHQisInc60/6L
+yQxC6RTnv3NwhaO5YSWhUVwBI+OhQaBRbMiKIhsA98BceQlK7R9gMZCSyhqDkNoAmf/aRp1ptKJ+
+y08K5FxUM/ry96fs4eyJ7PkxO+k0Cds9775BCPNhE5yybDrxfHGt+TNSWL6wfiADmvVyoIK9YN7o
+j75RfmZ0iMjauPwAUL5tVTUMzDBz5Qs0TvQHhmrJIcgnps3WsPyAalxzM7AJINhLRy4VWtAMezYn
+Nkd1RnBULg2s83dXf1vXCj5lj/ud69UVjozE9U9rCzW21z+HlAflxsbdJ7Gyytfv9Y8urNzXSNe0
+BrKmNWrYURtaEAo+a3v3Kz7/sZhuklx50ajlRw2Q3zHJApcKd+UzCtq7LjpR+qGuDT0j7V1zXLs+
+nTV6XryWjRoCppL4zzNLK0Cz/WNp0LyB4eUx6cfSgiRN0Oraq3qHaF/W546N1LhBGxKDQXcuWDFu
+LjcnM39tJb6dTHr2jsQh/f9Orq05cR0G/5VO3/e0ECjhoQ8mCTRLbidOKPDC0JZtmdMCA/TM8O/X
+chwSXxTYfYz02ZZt2ZFtSfVHnTkDDaVd7meTkE3TAlwIiPXZAcAxVxD6kT/Fap9M8Zaj7AIP0d2n
+BNMV8a+XdlhvgrdSMEO4LmngY9rFuElGlfb+jaYdvEHBRTqWxmHDKmgrLUE+G6yd3B02sZD2c1zw
+grV4Tv1MD5stvWn4zkvPO2/txtslWMX8dBZ683mMqkKDljDWxBwqAawiUxHyJpzGcQYorLT5WAOM
+hiZdiFPG3GbSxHyJBbYT4uIaDtCuO0kDC34dRVIK6o8ixc9dAfIQPC5EMw7iCxsBMORRk0gx2w0b
+AZQZ44GL5K8SjQRNXB6xYFo/xZZYrKAyV9FxzcOss9NONi0SkmbgRxudU2OYTBX+3zhDpYXJZk0R
+sxQyOLcfMWP//9VNsNy8fzPDsRZZW2HhnZbkQfZ4uz5sbbvb/9G6rfWYASC9W0JGzBqzzNkKJVDv
+KlDPHMQlgeyu+XShgMzWlQK6qrkrBLeRTDwKyBx+poCuEfwB2QVkkPlBTwFdMwRItJcC6l8G9a0r
+aupfM8F9xI1WBnWukMlGohEAxFYu6P7C7BUsVdNqXyM2Q+FKULZ2GYH3vUTgClIiLvcaV40Sgc9m
+icAXT4nAp+g8Hpc707rcGyRAFCDj2LcXSOKEkp2j7DwbSvohkutuDtvPlX6KnoyI/vxVnCipF0hJ
+V0K3gpb3ZPvl1+rHy/evX+y8b/ICH2iS0O335q0WHMgsztq7BP+Ey4pupys5tUoMrsAOTVx/GPMH
+F2a3Zvx10mw7NJTlX/AMkcBzaJShETBKHTwlReClfy2EVkFFwsWR6hpkds9Wh84JZdeNirgY1jyP
+ZbofP1q2/ae80K+7fEmcJIdi1r2J+TOewQlqbC7qhHbPsiUbosblg+VHkLzZ6HitQnlOOWM7NPHI
+GK5I2zJXe4+DXp6pSlVFoIE22rTTtlsq1aMtq3dvpBqwlK2yWKOHxAPTEyFbKn0IXt0q0XeeVBI7
+dPQfJH89TqZx5DsTf1D3kCo4GWQEiDJNDhq5TkBkvyRBK/LAqjEfKgiitsCfz3u8vVsdX+8OsFnc
+fR02b+vN+vjPy3pzq5VJ2KHJXGa32n9JZSoxEz9SpWSki0ICxizjbvN22DEhNRmhiFlEXsQs4jka
+XdHDiq5oYix7g5XTRBwPxEWXihsSbX0Qt2XXgw0qqt3XVGREAjKd6eDAH2hEvmVM6y+n1XqpP+OK
+qqkjvaIU1FGuKSMj8STyKhH8rxTqhG9ZujJrqi/l1xKkJO/caysyCttdbaxC4tYHkH/C3TYEN6si
+JfJyYZ/nDRKdtUSe7AQydcLAGv87wG1SazHa+nQ9e1Yb/OMybb8Yk6cgJyoVLqyH7Fysbwsk1wZ9
+Flp2S5vzOAksSrRBLsgaehYODf+6groIvBFxZupo5+yQ+sBObFpnPZcmktI7D+AAfpK/YWo0muOm
+cVhlBahTB4R6taegohE21hD0cVLJQsEUibNJuWZUS8Jt9bEAxmI+wn5PDvrk9hc4VRgsNcXXojDV
+RFwcJH0C/vvy7X11PCjFFiNwPc200oPP79Vxuz1+mJobBLk314qMwa/+8+Zj+fpfkZJLoIu49DEE
+cwXyjSbQaUacMeSpgWRhyOUl4JqyqIuaAoKk6uBsP574qfHXQCCglM6o7BonKjVk7a8M5JSE3iKJ
++d2foeYgBv+qocjYL16Nnf1pd9y+75e7j/WrnpPVSWeJnIikoCyesEA2wY/ywBxQKfihaz7WnNnm
+I41gM9PY9E5WcWEn1YVmjG7LfMAUCBdJkSHYAx7aQM0R5wKTPceXIOB8pXjYqBDSLAhknm0cIRGL
+0CioR/WVFqxf9sv96Wa//T6uN/INnpM6xoi6OftDw3MaD344SdQqJOI35XjAogNmAAA=
 
-diff -Nru a/Documentation/i386/zero-page.txt b/Documentation/i386/zero-page.txt
---- a/Documentation/i386/zero-page.txt	Fri Oct 10 09:01:41 2003
-+++ b/Documentation/i386/zero-page.txt	Fri Oct 10 09:01:41 2003
-@@ -66,8 +66,10 @@
- 0x21c	unsigned long	INITRD_SIZE, size in bytes of ramdisk image
- 0x220	4 bytes		(setup.S)
- 0x224	unsigned short	setup.S heap end pointer
-+0x228	4 bytes		DISK80_SIG_BUFFER (setup.S)
- 0x2d0 - 0x600		E820MAP
--0x600 - 0x7D4		EDDBUF (setup.S)
-+0x600 - 0x800		EDDBUF (setup.S) for disk signature read sector
-+0x600 - 0x7d4		EDDBUF (setup.S)
- 
- 0x800	string, 2K max	COMMAND_LINE, the kernel commandline as
- 			copied using CL_OFFSET.
-diff -Nru a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
---- a/arch/i386/boot/setup.S	Fri Oct 10 09:01:41 2003
-+++ b/arch/i386/boot/setup.S	Fri Oct 10 09:01:41 2003
-@@ -49,6 +49,8 @@
-  * by Matt Domsch <Matt_Domsch@dell.com> October 2002
-  * conformant to T13 Committee www.t13.org
-  *   projects 1572D, 1484D, 1386D, 1226DT
-+ * disk signature read by Matt Domsch <Matt_Domsch@dell.com>
-+ *	and Andrew Wilks <Andrew_Wilks@dell.com> September 2003
-  */
- 
- #include <linux/config.h>
-@@ -549,6 +551,25 @@
- #endif
- 
- #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
-+# Read the first sector of device 80h and store the 4-byte signature
-+	movl	$0xFFFFFFFF, %eax
-+	movl	%eax, (DISK80_SIG_BUFFER)	# assume failure
-+	movb	$READ_SECTORS, %ah
-+	movb	$1, %al				# read 1 sector
-+	movb	$0x80, %dl			# from device 80
-+	movb	$0, %dh				# at head 0
-+	movw	$1, %cx				# cylinder 0, sector 0
-+	pushw	%es
-+	pushw	%ds
-+	popw	%es
-+	movw	$EDDBUF, %bx
-+	int	$0x13
-+	jc	disk_sig_done
-+	movl	(EDDBUF+MBR_SIG_OFFSET), %eax
-+	movl	%eax, (DISK80_SIG_BUFFER)	# store success
-+disk_sig_done:
-+	popw	%es
-+
- # Do the BIOS Enhanced Disk Drive calls
- # This consists of two calls:
- #    int 13h ah=41h "Check Extensions Present"
-diff -Nru a/arch/i386/kernel/edd.c b/arch/i386/kernel/edd.c
---- a/arch/i386/kernel/edd.c	Fri Oct 10 09:01:41 2003
-+++ b/arch/i386/kernel/edd.c	Fri Oct 10 09:01:41 2003
-@@ -1,7 +1,8 @@
- /*
-  * linux/arch/i386/kernel/edd.c
-- *  Copyright (C) 2002 Dell Computer Corporation
-+ *  Copyright (C) 2002, 2003 Dell, Inc.
-  *  by Matt Domsch <Matt_Domsch@dell.com>
-+ *  disk80 signature by Matt Domsch, Andrew Wilks, and Sandeep K. Shandilya
-  *
-  * BIOS Enhanced Disk Drive Services (EDD)
-  * conformant to T13 Committee www.t13.org
-@@ -27,7 +28,6 @@
- /*
-  * TODO:
-  * - move edd.[ch] to better locations if/when one is decided
-- * - keep current with 2.5 EDD code changes
-  */
- 
- #include <linux/module.h>
-@@ -333,6 +333,18 @@
- }
- 
- static int
-+edd_show_disk80_sig(char *page, char **start, off_t off, int count, int *eof, void *data)
-+{
-+	char *p = page;
-+	if ( !page || off) {
-+		return proc_calc_metrics(page, start, off, count, eof, 0);
-+	}
-+
-+	p += snprintf(p, left, "0x%08x\n", edd_disk80_sig);
-+	return proc_calc_metrics(page, start, off, count, eof, (p - page));
-+}
-+
-+static int
- edd_show_extensions(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
- 	struct edd_info *info = data;
-@@ -491,6 +503,15 @@
- 	return 1;
- }
- 
-+static int
-+edd_has_disk80_sig(struct edd_device *edev)
-+{
-+	struct edd_info *info = edd_dev_get_info(edev);
-+	if (!edev || !info)
-+		return 0;
-+	return info->device == 0x80;
-+}
-+
- static EDD_DEVICE_ATTR(raw_data, edd_show_raw_data, NULL);
- static EDD_DEVICE_ATTR(version, edd_show_version, NULL);
- static EDD_DEVICE_ATTR(extensions, edd_show_extensions, NULL);
-@@ -505,6 +526,7 @@
- 		       edd_has_default_sectors_per_track);
- static EDD_DEVICE_ATTR(interface, edd_show_interface,edd_has_edd30);
- static EDD_DEVICE_ATTR(host_bus, edd_show_host_bus, edd_has_edd30);
-+static EDD_DEVICE_ATTR(mbr_signature, edd_show_disk80_sig, edd_has_disk80_sig);
- 
- static struct edd_attribute *def_attrs[] = {
- 	&edd_attr_raw_data,
-@@ -517,6 +539,7 @@
- 	&edd_attr_default_sectors_per_track,
- 	&edd_attr_interface,
- 	&edd_attr_host_bus,
-+	&edd_attr_mbr_signature,
- 	NULL,
- };
- 
-diff -Nru a/arch/i386/kernel/i386_ksyms.c b/arch/i386/kernel/i386_ksyms.c
---- a/arch/i386/kernel/i386_ksyms.c	Fri Oct 10 09:01:41 2003
-+++ b/arch/i386/kernel/i386_ksyms.c	Fri Oct 10 09:01:41 2003
-@@ -185,4 +185,5 @@
- #ifdef CONFIG_EDD_MODULE
- EXPORT_SYMBOL(edd);
- EXPORT_SYMBOL(eddnr);
-+EXPORT_SYMBOL(edd_disk80_sig);
- #endif
-diff -Nru a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
---- a/arch/i386/kernel/setup.c	Fri Oct 10 09:01:41 2003
-+++ b/arch/i386/kernel/setup.c	Fri Oct 10 09:01:41 2003
-@@ -212,6 +212,7 @@
- #define KERNEL_START (*(unsigned long *) (PARAM+0x214))
- #define INITRD_START (*(unsigned long *) (PARAM+0x218))
- #define INITRD_SIZE (*(unsigned long *) (PARAM+0x21c))
-+#define DISK80_SIGNATURE_BUFFER (*(unsigned int*) (PARAM+DISKSIG_BUFFER))
- #define EDD_NR     (*(unsigned char *) (PARAM+EDDNR))
- #define EDD_BUF     ((struct edd_info *) (PARAM+EDDBUF))
- #define COMMAND_LINE ((char *) (PARAM+2048))
-@@ -721,6 +722,7 @@
- #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
- unsigned char eddnr;
- struct edd_info edd[EDDMAXNR];
-+unsigned int edd_disk80_sig;
- /**
-  * copy_edd() - Copy the BIOS EDD information
-  *              from empty_zero_page into a safe place.
-@@ -730,6 +732,7 @@
- {
-      eddnr = EDD_NR;
-      memcpy(edd, EDD_BUF, sizeof(edd));
-+     edd_disk80_sig = DISK80_SIGNATURE_BUFFER;
- }
- #else
- static inline void copy_edd(void) {}
-diff -Nru a/include/asm-i386/edd.h b/include/asm-i386/edd.h
---- a/include/asm-i386/edd.h	Fri Oct 10 09:01:41 2003
-+++ b/include/asm-i386/edd.h	Fri Oct 10 09:01:41 2003
-@@ -1,6 +1,6 @@
- /*
-  * linux/include/asm-i386/edd.h
-- *  Copyright (C) 2002 Dell Computer Corporation
-+ *  Copyright (C) 2002, 2003 Dell, Inc.
-  *  by Matt Domsch <Matt_Domsch@dell.com>
-  *
-  * structures and definitions for the int 13h, ax={41,48}h
-@@ -41,6 +41,10 @@
- #define EDDMAGIC1 0x55AA
- #define EDDMAGIC2 0xAA55
- 
-+#define READ_SECTORS 0x02
-+#define MBR_SIG_OFFSET 0x1B8
-+#define DISK80_SIG_BUFFER 0x228
-+
- #ifndef __ASSEMBLY__
- 
- #define EDD_EXT_FIXED_DISK_ACCESS           (1 << 0)
-@@ -167,6 +171,7 @@
- 
- extern struct edd_info edd[EDDMAXNR];
- extern unsigned char eddnr;
-+extern unsigned int edd_disk80_sig;
- #endif				/*!__ASSEMBLY__ */
- 
- #endif				/* _ASM_I386_EDD_H */
+--=-Wzs8mn1iLZQXWiOIA1EN--
 
-===================================================================
+--=-ESC2MkYVKZoTkzleCIwl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-This BitKeeper patch contains the following changesets:
-1.1182
-## Wrapped with gzip_uu ##
+iQCVAwUAP4a+oB/0GZs/Z0FlAQJvCgP+PGsjkMHV6V8nt8GYLyIXmNxTBuaE6goJ
+5RvaxqVyJcdjzlQpNobi8vOpiXm8RFV6lcsTFAUUi5LeUXJN6ePNdVkgUwRT1BtD
+YZoXqVtZRfgUS3E+aFiNkTJGYWIWlPpq/0xBJIjOvUDpP9bLKTflhvkl2rsR/WR9
+w4Hkh/S6Osg=
+=MoeZ
+-----END PGP SIGNATURE-----
 
-
-M'XL( ,6[AC\  [U9^7?:2!+^&?T5E7AF%QP.M6Z<<5YL@V=Y2<9^QMGC)7F\
-M1FHLC76P:H$AR_[O6]T2(+ 3;!(OMHF.ZCJ^_KJZJG, 'SE+CRH?:)8-.DG$
-M75\Y@+\E/#NJ>"P,FVX2X8.K),$'+3^)6"ORI%AK>-MBGM<*@W@R:VA-HX%W
-M#2_@MSRX47#,)<U<'Z8LY4<5TM173[+YF!U5KKJ_?WQ_<J4HQ\=PYM/XAO59
-M!L?'2I:D4QIZ_"W-_#")FUE*8QZQC I7%BO1A::J&OZ8Q-95TUH02S7LA4L\
-M0JA!F*=JAF,92D13EX7)VS"Y27C3C7'@A@J=J&I;(X9*S(5!+*(K'2!-0AP-
-M5+U%5/P%U3DRU2-=:ZCFD:I"":JW2X@^%:!\@5<6-%3E%'YN&&>*"]U.YPA2
-M1CT0(#OHR.D5(-8QS28IJP.;C9,T@\Q/D\F-#S@;$"7>)&0X%G^O?98RH/AG
-MP'">,0Y!C,(,/O0[%WV(*,]8"D.<:#3B)JE7!YI!,AIQG!=UIFE.';7<^0%.
-M843GX"9Q1E$%A3%+&WR.PZ/&) [^/6%KKYH IW.X2X,LB&_08):@R8"CHI4(
-MC-(D0BU9DH3X$FU&]!:]PTC#!@; Q#"B@TO#D*-<;F)# Y^@3Y3#R].+B^N7
-M,$I2&9B,16 %U5R%QZ;@J'ZM#N\%:448J =%8[26I0&;,ND>6D0=$<V"!..+
-M/9AP] *A33#J:"PPI#<8.\_5HWR&>F[CY(X+-V(:,0]::*WUR>=?O$^T\?5+
-M<SD+0CT7&D>3<#D%+D4#=W*"Q.UI#R<$A6+T'V==;ZK2;AC0.*M+CR<<O(3Q
-M^*\9C--D&GCYP,NS'@PG7)H>Y:[W.MU6_ZS?@S!Q\X"2D9!%-2M\ZC#'.9XG
-M$X@9>HYABEB*N98 HC,;B):C&<M5O00P%]R:7?$HUQ,#TFDR;O:E<QQ7"1-L
-M0' EE?B8N@QU84Z:HB<%/"P:9_/!5Y8F@S&]0:J[R3@0!,Z 8T:2P E"T!%;
-M6W#KTD2^*J3L-* HU4+ W-8P2+A,7Y(9@WQ%M:)A.EB[CJI0HNDBB<\D#SD:
-MQGS&/%0SB3U<+F<7?YSW?A_@)!U_FD<XR>_ P!7;5B[724UI//&C*"I5E3<[
-M4@@F-K\5Z([5$K/2*F MY1,#_UD08IG&PE(]APRIIMD.LT?:Z/LY[#NJ,5WB
-MCVZJ6GNAHFH-W7RLKEN6QBQL24BE+DR\.FF;FD$6FJ.99&&H>MOV+,VB]I!9
-MKK6_ZK*;MF-:3T"ST"6N![=\'O%<Y1I4LC!MQW(6CCT:N4.'ZM0T]:&F/]7;
-M;0MEIRW#MIVG.UTP?]M?PT;="TI4W%%L@XR(ZVJV^51_2\HW\%5U0]_I:B=Q
-M)Q'#'4.DH%RM6,\-L9Z;V2S;<%FW%Z:AZV3A#-4V<X9M7?-<@AOA#I<?8Z3L
-MNM$FCV!P$+OAQ&,MRJ.&U"EHYF\R6%L0M:V2A6T9%M/(B'J4&,3;M="^H[KL
-MIJ,;ABR4'F:\J)J>;Q'^!-4:WNJ(M"BM9%VEMEO$!*)A.75D.H^KJS03&MKS
-M%59%]60T1&VT65J)C>,;VP:;;N\:RCE@.>F8-L&]0*:>"VBD=_(74_OE-^9P
-MCTVBHP-1>N(+#L4.-9ZGP8V?0?6L!B+XNOC6H8-0UJ$7NTVE9Q3"10&YCG X
-ME_!##G\=3F(O97?PCR"\Y?D^VL<OQL;PK@E]Q-@+PCE%%U3I@RXF4\% !MQ/
-M[HK=5&!2=7V:PF&Q:\OK0Y[1-*N+RG(@Z\NZ*/!P9YU@<2,O#UF"#Z=)X,&A
-M1S-:4_ZC5 I%< Q"V6NE$HR@"B_$#2P60D\-4*R"=<@DC455Y ZP9'0'D2A,
-M7%[-?5@;KR]-2FMJ#57^5_FL5,;PZAAX/$[1E5%U7(>0C5#JI3K[575FG^.7
-M=5$5E&(4(_>T6AU#0\930R7".A>YRQ4HX&2U=6B7GPBS/N5E>'F63MPL=XA-
-M ZR=#AE>2,1*[T0]"X?R^W@I/+AAF7Q1E2,*1%^(&P'H"_&JM@9474<IWC3>
-M%/8P*ZDS1\W=[YFJC80H?,9U->AT_]X[ZPY.KJ^OJAOK)$=QBR[YP\T8T;.>
-M2=JHMO(7\19IF@XV5<G<^' NW9T;?R2]_P35^D)OMVWCQW(C]ISD^5*CQT9!
-MC.6VZ*M$_UFT<GE#)3B /=5FQMQ(@OGVM94%'X;F_Y0%=3"4@SPJN.J>= ;]
-M[MGUQ54?F:QJJS<8T:"/Q?W%^7F_>XWOR*FS>MGI]=\A/\7[TX_GY]VKO$46
-M:X!8@JQLANUTC&V" $6V,ME6WG@M:;NK9ME])/)S2JL=5'Y4:55:+P8N&%.2
-M6M^7U/JSDKKH,5>'(<M#@Z<06Y:/6\3>!=0>%.]9#A)*\JM2N%NIW"=@M>C3
-M:DK'EMLR?FLXS$*H&S))JY4*QH[B:UD9MVS-U\6 /&/BS$7D2\-MS[@_?*LJ
-M+;>+NXG[(QWLHZO2>QWL1E5*2$Y2LC=+-?+,YWW%N=2#A:F8O&W";E!4MNC?
-M+$#+V.S#2Y,@P3#M/L2?S8H2?GL(QC<XN"**RW*Y";_E=P-YMY:%/AMG+!JR
-M5&9TM([F25L<3@M[8NV.@I1G!7/%,5=I%:].FZ1@ >9Z65>B9!I6?E%GY\6G
-M#K\R.BN>BTLLUNXMN5KE "CGN-YA1(-PJ6A8^:6\JZ JZB]?$'$75O!SD.-$
-MEBNM$!#K%&6\4(K(T[-5&"L9(>#G2F@&OM"3O[S++;BS_*4[#P-Y3H4C"EA0
-M;CSA_AT&Q5>7GKA,QL7#7$^^U%'9$&% D@G7B*Y4_G0K8K[%#C;PDGB)7367
-M?[6Y:]8>C6,^.7SBNHQS9</"4<FYSP_WP>6SE*<DGKT/>Y[:%=\[["FE(4O3
-M="LO )U]T]#S9J&B.=ZL7\2I>I %- R^YD>UQ0%1;2,#Y2=9NWK@,CS[9"+B
-MB+ZC^\_+BZOK0?]?'TXOWE?O=6D/,J=P>@_2/.FP[4&^[#ICPS]#DQPTM*)%
-ML*T?**>>D2$N%M[;_)#):^OL?H,;XN!P%S,*1/8A!1I"4MROV/\XN?YXU5V5
-M38?5<I%^6(/JY<G5R8=78D I1]6PH-)$G_'=DKYGZYKH1<1G"X[C;[GP>OV_
-8I:[/W%O<4(ZIY^B,.9KR/_S>8GZA'0  
+--=-ESC2MkYVKZoTkzleCIwl--
 

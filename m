@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbULUNbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbULUNdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbULUNbY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 08:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbULUNbY
+	id S261757AbULUNdL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 08:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbULUNdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 08:31:24 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:60653 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261756AbULUNbQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 08:31:16 -0500
-Message-ID: <41C82587.6030705@tiscali.de>
-Date: Tue, 21 Dec 2004 14:30:47 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Cyrix 6x86 Comma Bug 2.6
-References: <41C41A04.8030009@tiscali.de>	 <200412210026.17426.vda@port.imtp.ilyichevsk.odessa.ua> <1103588598.32550.1.camel@localhost.localdomain>
-In-Reply-To: <1103588598.32550.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 08:33:11 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:23431 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261757AbULUNdF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 08:33:05 -0500
+Date: Tue, 21 Dec 2004 14:32:13 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Loic Domaigne <loic-dev@gmx.net>
+Cc: Nick Piggin <piggin@cyberone.com.au>, nptl@bullopensource.org,
+       Linux-Kernel@Vger.Kernel.ORG
+Subject: Re: OSDL Bug 3770
+Message-ID: <20041221133213.GA16238@elte.hu>
+References: <41C8047E.1030403@cyberone.com.au> <25289.1103630797@www66.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <25289.1103630797@www66.gmx.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
->On Llu, 2004-12-20 at 22:26, Denis Vlasenko wrote:
->  
->
->>It is very unlikely that you see "Coma" bug. It can be triggered only
->>by deliberately coded tight endless loop. "Ugly tokens on the screen"
->>suggest that you see something else.
->>    
->>
->
->Presumably those tokens included "Oops" somewhere near the top and
->function names. The Cyrix stuff is notoriously hard to keep cool so that
->may be a good thing to check, as well as running memtest86+ to check the
->RAM.
->
->Also some very early stepping 6x86 Cyrixes simply don't run Linux
->reliably and it seemed to be cache problems in the CPU.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi!
-The problem wasn't the comma bug, one of the pci slots is broken. But 
-thanks for your interest.
+* Loic Domaigne <loic-dev@gmx.net> wrote:
 
-Sincerely
-Matthias-Christian Ott
+> > Yes, it does support hard CPU binding - sched_setaffinity
+> 
+> Yes, I believe that /sched_setaffinity()/ offers a practical solution
+> to the problem we are faced. 
+
+that's the short-term workaround. Another model for CPU-bound RT tasks
+is the use of isolcpus. (see Documentation/kernel-parameters.txt)
+
+but that's the thinking behind current RT scheduling: no global sorting
+of priorities is done on SMP, but if you know the priorities and the
+workload in advance you can manually bind them to specific CPUs.
+
+> But I am eager to try the RT-patchset of Ingo. 
+
+this is obviously more experimental stuff, and feedback is welcome. It
+is the current 'playground' for RT related scheduling features.
+
+	Ingo

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261352AbSJCVhS>; Thu, 3 Oct 2002 17:37:18 -0400
+	id <S261323AbSJCVtI>; Thu, 3 Oct 2002 17:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261350AbSJCVhD>; Thu, 3 Oct 2002 17:37:03 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:17165 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261352AbSJCVgZ>;
-	Thu, 3 Oct 2002 17:36:25 -0400
-Date: Thu, 3 Oct 2002 14:39:08 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: [BK PATCH] minor devfs cleanup for 2.5.40
-Message-ID: <20021003213908.GB1388@kroah.com>
+	id <S261335AbSJCVtI>; Thu, 3 Oct 2002 17:49:08 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:28147 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261323AbSJCVtI>; Thu, 3 Oct 2002 17:49:08 -0400
+Subject: Re: export of sys_call_table
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: bidulock@openss7.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021003153943.E22418@openss7.org>
+References: <20021003153943.E22418@openss7.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Oct 2002 23:02:40 +0100
+Message-Id: <1033682560.28850.32.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2002-10-03 at 22:39, Brian F. G. Bidulock wrote:
+> I see that RH, in their infinite wisdom, have seen fit to remove
+> the export of sys_call_table in 8.0 kernels breaking any loadable
+> modules that wish to implement non-implemented system calls such
+> as LiS's or iBCS implementation of putmsg/getmsg.
 
-Here's a changeset from Christoph Hellwig that removes some unneeded
-code from the kernel core.  This was leftover from before devfs became
-part of the main kernel tree, and was trying to do some naming fixups in
-kernelspace.  If anyone still has machines using these names, their
-startup scripts should be modified to use the "standard" devfs names.
+Overwriting syscall table entries is not safe. Its not safe because
+there is no locking mechanism, and its not safe because of the pentium
+III errata.
 
-Please pull from:  http://linuxusb.bkbits.net/devfs-2.5
+> Until now, loadable modules have been able to just overwrite
+> the non implemented point in the sys_call_table when they load
+> and putting it back when they unload.  There is no mechanism
+> for registering system calls.
 
-thanks,
+Not actually safely implementable. The right way to do this is a
+relevant 2.5 question. In general however you shouldnt need to register
+syscalls because the upper layer interfaces already exist (the LiS stuff
+is an example otherwise I grant). 
 
-greg k-h
-
- init/do_mounts.c |   58 -------------------------------------------------------
- 1 files changed, 58 deletions(-)
------
-
-ChangeSet@1.683, 2002-10-03 13:58:19-07:00, hch@sgi.com
-  [PATCH] Remove some more devfs crap
-  
-  Translation code for old devfs names that _never_ were in mainline
-  for root=.
-
- init/do_mounts.c |   58 -------------------------------------------------------
- 1 files changed, 58 deletions(-)
-------
+Alan
 

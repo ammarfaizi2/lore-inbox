@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269741AbUJMOhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269727AbUJMOkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269741AbUJMOhC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 10:37:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269742AbUJMOeG
+	id S269727AbUJMOkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 10:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269730AbUJMOkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 10:34:06 -0400
-Received: from zamok.crans.org ([138.231.136.6]:53682 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S269727AbUJMOdO convert rfc822-to-8bit
+	Wed, 13 Oct 2004 10:40:21 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:57295 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S269727AbUJMOkQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 10:33:14 -0400
-To: "Harald Dunkel" <harald.dunkel@t-online.de>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: udev: what's up with old /dev ?
-References: <1097446129l.5815l.0l@werewolf.able.es>
-	<20041012001901.GA23831@kroah.com> <416B91C4.7050905@t-online.de>
-	<20041012165809.GA11635@kroah.com> <416C26B4.6040408@t-online.de>
-	<20041012185733.GA31222@kroah.com> <416C3BB6.4040200@t-online.de>
-	<20041012203022.GB32139@kroah.com> <416C4E15.9000503@t-online.de>
-	<87vfde3gvs.fsf@barad-dur.crans.org> <416D380E.4080202@t-online.de>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Wed, 13 Oct 2004 16:33:12 +0200
-In-Reply-To: <416D380E.4080202@t-online.de> (Harald Dunkel's message of "Wed,
-	13 Oct 2004 16:13:34 +0200")
-Message-ID: <87fz4i3cyf.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Wed, 13 Oct 2004 10:40:16 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Stefan Seyfried <seife@suse.de>
+Subject: Re: Totally broken PCI PM calls
+Date: Wed, 13 Oct 2004 06:34:29 -0700
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1097455528.25489.9.camel@gaston> <200410121128.33861.david-b@pacbell.net> <416C3E85.3060801@suse.de>
+In-Reply-To: <416C3E85.3060801@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200410130634.29930.david-b@pacbell.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Harald Dunkel" <harald.dunkel@t-online.de> disait dernièrement que :
+On Tuesday 12 October 2004 1:28 pm, Stefan Seyfried wrote:
+> David Brownell wrote:
+> 
+> > This is with /sys/power/disk set up for "shutdown";
+> > the system didn't actually shut down, it restarted
+> > the CPU right after snapshotting.
+> > 
+> > ...
+> 
+> you have a swap partition?
+> swap enabled?
 
->
-> And then?
->
-> The sources of kinit show that its job is parse the kernel
-> command line arguments, configure the NIC, mount the root
-> filesystem via NFS, etc. Other configurations might require
-> a different init to start hotplug and udev, or to handle the
-> LVM and crypto magic, for example. My point is that if there
-> is no one-for-all init process to handle _every_ possible
-> startup procedure, then it might be necessary to rebuild the
-> initramfs. This would be easier (and easier to test) if
-> initramfs is not compiled into the kernel, but a separate
-> image to be loaded at boot time "somehow".
->
-
-yep to test it would be helpful. To setup mine, it took not long, but sure
-such a facility could help. But you know, if you do not run make clean, and you
-have edited usr/Makefile to not rebuild initramfs, puting your custom cpio
-archive into usr and typing 'make' won't take long to rebuild the new kernel :)
-I did that to get it working.
-
-As to know if having an external archive file loaded by grub or so, I don't
-know much that part of the kernel code... Hum, I really did not try to under-
-stand the code involving initrd's and initramfs in init/do_mounts_initrd.c.
-I wonder whether putting an executable /init in an initrd is sufficient to
-have it recognized as an initramfs and not an initrd....
-
-The important thing is /init executable script in initramfs, this is what
-tells the kernel to override the "standard" way it boots.
-
-Mathieu
-
--- 
-The policy is not to have policy. It works as well in kernel design as politics.
-
-	- Alan Cox on linux-kernel
-
+Yes.  "echo suspend > /sys/power/state" works though;
+it's only STD that stopped behaving on that system.
+Probably OT for this thread though. 

@@ -1,86 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131148AbQK3UGL>; Thu, 30 Nov 2000 15:06:11 -0500
+        id <S131149AbQK3UGM>; Thu, 30 Nov 2000 15:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131149AbQK3UGB>; Thu, 30 Nov 2000 15:06:01 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24375 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S131156AbQK3UFt>; Thu, 30 Nov 2000 15:05:49 -0500
-Date: Thu, 30 Nov 2000 20:35:11 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre24
-Message-ID: <20001130203511.A18804@athlon.random>
-In-Reply-To: <E140wh7-0005Na-00@the-village.bc.nu> <20001129150159.Y872@opus.bloom.county> <20001130181740.A18566@athlon.random> <20001130112643.A16256@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001130112643.A16256@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Nov 30, 2000 at 11:26:43AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+        id <S131143AbQK3UGA>; Thu, 30 Nov 2000 15:06:00 -0500
+Received: from main.cyclades.com ([209.128.87.2]:26642 "EHLO cyclades.com")
+        by vger.kernel.org with ESMTP id <S131145AbQK3Tqz>;
+        Thu, 30 Nov 2000 14:46:55 -0500
+Date: Thu, 30 Nov 2000 11:16:52 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [RFC] Configuring synchronous interfaces in Linux
+Message-ID: <Pine.LNX.4.10.10011301103320.4692-100000@main.cyclades.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 11:26:43AM -0700, Tom Rini wrote:
-> Right.  But the problem here was a new, unused sysctl-by-number, conflicted
-> with an old-but-not-integrated sysctl-by-number that is used. :)  The only
 
-Who is using it? Not even the raid developers cared to take the
-sysctl-by-number consistent between 2.4.0-test12-pre2 and 2.2.x raid 0.90
-so nobody should be using it in first place.
+Hello,
 
-Furthmore since the number 4 is the official one for raid/md, DEV_MAC_HID=3
-isn't really colliding with the raid sysctl, but DEV_MAC_HID=3 is still wrong
-because is it should be =5 to be consistent with 2.4.x...
+For synchronous network interfaces, besides configuring network parameters
+such as IP address, netmask, MTU, etc., the system should also configure
+parameters specific to these sync i/f's, such as media (e.g V.35, X.21,
+T1, E1), clock (internal or external, and value if int.), protocol (e.g
+PPP, HDLC, Frame Relay), etc.
 
-2.2.x RAID 0.90:
+What I noticed was that each synchronous board in Linux provides a
+different way of doing this, and it would be good for users to have a
+single, standard interface (such as ifconfig) to do this type of
+configuration. Maybe even patch ifconfig itself, I don't know ...
 
- enum {
- 	DEV_CDROM=1,
--	DEV_HWMON=2
-+	DEV_HWMON=2,
-+	DEV_MD=3
- };
-[..]
-+/* /proc/sys/dev/md */
-+enum {
-+	DEV_MD_SPEED_LIMIT=1
- };
+Questions:
+- Is there any existing _standard_ interface to do that??
+- If not, is there any existing _standard_ infrastructure (e.g. ioctls and
+  structures) so that I can write an application to do that over this 
+  standard structure?
+- If not, where would be the right place in the kernel to change in order 
+  to implement such infrastructure?
 
+I'm interested in implementing this, but I don't want to reinvent the
+wheel (if such wheel exists ...).
 
-2.2.18pre24:
+Thanks in advance for your comments.
 
-enum {
-	DEV_CDROM=1,
-	DEV_HWMON=2,
-	DEV_MAC_HID=3
-};
+Later,
+Ivan
 
-2.4.0-test12-pre2:
-
-enum {
-	DEV_CDROM=1,
-	DEV_HWMON=2,
-	DEV_PARPORT=3,
-	DEV_RAID=4,
-	DEV_MAC_HID=5
-};
-[..]
-/* /proc/sys/dev/raid */
-enum {
-	DEV_RAID_SPEED_LIMIT_MIN=1,
-	DEV_RAID_SPEED_LIMIT_MAX=2
-};
-
-As we can clearly see nobody cares about the sysctl-by-number interface because
-it generates collisions too easily so it should be declared obsolete and nobody
-should use it anymore. sysctl-by-name is less performant but it doesn't
-generate binary-level collisions so easily and in turn it's a big win for open
-source projects where everybody has some tons of unofficial patches applied
-(raid 0.90 in this case).
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,157 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVA1MOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVA1NA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVA1MOz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 07:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVA1MOz
+	id S261319AbVA1NA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 08:00:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVA1NA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 07:14:55 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:43240 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261297AbVA1MOs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 07:14:48 -0500
-Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based
-	crashdumps.
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
-       Hariprasad Nellitheertha <hari@in.ibm.com>,
-       suparna bhattacharya <suparna@in.ibm.com>
-In-Reply-To: <m1zmyueh4c.fsf@ebiederm.dsl.xmission.com>
-References: <overview-11061198973484@ebiederm.dsl.xmission.com>
-	 <1106294155.26219.26.camel@2fwv946.in.ibm.com>
-	 <m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
-	 <1106305073.26219.46.camel@2fwv946.in.ibm.com>
-	 <m17jm72fy1.fsf@ebiederm.dsl.xmission.com>
-	 <1106475280.26219.125.camel@2fwv946.in.ibm.com>
-	 <m18y6gf6mj.fsf@ebiederm.dsl.xmission.com>
-	 <1106833527.15652.146.camel@2fwv946.in.ibm.com>
-	 <m1zmyueh4c.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1106917583.15652.234.camel@2fwv946.in.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 Jan 2005 18:36:23 +0530
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Jan 2005 08:00:59 -0500
+Received: from pop.gmx.de ([213.165.64.20]:51376 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261319AbVA1NAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 08:00:38 -0500
+Date: Fri, 28 Jan 2005 14:00:37 +0100 (MET)
+From: "Wilfried Weissmann" <wweissmann@gmx.at>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       davem@davemloft.net, 282492@bugs.debian.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="========GMXBoundary249391106917237"
+Subject: multiple neighbour cache tables for AF_INET
+X-Priority: 3 (Normal)
+X-Authenticated: #7370606
+Message-ID: <24939.1106917237@www31.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
+This is a MIME encapsulated multipart message -
+please use a MIME-compliant e-mail program to open it.
 
+Dies ist eine mehrteilige Nachricht im MIME-Format -
+bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
 
-However for the primary kernel it has no need to know that we
-> even have a backup region, nor does it need to know about the
-> size of the backup region.  That can all be handled with the single
-> reservation, we have now.  
-> 
-> /sbin/kexec which makes the backup needs to know about it and it needs
-> to pass that information on.  But the primary kernel does not. 
+--========GMXBoundary249391106917237
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
+Hi,
 
-Agreed. Primary kernel need not to be aware of backup region and 
-reservation of this region can be better managed from user space.
+The kernels 2.4.28+ and 2.6.9+ with IPv4 and ATM-CLIP enabled have bugs in
+the neighbour cache code. neigh_delete() and neigh_add() only work properly
+if one cache table per address family exist. After ATM-CLIP installed a
+second cache table for AF_INET, neigh_delete() and neigh_add() only examine
+the first table (the ATM-CLIP table if IPv4 and ATM-CLIP are compiled into
+the kernel). neigh_dump_info() is also affected if the neigh_dump_table()
+call fails.
 
+This bug causes "ip neigh flush dev <some ethernet device>" to run into an
+infinite loop when the arp cache is already populated (debian bug #282492).
+"ip neigh delete ..." commands for non ATM-CLIP entries fail with an EINVAL.
+This is because of the IPv4 neighbour table that is installed in arp.c is
+never examined when sending delete commands.
 
-> > Boot time parameter crashbackup=A@B has been provided to pass this
-> > information to capture kernel. This parameter is valid only for capture
-> > kernel and becomes effective only if CONFIG_CRASH_DUMP is enabled.
-> 
-> But that is not what you implemented.  crashbackup= was an alternative
-> to the carving out of 640K in parts 1-3.
+I have attached a minimally tested patch for 2.4.28 that fixes this problem.
 
+Greetings,
+Wilfried
 
-Not really. crashbackup= is not being used for carving out backup
-region. It is just used for passing the address of this region to second
-kernel. That's why it has been put under CONFIG_CRASH_DUMP.
+-- 
+10 GB Mailbox, 100 FreeSMS http://www.gmx.net/de/go/topmail
++++ GMX - die erste Adresse für Mail, Message, More +++
+--========GMXBoundary249391106917237
+Content-Type: text/x-diff; name="neighbour.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="neighbour.patch"
 
-
-> > > What is wrong with user space doing all of the extra space
-> > > reservation?
-> > 
-> > Just for clarity, are you suggesting kexec-tools creating an additional
-> > segment for the backup region and pass the information to kernel.
-> 
-> Yes, having kexec create a bss segment for the backup region would
-> be a good idea.  It will keep us from stomping on the kernel trampoline
-> (think the identity mapped x86_64 page tables here) by accident.
->  
-> > There is no problem in doing reservation from user space except
-> > one. How does the user and in-turn capture kernel come to know the
-> > location of backup region, assuming that the user is going to provide
-> > the exactmap for capture kernel to boot into.
-> >
-> > Just a thought, is it  a good idea for kexec-tools to be creating and
-> > passing memmap parameters doing appropriate adjustment for backup
-> > region.
-> 
-> Exactly.  Having /sbin/kexec do this instead of the user doing this
-> manually is a much simpler solution than we have now.
-> 
-> > I had another question. How is the starting location of elf headers 
-> > communicated to capture tool? Is parameter segment a good idea? or 
-> > some hardcoding? 
-> 
-> I recognize the need for that information.  But I do not recognize
-> the need for it to be an ELF header (we do need something
-> conceptually close).  If we don't have regions of the memory map
-> appearing and disappearing dynamically we can get this information
-> from /proc/iomem, before the crash and store it in one of the data
-> segments that we checksum.
->  
-
-
-This looks good. So memory regions are parsed from /proc/iomem and this
-information is put in one data segment and stored in reserved region
-during panic kernel load time.
-
-But I am unable to co-relate as to how the capture tool (even if its all
-in user space) gets to know the address of this segment (or for that
-matter, the bss segment created for backup region). Am I missing
-something obvious.
-
-
-> The direction I would take if I was to take to implementing this 
-> the crashdump functionality is something different.
-> 
-> Instead of patching crashdump functionality into the kernel,
-> I would create a subdirectory in kexec-tools called crashdump
-> and put in the source for a user-space program that could run as
-> init.  In addition I would but in the code to generate and
-> initramfs cpio.gz archive of that program.  And I would build
-> the program against uclibc, klibc or one of the other libc variants
-> that actually allows building static binaries.  Unless something
-> has changed recently glibc does not all for truly static binaries
-> as it dynamically open /lib/libnss*
-> 
-> Given the pain of building against an external library that is not
-> widely distributed I would probably take a snapshot of the code and
-> place it in crashdump/libc in the kexec-tools source.  Taking a
-> snapshot of frequently used libraries is commonly done with the
-> gnu toolchain and is wonderfully effective in resolving painful
-> dependencies.
-> 
-> The crashdump /init would just mmap /dev/mem to read the raw memory.
-> >From there it would generate the core file.
-> 
-> When kexec'ing a panic kernel I would simply have /sbin/kexec
-> unconditionally load that cpio.gz as the initrd and things
-> would work.
-> 
-> The large advantage of doing all of this in user space
-> is that it moves all of the crashdump policy into user space
-> and into one source tree, for simplified maintenance.
-> 
-> However as long as we gracefully handle the interface
-> between the primary kernel and the capture kernel we can
-> switch mechanisms for actually taking the crash dump,
-> kernel based or user space as seems most sane.
-
-
-This seems to be a good direction.
-
-
-Thanks 
-Vivek
-
+LS0tIGxpbnV4LTIuNC4yOC9uZXQvY29yZS9uZWlnaGJvdXIuYwlGcmkgSmFuIDI4IDE0OjI2OjU5
+IDIwMDUKKysrIGxpbnV4LTIuNC4yOGZpeC9uZXQvY29yZS9uZWlnaGJvdXIuYwlGcmkgSmFuIDI4
+IDEzOjIyOjA2IDIwMDUKQEAgLTEzNTEsNyArMTM1MSw2IEBAIGludCBuZWlnaF9kZWxldGUoc3Ry
+dWN0IHNrX2J1ZmYgKnNrYiwgc3QKIAogCQlpZiAodGJsLT5mYW1pbHkgIT0gbmRtLT5uZG1fZmFt
+aWx5KQogCQkJY29udGludWU7Ci0JCXJlYWRfdW5sb2NrKCZuZWlnaF90YmxfbG9jayk7CiAKIAkJ
+ZXJyID0gLUVJTlZBTDsKIAkJaWYgKG5kYVtOREFfRFNULTFdID09IE5VTEwgfHwKQEAgLTEzNjAs
+MTggKzEzNTksMjggQEAgaW50IG5laWdoX2RlbGV0ZShzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdAog
+CiAJCWlmIChuZG0tPm5kbV9mbGFncyZOVEZfUFJPWFkpIHsKIAkJCWVyciA9IHBuZWlnaF9kZWxl
+dGUodGJsLCBSVEFfREFUQShuZGFbTkRBX0RTVC0xXSksIGRldik7Ci0JCQlnb3RvIG91dDsKKwkJ
+CWlmKGVycikgeworCQkJCWNvbnRpbnVlOwkvKiBtYXliZSBpbiBhbm90aGVyIHRhYmxlICovCisJ
+CQl9CisJCQllbHNlIHsKKwkJCQlnb3RvIG91dDsKKwkJCX0KIAkJfQogCi0JCWlmIChkZXYgPT0g
+TlVMTCkKLQkJCXJldHVybiAtRUlOVkFMOworCQlpZiAoZGV2ID09IE5VTEwpIHsKKwkJCWdvdG8g
+b3V0OworCQl9CiAKIAkJbiA9IG5laWdoX2xvb2t1cCh0YmwsIFJUQV9EQVRBKG5kYVtOREFfRFNU
+LTFdKSwgZGV2KTsKIAkJaWYgKG4pIHsKIAkJCWVyciA9IG5laWdoX3VwZGF0ZShuLCBOVUxMLCBO
+VURfRkFJTEVELCAxLCAwKTsKIAkJCW5laWdoX3JlbGVhc2Uobik7CiAJCX0KKwkJZWxzZSB7CisJ
+CQljb250aW51ZTsJLyogbWF5YmUgaW4gYW5vdGhlciB0YWJsZSAqLworCQl9CiBvdXQ6CisJCXJl
+YWRfdW5sb2NrKCZuZWlnaF90YmxfbG9jayk7CiAJCWlmIChkZXYpCiAJCQlkZXZfcHV0KGRldik7
+CiAJCXJldHVybiBlcnI7CkBAIC0xMzkwLDYgKzEzOTksOCBAQCBpbnQgbmVpZ2hfYWRkKHN0cnVj
+dCBza19idWZmICpza2IsIHN0cnVjCiAJc3RydWN0IHJ0YXR0ciAqKm5kYSA9IGFyZzsKIAlzdHJ1
+Y3QgbmVpZ2hfdGFibGUgKnRibDsKIAlzdHJ1Y3QgbmV0X2RldmljZSAqZGV2ID0gTlVMTDsKKwlp
+bnQgZXJyID0gLUVBRERSTk9UQVZBSUw7CisJaW50IG9sZGVycjsKIAogCWlmIChuZG0tPm5kbV9p
+ZmluZGV4KSB7CiAJCWlmICgoZGV2ID0gZGV2X2dldF9ieV9pbmRleChuZG0tPm5kbV9pZmluZGV4
+KSkgPT0gTlVMTCkKQEAgLTEzOTgsMzUgKzE0MDksNDcgQEAgaW50IG5laWdoX2FkZChzdHJ1Y3Qg
+c2tfYnVmZiAqc2tiLCBzdHJ1YwogCiAJcmVhZF9sb2NrKCZuZWlnaF90YmxfbG9jayk7CiAJZm9y
+ICh0Ymw9bmVpZ2hfdGFibGVzOyB0Ymw7IHRibCA9IHRibC0+bmV4dCkgewotCQlpbnQgZXJyID0g
+MDsKIAkJaW50IG92ZXJyaWRlID0gMTsKIAkJc3RydWN0IG5laWdoYm91ciAqbjsKIAogCQlpZiAo
+dGJsLT5mYW1pbHkgIT0gbmRtLT5uZG1fZmFtaWx5KQogCQkJY29udGludWU7Ci0JCXJlYWRfdW5s
+b2NrKCZuZWlnaF90YmxfbG9jayk7CiAKLQkJZXJyID0gLUVJTlZBTDsKIAkJaWYgKG5kYVtOREFf
+RFNULTFdID09IE5VTEwgfHwKLQkJICAgIG5kYVtOREFfRFNULTFdLT5ydGFfbGVuICE9IFJUQV9M
+RU5HVEgodGJsLT5rZXlfbGVuKSkKKwkJICAgIG5kYVtOREFfRFNULTFdLT5ydGFfbGVuICE9IFJU
+QV9MRU5HVEgodGJsLT5rZXlfbGVuKSkgeworCQkJZXJyID0gLUVJTlZBTDsKIAkJCWdvdG8gb3V0
+OworCQl9CisKIAkJaWYgKG5kbS0+bmRtX2ZsYWdzJk5URl9QUk9YWSkgewogCQkJZXJyID0gLUVO
+T0JVRlM7Ci0JCQlpZiAocG5laWdoX2xvb2t1cCh0YmwsIFJUQV9EQVRBKG5kYVtOREFfRFNULTFd
+KSwgZGV2LCAxKSkKKwkJCWlmIChwbmVpZ2hfbG9va3VwKHRibCwgUlRBX0RBVEEobmRhW05EQV9E
+U1QtMV0pLCBkZXYsIDEpKSB7CiAJCQkJZXJyID0gMDsKKwkJCQlnb3RvIG91dDsKKwkJCX0KKwkJ
+CWVsc2UgeworCQkJCWNvbnRpbnVlOwkvKiBtYXliZSBpbiBhbm90aGVyIHRhYmxlICovCisJCQl9
+CisJCX0KKwkJaWYgKGRldiA9PSBOVUxMKSB7CisJCQllcnIgPSAtRUlOVkFMOwogCQkJZ290byBv
+dXQ7CiAJCX0KLQkJaWYgKGRldiA9PSBOVUxMKQotCQkJcmV0dXJuIC1FSU5WQUw7Ci0JCWVyciA9
+IC1FSU5WQUw7CisKIAkJaWYgKG5kYVtOREFfTExBRERSLTFdICE9IE5VTEwgJiYKLQkJICAgIG5k
+YVtOREFfTExBRERSLTFdLT5ydGFfbGVuICE9IFJUQV9MRU5HVEgoZGV2LT5hZGRyX2xlbikpCisJ
+CSAgICBuZGFbTkRBX0xMQUREUi0xXS0+cnRhX2xlbiAhPSBSVEFfTEVOR1RIKGRldi0+YWRkcl9s
+ZW4pKSB7CisJCQllcnIgPSAtRUlOVkFMOwogCQkJZ290byBvdXQ7CisJCX0KKworCQlvbGRlcnI9
+ZXJyOwogCQllcnIgPSAwOwogCQluID0gbmVpZ2hfbG9va3VwKHRibCwgUlRBX0RBVEEobmRhW05E
+QV9EU1QtMV0pLCBkZXYpOwogCQlpZiAobikgewotCQkJaWYgKG5saC0+bmxtc2dfZmxhZ3MmTkxN
+X0ZfRVhDTCkKKwkJCWlmIChubGgtPm5sbXNnX2ZsYWdzJk5MTV9GX0VYQ0wpIHsKIAkJCQllcnIg
+PSAtRUVYSVNUOworCQkJCWdvdG8gb3V0bmVpZ2g7CisJCQl9CiAJCQlvdmVycmlkZSA9IG5saC0+
+bmxtc2dfZmxhZ3MmTkxNX0ZfUkVQTEFDRTsKIAkJfSBlbHNlIGlmICghKG5saC0+bmxtc2dfZmxh
+Z3MmTkxNX0ZfQ1JFQVRFKSkKIAkJCWVyciA9IC1FTk9FTlQ7CkBAIC0xNDQyLDkgKzE0NjUsMTYg
+QEAgaW50IG5laWdoX2FkZChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1YwogCQkJCQkgICBuZG0t
+Pm5kbV9zdGF0ZSwKIAkJCQkJICAgb3ZlcnJpZGUsIDApOwogCQl9CisJCWVsc2UgeworCQkJZXJy
+PW9sZGVycjsKKwkJCWNvbnRpbnVlOwkvKiBtYXliZSBpbiBhbm90aGVyIHRhYmxlICovCisJCX0K
+Kworb3V0bmVpZ2g6CiAJCWlmIChuKQogCQkJbmVpZ2hfcmVsZWFzZShuKTsKIG91dDoKKwkJcmVh
+ZF91bmxvY2soJm5laWdoX3RibF9sb2NrKTsKIAkJaWYgKGRldikKIAkJCWRldl9wdXQoZGV2KTsK
+IAkJcmV0dXJuIGVycjsKQEAgLTE0NTMsNyArMTQ4Myw3IEBAIG91dDoKIAogCWlmIChkZXYpCiAJ
+CWRldl9wdXQoZGV2KTsKLQlyZXR1cm4gLUVBRERSTk9UQVZBSUw7CisJcmV0dXJuIGVycjsKIH0K
+IAogCkBAIC0xNTQ3LDggKzE1NzcsNyBAQCBpbnQgbmVpZ2hfZHVtcF9pbmZvKHN0cnVjdCBza19i
+dWZmICpza2IsCiAJCQljb250aW51ZTsKIAkJaWYgKHQgPiBzX3QpCiAJCQltZW1zZXQoJmNiLT5h
+cmdzWzFdLCAwLCBzaXplb2YoY2ItPmFyZ3MpLXNpemVvZihjYi0+YXJnc1swXSkpOwotCQlpZiAo
+bmVpZ2hfZHVtcF90YWJsZSh0YmwsIHNrYiwgY2IpIDwgMCkgCi0JCQlicmVhazsKKwkJbmVpZ2hf
+ZHVtcF90YWJsZSh0YmwsIHNrYiwgY2IpOwogCX0KIAlyZWFkX3VubG9jaygmbmVpZ2hfdGJsX2xv
+Y2spOwogCg==
+--========GMXBoundary249391106917237--
 

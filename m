@@ -1,94 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286248AbRLTN0y>; Thu, 20 Dec 2001 08:26:54 -0500
+	id <S286241AbRLTN1p>; Thu, 20 Dec 2001 08:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286252AbRLTN0p>; Thu, 20 Dec 2001 08:26:45 -0500
-Received: from relay.planetinternet.be ([194.119.232.24]:58885 "EHLO
-	relay.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S286248AbRLTN0d>; Thu, 20 Dec 2001 08:26:33 -0500
-Message-Id: <200112201326.fBKDQQm28645@relay.planetinternet.be>
-Content-Type: text/plain; charset=US-ASCII
-From: Michele Gius <mgius@pi.be>
-Reply-To: mgius@pi.be
-Subject: CD-ROM read problem introdruced in 2.4.x and 2.5.x ?
-Date: Thu, 20 Dec 2001 14:26:10 +0100
-X-Mailer: KMail [version 1.3.1]
+	id <S286237AbRLTN1f>; Thu, 20 Dec 2001 08:27:35 -0500
+Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:5017 "HELO
+	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S286241AbRLTN12>; Thu, 20 Dec 2001 08:27:28 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Helge Hafting <helgehaf@idb.hist.no>
+Subject: Re: Poor performance during disk writes
+Date: Thu, 20 Dec 2001 14:27:17 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: jlm <jsado@mediaone.net>, Andre Hedrick <andre@linuxdiskcert.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011220132729Z286241-18285+3296@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried this on 2 different systems:
+On Thursday, 20.12.201, 10:49 Helge Hafting wrote:
+> jlm wrote:
+[-]
+> > So I guess I don't really care what mode the hard drive is operating in
+> > (udma, mdma, dma or plain ide), I just don't want to have to go get a
+> > cup of coffee while the hard drive saves some data. Is there a "don't
+>
+> Devices generally get the cpu before anything else.  A good disk system
+> don't need much cpu.  Running IDE in PIO mode require a lot
+> of cpu though.   Using any of the DMA modes avoids that.
 
-1. Pentium 2/ Intel 440LX / SCSI System with 
-	Plextor PX32TS and Yamaha CDR400t on aic7880
-2. Athlon 1500XP / Via KT266A (vt8233) / IDE System  with 
-	Plextor 24/10/40A (DMA off :-( ) and LiteOn DVD-ROM LTD163
+Amen..
+Sorry, Helge sure you are right in theory but try dbench 32 (maybe 
+bonnie/bonnie++) and playing an MP3/Ogg-Vorbis in parallel...
+That's my first test on any "new" kernel version.
 
-A CD-R with mp3 songs (Maxell 74 min. 6x blue writing side):
-It reads and plays well on all 4 drives of the 2 machines under kernel 2.2.18 
-and 2.2.19 as well as under Windows.
+Even with an 1 GHz Athlon II, 640 MB, U160 DDYS 18 GB, 10k IBM disk (on an 
+AHA-2940UW) it stutters like mad. I am running all my kernel _with_ Robert 
+Love's preempt + lock-break patches and it doesn't solve the problem.
+CPU load is (very) low but it do not work like it should.
 
-It cannot be read and played under:
-2.4.0		(both machines)
-2.4.10		(both machines)
-2.4.15		(ide, scsi not tested)
-2.4.16		(both machines)
-2.5.1-pre9	(ide, scsi not tested)
+> > pre-empt the rest of the system" switch for the eide drives? Is there
+> > something fundamental/unique going on here that I'm missing?
+> dma, udma, etc. is that switch.  It lets the cpu do other work (such as
+> redrawing X) while the disk is busy.  Plain ide is what you don't want.
 
-The errors occur always in the same regions of the disk with slight 
-differences between drives so it probably has errors but they seem to be 
-handled less tolerantly.
+See above the whole system show some bad hiccup.
 
-Related?: While copying from a CD under the 2.4 kernels the system load on 
-the IDE machine goes up to 75 percent even for the LiteOn drive with DMA on, 
-while on 2.2.19 it never exceeds 10% even for the Plextor with DMA off and it 
-is slightly faster. 
- 
+> The problem of waiting for other files or swapping while a really big
+> write is going on is different.  Get more drives, so the big writes go
+> to one drive while you get stuff swapped in (or other file access)
+> on other drive(s).  The kernel is capable of getting fast response
+> from one drive while another is completely bogged down with
+> enormous writes.
 
----------------------------
-Errors from IDE machine (hdb is LiteOn, hdc is Plextor with ide-scsi):
+Tried this already. Neither I put my test files (MP3/Ogg-Vorbis) in /dev/shm 
+or a nother disk it do not change anything.
 
-: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-: hdb: drive_cmd: error=0x04
+There must be something in the VFS?
 
-: scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x03 00 00 00 40 00
-: Info fld=0x4d0, Current sd0b:00: sns = f0  3
-: ASC= 6 ASCQ= 0
-: Raw sense data:0xf0 0x00 0x03 0x00 0x00 0x04 0xd0 0x0a 0x00 0x00 0x
-:  I/O error: dev 0b:00, sector 4928
+-Dieter
 
--------------------
-
-Errors from SCSI machine:
-
-: scsi0: ERROR on channel 0, id 4, lun 0, CDB: 0x28 00 00 00 04 d5 00 00 01 00
-: Info fld=0x4d5 (nonstd), Current sd0b:01: sns = 70  3
-^^^^^^^^^^^^^^^^^^^^^^ Is this a hint ?               
-: ASC= 6 ASCQ= 0
-: Raw sense data:0x70 0x00 0x03 0x00 0x00 0x04 0xd5 0x0a 0x00 0x00 0x00 0x00  
-  0x06 0x00 0x00 0x00 0x00 0x00
-:  I/O error: dev 0b:01, sector 4948
-
----------------------
-
-CD-Info from debug mode:
-
-cdrom: entering cdrom_count_tracks
-cdrom: track 1: format=2, ctrl=4
-cdrom: track 2: format=2, ctrl=5
-cdrom: disc has 2 tracks: 0=audio 2=data 0=Cd-I 0=XA
-...
-cdrom: entering CDROMMULTISESSION
-cdrom: CDROMMULTISESSION successful
-ISO 9660 Extensions: Microsoft Joliet Level 3
-ISOFS: changing to secondary root
---------------------
-
-
-Sorry for this long post. I know it is quite general but if there is any 
-further useful information I can supply.
-
-Kind regards
-Michele Gius
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+University of Hamburg
+@home: Dieter.Nuetzel@hamburg.de

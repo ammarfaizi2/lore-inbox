@@ -1,76 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318172AbSG3BH4>; Mon, 29 Jul 2002 21:07:56 -0400
+	id <S318165AbSG3BNm>; Mon, 29 Jul 2002 21:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318165AbSG3BH4>; Mon, 29 Jul 2002 21:07:56 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:28458 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S317602AbSG3BHz>; Mon, 29 Jul 2002 21:07:55 -0400
-Date: Tue, 30 Jul 2002 03:12:24 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc2aa1 i_size atomic access
-Message-ID: <20020730011224.GR1201@dualathlon.random>
-References: <1026949132.20314.0.camel@joe2.pdx.osdl.net> <1026951041.2412.38.camel@IBM-C> <20020718103511.GG994@dualathlon.random> <1027037361.2424.73.camel@IBM-C> <20020719112305.A15517@oldwotan.suse.de> <1027119396.2629.16.camel@IBM-C> <20020723170807.GW1116@dualathlon.random> <1027989256.578.30.camel@IBM-C>
+	id <S318175AbSG3BNm>; Mon, 29 Jul 2002 21:13:42 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:9376 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318165AbSG3BNk>;
+	Mon, 29 Jul 2002 21:13:40 -0400
+Date: Tue, 30 Jul 2002 11:12:03 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
+Subject: Re: Serial core problems on embedded PPC
+Message-ID: <20020730011203.GL2351@zax>
+Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
+References: <20020729040824.GA2351@zax> <20020729100009.A23843@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1027989256.578.30.camel@IBM-C>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20020729100009.A23843@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 05:34:16PM -0700, Daniel McNeil wrote:
-> Andrea,
+On Mon, Jul 29, 2002 at 10:00:10AM +0100, Russell King wrote:
+> On Mon, Jul 29, 2002 at 02:08:24PM +1000, David Gibson wrote:
+> > I've been trying to get the new serial core stuff working on a PPC 4xx
+> > machine (an EP405 board, specifically).  This is proving more
+> > difficult than I expected.
 > 
-> Sorry I haven't responded, but I was on vacation all last week and
-> was not near a computer.
+> It's vital that you mention the kernel version you're using; some of
+> these problems sound like 2.5.28.
 
-No problem :)
+Sorry.  I'm working off the linuxppc-2.5 BK tree, which is currently
+at 2.5.29.
 
-> I like your code change.  Incrementing the v2 before the v1 in the
-> i_size_write() is much better.  My code was definitely uglier -- but
-> it was correct since the version1 and version2 where sampled before
-> i_size was read and version1 and version2 where checked again after.
-> It was excessive, but correct.
-
-ok, so you had the dependency v1 == v2, so you were also implicitly
-comparing v2 with the new version 1 ok.
-
+> > In 8250.c, it appears that in order for a port to be used for the
+> > serial console it must be defined "old style" with SERIAL_PORT_DFNS,
+> > rather than being registered with register_serial() (because
+> > serial8250_console_setup() indexs into the serial8250_ports array)).
+> > This presents a small problem for 4xx, since it's serial ports are
+> > memory mapped and the new old_serial_port structure can't represent
+> > these.
 > 
-> On your patch, shouldn't non-smp preempt still use the 64-bit stuff?
-> The comment says it should, but the #ifdef's are not checking for
-> PREEMPT or did I miss something?
+> There is no easy solution for this.  Alan said we must not drop support
+> for serial console initialisation early on in the kernel setup, which
+> means before the memory subsystems are initialised.
+> 
+> > I added support for these into 8250.c, but ran into further troubles.
+> 
+> I suspect a 2.5.28 kernel; please confirm and we'll that it from there.
 
-there's no preempt in 2.4, the comment was meant for anybody foward
-porting it to 2.5.
+2.5.29 based BK, actually.
 
-> I would still be curious about the performance difference between the 
-> version approach and the cmpxchg8 approach.  With SMP I'm a bit worried
-> about the cacheline bouncing around and the memory bandwith wasted.
+> > The current plethora of similar-but-not-the-same structures describing
+> > serial ports (serial_state, serial_struct, uart_port, old_serial_port)
+> > is also rather confusing.  I'm guessing some of these are deprecated
+> > and remain only as an aid to transition, but I'm not sure which.
+> 
+> I don't see there being an easy way to kill this off:
+> 
+> 1. serial_struct is a userspace API.
 
-Randy didn't report any decrease in performance, so in normal loads 
-shouldn't be noticeable.
+Ok.
 
-> Any ideas on what kind of test would be appropriate?
-> I've got access to 2-proc to 8-proc systems I could run some tests on,
-> just not sure what test would be useful.  The fstat() test isn't
-> realistic.
+> 2. old_serial_port glues asm/serial.h into 8250.c; asm/serial.h can't be
+>    changed because (mainly) ppc uses it elsewhere.  Other architectures
+>    seem to do the same sort of thing.
 
-I would say dbench is a good candidate for this kind of change to verify
-it's not noticeable.
+I think PPC's use of asm/serial.h in the bootloader needs to go away
+anyway.  Could old_serial_port at least change base_baud to baud_base
+to match serial_struct and serial_state.  That way a designated
+initializer will work in either context.
 
-then you could test two parallel reads on the same inode, for example
-two parallel dd if=file of=/dev/null reading from cache, and see if
-there's a difference of bandwidth with cmpxchg8b and ordered
-read/writes (on a 4p you could try with 4 parallel dd).
+> Unless ppc and others are willing to put up with major breakage when I
+> change asm/serial.h, I don't see this getting cleaned up.  Comments on
+> this area welcome.
 
-> Increasing the versions to 32-bit is ok with -- I was just trying to
-> not waste too much space.
+Well, the machines I'm working on are totally broken now, so...
 
-ok, as said the int granularity is going to be atomic for all archs.
-
-Andrea
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

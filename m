@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVCONbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVCONb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVCONbe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 08:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVCON3Z
+	id S261232AbVCONb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 08:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVCONb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 08:29:25 -0500
-Received: from gate.crashing.org ([63.228.1.57]:56738 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261221AbVCON3M (ORCPT
+	Tue, 15 Mar 2005 08:31:57 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:40872 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261225AbVCONbS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 08:29:12 -0500
-Subject: Re: swsusp_restore crap
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050315120217.GE1344@elf.ucw.cz>
-References: <1110857069.29123.5.camel@gaston>
-	 <1110857516.29138.9.camel@gaston> <20050315110309.GA1344@elf.ucw.cz>
-	 <200503151251.01109.rjw@sisk.pl>  <20050315120217.GE1344@elf.ucw.cz>
+	Tue, 15 Mar 2005 08:31:18 -0500
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for
+	2.6.11)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Peter Chubb <peterc@gelato.unsw.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110861150.15588.44.camel@mindpipe>
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+	 <1110568448.15927.74.camel@localhost.localdomain>
+	 <9e47339105031218035f323d68@mail.gmail.com>
+	 <1110861150.15588.44.camel@mindpipe>
 Content-Type: text/plain
-Date: Wed, 16 Mar 2005 00:27:08 +1100
-Message-Id: <1110893228.24296.8.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1110893338.15927.175.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 15 Mar 2005 13:28:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2005-03-15 at 04:32, Lee Revell wrote:
+> This seems sufficient for the simplest devices, that just have an
+> IRQ_PENDING and an IRQ_ACK register.  But what about a device like the
+> emu10k1 where you have a half loop and loop interrupt for each of 64
+> channels, plus about 10 other interrupt sources?  The IPR just tells you
+> there's a channel loop interrupt pending, in order to properly ACK it
+> you need to set a bit in one of 4 registers depending on whether it's a
+> loop or half loop interrupt, and whether the channel is 0-31 or 32-64.
 
-> 
-> > +asmlinkage int __swsusp_flush_tlb(void)
-> > +{
-> > +	swsusp_restore_check();
-> 
-> Someone will certainly forget this one, and it is probably
-> nicer/easier to just move BUG_ON into swsusp_suspend(), just after
-> restore_processor_state() or something like that...
+Do we need to solve it for all such devices in one go and can we write
+custom code for the hard cases. Peter solved the simple unshared-IRQ
+case. I'd like to solve the simple shared IRQ cases too (because X can
+use this).
 
-Agreed.
-
-Ben.
+I'm wondering where the right line is ?
 

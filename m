@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130383AbQK0Xs4>; Mon, 27 Nov 2000 18:48:56 -0500
+        id <S129656AbQK0Xx5>; Mon, 27 Nov 2000 18:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130319AbQK0Xsr>; Mon, 27 Nov 2000 18:48:47 -0500
-Received: from srvr2.telecom.lt ([212.59.0.1]:15118 "EHLO mail.takas.lt")
-        by vger.kernel.org with ESMTP id <S130383AbQK0Xs0>;
-        Mon, 27 Nov 2000 18:48:26 -0500
-Reply-To: <nerijus@freemail.lt>
-From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: bread in fat_access failed
-Date: Tue, 28 Nov 2000 01:11:20 +0200
-Message-ID: <MPBBJGBJAHHNDMMBBLMIIEIBEHAB.nerijus@users.sourceforge.net>
-MIME-Version: 1.0
+        id <S129799AbQK0Xxq>; Mon, 27 Nov 2000 18:53:46 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:785 "EHLO tstac.esa.lanl.gov")
+        by vger.kernel.org with ESMTP id <S129656AbQK0Xxf>;
+        Mon, 27 Nov 2000 18:53:35 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Mon, 27 Nov 2000 16:23:25 -0700
+X-Mailer: KMail [version 1.1.99]
 Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <MPBBJGBJAHHNDMMBBLMIEEHPEHAB.nerijus@users.sourceforge.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+  charset="us-ascii"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
+In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
+Subject: Re: 2.4.0-test11-ac2 and ac4 SMP will not run KDE 2.0
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <00112716232501.00953@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nov 28 01:00:28 sargis kernel: bread in fat_access failed
-> Nov 28 01:00:28 sargis kernel: attempt to access beyond end of device
-> Nov 28 01:00:28 sargis kernel: 02:00: rw=0, want=5, limit=4
-> Nov 28 01:00:28 sargis kernel: dev 02:00 blksize=512 blocknr=9 
-> sector=9 size=512
-> count=1
-> 
-> What do they mean? Problems with hdd?
+On Monday 27 November 2000 13:08, Alan Cox wrote:
 
-Sorry, it seems floppy was removed when still mounted.
+> > Precision 420 Dual P-III. All kernels are patched with
+> > linux-2.4.0-test10-reiserfs-3.6.19-patch.
+>
+> I don't test -ac kernel trees with reiserfs. I don't really have time. Can
+> you or others reproduce the same report on an unmodified tree.
+>
+> Alan
 
+I will have to acquire another suitable disk to reproduce this problem
+using an unmodified tree.  If anyone can help, I'd appreciate it.  Thanks
+in advance.  If not, I'll try to reproduce it when I can get the hardware.
+
+For what its worth, on my single processor home machine, all kernels
+2.4.0-test11-ac1,ac2,ac3, ac4 both UP and SMP run both Gnome and
+KDE 2.0, with reiserfs-3.6.19.  In other words, everything works with
+everything. 
+
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

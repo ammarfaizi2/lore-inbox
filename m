@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbTDRQA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 12:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbTDRQA5
+	id S263124AbTDRQAI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 12:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTDRQAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 12:00:57 -0400
-Received: from verein.lst.de ([212.34.181.86]:11277 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id S263130AbTDRQAx (ORCPT
+	Fri, 18 Apr 2003 12:00:08 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:50135 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263124AbTDRQAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 12:00:53 -0400
-Date: Fri, 18 Apr 2003 18:12:46 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] devfs (1/7) - fix compilation
-Message-ID: <20030418181246.A363@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
+	Fri, 18 Apr 2003 12:00:07 -0400
+Date: Fri, 18 Apr 2003 09:12:17 -0700
+From: Dave Olien <dmo@osdl.org>
+To: John v/d Kamp <john@connectux.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] DAC960_Release bug (2.4.x)
+Message-ID: <20030418161217.GA7456@osdl.org>
+References: <Pine.LNX.4.53.0304161136270.18523@fratser> <20030416224013.GA11514@osdl.org> <Pine.LNX.4.53.0304171004160.10181@fratser> <20030417202714.GA30622@osdl.org> <Pine.LNX.4.53.0304181052230.3981@fratser>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.53.0304181052230.3981@fratser>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As several people found out while I was asleep I sent you
-a bogus patch version and devfs didn't compile in your
-tree since then.  Fix it.
+
+Thanks for testing this patch and the rpm pointer!
+I'll look over the rpm this week end, and probably send this patch to
+marcello next week. Then, generate a patch for 2.5.
 
 
-diff -Nru a/fs/devfs/base.c b/fs/devfs/base.c
---- a/fs/devfs/base.c	Fri Apr 18 15:56:18 2003
-+++ b/fs/devfs/base.c	Fri Apr 18 15:56:18 2003
-@@ -1377,7 +1377,6 @@
-  *	@uid: The user ID.
-  *	@gid: The group ID.
-  *	@fs_info: The filesystem info.
-- *	@atomic: If TRUE, an atomic allocation is required.
-  *
-  *	Returns %TRUE if an event was queued and devfsd woken up, else %FALSE.
-  */
-@@ -1423,7 +1422,7 @@
- static void devfsd_notify (struct devfs_entry *de,unsigned short type)
- {
- 	devfsd_notify_de(de, type, de->mode, current->euid,
--			 current->egid, &fs_info, 0);
-+			 current->egid, &fs_info);
- } 
- 
- 
-@@ -1456,8 +1455,8 @@
-     dev_t devnum = 0, dev = MKDEV(major, minor);
-     struct devfs_entry *de;
- 
--    if (flags)
--	printk(KERN_ERR "%s called with flags != 0, please fix!\n");
-+    /* we don't accept any flags anymore.  prototype will change soon. */
-+    BUG_ON(flags);
- 
-     if (name == NULL)
-     {
+On Fri, Apr 18, 2003 at 11:20:01AM +0200, John v/d Kamp wrote:
+> The libhd can be found here:
+> ftp://ftp.suse.com/pub/suse/i386/8.1/suse/src/hwinfo-5.39-2.src.rpm
+> We use a somewhat older version, but that probably doesn't matter.
+> 
+> I've compiled the module, and our install software ran just fine.
+> Repartitioning the drive was no problem. Using the driver on a normal
+> system was no problem either (never was).
+> 

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318060AbSIEStO>; Thu, 5 Sep 2002 14:49:14 -0400
+	id <S318031AbSIESsq>; Thu, 5 Sep 2002 14:48:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSIEStO>; Thu, 5 Sep 2002 14:49:14 -0400
-Received: from citi.umich.edu ([141.211.92.141]:50576 "HELO citi.umich.edu")
-	by vger.kernel.org with SMTP id <S318060AbSIEStM>;
-	Thu, 5 Sep 2002 14:49:12 -0400
-Date: Thu, 5 Sep 2002 14:53:48 -0400 (EDT)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-In-Reply-To: <3D77A22A.DC3F4D1@zip.com.au>
-Message-ID: <Pine.BSO.4.33.0209051439540.12826-100000@citi.umich.edu>
+	id <S318014AbSIESsq>; Thu, 5 Sep 2002 14:48:46 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:41737 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S318031AbSIESsq>; Thu, 5 Sep 2002 14:48:46 -0400
+Message-ID: <3D77A7A3.FBA1C598@zip.com.au>
+Date: Thu, 05 Sep 2002 11:51:15 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Phillips <phillips@arcor.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Race in shrink_cache
+References: <E17mooe-00064m-00@starship> <E17mr4K-000660-00@starship> <3D770D77.BF85645E@zip.com.au> <E17n1ZQ-00069v-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Sep 2002, Andrew Morton wrote:
+Daniel Phillips wrote:
+> 
+> ..
+> On the other hand, if what you want is a private list that page_cache_release
+> doesn't act on automatically, all you have to do is set the lru state to zero,
+> leave the page count incremented and move to the private list.  You then take
+> explicit responsibility for freeing the page or moving it back onto a
+> mainstream lru list.
 
-> That all assumes SMP/preempt.  If you're seeing these problems on
-> uniproc/non-preempt then something fishy may be happening.
+That's the one.  Page reclaim speculatively removes a chunk (typically 32) of
+pages from the LRU, works on them, and puts back any unfreeable ones later
+on.  And the rest of the VM was taught to play correctly with pages that
+can be off the LRU.  This was to avoid hanging onto the LRU lock while
+running page reclaim.
 
-sorry, forgot to mention:  the system is UP, non-preemptible, high mem.
-
-invalidate_inode_pages isn't freeing these pages because the page count is
-two.  perhaps the page count semantics of one of the page cache helper
-functions has changed slightly.  i'm still diagnosing.
-
-fortunately the problem is deterministically reproducible.  basic test6,
-the readdir test, of 2002 connectathon test suite, fails -- either a
-duplicate file entry or a missing file entry appears after some standard
-file creation and removal processing in that directory.  the incorrect
-entries occur because the NFS client zaps the directory's page cache to
-force the next reader to re-read the directory from the server.  but
-invalidate_inode_pages decides to leave the pages in the cache, so the
-next reader gets stale cached data instead.
-
-> But be aware that invalidate_inode_pages has always been best-effort.
-> If someone is reading, or writing one of those pages then it
-> certainly will not be removed.  If you need assurances that the
-> pagecache has been taken down then we'll need something stronger
-> in there.
-
-right, i've always wondered why the NFS client doesn't use
-truncate_inode_pages, or something like it, instead.  that can wait for
-another day, though.  :-)
-
-	- Chuck Lever
---
-corporate:	<cel at netapp dot com>
-personal:	<chucklever at bigfoot dot com>
-
+And when those 32 pages are speculatively removed, their refcounts are
+incremented.  Maybe that isn't necessary - I'd need to think about
+that.  If it isn't, then the double-free thing is fixed.  If it is
+necessary then then lru-adds-a-ref approach is nice, because shrink_cache
+doesn't need to page_cache_get each page while holding the LRU lock,
+as you say.

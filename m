@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264827AbRGITp0>; Mon, 9 Jul 2001 15:45:26 -0400
+	id <S264837AbRGITqJ>; Mon, 9 Jul 2001 15:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264837AbRGITpQ>; Mon, 9 Jul 2001 15:45:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52233 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S264827AbRGITpD>;
-	Mon, 9 Jul 2001 15:45:03 -0400
-Date: Mon, 9 Jul 2001 21:44:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jonathan Lahr <lahr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: io_request_lock patch?
-Message-ID: <20010709214453.U16505@suse.de>
-In-Reply-To: <20010709123936.E6013@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010709123936.E6013@us.ibm.com>
+	id <S264856AbRGITp5>; Mon, 9 Jul 2001 15:45:57 -0400
+Received: from ECE.CMU.EDU ([128.2.236.200]:55759 "EHLO ece.cmu.edu")
+	by vger.kernel.org with ESMTP id <S264837AbRGITpn>;
+	Mon, 9 Jul 2001 15:45:43 -0400
+Date: Mon, 9 Jul 2001 15:45:36 -0400 (EDT)
+From: Craig Soules <soules@happyplace.pdl.cmu.edu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: jrs@world.std.com, linux-kernel@vger.kernel.org
+Subject: Re: NFS Client patch
+In-Reply-To: <15177.65286.592796.329570@charged.uio.no>
+Message-ID: <Pine.LNX.3.96L.1010709153516.16113R-100000@happyplace.pdl.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 09 2001, Jonathan Lahr wrote:
-> 
-> I have heard that a patch to reduce io_request_lock contention by
-> breaking it into per queue locks was released in the past.  Does 
-> anyone know where I could find this patch if it exists?
+On Mon, 9 Jul 2001, Trond Myklebust wrote:
+> The NFSv2 spec says no such thing. It simply says that you set the
+> cookie to zero when you want to start at the beginning of the
+> directory. This is only needed when we want to reread the directory
+> into the page cache.
 
-I had a patch about a year ago that did it safely for the block layer
-and IDE at least, and also for selected SCSI hba's. Some of the latter
-variety are pretty hard and/or tedious to fixup, Eric Y has done some
-work automating this process almost completely. Until that is done, the
-general patch has no chance of being integrated.
+Ok, perhaps I mis-spoke slightly.  What the spec does state is that the
+cookie is opaque.  This has generally been interpreted to mean that you
+should not trust it to be stable after a change to that directory.
 
-It's also interesting to take a look at _why_ there's contention on the
-io_request_lock. And fix those up first.
+> Your patch will automatically lead to duplicate entries in readdir()
+> on most if not all servers whenever the attributes on the inode have
+> been refreshed (whether or not the cache has been invalidated). That's
+> a bug...
 
--- 
-Jens Axboe
+If I were to do a create during a readdir() operation which inserted
+itself in the directory before the place it left off, that entry would be
+left out of the listing.  That is also a bug, wouldn't you think?
+
+I'd also like to point out that every other operating system which I have
+tested this with has resulted in the correct behavior (NetBSD, FreeBSD,
+Digital Unix, ...)
+
+As for the refresh vs. invalidate problem, I would be happy to add
+another time stamp to the in-core nfs inode exclusively for directory
+invalidation.
+
+Craig
 

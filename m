@@ -1,87 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbTL1XTE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 18:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTL1XTE
+	id S262129AbTL1Xey (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 18:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTL1Xey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 18:19:04 -0500
-Received: from asy06.as02.apl2.superonline.com ([195.33.208.130]:48134 "HELO
-	asy06.as02.apl2.superonline.com") by vger.kernel.org with SMTP
-	id S262153AbTL1XTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 18:19:00 -0500
-Message-ID: <b3-0rb-a9q0bc3j0$-k@keiu8>
-From: "Admin" <Personnel@selu.com.ar>
+	Sun, 28 Dec 2003 18:34:54 -0500
+Received: from dsl-ebprk-208-38-10-105-cgy.nucleus.com ([208.38.10.105]:52241
+	"EHLO oldtimeradiovault.com") by vger.kernel.org with ESMTP
+	id S262129AbTL1Xey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 18:34:54 -0500
+Date: Sun, 28 Dec 2003 16:34:59 -0700
+From: "Jay Yost" <jay@garynuman.info>
 To: linux-kernel@vger.kernel.org
-Subject: Attention All  Staff and Personnel:
-Date: Mon, 29 Dec 03 03:13:06 GMT
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: The Bat! (v1.52f) Business
+Subject: Re: Happy Birthday Linus !!!
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="824.8EB3..02A.6C.13._037"
+Content-Type: text/plain
+Message-ID: <WorldClient-F200312281634.AA34590007@garynuman.info>
+X-Mailer: WorldClient 7.0.0o
+In-Reply-To: <20031228130637.32bd1c08@linux.local>
+References: <20031228075426.GB24351@conectiva.com.br> <Pine.LNX.4.58.0312280017060.2274@home.osdl.org> <20031228012329.43003de5.davem@redhat.com> <20031228184225.GT18208@waste.org> <20031228130637.32bd1c08@linux.local>
+X-Authenticated-Sender: jay@garynuman.info
+X-Spam-Processed: mx1.garynuman.info, Sun, 28 Dec 2003 16:35:00 -0700
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: jay@garynuman.info
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: jay@garynuman.info
+X-MDAV-Processed: mx1.garynuman.info, Sun, 28 Dec 2003 16:35:00 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Happy birthday Linus!
 
---824.8EB3..02A.6C.13._037
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Jay
+										"Linux is like sex - it's better when it's free" - Linus Torvalds
 
-Attention All Staff and Personnel:
+"The trouble with computers of course is that they are very sophisticated 
+idiots" - Tom Baker
 
-You Must Respond By 5 P.M. Tuesday, December 30, 2003
-
-Through a special arrangement, Avtech Direct is offering a limited
-allotment of BRAND NEW, top of-the-line, name-brand desktop computers
-at 50% off MSRP to all who respond to this message
-before 5 P.M., Tuesday, December 30, 2003.
-
-All desktop computers are brand-new packed in their original boxes,
-and come with a full manufacturer's warranty plus
-a 100% satisfaction guarantee.
-
-These professional grade Desktops are fully equipped with 2004
-next generation technology, making these the best performing
-computers money can buy.
-
-Avtech Direct is offering these feature rich, top performing
-Desktops with the latest Intel technology at an amazing price
-to All Staff and Personnel who call:
-
-    1-800-884-9510 by 5 P.M.  Tuesday, December 30, 2003
-
-The fast and powerful AT-2400 series Desktop features: 
-
-      * Intel 2.0Ghz Processor for amazing speed and performance
-      * 128MB DDR RAM,  Upgradeable to 1024
-      * 20 GB UDMA Hard Drive, Upgradeable to 80 GB
-      * 52X CD-Rom Drive, Upgradeable to DVD/CDRW 
-      * 1.44 Floppy disk drive
-      * Next Generation Technology
-      * ATI Premium video and sound
-      * Full Connectivity with Fax modem/Lan/IEE 1394/USB 2.0
-      * Soft Touch Keyboard and scroll mouse
-      * Internet Ready
-      * Network Ready
-      * 1 Year parts and labor warranty
-      * Priority customer service and tech support
-
-MSRP $699 ........................................ Your Cost $347
-
-How to qualify:
-
-  1. You must be a Medical Staff Member, Teacher or Student.
-  2. All desktop computers will be available on a
-     first come first serve basis.
-  3. You must call 1-800-884-9510 by 5 P.M. Tuesday, December 30, 2003
-     and we will hold the desktops you request on will call. 
-  4. You are not obligated in any way.
-  5. 100% Satisfaction Guaranteed.
-   
-   
-Call Avtech Direct
-1-800-884-9510 before 5 P.M. Tuesday, December 30, 2003
---824.8EB3..02A.6C.13._037--
 

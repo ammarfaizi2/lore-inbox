@@ -1,106 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263155AbUB0WJj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 17:09:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUB0WGi
+	id S263165AbUB0WNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 17:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbUB0WKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 17:06:38 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:35523 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263164AbUB0WD3 (ORCPT
+	Fri, 27 Feb 2004 17:10:53 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:7059 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263167AbUB0WJ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 17:03:29 -0500
-Date: Fri, 27 Feb 2004 14:03:07 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>
-cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <162060000.1077919387@flay>
-In-Reply-To: <20040227211548.GI8834@dualathlon.random>
-References: <20040227173250.GC8834@dualathlon.random> <Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com> <20040227122936.4c1be1fd.akpm@osdl.org> <20040227211548.GI8834@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 27 Feb 2004 17:09:59 -0500
+Date: Fri, 27 Feb 2004 16:09:21 -0600 (CST)
+From: olof@austin.ibm.com
+To: davem@redhat.com
+cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>, <niv@us.ibm.com>,
+       <anton@samba.org>, <milliner@us.ibm.com>
+Subject: [PATCH] NULL pointer deref in tcp_do_twkill_work()
+Message-ID: <Pine.A41.4.44.0402271256450.50098-200000@forte.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: MULTIPART/MIXED; BOUNDARY="154490139-1198053911-1077914028=:32282"
+Content-ID: <Pine.A41.4.44.0402271522240.88840@forte.austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> note that the 4:4 split is wrong in 99% of cases where people needs 64G
-> gigs. I'm advocating strongly for the 2:2 split to everybody I talk
-> with, I'm trying to spread the 2:2 idea because IMHO it's an order of
-> magnitude simpler and an order of magnitude superior. Unfortunately I
-> could get not a single number to back my 2:2 claims, since the 4:4
-> buzzword is spreading and people only test with 4:4. so it's pretty hard
-> for me to spread the 2:2 buzzword.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-For the record, I for one am not opposed to doing 2:2 instead of 4:4.
-What pisses me off is people trying to squeeze large amounts of memory
-into 3:1, and distros pretending it's supportable, when it's never 
-stable across a broad spectrum of workloads. Between 2:2 and 4:4,
-it's just a different overhead tradeoff.
+--154490139-1198053911-1077914028=:32282
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.A41.4.44.0402271522241.88840@forte.austin.ibm.com>
 
-> 4:4 makes no sense at all, the only advantage of 4:4 w.r.t. 2:2 is that
-> they can map 2.7G per task of shm instead of 1.7G per task of shm.
+This bug has been encountered before (ref http://bugme.osdl.org/show_bug.cgi?id=1627),
+but that time it went away by itself. We're now seeing it again with
+another heavy network load on 2.6.3.
 
-Eh? You have a 2GB difference of user address space, and a 1GB difference
-of shm size. You lost a GB somewhere ;-) Depending on whether you move
-TASK_UNMAPPPED_BASE or not, it you might mean 2.7 vs 0.7 or at a pinch
-3.5 vs 1.5, I'm not sure.
+Recap:
 
-> syscall and irq. I expect the databases will run an order of magnitude
-> faster with _2:2_ in a 64G configuration, with _1.7G_ per process of shm
-> mapped, instead of their 4:4 split with 2.7G (or more, up to 3.9 ;)
-> mapped per task.
+We're crashing in tcp_do_twkill_work():
 
-That may well be true for some workloads, I suspect it's slower for others.
-One could call the tradeoff either way.
- 
-> I don't mind if 4:4 gets merged but I recommend db vendors to benchmark
-> _2:2_ against 4:4 before remotely considering deploying 4:4 in
-> production.  Then of course let me know since I had not the luck to get
-> any number back and I've no access to any 64G box.
+        tw_for_each_inmate(tw, node, safe,
+                           &tcp_tw_death_row[slot]) {
+                __tw_del_dead_node(tw);
+                spin_unlock(&tw_death_lock);
+                tcp_timewait_kill(tw);
+                tcp_tw_put(tw);
+                killed++;
+                spin_lock(&tw_death_lock);
+                if (killed > quota) {
+                        ret = 1;
+                        break;
+                }
+        }
 
-If you send me a *simple* simulation test, I'll gladly run it for you ;-)
-But I'm not going to go fiddle with Oracle, and thousands of disks ;-)
 
-> I don't care about 256G with 2:2 split, since intel and hp are now going
-> x86-64 too.
+The crash is in __tw_del_dead_node, where tw is taken off of the
+tw_death_node list. At the time of the crash, the pprev list pointer is
+NULL, which indicates that tw is no longer on the list.
 
-Yeah, I don't think we ever need to deal with that kind of insanity ;-)
- 
->> averse to objrmap for file-backed mappings either - I agree that the search
->> problems which were demonstrated are unlikely to bite in real life.
-> 
-> cool.
-> 
-> Martin's patch from IBM is a great start IMHO. I found a bug in the vma
-> flags check though, VM_RESERVED should be checked too, not only
-> VM_LOCKED, unless I'm missing something, but it's a minor issue.
+I'm suspicious of the fact that the tw_death_lock is released, and since
+it's released, the "safe" inmate could be descheduled on another CPU. Once
+the lock is reaquired and the loop is redone, the new tw (old safe) is
+now already taken off the list so we go astray.
 
-I didn't actually write it - that was Dave McCracken ;-) I just suggested
-the partial aproach (because I'm dirty and lazy ;-)) and carried it
-in my tree.
+Shouldn't the loop always restart from the beginning instead of using the
+(not thread-)"safe" list iteration? Since it keeps taking the entries off
+the list, the behaviour should be identical but it wouldn't be racy.
 
-I agree with Andrew's comments though - it's not nice having the dual
-approach of the partial, but the complexity of the full approach is a
-bit scary and buys you little in real terms (performance and space).
-I still believe that creating an "address_space like structure" for
-anon memory, shared across VMAs is an idea that might give us cleaner
-code - it also fixes other problems like Andi's NUMA API binding.
+The alternative is to not drop the lock, but I'm guessing we need to do
+that to avoid deadlocks. I don't know the TCP code well enough to tell for
+sure.
 
-> We can write a testcase ourself, it's pretty easy, just create a 2.7G
-> file in /dev/shm, and mmap(MAP_SHARED) it from 1k processes and fault in
-> all the pagetables from all tasks touching the shm vma. Then run a
-> second copy until the machine starts swapping and see how thing goes. To
-> do this you need probably 8G, this is why I didn't write the testcase
-> myself yet ;).  maybe I can simulate with less shm and less tasks on 1G
-> boxes too, but the extreme lru effects of point 3 won't be visibile
-> there, the very same software configuration works fine on 1/2G boxes on
-> stock 2.4. problems showsup when the lru grows due the algorithm not
-> contemplating million of dirty swapcache in a row at the end of the lru
-> and some gigs of free cache ad the head of the lru. the rmap-only issues
-> can also be tested with math, no testcase is needed for that.
+Proposed patch is attached. We've given it a bit of runtime here but the
+crashes happen randomly so it'll take a while to gain full confidence that
+it's fixed. But the above reasoning around the patch seems to make sense.
 
-I don't have time at the moment to go write it at the moment, but I can certainly run it on large end hardware if that helps.
 
-M.
+Thanks,
+
+Olof
+
+Olof Johansson                                        Office: 4E002/905
+Linux on Power Development                            IBM Systems Group
+Email: olof@austin.ibm.com                          Phone: 512-838-9858
+All opinions are my own and not those of IBM
+
+
+
+--154490139-1198053911-1077914028=:32282
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=twpatch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.A41.4.44.0402271522300.88840@forte.austin.ibm.com>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=twpatch
+
+LS0tIG5ldC9pcHY0L3RjcF9taW5pc29ja3MuYy5vcmlnCTIwMDQtMDItMjcg
+MTM6NDM6MTEuMDAwMDAwMDAwIC0wNjAwDQorKysgbmV0L2lwdjQvdGNwX21p
+bmlzb2Nrcy5jCTIwMDQtMDItMjcgMTU6MjE6MTguMzE4ODkwNjcyIC0wNjAw
+DQpAQCAtNDI3LDkgKzQyNyw3IEBAIHN0YXRpYyB1MzIgdHdraWxsX3RocmVh
+ZF9zbG90czsNCiBzdGF0aWMgaW50IHRjcF9kb190d2tpbGxfd29yayhpbnQg
+c2xvdCwgdW5zaWduZWQgaW50IHF1b3RhKQ0KIHsNCiAJc3RydWN0IHRjcF90
+d19idWNrZXQgKnR3Ow0KLQlzdHJ1Y3QgaGxpc3Rfbm9kZSAqbm9kZSwgKnNh
+ZmU7DQogCXVuc2lnbmVkIGludCBraWxsZWQ7DQotCWludCByZXQ7DQogDQog
+CS8qIE5PVEU6IGNvbXBhcmUgdGhpcyB0byBwcmV2aW91cyB2ZXJzaW9uIHdo
+ZXJlIGxvY2sNCiAJICogd2FzIHJlbGVhc2VkIGFmdGVyIGRldGFjaGluZyBj
+aGFpbi4gSXQgd2FzIHJhY3ksDQpAQCAtNDM4LDI1ICs0MzYsMjEgQEAgc3Rh
+dGljIGludCB0Y3BfZG9fdHdraWxsX3dvcmsoaW50IHNsb3QsIA0KIAkgKiBz
+b2Z0IGlycXMgYXJlIG5vdCBzZXF1ZW5jZWQuDQogCSAqLw0KIAlraWxsZWQg
+PSAwOw0KLQlyZXQgPSAwOw0KLQl0d19mb3JfZWFjaF9pbm1hdGUodHcsIG5v
+ZGUsIHNhZmUsDQotCQkJICAgJnRjcF90d19kZWF0aF9yb3dbc2xvdF0pIHsN
+CisJd2hpbGUgKGtpbGxlZCA8PSBxdW90YSAmJg0KKwkgICAgICAgIWhsaXN0
+X2VtcHR5KCZ0Y3BfdHdfZGVhdGhfcm93W3Nsb3RdKSkgew0KKwkJdHcgPSBo
+bGlzdF9lbnRyeSh0Y3BfdHdfZGVhdGhfcm93W3Nsb3RdLmZpcnN0LCBzdHJ1
+Y3QgdGNwX3R3X2J1Y2tldCwgdHdfZGVhdGhfbm9kZSk7DQogCQlfX3R3X2Rl
+bF9kZWFkX25vZGUodHcpOw0KIAkJc3Bpbl91bmxvY2soJnR3X2RlYXRoX2xv
+Y2spOw0KIAkJdGNwX3RpbWV3YWl0X2tpbGwodHcpOw0KIAkJdGNwX3R3X3B1
+dCh0dyk7DQogCQlraWxsZWQrKzsNCiAJCXNwaW5fbG9jaygmdHdfZGVhdGhf
+bG9jayk7DQotCQlpZiAoa2lsbGVkID4gcXVvdGEpIHsNCi0JCQlyZXQgPSAx
+Ow0KLQkJCWJyZWFrOw0KLQkJfQ0KIAl9DQogDQogCXRjcF90d19jb3VudCAt
+PSBraWxsZWQ7DQogCU5FVF9BRERfU1RBVFNfQkgoVGltZVdhaXRlZCwga2ls
+bGVkKTsNCiANCi0JcmV0dXJuIHJldDsNCisJcmV0dXJuIGtpbGxlZCA+IHF1
+b3RhOw0KIH0NCiANCiBzdGF0aWMgdm9pZCB0Y3BfdHdraWxsKHVuc2lnbmVk
+IGxvbmcgZHVtbXkpDQo=
+--154490139-1198053911-1077914028=:32282--

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317497AbSHLISa>; Mon, 12 Aug 2002 04:18:30 -0400
+	id <S317541AbSHLIYf>; Mon, 12 Aug 2002 04:24:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317493AbSHLIRj>; Mon, 12 Aug 2002 04:17:39 -0400
-Received: from dp.samba.org ([66.70.73.150]:7657 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S317494AbSHLIR1>;
-	Mon, 12 Aug 2002 04:17:27 -0400
-Date: Mon, 12 Aug 2002 18:14:57 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [PATCH] Simplified scalable cpu bitmasks
-Message-Id: <20020812181457.6245f673.rusty@rustcorp.com.au>
-In-Reply-To: <20020811.222124.60543063.davem@redhat.com>
-References: <20020812000347.A99CE2C185@lists.samba.org>
-	<20020811.222124.60543063.davem@redhat.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S317540AbSHLIYf>; Mon, 12 Aug 2002 04:24:35 -0400
+Received: from frigate.technologeek.org ([62.4.21.148]:16003 "EHLO
+	frigate.technologeek.org") by vger.kernel.org with ESMTP
+	id <S317541AbSHLIYe>; Mon, 12 Aug 2002 04:24:34 -0400
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Adrian Bunk <bunk@fs.tum.de>, <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, rlievin@free.fr
+Subject: Re: [2.5 patch] tiglusb.c must include version.h
+References: <Pine.NEB.4.44.0208111416110.3636-100000@mimas.fachschaften.tu-muenchen.de>
+	<200208121012.59099.bhards@bigpond.net.au>
+From: Julien BLACHE <jb@jblache.org>
+Date: Mon, 12 Aug 2002 10:28:18 +0200
+In-Reply-To: <200208121012.59099.bhards@bigpond.net.au> (Brad Hards's
+ message of "Mon, 12 Aug 2002 10:12:47 +1000")
+Message-ID: <87znvsmqfx.fsf@frigate.technologeek.org>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) XEmacs/21.4 (Honest Recruiter,
+ powerpc-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Aug 2002 22:21:24 -0700 (PDT)
-"David S. Miller" <davem@redhat.com> wrote:
+Brad Hards <bhards@bigpond.net.au> wrote:
 
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Mon, 12 Aug 2002 14:42:51 +1000
-> 
->    This changes bitmap_member to the more logical DECLARE_BITMAP, then
->    uses it for cpu_online_map (ie. cpu_online_map is now an unsigned long
->    array).
->    
->    Compiles and boots: Dave, how's this?
-> 
-> I'm ok with this for now.
-> 
-> I suspect that once you start using NR_CPUS in the range of 1024 or so
-> you want to allow the port do things like "use a pointer for cpuset_t
-> and NULL means CPU_MASK_ALL"
+Hi,
 
-I thought about that.  Then I thought, "we'll cross that bridge when we
-come to it".  It's overdesign at the moment, we'll be able to judge in 2.7.
+>> line 44 is:
+>>   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+>>
+>>
+>> The fix is simple:
+> <snip>
+>> +#include <linux/version.h>
+>
+> Wouldn't it be cleaner to just remove this case? It is in 2.5, after all.
 
-Rusty.
+We use this case so we don't have to maintain 2 /slightly/ different
+versions of the source, as we're distributing this module outside of
+the kernel tree for use with kernel 2.4.x.
+
+Moreover I asked Greg to push this module into the 2.4 tree if
+possible, so as long as there aren't major changes in the 2.5 code
+I'd really like to keep the same source for 2.4 and 2.5.
+
+But if this should become a hassle for anybody, I'll remove this case
+ASAP.
+
+JB.
+
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Julien BLACHE                                   <http://www.jblache.org> 
+<jb@jblache.org> 

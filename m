@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285569AbRLSXe2>; Wed, 19 Dec 2001 18:34:28 -0500
+	id <S285633AbRLSXvm>; Wed, 19 Dec 2001 18:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285570AbRLSXeS>; Wed, 19 Dec 2001 18:34:18 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:8358 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S285569AbRLSXeD>;
-	Wed, 19 Dec 2001 18:34:03 -0500
-Subject: [PATCH] BLKSIZEGET64 broken in blkpg.c: blk_ioctl()
-From: Eric Sandeen <sandeen@sgi.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 19 Dec 2001 17:34:01 -0600
-Message-Id: <1008804842.24833.28.camel@stout.americas.sgi.com>
+	id <S285644AbRLSXvc>; Wed, 19 Dec 2001 18:51:32 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:29429 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S285633AbRLSXvP>; Wed, 19 Dec 2001 18:51:15 -0500
+Date: Wed, 19 Dec 2001 15:50:20 -0800
+From: Chris Wright <chris@wirex.com>
+To: Jason Czerak <Jason-Czerak@Jasnik.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggestions for linux security patches
+Message-ID: <20011219155020.A4424@figure1.int.wirex.com>
+Mail-Followup-To: Jason Czerak <Jason-Czerak@Jasnik.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1008794926.842.6.camel@neworder>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1008794926.842.6.camel@neworder>; from Jason-Czerak@Jasnik.net on Wed, Dec 19, 2001 at 03:48:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unless I'm missing something here...
+* Jason Czerak (Jason-Czerak@Jasnik.net) wrote:
+> So to advoid applying 20 or so differnet patches, and evaluate each of
+> them (taking up what little time I have in a day...), I wish to get the
+> lists opinions on the matter.
 
-BLKSIZEGET64 is supposed to return device size in bytes, right?
+have you looked at linux security modules?  the patches are at
+http://lsm.immunix.org.  it pushes security policy into modules so you can
+try different modules to see which policy you prefer.
 
-[eric@stout linux]$ grep BLKGETSIZE64 include/linux/fs.h 
-#define BLKGETSIZE64 _IOR(0x12,114,sizeof(u64))	/* return device size in bytes (u64 *arg) */
+> Local security/control isn't much of an issue and most likly won't be
+> for a while. Remote security and protection from server deamons that
+> have buffer problems are high priority to get the best protection for. 
 
-But now it's just returning number of sectors as a u64 number in
-blk_ioctl()
+note, non-executable stack does not prevent buffer overflow attacks.
+the exploit just needs to change.  check out tools like libsafe and
+StackGuard as well for buffer overflow protection.
 
-So:
-
---- /usr/tmp/TmpDir.26482-0/linux/drivers/block/blkpg.c_1.13	Wed Dec 19 17:03:39 2001
-+++ linux/drivers/block/blkpg.c	Wed Dec 19 17:02:21 2001
-@@ -247,7 +247,7 @@
- 			if (cmd == BLKGETSIZE)
- 				return put_user((unsigned long)ullval, (unsigned long *)arg);
- 			else
--				return put_user(ullval, (u64 *)arg);
-+				return put_user(ullval << 9, (u64 *)arg);
- #if 0
- 		case BLKRRPART: /* Re-read partition tables */
- 			if (!capable(CAP_SYS_ADMIN)) 
-
-
--Eric
-
--- 
-Eric Sandeen      XFS for Linux     http://oss.sgi.com/projects/xfs
-sandeen@sgi.com   SGI, Inc.
-
+thanks,
+-chris

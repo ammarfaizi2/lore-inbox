@@ -1,98 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261914AbSLAQuN>; Sun, 1 Dec 2002 11:50:13 -0500
+	id <S262023AbSLAQwC>; Sun, 1 Dec 2002 11:52:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSLAQuN>; Sun, 1 Dec 2002 11:50:13 -0500
-Received: from mail.wincom.net ([209.216.129.3]:61713 "EHLO wincom.net")
-	by vger.kernel.org with ESMTP id <S261914AbSLAQuM>;
-	Sun, 1 Dec 2002 11:50:12 -0500
-From: "Dennis Grant" <trog@wincom.net>
-Reply-to: trog@wincom.net
-To: linux-kernel@vger.kernel.org
-Date: Sun, 01 Dec 102 11:54:41 -0500
-Subject: Got DC10+ VFL Video Capture board working
-X-Mailer: CWMail Web to Mail Gateway 2.4e, http://netwinsite.com/top_mail.htm
-Message-id: <3dea3f71.59f5.0@wincom.net>
-X-User-Info: 24.57.83.120
+	id <S262038AbSLAQwC>; Sun, 1 Dec 2002 11:52:02 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:42197 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262023AbSLAQwA>; Sun, 1 Dec 2002 11:52:00 -0500
+Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+References: <20021201083056.GJ679@kroah.com>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [RFC] LSM fix for stupid "empty" functions
+Date: Sun, 01 Dec 2002 17:59:10 +0100
+Message-ID: <87k7it3cbl.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After much goofing around, I've managed to get a Zoran-based DC10+ video capture
-board working with 2.4.20rc4.
+Greg KH <greg@kroah.com> writes:
 
-Key points: 
+> I'm _really_ tired of all of the "empty" functions that all security
+> modules need to provide.  So here's a brute force patch that lets any
+> security module only set the functions that it wants to override.  If
+> the function is NULL, then the "dummy" function will be used instead.
+>
+> What do people think of this?  I also cleaned up the comment in the
+> verify function of security/security.c and made it not inline.
 
-1) There doesn't seem to be any way to do this with the vanilla kernel. Trying
-to compile in all the VFL devices won't compile (there's a problem with the
-bttv driver - and unresolved symbol of some sort) and it seems the zoran driver
-is dependant on a module called i2c-old that is only built with the bttv driver?
+I second this. It's very annoying and error-prone to define lots of
+unnecessary functions, not to mention maintainability.
 
+> ===== security/security.c 1.4 vs edited =====
+> --- 1.4/security/security.c	Thu Oct 17 13:21:20 2002
+> +++ edited/security/security.c	Sat Nov 30 23:01:07 2002
+[...]
+> @@ -59,11 +61,8 @@
+>  	/* Perform a little sanity checking on our inputs */
+>  	err = 0;
+>  
+[...]
+>  	VERIFY_STRUCT(struct security_operations, ops, err);
 
-2) Building the current CVS (which doesn't seem to have been altered in months)
-for the driver-zoran project from mjpeg.sourceforge.net produced modules that
-worked. A brief visual comparison between them and the .c files in the kernel
-source didn't reveal any differences more obvious than some kernel version #ifdefs
-in the driver-zoran versions of the drivers - they're the same code, or at least
-_very_ similar.
+This shouldn't be necessary anymore.
+ 
+> @@ -106,6 +105,7 @@
+>   */
+>  int register_security (struct security_operations *ops)
+>  {
+> +	security_fixup_ops (ops);
 
-3) I had to build the bttv kernel driver as a module to get the i2c-old.o module
-built.
+You're patching other people's data structures. Not everybody may like
+this. Maybe it's even impossible on ROM based systems. Do you think a
+copy is doable? Just a thought.
 
-4) I then wrote a rc script that did:
+>  	if (verify (ops)) {
+>  		printk (KERN_INFO "%s could not verify "
 
-    modprobe i2c-old
-    modprobe saa7110
-    modprobe adv7175
-    modprobe zoran
+When ops is NULL, this check is too late.
 
-and this presented the following dmesg output:
+> @@ -162,6 +162,8 @@
+>   */
+>  int mod_reg_security (const char *name, struct security_operations *ops)
+>  {
+> +	security_fixup_ops (ops);
+> +
+>  	if (verify (ops)) {
+>  		printk (KERN_INFO "%s could not verify "
+>  			"security operations.\n", __FUNCTION__);
 
-i2c: initialized
-Zoran ZR36060 + ZR36057/67 MJPEG board driver version 0.9
-PCI: Found IRQ 11 for device 00:0e.0
-MJPEG[0]: Zoran ZR36067 (rev 2) irq: 11, memory: 0xdd800000
-MJPEG[0]: subsystem vendor=0x1031 id=0x7efe
-MJPEG[0]: Initializing i2c bus...
-saa7110_attach: SAA7110A version 1 at 0x9c, status=0xf0
-MJPEG[0]: i2c attach 04
-adv7176_attach: adv7176 rev. 1 at 0x56
-DC10plus[0]: i2c attach 05
-DC10plus[0] card detected
-DC10plus[0]: Zoran ZR36060 (rev 1)
-MJPEG: 1 card(s) found
-MJPEG: using 2 V4L buffers of size 128 KB
-DC10plus[0]: Initializing card[0], zr=e0988600
-DC10plus[0]: enable_jpg IDLE
-DC10plus[0]: Testing interrupts...
-DC10plus[0]: interrupts received: GIRQ1:49 queue_state=0/0/0/0
-DC10plus[0]: procfs entry /proc/zoran0 allocated. data=e0988600
+Same here.
 
-5) My _guess_ as to what is happening is that:
+Nevertheless, I like this patch.
 
-   a) The zoran/DC10+ stuff depends on the i2c-old code
-   b) It also depends on saa7110 and adv7175
-   c) When you check the DC10+ option in make config, these dependancies are
-not being resolved, and one or more of them don't make it into the kernel when
-one attempts to compile DC10+ in monolithic
-   d) There may be differences between the driver code in the MJPEG CVS and
-the current vanilla kernel
-
-6) As such, to get this working should require:
-   a) Sync up the current MJPEG cvs to the current kernel 
-   b) Ensure that checking DC10+ gets you:
-      i)   i2c-old.o
-      ii)  saa7110.o
-      iii) adv7175.o
-      iv)  zoran.o
-   in that order.
-
-Is there someone to carry this forward?
-
-Thanks!
-
-DG
-
-
+Regards, Olaf.

@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318453AbSGSDXP>; Thu, 18 Jul 2002 23:23:15 -0400
+	id <S318433AbSGSDb0>; Thu, 18 Jul 2002 23:31:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318454AbSGSDXP>; Thu, 18 Jul 2002 23:23:15 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:14343 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318453AbSGSDXO>;
-	Thu, 18 Jul 2002 23:23:14 -0400
-Date: Thu, 18 Jul 2002 20:24:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Josh Litherland <fauxpas@temp123.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB Keypad
-Message-ID: <20020719032445.GA18456@kroah.com>
-References: <20020719015232.GA20956@temp123.org> <20020719031000.GA18382@kroah.com> <20020719032008.GA22934@temp123.org>
+	id <S318434AbSGSDb0>; Thu, 18 Jul 2002 23:31:26 -0400
+Received: from dsl-65-189-106-249.telocity.com ([65.189.106.249]:51083 "EHLO
+	mail.temp123.org") by vger.kernel.org with ESMTP id <S318433AbSGSDb0>;
+	Thu, 18 Jul 2002 23:31:26 -0400
+Date: Thu, 18 Jul 2002 23:34:18 -0400
+From: Josh Litherland <fauxpas@temp123.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB Keypad]
+Message-ID: <20020719033418.GA23049@temp123.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020719032008.GA22934@temp123.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 21 Jun 2002 02:16:28 -0700
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 11:20:08PM -0400, Josh Litherland wrote:
-> On Thu, Jul 18, 2002 at 08:10:00PM -0700, Greg KH wrote:
-> 
-> > Should work just fine today.  What kind of problems do you have when you
-> > try to do it?
-> 
-> Just not getting any events from the keypad.  When I load up evdev, and
-> cat the device I get the appropriate gibberish, so the device is
-> detected okay.  This is 2.4.18, if that makes a difference for the
-> purposes of this discussion.
+On Thu, Jul 18, 2002 at 08:24:45PM -0700, Greg KH wrote:
 
-If the device is detected, how is it detected?  Is the USB HID driver
-binding to the device?
+> If the device is detected, how is it detected?  Is the USB HID driver
+> binding to the device?
 
-thanks,
+hub.c: USB new device connect on bus1/1, assigned device number 4
+input0: USB HID v1.00 Keyboard [        USB Keypad                    ] on usb1:4.0
 
-greg k-h
+-- 
+Josh Litherland (fauxpas@temp123.org)
+public key: temp123.org/fauxpas.pgp
+fingerprint: CFF3 EB2B 4451 DC3C A053  1E07 06B4 C3FC 893D 9228

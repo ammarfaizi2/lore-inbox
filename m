@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129605AbQLNFR5>; Thu, 14 Dec 2000 00:17:57 -0500
+	id <S129826AbQLNFUH>; Thu, 14 Dec 2000 00:20:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129826AbQLNFRr>; Thu, 14 Dec 2000 00:17:47 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:34026 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129605AbQLNFRa>;
-	Thu, 14 Dec 2000 00:17:30 -0500
-Date: Wed, 13 Dec 2000 23:47:01 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chip Salzenberg <chip@valinux.com>
-cc: linux-kernel@vger.kernel.org, korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <20001213204239.L864@valinux.com>
-Message-ID: <Pine.GSO.4.21.0012132346060.6300-100000@weyl.math.psu.edu>
+	id <S132466AbQLNFT5>; Thu, 14 Dec 2000 00:19:57 -0500
+Received: from www.wen-online.de ([212.223.88.39]:56592 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129826AbQLNFTr>;
+	Thu, 14 Dec 2000 00:19:47 -0500
+Date: Thu, 14 Dec 2000 05:49:16 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12 randomly hangs up
+In-Reply-To: <200012132247.eBDMlM201139@lt.wsisiz.edu.pl>
+Message-ID: <Pine.Linu.4.10.10012140541560.1063-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Dec 2000, Lukasz Trabinski wrote:
 
-
-On Wed, 13 Dec 2000, Chip Salzenberg wrote:
-
-> According to Alexander Viro:
-> > On Wed, 13 Dec 2000, Chip Salzenberg wrote:
-> > > According to Alexander Viro:
-> > > > 9P is quite simple and unlike CORBA it had been designed for taking
-> > > > kernel stuff to userland.  Besides, authors definitely understand
-> > > > UNIX...
-> > > 
-> > > As nice as 9P is, it'll need some tweaks to work with Linux.
-> > > For example, it limits filenames to 30 characters; that's not OK.
-> > 
-> > For RPC-style uses? Why?
+> In article <20001213121349.A6787@sarah.kolej.mff.cuni.cz> you wrote:
 > 
-> For the same reason C compilers recognize more than eight significant
-> characters in externals, even though ANSI doesn't require them to.
+> > I can (re)confirm that. I work several hours on console without any
+> > problem ... then I start X session and after several minutes system
+> > hangs.
+> 
+> I can confirm that, too.
+> Todaye, crashed two difference machines
+> One: AMD-K6 3D, 300 MHz, RH 7.0 + updates, 64MB RAM
+> Second one: AMD Athlon 600, 600MHz with, 128MB RAM, RH 7.0+updates
+> 
+> > Red Hat 7.0, XFree-3.3.6 (SVGA server), S3Virge/G2 (4MB)
+> 
+> > (no problems with -test11 and 2.2.x before ...)
+> 
+> Exactly
 
-s/30/255/ and you've got a big problem with ext2...
+Not here.  I've been seeing occasional hard freezes since test10.
+Mostly after a period of idle cpu (reading kernel code.. reader
+enters catatonic state with smoke pouring out ears;) X isn't running.
+
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

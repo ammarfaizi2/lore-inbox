@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbULIPqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbULIPst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbULIPqK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 10:46:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbULIPqK
+	id S261532AbULIPst (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 10:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbULIPst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 10:46:10 -0500
-Received: from thumper2.emsphone.com ([199.67.51.102]:41357 "EHLO
-	thumper2.allantgroup.com") by vger.kernel.org with ESMTP
-	id S261222AbULIPqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 10:46:08 -0500
-Date: Thu, 9 Dec 2004 09:45:59 -0600
-From: Andy <genanr@emsphone.com>
+	Thu, 9 Dec 2004 10:48:49 -0500
+Received: from main.gmane.org ([80.91.229.2]:46003 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261532AbULIPsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 10:48:45 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: Rereading disk geometry without reboot
-Message-ID: <20041209154559.GA14045@thumper2>
-References: <20041206202356.GA5866@thumper2> <1102437427.23136.3.camel@markh1.pdx.osdl.net>
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
+Date: Thu, 09 Dec 2004 10:48:43 -0500
+Message-ID: <87oeh35v6s.fsf@coraid.com>
+References: <87acsrqval.fsf@coraid.com> <20041206215456.GB10499@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102437427.23136.3.camel@markh1.pdx.osdl.net>
-User-Agent: Mutt/1.5.6+20040907i
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:Qv/HVtbkccNPySi34XAus83ObD8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 07, 2004 at 08:37:07AM -0800, Mark Haverkamp wrote:
-> 
-> You can re-scan a scsi device via sysfs.  You can, for example,
-> 
-> echo 1 > /sys/block/sdc/device/rescan
-> 
-> to rescan that device.
-> 
-Yes, and it reports the new size in dmesg, but when I try to grow the xfs
-it doesn't grow.  It seems like some part of the kernel is not being told
-about the new size of the drive. Any ideas?
+Greg KH <greg@kroah.com> writes:
 
-Andy
+...
+>> +	printk(KERN_INFO "aoe: aoeblk_ioctl: unknown ioctl %d\n", cmd);
+>
+> So I can flood the syslog by sending improper ioctls to the driver?
+> That's not nice...
+
+Wouldn't root be the only user who could do that?  When would this
+happen?  
+
+If it's happening by accident, then something's wrong, and it's
+helpful to make it known that something's wrong.  If it's on purpose,
+then somebody has root and is doing malicious things, in which case
+syslog flooding is the least of our worries.  They could do the same
+thing using "logger" anyway.
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+

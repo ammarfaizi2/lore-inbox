@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbTILQ2d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 12:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbTILQ2d
+	id S261754AbTILQXl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 12:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbTILQXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 12:28:33 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:21376 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S261751AbTILQ2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 12:28:30 -0400
-Date: Fri, 12 Sep 2003 18:28:12 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: krose+linux-kernel@krose.org
-Cc: ken@krwtech.com, linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA proprietary driver problem
-Message-ID: <20030912162812.GA10942@vana.vc.cvut.cz>
-References: <87u17if7eu.fsf@nausicaa.krose.org> <Pine.LNX.4.51.0309121553500.14124@dns.toxicfilms.tv> <87r82mf6j9.fsf@nausicaa.krose.org> <Pine.LNX.4.56.0309121023440.973@death>
+	Fri, 12 Sep 2003 12:23:41 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:20370 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261754AbTILQXk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 12:23:40 -0400
+Date: Fri, 12 Sep 2003 17:22:54 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Anthony Dominic Truong <anthony.truong@mascorp.com>
+Cc: linux-kernel@vger.kernel.org, willy@debian.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-ID: <20030912162254.GA2719@mail.jlokier.co.uk>
+References: <20030911192550.7dfaf08c.ak@suse.de> <1063308053.4430.37.camel@huykhoi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0309121023440.973@death>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1063308053.4430.37.camel@huykhoi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 10:29:43AM -0400, Ken Witherow wrote:
-> On Fri, 12 Sep 2003, Kyle Rose wrote:
-> 
-> > > What motherboard is it?
-> >
-> > Tyan Tiger MP, dual Athlon MP 1800's.
-> 
-> I've got the same motherboard and processors with a GF4 MX420
-> 
-> I'm running 2.6.0-test5 with the 4496 drivers with the patches from
-> minion.de without any problems.
-> 
-> Sep  9 00:06:08 death kernel: nvidia: no version magic, tainting kernel.
-> Sep  9 00:06:08 death kernel: nvidia: module license 'NVIDIA' taints
-> kernel.
-> Sep  9 00:06:08 death kernel: 1: nvidia: loading NVIDIA Linux x86 nvidia.o
-> Kernel Module  1.0-4496 Wed Jul 16 19:03:09 PDT 2003
+Anthony Dominic Truong wrote:
+> Wouldn't it be better if we set the IN and OUT function pointers to the
+> right functions during driver init. based on the setting of dev->mmio.
+> And throughout the driver, we just call the IN and OUT functions by
+> their pointers.  Then we don't have to do if (dev->mmio) every time.
+> It's similar to the concept of virtual member function in C++.
 
-BIOS has setting whether IRQ should be assigned to the VGA card
-or not - default is not, and if you'll leave it this way, you'll get
-no IRQ:
+I think it would be faster to hide the "if (mmio)" part into an
+inline function which calls one or the other, given a resource cookie.
 
-platan:~# lspci -s 0:0e.0 -vb
-00:0e.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27) (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc Rage XL
-        Flags: bus master, stepping, medium devsel, latency 66, IRQ 255
-        Memory at 51000000 (32-bit, non-prefetchable)
-        I/O ports at 1000
-        Memory at 50001000 (32-bit, non-prefetchable)
-        Capabilities: [5c] Power Management version 2
+Branch prediction will remove most of the cost of a conditional test,
+which is always the same in these drivers after all, but I don't think
+it's quite so good at predicting indirect function calls.
 
-If you'll change BIOS's setting, your Nvidia (or vsync code on matroxfb) should 
-work.
-							Petr Vandrovec
-
+-- Jamie

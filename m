@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262865AbUBZRM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 12:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbUBZRM4
+	id S262897AbUBZRVl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 12:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUBZRVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 12:12:56 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:38536 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262865AbUBZRMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 12:12:54 -0500
-Date: Thu, 26 Feb 2004 12:12:14 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Jesse Pollard <jesse@cats-chateau.net>
-cc: Timothy Miller <miller@techsource.com>, Grigor Gatchev <grigor@zadnik.org>,
-       Christer Weinigel <christer@weinigel.se>,
-       Nikita Danilov <Nikita@Namesys.COM>, <root@chaos.analogic.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: A Layered Kernel: Proposal
-In-Reply-To: <04022609432200.08433@tabby>
-Message-ID: <Pine.LNX.4.44.0402261211510.5629-100000@chimarrao.boston.redhat.com>
+	Thu, 26 Feb 2004 12:21:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52667 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262897AbUBZRVh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 12:21:37 -0500
+Message-ID: <403E2B14.7060003@pobox.com>
+Date: Thu, 26 Feb 2004 12:21:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christophe Saout <christophe@saout.de>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][1/2] dm-crypt cleanups
+References: <20040226162324.GA12597@leto.cs.pocnet.net>
+In-Reply-To: <20040226162324.GA12597@leto.cs.pocnet.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Feb 2004, Jesse Pollard wrote:
+Christophe Saout wrote:
+> +#include <asm/atomic.h>
+>  #include <asm/scatterlist.h>
+>  
+>  #include "dm.h"
+>  
+> +#define PFX	"crypt: "
+> +
+>  /*
+>   * per bio private data
+>   */
+> @@ -416,7 +419,7 @@
+>  	int key_size;
+>  
+>  	if (argc != 5) {
+> -		ti->error = "dm-crypt: Not enough arguments";
+> +		ti->error = PFX "Not enough arguments";
+>  		return -EINVAL;
+>  	}
+>  
 
-> Until you add IPSEC...
-> 
-> Unless the TOE has the same security support (encrypt some packets, not
-> others, require verification from some networks, not others,...), and
-> flexibility that the Linux network stack has, and ...
 
-Exactly.  I just don't see TOE as a viable option for
-networking, so I'm not too worried about not supporting
-it.
+Looks good, except that PFX should be defined to "dm-crypt: " to reduce 
+confusion...  "crypt" is rather generic, and could be construed to be 
+unrelated to your module.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+	Jeff
+
+
 

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264745AbTI2UfM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 16:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbTI2UfM
+	id S264708AbTI2U0P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 16:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTI2U0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 16:35:12 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:7091 "EHLO fed1mtao06.cox.net")
-	by vger.kernel.org with ESMTP id S264745AbTI2UfG (ORCPT
+	Mon, 29 Sep 2003 16:26:15 -0400
+Received: from nevyn.them.org ([66.93.172.17]:46976 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S264708AbTI2U0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 16:35:06 -0400
-Date: Mon, 29 Sep 2003 13:34:51 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Judith Lebzelter <judith@osdl.org>
-Cc: linux-kernel@vger.kernel.org, plm-devel@lists.sourceforge.net
-Subject: Re: PowerPC Cross-compile of 2.6 kernels
-Message-ID: <20030929203451.GB7563@ip68-0-152-218.tc.ph.cox.net>
-References: <20030929165408.GA4102@ip68-0-152-218.tc.ph.cox.net> <Pine.LNX.4.33.0309291310080.21025-100000@osdlab.pdx.osdl.net>
+	Mon, 29 Sep 2003 16:26:11 -0400
+Date: Mon, 29 Sep 2003 16:26:04 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Brian Gerst <bgerst@didntduck.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: -mregparm=3 (was  Re: [PATCH] i386 do_machine_check() is redundant.
+Message-ID: <20030929202604.GA23344@nevyn.them.org>
+Mail-Followup-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Brian Gerst <bgerst@didntduck.org>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org> <1064775868.5045.4.camel@laptop.fenrus.com> <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0309291310080.21025-100000@osdlab.pdx.osdl.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 01:21:53PM -0700, Judith Lebzelter wrote:
-> On Mon, 29 Sep 2003, Tom Rini wrote:
-> 
+On Mon, Sep 29, 2003 at 10:20:45PM +0200, Mikulas Patocka wrote:
+> > > > Use machine_check_vector in the entry code instead.
+> > >
+> > > This is wrong. You just lost the "asmlinkage" thing, which means that it
+> > > breaks when asmlinkage matters.
+> > >
+> > > And yes, asmlinkage _can_ matter, even on x86. It disasbles regparm, for
+> > > one thing, so it makes a huge difference if the kernel is compiled with
+> > > -mregparm=3 (which used to work, and which I'd love to do, but gcc has
+> > > often been a tad fragile).
 > >
-> > As of 2.6.0-test6, allyesconfig (with no fiddling of other options)
-> > on PPC is as sane as it's going to be. :)
-> >
+> > gcc 3.2 and later are supposed to be ok (eg during 3.2 development a
+> > long standing bug with regparm was fixed and now is believed to work)...
+> > since our makefiles check gcc version already... this can be made gcc
+> > version dependent as well for sure..
 > 
-> Does this mean that the results of the compile are not useful or even
-> confusing, since they do not fuss with configuration options?  Would it be
-> better not to run the 'allyesconfig' option?
+> They are still buggy. gcc 3.3.1 miscompiles itself with -mregparm=3
+> (without -O or -O2 it works). (I am too lazy to spend several days trying
+> to find exactly which function in gcc was miscompiled, maybe I do it one
+> day). gcc 2.95.3 compiles gcc 3.3.1 with -mregparm=3 -O2 correctly.
+> gcc 3.4 doesn't seem to be better.
+> 
+> gcc 2.7.2.3 has totally broken -mregparm=3, even quite simple programs
+> fail.
 
-Well, on PPC we get CONFIG_ISA, which is useful for a few drivers, but I
-suspect that it will enable a number of 'other' drivers as well.  I'm
-not sure what would be more useful however.
+You can't build GCC with -mregparm=3.  It changes the interface to
+system functions.  So unless your libc happened to be built with
+-mregparm=3, and extensively hacked to expect arguments in registers to
+the assembly stubs, it can't work.
+
+It's interesting for kernel code, whole distributions, or things which
+are careful to have a glue layer.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbQJZXH7>; Thu, 26 Oct 2000 19:07:59 -0400
+	id <S129935AbQJZXQc>; Thu, 26 Oct 2000 19:16:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129935AbQJZXHm>; Thu, 26 Oct 2000 19:07:42 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:37394 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129453AbQJZXG5>; Thu, 26 Oct 2000 19:06:57 -0400
-Date: Thu, 26 Oct 2000 21:10:06 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rik van Riel <riel@conectiva.com.br>, mauelshagen@sistina.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: LVM snapshotting broken?
-In-Reply-To: <20001027004404.A1282@athlon.random>
-Message-ID: <Pine.LNX.4.21.0010262105380.4522-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130132AbQJZXQV>; Thu, 26 Oct 2000 19:16:21 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:7 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S129935AbQJZXQO>; Thu, 26 Oct 2000 19:16:14 -0400
+Date: Thu, 26 Oct 2000 19:01:26 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, linus@goop.org
+Subject: Re: [PATCH] address-space identification for /proc
+Message-ID: <20001026190126.E28472@sventech.com>
+In-Reply-To: <20001026154527.A30463@goop.org> <20001026155225.B30463@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <20001026155225.B30463@goop.org>; from Jeremy Fitzhardinge on Thu, Oct 26, 2000 at 03:52:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 27 Oct 2000, Andrea Arcangeli wrote:
-
-> On Thu, Oct 26, 2000 at 06:34:48PM -0200, Rik van Riel wrote:
-> > On Thu, 26 Oct 2000, Rik van Riel wrote:
-> > 
-> > > it looks like the LVM snapshotting in 2.4 doesn't allow you
-> > > to create snapshots from anything else than the _first_ LV
-> > > in the VG...
-> > 
-> > OK, I reproduced it in 2.2 as well ... ;(
+On Thu, Oct 26, 2000, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> On Thu, Oct 26, 2000 at 03:45:27PM -0700, I wrote:
+> > +	buffer += sprintf("ASID: %p\n", mm);
 > 
-> Which 2.2.x? LVM isn't supported in 2.2.18pre17 or any other previous version.
+> Obviously, this should be:
 > 
-> For some irrelevant reason I always test snapshotting on a LV with minor
-> number > 1 and the kernel side definitely works with 2.2.18pre17aa1:
-> 
-> laser:/home/andrea # ls -l /dev/vg1/lv*
-> brw-r-----   1 root     root      58,   0 Oct 27  2000 /dev/vg1/lv0
-> brw-r-----   1 root     root      58,   1 Oct 27  2000 /dev/vg1/lv1
-> laser:/home/andrea # lvcreate -s -n lv1-snap /dev/vg1/lv1 -L 400M
-> lvcreate -- INFO: using default snapshot chunk size of 64 KB
-> lvcreate -- doing automatic backup of "vg1"
-> lvcreate -- logical volume "/dev/vg1/lv1-snap" successfully created
-> 
-> laser:/home/andrea # lvremove -f /dev/vg1/lv1-snap 
-> lvremove -- doing automatic backup of volume group "vg1"
-> lvremove -- logical volume "/dev/vg1/lv1-snap" successfully removed
-> 
-> laser:/home/andrea # 
+> +	buffer += sprintf("ASID:\t%p\n", mm);
 
-With LVM from 2.2.18aa kernels (I dont exactly remember which one)
+and even more obvious:
 
++	buffer += sprintf(buffer, "ASID:\t%p\n", mm);
 
+Actually putting it into the buffer would be useful as well :)
+
+JE
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

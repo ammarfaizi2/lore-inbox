@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbVBBTaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVBBTen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbVBBTaT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVBBTaS
+	id S262736AbVBBTen (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVBBTeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:30:18 -0500
-Received: from mail.joq.us ([67.65.12.105]:39860 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262509AbVBBT3w (ORCPT
+	Wed, 2 Feb 2005 14:34:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:7382 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262741AbVBBTb3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:29:52 -0500
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-References: <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu>
-	<20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us>
-	<20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us>
-	<1106782165.5158.15.camel@npiggin-nld.site>
-	<874qh3bo1u.fsf@sulphur.joq.us>
-	<1106796360.5158.39.camel@npiggin-nld.site>
-	<87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu>
-	<873bwfo8br.fsf@sulphur.joq.us>
-	<1107370770.3104.136.camel@krustophenia.net>
-From: "Jack O'Quin" <joq@io.com>
-Date: Wed, 02 Feb 2005 13:31:12 -0600
-In-Reply-To: <1107370770.3104.136.camel@krustophenia.net> (Lee Revell's
- message of "Wed, 02 Feb 2005 13:59:30 -0500")
-Message-ID: <87pszikbcv.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Wed, 2 Feb 2005 14:31:29 -0500
+Date: Wed, 2 Feb 2005 19:31:24 +0000 (GMT)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Haakon Riiser <haakon.riiser@fys.uio.no>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Accelerated frame buffer functions
+In-Reply-To: <20050202154139.GA3267@s>
+Message-ID: <Pine.LNX.4.56.0502021930250.20184@pentafluge.infradead.org>
+References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
+ <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales>
+ <20050202154139.GA3267@s>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Tue, 2005-02-01 at 23:10 -0600, Jack O'Quin wrote:
->> Is nobody responsible for figuring out what users need?  I didn't
->> realize kernel development had become so disconnected.
+> > Le mercredi 02 février 2005 à 15:21 +0100, Haakon Riiser a
+> > écrit :
+> 
+> >> How can I use a frame buffer driver's optimized copyarea,
+> >> fillrect, blit, etc. from userspace?  The only way I've ever
+> >> seen anyone use the frame buffer device is by mmap()ing it
+> >> and doing everything manually in the mapped memory.  I assume
+> >> there must be ioctls for accessing the accelerated functions,
+> >> but after several hours of grepping and googling, I give up. :-(
+> 
+> > Did you try DirectFB ?
+> 
+> Thanks for the tip, I hadn't heard about it.  I will take a look,
+> but only to see if it can show me the user space API of /dev/fb.
+> I don't need a general library that supports a bunch of different
+> graphics cards.  I'm writing my own frame buffer driver for the
+> GX2 CPU, and I just want to know how to call the various functions
+> registered in struct fb_ops, so that I can test my code.  I mean,
+> all those functions registered in fb_ops must be accessible
+> somehow; if they weren't, what purpose would they serve?
 
-Lee Revell <rlrevell@joe-job.com> writes:
-> IMHO the requirements gathering process usually works well.  When
-> someone with a redhat.com (for example) address posts a patch there's an
-> implicit assumption that it addresses the needs of their gadzillions of
-> users.  Still, RH hires professional kernel developers, people who
-> produce known good code will always have an easier time getting patches
-> merged.  If Linus & co. don't know you from Adam and you show up with a
-> patch that claims to solve a big problem, then I would expect them to be
-> a bit skeptical.  Especially if the problem is either low priority or
-> not well understood by the major distros.
+The reason for the accelerated functions is for the framebuffer console.
+Drawing pixel by pixel is to slow.
 
-I guess you're right, Lee.  I hadn't thought of it that way.  It just
-looks broken to me because we have no standing in any normal kernel
-requirements process.  That's a shame, but it does seem less like a
-systemic issue.
-
-I think the distributions are getting more interested in these issues.
-Maybe that will help.  The RT-LSM is available as a module in Debian
-sarge.
-
-Back when I did OS development for a living, there was a huge focus on
-defining user requirements.  But, our kernel development was never
-organizationally separate from the rest of the OS.  That makes a big
-difference.
--- 
-  joq

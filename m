@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266666AbUAWXES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 18:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266716AbUAWXES
+	id S266718AbUAWXEf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 18:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266719AbUAWXEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 18:04:18 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:6548
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S266666AbUAWXER
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 18:04:17 -0500
-Date: Fri, 23 Jan 2004 18:15:12 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Illegal instruction with gl
-Message-ID: <20040123181512.A6632@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+	Fri, 23 Jan 2004 18:04:35 -0500
+Received: from user-119ahgg.biz.mindspring.com ([66.149.70.16]:20432 "EHLO
+	mail.home") by vger.kernel.org with ESMTP id S266718AbUAWXEb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 18:04:31 -0500
+From: Eric <eric@cisu.net>
+To: linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: Correct CPUs printout on boot.
+Date: Fri, 23 Jan 2004 17:03:54 -0600
+User-Agent: KMail/1.5.94
+References: <E1Ajuub-0000y1-00@hardwired>
+In-Reply-To: <E1Ajuub-0000y1-00@hardwired>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401231703.54127.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently upgraded my system board and now gl stuff crashes with illegal
-instruction.
+On Friday 23 January 2004 12:35 am, davej@redhat.com wrote:
+> This currently prints out the maximum number of CPUs the
+> kernel is configured to support, instead of the actual
+> number that the kernel brought up. Which results in odd
+> displays that look like you have more CPUs than you do.
 
-Here's the trace (space in url to keep off robots)
-http:// veg.animx.eu.org/strace.gl.txt
+Why do you have to declare a new variable? Can't you just do this? i is 
+already counting how many cpu's we've brought up and its of the same type j.
 
-I'm using 2.6.1 SMP PREEMPT on a dual P4 Xeon 2.66ghz (1gb ram)
+-	printk("CPUS done %u\n", max_cpus);
++	printk("CPUS done %u\n", i);
 
-The board is a supermicro x5da8 (Intel e7505 chipset).  The card is a matrox
-g400 max 32mb dual head.  mga, intel_agp and agpgart are loaded.
 
-Modifications to the kernel when I changed the board (old board was an intel
-chipset, same card with 384mb ram):
-Enabled ACPI
-Enabled PreEmpt
-Changed processor type to p4 (from pIII)
-Enabled SMP
-Enabled High mem (4GB)
-Enable aic79xx (aic7xxx is also enabled but not used) and changed the
-initial delay from 15000 to 1000
+>     Dave
+>
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/init/main.c
+> linux-2.5/init/main.c --- linux-2.5/init/main.c~	Fri Jan 23 06:24:12 2004
+> +++ linux-2.5/init/main.c	Fri Jan 23 06:24:44 2004
+> @@ -339,7 +339,7 @@
+>  /* Called by boot processor to activate the rest. */
+>  static void __init smp_init(void)
+>  {
+> -	unsigned int i;
+> +	unsigned int i, j=0;
+>
+>  	/* FIXME: This should be done in userspace --RR */
+>  	for (i = 0; i < NR_CPUS; i++) {
+> @@ -348,11 +348,12 @@
+>  		if (cpu_possible(i) && !cpu_online(i)) {
+>  			printk("Bringing up %i\n", i);
+>  			cpu_up(i);
+> +			j++;
+>  		}
+>  	}
+>
+>  	/* Any cleanup work */
+> -	printk("CPUS done %u\n", max_cpus);
+> +	printk("CPUS done %u\n", j);
+>  	smp_cpus_done(max_cpus);
+>  #if 0
+>  	/* Get other processors into their bootup holding patterns. */
 
-I also enabled new modules for the intel 1000 nic and the intel ICH ac97
-sound (both alsa and oss).
-
-These are the only configuration changes.  I looked at the X log but saw
-nothing.  The kernel does not complain about anything.
-
-If this is a known problem, please let me know.  I'm willing to try any
-troubleshooting to fix this problem.  Any more information available on
-request.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+ 
+-------------------------
+Eric Bambach
+Eric at cisu dot net
+-------------------------

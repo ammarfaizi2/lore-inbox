@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267804AbUGWQHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267481AbUGWQHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267804AbUGWQHk (ORCPT <rfc822;willy@w.ods.org>);
+	id S267481AbUGWQHk (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jul 2004 12:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267831AbUGWQH2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUGWQHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 12:07:28 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:2256 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S267481AbUGWPza (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 11:55:30 -0400
-Date: Fri, 23 Jul 2004 17:55:28 +0200
+	Fri, 23 Jul 2004 12:07:18 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:15769 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267825AbUGWPwX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 11:52:23 -0400
+Date: Fri, 23 Jul 2004 17:52:18 +0200
 From: maximilian attems <janitor@sternwelten.at>
-To: jffs-dev@axis.com
+To: viro@math.psu.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch-kj] use list_for_each() in fs/jffs/intrep.c
-Message-ID: <20040723155528.GQ1795@stro.at>
+Subject: [patch-kj] use list_for_each()/list_for_each_save() in fs/dcache.c
+Message-ID: <20040723155218.GP1795@stro.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -38,44 +38,63 @@ Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.7-bk20-max/fs/jffs/intrep.c |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
+ linux-2.6.7-bk20-max/fs/dcache.c |   21 +++++----------------
+ 1 files changed, 5 insertions(+), 16 deletions(-)
 
-diff -puN fs/jffs/intrep.c~list_for_each-fs-jffs fs/jffs/intrep.c
---- linux-2.6.7-bk20/fs/jffs/intrep.c~list_for_each-fs-jffs	2004-07-11 14:41:04.000000000 +0200
-+++ linux-2.6.7-bk20-max/fs/jffs/intrep.c	2004-07-11 14:41:04.000000000 +0200
-@@ -1623,7 +1623,7 @@ jffs_find_file(struct jffs_control *c, _
+diff -puN fs/dcache.c~list_for_each-fs-dcache fs/dcache.c
+--- linux-2.6.7-bk20/fs/dcache.c~list_for_each-fs-dcache	2004-07-11 14:40:57.000000000 +0200
++++ linux-2.6.7-bk20-max/fs/dcache.c	2004-07-11 14:40:57.000000000 +0200
+@@ -288,15 +288,11 @@ struct dentry * dget_locked(struct dentr
  
- 	D3(printk("jffs_find_file(): ino: %u\n", ino));
+ struct dentry * d_find_alias(struct inode *inode)
+ {
+-	struct list_head *head, *next, *tmp;
++	struct list_head *tmp, *next;
+ 	struct dentry *alias, *discon_alias=NULL;
  
--	for (tmp = c->hash[i].next; tmp != &c->hash[i]; tmp = tmp->next) {
-+	list_for_each(tmp, &c->hash[i]) {
- 		f = list_entry(tmp, struct jffs_file, hash);
- 		if (ino != f->ino)
+ 	spin_lock(&dcache_lock);
+-	head = &inode->i_dentry;
+-	next = inode->i_dentry.next;
+-	while (next != head) {
+-		tmp = next;
+-		next = tmp->next;
++	list_for_each_safe(tmp, next, &inode->i_dentry) {
+ 		prefetch(next);
+ 		alias = list_entry(tmp, struct dentry, d_alias);
+  		if (!d_unhashed(alias)) {
+@@ -324,8 +320,7 @@ void d_prune_aliases(struct inode *inode
+ 	struct list_head *tmp, *head = &inode->i_dentry;
+ restart:
+ 	spin_lock(&dcache_lock);
+-	tmp = head;
+-	while ((tmp = tmp->next) != head) {
++	list_for_each(tmp, head) {
+ 		struct dentry *dentry = list_entry(tmp, struct dentry, d_alias);
+ 		if (!atomic_read(&dentry->d_count)) {
+ 			__dget_locked(dentry);
+@@ -442,10 +437,7 @@ void shrink_dcache_sb(struct super_block
+ 	 * superblock to the most recent end of the unused list.
+ 	 */
+ 	spin_lock(&dcache_lock);
+-	next = dentry_unused.next;
+-	while (next != &dentry_unused) {
+-		tmp = next;
+-		next = tmp->next;
++	list_for_each_safe(tmp, next, &dentry_unused) {
+ 		dentry = list_entry(tmp, struct dentry, d_lru);
+ 		if (dentry->d_sb != sb)
  			continue;
-@@ -2021,11 +2021,10 @@ jffs_foreach_file(struct jffs_control *c
- 
- 	for (pos = 0; pos < c->hash_len; pos++) {
- 		struct list_head *p, *next;
--		for (p = c->hash[pos].next; p != &c->hash[pos]; p = next) {
--			/* We need a reference to the next file in the
--			   list because `func' might remove the current
--			   file `f'.  */
--			next = p->next;
-+
-+		/* We must do _safe, because 'func' might remove the
-+		   current file 'f' from the list.  */
-+		list_for_each_safe(p, next, &c->hash[pos]) {
- 			r = func(list_entry(p, struct jffs_file, hash));
- 			if (r < 0)
- 				return r;
-@@ -2590,7 +2589,7 @@ jffs_print_hash_table(struct jffs_contro
- 	printk("JFFS: Dumping the file system's hash table...\n");
- 	for (i = 0; i < c->hash_len; i++) {
- 		struct list_head *p;
--		for (p = c->hash[i].next; p != &c->hash[i]; p = p->next) {
-+		list_for_each(p, &c->hash[i]) {
- 			struct jffs_file *f=list_entry(p,struct jffs_file,hash);
- 			printk("*** c->hash[%u]: \"%s\" "
- 			       "(ino: %u, pino: %u)\n",
+@@ -457,10 +449,7 @@ void shrink_dcache_sb(struct super_block
+ 	 * Pass two ... free the dentries for this superblock.
+ 	 */
+ repeat:
+-	next = dentry_unused.next;
+-	while (next != &dentry_unused) {
+-		tmp = next;
+-		next = tmp->next;
++	list_for_each_safe(tmp, next, &dentry_unused) {
+ 		dentry = list_entry(tmp, struct dentry, d_lru);
+ 		if (dentry->d_sb != sb)
+ 			continue;
+
 

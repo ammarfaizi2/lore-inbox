@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263050AbTIRKNa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 06:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263051AbTIRKNa
+	id S262106AbTIRKc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 06:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbTIRKc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 06:13:30 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:9398 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S263050AbTIRKN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 06:13:29 -0400
-X-Sender-Authentication: net64
-Date: Thu, 18 Sep 2003 12:13:27 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: marcelo.tosatti@cyclades.com.br, pavel@ucw.cz, alan@lxorguk.ukuu.org.uk,
-       neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-Id: <20030918121327.5739b467.skraw@ithnet.com>
-In-Reply-To: <20030918095845.GA77609@dspnet.fr.eu.org>
-References: <20030916195345.GB68728@dspnet.fr.eu.org>
-	<Pine.LNX.4.44.0309161814410.15569-100000@logos.cnet>
-	<20030916212301.GC17045@m23.limsi.fr>
-	<20030917131407.17f767a3.skraw@ithnet.com>
-	<20030917130818.GA3144@m23.limsi.fr>
-	<20030918095845.GA77609@dspnet.fr.eu.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 18 Sep 2003 06:32:29 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:60291 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S262106AbTIRKcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 06:32:17 -0400
+Date: Thu, 18 Sep 2003 12:32:13 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Stevie-O <oliver@klozoff.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Aliasing physical memory using virtual memory (from a d
+Message-ID: <20030918103212.GA7174@vana.vc.cvut.cz>
+References: <80BC15566D@vcnet.vc.cvut.cz> <3F68FEEC.5020809@klozoff.com> <3F6905FE.5030106@klozoff.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F6905FE.5030106@klozoff.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Sep 2003 11:58:45 +0200
-Olivier Galibert <galibert@pobox.com> wrote:
-
-> On Wed, Sep 17, 2003 at 03:08:18PM +0200, Olivier Galibert wrote:
-> > On Wed, Sep 17, 2003 at 01:14:07PM +0200, Stephan von Krawczynski wrote:
-> > > Can you please give 2.4.23-pre4 a short test. I think I can see a
-> > > remarkable difference tp 2.4.22 and would like to find confirmation ...
-> > 
-> > Well, I tried but the aic7xxx does not work for me, see other mail.
-> > I'll try again once the LUN enumeration is fixed.
+On Wed, Sep 17, 2003 at 09:10:22PM -0400, Stevie-O wrote:
+> Stevie-O wrote:
 > 
-> Actually I had booted the wrong kernel (2.6.0t4) by mistake.  SCSI
-> works, and there is indeed a remarkable difference.  The system holds
-> perfectly under filled-ram, high i/o usage now.  Excellent.
+> >
+> >I grepped my 2.4 kernel source for 'vmap' and the only results that 
+> >seemed meaningful were vmap_pte_range or vmap_pmd_range in 
 
-Fine. So we seem to agree 2.4.23 will be another big hit in the 2.4 line :-)
- 
-> Now if only the CPU enumeration worked and both CPUs were detected...
+2.4.22-ac1 has it. In mm/vmalloc.c. You cannot (well, I believe) use
+any functions which take page array if pages were not allocated one
+by one. Maybe you can try using page and page+1, but I'm under
+impression that it will not work as expected, and that you'll hit
+some BUG() somewhere.
 
-Hm, I have not yet seen any configuration where multiple CPUs are not detected.
-Are you sure you have compiled in SMP support? What does dmesg look like?
+> >mips/mm/umap.c and mips64/mm/umap.c. Is this documented somewhere? I 
+> >suffer from the 'i'm new at this, but this looks possible' syndrome. I 
+> >don't actually know how anything is accomplished.
+> >
+> >Btw, am I right about kmalloc(35000) effectively grabbing 64K?
 
-Regards,
-Stephan
+Yes.  
+
+> I did a freetext search of the LXR for 'remap' and came up with this 
+> function:
+> 
+> 820 /*
+> 821  * maps a range of physical memory into the requested pages. the old
+> 822  * mappings are removed. any references to nonexistent pages results
+> 823  * in null mappings (currently treated as "copy-on-access")
+> 824  */
+> 825 static inline void remap_pte_range(pte_t * pte, unsigned long address, 
+> unsigned long size,
+> 826         unsigned long phys_addr, pgprot_t prot)
+
+Unavailable outside of mm. You must use remap_page_range. And this function
+can only remap memory which does not have its 'struct page' (i.e. MMIO on
+PCI busses) or pages marked as Reserved. So if you want to use it on
+regular memory, you must mark pages reserved... And then you have to do
+black magic to correctly remove 'PageReserved' bit at correct time - if 
+process does fork, and you'll clear this bit too early, you'll get
+page_count < 0 and BUG(). If you'll do that too late, you'll leak memory.
+vmmon did this in the past, but it was impossible to get it right under all
+possible circumstances.
+
+Other problem is that this functions is targeted for remapping userspace
+addresses, not kernel space, and I would not trust this function for using
+with from in kernel space. Definitely 2.6.x with 4G/4G patch will do bad
+things.
+						Best regards,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267537AbRGMVDt>; Fri, 13 Jul 2001 17:03:49 -0400
+	id <S267527AbRGMVBt>; Fri, 13 Jul 2001 17:01:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267539AbRGMVDj>; Fri, 13 Jul 2001 17:03:39 -0400
-Received: from gruel.uchicago.edu ([128.135.39.156]:12815 "EHLO
-	gruel.uchicago.edu") by vger.kernel.org with ESMTP
-	id <S267537AbRGMVDe>; Fri, 13 Jul 2001 17:03:34 -0400
-Date: Fri, 13 Jul 2001 16:00:24 -0500 (CDT)
-From: Gary Lyons <lyons@gruel.uchicago.edu>
-Reply-To: <lyons@pobox.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: <linux-kernel@vger.kernel.org>
+	id <S267541AbRGMVBj>; Fri, 13 Jul 2001 17:01:39 -0400
+Received: from weta.f00f.org ([203.167.249.89]:12675 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S267537AbRGMVBa>;
+	Fri, 13 Jul 2001 17:01:30 -0400
+Date: Sat, 14 Jul 2001 09:01:30 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: lyons@pobox.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: ioctl bug?
-In-Reply-To: <20010714090130.A5737@weta.f00f.org>
-Message-ID: <Pine.LNX.4.33.0107131559160.12456-100000@gruel.uchicago.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010714090130.A5737@weta.f00f.org>
+In-Reply-To: <Pine.LNX.4.33.0107131139450.12456-100000@gruel.uchicago.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0107131139450.12456-100000@gruel.uchicago.edu>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Jul 2001, Chris Wedgwood wrote:
+On Fri, Jul 13, 2001 at 03:43:15PM -0500, Gary Lyons wrote:
 
->
-> what filesystem? ext2 I assume?
+    starting with 2.4.5ac23 and continuing through both 2.4.6 and
+    2.v.6-ac2 Whenever I try to do a lsattr or chattr on a directory
+    I get:
+    
+    	"Inappropriate ioctl for device While reading flags"
+    
+    on 2.4.5-ac19 I have no problem.
+    
+    My computer is a pentium 3 with an asus motherboard, i810E
+    chipset,and ide drives.  running redhat 7.1 and the hard drive
+    is WDC WD600AB
+    
+    I am more then happy to supply any more information if necessary
+    and
 
-Yes. sorry about leaving that out.
-
-Gary
+what filesystem? ext2 I assume?
 
 
--- 
-Nothing astonishes men so much as common sense and plain dealing.
-                        -- Ralph Waldo Emerson
 
-
+  --cw

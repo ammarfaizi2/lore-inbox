@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbRAaPXM>; Wed, 31 Jan 2001 10:23:12 -0500
+	id <S129846AbRAaP0b>; Wed, 31 Jan 2001 10:26:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129664AbRAaPXB>; Wed, 31 Jan 2001 10:23:01 -0500
-Received: from shomer.lee.k12.nc.us ([207.4.71.118]:53005 "EHLO lee.k12.nc.us")
-	by vger.kernel.org with ESMTP id <S129610AbRAaPWv>;
-	Wed, 31 Jan 2001 10:22:51 -0500
-From: "Ryan Hairyes" <rhairyes@lee.k12.nc.us>
-To: <linux-kernel@vger.kernel.org>
-Date: Wed, 31 Jan 2001 16:21:08 +0000 (GMT)
-Organization: Lee County Schools
-X-Mailer: ObsidianSystems-OcsEmail1-0-30 brewed at www.obsidian.co.za
-Reply-to: rhairyes@lee.k12.nc.us
-Message-ID: <9809580685088-3110215088rhairyes@lee.k12.nc.us>
-Subject: ds: socket Drivers
+	id <S129774AbRAaP0V>; Wed, 31 Jan 2001 10:26:21 -0500
+Received: from chmls05.mediaone.net ([24.147.1.143]:37872 "EHLO
+	chmls05.mediaone.net") by vger.kernel.org with ESMTP
+	id <S129846AbRAaP0N>; Wed, 31 Jan 2001 10:26:13 -0500
+Date: Wed, 31 Jan 2001 10:26:06 -0500
+Message-Id: <200101311526.f0VFQ6430271@mojo.chezrutt.com>
+From: John Ruttenberg <rutt@chezrutt.com>
+To: jgarzik@mandrakesoft.com, becker@scyld.com
+cc: linux-kernel@vger.kernel.org
+Subject: Problems with tulip driver with lite-on -- transmit timed out
+Reply-to: rutt@chezrutt.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
+I'm not sure exactly when this problem was introduced, but I'm pretty sure it
+didn't exist in the 2.2.x kernels.  It does exist in the 2.4.0-test12, 2.4.0,
+and 2.4.1 kernels.
 
-I was watching the bootup of the 2.4.1 kernel
-on my machine and noticed that the message
-ds: no socket drivers loaded showed up during
-bootup.  The machine seems to boot fine, and 
-everything works.  Is this a problem?  Whats 
-the deal?
+Any high bandwidth sustained inward transfer seems to hang up the card after a
+little while (< 1 minute with ftp, longer with nfs).  Once the card hangs,
+the syslog has entries:
 
-Thanks,
+    NETDEV WATCHDOG: eth0: transmit timed out
 
-Ryan
-                                   
+cancelling the inward ftp and restarting the network unwedges the problem.
 
+Here is what's in my /proc/pci for the nic:
+
+    Bus  0, device  12, function  0:
+       Ethernet controller: Lite-On Communications Inc LNE100TX (rev 32).
+         IRQ 11.
+
+There seems to have been some relevant LKML traffic on the topic, but I
+couldn't decipher it in terms of what it means to me.
+
+I'm not subscribed to lkml, so please cc me in replies.
+
+Thanks in advance for any help.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,173 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262504AbTCIM3e>; Sun, 9 Mar 2003 07:29:34 -0500
+	id <S262505AbTCIMfp>; Sun, 9 Mar 2003 07:35:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262505AbTCIM3e>; Sun, 9 Mar 2003 07:29:34 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:22425 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S262504AbTCIM3b>; Sun, 9 Mar 2003 07:29:31 -0500
-Message-Id: <200303091239.h29CdkGi000928@locutus.cmf.nrl.navy.mil>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] cleanup nicstar, suni and idt77105 
-In-reply-to: Your message of "Sat, 08 Mar 2003 13:01:12 PST."
-             <20030308.130112.09061347.davem@redhat.com> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Sun, 09 Mar 2003 07:39:46 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S262506AbTCIMfp>; Sun, 9 Mar 2003 07:35:45 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:17421 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262505AbTCIMfo>; Sun, 9 Mar 2003 07:35:44 -0500
+Date: Sun, 9 Mar 2003 13:46:18 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: linux-kernel@vger.kernel.org, Romain Lievin <roms@tilp.info>
+Subject: Re: [PATCH] kconfig update
+In-Reply-To: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
+Message-ID: <Pine.LNX.4.44.0303091344250.32518-100000@serv>
+References: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030308.130112.09061347.davem@redhat.com>,"David S. Miller" writes:
->This patch doesn't apply at all, it deletes lines referencing
->idt77105_priv_lock but that does not appear in the sources.
+Hi,
 
-yes that's my fault.  i had an intermediate change i forgot about.
-this would be the correct diff for idt77105 --
+On Sun, 9 Mar 2003, Roman Zippel wrote:
 
-Index: linux/drivers/atm/idt77105.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/drivers/atm/idt77105.c,v
-retrieving revision 1.1
-retrieving revision 1.3
-diff -u -r1.1 -r1.3
---- linux/drivers/atm/idt77105.c	20 Feb 2003 13:45:03 -0000	1.1
-+++ linux/drivers/atm/idt77105.c	5 Mar 2003 16:39:56 -0000	1.3
-@@ -15,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/capability.h>
- #include <linux/atm_idt77105.h>
-+#include <linux/spinlock.h>
- #include <asm/system.h>
- #include <asm/param.h>
- #include <asm/uaccess.h>
-@@ -38,6 +39,7 @@
-         unsigned char old_mcr;          /* storage of MCR reg while signal lost */
- };
- 
-+static spinlock_t idt77105_priv_lock = SPIN_LOCK_UNLOCKED;
- 
- #define PRIV(dev) ((struct idt77105_priv *) dev->phy_data)
- 
-@@ -144,12 +146,11 @@
- 	unsigned long flags;
- 	struct idt77105_stats stats;
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&idt77105_priv_lock, flags);
- 	memcpy(&stats, &PRIV(dev)->stats, sizeof(struct idt77105_stats));
- 	if (zero)
- 		memset(&PRIV(dev)->stats, 0, sizeof(struct idt77105_stats));
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&idt77105_priv_lock, flags);
- 	if (arg == NULL)
- 		return 0;
- 	return copy_to_user(arg, &PRIV(dev)->stats,
-@@ -267,11 +268,10 @@
- 	if (!(PRIV(dev) = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
- 		return -ENOMEM;
- 	PRIV(dev)->dev = dev;
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&idt77105_priv_lock, flags);
- 	PRIV(dev)->next = idt77105_all;
- 	idt77105_all = PRIV(dev);
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&idt77105_priv_lock, flags);
- 	memset(&PRIV(dev)->stats,0,sizeof(struct idt77105_stats));
-         
-         /* initialise dev->signal from Good Signal Bit */
-@@ -305,11 +305,9 @@
- 	idt77105_stats_timer_func(0); /* clear 77105 counters */
- 	(void) fetch_stats(dev,NULL,1); /* clear kernel counters */
-         
--	cli();
--	if (!start_timer) restore_flags(flags);
--	else {
-+	spin_lock_irqsave(&idt77105_priv_lock, flags);
-+	if (start_timer) {
- 		start_timer = 0;
--		restore_flags(flags);
-                 
- 		init_timer(&stats_timer);
- 		stats_timer.expires = jiffies+IDT77105_STATS_TIMER_PERIOD;
-@@ -321,32 +319,11 @@
- 		restart_timer.function = idt77105_restart_timer_func;
- 		add_timer(&restart_timer);
- 	}
-+	spin_unlock_irqrestore(&idt77105_priv_lock, flags);
- 	return 0;
- }
+> It took a bit longer than I wanted, but here is finally another kconfig 
+> update. There are two important changes: I included Romain's gtk front 
+> end and the support for the menuconfig keyword.
+
+BTW here is a simple menuconfig example, if someone wants to know, how it 
+looks like:
+
+--- linux-2.5/arch/i386/Kconfig	2003-03-08 22:35:23.000000000 +0100
++++ linux-2.5-lc/arch/i386/Kconfig	2003-03-09 13:35:04.000000000 +0100
+@@ -1305,9 +1305,7 @@
+ endmenu
  
  
--static const struct atmphy_ops idt77105_ops = {
--	idt77105_start,
--	idt77105_ioctl,
--	idt77105_int
--};
+-menu "SCSI device support"
 -
+-config SCSI
++menuconfig SCSI
+ 	tristate "SCSI device support"
+ 	---help---
+ 	  If you want to use a SCSI hard disk, SCSI tape drive, SCSI CD-ROM or
+@@ -1329,8 +1327,6 @@
+ 
+ source "drivers/scsi/Kconfig"
+ 
+-endmenu
 -
--int __init idt77105_init(struct atm_dev *dev)
--{
--	MOD_INC_USE_COUNT;
--
--	dev->phy = &idt77105_ops;
--	return 0;
--}
--
--
--/*
-- * TODO: this function should be called through phy_ops
-- * but that will not be possible for some time as there is
-- * currently a freeze on modifying that structure
-- * -- Greg Banks, 13 Sep 1999
-- */
- int idt77105_stop(struct atm_dev *dev)
- {
- 	struct idt77105_priv *walk, *prev;
-@@ -372,30 +349,33 @@
-             }
-         }
  
--	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
- 
-+static const struct atmphy_ops idt77105_ops = {
-+	.start = 	idt77105_start,
-+	.ioctl =	idt77105_ioctl,
-+	.interrupt =	idt77105_int,
-+	.stop =		idt77105_stop,
-+};
- 
--EXPORT_SYMBOL(idt77105_init);
--EXPORT_SYMBOL(idt77105_stop);
--
--MODULE_LICENSE("GPL");
--
--#ifdef MODULE
- 
--int init_module(void)
-+int idt77105_init(struct atm_dev *dev)
- {
-+	dev->phy = &idt77105_ops;
- 	return 0;
- }
- 
-+EXPORT_SYMBOL(idt77105_init);
- 
--void cleanup_module(void)
-+static void __exit idt77105_exit(void)
- {
-         /* turn off timers */
-         del_timer(&stats_timer);
-         del_timer(&restart_timer);
- }
- 
--#endif
-+module_exit(idt77105_exit);
-+
-+MODULE_LICENSE("GPL");
+ menu "Old CD-ROM drivers (not SCSI, not IDE)"
+ 	depends on ISA
+
+> The patch is at http://www.xs4all.nl/~zippel/lc/patches/kconfig-2.5.64.diff
+
+bye, Roman
+

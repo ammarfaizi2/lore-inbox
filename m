@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLFP0D>; Wed, 6 Dec 2000 10:26:03 -0500
+	id <S129183AbQLFPii>; Wed, 6 Dec 2000 10:38:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129755AbQLFPZx>; Wed, 6 Dec 2000 10:25:53 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:15110 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S129183AbQLFPZq>; Wed, 6 Dec 2000 10:25:46 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Wed, 6 Dec 2000 07:55:05 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, scole@lanl.gov
-In-Reply-To: <E143Swc-0000DH-00@the-village.bc.nu>
-In-Reply-To: <E143Swc-0000DH-00@the-village.bc.nu>
-Subject: Re: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system
-MIME-Version: 1.0
-Message-Id: <00120607550500.00858@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 8bit
+	id <S129408AbQLFPi2>; Wed, 6 Dec 2000 10:38:28 -0500
+Received: from ns.caldera.de ([212.34.180.1]:275 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129183AbQLFPiW>;
+	Wed, 6 Dec 2000 10:38:22 -0500
+Date: Wed, 6 Dec 2000 16:07:38 +0100
+From: Olaf Kirch <okir@caldera.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Olaf Kirch <okir@caldera.de>, linux-kernel@vger.kernel.org,
+        security-audit@ferret.lmh.ox.ac.uk
+Subject: Re: Traceroute without s bit
+Message-ID: <20001206160737.M9533@monad.caldera.de>
+In-Reply-To: <20001206135019.L9533@monad.caldera.de> <20001206140905.A408@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001206140905.A408@gruyere.muc.suse.de>; from ak@suse.de on Wed, Dec 06, 2000 at 02:09:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 December 2000 18:00, Alan Cox wrote:
-> > I did confirm that 2.4.0-test11(final) works properly with sound and KDE
-> > 2.0.
->
-> Ok. That sounds even more like its PCI changes
->
-> > I do think its rather odd that these test12-pre3,4,5 kernels all work
-> > with GNOME and the CD player works then.  KDE 2.0 is doing something
-> > different at the "Loading the panel" stage that causes this bug to
-> > surface.
->
-> Do you have a battery monitoring applet running in KDE and not gnome ?
+On Wed, Dec 06, 2000 at 02:09:05PM +0100, Andi Kleen wrote:
+> IP_PKTINFO does not allow to set source addresses, only destination
+> addresses. Source address depends on the boundage or the route. 
 
-No, I checked the list of applets, and no battery monitoring applet.
-I configured the panel  to "Load only trusted applets internal", and depleted
-the list of trusted applets, tested again with test11-ac1 and it froze in the
-same place as always.
+No. At least udp_sendmsg uses the spec_dst_addr field as the source
+address.  I added some code to my traceroute that lets you select the
+source address in order to verify that.
 
-With respect to a battery monitor, in the KDE control center, the Battery 
-Monitor section of Power Control notes that "Your computer doesn't have the 
-Linux APM (Advanced Power Management) software drivers installed, or doesn't 
-have the APM kernel drivers installed -"
+However the good thing is that somewhere something seems to check that
+the requested address is indeed one attached to a local interface.
 
-Steven
+> > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> 
+> POLLERR is returned until the error queue is empty. I suspect you're
+> not emptying it properly in all cases. It can contain multiple errors.
+
+But it doesn't return POLLERR. If it was returning it, pollfd.revents
+would be set. pollfd.events is the event mask that's being passed _into_
+the poll() call.
+
+You're right about the IP_RETOPS stuff though. I didn't look closely enough;
+ip_cmsg_send does expect raw options.
+
+Thanks,
+Olaf
+-- 
+Olaf Kirch         |  --- o --- Nous sommes du soleil we love when we play
+okir@monad.swb.de  |    / | \   sol.dhoop.naytheet.ah kin.ir.samse.qurax
+okir@caldera.de    +-------------------- Why Not?! -----------------------
+         UNIX, n.: Spanish manufacturer of fire extinguishers.            
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

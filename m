@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135895AbREFWII>; Sun, 6 May 2001 18:08:08 -0400
+	id <S135897AbREFW0p>; Sun, 6 May 2001 18:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135892AbREFWH5>; Sun, 6 May 2001 18:07:57 -0400
-Received: from mail.inf.elte.hu ([157.181.161.6]:9896 "HELO mail.inf.elte.hu")
-	by vger.kernel.org with SMTP id <S135896AbREFWHu>;
-	Sun, 6 May 2001 18:07:50 -0400
-Date: Mon, 7 May 2001 00:07:49 +0200 (CEST)
-From: BERECZ Szabolcs <szabi@inf.elte.hu>
-To: Jonathan Morton <chromi@cyberspace.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: page_launder() bug
-In-Reply-To: <l03130303b71b795cab9b@[192.168.239.105]>
-Message-ID: <Pine.A41.4.31.0105070003210.59664-100000@pandora.inf.elte.hu>
+	id <S135896AbREFW0f>; Sun, 6 May 2001 18:26:35 -0400
+Received: from idiom.com ([216.240.32.1]:45574 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S135898AbREFW0S>;
+	Sun, 6 May 2001 18:26:18 -0400
+Message-ID: <3AF5EA03.5D92B2E6@namesys.com>
+Date: Sun, 06 May 2001 17:19:16 -0700
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dirk Mueller <dmuell@gmx.net>
+CC: Chris Mason <mason@suse.com>, reiserfs-list@namesys.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] ReiserFS seems to be stable as of 2.4.4
+In-Reply-To: <20010504182357.A20214@rotes20.wohnheim.uni-kl.de> <341650000.988994279@tiny> <20010504192348.A11507@rotes20.wohnheim.uni-kl.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Dirk Mueller wrote:
 
-On Sun, 6 May 2001, Jonathan Morton wrote:
-
-> >-			 page_count(page) == (1 + !!page->buffers));
 >
-> Two inversions in a row?  I'd like to see that made more explicit,
-> otherwise it looks like a bug to me.  Of course, if it IS a bug...
-it's not a bug.
-if page->buffers is zero, than the page_count(page) is 1, and if
-page->buffers is other than zero, page_count(page) is 2.
-so it checks if page is really used by something.
-maybe this last line is not true, but the !!page->buffers is not a bug.
+> Now consider a good amount of fragmentation because those files get created
+> over time (weeks, months etc). and you quickly degenerade to a scanning
+> speed of maybe 10-20 files per second (Athlon 800, IBM 60GB HD with roughly
+> 35MB/s linear read). It was that horrible that I quickly returned to mbox
+> for those lists with high amount of traffic.
 
-Bye,
-Szabi
+I think only a repacker can properly cure performance problems of slowly
+accumulating files and directories .  September 2002.
 
+We can do other things that will gain 5 percent here and there, but the repacker
+will be the real cure.
+
+Hans
 

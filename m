@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTJTKB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 06:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTJTKB2
+	id S262497AbTJTKLu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 06:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbTJTKLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 06:01:28 -0400
-Received: from VIA-PPPD24017.vianetworks.es ([213.236.24.17]:61675 "EHLO
-	servidor.eurogaran.com") by vger.kernel.org with ESMTP
-	id S262482AbTJTKB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 06:01:26 -0400
-Date: Mon, 20 Oct 2003 12:01:23 +0200
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Hangup with Radeon9200 accel. Does not happen when not using agpgart or disabling CPU internal cache.
-Message-ID: <20031020100123.GA22114@eurogaran.com>
+	Mon, 20 Oct 2003 06:11:49 -0400
+Received: from codepoet.org ([166.70.99.138]:6097 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S262497AbTJTKLs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 06:11:48 -0400
+Date: Mon, 20 Oct 2003 04:11:47 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Juanjo =?iso-8859-1?Q?Garc=EDa_Carr=E9?= <juanjo@eurogaran.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Hangup with Radeon9200 accel. Does not happen when not using agpgart or disabling CPU internal cache.
+Message-ID: <20031020101147.GA4904@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Juanjo =?iso-8859-1?Q?Garc=EDa_Carr=E9?= <juanjo@eurogaran.com>,
+	linux-kernel@vger.kernel.org
+References: <20031020100123.GA22114@eurogaran.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: =?iso-8859-1?Q?Juanjo_Garc=EDa_Carr=E9?= <juanjo@eurogaran.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031020100123.GA22114@eurogaran.com>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon Oct 20, 2003 at 12:01:23PM +0200, Juanjo García Carré wrote:
+> 7) Make sure the agpgart module (and the intel_agp module for 2.6
+> kernels) are loaded before launching XFree.
+> 
+> 8) Launch X. Everything seems to work; glxinfo says Yes as to direct
+> rendering. Now launch an OpenGL application, like glxgears:
+> It runs for some instants, then becomes blocked, as does the rest of the
+> system.
 
--Foreword: I am not complaining; just hoping to help in developing
-a better kernel.
+I added this to my /etc/X11/XF86Config-4 to prevent my system
+from locking solid as you describe.  This forces XFree86 to drive
+my Radeon 9200 as if it were a Radeon 9000.  Before upgrading X,
+I had to use 0x4242 to drive my card as a Radeon 8500.
 
--Symptom: When accelerating graphics, the machine freezes completely
-(no response to emergency sys req keys or net access).
-As a consequence, NOTHING GETS LOGGED (sorry).
+Section "Device"
+        Identifier      "ATI Radeon"
+        Driver          "radeon"
+        Option          "AGPMode"  "4"
+        Option          "EnablePageflip"  "1"
+        ChipID          0x4964
+        #ChipID         0x4242
+EndSection
 
--How to reproduce:
-1) Use the following hardware:
-Radeon 9200 AGP graphics card.
-CPU PentiumII Deschutes  (Tried the same card on an
-Athlon machine -all the rest being equal- and the problem did not happen).
-baseplate Tyan (This means Intel 440BX chipset)
+ -Erik
 
-2) Enable in BIOS the CPU internal cache to
-"Write Back" mode.
-(Either "Write Thru" or "Disabled" will eliminate the problem,
-at the expense of an extremely low performance).
-
-3) Use ANY Linux-2.6.0-test kernel, or ANY
-Linux-2.4 kernel, (in which case you will need 
-an updated version for the radeon module).
-
-4) Use XFree86 4.3.0 or over (for radeon acceleration support) with ANY
-dri version (older or newest).
-I have tried the latest DRI CVS without success.
-
-5) In the XF86Config-4 file, specify the chipset of a Radeon 9100 or
-another radeon for which acceleration is already supported (I know this is not
-the factor to blame, since -as I said before- it works on an Athlon machine).
-
-6) In the XF86Config-4 file, make sure the option ForcePCIMode is off
-(when it is enabled, everything works fine and you need no agpgart
-module, but performance is halved).
-_ALL_ the other options are indifferent in order to reproduce the
-problem, (even the option to use the XFree GPL radeon driver or the propietary
-FireGL drivers from Ati).
-
-7) Make sure the agpgart module (and the intel_agp module for 2.6
-kernels) are loaded before launching XFree.
-
-8) Launch X. Everything seems to work; glxinfo says Yes as to direct
-rendering. Now launch an OpenGL application, like glxgears:
-It runs for some instants, then becomes blocked, as does the rest of the
-system.
-
-Observation: When a big Graphics Aperture Size (256MB) is specified in
-BIOS (thus adopted by the agpgart module) and a small one (4MB) in the
-XF86Config-4 file, then the time until crash is considerably increased.
-(Does this mean anything to you?)
-
-Please reply with Cc to  juanjo@eurogaran.com  because I am not
-suscribed to any kernel mailing list.
-
-Thank you.
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

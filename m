@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131251AbRAARV1>; Mon, 1 Jan 2001 12:21:27 -0500
+	id <S131957AbRAASD6>; Mon, 1 Jan 2001 13:03:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131508AbRAARVR>; Mon, 1 Jan 2001 12:21:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40714 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131251AbRAARU6>;
-	Mon, 1 Jan 2001 12:20:58 -0500
-Date: Mon, 1 Jan 2001 17:50:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S132030AbRAASDs>; Mon, 1 Jan 2001 13:03:48 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8463 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131957AbRAASDc>; Mon, 1 Jan 2001 13:03:32 -0500
 Subject: Re: Chipsets, DVD-RAM, and timeouts....
-Message-ID: <20010101175005.B1650@suse.de>
-In-Reply-To: <Pine.LNX.4.10.10012312252220.21836-300000@master.linux-ide.org> <E14D7Zj-00011M-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: axboe@suse.de (Jens Axboe)
+Date: Mon, 1 Jan 2001 17:34:01 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andre@linux-ide.org (Andre Hedrick),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20010101175005.B1650@suse.de> from "Jens Axboe" at Jan 01, 2001 05:50:05 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14D7Zj-00011M-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 01, 2001 at 04:12:41PM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14D8qR-00015A-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01 2001, Alan Cox wrote:
-> > 	mke2fs -b 2048 /dev/hdc
-> > 	You must format to 2048 size blocks.
-> 
-> FAT style FS doesnt support 2K blocks 8)
+> for FAT etc when reading. Writing is a bit more difficult, as that
+> then turns out to generate a read before we can commit a dirty
+> block. IMO, this type of thing does not belong in the drivers --
+> we should _never_ receive request for < hard block size.
 
-Then don't use FAT on DVD-RAM :-). ide-cd will already appropriately
-cache a single block and dish out 512b sectors from that as needed
-for FAT etc when reading. Writing is a bit more difficult, as that
-then turns out to generate a read before we can commit a dirty
-block. IMO, this type of thing does not belong in the drivers --
-we should _never_ receive request for < hard block size.
+Unfortunately someone ripped the support out from 2.2 to do this, then didnt
+fix it. So right now 2.4 is useless to anyone with an M/O drive.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

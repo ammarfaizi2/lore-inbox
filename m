@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbTH1KIx (ORCPT <rfc822;willy@w.ods.org>);
+	id S263870AbTH1KIx (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 28 Aug 2003 06:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTH1KIR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTH1KIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 06:08:17 -0400
-Received: from actinium.btinternet.com ([194.73.73.66]:60544 "EHLO
-	actinium.btinternet.com") by vger.kernel.org with ESMTP
-	id S263884AbTH1KCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 06:02:05 -0400
-Message-ID: <1591781.1062064923473.JavaMail.root@127.0.0.1>
-Date: Thu, 28 Aug 2003 11:02:03 +0100 (BST)
-From: subodh@btopenworld.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 28 Aug 2003 06:08:21 -0400
+Received: from dyn-ctb-210-9-243-35.webone.com.au ([210.9.243.35]:50950 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S263885AbTH1KGF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 06:06:05 -0400
+Message-ID: <3F4DD3F1.3020409@cyberone.com.au>
+Date: Thu, 28 Aug 2003 20:05:37 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-MAILER: talk21.com WAS v2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Samium Gromoff wrote:
 
-I have been using kernel mode driver for my Alcatel speedtouch modem since 2.4.21 and at the moment i am using it with 2.6.0-test4-mm2. I never had any problem in using this drive since it was included in  2.5.xx series It works like a charm. Few things you need to be aware of.
-A. Your ppp software should be pppoatm compatible
-B. You need to compile ppp atm support in the kernel (You can also use it as a module).
-C. When you load the firmware using modem_run command use the option for kernel mode driver. I think its -k.
-D. Configure your options file as suggested at http://www.linux-usb.org/SpeedTouch/
+>>It seems to be better than v7 here without X being reniced,
+>>however renicing X to say -10 always seems to help.
+>>
+>
+>	On my box renicing X to -10 causes xmms to skip when i switch
+> to a next page full of text in xpdf.
+> This is about mainline, not sure about your patch.
+>
+> And yes, my box is p3-500.
+>
+>	So i generally don`t think it`s wise to renice X to -10.
+>
 
-Launch pppd daemon without any option and you should get connection.
+Well I won't say it won't happen with my patch, but nice is a lot
+nicer. Give it a try.
 
-Subodh Shrivastava
-PS: I also used user mode driver for while but i was plagued by the loss of sync problem which resulted in slow download speed. Switching to kernel mode driver i never had those problems. 
+No, it wouldn't be wise to renice X to -10 if it caused it to
+starve xmms. I don't think that will happen in my version, so I
+think it is reasonable to renice X if you know it will have to
+do more work than other tasks and yet should still be scheduled
+quickly for good interactivity...
+
+
+
+

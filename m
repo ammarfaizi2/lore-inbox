@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBGQdq>; Wed, 7 Feb 2001 11:33:46 -0500
+	id <S129479AbRBGQe4>; Wed, 7 Feb 2001 11:34:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129477AbRBGQdh>; Wed, 7 Feb 2001 11:33:37 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:48135 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129031AbRBGQdV>; Wed, 7 Feb 2001 11:33:21 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE00C@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'John R Lenton'" <john@grulic.org.ar>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: different IRQ settings for different MPS settings?
-Date: Wed, 7 Feb 2001 08:32:32 -0800 
+	id <S129538AbRBGQeh>; Wed, 7 Feb 2001 11:34:37 -0500
+Received: from web114.mail.yahoo.com ([205.180.60.86]:1810 "HELO
+	web114.yahoomail.com") by vger.kernel.org with SMTP
+	id <S129479AbRBGQee>; Wed, 7 Feb 2001 11:34:34 -0500
+Message-ID: <20010207163432.25823.qmail@web114.yahoomail.com>
+Date: Wed, 7 Feb 2001 08:34:32 -0800 (PST)
+From: Paul Powell <moloch16@yahoo.com>
+Subject: Ioctl CDROMRESET has no effect
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm attempting to reset a CDROM using the CDROMRESET
+ioctl.  The reset command only seems to reset the
+device if the device is not mounted.  If the device is
+mounted, the reset command seems to have no effect.
 
-> From: John R Lenton [mailto:john@grulic.org.ar]
-> 
-> With a MPS setting of 1.4 USB doesn't work on me; it timeouts,
-> constantly.  With MPS setting of 1.1 everything is OK.
-> 
-...
-> 
-> My question(s) is(are) is this a known bug, is this correct
-> behaviour, am I missing something, and why is USB the only
-> subsystem affected.
+With the device unmounted, sending the reset command
+causes the drive to become active and I see the
+activity light light up.  With the device mounted, the
+activity light does nothing.  I also can't open the
+CD-ROM drive using the eject button after resetting a
+mounted CD.
 
-It is known that several systems have problems with USB if
-MPS is set to 1.4, and some systems work OK with that
-setting.  Problem cause is still unknown.
+It seems the reset command should work even if the OS
+thinks the device is mounted for error recovery.
 
-I'd be interested to see you boot logs (kernel messages,
-specifically MP table info) from Linux boots with
-MPS = 1.1 and 1.4, to see if there are any differences
-in them.  The big difference should be the addition
-of some address space mappings, which Linux ignores
-(doesn't parse, doesn't use) -- but I've never seen
-a BIOS that implements address space mappings in the
-MP table [and if one did, it looks like Linux would
-just loop forever in smp_read_mpc(), so that's probably
-not the issue here].
+Here is my test program:
 
-~Randy
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <linux/cdrom.h>
 
+int main(int argc, char* argv[])
+{
+   int fd, result;
+
+   fd = open("/dev/hda", O_RDONLY|O_NONBLOCK);
+   if (fd < 0)
+   {
+      perror("open");
+      return fd;
+   }   
+   
+   result = ioctl(fd, CDROMRESET, 1);
+   if (result < 0)
+      perror("ioctl");
+  
+   close(fd);
+   return 0;
+}
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - Buy the things you want at great prices.
+http://auctions.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

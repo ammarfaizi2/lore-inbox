@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263334AbSIUQ3b>; Sat, 21 Sep 2002 12:29:31 -0400
+	id <S263997AbSIUQdD>; Sat, 21 Sep 2002 12:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263997AbSIUQ3b>; Sat, 21 Sep 2002 12:29:31 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:3991 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263334AbSIUQ3a>; Sat, 21 Sep 2002 12:29:30 -0400
-Date: Sat, 21 Sep 2002 09:32:20 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-cc: LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
-Message-ID: <597807912.1032600740@[10.10.2.3]>
-In-Reply-To: <595579668.1032598511@[10.10.2.3]>
-References: <595579668.1032598511@[10.10.2.3]>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S275752AbSIUQdD>; Sat, 21 Sep 2002 12:33:03 -0400
+Received: from mail.gmx.de ([213.165.64.20]:56802 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263997AbSIUQdC>;
+	Sat, 21 Sep 2002 12:33:02 -0400
+Date: Sat, 21 Sep 2002 19:37:52 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 : compile failed with undefined reference to find_smp_config with SMP disabled
+Message-ID: <20020921163752.GA19943@callisto.yi.org>
+References: <20020921115942.A161@alexis.itd.umich.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20020921115942.A161@alexis.itd.umich.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyway, I'm giving your code a quick spin ... will give you some
-> results later ;-)
+On Sat, Sep 21, 2002 at 11:59:42AM -0400, Alexis de Bernis wrote:
 
-Hmmm .... well I ran the One True Benchmark (tm). The patch 
-*increased* my kernel compile time from about 20s to about 28s. 
-Not sure I like that idea ;-) Anything you'd like tweaked, or 
-more info? Both user and system time were up ... I'll grab a 
-profile of kernel stuff.
+> 	This happens with the vanilla 2.5.37 kernel. More information available
+> on demand.
+> 
+> Note : I have even more undefined reference with APIC enabled (and even, even more
+> with IO-APIC enabled).
 
-M.
 
+The problem is that CONFIG_X86_FIND_SMP_CONFIG gets always enabled when you
+enable APIC (CONFIG_X86_LOCAL_APIC).
+
+
+--- linux-2.5-BKcurr/arch/i386/config.in.orig	2002-09-21 19:32:26.000000000 +0300
++++ linux-2.5-BKcurr/arch/i386/config.in	2002-09-21 19:33:00.000000000 +0300
+@@ -440,7 +440,9 @@
+ 
+ if [ "$CONFIG_X86_LOCAL_APIC" = "y" ]; then
+    define_bool CONFIG_X86_EXTRA_IRQS y
+-   define_bool CONFIG_X86_FIND_SMP_CONFIG y
++   if [ "$CONFIG_SMP" = "y" ]; then
++      define_bool CONFIG_X86_FIND_SMP_CONFIG y
++   fi
+ fi
+ 
+ endmenu
+
+
+-- 
+Dan Aloni
+da-x@gmx.net

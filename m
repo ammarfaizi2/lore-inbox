@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbTFPVlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 17:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTFPVlJ
+	id S264372AbTFPVok (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 17:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTFPVok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 17:41:09 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:31736 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S264368AbTFPVlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 17:41:06 -0400
-Date: Mon, 16 Jun 2003 15:55:07 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Robert White <rwhite@casabyte.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: continuous backtrace ... ?
-Message-ID: <20030616155507.L26944@schatzie.adilger.int>
-Mail-Followup-To: Robert White <rwhite@casabyte.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <PEEPIDHAKMCGHDBJLHKGCEPICPAA.rwhite@casabyte.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGCEPICPAA.rwhite@casabyte.com>; from rwhite@casabyte.com on Mon, Jun 16, 2003 at 12:15:41PM -0700
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Mon, 16 Jun 2003 17:44:40 -0400
+Received: from aibn55.astro.uni-bonn.de ([131.220.96.55]:50119 "EHLO
+	aibn55.astro.uni-bonn.de") by vger.kernel.org with ESMTP
+	id S264372AbTFPVoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 17:44:37 -0400
+Date: Mon, 16 Jun 2003 23:58:25 +0200 (CEST)
+From: Ole Marggraf <marggraf@astro.uni-bonn.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4.21: NFS copy produces I/O errors
+In-Reply-To: <1055800323.586.0.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.55.0306162353560.3503@aibn99.astro.uni-bonn.de>
+References: <Pine.LNX.4.55.0306162047140.6775@aibn99.astro.uni-bonn.de>
+ <1055800323.586.0.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 16, 2003  12:15 -0700, Robert White wrote:
-> I have a 2.5.70 kernel image which, at boot, goes into a continuously
-> looping backtrace.  It scrolls up the screen too fast and continuously to
-> read but it is clearly a backtrace. If I just relax and watch I can see the
-> [bracketed hex] and routine name shape of it whizzing by.
-> 
-> This happens while the file systems are read only and the system doesn't
-> respond to the keyboard at all.
-> 
-> Is there any good way to capture this stream of data in any kind of useful
-> way?  or at least pause the spew so that I can find the general locus of the
-> problem?
-> 
-> Given the immediacy of the problem (it appears just-about-concurrently with
-> attempt to draw the boot logo) I suspect that it has something to do with
-> the console driver (radeon frame buffer VGA console in normal mode)
-> interacting with my All-In-Wonder 9700 pro and the very new P4-3ghz in
-> hyperthreading mode.
+On Mon, 16 Jun 2003, Felipe Alfaro Solana wrote:
 
-Probably a stack overflow.  Once you hit the do_IRQ() stack overflow
-detection code, you get stuck in a loop because your console output is
-slow enough that you immediately get another IRQ, rinse, repeat.
+> On Mon, 2003-06-16 at 20:51, Ole Marggraf wrote:
+> > Hello all.
+> >
+> > As it seems (to me), there is some serious problem in the NFS code of
+> > 2.4.21 (and also of 2.4.20), causing I/O errors quite immediately.
+>
+> By the way, are you using the "soft" option to mount the NFS volumes?
+>
 
-I fixed this locally by adding a static jiffies counter to rate-limit
-the overflow stack dump to once per 5 seconds.  If you overflow your
-stack more often than that, well too bad.  At least you have a chance
-to look at your console instead of the machine essentially being wedged.
+Hello.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Yes, forgot to mention... But its quite clear from the error message.
 
+Mount options are rw,soft,bw,rsize=8192,wsize=8192.
+
+And, as I wrote somewhere else, increasing retrans to 20 helps, which is
+quite far from the default (default retrans=3 did work under 2.4.19).
+
+Best regards,
+
+Ole
+
+-- 
++------------------------------------------------------------------------------+
+ Ole Marggraf                     email: marggraf@gmx.net
+ Sternwarte, Universitaet Bonn           marggraf@astro.uni-bonn.de
+ Auf dem Huegel 71
+ D-53121 Bonn, Germany            WWW:   http://www.astro.uni-bonn.de/~marggraf
++------------------------------------------------------------------------------+

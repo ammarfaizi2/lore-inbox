@@ -1,77 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSHVVfZ>; Thu, 22 Aug 2002 17:35:25 -0400
+	id <S317365AbSHVVs5>; Thu, 22 Aug 2002 17:48:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317363AbSHVVfZ>; Thu, 22 Aug 2002 17:35:25 -0400
-Received: from flrtn-5-m1-95.vnnyca.adelphia.net ([24.55.70.95]:54997 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S317349AbSHVVfY>;
-	Thu, 22 Aug 2002 17:35:24 -0400
-Message-ID: <3D655A12.7080706@tmsusa.com>
-Date: Thu, 22 Aug 2002 14:39:30 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020818
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: conman@kolivas.net, linux-kernel@vger.kernel.org
-Subject: Re: Combined performance patches for 2.4.19
-References: <200208221733.29976.conman@kolivas.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317378AbSHVVs5>; Thu, 22 Aug 2002 17:48:57 -0400
+Received: from www.telenet.net ([204.97.152.225]:20747 "EHLO telenet.net")
+	by vger.kernel.org with ESMTP id <S317365AbSHVVsz>;
+	Thu, 22 Aug 2002 17:48:55 -0400
+Date: Thu, 22 Aug 2002 17:24:26 -0400
+From: Rob Speer <rob@twcny.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre2-ac4 IDE is slow
+Message-ID: <20020822212426.GA662@twcny.rr.com>
+Reply-To: rob@twcny.rr.com
+References: <20020822175945.GA743@twcny.rr.com> <1030045828.14545.26.camel@flory.corp.rackablelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1030045828.14545.26.camel@flory.corp.rackablelabs.com>
+User-Agent: Mutt/1.4i
+X-Is-It-Not-Nifty: www.sluggy.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a tedious job merging all these patches
-and your work is appreciated -  Danke!
+As many people have asked in private e-mail, I'm providing some actual
+numbers to justify that the IDE is slower.
 
-Pleasd, send notice when the low latency
-patches are merged in too -
+I was also told to set the hdparm options -a 1 -b 1 -c 1 -d 1 -u 1. -d 1
+doesn't work, as DMA doesn't work (perhaps that would solve all of this
+if it did).
 
-Joe
+The results from 'hdparm -t /dev/hda':
 
+On 2.4.20-pre1:
+  Without hdparm options: 2.5 MB/sec
+  With hdparm options: 4.17 MB/sec
 
+On 2.4.20-pre2-ac4 (with a1.patch so it doesn't kernel panic on startup):
+  Without hdparm options: ???
+  With hdparm options: 877.21 kB/sec
 
-Con Kolivas wrote:
+The ??? is there because it actually *lies* in this situation. It says
+it took 10.52 seconds, giving 6.08 MB/sec, but it actually takes as long
+as it does with the hdparm options, if not longer.
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->After the positive feedback from users with my patch for 2.4.18 and requests 
->for the latest kernel I've combined the following patches:
->
->O(1) scheduler
->Preemptible
->
->These are based on the latest patches available for the 2.4.19 kernel. I will 
->be merging the latest low latency patch soon also. It seems to work nicely so 
->far, but would be interested to know how others fare. I've not tried SMP as I 
->dont have an SMP machine.
->
->The combined patch against 2.4.19 (and now a diff patch for preemptible on top 
->of O(1)) can be found here:
->
->http://kernel.kolivas.net
->
->Thanks again to all the real kernel developers for making this possible
->
->Con Kolivas
->
->P.S. Please CC me as not subscribed to LKML.
->-----BEGIN PGP SIGNATURE-----
->Version: GnuPG v1.0.6 (GNU/Linux)
->Comment: For info see http://www.gnupg.org
->
->iD8DBQE9ZJO+F6dfvkL3i1gRAsSLAJ0Qg7My/e45ZOdoYoKNcf9OLUgudwCfenhZ
->mjDg76DW3QLXuC4PT4sf8lI=
->=apfI
->-----END PGP SIGNATURE-----
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+The thing is, on -ac4, the entire system becomes unresponsive while
+hdparm is going on. The clock in the corner of my screen stops counting.
+With hdparm on, the clock jumps forward the appropriate amount at the
+end. Without hdparm, the clock only jumps forward... 10 seconds.
+
+Could the hard disk be preventing even the system clock from working?
+
+As I was saying, I suppose this would all be wonderfully fast if DMA
+worked. It seems that DMA fails for a different reason on each kernel.
+On pre1 the error message is
+  PCI: Device 00:1f.1 not available because of resource collisions
+while on pre2, it's
+  PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
 
 
+The complete IDE boot messages:
+On pre1:
+
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+ICH4: IDE controller on PCI bus 00 dev f9
+PCI: Device 00:1f.1 not available because of resource collisions
+ICH4: (ide_setup_pci_device:) Could not enable device.
+hda: C/H/S=19161/16/255 from BIOS ignored
+hda: MAXTOR 6L040J2, ATA DISK drive
+hdb: IC35L060AVVA07-0, ATA DISK drive
+hdc: DVDROM 8X, ATAPI CD/DVD-ROM drive
+hdd: Memorex CDRW-2216, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=77557/16/63
+hdb: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=7476/255/63
+hdc: ATAPI DVD-ROM drive, 512kB Cache
+Uniform CD-ROM driver Revision: 3.12
+hdd: ATAPI 16X CD-ROM CD-R/RW drive, 1024kB Cache
+Partition check:
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+ hdb: hdb1 hdb2 hdb3 hdb4 
+  
+
+On pre2-ac4:
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
+Trying to free nonexistent resource <00000000-00000007>
+Trying to free nonexistent resource <00000000-00000003>
+Trying to free nonexistent resource <00000000-00000007>
+Trying to free nonexistent resource <00000000-00000003>
+Trying to free nonexistent resource <0000f000-0000f00f>
+Trying to free nonexistent resource <1f800000-1f8003ff>
+hda: C/H/S=19161/16/255 from BIOS ignored
+hda: MAXTOR 6L040J2, ATA DISK drive
+hdb: IC35L060AVVA07-0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: DVDROM 8X, ATAPI CD/DVD-ROM drive
+hdd: Memorex CDRW-2216, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=77557/16/63
+hdb: host protected area => 1
+hdb: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=7476/255/63
+hdc: ATAPI DVD-ROM drive, 512kB Cache
+Uniform CD-ROM driver Revision: 3.12
+hdd: ATAPI 16X CD-ROM CD-R/RW drive, 1024kB Cache
+Partition check:
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+ hdb: hdb1 hdb2 hdb3 hdb4
+
+Is there any other information I should provide?
+-- 
+Rob Speer
 

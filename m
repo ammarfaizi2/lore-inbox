@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQKHXt1>; Wed, 8 Nov 2000 18:49:27 -0500
+	id <S129322AbQKHXvR>; Wed, 8 Nov 2000 18:51:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129208AbQKHXtH>; Wed, 8 Nov 2000 18:49:07 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:58119 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S129047AbQKHXtF>; Wed, 8 Nov 2000 18:49:05 -0500
-Date: Wed, 8 Nov 2000 15:49:14 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001108154914.B28101@twiddle.net>
-In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <20001108142513.A5244@jurassic.park.msu.ru> <20001108093744.D27324@twiddle.net> <20001109010336.A1367@jurassic.park.msu.ru> <3A09D72A.C2730D0@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S129386AbQKHXu5>; Wed, 8 Nov 2000 18:50:57 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:43473 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S129322AbQKHXuz>;
+	Wed, 8 Nov 2000 18:50:55 -0500
+Message-ID: <3A099F81.81FD885@scs.ch>
+Date: Wed, 08 Nov 2000 10:46:25 -0800
+From: Reto Baettig <baettig@scs.ch>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: david <sector2@ihug.co.nz>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: fpu now a must in kernel
+In-Reply-To: <3A09E161.ACB11253@ihug.co.nz>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <3A09D72A.C2730D0@mandrakesoft.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 05:43:54PM -0500, Jeff Garzik wrote:
-> FWIW, I just tested rth's update of your path on my x86 SMP box, and a
-> laptop with two CardBus bridges (two CardBus slots).  Both worked
-> fine...
+When you add it to the task switcher, it takes away a lot of cpu cycles
+during each task switch and slows down your system. I think this was the
+main idea behind _not_ saving those registers. IMHO, it does not make
+sense to generally save these registers when nobody else but your driver
+uses them. 
 
-x86 doesn't use this code at all.  Only alpha, arm, and mips.
+Good luck!
 
+Reto
 
-r~
+david wrote:
+> 
+> hi i need fast fpu in the kernel for my lexos work
+> so how am i going to do it on the i386
+> 
+> 1 . can i add some save / restore code to the task swicher ( the right
+> way )
+>      so when it switchs from user to kernel task its saves the fpu state
+> ?
+> 
+> 2 . put the save / restore code in my code (NOT! GOOD! i do not wont to
+> do it this way it is not the right way)
+> 
+> so i have to use fpu in the kernel so its just how am i going to do it ?
+> 
+> thank you
+> 
+>     David Rundle <sector2@ihug.co.nz>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,70 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVCJDYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVCJDaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVCJDYm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 22:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVCJBJ6
+	id S261258AbVCJDaG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 22:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVCJD1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:09:58 -0500
-Received: from mail.kroah.org ([69.55.234.183]:51871 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262621AbVCJAm3 convert rfc822-to-8bit
+	Wed, 9 Mar 2005 22:27:32 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:36093 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262383AbVCJD0X
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:29 -0500
-Cc: ecashin@coraid.com
-Subject: [PATCH] aoe: fail IO on disk errors
-In-Reply-To: <1110413963858@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:19:23 -0800
-Message-Id: <11104139631637@kroah.com>
+	Wed, 9 Mar 2005 22:26:23 -0500
+Date: Wed, 9 Mar 2005 21:22:13 -0600
+To: Jake Moilanen <moilanen@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org, paulus@samba.org,
+       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH 1/2] No-exec support for ppc64
+Message-ID: <20050310032213.GB20789@austin.ibm.com>
+References: <20050308165904.0ce07112.moilanen@austin.ibm.com> <20050308170826.13a2299e.moilanen@austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308170826.13a2299e.moilanen@austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040523i
+From: olof@austin.ibm.com (Olof Johansson)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2038, 2005/03/09 10:21:33-08:00, ecashin@coraid.com
+On Tue, Mar 08, 2005 at 05:08:26PM -0600, Jake Moilanen wrote:
+> No-exec base and user space support for PPC64.  
 
-[PATCH] aoe: fail IO on disk errors
-
-This patch makes disk errors fail the IO instead of getting logged and
-ignored.
+Hi, a couple of comments below.
 
 
-Fail IO on disk errors
+-Olof
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> @@ -786,6 +786,7 @@ int hash_huge_page(struct mm_struct *mm,
+>  	pte_t old_pte, new_pte;
+>  	unsigned long hpteflags, prpn;
+>  	long slot;
+> +	int is_exec;
+>  	int err = 1;
+>  
+>  	spin_lock(&mm->page_table_lock);
+> @@ -796,6 +797,10 @@ int hash_huge_page(struct mm_struct *mm,
+>  	va = (vsid << 28) | (ea & 0x0fffffff);
+>  	vpn = va >> HPAGE_SHIFT;
+>  
+> +	is_exec = access & _PAGE_EXEC;
+> +	if (unlikely(is_exec && !(pte_val(*ptep) & _PAGE_EXEC)))
+> +		goto out;
 
+You only use is_exec this one time, you can probably skip it and just
+add the mask in the if statement.
 
- drivers/block/aoe/aoecmd.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
+> @@ -898,6 +908,7 @@ repeat:
+>  	err = 0;
+>  
+>   out:
+> +
+>  	spin_unlock(&mm->page_table_lock);
 
+Whitespace change
 
-diff -Nru a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
---- a/drivers/block/aoe/aoecmd.c	2005-03-09 16:15:53 -08:00
-+++ b/drivers/block/aoe/aoecmd.c	2005-03-09 16:15:53 -08:00
-@@ -416,7 +416,9 @@
- 
- 	if (ahin->cmdstat & 0xa9) {	/* these bits cleared on success */
- 		printk(KERN_CRIT "aoe: aoecmd_ata_rsp: ata error cmd=%2.2Xh "
--			"stat=%2.2Xh\n", ahout->cmdstat, ahin->cmdstat);
-+			"stat=%2.2Xh from e%ld.%ld\n", 
-+			ahout->cmdstat, ahin->cmdstat,
-+			d->aoemajor, d->aoeminor);
- 		if (buf)
- 			buf->flags |= BUFFL_FAIL;
- 	} else {
-@@ -458,8 +460,8 @@
- 	if (buf) {
- 		buf->nframesout -= 1;
- 		if (buf->nframesout == 0 && buf->resid == 0) {
--			n = !(buf->flags & BUFFL_FAIL);
--			bio_endio(buf->bio, buf->bio->bi_size, 0);
-+			n = (buf->flags & BUFFL_FAIL) ? -EIO : 0;
-+			bio_endio(buf->bio, buf->bio->bi_size, n);
- 			mempool_free(buf, d->bufpool);
- 		}
- 	}
+> diff -puN include/asm-ppc64/pgtable.h~nx-user-ppc64 include/asm-ppc64/pgtable.h
+> --- linux-2.6-bk/include/asm-ppc64/pgtable.h~nx-user-ppc64	2005-03-08 16:08:54 -06:00
+> +++ linux-2.6-bk-moilanen/include/asm-ppc64/pgtable.h	2005-03-08 16:08:54 -06:00
+> @@ -82,14 +82,14 @@
+>  #define _PAGE_PRESENT	0x0001 /* software: pte contains a translation */
+>  #define _PAGE_USER	0x0002 /* matches one of the PP bits */
+>  #define _PAGE_FILE	0x0002 /* (!present only) software: pte holds file offset */
+> -#define _PAGE_RW	0x0004 /* software: user write access allowed */
+> +#define _PAGE_EXEC	0x0004 /* No execute on POWER4 and newer (we invert) */
+
+Good to see the comment there, I remember we talked about that earlier.
+It can be somewhat confusing. :-)
+
+>  #define _PAGE_GUARDED	0x0008
+>  #define _PAGE_COHERENT	0x0010 /* M: enforce memory coherence (SMP systems) */
+>  #define _PAGE_NO_CACHE	0x0020 /* I: cache inhibit */
+>  #define _PAGE_WRITETHRU	0x0040 /* W: cache write-through */
+>  #define _PAGE_DIRTY	0x0080 /* C: page changed */
+>  #define _PAGE_ACCESSED	0x0100 /* R: page referenced */
+> -#define _PAGE_EXEC	0x0200 /* software: i-cache coherence required */
+> +#define _PAGE_RW	0x0200 /* software: user write access allowed */
+>  #define _PAGE_HASHPTE	0x0400 /* software: pte has an associated HPTE */
+>  #define _PAGE_BUSY	0x0800 /* software: PTE & hash are busy */ 
+>  #define _PAGE_SECONDARY 0x8000 /* software: HPTE is in secondary group */
+> @@ -100,7 +100,7 @@
+>  /* PAGE_MASK gives the right answer below, but only by accident */
+>  /* It should be preserving the high 48 bits and then specifically */
+>  /* preserving _PAGE_SECONDARY | _PAGE_GROUP_IX */
+> -#define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_ACCESSED | _PAGE_DIRTY | _PAGE_HPTEFLAGS)
+> +#define _PAGE_CHG_MASK (_PAGE_GUARDED | _PAGE_COHERENT | _PAGE_NO_CACHE | _PAGE_WRITETHRU | _PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_HPTEFLAGS | PAGE_MASK)
+
+Can you break it into 80 columns with \ ?
 

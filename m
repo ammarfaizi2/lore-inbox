@@ -1,130 +1,155 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291123AbSBQWHu>; Sun, 17 Feb 2002 17:07:50 -0500
+	id <S292709AbSBQD20>; Sat, 16 Feb 2002 22:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291122AbSBQWHa>; Sun, 17 Feb 2002 17:07:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62225 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291077AbSBQWH3>;
-	Sun, 17 Feb 2002 17:07:29 -0500
-Message-ID: <3C702999.95BCA136@mandrakesoft.com>
-Date: Sun, 17 Feb 2002 17:07:21 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S292710AbSBQD2H>; Sat, 16 Feb 2002 22:28:07 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:23300 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S292709AbSBQD2A>; Sat, 16 Feb 2002 22:28:00 -0500
+Message-ID: <3C6F2269.4050309@megapathdsl.net>
+Date: Sat, 16 Feb 2002 19:24:25 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010726
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Michael Elizabeth Chastain <mec@shout.net>
-CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <200202171759.g1HHxRS30551@duracef.shout.net>
-Content-Type: text/plain; charset=us-ascii
+To: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org,
+        Abramo Bagnara <abramo@alsa-project.org>
+Subject: Various problems using ALSA drivers in 2.5.5-pre1.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Elizabeth Chastain wrote:
-> I'm the creator and one of the current administrators of the kbuild-devel
-> mailing list.  kbuild-devel is not an instrument of "cronyism" or
-> "secret meetings".
-[reshuffle the message a bit]
-> (I have to say, reluctantly, that I'm personally not happy with the tactic
-> of asking kbuild-devel people to send mail to Dirk Hohndel.  I don't have
-> any acquaintance with Dirk, but I'm sure that he's capable of writing
-> to kbuild-devel himself if he wants to solicit opinions from there.
-> I say "reluctantly" because as an administrator of the list, I don't want
-> to get into criticism of list postings.)
+Hello,
 
-I never meant to suggest that about kbuild-devel -- having the
-appearance of being an attempt to [IMO] push a bad change via Dirk when
-pushing it other ways [IMO] failed was really offensive to me...
+I have the linux hotplug scripts installed.  When I built
+the drivers as modules, they did not autoload, as they should
+have.  Are you working to make the drivers register themselves
+during the boot process so that they are autoloaded without
+having to hack the modules.conf file?
+
+I have applied the patch the gets /proc/asound working.
+In my most recent attempt, I have compiled the ALSA drivers
+into the kernel.  I would like to use the native ALSA drivers,
+but am not sure how to configure my devices to make this
+happen.  I use esound on GNOME and play CDs.
+
+One question I have is how to go about getting the ALSA
+utilities and tools to build.  They require alsa-lib, which
+appears to require alsa-drivers.  This is a problem, because
+I don't want to install the out-of-kernel ALSA drivers in
+addition to the in-kernel ones.
+
+It seems to me that there is a need for several things to happen,
+now that ALSA is in the development kernel:
+
+1)  You need to update your web documentation to guide users
+in configuring ALSA who are testing the ALSA support in
+the development kernel.
+
+2)  You need to include updated ALSA configuration and usage
+information into the linux/Documentation tree in the 2.5 kernel
+tree.
+
+3)  You need to update documentation in the utils and tools
+packages to include information about how to build and use
+there utilies when using the 2.5 kernel drivers.
+
+4)  You may need to overhaul your tools and utilities build
+processes so that alsa-drivers is not required.
+
+Here are my options:
+
+CONFIG_SND=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_MEMORY=y
+CONFIG_SND_DEBUG_FULL=y
+CONFIG_SND_DEBUG_DETECT=y
+CONFIG_SND_EMU10K1=y
+
+In my kernel log, I see no sign that my EMU10K1 card is detected.
+
+Here is what an OSS driver in an earlier kernel logged when it
+detected my card:
+-----------------------------
+
+cat /proc/asound/devices:
+
+   1:       : sequencer
+   0: [0- 0]: ctl
+   4: [0- 0]: hardware dependent
+   8: [0- 0]: raw midi
+  19: [0- 3]: digital audio playback
+  26: [0- 2]: digital audio capture
+  25: [0- 1]: digital audio capture
+  16: [0- 0]: digital audio playback
+  24: [0- 0]: digital audio capture
+   9: [0- 1]: raw midi
+  10: [0- 2]: raw midi
+  33:       : timer
+
+-----------------------------
+
+  cat oss-devices:
+   1:       : sequencer
+   8:       : sequencer
+   2: [0- 2]: raw midi
+  12: [0-12]: digital audio
+   3: [0- 3]: digital audio
+   0: [0- 0]: mixer
+  13: [0-13]: raw midi
+
+-----------------------------
+
+cat pcm:
+00-00: emu10k1 : EMU10K1 : playback 32 : capture 1
+00-01: emu10k1 mic : EMU10K1 MIC : capture 1
+00-02: emu10k1 efx : EMU10K1 EFX : capture 1
+00-03: emu10k1 : EMU10K1 FX8010 : playback 8
+
+cat cards:
+0 [card0          ]: EMU10K1 - Sound Blaster Live!
+                      Sound Blaster Live! at 0xff80, irq 5
+
+-----------------------------
+
+cat sndstat:
+Sound Driver:3.8.1a-980706 (ALSA v0.9.0beta10 emulation code)
+Kernel: Linux turbulence.megapathdsl.net 2.5.5-pre1 #5 Sat Feb 16
+01:22:40 PST 2
+002 i686
+Config options: 0
+
+Installed drivers:
+Type 10: ALSA emulation
+
+Card config:
+Sound Blaster Live! at 0xff80, irq 5
+
+Audio devices:
+0: EMU10K1 (DUPLEX)
+
+Synth devices: NOT ENABLED IN CONFIG
+
+Midi devices:
+0: EMU10K1 MPU-401 (UART)
+
+Timers:
+7: system timer
+
+Mixers:
+0: mixer00
 
 
-> I think it's reasonable and scalable for kernel subsystems to have their
-> own mailing lists.
 
-No argument
+Feb 11 10:48:44 turbulence kernel: Creative EMU10K1 PCI Audio Driver,
+version 0.7, 17:00:23 Sep  6 2001
+Feb 11 10:48:44 turbulence kernel: emu10k1: EMU10K1 rev 7 model 0x8031
+found, IO at 0xff80-0xff9f, IRQ 5
 
-> So while people are chastising Eric for bundling controversial
-> improvements with CML2, or pushing for a 2.4 backport, or writing in
-> python, or writing in python2, I think it's unfair to suggest that he
-> developed CML2 in secret.  He didn't.
-
-No one's suggesting that.  It's more the appearance of "I couldn't do it
-the normal way, let me try this other, non-open route..."
-
-
-> I believe that CML1 is rococo and I welcome a replacement.  I think that
-> leapfrog development is a good strategy here, just as it was for ALSA.
-
-I think this is a key mistake.  See Al's message "Of Bundling, Dao,
-...".
-
-It's impossible to prove that Eric's CML2 rulebase reflects a current
-CML1 rulebase, primarily for this reason.  My review of arch/alpha/* and
-drivers/net/* configs between CML1 and CML2 showed divergent rules and
-dependencies which simply don't exist in CML1 and often should not in
-CML2.
-
-Surely we can prove through -evolution- that CML2 is or is not the best
-direction for the future.  All or nothing is this case is impossible to
-prove correctness.
-
-
-> Here are my reasons for wanting to get rid of CML1:
-
-no arguments
-
-
-> As far as which way to replace CML1 goes: I'm not worried about the
-> technical specifications of the language, so long as it has one.  I would
-> like to remove every trace of Microsoft intellectual property from the
-> kernel, which is an argument in favor of a new language as well
-> as a new implementation.  I would like the new system to come with plenty
-> of documentation.  And I would like the new system to have a maintainer
-> who really believes in it.  CML2 has these properties so I support it.
-
-Those are meta-properties.  The origin of code, be it MicroSoft or not,
-should not be a factor.  In fact, -allowing- it to be a factor is
-allowing MicroSoft some additional weight in technical decisions, which
-should not occur IMO.
-
-CML2 has global dependencies that the current system does not.
-
-CML2 has a rulebase which is different from the current rulebase, with
-no documentation or adequate explanation for these changes, and with no
-good way to prove these changes are correct and reflect the current
-rulebase for [pick your tree].
-
-CML2's syntax is not reflective of the direction of being able to plop
-down "driver.c" and "driver.conf" and having the config/make system
-magically notice it.  It goes in the opposite direction, increasing the
-number of places in $cml-rules-file that one must patch when adding a
-driver [especially one with strange arch-specific dependencies, such as
-an S/390-specific net driver].
-
-
-> Other projects, such as Christoph Hellwig's current version of mconfig,
-> also have these properties (except for keeping the same language) and
-> are also viable replacements for configure/Menuconfig/xconfig.
-
-Would you support the replacement of in-kernel
-configure/Menuconfig/xconfig with in-kernel mconfig?
-
-I mentioned this to Christoph, and he violently disagreed that it should
-go into the kernel, and I violently disgreed with him :)  The kernel
-absolutely MUST have some in-kernel configuration currently.  And
-mconfig is clearly a better tool.
-
-If we want to migrate to a point where all kernel configuration is
-maintained solely outside the kernel, I actually support that.  But as a
-SEPARATE migration step.  I do not want to drop all config tools from
-the kernel and tell people "use mconfig" in the same breath.
-
-	Jeff
-
-
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"

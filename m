@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbUJZFiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbUJZFr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbUJZFiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 01:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbUJZFfN
+	id S261941AbUJZFr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 01:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUJZFpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 01:35:13 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:52198 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261841AbUJZF3w (ORCPT
+	Tue, 26 Oct 2004 01:45:04 -0400
+Received: from math.ut.ee ([193.40.5.125]:35020 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261925AbUJZFgC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 01:29:52 -0400
-Date: Tue, 26 Oct 2004 07:29:51 +0200
-From: Luc Saillard <luc@saillard.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Luca Risolia <luca.risolia@studio.unibo.it>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: Linux 2.6.9-ac3
-Message-ID: <20041026052951.GA4993@sd291.sivit.org>
-References: <20041023193651.1cbcb80d.luca.risolia@studio.unibo.it> <417D7C9D.8040409@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417D7C9D.8040409@tmr.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Tue, 26 Oct 2004 01:36:02 -0400
+Date: Tue, 26 Oct 2004 08:36:00 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: hddtemp hangs with USB SCSI disks; blk_execute_rq again
+Message-ID: <Pine.GSO.4.44.0410260827240.8730-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 06:22:21PM -0400, Bill Davidsen wrote:
-> >Hmm..What about a common library finally?
-> 
-> That sounds like the eventual solution. A vendor to common format 
-> conversion library, and with luck someone will be clever and let the 
-> driver select it in a nice acceptable way. Thought: after open an ioctl 
-> to tell you which conversion to use? The optimal mechanics are 
-> inobvious, but I think the library is the right idea.
+Hi,
 
-It's difficult to create a API that will be use for anyone. I try to be
-application developper and want to grab an image from a device. I need to
-know the list of webcams, the list of capture devices, ... and want to
-display some sliders to control the camera like red,blue,gamma, ...
-I want one format even if it's not supported by the driver.
+hddtemp startup script hangs on my machine. Just the hddtemp process is
+in D state (blk_execute_rq) and unkillable, other processes run fine.
+The startup script calls hddtemp -wn /dev/sda. /dev/sda
+is a CF slot in a USB 6-in-1 memory card reader, currently empty.
+/proc/partitions shows only 2 ide disks.
 
-What's the goal of our API ?
- - open,close, enumerate any device (usb,pci, firewire, ...) on the host.
- - convert any format (i'm YetAnotherCameraApp, want a RGB image, but the
-   driver only support YUV)
- - can recognize special video source and activate some features.
- - can be use by any program or language ?
- - provide API to change red, blue, balance, gamma, ... without using ioctl.
-   Perhaps like Alsa, provinding two levels: - a hardware interface, and a
-   software interface.
- - provides some additionals features, like flipping image, change
-   colorspace, use MMX ...
- - Please insert any features you want.
+Since hddtemp is not converted to SG_IO yet, the kernel logs
+program hddtemp is using a deprecated SCSI ioctl, please convert it to SG_IO
+but this should not cause hddtemp to hang.
 
-The ffmpeg project have already some source code to convert data between
-various format without loosing to much information. (Think YUV to RGB, and
-RGB to YUV410P).
+This is another case of process hanging in blk_execute_rq, see the
+recent thread "readcd hangs in blk_execute_rq" (also reported by me but
+about a different computer).
 
-When i'll finished to support v4l2 for the PWC driver, i'll try to begin a
-little library to be use and a sample application. But this takes times ...
+I have noticed it some weeks ago but didn't have time then to
+investigate and disabled hddtemp. Today I looked at it again and now I'm
+reporting it.
 
-Luc
+-- 
+Meelis Roos (mroos@linux.ee)
+

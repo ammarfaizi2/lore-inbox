@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbUBXUz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUBXUz7
+	id S262449AbUBXVBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUBXVBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:55:59 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:2433 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262457AbUBXUz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:55:57 -0500
-Date: Tue, 24 Feb 2004 15:55:47 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Chris Wedgwood <cw@f00f.org>, <piggin@cyberone.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vm-fix-all_zones_ok (was Re: 2.6.3-mm3)
-In-Reply-To: <20040224012222.453e7db7.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0402241553550.21522-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Feb 2004 16:01:24 -0500
+Received: from mail.kroah.org ([65.200.24.183]:2703 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262449AbUBXVBW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 16:01:22 -0500
+Date: Tue, 24 Feb 2004 13:01:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Elmer Joandi <elmer@linking.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiple Centrino-laptop unknown devices, new IDS, USB nonworking
+Message-ID: <20040224210121.GA1381@kroah.com>
+References: <1077638587.3660.23.camel@localhost.localdomain> <20040224184442.GA32383@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040224184442.GA32383@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Andrew Morton wrote:
-> Chris Wedgwood <cw@f00f.org> wrote:
-> > On Tue, Feb 24, 2004 at 03:11:40PM +1100, Nick Piggin wrote:
-> > 
-> > > Out of interest, what is the worst you can make it do with
-> > > contrived cases?
-> > 
-> > 700MB slab used.
+On Tue, Feb 24, 2004 at 10:44:43AM -0800, Greg KH wrote:
+> On Tue, Feb 24, 2004 at 06:03:08PM +0200, Elmer Joandi wrote:
+> > 9. Havent tried sensors, sensors-detect(Fedore core+ updates) can not
+> > 	find /proc/bus/i2c, i2c-dev is loaded.
 > 
-> Sigh.  There is absolutely nothing wrong with having a large slab cache. 
-> And there is nothing necessarily right about having a small one.
+> You need a newer userspace lmsensors to work with 2.6.  There is no
+> i2c-dev anymore.
 
-Could it be that the lower zone protection stuff simply means
-that Chris's system only ever allocates page cache and anonymous
-memory from his 600 MB highmem, leaving the 900 MB lowmem for
-the slab cache to roam freely ?
+Sorry, I mistyped, there is no /proc/bus/i2c anymore.  i2c-dev of course
+is still present.
 
-I guess highmem allocations really should put some pressure on
-lowmem, even when there is enough lowmem free, because otherwise
-you end up effectively not using half of the memory on 1.5-2 GB
-systems for paging ...
+Sorry for any confusion.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+greg k-h

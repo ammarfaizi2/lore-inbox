@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268546AbRGZRlg>; Thu, 26 Jul 2001 13:41:36 -0400
+	id <S268489AbRGZRmI>; Thu, 26 Jul 2001 13:42:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268559AbRGZRl0>; Thu, 26 Jul 2001 13:41:26 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60835 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268462AbRGZRlU>; Thu, 26 Jul 2001 13:41:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Paul Larson <plars@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: Linux 2.4.7-ac1
-Date: Thu, 26 Jul 2001 12:42:10 +0000
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01072612421000.21482@plars.austin.ibm.com>
-Content-Transfer-Encoding: 7BIT
+	id <S268462AbRGZRl5>; Thu, 26 Jul 2001 13:41:57 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:15708
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S268489AbRGZRlp>; Thu, 26 Jul 2001 13:41:45 -0400
+Date: Thu, 26 Jul 2001 10:41:52 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010726104152.O27780@work.bitmover.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com> <20010726095452.L27780@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010726095452.L27780@work.bitmover.com>; from lm@bitmover.com on Thu, Jul 26, 2001 at 09:54:52AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I was running the Linux Test Project's latest testsuite against 2.4.7-ac1 and 
-noticed one test failed that did not fail in 2.4.7 and 2.4.6-ac5.  The 
-pth_str02 test (simple test that tries to create 1000 threads) could only 
-make it up to 980 threads on my machine.  Saw this change in fork.c with 
-2.4.7-ac1:
+Arrg, I take it all back, I'm taking about Daniel Phillips not Daniel
+Bernstein.  I tend to agree with Alan about Mr Bernstein.
 
--       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 2;
-+       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 16;
-
-Any reason why this was done?  I think the max I was ever able to hit before 
-was somewhere around 1018 or so, so it's not that big of a drop.  I was just 
-wondering why it was being further limited since I didn't see anything in the 
-changelog about it.
-
-Thanks,
-Paul Larson
+Thanks to Richard Gooch for pointing out that I'm asleep at the switch.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

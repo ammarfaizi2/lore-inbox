@@ -1,95 +1,286 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317708AbSIJQ3t>; Tue, 10 Sep 2002 12:29:49 -0400
+	id <S317845AbSIJQff>; Tue, 10 Sep 2002 12:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317743AbSIJQ3t>; Tue, 10 Sep 2002 12:29:49 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:33029 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S317708AbSIJQ3r> convert rfc822-to-8bit; Tue, 10 Sep 2002 12:29:47 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [RFC] Multi-path IO in 2.5/2.6 ?
-Date: Tue, 10 Sep 2002 11:34:26 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E10640167D03E@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC] Multi-path IO in 2.5/2.6 ?
-Thread-Index: AcJY23LaJOFmBSpqTAS7aIEtC6IeFAACRGLw
-From: "Cameron, Steve" <Steve.Cameron@hp.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Sep 2002 16:34:27.0740 (UTC) FILETIME=[EE3C15C0:01C258E7]
+	id <S317851AbSIJQff>; Tue, 10 Sep 2002 12:35:35 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:39368 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317845AbSIJQfb>;
+	Tue, 10 Sep 2002 12:35:31 -0400
+Date: Tue, 10 Sep 2002 18:40:02 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Patch?: linux-2.5.33/drivers/input/keyboard/atkbd.c allow SETLEDS to fail
+Message-ID: <20020910184002.A9919@ucw.cz>
+References: <200209091504.IAA01726@baldur.yggdrasil.com> <20020909172004.A2631@ucw.cz> <20020910090520.A731@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020910090520.A731@adam.yggdrasil.com>; from adam@yggdrasil.com on Tue, Sep 10, 2002 at 09:05:20AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alan Cox wrote:
-
-> On Tue, 2002-09-10 at 15:43, Cameron, Steve wrote:
-> > Well, the BIOS can do it if it has one working path, right?
-> > (I think the md information is at the end of the partition,)
+On Tue, Sep 10, 2002 at 09:05:20AM -0700, Adam J. Richter wrote:
+> On Mon, Sep 09, 2002 at 05:20:04PM +0200, Vojtech Pavlik wrote:
+> > There are not. If SETLEDS fails, then there is the GETID command, which
+> > is also allowed to fail (fails on AT (non-PS/2) keyboards, which are
+> > still common), and it most likely also fails on your keyboard. That's
+> > all.
+> > 
+> > If you kill the SETLEDS command, then even without a keyboard, the
+> > keyboard will be detected, and sent commands, which will have to time
+> > out every time.
 > 
-> Yes. A good PC bios will spot an hda boot fail, and try hdc. Good PC
-> bioses are alas slightly hard to find nowdays. In that set up raid1
-> works very well. Multipath is obviously a lot more complicated.
+> 	100 milliseconds, which normally only happens when the user
+> hits CapsLock, NumLock or ScrollLock, which generally implies that a
+> keyboard is present.
 
-For the failed primary path case yes.  In the case the primary path is
-working, I would think booting from a multipath device and a RAID1 
-device would be very very similar, or even identical, from the 
-perspective of the BIOS, right?
+100 milliseconds is a long time. When a keyboard is present, it replies
+much faster than that, usually around 1-4 ms.
 
-> > lilo and grub as they stand today, and anaconda (et al) as it 
-> > stands today, cannot do it.  They can do RAID1 md devices only.  
-> > lilo for example will complain if you try to run it with 
-> > boot=/dev/md0, and /dev/md0 is not a RAID1 device.   At least 
+> I suspect that you could change it to use mdelay
+> instead of udelay, so that other processes could do useful work during
+> the wait,
+
+Actually, mdelay just calls udelay several times, processes are stopped.
+I could do a sleep, but that'd imply quite complex code involving a
+kernel thread most likely - keypresses come from interrupt context.
+
+> which might be relevant even with a keyboard plugged in that
+> just happens to be slow if one is running a screen saver that cycles
+> the keyboard LED's.  If it's important, you could also set a flag
+> when SETLEDS fails and not attempt further SETLEDS until another
+> sign of life from the keyboard is received (which would also address
+> the case of someone unplugging the keyboard after initialization).
+
+We do this for USB keyboards, it might make sense for AT keyboards as
+well, but only in case the LED thread is implemented.
+
+> 	I also noticed a problem with plugging in a PS/2 keyboard
+> after initialization where it would not work, at least when I also had
+> the USB-to-PS/2 emulation enabled (if I booted with PS/2 keyboard
+> plugged in, both the USB and the PS/2 keyboards would work).  I have
+> not checked the purely non-USB case for whether your code works for
+> loading the module without the keyboard present and then plugging the
+> keyboard in later.
+
+Autoloading the modules doesn't work yet, but if the modules are loaded
+(or better compiled in, as keyboard support used to be), then a keyboard
+is autodetected after plugging it in, even if you connect it to the
+mouse port.
+
+> 	Without the USB-to-PS/2 emulation on my VD133 motherboard, I
+> can't type into lilo. 
+
+Then leave it enabled, it's not a problem.
+
+> Perhaps newer BIOSes have USB keyboard input
+> without need for hardware emulation, but I imagine that there are
+> quite a few computers with this problem.
+
+Actually the USB code in the Linux kernel does a thing called "USB
+emulation takeover", where it takes the USB controller over from BIOS
+and disables the PS/2 emulation. This way you can have your keyboard
+both in LILO and in Linux using a proper USB driver.
+
+> That would be OK if there
+> were some way for Linux to turn off USB-to-PS/2 keyboard emulation
+> once the Linux USB code is loaded. 
+
+This is what happens.
+
+> Currently, I get an infinite loop
+> of carriage returns when I do "modprobe hid" if I am using USB-to-PS/2
+> keyboard emulation.
+
+This is interesting. I never had a report like that. Care to supply more
+detail? Also this would mean you have the irqs assigned correctly now?
+
+> 	I agree that USB-to-PS/2 seems to be an ugly kludge, but I
+> think that the small cost due to orphaning certain oddball hardware
+> combinations is greater than the even smaller benefit of faster
+> SETLEDs (which I think could be achieved in other ways).
+
+I'll be adding a switch to not communicate with the keyboard and only
+accept keystrokes. This will solve your problem. But I still think it's
+better to fix the other problems you have and have the hardware operate
+in the intended way.
+
+> 	The rest of this email is just about the PCI interrupt routing.
 > 
-> It relies on the BIOS to do the data loading off the md0. In your
-> scenario you would tell it the boot is on /dev/sdfoo where that is the
-> primary path. I guess the ugly approach would be to add lilo/grub
-> entries for booting off either path as two seperate kernel entries.
+> > > >I assume you have an USB keyboard, and the BIOS emulates a PS/2 keyboard
+> > > >for non-USB capable OSes.
+> > > 
+> > > >Well, fix Linux irq router code, instead of damaging the keyboard code.
+> > > 
+> > > 	How is the Linux IRQ routing code broken?  As far as I know,
+> > > it only reads the information given to it and cannot reprogram the
+> > > hardware.
+> > 
+> > It can.
 > 
+> 	Thanks for the pointers to arch/i386/pci/irq.c and
+> drivers/pci/quirks.c.  This code programs interrupt routing in a few
+> special cases and arch/i386/pci/irq.c has somewhat general underlying
+> facilities that could be put to more general use, but I do not see any
+> existing programming interface by which a user level program could
+> somehow get the kernel to try, for example, to reprogram pci device
+> 00:07.2 to IRQ 10.
 
-Hmm, I thought I had tried this, but, I had tried so many things.
-If anyone has successfully set up a system booting from a multipath
-md device, I'd like to hear about it.
+It's done at boot time, so it's not designed to be programmed by
+userspace. However, the usb driver does pci_enable_device(), where the
+PCI code will assign an IRQ to it if the BIOS didn't.
 
-What I tried was more or less this:
-
-1. Install normally to disk-A, remove disk-A from the system.
-2. Install normally to disk-B.  Install disk-A into the system.
-   and boot from disk-B.  (now I can safely copy from disk-A, which has
-   no actively mounted partitions.)
-3.  Create multipath devices on disk-C, one for each partition.
-   The partitions are bigger than those on disk-A, to allow for md to
-	put its data at the end.
-4.  Copy, (using dd) the partitions from disk-A to the md devices.
-
-5.  mount the md devices, and chroot to the md-root device.
-    Try to figure out how to run lilo to make booting from disk-C possible
-    also, initrd modifications to insmod multipath.o, mount the md devices,
-    etc.  This part, (making lilo work) I never was able to figure out.
-
-  Would boot up and say "LI" then stop... or various other problems
-  that I can't quite recall now.  (this was a couple weeks ago)
-
-I guess this is getting a little off topic for linux-kernel, so maybe I 
-should let this drop now, or take it over to linux-raid, but I _would_ 
-like to hear from anyone who has got a multipath boot device working.
-
-Anyway, even if this can be made to work, this leaves a rather ugly and
-convoluted method of installation.
-
-> > bit, but so far, I am unsuccessful.  I think grub cannot even do
-> > RAID1.
+> > > 	My understanding is that the BIOS is responsible for setting
+> > > up the IRQ routes of each device and writing them into each device's
+> > > PCI configuration register dword 15 byte 0 (INTERRUPT_LINE), which is
+> > > normally just 8 bits of RAM.
+> > 
+> > Yes, but because the BIOS often writes nonsense to these config
+> > registers, Linux knows several southbridges and can fix the routing by
+> > hand.
+> > 
+> > > The mechanism for *making* those routes
+> > > is vendor specific and handled by the BIOS at boot time.  In the
+> > > particular case of my VD133, it apparently uses a Via VT82C598 PCI
+> > > bridge ("Apollo MVP3 AGP"), which I think is the component that would
+> > > have the secret bits for setting up routing from the main PCI bus to
+> > > the interrupt controllers.
+> > 
+> > Most likely the interrupt routing is controlled by the southbridge (the
+> > ISA bridge device). See arch/i386/pci/irq.c. Maybe it's as easy as an
+> > entry for your southbridge is missing.
+> > 
+> > > And those bits do appear to be secret.
+> > 
+> > Not really. Most of them are actually documented. Namely for built-in
+> > devices like USB controllers, because those cannot be wired differently
+> > by different board manufacturers.
 > 
-> Works for me
+> 	There appears to be more black magic involved than is covered
+> by drivers/pci/quirks.c and arch/i386/pci/irq.c.  Thanks for the
+> pointers.  From the files that you mentioned and a lot of
+> experimentation of setpci and a minor kernel change, I have determined
+> that when I have my natsemi ethernet card plugged in, then, and *only
+> then*, I can get the USB controller to use the same IRQ as the
+> ethernet card, and, with the attached modification to
+> arch/i386/pci/irq.c, I can get the kernel to use that IRQ even though
+> there is no pirq entry for it.  By the way, this isn't just the USB
+> controller being polled whenever an ethernet packet arrives.  I've
+> verified that it works with the ethernet cable unplugged, as long as
+> the card is present.  However, without the ethernet card installed,
+> the only way I have gotten the USB keyboard to work is with the
+> USB-to-PS/2 emulation.  Right now, I have the ethernet card installed
+> and am composing this email on that USB keyboard via the Linux USB
+> drivers.  Thanks again particularly for the pointer to
+> arch/i386/pci/irq.c.
 
-Ok, good to hear.  (I had it only on hearsay that grub couldn't do it,
-so my experiments were confined to lilo.)
+Glad to hear you got it to work. More comments below.
 
--- steve
+> 	Here are the details of what I found, as the information may
+> be useful for other purposes in the future.
+> 
+> 	pirq_via_{get,set} in arch/i386/pci/irq.c show a general
+> mechanism for assigning IRQ's though the Via south bridge chip.
+> dev_perq_info->irq[pin].link is an index into a table of 4 bit
+> nibbles starting at PCI configuration register 0x55 of the south
+> bridge.  You write the IRQ that you want to route to into the
+> appropriate nibble.  Here is an example from my system, with some
+> comments in brackets:
+> 
+> 	setpci -v -s 00:07.0 55 56 57 58
+> 	00:07.0:55 = c0					[ pirq#1 --> IRQ 12 ]
+> 	00:07.0:56 = 0b					[ pirq#2 --> IRQ 11 ]
+> 	00:07.0:57 = 00
+> 	00:07.0:58 = 00
+> 
+> 	I can change the ethernet's IRQ routing from 11 to, say, 9,
+> and watch the ethernet immediately stop, by doing something like
+> "setpci -s 00:07.0 56=09".
+> 
+> 	However, the built-in USB on the VT82C586B does not seem to use
+> this mechanism.  There is no PIRQ entry for the pin that the USB controller
+> uses, and I cannot, for example, get the USB interrupts to show up on IRQ
+> ten by filling all of the southbridge configuration registers from 0x55
+> through 0x58 with 0xaa.
+> 
+> 	It seems that the built-in USB on the VT82C586B has the same
+> feature as is described for the Via 686A/B in quirk_via_irqpic in
+> drivers/pci/quirks.c:
+> 
+>  * Via 686A/B:  The PCI_INTERRUPT_LINE register for the on-chip
+>  * devices, USB0/1, AC97, MC97, and ACPI, has an unusual feature:
+>  * when written, it makes an internal connection to the PIC.
 
- 
+Indeed, the 586b specification says that writing ofset 0x3c of the USB
+controller with the irq value causes USB irq to be routed to the irq
+written.
+
+> 	This seems to work on my VD133 motherboard also, but it seems
+> only to work if I route it to the interrupt being used by the ethernet
+> card.
+
+It most likely will work when shared with any PCI interrupt.
+
+> It seems that there is some additional initialization needed
+
+Couldn't find anything like that in the docs. Maybe the other irqs are
+used for something else, non-shareable. Maybe you can set them as ISA in
+BIOS setup and then the BIOS won't assign anything to them.
+
+> (and yes, I've checked that my choice of IRQ conforms that various IRQ
+> masks in arch/i386/pci/irq.c, and I've tried setting the south
+> bridge's configuration registers at 0x55 in conjunction with this.
+> So, it appears that there is some further interrupt routing
+> preparation that the kernel does not know about.
+
+The 586b register description doesn't mention anything else.
+
+> > Try the southbridge instead of the northbridge. I have several of the
+> > documents, and can send it to you if you tell me the right chip number.
+> 
+> 	Great!  Here is output of lspci on my system.  I would be
+> interested in documents for any of the relevant chips.  Although I've
+> kludged around the problem enough for my own use, I'd prefer to
+> develop a more general and correct fix for other VD133 users at least
+> and perhaps other boards if they have a similar BIOS problem.
+> 
+> 00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev 44)
+> 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Apollo PRO] (rev 12)
+> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
+> 00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 08)
+> 00:07.3 Host bridge: VIA Technologies, Inc.: Unknown device 3050 (rev 20)
+> 00:10.0 Ethernet controller: National Semiconductor Corporation DP83815 10/100Mbps Ethernet with Wake on LAN
+> 01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP AGP 1X/2X (rev 5c)
+> 
+> 
+> 	Thanks for your help.
+
+586b. Quite old. I have that document. You can get it from
+http://twilight.ucw.cz/vt82c586b.pdf
+
+> --- linux-2.5.33/arch/i386/pci/irq.c	2002-08-31 15:05:37.000000000 -0700
+> +++ linux/arch/i386/pci/irq.c	2002-09-10 05:29:09.000000000 -0700
+> @@ -591,8 +591,13 @@
+>  	pirq = info->irq[pin].link;
+>  	mask = info->irq[pin].bitmap;
+>  	if (!pirq) {
+> -		DBG(" -> not routed\n");
+> -		return 0;
+> +		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &dev->irq);
+> +		if (dev->irq)
+> +			return 1;
+> +		else {
+> +			DBG(" -> not routed\n");
+> +			return 0;
+> +		}
+>  	}
+>  	DBG(" -> PIRQ %02x, mask %04x, excl %04x", pirq, mask, pirq_table->exclusive_irqs);
+>  	mask &= pcibios_irq_mask;
+
+
+-- 
+Vojtech Pavlik
+SuSE Labs

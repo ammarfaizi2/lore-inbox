@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVC0UrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVC0Ur1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVC0UrC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 15:47:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVC0Upe
+	id S261550AbVC0Ur1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 15:47:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVC0Ur0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 15:45:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27408 "HELO
+	Sun, 27 Mar 2005 15:47:26 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30480 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261353AbVC0Und (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 15:43:33 -0500
-Date: Sun, 27 Mar 2005 22:43:30 +0200
+	id S261353AbVC0UqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 15:46:23 -0500
+Date: Sun, 27 Mar 2005 22:46:21 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: dgilbert@interlog.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/sg.c: fix check after use
-Message-ID: <20050327204330.GZ4285@stusta.de>
+To: bfennema@falcon.csc.calpoly.edu
+Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/udf/inode.c: fix a check after use
+Message-ID: <20050327204621.GB4285@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,22 +26,38 @@ This patch fixes a check after use found by the Coverity checker.
 
 Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
---- linux-2.6.12-rc1-mm1-full/drivers/scsi/sg.c.old	2005-03-23 04:57:20.000000000 +0100
-+++ linux-2.6.12-rc1-mm1-full/drivers/scsi/sg.c	2005-03-23 04:57:50.000000000 +0100
-@@ -1208,11 +1208,14 @@
- sg_mmap(struct file *filp, struct vm_area_struct *vma)
- {
- 	Sg_fd *sfp;
--	unsigned long req_sz = vma->vm_end - vma->vm_start;
-+	unsigned long req_sz;
- 	Sg_scatter_hold *rsv_schp;
+--- linux-2.6.12-rc1-mm1-full/fs/udf/inode.c.old	2005-03-23 05:12:25.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/fs/udf/inode.c	2005-03-23 05:12:53.000000000 +0100
+@@ -1948,28 +1948,30 @@
+ 	udf_release_data(obh);
+ 	return (elen >> 30);
+ }
  
- 	if ((!filp) || (!vma) || (!(sfp = (Sg_fd *) filp->private_data)))
- 		return -ENXIO;
+ int8_t inode_bmap(struct inode *inode, int block, kernel_lb_addr *bloc, uint32_t *extoffset,
+ 	kernel_lb_addr *eloc, uint32_t *elen, uint32_t *offset, struct buffer_head **bh)
+ {
+-	uint64_t lbcount = 0, bcount = (uint64_t)block << inode->i_sb->s_blocksize_bits;
++	uint64_t lbcount = 0, bcount;
+ 	int8_t etype;
+ 
+ 	if (block < 0)
+ 	{
+ 		printk(KERN_ERR "udf: inode_bmap: block < 0\n");
+ 		return -1;
+ 	}
+ 	if (!inode)
+ 	{
+ 		printk(KERN_ERR "udf: inode_bmap: NULL inode\n");
+ 		return -1;
+ 	}
+ 
++	bcount = (uint64_t)block << inode->i_sb->s_blocksize_bits;
 +
-+	req_sz = vma->vm_end - vma->vm_start;
-+
- 	SCSI_LOG_TIMEOUT(3, printk("sg_mmap starting, vm_start=%p, len=%d\n",
- 				   (void *) vma->vm_start, (int) req_sz));
- 	if (vma->vm_pgoff)
+ 	*extoffset = 0;
+ 	*elen = 0;
+ 	*bloc = UDF_I_LOCATION(inode);
+ 
+ 	do
+ 	{
+ 		if ((etype = udf_next_aext(inode, bloc, extoffset, eloc, elen, bh, 1)) == -1)
 

@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263361AbTJBPaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 11:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTJBPaQ
+	id S263359AbTJBPdi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 11:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTJBPdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 11:30:16 -0400
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:31105 "EHLO
-	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263361AbTJBPaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 11:30:13 -0400
-To: John Bradford <john@grabjohn.com>
-cc: xen-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization 
-In-Reply-To: Your message of "Thu, 02 Oct 2003 16:15:01 BST."
-             <200310021515.h92FF1N3000239@81-2-122-30.bradfords.org.uk> 
-Date: Thu, 02 Oct 2003 16:30:04 +0100
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Message-Id: <E1A55P2-00065x-00@wisbech.cl.cam.ac.uk>
+	Thu, 2 Oct 2003 11:33:38 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:24588 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263359AbTJBPdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 11:33:36 -0400
+Date: Thu, 2 Oct 2003 17:33:01 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Andries.Brouwer@cwi.nl, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] linuxabi
+Message-ID: <20031002153301.GA2033@win.tue.nl>
+References: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl> <m17k3nhfex.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m17k3nhfex.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Our aim was to implement an efficient VMM for commodity hardware, and
-> > that really means x86. We're considering a port to x86-64, but so far
-> > we're limited in man power (this is why *BSD is not yet available, for
-> > example). 
-> 
-> Does it run recursively?  I.E. can you can Xen within a Xen virtual
-> machine for development and testing purposes?
+On Thu, Oct 02, 2003 at 08:39:50AM -0600, Eric W. Biederman wrote:
 
-No --- Xen runs on x86 but exports a different 'x86-xeno' virtual
-architecture that OSes must be ported to (basically, privileged ops
-must go through Xen for validation).
+> This is a 2.7 project.
 
-x86 != x86-xeno, so Xen will not run on Xen.
+I disagree. This is unrelated to kernel development, just like working
+on sparse is unrelated to kernel development. 
 
- -- Keir
+> Doing this right requires a lot more
+> than what you are doing here.
+
+Possibly. So we need discussion.
+
+I have registered comment #1: Al prefers the enum style.
+A possibility.
+
+Now you come with comment #2: write LINUX_MS_RDONLY instead of
+MS_RDONLY. You have not convinced me.
+
+> One example is that we need to be very careful with is that the
+> glibc abi is not the same as the linux kernel abi.  Even though most
+> of the functions are pass through some are not.  And which are which
+> is a fairly arbitrary decision.  So all of the definitions exported
+> through linuxabi need to be in a linux centric namespace.  This is
+> especially true because otherwise I could not include
+> linuxabi/mountflags.h and sys/mount.h and not get compilation 
+> conflicts.
+
+Today glibc tells me in sys/mount.h
+ #define MS_RMT_MASK (MS_RDONLY | MS_MANDLOCK)
+and in linux/fs.h
+ #define MS_RMT_MASK (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|MS_SYNCHRONOUS|MS_MANDLOCK|MS_NOATIME|MS_NODIRATIME)
+
+It seems glibc is not even self-consistent.
+Consider linuxabi/mountflags.h as part of the replacement for linux/fs.h.
+
+Andries
+
+

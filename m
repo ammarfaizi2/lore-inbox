@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262967AbTCWIaf>; Sun, 23 Mar 2003 03:30:35 -0500
+	id <S262975AbTCWIcv>; Sun, 23 Mar 2003 03:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262968AbTCWIaf>; Sun, 23 Mar 2003 03:30:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19719 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262967AbTCWIae>; Sun, 23 Mar 2003 03:30:34 -0500
-Date: Sun, 23 Mar 2003 00:27:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] parallel port
-In-Reply-To: <20030323082239.GE6940@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0303230024280.5588-100000@home.transmeta.com>
+	id <S262976AbTCWIcv>; Sun, 23 Mar 2003 03:32:51 -0500
+Received: from [65.214.160.163] ([65.214.160.163]:61320 "EHLO rimmer.65535.net")
+	by vger.kernel.org with ESMTP id <S262975AbTCWIcu>;
+	Sun, 23 Mar 2003 03:32:50 -0500
+Date: Sun, 23 Mar 2003 08:43:40 +0000 (GMT)
+From: meyers_j@freeshell1.65535.net
+X-X-Sender: meyers_j@rimmer.65535.net
+To: linux-kernel@vger.kernel.org
+Subject: sound card
+Message-ID: <Pine.LNX.4.44.0303230840001.25376-100000@rimmer.65535.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't know exactly which  card is on my friends board
 
-On Sun, 23 Mar 2003, Adrian Bunk wrote:
-> > 
-> > for me. I think I complained about that once before already. Tssk, tssk.
-> 
-> It's perhaps a silly question:
-> Why did you use a "do ... while  (0)" in your fix?
+i thought it is soundblaster and tried ioport=0x220 which i found on the
+net.But it didn't work.SO is there any way of finding the address ?
+or any list to guess 0x230 etc
 
-I always do that (well, almost always), just because it protects macros 
-from being mis-used.
+pnpdump shows
+# Trying port address 03ab
+# Trying port address 03b3
+# Trying port address 03bb
+# Trying port address 03e3
+# Trying port address 03eb
+# Trying port address 03f3
+# No boards found
 
-For example, if you have
+I cut the above ports
 
-	#define macro(x) ((x) = 3)
+i tried sndconfig but didn't work
 
-that _looks_ safe, but it allows people to write
-
-	x++ = macro(x);
-
-or similar nonsense. So if you want a macro that always behaves like a 
-statement (and can't be used as an expression), the "do { } while (0)" 
-will do that.
-
-[ The real answer is that it's so built in to my spine, that I just can't 
-  stop myself. Even if it doesn't really matter. ]
-
-			Linus
+P.S. CC me
 

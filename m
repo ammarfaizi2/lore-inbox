@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUGAHRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264258AbUGAHVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUGAHRB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 03:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbUGAHRB
+	id S264258AbUGAHVV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 03:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbUGAHVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 03:17:01 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:49830 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264231AbUGAHQ5 (ORCPT
+	Thu, 1 Jul 2004 03:21:21 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:6547 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S264258AbUGAHVT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 03:16:57 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v4.3 x86-64 updates for for kernel 2.4.25 
-In-Reply-To: Your message of "Wed, 09 Jun 2004 11:30:10 +1000."
-             <4850.1086744610@kao2.melbourne.sgi.com> 
-Date: Thu, 01 Jul 2004 17:16:53 +1000
-Message-ID: <10869.1088666213@kao2.melbourne.sgi.com>
+	Thu, 1 Jul 2004 03:21:19 -0400
+Date: Thu, 01 Jul 2004 16:16:47 +0900 (JST)
+Message-Id: <20040701.161647.119874601.taka@valinux.co.jp>
+To: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
+       linux-mm@kvack.org
+Cc: iwamoto@valinux.co.jp
+Subject: [patch] new memory hotremoval patch for hugetlbpages
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20040630111719.EBACF70A92@sv1.valinux.co.jp>
+References: <20040630111719.EBACF70A92@sv1.valinux.co.jp>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello, 
 
-KDB (Linux Kernel Debugger) has been updated.
+> this is an updated version of my memory hotremoval patch.
+> I'll only include the main patch which contains page remapping code.
+> The other two files, which haven't changed much from April, can be
+> found at http://people.valinux.co.jp/~iwamoto/mh.html .
+	(snip)
+> My patch supports remapping of normal pages, Takahashi's hugepage
+> remapping patch will be posted in a few days.
 
-ftp://oss.sgi.com/projects/kdb/download/v4.3/
+I also post new hugepage remapping patches which is against linux-2.6.7.
+I have change it to use objrmap so that the code become clean.
 
-kdb-v4.3-2.4.25-x86-64-1.bz2 is available.  The x86-64 patch is still a
-work in progress, use with care.  Changelog extract.
+The patches can be downloaded from 
+   http://people.valinux.co.jp/~taka/hpageremap.html .
 
-2004-06-23 Jack Vogel <jfv@bluesong.net>
-	* Port patch to 2.4.25 and sync with Keith's
-	  4.3 common and i386 code.
-	* By internal (IBM) request add cr8 to register dump
+There may remain some bugs. if you find them, would you let me know.
 
-2003-12-15 Cliff Neighbors <cliff@fabric7.com>
-	* initial port from i386 to x86_64
+> I will be working on the following items.
+> 
+>   1.  Prototype implementation of memsection support.
+>       It seems some people wants to hotremove small regions of memory
+>       rather than zones or nodes.  A prototype implementation will
+>       show how Takahashi's hugetlb page code can be used for such a
+>       purpose.
 
-x86-64 for 2.4.25 requires kdb-v4.3-2.4.25-common-3 or later.
+This is my interst and I'll work on it.
+
+>   2.  Handling of pages with dirty buffers without writing them back.
+>       This is file system specific.  I plan to do against ext2 and
+>       ext3.
+
+Thank you,
+Hirokazu Takahashi.
 
 
-When Marcelo releases 2.4.27, I will do a backport of kdb v4.4 from 2.6
-to 2.4.27, this is probably the last update for kdb v4.3.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFA47pli4UHNye0ZOoRAq1MAKC7AAgihexkB5cmB689cdybKh6EDACfcTZw
-5v/umYBg6Cn9lc4xZOnsq9I=
-=RVDU
------END PGP SIGNATURE-----
 

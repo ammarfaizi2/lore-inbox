@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264086AbTE0STR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTE0SSH
+	id S264071AbTE0SQf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbTE0SPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:18:07 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:65275 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S264086AbTE0SRz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:17:55 -0400
-Subject: Re: Linux 2.5.70
-From: Robert Love <rml@tech9.net>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.33.0305271402420.4448-100000@sweetums.bluetronic.net>
-References: <Pine.GSO.4.33.0305271402420.4448-100000@sweetums.bluetronic.net>
-Content-Type: text/plain
-Message-Id: <1054060263.16472.10.camel@lettuce>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
-Date: 27 May 2003 11:31:04 -0700
+	Tue, 27 May 2003 14:15:36 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:36016 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S264060AbTE0SOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 14:14:45 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16083.44589.855335.531141@napali.hpl.hp.com>
+Date: Tue, 27 May 2003 11:27:57 -0700
+To: george anzinger <george@mvista.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Richard C Bilson <rcbilson@plg2.math.uwaterloo.ca>,
+       linux-kernel@vger.kernel.org, Eric Piel <Eric.Piel@Bull.Net>
+Subject: Re:  setitimer 1 usec fails
+In-Reply-To: <3ED28E95.6000701@mvista.com>
+References: <20030526142555.67a79694.akpm@digeo.com>
+	<3ED28E95.6000701@mvista.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-27 at 11:09, Ricky Beam wrote:
+>>>>> On Mon, 26 May 2003 15:00:53 -0700, george anzinger <george@mvista.com> said:
 
-> In my opinion (as it was in the long long ago), everything in a "stable"
-> release should at least compile cleanly -- "working" comes later after
-> users have been conned into using it.
+  George> As a test, you might try your test with HZ=1000 (a number I
+  George> recommend for ia64, if at all possible).
 
-A lot of this will happen in 2.6-pre, prior to 2.6.0, do not worry.
+I suspect you might have a slightly biased view on this. ;-) Yes,
+HZ=1000 makes some problems easier to convert ticks to real time, but
+slower to convert real time to ticks.
 
-A final stable release is still a few months off, although as Linus and
-Alan have said even that does not mean perfection. But before 2.6.0 hits
-the streets, 2.6-pre will mature a lot. This is how things work.
+Besides, the Linux kernel MUST work with (fairly) arbitrary HZ values,
+because some platforms just don't have much of a choice (e.g., Alpha
+is pretty much forced to 1024Hz).
 
-	Robert Love
+But, yes, on ia64 we can choose HZ to our liking.  If someone presents
+evidence that shows a real benefit for a value other than 1024, I'm
+certainly willing to listen.
 
+	--david

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276963AbRJHPwq>; Mon, 8 Oct 2001 11:52:46 -0400
+	id <S276920AbRJHQAG>; Mon, 8 Oct 2001 12:00:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276966AbRJHPwg>; Mon, 8 Oct 2001 11:52:36 -0400
-Received: from ns.caldera.de ([212.34.180.1]:31405 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S276963AbRJHPw0>;
-	Mon, 8 Oct 2001 11:52:26 -0400
-Date: Mon, 8 Oct 2001 17:52:42 +0200
-Message-Id: <200110081552.f98Fqgw22690@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: dmccr@us.ibm.com (Dave McCracken)
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+	id <S272818AbRJHP74>; Mon, 8 Oct 2001 11:59:56 -0400
+Received: from [216.191.240.114] ([216.191.240.114]:41349 "EHLO
+	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S276888AbRJHP7m>;
+	Mon, 8 Oct 2001 11:59:42 -0400
+Date: Mon, 8 Oct 2001 11:57:11 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrea Arcangeli <andrea@suse.de>,
+        Ingo Molnar <mingo@elte.hu>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
         Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Provide system call to get task id
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <71000000.1002555975@baldur>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <E15qcRA-0000uJ-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.30.0110081146050.5473-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <71000000.1002555975@baldur> you wrote:
-> --- linux-2.4.10/arch/i386/kernel/entry.S	Sat Sep  8 14:02:32 2001
-> +++ linux-2.4.10-gettid/arch/i386/kernel/entry.S	Mon Oct  8 09:57:39 2001
-> @@ -619,6 +619,7 @@
->  	.long SYMBOL_NAME(sys_madvise)
->  	.long SYMBOL_NAME(sys_getdents64)	/* 220 */
->  	.long SYMBOL_NAME(sys_fcntl64)
-> +	.long SYMBOL_NAME(sys_gettid)
->  	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for TUX */
 
-I think there was a reason why this syscall is marked reserved,
-could you add it as Nr 224?  (223 is reserved in 2.4.11-pre as well).
 
-	Christoph
+On Mon, 8 Oct 2001, Alan Cox wrote:
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+> > I hear you, but I think isolation is important;
+> > If i am telneted (literal example here) onto that machine (note eth0 is
+> > not cardbus based) and cardbus is causing the loops then iam screwed.
+> > [The same applies to everything that shares interupts]
+>
+> Worst case it sucks, but it isnt dead.
+>
+> Once you disable the IRQ and kick over to polling the cardbus and the
+> ethernet both still get regular service. Ok so your pps rate and your
+> latency are unpleasant, but you are not dead.
+>
+
+Agreed if you add the polling cardbus bit.
+Note polling cardbus would require more changes than the above.
+My concern was more of the following: This is a temporary solution.  A
+quickie if you may. The proper solution is to have the isolation part. If
+we push this in, doesnt it result in procastination of "we'll do it later"
+Why not do it properly since this was never a show stopper to begin with?
+[The showstopper was networking]
+
+cheers,
+jamal
+

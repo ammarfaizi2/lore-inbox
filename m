@@ -1,95 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317990AbSFSUB4>; Wed, 19 Jun 2002 16:01:56 -0400
+	id <S317992AbSFSUEH>; Wed, 19 Jun 2002 16:04:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317991AbSFSUB4>; Wed, 19 Jun 2002 16:01:56 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:30405 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S317990AbSFSUBz>;
-	Wed, 19 Jun 2002 16:01:55 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 19 Jun 2002 22:01:09 +0200 (MEST)
-Message-Id: <UTC200206192001.g5JK19C03065.aeb@smtp.cwi.nl>
-To: aebr@win.tue.nl, torvalds@transmeta.com
-Subject: Re: [PATCH+discussion] symlink recursion
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       phillips@bonn-fries.net, viro@math.psu.edu
+	id <S317993AbSFSUEG>; Wed, 19 Jun 2002 16:04:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15631 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317992AbSFSUED>;
+	Wed, 19 Jun 2002 16:04:03 -0400
+Message-ID: <3D10E358.D82DB604@zip.com.au>
+Date: Wed, 19 Jun 2002 13:02:32 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: (2.5.23) buffer layer error at buffer.c:2326
+References: <Pine.LNX.4.44.0206192007210.1263-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But trying to sell this thing to me as a "recursion is evil"
+Zwane Mwaikambo wrote:
+> 
+> The ide drive holding the mounted filesystem dropped out of DMA and then
+> spewed the following a number of times. Anyone interested?
+> 
+>  buffer layer error at buffer.c:2326
 
-I realize you probably missed the history. There was a discussion
-about large stack variables found by Checker, and how Checker
-might have difficulties getting the max stack right in the presence
-of this recursion.
+y'know, just this morning I was thinking it may be time to pull the
+debug code out of buffer.c.  Silly me.
 
-I remarked that it is trivial to remove the recursion, should anyone
-be interested in that, but Al called such claims false and wrong,
-so I did half of the work (removing the filesystems from the loop)
-three days ago, and Al said that it was nothing yet, actually
-removing the recursion would be hell. So I removed the recursion
-yesterday evening. A demo project.
+So we had a non-uptodate buffer against an uptodate page.  Were
+there any other messages in the logs?  I'd have expected a
+"buffer IO error" to come out first?
 
-(And you were cc'ed only because I happened to come across what
-I think is a refcounting buglet in the present code.)
+Looking at the code, it seems likely that you hit an I/O error
+on a write.  That will leave the page uptodate, but with PageError
+set.  And the buffer is marked not uptodate, which is silly, because the
+buffer _is_ uptodate.
 
-Have not heard from Al yet, but my secret hope is that he'll soon
-come back and tell me that my code is ugly and contains seventeen
-bugs but that he has done it right with elegant, fast and maintainable
-code.
+What this says is: I still need to get down and set up a fault simulator
+and make sure that we're doing all the right things when I/O errors occur.
 
-In the meantime, no, this was not a patch submission, it was for
-discussion and because Al wanted to see actual code.
+Does anyone have any opinions on what the kernel's behaviour should
+be in the presence of a write I/O error?  Our options appear to be:
 
+1: Just drop the data.  That's what we do now.
 
+2: Mark it dirty again, so it gets written indefinitely
 
-> Yes. But did you look at the stack frames of those things? It's something
-> like 16 bytes for ext2_follow_link (it just calls directly back to the VFS
-> layer), 20 bytes for vfs_follow_link(), and 56 for link_path_walk.
-> Oh, and I think the actual ->follow_link pushes 8 bytes of arguments.
+3: Mark the page dirty again, but also set PageError.  So we
+   attempt to write the same blocks a second time only.  Then
+   drop the data.
 
-So 100 bytes for ext2. The code I showed uses one struct for each
-recursion level, where the struct is
+4: (Just thought of this): mark the page PageError and PageDirty,
+   and unmap it from disk.  So when it gets written again, the
+   filesystem's get_block function will be called.  It can look at
+   PageError(bh_result->b_page) and say "hey, I need to find a
+   different set of blocks for this page".  The bad blocks will
+   just be leaked.
 
-struct link_work {
-        const char *name;
-        struct path next, pinned;
-        unsigned int flags;
-        struct page *page_to_free;
-        const char *link_to_free;
-        struct link_work *lw_next;
-};
+   To back that up: if we get an IO error and the page is _already_
+   PageError, give up.  Mark it clean and lose the data.  This gives the
+   fs the option of clearing PageError inside get_block(), so it will end
+   up trying every block on the disk.
 
-which looks like 36 bytes, independent of the filesystem.
-If one wants to optimize, both link_to_free and lw_next
-are superfluous and one can come down to 28 bytes.
+   Pretty sneaky, I think.  But it only works for file data.  If the
+   blocks are for metadata, we're screwed..
 
-That again means that a version that allocates ten such structs
-on the stack at the start (for speed, so as to avoid a malloc)
-would allow a recursion 10 deep and use ~300 bytes of stack space.
-As I presented it yesterday, the struct is kmalloced so uses
-no stack space.
-
-> So doing a recursion 5 deep is ~500 bytes of stack space.
-
-> But hey, guys, if you want to linearize the recursion, I'm easily swayed
-> by numbers. I've actually done the numbers for stack usage (exactly
-> because I worried about it some time ago), and I don't worry too much
-> about that number. I also don't worry about the number "5", simply because
-> I don't think I've _ever_ gotten a complaint about it that I remember.
-
-> But there are other numbers, like performance (sometimes linearizing
-> recursion loses, sometimes it wins), or somebody doing the math on ia-64
-> and showing that the 100 bytes/level on x86 is actually more like 2kB on
-> ia-64 and totally unacceptable.
-
-I do not expect any measurable changes in timing.
-And if even a single lost cycle is inadmissable, this could be unrolled
-once so that new code is seen only during symlink resolution.
-
-But I do not want to push this at all. It is something we might do.
-Or we could do half and only remove the recursion through the filesystems.
-
-Let us wait and see what Al says.
-
-Andries
+-

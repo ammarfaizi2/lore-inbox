@@ -1,128 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbTHBMfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 08:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTHBMfL
+	id S262273AbTHBM1j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 08:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTHBM1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 08:35:11 -0400
-Received: from brmea-mail-2.Sun.COM ([192.18.98.43]:6068 "EHLO
-	brmea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S262321AbTHBMfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 08:35:00 -0400
-Message-ID: <3F2BAFE8.3090001@sun.com>
-Date: Sat, 02 Aug 2003 13:34:48 +0100
-From: Calum Mackay <calum.mackay@sun.com>
-Organization: Sun Microsystems
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030802 Thunderbird/0.2a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Calum Mackay <calum.mackay@sun.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Calum Mackay <calum.mackay@cdmnet.org>, marcelo@conectiva.com.br,
-       mitch.dsouza@sun.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  2.4: export the symbol "mmu_cr4_features" for XFree86
- DRM kernel drivers
-References: <3F2A62A2.mailx3G211O2B4@cdmnet.org> <20030801141445.A8186@infradead.org> <3F2BA671.4070800@sun.com>
-In-Reply-To: <3F2BA671.4070800@sun.com>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060908070601060609020705"
+	Sat, 2 Aug 2003 08:27:39 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:63937 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S262273AbTHBM1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 08:27:37 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Sat, 2 Aug 2003 14:27:34 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: andrea@suse.de, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre lockups (decoded oops for pre8)
+Message-Id: <20030802142734.5df93471.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.55L.0307251545090.14733@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307251040240.12645@freak.distro.conectiva>
+	<20030725174517.5b21116d.skraw@ithnet.com>
+	<Pine.LNX.4.55L.0307251545090.14733@freak.distro.conectiva>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+Hello Marcelo, hello andrea,
 
---------------ms060908070601060609020705
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+after some days of running 2.4.22-pre8 I finally got the crash (freeze as
+usual). This time the debuggin setup worked and I got:
 
-Calum Mackay wrote:
-> The radeon kernel driver source includes (via drm_memory.h) 
-> linux/vmalloc.h, iff VMAP_4_ARGS is defined. The latter includes (on 
-> i386) asm/asm-i386/pgtable.h, which includes asm/asm-i386/processor.h.
-> 
-> processor.h defines some inline functions [set_in_cr4() & 
-> clear_in_cr4()] which reference mmu_cr4_features.
 
-Sadly, this isn't the full story, since the radeon code doesn't 
-reference *_in_cr4.
+ksymoops 2.4.8 on i686 2.4.22-pre8.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-pre8/ (default)
+     -m /boot/System.map-2.4.22-pre8 (default)
 
-The radeon code calls io/agp remap functions - again only ifdef 
-VMAP_4_ARGS - which do however call __flush_tlb_all(). This manipulates 
-the PGE bit via mmu_cr4_features.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-apols for the spam...
+Unable to handle kernel paging request at virtual address 4129b0fc
+c0130084
+*pde = 313f6067
+Oops: 0002
+CPU:    1
+EIP:    0010:[<c0130084>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: c2cfdba0   ecx: 00000000   edx: 4129b0fc
+esi: d5fb0a24   edi: 0001ca22   ebp: c02eaaa8   esp: c345df30
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=c345d000)
+Stack: c2cfdba0 d5fb0a24 c2cfdba0 c013924f c2cfdba0 000001d0 00000200 000001d0 
+       00000006 00000020 000001d0 00000020 00000006 c0139493 00000006 00000001 
+       c02eaaa8 000001d0 00000006 c02eaaa8 00000000 c013950e 00000020 c02eaaa8 
+Call Trace:    [<c013924f>] [<c0139493>] [<c013950e>] [<c013961c>] [<c01396a8>]
+  [<c01397d8>] [<c0139740>] [<c0105000>] [<c010592e>] [<c0139740>]
+Code: 89 02 c7 43 24 00 00 00 00 f0 ff 0d 9c a5 37 c0 5a 5b 5e c3 
 
-cheers,
-Calum.
 
---------------ms060908070601060609020705
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+>>EIP; c0130084 <__remove_inode_page+44/60>   <=====
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJUDCC
-AwYwggJvoAMCAQICAwmkMDANBgkqhkiG9w0BAQQFADCBkjELMAkGA1UEBhMCWkExFTATBgNV
-BAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUx
-HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVl
-bWFpbCBSU0EgMjAwMC44LjMwMB4XDTAzMDQwMjExNTQyNFoXDTA0MDQwMTExNTQyNFowRjEf
-MB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEjMCEGCSqGSIb3DQEJARYUY2FsdW0u
-bWFja2F5QHN1bi5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC2Pf0g8+xc
-uFdqY2GawPSrCRij/s6c6hXDl4/swD3Xzqqqz6BvbL6iSyXX6i3uBPEZwzNlocajDr+30kJz
-8ckD3EuwcPH9i8akKoniEXX5OzHN9T0OmefgkBHU7//MTUHagTMxu9+6PTVcT1DJN702uCwl
-7WMPLjpo602F4ZUk6+Z5qjrbf/C85mbIfhu2vKn5L+y9J4rLritUjoV1S3jVov7EwA+9zFiA
-Yea5HQNvdiyBHOEfGdH1xfEkoDmX4/t5M37VuaYz821XLzzKovRgYhkj1aTH06WSQSBQK/9w
-IeP+lW5o6H/RR2COhYr3aceBIzBy2wnAkCSsFrIKZvUjAgMBAAGjMTAvMB8GA1UdEQQYMBaB
-FGNhbHVtLm1hY2theUBzdW4uY29tMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEA
-cHCSGCSGqfAWLM54EZHAWeTslfWXstPdvzXXgf4gxKo9W3FQURit5lACxezuaIUpigIoP2K8
-HVahG2KJdnB7CsvrzBFTiDlZzPkXNDbTwDmM4OKfqJcEnRl/1A2bszFn8ckQ14tcbr+tEp1R
-0O3SVidOOntLrJKaY5fclHBgoeQwggMGMIICb6ADAgECAgMJpDAwDQYJKoZIhvcNAQEEBQAw
-gZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-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
-AgCAMA0GCCqGSIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGrBgkrBgEEAYI3
-EAQxgZ0wgZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNV
-BAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0ZSBT
-ZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAIDCaQw
-MIGtBgsqhkiG9w0BCRACCzGBnaCBmjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rl
-cm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
-FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0Eg
-MjAwMC44LjMwAgMJpDAwDQYJKoZIhvcNAQEBBQAEggEAGLF4aOquNQW1cQ9CqstoOsYbUtRL
-DmAZ74sv5iCAiIhml87cySnPTGD4GjJ2hLVyaU3Nn7TsT4Xjf08Adipgrt/6q5iKeucdACGH
-2qagrdyijLocX2iO3W+Ot2TkrY8TVonvdvv5D7+CCb65uqfJRLuvQqrUCoRy4ejkIKOtJP8L
-cyLXX/PQRVU6DclJJ7BJfQifaadMsyjGPaOJX+bol50zjbi3CUm/dYLexDnHsZEu8ysCuYPO
-tP62wJx6Qs5YlpEzmV0N8qNykG+rHaDXeIzp/HxJUj0z92J6jMRwGg6ncoWER/ZP7SN5Q2Bo
-1bnItU/RJBJTn8lwfnclNYJGOgAAAAAAAA==
---------------ms060908070601060609020705--
+>>ebx; c2cfdba0 <_end+2952980/3852ee40>
+>>esi; d5fb0a24 <_end+15c05804/3852ee40>
+>>ebp; c02eaaa8 <contig_page_data+168/340>
+>>esp; c345df30 <_end+30b2d10/3852ee40>
+
+Trace; c013924f <shrink_cache+2df/3b0>
+Trace; c0139493 <shrink_caches+63/a0>
+Trace; c013950e <try_to_free_pages_zone+3e/60>
+Trace; c013961c <kswapd_balance_pgdat+4c/b0>
+Trace; c01396a8 <kswapd_balance+28/40>
+Trace; c01397d8 <kswapd+98/c0>
+Trace; c0139740 <kswapd+0/c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c010592e <arch_kernel_thread+2e/40>
+Trace; c0139740 <kswapd+0/c0>
+
+Code;  c0130084 <__remove_inode_page+44/60>
+00000000 <_EIP>:
+Code;  c0130084 <__remove_inode_page+44/60>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c0130086 <__remove_inode_page+46/60>
+   2:   c7 43 24 00 00 00 00      movl   $0x0,0x24(%ebx)
+Code;  c013008d <__remove_inode_page+4d/60>
+   9:   f0 ff 0d 9c a5 37 c0      lock decl 0xc037a59c
+Code;  c0130094 <__remove_inode_page+54/60>
+  10:   5a                        pop    %edx
+Code;  c0130095 <__remove_inode_page+55/60>
+  11:   5b                        pop    %ebx
+Code;  c0130096 <__remove_inode_page+56/60>
+  12:   5e                        pop    %esi
+Code;  c0130097 <__remove_inode_page+57/60>
+  13:   c3                        ret    
+
+
+1 warning issued.  Results may not be reliable.
+
+
+Hope this helps.
+Anything further I can do?
+
+Regards,
+Stephan
 

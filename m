@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTLHUG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 15:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTLHUG1
+	id S262040AbTLHT5D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTLHT5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 15:06:27 -0500
-Received: from ns1.skjellin.no ([80.239.42.66]:6564 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S261807AbTLHUG0 (ORCPT
+	Mon, 8 Dec 2003 14:57:03 -0500
+Received: from ca1.symonds.net ([66.92.42.136]:26295 "EHLO symonds.net")
+	by vger.kernel.org with ESMTP id S262040AbTLHT4i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 15:06:26 -0500
-Subject: Re: [EXT3] SuperBlock Corrution with "data=journal" ?
-From: Andre Tomt <lkml@tomt.net>
-To: Marcello <voloterreno@tin.it>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FD4D4E4.5050906@tin.it>
-References: <3FD4D4E4.5050906@tin.it>
-Content-Type: text/plain
-Message-Id: <1070913966.15415.489.camel@slurv.pasop.tomt.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Dec 2003 21:06:06 +0100
+	Mon, 8 Dec 2003 14:56:38 -0500
+Message-ID: <022e01c3bdc5$651137a0$7a01a8c0@gandalf>
+From: "Mark Symonds" <mark@symonds.net>
+To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
+       "William Lee Irwin III" <wli@holomorphy.com>,
+       "Harald Welte" <laforge@netfilter.org>
+References: <Pine.LNX.4.44.0312080815460.30140-100000@logos.cnet>
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+Date: Mon, 8 Dec 2003 11:56:39 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-12-08 at 20:45, Marcello wrote:
-> Hi all ,
+
+> > 
+> > I'm using ipchains compatability in there, looks like 
+> > this is a possible cause - getting a patch right now,
+> > will test and let y'all know (and then switch to 
+> > iptables, finally). 
 > 
-> I've heard of a bug in EXT3 , that mounted with "data=journal" option 
-> corrupts the file system , this is still present on 2.4.23 ??
+> Mark,
 > 
-> "data=journal" is safe?
+> Please try the latest BK tree. There was a known bug in the netfilter code 
+> which could cause the lockups. 
+> 
 
-The "data=journal"-bug was fixed between 2.4.20 and 2.4.21, about a year
-ago in BK. So, unless there is a new one..
+What I did a couple of days ago was remove ipchains and switch 
+to iptables (instead of applying any patches or anything).  Ever 
+since the ipchains code was removed from my kernel, the box has 
+been running fine.
 
+Thanks much! 
 
+-- 
+Mark
+ 

@@ -1,28 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290508AbSBFNdc>; Wed, 6 Feb 2002 08:33:32 -0500
+	id <S290503AbSBFNlc>; Wed, 6 Feb 2002 08:41:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290519AbSBFNdW>; Wed, 6 Feb 2002 08:33:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1288 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290508AbSBFNdS>; Wed, 6 Feb 2002 08:33:18 -0500
-Subject: Re: kernel: ldt allocation failed
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Date: Wed, 6 Feb 2002 13:42:56 +0000 (GMT)
-Cc: aia21@cam.ac.uk (Anton Altaparmakov),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <200202061258.g16CwGt31197@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Feb 06, 2002 02:58:17 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290520AbSBFNlM>; Wed, 6 Feb 2002 08:41:12 -0500
+Received: from fc2.capaccess.org.199.200.151.in-addr.arpa ([151.200.199.52]:25875
+	"EHLO fc2.capaccess.org") by vger.kernel.org with ESMTP
+	id <S290503AbSBFNlB>; Wed, 6 Feb 2002 08:41:01 -0500
+Message-id: <fc.00858412002d6ff400858412002c6849.2d6ffd@capaccess.org>
+Date: Wed, 06 Feb 2002 08:38:51 -0500
+Subject: Re: www.kernel.org/hierarc
+To: tao@acc.umu.se
+Cc: linux-kernel@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@capaccess.org>
+In-Reply-To: <fc.00858412002c684900858412002c6849.2c684d@Capaccess.org>
+ <20020206134542.I1735@khan.acc.umu.se>
+In-Reply-To: <20020206134542.I1735@khan.acc.umu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16YSLg-00056Z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am ignorant on the subject, but why LDT is used in Linux at all?
-> LDT register can be set to 0, this can speed up task switch time and save 
-> some memory used for LDT.
+Ah, just off by an e. I thoght there was a d in there too :o)
+Is there such a thing as a 1.2 maintainer?
 
-Wine and certain threaded applications
+
+Rick Hohensee
+F
+

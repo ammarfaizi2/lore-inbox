@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265560AbUFDCcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265561AbUFDCfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265560AbUFDCcm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 22:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265569AbUFDCcm
+	id S265561AbUFDCfe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 22:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265569AbUFDCfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 22:32:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45994 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265560AbUFDCbt (ORCPT
+	Thu, 3 Jun 2004 22:35:34 -0400
+Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:2688 "EHLO
+	jm.kir.nu") by vger.kernel.org with ESMTP id S265561AbUFDCfQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 22:31:49 -0400
-Date: Thu, 3 Jun 2004 19:31:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-Id: <20040603193107.54308dc9.akpm@osdl.org>
-In-Reply-To: <200406032207.25602.edt@aei.ca>
-References: <1085689455.7831.8.camel@localhost>
-	<200405271928.33451.edt@aei.ca>
-	<200406032207.25602.edt@aei.ca>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Jun 2004 22:35:16 -0400
+Date: Thu, 3 Jun 2004 19:33:03 -0700
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: jt@hpl.hp.com
+Cc: Netdev <netdev@oss.sgi.com>, hostap@shmoo.com, prism54-devel@prism54.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Prism54 WPA Support - wpa_supplicant - Linux general wpa support
+Message-ID: <20040604023303.GB7537@jm.kir.nu>
+Mail-Followup-To: jt@hpl.hp.com, Netdev <netdev@oss.sgi.com>,
+	hostap@shmoo.com, prism54-devel@prism54.org,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040602071449.GJ10723@ruslug.rutgers.edu> <20040602132313.GB7341@jm.kir.nu> <20040602155542.GC24822@ruslug.rutgers.edu> <20040603165233.GC8770@bougret.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040603165233.GC8770@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <edt@aei.ca> wrote:
->
-> Hi,
-> 
-> I am still getting these ide errors with 7-rc2-mm2.  I  get the errors even
-> if I mount with barrier=0 (or just defaults).  It would seem that something is 
-> sending my drive commands it does not understand...  
-> 
-> May 27 18:18:05 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> May 27 18:18:05 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-> 
-> How can we find out what is wrong?
-> 
-> This does not seem to be an error that corrupts the fs, it just slows things 
-> down when it hits a group of these.  Note that they keep poping up - they
-> do stop (I still get them hours after booting).
+On Thu, Jun 03, 2004 at 09:52:33AM -0700, Jean Tourrilhes wrote:
 
-Jens, do we still have the command bytes available when this error hits?
+> 	So, the plan would be to take Jouni's API as is (or with minor
+> modifications) and stuff that in wireless.h. I don't believe that the
+> tools themselves need to be modified, because wpa_supplicant is the
+> sole user of those ioctls.
+> 	If you are all happy with that, then I'll just do it.
+
+I'm mostly happy with this, but this should also include something from
+the private ioctls hostapd uses for AP functionality. In addition, I
+would consider changing couple of text based elements (e.g., WPA IE as
+hex string) to binary in order to remove extra parsing code and make the
+data contents smaller. I'm having quite a bit of problems with scan
+results getting too large for the current limit of 4 kB.. Admittedly,
+this is in a test lab environment, but still, it is annoying and
+requires workarounds like driver side filtering of the scan results.
+
+I could try to make a list of all private ioctls currently used in
+wpa_supplicant and hostapd, including some comments on what I would
+consider changing at this point (mostly, changing text binary for couple
+of cases and removing some fields that are not really going to be used).
+Main categories for new functionality would be:
+- key configuration (multiple algorithms, individual/unicast keys,
+  packet number set/get),
+- WPA (or actually, generic) information element (get from scan results,
+  set for (Re)AssocReq/Beacon/ProbeResp)
+- MLME requests (deauth/disassoc; maybe associate, too; I'm currently
+  using SIOCSIWAP for this; scan request with SSID (and maybe also
+  channel list) for active scanning
+- authentication mode/encryption algorithm parameters (Host AP driver
+  does not current use this, but this is the way WPA drivers are used in
+  Windows NDIS and some Linux driver authors prefered this option and
+  wpa_supplicant supports it as an optional mechanism)
+- some encryption related events/parameters (reporting Michael MIC
+  errors, TKIP countermeasures, configuration of "drop unencrypted" and
+  "privacy invoked").
+
+Once we get some kind of testing version done, I will add a new driver
+interface code for wpa_supplicant for the generic Linux wireless
+extensions case and modify Host AP driver to use this. I hope that other
+drivers would also start to use the new API at some point, although
+wpa_supplicant is likely to maintain the backwards compatible interface
+code for some time.
+
+-- 
+Jouni Malinen                                            PGP id EFC895FA

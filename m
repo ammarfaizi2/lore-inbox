@@ -1,94 +1,203 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbUCVRWh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 12:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbUCVRWg
+	id S262133AbUCVR0M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 12:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbUCVR0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 12:22:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:30853 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S262135AbUCVRWd (ORCPT
+	Mon, 22 Mar 2004 12:26:12 -0500
+Received: from ns.suse.de ([195.135.220.2]:63385 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262133AbUCVRZx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 12:22:33 -0500
-Subject: Re: 2.6.4-mm2
-From: Mary Edie Meredith <maryedie@osdl.org>
-Reply-To: maryedie@osdl.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20040319183906.I8594@osdlab.pdx.osdl.net>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	 <200403181737.i2IHbCE09261@mail.osdl.org>
-	 <20040318100615.7f2943ea.akpm@osdl.org> <20040318192707.GV22234@suse.de>
-	 <20040318191530.34e04cb2.akpm@osdl.org>
-	 <20040318194150.4de65049.akpm@osdl.org>
-	 <20040319183906.I8594@osdlab.pdx.osdl.net>
-Content-Type: text/plain
-Organization: OSDL
-Message-Id: <1079975940.23641.580.camel@localhost>
+	Mon, 22 Mar 2004 12:25:53 -0500
+Date: Mon, 22 Mar 2004 18:25:51 +0100
+From: Michael Schroeder <mls@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] new "fromarp" route flag
+Message-ID: <20040322172551.GC8210@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Mar 2004 09:19:02 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[was "Poor DBT-3 pgsql 8way numbers on recent 2.6 mm kernels" on
-linux-mm]
 
-Andrew,
+The following patch implements a new route flag, "fromarp".
 
-This same patch (02) applied in STP (plm 2780) when run against
-dbt3-pgsql DSS workload displays the performance problem with the
-throughput numbers that I reported on linux-mm on our 8way systems,
-where the previous patch (plm 2777 -01) does not.  
+Problem description:
+--------------------
 
-Here is the data (patches applied to 2.6.5-rc1)
+Zeroconf hardware automatically assigns an ip address from the
+link local range (169.254.1.0 - 169.254.254.255). This ip addresses
+don't get routed and are local to the interfaces. To address such
+a component, one can add a link local route:
 
-PLM.....CPUs.Runid..Thruput Metric (bigger is better)
-2777(01)  8  290298  138.22  (base  )
-2779(02)  8  290304  88.57   (-35.9%)
+    ip route add 169.254.0.0/16 dev eth0
 
-The 8way is a 700MHz (1024k processor cache) with 8GB of memory.
+Things get ugly if a host is multihomed and zeroconf hardware is
+conected to more than one interface. It is not possible to add
+a route in that case.
 
-Original message on linux-mm:
-http://marc.theaimsgroup.com/?l=linux-mm&m=107913089923436&w=2
+Solution:
+---------
 
-Results from runid 290298 (the good result);
-http://khack.osdl.org/stp/290298/  (top level)
+My patch adds a new route flag, "fromarp", to the kernel. Example:
 
-Results from runid 290304 (the bad result):
-http://khack.osdl.org/stp/290305/  (top level)
-For sar results see "Raw data" section everything labeled as
-"thruput.sar."
-http://khack.osdl.org/stp/290305/profile/after_throughput_test_1-tick.top20  (profile of throughput phase of the test)
-http://khack.osdl.org/stp/290305/results/plot/thuput.vmstat.txt
-(vmstat of thoughput phase of the test)
+    ip route add 169.254.0.0/16 fromarp nexthop dev eth0 nexthop dev eth1
 
-On Fri, 2004-03-19 at 18:39, Mark Wong wrote:
-> On Thu, Mar 18, 2004 at 07:41:50PM -0800, Andrew Morton wrote:
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > Mark, if it's OK I'll run up some kernels for you to test.
-> > 
-> > At
-> > 
-> > 	http://www.zip.com.au/~akpm/linux/patches/markw/
-> 
-> Ok, looks like I take the first hit with the 02 patch.  Here's re-summary:
-> 
-> kernel          16 kb   32 kb   64 kb   128 kb  256 kb  512 kb
-> 2.6.3                           2308    2335    2348    2334
-> 2.6.4-mm2       2028    2048    2074    2096    2082    2078
-> 2.6.5-rc1-01                                            2394
-> 2.6.5-rc1-02                                            2117
-> 2.6.5-rc1-mm2                                           2036
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+If a packet is to be send with such a route, the kernel
+checks the arp cache of the interfaces specified in the route.
+If a match is found, the packet is send to the matching interface.
+Otherwise an arp request is sent from all of the interfaces.
+
+Comments anyone?
+
+--- ./include/linux/in_route.h.orig	2004-03-19 11:20:12.000000000 +0000
++++ ./include/linux/in_route.h	2004-03-19 11:21:18.000000000 +0000
+@@ -18,6 +18,7 @@
+ #define RTCF_MASQ	0x00400000
+ #define RTCF_SNAT	0x00800000
+ #define RTCF_DOREDIRECT 0x01000000
++#define RTCF_FROMARP    0x02000000
+ #define RTCF_DIRECTSRC	0x04000000
+ #define RTCF_DNAT	0x08000000
+ #define RTCF_BROADCAST	0x10000000
+--- ./include/linux/rtnetlink.h.orig	2004-03-19 11:20:12.000000000 +0000
++++ ./include/linux/rtnetlink.h	2004-03-19 11:21:18.000000000 +0000
+@@ -170,6 +170,7 @@
+ #define RTM_F_CLONED		0x200	/* This route is cloned		*/
+ #define RTM_F_EQUALIZE		0x400	/* Multipath equalizer: NI	*/
+ #define RTM_F_PREFIX		0x800	/* Prefix addresses		*/
++#define RTM_F_FROMARP		0x1000	/* Select if from arpcache      */
+ 
+ /* Reserved table identifiers */
+ 
+--- ./net/ipv4/arp.c.orig	2004-03-19 11:19:43.000000000 +0000
++++ ./net/ipv4/arp.c	2004-03-19 11:21:18.000000000 +0000
+@@ -952,6 +952,12 @@
+ 	return 0;
+ }
+ 
++struct neighbour *arp_lookup(u32 ip, struct net_device *dev, int creat)
++{
++        return __neigh_lookup(&arp_tbl, &ip, dev, creat);
++}
++
++
+ /*
+  *	User level interface (ioctl)
+  */
+--- ./net/ipv4/fib_semantics.c.orig	2004-03-19 11:20:18.000000000 +0000
++++ ./net/ipv4/fib_semantics.c	2004-03-19 11:21:18.000000000 +0000
+@@ -1035,4 +1035,52 @@
+ 	res->nh_sel = 0;
+ 	spin_unlock_bh(&fib_multipath_lock);
+ }
++
++extern struct neighbour *arp_lookup(u32 ip, struct net_device *dev, int creat);
++
++int fib_select_fromarp(const struct flowi *flp, struct fib_result *res)
++{
++	struct net_device *dev;
++	struct fib_info *fi = res->fi;
++	struct neighbour *n;
++	u32 ip;
++	int i, new;
++
++	res->nh_sel = 0;
++	ip = flp->nl_u.ip4_u.daddr;
++	if (ip == 0xffffffff || MULTICAST(ip))
++		return 1;
++	spin_lock_bh(&fib_multipath_lock);
++	for (i = 0, new = -1; i < fi->fib_nhs; i++) {
++		dev = fi->fib_nh[i].nh_dev;
++		n = arp_lookup(ip, dev, 0);
++		if (!n) {
++			if (new < 0)
++				new = i;
++			continue;
++		}
++		if ((n->nud_state&(NUD_CONNECTED|NUD_DELAY|NUD_PROBE)) != 0) {
++			res->nh_sel = i;
++			neigh_release(n);
++			spin_unlock_bh(&fib_multipath_lock);
++			return 1;
++		}
++		neigh_release(n);
++	}
++	if (new < 0)
++		new = 0;
++	res->nh_sel = new;
++	for (i = 0; i < fi->fib_nhs; i++) {
++		if (i == new)
++			continue;
++		dev = fi->fib_nh[i].nh_dev;
++		if ((n = arp_lookup(ip, dev, 1)) != 0) {
++			neigh_event_send(n, (struct sk_buff *)0);
++			neigh_release(n);
++		}
++	}
++	spin_unlock_bh(&fib_multipath_lock);
++	return 0;
++}
++
+ #endif
+--- ./net/ipv4/route.c.orig	2004-03-19 11:20:18.000000000 +0000
++++ ./net/ipv4/route.c	2004-03-19 11:21:18.000000000 +0000
+@@ -1332,7 +1332,9 @@
+ {
+ 	struct rtable *rt;
+ 
+-	icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_UNREACH, 0);
++	rt = (struct rtable *) skb->dst;
++	if (!rt || !(rt->rt_flags & RTCF_FROMARP))
++		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_UNREACH, 0);
+ 
+ 	rt = (struct rtable *) skb->dst;
+ 	if (rt)
+@@ -2077,9 +2079,13 @@
+ 	}
+ 
+ #ifdef CONFIG_IP_ROUTE_MULTIPATH
+-	if (res.fi->fib_nhs > 1 && fl.oif == 0)
+-		fib_select_multipath(&fl, &res);
+-	else
++	if (res.fi->fib_nhs > 1 && fl.oif == 0) {
++		if (res.fi->fib_flags & RTM_F_FROMARP) {
++			if (!fib_select_fromarp(&fl, &res))
++				flags |= RTCF_FROMARP;
++		} else
++			fib_select_multipath(&fl, &res);
++	}
+ #endif
+ 	if (!res.prefixlen && res.type == RTN_UNICAST && !fl.oif)
+ 		fib_select_default(&fl, &res);
+@@ -2190,8 +2196,18 @@
+ 
+ 	rth->rt_flags = flags;
+ 
+-	hash = rt_hash_code(oldflp->fl4_dst, oldflp->fl4_src ^ (oldflp->oif << 5), tos);
+-	err = rt_intern_hash(hash, rth, rp);
++	if (flags & RTCF_FROMARP) {
++		err = 0;
++		if (rth->rt_type == RTN_UNICAST || rth->fl.iif == 0) {
++			if ((err = arp_bind_neighbour(&rth->u.dst)) != 0)
++				rt_drop(rth);
++		}
++		if (!err)
++			*rp = rth;
++	} else {
++		hash = rt_hash_code(oldflp->fl4_dst, oldflp->fl4_src ^ (oldflp->oif << 5), tos);
++		err = rt_intern_hash(hash, rth, rp);
++	}
+ done:
+ 	if (free_res)
+ 		fib_res_put(&res);
+
+
+Cheers,
+  Michael.
+
 -- 
-Mary Edie Meredith 
-maryedie@osdl.org
-503-626-2455 x42
-Open Source Development Labs
-
+Michael Schroeder                                   mls@suse.de
+main(_){while(_=~getchar())putchar(~_-1/(~(_|32)/13*2-11)*13);}

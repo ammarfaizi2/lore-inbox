@@ -1,94 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUHaAq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265974AbUHaAsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUHaAq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 20:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUHaAq5
+	id S265974AbUHaAsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 20:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUHaAsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 20:46:57 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:12692 "EHLO slaphack.com")
-	by vger.kernel.org with ESMTP id S265943AbUHaAqv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 20:46:51 -0400
-Message-ID: <4133CA74.6070906@slaphack.com>
-Date: Mon, 30 Aug 2004 19:46:44 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
-X-Accept-Language: en-us, en
+	Mon, 30 Aug 2004 20:48:22 -0400
+Received: from [139.30.44.16] ([139.30.44.16]:26599 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S265974AbUHaAsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 20:48:07 -0400
+Date: Tue, 31 Aug 2004 02:45:43 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: john stultz <johnstul@us.ibm.com>
+cc: george anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
+       albert@users.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, david+powerix@blue-labs.org
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+In-Reply-To: <1093909116.14662.105.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.53.0408310228050.5907@gockel.physik3.uni-rostock.de>
+References: <87smcf5zx7.fsf@devron.myhome.or.jp>  <20040816124136.27646d14.akpm@osdl.org>
+  <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de> 
+ <412285A5.9080003@mvista.com>  <1092782243.2429.254.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de> 
+ <1092787863.2429.311.camel@cog.beaverton.ibm.com>  <1092781172.2301.1654.camel@cube>
+  <1092791363.2429.319.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de> 
+ <20040819191537.GA24060@elektroni.ee.tut.fi>  <20040826040436.360f05f7.akpm@osdl.org>
+  <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de> 
+ <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
+ <1093909116.14662.105.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: flx@msu.ru
-CC: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com> <412F7D63.4000109@namesys.com> <20040829150041.GD9471@alias>
-In-Reply-To: <20040829150041.GD9471@alias>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 30 Aug 2004, john stultz wrote:
 
-Alexander Lyamin wrote:
-| Fri, Aug 27, 2004 at 11:28:51AM -0700, Hans Reiser wrote:
-|
-|>Rik van Riel wrote:
-|>
-|>
-|>>
-|>>Currently I see no way to distinguish between the stuff
-|>>that should be backed up and the stuff that shouldn't.
-|>>
-|>>
-|>>
-|>
-|>We create filename/pseudos/backup, and that tells the archiver what to
-|>do.....
-|
-|
-| its ugly idea.
-|
-| representations should be distinguished from sources. and its reasonably
-| to put this distinguisher somewhere in namespace. but
-filename/pseudos/backup
-| is plain ugly.
+> On Mon, 2004-08-30 at 16:00, Tim Schmielau wrote:
+> > George, please excuse my lack of understanding. What again where the
+> > precise reasons to have an ntp-corrected uptime?
+> 
+> If I remember correctly, folks were complaining that boot time was
+> drifting due to the same issue. 
 
-How about filename/metas/serialized, or filename/metas/fschunk?
+Yes, I remember this was discussed at the same time. However, I don't see
+that boot time display actually is connected to uptime. Boot time is
+available in /proc/stat as seconds sice the beginning of the epoch. It's
+now derived from wall_to_monotonic, thus should be reasonable constant
+(and I'm not aware of recent reports that say otherwise).
 
-And I did mention before about how it'd be nice for it to be an fs chunk...
+If some program thinks it has to calculate boot time from 
+gettimeofday() - uptime, and it drifts, so what?
+It's got a better way to do that. But there are no better ways to recover 
+from inconsistent statistics in /proc.
 
-Imagine 5000 tiny little files that, by the time reiser's done with
-them, fit inside 5 blocks or so.  It's insanely cheaper to copy the five
-blocks than to tar them up.  It also means that we don't have to worry
-about supporting tar on other platforms -- if they don't have reiser4,
-they need a separate converter.  If apps are going to use reiser4
-metadata for anything significant, they probably would link against some
-sort of userland implementation of reiser4 as a Windows library, say, to
-access the files elsewhere.
 
-That's extreme, but you get the idea.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQTPKc3gHNmZLgCUhAQJ5xw//T+kLDCHlfQEaGM9XAeFDZU9f4m4PWjet
-n2xODVIxaT7WmnZ4nQ3rRTiJjsXvRBcPdWUTFRZl6NbLqa/K6ESpUJAZsZynRhXd
-NLJ9gEpeqcUrXBLrmTD5AbzENOLdqDIo2qQ+hde68H5vo+naa5xtTyrMiHNHQWbf
-9P45WKXYt36madg4KjAhZcYB+T843fc/ItjLQBTwxBNOykBcZ82UUNwGeGbiqczm
-uXftCD6BNtKsXnJxu2jVc8CK93lOw4SIf7BY09PFXgK2XTpAsKzOwwqpBtdxSzqD
-lkz+nGEeYZk6GRA3N1OTbPJnboee7WHZzMyvXDMBsExfR6puV1SYA2NWhj9uGDmS
-nYNZwdN+RimiouD1D9DD+oCQe/Gr66THicex5FM37cMBdaDf0jGblvpDdQRfkhcX
-2KGLCt1ax620ia2945/+/+6iQqM7+oTQsVNziYjVGQ4gCNRzZh8SBtM0yUZuecNO
-H84fWYLICGos+Qk7FyCuQOquTSVRWKadkiDaOSre2hFk+S9VmDWkghJSNGrnqoKi
-pFYFrUzL+NXPHs6G8b8EKAaQQt+Z8iHE6xgdc+yS56Pdrq8apRzeQv2zhgZaRq9J
-kCRgvYo40xFMX4B+EqexxIiwc6nPUD5dFbt0OnJMEk4pduFq64lMVdoQA8Qp4X8a
-0feuVuaWHr0=
-=ymeH
------END PGP SIGNATURE-----
+Tim

@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267492AbTAQMuN>; Fri, 17 Jan 2003 07:50:13 -0500
+	id <S267330AbTAQMte>; Fri, 17 Jan 2003 07:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267497AbTAQMuN>; Fri, 17 Jan 2003 07:50:13 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:3000 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S267492AbTAQMuL>;
-	Fri, 17 Jan 2003 07:50:11 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15911.64825.624251.707026@harpo.it.uu.se>
-Date: Fri, 17 Jan 2003 13:55:21 +0100
-To: kai@tp1.ruhr-uni-bochum.de
-Subject: 2.5.59 vmlinux.lds.S change broke modules
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	id <S267492AbTAQMte>; Fri, 17 Jan 2003 07:49:34 -0500
+Received: from ip-161-71-171-238.corp-eur.3com.com ([161.71.171.238]:48610
+	"EHLO columba.www.eur.3com.com") by vger.kernel.org with ESMTP
+	id <S267330AbTAQMtd>; Fri, 17 Jan 2003 07:49:33 -0500
+X-Lotus-FromDomain: 3COM
+From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
+To: jdizzl@xs4all.nl
+cc: linux-kernel@vger.kernel.org
+Message-ID: <80256CB1.00474980.00@notesmta.eur.3com.com>
+Date: Fri, 17 Jan 2003 12:58:10 +0000
+Subject: Re: Detecting changes in a directory tree
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously today I wrote:
- > 2.5.59 with CONFIG_PACKET=m oopes when af_packet.ko is insmodded:
- > 
- > Unable to handle kernel paging request at virtual address 2220c021
- >  printing eip:
- > c0124011
- > *pde = 00000000
- > Oops: 0000
- > CPU:    0
- > EIP:    0060:[<c0124011>]    Not tainted
- > EFLAGS: 00010097
- > EIP is at __find_symbol+0x3d/0x7c
- > eax: c020f70e   ebx: 00000536   ecx: 00000000   edx: c028b600
- > esi: 2220c021   edi: e8889558   ebp: e8889558   esp: e67c5ecc
- > ds: 007b   es: 007b   ss: 0068
- > Process insmod (pid: 482, threadinfo=e67c4000 task=e6c80ce0)
- > Stack: e8888f34 e8889a40 00000038 e8883f50 c0124960 e8889558 e67c5ef4 00000001 
- >        e8888f34 e8889374 e67c5f28 c0124b2a e8883f50 00000016 e8889374 e8889558 
- >        e8889a40 e8883f50 0000000c 00000017 e8889a40 00000000 0000007c c01253a4 
- > Call Trace:
- >  [<c0124960>] resolve_symbol+0x20/0x4c
- >  [<c0124b2a>] simplify_symbols+0x82/0xe4
- >  [<c01253a4>] load_module+0x5c4/0x7ec
- >  [<c012562b>] sys_init_module+0x5f/0x194
- >  [<c0108887>] syscall_call+0x7/0xb
 
-This oops occurs for every module, not just af_packet.ko, at
-resolve_symbol()'s first call to __find_symbol().
 
-What happens is that __find_symbol() oopses because the kernel's
-symbol table is in la-la land. (Note the bogus kernel adress
-2220c021 it tried to dereference above.)
+There are a number of existing userland filesystems, try:
 
-Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
-problem and modules now load correctly for me.
+http://lufs.sourceforge.net/lufs/intro.html
+"LUFS is a hybrid userspace filesystem framework supporting an indefinite number
+of filesystems (localfs, sshfs, ftpfs, cardfs and cefs implemented so far)
+transparently for any application."
 
-I don't know if this is a problem also for non-i386 archs.
+http://uservfs.sourceforge.net/
+"POrtable Dodgy Filesystems in Userland (hacK) version 2. Once upon a time,
+there was project called podfuk. It used nfs, and nfs sucks. On one sunny night,
+its author had nothing better to do, and he started creating fake cache manager
+for coda. It worked in two days, and it worked pretty good. At least, ugly nfs
+was gone."
 
-/Mikael
+http://hierfs.sourceforge.net/
+"Welcome to the hierachical storage filesystem. This project aims to create a
+simple way of managing a vast amount of data over multiple CD-R media. This is
+done by creating a virtual filesystem simulating all files on the CDs as if they
+were online on the harddisk. When a file is accessed, a dialog box asks for the
+correct CD. So any program can be used to acces the data without needing to know
+the files are on CD. "
+
+http://vcfs.sourceforge.net/
+"VCFS is the Virtual CVS FileSystem. VCFS provides a user-space NFS server that
+allows local or remote CVS repositories to be mounted as a filesystem. It works
+with existing CVS servers, including those used by SourceForge."
+
+     Jon
+
+

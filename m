@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbTHTQ6S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 12:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTHTQ6S
+	id S262079AbTHTQ7s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 12:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbTHTQ7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 12:58:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54982 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262071AbTHTQ6O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 12:58:14 -0400
-Date: Wed, 20 Aug 2003 09:54:08 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <linuxmodule@altern.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 module compilation
-Message-Id: <20030820095408.68d9dea9.rddunlap@osdl.org>
-In-Reply-To: <S261663AbTHTQkp/20030820164045Z+1122@vger.kernel.org>
-References: <S261663AbTHTQkp/20030820164045Z+1122@vger.kernel.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Aug 2003 12:59:48 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12293 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262074AbTHTQ7i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 12:59:38 -0400
+Date: Wed, 20 Aug 2003 12:49:14 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Gryniewicz <dang@fprintf.net>
+cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+       richard@aspectgroup.co.uk, skraw@ithnet.com, willy@w.ods.org,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, bloemsaa@xs4all.nl,
+       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+In-Reply-To: <1061320363.3744.14.camel@athena.fprintf.net>
+Message-ID: <Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Aug 2003 18:39:19 +0200 (CEST) <linuxmodule@altern.org> wrote:
+On 19 Aug 2003, Daniel Gryniewicz wrote:
 
-| I am trying to compile a module on 2.6.0-test3 kernel. The makefile i am using is a pretty normal one : 
-| 
-| CFLAGS = -D__KERNEL__ -DMODULE -I/usr/src/linux-2.6.0-test3/include -O
-| dummy.o: dummy.c
-| 
-| The module i am trying to compile is taken from the kernel itself (dummy network device driver). The
-| compilation works flawlessly but when i try to insert the module i get : invalid module format.
-| What am i doing wrong because i have modutils and module-init and both work, since the same module (dummy)
-| compiled with the kernel itself can be inserted and removed without the previous error message.
-| Is there something i should know about the compilation process ? The kernel-compiled module (dummy.ko) has
-| about 10 Kbytes and dummy.ko compiled by me has only 2 Kbytes :(
+> I realize that, but is that a reason to keep linux from working with
+> these?  (And it's not just cisco, all the *BSDs (and therefore anything
+> that took the BSD stack such as MS) work this way too.)  As nearly as I
+> can tell, there's no way to make linux work with these, and the
+> situation I gave is one where linux could easily get it right, and
+> isn't.  Saying "They're broken.  Tough." is not really helpful.  At
+> least can we get a "work with broken other systems in certain
+> circumstances" switch somewhere?
 
-Please wrap lines near 70-72 characters.
+I have been asking for a similar thing as well, David mentioned some
+things that would break, but I believe they break if you use source
+routing, so that seems not to be a real objection.
 
-Can you try a Makefile and instructions like this?
+> 
+> (Funny you should mention Cisco, as we write routing software and must
+> interoperate with Cisco.  What Cisco says *does* go in the routing
+> community, if you wish your product to be used.  Currently, when our
+> customers come to us, we have to say "Either don't use Linux or run 2.2
+> with the arp fix patch.")
 
-# makefile for dummy module
-# usage:
-# cd /path/to/kernel/source && make SUBDIRS=/path/to/source/dummymod/ modules
+Unless all your customers do odd things with networking, or you are not
+using source routing for some reason, you don't do customers a favor by
+giving that advice. Most users have one NIC with one IP and Linux works.
 
-obj-m := dummy.o
+The Linux implementation is not broken by standard, it's just that there
+were two ways to do it, and the one chosen is allowed by frequently
+non-functional.
 
-clean-files := *.o
+I find it interesting that we can't change networking because a few
+complex systems would have to be reconfigured, but we *can* change modules
+which requires config changes on probably 90% of all systems (commercial
+distributions). Linus has rethought some of his design decisions, but
+David seems intent on not only keeping this one, but preventing the
+addition of a flag which would solve the problem for most people.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
---
-~Randy   [MOTD:  Always include kernel version.]
-"Everything is relative."

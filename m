@@ -1,192 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbTLVUmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 15:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbTLVUmZ
+	id S264476AbTLVUql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 15:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTLVUql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 15:42:25 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:39678 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S264443AbTLVUmS
+	Mon, 22 Dec 2003 15:46:41 -0500
+Received: from mail.convergence.de ([212.84.236.4]:27840 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S264476AbTLVUqh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 15:42:18 -0500
-Subject: SCO's infringing files list
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vkrNRPnMk8lrzABWEfwo"
-Message-Id: <1072125736.1286.170.camel@duergar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 22 Dec 2003 15:42:17 -0500
+	Mon, 22 Dec 2003 15:46:37 -0500
+Message-ID: <3FE75824.3040402@convergence.de>
+Date: Mon, 22 Dec 2003 21:46:28 +0100
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: de-de, de-at, de, en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org
+Subject: [PATCH][2.6] change two annoying messages from framebuffer drivers
+Content-Type: multipart/mixed;
+ boundary="------------080008050207070700020008"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-vkrNRPnMk8lrzABWEfwo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Guys,
-
-According to the totally inept, idiotic, SCO group, these files are
-copyrighted by them (and recently by Novell I might add):
-
-include/asm-alpha/errno.h=20
-
-include/asm-arm/errno.h=20
-
-include/asm-cris/errno.h=20
-
-include/asm-i386/errno.h=20
-
-include/asm-ia64/errno.h=20
-
-include/asm-m68k/errno.h=20
-
-include/asm-mips/errno.h=20
-
-include/asm-mips64/errno.h=20
-
-include/asm-parisc/errno.h=20
-
-include/asm-ppc/errno.h=20
-
-include/asm-ppc64/errno.h=20
-
-include/asm-s390/errno.h=20
-
-include/asm-s390x/errno.h=20
-
-include/asm-sh/errno.h=20
-
-include/asm-sparc/errno.h=20
-
-include/asm-sparc64/errno.h=20
-
-include/asm-x86_64/errno.h=20
-
-include/asm-alpha/signal.h=20
-
-include/asm-arm/signal.h=20
-
-include/asm-cris/signal.h=20
-
-include/asm-i386/signal.h=20
-
-include/asm-ia64/signal.h=20
-
-include/asm-m68k/signal.h=20
-
-include/asm-mips/signal.h=20
-
-include/asm-mips64/signal.h=20
-
-include/asm-parisc/signal.h=20
-
-include/asm-ppc/signal.h=20
-
-include/asm-ppc64/signal.h=20
-
-include/asm-s390/signal.h=20
-
-include/asm-s390x/signal.h=20
-
-include/asm-sh/signal.h=20
-
-include/asm-sparc/signal.h=20
-
-include/asm-sparc64/signal.h=20
-
-include/asm-x86_64/signal.h=20
-
-include/linux/stat.h=20
-
-include/linux/ctype.h=20
-
-lib/ctype.c=20
-
-include/asm-alpha/ioctl.h=20
-
-include/asm-alpha/ioctls.h=20
-
-include/asm-arm/ioctl.h=20
-
-include/asm-cris/ioctl.h=20
-
-include/asm-i386/ioctl.h=20
-
-include/asm-ia64/ioctl.h=20
-
-include/asm-m68k/ioctl.h=20
-
-include/asm-mips/ioctl.h=20
-
-include/asm-mips64/ioctl.h=20
-
-include/asm-mips64/ioctls.h=20
-
-include/asm-parisc/ioctl.h=20
-
-include/asm-parisc/ioctls.h=20
-
-include/asm-ppc/ioctl.h=20
-
-include/asm-ppc/ioctls.h=20
-
-include/asm-ppc64/ioctl.h=20
-
-include/asm-ppc64/ioctls.h=20
-
-include/asm-s390/ioctl.h=20
-
-include/asm-s390x/ioctl.h=20
-
-include/asm-sh/ioctl.h=20
-
-include/asm-sh/ioctls.h=20
-
-include/asm-sparc/ioctl.h=20
-
-include/asm-sparc/ioctls.h=20
-
-include/asm-sparc64/ioctl.h=20
-
-include/asm-sparc64/ioctls.h=20
-
-include/asm-x86_64/ioctl.h=20
-
-include/linux/ipc.h=20
-
-include/linux/acct.h=20
-
-include/asm-sparc/a.out.h=20
-
-include/linux/a.out.h=20
-
-arch/mips/boot/ecoff.h=20
-
-include/asm-sparc/bsderrno.h=20
-
-include/asm-sparc/solerrno.h=20
-
-include/asm-sparc64/bsderrno.h=20
-
-include/asm-sparc64/solerrno.h
-
-Any thoughts?
-
--sb
-
---=-vkrNRPnMk8lrzABWEfwo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/51coQHy9+2ztQiARAkkuAKDa1zbp1X9FhMLKuv5PnjNvko+aVgCfVeAn
-EFfWIQEsP817YrgkJgFqsxE=
-=8mv8
------END PGP SIGNATURE-----
-
---=-vkrNRPnMk8lrzABWEfwo--
-
+This is a multi-part message in MIME format.
+--------------080008050207070700020008
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+the Linux-on-a-CD system Knoppix has nearly all framebuffer drivers for
+2.4.23 compiled in. Additionally, it surpresses most kernel messages by
+lowering the kernel log level.
+
+Two framebuffer drivers (clgenfb.c and hgafb.c), however, use KERN_ERR
+to say that their particular card has *not* been found which is very
+annoying.
+
+Especially the clgenfb.c driver simply says on bootup:
+  >  Couldn't find PCI device
+which can really confuse newbie users.
+
+I've already send a patch that fixes this for 2.4 -- Marcelo and Geert 
+Uytterhoeven have already ack'ed it.
+
+The same change should be done for 2.6, too IMHO.
+
+The appended patch replaces two KERN_ERR with KERN_INFO and additionally
+makes the cirrusfb.c message more descriptive.
+
+Please apply, thanks!
+
+CU
+Michael.
+
+
+--------------080008050207070700020008
+Content-Type: text/plain;
+ name="video-fb-shutup.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="video-fb-shutup.diff"
+
+diff -ur xx-linux-2.6/drivers/video/clgenfb.c xx-linux-2.6.p/drivers/video/clgenfb.c
+--- xx-linux-2.6/drivers/video/cirrusfb.c	2003-06-13 16:51:37.000000000 +0200
++++ xx-linux-2.6.p/drivers/video/cirrusfb.c	2003-12-12 13:48:34.000000000 +0100
+@@ -2528,7 +2528,7 @@
+ 
+ 	pdev = clgen_pci_dev_get (btype);
+ 	if (!pdev) {
+-		printk (KERN_ERR " Couldn't find PCI device\n");
++		printk (KERN_INFO "cirrusfb: couldn't find Cirrus Logic PCI device\n");
+ 		DPRINTK ("EXIT, returning 1\n");
+ 		return 1;
+ 	}
+diff -ur xx-linux-2.6/drivers/video/hgafb.c xx-linux-2.6.p/drivers/video/hgafb.c
+--- xx-linux-2.6/drivers/video/hgafb.c	2001-11-12 18:46:25.000000000 +0100
++++ xx-linux-2.6.p/drivers/video/hgafb.c	2003-12-12 13:47:01.000000000 +0100
+@@ -539,7 +539,7 @@
+ int __init hgafb_init(void)
+ {
+ 	if (! hga_card_detect()) {
+-		printk(KERN_ERR "hgafb: HGA card not detected.\n");
++		printk(KERN_INFO "hgafb: HGA card not detected.\n");
+ 		return -EINVAL;
+ 	}
+ 
+
+--------------080008050207070700020008--

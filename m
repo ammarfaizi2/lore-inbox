@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317478AbSFHX0P>; Sat, 8 Jun 2002 19:26:15 -0400
+	id <S317474AbSFHXaC>; Sat, 8 Jun 2002 19:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317479AbSFHX0O>; Sat, 8 Jun 2002 19:26:14 -0400
-Received: from u195-95-84-180.dialup.planetinternet.be ([195.95.84.180]:24070
-	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
-	id <S317478AbSFHX0O>; Sat, 8 Jun 2002 19:26:14 -0400
-Message-Id: <200206082325.g58NP8gf029372@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: lilo causes an oops after unloading IDE CD modules
-Date: Sun, 09 Jun 2002 01:25:08 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	id <S317476AbSFHXaB>; Sat, 8 Jun 2002 19:30:01 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62993 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317474AbSFHXaB>; Sat, 8 Jun 2002 19:30:01 -0400
+Date: Sat, 8 Jun 2002 16:30:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dan Aloni <da-x@gmx.net>
+cc: Brian Gerst <bgerst@didntduck.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] More list_del_init cleanups
+In-Reply-To: <20020608024030.GA18037@callisto.yi.org>
+Message-ID: <Pine.LNX.4.44.0206081628390.11630-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have an (aging) P5 SMP box which is all-scsi except for an
-el-cheapo IDE CD drive. Because I almost never use the CD, I
-have the drivers compiled as modules and autoclean them.
 
-Ever since switching from 2.5.7 to (I think) 2.5.9, I've had 
-problems with `make bzlilo' causing the system to hang (which 
-*is* nasty). 
+On Sat, 8 Jun 2002, Dan Aloni wrote:
+>
+> If we are at it, how about replacing:
+>
+> 	list_del(&entry->list);
+> 	list_add(&entry->list, dispose);
+>
+> with something like:
+>
+> 	list_del_add(&entry->list, dispose);
 
-Today I finally figured out a pattern: immediately after 
-booting, I can run lilo as often as I want, no problem. But 
-as soon as the ide-cd, cdrom, and ide-mod modules have been 
-unloaded, running lilo will result in an oops (not always the 
-same one). If I prevent the unloading by mounting a CD, lilo 
-runs fine no matter how hard and for how long I beat the 
-machine.
+Ehh.. Am I the only one who thinks "move()" would make more sense than
+"del_add()"?
 
-My current kernel is 2.5.20 with modutils-2.4.12. Anyone 
-interested in hunting this thing down? I lack both time and 
-knowledge to do it myself, but am wiling to test patches.
+How many such users are there? I don't want to make up new abstractions if
+they aren't widely used - it's not as if "del + add" is all that hard to
+understand in itself..
 
-MCE
--- 
-========================================================================
-M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
-GCS d+ s+:- a36 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
- V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
-========================================================================
+		Linus
 

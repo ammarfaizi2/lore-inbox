@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263260AbTDGDyN (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTDGDyN (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:54:13 -0400
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:49793 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263253AbTDGDyG (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 23:54:06 -0400
-Date: Mon, 7 Apr 2003 13:03:44 +0900
+	id S263258AbTDGDqJ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTDGDqJ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:46:09 -0400
+Received: from chii.cinet.co.jp ([61.197.228.217]:48001 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263258AbTDGDp7 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 23:45:59 -0400
+Date: Mon, 7 Apr 2003 12:55:42 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (9/9) SCSI
-Message-ID: <20030407040344.GI4840@yuzuki.cinet.co.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (7/9) PCI
+Message-ID: <20030407035542.GG4840@yuzuki.cinet.co.jp>
 References: <20030407033627.GA4798@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,119 +21,114 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.66-ac2. (9/9)
+against 2.5.66-ac2. (7/9)
 
-SCSI host adapter support.
- - Override BIOS parameter for PC98.
-
-I rewrite this patch. Function for PC-98 BIOS parameter is called from each
-low level drivers. How about this patch. We need PC-98's BIOS parameter to
-create bootable partition. Please apply.
+Small changes for PCI support.
+Fix for difference of IRQ numbers and IO addresses.
 
 Regards,
 Osamu Tomita
 
-diff -Nru linux-2.5.66-bk10/drivers/scsi/advansys.h linux98-2.5.66-bk10/drivers/scsi/advansys.h
---- linux-2.5.66-bk10/drivers/scsi/advansys.h	2003-03-25 07:01:48.000000000 +0900
-+++ linux98-2.5.66-bk10/drivers/scsi/advansys.h	2003-04-05 18:52:32.000000000 +0900
-@@ -71,6 +71,13 @@
-  * AdvanSys Host Driver Scsi_Host_Template (struct SHT) from hosts.h.
+diff -Nru linux/arch/i386/pci/irq.c linux98/arch/i386/pci/irq.c
+--- linux/arch/i386/pci/irq.c	2002-10-12 13:22:46.000000000 +0900
++++ linux98/arch/i386/pci/irq.c	2002-10-12 14:18:52.000000000 +0900
+@@ -5,6 +5,7 @@
   */
- #if ASC_LINUX_KERNEL24
-+#ifdef CONFIG_X86_PC9800
-+extern int pc98_bios_param(struct scsi_device *, struct block_device *,
-+				sector_t, int *);
-+#define ADVANSYS_BIOSPARAM pc98_bios_param
+ 
+ #include <linux/config.h>
++#include <linux/pci_ids.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/pci.h>
+@@ -25,6 +26,7 @@
+ 
+ static struct irq_routing_table *pirq_table;
+ 
++#ifndef CONFIG_X86_PC9800
+ /*
+  * Never use: 0, 1, 2 (timer, keyboard, and cascade)
+  * Avoid using: 13, 14 and 15 (FP error and IDE).
+@@ -36,6 +38,20 @@
+ 	1000000, 1000000, 1000000, 1000, 1000, 0, 1000, 1000,
+ 	0, 0, 0, 0, 1000, 100000, 100000, 100000
+ };
 +#else
-+#define ADVANSYS_BIOSPARAM advansys_biosparam
++/*
++ * Never use: 0, 1, 2, 7 (timer, keyboard, CRT VSYNC and cascade)
++ * Avoid using: 8, 9 and 15 (FP error and IDE).
++ * Penalize: 4, 5, 11, 12, 13, 14 (known ISA uses: serial, floppy, sound, mouse
++ *                                 and parallel)
++ */
++unsigned int pcibios_irq_mask = 0xff78;
++
++static int pirq_penalty[16] = {
++	1000000, 1000000, 1000000, 0, 1000, 1000, 0, 1000000,
++	100000, 100000, 0, 1000, 1000, 1000, 1000, 100000
++};
 +#endif
- #define ADVANSYS { \
-     .proc_name                  = "advansys", \
-     .proc_info                  = advansys_proc_info, \
-@@ -80,7 +87,7 @@
-     .info                       = advansys_info, \
-     .queuecommand               = advansys_queuecommand, \
-     .eh_bus_reset_handler	= advansys_reset, \
--    .bios_param                 = advansys_biosparam, \
-+    .bios_param                 = ADVANSYS_BIOSPARAM, \
-     .slave_configure		= advansys_slave_configure, \
-     /* \
-      * Because the driver may control an ISA adapter 'unchecked_isa_dma' \
-diff -Nru linux-2.5.66-bk10/drivers/scsi/aic7xxx/aic7xxx_osm.c linux98-2.5.66-bk10/drivers/scsi/aic7xxx/aic7xxx_osm.c
---- linux-2.5.66-bk10/drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-04-04 22:45:00.000000000 +0900
-+++ linux98-2.5.66-bk10/drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-04-05 18:56:11.000000000 +0900
-@@ -1265,6 +1265,9 @@
- 	return SUCCESS;
+ 
+ struct irq_router {
+ 	char *name;
+@@ -612,6 +628,17 @@
+ 		r->set(pirq_router_dev, dev, pirq, 11);
+ 	}
+ 
++#ifdef CONFIG_X86_PC9800
++	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
++		if (pci_find_device(PCI_VENDOR_ID_INTEL,
++				PCI_DEVICE_ID_INTEL_82439TX, NULL) != NULL) {
++			if (mask & 0x0040) {
++				mask &= 0x0040;	/* assign IRQ 6 only */
++				printk("pci-irq: Use IRQ6 for CardBus controller\n");
++			}
++		}
++	}
++#endif
+ 	/*
+ 	 * Find the best IRQ to assign: use the one
+ 	 * reported by the device if possible.
+diff -Nru linux-2.5.66-ac1/drivers/pcmcia/yenta.c linux98-2.5.66-ac1/drivers/pcmcia/yenta.c
+--- linux-2.5.66-ac1/drivers/pcmcia/yenta.c	2003-03-28 08:40:15.000000000 +0900
++++ linux98-2.5.66-ac1/drivers/pcmcia/yenta.c	2003-03-28 08:48:50.000000000 +0900
+@@ -8,6 +8,7 @@
+  * 	Dynamically adjust the size of the bridge resource
+  * 	
+  */
++#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/sched.h>
+@@ -452,6 +453,7 @@
+ 	add_timer(&socket->poll_timer);
  }
  
-+extern int pc98_bios_param(struct scsi_device *, struct block_device *,
-+				sector_t, int *);
-+
- Scsi_Host_Template aic7xxx_driver_template = {
- 	.module			= THIS_MODULE,
- 	.name			= "aic7xxx",
-@@ -1275,8 +1278,12 @@
- 	.eh_device_reset_handler = ahc_linux_dev_reset,
- 	.eh_bus_reset_handler	= ahc_linux_bus_reset,
- #if defined(__i386__)
-+#ifdef CONFIG_X86_PC9800
-+	.bios_param		= pc98_bios_param,
++#ifndef CONFIG_X86_PC9800
+ /*
+  * Only probe "regular" interrupts, don't
+  * touch dangerous spots like the mouse irq,
+@@ -462,6 +464,10 @@
+  * Default to 11, 10, 9, 7, 6, 5, 4, 3.
+  */
+ static u32 isa_interrupts = 0x0ef8;
 +#else
- 	.bios_param		= ahc_linux_biosparam,
++/* Default to 12, 10, 6, 5, 3. */
++static u32 isa_interrupts = 0x1468;
++#endif
+ 
+ static unsigned int yenta_probe_irq(pci_socket_t *socket, u32 isa_irq_mask)
+ {
+diff -Nru linux/include/asm-i386/pci.h linux98/include/asm-i386/pci.h
+--- linux/include/asm-i386/pci.h	2002-06-09 14:29:24.000000000 +0900
++++ linux98/include/asm-i386/pci.h	2002-06-10 20:49:15.000000000 +0900
+@@ -17,7 +17,11 @@
  #endif
-+#endif
- 	.can_queue		= AHC_MAX_QUEUE,
- 	.this_id		= -1,
- 	.sg_tablesize		= AHC_NSEG,
-diff -Nru linux-2.5.66-bk10/drivers/scsi/sym53c8xx_2/sym53c8xx.h linux98-2.5.66-bk10/drivers/scsi/sym53c8xx_2/sym53c8xx.h
---- linux-2.5.66-bk10/drivers/scsi/sym53c8xx_2/sym53c8xx.h	2003-03-25 07:01:49.000000000 +0900
-+++ linux98-2.5.66-bk10/drivers/scsi/sym53c8xx_2/sym53c8xx.h	2003-04-05 18:59:21.000000000 +0900
-@@ -105,23 +105,32 @@
  
- #include <scsi/scsicam.h>
- 
+ extern unsigned long pci_mem_start;
 +#ifdef CONFIG_X86_PC9800
-+extern int pc98_bios_param(struct scsi_device *, struct block_device *,
-+				sector_t, int *);
-+#define SYM53C8XX_BIOSPARAM pc98_bios_param
++#define PCIBIOS_MIN_IO		0x4000
 +#else
-+#define SYM53C8XX_BIOSPARAM NULL
+ #define PCIBIOS_MIN_IO		0x1000
 +#endif
-+
- #define SYM53C8XX {							\
--	name:			"sym53c8xx",				\
--	detect:			sym53c8xx_detect,			\
--	release:		sym53c8xx_release,			\
--	info:			sym53c8xx_info, 			\
--	queuecommand:		sym53c8xx_queue_command,		\
--	slave_configure:	sym53c8xx_slave_configure,		\
--	eh_abort_handler:	sym53c8xx_eh_abort_handler,		\
--	eh_device_reset_handler:sym53c8xx_eh_device_reset_handler,	\
--	eh_bus_reset_handler:	sym53c8xx_eh_bus_reset_handler,		\
--	eh_host_reset_handler:	sym53c8xx_eh_host_reset_handler,	\
--	can_queue:		0,					\
--	this_id:		7,					\
--	sg_tablesize:		0,					\
--	cmd_per_lun:		0,					\
--	use_clustering:		DISABLE_CLUSTERING,			\
--	highmem_io:		1}
-+	.name			= "sym53c8xx",				\
-+	.detect			= sym53c8xx_detect,			\
-+	.release		= sym53c8xx_release,			\
-+	.info			= sym53c8xx_info, 			\
-+	.queuecommand		= sym53c8xx_queue_command,		\
-+	.slave_configure	= sym53c8xx_slave_configure,		\
-+	.eh_abort_handler	= sym53c8xx_eh_abort_handler,		\
-+	.eh_device_reset_handler = sym53c8xx_eh_device_reset_handler,	\
-+	.eh_bus_reset_handler	= sym53c8xx_eh_bus_reset_handler,	\
-+	.eh_host_reset_handler	= sym53c8xx_eh_host_reset_handler,	\
-+	.bios_param		= SYM53C8XX_BIOSPARAM,			\
-+	.can_queue		= 0,					\
-+	.this_id		= 7,					\
-+	.sg_tablesize		= 0,					\
-+	.cmd_per_lun		= 0,					\
-+	.use_clustering		= DISABLE_CLUSTERING,			\
-+	.highmem_io		= 1}
+ #define PCIBIOS_MIN_MEM		(pci_mem_start)
  
- #endif /* defined(HOSTS_C) || defined(MODULE) */ 
- 
+ void pcibios_config_init(void);

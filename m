@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264536AbRFTSJe>; Wed, 20 Jun 2001 14:09:34 -0400
+	id <S264531AbRFTSKQ>; Wed, 20 Jun 2001 14:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264532AbRFTSJO>; Wed, 20 Jun 2001 14:09:14 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:25108
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S264531AbRFTSJF>; Wed, 20 Jun 2001 14:09:05 -0400
-Date: Wed, 20 Jun 2001 11:08:49 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: john slee <indigoid@higherplane.net>
-Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010620110849.V3089@work.bitmover.com>
-Mail-Followup-To: john slee <indigoid@higherplane.net>,
-	Michael Rothwell <rothwell@holly-springs.nc.us>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010619200442.E30785@work.bitmover.com> <20010620202130.H30872@higherplane.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010620202130.H30872@higherplane.net>; from indigoid@higherplane.net on Wed, Jun 20, 2001 at 08:21:30PM +1000
+	id <S264537AbRFTSKF>; Wed, 20 Jun 2001 14:10:05 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:30160 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S264531AbRFTSJs>; Wed, 20 Jun 2001 14:09:48 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [OT] Threads, inelegance, and Java
+Date: Wed, 20 Jun 2001 18:09:46 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9gqota$k36$1@forge.intermeta.de>
+In-Reply-To: <9gponv$j92$1@forge.intermeta.de> <20010620042544.E24183@vitelus.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 993060586 9462 212.34.181.4 (20 Jun 2001 18:09:46 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 20 Jun 2001 18:09:46 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 20, 2001 at 08:21:30PM +1000, john slee wrote:
-> On Tue, Jun 19, 2001 at 08:04:42PM -0700, Larry McVoy wrote:
-> > I asked Linus for this a long time ago and he pointed out that you couldn't
-> > make it work over NFS, at least not nicely.  It does seem like that could
-> > be worked around by having a "poll daemon" which knew about all the things
-> > being waited on and checked them.  Or something.
-> 
-> could sgi's imon+fam work help a little here (with the "poll daemon" part)?
-> am i on the wrong train ? :-]
+Aaron Lehmann <aaronl@vitelus.com> writes:
 
-I was never a fan of that tool though SGI people loved it.  I think that 
-someone needs to grab this area and think it through.  There ought to be
-some way to do this that isn't gross.  But it will take some thinking.  
-If you could convince one of the file system guys to think about this for
-a week I suspect you'd get something nice.
+>On Wed, Jun 20, 2001 at 09:00:47AM +0000, Henning P. Schmiedehausen wrote:
+>> Just the fact that some people use Java (or any other language) does
+>> not mean, that they don't care about "performance, system-design or
+>> any elegance whatsoever" [2].
+
+>However, the very concept of Java encourages not caring about
+>"performance, system-design or any elegance whatsoever". If you cared
+
+Care to elaborate? It's an application programming language, not a
+kernel hacker language, you know.
+
+I won't call Java the perfect solution for everything, but it's an
+useful tool for a certain type of applications.
+
+>for a reason). Need run-anywhere support? Distribute sources instead.
+>Once they are compiled they won't need to be reinterpreted on every
+>run.
+
+Thanks buddy. I've seen too many "#ifdef _SOLARIS_ || _LINUX &&
+!_X86_" definition deserts to not wanting to do this again. Portability 
+without os-specific tweaks for more than two or three platforms is a dream.
+
+And most if not all commercial platforms don't come with perl, python,
+tcl/tk or anything else installed. Many even without a (C-)compiler. 
+Most without a C++-compiler.
+
+	Regards
+		Henning
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132255AbRCZAXx>; Sun, 25 Mar 2001 19:23:53 -0500
+	id <S132261AbRCZA2m>; Sun, 25 Mar 2001 19:28:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132256AbRCZAXm>; Sun, 25 Mar 2001 19:23:42 -0500
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:47892 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S132255AbRCZAXj>; Sun, 25 Mar 2001 19:23:39 -0500
-Subject: swap file vs swap partition
-From: Robert "M." Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-X-Mailer: Evolution/0.9+cvs.2001.03.25.09.06 (Preview Release)
-Date: 25 Mar 2001 19:23:02 -0500
-Message-Id: <985566184.20461.0.camel@phantasy>
-Mime-Version: 1.0
+	id <S132260AbRCZA2c>; Sun, 25 Mar 2001 19:28:32 -0500
+Received: from zada.math.leidenuniv.nl ([132.229.231.3]:58125 "EHLO
+	zada.math.leidenuniv.nl") by vger.kernel.org with ESMTP
+	id <S132257AbRCZA2W>; Sun, 25 Mar 2001 19:28:22 -0500
+Date: Mon, 26 Mar 2001 02:27:39 +0200 (MEST)
+From: Lennert Buytenhek <buytenh@math.leidenuniv.nl>
+To: James Stevenson <mistral@stev.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on /dev/tap0
+In-Reply-To: <Pine.LNX.4.21.0103252255170.12913-100000@cyrix.home>
+Message-ID: <Pine.LNX.4.30.0103260226440.1589-100000@mara.math.leidenuniv.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel 2.4.2-ac24.
 
-first, i have 256MB of RAM and a 128MB swap. i know the recommendation
-is RAM*2 for swap, but is that a *requirement* as well? i understand the
-active/inactive page debate and why *2 is needed (lets not argue that),
-but am i just wasting space with a 128MB swap?
-
-second, is there any performance issues with a swap partition vs a swap
-file. without resizing, i am stuck with the 128mb partition.
-
-thanks,
+Intended behaviour. This is because of the access checks done in the
+netlink code. Misleading, yes.
 
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+On Sun, 25 Mar 2001, James Stevenson wrote:
+
+>
+> Hi
+>
+> would somebody be able to explain to me
+> when you try to open /dev/tap0 which is a
+> character device file which has the permissions
+>
+> File: "tap0"
+> Size: 0            Filetype: Character Device
+> Mode: (0666/crw-rw-rw-)
+>
+> when tried to open
+>
+> [mistral@linux /dev]$ cat tap0
+> cat: tap0: Operation not permitted
+>
+> and strace shows that it gets a permission error
+> open("tap0", O_RDONLY|0x8000)           = -1 EPERM
+>
+> is it just me or is this either
+> a) a bug
+> b) very misleading
+>
+> thanks
+> 	James
+>
+>
+
 

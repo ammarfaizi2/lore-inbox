@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267546AbTBUP7E>; Fri, 21 Feb 2003 10:59:04 -0500
+	id <S267544AbTBUP6W>; Fri, 21 Feb 2003 10:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267547AbTBUP7E>; Fri, 21 Feb 2003 10:59:04 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:24715 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S267546AbTBUP7A>; Fri, 21 Feb 2003 10:59:00 -0500
-Message-Id: <200302211608.h1LG8tGi014271@locutus.cmf.nrl.navy.mil>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] who 'owns' the skb created by drivers/atm? 
-In-reply-to: Your message of "Thu, 20 Feb 2003 22:24:04 PST."
-             <20030220222404.B11525@sfgoth.com> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Fri, 21 Feb 2003 11:08:55 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S267546AbTBUP6W>; Fri, 21 Feb 2003 10:58:22 -0500
+Received: from mail.costarica.net ([196.40.25.178]:63950 "EHLO
+	mail.costarica.net") by vger.kernel.org with ESMTP
+	id <S267544AbTBUP6V>; Fri, 21 Feb 2003 10:58:21 -0500
+Subject: Re: 2.4 series IDE troubles
+From: "Miguel A. Bolanos" <mike@costarica.net>
+To: shoninnaive@sbcglobal.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030221080120.45d30fec.home@lfs.pitchblende.org>
+References: <20030221080120.45d30fec.home@lfs.pitchblende.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Feb 2003 10:15:31 -0600
+Message-Id: <1045844131.2619.7.camel@nemesis>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030220222404.B11525@sfgoth.com>,Mitchell Blank Jr writes:
->Hmmmm.. I guess we've just been getting lucky before in that case - we've
->always just left the ATM_SKB() stuff in there.
+Greetings John,
+Please read /usr/src/linux-2.4/REPORTING-BUGS
 
-i think fortunate might be a better word.  comparing the two:
+Providing the info requested there, you will help the developers find a
+solutions to this sooner.
 
-struct atm_skb_data {
-        struct atm_vcc  *vcc;       
-        int             iovcnt;    
-        unsigned long   atm_options;
-};
+Thanks
 
-struct inet_skb_parm
-{
-	struct ip_options {
-	  __u32         faddr;
-	  unsigned char optlen;
-	  unsigned char srr;
-	  unsigned char rr;
-	  unsigned char ts;
-...
-}
+Mike
 
-surprising you only run into trouble on some 64bit platforms.  at this
-point the atm_vcc* overlaps with optlen and chaos ensues.  on a somewhat
-related note, i believe iovcnt is probably obselete.  skb's support
-scatter/gather.
 
->Chas - I guess you should just do a memset(skb->cb, 0, sizeof(skb->cb))
->just before the netif_rx() in {clip,lec,mpc}.c and before the ppp_input()
->in pppoatm.c to make sure it's zeroed correctly.
+On Fri, 2003-02-21 at 07:01, j wrote:
+> Hello,
+> 
+> IM not sure this is the way to go about this (obviously) but doing
+> searchs at google for the error message I get just leads to the painful realization that there are many questions out there but 
+> few answers. Anyhoo when I try adding a compact flash card as an 
+> IDE drive to a system running under 2.4 I get kernel panics:
+> 
+>    VFS: Cannot open root device "307" or 03:07
+>    Please append a corect "root=" boot option
+>    Kernel panic: VFS: Unable to mount root
+> 
+> Just on a lark I decided to go back to a 2.2 series kernel (since
+> I had gotten flash recognized b4 when using a Mandrake distro)
+>  Eureka! working flash drive that is seen and formatable with no
+> troubles. PLEASE have the developers take a closer look at the IDE
+> drivers for 2.4 as it seems they cause a great deal of grief, at 
+> least from what I see in searchs on these errors. Usually the problem
+> is blamed on the user and they are asked hundreds of irritating questions about hardware and configuration.
+> 
+> Regards,
+> 
+> John Sims
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-this is one option.  the other would be to clone the skb and pass the
-clone to the ip layer.  the last option, and the one i prefer, would
-be to make the atm drivers not modify skb->cb (or reset it) when passing
-up the skb.  the atm socket layer doesnt rely on it, and it would keep
-the 'extra' processing to a minimum.
+

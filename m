@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbUB2Tc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 14:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbUB2Tc5
+	id S262117AbUB2Tet (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 14:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUB2Tet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 14:32:57 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:26988 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262116AbUB2Tc4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 14:32:56 -0500
-Date: Sun, 29 Feb 2004 20:32:51 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Robbert Haarman <lkml@inglorion.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6 Build System and Binary Modules
-Message-ID: <20040229193251.GA2181@mars.ravnborg.org>
-Mail-Followup-To: Robbert Haarman <lkml@inglorion.net>,
-	linux-kernel@vger.kernel.org
-References: <20040229183143.GA8057@shire.sytes.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040229183143.GA8057@shire.sytes.net>
-User-Agent: Mutt/1.4.1i
+	Sun, 29 Feb 2004 14:34:49 -0500
+Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:39335 "EHLO
+	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262117AbUB2Ter (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 14:34:47 -0500
+Message-ID: <40423ED6.5040004@blueyonder.co.uk>
+Date: Sun, 29 Feb 2004 19:34:46 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Hugo Mills <hugo-lkml@carfax.org.uk>
+Subject: Re: Acer Aspire 1501LCe
+References: <40423148.6050600@blueyonder.co.uk> <20040229190239.GA9495@carfax.org.uk>
+In-Reply-To: <20040229190239.GA9495@carfax.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Feb 2004 19:34:46.0353 (UTC) FILETIME=[16752C10:01C3FEFB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 29, 2004 at 07:31:43PM +0100, Robbert Haarman wrote:
-> Hello list,
-> 
-> Excuse me for not finding this if it has been asked before. Please Cc any answers, as I am not subscribed to this list.
-> 
-> I am trying to port a driver for the Realtek 8180 wireless ehternet controller from 2.4 to 2.6. The module comes as a binary-only object file with some sources that can be adapted to fit the specific kernel. My problem is that I can't figure out how to get the 2.6 kernel to include the binary part (it's in a .o file). The new build system does a little too much magic - compiling the module from source to .ko without giving me a chance to sneak in the binary code. How do I get it to link in the .o file, without making it look for the like-named .c file?
+Hugo Mills wrote:
 
-There is no good nor documented way to do it today.
-But you can use:
+>On Sun, Feb 29, 2004 at 06:36:56PM +0000, Sid Boyce wrote:
+>  
+>
+>>Apologies to kernel mailing list. This Athlon-64 laptop is available 
+>>here in the UK at quite an attractive price, sold with Windows XP Home, 
+>>so fit for repartitioning as a Linux only box if an empty HD isn't an 
+>>option. I wonder if anyone has Linux up and running on it or any other 
+>>Althon-64 laptop.
+>>    
+>>
+>
+>   I don't have one myself, but if you head over to the Debian AMD64
+>mailing list[1], or #debian-amd64 on irc.oftc.net, there are a couple
+>of people with AMD64 laptops running (or sort-of running) Linux on
+>them.
+>
+>   Don't expect much, though -- it's still early days in the Debian
+>camp.
+>
+>   Hugo.
+>
+>[1] http://lists.debian.org/debian-amd64/
+>
+>  
+>
+Thanks, I shall have a look over there. SuSE has a 64-bit distro I could 
+buy .... we shall see what problems/success  the debian guys have had.
+Regards
+Sid.
 
-$(obj)/module.o: ld_flags += binary.o
-Assuming you are building a module, and 'module' is the name of the
-resulting module.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 
-For built-in you shall use:
-$(obj)/built-in.o: ld_flags += binary.o
-
-
-	Sam

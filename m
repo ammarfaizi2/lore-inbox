@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129624AbRC1OjM>; Wed, 28 Mar 2001 09:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131286AbRC1OjC>; Wed, 28 Mar 2001 09:39:02 -0500
-Received: from 216.41.5.host170 ([216.41.5.170]:16859 "EHLO habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP id <S129624AbRC1Oir>; Wed, 28 Mar 2001 09:38:47 -0500
-Message-Id: <200103281438.f2SEc4Q03910@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
-To: james <jdickens@ameritech.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Ideas for the oom problem 
-In-reply-to: Your message of "Tue, 27 Mar 2001 18:53:18 CST." <01032718343500.32154@friz.themagicbus.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 28 Mar 2001 09:38:04 -0500
-From: Hacksaw <hacksaw@hacksaw.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131365AbRC1OoM>; Wed, 28 Mar 2001 09:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131409AbRC1OoD>; Wed, 28 Mar 2001 09:44:03 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:37705 "EHLO tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP id <S131365AbRC1Onv>; Wed, 28 Mar 2001 09:43:51 -0500
+Date: Wed, 28 Mar 2001 08:43:01 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103281443.IAA42752@tomcat.admin.navo.hpc.mil>
+To: rmk@arm.linux.org.uk, Jesse Pollard <jesse@cats-chateau.net>
+Subject: Re: Disturbing news..
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a. don't kill any task with a uid < 100 
->     
-> b. if uid between 100 to 500 or CAP-SYS equivalent enabled 
-> 	set it too a lower priority, so if it is at fault it will happen slower 		   
->             giving more time before the system collapses
+---------  Received message begins Here  ---------
 
-Deciding what not to kill based on who started it seems like a bad idea. Root 
-can start netscape just as easily as any user, but if the choice of processes 
-to kill is root's netscape or a user's experimental database, I'd want the 
-netscape to go away.
+> 
+> On Wed, Mar 28, 2001 at 06:08:15AM -0600, Jesse Pollard wrote:
+> > Sure - very simple. If the execute bit is set on a file, don't allow
+> > ANY write to the file. This does modify the permission bits slightly
+> > but I don't think it is an unreasonable thing to have.
+> 
+> Even easier method - remove the write permission bits from all executable
+> files, and don't do the unsafe thing of running email/web browsers/other
+> user-type stuff as user root.
+> 
+> If it still worries you that root can write to files without the 'w' bit
+> set, modify the capabilities of the system to prevent it (there is a bit
+> that can be set which will remove this ability for all new processes).
 
+How about just adding MLS ... :-)
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.

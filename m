@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315925AbSFTXwK>; Thu, 20 Jun 2002 19:52:10 -0400
+	id <S315928AbSFTXwL>; Thu, 20 Jun 2002 19:52:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315929AbSFTXwJ>; Thu, 20 Jun 2002 19:52:09 -0400
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:63899 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S315925AbSFTXwI>; Thu, 20 Jun 2002 19:52:08 -0400
-Date: Thu, 20 Jun 2002 18:52:09 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Subject: ACLs for ext[23]?  When?
-Message-ID: <20020620185208.A22063@ksu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-School: Kansas State University
-X-vi-or-emacs: vi
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S315929AbSFTXwK>; Thu, 20 Jun 2002 19:52:10 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:31496 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S315928AbSFTXwJ>; Thu, 20 Jun 2002 19:52:09 -0400
+Message-ID: <3D1269CB.7040603@megapathdsl.net>
+Date: Thu, 20 Jun 2002 16:48:27 -0700
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020612
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Uz.ytkownik Martin Dalecki napisa?:
+<snip>
+> You don't read economic papers. Don't you? Or what is it with this
+> plumbing server/pc market around us? Or increased notebook sales.
+> (Typical marked saturation symptom, like the second car for the
+> familiy :-).
+> 
+> I suggest it's precisely the end of the open invention curve out there:
+> 
+> 1. Nowadays the CPUs are indeed good enough for most of the common tasks.
+>    WindowsXP tries hard to help overcome this :-). But in reality Win2000
+>    is just fine for office work.
+> 
+> 2. The technology in question is starting to hit real physical barriers becouse
+>   it appears more and more that not everything comming out of the labs
+>   can be implemented at reasonable costs.
 
-I'm sort of new to the discussion of ACLs.  Will we always have to
-  patch the official kernels to get ACLs for ext2 and ext3, are ACLs
-  slated to be supported in the official kernels sometime?  If so, when?
-Thanks!
+Martin, perhaps you haven't seen this article.
+This news seems to contradict your assertion that cost is going
+to become a big problem as we attempt to continue tracking the 
+price/performance trajectory of Moore's law.
 
--Joseph
--- 
-Joseph======================================================jap3003@ksu.edu
-"[...]this, they say, cost about $40 too much, and about 20,000 Iowans 
- bought [Windows] 98.  Which gives us a tab of $800,000, i.e. the
- equivalent of a rounding error in Redmond's vast war chest." -The Register
+http://www.nytimes.com/reuters/technology/tech-technology-chip.html
+
+	Miles
+

@@ -1,129 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267805AbRGUUV6>; Sat, 21 Jul 2001 16:21:58 -0400
+	id <S267824AbRGUUa3>; Sat, 21 Jul 2001 16:30:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267808AbRGUUVs>; Sat, 21 Jul 2001 16:21:48 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:21000 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267805AbRGUUVh>; Sat, 21 Jul 2001 16:21:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Brian J. Watson" <Brian.J.Watson@compaq.com>,
-        Larry McVoy <lm@bitmover.com>
-Subject: Re: Common hash table implementation
-Date: Sat, 21 Jul 2001 22:25:51 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <01071815464209.12129@starship> <3B58CBA3.BD2C194@compaq.com>
-In-Reply-To: <3B58CBA3.BD2C194@compaq.com>
-MIME-Version: 1.0
-Message-Id: <01072122255100.02679@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S267814AbRGUUaJ>; Sat, 21 Jul 2001 16:30:09 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:19389 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S267811AbRGUUaH>;
+	Sat, 21 Jul 2001 16:30:07 -0400
+Date: Sat, 21 Jul 2001 22:28:26 +0200
+From: Filip Van Raemdonck <filipvr@xs4all.be>
+To: linux-kernel@vger.kernel.org
+Subject: Another 2.4.7 build failure
+Message-ID: <20010721222826.A1953@lucretia.debian.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+X-Marks-The-Spot: xxxxxxxxxx
+X-GPG-Fingerprint: 1024D/8E950E00 CAC1 0932 B6B9 8768 40DB  C6AA 1239 F709 8E95 0E00
+X-Machine-info: Linux lucretia 2.4.6 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Saturday 21 July 2001 02:24, Brian J. Watson wrote:
-> Daniel Phillips wrote:
-> > On Wednesday 18 July 2001 03:34, Larry McVoy wrote:
-> > > We've got a fairly nice hash table interface in BitKeeper that
-> > > we'd be happy to provide under the GPL.  I've always thought it
-> > > would be cool to have it in the kernel, we use it everywhere.
-> > >
-> > > http://bitmover.com:8888//home/bk/bugfixes/src/src/mdbm
->
-> Thanks, Larry. Your hashing functions are much more sophisticated
-> than the simple modulo operator I've been using for hashing by inode
-> number.
 
-Yes, I tested almost all of them to see how well they worked my
-directory index application.  There are really only two criterea:
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  1) How random is the hash
-  2) How efficient is it
+Building fails for me with following error:
 
-My testing was hardly what you would call rigorous.  Basically, what I 
-do is hash a lot of very unrandom strings and see how uniform the 
-resulting hash bucket distribution is.  The *only* function from 
-Larry's set that did well on the randomness side is the linear 
-congruential hash - it did nearly as well as my dx_hack_hash.
+make[4]: Entering directory
+`/home/admin/mechanix/srcd/linux/linux/drivers/block'
+gcc -D__KERNEL__ -I/home/admin/mechanix/srcd/linux/linux/include -Wall -Wst=
+rict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasin=
+g -fno-common -pipe -mpreferred-stack-boundary=3D2 -march=3Di586    -DEXPOR=
+T_SYMTAB -c ll_rw_blk.c
+ll_rw_blk.c:25: linux/completion.h: No such file or directory
+ll_rw_blk.c: In function `attempt_merge':
+ll_rw_blk.c:630: structure has no member named `waiting'
+ll_rw_blk.c: In function `__make_request':
+ll_rw_blk.c:815: structure has no member named `waiting'
+ll_rw_blk.c: In function `ll_rw_block':
+ll_rw_blk.c:1051: `end_buffer_io_sync' undeclared (first use in this functi=
+on)
+ll_rw_blk.c:1051: (Each undeclared identifier is reported only once
+ll_rw_blk.c:1051: for each function it appears in.)
+ll_rw_blk.c: In function `end_that_request_last':
+ll_rw_blk.c:1144: structure has no member named `waiting'
+ll_rw_blk.c:1145: warning: implicit declaration of function `complete'
+ll_rw_blk.c:1145: structure has no member named `waiting'
+make[4]: *** [ll_rw_blk.o] Error 1
+make[4]: Leaving directory `/home/admin/mechanix/srcd/linux/linux/drivers/b=
+lock'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/home/admin/mechanix/srcd/linux/linux/drivers/b=
+lock'
+make[2]: *** [_subdir_block] Error 2
+make[2]: Leaving directory `/home/admin/mechanix/srcd/linux/linux/drivers'
+make[1]: *** [_dir_drivers] Error 2
+make[1]: Leaving directory `/home/admin/mechanix/srcd/linux/linux'
+make: *** [stamp-build] Error 2
 
-Surprisingly, at least to me, the CRC32 turned in an extremely variable 
-performance.  With a small number of buckets (say 100) it did ok, but 
-with a larger numbers it showed a very lumpy distribution.  Yes, this 
-is way too imprecise a way of describing what happened and I should 
-take a closer look at it.  I don't have the mathematical background to 
-be really sure about this, but I suspect CRC32 isn't optimized at all 
-for randomness - it's optimized for detecting bit errors and has good 
-properties with respect to neighbouring bits, properties that are no 
-use at all to a randomizing funciton.  Anyway, I wasn't all that 
-unhappy to see CRC32 turn in a poor performance for two reasons: a) the 
-1K xor table would represent a 25% increase of the indexing code and b) 
-hashing through the table eats an extra 1K of precious L1 cache.
 
-The linear congruential hash from Larry's set and my dx_hack_hash share 
-a common characteristic: they both munge each character against a 
-pseudorandom sequence.  In Larry's hash it's a linear congruential 
-sequence, and in my case it's a feedback shift register.  In addition,
-I use a multiply to spread the effect of each character over a broader 
-range of bits.
+Regards,
 
-Larry's hash doesn't do this and you can see right away that strings 
-that vary only in the last character aren't going to be distributed 
-very randomly.  It might work a little better with the hashing step 
-spelled this way:
+Filip
 
--	((h) = 0x63c63cd9*(h) + 0x9c39c33d + (c))
-+	((h) = 0x63c63cd9*(h + (c)) + 0x9c39c33d)
+--=20
+"The only stupid question is the unasked one."
+	-- Martin Schulze
 
-I haven't tried this, but I will.
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-There are people out there who know a lot more about analyzing hash 
-functions than I do, and I have their names somewhere in my mailbox.  
-I'll go look them up soon and submit for proper testing the whole batch 
-of functions that have been suggested to me over the last few months.  
-By the way, in case you haven't already deduced this, this stuff is 
-really time consuming.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-[...]
-> Richard Guenther sent the following link to his own common hashing
-> code, which makes nice use of pseudo-templates:
->
-> http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/~checkout~/glame/glame
->/src/include/hash.h?rev=1.5&content-type=text/plain
->
-> A few things I would consider changing are:
->
->   - ditching the pprev pointer
+iD8DBQE7WeXqEjn3CY6VDgARAr0gAKDr4OV6N6Bbs/OuDRo7yD9oIgJ/qQCgh8tl
+VLvfzcuZGiV6QxyNGN+AouY=
+=KgVu
+-----END PGP SIGNATURE-----
 
-Yes, you want to use the generic list macros there.
-
->   - encapsulating the next pointer inside a struct hash_head_##FOOBAR
-
-I think the generic list macros give you that for free.
-
->   - stripping out the hard-coded hashing function, and allowing the
->     user to provide their own
-
-Naturally.  And trying to reduce the size of the macros.  It's not that 
-easy to get stuff that has dozens of lines ending with "\" into the 
-kernel.  You might have better luck just generalizing a few short sets 
-of common operations used in hashes, and showing examples of how you'd 
-use them to rewrite some of the existing hash code.  Obviously, the 
-new, improved approach has to be no less efficient than the current way 
-of doing things.
-
-> All the backslashes offend my aesthetic sensibility, but the
-> preprocessor provides no alternative. ;)
-
-It's hard to argue against using inlines there.  It's true that there 
-are a lot of generalizations you just can't do with inlines, but so 
-what?  What matters is how efficient the generated code is and to a 
-lesser extent, how readable the source is.  You could make that source 
-quite a bit more readable with a few *small* macros and some inline 
-functions.  Suggestion: express the bucket probe as an inline, compute 
-the hash outside and pass it in.  Then you can wrap the whole thing up 
-in a really short macro.
-
---
-Daniel
+--r5Pyd7+fXNt84Ff3--

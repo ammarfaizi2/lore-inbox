@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUHGXxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUHGX5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264826AbUHGXxm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 19:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbUHGXwy
+	id S264795AbUHGX5I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 19:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHGX5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 19:52:54 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:7051 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S264884AbUHGXv7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 19:51:59 -0400
-From: David Brownell <david-b@pacbell.net>
-To: ncunningham@linuxmail.org
+	Sat, 7 Aug 2004 19:57:02 -0400
+Received: from gate.crashing.org ([63.228.1.57]:16837 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264795AbUHGXzE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 19:55:04 -0400
 Subject: Re: Solving suspend-level confusion
-Date: Sat, 7 Aug 2004 15:24:59 -0700
-User-Agent: KMail/1.6.2
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
        Patrick Mochel <mochel@digitalimplant.org>
-References: <20040730164413.GB4672@elf.ucw.cz> <200408051732.04920.david-b@pacbell.net> <1091772799.2532.50.camel@laptop.cunninghams>
-In-Reply-To: <1091772799.2532.50.camel@laptop.cunninghams>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+In-Reply-To: <200408071514.49498.david-b@pacbell.net>
+References: <20040730164413.GB4672@elf.ucw.cz>
+	 <200407310723.12137.david-b@pacbell.net>
+	 <20040806200442.GC30518@elf.ucw.cz>
+	 <200408071514.49498.david-b@pacbell.net>
+Content-Type: text/plain
+Message-Id: <1091922821.14105.12.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 08 Aug 2004 09:53:41 +1000
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408071524.59737.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 August 2004 23:13, Nigel Cunningham wrote:
-
-> > > device_resume_tree(&default_device_tree);
-> > > 
-> > > Proof of the pudding coming :>
+On Sun, 2004-08-08 at 08:14, David Brownell wrote:
+> On Friday 06 August 2004 13:04, Pavel Machek wrote:
+> 
+> > > These look to me like "wrong device-level suspend state" cases.
 > > 
-> > Sounds good.  Will it be possible to remove devices during
-> > these tree operations?  Probably never the current one.
+> > Actually, suspend-to-disk has to suspend all devices *twices*. Once it
+> > wants them in "D0 but DMA/interrupts stopped", and once in "D3cold but
+> > I do not really care power is going to be cut anyway". I do not think
+> > this can be expressed with PCI states.
 > 
-> Ummm. I suppose so. It's only affecting the PM section and not the
-> device tree proper, so I don't see why it should cause any failures.
+> How are those different from "PCI_D1" then later "PCI_D3hot"?
 
-If you're not changing dpm_sem usage, it's a self-deadlock
-situation.  I guess that bug needs to be fixed in its own right.
+D1 is a real HW state, we don't really need to enter it at all. On some
+chip, suspending to D1 require some mess that we don't need here. We
+just need to block the driver.
+
+> I'd understood that loss of VAUX was always possible, so robust
+> drivers always had to handle resume  from PCI_D3cold.
+
+When they can ....
+
+Ben.
 
 
-> > And (evil chuckle) how will it behave if two tasks are doing
-> > that concurrently?  The no-overlap case would be fully
-> > parallel, I'd hope!
-> 
-> All of the operations still use dpm_sem, so really strange things
-> shouldn't happen. That said, if you're trying to suspend to disk and ram
-> at the same time, you get what you deserve, 
-
-Telling one subsystem to suspend as deeply as possible doesn't
-mean no other subsystem will be needed much sooner.  And
-why you'd suspend a system "to disk" when the system only
-has some flash ram?  :)
-
-- Dave

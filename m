@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289382AbSAVUNZ>; Tue, 22 Jan 2002 15:13:25 -0500
+	id <S289395AbSAVUQf>; Tue, 22 Jan 2002 15:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289383AbSAVUNP>; Tue, 22 Jan 2002 15:13:15 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60942 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289382AbSAVUNI> convert rfc822-to-8bit; Tue, 22 Jan 2002 15:13:08 -0500
-Date: Tue, 22 Jan 2002 15:12:07 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-cc: "Alok K. Dhir" <alok@dhir.net>, linux-kernel@vger.kernel.org
-Subject: Re: Autostart RAID 1+0 (root)
-In-Reply-To: <20020122184600.C11697@unthought.net>
-Message-ID: <Pine.LNX.3.96.1020122150722.28222A-100000@gatekeeper.tmr.com>
+	id <S289381AbSAVUQZ>; Tue, 22 Jan 2002 15:16:25 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:43955 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S289386AbSAVUQQ>; Tue, 22 Jan 2002 15:16:16 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon PSE/AGP Bug
+In-Reply-To: <1011610422.13864.24.camel@zeus>
+	<20020121.053724.124970557.davem@redhat.com>
+	<20020121.053724.124970557.davem@redhat.com>
+	<20020121175410.G8292@athlon.random> <3C4C5B26.3A8512EF@zip.com.au>
+	<o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
+	<hbep4uka8q6t1tfv6694sjtvfrulipg3a4@4ax.com>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Tue, 22 Jan 2002 21:13:42 +0100
+In-Reply-To: <hbep4uka8q6t1tfv6694sjtvfrulipg3a4@4ax.com> (Steve
+ Brueggeman's message of "Mon, 21 Jan 2002 19:02:39 -0600")
+Message-ID: <87k7uakutl.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jan 2002, [iso-8859-1] Jakob Østergaard wrote:
+Steve Brueggeman <brewgyman@mediaone.net> writes:
 
-> On Tue, Jan 22, 2002 at 12:15:28PM -0500, Bill Davidsen wrote:
+> Forgot to mention, I got the segfaults compiling kernels while running
+> linux-2.4.17, I was in console, and did not have Frame Buffer, or drm drivers
+> loaded.  I did have the SiS AGP compiled into the kernel though.
 
-> I think he is referring to software RAID. And yes, it is indeed a problem
-> that the RedHat installer cannot create nested RAIDs (at least, I too was
-> unable to do that, so either it's impossible, or I'm equally blind).
+On my new system at home, I got similar segfaults.  Running memtest86
+revealed that one of the RAM modules had a problem--and if I swapped
+them, the BIOS startup code wouldn't even expand the actual BIOS code
+every other system boot.  After removing the offending RAM module (and
+later replacing it) the problems were completely gone and haven't
+returned yet...
 
-  The RH installer also won't do RAID from a text install, so if you lack
-memory or the right graphic card you just can't do the install at all
-(unless I miss something). What good is install from serial console if you
-can't use any setup but the big blob?
-
-> 
-> > This is because if the first disk fails totally, the 2nd will be used to
-> > boot. You also should use an initrd image to be sure all you need to get
-> > up is on that small mirrored partition. After that your other partitions
-> > can be whatever pleases you.
-> 
-> Also, GRUB/LILO only support booting from RAID-1 (or no RAID).
-
-  Another factor, for sure. Fortunately I believe only the boot partition
-needs to be RAID-1, after that the kernel should take over.
+Fortunately, I didn't know of the PSE/AGP bug back then.  This made
+debugging much, much easier. ;-)
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

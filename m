@@ -1,110 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbULMUCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbULMUGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbULMUCR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 15:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbULMUA5
+	id S262314AbULMUGO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 15:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbULMT6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 15:00:57 -0500
-Received: from mail.dif.dk ([193.138.115.101]:59033 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261635AbULMTyw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 14:54:52 -0500
-Date: Mon, 13 Dec 2004 21:05:12 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Matan Peled <chaosite@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Danny Beaudoin <beaudoin_danny@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Typo in kernel configuration (xconfig)
-In-Reply-To: <41BDDB02.5020606@gmail.com>
-Message-ID: <Pine.LNX.4.61.0412132059290.3382@dragon.hygekrogen.localhost>
-References: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
- <Pine.LNX.4.61.0412130925510.2394@yvahk01.tjqt.qr> <41BDDB02.5020606@gmail.com>
+	Mon, 13 Dec 2004 14:58:07 -0500
+Received: from smtp.zipmail.com.br ([200.221.11.147]:39070 "EHLO
+	www.zipmail.com.br") by vger.kernel.org with ESMTP id S262290AbULMTzW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 14:55:22 -0500
+Message-ID: <41BD3DF500001505@www.zipmail.com.br>
+Date: Mon, 13 Dec 2004 20:18:22 +0100
+From: mredmondhaziem1@zipmail.com.br
+Subject: =?iso-8859-1?Q?Please=20reply=20quickly=2E?=
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Dec 2004, Matan Peled wrote:
+Mr.Edmond Haziem.
+Republic of Benin 
 
-> Jan Engelhardt wrote:
-> 
-> > > Hi!
-> > > If I'm not at the right place, please forward this to the right person.
-> > > 
-> > > In Device Drivers/Graphics Support/Support for frame buffer devices:
-> > > "On several non-X86 architectures, the frame buffer device is the
-> > > only way to use the graphics hardware."
-> > > 
-> > > This should be 'x86' instead, as in the rest of the description.
-> > >    
-> > 
-> > What kind of typo is that?
-> > 
-> > 
-> A nit picking one :)
-> 
+Good day, 
 
-Well, in case anyone actually cares, here's a patch (at the end of the 
-mail) to fix the nit. "x86" does seem to be in the majority compared to 
-"X86" in the Kconfig help texts, I guess we might as well make it 
-consistent..
+With warm heart i offer my friendship and my greetings and i hope this letter
+meets you in good time. It will be surprising for you to receive this proposal
+from me since you do not know me personally.However, i am sincerely seeking
+your confidence in this transaction, which i, propose with my free mind
+and as a person of integrity. 
 
-> Besides, linux is case-sensitive, isn't it?
-> 
-Filesystems, yes. C source, yes. help text for kernel options, no.
+A) It is practically impossible for me to carry out this business alone.
 
 
+B) You live in a foreign land far away from mine. This should normally not
+be a requirement, but when you understand the transaction then you will
+understand why it is important that you live far away from me. 
 
-Desc: [Documentation] Make Kconfig help texts use the term "x86" consistently.
+C) The amount of money involved in this transaction is Fifteen Million one
+hundred thousand united states dollars (US$15,100,000.00) which is too much
+for a man of modest means like myself to handle in my country. 
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+I believe from my few points above, you can begin to get an idea why i need
+your participation.I am writing you in respect of a foreign customer who
+has a Domicilliary account in my bank. His name was Engineer Frank oliver.
+He was among those who died in a plane crash, Since the demise of this our
+customer, Engineer Frank oliver, who was an oil merchant/import & exporter,
+i have kept a close watch of the deposit records and accounts and since
+then nobody has come to claim the money in this a/c as next of kin to the
+late Engineer.He had only Fifteen Million one hundred thousand united states
+dollars (S$15,100,000.00) in his account and the account is coded. 
 
-diff -ur linux-2.6.10-rc3-bk7-orig/arch/ia64/Kconfig linux-2.6.10-rc3-bk7/arch/ia64/Kconfig
---- linux-2.6.10-rc3-bk7-orig/arch/ia64/Kconfig	2004-10-18 23:55:27.000000000 +0200
-+++ linux-2.6.10-rc3-bk7/arch/ia64/Kconfig	2004-12-13 20:53:05.000000000 +0100
-@@ -14,7 +14,7 @@
- 	default y
- 	help
- 	  The Itanium Processor Family is Intel's 64-bit successor to
--	  the 32-bit X86 line.  The IA-64 Linux project has a home
-+	  the 32-bit x86 line.  The IA-64 Linux project has a home
- 	  page at <http://www.linuxia64.org/> and a mailing list at
- 	  <linux-ia64@vger.kernel.org>.
- 
-@@ -269,7 +269,7 @@
- config IA32_SUPPORT
- 	bool "Support for Linux/x86 binaries"
- 	help
--	  IA-64 processors can execute IA-32 (X86) instructions.  By
-+	  IA-64 processors can execute IA-32 (x86) instructions.  By
- 	  saying Y here, the kernel will include IA-32 system call
- 	  emulation support which makes it possible to transparently
- 	  run IA-32 Linux binaries on an IA-64 Linux system.
-diff -ur linux-2.6.10-rc3-bk7-orig/arch/mips/Kconfig linux-2.6.10-rc3-bk7/arch/mips/Kconfig
---- linux-2.6.10-rc3-bk7-orig/arch/mips/Kconfig	2004-12-06 22:24:17.000000000 +0100
-+++ linux-2.6.10-rc3-bk7/arch/mips/Kconfig	2004-12-13 20:53:25.000000000 +0100
-@@ -1040,7 +1040,7 @@
- 	  architectures supported by Linux and make the implementation of
- 	  application programs easier and more portable; at this point, an X
- 	  server exists which uses the frame buffer device exclusively.
--	  On several non-X86 architectures, the frame buffer device is the
-+	  On several non-x86 architectures, the frame buffer device is the
- 	  only way to use the graphics hardware.
- 
- 	  The device is accessed through special device nodes, usually located
-diff -ur linux-2.6.10-rc3-bk7-orig/drivers/video/Kconfig linux-2.6.10-rc3-bk7/drivers/video/Kconfig
---- linux-2.6.10-rc3-bk7-orig/drivers/video/Kconfig	2004-12-06 22:24:43.000000000 +0100
-+++ linux-2.6.10-rc3-bk7/drivers/video/Kconfig	2004-12-13 20:51:11.000000000 +0100
-@@ -17,7 +17,7 @@
- 	  architectures supported by Linux and make the implementation of
- 	  application programs easier and more portable; at this point, an X
- 	  server exists which uses the frame buffer device exclusively.
--	  On several non-X86 architectures, the frame buffer device is the
-+	  On several non-x86 architectures, the frame buffer device is the
- 	  only way to use the graphics hardware.
- 
- 	  The device is accessed through special device nodes, usually located
+It is only an insider that could produce the code of the deposit particulars.
+As it stands now, there is nobody in that position to produce the needed
+information other than my very self considering my position in the bank.
+Based on the reason that nobody has come forward to claim the deposit as
+next of kin, i hereby ask you to send an application to the bank as the
+next of kin to the deceased and get this fund transfered into your foreign
+bank a/c for mutual sharing between myself and you, 5% for expences we will
+incure 35% for you and 60% for me. 
+
+All i need is for you to follow my instructions closely because i am experienced
+in inheritance matters here and i am on ground here to advice you on every
+step until you receive the fund. What is required of you is to send an application
+to the bank as next of kin to this late Engineer and i promise you that
+everything will go smoothly. 
+
+I also indulge you not to make undo use of the information given to you,
+i need also to trust that you will not tell people or your bank about this
+business.You will collect the money first, then I get my share, then you
+can tell anybody what you chose thereafter. I shall need your help to invest
+in your country therefore, any experience you have in this area will be
+beneficial. 
+
+Please feel free to ask any question and seek for explanations if required
+and upon the receipt of your favourable esponses,you should including your
+telephone number for easy communication. 
+
+Yours treuly, 
+Mr.Edmond Haziem.
+Phone:+229-844986.
+
+
+
+
+
+
+------------------------------------------
+Use o melhor sistema de busca da Internet
+Radar UOL - http://www.radaruol.com.br
 
 
 

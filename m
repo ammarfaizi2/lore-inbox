@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbTEQU5S (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 16:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTEQU5S
+	id S261840AbTEQU6V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 16:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTEQU6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 16:57:18 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:28094 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S261832AbTEQU5R (ORCPT
+	Sat, 17 May 2003 16:58:21 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:37054 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261840AbTEQU6T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 16:57:17 -0400
-Date: Sat, 17 May 2003 10:56:10 +0200
+	Sat, 17 May 2003 16:58:19 -0400
+Date: Sat, 17 May 2003 10:58:50 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>,
+To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@digeo.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6 must-fix list, v2
-Message-ID: <20030517085610.GC686@zaurus.ucw.cz>
-References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <20030517085850.GD686@zaurus.ucw.cz>
+References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk> <20030513163854.A27407@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <20030513163854.A27407@infradead.org>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > - ACPI needs the relax patches merging to work on lots of laptops
-> 
-> Working in 2.4.21-ac, Toshiba cheap laptops now run a treat. Forward
-> port looks like a patch command
+> That brings up another issue:  what ports do regularly work with 2.5
+> mainline?  I've been working with David to get all those core changes ia64
+> needs (and there's still a lot) sorted out so maybe 2.6 will work out of
+> the box.  I guess some other arches (parisc, mips?) will need similar
+> work.
 
-Well, this looks like easy to patch but
-hard to convince Andy to take it...
-
-Perhaps such workarounds could be surrounded
-by CONFIG_BROKEN_HW (default to yes).
+x86-64 does usually work out of the box or after
+few lines of fixes.
 				Pavel
 -- 
 				Pavel

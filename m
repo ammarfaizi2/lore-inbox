@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265396AbSLVVGF>; Sun, 22 Dec 2002 16:06:05 -0500
+	id <S265409AbSLVVIl>; Sun, 22 Dec 2002 16:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265400AbSLVVGF>; Sun, 22 Dec 2002 16:06:05 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:8114 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265396AbSLVVGE>; Sun, 22 Dec 2002 16:06:04 -0500
-Date: Sun, 22 Dec 2002 13:14:06 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, george anzinger <george@mvista.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH]Timer list init is done AFTER use
-Message-ID: <14540000.1040591645@titus>
-In-Reply-To: <3E0579F8.CF1D94A9@digeo.com>
-References: <3E02D81F.13A5A59D@mvista.com> <3E02F073.BF57207C@digeo.com>
- <3E0350CA.6B99F722@mvista.com> <3E0370C1.21909EF5@digeo.com>
- <3E03772A.D5D85171@mvista.com> <3E0579F8.CF1D94A9@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S265413AbSLVVIl>; Sun, 22 Dec 2002 16:08:41 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:45528 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265409AbSLVVIl>;
+	Sun, 22 Dec 2002 16:08:41 -0500
+Date: Sun, 22 Dec 2002 13:15:23 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Joshua Stewart <joshua.stewart@comcast.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: From __cpu_raise_softirq() to net_rx_action()
+In-Reply-To: <1040591503.11608.6.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L2.0212221313400.16753-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The boot cpu is set online extremely late.  Strangely late.  Why
-> is this?
->
-> How about something like the below?  We mark the boot cpu
-> online in generic code as soon as it has initialised its per-cpu
-> storage (seems appropriate?)
+On Sun, 22 Dec 2002, Joshua Stewart wrote:
 
-I seem to recall some related problem with the topology stuff ...
-anyway, I tested your patch on a 16-way NUMA-Q and it works just fine.
-Thanks for fixing that up ....
+| I'm still trying to follow a packet (or even better an sk_buff) from the
+| NIC card to user space.  I think I have a good chunk of it figured out,
+| but I'm missing a bit from the time that the __netif_rx_schedule()
+| routine calls __cpu_raise_softirq() until the routine net_rx_action()
+| occurs.  I read in a book on Linux TCP/IP implementation that the
+| softirq basically leads to a call to net_rx_action(), but I don't see
+| the connection yet.  It's probably due to my lack of understanding of
+| IRQ's (and software IRQ's).
+|
+| Any help is appreciated.
 
-> This will then allow that cpu to actually start calling into console
-> drivers, if they have been registered.  If those drivers do a mod_timer()
-> (as the vga console does) then that will work OK.
+What are you going to do with this good info when you have it?
+Something like putting it on a web page would be very good, so that
+other people with similar questions can have a reference to look at.
 
-Would be nice to shift generic console_init earlier, if that's what
-you're implying, but we still need early_printk for setup_arch.
-
-M.
+-- 
+~Randy
 

@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbUC3PVr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263719AbUC3PVr
+	id S263724AbUC3PY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:24:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUC3PY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:21:47 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:60363 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263714AbUC3PV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:21:26 -0500
-Message-ID: <001101c41669$0f7acde0$fc82c23f@pc21>
-From: "Ivan Godard" <igodard@pacbell.net>
-To: "Pavel Machek" <pavel@suse.cz>, "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-References: <048e01c413b3_3c3cae60_fc82c23f@pc21.suse.lists.linux.kernel> <p73y8pm951k.fsf@nielsen.suse.de> <07b501c41502_48bd4d20_fc82c23f@pc21> <20040329011416.591ad315.ak@suse.de> <20040329153606.GA3084@openzaurus.ucw.cz>
-Subject: Re: Kernel support for peer-to-peer protection models...
-Date: Tue, 30 Mar 2004 07:09:41 -0800
+	Tue, 30 Mar 2004 10:24:59 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:43483 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263724AbUC3PXS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:23:18 -0500
+Date: Tue, 30 Mar 2004 17:22:50 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: =?ISO-8859-15?Q?Andr=E9_Hedrick?= <andre@linux-ide.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Lionel Bergeret <lbergeret@swing.be>, JunHyeok Heo <jhheo@idis.co.kr>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: [PATCH] Bogus LBA48 drives
+Message-ID: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message ----- 
-From: "Pavel Machek" <pavel@suse.cz>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Ivan Godard" <igodard@pacbell.net>; <linux-kernel@vger.kernel.org>
-Sent: Monday, March 29, 2004 7:36 AM
-Subject: Re: Kernel support for peer-to-peer protection models...
+Apparently some IDE drives (e.g. a pile of 80 GB ST380020ACE drives I have
+access to) advertise to support LBA48, but don't, causing kernels that support
+LBA48 (i.e. anything newer than 2.4.18, including 2.4.25 and 2.6.4) to fail on
+them.  Older kernels (including 2.2.20 on the Debian woody CDs) work fine.
 
+One problem with those drives is that the lba_capacity_2 field in their drive
+identification is set to 0, making the IDE driver think the disk is 0 bytes
+large. At first I tried modifying the driver to use lba_capacity if
+lba_capacity_2 is set to 0, but this caused disk errors. So it looks like those
+drives don't support the increased transfer size of LBA48 neither.
 
-> Hi!
->
-> > > > Overall it sounds like your architecture is not very well suited to
-> > > > run Linux.
-> > >
-> > > We believe we can adopt the Linux protection model (i.e. the 386
-protection
-> > > model) with no more work than any other port to a new architectire
-(ahem).
-> >
-> > Just FYI - Linux has been ported to several architectures with similar
-SASOS
-> > capabilities in hardware (IA64 or ppc64 on iseries) and they have all
-opted to use
-> > an conventional protection model.
-> >
->
-> It might be actually plus for Ivan: if ia64 and ppc64 benefit from
-> changes for mill, it makes them more acceptable.
+I added a workaround for these drives to both 2.4.25 and 2.6.4. I'll send
+patches in follow-up emails.
 
+BTW, this problem (incl. a small patch to fix it for 2.4.19, which doesn't work
+on 2.4.25 anymore) was reported a while ago by JunHyeok Heo, cfr.
+http://www.cs.helsinki.fi/linux/linux-kernel/2002-42/0312.html
 
-Interesting point. Although it's not clear how long ia64 will still exist.
-Remember the Alpha?
+Gr{oetje,eeting}s,
 
-Ivan
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

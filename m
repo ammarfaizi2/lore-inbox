@@ -1,29 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281023AbRKGWM5>; Wed, 7 Nov 2001 17:12:57 -0500
+	id <S281027AbRKGWS6>; Wed, 7 Nov 2001 17:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281021AbRKGWMs>; Wed, 7 Nov 2001 17:12:48 -0500
-Received: from pc1-camb5-0-cust171.cam.cable.ntl.com ([62.253.134.171]:56550
-	"EHLO fenrus.demon.nl") by vger.kernel.org with ESMTP
-	id <S281022AbRKGWM1>; Wed, 7 Nov 2001 17:12:27 -0500
-From: arjan@fenrus.demon.nl
-To: adilger@turbolabs.com (Andreas Dilger)
-Subject: Re: ext3 vs resiserfs vs xfs
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011107144231.M5922@lynx.no>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
-Message-Id: <E161aud-0000es-00@fenrus.demon.nl>
-Date: Wed, 07 Nov 2001 22:11:11 +0000
+	id <S281026AbRKGWSr>; Wed, 7 Nov 2001 17:18:47 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:39947 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S281021AbRKGWSi>;
+	Wed, 7 Nov 2001 17:18:38 -0500
+Date: Wed, 7 Nov 2001 15:18:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Stephan Gutschke <stephan@gutschke.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops when syncing Sony Clie 760 with USB cradle
+Message-ID: <20011107151806.A22444@kroah.com>
+In-Reply-To: <E160obZ-0001bO-00@janus> <20011105131014.A4735@kroah.com> <3BE7F362.1090406@gutschke.com> <20011106095527.A10279@kroah.com> <3BE9BDD0.2070703@gutschke.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BE9BDD0.2070703@gutschke.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 10 Oct 2001 21:59:01 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011107144231.M5922@lynx.no> you wrote:
+On Thu, Nov 08, 2001 at 12:03:44AM +0100, Stephan Gutschke wrote:
+> didn't work :-(
+> 
+> This is the output of /var/log/syslog if I connect to ttyUSB0
+> I am not sure yet though that the problem is in your module.
+> I know the jpilot worked, before, but I will still try later
+> to connect to the clie with coldsync as well.
+> Lets see if that gives anything different.
+> Let me know what else I can do to help.
 
-> Also, given the large number of similar bug reports, maybe RedHat has a bug in
-> their mkinitrd script which doesn't try to mount the root fs with ext3?  I
-> don't know enough about their mkinitrd tools to say - Alan, Stephen?
+Yes, you will have to use coldsync to talk to this device right now, as
+pilot-link doesn't have support for the 4.x Palm OS USB protocol yet
+(jpilot uses pilot-link.)
 
-I think most people who report this are using lilo and didn't add the initrd
-to the lilo.conf when they upgraded the kernel... So far I've not had a
-single report about mkinitrd doing it wrong...
+Let me know if coldsync fails (remember you have to tell coldsync that
+you are a m50x, and that you want the "simple" protocol, check the docs
+for the proper config file setting.)
+
+thanks,
+
+greg k-h

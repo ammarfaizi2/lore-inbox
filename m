@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270444AbTGWQrR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 12:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270452AbTGWQrR
+	id S270453AbTGWQr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 12:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270454AbTGWQr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 12:47:17 -0400
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:52335 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S270444AbTGWQrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 12:47:14 -0400
-Subject: Re: Feature proposal (scheduling related)
-From: Disconnect <lkml@sigkill.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030723151321.GC29384@wind.cocodriloo.com>
-References: <3F1E6A25.5030308@gmx.net>
-	 <200307231417.h6NEHoqj010244@turing-police.cc.vt.edu>
-	 <1058970206.5520.71.camel@dhcp22.swansea.linux.org.uk>
-	 <Pine.LNX.4.53.0307231050150.13607@chaos>
-	 <20030723151321.GC29384@wind.cocodriloo.com>
-Content-Type: text/plain
-Message-Id: <1058979335.1192.78.camel@slappy>
+	Wed, 23 Jul 2003 12:47:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54419 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270453AbTGWQrx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 12:47:53 -0400
+Date: Wed, 23 Jul 2003 10:00:43 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Glenn Fowler <gsf@research.att.com>
+Cc: dgk@research.att.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: kernel bug in socketpair()
+Message-Id: <20030723100043.18d5b025.davem@redhat.com>
+In-Reply-To: <200307231656.MAA69129@raptor.research.att.com>
+References: <200307231428.KAA15254@raptor.research.att.com>
+	<20030723074615.25eea776.davem@redhat.com>
+	<200307231656.MAA69129@raptor.research.att.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 23 Jul 2003 12:55:35 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alternately, openbsd can do a similar thing with great results (although
-I haven't tried it over serial/pppd.)  And it works reasonably well even
-when done on only one end.
+On Wed, 23 Jul 2003 12:56:12 -0400 (EDT)
+Glenn Fowler <gsf@research.att.com> wrote:
 
-http://www.benzedrine.cx/ackpri.html
+> the problem is that linux took an implementation shortcut by symlinking
+> 	/dev/fd/N -> /proc/self/fd/N
+> and by the time the kernel sees /proc/self/fd/N the "self"-ness is apparently
+> lost, and it is forced to do the security checks
 
-On Wed, 2003-07-23 at 11:13, Antonio Vargas wrote:
+None of this is true.  If you open /proc/self/fd/N directly the problem
+is still there.
 
-> You need QoS at the router level to resolve this. Since you are
-> running your own routers to connect your ethernet segments, QoS
-> should be done at both ends of the connection. If it's available
-> on your distro, try wondershaper, it's a nice script which you tell
-> your upstream and downstream rates and then it adjusts QoS parameters
-> to provide great response. The most important thing is that it prioritises
-> ACK packets above everything else. This helps a lot when there is heavy
-> traffic (FTP for example) in both directions at the same time.
+> if the /proc fd open code has access to the original /proc/PID/fd/N path
+> then it can do dup(atoi(N)) when the PID is the current process without
+> affecting security
 
--- 
-Disconnect <lkml@sigkill.net>
+If we're talking about the current process, there is no use in using
+/proc/*/fd/N to open a file descriptor in the first place, you can
+simply call open(N,...)
 
+I've personally always viewed /proc/*/fd/N as a way to see who has
+various files or sockets open, ie. a debugging tool, not as a generic
+way for processes to get access to each other's FDs.
+
+There is an existing mechanism, a portable non-Linux one, that you
+can use to do that.
+
+Pass the fd over a UNIX domain socket if you want that, truly.
+That works on every system.

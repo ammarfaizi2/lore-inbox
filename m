@@ -1,62 +1,214 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292530AbSCRKyq>; Mon, 18 Mar 2002 05:54:46 -0500
+	id <S292599AbSCRLEs>; Mon, 18 Mar 2002 06:04:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292599AbSCRKyh>; Mon, 18 Mar 2002 05:54:37 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:17897 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S292530AbSCRKyb>;
-	Mon, 18 Mar 2002 05:54:31 -0500
-Date: Mon, 18 Mar 2002 11:53:51 +0100
-From: KELEMEN Peter <fuji@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.19pre3] Celeron 333 MMX hangs w/MCE upon boot
-Message-ID: <20020318105351.GA27739@chiara.elte.hu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.27i
-Organization: ELTE Eotvos Lorand University of Sciences, Budapest, Hungary
-X-GPG-KeyID: 1024D/EE4C26E8 2000-03-20
-X-GPG-Fingerprint: D402 4AF3 7488 165B CC34  4147 7F0C D922 EE4C 26E8
-X-PGP-KeyID: 1024/45F83E45 1998/04/04
-X-PGP-Fingerprint: 26 87 63 4B 07 28 1F AD  6D AA B5 8A D6 03 0F BF
-X-Comment: Personal opinion.  Paragraphs might have been reformatted.
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Accept-Language: hu,en
+	id <S292829AbSCRLE3>; Mon, 18 Mar 2002 06:04:29 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:7684 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S292599AbSCRLEX>;
+	Mon, 18 Mar 2002 06:04:23 -0500
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15509.51214.495427.580341@argo.ozlabs.ibm.com>
+Date: Mon, 18 Mar 2002 21:57:18 +1100 (EST)
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH] zlib double-free bug
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Recently CERT published an advisory, warning about a bug in zlib where
+a chunk of memory could get freed twice, depending on the data being
+decompressed, which could potentially give a way to attack a system
+using zlib.  The reference is
 
-My Intel Celeron 333 MMX hangs upon boot if MCE is enabled (kernel
-2.4.19pre3).  /proc/cpuinfo follows:
+	http://www.cert.org/advisories/CA-2002-07.html
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 6
-model name      : Celeron (Mendocino)
-stepping        : 0
-cpu MHz         : 333.466
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips        : 665.19
+All 3 of the versions of zlib in the current 2.4 kernel have this bug.
+The version in 2.5 doesn't because it handles memory allocation in a
+different way.
 
-Are there any issues I missed?
+The patch below fixes this bug in each of the three copies of zlib.c,
+in the same way that it is fixed in the zlib-1.1.4 release (basically
+by making sure that s->sub.trees.blens is always freed whenever, and
+only when, s->mode is changed from BTREE or DTREE to some other value).
 
-Peter
+In the longer term I recommend that the 2.5.x changes to use a single
+copy of zlib in lib/zlib_{deflate,inflate} should be back-ported to
+2.4.  For now, this patch should be applied to 2.4.x since the bug is
+a potential security hole if you are using PPP with Deflate
+compression.
 
--- 
-    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
- Kelemen Péter     /       \       /       \       /      fuji@elte.hu
-.+'         `+...+'         `+...+'         `+...+'         `+...+'
+The patch also raises the minimum value of `windowBits' for
+compression from 8 to 9, since using windowBits==8 causes memory
+corruption (this was discovered by James Carlson, see
+http://playground.sun.com/~carlsonj/ for details).  Current versions
+of pppd avoid using windowBits==8 for this reason, but it is better to
+have zlib protect itself as well.
+
+Paul.
+
+diff -urN linux-2.4.19-pre3/arch/ppc/boot/lib/zlib.c pmac/arch/ppc/boot/lib/zlib.c
+--- linux-2.4.19-pre3/arch/ppc/boot/lib/zlib.c	Mon Mar 18 13:34:47 2002
++++ pmac/arch/ppc/boot/lib/zlib.c	Mon Mar 18 21:15:55 2002
+@@ -928,7 +928,10 @@
+       {
+         r = t;
+         if (r == Z_DATA_ERROR)
++	{
++          ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+           s->mode = BADB;
++	}
+         LEAVE
+       }
+       s->sub.trees.index = 0;
+@@ -964,6 +967,7 @@
+           if (i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) ||
+               (c == 16 && i < 1))
+           {
++            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+             s->mode = BADB;
+             z->msg = "invalid bit length repeat";
+             r = Z_DATA_ERROR;
+@@ -991,7 +995,10 @@
+         if (t != Z_OK)
+         {
+           if (t == (uInt)Z_DATA_ERROR)
++	  {
++            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+             s->mode = BADB;
++	  }
+           r = t;
+           LEAVE
+         }
+@@ -1003,11 +1010,11 @@
+           r = Z_MEM_ERROR;
+           LEAVE
+         }
+-        ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+         s->sub.decode.codes = c;
+         s->sub.decode.tl = tl;
+         s->sub.decode.td = td;
+       }
++      ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+       s->mode = CODES;
+     case CODES:
+       UPDATE
+diff -urN linux-2.4.19-pre3/drivers/net/zlib.c pmac/drivers/net/zlib.c
+--- linux-2.4.19-pre3/drivers/net/zlib.c	Sat Apr 28 23:02:45 2001
++++ pmac/drivers/net/zlib.c	Mon Mar 18 12:12:17 2002
+@@ -14,7 +14,7 @@
+  */
+ 
+ /* 
+- *  ==FILEVERSION 971210==
++ *  ==FILEVERSION 20020318==
+  *
+  * This marker is used by the Linux installation script to determine
+  * whether an up-to-date version of this file is already installed.
+@@ -772,7 +772,7 @@
+         windowBits = -windowBits;
+     }
+     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
+-        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
++        windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
+ 	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
+         return Z_STREAM_ERROR;
+     }
+@@ -3860,10 +3860,12 @@
+                              &s->sub.trees.tb, z);
+       if (t != Z_OK)
+       {
+-        ZFREE(z, s->sub.trees.blens);
+         r = t;
+         if (r == Z_DATA_ERROR)
++	{
++	  ZFREE(z, s->sub.trees.blens);
+           s->mode = BADB;
++	}
+         LEAVE
+       }
+       s->sub.trees.index = 0;
+@@ -3928,11 +3930,13 @@
+ #endif
+         t = inflate_trees_dynamic(257 + (t & 0x1f), 1 + ((t >> 5) & 0x1f),
+                                   s->sub.trees.blens, &bl, &bd, &tl, &td, z);
+-        ZFREE(z, s->sub.trees.blens);
+         if (t != Z_OK)
+         {
+           if (t == (uInt)Z_DATA_ERROR)
++	  {
++	    ZFREE(z, s->sub.trees.blens);
+             s->mode = BADB;
++	  }
+           r = t;
+           LEAVE
+         }
+@@ -3949,6 +3953,7 @@
+         s->sub.decode.tl = tl;
+         s->sub.decode.td = td;
+       }
++      ZFREE(z, s->sub.trees.blens);
+       s->mode = CODES;
+     case CODES:
+       UPDATE
+diff -urN linux-2.4.19-pre3/fs/jffs2/zlib.c pmac/fs/jffs2/zlib.c
+--- linux-2.4.19-pre3/fs/jffs2/zlib.c	Mon Sep 24 09:31:33 2001
++++ pmac/fs/jffs2/zlib.c	Mon Mar 18 21:16:32 2002
+@@ -14,7 +14,7 @@
+  */
+ 
+ /* 
+- *  ==FILEVERSION 971210==
++ *  ==FILEVERSION 20020318==
+  *
+  * This marker is used by the Linux installation script to determine
+  * whether an up-to-date version of this file is already installed.
+@@ -772,7 +772,7 @@
+         windowBits = -windowBits;
+     }
+     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
+-        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
++        windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
+ 	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
+         return Z_STREAM_ERROR;
+     }
+@@ -3860,10 +3860,12 @@
+                              &s->sub.trees.tb, z);
+       if (t != Z_OK)
+       {
+-        ZFREE(z, s->sub.trees.blens);
+         r = t;
+         if (r == Z_DATA_ERROR)
++	{
++	  ZFREE(z, s->sub.trees.blens);
+           s->mode = BADB;
++	}
+         LEAVE
+       }
+       s->sub.trees.index = 0;
+@@ -3928,11 +3930,13 @@
+ #endif
+         t = inflate_trees_dynamic(257 + (t & 0x1f), 1 + ((t >> 5) & 0x1f),
+                                   s->sub.trees.blens, &bl, &bd, &tl, &td, z);
+-        ZFREE(z, s->sub.trees.blens);
+         if (t != Z_OK)
+         {
+           if (t == (uInt)Z_DATA_ERROR)
++	  {
++	    ZFREE(z, s->sub.trees.blens);
+             s->mode = BADB;
++	  }
+           r = t;
+           LEAVE
+         }
+@@ -3949,6 +3953,7 @@
+         s->sub.decode.tl = tl;
+         s->sub.decode.td = td;
+       }
++      ZFREE(z, s->sub.trees.blens);
+       s->mode = CODES;
+     case CODES:
+       UPDATE

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270800AbRHSVZE>; Sun, 19 Aug 2001 17:25:04 -0400
+	id <S270798AbRHSVfH>; Sun, 19 Aug 2001 17:35:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270799AbRHSVYy>; Sun, 19 Aug 2001 17:24:54 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:43791 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S270798AbRHSVYr>; Sun, 19 Aug 2001 17:24:47 -0400
-Date: Sun, 19 Aug 2001 17:24:48 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: Otto Wyss <otto.wyss@bluewin.ch>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Why don't have bits the same rights as humans! (flushing to disk
- waiting  time)
-In-Reply-To: <3B802B68.ADA545DB@bluewin.ch>
-Message-ID: <Pine.LNX.4.33.0108191723420.4118-100000@terbidium.openservices.net>
+	id <S270799AbRHSVe5>; Sun, 19 Aug 2001 17:34:57 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:55267 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S270798AbRHSVei>;
+	Sun, 19 Aug 2001 17:34:38 -0400
+Date: Sun, 19 Aug 2001 22:34:49 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: lists@sapience.com, Robert Love <rml@tech9.net>
+Cc: Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+Message-ID: <479225540.998260489@[169.254.45.213]>
+In-Reply-To: <20010819104345.A11696@sapience.com>
+In-Reply-To: <20010819104345.A11696@sapience.com>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Aug 2001, Otto Wyss wrote:
+Gene,
 
-> I recently wrote some small files to the floppy disk and noticed almost nothing
-> happened immediately but after a certain time the floppy actually started
-> writing. So this action took more than 30 seconds instead just a few. This
-> remembered me of the elevator problem in the kernel. To transfer this example
-> into real live: A person who wants to take the elevator has to wait 8 hours
-> before the elevator even starts. While probably everyone agrees this is
-> ridiculous in real live astonishingly nobody complains about it in case of a disk.
+>  Perhaps the patch does this already, but if there are concerns about
+>  pollution from the nasty outside is it possible to add a flag to /proc
+>  to turn this on/off by interface - that way it could easily be limited
+>  to only get influenced by the inside network rather than the outside.
 
-I've found that unmounting the floppy disk flushes it immediately. What
-happens in your case if you unmount it?
+No it doesn't do this, but:
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+Because it looks at inter-IRQ timing, the risk is mainly (as per
+previous posting) the theoretical risk of being able to determine
+that inter-IRQ timing from observation of the network(s) connected.
+So an attacker sending packets at known intervals on one network
+when interleaved with packets arriving at unknown intervals on
+another network will not do them much good. Equally observations
+made on packet timings on one network will be useless if those
+packets are interleaved with packets arriving on another network.
+As per previous posting, there is a theoretical risk, (magnitude
+dependent upon environment) - hence the config option - but rather
+smaller than the risk (say) if you are using a radio mouse & keyboard.
 
-
+--
+Alex Bligh

@@ -1,111 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUK2L0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUK2L0C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbUK2L0j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 06:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUK2L0j
+	id S261677AbUK2L0C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 06:26:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUK2L0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 06:26:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:11938 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261681AbUK2L0L (ORCPT
+	Mon, 29 Nov 2004 06:26:02 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48105 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261677AbUK2LZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 06:26:11 -0500
-Date: Mon, 29 Nov 2004 12:24:23 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041129112423.GA10386@elte.hu>
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu>
+	Mon, 29 Nov 2004 06:25:09 -0500
+Date: Mon, 29 Nov 2004 06:24:26 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, mingo@elte.hu,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, ahu@ds9a.nl, drepper@redhat.com
+Subject: Re: Futex queue_me/get_user ordering
+Message-ID: <20041129112426.GO10340@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20041113164048.2f31a8dd.akpm@osdl.org> <20041114090023.GA478@mail.shareable.org> <20041114010943.3d56985a.akpm@osdl.org> <20041114092308.GA4389@mail.shareable.org> <4197FF42.9070706@jp.fujitsu.com> <20041115020148.GA17979@mail.shareable.org> <41981D4D.9030505@jp.fujitsu.com> <20041115132218.GB25502@mail.shareable.org> <20041117084703.GL10340@devserv.devel.redhat.com> <20041126170649.GA8188@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041129111634.GB10123@elte.hu>
+In-Reply-To: <20041126170649.GA8188@mail.shareable.org>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 26, 2004 at 05:06:49PM +0000, Jamie Lokier wrote:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Let's start with the questions:
 
-> --- ./drivers/alsa/alsa_driver.c.orig	2004-11-26 14:11:26.000000000 +0100
-> +++ ./drivers/alsa/alsa_driver.c	2004-11-26 14:24:41.000000000 +0100
+> A few questions:
+> 
+>       1. Why are total_seq and so on 64 bit quantities?
+> 
+>          The comparison problem on overflow is solvable by changing
+>          (total_seq > wakeup_seq) to (int32_t) (total_seq -
+>          wakeup_seq) > 0, just like the kernel does with jiffies.
+> 
+>          If you imagine the number of waiters to exceed 2^31, you have
+>          bigger problems, because:
+> 
+>       2. futex is 32 bits and can overflow.  If a waiter blocks, then
+>          a waker is called 2^32 times in succession before the waiter
+>          can schedule again, the waiter will remain blocked after the
+>          waker returns.
+> 
+>          This is unlikely, except where it's done deliberately
+>          (e.g. SIGSTOP/CONT), and it's a bug and it only needs two
+>          threads!  It could perhaps be used for denial of service.
 
-i think the one below is a better approach - it will only trace events
-that the ALSA driver has reported to be an xrun. I.e. the full latency
-path from the point where poll() is called, up to the point where jackd
-[after the latency has occured] considers it an xrun worth
-counting/reporting. The tracing restarts at every poll(), so only the 
-latency is captured. If you up your tracebuffer to 40K+ entries then i'd 
-suggest to use the following trace settings:
+The only problem with the 32-bit overflow is if you get scheduled
+away in between releasing the CV's internal lock, i.e.
+lll_mutex_unlock (cond->__data.__lock);
+and
+        if (get_user(curval, (int __user *)uaddr) != 0) {
+in kernel and don't get scheduled again for enough time to reach
+this place within 2^31 pthread_cond_{*wait,signal,broadcast} calls.
+There are no things on the userland side that would block and
+in kernel the only place you can block is down_read on mm's mmap_sem
+(but if the writer lock is held that long, other pthread_cond_*
+calls couldn't get in either) or the short term spinlocks on the hash
+bucket.  SIGSTOP/SIGCONT affect the whole process, so unless you are
+talking about process shared condvars, these signals aren't going to help
+you in exploiting it.
 
- echo 0 > /proc/asound/card0/pcm0p/xrun_debug
+But, once you get past that point, current NPTL doesn't care if 2^31 or
+more other cv calls happen, it uses the 64-bit vars to determine what to
+do and they are big enough that overflows on them are just assumed not to
+happen.  And only past that point the thread is blocked in longer-term
+waiting.
 
- echo 1 > /proc/sys/kernel/trace_user_triggered
- echo 0 > /proc/sys/kernel/trace_freerunning
- echo 0 > /proc/sys/kernel/preempt_max_latency
- echo 0 > /proc/sys/kernel/preempt_thresh
- echo 0 > /proc/sys/kernel/preempt_wakeup_timing
+>       3. Why is futex incremented in pthread_cond_wait?
+>          I don't see the reason for it.
 
-i.e. dont use trace_freerunning - this will give much easier to parse
-traces.
+See
+https://www.redhat.com/archives/phil-list/2004-May/msg00023.html
+https://www.redhat.com/archives/phil-list/2004-May/msg00022.html
 
-a suggestion wrt. the format of the .trc files: it would be nice if you
-could dump the PIDs of all relevant tasks into it too, to make it easier
-to identify who causes what latency. Ideally it would be useful to 
-have a more symbolic trace - i.e. instead of:
+__data.__futex increases in pthread_cond_{signal,broadcast} are so that
+pthread_cond_*wait detects pthread_cond_{signal,broadcast} that happened
+in between releasing of internal cv lock in the *wait and being queued
+on the futex's wait queue.  __data.__futex increases in pthread_cond_*wait
+are so that FUTEX_CMP_REQUEUE in pthread_cond_broadcast detects
+pthread_cond_*wait that happened in between releasing the internal
+lock in *broadcast and test in FUTEX_CMP_REQUEUE.
 
- 3570 00000000 254981.991ms (+0.000ms): up (ext3_orphan_del)
+>       4. In pthread_cond_broadcast, why is the mutex_unlock(lock)
+>          dropped before calling FUTEX_CMP_REQUEUE?  Wouldn't it be
+>          better to drop the lock just after, in which case
+>          FUTEX_REQUEUE would be fine?
+> 
+>          pthread_cond_signal has no problem with holding the lock
+>          across FUTEX_WAKE, and I do not see any reason why that would
+>          be different for pthread_cond_broadcast.
 
-it would be:
+Holding the internal lock over requeue kills performance of broadcast,
+if you hold the internal lock over the requeue, all the threads you
+wake up will block on the internal lock anyway.
 
- jackd-3570 00000000 254981.991ms (+0.000ms): up (ext3_orphan_del)
-
-but this is easier done in the kernel - some of the tasks involved in a
-latency might be long gone by the time you detect the xrun.
-
-	Ingo
-
---- ./drivers/alsa/alsa_driver.c.orig	2004-11-26 14:11:26.000000000 +0100
-+++ ./drivers/alsa/alsa_driver.c	2004-11-26 15:31:37.000000000 +0100
-@@ -1077,13 +1077,16 @@ alsa_driver_xrun_recovery (alsa_driver_t
- 	    && driver->process_count > XRUN_REPORT_DELAY) {
- 		struct timeval now, diff, tstamp;
- 		driver->xrun_count++;
-+		gettimeofday(0,0);
- 		gettimeofday(&now, 0);
- 		snd_pcm_status_get_trigger_tstamp(status, &tstamp);
- 		timersub(&now, &tstamp, &diff);
- 		*delayed_usecs = diff.tv_sec * 1000000.0 + diff.tv_usec;
-+#if 0
- 		fprintf(stderr, "\n\n**** alsa_pcm: xrun of at least %.3f "
- 			"msecs\n\n",
- 			*delayed_usecs / 1000.0);
-+#endif
- 	}
- 
- 	if (alsa_driver_stop (driver) ||
-@@ -1185,6 +1188,7 @@ alsa_driver_wait (alsa_driver_t *driver,
- 			nfds++;
- 		}
- 
-+		gettimeofday(0,1);
- 		poll_enter = jack_get_microseconds ();
- 
- 		if (poll (driver->pfd, nfds, driver->poll_timeout) < 0) {
+	Jakub

@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264339AbUBFMD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 07:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUBFMD0
+	id S264463AbUBFMSx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 07:18:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUBFMSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 07:03:26 -0500
-Received: from main.gmane.org ([80.91.224.249]:19927 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264339AbUBFMDH (ORCPT
+	Fri, 6 Feb 2004 07:18:53 -0500
+Received: from ns.suse.de ([195.135.220.2]:21987 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264463AbUBFMSu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 07:03:07 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Juergen Stuber <stuber@loria.fr>
-Subject: Re: usb mouse/keyboard problems under 2.6.2
-Date: Fri, 06 Feb 2004 13:02:44 +0100
-Message-ID: <86u124a00r.fsf@loria.fr>
-References: <20040204174748.GA27554@yggdrasil.localdomain> <20040205142155.GA606@ucw.cz>
- <20040205160226.GA13471@yggdrasil.localdomain>
- <20040205230304.GA2195@yggdrasil.localdomain>
- <20040206011531.GA2084@yggdrasil.localdomain>
+	Fri, 6 Feb 2004 07:18:50 -0500
+Date: Fri, 6 Feb 2004 13:16:39 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       piggy@timesys.com, trini@kernel.crashing.org, george@mvista.com
+Subject: Re: kgdb support in vanilla 2.6.2
+Message-Id: <20040206131639.74dd87cf.ak@suse.de>
+In-Reply-To: <200402061728.36989.amitkale@emsyssoft.com>
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
+	<200402052320.04393.amitkale@emsyssoft.com>
+	<20040206032054.3fd7db8d.ak@suse.de>
+	<200402061728.36989.amitkale@emsyssoft.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: berthelemy-1-81-56-4-123.fbx.proxad.net
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/20.7 (gnu/linux)
-Cancel-Lock: sha1:K/S6Un9Nmi1lp3czsx+6lRiV9o4=
-Cc: linux-usb-devel@lists.sourceforge.net,
-       linux-usb-users@lists.sourceforge.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Norris <haphazard@kc.rr.com> writes:
->
-> The problem appears to have been introduced in 2.6.2-rc2.  Can anyone
-> tell me how to find the individual patches which were added between
-> -rc1 and -rc2?  I can diff the trees easily enough, of course, but it
-> would be much easier if I had a collection of discrete patches to work
-> with.
+On Fri, 6 Feb 2004 17:28:36 +0530
+"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
 
-I don't know where to find individual patches, but you can break
-it down a little further with the -rc1-bkN patches in the snapshot
-or snapshot-old subdirectory.
+> On Friday 06 Feb 2004 7:50 am, Andi Kleen wrote:
+> > On Thu, 5 Feb 2004 23:20:04 +0530
+> >
+> > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > > On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
+> > > > Andrew Morton <akpm@osdl.org> writes:
+> > > > > need to take a look at such things and really convice ourselves that
+> > > > > they're worthwhile.  Personally, I'd only be interested in the basic
+> > > > > stub.
+> > > >
+> > > > What I found always extremly ugly in the i386 stub was that it uses
+> > > > magic globals to talk to the page fault handler. For the x86-64
+> > > > version I replaced that by just using __get/__put_user in the memory
+> > > > accesses, which is much cleaner. I would suggest doing that for i386
+> > > > too.
+> > >
+> > > May be I am missing something obvious. When debugging a page fault
+> > > handler if kgdb accesses an swapped-out user page doesn't it deadlock
+> > > when trying to hold mm semaphore?
+> >
+> > Modern i386 kernels don't grab the mm semaphore when the access is >=
+> > TASK_SIZE and the access came from kernel space (actually I see x86-64
+> > still does, but that's a bug, will fix). You could only see a deadlock when
+> > using user addresses and you already hold the mm semaphore for writing
+> > (normal read lock is ok). Just don't do that.
+> 
+> OK. It don't deadlock when kgdb accesses kernel addresses.
+> 
+> When a user space address is accessed through kgdb, won't the kernel attempt 
+> to fault in the user page? We don't want that to happen inside kgdb.
 
+Yes, it will. But I don't think it's a bad thing. If the users doesn't want
+that they should not follow user addresses. After all kgdb is for people
+who know what they are doing.
 
-Jürgen
-
--- 
-Jürgen Stuber <stuber@loria.fr>
-http://www.loria.fr/~stuber/
-
+-Andi

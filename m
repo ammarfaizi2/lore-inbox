@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261223AbSJCMXQ>; Thu, 3 Oct 2002 08:23:16 -0400
+	id <S263251AbSJCMLs>; Thu, 3 Oct 2002 08:11:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261224AbSJCMXQ>; Thu, 3 Oct 2002 08:23:16 -0400
-Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:54403 "EHLO
-	ringstrom.mine.nu") by vger.kernel.org with ESMTP
-	id <S261223AbSJCMXP>; Thu, 3 Oct 2002 08:23:15 -0400
-Date: Thu, 3 Oct 2002 14:28:44 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: tori@boris.prodako.se
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.40: AT keyboard input problem
-In-Reply-To: <20021003141021.A38642@ucw.cz>
-Message-ID: <Pine.LNX.4.44.0210031427260.14274-100000@boris.prodako.se>
+	id <S263258AbSJCMLr>; Thu, 3 Oct 2002 08:11:47 -0400
+Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:22546 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S263251AbSJCMLr>; Thu, 3 Oct 2002 08:11:47 -0400
+Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pr e8)
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A79D1@EXCHANGE>
+To: Ed Vance <EdV@macrolink.com>
+Date: Thu, 3 Oct 2002 14:16:53 +0200 (CEST)
+CC: "'Russell King'" <rmk@arm.linux.org.uk>,
+       Marek Michalkiewicz <marekm@amelek.gda.pl>,
+       linux-kernel@vger.kernel.org, Tim Waugh <twaugh@redhat.com>
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17x4uT-0008Au-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Oct 2002, Vojtech Pavlik wrote:
+> I agree. For 2.4, Stability before elegance. Minimum change is a good thing.
+> The patch looks straight-forward enough, simply plop the file into a
+> directory for which it was never intended. It does localize the effect of
+> the change nicely. 
 
-> On Thu, Oct 03, 2002 at 02:08:26PM +0200, Tobias Ringstrom wrote:
-> > On Thu, 3 Oct 2002, Vojtech Pavlik wrote:
-> > 
-> > > Yes, please try with #I8042_DEBUG_IO enabled, try all the suspicious key
-> > > combinations and add comments to the log file which is which. This will
-> > > allow me to fix it properly.
-> > 
-> > I hope this is enough.  There are more combinations, I'm sure.  I hope 
-> > that it is one bug causing them all, though.
-> 
-> Perfect, thanks.
-> 
-> Are you possible to reproduce it when you use "i8042_direct" on the
-> kernel command line?
+Yes, moving parport_serial looked much simpler to me than moving serial
+to its own directory (the proper solution, done in 2.5).  I hope others
+can also agree to accept this low risk change for 2.4 in the meantime.
 
-No, the problem went away.
+In some sense, parport_serial is not strictly part of neither serial nor
+parport drivers - it is common to (uses the services of) both.
 
-/Tobias
+> I have a question. Similar changes have been suggested several times and
+> always seem to bring out a small hail of rather negative comments. (like
+> "gross hack ..." :) 
+
+Well, the hardware itself is kind of a hack (not a clean design - no
+separate PCI functions for serial and parallel ports; I guess that would
+use a little more silicon and make the chip a few cents more expensive),
+and that's the reason why the parport_serial driver exists at all...
+
+Thanks,
+Marek
 

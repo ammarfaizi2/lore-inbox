@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268724AbUHZMDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268875AbUHZMC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268724AbUHZMDI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 08:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268805AbUHZMA7
+	id S268875AbUHZMC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 08:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268724AbUHZL5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 08:00:59 -0400
-Received: from mail.shareable.org ([81.29.64.88]:1990 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S268745AbUHZMAF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 08:00:05 -0400
-Date: Thu, 26 Aug 2004 12:58:56 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Christer Weinigel <christer@weinigel.se>
-Cc: Spam <spam@tnonline.net>, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826115856.GF30449@mail.shareable.org>
-References: <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <839984491.20040826122025@tnonline.net> <m3llg2m9o0.fsf@zoo.weinigel.se>
+	Thu, 26 Aug 2004 07:57:50 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39911 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S268701AbUHZLzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 07:55:39 -0400
+Date: Tue, 24 Aug 2004 23:49:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Erik Rigtorp <erik@rigtorp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make swsusp produce nicer screen output
+Message-ID: <20040824214929.GA490@openzaurus.ucw.cz>
+References: <20040820152317.GA7118@linux.nu> <20040823174217.GC603@openzaurus.ucw.cz> <20040823200858.GA4593@linux.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3llg2m9o0.fsf@zoo.weinigel.se>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040823200858.GA4593@linux.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christer Weinigel wrote:
-> all applicatons that copy files will fail to copy the streams.  So
-> no working cp command, no nautilus nor konqueror without changes to
-> the application.
+Hi!
 
-No true.  A lot of the fancy stuff depends on metadata which is merely
-another view of the serialised contents in the flat file.  Nautilus &
-Konqueror thumbnails are an example of that (I gave a few more in
-other mails).  cp works fine with that, and so does ftp.  The metadata
-is just recalculated when it's needed from the target file.
+> > Well, it looks nice, be sure to submit smooth version :-).
+> I'm working on it :).
 
-> And if you have to change the applications anyway, isn't it much
-> better to agree on a shared library in userspace that everyone uses?
-> Which has the added bonus that it can be made to work on top of
-> Linux, Windows, Ultrix and VMS?
+> > I'd leave dots here. Its usefull to see if it done something or not.
+> 
+> Well, it will display a spinning thingy that is updated every time
+> shrink_all_memory(10000) returns. Maybe you want to see how much memory was
+> freed?
 
-Ideally yes, a shared library _or_ at least an agreed representation.
+Yes, it is quite important to see how many pages were freed even after
+freeing stopped. "done (1234 pages freed)" would solve it...
 
-However, with filesystem support you can improve performance by
-avoiding unneed serialisation (write to your huge *Office
-presentation, read it from another program, no need to wait for the
-slow tar+compress stage yet it's _as if_ those were done), retain
-computed metadata with coherency guarantees (e.g. real time search
-indexes, crypto digests and such), and let the filesystem decide when
-best to prune computed metadata or convert representations.
+> And do we need to handle the case when nr_copy_pages < 100?
 
-All of these things can work with a combination of userspace plugins
-(not the same as reiser4 plugins), and filesystem support.
+It really should not crash. 100 pages is 4MB. Thats little low but
+seems possible.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-Without the filesystem support, you can still use the userspace
-plugins -- so apps would still be portable -- but you don't get the
-extras mentioned above.
-
--- Jamie

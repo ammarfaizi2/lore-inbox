@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316372AbSFDEsQ>; Tue, 4 Jun 2002 00:48:16 -0400
+	id <S316390AbSFDExw>; Tue, 4 Jun 2002 00:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316390AbSFDEsP>; Tue, 4 Jun 2002 00:48:15 -0400
-Received: from holomorphy.com ([66.224.33.161]:42115 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316372AbSFDEsO>;
-	Tue, 4 Jun 2002 00:48:14 -0400
-Date: Mon, 3 Jun 2002 21:48:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: linux-2.5.20-ct1
-Message-ID: <20020604044808.GF8263@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Thunder from the hill <thunder@ngforever.de>,
-	Lightweight patch manager <patch@luckynet.dynu.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-In-Reply-To: <20020604043724.GB8263@holomorphy.com> <Pine.LNX.4.44.0206032239500.3833-100000@hawkeye.luckynet.adm>
+	id <S316404AbSFDExv>; Tue, 4 Jun 2002 00:53:51 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:48870 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316390AbSFDExu>;
+	Tue, 4 Jun 2002 00:53:50 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available 
+In-Reply-To: Your message of "Mon, 03 Jun 2002 12:35:05 +1000."
+             <27953.1023071705@kao2.melbourne.sgi.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Date: Tue, 04 Jun 2002 14:53:28 +1000
+Message-ID: <11725.1023166408@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jun 2002, William Lee Irwin III wrote:
->> Please discard the atomic update patch altogether; there were enough
->> eyebrows raised that this cannot qualify as a simple cleanup.
+On Mon, 03 Jun 2002 12:35:05 +1000, 
+Keith Owens <kaos@ocs.com.au> wrote:
+>Release 3.0 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+>http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
+>release 3.0.
 
-On Mon, Jun 03, 2002 at 10:41:15PM -0600, Thunder from the hill wrote:
-> Is there something serious to add about them? Is it sure that they won't 
-> work or such? Otherwise I'd suggest just getting them tested.
+New files:
 
-The original patch as posted is incorrect due to a misreading on my
-part of what the flags clearing did. One of the few remotely close
-to correct alternatives follows, but I will not endorse it as a
-candidate for inclusion, but give it only as an illustration of how
-incorrect the originally posted patch was.
+kbuild-2.5-core-16
+  Changes from core-15.
 
+    Override some command line variables to ensure that they are changed.
 
-Cheers,
-Bill
+    Replace -nostdinc with Russell King's version.
 
+    Print full filename in warning message.
 
-===== mm/page_alloc.c 1.63 vs edited =====
---- 1.63/mm/page_alloc.c	Tue May 28 16:57:49 2002
-+++ edited/mm/page_alloc.c	Mon Jun  3 16:27:41 2002
-@@ -111,7 +111,7 @@
- 	if (PageWriteback(page))
- 		BUG();
- 	ClearPageDirty(page);
--	page->flags &= ~(1<<PG_referenced);
-+	__clear_bit(PG_referenced, &page->flags);
- 
- 	if (current->flags & PF_FREE_PAGES)
- 		goto local_freelist;
+    Correct lock filename.
+
+    Correct unmap old db (sparc64 SEGV).
+
+    Tweak dirty flag checking.
+
+kbuild-2.5-common-2.5.20-2.
+  Changes from common-2.5.20-1.
+
+    Correct drivers/acpi/Makefile.in, Arnd Bergmann.
+   
+kbuild-2.5-s390-2.5.20-1.
+kbuild-2.5-s390x-2.5.20-1.
+
+    Arnd Bergmann.
+

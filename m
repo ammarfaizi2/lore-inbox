@@ -1,76 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271394AbTGXAOT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 20:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271395AbTGXAOS
+	id S271396AbTGXAQI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 20:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271398AbTGXAQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 20:14:18 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13587
+	Wed, 23 Jul 2003 20:16:08 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14355
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S271394AbTGXAOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 20:14:17 -0400
-Date: Wed, 23 Jul 2003 17:21:29 -0700 (PDT)
+	id S271396AbTGXAQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 20:16:03 -0400
+Date: Wed, 23 Jul 2003 17:23:22 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: David Schwartz <davids@webmaster.com>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Promise SATA driver GPL'd
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEHPEJAA.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.10.10307231719550.14556-100000@master.linux-ide.org>
+To: dacin <dacin@hotpop.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA driver GPL'd
+In-Reply-To: <3F1F2502.2060306@hotpop.com>
+Message-ID: <Pine.LNX.4.10.10307231722560.14556-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-David,
+Just call me "John Galt"!
 
-I needed the laugh, thanks.
-
-Your one point about free becoming unfree is on task.
-You should have been more brief, but I enjoyed it.
+Thanks for the riddle it was grand!
 
 Andre Hedrick
 LAD Storage Consulting Group
 
-On Wed, 23 Jul 2003, David Schwartz wrote:
+On Thu, 24 Jul 2003, dacin wrote:
 
+> Andre Hedrick wrote:
 > 
-> > Freedom comes from keeping all of it free.
+> >Don't "FEEL" cause I do not give a damn about what people "FEEL".
+> >Don't "SHARE", cause it is usually followed by "FEELINGS".
+> >
+> >I do have an interest in what people "think", and can use for logical
+> >discussion.
+> >
+> >The moment anyone goes to "because I feel" or "just because I", they can
+> >no longer think.
+> >
+>  And this is a thought in itself, umm would like to know, is there 
+> anything that can be expressed
+>  consciousely/un-consciousley without being a thought first. Guess my 
+> thought telling me that I am
+>  guessing that I am thinking about my thoughts driven by this thread for 
+> now :-)
 > 
-> 	All code released publically is free. The more code you release, the more
-> freedom.
+> >If you want to "SHARE" something, how about a "doughnut", but keep your
+> >feelings to yourself and express thoughts.  Thoughts on how to protect and
+> >defend the ideas of the OSC are good.  Your compasion subjected "on" me
+> >refusing to yield to your "feel good" crap, don't need it.  Return to
+> >Sender.
+> >
+> >  
+> >
+>  Hmm share or *satisfication* of the animal ego inside a breed known as 
+> human, who also act clumsy most
+>  of the times.
 > 
-> 	You seem to think that how much freedom you have is based upon what
-> percentage of code is free as opposed to how much free code there is. Nobody
-> can reduce the amount of free code, so nobody can reduce your freedom.
 > 
-> 	No matter how much code I write for which I don't give you the source, the
-> amount of code for which you do have the source is not reduced. The more
-> free code there is, the freer you are. The only thing that threatens your
-> freedom is if someone makes free code unfree. How do they do that?
+> dacodecz
+> ====================================================================================
+> watching the unseen.
 > 
-> 	If I add something and don't make it free, that doesn't reduce your
-> freedom. It only fails to increase it.
-> 
-> > Litigation is a means to prevent the blanket theift of today.
-> > You cleary do not get it.
-> 
-> 	The only thing a person can steal is what they themselves added. So no
-> theft takes any of your freedom away. You are still free, no matter how many
-> things that I produce I fail to give you.
-> 
-> > How do you plan to stop people from making changes to the kernel,
-> > packaging a binary kernel and selling it?
-> 
-> 	Would I be any better off if they didn't make the changes in the first
-> place? How can someone not giving me access to something they produced make
-> me any less free than if those things didn't exist at all?
-> 
-> 	Nobody can take your freedom away just by denying you something that they
-> produced.
-> 
-> 	DS
 > 
 > 
 > -

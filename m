@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbUKQKtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbUKQKwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbUKQKtm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 05:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKQKtl
+	id S262274AbUKQKwR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKQKwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:49:41 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16617 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262269AbUKQKse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:48:34 -0500
-Subject: Re: Slab corruption with 2.6.9 + swsusp2.1
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Ake <Ake.Sandgren@hpc2n.umu.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041117064403.GB26723@hpc2n.umu.se>
-References: <20041116115917.GN4344@hpc2n.umu.se>
-	 <1100635759.4362.4.camel@desktop.cunninghams>
-	 <20041117064403.GB26723@hpc2n.umu.se>
-Content-Type: text/plain
-Message-Id: <1100688279.4040.4.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 17 Nov 2004 21:44:40 +1100
+	Wed, 17 Nov 2004 05:52:17 -0500
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:535 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262274AbUKQKur
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 05:50:47 -0500
+Message-ID: <419B2CFC.7040006@tebibyte.org>
+Date: Wed, 17 Nov 2004 11:50:36 +0100
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: pt-br, pt
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@novell.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       piggin@cyberone.com.au, riel@redhat.com,
+       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+References: <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org> <419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <20041117060648.GA19107@logos.cnet> <20041117060852.GB19107@logos.cnet>
+In-Reply-To: <20041117060852.GB19107@logos.cnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Wed, 2004-11-17 at 17:44, Ake wrote:
-> On Wed, Nov 17, 2004 at 07:09:19AM +1100, Nigel Cunningham wrote:
-> > On Tue, 2004-11-16 at 22:59, Ake wrote:
-> > > I got a slab corruption message running 2.6.9 + swsusp2.1 and
-> > > nvidia_compat.patch + vm-pages_scanned-active_list.patch from -ck3.
-> > 
-> > Just so I'm clear, why do you think it's suspending that's causing the
-> > corruption?
-> 
-> I don't. I was just making clear exactly what kernel source i was using.
+Marcelo Tosatti escreveu:
+> On Wed, Nov 17, 2004 at 04:06:48AM -0200, Marcelo Tosatti wrote:
+> Before the swap token patches went in you remember spurious OOM reports  
+> or things were working fine then?
 
-Oh, okay. I was going off the subject :>
-
-Had you suspended prior to this? If not, you can rule the suspend code
-out. If you had, I wouldn't rule it out because I am trying to identify
-the cause of some occasional slab corruption at the moment. Haven't got
-it reproducible yet.
-
-> It probably haven't got anything to do with the swsusp code, but since
-> those patches are applied i though i better let you know.
-> 
-> The machine was basically doing nothing since i was out for lunch.
-> X was running screensaver and it was playing some mp3's.
+The oom killer problems arose before and independently of the 
+token-based-thrashing patches. I know this because I took a special 
+interest in the tbtc patches too (which is why my test machine came to 
+have 64MB RAM but 1GB swap).
 
 Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+Chris R.

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265801AbRFXXqs>; Sun, 24 Jun 2001 19:46:48 -0400
+	id <S265803AbRFXXu6>; Sun, 24 Jun 2001 19:50:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265802AbRFXXqi>; Sun, 24 Jun 2001 19:46:38 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:9233 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S265801AbRFXXqd>;
-	Sun, 24 Jun 2001 19:46:33 -0400
-Date: Mon, 25 Jun 2001 01:46:21 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: GCC3.0 Produce REALLY slower code!
-In-Reply-To: <Pine.LNX.4.33L.0106241947230.23112-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0106250142070.1314-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265804AbRFXXui>; Sun, 24 Jun 2001 19:50:38 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:57644
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S265803AbRFXXu0>; Sun, 24 Jun 2001 19:50:26 -0400
+Date: Sun, 24 Jun 2001 16:50:24 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: landley@webofficenow.com,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Timur Tabi <ttabi@interactivesi.com>,
+        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Message-ID: <20010624165024.H8832@work.bitmover.com>
+Mail-Followup-To: "J . A . Magallon" <jamagallon@able.es>,
+	landley@webofficenow.com,
+	Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+	Timur Tabi <ttabi@interactivesi.com>,
+	"linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz> <0106220929490F.00692@localhost.localdomain> <20010624234101.A1619@werewolf.able.es> <01062412555901.03436@localhost.localdomain> <20010625003002.A1767@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010625003002.A1767@werewolf.able.es>; from jamagallon@able.es on Mon, Jun 25, 2001 at 12:30:02AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 25, 2001 at 12:30:02AM +0200, J . A . Magallon wrote:
+> They use fork().
+> They port their app to solaris.
+> The performance sucks.
+> It is not Solaris fault.
+> It is linux fast fork() ...
 
-
-On Sun, 24 Jun 2001, Rik van Riel wrote:
-
-> On Mon, 25 Jun 2001, Alexander V. Bilichenko wrote:
->
-> > Some tests that I have recently check out. kernel compiled with
-> > 3.0 (2.4.5) function call: 1000000 iteration. 3% slower than
-> > 2.95. test example - hash table add/remove - 4% slower (compiled
-> > both with -O2 -march=i686).
->
-> > Why have this version been released?
->
-> It would be better to ask that to the GCC people, but I
-> suspect it was released because it was (almost) stable
-> and the only way to do the last small tweaks to the code
-> would be to have it tested in the field ?
->
-Actually I think the just one very good reason to use gcc 3.0 is if you
-are programming using C++. It's a kind of paradise for C++ programmers.
-So I had to install it on my servers used by C++ programmers, they were
-so happy...
-To use C, it's better to avoid gcc 3.0, it's just slower.
-All bench i did, it's slower about 3/5% depending on the kind of code.
-It is faster just on some floating point with really small
-code, (I used optimizzations for athlon CPU).
-
-Luigi
-
-
-
+One for the quotes page, eh?  We're terribly sorry, we'll get busy on adding
+some delay loops in Linux so it too can be slow.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

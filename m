@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269693AbRHNG5f>; Tue, 14 Aug 2001 02:57:35 -0400
+	id <S270472AbRHNHHr>; Tue, 14 Aug 2001 03:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270469AbRHNG5Z>; Tue, 14 Aug 2001 02:57:25 -0400
-Received: from mx2.port.ru ([194.67.57.12]:44549 "EHLO mx2.port.ru")
-	by vger.kernel.org with ESMTP id <S269693AbRHNG5M>;
-	Tue, 14 Aug 2001 02:57:12 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: List of kernel func. in INT80
+	id <S270473AbRHNHHh>; Tue, 14 Aug 2001 03:07:37 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:61843 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S270472AbRHNHH1>; Tue, 14 Aug 2001 03:07:27 -0400
+Date: Tue, 14 Aug 2001 08:07:30 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Rich Baum <richbaum@acm.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] fix 2.4.8 compile errors
+Message-ID: <20010814080730.A23065@flint.arm.linux.org.uk>
+In-Reply-To: <100C620A6B75@coral.indstate.edu>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.30.62]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15WY8e-000Er1-00@f3.mail.ru>
-Date: Tue, 14 Aug 2001 10:57:20 +0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <100C620A6B75@coral.indstate.edu>; from richbaum@acm.org on Mon, Aug 13, 2001 at 09:47:28PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-         Where one can find a place with systematically
-      updated list of mappings of kernel functions
-      to int 80 numbers?
-   thanks in advance...
+On Mon, Aug 13, 2001 at 09:47:28PM -0500, Rich Baum wrote:
+> This patch fixes two compile errors I get when compiling 2.4.8 on my K6-2.  
+> Both of these errors are caused by compiling drivers for other architectures. 
+>  I've changed the Config.in files to keep these options from being selected 
+> on the wrong architecture.
 
----
+Both of these look wrong from the if...fi point of view.  Please ensure
+that all if's you add have a corresponding fi statement.
 
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-cheers,
-
-
-   Samium Gromoff

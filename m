@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264205AbUDRXGM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 19:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264200AbUDRXGM
+	id S264200AbUDRXM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 19:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbUDRXM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 19:06:12 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:49847 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S264205AbUDRXGK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 19:06:10 -0400
-Message-ID: <408309D8.4010601@zytor.com>
-Date: Sun, 18 Apr 2004 16:06:00 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Venkata Ravella <Venkata.Ravella@synopsys.com>
-CC: linux-kernel@vger.kernel.org,
-       Ramki Balasubramanian <Ramki.Balasubramanium@synopsys.com>,
-       ab@californiadigital.com
-Subject: Re: Automount/NFS issues causing executables to appear corrupted
-References: <20040418212346.GA23560@rearview.synopsys.com>
-In-Reply-To: <20040418212346.GA23560@rearview.synopsys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 18 Apr 2004 19:12:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:17820 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264200AbUDRXM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 19:12:26 -0400
+Subject: [PATCH] Fix typo in previous patch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1082329606.13458.7.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 19 Apr 2004 09:06:46 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Venkata Ravella wrote:
-> The current kernel we use is default 7.2 kernel with two modifications:
-> 1) BM patch applied to extend address space for a single process to 3.6GB
-> 2) mnt patch applied to allow upto 1024 nfs mount points
-> 
-> uname -r output:
-> 2.4.7-10mntBMsmp
+This is my brown paper bag day, I sent you the wrong patch for
+fixing the deadlock in rtas.c, here's one to apply on top of current
+bk that fixes build. Sorry.
 
-In other words, you're using an ancient kernel with plenty of known 
-problems, applied two additional patches to it, and are surprised you're 
-having problems?
+===== arch/ppc64/kernel/rtas.c 1.28 vs edited =====
+--- 1.28/arch/ppc64/kernel/rtas.c	Mon Apr 19 02:13:09 2004
++++ edited/arch/ppc64/kernel/rtas.c	Mon Apr 19 09:05:35 2004
+@@ -505,7 +505,7 @@
+ {
+ 	struct rtas_args *rtas_args = &(get_paca()->xRtas);
+ 
+-	local_irq_disable(s);
++	local_irq_disable();
+ 
+ 	rtas_args->token = rtas_token("stop-self");
+ 	BUG_ON(rtas_args->token == RTAS_UNKNOWN_SERVICE);
 
- > Unfortunately, upgrading to a newer kernel is not an option for us at 
- > the moment.
-
-Sucks to be you.
-
-	-hpa
 

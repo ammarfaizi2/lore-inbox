@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293285AbSBXGC5>; Sun, 24 Feb 2002 01:02:57 -0500
+	id <S293289AbSBXG1p>; Sun, 24 Feb 2002 01:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293289AbSBXGCs>; Sun, 24 Feb 2002 01:02:48 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8710 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293285AbSBXGCg>; Sun, 24 Feb 2002 01:02:36 -0500
-Date: Sat, 23 Feb 2002 22:01:06 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flash Back -- kernel 2.1.111
-In-Reply-To: <Pine.LNX.4.10.10202232136560.5715-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.33.0202232152200.26469-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293290AbSBXG1f>; Sun, 24 Feb 2002 01:27:35 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:30468 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S293289AbSBXG1S>;
+	Sun, 24 Feb 2002 01:27:18 -0500
+Date: Sat, 23 Feb 2002 22:21:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Dan Hopper <ku4nf@austin.rr.com>, Patrick Mochel <mochel@osdl.org>,
+        Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+        lkml <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
+Message-ID: <20020224062124.GB15060@kroah.com>
+In-Reply-To: <fa.n7cofbv.1him3j@ifi.uio.no> <fa.dsb79pv.on84ii@ifi.uio.no> <20020224025411.GA2418@yoda.dummynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020224025411.GA2418@yoda.dummynet>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 27 Jan 2002 04:03:06 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 23, 2002 at 08:54:11PM -0600, Dan Hopper wrote:
+> 
+> I wonder if anyone might look at doing the same sort of fix to
+> the 2.4.18 working tree?  I experience the same sort of behavior
+> with usb-uhci on my KT266A board (VT82C586B USB) on 2.4.18-rc1 (and
+> previous 2.4.x kernels, too).  I'd do it myself, but the patch from
+> Patrick on inode.c makes me too nervous to do it, since I have
+> no experience with the filesystem drivers.
 
-On Sat, 23 Feb 2002, Andre Hedrick wrote:
->
-> Lets both grow up!
+These patches will not apply for the 2.4 tree, even if you tried :)
 
-I repeat, as I did in a private to-you-only email before: every _single_
-complain you have had about the patches I've seen has been 100% bogus.
+What problems are you having with 2.4.18-rc1 and previous?  Any oops
+messages?
 
-The patch was called "IDE cleanup", and cleanup it was. Nothing but. The
-timings didn't change, although the stupid (twice duplicated) functions
-that "calculated" them were removed and replaces with one boot-time
-calculation.
+thanks,
 
-Martin not only had "cleanup" in the subject line, but actually explained
-all the changes, including the timing change. The comments at the top of
-the patch mail said (on that particular change, which seems to have been
-your favourite target), typos and all:
-
-	3. Replace the functionally totally equal system_bus_block() and
-	    ide_system_bus_speed() functions with one simple global
-	    variable: system_bus_speed. This saves quite a significatn amount of
-	    code. Unfortunately this is the part, which is makeing this
-	    patch to appear bigger then it really is...
-
-and the patch itself certainly agrees with what Martin claimed.
-
-Your ranting, both on linux-kernel and on the IRC channels, has been
-totally bogus, as if you didn't read either the explanation _or_ the
-actual patch itself. And pointing this out multiple times doesn't seem to
-have made any difference.
-
-		Linus
-
+greg k-h

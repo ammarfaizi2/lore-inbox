@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbTLXWPs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 17:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263922AbTLXWPs
+	id S263963AbTLXWW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 17:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbTLXWW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 17:15:48 -0500
-Received: from ns.suse.de ([195.135.220.2]:50339 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263918AbTLXWPq (ORCPT
+	Wed, 24 Dec 2003 17:22:58 -0500
+Received: from falka.mfa.kfki.hu ([148.6.72.6]:37509 "EHLO falka.mfa.kfki.hu")
+	by vger.kernel.org with ESMTP id S263963AbTLXWW5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 17:15:46 -0500
-To: Nikita Danilov <Nikita@Namesys.COM>
+	Wed, 24 Dec 2003 17:22:57 -0500
+Date: Wed, 24 Dec 2003 23:22:17 +0100
+From: Gergely Tamas <dice@mfa.kfki.hu>
+To: Keith Lea <keith@cs.oswego.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiser4 breaks vmware
-References: <1072202167.8127.15.camel@localhost.suse.lists.linux.kernel>
-	<3FE8B765.6000907@vgertech.com.suse.lists.linux.kernel>
-	<16361.18888.602000.438746@laputa.namesys.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 24 Dec 2003 23:15:45 +0100
-In-Reply-To: <16361.18888.602000.438746@laputa.namesys.com.suse.lists.linux.kernel>
-Message-ID: <p73pted2772.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Subject: Re: 2.6.0-test11 data loss
+Message-ID: <20031224222217.GA3408@mfa.kfki.hu>
+References: <3FEA0C3C.9090601@cs.oswego.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FEA0C3C.9090601@cs.oswego.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov <Nikita@Namesys.COM> writes:
+Hi,
 
-> Exactly. I included it into core.diff by mistake.
-> Revert it: http://www.namesys.com/snapshots/2003.12.23/broken-out/do_mmap2-fix.diff.patch
+I've been hit by the same problem but using 2.6.0 . As you described,
+garbage in files (eg. /etc/modules.conf, ...).
 
-There seem to be some other unnecessary patches in there, like
-init_fixmap_vma.diff.patch. I cannot imagine why a file system should
-need to change that. Same with spinlock-owner.diff.patch. Is that
-really needed? If yes porting it to all architectures will be a lot of
-work.
+2.6.0, Slackware 9.1
 
-I would suggest separating your debug patches, like page-owner.diff.patch
+ > The corruption happened on two separate partitions on a single IDE 
+ > laptop drive, and both were ReiserFS 3.6 partitions. I don't know if 
+ > this is a kernel bug or a Reiser bug or something else, but I thought 
 
-And your webserver is misconfigured: I thinks READ.ME is a troff
-document.
+I don't think this is a reiserfs bug. This was my first thought and
+after first hitting this bug, I've moved all my partitions from reiserfs
+to jfs. But I've also had this problem with it... Now I'm back to
+2.4.23, and everything works fine.
 
-The other changes look reasonable, although a lot of the EXPORT_SYMBOLs
-should be probably EXPORT_SYMBOL_GPL and carry some more comments about
-their purpose.
-
--Andi
+Gergely

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269759AbUJALSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269760AbUJALaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269759AbUJALSE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 07:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJALSE
+	id S269760AbUJALaF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 07:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJALaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 07:18:04 -0400
-Received: from [61.17.31.10] ([61.17.31.10]:9147 "HELO mail.kongu.edu")
-	by vger.kernel.org with SMTP id S269759AbUJALRp (ORCPT
+	Fri, 1 Oct 2004 07:30:05 -0400
+Received: from gprs214-247.eurotel.cz ([160.218.214.247]:640 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S269760AbUJAL3A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 07:17:45 -0400
-Message-ID: <49219.172.16.42.200.1096629426.kourier@172.16.42.200>
-Date: Fri, 1 Oct 2004 16:47:06 +0530 (IST)
-Subject: OS Virtualization
-From: "Arvind Kalyan" <arvy@cse.kongu.edu>
-To: linux-kernel@vger.kernel.org
-User-Agent: Kourier/1.0
-X-Mailer: Kourier/1.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Fri, 1 Oct 2004 07:29:00 -0400
+Date: Fri, 1 Oct 2004 13:28:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, Andrew Morton <akpm@zip.com.au>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp: fix highmem corruption in -rc3
+Message-ID: <20041001112846.GA1489@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi!
 
-I'm trying to load and run two linux kernels simultaneously; trying to
-demonstrate virtualization as a first step.
+-rc3 swsusp breaks badly with highmem, because patch from -mm is
+missing. Please apply this patch from -mm to vanilla.
 
+Otherwise -rc3 swsusp seems to work here... Quite good result for so
+big merge. Thanks. (But this certainly scared me a lot).
+								Pavel
 
-Anyone have pointers to where I can start? I looked into plex, bochs,
-vmware, usermode linux.. they only simulate an architecture upon which
-another kernel runs.
-
-My intentions are to give control to both the kernels to directly control
-the hardware and do "context switch" between those two based on
-time-slice.
-
-Thanks in advance.
-
+--- clean/kernel/power/swsusp.c	2004-10-01 00:30:32.000000000 +0200
++++ clean-mm/kernel/power/swsusp.c	2004-09-26 01:34:27.000000000 +0200
+@@ -856,7 +860,9 @@
+ 	local_irq_disable();
+ 	save_processor_state();
+ 	error = swsusp_arch_suspend();
++	/* Restore control flow magically appears here */
+ 	restore_processor_state();
++	restore_highmem();
+ 	local_irq_enable();
+ 	return error;
+ }
 -- 
-i=0141;do{putchar(i);i=i&1?(0x10|i&0xf0)|(i&0xf)<<1:i&4?0:i|4;}while(i);
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

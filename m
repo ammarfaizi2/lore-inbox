@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbTKYPYt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 10:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTKYPYt
+	id S262740AbTKYPkI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 10:40:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTKYPkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 10:24:49 -0500
-Received: from hosting-agency.de ([195.69.240.23]:62890 "EHLO mailagency.de")
-	by vger.kernel.org with ESMTP id S262746AbTKYPYq (ORCPT
+	Tue, 25 Nov 2003 10:40:07 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:8639 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id S262740AbTKYPkE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 10:24:46 -0500
-From: Jakob Lell <jlell@JakobLell.de>
-To: Jan Kara <jack@suse.cz>, Jamie Lokier <jamie@shareable.org>
-Subject: Re: hard links create local DoS vulnerability and security problems
-Date: Tue, 25 Nov 2003 16:27:04 +0100
-User-Agent: KMail/1.5.4
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-References: <200311241736.23824.jlell@JakobLell.de> <20031124173527.GA1561@mail.shareable.org> <20031125144847.GA6748@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20031125144847.GA6748@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311251627.04335.jlell@JakobLell.de>
+	Tue, 25 Nov 2003 10:40:04 -0500
+Message-Id: <200311251540.hAPFe2OW014559@sutton.cs.columbia.edu>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Raj <raju@mailandnews.com>
+Subject: Re: Replacing tcp_v4_rcv from a module 
+Cc: linux-kernel@vger.kernel.org
+Reply-To: "Gong Su" <gongsu@cs.columbia.edu>
+X-face: (/hxHkDG"rCsP.`[Mfw5_+#\w[r2Tj4j7nds/Fyg8Op'2V!'f.yPTKv+<wHpyoEQ6m^PcfC
+ O[m-7]U9)F3Uc5F}&\~f1/zpu`7[VkCL=OX%7At0HOfnZ^p.vzLd"\!m&Z7IT?MnE7i&z+oev.Va~n
+ d(whEn#~%D9p8eIvyuP@|!jM5`8lMA-te\"#a%4t_$LFy#%zJkX'THo]l<`dVuNtI%nD{k'_xU0(d+
+ z\u{<nnm#jsxB.{
+In-reply-to: Your message of "Tue, 25 Nov 2003 14:59:18 +0530."
+             <3FC320EE.7010700@mailandnews.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 25 Nov 2003 10:40:02 -0500
+From: Gong Su <gongsu@cs.columbia.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 November 2003 15:48, Jan Kara wrote:
-> > Richard B. Johnson wrote:
-> > > To prevent this, a user can set his default permissions so that
-> > > neither group nor world can read the files. This is usually done
-> > > by setting the attributes in the user's top directory.
-> >
-> > Correct, but the quota problem is genuine: what if I want to create a
-> > lot of files in /home/jamie that are readable by other users, but I
-> > want to be able to delete them at some later time and reuse my quota
-> > for something else?
-> >
-> > This is quite a normal scenario on multi-user systems with quotas.
-> >
-> > You seem to be suggesting that the only method is to have a separate
-> > partition for each user, which is absurd.
->
->   I agree that malicious user can make some user run out of quotas
-> (actually he can do it even by more secret way by just opening the files
-> - but for this at least read permission is needed). But I guess that
-> reasonably capable admin discovers the problem and /bin/nologin as a
-> login shell solves the problem...
-Hello,
-if it's a web server with thousands of users (and maybe millions of files 
-in  /home), searching /home for files belonging to one user can take quite 
-long (maybe hours). 
-If the evil users can't create hard links and thus has to keep the file open 
-instead of creating a hard link, the problem can quickly be found using lsof.
->
-> > Another method is "tree quotas" which have come up on this list
-> > before.  Hopefully they will be included one day; tree quotas seem
-> > like they would solve this problem and some others.
->
->   Yes they would but denying hardlinks across 'quota trees' seems to be
-> the easiest way of making them technically possible and so you end up in
-> a similar situation as with some security patches...
+Thanks Raj. Sorry I forgot to say that I'm doing this on 2.4. Is this a 2.5
+function? I can't find it in the 2.4 source tree.
 
-This would also be a good way to fix the problem.
->
-> 								Honza
+-- 
+/Gong
 
-Regards
-  Jakob
+
+Thus did Raj <raju@mailandnews.com> write:
+*>Gong Su wrote:
+*>
+*>>I need some customized function inside tcp_v4_rcv so I wrote a module to
+*>>replace tcp_protocol->handler with my own function pointer; and currently
+*>>  
+*>>
+*>Try calling synchronize_net() after your modification and see if it helps.
+*>
+*>/Raj
+*>
+
 

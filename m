@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271363AbTGWWtp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 18:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271369AbTGWWtp
+	id S271379AbTGWWyn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 18:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271383AbTGWWyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 18:49:45 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44808 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271363AbTGWWtQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 18:49:16 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [2.6.0-test1] ACPI slowdown
-Date: 23 Jul 2003 22:56:51 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bfn3rj$lql$1@gatekeeper.tmr.com>
-References: <878yqpptez.fsf@deneb.enyo.de>
-X-Trace: gatekeeper.tmr.com 1059001011 22357 192.168.12.62 (23 Jul 2003 22:56:51 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 23 Jul 2003 18:54:43 -0400
+Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:55977 "EHLO
+	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S271379AbTGWWyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 18:54:39 -0400
+Date: Wed, 23 Jul 2003 19:11:35 -0400
+To: bunk@fs.tum.de, reiserfs-list@namesys.com
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [2.6 patch] remove four superfluous BUG's in ReiserFS
+Message-ID: <20030723231135.GA30572@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <878yqpptez.fsf@deneb.enyo.de>,
-Florian Weimer  <fw@deneb.enyo.de> wrote:
-| If I enable ACPI on my box (Athlon XP at 1.6 GHz, Epox EP-8KHa+
-| mainboard), it becomes very slow (so slow that it's unusable).
-| 
-| Is this a known issue?  Maybe the thermal limits are misconfigured,
-| and the CPU clock is throttled unnecessarily (if something like this
-| is supported at all).
 
-There have been reports before, check the archives. I seem to remember
-that the solution involved changing some unobvious kernel feature, but
-others have had similar problems.
+The patch is a cleanup.  It saves 85 bytes on x86.
+
+size hashes.o*
+text    data     bss     dec     hex filename
+1333      16       0    1349     545 hashes.o
+1248      16       0    1264     4f0 hashes.o.new
+
+I tested the patch on uniprocessor x86 on filesystems
+created with:
+
+yes  "y" | mkreiserfs --format 3.6 -h tea /dev/hdc1
+mount -t reiserfs -o defaults,noatime,notail /dev/hdc1 /fs1
+
+The keyed_hash function has 20 less instructions on x86,
+but performance improvement is very small.
+
+The default hash is r5, so in the common case, the patch
+doesn't do anything except save a few bytes.
+
+Time to run "dbench-2.0 32" 4x and "dbench-2.0 64" 5x.
+2.6.0-test1-ac2-r	8560 seconds  (patched)
+2.6.0-test1-ac2-t	8615 seconds
+
+The patched version is about .5% faster.
+
+Oddly, the 3rd dbench 32 run on the unpatched version had 2
+dbench processes that stayed Sleeping.  Killing the
+dbench processes let everything continue.  Because of that
+one skewed run,  I deleted the 3rd dbench time from the
+"seconds" above for both kernels.
+
+bonnie++-1.03a didn't have much different between
+patched and unpatched except for sequential block i/o.
+
+                                 Sequential Output
+                                 ------Block------
+Kernel                     Size  MB/sec  %CPU   Eff
+reiserfs-2.6.0-test1-ac2-r  1024  19.22  75.0 25.63  (patched)
+reiserfs-2.6.0-test1-ac2-t  1024  18.18  70.0 25.97
+
+tiobench-0.3.3 improvement with the patch was also small.
+
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282080AbRLVT3x>; Sat, 22 Dec 2001 14:29:53 -0500
+	id <S282099AbRLVTgX>; Sat, 22 Dec 2001 14:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282099AbRLVT3n>; Sat, 22 Dec 2001 14:29:43 -0500
-Received: from cm61-15-169-117.hkcable.com.hk ([61.15.169.117]:385 "EHLO
-	cm61-15-169-117.hkcable.com.hk") by vger.kernel.org with ESMTP
-	id <S282080AbRLVT32>; Sat, 22 Dec 2001 14:29:28 -0500
-Message-ID: <3C24DE45.5080102@rcn.com.hk>
-Date: Sun, 23 Dec 2001 03:25:57 +0800
-From: David Chow <davidchow@rcn.com.hk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S282129AbRLVTgN>; Sat, 22 Dec 2001 14:36:13 -0500
+Received: from ns.caldera.de ([212.34.180.1]:29655 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S282099AbRLVTgI>;
+	Sat, 22 Dec 2001 14:36:08 -0500
+Date: Sat, 22 Dec 2001 20:36:02 +0100
+From: Christoph Hellwig <hch@caldera.de>
 To: linux-kernel@vger.kernel.org
-Subject: Override file permissions
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] DRM 4.0 support for kernel 2.4.17
+Message-ID: <20011222203602.A15825@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+I've placed a patch to allow optional drm 4.0 support in kernel 2.4.17
+at:
 
-In a case of permission deny on dentry_open(). Is it possible to overide
-that in the kernel?
+ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.17/linux-2.4.17-drm40.patch.bz2
 
-Process context calls remain the same EUID of user space, is there any 
-way to override that in the kernel, since we might have something 
-prviledge to do with. dentry_open() is made in my own file system.
+Please report any fedback to me.  It has been submitted to Marcelo for inclusion
+into 2.4.18.
 
-Thanks.
+	Christoph
 
-David
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

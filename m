@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317215AbSIEHby>; Thu, 5 Sep 2002 03:31:54 -0400
+	id <S317232AbSIEHgO>; Thu, 5 Sep 2002 03:36:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317232AbSIEHby>; Thu, 5 Sep 2002 03:31:54 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:27570 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S317215AbSIEHbx> convert rfc822-to-8bit; Thu, 5 Sep 2002 03:31:53 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH} s390x sys32 duplicated code cleanup (was [PATCH RFC] s390x
- sys32...)
-To: Tim Hockin <thockin@sun.com>
-Cc: Tim Hockin <thockin@sun.com>, linux-390@vm.marist.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF75902446.F2BBB643-ONC1256C2B.00290ED8@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Thu, 5 Sep 2002 09:30:53 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 05/09/2002 09:36:19
+	id <S317253AbSIEHgO>; Thu, 5 Sep 2002 03:36:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56592 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317232AbSIEHgN>;
+	Thu, 5 Sep 2002 03:36:13 -0400
+Message-ID: <3D770D77.BF85645E@zip.com.au>
+Date: Thu, 05 Sep 2002 00:53:27 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+To: Daniel Phillips <phillips@arcor.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Race in shrink_cache
+References: <E17mooe-00064m-00@starship> <E17mqFV-00065Y-00@starship> <3D7702BE.85A5D11D@zip.com.au> <E17mr4K-000660-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> 
+> ...
+> You said something about your lru locking strategy in 2.5.33-mm2.  I have not
+> reverse engineered it yet, would you care to wax poetic?
 
-Hi Tim,
+I'm not sure what you're after here?  Strategy is to make the locks per-zone,
+per-node, to not take them too long, to not take them too frequently, to do
+as much *needed* work as possible for a single acquisition of the lock and
+to not do unnecessary work while holding it - and that includes not servicing
+ethernet interrupts.
 
->Uggh, DaveM pointed out a very good issue with this fix (similar for
->Sparc64) and core files.  Core files will now have truncated uid/gid
->values because fs/binfmt_elf calls NEW_TO_OLD_UID().  May be other
->places, too.
->
->I guess you should not apply this patch until I've had a better think
->about it.
+Not having to bump page counts when moving pages from the LRU into a private
+list would be nice.
 
-Sad but true. And I don't see an easy way around it without changes
-to fs/binfmt_elf.c.
+The strategy for fixing the double-free race is to wait until you
+buy an IDE disk ;)
 
-blue skies,
-   Martin
+The elaborate changelogs are at
 
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
-
+http://linux.bkbits.net:8080/linux-2.5/user=akpm/ChangeSet@-4w?nav=!-|index.html|stats|!+|index.html

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbTAWJpX>; Thu, 23 Jan 2003 04:45:23 -0500
+	id <S265065AbTAWJrl>; Thu, 23 Jan 2003 04:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbTAWJpX>; Thu, 23 Jan 2003 04:45:23 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55046
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S264908AbTAWJpX>; Thu, 23 Jan 2003 04:45:23 -0500
-Date: Thu, 23 Jan 2003 01:49:56 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Valdis.Kletnieks@vt.edu
-cc: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Linux in the News! WooHoo! 
-In-Reply-To: <200301230825.h0N8Pi75029232@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.10.10301230148010.20139-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265092AbTAWJrl>; Thu, 23 Jan 2003 04:47:41 -0500
+Received: from packet.digeo.com ([12.110.80.53]:5276 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265065AbTAWJrk>;
+	Thu, 23 Jan 2003 04:47:40 -0500
+Date: Thu, 23 Jan 2003 01:56:59 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: ch@murgatroid.com, fbecker@intrinsyc.com,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.55-rmk1: user space lossage
+Message-Id: <20030123015659.422e8179.akpm@digeo.com>
+In-Reply-To: <15943.1043315303@passion.cambridge.redhat.com>
+References: <000001c2c287$ffa8eef0$800b040f@bergamot>
+	<15943.1043315303@passion.cambridge.redhat.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Jan 2003 09:56:42.0573 (UTC) FILETIME=[BB40D7D0:01C2C2C5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003 Valdis.Kletnieks@vt.edu wrote:
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> /me blames akpm. :)
 
-> On Thu, 23 Jan 2003 08:01:23 GMT, "Henning P. Schmiedehausen" <hps@intermeta.de>  said:
-> > Valdis.Kletnieks@vt.edu writes:
-> > >It's open sourced.  The rest is left as an exercise for the reader.
-> > <much very correct analysis by Henning elided>
-> > Enough exercising for you?
-> 
-> Yes, I'm fully aware of the size of OpenOffice.  So far I've had at least
-> a dozen people who apparently didn't pick up on the sarcasm without a smiley.
-> 
-> Now to tie it back to another thread - the OpenOffice is just so honking HUGE
-> that a good case could be made that the source tarball is not the preferred
-> form for making modifications, because that sucker *has* to be in an IDE for
-> you to be able to find what it is you wanted to modify. ;)
+Linus did it!
 
-Well last time I checked most things are stored in an IDE (disk);
-regardless of the tools.  I could not let this one slip by.
+diff -puN mm/filemap.c~generic_file_readonly_mmap-fix mm/filemap.c
+--- 25/mm/filemap.c~generic_file_readonly_mmap-fix	2003-01-23 01:55:41.000000000 -0800
++++ 25-akpm/mm/filemap.c	2003-01-23 01:55:45.000000000 -0800
+@@ -1312,7 +1312,6 @@ int generic_file_readonly_mmap(struct fi
+ {
+ 	if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
+ 		return -EINVAL;
+-	vma->vm_flags &= ~VM_MAYWRITE;
+ 	return generic_file_mmap(file, vma);
+ }
+ #else
 
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
+_
 

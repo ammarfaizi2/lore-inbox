@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129890AbQKQIsv>; Fri, 17 Nov 2000 03:48:51 -0500
+	id <S129688AbQKQItV>; Fri, 17 Nov 2000 03:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130026AbQKQIsl>; Fri, 17 Nov 2000 03:48:41 -0500
-Received: from tcbru42.cec.be ([158.169.131.23]:15575 "EHLO tcbru42.cec.be")
-	by vger.kernel.org with ESMTP id <S129890AbQKQIse> convert rfc822-to-8bit;
-	Fri, 17 Nov 2000 03:48:34 -0500
-From: Sebastien.Rigaud@cec.eu.int
-Message-ID: <5D802E6EDA71D411BFA900D0B76DEB1B4403DF@EX2BEL86MBX02>
-To: linux-kernel@vger.kernel.org
-Subject: "unable to handle paging request..."
-Date: Fri, 17 Nov 2000 09:18:10 +0100
+	id <S129349AbQKQItD>; Fri, 17 Nov 2000 03:49:03 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:7684 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130026AbQKQIsz>;
+	Fri, 17 Nov 2000 03:48:55 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14868.59680.687933.68204@wire.cadcamlab.org>
+Date: Fri, 17 Nov 2000 02:15:28 -0600 (CST)
+To: torvalds@transmeta.com
+CC: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
+Subject: test11pre6: incorrect makefile change
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I found that it's possible to submit you error messages and ask for help...
-I've installed Red Hat 6.2 on an AMD300, without problem. Everything
-works fine (Oracle server, Java developments...), but EVERY TIME I
-shut my machine down, I always get the following message, just after
-the line "stopping all md devices":
 
-^ [<c0150c0f>] [<c0111212>] [<c01100dd>] [<..>]
-^ ...
-^ 
-^ Code: <1>Unable to handle kernel paging request at virtual address
-0000872f
-^ Current->tss.cr3 = 069c0000, %cr3 = 069c0000
-^ *pde = 00000000
-^ Oops: 0000
-^ CPU:    0
-^ EIP:    0010:[<c010a481>]
-^ EFLAGS: 00010046
-^ eax: 00000000  ebx: ...  ecx: ..  edx: ..
-^ esi: ..        edi: ...  ebp: ..  esp: ..
-^ ds: 0018  es: 0018  ss: 0018
-^ Process halt (pid: 1019, process nr: 18, stack page = c6507000)
-^ Stacks fee1dead ....
-^        ...
-^ Call Trace: [<c..>] ..
-^ Code: 8a 04 0b 89 44 ..
+This toplevel Makefile change in 11pre6 is wrong:
 
-Most of the figures & hex addresses are the same each time the error occurs 
-(in particular the "virtual address" 0000872f). Then if I do a
-Ctrl-Alt-Delete I see 
-the message "stopping all md devices" again and my PC eventually reboots... 
-If I do not Ctrl-Alt-Del, it stays stalled.
+-	$(HOSTCC) $(HOSTCFLAGS) -o scripts/split-include scripts/split-include.c
++	$(HOSTCC) $(HOSTCFLAGS) -I$(HPATH) -o scripts/split-include scripts/split-include.c
 
-This looks like something very low-level, and it's much too involved to me:
-could
-you please help me perhaps ?? Is it a hardware pb ? Or is the kernel
-instable ?...
+Many people have proposed this patch over the last few years, to kludge
+around having a broken setup.  Basically, split-include.c is a regular
+userspace program so if you can't compile it (without the -I), you
+won't be able to compile the rest of userspace either.
 
-Thanks a lot !!
-Best regards,
-Sébastien
+Either you need the proper kernel directory symlinks in /usr/include/*,
+or you need to make a copy of them like Debian does.
 
+Linus, please revert.  Not only is it conceptually wrong, it will do
+interesting things if you happen to be cross-compiling for another
+architecture.
 
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,99 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVBTSIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVBTS7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVBTSIh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 13:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVBTSHf
+	id S261775AbVBTS7C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 13:59:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVBTS7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 13:07:35 -0500
-Received: from acasun.eckerd.edu ([198.187.211.2]:9097 "EHLO eckerd.edu")
-	by vger.kernel.org with ESMTP id S261744AbVBTSHA (ORCPT
+	Sun, 20 Feb 2005 13:59:02 -0500
+Received: from fire.osdl.org ([65.172.181.4]:8924 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261775AbVBTS7A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 13:07:00 -0500
-Message-ID: <4218D1B7.8090005@spymac.com>
-Date: Sun, 20 Feb 2005 13:06:47 -0500
-From: "Stephen R. Bordeleau" <theanswriz42@spymac.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+	Sun, 20 Feb 2005 13:59:00 -0500
+Message-ID: <4218DB7A.7020101@osdl.org>
+Date: Sun, 20 Feb 2005 10:48:26 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: http://kernel.org down
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms090200030308030309040709"
+To: "Stephen R. Bordeleau" <theanswriz42@spymac.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: http://kernel.org down
+References: <4218D1B7.8090005@spymac.com>
+In-Reply-To: <4218D1B7.8090005@spymac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+Stephen R. Bordeleau wrote:
+> I get time-outs when trying to access kernel.org but the ftp works. Is 
+> this scheduled?
 
---------------ms090200030308030309040709
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+thanks.  should be ok now.
 
-I get time-outs when trying to access kernel.org but the ftp works. Is 
-this scheduled?
-
---------------ms090200030308030309040709
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJATCC
-AtswggJEoAMCAQICAwwdtzANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
-ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
-bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDQwNDEzMDQzNjQyWhcNMDUwNDEzMDQzNjQy
-WjBJMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSYwJAYJKoZIhvcNAQkBFhd0
-aGVhbnN3cml6NDJAc3B5bWFjLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
-AK1F3MqExxJ0fN6+ae4A3N3ExFb+6ljk0nVMSvoHJ/wQ07BZlX1MLQ7He4MbznHB1Pn3Doeh
-wNwHRMizvrnVcBIoUO9Or7O1O9eSrT3SF5spTpVwFSk8P+iqqU77WQhq9aOQ1Lorm7suH07m
-Ey5eyINg6JuSFmJzS8KTsed+ojyMABCwwKM72cxjWofh8kFS+eg0zpiGXI5fnfxVCwPyf6DR
-KfWoFNSgVK5LbfMdrjTSncUosOPkRLHyXkNpI4rlkVaJPOZbeQ1pJOGgP1c96wtU+nPABsow
-0sAUiY5ttsbjQwDmikubETJO3OpfXKZhEdpHmx9drXyskzggjPCAzvsCAwEAAaM0MDIwIgYD
-VR0RBBswGYEXdGhlYW5zd3JpejQyQHNweW1hYy5jb20wDAYDVR0TAQH/BAIwADANBgkqhkiG
-9w0BAQQFAAOBgQB4WiRQuAbujaLqA88jM4AqGMA7fDCTiVPd/p5HK967/ELJ1eQuTVqCzJrj
-5YaTa+EA1o1iy0xxcei1c1VIY4z0q4G7CGK3HnIz2ysRxLSSHWlkuB/QHbtzRJpYmwxL//Iy
-wzmKGgRte9Dnx+VwcyZ32BNBQPxNLuVgror9oz+gsDCCAtswggJEoAMCAQICAwwdtzANBgkq
-hkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
-KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
-Q0EwHhcNMDQwNDEzMDQzNjQyWhcNMDUwNDEzMDQzNjQyWjBJMR8wHQYDVQQDExZUaGF3dGUg
-RnJlZW1haWwgTWVtYmVyMSYwJAYJKoZIhvcNAQkBFhd0aGVhbnN3cml6NDJAc3B5bWFjLmNv
-bTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK1F3MqExxJ0fN6+ae4A3N3ExFb+
-6ljk0nVMSvoHJ/wQ07BZlX1MLQ7He4MbznHB1Pn3DoehwNwHRMizvrnVcBIoUO9Or7O1O9eS
-rT3SF5spTpVwFSk8P+iqqU77WQhq9aOQ1Lorm7suH07mEy5eyINg6JuSFmJzS8KTsed+ojyM
-ABCwwKM72cxjWofh8kFS+eg0zpiGXI5fnfxVCwPyf6DRKfWoFNSgVK5LbfMdrjTSncUosOPk
-RLHyXkNpI4rlkVaJPOZbeQ1pJOGgP1c96wtU+nPABsow0sAUiY5ttsbjQwDmikubETJO3Opf
-XKZhEdpHmx9drXyskzggjPCAzvsCAwEAAaM0MDIwIgYDVR0RBBswGYEXdGhlYW5zd3JpejQy
-QHNweW1hYy5jb20wDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQB4WiRQuAbujaLq
-A88jM4AqGMA7fDCTiVPd/p5HK967/ELJ1eQuTVqCzJrj5YaTa+EA1o1iy0xxcei1c1VIY4z0
-q4G7CGK3HnIz2ysRxLSSHWlkuB/QHbtzRJpYmwxL//IywzmKGgRte9Dnx+VwcyZ32BNBQPxN
-LuVgror9oz+gsDCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYT
-AlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UE
-ChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMg
-RGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqG
-SIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBa
-Fw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRw
-nd/p/6Me7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn
-8R+RNiQqE88r1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJg
-t/sCAwEAAaOBlDCBkTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0
-dHA6Ly9jcmwudGhhd3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1Ud
-DwQEAwIBBjApBgNVHREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJ
-KoZIhvcNAQEFBQADgYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A
-9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH
-1sYITq726jTlEBpbNU1341YheILcIRk13iSx0x1G/11fZU8xggM7MIIDNwIBATBpMGIxCzAJ
-BgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYD
-VQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDB23MAkGBSsOAwIa
-BQCgggGnMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA1MDIy
-MDE4MDY0N1owIwYJKoZIhvcNAQkEMRYEFM87TuNV5JLj1YI1UvVrwu2cLCaqMFIGCSqGSIb3
-DQEJDzFFMEMwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcG
-BSsOAwIHMA0GCCqGSIb3DQMCAgEoMHgGCSsGAQQBgjcQBDFrMGkwYjELMAkGA1UEBhMCWkEx
-JTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0
-ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMMHbcwegYLKoZIhvcNAQkQAgsxa6Bp
-MGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQu
-MSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDB23MA0G
-CSqGSIb3DQEBAQUABIIBAINlxdEf1lR6N5Lq4ZH9pd89UeGjATqqjOmg3/ztMQHyRDdXDgcv
-W2N2kRu5NOYSWrVxkWwhiluql5/l5Y+v5MlNnYYvaTfwKEKl3SgXedZrsCvumvX0wDqJ80gX
-uz1KnMVoP4OEahDWEaHgUGzqpz96Gj98jwi5lC/J7O+gVyu6MFA/tPdRKGzkqzhq9OZ/dNLf
-aE+USj1IKlo26kBmecv/gIXSWLHrXqdw8rCu/Pw7SpTcSaiFWlZRM6Z9rrAOzSTThmRpIiNr
-c7APzY2TKOlTvuvsMZfCfSF7OwFHTDzVGR+JqbbgyyHIvKMnLjNBTw9hvFOgqNFv/kuS/eO1
-DEgAAAAAAAA=
---------------ms090200030308030309040709--
+-- 
+~Randy

@@ -1,83 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbTEBVqA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 17:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTEBVqA
+	id S263184AbTEBVtj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 17:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTEBVtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 17:46:00 -0400
-Received: from mail.gmx.net ([213.165.64.20]:30031 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263182AbTEBVp7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 17:45:59 -0400
-Message-ID: <3EB2E9F7.9000708@gmx.net>
-Date: Fri, 02 May 2003 23:58:15 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: "Javi Pardo (DAKOTA)" <dakota@dakotabcn.net>
-CC: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ataraid-list@redhat.com
-Subject: Re: promise NEITHER IDE PORT ENABLED
-References: <040101c308df$452110f0$3200000a@dakotapiv> <3EA683A8.8040303@gmx.net> <036f01c30ff0$d2197fc0$3200000a@dakotapiv>
-In-Reply-To: <036f01c30ff0$d2197fc0$3200000a@dakotapiv>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 May 2003 17:49:39 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:58512 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S263184AbTEBVti
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 17:49:38 -0400
+Subject: Re: 2.5.68-mm4
+From: Steven Cole <elenstev@mesatop.com>
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <1051912190.14310.2.camel@andyp.pdx.osdl.net>
+References: <20030502020149.1ec3e54f.akpm@digeo.com>
+	 <1051905879.2166.34.camel@spc9.esa.lanl.gov>
+	 <20030502133405.57207c48.akpm@digeo.com>
+	 <1051908541.2166.40.camel@spc9.esa.lanl.gov>
+	 <20030502140508.02d13449.akpm@digeo.com>
+	 <1051910420.2166.55.camel@spc9.esa.lanl.gov>
+	 <1051912190.14310.2.camel@andyp.pdx.osdl.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051912828.2163.60.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 02 May 2003 16:00:29 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre, Alan,
-
-could you please take a look at this? I thought the IDE code in
-2.4.21-rc1 is able to force enable the ports of a promise controller.
-
-Javi Pardo (DAKOTA) wrote:
+On Fri, 2003-05-02 at 15:49, Andy Pfiffer wrote:
+> > > > > I found that e100 failed to bring up the
+> > > > > interface on restart ("failed selftest"), but eepro100 was OK.
 > 
-> i am probed with the kernel 2.4.21-rc1 and the result is... NEITHER IDE..  
-> my Motheboard is Tyan Tiger 200T wit Dual processor and promise integrated and only works with the original kernel of RH 8
+> > Here is a snippet from dmesg output for a successful kexec e100 boot:
 > 
->Carl-Daniel Hailfinger wrote:
-> 
->>Javi Pardo (DAKOTA) wrote:
->>
->>>Hello
->>>I am Installed RH 8 with standard kernel 2.4.18
->>>i am downloaded the kernel 2.4.20 from kernel.org and i am problem with Promise 
->>
->>Could you please test 2.4.21-rc1? It has newer IDE and could help.
->>
->>
->>>PDC20267: Neither ide ports enabled in bios
->>>
->>>the motheboard is the tyan Tiger200T, this model have promise ATA100 inside
->>>
->>>i am selected this options in the kernel
->>
->>The options look good, but 2.4.20 has some Promise IDE flaws which could
->>cause your problem.
->>
->>
->>>CONFIG_BLK_DEV_PDC202XX=y
->>># CONFIG_PDC202XX_BURST is not set
->>>CONFIG_PDC202XX_FORCE=y
->>>CONFIG_BLK_DEV_VIA82CXXX=y
->>># CONFIG_IDE_CHIPSETS is not set
->>>CONFIG_IDEDMA_AUTO=y
->>># CONFIG_IDEDMA_IVB is not set
->>># CONFIG_DMA_NONPCI is not set
->>>CONFIG_BLK_DEV_IDE_MODES=y
->>>CONFIG_BLK_DEV_ATARAID=y
->>>CONFIG_BLK_DEV_ATARAID_PDC=y
->>># CONFIG_BLK_DEV_ATARAID_HPT is not set
->>>
->>>I need help, i am read this list and the option CONFIG_PDC202XX_FORCE=y is the solution, but no work.. why?
->>
->>Please try 2.4.21-rc1 and report back to this list.
->>
+> Any chance we could get lspci output from both of these systems?
 
-Thanks,
-Carl-Daniel
+Sure.  I posted that initially.  See this:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105190618322919&w=2
+
+Steven
+
 

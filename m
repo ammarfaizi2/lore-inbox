@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVBPBzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVBPB7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbVBPBzr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 20:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVBPBzr
+	id S261970AbVBPB7k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 20:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVBPB7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 20:55:47 -0500
-Received: from news.cistron.nl ([62.216.30.38]:53644 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261969AbVBPBz3 (ORCPT
+	Tue, 15 Feb 2005 20:59:38 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10144 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261970AbVBPB71 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 20:55:29 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
- release)
-Date: Wed, 16 Feb 2005 01:54:51 +0000 (UTC)
-Organization: Cistron
-Message-ID: <cuu95b$b5q$1@news.cistron.nl>
-References: <20050211004033.GA26624@suse.de> <4211B8FC.8000600@aitel.hist.no> <1108459982.438.9.camel@tara.firmix.at> <4211F706.4030104@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1108518891 11450 194.109.0.112 (16 Feb 2005 01:54:51 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Tue, 15 Feb 2005 20:59:27 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Date: Tue, 15 Feb 2005 17:57:58 -0800
+User-Agent: KMail/1.7.2
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200502151557.06049.jbarnes@sgi.com> <1108515632.13394.59.camel@gaston> <9e473391050215170874051b29@mail.gmail.com>
+In-Reply-To: <9e473391050215170874051b29@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502151757.58731.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <4211F706.4030104@aitel.hist.no>,
-Helge Hafting  <helge.hafting@aitel.hist.no> wrote:
->Bernd Petrovitsch wrote:
->>This would be a win (especially if the numbers are tweked to tune this)
->>with a relatively small effort.
->>However for real dependencies and parallelism you want the info similar
->>to creat a Makefile from it (i.e. the explicit dependency from service X
->>to service Y). As a consequence you can get rid of the numbers (since
->>they are not needed any more).
->>
->Now that is a really good idea.  Init could simply run "make -j init2" to
->enter runlevel 2.  A suitable makefile would list all dependencies, and
->of course the targets needed for "init2", "init3" and so on.
+On Tuesday, February 15, 2005 5:08 pm, Jon Smirl wrote:
+> There is a new io resource flag as part of the pci rom code,
+> IORESOURCE_ROM_SHADOW, that is used on x86. If IORESOURCE_ROM_SHADOW
+> is set, you should ignore the physical ROM and use the copy at C000:0.
+> Can we build an equivalent flag for PPC? On x86 arch specific code
+> determines the boot video device and sets the flag.
+>
+> Acutally, if radeon and rage fb drivers were using the PCI ROM support
+> (drivers/pci/rom.c) would they be having this problem? The 55AA check
+> is in the PCI ROM support too.
 
-It's not too hard to script it using 'tsort', either.
+They're using it, they just do additional checks.
 
-The hard part is getting all the dependencies of the scripts right.
-And once you've done that, to _keep_ them right.
-
-Now how do you implement that on a Debian system that is package-wise
-somewhere between potato and sarge ... (yes, I've encountered those).
-
-Solveable, not trivial.
-
-Mike.
-
+Jesse

@@ -1,68 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbSL3A6k>; Sun, 29 Dec 2002 19:58:40 -0500
+	id <S264944AbSL3A7X>; Sun, 29 Dec 2002 19:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265806AbSL3A6k>; Sun, 29 Dec 2002 19:58:40 -0500
-Received: from packet.digeo.com ([12.110.80.53]:21240 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265798AbSL3A6j>;
-	Sun, 29 Dec 2002 19:58:39 -0500
-Message-ID: <3E0F9C2E.9652D11A@digeo.com>
-Date: Sun, 29 Dec 2002 17:06:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: khromy <khromy@lnuxlab.ath.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S264976AbSL3A7X>; Sun, 29 Dec 2002 19:59:23 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25984
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264944AbSL3A7U>; Sun, 29 Dec 2002 19:59:20 -0500
 Subject: Re: 2.5.53-mm3: xmms: page allocation failure. order:5, mode:0x20
-References: <3E0F5E2C.70F7D112@digeo.com> <1041211946.1474.31.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: khromy <khromy@lnuxlab.ath.cx>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021230012045.GA25428@lnuxlab.ath.cx>
+References: <20021229202610.GA24554@lnuxlab.ath.cx>
+	<3E0F5E2C.70F7D112@digeo.com>
+	<1041211946.1474.31.camel@irongate.swansea.linux.org.uk> 
+	<20021230012045.GA25428@lnuxlab.ath.cx>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Dec 2002 01:06:55.0511 (UTC) FILETIME=[BEC61A70:01C2AF9F]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Dec 2002 01:49:02 +0000
+Message-Id: <1041212942.1172.40.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Mon, 2002-12-30 at 01:20, khromy wrote:
+> > DMA RAM around. All the sound works this way because few bits of sound
+> > hardware, even in the PCI world, support scatter gather.
 > 
-> On Sun, 2002-12-29 at 20:42, Andrew Morton wrote:
-> > gack.  Someone is requesting 128k of memory with GFP_ATOMIC.  It fell
-> > afoul of the reduced memory reserves.  It deserved to.
+> This is a PCI sound card.
 > 
-> ISA sound I/O. And yes it really does want the 128K if it can get it on
-> a slower box. It will try 128/64/32/.. so it gets less if there isnt any
-> DMA RAM around. All the sound works this way because few bits of sound
-> hardware, even in the PCI world, support scatter gather.
-> 
-> If the VM can't deal with it - we need to fix the VM.
+>   Bus  0, device  11, function  0:
+>       Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 2).
 
-It'll tend to usually work because GFP_KERNEL allocations prefer to
-not dip into the DMA region.
+And doesn't support scatter gather either so does the same thing.
 
-> All these allocations are blocking and can wait a long time.
-
-But it's not!  dma_alloc_coherent() is using GFP_ATOMIC|__GFP_DMA.
-
-Now, if we can fix the caller to use
-
-	__GFP_WAIT | __GFP_IO | __GFP_HIGHIO | __GFP_FS | __GFP_DMA
-
-then that at least will allow page reclaim.
-
-Then we can remove this restriction in __alloc_pages():
-
-        /*
-         * Don't let big-order allocations loop.  Yield for kswapd, try again.
-         */
-        if (order <= 3) {
-                yield();
-                goto rebalance;
-        }
-
-and all will be well.
-
-dma_alloc_coherent() should be fixed to take a gfp_mask, and callers
-should be updated.
-
-As for permitting direct page reclaim for higher-order allocations: I
-just don't know - it's from before my time.  Perhaps the VM will livelock.

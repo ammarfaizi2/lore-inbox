@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276937AbRJCSQs>; Wed, 3 Oct 2001 14:16:48 -0400
+	id <S276938AbRJCSZs>; Wed, 3 Oct 2001 14:25:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276936AbRJCSQi>; Wed, 3 Oct 2001 14:16:38 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57384 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S276938AbRJCSQd>; Wed, 3 Oct 2001 14:16:33 -0400
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: viro@math.psu.edu, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-In-Reply-To: <200110031249.HAA50103@tomcat.admin.navo.hpc.mil>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Oct 2001 12:06:21 -0600
-In-Reply-To: <200110031249.HAA50103@tomcat.admin.navo.hpc.mil>
-Message-ID: <m1r8sk1tuq.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S276936AbRJCSZj>; Wed, 3 Oct 2001 14:25:39 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:265 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S276840AbRJCSZd>;
+	Wed, 3 Oct 2001 14:25:33 -0400
+Date: Wed, 3 Oct 2001 20:23:39 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <200110031811.f93IBoN10026@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0110032011300.10924-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> writes:
 
-> Alexander Viro <viro@math.psu.edu>:
-> > On Tue, 2 Oct 2001, Rob Landley wrote:
-> > 
-> > > Anybody want to venture an opinion why overwriting executable files that are
-> 
-> > > currently in use gives you a "text file busy" error, but overwriting shared
-> 
-> > > libraries that are in use apparently works just fine (modulo a core dump if
-> 
-> > > you aren't subtle about your run-time patching)?
-> > > 
-> > > Permissions are still enforced, but it seems to me somebody who cracks root
-> 
-> > > on a system could potentially modify the behavior of important system
-> daemons
-> 
-> > > without changing their process ID numbers.
-> > > 
-> > > Did I miss something somewhere?
-> > 
-> > Somebody who cracks root can attach gdb to a daemon, modify the contents of
-> > its text segment and detach.  No need to change any files...
-> 
-> True, but the original problem still appears to be a bug.
-> 
-> Even the owner of the file should not be able to write to a busy executable,
-> whether it is a shared library, or an executable image. Remove it, yes.
-> Create a new one (in a different inode) -  yes.
-> 
-> But not modify a busy executable.
+On Wed, 3 Oct 2001, Linus Torvalds wrote:
 
-Have ld-linux.so set the MAP_DENYWRITE bit when it is mapping
-the library.
+> Now test it again with the disk interrupt being shared with the
+> network card.
+>
+> Doesn't happen? It sure does. [...]
 
-Eric
+yes, disk IRQs might be delayed in that case. Without this mechanizm there
+is a lockup.
+
+> Which is why I like the NAPI approach.  If somebody overloads my
+> network card, my USB camera doesn't stop working.
+
+i agree that NAPI is a better approach. And IRQ overload does not happen
+on cards that have hardware-based irq mitigation support already. (and i
+should note that those cards will likely perform even faster with NAPI.)
+
+> I don't disagree with your patch as a last resort when all else fails,
+> but I _do_ disagree with it as a network load limiter.
+
+okay - i removed those parts already (kpolld) in today's patch. (It
+initially was an experiment to prove that this is the only problem we are
+facing under such loads.)
+
+	Ingo
+

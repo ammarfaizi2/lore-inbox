@@ -1,68 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265023AbTFLWHj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbTFLWHj
+	id S264835AbTFLWN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264848AbTFLWN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:07:39 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:4107 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S265023AbTFLWHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:07:35 -0400
-Date: Fri, 13 Jun 2003 00:23:38 +0200
-From: Jerome Chantelauze <jerome.chantelauze@finix.eu.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+	Thu, 12 Jun 2003 18:13:57 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:60900 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264835AbTFLWNy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:13:54 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Steven Dake <sdake@mvista.com>
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+Date: Fri, 13 Jun 2003 00:27:09 +0200
+User-Agent: KMail/1.5.1
+References: <3EE8D038.7090600@mvista.com>
+In-Reply-To: <3EE8D038.7090600@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc8
-Message-ID: <20030612222338.GC25637@i486X33>
-References: <Pine.LNX.4.55L.0306101845460.30401@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0306101845460.30401@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200306130027.09288.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 07:06:15PM -0300, Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes -rc8. If nothing really bad happens in 2 days, this becomes
-> final.
 
-Hi,
+> If it works for you or doesn't or you like the idea or don't, I've love
+> to hear about it
 
--rc8 with "Old hard disk (MFM/RLL/IDE) driver" still doesn't build.
++	default:
++		result = -EINVAL;
++		break;
++	}
++	return (result);
 
-Does it mean that the old ide driver will not be available anymore and
-that 2.4.21 will not run on some older computers ? 
+Must return ENOTTY.
 
-Using the new driver will not help on some older computers. I gave it a
-try, and at least one of my computers have serious timing problems with
-the new (enhanced) ide driver.
++static int sdeq_open (struct inode *inode, struct file *file)
++{
++	MOD_INC_USE_COUNT;
++
++	return 0;
++}
++
++static int sdeq_release (struct inode *inode, struct file *file)
++{
++	MOD_DEC_USE_COUNT;
++
++	return (0);
++}
 
-I try again to send a (trivial) patch to fix this. Please, Marcello,
-consider including it. Anyway, it can't break anything.
+Wrong. release does not map to close()
 
-If you reject it, please give me a chance to improve it, and tell me
-why.
 
----------
-*** drivers/ide/Makefile.orig   Thu Jun 12 23:37:49 2003
---- drivers/ide/Makefile        Thu Jun 12 23:40:15 2003
-***************
-*** 54,59 ****
---- 54,60 ----
-    obj-y               += arm/idedriver-arm.o
-  else
-    ifeq ($(CONFIG_BLK_DEV_HD_ONLY),y)
-+       subdir-$(CONFIG_BLK_DEV_HD_ONLY) += legacy
-        obj-y   += legacy/idedriver-legacy.o
-    endif
-  endif
----------
+Aside from that, what exactly are you trying to do?
+You are not solving the fundamental device node reuse race,
+yet you are making necessary a further demon.
+You are not addressing queue limits. The current hotplug
+scheme does so, admittedly crudely by failing to spawn
+a task, but considering the small numbers of events in
+question here, for the time being we can live with that.
 
-Regards.
---
-Jerome Chantelauze
+You can just as well add load control and error detection
+to the current scheme. You fail to do so in your scheme.
+You cannot queue events forever in unlimited numbers.
+
+As for ordering, this is a real problem, but not fundamental.
+You can make user space locking work. IMHO it will not be
+pretty if done with shell scripts, but it can work.
+There _is_ a basic problem with the kernel 'overtaking'
+user space in its view of the device tree, but you cannot solve
+that _at_ _all_ in user space.
+
+In short, if you feel that the hotplug scheme is inadequate
+for your needs, then write industry strength devfs2.
+
+	Regards
+		Oliver
+

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315517AbSE2Urt>; Wed, 29 May 2002 16:47:49 -0400
+	id <S315487AbSE2UuH>; Wed, 29 May 2002 16:50:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSE2Urs>; Wed, 29 May 2002 16:47:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:530 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315491AbSE2Urp>; Wed, 29 May 2002 16:47:45 -0400
-Date: Wed, 29 May 2002 21:47:39 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Linux 2.5.19
-Message-ID: <20020529214739.F30585@flint.arm.linux.org.uk>
-In-Reply-To: <20020529211702.E30585@flint.arm.linux.org.uk> <Pine.LNX.4.10.10205291331500.19493-100000@www.transvirtual.com>
+	id <S315503AbSE2UuG>; Wed, 29 May 2002 16:50:06 -0400
+Received: from stingr.net ([212.193.32.15]:1459 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S315487AbSE2UuF>;
+	Wed, 29 May 2002 16:50:05 -0400
+Date: Thu, 30 May 2002 00:50:05 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.19 - What's up with the kernel build?
+Message-ID: <20020529205005.GN422@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0205291519270.9971-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 01:44:12PM -0700, James Simmons wrote:
-> > This is completely wrong - the driver has been tested NOT to work on
-> > the Integraphics 1682.  As such, please do uncomment these lines.
+Replying to Kai Germaschewski:
+> There is still quite a bit left to do (in particular improving
+> dependency generation and modversions handling), but I think it makes
+> sense to explain what happened so far.
 > 
-> Due to a error with merging some stuff from a older DJ tree. I fixed it
-> in the fbdev BK repository.
+> There's also some points (marked with >>>) where I'd like to get
+> feedback on how things should be handled in the future.
 
-They haven't *been* in any DJ tree.
+May I ask you just one questin?
+Have you read (yet) kbuild25 ?
 
-> > In addition, I'm disappointed that no one forwarded the patch for
-> > maintainer approval PRIOR to submitting it to Linus.
-> 
-> I'm even more disappointed that some people DONT test my patches especially
-> when I announce them and usually wait about 5 days before pushing them to 
-> Linus. Some of the changes I have done have been sitting around for months
-> in the DJ tree. The good news is that people can now look at skeletonfb.c
-> to see how to port the fbdev drivers to the new api. Of course I have a
-> feeling most will not bother so I will have to do it for them.
+Ahh, no, another one.
+Is this a "signs" of kbuild25 being thrown away like cml2 ?
+If yes, then I am very unhappy person now (c) ac
 
-Why the fuck should I go around finding and testing peoples trees when I
-haven't submitted the stuff to them?  *YOU* shouldn't go around randomly
-pulling stuff from maintainers trees without first asking them why the
-change hasn't been submitted.
+Played with kbuild25 today I migrated 2.4.19-pre8-ac5-s2 to it. Now make -f
+Makefile-2.5 is a preferred way to make here. New system is much cleaner,
+and don't need that mess of makedep and listmultis. But hey, people you
+should already know that whilst you trying to install a couple of new nails
+to rotten construct to help it stay for another couple of time intervals ...
 
-I'm not talking about general maintainence of the cyber2000fb driver here,
-or general "keep it working" type changes.  I'm talking about a blatent
-"take the version from the rmk patch and submit it to Linus without telling
-the maintainer of the code you're buggering with" attitude here.
+:(((
+
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

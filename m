@@ -1,68 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVAMSEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVAMSDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVAMSEX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAMSDs
+	id S261299AbVAMSDY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVAMSBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 13:03:48 -0500
-Received: from colin2.muc.de ([193.149.48.15]:40711 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261382AbVAMSCH (ORCPT
+	Thu, 13 Jan 2005 13:01:33 -0500
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:60053 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261299AbVAMR4t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 13:02:07 -0500
-Date: 13 Jan 2005 19:02:05 +0100
-Date: Thu, 13 Jan 2005 19:02:05 +0100
-From: Andi Kleen <ak@muc.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-Message-ID: <20050113180205.GA17600@muc.de>
-References: <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com> <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au> <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+	Thu, 13 Jan 2005 12:56:49 -0500
+Date: Thu, 13 Jan 2005 12:54:22 -0500
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] include PNP device names in /proc/ioports and debug output
+Message-ID: <20050113175421.GQ6069@neo.rr.com>
+Mail-Followup-To: ambx1@neo.rr.com,
+	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org
+References: <1105487544.31942.70.camel@eeyore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1105487544.31942.70.camel@eeyore>
+User-Agent: Mutt/1.5.6+20040907i
+From: ambx1@neo.rr.com (Adam Belay)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 09:11:29AM -0800, Christoph Lameter wrote:
-> On Wed, 13 Jan 2005, Andi Kleen wrote:
+Looks good.
+
+Thanks,
+Adam
+
+
+On Tue, Jan 11, 2005 at 04:52:24PM -0700, Bjorn Helgaas wrote:
+> Include PNP device names in /proc/ioports and when matching
+> driver with devices.
 > 
-> > Alternatively you can use a lazy load, checking for changes.
-> > (untested)
-> >
-> > pte_t read_pte(volatile pte_t *pte)
-> > {
-> > 	pte_t n;
-> > 	do {
-> > 		n.pte_low = pte->pte_low;
-> > 		rmb();
-> > 		n.pte_high = pte->pte_high;
-> > 		rmb();
-> > 	} while (n.pte_low != pte->pte_low);
-> > 	return pte;
-
-It should be return n; here of course.
-
-> > }
-> >
-> > No atomic operations, I bet it's actually faster than the cmpxchg8.
-> > There is a small risk for livelock, but not much worse than with an
-> > ordinary spinlock.
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 > 
-> Hmm.... This may replace the get of a 64 bit value. But here could still
-> be another process that is setting the pte in a non-atomic way.
-
-The rule in i386/x86-64 is that you cannot set the PTE in a non atomic way
-when its present bit is set (because the hardware could asynchronously 
-change bits in the PTE that would get lost). Atomic way means clearing
-first and then replacing in an atomic operation.
-
-This helps you because you shouldn't be looking at the pte anyways
-when pte_present is false. When it is not false it is always updated
-atomically.
-
--Andi
+> ===== drivers/pnp/driver.c 1.14 vs edited =====
+> --- 1.14/drivers/pnp/driver.c	2003-03-09 16:44:14 -07:00
+> +++ edited/drivers/pnp/driver.c	2005-01-11 14:57:28 -07:00
+> @@ -94,7 +94,7 @@
+>  	pnp_dev = to_pnp_dev(dev);
+>  	pnp_drv = to_pnp_driver(dev->driver);
+>  
+> -	pnp_dbg("match found with the PnP device '%s' and the driver '%s'", dev->bus_id,pnp_drv->name);
+> +	pnp_dbg("match found with the PnP device '%s' (%s) and the driver '%s'", dev->bus_id, pnp_dev->name, pnp_drv->name);
+>  
+>  	error = pnp_device_attach(pnp_dev);
+>  	if (error < 0)
+> ===== drivers/pnp/system.c 1.12 vs edited =====
+> --- 1.12/drivers/pnp/system.c	2004-10-19 10:54:38 -06:00
+> +++ edited/drivers/pnp/system.c	2005-01-11 11:21:49 -07:00
+> @@ -21,18 +21,19 @@
+>  	{	"",			0	}
+>  };
+>  
+> -static void reserve_ioport_range(char *pnpid, int start, int end)
+> +static void reserve_ioport_range(struct pnp_dev *dev, int start, int end)
+>  {
+>  	struct resource *res;
+>  	char *regionid;
+> +	int length = strlen(dev->dev.bus_id) + strlen(dev->name) + 8;
+>  
+> -	regionid = kmalloc(16, GFP_KERNEL);
+> -	if ( regionid == NULL )
+> +	regionid = kmalloc(length, GFP_KERNEL);
+> +	if (regionid == NULL)
+>  		return;
+> -	snprintf(regionid, 16, "pnp %s", pnpid);
+> -	res = request_region(start,end-start+1,regionid);
+> -	if ( res == NULL )
+> -		kfree( regionid );
+> +	snprintf(regionid, length, "pnp %s (%s)", dev->dev.bus_id, dev->name);
+> +	res = request_region(start, end - start + 1, regionid);
+> +	if (res == NULL)
+> +		kfree(regionid);
+>  	else
+>  		res->flags &= ~IORESOURCE_BUSY;
+>  	/*
+> @@ -41,15 +42,15 @@
+>  	 * have double reservations.
+>  	 */
+>  	printk(KERN_INFO
+> -		"pnp: %s: ioport range 0x%x-0x%x %s reserved\n",
+> -		pnpid, start, end,
+> +		"pnp: %s (%s): ioport range 0x%x-0x%x %s reserved\n",
+> +		dev->dev.bus_id, dev->name, start, end,
+>  		NULL != res ? "has been" : "could not be"
+>  	);
+>  
+>  	return;
+>  }
+>  
+> -static void reserve_resources_of_dev( struct pnp_dev *dev )
+> +static void reserve_resources_of_dev(struct pnp_dev *dev)
+>  {
+>  	int i;
+>  
+> @@ -76,7 +77,7 @@
+>  			/* Do nothing */
+>  			continue;
+>  		reserve_ioport_range(
+> -			dev->dev.bus_id,
+> +			dev,
+>  			pnp_port_start(dev, i),
+>  			pnp_port_end(dev, i)
+>  		);
+> 

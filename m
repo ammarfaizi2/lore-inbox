@@ -1,86 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264453AbUAIXh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 18:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbUAIXh0
+	id S264342AbUAIXah (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 18:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUAIXah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 18:37:26 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42710 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264453AbUAIXhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 18:37:23 -0500
-Date: Sat, 10 Jan 2004 00:37:14 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, thomas@winischhofer.net
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
-Subject: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
-Message-ID: <20040109233714.GL1440@fs.tum.de>
-References: <20040109014003.3d925e54.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Jan 2004 18:30:37 -0500
+Received: from pop.gmx.net ([213.165.64.20]:14538 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264342AbUAIXae (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 18:30:34 -0500
+X-Authenticated: #4512188
+Message-ID: <3FFF3998.9010209@gmx.de>
+Date: Sat, 10 Jan 2004 00:30:32 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eric <eric@cisu.net>
+CC: lkml@nitwit.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: The hardware reports a non fatal, correctable incident occured
+ on CPU 0.
+References: <200401091748.10859.lkml@nitwit.de> <200401091712.02802.eric@cisu.net>
+In-Reply-To: <200401091712.02802.eric@cisu.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 01:40:03AM -0800, Andrew Morton wrote:
->...
-> All 393 patches
->...
-> use-soft-float.patch
->   Use -msoft-float
->...
+Eric wrote:
+> On Friday 09 January 2004 10:48 am, lkml@nitwit.de wrote:
+> 
+>>Hi!
+>>
+>>I did have some very scary issues today playing with 2.6. The system was
+>>booted and ran several times today, the longtest uptime was approximately
+>>about an hour.
+>>
+>>But then shortly after having booted 2.6 I got syslog messages:
+>>
+>>The hardware reports a non fatal, correctable incident occured on CPU 0.
+>>
+>>I shut down the machine. After this my Athlon XP 2200+ showed up as 1050MHz
+>>in BIOS an indeed the bus frequency was set to 100 instead of 133 MHz (how
+>>can an OS change the BIOS?!) - nevertheless the CPU should have shown up as
+>>1500MHz. I set it back to 133 MHz - which resulted in the machine did not
+>>even reach the BIOS no more but was rebooting automatically prior to it. I
+>>turned off the machine for some seconds - no change. I turned it off for a
+>>few minutes and the BIOS showed up again - with 1050MHz. So I had to set
+>>the freq back to 133 MHz a second time. I booted my 2.4.21 kernel which
+>>seems to run.
+> 
+> 	Check your hardware CPU/MOBO/RAM. Overheating? Bad Ram? Cheap mobo?
+> MCE should not be triggered under any circumstances unless it is a kernel 
+> bug(RARE, I believe the MCE code is simple) or you REALLY have a hardware 
+> problem. As said before, the bios is resetting your fsb to 100 as a fail-safe 
+> because something bad happened.
+> 	BTW, check your setup, an AMD 2200+ should run at 1.8ghz i believe. If you 
+> are setting your FSB or multiplier too low, that might also be triggering a 
+> problem. A quick google lists amd xp2200+ as 1800mhz
 
-FYI:
+Yes, I would also say that. With my Athlon XP 1700+ (1.466 GHZ, FSB 
+133MHZ) clocked at 2.2GHz (FSB200) I get MCE errors, but at 2.1GHz not, 
+  even though I can't find stability issues at 2.2GHz. Nevertheless I 
+run the system at 2.1GHz.
 
-This causes the following link error:
-
-<--  snip  -->
-
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x55814f): In function `sisfb_do_set_var':
-: undefined reference to `__floatsidf'
-drivers/built-in.o(.text+0x55816d): In function `sisfb_do_set_var':
-: undefined reference to `__divdf3'
-drivers/built-in.o(.text+0x55817a): In function `sisfb_do_set_var':
-: undefined reference to `__floatsidf'
-drivers/built-in.o(.text+0x558196): In function `sisfb_do_set_var':
-: undefined reference to `__divdf3'
-drivers/built-in.o(.text+0x5581a9): In function `sisfb_do_set_var':
-: undefined reference to `__floatsidf'
-drivers/built-in.o(.text+0x5581bf): In function `sisfb_do_set_var':
-: undefined reference to `__divdf3'
-drivers/built-in.o(.text+0x5581cb): In function `sisfb_do_set_var':
-: undefined reference to `__adddf3'
-drivers/built-in.o(.text+0x5581e0): In function `sisfb_do_set_var':
-: undefined reference to `__adddf3'
-drivers/built-in.o(.text+0x5581ea): In function `sisfb_do_set_var':
-: undefined reference to `__fixunsdfsi'
-drivers/built-in.o(.text+0x5584fa): In function `sisfb_do_set_var':
-: undefined reference to `__adddf3'
-drivers/built-in.o(.text+0x558514): In function `sisfb_do_set_var':
-: undefined reference to `__adddf3'
-drivers/built-in.o(.text+0x55852e): In function `sisfb_do_set_var':
-: undefined reference to `__adddf3'
-drivers/built-in.o(.init.text+0x5cde2): In function `sisfb_init':
-: undefined reference to `__floatsidf'
-drivers/built-in.o(.init.text+0x5cdf5): In function `sisfb_init':
-: undefined reference to `__divdf3'
-drivers/built-in.o(.init.text+0x5cdff): In function `sisfb_init':
-: undefined reference to `__fixunsdfsi'
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Prakash

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317922AbSGYAEl>; Wed, 24 Jul 2002 20:04:41 -0400
+	id <S318186AbSGYAJH>; Wed, 24 Jul 2002 20:09:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317994AbSGYAEk>; Wed, 24 Jul 2002 20:04:40 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:43206 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317922AbSGYAEk>;
-	Wed, 24 Jul 2002 20:04:40 -0400
-Date: Wed, 24 Jul 2002 17:07:52 -0700
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.28
-Message-ID: <20020724170752.A14089@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S318200AbSGYAJG>; Wed, 24 Jul 2002 20:09:06 -0400
+Received: from virtmail.zianet.com ([216.234.192.37]:39398 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S318186AbSGYAJF>;
+	Wed, 24 Jul 2002 20:09:05 -0400
+Message-ID: <3D3F446A.1070105@zianet.com>
+Date: Wed, 24 Jul 2002 18:20:58 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020723
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+References: <Pine.GSO.4.21.0207241925450.14656-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi wrote :
-> But, on my UP:
-> 
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.28; fi
-> depmod: *** Unresolved symbols in /lib/modules/2.5.28/kernel/net/irda/irda.o
-> depmod: 	cli
-> depmod: 	restore_flags
-> depmod: 	save_flags
-> 
-> (and no, CONFIG_SMP is not set :)
-> 
-> 
-> Ciao,
-> 
-> --alessandro
+Alexander Viro wrote:
 
-	IrDA is not going to get fixed soon. Over the time I've been
-fixing the IrDA stack, I've slowly fixed some of most dangerous
-locking problems, but fixing the remaining code will involve some
-serious re-work and is unfortunately not just about sprinking a few
-spinlocks there and there.
-	That's life...
+>On Thu, 25 Jul 2002 Andries.Brouwer@cwi.nl wrote:
+>
+>
+>Separate set of patches.  As it is, struct hd_struct is still there and
+>still not modified.  And it has unsigned long.  It will become sector_t.
+>
+>Actually, I'm not all that sure that we want u64 here.  The thing being,
+>start_sect shouldn't be bigger than sector_t (see how it's used).  And
+>64bit arithmetics on 32bit boxen sucks big way.  I'm not too concerned
+>about adding start_sect per se - it's done once per request and it's
+>noise compared to the rest of work.  However, long long for sector_t
+>will hit in a lot of more interesting code paths.
+>
+>That stuff becomes an issue for 2Tb disks.  Do we actually have something
+>that large attached to 32bit boxen?
+>
+I do.  Two 3ware 7850's with 8 160GB hd's on each.  Wanted
+to software strip but I hit the 2TB limit and ended up settling
+with software mirror.  This is on a dual Athlon box.
 
-	Jean
+>
+>... and still use i386 with these disks?  ia64 is stillborn, but x86-64
+>promises to be more useful than Itanic.
+>
+Will be nice when it arrives.
+
+Steve
+
+
+

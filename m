@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319300AbSIEXGh>; Thu, 5 Sep 2002 19:06:37 -0400
+	id <S319307AbSIEXIn>; Thu, 5 Sep 2002 19:08:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319302AbSIEXGg>; Thu, 5 Sep 2002 19:06:36 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:48112
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319300AbSIEXF0>; Thu, 5 Sep 2002 19:05:26 -0400
-Subject: Re: 2.4.20pre5 not booting on numa-q with CONFIG_MULTIQUAD
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: mannthey@us.ibm.com
-Cc: gone@us.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1031265878.3d77de5627864@imap.linux.ibm.com>
-References: <200209052221.g85MLAQ04867@w-gaughen.beaverton.ibm.com> 
-	<1031265878.3d77de5627864@imap.linux.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 06 Sep 2002 00:11:10 +0100
-Message-Id: <1031267470.7834.12.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319308AbSIEXI1>; Thu, 5 Sep 2002 19:08:27 -0400
+Received: from speech.linux-speakup.org ([129.100.109.30]:3781 "EHLO
+	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
+	id <S319307AbSIEXII>; Thu, 5 Sep 2002 19:08:08 -0400
+To: <Hell.Surfers@cwctv.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.xx kernels won't run on my Athlon boxes
+References: <093d71655220592DTVMAIL10@smtp.cwctv.net>
+From: Kirk Reiser <kirk@braille.uwo.ca>
+Date: 05 Sep 2002 19:12:41 -0400
+In-Reply-To: <093d71655220592DTVMAIL10@smtp.cwctv.net>
+Message-ID: <x7ofbct4ie.fsf@speech.braille.uwo.ca>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-05 at 23:44, mannthey@us.ibm.com wrote:
-> diff -urN linux-2.4.19/drivers/pci/pci.c linux-2.4.20-pre5/drivers/pci/pci.c
-> --- linux-2.4.20-pre5/drivers/pci/pci.c      Sat Sep  7 06:29:04 2002
-> +++ linux-2.4.20-pre5-test/drivers/pci/pci.c Sat Sep  7 06:10:26 2002
-> @@ -586,7 +586,7 @@
->                 i + 1, /* PCI BAR # */
->                 pci_resource_len(pdev, i), pci_resource_start(pdev, i),
->                 pdev->slot_name);
-> -       while(--i <= 0)
-> +       while(--i >= 0)
->                 pci_release_region(pdev, i);
-> 
->         return -EBUSY;
+<Hell.Surfers@cwctv.net> writes:
 
-Doh well spotted
 
+> Suppose its either PIO/DMA IDE stuff or your kernel had a flea
+Any suggestion how to isolate a pio/dma problem?
+
+> problem, [irony] because it is itchy [/irony].
+It's certainly acting like a dog.
+
+  Kirk
+
+
+-- 
+
+Kirk Reiser				The Computer Braille Facility
+e-mail: kirk@braille.uwo.ca		University of Western Ontario
+phone: (519) 661-3061

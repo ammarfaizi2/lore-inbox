@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282640AbRLKTHv>; Tue, 11 Dec 2001 14:07:51 -0500
+	id <S282688AbRLKTMb>; Tue, 11 Dec 2001 14:12:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282668AbRLKTHl>; Tue, 11 Dec 2001 14:07:41 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:40354 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S282640AbRLKTH1>; Tue, 11 Dec 2001 14:07:27 -0500
-Date: Tue, 11 Dec 2001 19:07:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Leigh Orf <orf@mailbag.com>
-cc: linux-kernel@vger.kernel.org, Ken Brownfield <brownfld@irridia.com>,
-        Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.4.16 memory badness (reproducible) 
-In-Reply-To: <200112082142.fB8LgAb02089@orp.orf.cx>
-Message-ID: <Pine.LNX.4.21.0112111850090.1164-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282668AbRLKTML>; Tue, 11 Dec 2001 14:12:11 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:30620 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S282525AbRLKTMF>; Tue, 11 Dec 2001 14:12:05 -0500
+Date: Tue, 11 Dec 2001 12:11:58 -0700
+Message-Id: <200112111911.fBBJBw404510@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Devfs and raw devices
+In-Reply-To: <20011211184642.GB1123@dardhal.mired.net>
+In-Reply-To: <1008026021.2388.3.camel@tiger>
+	<20011211184642.GB1123@dardhal.mired.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Dec 2001, Leigh Orf wrote:
+jdomingo@internautas.org writes:
+> On Monday, 10 December 2001, at 18:13:40 -0500,
+> Louis Garcia wrote:
 > 
-> So I don't know if it's a symptom or a cause, but modify_ldt seems to be
-> triggering the problem. Not being a kernel hacker, I leave the analysis
-> of this to those who are.
-> 
-> home[1029]:/home/orf% free
->              total       used       free     shared    buffers     cached
-> Mem:       1029772     967096      62676          0     443988      98312
-> -/+ buffers/cache:     424796     604976
-> Swap:      2064344          0    2064344
-> 
-> modify_ldt(0x1, 0xbffff1fc, 0x10)       = -1 ENOMEM (Cannot allocate memory)
+> > Is their any reason raw devices are not supported by devfs? Is it that no
+> > one has bothered with implementation.
+> > 
+> Somebody sent a patch to support raw devices on devfs a couple of days
+> ago. Search the list archives and it should be there. As far as I know,
+> Richard Gooch hasn't integrated this code into devfs yet.
 
-I believe this error comes, not from a (genuine or mistaken) shortage
-of free memory, but from shortage or fragmentation of vmalloc's virtual
-address space.  Does patch below (to 2.4.17-pre4-aa1 since I think that's
-what you tried last; easily adaptible to other trees) doubling vmalloc's
-address space (on your 1GB machine or larger) make any difference?
-Perhaps there's a vmalloc leak and this will only delay the error.
+Huh? Every time someone has asked about this, I've said "good idea,
+code it up and send a patch to Linus/Marcelo". I don't want to deal
+with pushing this into the kernel, I'm having enough trouble getting
+Linus to apply the current batch of devfs fixes.
 
-Hugh
+As long as I'm in the loop somewhere, just to do a sanity check, I'm
+satisfied. I don't have an overwhelming urge to maintain various devfs
+patches for drivers. Been there, done that :-(
+I'm even willing to sprinkle my own unholy penguin pee on a patch if
+someone thinks (wrongly:-) that it will help get it applied. You can't
+ask for more than that, right? (OK, you can, but you won't get it:-).
 
---- 1704aa1/arch/i386/kernel/setup.c	Tue Dec 11 15:22:53 2001
-+++ linux/arch/i386/kernel/setup.c	Tue Dec 11 19:01:37 2001
-@@ -835,7 +835,7 @@
- /*
-  * 128MB for vmalloc and initrd
-  */
--#define VMALLOC_RESERVE	(unsigned long)(128 << 20)
-+#define VMALLOC_RESERVE	(unsigned long)(256 << 20)
- #define MAXMEM		(unsigned long)(-PAGE_OFFSET-VMALLOC_RESERVE)
- #ifdef CONFIG_HIGHMEM_EMULATION
- #define ORDER_DOWN(x)	((x >> (MAX_ORDER-1)) << (MAX_ORDER-1))
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

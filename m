@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269257AbUJQSVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269261AbUJQSWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269257AbUJQSVI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUJQSVI
+	id S269261AbUJQSWv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269262AbUJQSWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:21:08 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:32012 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269257AbUJQSVB (ORCPT
+	Sun, 17 Oct 2004 14:22:50 -0400
+Received: from holomorphy.com ([207.189.100.168]:20889 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269261AbUJQSWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:21:01 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ucl7RFUs4O9g0n7ijmz6FCXtXLVMMHsfR2aVZiXNrdOCb0g2s5S7t4PnBqMUfg4RvNyqF1GKtNWobQqd8/UvCmxKGgUYExr/CjaNqODVpD64G0yx9Tp+SYh9Qfw3aW8b4LBKvtBDRQgpXHBNFqjaCM2u7+PM1dVKq4YMA2PVojs
-Message-ID: <5d6b657504101711217ec4bc6d@mail.gmail.com>
-Date: Sun, 17 Oct 2004 20:21:00 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041017180629.GO7468@marowsky-bree.de>
+	Sun, 17 Oct 2004 14:22:43 -0400
+Date: Sun, 17 Oct 2004 11:22:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org, luc@saillard.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: rc4-mm1 and pwc-unofficial: kernel BUG and scheduling while atomic
+Message-ID: <20041017182238.GA5607@holomorphy.com>
+References: <20041017073614.GC7395@gamma.logic.tuwien.ac.at> <20041017093018.GY5607@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041016062512.GA17971@mark.mielke.cc>
-	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
-	 <20041017133537.GL7468@marowsky-bree.de>
-	 <5d6b657504101707175aab0fcb@mail.gmail.com>
-	 <20041017150509.GC10280@mark.mielke.cc>
-	 <5d6b65750410170840c80c314@mail.gmail.com>
-	 <Pine.LNX.4.61.0410171921440.2952@dragon.hygekrogen.localhost>
-	 <5d6b65750410171104320bc6a8@mail.gmail.com>
-	 <20041017180629.GO7468@marowsky-bree.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041017093018.GY5607@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Oct 2004 20:06:29 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
-> On 2004-10-17T20:04:21, Buddy Lucas <buddy.lucas@gmail.com> wrote:
-> 
-> > [ snip ]
-> >
-> > Also note the examples that Stevens gives. For instance, he explicitly
-> > checks for EWOULDBLOCK after a read on a nonblocking fd that has been
-> > reported readable by select().
-> 
-> The specs don't disagree with that. On a O_NONBLOCK socket, that is
-> allowed.
+On Sun, Oct 17, 2004 at 09:36:14AM +0200, Norbert Preining wrote:
+>> the module compiled and loaded without problem, but when starting
+>> gnomemeeting I get the following kernel BUG and scheduling while atomic:
 
-I think the specs got to you, man!
+On Sun, Oct 17, 2004 at 02:30:18AM -0700, William Lee Irwin III wrote:
+> You need to right shift the argument by PAGE_SHIFT.
+
+We have handled this further in private email and Norbert now has
+a working port of his driver.
 
 
-Cheers,
-Buddy
+-- wli

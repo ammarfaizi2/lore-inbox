@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288447AbSAQIyd>; Thu, 17 Jan 2002 03:54:33 -0500
+	id <S288411AbSAQJHN>; Thu, 17 Jan 2002 04:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288395AbSAQIyX>; Thu, 17 Jan 2002 03:54:23 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:43511 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S288342AbSAQIyH>; Thu, 17 Jan 2002 03:54:07 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020116204345.A22055@thyrsus.com> 
-In-Reply-To: <20020116204345.A22055@thyrsus.com>  <20020116164758.F12306@thyrsus.com> <esr@thyrsus.com> <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de> <20020116164758.F12306@thyrsus.com> <26592.1011230762@redhat.com> 
-To: esr@thyrsus.com
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 17 Jan 2002 08:53:59 +0000
-Message-ID: <3515.1011257639@redhat.com>
+	id <S288414AbSAQJHD>; Thu, 17 Jan 2002 04:07:03 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:5805 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S288411AbSAQJGp>;
+	Thu, 17 Jan 2002 04:06:45 -0500
+Message-ID: <3C4694D9.1040107@stesmi.com>
+Date: Thu, 17 Jan 2002 10:09:45 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Guillaume Boissiere <boissiere@mediaone.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  January 17, 2001
+In-Reply-To: <3C463337.24593.CD1AD57@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Guillaume Boissiere wrote:
 
-esr@thyrsus.com said:
->  Wha's happened is that I, and others, have merged in a lot of
-> information  about what cards can be plugged into which platforms.
-> That information has been turned into dependency/visibility rules. 
+> I've seen several times on this list people wondering what features
+> were in the works for 2.5 and what the status of the development was.
+> I did some grepping on the archive and put together a list of things 
+> that have been discussed / worked on for 2.5 over the past year or so.  
+> 
+> It's probably pretty incomplete and full of errors at this point but 
+> I'll be happy to update it if you send me email.> o Beta     New IO scheduler                             (Jens Axboe)
 
-> Here are some examples from the network cards... 
 
-Hmmm, yes. I think I see at least two errors in that small selection, if I
-understand it correctly. But as these are obviously behavioural changes, and
-you've said you won't make behavioural changes in the first push of CML2 to
-Linus, we can safely ignore them for now - they're lined up for your second
-wave of patches, right?
 
-This is why the behavioural changes must be separate from the initial
-conversion, btw. They _do_ need separate attention from the gruntwork of
-translating CML1 to CML2.
+> o Beta     Add JFS (Journaling FileSystem from SGI)     (JFS team)
 
---
-dwmw2
+I'm sure IBM will be glad you said their FS was done by SGI :) JFS == 
+IBM's toy, XFS == SGI's toy.
+
+// Stefan
 
 

@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277435AbRKSKkZ>; Mon, 19 Nov 2001 05:40:25 -0500
+	id <S277514AbRKSKmZ>; Mon, 19 Nov 2001 05:42:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277514AbRKSKkQ>; Mon, 19 Nov 2001 05:40:16 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:29670 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S277435AbRKSKkG>; Mon, 19 Nov 2001 05:40:06 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 19 Nov 2001 21:40:14 +1100 (EST)
+	id <S277568AbRKSKmP>; Mon, 19 Nov 2001 05:42:15 -0500
+Received: from [202.54.110.230] ([202.54.110.230]:56334 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id <S277514AbRKSKmC>; Mon, 19 Nov 2001 05:42:02 -0500
+Message-ID: <E04CF3F88ACBD5119EFE00508BBB212174A80B@exch-01.noida.hcltech.com>
+From: Rajiv Malik <rmalik@noida.hcltech.com>
+To: linux-kernel@vger.kernel.org
+Subject: tools for maintainence of LS-120/LS-240(super disk)
+Date: Mon, 19 Nov 2001 16:14:04 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15352.57742.799052.405674@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Devlinks.  Code.  (Dcache abuse?)
-In-Reply-To: message from Alan Cox on Monday November 19
-In-Reply-To: <15352.32969.717938.153375@notabene.cse.unsw.edu.au>
-	<E165lUX-00066W-00@the-village.bc.nu>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday November 19, alan@lxorguk.ukuu.org.uk wrote:
-> > As I understand trademarks, they are granted for a particular context.
-> > There is no conflict between "Dove" as a brand name for soap, "Dove"
-> > as a brand name for chocolate, and "Dove" as used by bird watchers in
-> > their taxonomy.
-> 
-> We have already had a vendor threaten legal action if we didn't change the
-> name of a file system before merging it with the kernel.
-> 
-> Alan
+hi all, 
+linux kernel now provides support for LS-120/LS-240 through its IDE Floppy
+driver.
 
-I think you missed part of my point.
-There are lots of different name spaces in the kernel.
-Filesystem names.  Driver names.  Module names.
+are there any tools available for superdisk(LS-120/LS-240), like we have for
+floppies as such fdutil is one ??
 
-Some of them may well have trademark related issues.
+Regards,
+rajiv.
 
-But the namespace that is the current issue, the namespace of
-currently available devices, is not a namespace where I would expect
-trademarks to ever come up.  It is name space of interfaces and
-instances.
 
-So I hold that "trademark issues" is not a valid reason to avoid
-moving from pure b/c+major+minor names to textual names as the
-preferred names for currently available devices.
 
-NeilBrown
+-----Original Message-----
+From: Linus Torvalds [mailto:torvalds@transmeta.com]
+Sent: Monday, November 19, 2001 7:34 AM
+To: Horst von Brand
+Cc: Andrea Arcangeli; ehrhardt@mathematik.uni-ulm.de;
+linux-kernel@vger.kernel.org
+Subject: Re: VM-related Oops: 2.4.15pre1 
+
+
+
+On Sun, 18 Nov 2001, Horst von Brand wrote:
+> Linus Torvalds <torvalds@transmeta.com> said:
+> > And nope, not really. It does use plain stores to page->flags, and I
+agree
+> > that it is ugly, but if the page was locked before calling it, all the
+> > stores will be with the PG_lock bit set - and even plain stores _are_
+> > documented to be atomic on x86 (and on all other reasonable
+architectures
+> > too).
+>
+> Even unaligned stores?
+
+Actually, even unaligned stores (which page->flags is NOT) are atomic,
+even if Intel strongly discourages them (for performance reasons if no
+others) and there tends to be documentation that doesn't guarantee it.
+
+		Linus
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

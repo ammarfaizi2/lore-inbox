@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265584AbRFVXhR>; Fri, 22 Jun 2001 19:37:17 -0400
+	id <S265586AbRFVXk1>; Fri, 22 Jun 2001 19:40:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265585AbRFVXhH>; Fri, 22 Jun 2001 19:37:07 -0400
-Received: from pat.uio.no ([129.240.130.16]:16787 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S265584AbRFVXgw>;
-	Fri, 22 Jun 2001 19:36:52 -0400
+	id <S265587AbRFVXkR>; Fri, 22 Jun 2001 19:40:17 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:60943 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265586AbRFVXkI>; Fri, 22 Jun 2001 19:40:08 -0400
+Date: Fri, 22 Jun 2001 19:06:21 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Tom Vier <tmv5@home.com>
+Cc: Mike Galbraith <mikeg@wen-online.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac17
+In-Reply-To: <20010622184040.A765@zero>
+Message-ID: <Pine.LNX.4.21.0106221901020.1466-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Message-ID: <15155.54917.265529.994551@charged.uio.no>
-Date: Sat, 23 Jun 2001 01:36:37 +0200
-To: Christian Robottom Reis <kiko@async.com.br>
-Cc: <NFS@lists.sourceforge.net>, <reiserfs-list@namesys.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] NFS Insanity, v2
-In-Reply-To: <Pine.LNX.4.32.0106222013430.183-100000@blackjesus.async.com.br>
-In-Reply-To: <shs66do3ywo.fsf@charged.uio.no>
-	<Pine.LNX.4.32.0106222013430.183-100000@blackjesus.async.com.br>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christian Robottom Reis <kiko@async.com.br> writes:
 
-     > On 23 Jun 2001, Trond Myklebust wrote:
-    >> Is libgkcontents.so in use on the client? If so it's a known
-    >> problem: mmap() screws up the page cache invalidation routine
-    >> invalidate_inode_page(). If you do the untar on the client,
-    >> then all will be fine...
 
-     > Hah! Yeah, you're right; both times it happened because mozilla
-     > was running at the time. I can't have it untarred on the client
-     > because the client isn't on every day. It's a minor nuisance
-     > now that I've understood it.
+On Fri, 22 Jun 2001, Tom Vier wrote:
 
-     > Is there a fix in the works for this?
+> On Fri, Jun 22, 2001 at 09:06:42AM +0200, Mike Galbraith wrote:
+> > It's not actually swapping unless you see IO (si/so).  It's allocating
+> > swap space, but won't send pages out to disk unless there's demand. One
+> 
+> if it's pre-allocation, why does it show up as "used"? 
+> "reserved" would be a better fit.
 
-There are workarounds, but Linus isn't particular happy with
-them. It's therefore unfortunately still work in progress...
+You're right. Its just that nobody fixed the code yet.
+ 
 
-Cheers,
-   Trond
+

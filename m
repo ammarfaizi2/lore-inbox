@@ -1,85 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268483AbTBWPPG>; Sun, 23 Feb 2003 10:15:06 -0500
+	id <S268493AbTBWP3H>; Sun, 23 Feb 2003 10:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268491AbTBWPOp>; Sun, 23 Feb 2003 10:14:45 -0500
-Received: from host106-255.pool62211.interbusiness.it ([62.211.255.106]:54428
-	"EHLO penny.tippete.net") by vger.kernel.org with ESMTP
-	id <S268483AbTBWPOS>; Sun, 23 Feb 2003 10:14:18 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre4-ac5 aic7xxx compile error
-Reply-To: Pierfrancesco Caci <pf@tippete.net>
-From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
-Date: Sun, 23 Feb 2003 16:24:25 +0100
-Message-ID: <87heav9g0m.fsf@penny.ik5pvx.ampr.org>
-User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
-MIME-Version: 1.0
+	id <S268502AbTBWP2q>; Sun, 23 Feb 2003 10:28:46 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:22662 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268492AbTBWP2l>;
+	Sun, 23 Feb 2003 10:28:41 -0500
+Date: Sun, 23 Feb 2003 16:40:02 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ak@suse.de: Re: iosched: impact of streaming read on read-many-files]
+Message-ID: <20030223154002.GG29467@dualathlon.random>
+References: <20030222054307.GA22074@wotan.suse.de> <20030221230716.630934cf.akpm@digeo.com> <20030222145728.L629@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030222145728.L629@nightmaster.csn.tu-chemnitz.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 22, 2003 at 02:57:28PM +0100, Ingo Oeser wrote:
+> On Fri, Feb 21, 2003 at 11:07:16PM -0800, Andrew Morton wrote:
+> > You have not defined "fix".  An IO scheduler which attempts to serve every
+> > request within ten milliseconds is an impossibility.  Attempting to 
+> > achieve it will result in something which seeks all over the place.
+> > 
+> > The best solution is to implement five or ten seconds worth of buffering
+> > in the application and for the kernel to implement a high throughput general
+> > purpose I/O scheduler which does not suffer from starvation.
+> 
+> What about implementing io-requests, which can time out? So if it will
+> not be serviced in time or we know, that it will not be serviced
+> in time, we can skip that.
+> 
+> This can easily be stuffed into the aio-api by cancelling
+> requests, which are older than a specified time. Just attach a
+> jiffie to each request and make a new syscall like io_cancel but
+> with a starting time attached. Or even make it a property of the
+> aio list we are currently handling and use a kernel timer.
+> 
+> That way we could help streaming applications and the kernel
+> itself (by reducing its io-requests) at the same time.
+> 
+> Combined with you buffering suggestion, this will help cases,
+> where the system is under high load and cannot satisfy these
+> applications anyway.
+> 
+> What do you think?
 
-Hello,
+that works only if the congestion cames from multimedia apps that are
+willing to cancel the timed out (now worthless) I/O, that is never the
+case normally due the low I/O load they generate (usually it's apps not
+going to cancel the I/O that congest the blkdev layer).
 
-got this error...
+still, it's a good idea, you're basically asking to implement the cancel
+aio api and I doubt anybody could disagree with that ;).
 
-make[5]: Entering directory `/usr/src/linux-2.4.20/drivers/scsi/aic7xxx'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon   -I.. -nostdinc -iwithprefix include -DKBUILD_BASENAME=aic7xxx_osm  -c -o aic7xxx_osm.o aic7xxx_osm.c
-In file included from aic7xxx_osm.h:269,
-                 from aic7xxx_osm.c:128:
-aic7xxx.h:1300: syntax error before '*' token
-aic7xxx.h:1306: warning: function declaration isn't a prototype
-aic7xxx_osm.c: In function `ahc_linux_fallback':
-aic7xxx_osm.c:3331: `MAX_OFFSET' undeclared (first use in this function)
-aic7xxx_osm.c:3331: (Each undeclared identifier is reported only once
-aic7xxx_osm.c:3331: for each function it appears in.)
-aic7xxx_osm.c: In function `ahc_linux_queue_recovery_cmd':
-aic7xxx_osm.c:4987: `NOT_IDENTIFIED' undeclared (first use in this function)
-make[5]: *** [aic7xxx_osm.o] Error 1
-make[5]: Leaving directory `/usr/src/linux-2.4.20/drivers/scsi/aic7xxx'
-make[4]: *** [first_rule] Error 2
-make[4]: Leaving directory `/usr/src/linux-2.4.20/drivers/scsi/aic7xxx'
-make[3]: *** [_subdir_aic7xxx] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.4.20/drivers/scsi'
-make[2]: *** [_subdir_scsi] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.20/drivers'
-make[1]: *** [_dir_drivers] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.20'
-make: *** [stamp-build] Error 2
-
-
-root@penny:/usr/src/linux # . scripts/ver_linux 
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux penny 2.4.21-pre4-ac1 #1 Sun Feb 2 16:25:57 CET 2003 i686 unknown unknown GNU/Linux
- 
-Gnu C                  3.2.3
-Gnu make               3.80
-util-linux             2.11y
-mount                  2.11y
-modutils               2.4.21
-e2fsprogs              1.32
-jfsutils               1.0.23
-PPP                    2.4.1
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 3.1.6
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               4.5.7
-Modules Loaded         snd-seq-oss snd-seq-midi-event snd-seq snd-pcm-oss snd-mixer-oss snd-via82xx snd-pcm snd-timer snd-mpu401-uart snd-rawmidi snd-seq-device snd-ac97-codec snd soundcore bcm4400 i2c-isa
-
-
-Thanks
-
-Pf
-
-
--- 
-
--------------------------------------------------------------------------------
- Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
-  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
-     Linux penny 2.4.21-pre4-ac1 #1 Sun Feb 2 16:25:57 CET 2003 i686 GNU/Linux
-
+Andrea

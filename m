@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267747AbSLGLT3>; Sat, 7 Dec 2002 06:19:29 -0500
+	id <S267748AbSLGL00>; Sat, 7 Dec 2002 06:26:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267748AbSLGLT3>; Sat, 7 Dec 2002 06:19:29 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32017 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267747AbSLGLT3>; Sat, 7 Dec 2002 06:19:29 -0500
-Date: Sat, 7 Dec 2002 11:26:57 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Gibson <david@gibson.dropbear.id.au>,
-       "Adam J. Richter" <adam@yggdrasil.com>, James.Bottomley@steeleye.com,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org, miles@gnu.org
-Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021207112657.A18207@flint.arm.linux.org.uk>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	"Adam J. Richter" <adam@yggdrasil.com>,
-	James.Bottomley@steeleye.com, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org, miles@gnu.org
-References: <200212060714.XAA06006@adam.yggdrasil.com> <20021207094530.GB22230@zax.zax>
-Mime-Version: 1.0
+	id <S267749AbSLGL00>; Sat, 7 Dec 2002 06:26:26 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:53764 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267748AbSLGL0Z>;
+	Sat, 7 Dec 2002 06:26:25 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212071145.gB7BjTcE000914@darkstar.example.net>
+Subject: Make menuconfig fails on small display in 2.5.50
+To: linux-kernel@vger.kernel.org
+Date: Sat, 7 Dec 2002 11:45:29 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021207094530.GB22230@zax.zax>; from david@gibson.dropbear.id.au on Sat, Dec 07, 2002 at 08:45:30PM +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 07, 2002 at 08:45:30PM +1100, David Gibson wrote:
-> Actually, no, since my idea was to remove the "consistent_alloc()"
-> path from the driver entirely - leaving only the map/sync approach.
-> That gives a result which is correct everywhere (afaict) but (as
-> you've since pointed out) will perform poorly on platforms where the
-> map/sync operations are expensive.
+I just tried to run make menuconfig on 2.5.50, on a serial terminal,
+and it reports:
 
-As I've also pointed out in the past couple of days, doing this will
-mean that you then need to teach the drivers to align structures to
-cache line boundaries.  Otherwise, you _will_ get into a situation
-where you _will_ loose data.
+Your display is too small to run Menuconfig!
+It must be at least 19 lines by 80 columns.
 
-One such illustration of this is the tulip driver, with an array of
-16-byte control/status blocks on a machine with a 32-byte cache line
-size.
+make menuconfig in 2.4.20 works perfectly.
 
-I would rather keep the consistent_alloc() approach for allocating
-consistent memory, and align structures as they see fit, rather than
-having to teach the drivers to align appropriately.  And you can be
-damned sure that driver writers are _not_ going to get the alignment
-right.
+I'm pretty sure I've got the terminal configured correctly - has
+anybody experienced this?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+John

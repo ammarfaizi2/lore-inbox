@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263027AbSJGNVu>; Mon, 7 Oct 2002 09:21:50 -0400
+	id <S263022AbSJGNVW>; Mon, 7 Oct 2002 09:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263024AbSJGNVu>; Mon, 7 Oct 2002 09:21:50 -0400
-Received: from h-64-105-137-52.SNVACAID.covad.net ([64.105.137.52]:13440 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S263027AbSJGNVs>; Mon, 7 Oct 2002 09:21:48 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 7 Oct 2002 06:27:19 -0700
-Message-Id: <200210071327.GAA00711@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.5.40 64GB highmem BUG()
+	id <S263024AbSJGNVW>; Mon, 7 Oct 2002 09:21:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19205 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263022AbSJGNVW>;
+	Mon, 7 Oct 2002 09:21:22 -0400
+Date: Mon, 7 Oct 2002 14:27:00 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: 2.5.40 sane minimum proc count
+Message-ID: <20021007142700.I18545@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Although 2.5.40 has been out for a while, I think I ought
-to post this bug as I haven't seen any other mention of it.
 
-	When I boot an 2.5.40 x86 kernel built with CONFIG_HIGHMEM64G,
-and with a 920kB initial ramdisk (2.2MB uncompressed), I get a kernel
-BUG() at highmem.c line 480, preceded by a message saying "scheduling
-with KM_TYPE 15 held!"  The machine on which I experienced this
-problem has 1.25GB of RAM.  The problem occurs with and without
-CONFIG_PREEMPT.  All kernels that tried were SMP kernels running on a
-uniprocessor.
+        max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
+ 
+- init_task.rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
+- init_task.rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
++ /*
++ * we need to allow at least 10 threads to boot a system
++ */
++ init_task.rlim[RLIMIT_NPROC].rlim_cur = max(10, max_threads/2);
++ init_task.rlim[RLIMIT_NPROC].rlim_max = max(10, max_threads/2);
 
-	The problem does not occur if I build 2.5.40 with
-CONFIG_HIGHMEM4G or CONFIG_NOHIGMEM.  So, it's probably not causing
-problems for many people, but I thought I should report it anyhow.
+why not simply:
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+	max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
+
++	/* we need to allow at least 20 threads to boot a system */
++	if (max_threads < 20)
++		max_threads = 20;
++
+	init_task.rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
+	init_task.rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
+
+i think we're going to see more kernel threads with 2.5 than we did with 2.4;
+let's be safer.
+
+-- 
+Revolutions do not require corporate support.

@@ -1,28 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276255AbRI1Tbu>; Fri, 28 Sep 2001 15:31:50 -0400
+	id <S276260AbRI1ThT>; Fri, 28 Sep 2001 15:37:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276256AbRI1Tbk>; Fri, 28 Sep 2001 15:31:40 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:32523 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S276255AbRI1Tbe>;
-	Fri, 28 Sep 2001 15:31:34 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200109281931.XAA05247@ms2.inr.ac.ru>
-Subject: Re: [patch] softirq-2.4.10-B2
-To: mingo@elte.hu
-Date: Fri, 28 Sep 2001 23:31:48 +0400 (MSK DST)
-Cc: sim@netnation.com, andrea@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109282041390.10458-100000@localhost.localdomain> from "Ingo Molnar" at Sep 28, 1 08:47:26 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S276258AbRI1Tg7>; Fri, 28 Sep 2001 15:36:59 -0400
+Received: from elin.scali.no ([62.70.89.10]:4626 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S276257AbRI1Tg4>;
+	Fri, 28 Sep 2001 15:36:56 -0400
+Message-ID: <3BB4D072.4D3EE56B@scali.no>
+Date: Fri, 28 Sep 2001 21:33:06 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: mm: critical shortage of bounce buffers
+In-Reply-To: <E15n2Rf-0007xv-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Alan Cox wrote:
+> 
+> > I've recently encountered the following message on a machine running RedHat's
+> > 2.4.3-12 kernel :
+> >
+> > "mm: critical shortage of bounce buffers"
+> >
+> > I've searched through the kernel sources, but my 'find' just can't locate this
+> > string anywhere.
+> 
+> Its in the high mem handling routines. It means the machine stalled for
+> a moment doing I/O because it had no memory below 1Gb to use.
 
-> The eepro100 card does not provide such ways 
+But why does it need to have memory below 1Gb ?? Normally, 32bit PCI DMA
+controllers (such as network cards and disk controllers) can access up to 4GB of
+physical memory within the machine, so unless you are using the CONFIG_HIGHMEM4G
+option it shouldn't need bounce buffers. Or am I missing something here
+(something like the second physical GB is actually in the address range
+4GB->)???
 
-It does of course. Only it is not documented.
-Intel's driver does mitigate.
+> 
+> > Why does this message appear (apparently during high network load with the intel
+> > eepro100 driver or e1000 driver). Is bounce buffers really in use on a x86
+> > machine with 2GB of RAM (normal smp RedHat kernel, not enterprise)??
+> 
+> The answer is yes. You can actually build yourself a custom none bounce
+> buffer 1.8GB kernel with about 2Gb of user virtual space per app. For some
+> applications it will perform better.
 
-Alexey
+There's no CONFIG option for that right (like the old CONFIG_2GB option on 2.2
+kernels) ? I'll have to manually go in and edit the header files in asm-i386.
+Would the 2.2 (e.g 2.2.19) kernel have the same problems with bounce buffers or
+is this not implemented on 2.2 ??
+
+Regards,
+-- 
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
+ mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

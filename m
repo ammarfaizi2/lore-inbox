@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTEBPNA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 11:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTEBPM7
+	id S263146AbTEBUbY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 16:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263160AbTEBUbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 11:12:59 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:38289 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262914AbTEBPM6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 11:12:58 -0400
-Date: Fri, 2 May 2003 11:27:30 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Kevin Corry <kevcorry@us.ibm.com>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Bodo Rzany <bodo@rzany.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: is there small mistake in lib/vsprintf.c of kernel 2.4.20 ?
-In-Reply-To: <200305021003.33638.kevcorry@us.ibm.com>
-Message-ID: <Pine.LNX.4.53.0305021116340.9129@chaos>
-References: <20030502090835.GX10374@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.44.0305021131290.493-100000@joel.ro.ibrro.de>
- <20030502095018.GY10374@parcelfarce.linux.theplanet.co.uk>
- <200305021003.33638.kevcorry@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 May 2003 16:31:23 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17036 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id S263146AbTEBUbU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 16:31:20 -0400
+Date: Fri, 2 May 2003 13:43:44 -0700
+From: Bob Miller <rem@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [PATCH 2.5.68] Convert sbc_gxx to remove check_region().
+Message-ID: <20030502204344.GD25713@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 May 2003, Kevin Corry wrote:
+Moved the request_region() call to replace check_region() and adds
+release_region()'s in the error paths that occure before the old
+call to request_region().
 
-> On Friday 02 May 2003 04:50, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > On Fri, May 02, 2003 at 11:42:36AM +0200, Bodo Rzany wrote:
-> > > > IOW, %d _does_ mean base=10.  base=0 is %i.  That goes both for kernel
-> > > > and userland implementations of scanf family (and for any
-> > > > standard-compliant implementation, for that matter).
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
 
-What!??????
-
-The base, in the kernel code is the number that you divide by
-to return the remainder for numerical conversions!  the base
-is 8 or octal, 10 for decimal, 16 for hexadecimal, and up to
-36 for some other strange unused thing (all 26 letters of the
-alphabet).
-
-If your conversion chances the base to 0, you divide by 0 (not
-good) and don't get a remainder. Actually  procedure number()
-protects against a base less than 2 or greater than 36 so you
-just prevent conversion altogether.
-
-
-> > >
-> > > As I can see, 'base=10' is used for all conversions except for '%x' and
-> > > '%o'. If '%i' or '%u' are given, base should be really set to 0, what is
-> > > not the case (it is fixed to 10 instead!).
-> >
-
-No No No!
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+diff -Nru a/drivers/mtd/maps/sbc_gxx.c b/drivers/mtd/maps/sbc_gxx.c
+--- a/drivers/mtd/maps/sbc_gxx.c	Fri May  2 09:52:22 2003
++++ b/drivers/mtd/maps/sbc_gxx.c	Fri May  2 09:52:22 2003
+@@ -240,7 +240,7 @@
+ 
+ int __init init_sbc_gxx(void)
+ {
+-	if (check_region(PAGE_IO,PAGE_IO_SIZE) != 0) {
++	if (!request_region(PAGE_IO,PAGE_IO_SIZE,"SBC-GXx flash")) {
+ 		printk( KERN_ERR"%s: IO ports 0x%x-0x%x in use\n",
+ 			sbc_gxx_map.name,
+ 			PAGE_IO, PAGE_IO+PAGE_IO_SIZE-1 );
+@@ -250,10 +250,9 @@
+ 	if (!iomapadr) {
+ 		printk( KERN_ERR"%s: failed to ioremap memory region\n",
+ 			sbc_gxx_map.name );
++		release_region(PAGE_IO,PAGE_IO_SIZE);
+ 		return -EIO;
+ 	}
+-	
+-	request_region( PAGE_IO, PAGE_IO_SIZE, "SBC-GXx flash" );
+ 	
+ 	printk( KERN_INFO"%s: IO:0x%x-0x%x MEM:0x%x-0x%x\n",
+ 		sbc_gxx_map.name,

@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314041AbSECOjR>; Fri, 3 May 2002 10:39:17 -0400
+	id <S313924AbSECOjB>; Fri, 3 May 2002 10:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314058AbSECOjQ>; Fri, 3 May 2002 10:39:16 -0400
-Received: from jane.hollins.EDU ([192.160.94.78]:36358 "EHLO earth.hollins.edu")
-	by vger.kernel.org with ESMTP id <S314041AbSECOjO>;
-	Fri, 3 May 2002 10:39:14 -0400
-Message-ID: <3CD2A10A.2010306@hollins.edu>
-Date: Fri, 03 May 2002 10:39:06 -0400
-From: "Scott A. Sibert" <kernel@hollins.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020122
-X-Accept-Language: en-us
+	id <S314041AbSECOjA>; Fri, 3 May 2002 10:39:00 -0400
+Received: from ucsu.Colorado.EDU ([128.138.129.83]:11400 "EHLO
+	ucsu.colorado.edu") by vger.kernel.org with ESMTP
+	id <S313924AbSECOi7>; Fri, 3 May 2002 10:38:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Ivan G." <ivangurdiev@linuxfreemail.com>
+Reply-To: ivangurdiev@linuxfreemail.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre8
+Date: Fri, 3 May 2002 08:32:12 -0600
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>
-CC: linux-kernel@vger.kernel.org, vt <vt@vt.fermentas.lt>,
-        vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: 2.5.11 and smbfs
-In-Reply-To: <Pine.LNX.4.33.0205011842001.1885-100000@cola.enlightnet.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <02050308321201.07377@cobra.linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Upgrading 2.4.19-pre3 to 2.4.19-pre8
+but problem is probably created by 2.4.19-pre7 where i saw apic changes
 
-Kernel 2.4.18 smbfs worked, 2.4.19-pre8 smbfs worked (although 
-fs/ufs/super.c had some missing commas), 2.5.11 smbfs didn't work.  The 
-RedHat 7.2 had samba-2.2.1a-4 so I pulled down samba-2.2.3a-4 from the 
-skipjack beta and compiled it under kernel 2.5.11 and it mounts windows 
-shares correctly.  I'm in the process of going to 2.5.13 but I'm going 
-to stick with the 2.2.3a-4 samba.
+_________________________________
 
-Thanks for all of your help.
+init/main.o: In function `smp_init':
+init/main.o(.text.init+0x5e1): undefined reference to `skip_ioapic_setup'
+arch/i386/kernel/kernel.o: In function `broken_pirq':
+arch/i386/kernel/kernel.o(.text.init+0x3547): undefined reference to 
+`skip_ioapic_setup'
+make: *** [vmlinux] Error 1
 
---Scott
+..or perhaps my config is wrong. 
+I am not sure about the apic feature.
 
-Urban Widmark wrote:
-
->On Tue, 30 Apr 2002, Scott A. Sibert wrote:
->
->>I can mount other samba shares fine (ie. Samba-2.2.2 from OSX 10.1.4 and 
->>Samba-2.2.2 from Tru64 5.1) and the directories look fine.  When I mount 
->>a share from a Windows 2000 server I only get the first letter of the 
->>entry in the shared folder which, of course, makes no sense and 
->>generates errors when just trying to get an "ls" of the share.  The 
->>Win2K servers are both regular server and Adv Server, both with SP2 and 
->>the latest patches.  The linux machine is running RedHat 7.2 with almost 
->>all of the latest updates and 2.5.11 compiled.
->>
->
->The server is returning unicode filenames but smbfs isn't expecting them.
->
->You don't say which samba version your smbmount is from, but I'm guessing
->2.2.1/2.2.2. They always negotiate unicode support without knowing if
->smbfs supports it or not, which is a bug.
->
->With smbfs unicode support in 2.5 this started to matter for various
->reasons. I have thought about "autodetection" and maybe that will be
->necessary anyway.
->
->For now, upgrading samba to 2.2.3a should fix this. Let me know if it
->doesn't.
->
->/Urban
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
+#define CONFIG_MK7 1
+...
+#define CONFIG_X86_GOOD_APIC
+....
+#undef  CONFIG_SMP
+#define CONFIG_X86_UP_APIC 1
+#undef  CONFIG_X86_UP_IOAPIC
+#define CONFIG_X86_LOCAL_APIC 1
+-------------------------------
 

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbTJGOam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 10:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTJGOam
+	id S262152AbTJGOaI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 10:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTJGOaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 10:30:42 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:39161 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S262269AbTJGOak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 10:30:40 -0400
-Date: Tue, 7 Oct 2003 08:29:44 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "E. Gryaznova" <grev@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can dbench be used for benchmarking fs?
-Message-ID: <20031007082944.D1564@schatzie.adilger.int>
-Mail-Followup-To: "E. Gryaznova" <grev@namesys.com>,
-	linux-kernel@vger.kernel.org
-References: <3F82B4C6.707221A@namesys.com>
+	Tue, 7 Oct 2003 10:30:08 -0400
+Received: from main.gmane.org ([80.91.224.249]:15075 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262152AbTJGOaF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 10:30:05 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: devfs vs. udev
+Date: Tue, 07 Oct 2003 16:29:58 +0200
+Message-ID: <yw1x8ynxdst5.fsf@users.sourceforge.net>
+References: <yw1xad8dfcjg.fsf@users.sourceforge.net> <pan.2003.10.07.13.41.23.48967@dungeon.inka.de>
+ <yw1xekxpdtuq.fsf@users.sourceforge.net> <20031007142349.GX1223@rdlg.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F82B4C6.707221A@namesys.com>; from grev@namesys.com on Tue, Oct 07, 2003 at 04:42:46PM +0400
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:ViW6nsTxla4o3A2bUyA2eWVvksU=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 07, 2003  16:42 +0400, E. Gryaznova wrote:
-> I use dbench for benchmarking the file systems and some results are
-> suspicious for me.
-> :
-> :
-> :
-> As the result: the measuring deviation is equal = 23.4062 - 15.7005 =
-> 7.7057 or about ~38% from average value.
-> 
-> So, I have 2 questions :
-> 1. Is there a way to avoid such big deviations on measuring a file
-> systems throughput and to get more stable results?
-> 2. Can dbench be used for benchmarking the file systems and if it is so
-> -- what is the predictable error on the measuring?
+"Robert L. Harris" <Robert.L.Harris@rdlg.net> writes:
 
-Dbench is not a good filesystem benchmark, because it deletes all of the
-files at the end.  Use something else for the filesystem benchmark - there
-are lots of them (bonnie, iozone, mongo, etc).
+> As a pro-devfs person I felt the same and hate to say it but "read the
+> archives".  Someone gave a good writeup on the problems with devfs and
+> how udev will (eventually) solve them.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Does anyone have a more exact pointer?
+
+-- 
+Måns Rullgård
+mru@users.sf.net
 

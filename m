@@ -1,129 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUEQQKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUEQQMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUEQQKh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 12:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUEQQKh
+	id S261786AbUEQQMk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 12:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUEQQMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 12:10:37 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50136 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261764AbUEQQK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 12:10:28 -0400
-Date: Mon, 17 May 2004 18:10:28 +0200
-From: Jan Kara <jack@ucw.cz>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: mark.williamson@imperial.ac.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] Quota fix 3 - quota file corruption
-Message-ID: <20040517161028.GB23294@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
+	Mon, 17 May 2004 12:12:40 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:33982 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261786AbUEQQMi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 12:12:38 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: mike@kordik.net
+Subject: Re: HDIO_SET_DMA failed: with nforce2 board
+Date: Mon, 17 May 2004 18:13:07 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <pan.2004.05.17.02.15.01.317598@kordik.net> <200405171434.24417.bzolnier@elka.pw.edu.pl> <22324.64.214.120.194.1076836710.squirrel@www.kordik.net>
+In-Reply-To: <22324.64.214.120.194.1076836710.squirrel@www.kordik.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200405171813.07359.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 15 of February 2004 10:18, mike@kordik.net wrote:
+> > On Monday 17 of May 2004 13:39, Mike Kordik wrote:
+> >> On Mon, 2004-05-17 at 07:13, Bartlomiej Zolnierkiewicz wrote:
+> >> > On Monday 17 of May 2004 04:15, Mike wrote:
+> >> > > I have an nforce2 based board and I cannot enable dma.
+> >> >
+> >> > 'dmesg' output, please
+> >>
+> >> I posted using PAN and I am trying to respond with PAM but todays posts
+> >> and some of yesterdays are not showing up. I do not know what the
+> >> problem is but I apologize for responding this way. Here is my dmesg
+> >> output:
+> >
+> > OK, thanks.
+> >
+> >> Linux version 2.6.4-rc1-mm1 (root@cdimage) (gcc version 3.3.3 20040217
+> >> (Gentoo Linux 3.3.3, propolice-3.3-7)) #3 Mon May 17 00:17:40 EDT 2004
+> >
+> > ...
+> >
+> >> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> >> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> >> idebus=xx
+> >> pnp: the driver 'ide' has been registered
+> >> hda: Maxtor 6Y120L0, ATA DISK drive
+> >> hdb: WDC WD1600BB-00HTA0, ATA DISK drive
+> >> hdc: MATSHITADVD-ROM SR-8582, ATAPI CD/DVD-ROM drive
+> >> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> >> ide1 at 0x170-0x177,0x376 on irq 15
+> >
+> > AMD/nVidia IDE driver didn't recognize the controller
+> > (or driver wasn't compiled in for some reason).
+> >
+> > I need full .config and 'lspci -vvv' output to know more.
+> >
+> > Bartlomiej
+>
+> Bartlomiej,
+>      Thank you for your help!
+>
+> I double checked my boot partition to make sure I actually had copied over
+> the latest kernel I had compiled and it has the right date and time stamp
+> on it.
+>
+> The info you requessted.
+>
+> .config:
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Weird, everything looks OK.  Can you retest with vanilla 2.6.4-rc1?
 
-  Hello,
-
-  tha last (at least for now :) quota fix. This patch fixes possible
-quota files corruption which could happen when root did not have any
-inodes&space allocated. Originally this could not happen as structure
-would not be written to disk in that case but with journalled quota we
-need to write even all-zero structure. The fix is not very nice but
-change of the format on disk is probably worse (I made a mistake with
-not including the usage-bitmaps into format :(). The patch is against
-2.6.6 with previous quota fixes. Please apply.
-
-						Honza
-
-
-
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.6-4-v2rootfix.diff"
-
-diff -ruX /home/jack/.kerndiffexclude linux-2.6.6-3-slabfix/fs/dquot.c linux-2.6.6-4-v2rootfix/fs/dquot.c
---- linux-2.6.6-3-slabfix/fs/dquot.c	2004-05-14 15:19:38.000000000 +0200
-+++ linux-2.6.6-4-v2rootfix/fs/dquot.c	2004-05-14 15:37:17.000000000 +0200
-@@ -1205,8 +1205,11 @@
- 		if (transfer_to[cnt] == NODQUOT)
- 			continue;
- 
--		dquot_decr_inodes(transfer_from[cnt], 1);
--		dquot_decr_space(transfer_from[cnt], space);
-+		/* Due to IO error we might not have transfer_from[] structure */
-+		if (transfer_from[cnt]) {
-+			dquot_decr_inodes(transfer_from[cnt], 1);
-+			dquot_decr_space(transfer_from[cnt], space);
-+		}
- 
- 		dquot_incr_inodes(transfer_to[cnt], 1);
- 		dquot_incr_space(transfer_to[cnt], space);
-diff -ruX /home/jack/.kerndiffexclude linux-2.6.6-3-slabfix/fs/quota_v2.c linux-2.6.6-4-v2rootfix/fs/quota_v2.c
---- linux-2.6.6-3-slabfix/fs/quota_v2.c	2004-05-14 15:14:28.000000000 +0200
-+++ linux-2.6.6-4-v2rootfix/fs/quota_v2.c	2004-05-16 20:27:38.000000000 +0200
-@@ -420,7 +420,7 @@
- 	mm_segment_t fs;
- 	loff_t offset;
- 	ssize_t ret;
--	struct v2_disk_dqblk ddquot;
-+	struct v2_disk_dqblk ddquot, empty;
- 
- 	/* dq_off is guarded by dqio_sem */
- 	if (!dquot->dq_off)
-@@ -432,6 +432,12 @@
- 	offset = dquot->dq_off;
- 	spin_lock(&dq_data_lock);
- 	mem2diskdqb(&ddquot, &dquot->dq_dqb, dquot->dq_id);
-+	/* Argh... We may need to write structure full of zeroes but that would be
-+	 * threated as an empty place by the rest of the code. Format change would
-+	 * be definitely cleaner but the problems probably are not worth it */
-+	memset(&empty, 0, sizeof(struct v2_disk_dqblk));
-+	if (!memcmp(&empty, &ddquot, sizeof(struct v2_disk_dqblk)))
-+		ddquot.dqb_itime = cpu_to_le64(1);
- 	spin_unlock(&dq_data_lock);
- 	fs = get_fs();
- 	set_fs(KERNEL_DS);
-@@ -622,7 +628,7 @@
- 	struct file *filp;
- 	mm_segment_t fs;
- 	loff_t offset;
--	struct v2_disk_dqblk ddquot;
-+	struct v2_disk_dqblk ddquot, empty;
- 	int ret = 0;
- 
- 	filp = sb_dqopt(dquot->dq_sb)->files[type];
-@@ -652,8 +658,14 @@
- 			printk(KERN_ERR "VFS: Error while reading quota structure for id %u.\n", dquot->dq_id);
- 			memset(&ddquot, 0, sizeof(struct v2_disk_dqblk));
- 		}
--		else
-+		else {
- 			ret = 0;
-+			/* We need to escape back all-zero structure */
-+			memset(&empty, 0, sizeof(struct v2_disk_dqblk));
-+			empty.dqb_itime = cpu_to_le64(1);
-+			if (!memcmp(&empty, &ddquot, sizeof(struct v2_disk_dqblk)))
-+				ddquot.dqb_itime = 0;
-+		}
- 		set_fs(fs);
- 		disk2memdqb(&dquot->dq_dqb, &ddquot);
- 		if (!dquot->dq_dqb.dqb_bhardlimit &&
-diff -ruX /home/jack/.kerndiffexclude linux-2.6.6-3-slabfix/include/linux/quotaio_v2.h linux-2.6.6-4-v2rootfix/include/linux/quotaio_v2.h
---- linux-2.6.6-3-slabfix/include/linux/quotaio_v2.h	2003-11-26 21:44:21.000000000 +0100
-+++ linux-2.6.6-4-v2rootfix/include/linux/quotaio_v2.h	2004-05-14 15:37:17.000000000 +0200
-@@ -59,7 +59,7 @@
- 
- /*
-  *  Structure of header of block with quota structures. It is padded to 16 bytes so
-- *  there will be space for exactly 18 quota-entries in a block
-+ *  there will be space for exactly 21 quota-entries in a block
-  */
- struct v2_disk_dqdbheader {
- 	__u32 dqdh_next_free;	/* Number of next block with free entry */
-
---UugvWAfsgieZRqgk--

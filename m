@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267402AbRGQVny>; Tue, 17 Jul 2001 17:43:54 -0400
+	id <S267428AbRGQVwg>; Tue, 17 Jul 2001 17:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267425AbRGQVno>; Tue, 17 Jul 2001 17:43:44 -0400
-Received: from adsl-207-241-136-214.mpl.michix.net ([207.241.136.214]:47627
-	"HELO cobalt.deepthought.org") by vger.kernel.org with SMTP
-	id <S267402AbRGQVnc>; Tue, 17 Jul 2001 17:43:32 -0400
-Date: Tue, 17 Jul 2001 17:35:26 -0400 (EDT)
-From: Martin Murray <mmurray@deepthought.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6
-In-Reply-To: <Pine.LNX.4.33.0107171432020.1949-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0107171728160.31029-100000@cobalt.deepthought.org>
+	id <S267442AbRGQVw0>; Tue, 17 Jul 2001 17:52:26 -0400
+Received: from dragonfire3.delta.com ([205.174.22.22]:16016 "EHLO
+	satlmsghub03.delta-air.com") by vger.kernel.org with ESMTP
+	id <S267428AbRGQVwS>; Tue, 17 Jul 2001 17:52:18 -0400
+Message-ID: <BDEE1F50C0C6D411BBB600204840D7B40124F181@satlrccdmrus25.delta-air.com>
+From: "Dominick, David" <David.Dominick@delta.com>
+To: "'John Weber'" <weber@nyc.rr.com>, linux-kernel@vger.kernel.org
+Subject: RE: sound?!?!!?
+Date: Tue, 17 Jul 2001 17:52:16 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 17 Jul 2001, Martin Murray wrote:
-> >
-> > > And I bet you don't have a driver that knows about it.
-> >
-> > You know. 2.2.19 uses my cardbus controller on IRQ 11 without a
-> > problem.
+when running sndconfig I get:
+/lib/modules/2.4.6/kernel/drivers/sound/sound.o: unresolved symbol
+request_module
+
+-----Original Message-----
+From: John Weber [mailto:weber@nyc.rr.com]
+Sent: Tuesday, July 17, 2001 3:39 PM
+To: linux-kernel@vger.kernel.org; Dominick, David
+Subject: Re: sound?!?!!?
+
+
+Dominick, David wrote:
+
+> I am having problems with the opl3sa2 driver for yamaha sound card on my
+> toshiba running kernel 2.4.6
 > 
-> Does it actually _use_ the cardbus PCI interrupt at all? At least older
-> versions of the external pcmcia package didn't use the PCI interrupt by
-> default at all, and relied on polling the state and the old ISA interrupts
-> instead.. 
+> HELP!!!
 
- Near as I can tell, it's listed in /proc/interrupts, and
-inserting/removing cards definately causes the counter to increment. I'm
-using pcmcia-cs-3.1.27's i82365. Also, dmesg shows it requesting the PCI
-IRQ. Ie, I get messages like:
+I am running kernel 2.4.6 on a toshiba satellite 225CDS and toshiba 
+tecra 8000 (both use OPL3sa2 driver), and sound is working well.  What 
+exactly do you have problems with?  Is this a redhat problem (a problem 
+with sndconfig)?
 
-...
-Linux PCMCIA Card Services 3.1.27
-  kernel build: 2.2.19 #2 Sat Jul 14 12:21:14 EDT 2001
-  options:  [pci] [cardbus] [apm]
-PCI routing table version 1.0 at 0xfdf60
-  00:03.0 -> irq 11
-  00:03.1 -> irq 11
-Intl PCIC probe:
-  TI 1251B rev 00 PCI-to-CardBus at slot 00:03, mem 0x6800000
-...
-
-I just inserted and removed my aironet card, and the value in
-/proc/interrupts went from 9 to 14.. 
-
-Could this be a problem in yenta_socket()'s initialization sequence?
-
-Thanks, Martin
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

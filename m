@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290118AbSBLLgg>; Tue, 12 Feb 2002 06:36:36 -0500
+	id <S290157AbSBLLn4>; Tue, 12 Feb 2002 06:43:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290157AbSBLLg0>; Tue, 12 Feb 2002 06:36:26 -0500
-Received: from ns.suse.de ([213.95.15.193]:51723 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290118AbSBLLgO>;
-	Tue, 12 Feb 2002 06:36:14 -0500
-Date: Tue, 12 Feb 2002 12:36:13 +0100
-From: Dave Jones <davej@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.4-dj1
-Message-ID: <20020212123613.A17053@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Robert Love <rml@tech9.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020212013034.A14368@suse.de> <1013482389.6781.645.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1013482389.6781.645.camel@phantasy>; from rml@tech9.net on Mon, Feb 11, 2002 at 09:53:08PM -0500
+	id <S290969AbSBLLnq>; Tue, 12 Feb 2002 06:43:46 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:48579 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S290157AbSBLLni>;
+	Tue, 12 Feb 2002 06:43:38 -0500
+Date: Tue, 12 Feb 2002 12:43:26 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Question about i820 chipset.
+Message-ID: <Pine.LNX.4.21.0202121242350.19967-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 11, 2002 at 09:53:08PM -0500, Robert Love wrote:
- > > o   Fix UP Preempt compilation.			(Mikael Pettersson)
- > I ended up sending the following patch to Linus instead.
- > 
- > Would you merge this into your next release, so we can keep the trees in
- > sync (and not inadvertently push your fix over Linus's later on).
+Hi Alan,
 
- Done.
+I have some small questions...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Have you ever tried a motherboard with i820 chipset and two NIC's?
+I have a Asus P3C-D here (dual pIII 800 with 256MB rimm) and a D-Link
+DFE570-TX NIC (quad DECchip 21143 behind a DECchip 21152 pci bridge).
+
+The problem I'm seeing is extremely crappy pci performance.
+With one of the NIC's active I see no real problems but when two NIC's are
+active at the same time all hell breaks loose :(
+
+if I generate traffic out via 2 NIC's at the same time I'd expect to get
+about 2 x 100Mbit/s but in reality I get 2 x 25Mbit/s with this
+motherboard. and with 3 NIC's active I get about 3 x 15-20Mbit/s.
+
+I tried replacing the motherboard with an old SMP board based on the 440bx
+chipset (cpus underclocked to 600MHz) and then I can easily get 3 x
+100Mbit/s with 25-30% cpu used in the machine.
+
+So my question is, have you ever seen such pci issues? I've tried all
+BIOS settings I could find and a lot of diffrent kernels. I've also tried
+the vanilla tulip-driver and the NAPI'fied one (which I have been helping
+to test) and both show the exact same performanceproblems.
+
+I tried routing a lot of packets and it started dropping a lot of packets
+when the cpu was only 75% used according to both vmstat and cyclesoak
+(with an UP kernel). A profile shows that default_idle gets about 25% of
+the time. I assume the kernel is waiting for the pci bus.
+
+And the last question, if you have the hardware, would you mind testing
+something similar on the Asus A7M266-D? We've been thinking of getting a
+few of these boards to replace the crappy i820 ones.
+
+I saw that you included a patch for MPS 1.4 in -pre9-ac1, was this the
+same patch you were talking about earlier and does it work?
+
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
+
+

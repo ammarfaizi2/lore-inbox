@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTEFILk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 04:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTEFILk
+	id S262009AbTEFIL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 04:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTEFIL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 04:11:40 -0400
-Received: from inpbox.inp.nsk.su ([193.124.167.24]:60602 "EHLO
-	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S261798AbTEFILj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 04:11:39 -0400
-Date: Tue, 6 May 2003 15:21:02 +0700
-From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Reply-To: D.A.Fedorov@inp.nsk.su
-To: Terje Eggestad <terje.eggestad@scali.com>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052206053.15887.0.camel@pc-16.office.scali.no>
-Message-ID: <Pine.SGI.4.10.10305061518110.8255699-100000@Sky.inp.nsk.su>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 May 2003 04:11:57 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:1298 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S262009AbTEFILz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 04:11:55 -0400
+Subject: Re: 2.5.68-bk11: .text.exit errors in .altinstructions
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: Andi Kleen <ak@muc.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030506051348.GA1338@averell>
+References: <20030502171355.GU21168@fs.tum.de>
+	 <1052175893.25085.9.camel@nalesnik> <20030506005326.GB18146@averell>
+	 <20030505191409.2e2a265c.akpm@digeo.com>  <20030506051348.GA1338@averell>
+Content-Type: text/plain
+Organization: K4 labs
+Message-Id: <1052209105.2810.1.camel@nalesnik>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 May 2003 09:18:26 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 May 2003, Terje Eggestad wrote:
-
-> > On 6 May 2003, Terje Eggestad wrote:
+On Tue, 2003-05-06 at 06:13, Andi Kleen wrote:
+> On Tue, May 06, 2003 at 04:14:09AM +0200, Andrew Morton wrote:
+> > Andi Kleen <ak@muc.de> wrote:
+> > >
+> > > On Tue, May 06, 2003 at 01:04:55AM +0200, Grzegorz Jaskiewicz wrote:
+> > > > I've got the same problem with 2.5.69:
+> > > 
+> > > Use the same workaround. Remove .text.exit from the DISCARD
+> > > section in your vmlinux.lds.S
+> > > 
+> > > Really the problem is unfixable without binutils changes in other
+> > > ways, sorry.
 > > 
-> > > Good point, it should actually be very simple.
-> > > from /proc/ksyms we've got teh adresses of the sys_*, then from
-> > > asm/unistd.h we got the order.
-> > 
-> > /proc/ksyms shows only exported symbols, is not it?
+> > How's about we drop .text.exit at runtime, along with .text.init?
+> 
+> Good idea :-) That could work.
+works for me :)
 
-> Yes, but it should be enough
-
-But how? When some global will not be exported, it would not be listed
-in /proc/ksyms.
+-- 
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 labs
 

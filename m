@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135172AbRDRNZ2>; Wed, 18 Apr 2001 09:25:28 -0400
+	id <S135177AbRDRNgt>; Wed, 18 Apr 2001 09:36:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135173AbRDRNZS>; Wed, 18 Apr 2001 09:25:18 -0400
-Received: from smtp1.sentex.ca ([199.212.134.4]:16901 "EHLO smtp1.sentex.ca")
-	by vger.kernel.org with ESMTP id <S135172AbRDRNZE>;
-	Wed, 18 Apr 2001 09:25:04 -0400
-Message-ID: <3ADD959F.B5C90619@coplanar.net>
-Date: Wed, 18 Apr 2001 09:24:48 -0400
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
+	id <S135173AbRDRNgj>; Wed, 18 Apr 2001 09:36:39 -0400
+Received: from uunet-gw.macroscoop.nl ([195.193.201.73]:2064 "EHLO
+	mondriaan.macroscoop.nl") by vger.kernel.org with ESMTP
+	id <S135177AbRDRNga>; Wed, 18 Apr 2001 09:36:30 -0400
+From: "Pim Zandbergen" <P.Zandbergen@macroscoop.nl>
+To: <linux-kernel@vger.kernel.org>
+Cc: "ServeRAID  For Linux" <ipslinux@us.ibm.com>
+Subject: [PATCH] IBM ServeRAID driver version 4.71 update
+Date: Wed, 18 Apr 2001 15:36:20 +0200
+Message-ID: <NCBBJAAFLJPMOAOEDDEDMEBCCHAA.P.Zandbergen@macroscoop.nl>
 MIME-Version: 1.0
-To: Giuliano Pochini <pochini@shiny.it>
-CC: Tim Peeler <tim@iss.dccc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: I can eject a mounted CD
-In-Reply-To: <XFMail.010418111741.pochini@shiny.it>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
 
-> >> >> That's not the point. The kernel should not allow someone to
-> >> >> eject a mounted media.
-> >> >
-> >> > rpm -e magicdev
-> >>
-> >> Magicdev is not installed.
-> >> Ok, I'm the only one with this problem, I'll manage to find the bug by myself.
-> >
-> > eject(1) line 36:
-> >
-> >    If the device is currently mounted, it is unmounted before
-> >    ejecting.
->
-> But it doesn't get unmounted. I eject the disk but I can still see
-> and read the (cached) files !
->
-> Bye.
->     Giuliano Pochini ->)|(<- Shiny Network {AS6665} ->)|(<-
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+In the just-released Red Hat 7.1 source disk, the file kernel-2.4.2-2.src.rpm
+contains linux-2.4.2-ips-471.patch. This looks like the official update
+to kernel 2.4.X for the IBM ServeRAID driver.
 
-hdparm has an option controlling door locking; try locking it manually
-to see if the drive can even lock the door.  then try setting it
-to match mounted/unmounted status of device;  maybe it defaults
-to always unlocked for some reason.
+I have not seen this patch published elsewhere.
+Could we have this patch merged into the standard kernel, please?
 
-hdparm -L 1 /dev/hdc
-
-also try commenting out one of those fstab lines... may be confusing things.
-it should work the way you have it - you say mount /mnt/fstype and
-depending of fstype it picks the right line, but just for the sake of debugging
-try loosing one temporarily.
-
-Cheers
+For now, this patch applies cleanly to kernel 2.4.3.
 

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310581AbSCGW4V>; Thu, 7 Mar 2002 17:56:21 -0500
+	id <S310582AbSCGW6i>; Thu, 7 Mar 2002 17:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310582AbSCGW4J>; Thu, 7 Mar 2002 17:56:09 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9222 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310581AbSCGWzs>; Thu, 7 Mar 2002 17:55:48 -0500
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Thu, 7 Mar 2002 23:09:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        phillips@bonn-fries.net (Daniel Phillips), yodaiken@fsmlabs.com,
-        jdike@karaya.com (Jeff Dike), bcrl@redhat.com (Benjamin LaHaise),
-        hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
-In-Reply-To: <1595.1015540989@redhat.com> from "David Woodhouse" at Mar 07, 2002 10:43:09 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310586AbSCGW63>; Thu, 7 Mar 2002 17:58:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16901 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310582AbSCGW6Q>;
+	Thu, 7 Mar 2002 17:58:16 -0500
+Message-ID: <3C87F01D.322E6154@zip.com.au>
+Date: Thu, 07 Mar 2002 14:56:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Cort Dougan <cort@fsmlabs.com>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Petition Against Official Endorsement of BitKeeper by 
+ LinuxMaintainers
+In-Reply-To: <20020307135043.K9231@host110.fsmlabs.com> <Pine.LNX.4.44L.0203071810460.2181-100000@imladris.surriel.com> <3C87E986.50A6F3C4@zip.com.au>,
+		<3C87E986.50A6F3C4@zip.com.au>; from akpm@zip.com.au on Thu, Mar 07, 2002 at 02:28:22PM -0800 <20020307154720.A1267@host110.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16j70R-000463-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> alan@lxorguk.ukuu.org.uk said:
-> >  Not having a fallback is unacceptable. Thats the real problem. You
-> > can't go around pandering to sloppy coders who can't work a memory
-> > allocator 
+Cort Dougan wrote:
 > 
-> OTOH there is perhaps some justification for distinguishing between 'If you 
-> fail this I'll tell the user -ENOMEM and continue happily on my way' 
-> allocations and 'If you fail this I lose track of hardware state and all is 
-> fucked till we reboot' ones.
+> This is great.  We can just throw in some VI vs. emacs discussion and we'll
+> really have something good going!
 
-None at all. If you needed the memory before you committed to an operation
-you should have reserved it before you started. See "sloppy coders"
+They both suck.  Be a man: write your own.
+
+> } heh.  Now learn kgdb.  You ain't seen nothing yet.
+> }
+> } Ever tried to use a computer with the monitor turned off?
+> } Kernel development without kgdb is like that.
+> 
+> Are there working patches against non-x86 in there, too?
+
+Nope, sorry.   All the world's a VAX.
+
+-

@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbQLHSgy>; Fri, 8 Dec 2000 13:36:54 -0500
+	id <S132076AbQLHSjX>; Fri, 8 Dec 2000 13:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132076AbQLHSgo>; Fri, 8 Dec 2000 13:36:44 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:44295 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130038AbQLHSg0>; Fri, 8 Dec 2000 13:36:26 -0500
-Date: Fri, 8 Dec 2000 12:01:35 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Peter Samuelson <peter@cadcamlab.org>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NTFS repair tools
-Message-ID: <20001208120135.A4881@vger.timpanogas.org>
-In-Reply-To: <3A30552D.A6BE248C@timpanogas.org> <20001207221347.R6567@cadcamlab.org> <3A3066EC.3B657570@timpanogas.org> <20001208005337.A26577@alcove.wittsend.com> <20001207230407.S6567@cadcamlab.org> <3A306CE4.47B366B0@timpanogas.org> <14896.31327.179696.632616@wire.cadcamlab.org> <5.0.2.1.2.20001208072533.03fd97d0@pop.cus.cam.ac.uk>
+	id <S132289AbQLHSjN>; Fri, 8 Dec 2000 13:39:13 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:13120 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132076AbQLHSjH>; Fri, 8 Dec 2000 13:39:07 -0500
+Date: Fri, 8 Dec 2000 19:08:29 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Martin Kacer <M.Kacer@sh.cvut.cz>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.2.18pre25
+Message-ID: <20001208190829.A17848@inspiron.random>
+In-Reply-To: <20001208012052.A23992@inspiron.random> <Pine.LNX.4.30.0012081738140.7409-100000@duck.sh.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <5.0.2.1.2.20001208072533.03fd97d0@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Fri, Dec 08, 2000 at 07:37:55AM +0000
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0012081738140.7409-100000@duck.sh.cvut.cz>; from M.Kacer@sh.cvut.cz on Fri, Dec 08, 2000 at 06:02:57PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 07:37:55AM +0000, Anton Altaparmakov wrote:
-> Hearing how many people trash their partition I would agree to comment out 
-> the NTFS write option altogether. I will make a patch for both 2.4.0-testX 
-> and 2.2.18latest and send them off to Linus/Alan over the weekend if no one 
-> beats me to it.
-> 
-> Considering that people are blatantly ignoring all our warnings this might 
-> be the Right Thing(TM) as it is easy enough to activate the option if 
-> someone really wants/needs to use it. That should hopefully lower the 
-> amount of incidents with people trashing their partitions[1][2].
-> 
-> Anton
-> 
-> [1] On the other hand it might not help much as people might just uncomment 
-> it and go ahead using it, but there is a limit to how far we can go without 
-> taking out the write part of the driver altogether! Which might actually 
-> not be a Bad Thing(TM) were it not for the fact that having the write 
-> support can actually help in fixing a trashed partition when people know 
-> what they are doing...i.e. when they know what they can do safely and what 
-> not. - It's saved me from loosing 10Gb+ of non-backed up data in the past!
-> 
-> [2] My NTFS repair utility is under development albeit very slowly which 
-> should help a little bit once I have a stable release. - Initial release is 
-> yet TBA as there are some very strange bugs in it at the moment, which 
-> might actually turn out to be bugs in the compiler/libc/kernel as the 
-> program runs fine sometimes and sometimes corrupts the partitions slightly, 
-> operating on the _exact_ same partition with the _exact_ same data on it! - 
-> Anyway, I am not releasing this to the public before I have figured out WTH 
-> is going on...
+On Fri, Dec 08, 2000 at 06:02:57PM +0100, Martin Kacer wrote:
+>    Is there any chance to get rid of these VMM failures?
 
+You should apply this patch on top of 2.2.18pre25:
 
-Anton,
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre25/VM-global-2.2.18pre25-7.bz2
 
-I will be able to help "officially" in another 14 months, when the 
-inevitability window is closed.  Unfortunately, by then, MS will 
-have altered the on-disk structures again, makeing the job even harder.
-You and Alan should Brainstorm a solution.  Removing write support or 
-putting in a disclaimer would suffice.  It's your call, BTW along 
-with Alan.
+>    It seems we need to return back to 2.2.13 for some time. :-(
 
-:-)
+Definitely no, you only need to apply the above collection of bugfixes.
 
-Jeff
-
-> 
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

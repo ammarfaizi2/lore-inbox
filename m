@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129913AbQL1U4I>; Thu, 28 Dec 2000 15:56:08 -0500
+	id <S130357AbQL1U4I>; Thu, 28 Dec 2000 15:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131256AbQL1Uz6>; Thu, 28 Dec 2000 15:55:58 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7437 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129913AbQL1Uzz>; Thu, 28 Dec 2000 15:55:55 -0500
-Date: Thu, 28 Dec 2000 12:25:23 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: test13-pre5
-Message-ID: <Pine.LNX.4.10.10012281220470.17769-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129913AbQL1Uz6>; Thu, 28 Dec 2000 15:55:58 -0500
+Received: from nat-hdqt.valinux.com ([198.186.202.17]:4666 "EHLO
+	earth.su.valinux.com") by vger.kernel.org with ESMTP
+	id <S129835AbQL1Uzr>; Thu, 28 Dec 2000 15:55:47 -0500
+Date: Thu, 28 Dec 2000 13:33:10 -0800
+From: Dragan Stancevic <visitor@valinux.com>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: New discoveries in the EEPro100 init saga
+Message-ID: <20001228133310.B31635@valinux.com>
+In-Reply-To: <3A446A49.C1E7AAFB@Hell.WH8.TU-Dresden.De>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <3A446A49.C1E7AAFB@Hell.WH8.TU-Dresden.De>; from Udo A. Steinberg on Sat, Dec 23, 2000 at 10:03:05AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 23, 2000, Udo A. Steinberg <sorisor@Hell.WH8.TU-Dresden.De> wrote:
+; 
+; Hi all,
+; 
+; After enabling the option "EEPRO100_PM" and upgrading to test13-pre4
+; my problems with the eepro100 driver mysteriously ceased to exist.
+; I no longer see any "Card reports no RX buffers" or "Card reports no
+; resources" messages.
+; 
+; Since I don't think -pre4 changed anything from -pre3 that would
+; affect the eepro100 driver, my bet is that enabling the experimental
+; power management feature somehow works around the issue.
+; 
+; Can others who've had similar problems check if that works for them
+; as well? If it does, it should be somewhat simple to work out what
+; the problem actually is, because the PM code is just a couple dozen
+; lines.
 
-The main notables are the network fixes (uninitialized skb->dev could and
-did cause oopses in ip_defrag) and the mm fixes (dirty pages without
-mappings etc, causing problems in page_launder).
+Udo,
 
-The mm cleanups also include removing "swapout()" as a VM operation, as
-nobody can sanely do anything more than just marking the page dirty anyway
-(the real work is done by writepage() these days), and doing that
-explicitly simplifies VM scanning considerably.
-
-This still doesn't tell "sync()" about dirty pages (ie the "innd loses the
-active file after a reboot" bug), but now the places that mark pages dirty
-are under control. Next step..
-
-		Linus
-
------
-
- - pre5:
-   - NIIBE Yutaka: SuperH update
-   - Geert Uytterhoeven: m68k update
-   - David Miller: TCP RTO calc fix, UDP multicast fix etc
-   - Duncan Laurie: ServerWorks PIRQ routing definition.
-   - mm PageDirty cleanups, added sanity checks, and don't lose the bit. 
-
- - pre4:
-   - Christoph Rohland: shmfs cleanup
-   - Nicolas Pitre: don't forget loop.c flags
-   - Geert Uytterhoeven: new-style m68k Makefiles
-   - Neil Brown: knfsd cleanups, raid5 re-org
-   - Andrea Arkangeli: update to LVM-0.9
-   - LC Chang: sis900 driver doc update
-   - David Miller: netfilter oops fix
-   - Andrew Grover: acpi update
-
- - pre3:
-   - Christian Jullien: smc9194: proper dev_kfree_skb_irq
-   - Cort Dougan: new-style PowerPC Makefiles
-   - Andrew Morton, Petr Vandrovec: fix run_task_queue
-   - Christoph Rohland: shmfs for shared memory handling
-
- - pre2:
-   - Kai Germaschewski: ISDN update (including Makefiles)
-   - Jens Axboe: cdrom updates
-   - Petr Vandrovec; Matrox G450 support
-   - Bill Nottingham: fix FAT32 filesystems on 64-bit platforms
-   - David Miller: sparc (and other) Makefile fixup
-   - Andrea Arkangeli: alpha SMP TLB context fix (and cleanups)
-   - Niels Kristian Bech Jensen: checkconfig, USB warnings
-   - Andrew Grover: large ACPI update
-
- - pre1:
-   - me: drop support for old-style Makefiles entirely. Big.
-   - me: check b_end_io at the IO submission path
-   - me: fix "ptep_mkdirty()" (so that swapoff() works correctly)
-   - fix fault case in copy_from_user() with a constant size, where
-     ((size & 3) == 3)
+the driver has an issue that is affected by fiddling with different
+parameters, it's a timing issue of somesort, changing a bit of code
+seems to fix it on one system but it breaks it on others, I am comparing
+the driver line by line to the specs to see where the misbehavioure
+could be comming from.
 
 
+-- 
+I knew I was alone, I was scared, it was getting dark and
+it was a hardware problem.
+
+                                                -Dragan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,157 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290965AbSCDCNv>; Sun, 3 Mar 2002 21:13:51 -0500
+	id <S290983AbSCDC2N>; Sun, 3 Mar 2002 21:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291020AbSCDCNn>; Sun, 3 Mar 2002 21:13:43 -0500
-Received: from dsl-213-023-043-059.arcor-ip.net ([213.23.43.59]:27791 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290965AbSCDCNc>;
-	Sun, 3 Mar 2002 21:13:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] delayed disk block allocation
-Date: Mon, 4 Mar 2002 03:08:54 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au>
-In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au>
-Cc: Steve Lord <lord@sgi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16hhuI-0000S6-00@starship.berlin>
+	id <S291020AbSCDC1y>; Sun, 3 Mar 2002 21:27:54 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:15396 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S290983AbSCDC1m>; Sun, 3 Mar 2002 21:27:42 -0500
+Date: Mon, 4 Mar 2002 03:25:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-ID: <20020304032535.F20606@dualathlon.random>
+In-Reply-To: <20020301013056.GD2711@matchmail.com> <E16hdgg-0000Py-00@starship.berlin> <20020304014950.E20606@dualathlon.random> <E16hhYV-0000Qz-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16hhYV-0000Qz-00@starship.berlin>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 1, 2002 09:26 am, Andrew Morton wrote:
-> A bunch of patches which implement allocate-on-flush for 2.5.6-pre1 are
-> available at
+On Mon, Mar 04, 2002 at 02:46:22AM +0100, Daniel Phillips wrote:
+> On March 4, 2002 01:49 am, Andrea Arcangeli wrote:
+> > On Sun, Mar 03, 2002 at 10:38:34PM +0100, Daniel Phillips wrote:
+> > > On March 2, 2002 03:06 am, Andrea Arcangeli wrote:
+> > > > On Thu, Feb 28, 2002 at 10:26:48PM -0500, Bill Davidsen wrote:
+> > > > > rather than patches. But there are a lot more small machines (which I feel
+> > > > > are better served by rmap) than large. I would like to leave the jury out
+> > > > 
+> > > > I think there's quite some confusion going on from the rmap users, let's
+> > > > clarify the facts.
+> > > > 
+> > > > The rmap design in the VM is all about decreasing the complexity of
+> > > > swap_out on the huge boxes (so it's all about saving CPU), by slowing
+> > > > down a big lots of fast common paths like page faults and by paying with
+> > > > some memory too. See the lmbench numbers posted by Randy after applying
+> > > > rmap to see what I mean.
+> > > 
+> > > Do you know any reason why rmap must slow down the page fault fast, or are
+> > > you just thinking about Rik's current implementation?  Yes, rmap has to add
+> > > a pte_chain entry there, but it can be a direct pointer in the unshared case
+> > > and the spinlock looks like it can be avoided in the common case as well.
+> > 
+> > unshared isn't the very common case (shm, and file mappings like
+> > executables are all going to be shared, not unshared).
 > 
->   
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/dalloc-10-core.patch
->   - Core functions
-> and
->   
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/dalloc-20-ext2.patch
->   - delalloc implementation for ext2.
+> As soon as you have shared pages you start to benefit from rmap's ability
+> to unmap in one step, so the cost of creating the link is recovered by not
+
+we'd benefit also with unshared pages.
+
+BTW, for the map shared mappings we just collect the rmap information,
+we need it for vmtruncate, but it's not layed out for efficient
+browsing, it's only meant to make vmtruncate work.
+
+> having to scan two page tables to unmap it.  In theory.  Do you see a hole
+> in that?
+
+Just the fact you never need the reverse lookup during lots of
+important production usages (first that cames to mind is when you have
+enough ram to do your job, all number crunching/fileserving, and most
+servers are setup that way).  This is the whole point. Note that this
+has nothing to do with the "cache" part, this is only about the
+pageout/swapout stage, only a few servers really needs heavy swapout.
+
+The background swapout to avoid unused services to stay in ram forever,
+doesn't matter with rmap or w/o rmap design.
+
+And on the other case (heavy swapout/pageouts like in some hard DBMS
+usage, simualtions and laptops or legacy desktops) we would mostly save
+CPU and reduce complexity, but I really don't see system load during
+heavy pageouts/swapouts yet, so I don't see an obvious need of save cpu
+there either.
+
+Probably the main difference visible in numbers would be infact to
+follow a perfect lru, but really giving mapped pages an higher chance is
+beneficial.  Another bit in the current design of round robin cycling
+over the whole VM clearing the accessed bitflag and activating physical
+pages if needed, can also be see also as a feature in some ways. It is
+much better at providing a kind of "clock based" aging to the accessed
+bit information, while the lru pass rmap aware, wouldn't really be fair
+with all the virtual pages the same way as we do now.
+
+> > So unless you first share all the pagetables as well (like Ben once said
+> > years ago), it's not going to be a direct pointer in the very common
+> > case. And there's no guarantee you can share the pagetable (even
+> > assuming the kernels supports that at the maximum possible degree across
+> > execve and at random mmaps too) if you map those pages at different
+> > virtual addresses.
 > 
-> Also,
->   
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/dalloc-30-ratcache.patch
->   - Momchil Velikov/Christoph Hellwig radix-tree pagecache ported onto 
-> delalloc.
+> The virtual alignment just needs to be the same modulo 4 MB.  There are
+> other requirements as well, but being able to share seems to be the common
+> case.
 
-Wow, this is massive.  Why did you write [patch] instead of [PATCH]? ;-)  I'm
-surprised there aren't any comments on this patch so far, that should teach 
-you to post on a Friday afternoon.
+Yep on x86 w/o PAE. With PAE enabled (or x86-64 kernel) it needs to be
+the same layout of phys pages on a naturally aligned 2M chunk. I trust
+that will match often in theory, but still tracking it down over execve
+and on random mmaps looks not that easy, I think for tracking that down
+we'd really need the rmap information for everything (not just map
+shared like right now). And also doing all the checks and walking the
+reverse maps won't be zero cost, but I can see the benefit of the full
+pte sharing (starting from cpu cache utilization across tlb flushes).
 
-> Global accounting of locked and dirty pages has been introduced.
+Infact it maybe rmap will be more useful for things like enabling the full
+pagetable sharing you're suggesting above, rather than for replacing the
+swap_out round robing cycle over the VM. so it might be used only for MM
+internals rather than for VM internals.
 
-Alan seems to be working on this as well.  Besides locked and dirty we also 
-have 'pinned', i.e., pages that somebody has taken a use count on, beyond the 
-number of pte+pcache references.
-
-I'm just going to poke at a couple of inconsequential things for now, to show
-I've read the post.  In general this is really important work because it
-starts to move away from the vfs's current dumb filesystem orientation.
-
-I doubt all the subproblems you've addressed are tackled in the simplest 
-possible way, and because of that it's a cinch Linus isn't just going to 
-apply this.  But hopefully the benchmarking team descend upon this and find 
-out if it does/does't suck, and hopefully you plan to maintain it through 2.5.
-
-> Testing is showing considerable improvements in system tractability
-> under heavy load, while approximately doubling heavy dbench throughput.
-> Other benchmarks are pretty much unchanged, apart from those which are
-> affected by file fragmentation, which show improvement.
-
-What is system tractability?
-
-> With this patch, writepage() is still using the buffer layer, so lock
-> contention will still be high.
-
-Right, and buffers are going away one way or another.
-
-> A number of functions in fs/inode.c have been renamed.  We have a huge
-> and confusing array of sync_foo() functions in there.  I've attempted
-> to differentiate between `writeback_foo()', which starts I/O, and
-> `sync_foo()', which starts I/O and waits on it.  It's still a bit of a
-> mess, and needs revisiting.
-
-Yup.
-
-> Within the VM, the concept of ->writepage() has been replaced with the
-> concept of "write back a mapping".  This means that rather than writing
-> back a single page, we write back *all* dirty pages against the mapping
-> to which the LRU page belongs.
-
-This is a good and natural step, but don't we want to go even more global 
-than that and look at all the dirty data on a superblock, so the decision on 
-what to write out is optimized across files for better locality.
-
->   Despite its crudeness, this actually works rather well.  And it's
->   important, because disk blocks are allocated at ->writepage time, and
->   we *need* to write out good chunks of data, in ascending file offset
->   order so that the files are laid out well.  Random page-at-a-time
->   sprinkliness won't cut it.
-
-Right.
-
->   A simple future refinement is to change the API to be "write back N
->   pages around this one, including this one".  At present, I'll have to
->   pull a number out of the air (128 pages?).  Some additional
->   intelligence from the VM may help here.
->
->   Or not.  It could be that writing out all the mapping's pages is
->   always the right thing to do - it's what bdflush is doing at present,
->   and it *has* to have the best bandwidth.
-
-This has the desireable result of deferring the work on how best to "write 
-back N pages around this one, including this one" above.  I really think that 
-if we sit back and let the vfs evolve on its own a little more, that that 
-question will get much easier to answer.
-
->   But it may come unstuck when applied to swapcache.
-
-You're not even trying to apply this to swap cache right now are you?
-
-> Things which must still be done include:
->
-> [...]
->
-> - Remove bdflush and kupdate - use the pdflush pool to provide these
->   functions.
-
-The main disconnect there is sub-page sized writes, you will bundle together
-young and old 1K buffers.  Since it's getting harder to find a 1K blocksize
-filesystem, we might not care.  There is also my nefarious plan to make 
-struct pages refer to variable-binary-sized objects, including smaller than
-4K PAGE_SIZE.
- 
-> - Expose the three writeback tunables to userspace (/proc/sys/vm/pdflush?)
-
-/proc/sys/vm/pageflush <- we know the pages are dirty
-
-> - Use pdflush for try_to_sync_unused_inodes(), to stop the keventd
->   abuse.
-
-Could you explain please?
-
-> - Verify that the new APIs and implementation are suitable for XFS.
-
-Hey, I was going to mention that :-)  The question is, how long will it be
-before vfs-level delayed allocation is in 2.5.  Steve might see that as a
-way to get infinitely sidetracked.
-
-Well, I used up way more than the time budget I have for reading your patch
-and post, and I barely scratched the surface.  I hope the rest of the
-filesystem gang gets involved at this point, or maybe not.  Cooks/soup.
-
-I guess the thing to do is start thinking about parts that can be broken out 
-because of obvious correctness.  The dirty/locked accounting would be one
-candidate, the multiple flush threads another, and I'm sure there are more
-because you don't seem to have treated much as sacred ;-)
-
-Something tells me the vfs is going to look quite different by the end
-of 2.6.
-
--- 
-Daniel
+Andrea

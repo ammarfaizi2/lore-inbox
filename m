@@ -1,153 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266118AbUBCVnS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 16:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUBCVnS
+	id S266051AbUBCVyK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 16:54:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266167AbUBCVyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 16:43:18 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:27528 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S266118AbUBCVnI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 16:43:08 -0500
-Subject: Re: [ANNOUNCE] udev 016 release
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040203201359.GB19476@kroah.com>
-References: <20040203201359.GB19476@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5JZnkWaiNPTzpRO7gEOX"
-Message-Id: <1075844602.7473.75.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 03 Feb 2004 23:43:22 +0200
+	Tue, 3 Feb 2004 16:54:10 -0500
+Received: from s4.uklinux.net ([80.84.72.14]:34519 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id S266051AbUBCVyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 16:54:02 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
+References: <87oesieb75.fsf@codematters.co.uk>
+	<20040202194626.191cbb95.akpm@osdl.org>
+	<87llnk2js9.fsf@codematters.co.uk>
+	<20040203132913.6145f4e6.akpm@osdl.org>
+From: Philip Martin <philip@codematters.co.uk>
+Date: Tue, 03 Feb 2004 21:53:27 +0000
+In-Reply-To: <20040203132913.6145f4e6.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 3 Feb 2004 13:29:13 -0800")
+Message-ID: <87znbzg78o.fsf@codematters.co.uk>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
---=-5JZnkWaiNPTzpRO7gEOX
-Content-Type: multipart/mixed; boundary="=-purk3Hj7Dv0tYFEC+vh9"
+>> 2.6.1
+>
+> Odd.  Are you really sure that it was the correct System.map?
 
+I think so. I always build kernels using Debian's kernel-package so
+both vmlinuz and System.map get placed into a .deb package as
+vmlinuz-2.6.1 and System.map-2.6.1.
 
---=-purk3Hj7Dv0tYFEC+vh9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+$ ls -l /boot/Sys*
+-rw-r--r--    1 root     root       492205 Dec  1 19:27 /boot/System.map-2.4.23
+-rw-r--r--    1 root     root       492205 Jan  5 21:21 /boot/System.map-2.4.24
+-rw-r--r--    1 root     root       715800 Feb  1 21:02 /boot/System.map-2.6.1
 
-On Tue, 2004-02-03 at 22:13, Greg KH wrote:
+$ ls -l /boot/vm*
+-rw-r--r--    1 root     root       880826 Dec  1 19:27 /boot/vmlinuz-2.4.23
+-rw-r--r--    1 root     root       880822 Jan  5 21:21 /boot/vmlinuz-2.4.24
+-rw-r--r--    1 root     root      1095040 Feb  1 21:02 /boot/vmlinuz-2.6.1
 
-Once again, patch to make logging a config option.
+Hmm, I see that my 2.6.1 image is 25% bigger than 2.4.24, I'd not
+noticed that before.
 
-Reason for this (since you asked for it =3D):
-- In our setup it is easy (although still annoying) .. just
-edit the ebuild, add logging support (or remove it) and rebuild.
-For say a binary distro, having the logging is useful for debugging
-some times, but its more a once of, or rare thing, as you do not
-add or change config files every day.  Sure, we can have logging
-by default, but many do not want ~300 lines of extra debugging in
-their logs is not pleasant, and they will complain.  Rebuilding
-the package for that binary package (given the users it is targeted
-to) is usually not within most users grasp.
+I have just tried another 2.6 profile run and got similar results.
 
+248.88user 122.00system 3:41.18elapsed 167%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (453major+3770323minor)pagefaults 0swaps
 
-Thanks,
+c011e158 add_wait_queue                              442   5.5250
+c010b1e0 error_code                                  444   7.9286
+c0114658 sched_clock                                 460   3.8333
+c0108ac8 copy_thread                                 473   0.8631
+c01229e0 wait_task_zombie                            488   1.0252
+c010a79c syscall_call                                489  44.4545
+c0127a1c del_timer_sync                              529   4.0076
+c0128d18 flush_signal_handlers                       592   8.7059
+c010c570 handle_IRQ_event                            597   6.7841
+c011fbe0 do_fork                                     606   1.5947
+c0121970 put_files_struct                            616   3.2083
+c0123ec0 do_softirq                                  617   3.0245
+c011add4 wake_up_forked_process                      776   1.9020
+c0110d1c old_mmap                                    868   2.6790
+c012c638 sys_rt_sigaction                            942   3.8607
+c0122d78 sys_wait4                                   958   1.6404
+c01168b8 flush_tlb_mm                               1040   7.0270
+c012b0a4 get_signal_to_deliver                      1385   1.4610
+c0123e38 current_kernel_time                        1487  21.8676
+c011afc8 schedule_tail                              1606   8.9222
+c01223e8 do_exit                                    1807   1.8514
+c011df4f .text.lock.sched                           2302   7.9654
+c012b560 sys_rt_sigprocmask                         2417   7.0262
+c012c0a0 do_sigaction                               2736   4.0473
+c011e3c8 dup_task_struct                            3034  22.3088
+c011ec08 copy_files                                 3103   3.5261
+c011de6c __preempt_spin_lock                        3171  39.6375
+c012b474 sigprocmask                                3387  14.3517
+c011c2e0 __wake_up                                  3699  48.6711
+c0121d58 exit_notify                                3780   2.2500
+c0121150 release_task                               4071   7.4288
+c011694c flush_tlb_page                             7069  44.1812
+c011bbf0 schedule                                   7123   4.4519
+c011e6d4 copy_mm                                    7826   7.5833
+c010a770 system_call                                8249 187.4773
+c011efe0 copy_process                               8760   2.8516
+c0119588 pte_alloc_one                             16097 251.5156
+c01199b8 do_page_fault                             44492  37.3255
+c01086b0 default_idle                             937243 18023.9038
+00000000 total                                    1095569   6.7218
 
---=20
-Martin Schlemmer
-
---=-purk3Hj7Dv0tYFEC+vh9
-Content-Disposition: attachment; filename=udev-016-logging-config-option.patch
-Content-Type: text/x-patch; name=udev-016-logging-config-option.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtdXByTiB1ZGV2LTAxNi9NYWtlZmlsZSB1ZGV2LTAxNi5sb2dnaW5nL01ha2VmaWxlDQot
-LS0gdWRldi0wMTYvTWFrZWZpbGUJMjAwNC0wMi0wMyAyMjo1NTozMC4yMDE4NTE3NzYgKzAyMDAN
-CisrKyB1ZGV2LTAxNi5sb2dnaW5nL01ha2VmaWxlCTIwMDQtMDItMDMgMjM6MDM6NTUuODY5OTc4
-NTM2ICswMjAwDQpAQCAtMjM5LDYgKzIzOSw3IEBAIHVkZXZfdmVyc2lvbi5oOg0KIAlAZWNobyBc
-I2RlZmluZSBVREVWX0NPTkZJR19GSUxFCVwiJChjb25maWdkaXIpXHVkZXYuY29uZlwiID4+ICRA
-DQogCUBlY2hvIFwjZGVmaW5lIFVERVZfUlVMRVNfRklMRQlcIiQoY29uZmlnZGlyKVx1ZGV2LnJ1
-bGVzXCIgPj4gJEANCiAJQGVjaG8gXCNkZWZpbmUgVURFVl9QRVJNSVNTSU9OX0ZJTEUJXCIkKGNv
-bmZpZ2RpcilcdWRldi5wZXJtaXNzaW9uc1wiID4+ICRADQorCUBlY2hvIFwjZGVmaW5lIFVERVZf
-TE9HX0RFRkFVTFQgXCJ5ZXNcIiA+PiAkQA0KIAlAZWNobyBcI2RlZmluZSBVREVWX0JJTgkJXCIk
-KERFU1RESVIpJChzYmluZGlyKS91ZGV2XCIgPj4gJEANCiAJQGVjaG8gXCNkZWZpbmUgVURFVkRf
-QklOCVwiJChERVNURElSKSQoc2JpbmRpcikvdWRldmRcIiA+PiAkQA0KIAlAZWNobyBcI2RlZmlu
-ZSBVREVWRF9TT0NLCVwiJCh1ZGV2ZGlyKS9cLnVkZXZkLnNvY2tcIiA+PiAkQA0KZGlmZiAtdXBy
-TiB1ZGV2LTAxNi9ldGMvdWRldi91ZGV2LmNvbmYuaW4gdWRldi0wMTYubG9nZ2luZy9ldGMvdWRl
-di91ZGV2LmNvbmYuaW4NCi0tLSB1ZGV2LTAxNi9ldGMvdWRldi91ZGV2LmNvbmYuaW4JMjAwNC0w
-Mi0wMyAyMjo1ODozNC45Mzk3NjczNDQgKzAyMDANCisrKyB1ZGV2LTAxNi5sb2dnaW5nL2V0Yy91
-ZGV2L3VkZXYuY29uZi5pbgkyMDA0LTAyLTAzIDIyOjU2OjQ2LjUzNTI0NzMzNiArMDIwMA0KQEAg
-LTI5LDMgKzI5LDYgQEAgZGVmYXVsdF9vd25lcj0icm9vdCINCiAjICAgICAgICAgICAgICAgICBl
-eHBsaWNpdCBtYXRjaCBpbiB0aGUgcGVybWlzc2lvbnMgZmlsZQ0KIGRlZmF1bHRfZ3JvdXA9InJv
-b3QiDQogDQorIyB1ZGV2X2xvZyAtIHNldCB0byAieWVzIiBpZiB5b3Ugd2FudCBsb2dnaW5nLCBl
-bHNlICJubyINCit1ZGV2X2xvZz0ieWVzIg0KKw0KZGlmZiAtdXByTiB1ZGV2LTAxNi9sb2dnaW5n
-LmggdWRldi0wMTYubG9nZ2luZy9sb2dnaW5nLmgNCi0tLSB1ZGV2LTAxNi9sb2dnaW5nLmgJMjAw
-NC0wMi0wMiAxMTozNDo0OS4wMDAwMDAwMDAgKzAyMDANCisrKyB1ZGV2LTAxNi5sb2dnaW5nL2xv
-Z2dpbmcuaAkyMDA0LTAyLTAzIDIzOjA0OjUxLjIwNDU2NjQwMCArMDIwMA0KQEAgLTMzLDYgKzMz
-LDkgQEANCiAjaW5jbHVkZSA8c3RkYXJnLmg+DQogI2luY2x1ZGUgPHN5c2xvZy5oPg0KIA0KKyNp
-bmNsdWRlICJ1ZGV2LmgiDQorI2luY2x1ZGUgInVkZXZfdmVyc2lvbi5oIg0KKw0KICN1bmRlZiBp
-bmZvDQogI2RlZmluZSBpbmZvKGZvcm1hdCwgYXJnLi4uKQkJCQkJCQkJXA0KIAlkbyB7CQkJCQkJ
-CQkJCVwNCkBAIC02Miw2ICs2NSw5IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBsb2dfbWVzc2FnZSAo
-aW50IGxldmUNCiB7DQogCXZhX2xpc3QJYXJnczsNCiANCisJaWYgKDAgIT0gc3RybmNtcCh1ZGV2
-X2xvZ19zdHIsIFVERVZfTE9HX0RFRkFVTFQsIEJPT0xfU0laRSkpDQorCQlyZXR1cm47DQorDQog
-CXZhX3N0YXJ0KGFyZ3MsIGZvcm1hdCk7DQogCXZzeXNsb2cobGV2ZWwsIGZvcm1hdCwgYXJncyk7
-DQogCXZhX2VuZChhcmdzKTsNCmRpZmYgLXVwck4gdWRldi0wMTYvdWRldi5oIHVkZXYtMDE2Lmxv
-Z2dpbmcvdWRldi5oDQotLS0gdWRldi0wMTYvdWRldi5oCTIwMDQtMDEtMjYgMjI6MjQ6NDIuMDAw
-MDAwMDAwICswMjAwDQorKysgdWRldi0wMTYubG9nZ2luZy91ZGV2LmgJMjAwNC0wMi0wMyAyMzow
-MzoyNS42ODI1Njc3MjAgKzAyMDANCkBAIC0zMiw2ICszMiw4IEBADQogI2RlZmluZSBPV05FUl9T
-SVpFCTMwDQogI2RlZmluZSBHUk9VUF9TSVpFCTMwDQogI2RlZmluZSBNT0RFX1NJWkUJOA0KKyNk
-ZWZpbmUgQk9PTF9TSVpFCTUJLyogJ3llcycsICdubycgYW5kIHBvc3NpYmx5ICd0cnVlJyBvciAn
-ZmFsc2UnDQorCQkJCSAgIGluIGZ1dHVyZSAqLw0KIA0KIHN0cnVjdCB1ZGV2aWNlIHsNCiAJY2hh
-ciBuYW1lW05BTUVfU0laRV07DQpAQCAtNzIsNSArNzQsNiBAQCBleHRlcm4gY2hhciB1ZGV2X3J1
-bGVzX2ZpbGVuYW1lW1BBVEhfTUFYDQogZXh0ZXJuIGNoYXIgZGVmYXVsdF9tb2RlX3N0cltNT0RF
-X1NJWkVdOw0KIGV4dGVybiBjaGFyIGRlZmF1bHRfb3duZXJfc3RyW09XTkVSX1NJWkVdOw0KIGV4
-dGVybiBjaGFyIGRlZmF1bHRfZ3JvdXBfc3RyW0dST1VQX1NJWkVdOw0KK2V4dGVybiBjaGFyIHVk
-ZXZfbG9nX3N0cltCT09MX1NJWkVdOw0KIA0KICNlbmRpZg0KZGlmZiAtdXByTiB1ZGV2LTAxNi91
-ZGV2X2NvbmZpZy5jIHVkZXYtMDE2LmxvZ2dpbmcvdWRldl9jb25maWcuYw0KLS0tIHVkZXYtMDE2
-L3VkZXZfY29uZmlnLmMJMjAwNC0wMi0wMyAyMzowMDo0MC40Mzg2ODg2MDggKzAyMDANCisrKyB1
-ZGV2LTAxNi5sb2dnaW5nL3VkZXZfY29uZmlnLmMJMjAwNC0wMi0wMyAyMjo1Njo0Ni42NDkyMzAw
-MDggKzAyMDANCkBAIC00OCw2ICs0OCw3IEBAIGNoYXIgdWRldl9jb25maWdfZmlsZW5hbWVbUEFU
-SF9NQVgrTkFNRV8NCiBjaGFyIGRlZmF1bHRfbW9kZV9zdHJbTU9ERV9TSVpFXTsNCiBjaGFyIGRl
-ZmF1bHRfb3duZXJfc3RyW09XTkVSX1NJWkVdOw0KIGNoYXIgZGVmYXVsdF9ncm91cF9zdHJbR1JP
-VVBfU0laRV07DQorY2hhciB1ZGV2X2xvZ19zdHJbQk9PTF9TSVpFXTsNCiANCiANCiBzdGF0aWMg
-dm9pZCBpbml0X3ZhcmlhYmxlcyh2b2lkKQ0KQEAgLTYwLDYgKzYxLDcgQEAgc3RhdGljIHZvaWQg
-aW5pdF92YXJpYWJsZXModm9pZCkNCiAJc3RyZmllbGRjcHkodWRldl9jb25maWdfZmlsZW5hbWUs
-IFVERVZfQ09ORklHX0ZJTEUpOw0KIAlzdHJmaWVsZGNweSh1ZGV2X3J1bGVzX2ZpbGVuYW1lLCBV
-REVWX1JVTEVTX0ZJTEUpOw0KIAlzdHJmaWVsZGNweSh1ZGV2X3Blcm1pc3Npb25zX2ZpbGVuYW1l
-LCBVREVWX1BFUk1JU1NJT05fRklMRSk7DQorCXN0cmZpZWxkY3B5KHVkZXZfbG9nX3N0ciwgVURF
-Vl9MT0dfREVGQVVMVCk7DQogfQ0KIA0KICNkZWZpbmUgc2V0X3ZhcihfbmFtZSwgX3ZhcikJCQkJ
-XA0KQEAgLTE1Niw2ICsxNTgsNyBAQCBzdGF0aWMgaW50IHBhcnNlX2NvbmZpZ19maWxlKHZvaWQp
-DQogCQlzZXRfdmFyKCJkZWZhdWx0X21vZGUiLCBkZWZhdWx0X21vZGVfc3RyKTsNCiAJCXNldF92
-YXIoImRlZmF1bHRfb3duZXIiLCBkZWZhdWx0X293bmVyX3N0cik7DQogCQlzZXRfdmFyKCJkZWZh
-dWx0X2dyb3VwIiwgZGVmYXVsdF9ncm91cF9zdHIpOw0KKwkJc2V0X3ZhcigidWRldl9sb2ciLCB1
-ZGV2X2xvZ19zdHIpOw0KIAl9DQogCWRiZ19wYXJzZSgiJXM6JWQ6JVpkOiBlcnJvciBwYXJzaW5n
-ICclcyciLCB1ZGV2X2NvbmZpZ19maWxlbmFtZSwNCiAJCSAgbGluZW5vLCB0ZW1wIC0gbGluZSwg
-dGVtcCk7DQpAQCAtMTkxLDYgKzE5NCw3IEBAIHN0YXRpYyB2b2lkIGdldF9kaXJzKHZvaWQpDQog
-CWRiZ19wYXJzZSgidWRldl9kYl9maWxlbmFtZSA9ICVzIiwgdWRldl9kYl9maWxlbmFtZSk7DQog
-CWRiZ19wYXJzZSgidWRldl9ydWxlc19maWxlbmFtZSA9ICVzIiwgdWRldl9ydWxlc19maWxlbmFt
-ZSk7DQogCWRiZ19wYXJzZSgidWRldl9wZXJtaXNzaW9uc19maWxlbmFtZSA9ICVzIiwgdWRldl9w
-ZXJtaXNzaW9uc19maWxlbmFtZSk7DQorCWRiZ19wYXJzZSgidWRldl9sb2dfc3RyID0gJXMiLCB1
-ZGV2X2xvZ19zdHIpOw0KIAlwYXJzZV9jb25maWdfZmlsZSgpOw0KIA0KIAlkYmdfcGFyc2UoInVk
-ZXZfcm9vdCA9ICVzIiwgdWRldl9yb290KTsNCkBAIC0xOTgsNiArMjAyLDcgQEAgc3RhdGljIHZv
-aWQgZ2V0X2RpcnModm9pZCkNCiAJZGJnX3BhcnNlKCJ1ZGV2X2RiX2ZpbGVuYW1lID0gJXMiLCB1
-ZGV2X2RiX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2X3J1bGVzX2ZpbGVuYW1lID0gJXMi
-LCB1ZGV2X3J1bGVzX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2X3Blcm1pc3Npb25zX2Zp
-bGVuYW1lID0gJXMiLCB1ZGV2X3Blcm1pc3Npb25zX2ZpbGVuYW1lKTsNCisJZGJnX3BhcnNlKCJ1
-ZGV2X2xvZ19zdHIgPSAlcyIsIHVkZXZfbG9nX3N0cik7DQogfQ0KIA0KIHZvaWQgdWRldl9pbml0
-X2NvbmZpZyh2b2lkKQ0K
-
---=-purk3Hj7Dv0tYFEC+vh9--
-
---=-5JZnkWaiNPTzpRO7gEOX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAIBX6qburzKaJYLYRAk6WAJ9tWwxKln9eF3+NBRSf17CkbenCWgCfeGit
-hdE4G6J2tbpJ3fAVSRsNIp0=
-=3PFe
------END PGP SIGNATURE-----
-
---=-5JZnkWaiNPTzpRO7gEOX--
-
+-- 
+Philip Martin

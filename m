@@ -1,31 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285186AbRLMVNY>; Thu, 13 Dec 2001 16:13:24 -0500
+	id <S285188AbRLMVTe>; Thu, 13 Dec 2001 16:19:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285187AbRLMVNO>; Thu, 13 Dec 2001 16:13:14 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:24592 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S285186AbRLMVND>; Thu, 13 Dec 2001 16:13:03 -0500
-Message-Id: <200112132113.fBDLD0g12877@aslan.scsiguy.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: that stupid aic7xxx AHC_NSEGS bug 
-In-Reply-To: Your message of "Thu, 13 Dec 2001 13:10:11 PST."
-             <20011213.131011.111206721.davem@redhat.com> 
-Date: Thu, 13 Dec 2001 14:13:00 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S285189AbRLMVTY>; Thu, 13 Dec 2001 16:19:24 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:55999 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S285188AbRLMVTM>;
+	Thu, 13 Dec 2001 16:19:12 -0500
+Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
+From: Steve Lord <lord@sgi.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Jens Axboe <axboe@suse.de>, LBJM <LB33JM16@yahoo.com>,
+        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1008277112.22093.7.camel@jen.americas.sgi.com>
+In-Reply-To: <200112132048.fBDKmog10485@aslan.scsiguy.com> 
+	<1008277112.22093.7.camel@jen.americas.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.13.08.57 (Preview Release)
+Date: 13 Dec 2001 15:17:24 -0600
+Message-Id: <1008278244.22208.12.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
->   Date: Thu, 13 Dec 2001 13:57:43 -0700
->   
->   We all make mistakes David, even you.
->
->Some of us are just a little bit more of a pain in the ass about it,
->and this was my point.
+On Thu, 2001-12-13 at 14:58, Steve Lord wrote:
+> On Thu, 2001-12-13 at 14:48, Justin T. Gibbs wrote:
+> > >So according to this, zero.
+> > 
+> > Thanks for the info - its the first useful report I've gotten todate. 8-)
+> > I believe I've found and fixed the bug.  I've changed a few other things
+> > in the driver for the 6.2.5 release, so once I've tested them I'll release
+> > new patches.  In the mean time, you should be able to avoid the problem by
+> > moving the initialization of scb->sg_count to 0 in the function:
+> > 
+> > 	aic7xxx_linux.c:ahc_linux_run_device_queue()
+> > 
+> > to before the statement:
+> > 
+> > 	if (cmd->use_sg != 0) {
+> > 
+> > I'd give you diffs, but these other changes in my tree need more testing
+> > before I'll feel comfortable releasing them.  I also don't have a 2.5 tree
+> > downloaded yet to verify that the driver functions there.
+> > 
+> > In order to reproduce the bug, you need to issue a command that uses
+> > all of the segments of a given transaction and then have a command with
+> > use_sg == 0 be the next command to use that same SCB.  This explains why
+> > I was not able to reproduce the problem here.
+> 
+> Thanks, I will test it out here and let you know, looks like David
+> Miller is proposing the same assignment in a different place.
+> 
 
-Well, you made it brilliantly.  Bravo!
+OK, I can confirm this fixes it for me. A side not for Jens, this still
+pushes the scsi layer into those DMA shortage messages:
 
---
-Justin
+Warning - running *really* short on DMA buffers
+SCSI: depth is 175, # segs 128, # hw segs 1
+Warning - running *really* short on DMA buffers
+Warning - running *really* short on DMA buffers
+SCSI: depth is 181, # segs 128, # hw segs 1
+Warning - running *really* short on DMA buffers
+SCSI: depth is 182, # segs 128, # hw segs 1
+Warning - running *really* short on DMA buffers
+SCSI: depth is 183, # segs 128, # hw segs 1
+SCSI: depth is 173, # segs 128, # hw segs 1
+
+Steve
+
+-- 
+
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

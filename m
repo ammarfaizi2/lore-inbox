@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbTFJLI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 07:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTFJLI7
+	id S261895AbTFJLNa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 07:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTFJLNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 07:08:59 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:55282 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S261843AbTFJLI6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 07:08:58 -0400
-Date: Tue, 10 Jun 2003 13:20:12 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: "Brian J. Murrell" <brian@interlinx.bc.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-In-Reply-To: <Pine.LNX.4.50.0306092112250.19137-100000@montezuma.mastecende.com>
-Message-ID: <Pine.GSO.3.96.1030610130024.19547D-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jun 2003 07:13:30 -0400
+Received: from mail.gmx.de ([213.165.64.20]:20181 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261895AbTFJLN3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 07:13:29 -0400
+Message-Id: <5.2.0.9.2.20030610125606.00cd04a0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Tue, 10 Jun 2003 13:31:32 +0200
+To: William Lee Irwin III <wli@holomorphy.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.5.70-mm6
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20030610092048.GB26348@holomorphy.com>
+References: <Pine.LNX.4.51.0306101052160.14891@dns.toxicfilms.tv>
+ <46580000.1055180345@flay>
+ <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
+ <51250000.1055184690@flay>
+ <Pine.LNX.4.51.0306092140450.32624@dns.toxicfilms.tv>
+ <20030609200411.GA26348@holomorphy.com>
+ <Pine.LNX.4.51.0306101052160.14891@dns.toxicfilms.tv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jun 2003, Zwane Mwaikambo wrote:
+At 02:20 AM 6/10/2003 -0700, William Lee Irwin III wrote:
+>At some point in the past, I wrote:
+> >> How about one or the other of these two? (not both at once, though,
+> >> they appear to clash).
+>
+>On Tue, Jun 10, 2003 at 10:54:55AM +0200, Maciej Soltysiak wrote:
+> > Success, no audio skipps with galbraith.patch and mm6.
 
-> >  Why do you consider the systems broken?
-> 
-> Not necessarily broken, just no reporting of APIC capability. Not that i 
-> should expect better from Intel (c.f. HT bit, SEP on PPro etc)
+(victim of fast hw methinks.  dog slow old isa card will probably work fine)
 
- Hmm, how could e.g. an i486 report it?  Remember, the i82489DX is a
-discrete APIC implementation, i.e. it's a chip external to the CPU.  The
-i82489DX is actually a complete APIC implementation, including both a
-local and an I/O unit in a single chip.  And it's also superior to
-integrated APIC implementations -- it can address up to 255 units in the
-physical destination mode and up to 32 ones in the logical one.
+>Mike, any chance you can turn your series of patches into one that
+>applies atop mingo's intra-timeslice priority preemption patch? If
+>not, I suppose someone else could.
 
- These APICs were used for i486 systems as well as for Pentium ones meant
-to support more than two CPUs (although the Pentium integrated local APICs
-can probably support more than two such units in a system, there was no
-suitable I/O unit available; the i82093AA chip was introduced later and
-the i82489DX is hardware-incompatible to later implementations, e.g. 
-using a five-wire inter-APIC bus).
+I've never seen it.  Is this the test-starve fix I heard mentioned on lkml 
+once?
 
-> How about we only clear smp_found_config when forced.
+>There also appears to be some kind of issue with using monotonic_clock()
+>with timer_pit as well as some locking overhead concerns. Something
+>should probably be done about those things before trying to merge the
+>fine-grained time accounting patch.
 
- Looks OK.  Probably a message could be added to report handling of the
-local APIC got disabled. 
+Ingo had me measure impact with lat_ctx, and it wasn't very encouraging 
+(and my box is UP).  I'm not sure that I wasn't seeing some cache effects 
+though, because the numbers jumped around quite a bit.  Per Ingo, the 
+sequence lock change will greatly improve scalability.  Doing anything 
+extra in that path is going to cost some pain though, so I'm trying to 
+figure out a way to do something ~similar.  (ala perfect is the enemy of 
+good mantra).
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+wrt pit, yeah, that diff won't work if you don't have a tsc.  If something 
+like it were used, it'd have to have ifdefs to continue using 
+jiffies.  (the other option being only presentable on April 1:)
+
+         -Mike 
 

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273358AbRI0P1R>; Thu, 27 Sep 2001 11:27:17 -0400
+	id <S273360AbRI0PcG>; Thu, 27 Sep 2001 11:32:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273326AbRI0P04>; Thu, 27 Sep 2001 11:26:56 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:52486 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273295AbRI0P0x>;
-	Thu, 27 Sep 2001 11:26:53 -0400
-Date: Thu, 27 Sep 2001 12:27:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "George R.Kasica" <georgek@netwrx1.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10
-In-Reply-To: <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com>
-Message-ID: <Pine.LNX.4.33L.0109271226360.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S273361AbRI0Pb4>; Thu, 27 Sep 2001 11:31:56 -0400
+Received: from pat.uio.no ([129.240.130.16]:45957 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S273360AbRI0Pbv>;
+	Thu, 27 Sep 2001 11:31:51 -0400
+To: jstrand1@rochester.rr.com (James D Strandboge)
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
+Subject: Re: status of nfs and tcp with 2.4
+In-Reply-To: <20010927105321.A15128@rochester.rr.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 27 Sep 2001 17:32:09 +0200
+In-Reply-To: jstrand1@rochester.rr.com's message of "Thu, 27 Sep 2001 10:53:21 -0400"
+Message-ID: <shssnd88xae.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2001, George R.Kasica wrote:
+>>>>> " " == James D Strandboge <jstrand1@rochester.rr.com> writes:
 
-> What would be the advice of others in terms of moving up from 2.4.5
-> which has been rock solid here?
+     > What is the status of tcp and nfs with the 2.4 kernel?  The
+     > sourceforge site (regarding this) has not changed for a while
+     > and the NFS FAQ at sourceforge simply states: nfsv3 over tcp
+     > does not work - the code for 2.4.x is as yet to be merged
 
-2.4.9-ac14, possibly 2.4.9-ac16 if it's out before you are around
-to upgrading.
+     > What progress is being made toward this end?
 
-cheers,
+None: AFAIK nobody has yet written any code that works for the server.
 
-Rik
--- 
-IA64: a worthy successor to i860.
+The client works though...
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Cheers,
+   Trond

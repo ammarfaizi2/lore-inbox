@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUFNBhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUFNBuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUFNBhY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 21:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUFNBhX
+	id S261668AbUFNBuc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 21:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUFNBub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 21:37:23 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:35748 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261563AbUFNBhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 21:37:21 -0400
-Date: Mon, 14 Jun 2004 10:38:36 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: [PATCH 1/4]Diskdump Update
-In-reply-to: <78040000.1086967058@[10.10.2.4]>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <ACC451B04FA428indou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.55
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <78040000.1086967058@[10.10.2.4]>
+	Sun, 13 Jun 2004 21:50:31 -0400
+Received: from [219.130.51.69] ([219.130.51.69]:21776 "ehlo rmb.com.hk")
+	by vger.kernel.org with ESMTP id S261668AbUFNBua (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 21:50:30 -0400
+From: "cat" <cat@rmb.com.hk>
+Subject: Jacket for waterproof   :USD 7.00/pc
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: cat@rmb.com.hk
+Date: Mon, 14 Jun 2004 09:49:43 +0800
+X-Priority: 4
+X-Mailer: FoxMail 3.11 [cn]
+Message-Id: <S261668AbUFNBua/20040614015030Z+300@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Multi Neoprene China Factory
+Dongguan City Guangdong China
+E-mail : cat@rmb.com.hk
+T/F: 0086-769-5835182 
+ 
+Jacket for waterproof
+price:USD 7.00/pc
+The QTY:100pcs
+ 
+seat for paddling
+price:USD25.0/PC
+      USD20.0/PC
+The QTY:100pcs
+ 
+Website : http://home.netvigator.com/~sky888s/
+ 
+For the small order, our shipping forwarder is Hong Kong Post Office in Hong Kong
+website : 
+www.hongkongpost.com
+ 
+ 
+Thanks,
+ 
 
-On Fri, 11 Jun 2004 08:17:40 -0700, "Martin J. Bligh" wrote:
-
->> Ok, I fix it.
->> 
->> -		page = mem_map + nr;
->> +		page = pfn_to_page(nr);
->
->That's correct now ...
->
->> I also need fix this.
->> 
->> -	for (nr = 0; nr < max_mapnr; nr++) {
->> +	for (nr = 0; nr < max_pfn; nr++) {
->
->... but that's not (at least AFAICS from this snippet). You need to iterate 
->over pgdats, and then over the lmem_map inside each pgdat.
-
-How about this?
-
-for_each_pgdat(pgdat) {
-	for (i = 0; i < pgdat->node_spanned_pages; ++i) {
-		page = pgdat->node_mem_map + i;
-		...
-        }
-}
-
+Cat   

@@ -1,79 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263547AbTCUI56>; Fri, 21 Mar 2003 03:57:58 -0500
+	id <S263564AbTCUI7b>; Fri, 21 Mar 2003 03:59:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263556AbTCUI56>; Fri, 21 Mar 2003 03:57:58 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:35602 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263547AbTCUI55>; Fri, 21 Mar 2003 03:57:57 -0500
-Date: Fri, 21 Mar 2003 10:08:43 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Greg KH <greg@kroah.com>
-cc: Andries.Brouwer@cwi.nl, <linux-kernel@vger.kernel.org>, <akpm@digeo.com>
-Subject: Re: [PATCH] alternative dev patch
-In-Reply-To: <20030321012455.GB10298@kroah.com>
-Message-ID: <Pine.LNX.4.44.0303210936590.5042-100000@serv>
-References: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl>
- <Pine.LNX.4.44.0303202314210.5042-100000@serv> <20030321012455.GB10298@kroah.com>
+	id <S263566AbTCUI7b>; Fri, 21 Mar 2003 03:59:31 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:20740 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S263564AbTCUI73>; Fri, 21 Mar 2003 03:59:29 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200303210910.h2L9ABp8002500@green.mif.pg.gda.pl>
+Subject: Re: Non-__init functions calling __init functions
+To: cfriesen@nortelnetworks.com (Chris Friesen)
+Date: Fri, 21 Mar 2003 10:10:11 +0100 (CET)
+Cc: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
+       stuartm@connecttech.com (Stuart MacDonald),
+       linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <3E79F405.9030705@nortelnetworks.com> from "Chris Friesen" at Mar 20, 2003 12:01:57 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 20 Mar 2003, Greg KH wrote:
-
-> On Fri, Mar 21, 2003 at 12:03:57AM +0100, Roman Zippel wrote:
-> > I'm unsure how your code will scale. It depends on how that code will be 
-> > used. If drivers register a lot of devices, your lookup function has to 
-> > scan a possibly very long list of minor devices and that function is 
-> > difficult to optimize.
+> Andrzej Krzysztofowicz wrote:
 > 
-> And then we grab the BKL :(
-
-This is currently required for either implementation and needs to be moved 
-to the driver.
-
-> Hint, optimizing the open() path for char devices is not anything we
-> will probably be doing in 2.6, due to the BKL usage there.  It's also
-> not anything anyone has seen on any known benchmarks as a point of
-> contention, so I would not really worry about this for now.
-
-The BKL also shouldn't be a reason to make it unnecessary expensive? I 
-don't understand your argument.
-
-> > char devices don't have partitions, so you hardly need regions. The 
-> > problem with the tty layer is that the console and the serial devices 
-> > should have different majors.
+> > Not always possible.
+> > 
+> > __init A() {
+> > ...
+> > }
+> > 
+> > __exit B() {
+> > ...
+> > }
+> > 
+> > C() {
+> > ...
+> > A();
+> > ...
+> > #ifdef MODULE
+> > B();
+> > #endif
+> > ...
+> > }
+> > 
+> > C cannot be marked __init for #define MODULE case. Even if it is called only
+> > by some __init code. I can imagine other similar situations.
 > 
-> There are a number of char drivers that have "regions".  The tty layer
-> support them, and the usb core supports them as two examples.  I'm sure
-> there are others.  Personally, I like the symmetry with the block device
-> function the way Andries did it.
+> I thought that in the case of modules, __init is a noop?  At least, that's what 
+> this page says
 
-Every single call to usb_register_dev in 2.5.65 uses exactly 1 minor 
-number. Block device drivers need regions because they have partitions 
-and we need to find out which device a partition belongs to. Where have 
-character devices such requirements?
+Currently - yes.
+But I heard about patches that make __init usefull in modular case.
+Why break them ?
 
-> > See the misc device example. It doesn't have a table, but the list is now 
-> > only needed to generate /proc/misc. As soon as character devices are 
-> > better integrated into the driver model, even this list is not needed 
-> > anymore. This means for simple character devices, we can easily add a 
-> > alloc_chardev/add_chardev interface similiar to block devices.
+> http://www.netfilter.org/unreliable-guides/kernel-hacking/routines-init.html
 > 
-> No, I don't see /proc/misc going away due to the driver model, I imagine
-> there are too many users of it to disappear.  Also, the driver model
-> doesn't care a thing about major/minor numbers so I don't understand how
-> you think it can help in this situation.
+> So if MODULE is defined, it doesn't matter if C is labelled as __init or not, 
+> and if it is not defined, it *should* be labelled as __init since it is itself 
+> calling __init code.
 
-I didn't mean that /proc/misc goes away, I meant the misc_list in misc.c. 
-They could be other ways to generate /proc/misc.
-/proc/devices, /proc/misc, /proc/tty/drivers, ... is currently mostly 
-needed to generate device nodes for dynamic device numbers. This badly 
-needs a more generic mechanism.
+Safely the following can be added:
 
-bye, Roman
++ #ifndef MODULE
++ __init
++ #endif
+  C() {
 
+But I heard that our policy is avoiding extra #ifdefs if possible... 
+
+AFAIR, some __init functions were called (in 2.4 scsi code; I didn't check
+newer code) indirectly, by pointers to them, from non __init code. It is
+more dificult to detect such cases.
+
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Gdansk University of Technology

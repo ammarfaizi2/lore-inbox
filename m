@@ -1,94 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbUBUNon (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 08:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbUBUNon
+	id S261556AbUBUN4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 08:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbUBUN4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 08:44:43 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:7840 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261552AbUBUNok
+	Sat, 21 Feb 2004 08:56:16 -0500
+Received: from mail3.speakeasy.net ([216.254.0.203]:22469 "EHLO
+	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S261556AbUBUN4M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 08:44:40 -0500
-Date: Sat, 21 Feb 2004 14:43:04 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@oss.sgi.com,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Daniel Egger <degger@fhm.edu>
-Subject: Re: [PATCH] Re: rtl8169 problem and 2.4.23
-Message-ID: <20040221144304.A3230@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
+	Sat, 21 Feb 2004 08:56:12 -0500
+From: NoTellin <notellin@speakeasy.net>
+Organization: --NA--
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Multiple NIC cards in the same machine and 2.5/2.6
+Date: Sat, 21 Feb 2004 08:15:55 -0500
+User-Agent: KMail/1.6
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402210815.55770.notellin@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I use an iptables based firewall. I currently have 4 NIC cards in 
+the machine.
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+My modules.conf file contains the following lines:
 
-Jeff,
+alias eth0 ne
+alias eth1 ne
+options eth0 -o ne-0 io=0x300 irq=3
+options eth1 -o ne-1 io=0x200 irq=5
+alias eth2 winbond-840
+alias eth3 3c509
 
-  can you push the attached patch directly to both 2.6.x and 2.4.x ?
-It will exhibit an offset of 3 lines against 2.4.x but it works the same
-on 2.4.x and on 2.6.x. The fix already exists in -mm/-netdev serie.
+This works perfectly fine for the 2.4.x series of kernels up to 
+and including 2.4.24
 
-Daniel Egger <degger@fhm.edu> confirmed I did not manage to add a giant
-typo in a 4 lines patch. When hit, this bug is more or less a killer.
+However, I can't get this to work in any 2.5/2.6 kernel. The 2.6 
+series of kernels will recognize that there are 3 nic cards but 
+doesn't seem to accept 2 copies of the ne nic drivers in memory. 
+I've tested this up to and including 2.6.3.
 
-Daniel, I have no clear idea for the performance issues. Actually I am more
-concerned with the stability side of this driver, especially in the new,
-shamelessly hacked, branch of the driver. I'll probably regenerate a set
-of patches and spam^W reach the testers to have a new data point.
+I've tried researching this on the 'Net but I've only been able to 
+find references suitable for the 2.4 and lesser series of 
+kernels. Could someone point me to the equivalent information for 
+2.5/2.6 and higher?
 
---
-Ueimor
+Configuration:
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="r8169-tx-desc-overflow.patch"
+90 MHz Pentium Classic, 64 meg ram, 3 gig hardrive.
 
-Assume tp->dirty_tx = NUM_TX_DESC/2, tp->cur_tx = NUM_TX_DESC - 1,
-watch "entry" go beyond NUM_TX_DESC. This bug was copied from the 
-(2.6.x only) sis190 driver where it is now fixed.
-Stats are fixed as an extra bonus.
+eth0 - ISA NE2000 - ADSL connection to Internet
+eth1 - ISA NE2000 - Lan Segment 2 connection
+eth2 - PCI Windbond - Lan segment 1 connection
+eth3 - ISA 3com - Cable Modem (backup) connection to the Internet.
+
+Thank you everyone.
+Guy
 
 
-diff -Nrup drivers/net/r8169.c.orig drivers/net/r8169.c
---- drivers/net/r8169.c.orig	Thu Dec 18 03:58:50 2003
-+++ drivers/net/r8169.c	Sat Feb 21 14:11:31 2004
-@@ -871,7 +871,6 @@ rtl8169_tx_interrupt(struct net_device *
- 		     void *ioaddr)
- {
- 	unsigned long dirty_tx, tx_left = 0;
--	int entry = tp->cur_tx % NUM_TX_DESC;
- 
- 	assert(dev != NULL);
- 	assert(tp != NULL);
-@@ -881,14 +880,18 @@ rtl8169_tx_interrupt(struct net_device *
- 	tx_left = tp->cur_tx - dirty_tx;
- 
- 	while (tx_left > 0) {
-+		int entry = dirty_tx % NUM_TX_DESC;
-+
- 		if ((tp->TxDescArray[entry].status & OWNbit) == 0) {
--			dev_kfree_skb_irq(tp->
--					  Tx_skbuff[dirty_tx % NUM_TX_DESC]);
--			tp->Tx_skbuff[dirty_tx % NUM_TX_DESC] = NULL;
-+			struct sk_buff *skb = tp->Tx_skbuff[entry];
-+
-+			tp->stats.tx_bytes += skb->len >= ETH_ZLEN ?
-+					      skb->len : ETH_ZLEN;
- 			tp->stats.tx_packets++;
-+			dev_kfree_skb_irq(skb);
-+			tp->Tx_skbuff[entry] = NULL;
- 			dirty_tx++;
- 			tx_left--;
--			entry++;
- 		}
- 	}
- 
-
---7AUc2qLy4jB3hD7Z--
+-- 
+Free Speech is better than Free Beer

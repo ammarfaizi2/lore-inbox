@@ -1,52 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131400AbRABS0s>; Tue, 2 Jan 2001 13:26:48 -0500
+	id <S131270AbRABSiW>; Tue, 2 Jan 2001 13:38:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131406AbRABS0j>; Tue, 2 Jan 2001 13:26:39 -0500
-Received: from va-ext.webmethods.com ([208.234.160.252]:31274 "EHLO
-	localhost.neuron.com") by vger.kernel.org with ESMTP
-	id <S131400AbRABS0Z>; Tue, 2 Jan 2001 13:26:25 -0500
-Date: Tue, 2 Jan 2001 12:57:52 -0500 (EST)
-From: stewart@neuron.com
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sync() broken for raw devices in 2.4.x??
-In-Reply-To: <20010102023554.A2232@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.10.10101012041130.1975-100000@localhost>
+	id <S131005AbRABSiN>; Tue, 2 Jan 2001 13:38:13 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13075 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129348AbRABSh4>; Tue, 2 Jan 2001 13:37:56 -0500
+Subject: Re: [PATCH] Re: 2.4.0-testX fails to compile on my Athlon
+To: VANDROVE@vc.cvut.cz (Petr Vandrovec)
+Date: Tue, 2 Jan 2001 18:02:29 +0000 (GMT)
+Cc: tleete@mountain.net, linux-kernel@vger.kernel.org
+In-Reply-To: <11718F7840A2@vcnet.vc.cvut.cz> from "Petr Vandrovec" at Jan 02, 2001 06:44:21 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14DVlW-0002cO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> For 2.4.0, probably disabling 3DNow in kernel when using SMP is best 
+> solution, as AFAIK nobody tested correctness of 3DNow code on SMP... Or is
+> it obviously correct?
 
- Thanks for the correction. I am using a buffered block device
- then, not a real synchronous raw device.
-
- stewart
-
-On Tue, 2 Jan 2001, Andi Kleen wrote:
-
-> On Mon, Jan 01, 2001 at 07:50:31PM -0500, stewart@neuron.com wrote:
-> > 
-> >  I have a sync()/fdatasync() intensive application that is designed to work
-> >  on both raw files and raw partitions. Today I upgraded my kernel to the
-> >  new pre-release and found that my benchmark program would no longer finish
-> >  when handed a raw partition. I've written a small Java program (my app is
-> >  in Java) which demonstrates the bug. Make foo.dat a raw scsi partition to
-> >  re-produce. In my case it's "mknod foo.dat b 8 18". 
-> 
-> Just a minor correction: this is not a raw partition, but a buffered blockdevice.
-> If you want a real rawdevice (where sync is a noop because all IO goes
-> synchronously to disk) you need to bind a character raw device to the
-> block device first using the raw util.
-> 
-> >From a quick look sync_buffers() [which implements fsync on block devices]
-> has not changed significantly between 2.2 and 2.4 and uses the same algorithm.
-> 
-> -Andi
-> 
-
-
+Its obviously correct.  At least if it doesnt work the MMX/XMM code for
+raid should also fail horribly ;)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

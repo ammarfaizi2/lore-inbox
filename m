@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262619AbTDAPbj>; Tue, 1 Apr 2003 10:31:39 -0500
+	id <S262605AbTDAPi6>; Tue, 1 Apr 2003 10:38:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262617AbTDAPbj>; Tue, 1 Apr 2003 10:31:39 -0500
-Received: from [81.2.110.254] ([81.2.110.254]:32751 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id <S262605AbTDAPbh>;
-	Tue, 1 Apr 2003 10:31:37 -0500
-Subject: Re: Query about SIS963 Bridges
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: john@beyondhelp.co.nz
-Cc: John M Collins <jmc@xisl.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0303300940200.16280-100000@hades.internal.beyondhelp.co.nz>
-References: <Pine.LNX.4.44.0303300940200.16280-100000@hades.internal.beyondhelp.co.nz>
-Content-Type: text/plain
+	id <S262608AbTDAPi6>; Tue, 1 Apr 2003 10:38:58 -0500
+Received: from imr1.ericy.com ([208.237.135.240]:54007 "EHLO imr1.ericy.com")
+	by vger.kernel.org with ESMTP id <S262605AbTDAPi5>;
+	Tue, 1 Apr 2003 10:38:57 -0500
+From: "Philippe Meloche (LMC)" <Philippe.Meloche@ericsson.ca>
+To: davidel@xmailserver.org
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <3E89B55F.1010207@lmc.ericsson.se>
+Date: Tue, 01 Apr 2003 10:50:55 -0500
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Subject: Process limits for epoll tests
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049208265.19703.14.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Apr 2003 15:44:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> 2.4.20 slackware 9.0 bare.i works with the PCI NIC and PCI ATA card (no
-> acpi in this kernel)
-> 
-> is ACPI the problem with this chipset ?
+We tried to reproduce the tests you've done with /dev/epoll and we've 
+come to ask us some questions.
 
-It might be. I don't have time to find out and SiS clearly don't care
-about their customers any more
+1. How did you managed httperf to perform more than 1024 connections 
+when it's using select() ?
 
+2. Did you get some errors like client-timeout or connections reset when 
+you were doing your tests ?
+
+3. How much time did a burst test ( 27000 connections and 2 calls per 
+connection ) last and how many sample did httperf
+    took during those tests.
+
+Thanks a lot
+
+Philippe Meloche
+philippe.meloche@lmc.ericsson.se

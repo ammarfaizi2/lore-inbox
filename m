@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132756AbRBRLXk>; Sun, 18 Feb 2001 06:23:40 -0500
+	id <S132757AbRBRLZa>; Sun, 18 Feb 2001 06:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132757AbRBRLXa>; Sun, 18 Feb 2001 06:23:30 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1580 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S132756AbRBRLXS>; Sun, 18 Feb 2001 06:23:18 -0500
-Date: Sun, 18 Feb 2001 12:33:42 +0100 (CET)
-From: Francis Galiegue <fg@mandrakesoft.com>
+	id <S132788AbRBRLZV>; Sun, 18 Feb 2001 06:25:21 -0500
+Received: from [62.122.97.53] ([62.122.97.53]:64005 "EHLO
+	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
+	id <S132757AbRBRLZH>; Sun, 18 Feb 2001 06:25:07 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.1-ac16, arch/i386/kernel/irq.c: spurious #if CONFIG_SMP
- .. #endif
-Message-ID: <Pine.LNX.4.21.0102181230410.884-100000@toy.mandrakesoft.com>
+Subject: Re: MTU and 2.4.x kernel
+In-Reply-To: <200102152041.XAA21220@ms2.inr.ac.ru>
+Reply-To: Pierfrancesco Caci <p.caci@tin.it>
+From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
+Date: 18 Feb 2001 12:26:09 +0100
+In-Reply-To: <200102152041.XAA21220@ms2.inr.ac.ru>
+Message-ID: <87u25sb5bi.fsf@penny.ik5pvx.ampr.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In irq_affinity_write_proc:
 
---- arch/i386/kernel/irq.c.old  Sun Feb 18 12:22:06 2001
-+++ arch/i386/kernel/irq.c      Sun Feb 18 12:22:31 2001
-@@ -1080,7 +1080,6 @@
 
-        err = parse_hex_value(buffer, count, &new_value);
+:-> "kuznet" == kuznet  <kuznet@ms2.inr.ac.ru> writes:
 
--#if CONFIG_SMP
-        /*
-         * Do not allow disabling IRQs completely - it's a too easy
-         * way to make the system unusable accidentally :-) At least
-@@ -1088,7 +1087,6 @@
-         */
-        if (!(new_value & cpu_online_map))
-                return -EINVAL;
--#endif
+    >> Over a radio link where 
+    >> error rate causes exponential increases in probability of packet loss as
 
-        irq_affinity[irq] = new_value;
-        irq_desc[irq].handler->set_affinity(irq, new_value);
+    > Another myth. All they do error correction and have so high latency,
+    > that _increasing_ mtu only helps. And helps a lot.
+
+Please don't break existing implementations. Some old hardware used in
+the amateur radio world doesn't even accept an mtu longer than 256(*),
+and the resulting packets will be silently chopped at the end. 
+If you want to drop mtu lower than 512, please at least add a
+CONFIG_I_NEED_A_GODDAMN_SMALL_MTU as an option.
+
+Pf
+
+(*) Kantronics TNCs are an example.
+
+
 
 
 -- 
-Francis Galiegue, fg@mandrakesoft.com - Normand et fier de l'être
-"Programming is a race between programmers, who try and make more and more
-idiot-proof software, and universe, which produces more and more remarkable
-idiots. Until now, universe leads the race"  -- R. Cook
 
+-------------------------------------------------------------------------------
+ Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
+  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
+     Linux penny 2.4.1 #1 Sat Feb 3 20:43:54 CET 2001 i686 unknown

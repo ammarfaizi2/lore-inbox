@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261605AbSJNMT7>; Mon, 14 Oct 2002 08:19:59 -0400
+	id <S261611AbSJNMZ7>; Mon, 14 Oct 2002 08:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261609AbSJNMT7>; Mon, 14 Oct 2002 08:19:59 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:46817 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261605AbSJNMT6>;
-	Mon, 14 Oct 2002 08:19:58 -0400
-Date: Mon, 14 Oct 2002 13:28:24 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Maros RAJNOCH /HiaeR Silvanna/ <rajnoch@sophia.dtp.fmph.uniba.sk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20021014122824.GB29240@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Maros RAJNOCH /HiaeR Silvanna/ <rajnoch@sophia.dtp.fmph.uniba.sk>,
-	linux-kernel@vger.kernel.org
-References: <20021014082828.B31820@sophia.dtp.fmph.uniba.sk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021014082828.B31820@sophia.dtp.fmph.uniba.sk>
-User-Agent: Mutt/1.4i
+	id <S261612AbSJNMZ7>; Mon, 14 Oct 2002 08:25:59 -0400
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:4047 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S261611AbSJNMZ6>; Mon, 14 Oct 2002 08:25:58 -0400
+Message-ID: <3DAAB958.9000700@quark.didntduck.org>
+Date: Mon, 14 Oct 2002 08:32:24 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Romain Lievin <rlievin@free.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Serial API ('serport' ?)
+References: <20021014090755.GB2911@free.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 08:28:28AM +0200, Maros RAJNOCH /HiaeR Silvanna/ wrote:
- > Linux version 2.4.2-2 (root@porky.devel.redhat.com) (gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-79)) #1 Sun Apr 8 20:41:30 EDT 2001
+Romain Lievin wrote:
+> Hi,
+> 
+> I would like to know whether a kind of parport exists for the serial ports.
+> This will allow me to do some low level accesses on the serial port pins (CTS/RTS & DSR/DTR).
+> I need to implement a bit-banging access on the serial port which can coexist with the other serial ports.
+> 
+> I can not use request_region/release_region because the region has already been locked by the serial port driver.
+> 
+> Any idea ?
 
-1, 2.4.2 is /very/ old, there are updated errata kernel packages at
-    ftp.redhat.com
-2, Bugs in Red Hat's kernel should be filed in http://bugzilla.redhat.com
-   and not in linux-kernel.
+TTY line disciplines should be what you are looking for.
 
-		Dave
+--
+				Brian Gerst
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+

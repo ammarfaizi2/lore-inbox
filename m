@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315921AbSENRlQ>; Tue, 14 May 2002 13:41:16 -0400
+	id <S315922AbSENRmP>; Tue, 14 May 2002 13:42:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315922AbSENRlP>; Tue, 14 May 2002 13:41:15 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:26124 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S315921AbSENRlP>;
-	Tue, 14 May 2002 13:41:15 -0400
-Date: Tue, 14 May 2002 18:41:21 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: <tigran@einstein.homenet>
-To: Dead2 <dead2@circlestorm.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Initrd or Cdrom as root
-In-Reply-To: <005d01c1fb6c$e5522450$0d01a8c0@studio2pw0bzm4>
-Message-ID: <Pine.LNX.4.33.0205141837310.1577-100000@einstein.homenet>
+	id <S315923AbSENRmO>; Tue, 14 May 2002 13:42:14 -0400
+Received: from [168.159.40.71] ([168.159.40.71]:7177 "EHLO
+	srexchimc2.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S315922AbSENRmK>; Tue, 14 May 2002 13:42:10 -0400
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A55@srgraham.eng.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'Steve Whitehouse'" <Steve@ChyGwyn.com>
+Cc: jes@wildopensource.com, linux-kernel@vger.kernel.org
+Subject: RE: Kernel deadlock using nbd over acenic driver.
+Date: Tue, 14 May 2002 13:42:03 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-did you forget to pass "rootcd=1" in the boot command line?
+Yes. I am testing a single nbd device, thus single socket in this case.
+There is no other heavy networking tasks on the testing machine.
 
-When the kernel boots it shows the command line like this:
 
-  Kernel command line: BOOT_IMAGE=linux-nopae ro root=305 BOOT_FILE=/boot/vmlinuz-2.4.18 rootcd=1
+-----Original Message-----
+From: Steven Whitehouse [mailto:steve@gw.chygwyn.com]
+Sent: Tuesday, May 14, 2002 12:32 PM
+To: chen, xiangping
+Cc: jes@wildopensource.com; linux-kernel@vger.kernel.org
+Subject: Re: Kernel deadlock using nbd over acenic driver.
 
-What does it look like in your case?
 
-On Tue, 14 May 2002, Dead2 wrote:
+Hi,
 
-> I tested the patch, but it still does not work..
->
-> These are the error messages I get:
-> (lines 1,2,3,6 and 7 are prolly not relevant)
->
-> ---
-> SCSI subsystem driver Revision: 1.00
-> 3ware Storage Controller device driver for Linux v1.02.00.016.
-> 3w-xxxx: No cards with valid units found.
-> request_module[scsi_hostadapter]: Root fs not mounted
-> request_module[scsi_hostadapter]: Root fs not mounted
-> pci_hotplug: PCI Hot Plug PCI Core version: 0.3
-> cpqphp.o: Compaq Hot Plug PCI Controller Driver version 0.9.6
-> VFS: Cannot open root device "" or 48:03
-> Please append a correct "root=" boot option
-> Kernel panic: VFS: Unable to mount root fs on 48:03
-> ---
->
-> I have compiled in a lot of scsi drivers that are not used, so
-> the kernel will be able to boot on just about any system.
-> The cdrom on the test computer is on /dev/hdc. But I have
-> also tested it on several other computers with no luck.
->
-> Attached: My kernel .config
->
-> -=Dead2=-
->
+The TCP stack should auto-tune the amount of memory that it uses, so that
+SO_SNDBUF, cat >/proc/sys/net/core/[rw]mem_default etc. is not required. The
+important settings for TCP sockets are only /proc/sys/net/ipv4/tcp_[rw]mem
+and tcp_mem I think (at least if I've understood the code correctly).
 
+Since I think we are talking about only a single nbd device, there should
+only be a single socket thats doing lots of I/O in this case, or is this
+machine doing other heavy network tasks ?
+> 
+> But how to avoid system hangs due to running out of memory?
+> Is there a safe guide line? Generally slow is tolerable, but
+> crash is not.
+> 
+I agree. I also think your earlier comments about the buffer flushing are
+correct as being the most likely cause.
+
+I don't think the system has "run out" exactly, more just got itself into
+a state where the code path writing out dirty blocks has been blocked
+due to lack of freeable memory at that moment and where the process
+freeing up memory has blocked waiting for the nbd device. It may well
+be that there is freeable memory, just that for whatever reason no
+process is trying to free it.
+
+The LVM team has had a similar problem in dealing with I/O which needs
+extra memory in order to complete, so I'll ask them for some ideas. Also
+I'm going to try and come up with some patches to eliminate some of the
+possible theories so that we can narrow down the options,
+
+Steve

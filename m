@@ -1,123 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264545AbRFKNfm>; Mon, 11 Jun 2001 09:35:42 -0400
+	id <S263089AbRFKNwO>; Mon, 11 Jun 2001 09:52:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264546AbRFKNfc>; Mon, 11 Jun 2001 09:35:32 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:42399 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S264545AbRFKNfR>; Mon, 11 Jun 2001 09:35:17 -0400
-Message-ID: <3B24C763.16E8E360@uow.edu.au>
-Date: Mon, 11 Jun 2001 23:28:03 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] truncate_inode_pages
-In-Reply-To: <Pine.GSO.4.21.0106091331120.19361-100000@weyl.math.psu.edu> <01061018402300.05248@starship> <3B24BD57.E1D6D1D0@uow.edu.au>,
-		<3B24BD57.E1D6D1D0@uow.edu.au> <01061115131301.05248@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263078AbRFKNwE>; Mon, 11 Jun 2001 09:52:04 -0400
+Received: from ns.suse.de ([213.95.15.193]:32008 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S263089AbRFKNvr>;
+	Mon, 11 Jun 2001 09:51:47 -0400
+Date: Mon, 11 Jun 2001 15:51:45 +0200
+From: Joerg Reuter <jreuter@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 15 probable security holes in 2.4.5-ac8
+Message-ID: <20010611155145.A12203@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+X-Face: #DGJ)DCeau/h"w7G~n9r|/jxvQQrtU)nat27v-><7':==-=.mfnXc+8&qOj`*R|qPr14[|4
+	E_BUo5T*NT\(+fE7wr3}QoN*!c7\.Z.DiA{ko;01^TCi$K}1TIV|bNO.$jm;i<A,|
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On Monday 11 June 2001 14:45, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > > On Sunday 10 June 2001 03:31, Andrew Morton wrote:
-> > > > Daniel Phillips wrote:
-> > > > > This is easy, just set the list head to the page about to be
-> > > > > truncated.
-> > > >
-> > > > Works for me.
-> > >
-> > > It looks good, but it's black magic
-> >
-> > No, it's wrong.  I'm getting BUG()s in clear_inode():
-> > [...]
-> > The lists are mangled.
-> 
-> curr is being advanced in the wrong place.
 
-Yes.
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> /me makes note to self: never resist the temptation to clean things up the
-> rest of the way
-> 
-> I'll actually apply the patch and try it this time ;-)
-
-The bug is surprisingly hard to trigger.
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 15 probable security holes in 2.4.5-ac8
+Date: Mon, 11 Jun 2001 15:45:07 +0200 (CEST)
+From: jreuter@suse.de (Joerg Reuter)
 
 
-Take three:
+>> [BUG] (but i'm not sure whey we're missing the initial irq).
+>> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/net/hamradio/scc.c:1772:scc_n=
+et_ioctl: ERROR:RANGE:1762:1772: Using user length "irq"as an array index f=
+or "Ivec" set by 'copy_from_user':1762 [val=3D1000]
+>> 			if (!arg) return -EFAULT;
+>
+>Thats a real bug for other reaosns.=20
+
+Nah, just a misconception (NB: the whole scc driver initialization is crap
+anyway -- but that part was written before we even had procfs; the next=20
+version will use procfs, but I'm not quite convinced that my current=20
+approach for the rewrite is correct. Fact is that the driver has to support=
+=20
+far too many different parameters). The next version will also use
+the ISR of your z85230 HDLC driver, the z8530 seems to occasionally=20
+overwrite it's interrupt vector register with new status information
+before the old one was read.
+
+> the iRQ might be > 16 on APIC using hosts
+
+They won't assign IRQs above 15 for ISA cards, will they?
+
+I gravely hope that nobody gets the idea to design a PCI card
+for the Z8530 without bus master DMA...
+
+>or non x86
+
+Granted. But I've no reports that anyone actually tried that,
+especially as the (unmodified) driver is only useful for packet radio
+purposes.
+
+>Both fixed
+
+How? ;-)
+
+73,
+--=20
+Joerg Reuter DL1BKE                             http://yaina.de/jreuter
+And I make my way to where the warm scent of soil fills the evening air.=20
+Everything is waiting quietly out there....                 (Anne Clark)
 
 
---- linux-2.4.5/mm/filemap.c	Mon May 28 13:31:49 2001
-+++ linux-akpm/mm/filemap.c	Mon Jun 11 23:31:08 2001
-@@ -230,17 +230,17 @@
- 		unsigned long offset;
- 
- 		page = list_entry(curr, struct page, list);
--		curr = curr->next;
- 		offset = page->index;
- 
- 		/* Is one of the pages to truncate? */
- 		if ((offset >= start) || (*partial && (offset + 1) == start)) {
-+			list_del(head);
-+			list_add(head, curr);
- 			if (TryLockPage(page)) {
- 				page_cache_get(page);
- 				spin_unlock(&pagecache_lock);
- 				wait_on_page(page);
--				page_cache_release(page);
--				return 1;
-+				goto out_restart;
- 			}
- 			page_cache_get(page);
- 			spin_unlock(&pagecache_lock);
-@@ -252,11 +252,15 @@
- 				truncate_complete_page(page);
- 
- 			UnlockPage(page);
--			page_cache_release(page);
--			return 1;
-+			goto out_restart;
- 		}
-+		curr = curr->next;
- 	}
- 	return 0;
-+out_restart:
-+	page_cache_release(page);
-+	spin_lock(&pagecache_lock);
-+	return 1;
- }
- 
- 
-@@ -273,15 +277,19 @@
- {
- 	unsigned long start = (lstart + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
- 	unsigned partial = lstart & (PAGE_CACHE_SIZE - 1);
-+	int complete;
- 
--repeat:
- 	spin_lock(&pagecache_lock);
--	if (truncate_list_pages(&mapping->clean_pages, start, &partial))
--		goto repeat;
--	if (truncate_list_pages(&mapping->dirty_pages, start, &partial))
--		goto repeat;
--	if (truncate_list_pages(&mapping->locked_pages, start, &partial))
--		goto repeat;
-+	do {
-+		complete = 1;
-+		while (truncate_list_pages(&mapping->clean_pages, start, &partial))
-+			complete = 0;
-+		while (truncate_list_pages(&mapping->dirty_pages, start, &partial))
-+			complete = 0;
-+		while (truncate_list_pages(&mapping->locked_pages, start, &partial))
-+			complete = 0;
-+	} while (!complete);
-+	/* Traversed all three lists without dropping the lock */
- 	spin_unlock(&pagecache_lock);
- }
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iD8DBQE7JMzwXQh8bpcgulARAjlvAKCHoIvb3cV1YMR2kO79VW3n5FSiqQCdE9Ps
+Qw/80bzkmpe8oYy69Q5tPhY=
+=4IRu
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--

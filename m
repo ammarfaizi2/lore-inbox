@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290184AbSBKTGt>; Mon, 11 Feb 2002 14:06:49 -0500
+	id <S290192AbSBKTH7>; Mon, 11 Feb 2002 14:07:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290125AbSBKTGk>; Mon, 11 Feb 2002 14:06:40 -0500
-Received: from zero.tech9.net ([209.61.188.187]:36626 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290184AbSBKTGd>;
-	Mon, 11 Feb 2002 14:06:33 -0500
-Subject: Re: [BUG] Panic in 2.5.4 during bootup after POSIX conformance
-	testing by UNIFIX
-From: Robert Love <rml@tech9.net>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org, Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-In-Reply-To: <3C67D9CB.2030806@oracle.com>
-In-Reply-To: <Pine.LNX.4.30.0202111453330.28560-200000@mustard.heime.net> 
-	<3C67D9CB.2030806@oracle.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 11 Feb 2002 14:06:01 -0500
-Message-Id: <1013454372.6781.418.camel@phantasy>
-Mime-Version: 1.0
+	id <S290185AbSBKTHm>; Mon, 11 Feb 2002 14:07:42 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52486 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S290125AbSBKTH0>; Mon, 11 Feb 2002 14:07:26 -0500
+Date: Mon, 11 Feb 2002 14:05:59 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <E16a4Ly-0000EN-00@starship.berlin>
+Message-ID: <Pine.LNX.3.96.1020211140359.642A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can both of you try the attached patch (thanks to Mikael Pettersson),
-and tell me if it solves your problem?
+On Mon, 11 Feb 2002, Daniel Phillips wrote:
 
-	Robert Love
+> On February 9, 2002 07:15 pm, Bill Davidsen wrote:
+> > On Wed, 6 Feb 2002, Randy.Dunlap wrote:
+> > 
+> > > I still prefer your suggestion to append it to the kernel image
+> > > as __initdata so that it's discarded from memory but can be
+> > > read with some tool(s).
+> > 
+> > The problem is that it make the kernel image larger, which lives in /boot
+> > on many systems. Putting it in a module directory, even if not a module,
+> > would be a better place for creative boot methods, of which there are
+> > many.
+> 
+> You don't seem to be clear on the concept of 'option'.
 
---- linux-2.5.4/include/asm-i386/smplock.h.~1~  Mon Feb 11 12:21:46 2002
-+++ linux-2.5.4/include/asm-i386/smplock.h      Mon Feb 11 16:55:18 2002
-@@ -15,7 +15,7 @@
- #else
- #ifdef CONFIG_PREEMPT
- #define kernel_locked()                preempt_get_count()
--#define global_irq_holder      0
-+#define global_irq_holder      0xFF    /* XXX: NO_PROC_ID */
- #else
- #define kernel_locked()                1
- #endif
+Did I miss discussion of an option to put it somewhere other than as part
+of the kernel? Sorry, I missed that.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbTEFFYg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 01:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbTEFFYg
+	id S262149AbTEFFeF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 01:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbTEFFeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 01:24:36 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:6859 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S261497AbTEFFYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 01:24:35 -0400
+	Tue, 6 May 2003 01:34:05 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:56078 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262149AbTEFFeE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 01:34:04 -0400
+Date: Mon, 5 May 2003 22:48:15 -0700
+From: Andrew Morton <akpm@digeo.com>
 To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][v850] Add leading underline to new linker-script symbols on the v850
-References: <20030506030925.388CC3760@mcspd15.ucom.lsi.nec.co.jp>
-	<1052192261.983.10.camel@rth.ninka.net>
-	<buohe88slo7.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20030505.211459.21913657.davem@redhat.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 06 May 2003 14:36:51 +0900
-In-Reply-To: <20030505.211459.21913657.davem@redhat.com>
-Message-ID: <buod6iwskjw.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmalloc_percpu
+Message-Id: <20030505224815.07e5240c.akpm@digeo.com>
+In-Reply-To: <20030505.211606.28803580.davem@redhat.com>
+References: <20030506040856.8B3712C36E@lists.samba.org>
+	<20030505.204002.08338116.davem@redhat.com>
+	<20030505220250.213417f6.akpm@digeo.com>
+	<20030505.211606.28803580.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 May 2003 05:46:29.0378 (UTC) FILETIME=[D73D5620:01C31392]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
->    I think in this case it's because I try to keep the v850 arch files
->    identical on 2.4.x and 2.5.x (as much as is possible), which sometimes
->    results in unused #defines on one or the other.
+"David S. Miller" <davem@redhat.com> wrote:
+>
 > 
-> Please don't do that, 2.4.x and 2.5.x are different kernel.
-> There will be differences, just accept them.
+> Please address the ia64 concerns then :-)  It probably means we
+> have to stay with the dereferencing stuff...  at which point you
+> might as well use normal kmalloc() and smp_processor_id() indexing
+> inside of modules.
 
-I will happily do so when requested.
+I think so.  So we'd end up with:
 
-> Therefore, please delete the flush_page_to_ram define on v850.
+- DEFINE_PER_CPU and kmalloc_percpu() work in core kernel, and use the 32k
+  pool.
 
-OK.
+- DEFINE_PER_CPU in modules uses the 32k pool as well (core kernel does the
+  allocation).
 
--Miles
--- 
-`To alcohol!  The cause of, and solution to,
- all of life's problems' --Homer J. Simpson
+- kmalloc_per_cpu() is unavailble to modules (it ain't exported).
+
+AFAICT the only thing which will break is sctp, which needs a trivial
+conversion to DEFINE_PER_CPU.
+

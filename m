@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268220AbUHXTZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268219AbUHXT1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268220AbUHXTZw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 15:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268219AbUHXTZu
+	id S268219AbUHXT1i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 15:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUHXT1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 15:25:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55447 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268229AbUHXTXs (ORCPT
+	Tue, 24 Aug 2004 15:27:38 -0400
+Received: from mail.dif.dk ([193.138.115.101]:54983 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S268219AbUHXT1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 15:23:48 -0400
-Date: Tue, 24 Aug 2004 12:23:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc1
-In-Reply-To: <20040824184245.GE5414@waste.org>
-Message-ID: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
- <20040824184245.GE5414@waste.org>
+	Tue, 24 Aug 2004 15:27:33 -0400
+Date: Tue, 24 Aug 2004 21:33:09 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Shouldn't kconfig defaults match recommendations in help text?
+In-Reply-To: <20040824182930.GA7260@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0408242129130.2770@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0408232347380.3767@dragon.hygekrogen.localhost>
+ <16683.22576.781038.756277@alkaid.it.uu.se>
+ <Pine.LNX.4.61.0408241859420.2770@dragon.hygekrogen.localhost>
+ <20040824182930.GA7260@mars.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 24 Aug 2004, Sam Ravnborg wrote:
 
-
-On Tue, 24 Aug 2004, Matt Mackall wrote:
+> On Tue, Aug 24, 2004 at 07:03:55PM +0200, Jesper Juhl wrote:
+> > I'll post such patches in a short while. Sepperate mails, one pr patch 
+> > changing one kconfig default pr patch.
 > 
-> Phew, I was worried about that. Can I get a ruling on how you intend
-> to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
-> looking to unbreak. My preference would be for all x.y.z.n patches to
-> be relative to x.y.z.
+> One Kconfig file pr. patch makes more sense.
+> 
+You are right, I'll do that.
 
-Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
-ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
-any ordering wrt the bugfixes), so either interdiffs or whole new full 
-diffs are totally "logical". We just have to chose one way or the other, 
-and I don't actually much care.
+Which brings me to another thing regarding configs and defaults - there 
+does not seem to be much relation between the defaults in the various 
+Kconfig files and the settings in arch/<foo>/defconfig which puzzles me, 
+especially since "make defconfig" seems to use the stuff from 
+arch/<foo>/defconfig and not what's specified in Kconfig...
+Wouldn't it make sense to update the defconfig's to match the Kconfig's 
+when I make these changes?
 
-Any reason for your preference? 
+--
+Jesper Juhl
 
-		Linus

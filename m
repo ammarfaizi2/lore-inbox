@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261984AbREVP7y>; Tue, 22 May 2001 11:59:54 -0400
+	id <S261987AbREVQAe>; Tue, 22 May 2001 12:00:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261982AbREVP7o>; Tue, 22 May 2001 11:59:44 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:18703 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S261979AbREVP7l>;
-	Tue, 22 May 2001 11:59:41 -0400
-Date: Tue, 22 May 2001 18:59:35 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
+	id <S261996AbREVQAQ>; Tue, 22 May 2001 12:00:16 -0400
+Received: from betty.magenta-netlogic.com ([193.37.229.181]:55305 "HELO
+	betty.magenta-netlogic.com") by vger.kernel.org with SMTP
+	id <S261979AbREVQAI>; Tue, 22 May 2001 12:00:08 -0400
+Message-ID: <3B0A8D16.2050400@magenta-netlogic.com>
+Date: Tue, 22 May 2001 17:00:22 +0100
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+Organization: Magenta Logic
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9) Gecko/20010505
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org
+Cc: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
+        linux-ppp@vger.kernel.org
 Subject: Re: ECN is on!
-Message-ID: <20010522185935.M5947@mea-ext.zmailer.org>
-In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net> <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu> <200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Tue, May 22, 2001 at 09:06:25AM -0400
+In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net>	<Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu> <200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 09:06:25AM -0400, Richard Gooch wrote:
-...
-> Sure, Dave is being bloody-minded, but that's the only way we'll see
-> people get off their fat, lazy asses and fix their broken systems.
+Richard Gooch wrote:
+
 > In fact, hopefully he's still in a dark mood, and he may take up the
 > suggestion to bounce mails of the following type:
 > - MIME encoded
@@ -31,19 +35,21 @@ On Tue, May 22, 2001 at 09:06:25AM -0400, Richard Gooch wrote:
 > - quoted printables (those stupid "=20" things are particuarly hard to
 >   read).
 
-  Bounces to where ?
+Surely it'd be better to get the list to filter them through stripmime?
 
-  The bounces ARE in MIME, but frobbing them into HTML is ...
-  That would involve my dead body, which I am not keen on supplying.
 
-  And for that matter, people who you do want to punish do run MUAs, which
-  happily open up everything -- except these bounce reports VGER generates.
-  But then, vger sends those reports to linux-kernel-owner, who needs no
-  additional punishment...
+I'd be tempted to put a message at the top at the same time:
+"*WARNING* The message below was sent by someone too clueless to 
+configure their email client properly"
 
-> 				Regards,
-> 					Richard....
-> Permanent: rgooch@atnf.csiro.au
-> Current:   rgooch@ras.ucalgary.ca
+:-)
 
-/Matti Aarnio
+Tony
+
+-- 
+"Two weeks before due date, the programmers work 22 hour days
+  cobbling an application from... (apparently) one programmer
+  bashing his face into the keyboard." -- Dilbert
+
+tmh@magenta-netlogic.com     http://www.nothing-on.tv
+

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264481AbRFITed>; Sat, 9 Jun 2001 15:34:33 -0400
+	id <S264483AbRFITgx>; Sat, 9 Jun 2001 15:36:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264483AbRFITeN>; Sat, 9 Jun 2001 15:34:13 -0400
-Received: from t2.redhat.com ([199.183.24.243]:56822 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S264481AbRFITeC>; Sat, 9 Jun 2001 15:34:02 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21.0106091148380.26187-100000@penguin.transmeta.com> 
-In-Reply-To: <Pine.LNX.4.21.0106091148380.26187-100000@penguin.transmeta.com> 
+	id <S264484AbRFITgn>; Sat, 9 Jun 2001 15:36:43 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:42744 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264483AbRFITgf>;
+	Sat, 9 Jun 2001 15:36:35 -0400
+Date: Sat, 9 Jun 2001 15:36:32 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        Dawson Engler <engler@csl.Stanford.EDU>
-Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 09 Jun 2001 20:33:01 +0100
-Message-ID: <19317.992115181@redhat.com>
+cc: linux-kernel@vger.kernel.org, Dawson Engler <engler@csl.Stanford.EDU>
+Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
+In-Reply-To: <Pine.LNX.4.21.0106091148380.26187-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0106091524420.19361-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-torvalds@transmeta.com said:
->  Good point. Spinlocks (with the exception of read-read locks, of
-> course) and semaphores will deadlock on recursive use, while the BKL
-> has this "process usage counter" recursion protection.
 
-Obtaining a read lock twice can deadlock too, can't it?
+On Sat, 9 Jun 2001, Linus Torvalds wrote:
 
-	A		B
-	read_lock()
-			write_lock()
-			...sleeps...
-	read_lock()
-	...sleeps...
+> Anyway, in a 2.5.x timeframe we should probably make sure that we do not
+> have the need for a recursive BKL any more. That shouldn't be that hard to
+> fix, especially with help from CHECKER to verify that we didn't forget
+> some case.
 
-Or do we not make new readers sleep if there's a writer waiting?
+True, but... I can easily see the situation when ->foo() and ->bar()
+both call a helper function which needs BKL for a small piece of code.
+->foo() callers take BKL (and it's choke-full of places that still need
+BKL, anyway). ->bar() is called without BKL. Moreover, grabbing BKL
+over the whole helper is a massive overkill.
 
---
-dwmw2
-
+ObUnrelated: fs/super.c is getting to the point where it naturally
+falls into two files - one that deals with mount cache and all things
+vfsmount-related, mount tree manipulations, etc. and another that deals
+with superblocks. Mind if I split the thing?
 

@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291146AbSBGNVt>; Thu, 7 Feb 2002 08:21:49 -0500
+	id <S282511AbSBGNXt>; Thu, 7 Feb 2002 08:23:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291143AbSBGNVk>; Thu, 7 Feb 2002 08:21:40 -0500
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:36623 "HELO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
-	id <S291151AbSBGNVb>; Thu, 7 Feb 2002 08:21:31 -0500
-Date: Thu, 7 Feb 2002 14:20:55 +0100 (CET)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: status on northbridge disconnection apm saving?
-In-Reply-To: <Pine.LNX.4.40.0202070848450.14773-100000@hades.uni-trier.de>
-Message-ID: <Pine.LNX.4.44.0202071417050.1378-100000@grignard.amagerkollegiet.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S288238AbSBGNXj>; Thu, 7 Feb 2002 08:23:39 -0500
+Received: from ns.suse.de ([213.95.15.193]:9221 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282511AbSBGNXf>;
+	Thu, 7 Feb 2002 08:23:35 -0500
+Date: Thu, 7 Feb 2002 14:23:33 +0100
+From: Dave Jones <davej@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Patrick Mochel <mochel@osdl.org>,
+        Andre Hedrick <andre@linuxdiskcert.org>,
+        Russell King <rmk@arm.linux.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: driverfs support for motherboard devices
+Message-ID: <20020207142333.A22451@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Patrick Mochel <mochel@osdl.org>,
+	Andre Hedrick <andre@linuxdiskcert.org>,
+	Russell King <rmk@arm.linux.org.uk>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020206122253.GB446@elf.ucw.cz> <E16YcaF-0006z9-00@the-village.bc.nu> <20020207123125.GF5247@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020207123125.GF5247@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Thu, Feb 07, 2002 at 01:31:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Daniel Nofftz wrote:
+On Thu, Feb 07, 2002 at 01:31:25PM +0100, Pavel Machek wrote:
+ > > I suspect PnPBIOS knows for the 486. There is PnPbios code in 2.4-ac 
+ > > perfectly ready for a 2.5 merger
+ > PnPBIOS is nasty, and I suspect it is not present/working on all
+ > models, right?
 
-> On Thu, 7 Feb 2002, Rasmus Bøg Hansen wrote:
-> 
-> > I just flashed my BIOS today (upgrading my Asus A7V133-C from BIOS
-> > rev. 1005A to rev. 1007). Suddenly I begin to experience the sound-skips
-> > reported by other people. The CPU is a TB (9x133, 1200MHz, family 6,
-> > model 4, stepping 2).
-> >
-> > Before flashing I had no trouble at all and the CPU cooled just fine, so
-> > it might not only be a chipset issue.
-> >
-> > I tried the new version of the patch and get:
-> 
-> > Athlon/Duron CLK_Ctrl Value found : fff0d22f
-> > Athlon/Duron CLK_Ctrl Value set to : fff0d22f
-> 
-> ahh ... the value already was set ... ok ... that means that this value is
-> not the right one for this cpu. i got some new informations which say that
-> you need different values for different cpus ... at the moment i wait
-> for an answer from amd. i send them an email and asked for some support on
-> this toppic. maybe i get the table withe the right settings.
-> until then i see no way to get further ... so we must wait what their
-> answer is ...
-
-I now fiddled a little with the PCI settings in the BIOS...
-
-When 'PCI master read cahing' is enabled everything works fine (sound 
-works, cooling works. When disabled I get sound skips. The above flags 
-are exactly the same:
-
-Athlon/Duron CLK_Ctrl Value found : fff0d22f
-Athlon/Duron CLK_Ctrl Value set to : fff0d22f
-Enabling disconnect in VIA northbridge: KT133/KX133 chipset found
-
-As I think i noted earlier, my motherboard is KT133A-based.
-
-My system functions perfectly stable with the 'PCI master read caching' 
-enabled - I have no idea whether this is true in general.
-
-Regards
-Rasmus
+ For the most part it's fine, it just needs the floppy driver / ps2
+ driver (and maybe some others) fixed up to not allocate regions
+ that pnpbios already reserved. Other than these issues, it seems
+ to be working well. It's certainly handled itself ok on all my
+ test boxes (Even the weird compaq with the fscked up pnpbios --
+ it claims to have pnpbios, yet when you call it, you get feature
+ not supported return codes. cute.)
 
 -- 
--- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
-Is there anything else I can contribute?
-The latitude and longtitude of the bios writers current position, and
-a ballistic missile.
-                                                          -- Alan Cox
-----------------------------------[ moffe at amagerkollegiet dot dk ] --
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

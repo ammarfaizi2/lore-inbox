@@ -1,39 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286327AbRL0QGY>; Thu, 27 Dec 2001 11:06:24 -0500
+	id <S286322AbRL0QBx>; Thu, 27 Dec 2001 11:01:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286324AbRL0QGN>; Thu, 27 Dec 2001 11:06:13 -0500
-Received: from h55p103-3.delphi.afb.lu.se ([130.235.187.176]:9374 "EHLO gin")
-	by vger.kernel.org with ESMTP id <S286327AbRL0QGA>;
-	Thu, 27 Dec 2001 11:06:00 -0500
-Date: Thu, 27 Dec 2001 17:05:57 +0100
-To: linux-kernel@vger.kernel.org
-Subject: kiB
-Message-ID: <20011227160557.GB11106@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
-From: andersg@0x63.nu
+	id <S286321AbRL0QBm>; Thu, 27 Dec 2001 11:01:42 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:10248 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S286322AbRL0QBi>; Thu, 27 Dec 2001 11:01:38 -0500
+Date: Thu, 27 Dec 2001 14:01:23 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: The direction linux is taking
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A36@ottonexc1.ottawa.loran.com>
+Message-ID: <Pine.LNX.4.33L.0112271353370.12225-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this shouldn't be that controversial, as it's only visible to people
-compiling kernels :)
+On Thu, 27 Dec 2001, Dana Lacoste wrote:
 
+> > >Not really. We do a passable job. Stuff gets dropped, lost,
+> > >deferred and forgotten, applied when it conflicts with other work
+> > >- much of this stuff that software wouldnt actually improve on over a
+> > >person
+
+> Q - Would CVS or Perforce or BitKeeper help fix these problems?
+> A - No, the problem is one of organization, not accountability
+>
+> Maybe we should toss the original question and try to find ways
+> to solve the organizational problems instead?
+
+Sounds like an idea, except that up to now I haven't seen
+any suitable solution for this.
+
+The biggest problem right now seems to be that of patches
+being dropped, which is a direct result of the kernel
+maintainers not having infinite time.
+
+A system to solve this problem would have to make it easier
+for the kernel maintainers to remember patches, while at the
+same time saving them time. I guess it would have something
+like the following ingredients:
+1. remember the patches and their descriptions
+2. have the possibility for other people (subsystem maintainers?)
+   to de-queue or update pending patches
+3. check at each pre-release if the patches still apply, notify
+   the submitter if the patch no longer applies
+4. make an easy "one-click" solution for the maintainers to apply
+   the patch and add a line to the changelog ;)
+   (all patches apply without rejects, patches which don't apply
+   have already been bounced back to the maintainer by #3)
+5. after a new pre-patch, send the kernel maintainer a quick
+   overview of pending patches
+6. patches can get different priorities assigned, so the kernel
+   maintainers can spend their time with the highest-priority
+   patches first
+7. .. ?
+
+All in all, if such a system is ever going to exist, it
+needs to _reduce_ the amount of work the kernel maintainers
+need to do, otherwise it'll never get used.
+
+regards,
+
+Rik
 -- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-//anders/g
+http://www.surriel.com/		http://distro.conectiva.com/
 
-diff -ru linux-2.5.2-pre2/arch/i386/boot/tools/build.c linux-2.5.2-pre2-lvmfix/arch/i386/boot/tools/build.c
---- linux-2.5.2-pre2/arch/i386/boot/tools/build.c	Mon Jul  2 22:56:40 2001
-+++ linux-2.5.2-pre2-lvmfix/arch/i386/boot/tools/build.c	Thu Dec 27 16:48:55 2001
-@@ -148,7 +148,7 @@
- 	if (fstat (fd, &sb))
- 		die("Unable to stat `%s': %m", argv[3]);
- 	sz = sb.st_size;
--	fprintf (stderr, "System is %d kB\n", sz/1024);
-+	fprintf (stderr, "System is %d kiB\n", sz/1024);
- 	sys_size = (sz + 15) / 16;
- 	/* 0x28000*16 = 2.5 MB, conservative estimate for the current maximum */
- 	if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))

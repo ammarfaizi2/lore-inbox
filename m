@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285180AbRLSJgo>; Wed, 19 Dec 2001 04:36:44 -0500
+	id <S285209AbRLSKCL>; Wed, 19 Dec 2001 05:02:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284911AbRLSJgh>; Wed, 19 Dec 2001 04:36:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37892 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284946AbRLSJgQ>; Wed, 19 Dec 2001 04:36:16 -0500
-Message-ID: <3C205FBC.60307@zytor.com>
-Date: Wed, 19 Dec 2001 01:37:00 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        Christian Koenig <ChristianK.@t-online.de>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        Otto Wyss <otto.wyss@bluewin.ch>, Alexander Viro <viro@math.psu.edu>,
-        antirez <antirez@invece.org>, Andreas Dilger <adilger@turbolabs.com>,
-        "Grover, Andrew" <andrew.grover@intel.com>,
-        Craig Christophel <merlin@transgeek.com>
-Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
-In-Reply-To: <200112181605.KAA00820@tomcat.admin.navo.hpc.mil>	<m1r8prwuv7.fsf@frodo.biederman.org> <3C204282.3000504@zytor.com>	<m1itb3wsld.fsf@frodo.biederman.org> <3C2052C0.2010700@zytor.com> <m18zbzwp34.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S285186AbRLSKCB>; Wed, 19 Dec 2001 05:02:01 -0500
+Received: from [213.236.192.200] ([213.236.192.200]:62994 "EHLO
+	mail.circlestorm.org") by vger.kernel.org with ESMTP
+	id <S285187AbRLSKBr>; Wed, 19 Dec 2001 05:01:47 -0500
+Message-ID: <003301c18873$7d06f8b0$6c2876d9@dead2>
+From: "Dead2" <dead2@circlestorm.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16GLmv-0007d4-00@the-village.bc.nu> <026701c187d5$ec2472c0$67c0ecd5@dead2> <20011218123724.A32316@asooo.flowerfire.com> <01121909274103.01840@manta>
+Subject: Re: The direction linux is taking
+Date: Wed, 19 Dec 2001 10:56:53 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> 
->>From the 10,000 foot level it looks like I am pretty safe already
-> except for those BIOS functions that drive the hardware.  For those I
-> need to setup the legacy PIC back to it's default setting, and
-> possibly a few other hardware things.   I wonder just how sensitive
-> the an x86 BIOS really is to changing those things...
-> 
+ > What might take out a few birds with one stone is to have someone on
+> > lkml become an "LKML MAINTAINER": collect patches and bug reports in a
+> > central place.  This would include:
+> >
+> > 1) The patch and/or bug report
+> > 2) The entire LKML thread, with "important" messages marked
+> > 3) Personal input, prioritization, severity info, etc.
+>
+> Good idea but _who_ will do that?
 
-You never know, especially since part of the BIOS might be an external 
-SCSI or network card BIOS...
+Just a thought that popped into my head..
+What about using some kind of BugTrack system for this?
+Where people can report a bug, and file patches for them.
+There would indeed be some situations where 2-3-4 maybe
+more patches are filed to fix one bug. Then the maintainer
+can easily look through the patches and descide what to use..
 
-	-hpa
+-=Dead2=-
+
 

@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbTJIXUY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 19:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbTJIXUY
+	id S262669AbTJIXZS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 19:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTJIXZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 19:20:24 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:61370
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262654AbTJIXUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 19:20:19 -0400
-Message-ID: <3F85ED01.8020207@redhat.com>
-Date: Thu, 09 Oct 2003 16:19:29 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Thu, 9 Oct 2003 19:25:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40339 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262669AbTJIXZP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 19:25:15 -0400
+Date: Thu, 9 Oct 2003 16:24:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ulrich Drepper <drepper@redhat.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: statfs() / statvfs() syscall ballsup...
-References: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org>
-X-Enigmail-Version: 0.81.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20031009171652.K1593@schatzie.adilger.int>
+Message-ID: <Pine.LNX.4.44.0310091619530.20936-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Linus Torvalds wrote:
+On Thu, 9 Oct 2003, Andreas Dilger wrote:
+> 
+> It would be nice if we could know in advance if we are returning values
+> for sys_statfs() or sys_statfs64() (e.g. by sys_statfs64() calling an
+> optional sb->s_op->statfs64() method if available) so we didn't have to
+> do this munging.  We can't just assume 64-bit results, or callers of
+> sys_statfs() will get EOVERFLOW instead of slightly innacurate results.
 
-> User space shouldn't know or care about frsize, and it doesn't even 
-> necessarily make any sense on a lot of filesystems, so make it easy for 
-> the user. It's not as if the rounding errors really matter.
+This is something that sys_statfs() could do on its own. It's probably 
+always better to try to scale the block size up than to return EOVERFLOW.
 
-There have been numerous requests to add a statvfs syscall, at least
-made to me.  The problem is that the emulation through statfs cannot be
-optimal.  The emulation has to get all kinds of additional information
-(like mount flags) which in some cases lead to hangs or delays.
+(Some things can't be scaled up, of course, like f_ffree etc. But it 
+should be trivial to just do a "try to shift to make it fit" in the 
+vfs_statfs_native() function in fs/open.c).
 
-- From what I see statvfs is much more frequently used than statfs so such
-an extension would be justified.  And then the kernel would be able to
-determine all the right values and guide the user with them as it pleases.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/he0B2ijCOnn/RHQRAg+GAKC48tj7myC+lITvghxPK/ZEWcLTnQCgpUh4
-5whszj+14fucakVcsZ4sOIQ=
-=EVjn
------END PGP SIGNATURE-----
+		Linus
 

@@ -1,63 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272743AbTHEMyv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 08:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272754AbTHEMyu
+	id S272741AbTHEMyX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 08:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272743AbTHEMyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 08:54:50 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:33982 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S272743AbTHEMyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 08:54:40 -0400
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>, chip@pobox.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060087479.796.50.camel@cube>
+	Tue, 5 Aug 2003 08:54:23 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:32645 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S272741AbTHEMyH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 08:54:07 -0400
+Date: Tue, 5 Aug 2003 15:54:00 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Rafael Costa dos Santos <rafael@thinkfreak.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux syscall list
+Message-ID: <20030805125400.GI32093@actcom.co.il>
+References: <200308050933.16351.rafael@thinkfreak.com.br>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 Aug 2003 08:44:39 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1ou9v+QBCNysIXaH"
+Content-Disposition: inline
+In-Reply-To: <200308050933.16351.rafael@thinkfreak.com.br>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chip Salzenberg writes:
 
-> GCC is warning about a pointer-to-int conversion when
-> the likely() and unlikely() macros are used with pointer
-> values.  So, for architectures where pointers are larger
-> than 'int', I suggest this patch.
-...
-> -#define likely(x) __builtin_expect((x),1)
-> -#define unlikely(x) __builtin_expect((x),0)
-> +#define likely(x) __builtin_expect((x),      1)
-> +#define likely_p(x) __builtin_expect((x) != 0, 1)
-> +#define unlikely(x) __builtin_expect((x)      ,0)
-> +#define unlikely_p(x) __builtin_expect((x) != 0 ,0)
+--1ou9v+QBCNysIXaH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That's ugly, plus the "_p" suffix is kind of a
-standard for "predicate". (__builtin_constant_p, etc.)
+On Tue, Aug 05, 2003 at 09:33:16AM +0000, Rafael Costa dos Santos wrote:
+> Hi all,
+>=20
+> Where can I find the last linux syscall list ?
 
-I'm using these in the procps project:
+There is no formal list that I know of. You can look at
+arch/i386/kernel/entry.S for the names and numbers of syscalls, but
+for the parameters you would have to grep around for the system call
+definition.=20
 
-// tell gcc what to expect:   if(unlikely(err)) die(err);
-#define likely(x)       __builtin_expect(!!(x),1)
-#define unlikely(x)     __builtin_expect(!!(x),0)
-#define expected(x,y)   __builtin_expect((x),(y))
+For the syscalltrack project we have a close to complete of syscalls
+and their parameters for 2.4, i386, at
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/syscalltrack/sysc=
+alltrack/module/syscalls.dat?rev=3D1.18
 
-That makes a slight change to the meaning, since the
-original value is no longer available. I've not
-found that to be any trouble at all; if it is then
-you could work around it using a statement-expression
-with a variable, cast, and/or __typeof__.
+Note that such a list is of limited useful utility unless it is tied
+to a specific kernel version, since the kernel gains new syscalls
+occasionally. Patches to update the list to 2.5 will be happily
+accepted ;-)
 
-Something like this:
-
-#define likely(x) ({   \
-__typeof__ (x) _tmp;    \
-__builtin_expect(!!_tmp,1); \
-_tmp; \
-})
+Cheers,=20
+Muli
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+http://www.livejournal.com/~mulix/
 
 
+--1ou9v+QBCNysIXaH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/L6joKRs727/VN8sRAgk9AJ4vKBQ3Hl41m+7u6zWChx85hxWy3gCguTcY
+0AgLVK6u+mXMMvXDF4e/N00=
+=wvI0
+-----END PGP SIGNATURE-----
+
+--1ou9v+QBCNysIXaH--

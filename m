@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbUJ0WzC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbUJ0VYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbUJ0WzC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:55:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUJ0Wq7
+	id S262729AbUJ0VYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUJ0VWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:46:59 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:24992 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262763AbUJ0Wn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:43:29 -0400
-Subject: Re: My thoughts on the "new development model"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410271553_MC3-1-8D4F-38E7@compuserve.com>
-References: <200410271553_MC3-1-8D4F-38E7@compuserve.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098913229.7783.2.camel@localhost.localdomain>
+	Wed, 27 Oct 2004 17:22:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:57018 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262728AbUJ0VSx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 17:18:53 -0400
+Date: Wed, 27 Oct 2004 23:19:57 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+Message-ID: <20041027211957.GA28571@elte.hu>
+References: <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 27 Oct 2004 22:40:30 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027205126.GA25091@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-27 at 20:50, Chuck Ebbert wrote:
-> On Wed, 27 Oct 2004 at 16:27 +0100 Alan Cox wrote:
-> > You missed the remote DoS attack 8(
->   Where?
 
-Posted to netdev along with fixes. See 2.6.9-ac1 or later
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> >>   - i8042 fails to initialize with some boards using legacy USB
-> >
-> > This is really a BIOS issue and its not a new 2.6.9 bug its a long
-> > standing and messy story.
-> 
->   And the patch in -ac fixes it but there is a cleaner one around
-> that does it more properly, right?
+> ok, i've uploaded RT-V0.4.2 which has more of the same: it fixes other
+> missed preemption checks. Does it make any difference to the xruns on
+> your UP box?
 
-The -ac fix handles one corner case. The right fix appears to be to
-always disable USB legacy. But for a small fix its mighty risky.
+uploaded RT-V0.4.3 - there was a thinko in the latency tracer that
+caused early boot failures.
 
+	Ingo

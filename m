@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267387AbTAVIoZ>; Wed, 22 Jan 2003 03:44:25 -0500
+	id <S267389AbTAVIpe>; Wed, 22 Jan 2003 03:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267388AbTAVIoZ>; Wed, 22 Jan 2003 03:44:25 -0500
-Received: from mta05bw.bigpond.com ([139.134.6.95]:24780 "EHLO
-	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267387AbTAVIoY> convert rfc822-to-8bit; Wed, 22 Jan 2003 03:44:24 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.4.21-pre3aa1 and RAID0 issue (was: 2.4.21-pre2aa1 - RAID0 issue.)
-Date: Wed, 22 Jan 2003 20:07:48 +1100
-User-Agent: KMail/1.4.3
-References: <200212270856.13419.harisri@bigpond.com>
-In-Reply-To: <200212270856.13419.harisri@bigpond.com>
-Cc: Andrea Arcangeli <andrea@suse.de>
+	id <S267390AbTAVIpd>; Wed, 22 Jan 2003 03:45:33 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15807 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267389AbTAVIpd>; Wed, 22 Jan 2003 03:45:33 -0500
+Date: Wed, 22 Jan 2003 03:54:30 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Andries.Brouwer@cwi.nl
+cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix setpgid
+In-Reply-To: <UTC200301202203.h0KM3V602042.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0301220353580.32383-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301222007.48055.harisri@bigpond.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On Friday 27 December 2002 08:56, Srihari Vijayaraghavan wrote:
-> [1.] One line summary of the problem:
-> 2.4.20-pre2aa1 hangs while trying to bringup software RAID0 volumes,
-> 2.4.21-pre2 and 2.4.20-aa1 are fine with the same volumes.
+On Mon, 20 Jan 2003 Andries.Brouwer@cwi.nl wrote:
 
-The RAID0 doesn't work in 2.4.21-pre3aa1 in my computer, while it is fine with 
-2.4.21-pre3 and 2.4.20-aa1.
+> In patch-2.5.37 a return code of setpgid(pid,pgid) was broken. If pid is
+> not the current process and is not a child of the current process it
+> should return ESRCH, but the 2.5.37 patch turned this into EINVAL. The
+> below fixes this again.
 
-The hardware and software details continue to be the same as per the previous 
-report ( http://marc.theaimsgroup.com/?l=linux-kernel&m=104093932820352&w=2 
-).
+indeed, thanks for the fix.
 
-Please cc me if you can, sorry if it is a known issue. Thanks.
--- 
-Hari
-harisri@bigpond.com
+	Ingo
 

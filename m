@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266293AbUBDH60 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 02:58:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266307AbUBDH6Z
+	id S266314AbUBDIWY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 03:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUBDIWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 02:58:25 -0500
-Received: from 194.149.109.108.adsl.nextra.cz ([194.149.109.108]:31157 "EHLO
-	gate2.perex.cz") by vger.kernel.org with ESMTP id S266293AbUBDH6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 02:58:25 -0500
-Date: Wed, 4 Feb 2004 08:59:17 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: alsa-user@lists.sourceforge.net,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA in 2.6 -- no snd-au8830?
-In-Reply-To: <20040204035336.GC4394@triplehelix.org>
-Message-ID: <Pine.LNX.4.58.0402040857160.1863@pnote.perex-int.cz>
-References: <20040204035336.GC4394@triplehelix.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Feb 2004 03:22:24 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7676 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266314AbUBDIWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 03:22:21 -0500
+Date: Wed, 4 Feb 2004 09:22:14 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Han Boetes <han@mijncomputer.nl>, James.Bottomley@HansenPartnership.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6: Voyager requires SMP?
+Message-ID: <20040204082213.GT4443@fs.tum.de>
+References: <20040127233402.6f5d3497.akpm@osdl.org> <20040128083645.GI2650@boetes.org> <20040130025142.GE3004@fs.tum.de> <20040130060028.GB13535@boetes.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040130060028.GB13535@boetes.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Feb 2004, Joshua Kwan wrote:
+On Fri, Jan 30, 2004 at 07:00:06AM +0100, Han Boetes wrote:
+> Adrian Bunk wrote:
+> > On Wed, Jan 28, 2004 at 09:36:23AM +0100, Han Boetes wrote:
+> > > 
+> > > Hmmm my build breaks with:
+> > > 
+> > >   LD      .tmp_vmlinux1
+> > > arch/i386/kernel/built-in.o(.init.text+0x1342): In function `setup_memory':
+> > > : undefined reference to `find_smp_config'
+> > >...
+> > 
+> > You have a Voyager machine?
+> > You didn't enable SMP support?
+> > 
+> > Could you retry the compilation with SMP support enabled?
+> 
+> Andrew already replied to me in private. Seems like I accidentally 
+> selected the wrong processor-type during the make oldconfig. I hoped
+> nobody would notice ;)
 
-> $SUBJECT. The driver seems to be present in alsa-driver but not the
-> in-kernel version. Is it very new? Does it need to be converted? Is it 
-> deprecated in 2.6 in favor of a better driver? May I help out?
+But your mail showed something that should be fixed:
 
-Actually, we are doing some cleanups in the code for 2.6. Then it will be 
-propagated to our 2.6 BK patches.
+@James:
+Is X86_VOYAGER=y and SMP=n a valid configuration that should compile, or 
+should X86_VOYAGER select SMP?
 
-						Jaroslav
+> # Han
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVCDGob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVCDGt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbVCDGob (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 01:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbVCDGoa
+	id S261354AbVCDGt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 01:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVCDGtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 01:44:30 -0500
-Received: from iucha.net ([209.98.146.184]:19615 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S262444AbVCDGk7 (ORCPT
+	Fri, 4 Mar 2005 01:49:55 -0500
+Received: from fire.osdl.org ([65.172.181.4]:9130 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261354AbVCDGsH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 01:40:59 -0500
-Date: Fri, 4 Mar 2005 00:40:53 -0600
-To: linux-kernel@vger.kernel.org
-Subject: are the io-schedulers per-device?
-Message-ID: <20050304064053.GC10507@iucha.net>
+	Fri, 4 Mar 2005 01:48:07 -0500
+Date: Thu, 3 Mar 2005 22:47:59 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, jgarzik@pobox.com, olof@austin.ibm.com,
+       paulus@samba.org, rene@exactcode.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+Message-ID: <20050304064759.GP5389@shell0.pdx.osdl.net>
+References: <422756DC.6000405@pobox.com> <16935.36862.137151.499468@cargo.ozlabs.ibm.com> <20050303225542.GB16886@austin.ibm.com> <20050303175951.41cda7a4.akpm@osdl.org> <20050304022424.GA26769@austin.ibm.com> <20050304055451.GN5389@shell0.pdx.osdl.net> <20050303220631.79a4be7b.akpm@osdl.org> <4227FC5C.60707@pobox.com> <20050304062016.GO5389@shell0.pdx.osdl.net> <20050303222335.372d1ad2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XWOWbaMNXpFDWE00"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.6+20040907i
-From: florin@iucha.net (Florin Iucha)
+In-Reply-To: <20050303222335.372d1ad2.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Andrew Morton (akpm@osdl.org) wrote:
+> Chris Wright <chrisw@osdl.org> wrote:
+> >
+> >  * Jeff Garzik (jgarzik@pobox.com) wrote:
+> >  > Andrew Morton wrote:
+> >  > >Chris Wright <chrisw@osdl.org> wrote:
+> >  > >>Olof's patch is in the linux-release tree, so this brings up a point
+> >  > >>regarding merging.  If the quick fix is to be replaced by a better fix
+> >  > >>later (as in this case) there's some room for merge conflict.  Does this
+> >  > >>pose a problem for either -mm or Linus' tree?
+> >  > >
+> >  > >It depends who gets to Linus's tree first.  If linux-release merges first,
+> >  > >I just revert the temp fix while adding the real fix.  But the temp fix
+> >  > >should never have gone into Linus's tree in the first place.
+> > 
+> >  Consider it first patch in fixup series ;-)
 
---XWOWbaMNXpFDWE00
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Actually I meant fix 1/2 == quick, fix 2/2 == more complete.
 
-Hello,
+> Here's the second, and this is much more critical.
+> 
+> And it's untested.
 
-For a semester project I am experimenting with a new IO scheduler and I
-was trying to set my scheduler to control a single device, to ease the
-development and debugging, by using
-   echo "foo" > /sys/block/ubdc/queue/scheduler
-Much to my suprise, this sets the scheduler for the other block
-devices as well! Does this happen only to UML block devices? Do I need
-to do anything to allow a per-device scheduler? Is the functionality
-there, or is it in-progress? Am I reading too much in the fact that
-the queue/scheduler is defined under each block device?
+I'd rather it be tested.../me keeps wishing
+If it's untested, are we even sure it fixes the problem?  Or are you
+worried about the umpteen other non-Dell laptops that could have
+problems with the patch?
 
-Thank you,
-florin
+> And it's a temp-fix - it'll be addressed by other means in 2.6.12.
+> 
+> What do we do?
 
-PS: Please Cc: me as I am not subscribed.
+IMO, we have to rely on Dmitry's judgement.  Is it critical (i.e. broke
+laptops how)?  Can it be worked around with the i8042.noacpi boot param?
+If so, I don't think it fits the bill as critical.
 
---=20
-
-Don't question authority: they don't know either!
-
---XWOWbaMNXpFDWE00
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCKAL1NLPgdTuQ3+QRAvfDAJ9NQfWj2gSLrFZPRt0D9B/OXO1dngCgnm0T
-HLVaYOIsdWISvhH+IDJ4nYs=
-=uNjp
------END PGP SIGNATURE-----
-
---XWOWbaMNXpFDWE00--
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

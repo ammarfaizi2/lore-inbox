@@ -1,44 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbULRPk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbULRPyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbULRPk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 10:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbULRPk6
+	id S261184AbULRPyN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 10:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbULRPyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 10:40:58 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:65435 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261180AbULRPky
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 10:40:54 -0500
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling
-	Interval
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Mikkel Krautz <krautz@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <41C46B4D.5040506@gmail.com>
-References: <1103335970.15567.15.camel@localhost>
-	 <20041218012725.GB25628@kroah.com>  <41C46B4D.5040506@gmail.com>
-Content-Type: text/plain
-Date: Sat, 18 Dec 2004 16:40:44 +0100
-Message-Id: <1103384445.8765.1.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Sat, 18 Dec 2004 10:54:12 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:22228 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261184AbULRPyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 10:54:11 -0500
+Message-ID: <41C452B1.2070602@austin.rr.com>
+Date: Sat, 18 Dec 2004 09:54:25 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: cherry@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: IA32 (2.6.10-rc3 - 2004-12-13.8.00) - 2 New warnings
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mikkel,
-
-> @@ -1910,6 +1916,7 @@
->  
->  module_init(hid_init);
->  module_exit(hid_exit);
-> +module_param(hid_mouse_polling_interval, int, 644);
-
-I think the use of module_param_named() makes more sense here.
-
-Regards
-
-Marcel
-
+I have fixed the two warnings you mention in the cifs code (how did you 
+generate those, I don't remember sparse emitting them).   Although they 
+are low risk to include, I want to check out a recent change to 
+CIFSMBWrite (to allow smb bcc > 64K on write) before pushing them both.
 

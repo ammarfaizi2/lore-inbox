@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVAGR31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVAGRbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVAGR31 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVAGR31
+	id S261360AbVAGRbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVAGRbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:29:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10673 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261358AbVAGR3V (ORCPT
+	Fri, 7 Jan 2005 12:31:09 -0500
+Received: from relay01.pair.com ([209.68.5.15]:11281 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S261359AbVAGR3h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:29:21 -0500
-Date: Fri, 7 Jan 2005 09:29:18 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Martin Mares <mj@ucw.cz>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Jack O'Quin" <joq@io.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107092918.B2357@build.pdx.osdl.net>
-References: <20050107162902.GA7097@ucw.cz> <200501071636.j07Gateu018841@localhost.localdomain> <20050107170603.GB7672@ucw.cz>
+	Fri, 7 Jan 2005 12:29:37 -0500
+X-pair-Authenticated: 66.134.112.218
+Subject: Re: Process blocking behaviour
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: selvakumar nagendran <kernelselva@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050107065809.60035.qmail@web60604.mail.yahoo.com>
+References: <20050107065809.60035.qmail@web60604.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 07 Jan 2005 12:29:36 -0500
+Message-Id: <1105118976.25618.5.camel@athena.fprintf.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050107170603.GB7672@ucw.cz>; from mj@ucw.cz on Fri, Jan 07, 2005 at 06:06:03PM +0100
+X-Mailer: Evolution 2.1.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Martin Mares (mj@ucw.cz) wrote:
-> Hello!
+On Thu, 2005-01-06 at 22:58 -0800, selvakumar nagendran wrote:
+> Hello linux-experts,
+>    
+>   I am intercepting system calls in Linux kernel
+> 2.4.28.
+>   
+>   Pseudo-code:
+>   ------------
+>     saved_old_syscall =
+> sys_call_table[sycallno(read)];
+>     sys_call_table[read] = my_sys_call;
+>     
+>   my_sys_call(file descriptor)
+>   -------------
+>      Call saved_old_syscall(file descriptor).
+>     
+>      Now at this point, I want to determine whether
+> the system call blocks waiting for the file descriptor
+> resource. How can I do that? Should I modify the
+> kernel code only for this?
 > 
-> > They are present but disabled by default. You have to hack the initial
-> > values of CAP_INIT_EFF_SET and CAP_INIT_IHN_SET.
-> 
-> Oops. Does anybody know why this has been done?
+>    Can I check its state after the call as
+>      if (task_current_state == INTERRUPTIBLE
+>             || UNINTERRUPTIBLE) to do this?
 
-Yes, SETPCAP became a gaping security hole.  Recall the sendmail hole.
+No, you can't, because by the time the syscall returns to you, it's
+blocked, scheduled, unblocked, and been rescheduled.  It's too late.  I
+don't think you can do what you want, without modifying all the syscalls
+directly.
 
-> Also, it seems that it has a relatively easy work-around: boot with
-> init=/sbin/simple-wrapper and let the wrapper set the cap_bset and exec real
-> init. (I agree that it's a hack, but a temporarily usable one.)
+Besides, most blocks are for data, not on something like a semaphore.
+What you really want is priority-inheritance semaphores, not
+modification of syscalls.  I seem to remember someone working on such a
+beast, and the RTOS versions of Linux presumably have something like
+this, so you could check around.
 
-This won't work, you can't increase the bset, which is hardcoded to
-leave out SETPCAP.  Also, init is hard coded to start without SETPCAP.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Daniel

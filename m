@@ -1,67 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbTBETcZ>; Wed, 5 Feb 2003 14:32:25 -0500
+	id <S264745AbTBEThp>; Wed, 5 Feb 2003 14:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264730AbTBETcZ>; Wed, 5 Feb 2003 14:32:25 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:39400 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP
-	id <S264716AbTBETcY>; Wed, 5 Feb 2003 14:32:24 -0500
-Message-ID: <3E4168F6.4000309@zytor.com>
-Date: Wed, 05 Feb 2003 11:41:42 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Kasper Dupont <kasperd@daimi.au.dk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: isofs hardlink bug (inode numbers different)
-References: <20030126235556.GA5560@paradise.net.nz> <b1nd5m$rhp$1@cesium.transmeta.com> <3E40F5DC.275FFE9D@daimi.au.dk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264748AbTBETho>; Wed, 5 Feb 2003 14:37:44 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:38414 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S264745AbTBEThU>;
+	Wed, 5 Feb 2003 14:37:20 -0500
+Date: Wed, 5 Feb 2003 20:46:55 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Message-ID: <20030205194655.GA3434@mars.ravnborg.org>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>, lm@bitmover.com,
+	linux-kernel@vger.kernel.org
+References: <20030205174021.GE19678@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030205174021.GE19678@dualathlon.random>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kasper Dupont wrote:
->> 
->>Second: If there are files on the CD-ROM *without* RockRidge
->>attributes, you can get collisions with the synthesized inode numbers
->>for non-RR files.
->  
-> That can easily be solved. RockRidge inode numbers are multiplied
-> by two, and synthesized inode numbers are all odd. Of course if
-> the multiplication overflows a fallback to synthesized inode
-> numbers would be necesarry. Does any software produce inode
-> numbers large enough to make this a problem?
-> 
+Hi Andrea
 
-We have no idea, and we will never be able to know.  They certainly 
-*CAN*... they are just anonymous 32-bit values.
+It was in cset 1.879.43.1 that the change was made.
+Long time before the cset you noted.
 
-> 
->>Third: If you actually rely on inode numbers to be able to find your
->>files, like most versions of Unix including old (but not current)
->>versions of Linux, then they are completely meaningless.
-> 
-> Agreed.
-> 
->>There is another way to generate consistent inodes for hard links,
->>which is to use the data block pointer as the "inode number."  This,
->>however, has the problem that *ALL* zero-lenght files become "hard
->>links" to each other.
-> 
-> That problem can easily be solved. Simply use different methods
-> for zero-length files and all other files. But there might be
-> other problems with such an approach:
-> 
-> 1) Could two different files have same data block pointer?
->    (different sizes perhaps?)
-
-Theoretically yes.
-
-> 2) Do we need a way to find metadata from the inode number?
-
-Currently we do, but we could rewrite the code not to.
-
-	-hpa
+To me it looks like the same change were applied twice to Linus's
+BK tree.
 
 
+[cset's from a vanilla clone of Linus'es BK tree].
+
+	Sam

@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129282AbRCENg4>; Mon, 5 Mar 2001 08:36:56 -0500
+	id <S129292AbRCENlG>; Mon, 5 Mar 2001 08:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129283AbRCENgr>; Mon, 5 Mar 2001 08:36:47 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:17715 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S129282AbRCENgf>; Mon, 5 Mar 2001 08:36:35 -0500
-Message-ID: <000701c0a579$20b91440$3201a8c0@laptop>
-From: "Christian Hilgers" <webmaster@server-side.de>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0103041745210.1038-100000@roku.redroom.com> <002d01c0a4e4$c9e2da00$0201a8c0@fmp> <001401c0a564$47747120$3201a8c0@laptop>
-Subject: Re: DVD Problem
-Date: Mon, 5 Mar 2001 14:35:21 +0100
+	id <S129307AbRCENk4>; Mon, 5 Mar 2001 08:40:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:11394 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129292AbRCENkt>; Mon, 5 Mar 2001 08:40:49 -0500
+Date: Mon, 5 Mar 2001 08:40:22 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jan Nieuwenhuizen <janneke@gnu.org>
+cc: Pavel Machek <pavel@suse.cz>, Erik Hensema <erik@hensema.xs4all.nl>,
+        linux-kernel@vger.kernel.org, bug-bash@gnu.org
+Subject: Re: binfmt_script and ^M
+In-Reply-To: <m3k8648i94.fsf@appel.lilypond.org>
+Message-ID: <Pine.LNX.3.95.1010305083112.8719A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2014.211
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2014.211
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5 Mar 2001, Jan Nieuwenhuizen wrote:
 
->>> So you need to compile the kernel with UDF support , which is the
->>> filesystem used in DVDs. As you said, iso9660 works, but only for
-the
->>> first 650 mb. And after it take a look at www.linuxvideo.org and
->>> www.videolan.org.
->>
->>Won´t work. UDF is a fs of its own. I think there´s something wrong
->>with ide
->>(DVD or controller or BIOS ) which reports wrong device size ...
->
->I tried Kernel 2.4.0, this one is also working fine. Than I used the
->same .config for the 2.4.1 Kernel.
->And the DVD did't work!!
->Maybe a bug in the CD-Rom driver?
->I think I will try the 2.4.2 Kernel.
+> Pavel Machek <pavel@suse.cz> writes:
+> 
+> > > $ head -1 testscript
+> > > #!/bin/sh
+> > > $ ./testscript
+> > > bash: ./testscript: No such file or directory
+> > 
+> > What kernel wants to say is "/usr/bin/perl\r: no such file". Saying ENOEXEC
+> > would be even more confusing.
+> 
+> So, why don't we make bash say that, then?  As I guess that we've all
+> been bitten by this before.
+> 
+> What are the chances for something like this to be included?
+> 
+> Greetings,
+> Jan.
+> 
+[SNIPPED...]
 
-The problem seems to be fixed in 2.4.2.
+So why would you even consider breaking bash as a work-around for
+a broken script?
 
-Christian
+Somebody must have missed the boat entirely. Unix does not, never
+has, and never will end a text line with '\r'. It's Microsoft junk
+that does that, a throwback to CP/M, a throwback to MDS/200.
 
+Cheers,
+Dick Johnson
 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 

@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263512AbTIWT1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 15:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTIWT0d
+	id S263457AbTIWTOc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 15:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTIWTKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 15:26:33 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40924 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263508AbTIWTZR (ORCPT
+	Tue, 23 Sep 2003 15:10:30 -0400
+Received: from ns.suse.de ([195.135.220.2]:25521 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263412AbTIWTJt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 15:25:17 -0400
-Date: Tue, 23 Sep 2003 12:11:16 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: davidm@hpl.hp.com
-Cc: davidm@napali.hpl.hp.com, kevin.vanmaren@unisys.com,
-       peter@chubb.wattle.id.au, bcrl@kvack.org, ak@suse.de, iod00d@hp.com,
-       peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
+	Tue, 23 Sep 2003 15:09:49 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: bcrl@kvack.org, tony.luck@intel.com, davidm@hpl.hp.com,
+       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, ak@suse.de,
+       iod00d@hp.com, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-Id: <20030923121116.3dc23a45.davem@redhat.com>
-In-Reply-To: <16240.35724.423746.180371@napali.hpl.hp.com>
-References: <BFF315B8E1D7F845B8FC1C28778693D70AFEC6@usslc-exch1.na.uis.unisys.com>
-	<16240.35724.423746.180371@napali.hpl.hp.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
+	<20030923142925.A16490@kvack.org> <jehe3372th.fsf@sykes.suse.de>
+	<20030923115200.1f5b44df.davem@redhat.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I have the power to HALT PRODUCTION on all TEENAGE SEX COMEDIES!!
+Date: Tue, 23 Sep 2003 21:09:47 +0200
+In-Reply-To: <20030923115200.1f5b44df.davem@redhat.com> (David S. Miller's
+ message of "Tue, 23 Sep 2003 11:52:00 -0700")
+Message-ID: <je4qz3724k.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Sep 2003 11:06:04 -0700
-David Mosberger <davidm@napali.hpl.hp.com> wrote:
+"David S. Miller" <davem@redhat.com> writes:
 
-> So what's wrong with doign prctl --fpemul=silent in the init process?
-> The flags are inherited across fork().
+> On Tue, 23 Sep 2003 20:54:50 +0200
+> Andreas Schwab <schwab@suse.de> wrote:
+>
+>> Unaligned access are a BUG.
+>
+> Wrong, they've been allowed in the kernel networking from day
+> one and there is nothing that can be done to avoid the cases
+> for which they occur.
 
-Great, can we get such a setting for the kernel bits too?
+The compiler is allowed to take advantage that there are no unaligned
+accesses.  You need to use compiler extensions (like attribute packed) to
+stop it from doing this.
+
+> Stop spreading fud.
+
+Nothing like this.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268881AbUIXRcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268954AbUIXRiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268881AbUIXRcs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 13:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268954AbUIXRcr
+	id S268954AbUIXRiU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 13:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268944AbUIXRiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 13:32:47 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.74]:23185 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S268881AbUIXRaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 13:30:46 -0400
-Date: Fri, 24 Sep 2004 13:30:44 -0400
-From: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Subject: [Patch 2.6] Use proper sysfs mount-point
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org
-Message-id: <20040924173044.GB17723@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.6+20040803i
+	Fri, 24 Sep 2004 13:38:20 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:64333 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268979AbUIXRhh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 13:37:37 -0400
+Message-ID: <5b64f7f04092410367c6328e0@mail.gmail.com>
+Date: Fri, 24 Sep 2004 17:36:48 +0000
+From: Rahul Karnik <deathdruid@gmail.com>
+Reply-To: Rahul Karnik <deathdruid@gmail.com>
+To: "Johnson, Richard" <rjohnson@analogic.com>
+Subject: Re: Migration to linux-2.6.8 from linux-2.4.26
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0409241258180.24517@quark.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.53.0409241038250.24372@quark.analogic.com>
+	 <5b64f7f040924093035495d74@mail.gmail.com>
+	 <Pine.LNX.4.53.0409241258180.24517@quark.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use proper sysfs mount-point.
+> > On Fri, 24 Sep 2004 11:10:23 -0400 (EDT), Johnson, Richard
+> I don't know how it 'knew' that I had proviously copied
+> all the modutil utilities to *.old before installing the
+> new ones. In any event, it would certainly never find
+> them at "./filename.old". They would have to be un
+> /sbin or /usr/sbin or /usr/local/something, never in
+> the current directory.
 
-Jeff Sipek.
-   
-Signed-off-by: Josef "Jeff" Sipek <jeffpc@optonline.net>
- 
-diff -Nru a/Documentation/firmware_class/README b/Documentation/firmware_class/README
---- a/Documentation/firmware_class/README	2004-09-24 13:08:57 -04:00
-+++ b/Documentation/firmware_class/README	2004-09-24 13:08:57 -04:00
-@@ -61,7 +61,7 @@
- 	HOTPLUG_FW_DIR=/usr/lib/hotplug/firmware/
- 
- 	echo 1 > /sys/$DEVPATH/loading
--	cat $HOTPLUG_FW_DIR/$FIRMWARE > /sysfs/$DEVPATH/data
-+	cat $HOTPLUG_FW_DIR/$FIRMWARE > /sys/$DEVPATH/data
- 	echo 0 > /sys/$DEVPATH/loading
- 
-  Random notes:
-diff -Nru a/Documentation/firmware_class/hotplug-script b/Documentation/firmware_class/hotplug-script
---- a/Documentation/firmware_class/hotplug-script	2004-09-24 13:08:57 -04:00
-+++ b/Documentation/firmware_class/hotplug-script	2004-09-24 13:08:57 -04:00
-@@ -7,10 +7,10 @@
- HOTPLUG_FW_DIR=/usr/lib/hotplug/firmware/
- 
- echo 1 > /sys/$DEVPATH/loading
--cat $HOTPLUG_FW_DIR/$FIRMWARE > /sysfs/$DEVPATH/data
-+cat $HOTPLUG_FW_DIR/$FIRMWARE > /sys/$DEVPATH/data
- echo 0 > /sys/$DEVPATH/loading
- 
- # To cancel the load in case of error:
- #
--#	echo -1 > /sysfs/$DEVPATH/loading
-+#	echo -1 > /sys/$DEVPATH/loading
- #
+Aha, there's the problem. module-init-tools does a copy of the old
+tools itself and delegates to the old tools for 2.4 kernels. So to fix
+your problem, install modutils and the install module-init-tools over
+it. See the README file that comes with module-init-tools for further
+info.
+
+Thanks,
+Rahul

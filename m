@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283097AbRLDPlR>; Tue, 4 Dec 2001 10:41:17 -0500
+	id <S279326AbRLDQDv>; Tue, 4 Dec 2001 11:03:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283096AbRLDPlJ>; Tue, 4 Dec 2001 10:41:09 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:678 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S283075AbRLDPky>; Tue, 4 Dec 2001 10:40:54 -0500
-Date: Tue, 4 Dec 2001 08:40:21 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Christoph Hellwig <hch@caldera.de>, "Eric S. Raymond" <esr@thyrsus.com>,
-        Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204154021.GG17651@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com> <20011204140050.A10691@caldera.de> <20011204081640.A12658@thyrsus.com> <20011204142958.A14069@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011204142958.A14069@caldera.de>
-User-Agent: Mutt/1.3.24i
+	id <S279113AbRLDQDl>; Tue, 4 Dec 2001 11:03:41 -0500
+Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:37288 "HELO smeg")
+	by vger.kernel.org with SMTP id <S278625AbRLDQD2>;
+	Tue, 4 Dec 2001 11:03:28 -0500
+Message-ID: <16303.193.132.197.81.1007481686.squirrel@mail.mswinxp.net>
+Date: Tue, 4 Dec 2001 16:01:26 -0000 (GMT)
+Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
+From: "Lee Packham" <linux@mswinxp.net>
+To: vherva@niksula.hut.fi
+In-Reply-To: <20011204145949.H21566@niksula.cs.hut.fi>
+In-Reply-To: <20011204145949.H21566@niksula.cs.hut.fi>
+Cc: gdf@gsource.org, linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 1.0.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 02:29:58PM +0100, Christoph Hellwig wrote:
-> On Tue, Dec 04, 2001 at 08:16:40AM -0500, Eric S. Raymond wrote:
-> > N separate implementations means N dialects and N**2 compatibility problems.
-> > Nicer just to have *one* parser, *one* compiler, and *one* service class that
-> > supports several thin front-end layers, yes?  No?
+Now, I have a KT7A-RAID with the HPT370... and I have no problems at all. I 
+have the 3R bios update (i think...) from the www.abit.com.tw site.
+
+> On Mon, Dec 03, 2001 at 11:44:57PM -0500, you [gdf] claimed:
+>> 
+>> I concur with Matt Schulkind.  This is usually symptom of and old
+>> Highpoint bios or even KT7A bios version.
 > 
-> Oh man.  When you think one implementation of a 'standard' is better then
-> multiple go to the MS world.
-
-Wouldn't multiple tools which don't quite work to a 'standard' better
-represent the MS world?  Which is what all of the cml1 tools do.
-
-> > > All of these tools just require the runtime contained in the LSB and no
-> > > funky additional script languages.  Also none needs a binary intermediate
-> > > representation of the config.
-> > 
-> > I quote Linus at the 2.5 kernel summit: "Python is not an issue."
-> > Unless and until he changes his mind about that, waving around this
-> > kind of argument is likely to do your case more harm than good.
+> I've tried Highpoint BIOSes 1.0.3b1 (Abit bios ZT), 1.2.0612 (Abit 
+> bios49b01+), 1.11.0402 (Abit bios 64). No help.
 > 
-> For me (and others) it is an issues.
-
-Why?
-
-> > If you want to re-open the case for saving CML1, you'd be better off
-> > demonstrating how CML1 can be used to (a) automatically do implied 
-> > side-effects when a symbol is changed,
+> Can someone shed some light on how much the Highpoint bios actually
+> matters under linux?
 > 
-> With mconfig it can be implemented easily - I don't see the point in
-> doing it, though.
-
-To show that CML1 doesn't need to die yet.
-
-> > (b) guarantee that the user
-> > cannot generate a configuration that violates stated invariants, and 
+>> If you believe it to be some sort of a driver problem i urge you to
+>> query the atariad mailing list.
+>> 
+>> Until then... for your mothe board i would point you to the KT7 FAQ.
+>> http://www.viahardware.com/faq/kt7/kt7faq.htm
+>> 
+>> Though it is a bit windows centric, it describes in great detail many
+>> of the issues with the board.  
 > 
-> What do you mean with that?
-
-That you can't turn on CONFIG_FOO_BAR unless CONFIG_FOO is on.  This is
-getting at things like USB V4L devices which need CONFIG_USB and
-CONFIG_VIDEODEV set to !n.  This is done poorly in CML1.
-
-> > (c) unify the configuration tree so that the equivalents of arch/*
-> > files never suffer from lag or skew when an architecture-independent
-> > feature is added to the kernel.
+> True, I've been reading it.
 > 
-> One toplevel config file can be implemented in CML1 easily,
-> using mconfig or the old and ugly tools, it's just a question of changeing
-> the rule base in tree.
+>  
+> -- v --
+> 
+> v@iki.fi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Lots of changing of the Config.in files.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

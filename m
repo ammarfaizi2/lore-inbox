@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274229AbRITChR>; Wed, 19 Sep 2001 22:37:17 -0400
+	id <S274293AbRITDDv>; Wed, 19 Sep 2001 23:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274293AbRITChJ>; Wed, 19 Sep 2001 22:37:09 -0400
-Received: from a1a90191.sympatico.bconnected.net ([209.53.18.133]:34947 "EHLO
-	continuum.cm.nu") by vger.kernel.org with ESMTP id <S274229AbRITCgw>;
-	Wed, 19 Sep 2001 22:36:52 -0400
-Date: Wed, 19 Sep 2001 19:36:49 -0700
-From: Shane Wegner <shane@cm.nu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages: 0-order allocation failed still in -pre12
-Message-ID: <20010919193649.A8824@cm.nu>
-In-Reply-To: <Pine.OSF.4.21.0109121502420.18976-100000@prfdec.natur.cuni.cz> <Pine.OSF.4.21.0109191615070.3826-100000@prfdec.natur.cuni.cz> <20010919153441.A30940@cm.nu> <20010920004543.Z720@athlon.random> <20010919193128.A8650@cm.nu>
-Mime-Version: 1.0
+	id <S274296AbRITDDm>; Wed, 19 Sep 2001 23:03:42 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:57848 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S274293AbRITDD0>; Wed, 19 Sep 2001 23:03:26 -0400
+Message-ID: <3BA95C87.5272E764@kegel.com>
+Date: Wed, 19 Sep 2001 20:03:35 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <XFMail.20010919192804.davidel@xmailserver.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010919193128.A8650@cm.nu>
-User-Agent: Mutt/1.3.20i
-Organization: Continuum Systems, Vancouver, Canada
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 07:31:28PM -0700, Shane Wegner wrote:
-> On Thu, Sep 20, 2001 at 12:45:43AM +0200, Andrea Arcangeli wrote:
-> > On Wed, Sep 19, 2001 at 03:34:41PM -0700, Shane Wegner wrote:
-> > > 
-> > > __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
-> > > c012e052
-> > > __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
-> > > c012e052
-> > > __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
-> > > c012e052
-> > 
-> > yes, please try this fix and let me know if it helps:
-> 
-> After some stress testing, the fix does appear to fix the
-> error.
+One more question: if I guess wrong initially about how many
+file descriptors I'll be monitoring with /dev/epoll, and I need
+to increase the size of the area inside /dev/epoll in the middle of
+my scan through the results, what is the proper sequence of calls?
 
-Hi,
+Some possibilities:
 
-Well just after I sent the email, it came up again.
+1)  EP_ALLOC, and continue scanning through the results
 
+2)  EP_FREE, EP_ALLOC, EP_POLL because old results are now invalid
 
-Sep 19 19:31:52 continuum kernel: __alloc_pages: 0-order
-allocation failed (gfp=0x20/0) from c012e052
-Sep 19 19:33:51 continuum kernel: __alloc_pages: 0-order
-allocation failed (gfp=0x20/0) from c012e052
+3)  EP_FREE, EP_ALLOC, write new copies of all the old fds to /dev/epoll, 
+    EP_POLL, and start new scan
 
-Shane
-
--- 
-Shane Wegner: shane@cm.nu
-              http://www.cm.nu/~shane/
-PGP:          1024D/FFE3035D
-              A0ED DAC4 77EC D674 5487
-              5B5C 4F89 9A4E FFE3 035D
+I bet it's #3.  Am I right?
+- Dan

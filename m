@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130770AbQLRPzR>; Mon, 18 Dec 2000 10:55:17 -0500
+	id <S131881AbQLRPz5>; Mon, 18 Dec 2000 10:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130750AbQLRPzI>; Mon, 18 Dec 2000 10:55:08 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:52228 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130770AbQLRPy5>; Mon, 18 Dec 2000 10:54:57 -0500
-Date: Mon, 18 Dec 2000 09:24:17 -0600
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Daiki Matsuda <dyky@df-usa.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 asm-alpha/system.h has a problem
-Message-ID: <20001218092416.I3199@cadcamlab.org>
-In-Reply-To: <20001217153444N.dyky@df-usa.com> <20001218033154.F3199@cadcamlab.org> <20001218154907.A16749@athlon.random> <14910.10020.692884.302587@wire.cadcamlab.org> <20001218161428.D16749@athlon.random>
-Mime-Version: 1.0
+	id <S131909AbQLRPzk>; Mon, 18 Dec 2000 10:55:40 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:37004 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S131881AbQLRPzV>; Mon, 18 Dec 2000 10:55:21 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Roderich Schupp <rsch@ExperTeam.de>
+Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au,
+        "H. Peter Anvin" <hpa@transmeta.com>
+Subject: Re: [PATCH] Make devfs create /dev/shm (was: Re: Trashing ext2 with hdparm) )
+In-Reply-To: <200012080852.JAA19341@www1.ExperTeam.de>
+Organisation: SAP LinuxLab
+Date: 18 Dec 2000 16:23:26 +0100
+In-Reply-To: Roderich Schupp's message of "Fri, 08 Dec 2000 09:46:09 +0100"
+Message-ID: <qwwr935da8h.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001218161428.D16749@athlon.random>; from andrea@suse.de on Mon, Dec 18, 2000 at 04:14:28PM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Roderich,
 
-[Andrea Arcangeli]
-> C++ obviously doesn't care about the name of parameters in a function
-> too.
+On Fri, 08 Dec 2000, Roderich Schupp wrote:
+>> And I'll ask again...  If this is now the recommend mount point,
+>> can we have devfs create this directory for us?
+> 
+> C'mon guys, this is just to easy:
 
-Sure it does when they are language keywords.  In this case he is
-trying to change the parameter name "new".
+Included in 2.4.0-test13-pre3...
 
-Peter
+Greetings
+		Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbUB0MCl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 07:02:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUB0MCl
+	id S261798AbUB0MEh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 07:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUB0MEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 07:02:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:44474 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261802AbUB0MCj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 07:02:39 -0500
-Subject: [PATCHES] ppc64 iommu rewrite & G5 support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077882827.22213.340.camel@gaston>
+	Fri, 27 Feb 2004 07:04:37 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:45828 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261798AbUB0MEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 07:04:35 -0500
+Date: Fri, 27 Feb 2004 12:04:33 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why no interrupt priorities?
+Message-ID: <20040227120433.A31544@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tim Bird <tim.bird@am.sony.com>,
+	linux kernel <linux-kernel@vger.kernel.org>
+References: <403E4363.2070908@am.sony.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 27 Feb 2004 22:53:48 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <403E4363.2070908@am.sony.com>; from tim.bird@am.sony.com on Thu, Feb 26, 2004 at 11:05:07AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Thu, Feb 26, 2004 at 11:05:07AM -0800, Tim Bird wrote:
+> What's the rationale for not supporting interrupt priorities
+> in the kernel?
 
-In the following few emails are the bits of the long awaited ppc64
-iommu rewrite and DART support for the PowerMac G5. The DART code
-is still marked EXPERIMENTAL (though I haven't had any problem with
-it here). 
+What do you actually want to do them?  Linux doesn't do the traditional
+unix spl scheme for coplexity and performance reasons, see
 
-I also implemented some basic virtual merging on top of the original
-rewrite that is also marked EXPERIMENTAL and not enabled by default,
-though it appears to work fine, because some drivers may still have
-issues with it. It can still be enabled with a kernel command line
-option despite beeing off in the .config (iommu=vmerge) or disabled
-when the config .option is set (iommu=novmerge).
+www.usenix.org/publications/library/proceedings/ana97/full_papers/small/small.ps
 
-I will make it the default once we have moved the boundary limit
-information down to struct device and fixed our pci_map_sg()
-implementation to use that information, as it was discussed separately.
-
-Many Kudos to Olof Johansson who did the bulk of the work, wiping out
-the old ppc64 TCE mess to replace it with something that allowed people
-like me to actually do further hacking on it while keeping the
-noise/swearing level in the office acceptable (Rusty, in the cubicle
-next to mine, will thank you Olof !) He is also responsible for getting
-the crap out of Apple's DART implementation & HW bugs and producing a
-working driver for it.
-
-My contribution is limited to the vmerge stuff, further cleanups, some
-fixes here or there, and proper IO hole accounting.
-
-Have fun and backup your data !
-
-Ben.
-
-
-
-
+for a related paper.  Give that linux hardirq handlers should be very small
+there's no performance gain in that area for sane architectures, too.
 

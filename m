@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265843AbSKRWgV>; Mon, 18 Nov 2002 17:36:21 -0500
+	id <S264972AbSKRV7O>; Mon, 18 Nov 2002 16:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbSKRWgV>; Mon, 18 Nov 2002 17:36:21 -0500
-Received: from rth.ninka.net ([216.101.162.244]:61057 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S265843AbSKRWgU>;
-	Mon, 18 Nov 2002 17:36:20 -0500
-Subject: Re: [PATCH] llc & 2.5.48
-From: "David S. Miller" <davem@redhat.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <20021118141437.GB10815@vana>
-References: <20021118141437.GB10815@vana>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Nov 2002 15:02:28 -0800
-Message-Id: <1037660548.5783.0.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S264939AbSKRV5R>; Mon, 18 Nov 2002 16:57:17 -0500
+Received: from 193-119.adsl5.netlojix.net ([207.71.193.119]:9358 "EHLO
+	goby.lotspeich.org") by vger.kernel.org with ESMTP
+	id <S264972AbSKRVwk>; Mon, 18 Nov 2002 16:52:40 -0500
+Date: Mon, 18 Nov 2002 13:59:40 -0800 (PST)
+From: Erik Lotspeich <erikvcl@silcom.com>
+X-X-Sender: <erik@goby.lotspeich.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Crash in audio.o (USB Audio)
+Message-ID: <Pine.LNX.4.33.0211181354540.13410-100000@goby.lotspeich.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-18 at 06:14, Petr Vandrovec wrote:
->    patch below fixes couple of compilation warnings in llc.
-> Please apply.
+Hi,
 
-Applied, thanks.
+I tried getting USB audio to work with Apple's USB speakers on Linux
+2.4.17.  When I tried to access the audio device, the USB module would
+crash.  The USB system appears to properly identify the speakers and their
+capabilities.
+
+I've done searching on the Internet and I can't find anyone else who's
+tried this recently.  Is this a known problem with USB audio and recent
+Linux 2.4 releases?
+
+If this is a known problem, I'd be happy to look into it and try to
+(possibly) fix it.  Any pointers would be appreciated.
+
+Thanks!
+
+Erik.
 

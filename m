@@ -1,65 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264741AbTGBGG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 02:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTGBGG2
+	id S264766AbTGBGYv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 02:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264768AbTGBGYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 02:06:28 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:44432 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264741AbTGBGGZ
+	Wed, 2 Jul 2003 02:24:51 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:993 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264766AbTGBGYt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 02:06:25 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Roberto Orenstein <orenstein@brturbo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] O1int with contest
-Date: Wed, 2 Jul 2003 16:24:32 +1000
-User-Agent: KMail/1.5.2
-References: <1057120014.7919.23.camel@localhost.localdomain>
-In-Reply-To: <1057120014.7919.23.camel@localhost.localdomain>
+	Wed, 2 Jul 2003 02:24:49 -0400
+Date: Wed, 2 Jul 2003 09:39:12 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+To: "Andreas U. Trottmann" <andreas.trottmann@werft22.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: keyboard.c fix in 2.4.21 breaks my (buggy?) keyboard
+In-Reply-To: <20030701223800.GA13973@kreator.toc.aart.ch>
+Message-ID: <Pine.LNX.4.53.0307020935380.9206@hosting.rdsbv.ro>
+References: <20030701223800.GA13973@kreator.toc.aart.ch>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307021624.32749.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jul 2003 14:26, Roberto Orenstein wrote:
-> Hi guys,
+Hi!
+
+I have this problem with left shift key.
+X 4.2.0, 2.4.21, epox motherboard, several keyboards.
+But this happen from 6 to 6 hours. And seems to last 10-20 seconds.
+
+
+> Hello linux-kernel,
 >
-> Here are some numbers from three kernels tested on my home machine.
-> All threes are 2.5.73 based.
-> Vanilla is a plain one, O1int-0307020011 is the latest (as I last
-> checked) O1int patch w/o the granularity patch, and
-> O1int-granu-0307020011 is the former with granularity.
+> patch-2.4.21 contains the following patch to keyboard.c:
+>
+> diff -urN linux-2.4.20/drivers/char/keyboard.c linux-2.4.21/drivers/char/keyboard.c
+> --- linux-2.4.20/drivers/char/keyboard.c        2002-08-02 17:39:43.000000000 -0700
+> +++ linux-2.4.21/drivers/char/keyboard.c        2003-06-13 07:51:33.000000000 -0700
+> @@ -213,7 +215,17 @@
+>         }
+>         kbd = kbd_table + fg_console;
+>         if ((raw_mode = (kbd->kbdmode == VC_RAW))) {
+> -               put_queue(scancode | up_flag);
+> +               /*
+> +                *      The following is a workaround for hardware
+> +                *      which sometimes send the key release event twice
+> +                */
+> +               unsigned char next_scancode = scancode|up_flag;
+> +               if (up_flag && next_scancode==prev_scancode) {
+> +                       /* unexpected 2nd release event */
+> +               } else {
+> +                       prev_scancode=next_scancode;
+> +                       put_queue(next_scancode);
+> +               }
+>                 /* we do not return yet, because we want to maintain
+>                    the key_down array, so that we have the correct
+>                    values when finishing RAW mode or when changing VT's */
+>
+>
+> But apparently, there is not only hardware that sends the key release
+> event twice, but also hardware that sends the key press event twice
+> in certain circumstances.
+>
+> I've got a keyboard ("Unikey model KWD-205"), which, for the left
+> control key (and apparently only for this key) sends the key down
+> event twice, followed by two key up events. For certain applications
+> using VC_RAW (most important XFree86), this means that the ctrl
+> key gets "stuck" once it's been pressed.
+>
+>
+> I don't know an "appropriate" fix to this problem. Obviously, the
+> patch got inserted in 2.4.21 because it fixes broken keyboards
+> owned by many people. As I didn't find any reports about my
+> problem with google, it seems that keyboards like my one are
+> quite rare. One possible solution would be to ignore any events
+> where next_scancode==prev_scancode, regardless of up_flag - but
+> this breaks autorepeat, which then would maybe need to be
+> emulated.
+>
+> Another possible fix would be to only ignore multiple identical
+> "up" events for non-modifier keys, but this would require
+> keyboard.c to have a list of key symbols of keys like "control",
+> "shift" etc.
+>
+>
+> So, are there other people having the same problem? Is it worth
+> to find a "good" fix for the linux kernel, or should I just
+> remove this patch by hand every time I compile a new kernel,
+> until my keyboard dies and I get a non-broken one? ;-)
+>
+> --
+> Andreas Trottmann
+> Ideen Werft22 GmbH
+> Tel    +41 (0)56 210 91 37
+> Fax    +41 (0)56 210 91 34
+> Mobile +41 (0)79 229 88 55
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Thanks for doing these.
-
-> One can see that with granularity, the kernel compile suffers a bit, but
-> the response is usually high. In my machine, this was the kernel with
-> the best responsiveness.
-
-Can you please describe your experiences? The more feedback I get the more I 
-can get it working well.
-
-> Each kernel was run once, except O1int-0307020011 with three iterations.
-> This was the first I tested, and as soon I noticed the time it took, I
-> decided to run once the others 8). Maybe this has some bad influence on
-> the results. I appreciate any comments...
-
-Ok well here is my summary of the situation. My patch has virtually no effect 
-on contest results (except perhaps io_other). This is good because my earlier 
-attempts did affect it, and possibly starved some of the loads. Dare I say 
-it, contest is not very good at picking up _these_ sort of scheduler tweaks 
-unless they do something wrong. Sorry if my system responsiveness benchmark 
-doesn't show this effect; I think they're different. This is more about 
-picking the right thing to give preference to. There's a long discussion in 
-that, but I'll try not to get into it.
-
-By the way it doesn't look like your dbench in dbench load actually worked.
-
-O1int still remains a work in progress.
-
-Con
-
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

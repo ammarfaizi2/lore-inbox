@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319473AbSH3Hfs>; Fri, 30 Aug 2002 03:35:48 -0400
+	id <S319474AbSH3HnQ>; Fri, 30 Aug 2002 03:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319474AbSH3Hfs>; Fri, 30 Aug 2002 03:35:48 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:39068 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S319473AbSH3Hfr>;
-	Fri, 30 Aug 2002 03:35:47 -0400
-Date: Fri, 30 Aug 2002 09:43:39 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-Subject: [patch] scheduler fixes, 2.5.32-BK
-Message-ID: <Pine.LNX.4.44.0208300939030.8227-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319475AbSH3HnQ>; Fri, 30 Aug 2002 03:43:16 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:19206 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S319474AbSH3HnQ>; Fri, 30 Aug 2002 03:43:16 -0400
+Date: Fri, 30 Aug 2002 09:47:30 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: pwaechtler@mac.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 6/41 sound/oss/pss.c - convert cli to spinlocks
+Message-ID: <20020830074730.GF19611@louise.pinerecords.com>
+References: <200208292154.g7TLs5ZH003520@smtp-relay02.mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208292154.g7TLs5ZH003520@smtp-relay02.mac.com>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 4 days, 5:14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> static pss_confdata *devc = &pss_data;
+                           ^ ^
+> +static spinlock_t lock=SPIN_LOCK_UNLOCKED;
 
-the attached patch adds two scheduler related fixes:
-
- - changes the migration code to use struct completion. Andrew pointed out
-   that there might be a small window in where the up() touches the
-   semaphore while the waiting task goes on and frees its stack. And
-   completion is more suited for this kind of stuff anyway.
-
- - removes two unneeded exports, pointed out by Andrew.
-
-	Ingo
-
---- linux/kernel/sched.c.orig	Fri Aug 30 09:34:34 2002
-+++ linux/kernel/sched.c	Fri Aug 30 09:35:49 2002
-@@ -1901,7 +1901,7 @@
- typedef struct {
- 	list_t list;
- 	task_t *task;
--	struct semaphore sem;
-+	struct completion done;
- } migration_req_t;
- 
- /*
-@@ -1945,13 +1945,13 @@
- 		task_rq_unlock(rq, &flags);
- 		goto out;
- 	}
--	init_MUTEX_LOCKED(&req.sem);
-+	init_completion(&req.done);
- 	req.task = p;
- 	list_add(&req.list, &rq->migration_queue);
- 	task_rq_unlock(rq, &flags);
- 	wake_up_process(rq->migration_thread);
- 
--	down(&req.sem);
-+	wait_for_completion(&req.done);
- out:
- 	preempt_enable();
- }
-@@ -2032,7 +2032,7 @@
- 		double_rq_unlock(rq_src, rq_dest);
- 		local_irq_restore(flags);
- 
--		up(&req->sem);
-+		complete(&req->done);
- 	}
- }
- 
---- linux/kernel/ksyms.c.orig	Fri Aug 30 09:37:36 2002
-+++ linux/kernel/ksyms.c	Fri Aug 30 09:37:38 2002
-@@ -496,8 +496,6 @@
- #endif
- 
- EXPORT_SYMBOL(kstat);
--EXPORT_SYMBOL(nr_running);
--EXPORT_SYMBOL(nr_context_switches);
- 
- /* misc */
- EXPORT_SYMBOL(panic);
+> 				if (!pss_put_dspword(devc, *data++)) {
+                                                          ^
+> +					spin_unlock_irqrestore(&lock,flags);
 
 
+Would you please take care not to clutter the original sources with
+lines in a different C formatting style?

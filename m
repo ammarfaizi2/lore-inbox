@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129383AbQK0TUM>; Mon, 27 Nov 2000 14:20:12 -0500
+        id <S129428AbQK0Tfh>; Mon, 27 Nov 2000 14:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129392AbQK0TUC>; Mon, 27 Nov 2000 14:20:02 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:45842 "EHLO saturn.cs.uml.edu")
-        by vger.kernel.org with ESMTP id <S129383AbQK0TTz>;
-        Mon, 27 Nov 2000 14:19:55 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011271849.eARInfc255418@saturn.cs.uml.edu>
-Subject: Re: KERNEL BUG: console not working in linux
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Mon, 27 Nov 2000 13:49:41 -0500 (EST)
-Cc: g.anzolin@inwind.it (Gianluca Anzolin), linux-kernel@vger.kernel.org
-In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> from "Alan Cox" at Nov 27, 2000 02:50:33 PM
-X-Mailer: ELM [version 2.5 PL2]
+        id <S129455AbQK0Tf1>; Mon, 27 Nov 2000 14:35:27 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:53204 "EHLO
+        delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+        id <S129428AbQK0TfV>; Mon, 27 Nov 2000 14:35:21 -0500
+Date: Mon, 27 Nov 2000 20:04:51 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
+cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: crashing kernels
+In-Reply-To: <Pine.LNX.3.96.1001127183433.9692E-100000@sneaker.sch.bme.hu>
+Message-ID: <Pine.GSO.3.96.1001127193828.13774W-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 1) Why did they disable my videocard ?
->
-> Because your machine is not properly PC compatible
+On Mon, 27 Nov 2000, Mr. Big wrote:
 
-The same can be said of systems that don't support the
-standard keyboard controller for A20 control.
+> But maybe the /proc/interrupts could be usefull:
+>            CPU0       CPU1       
+>   0:     413111          0          XT-PIC  timer
+>   1:        687          0          XT-PIC  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   7:     751660          0          XT-PIC  eth1
+>  10:    7377626          0          XT-PIC  eth0
+>  11:     238981          0          XT-PIC  Mylex AcceleRAID 352, aic7xxx, aic7xxx
+>  13:          1          0          XT-PIC  fpu
+>  14:         10          0          XT-PIC  ide0
+> NMI:          0
+> ERR:          0
+
+ Hmm, nothing special.  Getting this in the APIC mode would possibly be
+more useful.  Isn't there anything that's sharing the IRQ with eth0 that's
+unhandled?  An unhandled onboard device?  What IRQs are reported by
+`/sbin/lspci -v'? 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

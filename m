@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284987AbSA1Uuw>; Mon, 28 Jan 2002 15:50:52 -0500
+	id <S285829AbSA1UyM>; Mon, 28 Jan 2002 15:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284305AbSA1Uum>; Mon, 28 Jan 2002 15:50:42 -0500
-Received: from pop.gmx.net ([213.165.64.20]:19265 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284987AbSA1UuZ>;
-	Mon, 28 Jan 2002 15:50:25 -0500
-Message-ID: <000d01c1a83d$602df2e0$094b2e3e@angband>
-Reply-To: "Andreas Happe" <andreashappe@subdimension.com>
-From: "Andreas Happe" <andreashappe@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.5.2-dj 5 & 6 - compile error using radeon fb
-Date: Mon, 28 Jan 2002 21:46:16 +0100
+	id <S286303AbSA1UyC>; Mon, 28 Jan 2002 15:54:02 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:11648 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S285829AbSA1Uxs>;
+	Mon, 28 Jan 2002 15:53:48 -0500
+Date: Mon, 28 Jan 2002 15:53:48 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Steven Hassani <hassani@its.caltech.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon Optimization Problem
+In-Reply-To: <E16VIKU-0001f7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0201281551250.2376-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-good evening,
+On Mon, 28 Jan 2002, Alan Cox wrote:
 
-i've got problems compiling the kernel 2.5.2-dj5 and dj6 due to a syntax
-error in ./drivers/video/radeonfb.c . After hours spent in solitude and
-asceticism i was able to trace back the error to a missing semicolon at line
-1454. Could anyone fix it (adding a single character is a huge amount of
-work, i know, but somebody got to do it)
+> Im still not convinced touching the register on the 266 chipset at 0x95 is
+> correct. I now have several reports of boxes that only work if you leave it
+> alone
+>
+> Alan
+>
+
+Hmm.  What do you recommend?  I remember seeing a spec sheet and register
+0x95 was the memory write queue timer.. but I could have dreamed it..
+
+Anyone know what register 0x95 does?
 
 
-Andreas Happe
-
-(hope you don't this too seriously)
 

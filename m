@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311462AbSCTWfd>; Wed, 20 Mar 2002 17:35:33 -0500
+	id <S312253AbSCTWnp>; Wed, 20 Mar 2002 17:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312245AbSCTWfZ>; Wed, 20 Mar 2002 17:35:25 -0500
-Received: from CPE-203-51-26-136.nsw.bigpond.net.au ([203.51.26.136]:53232
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S311462AbSCTWfO>; Wed, 20 Mar 2002 17:35:14 -0500
-Message-ID: <3C990E9E.CC23F0AA@eyal.emu.id.au>
-Date: Thu, 21 Mar 2002 09:35:10 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
-X-Accept-Language: en
+	id <S312260AbSCTWnf>; Wed, 20 Mar 2002 17:43:35 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:4364 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S312253AbSCTWnV>; Wed, 20 Mar 2002 17:43:21 -0500
+Path: Home.Lunix!not-for-mail
+Subject: Re: Bitkeeper licence issues
+Date: Wed, 20 Mar 2002 22:42:20 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz>
+    <20020318144255.Y10086@work.bitmover.com>
+    <20020318231427.GF1740@atrey.karlin.mff.cuni.cz>
+    <20020319002241.K17410@suse.de> <20020318180233.D10086@work.bitmover.com>
+    <20020319215800.GN12260@atrey.karlin.m__.cuni.cz>
+NNTP-Posting-Host: kali.eth
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre3-ac4: ATTRIB_NORET
-In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Trace: quasar.home.lunix 1016664140 27399 10.253.0.3 (20 Mar 2002
+    22:42:20 GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Wed, 20 Mar 2002 22:42:20 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:143157
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <a7b38c$qo7$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+In article <20020319215800.GN12260@atrey.karlin.m__.cuni.cz>,
+	Pavel Machek <pavel@suse.cz> writes:
+> If nasty user on same system creates symlink (ln -s /etc/passwd
+> /tmp/installer123), he may overwrite any file on the system. You probably want
 > 
-> This is the small stuff. Next patch is the next IDE updates so its about to
-> get more fun again 8)
+> fd = open(installer_name, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0755);
 > 
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out]
-> 
-> Linux 2.4.19pre3-ac4
-> o       Ensure jfs readdir doesn't spin on bad metadata (Dave Kleikamp)
-> o       Fix iconfig with no modules                     (Randy Dunlap)
-> o       Don't enfore rlimit on block device files       (Peter Hartley)
-> o       Add belkin wireless card idents                 (Brendan McAdams)
-> o       Add HP VA7400 to the scsi blacklist quirks      (Alar Aun)
-> o       JFS race fix                                    (Dave Kleikamp)
-> o       Fix wafer5823 watchdog merge error I made       (Justin Cormack)
-> o       Fix Config rule for phonejack pcmcia card       (Eyal Lebedinsky)
-> o       Test improved OOM handler for rmap              (Rik van Riel)
-> o       Update defconfig/experimental bits              (Neils Jensen)
-> o       The incredible shrinking kernel patch           (Andrew Morton)
-> o       Clean up BUG() implementation                   (Andrew Morton)
+> Same goes for data.
+> 								Pavel
+fd = open(installer_name, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0777);
 
--ac4 includes this:
-
---- linux.19p3/include/linux/kernel.h   Thu Mar 14 21:51:34 2002
-+++ linux.19pre3-ac4/include/linux/kernel.h     Wed Mar 20 16:02:22 2002
-@@ -181,4 +181,6 @@
-        char _f[20-2*sizeof(long)-sizeof(int)]; /* Padding: libc5 uses
-this.. */
- };
- 
-+extern void out_of_line_bug(void) ATTRIB_NORET;
-+
- #endif
-
-However ATTRIB_NORET is only defined if __KERNEL__, and the above line
-is outside that segment. In may case it is lm_sensors 2.6.2 that fails
-here.
-
-I moved it up and the build completes now.
-
-
-BTW, this undef is still around too:
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.19-pre3-ac4/kernel/drivers/hotplug/ibmphp.o
-depmod:         IO_APIC_get_PCI_irq_vector
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+the 0777 will still be modified by the umask. If people want e.g.
+writability for group for some reason, let them.

@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317640AbSG2THn>; Mon, 29 Jul 2002 15:07:43 -0400
+	id <S317582AbSG2TCs>; Mon, 29 Jul 2002 15:02:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317779AbSG2THn>; Mon, 29 Jul 2002 15:07:43 -0400
-Received: from 154-84-51-66.reonbroadband.com ([66.51.84.154]:33408 "EHLO
-	tibook.netx4.com") by vger.kernel.org with ESMTP id <S317640AbSG2THm>;
-	Mon, 29 Jul 2002 15:07:42 -0400
-Message-ID: <3D4592D3.50505@embeddededge.com>
-Date: Mon, 29 Jul 2002 15:09:07 -0400
-From: Dan Malek <dan@embeddededge.com>
-Organization: Embedded Edge, LLC.
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.9) Gecko/20020411
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Tom Rini <trini@kernel.crashing.org>, Russell King <rmk@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core problems
- on embedded PPC)
-References: <20020729174341.GA12964@opus.bloom.county> <20020729181352.27999@192.168.4.1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S317589AbSG2TCr>; Mon, 29 Jul 2002 15:02:47 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:61635 "EHLO e1.ny.us.ibm.com.")
+	by vger.kernel.org with ESMTP id <S317582AbSG2TCr>;
+	Mon, 29 Jul 2002 15:02:47 -0400
+Subject: Re: [PATCH] vfs_read/vfs_write small bug fix (2.5.29)
+From: Paul Larson <plars@austin.ibm.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200207291825.g6TIPj026021@eng2.beaverton.ibm.com>
+References: <200207291825.g6TIPj026021@eng2.beaverton.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 Jul 2002 14:02:26 -0500
+Message-Id: <1027969346.11135.187.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+On Mon, 2002-07-29 at 13:25, Badari Pulavarty wrote:
+> Hi,
+> 
+> Here is a patch to fix small bug in for vfs_read/vfs_write.
+> 
+> Please apply.
+This is actually one of the same issues I was looking at this morning. 
+I noticed that the Linux Test Project tests pread02 and pwrite02 were
+failing because of this.  However I also had to do some typecasting to
+make it work correctly.  I'm not sure this is the best way to do it, but
+without the typecasting, the tests still fail.
 
-> Especially, please, let's avoid once for all statically defined table,
-> on PPC (specifically on pmac) the table is really dynamic,
+-Paul Larson
 
-Since all of the discussion here has been around "standard" UARTs.....
-
-I know Russell mentioned this, and it has been discussed in the past,
-but I'm most interested in being able to include non-165xx style UARTs
-in the /dev/tty<something>.  Systems may be exclusively non-165xx UARTs,
-or a mix of both.  The problems to solve are drivers fighting over minor
-device numbers and assumptions about the system console.
-
-Thanks.
-
-
-	-- Dan
+diff -Nru a/fs/read_write.c b/fs/read_write.c
+--- a/fs/read_write.c	Mon Jul 29 14:48:45 2002
++++ b/fs/read_write.c	Mon Jul 29 14:48:45 2002
+@@ -185,7 +185,7 @@
+ 		return -EBADF;
+ 	if (!file->f_op || !file->f_op->read)
+ 		return -EINVAL;
+-	if (pos < 0)
++	if ((int)*pos < 0)
+ 		return -EINVAL;
+ 
+ 	ret = locks_verify_area(FLOCK_VERIFY_READ, inode, file, *pos, count);
+@@ -210,7 +210,7 @@
+ 		return -EBADF;
+ 	if (!file->f_op || !file->f_op->write)
+ 		return -EINVAL;
+-	if (pos < 0)
++	if ((int)*pos < 0)
+ 		return -EINVAL;
+ 
+ 	ret = locks_verify_area(FLOCK_VERIFY_WRITE, inode, file, *pos, count);
 

@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263614AbUJ2XY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263648AbUJ2XNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbUJ2XY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 19:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263560AbUJ2XXD
+	id S263648AbUJ2XNK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 19:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263603AbUJ2XII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 19:23:03 -0400
-Received: from mail.kroah.org ([69.55.234.183]:51852 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263614AbUJ2XOB (ORCPT
+	Fri, 29 Oct 2004 19:08:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39849 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262045AbUJ2XEW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 19:14:01 -0400
-Date: Fri, 29 Oct 2004 18:13:19 -0500
-From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Andrew <cmkrnl@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
-Message-ID: <20041029231319.GA503@kroah.com>
-References: <20041027142925.GA17484@imladris.arnor.me> <20041027152134.GA13991@kroah.com> <417FCD78.6020807@speakeasy.net> <20041029201314.GA29171@kroah.com> <20041029212856.GA12582@vrfy.org>
+	Fri, 29 Oct 2004 19:04:22 -0400
+Date: Fri, 29 Oct 2004 16:08:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Buffered I/O slowness
+Message-Id: <20041029160827.4dc29c3f.akpm@osdl.org>
+In-Reply-To: <200410291046.48469.jbarnes@engr.sgi.com>
+References: <200410251814.23273.jbarnes@engr.sgi.com>
+	<200410291046.48469.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029212856.GA12582@vrfy.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 11:28:56PM +0200, Kay Sievers wrote:
-> > But there might still be a problem.  With this change, the sequence
-> > number is not sent out the kevent message.  Kay, do you think this is an
-> > issue?  I don't think we can get netlink messages out of order, right?
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+>
+> ...
+> o one thread on one large volume using buffered I/O + filesystem
+>   read (1 thread, one volume, 131072 blocks/request) avg: ~931 MB/s
+>   write (1 thread, one volume, 131072 blocks/request) avg: ~908 MB/s
 > 
-> Right, especially not the events with the same DEVPATH, like "remove"
-> beating an "add". But I'm not sure if the number isn't useful. Whatever
-> we may do with the hotplug over netlink in the future, we will only have
-> /sbin/hotplug for the early boot and it may be nice to know, what events
-> we have already handled...
+> I'm intentionally issuing very large reads and writes here to take advantage 
+> of the striping, but it looks like both the readahead and regular buffered 
+> I/O code will split the I/O into page sized chunks?
+
+No, the readahead code will assemble single BIOs up to the size of the
+readahead window.  So the single-page-reads in do_generic_mapping_read()
+should never happen, because the pages are in cache from the readahead.
+
+>  The call chain is pretty 
+> long, but it looks to me like do_generic_mapping_read() will split the reads 
+> up by page and issue them independently to the lower levels.  In the direct 
+> I/O case, up to 64 pages are issued at a time, which seems like it would help 
+> throughput quite a bit.  The profile seems to confirm this.  Unfortunately I 
+> didn't save the vmstat output for this run (and now the fc switch is 
+> misbehaving so I have to fix that before I run again), but iirc the system 
+> time was pretty high given that only one thread was issuing I/O.
 > 
-> > I'll hold off on applying this patch until we figure this out...
+> So maybe a few things need to be done:
+>   o set readahead to larger values by default for dm volumes at setup time
+>     (the default was very small)
+
+Well possibly.  dm has control of queue->backing_dev_info and is free to
+tune the queue's default readahead.
+
+>   o maybe bypass readahead for very large requests?
+>     if the process is doing a huge request, chances are that readahead won't
+>     benefit it as much as a process doing small requests
+
+Maybe - but bear in mind that this is all pinned memory when the I/O is in
+flight, so some upper bound has to remain.
+
+>   o not sure about writes yet, I haven't looked at that call chain much yet
 > 
-> How about just reserving 20 bytes for the number (u64 will never be
-> more than that), save the pointer to that field, and fill the number in
-> later?
+> Does any of this sound reasonable at all?  What else could be done to make the 
+> buffered I/O layer friendlier to large requests?
 
-Ah, something like this instead?  I like it, it's even smaller than the
-previous patch.  Compile tested only...
+I'm not sure that we know what's going on yet.  I certainly don't.  The
+above numbers look good, so what's the problem???
 
-thanks,
-
-greg k-h
-
---------
-
---- 1.5/lib/kobject_uevent.c	2004-10-22 17:42:27 -05:00
-+++ edited/kobject_uevent.c	2004-10-29 18:07:50 -05:00
-@@ -182,6 +182,7 @@
- 	char *argv [3];
- 	char **envp = NULL;
- 	char *buffer = NULL;
-+	char *seq_buff;
- 	char *scratch;
- 	int i = 0;
- 	int retval;
-@@ -258,6 +259,11 @@
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
- 
-+	/* reserve space for the sequence, 
-+	 * put the real one in after the hotplug call */
-+	envp[i++] = seq_buff = scratch;
-+	scratch += sprintf(scratch, "SEQNUM=12345678901234567890") + 1;
-+
- 	if (hotplug_ops->hotplug) {
- 		/* have the kset specific function add its stuff */
- 		retval = hotplug_ops->hotplug (kset, kobj,
-@@ -273,9 +279,7 @@
- 	spin_lock(&sequence_lock);
- 	seq = ++hotplug_seqnum;
- 	spin_unlock(&sequence_lock);
--
--	envp [i++] = scratch;
--	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
-+	sprintf(seq_buff, "SEQNUM=%lld", (long long)seq);
- 
- 	pr_debug ("%s: %s %s seq=%lld %s %s %s %s %s\n",
- 		  __FUNCTION__, argv[0], argv[1], (long long)seq,
+Suggest you get geared up to monitor the BIOs going into submit_bio(). 
+Look at their bi_sector and bi_size.  Make sure that buffered I/O is doing
+the right thing.

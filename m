@@ -1,138 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbUCWFXU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 00:23:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUCWFXU
+	id S262035AbUCWFZv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 00:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCWFZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 00:23:20 -0500
-Received: from havoc.gtf.org ([216.162.42.101]:9356 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262003AbUCWFXI (ORCPT
+	Tue, 23 Mar 2004 00:25:51 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:40937 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262035AbUCWFZq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 00:23:08 -0500
-Date: Tue, 23 Mar 2004 00:23:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Cc: scott.feldman@intel.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] add PCI_DMA_{64,32}BIT constants
-Message-ID: <20040323052305.GA2287@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 23 Mar 2004 00:25:46 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: Interrupts problem in 2.4.18-3smp kernel.
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Tue, 23 Mar 2004 10:51:01 +0530
+Message-ID: <1118873EE1755348B4812EA29C55A972176A2C@esnmail.esntechnologies.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Interrupts problem in 2.4.18-3smp kernel.
+thread-index: AcQQlqFX1FwFscaHRza1g4orfT///g==
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Been meaning to do this for ages...
+Hi,
 
-Another one for the janitors.
+We developed a device driver for 7x20 FM card under Linux 2.4.18-3 non
+SMP kernel. It was working fine under that kernel version. We have both
+SMP and non SMP kernels in one single CPU system. When we boot from non
+SMP kernel, the driver was working fine without any error messages. When
+we insert SD memory card into it, it is showing all the invoked function
+names. When we remove SD memory card then also it is showing all the
+functions names that are invoked. 
 
-Please do a
+But when we boot through 2.4.18-3smp kernel then there was no interrupts
+at all. Interrupts are not generating at all. What is the mistake in the
+code? Where we have to change the code? Why interrupts are not
+generating when we boot from 2.4.18-3smp kernel. Please anybody help in
+this regard. And interrupt signal is always glowing only. But when we
+boot from 2.4.18-3 non SMP kernel it was not showing any thing - not
+glowing continuously.
 
-	bk pull bk://kernel.bkbits.net/jgarzik/pci-dma-mask-2.6
+Thanks in advance.
 
-This will update the following files:
+Srinivas G
 
- Documentation/DMA-mapping.txt |   16 ++++++++--------
- drivers/net/e1000/e1000.h     |    2 --
- drivers/net/ixgb/ixgb.h       |    2 --
- include/linux/pci.h           |    3 +++
- 4 files changed, 11 insertions(+), 12 deletions(-)
-
-through these ChangeSets:
-
-<jgarzik@redhat.com> (04/03/23 1.1849)
-   Create PCI_DMA_{64,32]BIT constants, for use in passing to
-   pci_set_{consistent_}dma_mask().
-   
-   Use them in e1000 and ixgb.
-
-diff -Nru a/Documentation/DMA-mapping.txt b/Documentation/DMA-mapping.txt
---- a/Documentation/DMA-mapping.txt	Tue Mar 23 00:19:17 2004
-+++ b/Documentation/DMA-mapping.txt	Tue Mar 23 00:19:17 2004
-@@ -132,7 +132,7 @@
- The standard 32-bit addressing PCI device would do something like
- this:
- 
--	if (pci_set_dma_mask(pdev, 0xffffffff)) {
-+	if (pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
- 		printk(KERN_WARNING
- 		       "mydev: No suitable DMA available.\n");
- 		goto ignore_this_device;
-@@ -151,9 +151,9 @@
- 
- 	int using_dac;
- 
--	if (!pci_set_dma_mask(pdev, 0xffffffffffffffff)) {
-+	if (!pci_set_dma_mask(pdev, PCI_DMA_64BIT)) {
- 		using_dac = 1;
--	} else if (!pci_set_dma_mask(pdev, 0xffffffff)) {
-+	} else if (!pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
- 		using_dac = 0;
- 	} else {
- 		printk(KERN_WARNING
-@@ -166,14 +166,14 @@
- 
- 	int using_dac, consistent_using_dac;
- 
--	if (!pci_set_dma_mask(pdev, 0xffffffffffffffff)) {
-+	if (!pci_set_dma_mask(pdev, PCI_DMA_64BIT)) {
- 		using_dac = 1;
- 	   	consistent_using_dac = 1;
--		pci_set_consistent_dma_mask(pdev, 0xffffffffffffffff)
--	} else if (!pci_set_dma_mask(pdev, 0xffffffff)) {
-+		pci_set_consistent_dma_mask(pdev, PCI_DMA_64BIT);
-+	} else if (!pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
- 		using_dac = 0;
- 		consistent_using_dac = 0;
--		pci_set_consistent_dma_mask(pdev, 0xffffffff)
-+		pci_set_consistent_dma_mask(pdev, PCI_DMA_32BIT);
- 	} else {
- 		printk(KERN_WARNING
- 		       "mydev: No suitable DMA available.\n");
-@@ -215,7 +215,7 @@
- 
- Here is pseudo-code showing how this might be done:
- 
--	#define PLAYBACK_ADDRESS_BITS	0xffffffff
-+	#define PLAYBACK_ADDRESS_BITS	PCI_DMA_32BIT
- 	#define RECORD_ADDRESS_BITS	0x00ffffff
- 
- 	struct my_sound_card *card;
-diff -Nru a/drivers/net/e1000/e1000.h b/drivers/net/e1000/e1000.h
---- a/drivers/net/e1000/e1000.h	Tue Mar 23 00:19:17 2004
-+++ b/drivers/net/e1000/e1000.h	Tue Mar 23 00:19:17 2004
-@@ -74,8 +74,6 @@
- #define BAR_0		0
- #define BAR_1		1
- #define BAR_5		5
--#define PCI_DMA_64BIT	0xffffffffffffffffULL
--#define PCI_DMA_32BIT	0x00000000ffffffffULL
- 
- 
- struct e1000_adapter;
-diff -Nru a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
---- a/drivers/net/ixgb/ixgb.h	Tue Mar 23 00:19:17 2004
-+++ b/drivers/net/ixgb/ixgb.h	Tue Mar 23 00:19:17 2004
-@@ -65,8 +65,6 @@
- #define BAR_0           0
- #define BAR_1           1
- #define BAR_5           5
--#define PCI_DMA_64BIT   0xffffffffffffffffULL
--#define PCI_DMA_32BIT   0x00000000ffffffffULL
- 
- #include "ixgb_hw.h"
- #include "ixgb_ee.h"
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Tue Mar 23 00:19:17 2004
-+++ b/include/linux/pci.h	Tue Mar 23 00:19:17 2004
-@@ -362,6 +362,9 @@
- #define PCI_DMA_FROMDEVICE	2
- #define PCI_DMA_NONE		3
- 
-+#define PCI_DMA_64BIT	0xffffffffffffffffULL
-+#define PCI_DMA_32BIT	0x00000000ffffffffULL
-+
- #define DEVICE_COUNT_COMPATIBLE	4
- #define DEVICE_COUNT_RESOURCE	12
- 

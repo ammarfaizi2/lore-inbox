@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293048AbSCOS3k>; Fri, 15 Mar 2002 13:29:40 -0500
+	id <S293060AbSCOS3c>; Fri, 15 Mar 2002 13:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293058AbSCOS3e>; Fri, 15 Mar 2002 13:29:34 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41866 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S293048AbSCOS3X>; Fri, 15 Mar 2002 13:29:23 -0500
-Date: Fri, 15 Mar 2002 13:29:16 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: schwidefsky@de.ibm.com
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre3 s390 patch for hwc_con.c
-Message-ID: <20020315132916.C24597@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S293058AbSCOS3V>; Fri, 15 Mar 2002 13:29:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56590 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293048AbSCOS3M>; Fri, 15 Mar 2002 13:29:12 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Linux 2.4 and BitKeeper
+Date: Fri, 15 Mar 2002 18:27:24 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a6teec$sis$1@penguin.transmeta.com>
+In-Reply-To: <3C90E994.2030702@candelatech.com> <20020315080408.D11940@work.bitmover.com> <a6tcnf$shg$1@penguin.transmeta.com> <3C923A6A.2030905@mandrakesoft.com>
+X-Trace: palladium.transmeta.com 1016216925 12374 127.0.0.1 (15 Mar 2002 18:28:45 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 15 Mar 2002 18:28:45 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes hwc_con more resilient to structure layout changes.
-It's not _strictly_ necessary, but I would like it to be in.
+In article <3C923A6A.2030905@mandrakesoft.com>,
+Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
+>
+>I always check out my trees with "bk -r co -q" precisely because of 
+>command-line completion.
 
--- Pete
+That's fine for the command line completion, but it doesn't solve the
+generic problem. No tree-based thing works unchanged.
 
-diff -ur -X dontdiff linux-2.4.19-pre3/drivers/s390/char/hwc_con.c linux-2.4.19-pre3-390/drivers/s390/char/hwc_con.c
---- linux-2.4.19-pre3/drivers/s390/char/hwc_con.c	Wed Jul 25 14:12:02 2001
-+++ linux-2.4.19-pre3-390/drivers/s390/char/hwc_con.c	Fri Mar 15 08:39:17 2002
-@@ -31,20 +31,12 @@
- 
- #define  HWC_CON_PRINT_HEADER "hwc console driver: "
- 
--struct console hwc_console =
--{
--
--	hwc_console_name,
--	hwc_console_write,
--	NULL,
--	hwc_console_device,
--	NULL,
--	hwc_console_unblank,
--	NULL,
--	CON_PRINTBUFFER,
--	0,
--	0,
--	NULL
-+struct console hwc_console = {
-+	name:	hwc_console_name,
-+	write:	hwc_console_write,
-+	device:	hwc_console_device,
-+	unblank:hwc_console_unblank,
-+	flags:	CON_PRINTBUFFER,
- };
- 
- void 
+The fact is, mixing up the revision control directories and the working
+area is a design mistake, and one that BK perpetuated due to Larry's
+infatuation with the fact that "make" and "patch" already know how SCCS
+works. 
+
+(It should be noted that this design mistake is also one of the
+stumbling blocks for ever improving the BK databases. It limits your
+viability in the long run, which is why I'm trying to prod Larry into
+fixing it).
+
+			Linus

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312988AbSDSVQx>; Fri, 19 Apr 2002 17:16:53 -0400
+	id <S313038AbSDSVgY>; Fri, 19 Apr 2002 17:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312996AbSDSVQw>; Fri, 19 Apr 2002 17:16:52 -0400
-Received: from wotug.org ([194.106.52.201]:13316 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S312988AbSDSVQv>;
-	Fri, 19 Apr 2002 17:16:51 -0400
-Message-Id: <5.1.0.14.0.20020419204810.01e5a270@mailhost.ivimey.org>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 19 Apr 2002 20:51:38 +0100
-To: Andrew Morton <akpm@zip.com.au>
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Subject: Re: Kernel BUG in ext3 (2.4.18pre1)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CBF4B13.38B20491@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313045AbSDSVgX>; Fri, 19 Apr 2002 17:36:23 -0400
+Received: from terminus.zytor.com ([64.158.222.227]:62428 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S313038AbSDSVgU>; Fri, 19 Apr 2002 17:36:20 -0400
+Message-ID: <2459.131.107.184.74.1019252157.squirrel@www.zytor.com>
+Date: Fri, 19 Apr 2002 14:35:57 -0700 (PDT)
+Subject: Re: SSE related security hole
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: <andrea@suse.de>
+In-Reply-To: <20020419230454.C1291@dualathlon.random>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <ak@suse.de>, <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
+        <jh@suse.cz>
+X-Mailer: SquirrelMail (version 1.2.5)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23:39 18/04/2002, you wrote:
->Ruth Ivimey-Cook wrote:
-> >
-> > ...
-> > Apr 17 23:20:01 gatemaster kernel: Assertion failure in
-> > __journal_file_buffer() at transaction.c:1935: "jh->b_jlist < 9"
-> > Apr 17 23:20:01 gatemaster kernel: kernel BUG at transaction.c:1935!
+>>
+>> Ummm...last I knew, fxrstor is *expensive*.  The fninit/xor regs setup
+>> is  likely *very* much faster.  Someone should check this before we
+>> sacrifice  100 cycles needlessly or something.
 >
->That's the first time this has been reported.  Conceivably,
->ext3 has corrupted the journal_head.  More conceivably, some
->other part of the kernel scribbled on it.  Most conceivably,
->your memory flipped a bit.
+> most probably yes, fxrestor needs to read ram, pxor also takes some
+> icache and bytecode ram but it sounds like it will be faster.
 >
->Best I can suggest is that you give the machine an overnight
->run with memtest86.
+> Maybe we could also interleave the pxor with the xorps, since they uses
+> different parts of the cpu, Honza?
+>
 
-I gave the machine a 2-hour run with memtest 2.9. It passed one basic test 
-and 3 extended tests before I decided the website the machine serves just 
-had to get back online :-/
+You almost certainly should.  The reason I suggested FXRSTOR is that it
+would initialize the entire FPU, including any state that future
+processors may add, thus reducing the likelihood of any funnies in the
+future.
 
-I suppose I could try again sometime, but with 0 errors from memtest, I 
-would prefer not to if I can...
 
-Ruth
 

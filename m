@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264344AbUD0UkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264340AbUD0UjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264344AbUD0UkF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 16:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbUD0UkF
+	id S264340AbUD0UjR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 16:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264344AbUD0UjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 16:40:05 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:26631 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S264344AbUD0Uj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 16:39:56 -0400
-Message-ID: <408EC60B.50507@techsource.com>
-Date: Tue, 27 Apr 2004 16:43:55 -0400
-From: Timothy Miller <miller@techsource.com>
+	Tue, 27 Apr 2004 16:39:16 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:50312 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S264340AbUD0UjO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 16:39:14 -0400
+Date: Tue, 27 Apr 2004 22:39:09 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
+In-Reply-To: <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0404272232030.9618@alpha.polcom.net>
+References: <Pine.LNX.4.58.0404270157160.6900@alpha.polcom.net>
+ <20040427002323.GW17014@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org>
+ <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com>
+ <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net> <20040427140533.GI14129@stingr.net>
+ <20040427183410.GZ17014@parcelfarce.linux.theplanet.co.uk>
+ <20040427200459.GJ14129@stingr.net> <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-To: Ken Moffat <ken@kenmoffat.uklinux.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE throughput in 2.6 - it's good!
-References: <Pine.LNX.4.58.0404232237140.19797@ppg_penguin> <408E7E79.9080405@techsource.com> <Pine.LNX.4.58.0404272016000.1170@ppg_penguin>
-In-Reply-To: <Pine.LNX.4.58.0404272016000.1170@ppg_penguin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-
-Ken Moffat wrote:
-> On Tue, 27 Apr 2004, Timothy Miller wrote:
+> On Wed, Apr 28, 2004 at 12:04:59AM +0400, Paul P Komkoff Jr wrote:
+> > > Excuse me?  The damn thing had found nothing.  However, it didn't care
+> > > to release the devices it had claimed - hadn't even closed them, as the
+> > > matter of fact.  That's a clear and obvious bug, regardless of any
+> > > disagreements.
+> > 
+> > As far as I can see from here, evms parsed partition table, called
+> > dmsetup several times and created corresponding nodes in /dev/evms.
 > 
+> ... without saying anything?
 > 
->>
->>Ken Moffat wrote:
->>
->>
->>>So, despite the numbers shown by hdparm looking worse, when only one
->>>user is doing anything the performance is actually improved.  I've no
->>>idea which changes have achieved this, but thanks to whoever were
->>>involved.
->>
->>
->>I've done tests using dd to and from the raw block device under 2.4 and
->>2.6.  Memory size (kernel boot param mem=) doesn't seem to affect
->>performance, so I assume that means that dd to and from the raw block
->>device is unbuffered.  When I compare read and write speeds between 2.4
->>and 2.6, 2.6 is definately slower.  The last 2.6 kernel I tried this
->>with is 2.6.5.
->>
+> > Logic is easy - evms trying to concentrate block device management
+> > into its own hands, but we have in-kernel partitioning code to
+> > consider ...
 > 
+> How nice of them.
 > 
->  Well, my original test used cp, sync, rm, sync.  I've no statistics
-> from running 2.4 on this box to compare against.
-> 
+> Well, AFAICS that means
+> 	a) either kernel side of the things or the userland tools should
+> printk/syslog - at least that evms device had been set up
+> 	b) any distribution that runs this from initrd/init scripts would
+> better take care of having sane fstab.
+> 	c) nobody sane should put that as default.  Oh, wait, it's gentoo
+> we are talking about?  Nevermind, then.
+
+But what default? Gentoo just calls evms_activate before mounting 
+filesystems to check if there are evms volumes (because filesystems can 
+reside on it). And, according to man page, this is the right usage of 
+evms_activate. And Gentoo could not know easily that I have no evms 
+volumes in the system. And I possibly could insert some and boot Gentoo 
+(and for example have label not device in fstab to specify fs to mount). I 
+really think that evms_activate should not take the device that is not for 
+it. And I think Gentoo is right. (And it is the best distro I ever tried.)
 
 
-Based on my experience, cp and anything else that uses the filesystem 
-gets buffered.  I can tell this because, without sync, the throughput 
-varies with memory size.  Furthermore, I wanted to know raw throughput, 
-so I used a block device so I could eliminate filesystem overhead.
-
-Reading and writing the block device does not seem to be buffered 
-because the run time is not affected by memory (host RAM) size.  That 
-is, unless dd does an implicit sync.
-
-The numbers I get when using dd to and from one of my drives under a 2.4 
-kernel with the drive connected to the on-board IDE controller are 
-roughly the same as published benchmarks.
+Grzegorz Kulewski
 

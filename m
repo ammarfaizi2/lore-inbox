@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131834AbRCUXkZ>; Wed, 21 Mar 2001 18:40:25 -0500
+	id <S131836AbRCUXmf>; Wed, 21 Mar 2001 18:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131836AbRCUXkG>; Wed, 21 Mar 2001 18:40:06 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58897 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131834AbRCUXjv>; Wed, 21 Mar 2001 18:39:51 -0500
-Subject: Re: SMP on assym. x86
-To: hahn@coffee.psychology.mcmaster.ca (Mark Hahn)
-Date: Wed, 21 Mar 2001 23:41:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux kernel list)
-In-Reply-To: <Pine.LNX.4.10.10103211122500.10337-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at Mar 21, 2001 11:32:05 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131837AbRCUXm0>; Wed, 21 Mar 2001 18:42:26 -0500
+Received: from mail.missioncriticallinux.com ([208.51.139.18]:5386 "EHLO
+	missioncriticallinux.com") by vger.kernel.org with ESMTP
+	id <S131836AbRCUXmN>; Wed, 21 Mar 2001 18:42:13 -0500
+Message-ID: <3AB93C02.5030109@missioncriticallinux.com>
+Date: Wed, 21 Mar 2001 18:40:50 -0500
+From: "Patrick O'Rourke" <orourke@missioncriticallinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-pre6 i686; en-US; 0.8) Gecko/20010218
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Eli Carter <eli.carter@inet.com>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <3AB9352A.71E42C38@inet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14fsET-0001Mg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > handle the situation with 2 different CPUs (AMP = Assymmetric
-> > multiprocessing ;-) correctly.
-> 
-> "correctly".  Intel doesn't support this (mis)configuration:
-> especially with different steppings, not to mention models.
+Eli Carter wrote:
 
-Actually for a lot of cases its quite legal.
+> Having not looked at the code... Why not "if( p->pid > 1 )"?  (Or can
+> p->pid can be negative?!, um, typecast to unsigned...)
 
-> Alan has, or is working on, a workaround to handle differing 
-> multipliers by turning off the use of RDTSC.  this is the right approach 
-> to take in the kernel: disable features not shared by both processors, 
-> so correctly-configured machines are not penalized. 
-> and the kernel should LOUDLY WARN ABOUT this stuff on boot.
+I simply mirrored the check done in do_exit():
 
-I've been working on reading the multipliers directly from the MSR 0x2A data,
-Kurt is redoing the timing each run - possibly thats not so clean but its 
-more robust.
+	if (tsk->pid == 1)
+		panic("Attempted to kill init!");
 
-I rather like Kurt's patch
+Since PID_MAX is 32768 I do not believe pids can be negative.
+
+I suppose one could make an argument for skipping "daemons", i.e.
+pids below 300 (see the get_pid() function in kernel/fork.c), but
+I think that is a larger issue.
+
+Pat
+
+-- 
+Patrick O'Rourke
+978.606.0236
+orourke@missioncriticallinux.com
+

@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266263AbRHAJq0>; Wed, 1 Aug 2001 05:46:26 -0400
+	id <S266251AbRHAJxh>; Wed, 1 Aug 2001 05:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266251AbRHAJqQ>; Wed, 1 Aug 2001 05:46:16 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:3915 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S266293AbRHAJp6>;
-	Wed, 1 Aug 2001 05:45:58 -0400
-Date: Wed, 1 Aug 2001 10:47:19 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: booting SMP P6 kernel on P4 hangs.
-In-Reply-To: <3B67CE6A.A670093E@redhat.com>
-Message-ID: <Pine.LNX.4.21.0108011045030.785-100000@penguin.homenet>
+	id <S266321AbRHAJxR>; Wed, 1 Aug 2001 05:53:17 -0400
+Received: from mons.uio.no ([129.240.130.14]:33680 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S266251AbRHAJxJ> convert rfc822-to-8bit;
+	Wed, 1 Aug 2001 05:53:09 -0400
+To: Ragnar =?iso-8859-1?q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: NFS locking bug
+In-Reply-To: <20010801040256.H9254@vestdata.no>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 01 Aug 2001 11:53:08 +0200
+In-Reply-To: Ragnar =?iso-8859-1?q?Kj=F8rstad's?= message of "Wed, 1 Aug 2001 04:02:56 +0200"
+Message-ID: <shs1ymw14zf.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Arjan van de Ven wrote:
-> Now all Linux installers that decide to install a SMP kernel if they
-> encounter
-> a MPTABLE already have a "except if it's a P4" exception nowadays..
+>>>>> " " == Ragnar Kjørstad <kernel@ragnark.vestdata.no> writes:
 
-that assumes that the installer itself has to be a UP kernel, which means
-the installation cannot itself serve as a "demo" of the final product in
-the fullest possible capacity... Not good, can't we workaround that
-somehow during parsing of the mp table?
+     > This is what I do:
+     > * mount NFS filesystem on client1
+     > * mount NFS filesystem on client2
+     > * lock file on client1
+     > * verify that I can not lock the same file on client2
+     > * reboot the NFS-server
+     > * When I start statd on the nfs-server, I see the following
+     >   in the logfiles for the clients:
 
-Regards,
-Tigran
+     >   Jul 31 18:33:55 client rpc.statd[455]: recv_rply: [127.0.0.1]
+     >   RPC status 3 Jul 31 18:33:55 client kernel: svc: unknown
+     >   procedure (24) Jul 31 18:34:01 client kernel: svc: unknown
+     >   procedure (24) Jul 31 18:34:01 client rpc.statd[455]:
+     >   recv_rply: [127.0.0.1] RPC status 3 Jul 31 18:34:07 client
+     >   kernel: svc: unknown procedure (24) Jul 31 18:34:07 client
+     >   rpc.statd[455]: recv_rply: [127.0.0.1] RPC status 3 Jul 31
+     >   18:34:13 client kernel: svc: unknown procedure (24) Jul 31
+     >   18:34:13 client rpc.statd[455]: recv_rply: [127.0.0.1] RPC
+     >   status 3 Jul 31 18:34:19 client rpc.statd[455]: Can't
+     >   callback client (100021,1), giving up.
 
+     > * I can no lock the file on client2, even if the client1 still thinks
+     >   the file is locked.
+
+     > Is this a bug?
+
+The NLM lock reclaiming code in the stock 2.4.x kernel is
+incomplete. Please apply the patch on
+
+   http://www.fys.uio.no/~trondmy/src/2.4.7/linux-2.4.7-reclaim.dif
+
+Cheers,
+   Trond

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbULCEGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbULCEGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbULCEGB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 23:06:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbULCEGB
+	id S261920AbULCEGH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 23:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbULCEGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 23:06:01 -0500
-Received: from [61.48.52.229] ([61.48.52.229]:46065 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S261934AbULCEFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 23:05:55 -0500
-Date: Thu, 2 Dec 2004 19:56:28 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200412030356.iB33uSg03460@adam.yggdrasil.com>
-To: maneesh@in.ibm.com
-Subject: [Fake patch] Make sysfs_dirent.s_type an unsigned short
-Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+	Thu, 2 Dec 2004 23:06:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37544 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261920AbULCEF4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 23:05:56 -0500
+Message-ID: <41AFE612.4060608@pobox.com>
+Date: Thu, 02 Dec 2004 23:05:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mru@inprovide.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dma errors with sata_sil and Seagate disk
+References: <20041201115045.3ab20e03@homer.sarvega.com>	 <1101944482.30990.74.camel@localhost.localdomain>	 <yw1xpt1tuihe.fsf@ford.inprovide.com> <1102030431.7175.9.camel@localhost.localdomain>
+In-Reply-To: <1102030431.7175.9.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Here is a fake patch against my heavily hacked sysfs tree
-to change sysfs_dirent.s_type from an int to an unsigned short.
-It appears next to another unsigned short (s_mode), so it should
-save 4 bytes per sysfs node.
+Alan Cox wrote:
+> On Iau, 2004-12-02 at 10:01, Måns Rullgård wrote:
+> 
+>>Is there some problem with Seagate drives in general?  I'm using two
+>>ST3160827AS drives on an SI3114 controller, and haven't seen any
+>>glitches yet.  That model is not in the blacklist, and performance is
+>>what I'd usually expect.  Is it pure luck that has kept me away from
+>>problems?
+> 
+> 
+> I've never been able to get a non NDA list of the affected drives. Got
+> to love vendors some days
 
-	Note that this patch will not apply to a pristine 2.6.10-rc2-bk15
-tree, because I've moved the declaration of struct sysfs_dirent
-from include/linux/sysfs.h to fs/sysfs/sysfs.h in a previous patch.
+I seriously doubt a complete list exists, NDA or no.  You'd have to poll 
+each vendor.
 
-	By the way, I have to sheepishly admit that somehow I previously
-underestimated the size of struct sysfs_dirent.  Only now
-with s_children and s_count removed and s_type shortened to 16 bits
-does sysfs_dirent occupy 32 bytes, according to /proc/slabinfo.
-This does not effect my previous statements about how much memory
-is saved by each of the patches that I've posted.  It just means
-the original amount of memory being used was more.
+I also suspect that a few of the more recent Seagate additions are 
+simply masking a problem in the BIOS.
 
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+SiI 311x problems have a history of resolving themselves through BIOS 
+updates and tweaks.  Most recently a lockup was solved by tweaking a 
+'byte enable' setting in an nForce mobo BIOS.
 
---- linux.prev/fs/sysfs/sysfs.h	2004-12-03 11:51:19.000000000 +0800
-+++ linux/fs/sysfs/sysfs.h	2004-12-03 00:51:44.000000000 +0800
-@@ -13,7 +13,7 @@
- struct sysfs_dirent {
- 	struct list_head	s_sibling;
- 	void 			* s_element;
--	int			s_type;
-+	unsigned short		s_type;
- 	umode_t			s_mode;
- 	struct dentry		* s_dentry;
- };
+	Jeff
+
+
+

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266955AbRGHSZj>; Sun, 8 Jul 2001 14:25:39 -0400
+	id <S266954AbRGHSYa>; Sun, 8 Jul 2001 14:24:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266956AbRGHSZa>; Sun, 8 Jul 2001 14:25:30 -0400
-Received: from [62.172.234.2] ([62.172.234.2]:56464 "EHLO
-	alloc.wat.veritas.com") by vger.kernel.org with ESMTP
-	id <S266955AbRGHSZX>; Sun, 8 Jul 2001 14:25:23 -0400
-Date: Sun, 8 Jul 2001 19:26:01 +0100 (BST)
-From: Mark Hemment <markhe@veritas.com>
-X-X-Sender: <markhe@alloc.wat.veritas.com>
+	id <S266955AbRGHSYT>; Sun, 8 Jul 2001 14:24:19 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:37380 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S266954AbRGHSYH>;
+	Sun, 8 Jul 2001 14:24:07 -0400
+Date: Sun, 8 Jul 2001 15:23:53 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: MOLNAR Ingo <mingo@chiara.elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+Cc: Mike Galbraith <mikeg@wen-online.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
         <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] copy_from_high_bh
-In-Reply-To: <Pine.LNX.4.33.0107081102410.7044-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0107081918350.9756-100000@alloc.wat.veritas.com>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33.0107081039420.7044-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0107081521510.4598-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, 8 Jul 2001, Linus Torvalds wrote:
-> On Sun, 8 Jul 2001 markhe@veritas.com wrote:
+> On Sun, 8 Jul 2001, Rik van Riel wrote:
 > >
-> >   mm/highmem.c/copy_from_high_bh() blocks interrupts while copying "down"
-> > to a bounce buffer, for writing.
-> >   This function is only ever called from create_bounce() (which cannot
-> > be called from an interrupt context - it may block), and the kmap
-> > 'KM_BOUNCE_WRITE' is only used in copy_from_high_bh().
+> > ... Bingo.  You hit the infamous __wait_on_buffer / ___wait_on_page
+> > bug. I've seen this for quite a while now on our quad xeon test
+> > machine, with some kernel versions it can be reproduced in minutes,
+> > with others it won't trigger at all.
 >
-> If so it's not just the interrupt disable that is unnecessary, the
-> "kmap_atomic()" should also be just a plain "kmap()", I think.
+> Hmm.. That would explain why the "tar" gets stuck, but why does the whole
+> machine grind to a halt with all other processes being marked runnable?
 
-  That might eat through kmap()'s virtual window too quickly.
+If __wait_on_buffer and ___wait_on_page get stuck, this could
+mean a page doesn't get unlocked.  When this is happening, we
+may well be running into a dozens of pages which aren't getting
+properly unlocked on IO completion.
 
-  I did think about adding a test to see if the page was already mapped,
-and falling back to kmap_atomic() if it isn't.  That should give the best
-of both worlds?
+This in turn would get the rest of the system stuck in the
+pageout code path, eating CPU like crazy.
 
-Mark
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

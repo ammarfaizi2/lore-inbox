@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbSIZPmZ>; Thu, 26 Sep 2002 11:42:25 -0400
+	id <S261388AbSIZPhw>; Thu, 26 Sep 2002 11:37:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261404AbSIZPmZ>; Thu, 26 Sep 2002 11:42:25 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:42745
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261403AbSIZPmZ>; Thu, 26 Sep 2002 11:42:25 -0400
-Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAID
-	device driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Larry Kessler <kessler@us.ibm.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       "ipslinux (Keith " "Mitchell)" <ipslinux@us.ibm.com>,
-       Linus Torvalds <torvalds@home.transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <3D8FCC53.3070809@pobox.com>
-References: <3D8FC5BC.51A8FCCF@us.ibm.com>  <3D8FCC53.3070809@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Sep 2002 16:52:00 +0100
-Message-Id: <1033055520.11848.49.camel@irongate.swansea.linux.org.uk>
+	id <S261403AbSIZPhw>; Thu, 26 Sep 2002 11:37:52 -0400
+Received: from thunk.org ([140.239.227.29]:23712 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S261388AbSIZPhv>;
+	Thu, 26 Sep 2002 11:37:51 -0400
+Date: Thu, 26 Sep 2002 11:42:17 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ryan Cumming <ryan@completely.kicks-ass.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020926154217.GA10551@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org> <20020926055755.GA5612@think.thunk.org> <200209260041.59855.ryan@completely.kicks-ass.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209260041.59855.ryan@completely.kicks-ass.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-24 at 03:22, Jeff Garzik wrote:
-> If you actually want to standardize some diagnostic messages, it is a 
-> huge mistake [as your scsi driver example shows] to continue to use 
-> random text strings followed by a typed attribute list.  If you really 
-> wanted to standardize logging, why continue to allow driver authors to 
-> printk driver-specific text strings in lieu of a standard string that 
-> applies to the same situation in N drivers.
+On Thu, Sep 26, 2002 at 12:41:54AM -0700, Ryan Cumming wrote:
+> On September 25, 2002 22:57, Theodore Ts'o wrote:
+> > On Wed, Sep 25, 2002 at 10:23:11PM -0700, Ryan Cumming wrote:
+> > > It seems to be running stable now. Linux 2.4.19, UP Athlon, GCC 3.2.
+> >
+> > Just to humor me, can you try it with gcc 2.95.4?  I just want to
+> > eliminate one variable....
+> 
+> Using GCC 2.95.4 seems to stabilize dir_index nicely, both before and after 
+> the hdparm -fD run. Only the kernel was recompiled with 2.95.4, I reused the 
+> original GCC 3.2 compiled e2fsprogs.
 
-A lot of it can be tidied up by very very few changes that can be done
-over time and make the job easier. Why not just start with
+Hmm... I just tried biult 2.4.19 with the ext3 patch on my UP P3
+machine, using GCC 3.2, and I wasn't able to replicate your problem.
+(This was using Debian's gcc 3.2.1-0pre2 release from testing.)
 
-	dev_printk(dev, KERN_ERR "Exploded mysteriously");
+What was the precise GCC 3.2 version you were using, and for what
+architecture were you compiling for?  As I recall P3 kernels should
+run on Athlons, if memory serves me correctly.  (I don't have any
+Athlons at home, so if it's an Athlon-specific code generation bug,
+I'll have problems replicating it.)  Could you try compiling a kernel
+for the P3 architecture using GCC 3.2, and see whether or not the
+problem is there?  This is just a shot in the dark, but....
 
-and a few notification type things people can add eg
-
-	dev_failed(dev);
-	dev_offline(dev);
-
-much like we keep network status. That lets driverfs tell the decision
-making code in hotplug scripts the state of play and lets it figure out
-how to reassign resources, paper over cracks, phone the engineer.
-
-Alan
+						- Ted
 

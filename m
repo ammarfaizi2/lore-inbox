@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268264AbRG3Bul>; Sun, 29 Jul 2001 21:50:41 -0400
+	id <S268265AbRG3Bxv>; Sun, 29 Jul 2001 21:53:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268265AbRG3Bub>; Sun, 29 Jul 2001 21:50:31 -0400
-Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.102.89.11]:47086 "HELO
-	scotch.homeip.net") by vger.kernel.org with SMTP id <S268264AbRG3Bu1>;
-	Sun, 29 Jul 2001 21:50:27 -0400
-Date: Sun, 29 Jul 2001 21:50:22 -0400 (EDT)
-From: God <atm@sdk.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Test mail :: DO NOT FSKING OPEN THE ATTACHMENT
+	id <S268268AbRG3Bxl>; Sun, 29 Jul 2001 21:53:41 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:15316 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S268265AbRG3Bx0>; Sun, 29 Jul 2001 21:53:26 -0400
+Message-Id: <5.1.0.14.2.20010730024303.00b1cec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 30 Jul 2001 02:53:34 +0100
+To: postmaster@vger.kernel.org
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Test mail
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <20010730010022Z268249-720+7682@vger.kernel.org>
-Message-ID: <Pine.LNX.4.21.0107292148250.8270-100000@scotch.homeip.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.21.0107292148252.8270@scotch.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+At 23:20 29/07/2001, Mailing Server wrote:
+>Hi, just verifying email, enjoy the attached file.
+
+Would it be possible to have lkml setup to filter out this kind of crap?!?
+
+It had no valid email addresses as From: nor To:...
+
+And if anyone running Windows without an anti virus checker for email 
+didn't notice, the zipped attachment had a virus in it...
+
+Cheers,
+
+Anton
 
 
-Incase someone was stupid enough to open the attachment, and run the exe,
-DON'T DO IT.
-
-
-<McAfee>
-/Music.exe
-        Found the W32/Music@M trojan !!!
-</McAfee>
-
-
-On Sun, 29 Jul 2001, it was written:
-
-> Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-> 	id <S268251AbRG3BAh>; Sun, 29 Jul 2001 21:00:37 -0400
-> Received: (majordomo@vger.kernel.org) by vger.kernel.org
-> 	id <S268250AbRG3BA2>; Sun, 29 Jul 2001 21:00:28 -0400
-> Received: from cx852567-a.ocnsd1.sdca.home.com ([24.5.1.87]:30468 "HELO
-> 	localhost") by vger.kernel.org with SMTP id <S268249AbRG3BAO>;
-> 	Sun, 29 Jul 2001 21:00:14 -0400
-> From: "Mailing Server" <>
-> To: "Mailing list" <>
-> Subject: Test mail
-> Date: 	Sun, 29 Jul 2001 17:20:08 -0500
-> MIME-Version: 1.0
-> Content-Type: multipart/mixed;
-> 	boundary="--------"
-> X-Mailer: Microsoft Outlook Express 4.0
-> Message-Id: <20010730010022Z268249-720+7682@vger.kernel.org>
-> Sender: linux-kernel-owner@vger.kernel.org
-> Precedence: bulk
-> X-Mailing-List: 	linux-kernel@vger.kernel.org
-> Original-Recipient: rfc822;linux-kernel-outgoing
-> 
-> Hi, just verifying email, enjoy the attached file.
-> 
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

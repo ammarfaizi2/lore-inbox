@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315300AbSENILm>; Tue, 14 May 2002 04:11:42 -0400
+	id <S315388AbSENI1G>; Tue, 14 May 2002 04:27:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315332AbSENILl>; Tue, 14 May 2002 04:11:41 -0400
-Received: from [128.178.121.34] ([128.178.121.34]:3716 "EHLO ltspc67.epfl.ch")
-	by vger.kernel.org with ESMTP id <S315300AbSENILk>;
-	Tue, 14 May 2002 04:11:40 -0400
-Subject: Re: PROBLEM: `modprobe agpgart` locks machine badly
-From: Diego SANTA CRUZ <Diego.SantaCruz@epfl.ch>
-To: linux-kernel@vger.kernel.org
-Cc: Alex Brotman <atbrotman@earthlink.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 14 May 2002 10:11:23 +0200
-Message-Id: <1021363885.2781.10.camel@ltspc67>
-Mime-Version: 1.0
+	id <S315446AbSENI1F>; Tue, 14 May 2002 04:27:05 -0400
+Received: from cgate-1.netactive.net ([196.22.160.77]:55732 "EHLO
+	cgate-1.netactive.net") by vger.kernel.org with ESMTP
+	id <S315388AbSENI1E>; Tue, 14 May 2002 04:27:04 -0400
+Message-ID: <297DCD5CCA4AD411A246009027F646B30276489D@NETMAIL>
+From: Wickus Botha <Wickus@na.co.za>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: hd.c not compiling.
+Date: Tue, 14 May 2002 10:24:51 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alex,
+Hey
 
-> 1. 
->  `modprobe agpgart` locks machine badly 
+I'm busy testing the new development kernel 2.5.15. Each time it gets to
+compiling the ide stuff it fails. 
 
-I experience the exact same problem on my machine (an HP Omnibook 4150
-laptop): a hard-lock in the initalization of the agpgart module, with
-the same chipset (440BX/ZX).
+make[3]: Entering directory `/usr/src/linux-2.5.15/drivers/ide'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.15/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=hd  -c
+-o hd.o hd.c
+hd.c: In function `hd_out':
+hd.c:282: `TIMEOUT_VALUE' undeclared (first use in this function)
+hd.c:282: (Each undeclared identifier is reported only once
+hd.c:282: for each function it appears in.)
+hd.c: In function `unexpected_hd_interrupt':
+hd.c:363: `TIMEOUT_VALUE' undeclared (first use in this function)
+hd.c: In function `read_intr':
+hd.c:432: `TIMEOUT_VALUE' undeclared (first use in this function)
+hd.c: In function `write_intr':
+hd.c:470: `TIMEOUT_VALUE' undeclared (first use in this function)
+hd.c: In function `hd_request':
+hd.c:553: `TIMEOUT_VALUE' undeclared (first use in this function)
+hd.c: In function `hd_init':
+hd.c:830: `DEVICE_REQUEST' undeclared (first use in this function)
+hd.c: At top level:
+hd.c:615: warning: `do_hd_request' defined but not used
+make[3]: *** [hd.o] Error 1
 
-> 7.500:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge
-> (rev 03) 
->        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Step 
-> ping- SERR+ FastB2B- 
->       Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-> <TAbort 
-> - <MAbort+ >SERR- <PERR- 
->         Latency: 64 
->         Region 0: Memory at <unassigned> (32-bit, prefetchable)
-> [size=256M] 
->         Capabilities: [a0] AGP version 1.0 
->                 Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2 
->                 Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+I've noticed /usr/src/linux/include/linux/blk.h doesn't have the following 2
+entries anymore
 
-I did a bit of debugging some time ago with the datasheets from intel.
-If i remember well, the problem was that the base of the aperture is not
-initialized by the BIOS (i.e. the APBASE register of the AGP bridge).
+#define TIMEOUT_VALUE (6*HZ)
+#define DEVICE_REQUEST do_hd_request
 
-This is visible in the lspci listing above, in that the Region 0 memory
-is "<unassigned>". On the machines that I have seen with agpgart
-working, the address of Region 0 is the address that appears in the
-APBASE register.
+I added them to the blk.h file and its compiling fine now
 
-I did not find any solution for my machine. Maybe there is a BIOS
-upgrade that solves the problem for you? If you find any solution please
-let me know.
+#elif (MAJOR_NR == HD_MAJOR)
 
-Best regards,
+/* Hard disk:  timeout is 6 seconds. */
+#define DEVICE_NAME "hard disk"
+#define DEVICE_INTR do_hd
+#define TIMEOUT_VALUE (6*HZ)
+#define DEVICE_REQUEST do_hd_request
+#define DEVICE_NR(device) (minor(device)>>6)
 
-Diego
--- 
--------------------------------------------------------
-Diego Santa Cruz
-PhD. student
-Publications available at http://ltswww.epfl.ch/~dsanta
-Signal Processing Institute (ITS) -- formerly LTS
-Swiss Federal Institute of Technology (EPFL)
-EPFL - STI - ITS, CH-1015 Lausanne, Switzerland
-E-mail:     Diego.SantaCruz@epfl.ch
-Phone:      +41 - 21 - 693 26 57
-Fax:        +41 - 21 - 693 76 00
--------------------------------------------------------
 
+
+
+
+---------------------------------------------------------------------------
+VIRUS FREE EMAIL: This message has been screened and determined free
+of all known viruses by NetActive Mail Control. For more information on 
+Mail Scanning, Internet Access, Virtual Private Networks (VPN), Managed 
+Firewall security and other IT Services, please visit us at 
+http://www.netactive.co.za

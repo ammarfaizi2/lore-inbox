@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265535AbSJXQeP>; Thu, 24 Oct 2002 12:34:15 -0400
+	id <S265540AbSJXQiB>; Thu, 24 Oct 2002 12:38:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265536AbSJXQeP>; Thu, 24 Oct 2002 12:34:15 -0400
-Received: from ip-161-71-171-238.corp-eur.3com.com ([161.71.171.238]:35311
-	"EHLO columba.www.eur.3com.com") by vger.kernel.org with ESMTP
-	id <S265535AbSJXQd7>; Thu, 24 Oct 2002 12:33:59 -0400
-X-Lotus-FromDomain: 3COM
-From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
-To: lkoverrun@yahoo.com
-cc: linux-kernel@vger.kernel.org
-Message-ID: <80256C5C.005B9080.00@notesmta.eur.3com.com>
-Date: Thu, 24 Oct 2002 17:39:54 +0100
-Subject: Re: Brust data send problem on gigabit NIC on Linux
+	id <S265541AbSJXQiB>; Thu, 24 Oct 2002 12:38:01 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:26820 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265540AbSJXQiA>; Thu, 24 Oct 2002 12:38:00 -0400
+Subject: Re: [PATCH] New ARPHRD types
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Solomon Peachy <solomon@linux-wlan.com>
+Cc: "David S. Miller" <davem@rth.ninka.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021024155345.GC11876@linux-wlan.com>
+References: <20021021221936.GA32390@linux-wlan.com>
+	<1035330936.16084.23.camel@rth.ninka.net>
+	<20021023141651.GA6644@linux-wlan.com>
+	<1035433080.9629.8.camel@rth.ninka.net>
+	<20021024145822.GA11876@linux-wlan.com>
+	<1035473936.9867.60.camel@irongate.swansea.linux.org.uk> 
+	<20021024155345.GC11876@linux-wlan.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Oct 2002 18:01:14 +0100
+Message-Id: <1035478874.9867.65.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-10-24 at 16:53, Solomon Peachy wrote:
+> Out of curiousity, how far back to you trust the code? 2.2? 2.0? I only
+> ask because a lot of the driver work I do is for underpowered
+> embedded targets running relatively ancient 2.0 kernels. 
 
+I trust it back to 2.2, Im not sure about 2.0 but its probably ok.
 
->I try to send out as many as
- >possible 15Kbyte-long ethernet packets to try to
-> utilize the giga-bit/sec bandwidth
+> > > 2) write an 802.11 equivalent of the code in eth.c
+> > That may be much cleaner and easier to get right. Its also easier to
+> > maintain
+> 
+> That's what I've been planning to do all along.   It will be nice not
+> having to convert 802.3<-->802.11 in every wireless driver.. plus the
+> added benefit of not having to realloc/memcpy buffers to work around
+> dumb DMA engines that require contiguious buffers..
 
-If you just want to generate packets then try pktgen in Linux-2.4.19:
-
-CONFIG_NET_PKTGEN
-  This module will inject preconfigured packets, at a configurable
-  rate, out of a given interface.  It is used for network interface
-  stress testing and performance analysis.  If you don't understand
-  what was just said, you don't need it: say N.
-
-  Documentation on how to use the packet generator can be found
-  at <file:Documentation/networking/pktgen.txt>.
-
-  This code is also available as a module called pktgen.o ( = code
-  which can be inserted in and removed from the running kernel
-  whenever you want).  If you want to compile it as a module, say M
-  here and read <file:Documentation/modules.txt>.
-
-
+Remember that you want to land IP frame headers on a 4 byte boundary if 
+possible. Thats sometimes a conflicting constraint alas
 

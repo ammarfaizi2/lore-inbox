@@ -1,82 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315427AbSHBQ5B>; Fri, 2 Aug 2002 12:57:01 -0400
+	id <S316579AbSHBQuR>; Fri, 2 Aug 2002 12:50:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315921AbSHBQ5B>; Fri, 2 Aug 2002 12:57:01 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22249 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315427AbSHBQ5A>; Fri, 2 Aug 2002 12:57:00 -0400
-Message-ID: <3D4ABA9D.8060307@us.ibm.com>
-Date: Fri, 02 Aug 2002 10:00:13 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020728
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kasper Dupont <kasperd@daimi.au.dk>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Race condition?
-References: <3D4A8D45.49226E2B@daimi.au.dk>
-Content-Type: multipart/mixed;
- boundary="------------040303030603070001070305"
+	id <S316591AbSHBQuR>; Fri, 2 Aug 2002 12:50:17 -0400
+Received: from [204.56.6.40] ([204.56.6.40]:39044 "EHLO
+	iota.stowers-institute.org") by vger.kernel.org with ESMTP
+	id <S316579AbSHBQuR>; Fri, 2 Aug 2002 12:50:17 -0400
+Subject: problem compiling 2.5.30
+From: Ognen Duzlevski <ogd116@mail.usask.ca>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 02 Aug 2002 11:53:21 -0500
+Message-Id: <1028307201.1719.11.camel@iota>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040303030603070001070305
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi, sorry if this popped up before. It is a redhat 7.3 box, gcc 2.96.
+this happens when I include devfs into the kernel.
 
-Kasper Dupont wrote:
-> Is there a race condition in this piece of code from do_fork in
-> linux/kernel/fork.c? I cannot see what prevents two processes
-> from calling this at the same time and both successfully fork
-> even though the user had only one process left.
-> 
->         if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur
->                       && !capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE))
->                 goto bad_fork_free;
-> 
->         atomic_inc(&p->user->__count);
->         atomic_inc(&p->user->processes);
+See below: 
 
-I don't see any locking in the call chain leading to this function, so 
-I think you're right.  The attached patch fixes this.  It costs an 
-extra 2 atomic ops in the failure case, but otherwise just makes the 
-processes++ operation earlier.
+make[2]: Entering directory `/usr/src/linux-2.5.30/fs/partitions' 
+  gcc -Wp,-MD,./.check.o.d -D__KERNEL__ -I/usr/src/linux-2.5.30/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=check
+-DEXPORT_SYMTAB  -c -o check.o check.c 
+check.c: In function `devfs_register_partitions': 
+check.c:470: array subscript is not an integer 
+make[2]: *** [check.o] Error 1 
+make[2]: Leaving directory `/usr/src/linux-2.5.30/fs/partitions' 
+make[1]: *** [partitions] Error 2 
+make[1]: Leaving directory `/usr/src/linux-2.5.30/fs' 
+make: *** [fs] Error 2 
 
-Patch is against 2.5.27, but applies against 30.
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Thanks, 
+Ognen 
 
---------------040303030603070001070305
-Content-Type: text/plain;
- name="fork-up-race-2.5.27.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fork-up-race-2.5.27.patch"
 
---- linux-2.5.27-clean/kernel/fork.c	Sat Jul 20 12:11:07 2002
-+++ linux/kernel/fork.c	Fri Aug  2 09:35:17 2002
-@@ -628,13 +628,15 @@
- 		goto fork_out;
- 
- 	retval = -EAGAIN;
--	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur) {
--		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE))
-+	atomic_inc(&p->user->processes);
-+	if (atomic_read(&p->user->processes) > p->rlim[RLIMIT_NPROC].rlim_cur) {
-+		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE)) {
-+			atomic_dec(&p->user->processes);
- 			goto bad_fork_free;
-+		}
- 	}
- 
- 	atomic_inc(&p->user->__count);
--	atomic_inc(&p->user->processes);
- 
- 	/*
- 	 * Counter increases are protected by
-
---------------040303030603070001070305--
 

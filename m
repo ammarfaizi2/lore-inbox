@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268854AbUIZK3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUIZKee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268854AbUIZK3t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 06:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268861AbUIZK3t
+	id S268861AbUIZKee (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 06:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269503AbUIZKeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 06:29:49 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:11915 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S268854AbUIZK3r (ORCPT
+	Sun, 26 Sep 2004 06:34:02 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:12548 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S268861AbUIZKd7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 06:29:47 -0400
-Date: Sun, 26 Sep 2004 12:29:37 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: micah milano <micaho@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: SiI3112 Serial ATA Maxtor 6Y120M0 incorrect geometry detected
-Message-ID: <20040926102937.GA27269@apps.cwi.nl>
-References: <70fda320409251214129bba57@mail.gmail.com> <70fda3204092514037c6dc039@mail.gmail.com> <58cb370e04092515157e9b72ef@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e04092515157e9b72ef@mail.gmail.com>
-User-Agent: Mutt/1.4i
+	Sun, 26 Sep 2004 06:33:59 -0400
+Date: Sun, 26 Sep 2004 13:32:54 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Update 'noapic' description
+Message-ID: <Pine.LNX.4.53.0409260354020.2849@musoma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 26, 2004 at 12:15:33AM +0200, Bartlomiej Zolnierkiewicz wrote:
+The 'noapic' kernel parameter only disables IOAPIC use and not all the 
+APICs (which would include local APICs) in the system.
 
-> I'm tired of this issue and this is what I'm going to do:
-> - remove CHS info from IDE printks and /proc/ide/
-> - add BLKGETSTART ioctl for getting partition's start sector
->   (this is the only legitimate use of HDIO_GETGEO currently)
-> - at least obsolete HDIO_GETGEO in IDE or even remove it (failing is
->   better than returning unexpected results)
-> - silence complainers :)
-> 
-> Bartlomiej
+Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
 
-Yes. Consider returning 0 for C/H/S in HDIO_GETGEO.
-
-We need the BLKGETSTART ioctl for another reason:
-the field start of a struct hd_geometry has 32 bits
-and fails for partitions starting past the 2TB mark.
-So, just like BLKGETSIZE64, this BLKGETSTART must
-return a u64 and return an offset in bytes.
-
-As we all know, geometry is meaningless for IDE.
-But it is not for MFM/RLL and similar ancient stuff.
-If support for old disks is not broken yet, try not to break it.
-
-Andries
+Index: linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 kernel-parameters.txt
+--- linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt	24 Sep 2004 14:26:39 -0000	1.1.1.1
++++ linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt	26 Sep 2004 00:53:36 -0000
+@@ -758,8 +758,8 @@ running once the system is up.
+ 
+ 	noalign		[KNL,ARM] 
+  
+-	noapic		[SMP,APIC] Tells the kernel not to make use of any
+-			APIC that may be present on the system.
++	noapic		[SMP,APIC] Tells the kernel to not make use of any
++			IOAPICs that may be present in the system.
+ 
+ 	noasync		[HW,M68K] Disables async and sync negotiation for
+ 			all devices.

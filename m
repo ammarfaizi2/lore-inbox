@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbTIHRVP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 13:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbTIHRVP
+	id S263436AbTIHR0n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 13:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTIHR0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 13:21:15 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:4273 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id S263088AbTIHRVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 13:21:14 -0400
-Date: Mon, 8 Sep 2003 10:20:16 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Nick Urbanik <nicku@vtc.edu.hk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Single P4, many IDE PCI cards == trouble??
-In-Reply-To: <20030908061333.GI19041@matchmail.com>
-Message-ID: <Pine.LNX.4.44.0309081019180.32739-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Sep 2003 13:26:43 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:32211 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263436AbTIHR0l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 13:26:41 -0400
+Date: Mon, 8 Sep 2003 13:26:41 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Fedor Karpelevitch <fedor@karpelevitch.net>
+Cc: Abraham van der Merwe <abz@frogfoot.net>,
+       Linux Kernel Discussions <linux-kernel@vger.kernel.org>
+Subject: Re: possibly bug in 8139cp? (WAS Re: BUG: 2.4.23-pre3 + ifconfig)
+Message-ID: <20030908172641.GB21226@gtf.org>
+References: <20030904180554.GA21536@oasis.frogfoot.net> <200309071217.03470.fedor@karpelevitch.net> <20030907191552.GA26123@oasis.frogfoot.net> <200309080943.26254.fedor@karpelevitch.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309080943.26254.fedor@karpelevitch.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Sep 2003, Mike Fedyk wrote:
+On Mon, Sep 08, 2003 at 09:43:25AM -0700, Fedor Karpelevitch wrote:
+> > > > I just installed 2.4.23-pre3 on one of our servers. If I
+> > > > up/down the loopback device multiple times ifconfig hangs on
+> > > > the second down (as in unkillable) and afterwards ifconfig
+> > > > stops functioning and I can't reboot the machine, etc.
 
-> On Sat, Aug 30, 2003 at 11:46:27AM +0800, Nick Urbanik wrote:
-> > It's just that I am trying to set up servers that use cheap storage at the
-> > college and teach students to build them.  It looks like we still have to pay
-> > big bucks for SCSI and 3ware.  And that part of my teaching will be replaced
-> > with something else.  Until I understand the problem and how to solve it.
-> 
-> 3ware is IDE...
+This sounds like the NAPI bug we're chasing.
 
-nor is it terribly expensive in the realm of host-bus adapters.
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+	Jeff
 
 
+	

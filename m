@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264484AbUEDT2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264471AbUEDTdC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264484AbUEDT2b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 15:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbUEDT2b
+	id S264471AbUEDTdC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 15:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbUEDTdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 15:28:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8373 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264484AbUEDT23 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 15:28:29 -0400
-Date: Tue, 4 May 2004 12:28:34 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: roland.mas@free.fr, zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: "kernel BUG at usb-ohci.h:464!" and 8139too -- 2.4.25
-Message-Id: <20040504122834.674d7e22.zaitcev@redhat.com>
-In-Reply-To: <20040504123534.GB9037@logos.cnet>
-References: <20040504123534.GB9037@logos.cnet>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 4 May 2004 15:33:01 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17057 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264471AbUEDTdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 15:33:00 -0400
+Date: Tue, 4 May 2004 16:11:28 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] tulip driver deadlocks on device removal
+Message-ID: <20040504141127.GH1188@openzaurus.ucw.cz>
+References: <4096BBC8.60509@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4096BBC8.60509@gmx.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Roland Mas <roland.mas@free.fr>
-> Date:	Wed, 31 Mar 2004 22:29:32 +0200
+Hi!
 
-> This is my ADSL gateway/firewall.  Old ISA card (module ne), which has
-> worked flawlessly for months.  USB modem based on the Eagle chipset by
-> Analog Devices Inc. (ADI), driver is not in mainline kernel, but it
-> also has worked for months (except when my ISP played silly buggers).
+> If I remove the card, my machine freezes instantly. This is due to a
+> stupid dev->poll function of the tulip driver.
+> 
+> drivers/net/tulip/interrupt.c:tulip_poll() gets stuck in an endless loop
+> in interrupt context if the hardware returns 0xffffffff on certain reads.
+> But this is exactly what happens if you remove a pci device.
+> 
+> My patch replaces the deadlock with something resembling a livelock. At
+> least SysRq-S works now because we leave the poll function after some time.
 
->[...]
->   My problem: after some time (a few hours), I get a kernel panic
-> speaking of a "kernel BUG at usb-ohci.h:464!".  The only USB
-> peripheral is the ADSL modem.  If I unload 8139too and alias eth0 ne,
-> but leave the Realtek NIC plugged in, I get no such panic.
+Could you explicitely check for read returning 0xffffffff?
 
-> | >>EIP; c4862f47 <[usb-ohci]dl_reverse_done_list+63/f0>   <=====
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-It is not my change to usb-ohci, because that one went to 2.4.26.
-In fact, I think might actually help! Roland, please try 2.4.26.
-
-Is the Eagle thing open source or binary? If it's open, it might
-stand a little review and cleanup on linux-kernel or linux-usb-devel.
-
--- Pete

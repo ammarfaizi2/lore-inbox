@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286355AbRLJSa6>; Mon, 10 Dec 2001 13:30:58 -0500
+	id <S286349AbRLJSds>; Mon, 10 Dec 2001 13:33:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286349AbRLJSas>; Mon, 10 Dec 2001 13:30:48 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55557 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286355AbRLJSam>; Mon, 10 Dec 2001 13:30:42 -0500
-Date: Mon, 10 Dec 2001 15:13:57 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Robert Love <rml@tech9.net>
-Cc: Nicolas Aspert <Nicolas.Aspert@epfl.ch>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Patches in 2.4.17-pre2 that aren't in 2.5.1-pre8
-In-Reply-To: <1008008332.1235.42.camel@phantasy>
-Message-ID: <Pine.LNX.4.21.0112101513490.25133-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286353AbRLJSdi>; Mon, 10 Dec 2001 13:33:38 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42764 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S286349AbRLJSd0>; Mon, 10 Dec 2001 13:33:26 -0500
+Date: Mon, 10 Dec 2001 19:32:32 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: John Clemens <john@deater.net>
+Cc: Cory Bell <cory.bell@usa.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-ID: <20011210193232.C24549@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011209131332.A37@toy.ucw.cz> <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-On 10 Dec 2001, Robert Love wrote:
-
-> On Mon, 2001-12-10 at 10:53, Marcelo Tosatti wrote:
+> > > > Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
+> > > > know what interrupt is right for maestro3, also on omnibook? ;-).
 > 
-> > Who is the maintainer of the driver ?
-> > 
-> > Try to think from my side: I may have no hardware or time to test all
-> > patches which come to me.
-> > 
-> > Please, people, send this kind of driver changes to the people who know
-> > all hardware specific details.
-> > 
-> > If there is no maintainer for i810, I'll be glad to apply it on 2.4.18pre
-> > and wait for reports. Not going to be on 2.4.17, though.
-> 
-> The maintainer is MIA.  I have been doing recent work on the driver.  I
-> can confirm Nicolas patch is correct.
+> I've updated my bios on my Pavilion N5430 and guess what is shows on
+> the bios boot screen (if you disable the bios splash screen)... Omnibook
+> XE3.  They are one in the same, at least model number wise.  weird,
+> considering there are no AMD omnibooks..
 
-Lets wait 2.4.18pre for this one, OK ? 
-
+Get /tmp/xe3-tech-code-11-2-01.pdf document from hp. It looks like
+they are ;-).
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

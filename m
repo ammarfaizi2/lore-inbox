@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261280AbREUPZH>; Mon, 21 May 2001 11:25:07 -0400
+	id <S261433AbREUPob>; Mon, 21 May 2001 11:44:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261281AbREUPY5>; Mon, 21 May 2001 11:24:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28420 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261280AbREUPYt>; Mon, 21 May 2001 11:24:49 -0400
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-To: wichert@cistron.nl (Wichert Akkerman)
-Date: Mon, 21 May 2001 16:21:40 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9ebbk7$3uq$1@picard.cistron.nl> from "Wichert Akkerman" at May 21, 2001 05:18:31 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261454AbREUPoW>; Mon, 21 May 2001 11:44:22 -0400
+Received: from river.it.gvsu.edu ([148.61.1.16]:18650 "EHLO river.it.gvsu.edu")
+	by vger.kernel.org with ESMTP id <S261444AbREUPoP>;
+	Mon, 21 May 2001 11:44:15 -0400
+Date: Mon, 21 May 2001 11:44:01 -0400 (EDT)
+From: Adam Schrotenboer <schrotaj@river.it.gvsu.edu>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: DVD blockdevice buffers
+In-Reply-To: <20010520005638.A18155@suse.de>
+Message-ID: <Pine.HPP.3.95.1010521114211.16648A-100000@river.it.gvsu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E151rV6-0000Nz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mike A. Harris <mharris@opensourceadvocate.org> wrote:
-> >For the record, the kgcc "mess" you speak of was used by
-> >Conectiva, and I believe also by debian
-> Debian never had that mess.
+On Sun, 20 May 2001, Jens Axboe wrote:
 
-Debians variant was gcc272 not kgcc. The 2.2.19 makefile knows about both of
-them
+> On Sat, May 19 2001, Adam Schrotenboer wrote:
+> > /dev/raw*  Where? I can't find it in my .config (grep RAW .config). I am 
+> > using 2.4.4-ac11 and playing w/ 2.4.5-pre3.
+> 
+> It's automagically included, no config options necessary
+> (drivers/char/raw.c)
+
+Then where is /dev/raw* ? I'm using devfs, if that helps any.
+> -- 
+> Jens Axboe
 

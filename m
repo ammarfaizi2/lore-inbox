@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268747AbTBZNiv>; Wed, 26 Feb 2003 08:38:51 -0500
+	id <S268744AbTBZNgl>; Wed, 26 Feb 2003 08:36:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268748AbTBZNiv>; Wed, 26 Feb 2003 08:38:51 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:46020 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S268747AbTBZNit>; Wed, 26 Feb 2003 08:38:49 -0500
-Date: Wed, 26 Feb 2003 13:49:00 GMT
-Message-Id: <200302261349.h1QDn06X002823@deviant.impure.org.uk>
-To: torvalds@transmeta.com, alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-From: davej@codemonkey.org.uk
-Subject: Tighten up serverworks workaround.
+	id <S268745AbTBZNgl>; Wed, 26 Feb 2003 08:36:41 -0500
+Received: from almesberger.net ([63.105.73.239]:10259 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S268744AbTBZNgk>; Wed, 26 Feb 2003 08:36:40 -0500
+Date: Wed, 26 Feb 2003 10:45:24 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, torvalds@transmeta.com,
+       rth@twiddle.net, linux-kernel@vger.kernel.org,
+       kai@tp1.ruhr-uni-bochum.de,
+       "Milton D. Miller II" <miltonm@realtime.net>
+Subject: Re: [PATCH] eliminate warnings in generated module files
+Message-ID: <20030226104523.L2791@almesberger.net>
+References: <1707.4.64.238.61.1046230558.squirrel@www.osdl.org> <20030226041359.C92F52C05D@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030226041359.C92F52C05D@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Feb 26, 2003 at 03:08:26PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aparently on rev6 of the LE and above, this workaround
-isn't needed. Lets give it a try, and see what happens.
+Rusty Russell wrote:
+> OTOH, __optional is fairly clearly "you can drop it".  "Unused" is
+> clearly a lie for some configurations.
 
-    Dave
+__maybe_unused ? :-)
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/kernel/cpu/mtrr/main.c linux-2.5/arch/i386/kernel/cpu/mtrr/main.c
---- bk-linus/arch/i386/kernel/cpu/mtrr/main.c	2003-02-25 13:10:08.000000000 -0100
-+++ linux-2.5/arch/i386/kernel/cpu/mtrr/main.c	2003-02-24 16:36:06.000000000 -0100
-@@ -75,20 +75,24 @@ void set_mtrr_ops(struct mtrr_ops * ops)
- static int have_wrcomb(void)
- {
- 	struct pci_dev *dev = NULL;
--
--	/* WTF is this?
--	 * Someone, please shoot me.
--	 */
--
--	/* ServerWorks LE chipsets have problems with write-combining 
--	   Don't allow it and leave room for other chipsets to be tagged */
-+	u8 rev;
- 
- 	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
- 		if ((dev->vendor == PCI_VENDOR_ID_SERVERWORKS) &&
- 		    (dev->device == PCI_DEVICE_ID_SERVERWORKS_LE)) {
--			printk(KERN_INFO
--			       "mtrr: Serverworks LE detected. Write-combining disabled.\n");
--			return 0;
-+
-+			/* ServerWorks LE chipsets have problems with write-combining 
-+			   Don't allow it and leave room for other chipsets to be tagged.
-+			   Rumour has it that rev6 and above are ok. */
-+			pci_read_config_byte(dev, PCI_CLASS_REVISION, &rev);  
-+			if (rev > 5) {
-+				printk ("mtrr: Serverworks LE rev %d detected. Earlier versions of this chipset had mtrr bugs\n", rev);
-+				printk ("mtrr: Please send mail to linux-kernel@vger.kernel.org if this seems stable.\n");
-+				return 1;
-+			} else {
-+				printk(KERN_INFO "mtrr: Serverworks LE detected. Write-combining disabled.\n");
-+				return 0;
-+			}
- 		}
- 	}
- 	return (mtrr_if->have_wrcomb ? mtrr_if->have_wrcomb() : 0);
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

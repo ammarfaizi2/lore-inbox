@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286791AbRL1Iln>; Fri, 28 Dec 2001 03:41:43 -0500
+	id <S286786AbRL1IkD>; Fri, 28 Dec 2001 03:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286790AbRL1Ild>; Fri, 28 Dec 2001 03:41:33 -0500
-Received: from mars.nc.orc.ru ([212.48.128.131]:26116 "HELO mail.orc.ru")
-	by vger.kernel.org with SMTP id <S286788AbRL1IlX>;
-	Fri, 28 Dec 2001 03:41:23 -0500
-From: "Eugene M. Indenbom" <medtekh@orc.ru>
-To: <linux-kernel@vger.kernel.org>
-Subject: Parent death signal
-Date: Fri, 28 Dec 2001 11:51:56 +0300
-Message-ID: <NEBBJOAKIMKHBNBOHCHNGEPACBAA.medtekh@orc.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3612.1700
+	id <S286788AbRL1Ijy>; Fri, 28 Dec 2001 03:39:54 -0500
+Received: from f199.law10.hotmail.com ([64.4.15.199]:42505 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S286786AbRL1Ijn>;
+	Fri, 28 Dec 2001 03:39:43 -0500
+X-Originating-IP: [212.150.104.104]
+From: "Q ED" <nib_maps@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] new aty128fb supported card?
+Date: Fri, 28 Dec 2001 08:39:37 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F199vFC496l4XUXALZz0000df6d@hotmail.com>
+X-OriginalArrivalTime: 28 Dec 2001 08:39:38.0006 (UTC) FILETIME=[2F47AB60:01C18F7B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear colleagues,
 
-I have tried to use prctl with PR_SET_PDEATHSIG and figured out that signal
-is sent from kernel/exit.c
-as user process signal (line #168):
+I have a recent ATI 128 card (XPERT 2000 or something?).  In any case, lspci 
+gives:
 
-			if (p->pdeath_signal) send_sig(p->pdeath_signal, p, 0);
+01:05.0 VGA compatible controller: ATI Technologies Inc Rage 128 Pro TF
 
-Please, note "0" as last argument. This means that signal delivery is
-affected by permission checking.
-Hence roughly speaking, if parent process has different uid than its child
-the signal will not be delivered.
+or numerically:
 
-This seems to be wrong as:
-1) Child requested to receive signal. The signal is not actually sent by
-parent process.
-2) If we should do permission check it should be done reverse: can child can
-send signal to parent?
-3) Permission check is not needed at all as child can poll to see whether
-its parent is still alive: getppid() > 1. This means that no security
-related information is given out by sending this signal unconditionally.
-4) pdeath_signal do not survive over fork and exec.
+01:05.0 Class 0300: 1002:5446
 
-The patch to change the behavior is:
+Now the aty128fb driver just ignores it gracefully.  Being no kernel hacker, 
+it took me some time to discover the remedy, namely:
 
---- linux-2.4.17/kernel/exit.c.pdeath	Fri Dec 28 09:13:32 2001
-+++ linux-2.4.17/kernel/exit.c	Fri Dec 28 09:13:54 2001
-@@ -165,7 +165,7 @@
- 			p->exit_signal = SIGCHLD;
- 			p->self_exec_id++;
- 			p->p_opptr = child_reaper;
--			if (p->pdeath_signal) send_sig(p->pdeath_signal, p, 0);
-+			if (p->pdeath_signal) send_sig(p->pdeath_signal, p, 1);
- 		}
- 	}
- 	read_unlock(&tasklist_lock);
+--- linux.old/drivers/video/aty128fb.c  Fri Dec 28 10:21:52 2001
++++ linux/drivers/video/aty128fb.c      Fri Dec 28 10:22:36 2001
+@@ -154,6 +154,7 @@
+     {"Rage128 RL (AGP)", PCI_DEVICE_ID_ATI_RAGE128_RL, rage_128},
+     {"Rage128 Pro PF (AGP)", PCI_DEVICE_ID_ATI_RAGE128_PF, rage_128_pro},
+     {"Rage128 Pro PR (PCI)", PCI_DEVICE_ID_ATI_RAGE128_PR, rage_128_pro},
++    {"Rage128 Pro TF (AGP)", PCI_DEVICE_ID_ATI_RAGE128_U1, rage_128_pro},
+     {"Rage Mobility M3 (PCI)", PCI_DEVICE_ID_ATI_RAGE128_LE, rage_M3},
+     {"Rage Mobility M3 (AGP)", PCI_DEVICE_ID_ATI_RAGE128_LF, rage_M3},
+     {NULL, 0, rage_128}
 
-==================================================
+Any chance of getting it into the kernel?
 
-Is it possible to incorporate this change into the next version of kernel?
-Any other comments?
+Please CC answers, as I am not subscribed.
 
-Regards, Eugene
+Thanks :)
 
-PS I am sorry for not being on this mailing list. I do not want to get all
-of its heavy traffic. Please, CC reply to me as well.
+
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

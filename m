@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263531AbSIQDEe>; Mon, 16 Sep 2002 23:04:34 -0400
+	id <S263546AbSIQDMY>; Mon, 16 Sep 2002 23:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263546AbSIQDEd>; Mon, 16 Sep 2002 23:04:33 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:29571 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S263531AbSIQDEc>; Mon, 16 Sep 2002 23:04:32 -0400
-Date: Tue, 17 Sep 2002 00:08:48 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Anton Blanchard <anton@samba.org>
-cc: Lev Makhlis <mlev@despammed.com>, <linux-kernel@vger.kernel.org>,
-       <akpm@zip.com.au>
-Subject: Re: [RFC] [PATCH] [2.5.35] Run Queue Statistics
-In-Reply-To: <20020917025907.GB15189@krispykreme>
-Message-ID: <Pine.LNX.4.44L.0209170007110.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S263554AbSIQDMX>; Mon, 16 Sep 2002 23:12:23 -0400
+Received: from packet.digeo.com ([12.110.80.53]:54714 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263546AbSIQDMW>;
+	Mon, 16 Sep 2002 23:12:22 -0400
+Message-ID: <3D869EAF.663B6EC3@digeo.com>
+Date: Mon, 16 Sep 2002 20:17:03 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: false NUMA OOM
+References: <20020917025035.GY2179@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Sep 2002 03:17:03.0578 (UTC) FILETIME=[B1C893A0:01C25DF8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Sep 2002, Anton Blanchard wrote:
+William Lee Irwin III wrote:
+> 
+> ...
+> +       for (type = classzone - first_classzone; type >= 0; --type)
+> +               for_each_pgdat(pgdat) {
+> +                       zone = pgdat->node_zones + type;
 
-> On a semi related note, vmstat wants to know the number of running,
-> blocked and swapped processes. strace vmstat one day and you will see it
-> currently opens /proc/*/stat (ie one open for each process) just to get
-> these stats.  Yet another place where the monitoring utilities disturb
-> the system way too much.
->
-> Can we get some things in /proc/stat to give us these numbers? Does
-> "swapped" make any sense on Linux?
+Well you'd want to start with (and prefer) the local node's zones?
 
-Runnable can be done currently, blocked on IO is trivial once
-Andrew has pushed the iowait stats to Linus.
-
-Swapped doesn't make any sense at the moment, but it should.
-A system without load control is just too vulnerable to sudden
-load spikes. If Andrew has interest I'll pick up the work I
-did in that area ...
-
-I'll also update vmstat to just use /proc/stat instead of
-looking at all /proc/*/stat files.
-
-cheers,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+I'm also wondering whether one shouldn't just poke a remote kswapd
+and wait.

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278313AbRJ3Vip>; Tue, 30 Oct 2001 16:38:45 -0500
+	id <S278464AbRJ3V4d>; Tue, 30 Oct 2001 16:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278275AbRJ3Vif>; Tue, 30 Oct 2001 16:38:35 -0500
-Received: from b73254.upc-b.chello.nl ([212.83.73.254]:15549 "EHLO
-	kleintje.nozone.nl") by vger.kernel.org with ESMTP
-	id <S278556AbRJ3ViS>; Tue, 30 Oct 2001 16:38:18 -0500
-Date: Tue, 30 Oct 2001 22:38:47 +0100 (CET)
-From: Tony den Haan <tony@chello.nl>
-To: Rui Sousa <rui.p.m.sousa@clix.pt>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: emu10k1 freezes 2.4.13
-In-Reply-To: <Pine.LNX.4.33.0110302037130.3150-100000@sophia-sousar2.nice.mindspeed.com>
-Message-ID: <Pine.LNX.4.21.0110302231500.8237-100000@kleintje.nozone.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278429AbRJ3V4Q>; Tue, 30 Oct 2001 16:56:16 -0500
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:4480 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S278410AbRJ3V4H>;
+	Tue, 30 Oct 2001 16:56:07 -0500
+Date: Tue, 30 Oct 2001 13:56:42 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre4 tainted + preempt oops...
+Message-ID: <20011030135641.A959@netnation.com>
+In-Reply-To: <200110301018.LAA17404@lambik.cc.kuleuven.ac.be> <9rmqkd$bn9$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9rmqkd$bn9$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, Rui Sousa wrote:
+On Tue, Oct 30, 2001 at 06:13:33PM +0000, Linus Torvalds wrote:
 
-> On Tue, 30 Oct 2001, Tony den Haan wrote:
-> 
-> > loading emu10k1 locks my system, usually immediately,
-> 
-> Just by loading the module?
-> 
-> What was the last kernel you tried and had no problems with? 
-please ignore this, i put the card back after not using it for a month or
-so, seems to be broken hardware after all, sorry
+> Don't bother, just get pre5. It's a bug in pre4, no blame on vmware or
+> even nVidia.
 
-tony
+Any known memory-related or queueing-related bugs that would cause Oopses
+in SMP 2.4.12?  We've had a few recently-upgraded servers Oopsing
+strangely today.
 
+Simon-
 
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268537AbUIGUpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUIGU6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268537AbUIGUpb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 16:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUIGUpa
+	id S268258AbUIGU6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 16:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268592AbUIGU6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 16:45:30 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:52160
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268537AbUIGUoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 16:44:25 -0400
-Date: Tue, 7 Sep 2004 13:41:41 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Thor Kooda <tkooda-patch-kernel@devsec.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.8.1 crypto: tea.c xtea_encrypt should use
- XTEA_DELTA
-Message-Id: <20040907134141.6c634f26.davem@davemloft.net>
-In-Reply-To: <20040903223458.GD18362@rock>
-References: <20040903223458.GD18362@rock>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 7 Sep 2004 16:58:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18580 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268258AbUIGU6g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 16:58:36 -0400
+Date: Tue, 7 Sep 2004 13:56:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: arjanv@redhat.com, hch@infradead.org,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: Where's the key management patchset at?
+Message-Id: <20040907135631.0ef139e0.akpm@osdl.org>
+In-Reply-To: <22970.1094563283@redhat.com>
+References: <20040907033255.78128ebd.akpm@osdl.org>
+	<20040907031856.58f33b99.akpm@osdl.org>
+	<20040904032913.441631e6.akpm@osdl.org>
+	<20040904022656.31447b51.akpm@osdl.org>
+	<20040903224513.0154c1d3.akpm@osdl.org>
+	<24752.1094234169@redhat.com>
+	<12766.1094289316@redhat.com>
+	<14279.1094293508@redhat.com>
+	<13781.1094551789@redhat.com>
+	<14622.1094552807@redhat.com>
+	<22970.1094563283@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Howells <dhowells@redhat.com> wrote:
+>
+> I'd like to dispense with keyfs.
 
-Thor, your patches do not apply because your email
-client turns tab characters into spaces, please fix
-this up.
-
-Thanks.
-
+Let's do that then.  I'll keep the patch alive in -mm.  If someone can come
+along and demonstrate a solid reason for needing keyfs then we can
+reevaluate.

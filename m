@@ -1,153 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279754AbRJ3Cgr>; Mon, 29 Oct 2001 21:36:47 -0500
+	id <S279830AbRJ3C4D>; Mon, 29 Oct 2001 21:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279756AbRJ3Cgi>; Mon, 29 Oct 2001 21:36:38 -0500
-Received: from ns0.cobite.com ([208.222.80.10]:25612 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S279754AbRJ3CgX>;
-	Mon, 29 Oct 2001 21:36:23 -0500
-Date: Mon, 29 Oct 2001 21:36:59 -0500 (EST)
-From: David Mansfield <david@cobite.com>
-To: linux-kernel@vger.kernel.org
-Subject: i/o stalls on 2.4.14-pre3 with ext3
-Message-ID: <Pine.LNX.4.21.0110292120340.16895-100000@admin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279829AbRJ3Czy>; Mon, 29 Oct 2001 21:55:54 -0500
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:57484 "EHLO
+	hawk.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S279815AbRJ3Czk>; Mon, 29 Oct 2001 21:55:40 -0500
+Date: Mon, 29 Oct 2001 18:55:45 -0800
+To: viro@math.psu.edu
+Cc: RossBoylan@stanfordalumni.org, linux-kernel@vger.kernel.org
+Subject: 2.4.12 kernel doesn't see extended partition
+Message-ID: <20011029185545.C1212@wheat.boylan.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: Ross Boylan <RossBoylan@stanfordalumni.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I try to start my Debian woody system using a recently compiled
+(with kernel-package) 2.4.12 kernel it fails to start because it can't find
+the root partition, /hda6.  The immediately preceding partition check
+for hda does NOT show any individual extended partitions, but it it
+does show hda1 - 4.  Here's what things look like with 2.4.10:
+Partition check:
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 hda9 >
+ hdb: hdb1 < hdb5 hdb6 hdb7 > hdb2
 
-I tried out 2.4.14-pre3 plus the ext3 patch from Andrew Morton and
-encountered some strange I/O stalls.   I was doing a 'cvs tag' of my local
-kernel-cvs repository, which generates a lot of read/write traffic in a
-single process.  I see that pre4 fixed a get_request race, (I think) but
-it only applies on SMP, right?
-
-All was going well when it seemed to stall for about 20 seconds at
-least, during which it dribbled some blocks out to disk but made little
-progress generally speaking.
-
-System: UP Athlon 1.4GHZ, 512MB ram, SiS5513 IDE UDMA-100, Red Hat 7.2
-plus above kernel.  Ext3 is mounted in ordered-data-mode. 
-
-Here's the vmstat 1 output during that period, and for a while
-before and after:
-
-procs                  memory  swap         io     system       cpu
-r b w  swpd free  buff  cache si so   bi    bo   in    cs us sy  id
-2 1 0 16560 5572 26956 296160  0  0 2312     4  470  1123 64 13  23
-0 1 0 16560 3832 27040 297788  0  0 1680     0  521  1110 36 12  52
-2 1 0 16560 3356 27052 298588 32  0 1608     0  533 16591 25 33  43
-0 1 0 16560 3484 27048 298656  0  0 1936     0  581  1320 15  9  76
-0 1 1 16560 3624 27024 298536  0  0  828  5176  372   466  7  5  88
-1 1 1 16560 3580 27028 298564  0  0    4  3200  184   129  0  0 100
-0 1 1 16560 3616 27028 298516  0  0   16  3408  181   132  0  1  99
-1 1 1 16560 3588 27028 298544  0  0   12  3720  208   173  0  1  99
-0 1 1 16560 3588 27028 298544  0  0    0  3336  181  1206  0  2  98
-1 0 0 16560 4076 27084 298296  0  0 1640  3576  373   540  6  2  92
-1 0 0 16560 3852 26920 298876  0  0 5460     0  611 16907 16 38  47
-0 1 0 16560 3544 26932 299048  0  0 1212     0  536  1116 13  9  78
-0 1 0 16560 3384 26940 299072  0  0 1044     0  521   977 15  7  78
-1 0 0 16560 3152 26980 299156  0  0 2120     0  583  1032 10  8  82
-0 1 1 16560 3292 26968 298960  0  0  796  7792  343   412  6  4  90
-2 1 1 16560 3288 26968 298964  0  0    4  3272  189   411 38  1  61
-0 1 1 16560 3280 26968 298968  0  0    4  2388  175   536 57  3  40
-2 1 1 16560 3264 26968 298984  0  0   16  3116  180  4688  1  7  92
-0 1 1 16560 3224 26972 299020  0  0   28  2016  164 11582  4 12  84
-0 1 1 16560 3140 26972 299104  0  0   56  2216  180   133  0  1  99
-1 0 0 16560 4008 26964 298424  0  0 1180  2932  397   889 10  8  82
-1 0 0 16560 3452 26964 299068  0  0 2648     0  632  1082  8 10  82
-1 0 0 16560 3212 26972 299220  0  0 1132     0  518  1347 12  8  80
-2 0 0 16560 4000 27040 298352  0  0 3160     0  567  2021 12 17  71
-2 1 1 16560 3624 27088 298636  0  0 1304  4452  292  2556 58 10  32
-0 1 1 16560 3620 27088 298636  0  0    0  4040  191  1074 26  1  73
-1 1 1 16560 3600 27088 298656  0  0   20  2788  200 16140  4 19  77
-0 1 1 16560 3600 27088 298656  0  0    0  4296  209   136  0  1  99
-1 1 1 16560 3580 27088 298676  0  0    4  3984  208   136  0  1  99
-0 1 0 16560 3516 27168 298876  0  0 2236  3292  382   543  4  7  89
-1 0 0 16560 3328 27088 299140  0  0 2804     0  585   997 12 14  74
-3 0 0 16560 4592 27064 297820  0  0 2312    60  500   834 32 12  56
-1 0 0 16688 3736 27108 298976  0  0 3172     0  633  1259 80 14   6
-1 0 0 16944 3548 27284 301108  0  0 3336     0  647  1047  6 20  74
-0 1 2 16944 3164 27332 301484  0  0 2416   260  302 16470 10 23  67
-0 1 2 16944 3160 27332 301484  0  0    0  1876  160   134  0  1  99
-0 1 2 16944 3160 27332 301484  0  0    0  1356  183   130  0  0 100
-0 1 2 16944 3160 27332 301484  0  0    0  2320  171   133  0  0 100
-0 1 2 16944 3104 27336 301520  0  0   28  1408  164   224  0  0 100
-1 1 2 16944 4108 27232 300640  0  0   12  1724  175   502 50  2  49
-0 1 2 16944 4108 27232 300640  0  0    0  2920  211   463  0  0 100
-0 1 2 16944 4092 27236 300652  0  0    4  2056  178 16135  1 21  78
-0 1 2 16944 4100 27236 300620  0  0   16  2724  150   131  0  0 100
-0 1 2 16944 4100 27236 300620  0  0    0   860  182   132  0  1  99
-0 1 2 16944 4060 27240 300656  0  0   28  1756  175   134  0  0 100
-0 1 2 16944 4000 27240 300716  0  0   32  1788  176   133  0  1  99
-2 1 2 16944 3964 27244 300752  0  0    4  1808  173   182  8  0  92
-1 1 2 16944 4024 27244 300684  0  0    4   780  175   763 44  0  56
-0 1 2 16944 4008 27244 300700  0  0   16  3696  190   152  0  1  99
-0 1 2 16944 3972 27244 300736  0  0   20   288  172 16141  2 20  78
-0 1 2 16944 3944 27272 300736  0  0    0  1768  178   140  0  0 100
-
-<stalls around here>
-
-0 1 2 16944 3924 27272 300756  0  0    4   252  170   135  0  1  99
-0 1 2 16944 3952 27272 300728  0  0    4   160  140   130  0  0 100
-0 1 2 16944 3940 27280 300732  0  0    4   696  167   136  0  0 100
-2 1 2 16944 3940 27284 300732  0  0    0   424  162   396 60  0  40
-0 1 2 16944 3932 27284 300736  0  0    4   244  149   233 38  0  62
-0 1 1 16944 3928 27284 300740  0  0    4   204  175 16141  4 18  78
-0 1 1 16944 3912 27284 300756  0  0   16   356  160   136  0  0 100
-0 1 2 16944 3912 27284 300756  0  0    0   396  176   130  0  0 100
-0 1 2 16944 3868 27292 300792  0  0   28   384  160   139  0  0 100
-0 1 2 16944 3780 27296 300876  0  0   56   200  164   134  0  0 100
-1 1 1 16944 3780 27296 300876  0  0    0   444  191   250  0  0 100
-0 1 1 16944 3620 27300 301032  0  0  100   412  183  1010  1  0  99
-0 1 1 16944 3396 27300 301256  0  0  128   140  148   139  0  0 100
-1 0 2 16944 3392 27304 301256  0  0    0   580  170 16137  4 18  78
-0 1 2 16944 3240 27308 301404  0  0   20   536  184   136  0  0 100
-0 1 2 16944 3212 27308 301432  0  0    4   276  152   131  0  0 100
-0 1 1 16944 3548 27308 301096  0  0    8   372  171   144  0  0 100
-1 1 1 16944 3536 27308 301108  0  0    4   456  208   145  0  1  99
-2 1 2 16944 3536 27312 301108  0  0    0   540  187   544 59  0  41
-0 1 2 16944 3528 27316 301108  0  0    0   188  149   409 39  0  61
-0 1 2 16944 3512 27320 301120  0  0   20   556  185 16140  5 18  77
-0 1 1 16944 3472 27320 301160  0  0   24   444  177   136  0  0 100
-0 1 1 16944 3440 27324 301188  0  0    4   424  191   223  0  0 100
-0 1 1 16944 3440 27324 301188  0  0    4   492  190   144  0  1  99
-0 1 2 16944 3456 27336 301160  0  0   12   444  182   140  0  0 100
-2 1 1 16944 3448 27336 301172  0  0    4   456  183   401  9  1  90
-
-<picks up again here>
-
-2 0 0 17236 6456 27340 301304  0  0  572    44  190  2412 58  8  34
-1 0 0 17428 3712 27424 304596  0  0 5800     0  637  1159  9 19  72
-1 1 0 17500 3424 27412 305396  0  0 4488     0  592 16935 23 24  53
-0 1 1 17680 3868 27328 305880  0  0 2580  6656  376   520  7 11  82
-0 1 1 17680 3868 27328 305880  0  0    0  4792  194   130  0  0 100
-0 1 2 17680 3844 27328 305892  0  0    4  5184  203   134  0  2  98
-1 0 0 17680 3648 27364 306036  0  0  136  1200  197   193  0  2  98
-2 0 0 17728 4016 27320 305944  0  0 3812     0  562  5660 11 19  70
-3 0 0 19316 2568 27236 309324  0  0 8056     0  506  9336 16 38  47
-0 1 0 19444 3820 27164 308044  0  0 3000     0  485  8695 12 14  74
-0 1 0 20212 2252 27248 309580  0 24 4280    24  470   835  8 15  77
-0 1 1 20212 3828 26960 308284  0  0  124  6592  220 16189  3 20  77
-1 1 1 20212 3784 26960 308328  0  0   28  5468  185   128  0  0 100
-0 3 1 20212 3060 26968 308404  0  0   60  8812  211   153  1  2  97
-0 3 2 20340 3368 26784 308288  0  4  228  5456  190   136  0  1  99
-0 2 1 20340 3584 26532 308312  0 12   60  1928  199   149  0  1  99
-2 1 0 20340 4060 26664 308320  0  0  764  2104  228   798  8  7  85
-3 0 0 20724 3728 26112 309352  0 40 4836    40  521  2624 50 18  32
-0 1 0 20724 3240 25864 310060  0  0 3188     0  483  2137 46 17  38
-1 1 0 20724 4072 25820 309228  0  0 1512     0  461   703  6  9  85
-1 0 0 20724 3812 25832 309444  0  0 1212     0  458 16654 13 24  63
-0 1 1 20724 3688 25860 309532  0  0  124  6612  213   184  1  2  97
-0 1 1 20724 3656 25860 309540  0  0    4  6996  208   135  0  2  98
-0 1 1 20724 3652 25860 309544  0  0    4  2204  200   136  0  1  99
-1 0 0 20724 4168 25596 309372  0  0  940  1164  315   483  0  6  94
+Under 2.4.12 it looks like
+ hda: hda1 hda2 hda3 hda4 < >
+ hdb: hdb1 < hdb5 hdb6 hdb7 > hdb2
 
 
--- 
-/==============================\
-| David Mansfield              |
-| david@cobite.com             |
-\==============================/
+I noticed you have been working on the partition code, and that there
+have been some reports of similar problems.  However, my search did
+not show if those problems had been resolved.
 
+I have been having intermittent hardware problems with the disks.  But
+the extended partition does not seem to be damaged, judging from the
+fact that I can use it from 2.4.10 kernels.
+
+Because of those problems I did fiddle with some of the options before
+compiling the kernel, but have since turned most of them back.  Here's
+one diff of config-2.4.10 vs 2.4.12:
+62a63
+> # CONFIG_X86_UP_APIC is not set
+92c93
+< # CONFIG_PM is not set
+---
+> CONFIG_PM=y
+362d362
+< # CONFIG_SCSI_NCR_D700 is not set
+641a642
+> # CONFIG_JFFS2_FS is not set
+782,810c783
+< CONFIG_SOUND_OSS=m
+< CONFIG_SOUND_TRACEINIT=y
+< CONFIG_SOUND_DMAP=y
+< # CONFIG_SOUND_SGALAXY is not set
+< # CONFIG_SOUND_ADLIB is not set
+< # CONFIG_SOUND_ACI_MIXER is not set
+< # CONFIG_SOUND_CS4232 is not set
+< # CONFIG_SOUND_SSCAPE is not set
+< # CONFIG_SOUND_GUS is not set
+< CONFIG_SOUND_VMIDI=m
+< # CONFIG_SOUND_TRIX is not set
+< # CONFIG_SOUND_MSS is not set
+< # CONFIG_SOUND_MPU401 is not set
+< # CONFIG_SOUND_NM256 is not set
+< # CONFIG_SOUND_MAD16 is not set
+< # CONFIG_SOUND_PAS is not set
+< # CONFIG_PAS_JOYSTICK is not set
+< # CONFIG_SOUND_PSS is not set
+< # CONFIG_SOUND_SB is not set
+< # CONFIG_SOUND_AWE32_SYNTH is not set
+< # CONFIG_SOUND_WAVEFRONT is not set
+< # CONFIG_SOUND_MAUI is not set
+< # CONFIG_SOUND_YM3812 is not set
+< # CONFIG_SOUND_OPL3SA1 is not set
+< # CONFIG_SOUND_OPL3SA2 is not set
+< # CONFIG_SOUND_YMFPCI is not set
+< # CONFIG_SOUND_YMFPCI_LEGACY is not set
+< # CONFIG_SOUND_UART6850 is not set
+< # CONFIG_SOUND_AEDSP16 is not set
+---
+> # CONFIG_SOUND_OSS is not set
+859a833
+> # CONFIG_USB_HPUSBSCSI is not set
+
+As for config_pm, my hardware is ACPI and some of my problems seem
+related to power management (can't access the disks after they've been
+sleeping).  I've tried it on and off.  In fact, I've tried at least 6
+different configurations.
+
+(By the way, on the sound I'm using ALSA.  Does anyone know if I
+should turn OSS on if I want OSS emulation?).
+
+Gigabyte GA-71XE4 with Athlon 800 Mhz processor.  The chipset is AMD
+(I have Viper support selected as an option).  I also have i2c and
+lm-sensors.  The drive in question is Western Digital UDMA-33, 13Mg;
+the second one is Western Digitial UDMA 66.
+
+Hmm, here's what happened when I tried to run fdisk
+wheat:/usr/local/rootlog# fdisk /dev/hda
+
+Unable to read /dev/hda

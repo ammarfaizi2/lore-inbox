@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVAFTst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbVAFTvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVAFTst (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVAFTrn
+	id S263002AbVAFTvK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbVAFTtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:47:43 -0500
-Received: from mail.gmx.net ([213.165.64.20]:33216 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263003AbVAFToZ (ORCPT
+	Thu, 6 Jan 2005 14:49:06 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:55266 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S262974AbVAFTrV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:44:25 -0500
-X-Authenticated: #4399952
-Date: Thu, 6 Jan 2005 20:44:23 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Mark_H_Johnson@raytheon.com
-Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-mm1-V0.7.34-00
-Message-ID: <20050106204423.02f191da@mango.fruits.de>
-In-Reply-To: <OFB0005E29.8FDCDD2D-ON86256F81.00692C36@raytheon.com>
-References: <OFB0005E29.8FDCDD2D-ON86256F81.00692C36@raytheon.com>
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 6 Jan 2005 14:47:21 -0500
+Subject: Re: Problem with irqrouting and resume
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org, bjorn.helgaas@hp.com
+In-Reply-To: <1103474172.4219.26.camel@localhost.localdomain>
+References: <1103474172.4219.26.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 06 Jan 2005 12:47:02 -0700
+Message-Id: <1105040822.22985.29.camel@eeyore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jan 2005 13:15:41 -0600
-Mark_H_Johnson@raytheon.com wrote:
+On Sun, 2004-12-19 at 17:36 +0100, Martin Josefsson wrote:
+> I have a small problem with newer kernels on my laptop, an IBM X31.
+> The problem is that the e1000 interface doesn't work after I've resumed
+> from suspend to disk. This used to work fine until recently, not sure
+> which kernel broke it. suspend-to-ram still works.
 
-> [snip - detailed error messages]
-> 
-> This is a known problem with -mm1 and the ALSA people already fixed it.
-> The change log for -mm2 indicates it should be in that version.
+Can you try these patches please:
 
-Thanks for the info and sorry about my redundancy.
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0501.0/0284.html
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0501.0/0548.html
 
-Flo
+I suspect that they will fix the problem; let me know either way.
 
--- 
-Palimm Palimm!
-http://affenbande.org/~tapas/
+Thanks very much for testing this and reporting the problem!
+
+

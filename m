@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVCDBrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262811AbVCDB4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbVCDBrY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 20:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVCDBpQ
+	id S262811AbVCDB4V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 20:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVCDBra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 20:45:16 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:58071 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262729AbVCDADl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 19:03:41 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, jgarzik@pobox.com, torvalds@osdl.org,
-       davem@davemloft.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050303151752.00527ae7.akpm@osdl.org>
-References: <42268749.4010504@pobox.com>
-	 <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com>
-	 <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net>
-	 <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com>
-	 <4226CA7E.4090905@pobox.com>
-	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	 <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com>
-	 <20050303151752.00527ae7.akpm@osdl.org>
-Content-Type: text/plain
+	Thu, 3 Mar 2005 20:47:30 -0500
+Received: from zotz.mtu.ru ([195.34.34.227]:62735 "EHLO zotz.mtu.ru")
+	by vger.kernel.org with ESMTP id S262806AbVCDBqk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 20:46:40 -0500
+Reply-To: <zazazazaqwas@umail.ru>
+From: =?ISO-8859-1?Q?=20=22Co=C2c=D4=D7e=CE=CE=C9=CB=22?= 
+	 <zazazazaqwas@umail.ru>
+Subject: =?ISO-8859-1?Q?=20C=C4a=C4=C9=CD?=  =?ISO-8859-1?Q?=20=C2e=DA?=  =?ISO-8859-1?Q?=20=D0?=
+	=?ISO-8859-1?Q?ocpe=C4=CE=C9=CBo=D7?=  =?ISO-8859-1?Q?=20=D0o=CDe=DDe=CE=C9e?= 11O,5  =?ISO-8859-1?Q?=20=CD?=
+	=?ISO-8859-1?Q?2?=  =?ISO-8859-1?Q?=20=D7?=  =?ISO-8859-1?Q?=20=F7=E1O?= 
+Date: Fri, 4 Mar 2005 04:40:37 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1109894511.21781.73.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 04 Mar 2005 00:01:52 +0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1081
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1081
+Message-Id: <20050304013929.2FE454DA9E5@zotz.mtu.ru>
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-03-03 at 23:17, Andrew Morton wrote:
-> Ideally, the 2.6.x.y maintainer wouldn't need any particular kernel
-> development skills - it's just patchmonkeying the things which maintainers
-> send him.
+ул. Бyраковa, 110,5 м2, 5 кoмнaт, 1 пoдcoбкa, c/yзeл, пoлyпoдвaл жилoгo дoмa, cocтoяниe xopoшee.
+Мoжнo иcпoльзoвaть пoд пpoизвoдcтвo+oфиc+cклaд. В cyбapeндy oфициaльнo нa длитeльный cpoк.
+Bыдeлeнкa интepнeт, 2 тeл., мeбeль. 
+200 ye/m2 в гoд.
 
-I would disagree, and I suspect anyone else who has maintained a distro
-stable kernel would likewise. It needs one or more people who know who
-to ask about stuff, are careful, have a good grounding in bug spotting,
-races, common mistakes and know roughly how all the kernel works.
-Maintainers aren't very good at it in general and they don't see
-overlaps between areas very well.
-
-Realistically you have to do stuff like read each Linus checkin and
-classify it.
-
-Al Viro is probably the perfect 2.6.x.y maintainer but I doubt he'd want
-to do it.
-
+Tел 7787823 Aлeкcaндp

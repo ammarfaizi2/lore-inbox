@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267491AbTBXSWs>; Mon, 24 Feb 2003 13:22:48 -0500
+	id <S267443AbTBXSXa>; Mon, 24 Feb 2003 13:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267488AbTBXSWV>; Mon, 24 Feb 2003 13:22:21 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:5280 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267474AbTBXSUh>; Mon, 24 Feb 2003 13:20:37 -0500
-Date: Mon, 24 Feb 2003 10:30:47 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 401] New: ISAPNP sleeping function called from illegal context
-Message-ID: <18250000.1046111447@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267485AbTBXSWH>; Mon, 24 Feb 2003 13:22:07 -0500
+Received: from clavin.cs.tamu.edu ([128.194.130.106]:7093 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id <S267443AbTBXSRZ>;
+	Mon, 24 Feb 2003 13:17:25 -0500
+Date: Mon, 24 Feb 2003 12:27:31 -0600 (CST)
+From: Xinwen Fu <xinwenfu@cs.tamu.edu>
+To: Paul Rolland <rol@as2917.net>
+cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: how to force 10/100 speeds in Linux if both ethtool and mii-tool
+ don't work
+In-Reply-To: <002101c2dbd5$6fabc400$3f00a8c0@witbe>
+Message-ID: <Pine.SOL.4.10.10302241218050.2913-100000@dogbert>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=401
+Hi, 
+	For one of my machines, both ethtool and mii-tool don't work. Here
+are the error messages:
 
-           Summary: ISAPNP sleeping function called from illegal context
-    Kernel Version: 2.5.62-bk7
-            Status: NEW
-          Severity: low
-             Owner: ambx1@neo.rr.com
-         Submitter: bwindle-kbt@fint.org
+(mii-tool)
+SIOCGMIIPHY on 'eth0' failed: invalid argument
+.............................................
+SIOCGMIIPHY on 'eth7' failed: invalid argument
+no MII interfaces found
 
+(ethtool eth0)
+setting for eth0:
+no data available
 
-Distribution: Debian Testing
-Hardware Environment: x86
-Software Environment:
-CONFIG_PCI=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-CONFIG_PNP_CARD=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_IOVIRT=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_KALLSYMS=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
+I tried some other parameters and go similar results.
 
-Problem Description:
-2.5.62-bk7 prints this on bootup. Last kernel tried, bk4, doesn't do this.
-
-isapnp: Scanning for PnP cards...
-Debug: sleeping function called from illegal context at mm/slab.c:1617
-Call Trace:
- [<c0118ccc>] __might_sleep+0x54/0x58
- [<c013d89b>] kmalloc+0x5f/0x140
- [<c01f9633>] pnp_alloc+0x13/0x54
- [<c01fb6ef>] pnp_add_change+0x13/0x84
- [<c01fba76>] pnp_next_config+0x2a/0xcc
- [<c01fbc5c>] pnp_advanced_config+0x144/0x2a8
- [<c01fc2c6>] pnp_auto_config_dev+0x3e/0x44
- [<c01f9b86>] __pnp_add_device+0x18a/0x1ac
- [<c01fee3c>] pnpc_add_card+0x204/0x21c
- [<c010519b>] init+0xc3/0x288
- [<c01050d8>] init+0x0/0x288
- [<c01071f1>] kernel_thread_helper+0x5/0xc
-
-isapnp: Card 'SYM 53C416'
-isapnp: Card 'CS4236B'
-isapnp: 2 Plug & Play cards detected total
+What else can we do to force the speed?
 
 
+Xinwen Fu
 
-Steps to reproduce:
+
+On Mon, 24 Feb 2003, Paul Rolland wrote:
+
+> > 	How can I force the speeds of the two cards at 10Mbps 
+> > or 100Mbps? Where can I find the parameter list to do such forcing?
+> > 
+> Have a look at :
+>  - mii-tool
+>  - ethtool
+> depending on your card.
+> 
+> Regards,
+> Paul
+> 
+> 
+> 
 

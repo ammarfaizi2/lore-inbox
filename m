@@ -1,168 +1,249 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314906AbSENAhf>; Mon, 13 May 2002 20:37:35 -0400
+	id <S314957AbSENAlh>; Mon, 13 May 2002 20:41:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314929AbSENAhe>; Mon, 13 May 2002 20:37:34 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:57863 "EHLO
+	id <S314961AbSENAlg>; Mon, 13 May 2002 20:41:36 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:52749 "EHLO
 	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314906AbSENAhd>; Mon, 13 May 2002 20:37:33 -0400
+	id <S314957AbSENAld>; Mon, 13 May 2002 20:41:33 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] tasklet cleanup
-Date: Tue, 14 May 2002 10:41:01 +1000
-Message-Id: <E177QNB-0003OW-00@wagner.rustcorp.com.au>
+Subject: [PATCH] futex pthreads adaptation and cleanup
+Date: Tue, 14 May 2002 10:45:00 +1000
+Message-Id: <E177QR2-0003Oi-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus, please apply.
 
-Name: Tasklet Per-CPU Cleanup Patch
+Name: Futex Update
 Author: Rusty Russell
-Status: Cleanup
+Section: Misc
+Status: Beta
 
-D: This makes tasklet_vec and tasklet_hi_vec static inside softirq.c, and
-D: makes them __per_cpu_data.
+D: This changes futex semantics to a simple "sleep if this address
+D: equals this value" interface, which is more convenient for building
+D: other primitives.  It also adds a timeout value.
+D:
+D: Example library can be found at:
+D:    http://www.kernel.org/pub/linux/kernel/people/rusty/futex-2.0.tar.gz
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/include/linux/interrupt.h working-2.5.7-pre1-percpu-sched/include/linux/interrupt.h
---- linux-2.5.7-pre1/include/linux/interrupt.h	Fri Mar 15 13:01:00 2002
-+++ working-2.5.7-pre1-percpu-sched/include/linux/interrupt.h	Fri Mar 15 14:02:23 2002
-@@ -124,14 +124,6 @@
- 	TASKLET_STATE_RUN	/* Tasklet is running (SMP only) */
- };
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.13/include/linux/futex.h working-2.5.13-futexfix/include/linux/futex.h
+--- linux-2.5.13/include/linux/futex.h	Thu Mar 21 14:14:54 2002
++++ working-2.5.13-futexfix/include/linux/futex.h	Mon May  6 11:54:12 2002
+@@ -2,7 +2,7 @@
+ #define _LINUX_FUTEX_H
  
--struct tasklet_head
+ /* Second argument to futex syscall */
+-#define FUTEX_UP (0)
+-#define FUTEX_DOWN (1)
++#define FUTEX_WAIT (0)
++#define FUTEX_WAKE (1)
+ 
+ #endif
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.13/kernel/futex.c working-2.5.13-futexfix/kernel/futex.c
+--- linux-2.5.13/kernel/futex.c	Thu Mar 21 14:14:56 2002
++++ working-2.5.13-futexfix/kernel/futex.c	Mon May  6 11:59:59 2002
+@@ -32,7 +32,8 @@
+ #include <linux/fs.h>
+ #include <linux/futex.h>
+ #include <linux/highmem.h>
+-#include <asm/atomic.h>
++#include <linux/time.h>
++#include <asm/uaccess.h>
+ 
+ /* These mutexes are a very simple counter: the winner is the one who
+    decrements from 1 to 0.  The counter starts at 1 when the lock is
+@@ -68,22 +69,27 @@
+ 	return &futex_queues[hash_long(h, FUTEX_HASHBITS)];
+ }
+ 
+-static inline void wake_one_waiter(struct list_head *head,
+-				   struct page *page,
+-				   unsigned int offset)
++static int futex_wake(struct list_head *head,
++		      struct page *page,
++		      unsigned int offset,
++		      int num)
+ {
+-	struct list_head *i;
++	struct list_head *i, *next;
++	int num_woken = 0;
+ 
+ 	spin_lock(&futex_lock);
+-	list_for_each(i, head) {
++	list_for_each_safe(i, next, head) {
+ 		struct futex_q *this = list_entry(i, struct futex_q, list);
+ 
+ 		if (this->page == page && this->offset == offset) {
++			list_del_init(i);
+ 			wake_up_process(this->task);
+-			break;
++			num_woken++;
++			if (num_woken >= num) break;
+ 		}
+ 	}
+ 	spin_unlock(&futex_lock);
++	return num_woken;
+ }
+ 
+ /* Add at end to avoid starvation */
+@@ -101,11 +107,17 @@
+ 	spin_unlock(&futex_lock);
+ }
+ 
+-static inline void unqueue_me(struct futex_q *q)
++/* Return 1 if we were still queued (ie. 0 means we were woken) */
++static inline int unqueue_me(struct futex_q *q)
+ {
++	int ret = 0;
+ 	spin_lock(&futex_lock);
+-	list_del(&q->list);
++	if (!list_empty(&q->list)) {
++		list_del(&q->list);
++		ret = 1;
++	}
+ 	spin_unlock(&futex_lock);
++	return ret;
+ }
+ 
+ /* Get kernel address of the user page and pin it. */
+@@ -129,74 +141,65 @@
+ 	return page;
+ }
+ 
+-/* Try to decrement the user count to zero. */
+-static int decrement_to_zero(struct page *page, unsigned int offset)
 -{
--	struct tasklet_struct *list;
--} __attribute__ ((__aligned__(SMP_CACHE_BYTES)));
+-	atomic_t *count;
+-	int ret = 0;
 -
--extern struct tasklet_head tasklet_vec[NR_CPUS];
--extern struct tasklet_head tasklet_hi_vec[NR_CPUS];
+-	count = kmap(page) + offset;
+-	/* If we take the semaphore from 1 to 0, it's ours.  If it's
+-           zero, decrement anyway, to indicate we are waiting.  If
+-           it's negative, don't decrement so we don't wrap... */
+-	if (atomic_read(count) >= 0 && atomic_dec_and_test(count))
+-		ret = 1;
+-	kunmap(page);
+-	return ret;
+-}
 -
- #ifdef CONFIG_SMP
- static inline int tasklet_trylock(struct tasklet_struct *t)
+-/* Simplified from arch/ppc/kernel/semaphore.c: Paul M. is a genius. */
+-static int futex_down(struct list_head *head, struct page *page, int offset)
++static int futex_wait(struct list_head *head,
++		      struct page *page,
++		      int offset,
++		      int val,
++		      int *uaddr,
++		      unsigned long time)
  {
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/kernel/ksyms.c working-2.5.7-pre1-percpu-sched/kernel/ksyms.c
---- linux-2.5.7-pre1/kernel/ksyms.c	Wed Mar 13 13:30:39 2002
-+++ working-2.5.7-pre1-percpu-sched/kernel/ksyms.c	Fri Mar 15 14:11:36 2002
-@@ -565,8 +565,6 @@
- EXPORT_SYMBOL(strsep);
+-	int retval = 0;
++	int curval;
+ 	struct futex_q q;
++	int ret = 0;
  
- /* software interrupts */
--EXPORT_SYMBOL(tasklet_hi_vec);
--EXPORT_SYMBOL(tasklet_vec);
- EXPORT_SYMBOL(bh_task_vec);
- EXPORT_SYMBOL(init_bh);
- EXPORT_SYMBOL(remove_bh);
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/kernel/softirq.c working-2.5.7-pre1-percpu-sched/kernel/softirq.c
---- linux-2.5.7-pre1/kernel/softirq.c	Wed Feb 20 17:56:17 2002
-+++ working-2.5.7-pre1-percpu-sched/kernel/softirq.c	Fri Mar 15 14:02:45 2002
-@@ -16,6 +16,7 @@
- #include <linux/smp_lock.h>
- #include <linux/init.h>
- #include <linux/tqueue.h>
-+#include <linux/percpu.h>
+-	current->state = TASK_INTERRUPTIBLE;
++	set_current_state(TASK_INTERRUPTIBLE);
+ 	queue_me(head, &q, page, offset);
  
- /*
-    - No shared variables, all the data are CPU local.
-@@ -145,42 +146,43 @@
+-	while (!decrement_to_zero(page, offset)) {
+-		if (signal_pending(current)) {
+-			retval = -EINTR;
+-			break;
+-		}
+-		schedule();
+-		current->state = TASK_INTERRUPTIBLE;
+-	}
+-	current->state = TASK_RUNNING;
+-	unqueue_me(&q);
+-	/* If we were signalled, we might have just been woken: we
+-	   must wake another one.  Otherwise we need to wake someone
+-	   else (if they are waiting) so they drop the count below 0,
+-	   and when we "up" in userspace, we know there is a
+-	   waiter. */
+-	wake_one_waiter(head, page, offset);
+-	return retval;
+-}
+-
+-static int futex_up(struct list_head *head, struct page *page, int offset)
+-{
+-	atomic_t *count;
++	/* Page is pinned, can't fail */
++	if (get_user(curval, uaddr) != 0)
++		BUG();
  
- 
- /* Tasklets */
-+struct tasklet_head
-+{
-+	struct tasklet_struct *list;
-+};
- 
--struct tasklet_head tasklet_vec[NR_CPUS] __cacheline_aligned_in_smp;
--struct tasklet_head tasklet_hi_vec[NR_CPUS] __cacheline_aligned_in_smp;
-+static struct tasklet_head tasklet_vec __per_cpu_data;
-+static struct tasklet_head tasklet_hi_vec __per_cpu_data;
- 
- void __tasklet_schedule(struct tasklet_struct *t)
- {
--	int cpu = smp_processor_id();
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	t->next = tasklet_vec[cpu].list;
--	tasklet_vec[cpu].list = t;
--	cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
-+	t->next = this_cpu(tasklet_vec).list;
-+	this_cpu(tasklet_vec).list = t;
-+	cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
- 	local_irq_restore(flags);
+-	count = kmap(page) + offset;
+-	atomic_set(count, 1);
+-	smp_wmb();
+-	kunmap(page);
+-	wake_one_waiter(head, page, offset);
+-	return 0;
++	if (curval != val) {
++		ret = -EWOULDBLOCK;
++		set_current_state(TASK_RUNNING);
++		goto out;
++	}
++	time = schedule_timeout(time);
++	if (time == 0) {
++		ret = -ETIMEDOUT;
++		goto out;
++	}
++	if (signal_pending(current)) {
++		ret = -EINTR;
++		goto out;
++	}
++ out:
++	/* Were we woken up anyway? */
++	if (!unqueue_me(&q))
++		return 0;
++	return ret;
  }
  
- void __tasklet_hi_schedule(struct tasklet_struct *t)
+-asmlinkage int sys_futex(void *uaddr, int op)
++asmlinkage int sys_futex(void *uaddr, int op, int val, struct timespec *utime)
  {
--	int cpu = smp_processor_id();
- 	unsigned long flags;
+ 	int ret;
+ 	unsigned long pos_in_page;
+ 	struct list_head *head;
+ 	struct page *page;
++	unsigned long time = MAX_SCHEDULE_TIMEOUT;
++
++	if (utime) {
++		struct timespec t;
++		if (copy_from_user(&t, utime, sizeof(t)) != 0)
++			return -EFAULT;
++		time = timespec_to_jiffies(&t) + 1;
++	}
  
- 	local_irq_save(flags);
--	t->next = tasklet_hi_vec[cpu].list;
--	tasklet_hi_vec[cpu].list = t;
--	cpu_raise_softirq(cpu, HI_SOFTIRQ);
-+	t->next = this_cpu(tasklet_hi_vec).list;
-+	this_cpu(tasklet_hi_vec).list = t;
-+	cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
- 	local_irq_restore(flags);
- }
+ 	pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
  
- static void tasklet_action(struct softirq_action *a)
- {
--	int cpu = smp_processor_id();
- 	struct tasklet_struct *list;
+ 	/* Must be "naturally" aligned, and not on page boundary. */
+-	if ((pos_in_page % __alignof__(atomic_t)) != 0
+-	    || pos_in_page + sizeof(atomic_t) > PAGE_SIZE)
++	if ((pos_in_page % __alignof__(int)) != 0
++	    || pos_in_page + sizeof(int) > PAGE_SIZE)
+ 		return -EINVAL;
  
- 	local_irq_disable();
--	list = tasklet_vec[cpu].list;
--	tasklet_vec[cpu].list = NULL;
-+	list = this_cpu(tasklet_vec).list;
-+	this_cpu(tasklet_vec).list = NULL;
- 	local_irq_enable();
+ 	/* Simpler if it doesn't vanish underneath us. */
+@@ -206,13 +209,12 @@
  
- 	while (list) {
-@@ -200,21 +202,20 @@
- 		}
- 
- 		local_irq_disable();
--		t->next = tasklet_vec[cpu].list;
--		tasklet_vec[cpu].list = t;
--		__cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
-+		t->next = this_cpu(tasklet_vec).list;
-+		this_cpu(tasklet_vec).list = t;
-+		__cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
- 		local_irq_enable();
+ 	head = hash_futex(page, pos_in_page);
+ 	switch (op) {
+-	case FUTEX_UP:
+-		ret = futex_up(head, page, pos_in_page);
++	case FUTEX_WAIT:
++		ret = futex_wait(head, page, pos_in_page, val, uaddr, time);
+ 		break;
+-	case FUTEX_DOWN:
+-		ret = futex_down(head, page, pos_in_page);
++	case FUTEX_WAKE:
++		ret = futex_wake(head, page, pos_in_page, val);
+ 		break;
+-	/* Add other lock types here... */
+ 	default:
+ 		ret = -EINVAL;
  	}
- }
- 
- static void tasklet_hi_action(struct softirq_action *a)
- {
--	int cpu = smp_processor_id();
- 	struct tasklet_struct *list;
- 
- 	local_irq_disable();
--	list = tasklet_hi_vec[cpu].list;
--	tasklet_hi_vec[cpu].list = NULL;
-+	list = this_cpu(tasklet_hi_vec).list;
-+	this_cpu(tasklet_hi_vec).list = NULL;
- 	local_irq_enable();
- 
- 	while (list) {
-@@ -234,9 +235,9 @@
- 		}
- 
- 		local_irq_disable();
--		t->next = tasklet_hi_vec[cpu].list;
--		tasklet_hi_vec[cpu].list = t;
--		__cpu_raise_softirq(cpu, HI_SOFTIRQ);
-+		t->next = this_cpu(tasklet_hi_vec).list;
-+		this_cpu(tasklet_hi_vec).list = t;
-+		__cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
- 		local_irq_enable();
- 	}
- }
-
 
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

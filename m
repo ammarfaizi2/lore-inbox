@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267260AbTBLPfm>; Wed, 12 Feb 2003 10:35:42 -0500
+	id <S267365AbTBLPnK>; Wed, 12 Feb 2003 10:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbTBLPe2>; Wed, 12 Feb 2003 10:34:28 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:47488
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267260AbTBLPeW>; Wed, 12 Feb 2003 10:34:22 -0500
-Subject: Re: 2.5.60 "Badness in kobject_register at lib/kobject.c:152"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Guennadi Liakhovetski <gl@dsa-ac.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0302121509481.1173-100000@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.33.0302121509481.1173-100000@pcgl.dsa-ac.de>
-Content-Type: text/plain
+	id <S267361AbTBLPnK>; Wed, 12 Feb 2003 10:43:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6917 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267365AbTBLPnJ>;
+	Wed, 12 Feb 2003 10:43:09 -0500
+Message-ID: <3E4A6DBD.8050004@pobox.com>
+Date: Wed, 12 Feb 2003 10:52:29 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.5.60 cheerleading...
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045068254.2166.21.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Feb 2003 16:44:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-12 at 14:49, Guennadi Liakhovetski wrote:
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
+Just to counteract all the 2.5.60 bug reports...
 
-This is it rejecting a command at start up, thats ok. I do need to
-quieten these further yet.
+After the akpm wave of compile fixes, I booted 2.5.60-BK on my Wal-Mart 
+PC [via epia], and ran LTP on it, while also stressing it using 
+fsx-linux in another window.  The LTP run showed a few minor failures, 
+but overall 2.5.60-BK is surviving just fine, and with no corruption.
 
-> hda: 31488 sectors (16 MB) w/1KiB Cache, CHS=246/4/32, BUG <=============
-
-Curious. I'll tae a look
-
-> then, on mounting root again
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: Write Cache FAILED Flushing!
-
-For some reason we decided the drive support cache flush. However it
-apparently doesnt
-
-> And then these errors appear again on some disk-opoerations, e.g. when
-> running lilo, doing dd if=/dev/hda, and some others (raw access?). Can
-> this errors be disk-specific? (it's a SiliconTech disk, reported as
-> Hitachi) I can try some others, e.g. SunDisk.
-> 
-
-I would be interested to see how they compare
+So, it's working great for me :)
 

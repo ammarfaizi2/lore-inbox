@@ -1,96 +1,209 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSEaAtX>; Thu, 30 May 2002 20:49:23 -0400
+	id <S313190AbSEaAyD>; Thu, 30 May 2002 20:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313201AbSEaAtW>; Thu, 30 May 2002 20:49:22 -0400
-Received: from dsl-213-023-038-015.arcor-ip.net ([213.23.38.15]:16862 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313202AbSEaAtS>;
-	Thu, 30 May 2002 20:49:18 -0400
+	id <S313300AbSEaAyC>; Thu, 30 May 2002 20:54:02 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:54155 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S313190AbSEaAyA>;
+	Thu, 30 May 2002 20:54:00 -0400
+Date: Fri, 31 May 2002 10:53:43 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Roman Zippel <zippel@linux-m68k.org>
+Subject: [PATCH] missing bit from signal patches - take 2 (or 3)
+Message-Id: <20020531105343.055ad372.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Kenneth Johansson <ken@canit.se>
-Subject: Re: KBuild 2.5 Impressions
-Date: Fri, 31 May 2002 02:47:48 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Ion Badulescu <ionut@cs.columbia.edu>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200205302155.g4ULtEb09500@buggy.badula.org> <E17DZCa-0007hI-00@starship> <1022803993.2799.13.camel@tiger>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Daa5-0007iZ-00@starship>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 May 2002 02:13, Kenneth Johansson wrote:
-> On Fri, 2002-05-31 at 01:19, Daniel Phillips wrote:
-> > There is exactly one valid objection I've seen to kbuild 2.5 inclusion,
-> > and that is the matter of breaking up the patch.  Having done a quick
-> > tour through the whole patch set, I now know that there are some
-> > easy places to break it up:
-> > 
-> >   - Documentation is a large part of the patch and can be easily
-> >     broken out.
-> > 
-> >   - The makefile parser, complete with state transition tables etc,
-> >     lexer, and so on, breaks out cleanly (sits on top of the db
-> >     utilities).
-> > 
-> >   - Executable programs written in C.  Each one ends with a
-> >     'main' function, and there is the natural division.
-> > 
-> >   - The remaining C code breaks out into a number of separable
-> >     components:
-> > 
-> >       - Utilities such as environment variable parsing, canonical
-> >         name generation, line reading, line editing etc.
-> >       - The database 
-> >       - File utilities that use the database (e.g., walk_fs_db)
-> >       - Dependency generation
-> >       - Global Makefile construction (command generation etc)
-> > 
-> >     These tend to be common to a number of the executable programs,
-> >     and so have the nature of library components.  They can all go
-> >     under the heading 'lib', and further breakdown is probably not
-> >     necessary.
-> > 
-> >   - The Makefile.in patches seem to be about 30-40% of the whole
-> >     thing, and imho must be applied all at the same time.  However,
-> >     they break up nicely across subsystem lines (drivers, fs, etc)
-> > 
-> >   - The per-arch patches are already broken out, and are short.
-> > 
-> > I think that with these breakups done the thing would be sufficiently
-> > digestible to satisfy Linus.  Now that I think of it, Linus's request
-> > for a breakup is really an endorsement, and quite possibly Keith took
-> > it the wrong way.  (Keith, by the way, how did I do on the structural
-> > breakdown?  Sorry, I really couldn't spend as much time on it as it
-> > deserves.)
-> 
-> Maybe I'm the idiot here but what dose this gain you??
+Hi Linus,
 
-It makes it faster to analyze.  I would have appreciated that in doing
-my own analysis.  If Linus incorporated the whole thing without analyzing
-its structure, I'd be worried.
+The following should allow the affected architectures to build in
+2.5.19 as currently there will be two definitions of
+copy_siginfo_to_user and if an architecture defines its own
+siginfo_t it MUST define copy_siginfo().
 
-The only problem would be that this kind of breakup and convenience of
-applying the patch tend to be mutually exclusive.  I suppose that could
-be solved with a script Keith's end - simply append all the broken-apart
-pieces into one large patch (in fact, it seems that two of the tree
-patches you need to apply for the i386 version would be better appended
-together for the purpose of distribution.)
-
-The question of how much work it is to do the breakup itself is separate.
-In my experience, maintaining a system in a broken-up form tends to be
-a major use of time.  It's something you want to do once, just before
-inclusion, and that seems to be exactly what Linus has asked for.
-
-> The reason to break up a patch is not simply to get more of them. There
-> is no point in splitting if you still need to use every single one of
-> them to make anything work. 
-
-See above.  It's all about analyzing the structure of the patch.  To be
-fair though, it took me less than an hour to get a pretty good idea of
-how the current patch set is structured.
+Please apply.  This one should have a better chance of working :-)
 
 -- 
-Daniel
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruN 2.5.19/include/asm-alpha/siginfo.h 2.5.19-si.4/include/asm-alpha/siginfo.h
+--- 2.5.19/include/asm-alpha/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.4/include/asm-alpha/siginfo.h	Thu May 30 23:11:50 2002
+@@ -6,6 +6,7 @@
+ #define SIGEV_PAD_SIZE	((SIGEV_MAX_SIZE/sizeof(int)) - 4)
+ 
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+diff -ruN 2.5.19/include/asm-cris/siginfo.h 2.5.19-si.4/include/asm-cris/siginfo.h
+--- 2.5.19/include/asm-cris/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.4/include/asm-cris/siginfo.h	Thu May 30 23:11:50 2002
+@@ -1,6 +1,8 @@
+ #ifndef _CRIS_SIGINFO_H
+ #define _CRIS_SIGINFO_H
+ 
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
++
+ #include <asm-generic/siginfo.h>
+ 
+ #endif
+diff -ruN 2.5.19/include/asm-ia64/siginfo.h 2.5.19-si.4/include/asm-ia64/siginfo.h
+--- 2.5.19/include/asm-ia64/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.4/include/asm-ia64/siginfo.h	Fri May 31 10:27:41 2002
+@@ -11,8 +11,8 @@
+ #define SIGEV_PAD_SIZE	((SIGEV_MAX_SIZE/sizeof(int)) - 4)
+ 
+ #define HAVE_ARCH_SIGINFO_T
+-
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+diff -ruN 2.5.19/include/asm-m68k/siginfo.h 2.5.19-si.4/include/asm-m68k/siginfo.h
+--- 2.5.19/include/asm-m68k/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.4/include/asm-m68k/siginfo.h	Fri May 31 10:28:37 2002
+@@ -2,6 +2,7 @@
+ #define _M68K_SIGINFO_H
+ 
+ #define HAVE_ARCH_SIGINFO_T
++#define HAVE_ARCH_COPY_SIGINFO
+ 
+ #include <asm-generic/siginfo.h>
+ 
+@@ -68,6 +69,21 @@
+ #define si_uid16	_sifields._kill._uid
+ #else
+ #define si_uid		_sifields._kill._uid
++#endif
++
++#ifdef __KERNEL__
++
++#include <linux/string.h>
++
++static inline void copy_siginfo(struct siginfo *to, struct siginfo *from)
++{
++	if (from->si_code < 0)
++		memcpy(to, from, sizeof(*to));
++	else
++		/* _sigchld is currently the largest know union member */
++		memcpy(to, from, 3*sizeof(int) + sizeof(from->_sifields._sigchld));
++}
++
+ #endif /* __KERNEL__ */
+ 
+ #endif
+diff -ruN 2.5.19/include/asm-mips/siginfo.h 2.5.19-si.4/include/asm-mips/siginfo.h
+--- 2.5.19/include/asm-mips/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.4/include/asm-mips/siginfo.h	Thu May 30 23:18:46 2002
+@@ -12,8 +12,8 @@
+ #define SIGEV_PAD_SIZE	((SIGEV_MAX_SIZE/sizeof(int)) - 4)
+ 
+ #define HAVE_ARCH_SIGINFO_T
+-
+ #define HAVE_ARCH_SIGEVENT_T
++#define HAVE_ARCH_COPY_SIGINFO
+ 
+ #include <asm-generic/siginfo.h>
+ 
+@@ -121,5 +121,20 @@
+ 		} _sigev_thread;
+ 	} _sigev_un;
+ } sigevent_t;
++
++#ifdef __KERNEL__
++
++#include <linux/string.h>
++
++static inline void copy_siginfo(struct siginfo *to, struct siginfo *from)
++{
++	if (from->si_code < 0)
++		memcpy(to, from, sizeof(*to));
++	else
++		/* _sigchld is currently the largest know union member */
++		memcpy(to, from, 3*sizeof(int) + sizeof(from->_sifields._sigchld));
++}
++
++#endif
+ 
+ #endif /* _ASM_SIGINFO_H */
+diff -ruN 2.5.19/include/asm-mips64/siginfo.h 2.5.19-si.4/include/asm-mips64/siginfo.h
+--- 2.5.19/include/asm-mips64/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.4/include/asm-mips64/siginfo.h	Thu May 30 23:19:33 2002
+@@ -13,6 +13,8 @@
+ 
+ #define HAVE_ARCH_SIGINFO_T
+ #define HAVE_ARCH_SIGEVENT_T
++#define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+@@ -120,5 +122,20 @@
+ 		} _sigev_thread;
+ 	} _sigev_un;
+ } sigevent_t;
++
++#ifdef __KERNEL__
++
++#include <linux/string.h>
++
++static inline void copy_siginfo(struct siginfo *to, struct siginfo *from)
++{
++	if (from->si_code < 0)
++		memcpy(to, from, sizeof(*to));
++	else
++		/* _sigchld is currently the largest know union member */
++		memcpy(to, from, 3*sizeof(int) + sizeof(from->_sifields._sigchld));
++}
++
++#endif
+ 
+ #endif /* _ASM_SIGINFO_H */
+diff -ruN 2.5.19/include/asm-parisc/siginfo.h 2.5.19-si.4/include/asm-parisc/siginfo.h
+--- 2.5.19/include/asm-parisc/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.4/include/asm-parisc/siginfo.h	Thu May 30 23:11:50 2002
+@@ -1,6 +1,8 @@
+ #ifndef _PARISC_SIGINFO_H
+ #define _PARISC_SIGINFO_H
+ 
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
++
+ #include <asm-generic/siginfo.h>
+ 
+ /*
+diff -ruN 2.5.19/include/asm-sparc/siginfo.h 2.5.19-si.4/include/asm-sparc/siginfo.h
+--- 2.5.19/include/asm-sparc/siginfo.h	Thu May 30 09:44:39 2002
++++ 2.5.19-si.4/include/asm-sparc/siginfo.h	Thu May 30 23:11:50 2002
+@@ -7,6 +7,7 @@
+ 
+ #define HAVE_ARCH_SIGINFO_T
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+diff -ruN 2.5.19/include/asm-sparc64/siginfo.h 2.5.19-si.4/include/asm-sparc64/siginfo.h
+--- 2.5.19/include/asm-sparc64/siginfo.h	Thu May 30 09:44:39 2002
++++ 2.5.19-si.4/include/asm-sparc64/siginfo.h	Fri May 31 10:30:00 2002
+@@ -8,8 +8,8 @@
+ #define SIGEV_PAD_SIZE32 ((SIGEV_MAX_SIZE/sizeof(int)) - 3)
+ 
+ #define HAVE_ARCH_SIGINFO_T
+-
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 

@@ -1,114 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284842AbRLPWGP>; Sun, 16 Dec 2001 17:06:15 -0500
+	id <S284871AbRLPWTF>; Sun, 16 Dec 2001 17:19:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284868AbRLPWGE>; Sun, 16 Dec 2001 17:06:04 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:6016 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S284842AbRLPWFx>; Sun, 16 Dec 2001 17:05:53 -0500
-To: "David Gomez" <davidge@jazzfree.com>
-Cc: Dave Jones <davej@suse.de>, Linux-kernel <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Copying to loop device hangs up everything
-In-Reply-To: <Pine.LNX.4.33.0112162036370.475-100000@fargo>
-	<877krnq70g.fsf@fadata.bg>
-From: Momchil Velikov <velco@fadata.bg>
-Date: 16 Dec 2001 23:52:40 +0200
-In-Reply-To: <877krnq70g.fsf@fadata.bg>
-Message-ID: <871yhu25p3.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S284879AbRLPWSy>; Sun, 16 Dec 2001 17:18:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:774 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284874AbRLPWSq>; Sun, 16 Dec 2001 17:18:46 -0500
+Message-ID: <3C1D1DB3.502@zytor.com>
+Date: Sun, 16 Dec 2001 14:18:27 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: antirez <antirez@invece.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Booting a modular kernel through a multiple streams file
+In-Reply-To: <3C1D060B.9475C9F8@bluewin.ch> <9vj2c7$vgr$1@cesium.transmeta.com> <20011216230206.J446@blu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Momchil" == Momchil Velikov <velco@fadata.bg> writes:
+antirez wrote:
 
->>>>> "David" == David Gomez <davidge@jazzfree.com> writes:
-David> On 16 Dec 2001, Momchil Velikov wrote:
+>>>
+>>By this you have pretty much shown yourself utterly unqualified to be
+>>a kernel *designer*.  I won't even go into the various bogus
+> 
+> Agreed, but it should be also noted that to be able to do
+> kernel coding is insufficient to do kernel design.
 
->>> [...]
->>> 
-David> Thanks ;), this patch solves the problem and copying a lot of data to the
-David> loop device now doesn't hang the computer.
->>> 
-David> Is this patch going to be applied to the stable kernel ? Marcelo ?
->>> 
->>> I've had exactly the same hangups with or without the patch.
+ >
 
-David> I've tested several times after applying the loop-deadlock patch and the
-David> bug seems to be fixed. No more hangups while copying a lot of data to
-David> loopback devices. Post more info about your hangups, maybe is another
-David> different loop device deadlock.
+Agreed 100%.
 
-Momchil> Maybe it's different I don't know. Looks like I've found a fix and in
-Momchil> a minute I'll test _without_ the Andrea's patch and post whatever
-Momchil> comes out of it.
+	-hpa
 
-It turned out that Andrea's patch is needed and it needs to be
-augmented slightly.  The loop_thread can do the following:
 
-loop_thread
--> do_bh_filebacked
--> lo_send
--> ...
-->  kmem_cache_alloc
--> ...
--> shrink_cache
--> try_to_release_page
--> try_to_free_buffers
--> sync_page_buffers
--> __wait_on_buffer
-
-And if the buffer must be flushed to the loopback device we deadlock.
-
-The following patch is the Andrea's one + one additional change -- we
-don't allow the loop_thread to wait in sync_page_buffers.
-
-Regards,
--velco
-
-diff -Nru a/drivers/block/loop.c b/drivers/block/loop.c
---- a/drivers/block/loop.c	Sun Dec 16 23:50:25 2001
-+++ b/drivers/block/loop.c	Sun Dec 16 23:50:25 2001
-@@ -578,6 +578,8 @@
- 	atomic_inc(&lo->lo_pending);
- 	spin_unlock_irq(&lo->lo_lock);
- 
-+	current->flags |= PF_NOIO;
-+
- 	/*
- 	 * up sem, we are running
- 	 */
-diff -Nru a/fs/buffer.c b/fs/buffer.c
---- a/fs/buffer.c	Sun Dec 16 23:50:25 2001
-+++ b/fs/buffer.c	Sun Dec 16 23:50:25 2001
-@@ -1045,7 +1045,7 @@
- 
- 	/* First, check for the "real" dirty limit. */
- 	if (dirty > soft_dirty_limit) {
--		if (dirty > hard_dirty_limit)
-+		if (dirty > hard_dirty_limit && !(current->flags & PF_NOIO))
- 			return 1;
- 		return 0;
- 	}
-@@ -2448,6 +2448,8 @@
- 		/* Second time through we start actively writing out.. */
- 		if (test_and_set_bit(BH_Lock, &bh->b_state)) {
- 			if (!test_bit(BH_launder, &bh->b_state))
-+				continue;
-+			if (current->flags & PF_NOIO)
- 				continue;
- 			wait_on_buffer(bh);
- 			tryagain = 1;
-diff -Nru a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	Sun Dec 16 23:50:25 2001
-+++ b/include/linux/sched.h	Sun Dec 16 23:50:25 2001
-@@ -426,6 +426,7 @@
- #define PF_MEMALLOC	0x00000800	/* Allocating memory */
- #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
- #define PF_FREE_PAGES	0x00002000	/* per process page freeing */
-+#define PF_NOIO		0x00004000	/* avoid generating further I/O */
- 
- #define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
- 

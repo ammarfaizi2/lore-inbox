@@ -1,170 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267191AbRGKDUC>; Tue, 10 Jul 2001 23:20:02 -0400
+	id <S267194AbRGKDXW>; Tue, 10 Jul 2001 23:23:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267193AbRGKDTx>; Tue, 10 Jul 2001 23:19:53 -0400
-Received: from c526559-a.rchdsn1.tx.home.com ([24.0.107.130]:22400 "EHLO
-	ledzep.dyndns.org") by vger.kernel.org with ESMTP
-	id <S267191AbRGKDTi>; Tue, 10 Jul 2001 23:19:38 -0400
-Message-ID: <3B4BC5C0.BDDC12A6@home.com>
-Date: Tue, 10 Jul 2001 22:19:28 -0500
-From: Jordan <ledzep37@home.com>
-Reply-To: Jordan <ledzep37@home.com>,
-        Jordan Breeding <jordan.breeding@inet.com>
-Organization: University of Texas at Dallas - Student
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2-acpi-reiserfs-3.6.25 i686)
-X-Accept-Language: en
+	id <S267193AbRGKDXM>; Tue, 10 Jul 2001 23:23:12 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45573 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S267195AbRGKDWz>; Tue, 10 Jul 2001 23:22:55 -0400
+Date: Tue, 10 Jul 2001 22:51:03 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Dirk Wetter <dirkw@rentec.com>
+Cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: dead mem pages -> dead machines
+In-Reply-To: <Pine.LNX.4.33.0107101002450.24405-100000@monster000.rentec.com>
+Message-ID: <Pine.LNX.4.21.0107102246110.2021-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Dave J <davej@suse.de>
-Subject: Discrepancies between /proc/cpuinfo and Dave J's x86info
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to figure out what happened to make my two identical
-processors show up differently in /proc/cpuinfo I noticed that they do
-not appear differently in the x86info utility.  Here is a copy of my
-/proc/cpuinfo:
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 999.682
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1992.29
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 999.682
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1998.84
+On Tue, 10 Jul 2001, Dirk Wetter wrote:
 
-Notice that the cpuid level and bogomips values are reported to be
-different, but look at the output of `x86info -a`:
+> 
+> On Tue, 10 Jul 2001, Mark Hahn wrote:
+> 
+> 
+> > my point, perhaps to terse, was that you shouldn't run 4.3G of job on
+> > a 4G machine, and expect everything to necessarily work.
+> 
+> then i expect to have 300M+ swapped out and not 2.6GB. so what?
+> 
+> > > > they should all have the same priority, so swapping is distributed.
+> > > > currently sda5 fills (and judging by the 5, it's not on the fast
+> > > > part of the disk) before sdb1 is used.
+> > >
+> > > well, that's the symptom, but not the disease, medically speaking.
+> >
+> > no, it's actually orthogonal, mathematically speaking:
+> > your swap configuration is inefficient
+> 
+> i am complaining about the fact that the machines start paging
+> heavily without a reason and you are telling me that my swap
+> config is wrong?
+> 
+> > note also that swap listed as in use is really just allocated,
+> > not necessarily used.  the current VM preemptively assigns idle pages
+> > to swapcache; whether they ever get written out is another matter.
+> 
+> it IS used. after submitting the jobs the nodes were dead for a while since
+> they were swapping like hell.
+> 
+> > you should clearly run "vmstat 1" to see whether there's significant
+> > si/so.  it would be a symptom if there was actually a lot of *both*
+> > si and so (thrashing).
+> 
+> they were so dead, i couldn't even type on the console. load was up
+> to 30, culprit at that point was kswapd.
 
-x86info v1.3.  Dave Jones 2001
-Feedback to <davej@suse.de>.
+Dirk, 
 
-Found 2 CPUs
-eax in: 0, eax = 00000002 ebx = 756e6547 ecx = 6c65746e edx = 49656e69
-eax in: 1, eax = 00000686 ebx = 00000002 ecx = 00000000 edx = 0383fbff
-eax in: 2, eax = 03020101 ebx = 00000000 ecx = 00000000 edx = 0c040882
-Vendor ID: "GenuineIntel"; Max CPUID level 2
+Can you boot the kernel with "profile=2" and use the "readprofile" tool to
+check where the kernel is wasting its time ? (take a look at the
+readprofile man page)
 
-Intel-specific functions
-Family: 6 Model: 8 Type 0 [Celeron / Pentium III (Coppermine) Original
-OEM]
-Stepping: 6
-Reserved: 0
+Let me machine stay in the "unusable" state for quite some time before
+reading the statistics.
 
-Feature flags 0383fbff:
-FPU    Floating Point Unit
-VME    Virtual 8086 Mode Enhancements
-DE     Debugging Extensions
-PSE    Page Size Extensions
-TSC    Time Stamp Counter
-MSR    Model Specific Registers
-PAE    Physical Address Extension
-MCE    Machine Check Exception
-CX8    COMPXCHG8B Instruction
-APIC   On-chip Advanced Programmable Interrupt Controller present and
-enabled
-SEP    Fast System Call
-MTRR   Memory Type Range Registers
-PGE    PTE Global Flag
-MCA    Machine Check Architecture
-CMOV   Conditional Move and Compare Instructions
-FGPAT  Page Attribute Table
-PSE-36 36-bit Page Size Extension
-MMX    MMX instruction set
-FXSR   Fast FP/MMX Streaming SIMD Extensions save/restore
-XMM    Streaming SIMD Extensions instruction set
-Instruction TLB: 4KB pages, 4-way set assoc, 32 entries
-Instruction TLB: 4MB pages, fully assoc, 2 entries
-Data TLB: 4KB pages, 4-way set assoc, 64 entries
-L2 unified cache: Sectored, 32 byte cache line, 8 way set associative,
-256K
-Instruction cache: 16KB, 4-way set assoc, 32 byte line size
-Data TLB: 4MB pages, 4-way set assoc, 8 entries
-Data cache: 16KB, 2-way or 4-way set assoc, 32 byte line size
-Erk, MCG_CTL not present!
-eax in: 0, eax = 00000002 ebx = 756e6547 ecx = 6c65746e edx = 49656e69
-eax in: 1, eax = 00000686 ebx = 00000002 ecx = 00000000 edx = 0383fbff
-eax in: 2, eax = 03020101 ebx = 00000000 ecx = 00000000 edx = 0c040882
-Vendor ID: "GenuineIntel"; Max CPUID level 2
-
-Intel-specific functions
-Family: 6 Model: 8 Type 0 [Celeron / Pentium III (Coppermine) Original
-OEM]
-Stepping: 6
-Reserved: 0
-
-Feature flags 0383fbff:
-FPU    Floating Point Unit
-VME    Virtual 8086 Mode Enhancements
-DE     Debugging Extensions
-PSE    Page Size Extensions
-TSC    Time Stamp Counter
-MSR    Model Specific Registers
-PAE    Physical Address Extension
-MCE    Machine Check Exception
-CX8    COMPXCHG8B Instruction
-APIC   On-chip Advanced Programmable Interrupt Controller present and
-enabled
-SEP    Fast System Call
-MTRR   Memory Type Range Registers
-PGE    PTE Global Flag
-MCA    Machine Check Architecture
-CMOV   Conditional Move and Compare Instructions
-FGPAT  Page Attribute Table
-PSE-36 36-bit Page Size Extension
-MMX    MMX instruction set
-FXSR   Fast FP/MMX Streaming SIMD Extensions save/restore
-XMM    Streaming SIMD Extensions instruction set
-Instruction TLB: 4KB pages, 4-way set assoc, 32 entries
-Instruction TLB: 4MB pages, fully assoc, 2 entries
-Data TLB: 4KB pages, 4-way set assoc, 64 entries
-L2 unified cache: Sectored, 32 byte cache line, 8 way set associative,
-256K
-Instruction cache: 16KB, 4-way set assoc, 32 byte line size
-Data TLB: 4MB pages, 4-way set assoc, 8 entries
-Data cache: 16KB, 2-way or 4-way set assoc, 32 byte line size
-Erk, MCG_CTL not present!
-999MHz processor (estimate).
-
-According to Dave J's utility the cpu's appear to be exactly the same
-just as the Intel boxes said when I bought them.  What might be causing
-these values to be different.  And if the BIOS is setting things up
-incorrectly then why does Dave J's utility show the correct values? 
-Thanks for any help.
-
-Jordan

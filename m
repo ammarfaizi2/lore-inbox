@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUH3WRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUH3WXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbUH3WRY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 18:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUH3WRY
+	id S264571AbUH3WXU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 18:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUH3WXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 18:17:24 -0400
-Received: from users.linvision.com ([62.58.92.114]:1162 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S264502AbUH3WRJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 18:17:09 -0400
-Date: Tue, 31 Aug 2004 00:17:06 +0200
-From: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Driver retries disk errors.
-Message-ID: <20040830221706.GA31968@bitwizard.nl>
-References: <20040830163931.GA4295@bitwizard.nl> <20040830174632.GA21419@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040830174632.GA21419@thunk.org>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.nl
+	Mon, 30 Aug 2004 18:23:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40655 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264571AbUH3WXR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 18:23:17 -0400
+Message-ID: <4133A8C8.2070205@pobox.com>
+Date: Mon, 30 Aug 2004 18:23:04 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nathanael Nerode <neroden@fastmail.fm>
+CC: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: TG3(Tigoon) & Kernel 2.4.27
+References: <20040830221638.GA3596@fastmail.fm>
+In-Reply-To: <20040830221638.GA3596@fastmail.fm>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 01:46:32PM -0400, Theodore Ts'o wrote:
-> > a filesystem: if we recover one block this way, the next block will be
-> > errorred and the filesystem "crashes" anyway. In fact this behaviour
-> > may masquerade the first warnings that something is going wrong....
+Nathanael Nerode wrote:
+> David S. Miller wrote:
 > 
-> If the block gets successfully read after 2 or 3 tries, it might be a
-> good idea for the kernel to automatically do a forced rewrite of the
-> block, which should cause the disk to do its own disk block
-> sparing/reassignment.  
+>>The tg3 firmware is just a bunch of MIPS instructions.
+> 
+> Well, good to know that.  It's the first I'd heard of it.
 
-Hi Ted, 
+> Much simpler for Broadcom to just release the source code.  :-P
 
-I agree that this is the theory. In practise however, I've never
-seen it work correctly. We've seen several disks with say 1-5 bad
-blocks and nothing else, and "dd if=/dev/zero of=/dev/<disk>" doesn't
-seem to cure them.
 
-	Roger. 
+The previous generation of devices, driven by the acenic driver, 
+actually had a firmware kit that was available to lucky parties. 
+Included full firmware source, that you could tweak to your heart's delight.
 
--- 
-+-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
-| Files foetsie, bestanden kwijt, alle data weg?!
-| Blijf kalm en neem contact op met Harddisk-recovery.nl!
+	Jeff
+
+

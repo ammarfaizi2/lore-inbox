@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273723AbRI3SRt>; Sun, 30 Sep 2001 14:17:49 -0400
+	id <S273902AbRI3STt>; Sun, 30 Sep 2001 14:19:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273920AbRI3SRd>; Sun, 30 Sep 2001 14:17:33 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:6148 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S273703AbRI3SQe>;
-	Sun, 30 Sep 2001 14:16:34 -0400
-Date: Thu, 27 Sep 2001 14:23:12 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "Paul G. Allen" <pgallen@randomlogic.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        jmerkey@utah-nac.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
-Message-ID: <20010927142311.E35@toy.ucw.cz>
-In-Reply-To: <3BAFC01D.20FA8240@randomlogic.com> <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva> <20010924182939.A15611@vger.timpanogas.org>
+	id <S273896AbRI3STn>; Sun, 30 Sep 2001 14:19:43 -0400
+Received: from f9.law11.hotmail.com ([64.4.17.9]:19 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S273703AbRI3SRx>;
+	Sun, 30 Sep 2001 14:17:53 -0400
+X-Originating-IP: [194.117.133.196]
+From: "Rob MacGregor" <rob_macgregor@hotmail.com>
+To: pavel@suse.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.10 and ACPI
+Date: Sun, 30 Sep 2001 18:18:15 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010924182939.A15611@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Mon, Sep 24, 2001 at 06:29:39PM -0700
+Content-Type: text/plain; format=flowed
+Message-ID: <F9oZolmRBaYFkuutSgc0000be08@hotmail.com>
+X-OriginalArrivalTime: 30 Sep 2001 18:18:15.0480 (UTC) FILETIME=[45BE0B80:01C149DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>From: Pavel Machek <pavel@suse.cz>
+>
+>Add debugging printk's to see _which_ device's _INI hangs the machine.
 
-> When people are crashing planes into buildings and killing people
-> by the thousands, hacking laws should be tough.  The US has shut off
+Sadly I'm not really a programmer and haven't a clue about the innards of 
+the Linux kernel.  I presume you're talking about sticking this "printk" 
+statement into some file in linux/drivers/acpi.  However, which file and 
+where?
 
-What do hacking laws have in common with planes crashing?
+--
+Rob  |  Please ask questions the smart way:
+                http://www.tuxedo.org/~esr/faqs/smart-questions.html
 
-It was not hackers who crashed the planes, right?
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+    Please don't CC me on anything sent to mailing lists or send
+        me email directly unless it's a privacy issue, thanks.
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

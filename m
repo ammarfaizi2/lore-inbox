@@ -1,78 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311739AbSDPK1u>; Tue, 16 Apr 2002 06:27:50 -0400
+	id <S311898AbSDPKmD>; Tue, 16 Apr 2002 06:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312316AbSDPK1t>; Tue, 16 Apr 2002 06:27:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55569 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S311739AbSDPK1r>;
-	Tue, 16 Apr 2002 06:27:47 -0400
-Date: Tue, 16 Apr 2002 12:25:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-Message-ID: <20020416102501.GG17043@suse.de>
-In-Reply-To: <27670700DF5@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S312208AbSDPKmC>; Tue, 16 Apr 2002 06:42:02 -0400
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:49422 "EHLO
+	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S311898AbSDPKmC> convert rfc822-to-8bit; Tue, 16 Apr 2002 06:42:02 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Subject: RE: Why HZ on i386 is 100 ?
+Date: Tue, 16 Apr 2002 12:41:43 +0200
+Message-ID: <11EB52F86530894F98FFB1E21F9972547EF917@aeoexc01.emea.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Why HZ on i386 is 100 ?
+Thread-Index: AcHlLzo8zaYUgebzToaIW702sU1LNgAA9Tbg
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Apr 2002 10:41:44.0421 (UTC) FILETIME=[4D30A150:01C1E533]
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15 2002, Petr Vandrovec wrote:
-> On 15 Apr 02 at 21:11, Petr Vandrovec wrote:
-> > On 15 Apr 02 at 21:00, Jens Axboe wrote:
-> > > > 
-> > > > NULL pointer ...
-> > > 
-> > > Could you decode that? It doesn't look like any of your drives support
-> > > TCQ, it should have enabled them right here:
-> > 
-> > They were already decoded... Also others reported that - after accessing
-> > /proc/ide/ide0/hda/identify system dies... I believe that passing
-> > hand-created request to ide_raw_taskfile corrupts drive->free_req,
-> > and so subsequent drive command after this cat finds that 
-> > drive->free_req.next is NULL and dies.
-> 
-> ide_raw_taskfile() sets rq.special to &ar - and &ar is on the stack,
-> in this function. Later it falls through to __ide_end_request(), which
-> does
-> 
->   ar = rq->special;
->   ...
->   if (ar)
->     ata_ar_put(drive, ar);
->     
-> which adds this ar into drive's free_req chain unconditionally. Maybe 
-> ata_ar_put should check for ar_queue validity. And where ar_queue
-> member is initialized (or at least cleared) in this case at all?
 
-yes this looks like a silly problem. the fix should be to have
-ata_ar_get() set ATA_AR_RETURN in ar_flags:
 
-        if (!list_empty(&drive->free_req)) {
-                ar = list_ata_entry(drive->free_req.next);
-                list_del(&ar->ar_queue);
-                ata_ar_init(drive, ar);
-                ar->ar_flags |= ATA_AR_RETURN;
-        }
+>> -----Original Message-----
+>> From: Olaf Fraczyk [mailto:olaf@navi.pl]
+>> Sent: mardi 16 avril 2002 12:02
+>> To: Liam Girdwood
+>> Cc: BALBIR SINGH; William Lee Irwin III; linux-kernel@vger.kernel.org
+>> Subject: Re: Why HZ on i386 is 100 ?
+>> 
+>> 
+>> On 2002.04.16 12:29 Liam Girdwood wrote:
+>> > On Tue, 2002-04-16 at 09:18, BALBIR SINGH wrote:
+>> > > I remember seeing somewhere unix system VII used to have 
+>> HZ set to
+>> > 60
+>> > > for the machines built in the 70's. I wonder if todays 
+>> pentium iiis
+>> > and ivs
+>> > > should still use HZ of 100, though their internal clock 
+>> is in GHz.
+>> > >
+>> > > I think somethings in the kernel may be tuned for the 
+>> value of HZ,
+>> > these
+>> > > things would be arch specific.
+>> > >
+>> > > Increasing the HZ on your system should change the scheduling
+>> > behaviour,
+>> > > it could lead to more aggresive scheduling and could affect the
+>> > > behaviour of the VM subsystem if scheduling happens more 
+>> frequently.
+>> > I am
+>> > > just guessing, I do not know.
+>> > >
+>> > 
+>> > I remember reading that a higher HZ value will make your 
+>> machine more
+>> > responsive, but will also mean that each running process 
+>> will have a
+>> > smaller CPU time slice and that the kernel will spend more CPU time
+>> > scheduling at the expense of processes.
+>> > 
+>> Has anyone measured this?
+>> This shouldn't be a big problem, because some architectures 
+>> use value 
+>> 1024, eg. Alpha, ia-64.
+>> And todays Intel/AMD 32-bit processors are as fast as Alpha was 1-2 
+>> years ago.
 
-and then only have ata_ar_put() readd it to the list when it is set:
-
-static inline void ata_ar_put(ide_drive_t *drive, struct ata_request
-*ar)
-{
-        if (ar->ar_flags & ATA_AR_RETURN)
-                list_add(&ar->ar_queue, &drive->free_req);
-	...
-
-Then you can also remove the ata_ar_put() conditional in
-ide_end_drive_cmd(), just call ata_ar_put() unconditionally.
-
-> Unfortunately here my knowledge ends.
-
-it was very helpful :-)
-
--- 
-Jens Axboe
+Anyone knows if this would be interesting to decrease this value
+for computationnal farms and CPU/memory bound tasks ?
 

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262224AbSJFWUi>; Sun, 6 Oct 2002 18:20:38 -0400
+	id <S262243AbSJFW06>; Sun, 6 Oct 2002 18:26:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262230AbSJFWUi>; Sun, 6 Oct 2002 18:20:38 -0400
-Received: from grunt2.ihug.co.nz ([203.109.254.42]:55442 "EHLO
-	grunt2.ihug.co.nz") by vger.kernel.org with ESMTP
-	id <S262224AbSJFWUh> convert rfc822-to-8bit; Sun, 6 Oct 2002 18:20:37 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: cll muzh <muzh@ihug.co.nz>
-Organization: -
-To: mec@shout.net
-Subject: Make menu config crash when trying to configure ALSA modules
-Date: Mon, 7 Oct 2002 11:27:25 +1300
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
+	id <S262244AbSJFW05>; Sun, 6 Oct 2002 18:26:57 -0400
+Received: from mail.zedat.fu-berlin.de ([130.133.1.48]:34089 "EHLO
+	Mail.ZEDAT.FU-Berlin.DE") by vger.kernel.org with ESMTP
+	id <S262243AbSJFW04>; Sun, 6 Oct 2002 18:26:56 -0400
+Message-Id: <m17yJwe-006imWC@Mail.ZEDAT.FU-Berlin.DE>
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: "John Tyner" <jtyner@cs.ucr.edu>, "Greg KH" <greg@kroah.com>
+Subject: Re: Vicam/3com homeconnect usb camera driver
+Date: Sun, 6 Oct 2002 23:44:02 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+References: <000c01c26d7f$e3a068d0$0a00a8c0@refresco>
+In-Reply-To: <000c01c26d7f$e3a068d0$0a00a8c0@refresco>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210071127.25952.muzh@ihug.co.nz>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-While running make menuconfig on a 2.5.40 kernel (constructed from stock 
-2.5.31 + stock patches) I received an immediate crash and exit while trying 
-to enter Sound --> Advanced Linux Sound Architecture.
-The error reported was :
+On Sunday 06 October 2002 23:32, John Tyner wrote:
+> > And you should probably kill the tasklet before you unregister the video
+> > device.
+>
+> The more I think about this, the more I think that killing the tasklet
+> after unregistering the device is the correct way.
+>
+> From what I can tell, there are two ways that the disconnect function can
+> be called: a physical disconnect or a module removal.
 
-Q> ./scripts/Menuconfig: MCmenu74: command not found
+And as a result of an ioctl() through usbfs.
 
-I am just reporting this as advised in the crash report --
-Best wishes, Peter Keller.
+> In the case of a physical disconnect, the ordering probably doesn't matter
+> because the tasklet won't be scheduled again because urb's would fail to
+> complete successfully.
+>
+> The case of module removal becomes a bit more complicated (for reasons
+> concerning module unload races that are being discussed by people far
+> smarter than I). But in any event, I think that it makes more sense to
+> unregister the open/close/etc. interface so that there is less chance of
+> trying to send another urb (thus causing another schedule of the tasklet)
+> before actually killing the tasklet.
+>
+> This also brings up the (somewhat) rhetorical question I posed in the
+> driver's disconnect function. What happens when a disconnect occurs while
+> the device is open?
 
--- 
-This mail is certified Virus-free as no Microsoft products were used in its 
-preparation or propagation
+I can't tell right now. I'll sync up after returning home and look into the 
+matter.
+
+	Regards
+		Oliver

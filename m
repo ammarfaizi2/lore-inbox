@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286825AbSCCPfz>; Sun, 3 Mar 2002 10:35:55 -0500
+	id <S286959AbSCCPhf>; Sun, 3 Mar 2002 10:37:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286959AbSCCPfp>; Sun, 3 Mar 2002 10:35:45 -0500
-Received: from president.eu.org ([194.45.71.67]:34566 "EHLO president.eu.org")
-	by vger.kernel.org with ESMTP id <S286825AbSCCPfe>;
-	Sun, 3 Mar 2002 10:35:34 -0500
-Date: Sun, 3 Mar 2002 13:38:02 +0100
-From: Hans Freitag <macrotron@president.eu.org>
+	id <S287045AbSCCPhZ>; Sun, 3 Mar 2002 10:37:25 -0500
+Received: from gear.torque.net ([204.138.244.1]:18193 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S286959AbSCCPhP>;
+	Sun, 3 Mar 2002 10:37:15 -0500
+Message-ID: <3C82434C.BA46E40E@torque.net>
+Date: Sun, 03 Mar 2002 10:37:48 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.6-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: sscanf()/vsscanf() isn't able to handle Hex digits
-Message-ID: <20020303133802.A5430@darkzone.president.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-PGP-Ident: 204D1441
-X-PGP-Keyserver: wwwkeys.eu.pgp.net
+Subject: Re: maintainer for raw.c ??
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Tigran Aivazian <tigran@veritas.com> wrote:
 
-I'm using kernel 2.4.18-pre9.
+> On Sat, 2 Mar 2002 WHarms@bfs.de wrote:
+> 
+> > hi list,
+> > Who takes care of the raw-device section ?
+> > I have a cleanup patch.
+> > neither MAINTAINERS nor raw.c provide a hint (couldnt find one).
+> >
+> > walter
+> 
+> I would have thought Stephen Tweedie <sct@redhat.com> but I am not 100%
+> sure.
 
-I want to parse a mac adress within a kernel module. I want to
-use int sscanf(const char *buf, const char *fmt, ...) .
+Around the lk 2.4.6 timescale Stephen got "verballed"
+on this list about the design of kiobufs (which lie
+behind raw devices). Some patches went in from
+Andrea Arcangeli. I don't think Stephen has had much
+to do with raw devices or kiobufs since that time.
 
-This function is located in /usr/src/linux/lib/vsprintf.c .
+The good news is that raw devices in the lk 2.5 series
+are now as fast (if not faster) than they were prior to
+lk 2.4.6 . As an example, using the scsi_debug driver
+(it's a ram disk) lk 2.4.18 yields 211 MB/sec while
+in lk 2.5.6-pre2 that jumps up to 754 MB/sec on the
+same hardware (1.2 GHz Athlon with DDR ram).
 
-Mac addresses like 6f:6f:7f:9a:10:11 are parsed correctly,
-fd:23:22:fd:df:77 fails.
-
-The reason is located in vsprintf.c line 640:
-
-if (!*str || !isdigit(*str))
-	break;
-
-I think isxdigit(*str) might be better here.
-
-bye
--- 
-May the source be with you!
+Doug Gilbert

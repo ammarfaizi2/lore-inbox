@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbTFIKNX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 06:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTFIKNX
+	id S261292AbTFIKLb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 06:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbTFIKLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 06:13:23 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:52744 "EHLO
+	Mon, 9 Jun 2003 06:11:31 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:51720 "EHLO
 	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261561AbTFIKNC convert rfc822-to-8bit (ORCPT
+	id S261292AbTFIKL0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 06:13:02 -0400
+	Mon, 9 Jun 2003 06:11:26 -0400
 MIME-Version: 1.0
 To: torvalds@transmeta.com
 Subject: BK-kernel-tools/shortlog update
 Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
 From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Mon_Jun__9_10_26_38_UTC_2003_0@merlin.emma.line.org>
+Content-ID: <Mon_Jun__9_10_24_57_UTC_2003_0@merlin.emma.line.org>
 Content-type: text/plain; charset=iso-8859-1
 Content-Description: An object packed by metasend
 Content-Transfer-Encoding: 8BIT
-Message-Id: <20030609102638.67C7A838CD@merlin.emma.line.org>
-Date: Mon,  9 Jun 2003 12:26:38 +0200 (CEST)
+Message-Id: <20030609102458.1FF24814D3@merlin.emma.line.org>
+Date: Mon,  9 Jun 2003 12:24:58 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-[resend with proper description]
 
 Hello Linus,
 
@@ -32,12 +30,10 @@ you can either use bk receive to patch this mail, you can pull from
 bk://krusty.dt.e-technik.uni-dortmund.de  (NOTE: no trailing slash)
 or you can apply the patch below.
 
-BK: Parent repository is bk://kernel.bkbits.net/torvalds/tools/
+BK: `bk parent`
 
 Patch description:
-  Merge with Linus' upstream additions.
-  New addresses.
-  Cleanup address list.
+EDITME
 
 Matthias
 ##### DIFFSTAT #####
@@ -61,8 +57,8 @@ Matthias
 # --------------------------------------------
 #
 diff -Nru a/shortlog b/shortlog
---- a/shortlog	Mon Jun  9 12:26:38 2003
-+++ b/shortlog	Mon Jun  9 12:26:38 2003
+--- a/shortlog	Mon Jun  9 12:24:57 2003
++++ b/shortlog	Mon Jun  9 12:24:57 2003
 @@ -8,7 +8,7 @@
  #			Tomas Szepe <szepe@pinerecords.com>
  #			Vitezslav Samel <samel@mail.cz>
@@ -270,8 +266,8 @@ This BitKeeper patch contains the following changesets:
 ## Wrapped with gzip_uu ##
 
 
-begin 600 bkpatch9371
-M'XL(`-Y@Y#X``[56VV[;.!!]CKYB@!3P+AHINEB2)2#9IG';9-.T1=(^-5V`
+begin 600 bkpatch9232
+M'XL(`'E@Y#X``[56VV[;.!!]CKYB@!3P+AHINEB2)2#9IG';9-.T1=(^-5V`
 MML:6UA)ID%3B!/[N?=J''5*^)&FWE[W8A@61<\X,9PZ'W(4/"F6^TS"MRXHI
 MC_%"(CJ[<"*4SG>FS<(KS.N%$/2ZKUJ%^S.4'.O]YV?T<[L75PM1*X<,WS$]
 M+N$:I<IW`B_:C.C;.>8[%R]>?7A]=.$X!P=P7#(^Q4O4<'#@:"&O65VH9W/D

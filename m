@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285878AbRLTC5K>; Wed, 19 Dec 2001 21:57:10 -0500
+	id <S285879AbRLTC4a>; Wed, 19 Dec 2001 21:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285881AbRLTC5A>; Wed, 19 Dec 2001 21:57:00 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:23780 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S285878AbRLTC4w>;
-	Wed, 19 Dec 2001 21:56:52 -0500
-Date: Thu, 20 Dec 2001 03:56:46 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200112200256.DAA18860@harpo.it.uu.se>
-To: bcrl@redhat.com
+	id <S285878AbRLTC4U>; Wed, 19 Dec 2001 21:56:20 -0500
+Received: from bexfield.research.canon.com.au ([203.12.172.125]:40252 "HELO
+	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S285881AbRLTC4J>;
+	Wed, 19 Dec 2001 21:56:09 -0500
+Date: Thu, 20 Dec 2001 13:52:21 +1100
+From: Cameron Simpson <cs@zip.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
 Subject: Re: aio
-Cc: linux-kernel@vger.kernel.org
+Message-ID: <20011220135221.A23908@zapff.research.canon.com.au>
+Reply-To: cs@zip.com.au
+In-Reply-To: <20011219171631.A544@burn.ucsd.edu> <20011219.172046.08320763.davem@redhat.com> <20011220133705.A21648@zapff.research.canon.com.au> <20011219.184718.88473152.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011219.184718.88473152.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 06:47:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Dec 2001 19:21:36 -0500, Benjamin LaHaise wrote:
->People are throwing money at the problem.  We're now at a point that in 
->order to provide the interested people with something they can use, we 
->need some kind of way to protect their applications against calling an 
->unsuspecting new mmap syscall instead of the aio syscall specified in 
->the kernel they compiled against.
+On Wed, Dec 19, 2001 at 06:47:18PM -0800, David S. Miller <davem@redhat.com> wrote:
+|    (Though an attitude like yours is a core reason Java is
+|    spreading as slowly as it is - much like Linux desktops...)
+| It's actually Sun's fault more than anyone else's.
 
-One option is to use a mechanism where the kernel selects the aio
-syscall number from any of the available numbers, and publishes it
-in some easily accessible location. User-space then needs to grab it
-from that location at app/lib init time before doing any actual work.
-(This of course goes away when/if you do get an official syscall number.)
+Debatable. But fortunately off topic.
 
-This is at least how I intend to do the "ioctl on device" to "real
-syscall" transition for my x86 performance counters driver.
+|    However, heavily threaded apps regardless of language are hardly likely
+|    to disappear; threads are the natural way to write many many things. And
+|    if the kernel implements threads as on Linux, then the scheduler will
+|    become much more important to good performance.
+| We are not talking about the scheduler, we are talking about
+| AIO.
 
-/Mikael
+It was in the same thread - I must have ignored the detail switch. Ignore
+me in turn. But while I'm here, tell me why async I/O is important
+to Java and not to anything else, which still seems the thrust of your
+remarks.
+-- 
+Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
+
+Always code as if the guy who ends up maintaining your code will be a violent
+psychopath who knows where you live.
+	- Martin Golding, DoD #0236, martin@plaza.ds.adp.com

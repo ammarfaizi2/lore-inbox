@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQJ1Jzm>; Sat, 28 Oct 2000 05:55:42 -0400
+	id <S129239AbQJ1KDg>; Sat, 28 Oct 2000 06:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129442AbQJ1Jzb>; Sat, 28 Oct 2000 05:55:31 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:4371 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129108AbQJ1JzZ>;
-	Sat, 28 Oct 2000 05:55:25 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@redhat.com>
-cc: dwmw2@infradead.org (David Woodhouse), vojtech@suse.cz (Vojtech Pavlik),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make agpsupport work with modversions 
-In-Reply-To: Your message of "Sat, 28 Oct 2000 05:40:28 EDT."
-             <200010280940.e9S9eSx02362@devserv.devel.redhat.com> 
-Mime-Version: 1.0
+	id <S129288AbQJ1KDZ>; Sat, 28 Oct 2000 06:03:25 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:265 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129239AbQJ1KDT>; Sat, 28 Oct 2000 06:03:19 -0400
+Subject: Re: [PATCH] Make agpsupport work with modversions
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sat, 28 Oct 2000 11:02:04 +0100 (BST)
+Cc: dwmw2@infradead.org (David Woodhouse), vojtech@suse.cz (Vojtech Pavlik),
+        alan@redhat.com (Alan Cox), torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <5122.972699496@ocs3.ocs-net> from "Keith Owens" at Oct 28, 2000 01:18:16 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 28 Oct 2000 20:55:18 +1100
-Message-ID: <7155.972726918@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13pSoP-0005Et-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Oct 2000 05:40:28 -0400 (EDT), 
-Alan Cox <alan@redhat.com> wrote:
->> cc list trimmed.  Nobody has come up with a "must have" reason for
->> get_module_symbol and that interface is broken as designed.  I will be
->
->Nobody has come up with a 'must break existing sane code' reason either.
+> of get_module_symbol this weekend.  The inter-object registration code
+> will allow two objects to pass data to each other, it will not matter
+> whether the objects are both modules, one module and one built in (in
+> either order) or both built in.  When modules are involved there will
+> be full module locking.
 
-Existing code is not sane, it does not work with symbol versions.  The
-only code left in the kernel that uses get_module_symbol is agp, drm
-and mtd, all of which I will be fixing at the same time.
-
->> will allow two objects to pass data to each other, it will not matter
->> whether the objects are both modules, one module and one built in (in
->> either order) or both built in.  When modules are involved there will
->> be full module locking.
->
->You have no consensus on this. None at all. It is also past the 2.4test
->point for making this change.
-
-Linus wants get_module_symbol removed.
-http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg08791.html
-
+Dont forget that one of the objects may not even be present, or may be
+loaded later.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

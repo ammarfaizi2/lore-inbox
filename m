@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbUCHPiC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 10:38:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUCHPiC
+	id S262509AbUCHPhn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 10:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbUCHPhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 10:38:02 -0500
-Received: from ccs.covici.com ([209.249.181.196]:28891 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id S262513AbUCHPh6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 10:37:58 -0500
+	Mon, 8 Mar 2004 10:37:42 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:9346 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262509AbUCHPhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 10:37:40 -0500
+Message-ID: <404C932B.8050307@nortelnetworks.com>
+Date: Mon, 08 Mar 2004 10:37:15 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Paul Jackson <pj@sgi.com>, kangur@polcom.net, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
+References: <200402291942.45392.mmazur@kernel.pl>	<200403031829.41394.mmazur@kernel.pl>	<m3brnc8zun.fsf@defiant.pm.waw.pl>	<200403042149.36604.mmazur@kernel.pl>	<m3brnb8bxa.fsf@defiant.pm.waw.pl>	<Pine.LNX.4.58.0403060022570.5790@alpha.polcom.net>	<m38yidk3rg.fsf@defiant.pm.waw.pl>	<20040306171535.5cbf2494.pj@sgi.com>	<m38yiclby8.fsf@defiant.pm.waw.pl>	<20040307172847.46708dcc.pj@sgi.com> <m3hdwzwfcp.fsf@defiant.pm.waw.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16460.37707.806668.409270@ccs.covici.com>
-Date: Mon, 8 Mar 2004 10:37:47 -0500
-From: John covici <covici@ccs.covici.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: covici@ccs.covici.com, linux-kernel@vger.kernel.org
-Subject: Re: shuttle an50r Motherboard and Linux
-In-Reply-To: <200403081633.38437.bzolnier@elka.pw.edu.pl>
-References: <m3wu5w8aex.fsf@ccs.covici.com>
-	<200403080151.28816.bzolnier@elka.pw.edu.pl>
-	<16460.36222.191866.759421@ccs.covici.com>
-	<200403081633.38437.bzolnier@elka.pw.edu.pl>
-X-Mailer: VM 7.17 under Emacs 21.3.50.2
-Reply-To: covici@ccs.covici.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, here it is.
+Krzysztof Halasa wrote:
+> Paul Jackson <pj@sgi.com> writes:
+> 
+> 
+>>>You're talking about the kernel development ...
+>>>
+>>No.  I mean that even the C API that the kernel presents to
+>>user code will sometimes change or have parts disappear.
+>>
+> 
+> And it can be caused by changing kernel config?
+> 
+> Care to show an example?
 
-00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5) (prog-if 8a [Master SecP PriP])
-	Subsystem: Holco Enterprise Co, Ltd/Shuttle Computer: Unknown device a550
-	Flags: bus master, 66Mhz, fast devsel, latency 0
-	I/O ports at f000 [size=16]
-	Capabilities: [44] Power Management version 2
+Generally it cannot be caused by changing kernel config (although kernel 
+config can cause syscalls to be valid or not).
 
-on Monday 03/08/2004 Bartlomiej Zolnierkiewicz(B.Zolnierkiewicz@elka.pw.edu.pl) wrote
- > On Monday 08 of March 2004 16:13, John covici wrote:
- > > OK, here are the relevant parts of the lspci -v -- I have been using
- > 
- > IDE interface is missed.
- > 
- > > 2.4.22, but if it will make a difference I will try newer ones.
- > 
- > 2.4.x needs update of amd74xx.c driver.  2.6.x should be okay.
- > 
- > Bartlomiej
+However, new kernel versions can add/remove stuff.  Usually stuff isn't 
+removed for a while after its deprecated, but there have been instances 
+where stuff has been added/changed/removed during unstable kernel 
+development.
+
+Chris
+
 
 -- 
-         John Covici
-         covici@ccs.covici.com
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

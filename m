@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315433AbSEMBZM>; Sun, 12 May 2002 21:25:12 -0400
+	id <S315463AbSEMBwr>; Sun, 12 May 2002 21:52:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315448AbSEMBZM>; Sun, 12 May 2002 21:25:12 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:22912 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S315433AbSEMBZK>; Sun, 12 May 2002 21:25:10 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 12 May 2002 18:34:53 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "Rose, Billy" <wrose@loislaw.com>
-cc: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Segfault hidden in list.h
-In-Reply-To: <4188788C3E1BD411AA60009027E92DFD0962E251@loisexc2.loislaw.com>
-Message-ID: <Pine.LNX.4.44.0205121823530.995-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315464AbSEMBwq>; Sun, 12 May 2002 21:52:46 -0400
+Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:52901 "EHLO
+	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S315463AbSEMBwp>; Sun, 12 May 2002 21:52:45 -0400
+Date: Sun, 12 May 2002 22:10:34 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.19-pre8-ac2 kbuild 2.4 tmp_include_depends
+Message-ID: <20020513021034.GA19904@lnuxlab.ath.cx>
+In-Reply-To: <20819.1021169484@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: khromy@lnuxlab.ath.cx (khromy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 May 2002, Rose, Billy wrote:
+After applying the patch pre8-ac2 still doesn't compile.
 
-> The code inside of __list_add:
->
-> next->prev = new;
-> new->next = next;
-> new->prev = prev;
-> pre-next = new;
->
-> needs to be altered to:
->
-> new->prev = prev;
-> new->next = next;
-> next->prev = new;
-> prev->next = new;
-
-you need a wmb also :
-
-new->prev = prev;
-new->next = next;
-wmb
-next->prev = new;
-prev->next = new;
-
-
-
-
-- Davide
-
-
-
-
+make dep
+[no errors]
+make bzImage
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o
+scripts/split-include scripts/split-include.c
+make: *** No rule to make target `include/linux/autoconf.h', needed by
+`include/config/MARKER'.  Stop.

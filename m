@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267720AbUJGVX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269671AbUJGVZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267720AbUJGVX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269772AbUJGVWZ
+	id S269671AbUJGVZv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUJGVVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:22:25 -0400
-Received: from gprs214-219.eurotel.cz ([160.218.214.219]:57985 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268293AbUJGVTf (ORCPT
+	Thu, 7 Oct 2004 17:21:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16621 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269775AbUJGVUV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:19:35 -0400
-Date: Thu, 7 Oct 2004 23:19:21 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH/RFC: usbcore wakeup updates (3/4)
-Message-ID: <20041007211921.GE1447@elf.ucw.cz>
-References: <200410041407.47500.david-b@pacbell.net> <20041006105155.GE4723@openzaurus.ucw.cz> <200410070835.53261.david-b@pacbell.net>
+	Thu, 7 Oct 2004 17:20:21 -0400
+Date: Thu, 7 Oct 2004 14:20:19 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: kswapd in tight loop 2.6.9-rc3-bk-recent
+Message-ID: <20041007142019.D2441@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410070835.53261.david-b@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Is this known?  Just came back from lunch, so I've no clue what kicked it
+off.  Profile below. (2.6.9-rc3-bk from yesterday, pending updates don't
+appear to touch vmscan or mm/ in general).
 
-> > > There were already some hooks in usbcore, but they were only
-> > > configurable for root hubs ... but not keyboards, mice, Ethernet
-> > > adapters, or other devices.
-> > 
-> > That "when asked about D1 enter D3" bit worries me a bit, because
-> > it is (ugly) workaround to core problems, but I can survive it.
-> 
-> I'm not sure what a better fix would be though ... I think WIndows
-> doesn't bother entering a low power state at all in such cases.
-> Which seems particularly pointless for the typical USB controller,
-> which is probably idle at that point already, and which can't take
-> all that much longer to resume from D3hot than from D1.
+CPU: AMD64 processors, speed 1994.35 MHz (estimated)
+Counted CPU_CLK_UNHALTED events (Cycles outside of halt state) with a
+unit mask
+of 0x00 (No unit mask) count 100000
+samples  %        symbol name
+2410135  53.4092  balance_pgdat
+1328186  29.4329  shrink_zone
+555121   12.3016  shrink_slab
+84942     1.8823  __read_page_state
+40770     0.9035  timer_interrupt
+...
 
-Hmm, perhaps it is wrong thing to tell the devices what state to enter
-in the first place.
-
-> Do you think adding those two bits to per-device PM state
-> is basically a good way to introduce their wakeup capabilities
-> to the PM core?  Suggestions on the next step?
-
-It did not look overly ugly to me... so it is probably okay. Not sure
-what the next step is -- you'll probably want some sysfs interface for
-suspending single devices?
-
-> > Introducing enums where PCI suspend level is stored in u32
-> > would be welcome... 
-> 
-> I'm not averse to enums, especially once sparse does good things
-> with them, but I still think that sort of change would just be nibbling
-> around the edges of a larger problem.  (Which should be addressed
-> by different patches making device power states/policies, like G0/D1
-> or "idle yourself", be types that are fully distinct from system power
-> states like G1/S3, and for which abuse creates compiler errors.)
-
-I'm not sure we want to move to anything complicated than simple enum.
-
-								Pavel
+thanks,
+-chris
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

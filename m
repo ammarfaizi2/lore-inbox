@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUJATZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUJATZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUJATZY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUJATZX
+	id S266218AbUJATZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUJATZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:25:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26317 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266200AbUJATXe (ORCPT
+	Fri, 1 Oct 2004 15:25:56 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:38057 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266218AbUJATZc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:23:34 -0400
-Date: Fri, 1 Oct 2004 12:23:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Ivan Kalatchev <ivan.kalatchev@esg.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.8 bug in fs/locks.c
-Message-ID: <20041001122332.E1973@build.pdx.osdl.net>
-References: <000001c4a7d3$21c62bb0$2e646434@ivans>
+	Fri, 1 Oct 2004 15:25:32 -0400
+Subject: Loops in the Signed-off-by process
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Message-Id: <1096658717.3684.980.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000001c4a7d3$21c62bb0$2e646434@ivans>; from ivan.kalatchev@esg.ca on Fri, Oct 01, 2004 at 12:24:30PM -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 01 Oct 2004 12:25:17 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ivan Kalatchev (ivan.kalatchev@esg.ca) wrote:
-> I'm using pthreads for each user-application connections. To protect
-> configuration file from corruption I used file locking mechanism - fcntl
-> with F_WRLCK/F_RDLCK.
+With the recent ppc64 updates, a few patches in my tree didn't merge
+very easily.  Being lazy, I asked one of the ppc64 developers to resync
+them for me.  But, it happened to be someone other than the original
+author that did this.
 
-I must be confused.  pthreads and fcntl locking...that does't give
-proper exclusion?  The BUG, however, is no good.  Despite the fact
-that it appears to come at the result of an application bug, we should
-be able to handle this w/out a BUG.  AFAICT, one thread has closed the
-file descriptor, whilst another is mucking with the locks.  So the locker
-winds up holding the last ref to the filp.  This blows the logic of when
-locks_remove_posix gets called.  Thanks for the bug report.
+When they got sent to me again, the original author's (and my)
+Signed-off-by: lines were gone, replaced by the nice fellow who merged
+them.  This was certainly an artifact of how he generates patches and
+obviously not malicious, but I still wonder what the "right" thing to do
+is.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Do we show the logical flow?
+
+Signed-off-by: original author
+Signed-off-by: patch merger
+Signed-off-by: tree maintainer
+
+Or the actual flow of the patches, showing that they came back to the
+tree maintainer twice?
+
+Signed-off-by: original author
+Signed-off-by: tree maintainer
+Signed-off-by: patch merger
+Signed-off-by: tree maintainer
+
+Or, does it even really matter?
+
+-- Dave
+

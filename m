@@ -1,87 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbTDKAhg (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 20:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbTDKAhf (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 20:37:35 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:8153 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id S262186AbTDKAhd (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 20:37:33 -0400
-Date: Thu, 10 Apr 2003 17:47:03 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-Message-ID: <20030411004703.GQ31739@ca-server1.us.oracle.com>
-References: <1049913637.1993.73.camel@mulgrave> <Pine.LNX.4.44.0304092202570.5042-100000@serv> <1049941189.4467.186.camel@mulgrave> <Pine.LNX.4.44.0304101033500.5042-100000@serv> <1049988660.1998.100.camel@mulgrave> <Pine.LNX.4.44.0304102029430.5042-100000@serv>
+	id S264276AbTDKA52 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 20:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTDKA52 (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 20:57:28 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:38820 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S264276AbTDKA51 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 20:57:27 -0400
+Date: Fri, 11 Apr 2003 11:06:47 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: Randolph Chung <tausq@parisc-linux.org>, Andi Kleen <ak@muc.de>,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Trivial Kernel Patches <trivial@rustcorp.com.au>
+Subject: [PATCH][COMPAT] Allow for architectures to override
+ {get,put}_compat_flock64
+Message-Id: <20030411110647.727c6ff7.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304102029430.5042-100000@serv>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 01:53:07AM +0200, Roman Zippel wrote:
-> So we do break compatibility! Wow, it really took quite some time until 
-> someone confirmed this...
+Hi Linus,
 
-	No, the current patch DOES NOT BREAK compatibility.  Device
-numbers from 00:00 to FF:FF are not munged in any way.  As long as
-regular drivers don't expect anything else (eg, a new scsi driver that
-uses a new larger major), nothing is broken or changed.
+This is a small patch to allow some architecture to override the
+generic implementations on {get,put}_compat_flock64 as some of them
+(ia64 and maybe x86_64) will take alignment faults when accessing
+the loff_t members of struct compat_flock64.
 
-> The current numbering matches the naming, 0x0301 is /dev/hda1, 0x0802 is 
-> /dev/sda2 and 0x4103 is /dev/sdq3, the proposed patch does change the 
-> numbering _and_ naming policy.
+Requested by David Mosberger, modified by Dave Miller.
+(Dave Miller would like these API's renamed, but that is another patch).
 
-	The proposed patch changes none of it.  Folks have proposed
-other changes based upon it, but Andreas' patch as it stands (at least,
-last time I looked at it) does not break this.
-
-> This may be true in the kernel, but you move all the compatibility 
-> problems into user space and so we just added another ugly emulation 
-> layer.
-
-	Naming is entirely a userspace problem.  It is also an extremely
-hard problem.  Consider that the UK folks will want /dev/disc and the US
-folks will want /dev/disk.  That's before we even approach persistent
-naming.
-
-> Oh, I do listen, you can be sure of that, but what am I supposed to so, 
-> when it even takes weeks to get a clear answer about something simple as 
-> compatibility? When I ask questions, I get evading answers, when I say 
-> it's broken, I get silence, what else can I do?
-
-	I will repeat:  The patch does not break compatibility, and any
-discussion of new device spaces based on the larger number have been
-theoretical.  If you had read the patch, you would have seen this.
-
-> Producing a patch isn't that difficult, but I'd rather be interested, if 
-> there is even interest in such a patch? I already got not a single comment 
-> about the last patch.
-
-	Propose a dynamic system.  Show us your code.  Until you do,
-do not clutter the simple task of "expand the size of dev_t" with the
-orthogonal task of "how do we use this new dev_t".
-
-Joel
+Please apply.
 
 -- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-"You cannot bring about prosperity by discouraging thrift. You cannot
- strengthen the weak by weakening the strong. You cannot help the wage
- earner by pulling down the wage payer. You cannot further the
- brotherhood of man by encouraging class hatred. You cannot help the
- poor by destroying the rich. You cannot build character and courage by
- taking away a man's initiative and independence. You cannot help men
- permanently by doing for them what they could and should do for themselves."
-	- Abraham Lincoln 
-
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+diff -ruN 2.5.67-041008-compat.1/fs/compat.c 2.5.67-041008-compat.2/fs/compat.c
+--- 2.5.67-041008-compat.1/fs/compat.c	2003-03-25 11:13:15.000000000 +1100
++++ 2.5.67-041008-compat.2/fs/compat.c	2003-04-10 13:40:43.000000000 +1000
+@@ -154,6 +154,7 @@
+ 	return 0;
+ }
+ 
++#ifndef HAVE_ARCH_GET_COMPAT_FLOCK64
+ static int get_compat_flock64(struct flock *kfl, struct compat_flock64 *ufl)
+ {
+ 	if (!access_ok(VERIFY_READ, ufl, sizeof(*ufl)) ||
+@@ -165,7 +166,9 @@
+ 		return -EFAULT;
+ 	return 0;
+ }
++#endif
+ 
++#ifndef HAVE_ARCH_PUT_COMPAT_FLOCK64
+ static int put_compat_flock64(struct flock *kfl, struct compat_flock64 *ufl)
+ {
+ 	if (!access_ok(VERIFY_WRITE, ufl, sizeof(*ufl)) ||
+@@ -177,6 +180,7 @@
+ 		return -EFAULT;
+ 	return 0;
+ }
++#endif
+ 
+ extern asmlinkage long sys_fcntl(unsigned int, unsigned int, unsigned long);
+ 

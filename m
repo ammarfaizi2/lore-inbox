@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbULMIFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbULMIYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbULMIFg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 03:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbULMIFf
+	id S261773AbULMIYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 03:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbULMIYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 03:05:35 -0500
-Received: from penta.pentaserver.com ([216.74.97.66]:34784 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S261981AbULMIF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 03:05:29 -0500
-From: Manu Abraham <manu@kromtek.com>
-Reply-To: manu@kromtek.com
-Organization: Kromtek Systems
-To: linux-kernel@vger.kernel.org
-Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
-Date: Mon, 13 Dec 2004 12:05:27 +0400
-User-Agent: KMail/1.6.2
-References: <1102888882.15558.2.camel@ksyrium.local> <1102889485.15558.5.camel@ksyrium.local> <Pine.LNX.4.61.0412122314560.10353@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0412122314560.10353@yvahk01.tjqt.qr>
+	Mon, 13 Dec 2004 03:24:23 -0500
+Received: from mout.alturo.net ([212.227.15.21]:13822 "EHLO mout.alturo.net")
+	by vger.kernel.org with ESMTP id S261773AbULMIYT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 03:24:19 -0500
+Message-ID: <41BD42E6.6000402@datafloater.de>
+Date: Mon, 13 Dec 2004 08:21:10 +0100
+From: Arne Caspari <arne@datafloater.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] drivers/base/driver.c : driver_unregister
+References: <41BB4268.8020908@datafloater.de> <20041211191113.A13985@flint.arm.linux.org.uk> <41BB4951.2080304@datafloater.de>
+In-Reply-To: <41BB4951.2080304@datafloater.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412131205.27786.manu@kromtek.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon December 13 2004 2:15 am, Jan Engelhardt wrote:
-> >> >The code apparently can display the horizon, but cannot prevent
-> >> >shocks :(
-> >>
-> >> How can something prevent a shock if it does not know before? What I
-> >> mean is that if I smack a harddrive, it can hardly evade it... nor can
-> >> it prevent me from smacking it.
-> >
-> >It can only prevent shocks when it detects tilts... like when the laptop
-> >shakes in a moving vehicle for example..
->
-> Ah that's reasonable, like I'm dropping it (will probably tilt due to
-> physics) and then hit the ground.
-> But what will it do to prevent against the schock, now that it knows it is
-> tilted?
-When a tilt is detected, it would park the heads ? so that it would not 
-affected from the larger shock ?
+Arne Caspari wrote:
+> Russell King wrote:
+>> No.  The semaphore is there to ensure that the function does not
+>> return until the driver structure has a use count of zero.  If you
+>> tested your patch, you'd find that your change would deadlock on
+>> the locked semaphore.
+ >
+> I am sorry I can not test that patch since unloading of the modules I am 
+> currently testing blocks anyway. This makes it very hard to test the 
+> patch :-( and currently this was the reason why I was going to this.
 
-The platter/head is affected in a case where the arm swings away, even from 
-the powerful magnet to crash against the platter. If the arm is locked, such 
-that it does not move when a tilt is detected, (The tilt before the shock) 
-the arm is parked and locked (more locking than the simple magnet) ?
- 
-Manu
->
->
->
-> Jan Engelhardt
+I reverted the code to the original 2.6.9 and unloading of IEEE1394 
+modules like 'eth1394' does just that: It deadlocks on this semaphore.
+
+At least this is a good excuse why I was not able to test my patch ;-) 
+The behaviour just remained the same as before...
+
+Btw. I am developing/debugging on a machine without serial/parallel 
+ports. Is there a way to connect a kernel mode debugger to this. I am 
+used to windows development and there the debugger works on a IEEE1394 
+connection. Does anybody have hints to improve development on such a 
+machine?
+
+
+Thanks,
+
+	/Arne
+

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288779AbSADVPe>; Fri, 4 Jan 2002 16:15:34 -0500
+	id <S288777AbSADVOo>; Fri, 4 Jan 2002 16:14:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288774AbSADVPZ>; Fri, 4 Jan 2002 16:15:25 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52498 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288782AbSADVPV>; Fri, 4 Jan 2002 16:15:21 -0500
-Date: Fri, 4 Jan 2002 13:14:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <Andries.Brouwer@cwi.nl>, <Nikita@Namesys.COM>,
-        <alessandro.suardi@oracle.com>, <jgarzik@mandrakesoft.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.2-pre7 still missing bits of kdev_t
-In-Reply-To: <Pine.GSO.4.21.0201041601510.27334-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0201041311240.8047-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288776AbSADVOe>; Fri, 4 Jan 2002 16:14:34 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:14994
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288775AbSADVOZ>; Fri, 4 Jan 2002 16:14:25 -0500
+Date: Fri, 4 Jan 2002 15:59:12 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020104155912.A23345@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>,
+	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lionel Bouton <Lionel.Bouton@free.fr>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020104154935.F20097@thyrsus.com> <Pine.LNX.4.33.0201042208350.20620-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201042208350.20620-100000@Appserv.suse.de>; from davej@suse.de on Fri, Jan 04, 2002 at 10:08:44PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones <davej@suse.de>:
+> > Waitaminute.  DMI is a *dying* standard?  What, if anything, is
+> > replacing it?
+> 
+> ACPI
 
-On Fri, 4 Jan 2002, Alexander Viro wrote:
->
-> Reasons:
-> 	a) foo_mknod() - why the hell would we take dev_t, pass it into
-> ->mknod() only to split it into major:minor there and immediately
-> rebuild dev_t from them?  And that - for _all_ instances of ->mknod()
+OK.  So can I ask ACPI if the board has ISA slots?  Does it answer 
+reliably?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-No, if you make init_special_inode() take minor/major, then you have to
-make mknod do the same.
-
-At that point it becomes a ABI issue how the mknod _system_call_ argument
-is split up into major/minor, and the rest of the kernel wouldn't really
-care.
-
-However, looking more at this, we clearly need to have the same ABI for
-stat() as for mknod(), so it probably makes sense to just continue to have
-"dev_t is a standard mix of minor/major" numbers approach, and just
-continue passing "dev_t" around exactly as such a combination (and then
-let people do the proper MKNOD/MAJOR/MINOR macros on it).
-
-So you may be right - there are no real advantage from splitting the two,
-as long as dev_t and kdev_t cannot be mixed up by mistake (which is
-largely true already now).
-
-		Linus
-
+The kind of charity you can force out of people nourishes about as much as
+the kind of love you can buy --- and spreads even nastier diseases.

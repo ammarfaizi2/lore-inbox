@@ -1,39 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129754AbRCASV4>; Thu, 1 Mar 2001 13:21:56 -0500
+	id <S129753AbRCASSG>; Thu, 1 Mar 2001 13:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129758AbRCASVq>; Thu, 1 Mar 2001 13:21:46 -0500
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:19586 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S129754AbRCASVh> convert rfc822-to-8bit; Thu, 1 Mar 2001 13:21:37 -0500
-Date: Thu, 1 Mar 2001 19:21:29 +0100 (CET)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: Sébastien HINDERER <jrf3@wanadoo.fr>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Escape sequences & console
-In-Reply-To: <"3a9e8dcd3b72e6a5@amyris.wanadoo.fr> (added by amyris.wanadoo.fr)">
-Message-Id: <Pine.LNX.4.31.0103011919490.23240-100000@phobos.fachschaften.tu-muenchen.de>
+	id <S129754AbRCASR4>; Thu, 1 Mar 2001 13:17:56 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36366 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129753AbRCASRs>; Thu, 1 Mar 2001 13:17:48 -0500
+Subject: Re: Kernel is unstable
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 1 Mar 2001 18:20:49 +0000 (GMT)
+Cc: matti.aarnio@zmailer.org (Matti Aarnio), iv@spylog.com (Ivan Stepnikov),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010301153935.G32484@athlon.random> from "Andrea Arcangeli" at Mar 01, 2001 03:39:35 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14YXh5-0008GQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Sébastien HINDERER wrote:
+> It's not broken, it's not there any longer as somebody dropped it between test7
+> and 2.4.2, may I ask why?
 
-> Could someone tell me where I can find a document listing all the
-> escape-sequences that could be sent to the console (/dev/console) and what
-> they do.
-
-Please don't use those sequences directly, as not everyone has
-/dev/console on a vt. You can find the information you want in your local
-terminfo database under "linux".
-
-   Simon
-
--- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
-NP: Inside Treatement - Klaustraph
+Linus took it out because it was breaking things.
 

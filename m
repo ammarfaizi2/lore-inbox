@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135532AbRDSDYC>; Wed, 18 Apr 2001 23:24:02 -0400
+	id <S135536AbRDSDhe>; Wed, 18 Apr 2001 23:37:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135531AbRDSDXx>; Wed, 18 Apr 2001 23:23:53 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48086 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135532AbRDSDXl>;
-	Wed, 18 Apr 2001 23:23:41 -0400
-Date: Wed, 18 Apr 2001 23:23:35 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Daniel Phillips <phillips@nl.linux.org>, linux-kernel@vger.kernel.org,
+	id <S135539AbRDSDhZ>; Wed, 18 Apr 2001 23:37:25 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:16401 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S135536AbRDSDhJ>;
+	Wed, 18 Apr 2001 23:37:09 -0400
+Date: Thu, 19 Apr 2001 00:35:19 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Daniel Phillips <phillips@nl.linux.org>, linux-kernel@vger.kernel.org,
         adilger@turbolinux.com, ext2-devel@lists.sourceforge.net
 Subject: Re: Ext2 Directory Index - Delete Performance
-In-Reply-To: <Pine.LNX.4.21.0104182343240.1685-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.GSO.4.21.0104182319100.15153-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0104182319100.15153-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0104190031450.1685-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 18 Apr 2001, Alexander Viro wrote:
 
+> Sorry, but that's just plain wrong. We shouldn't keep inode table in
+> buffer-cache at all.
 
-On Wed, 18 Apr 2001, Rik van Riel wrote:
+Then tell me, how exactly DO you plan to do write clustering
+of inodes when you want to flush them to disk ?
 
-> On Thu, 19 Apr 2001, Daniel Phillips wrote:
-> 
-> > OK, now I know what's happening, the next question is, what should be
-> > dones about it.  If anything.
-> 
-> [ discovered by alexey on #kernelnewbies ]
-> 
-> One thing we should do is make sure the buffer cache code sets
-> the referenced bit on pages, so we don't recycle buffer cache
-> pages early.
-> 
-> This should leave more space for the buffercache and lead to us
-> reclaiming the (now unused) space in the dentry cache instead...
+If you don't keep them in the buffer cache for a while (or in
+the page cache, for that matter), there's no way you can get
+efficient IO clustering done...
 
-Sorry, but that's just plain wrong. We shouldn't keep inode table in
-buffer-cache at all. And we should be more aggressive on icache -
-dcache looks sane now (recent 2.4.4-pre), but icache holds unused
-inodes for too long. And freeing them is very slow _and_ random -
-recipe for kmem_cache fragmentation.
+Also, the buffer cache referenced bit will be extremely useful
+for things like indirect blocks, etc...
 
-/me sits down to port inode-table-in-pagecache to 2.4.4-pre4...
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbUCAOmx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 09:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUCAOmx
+	id S261322AbUCAO61 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 09:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbUCAO61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 09:42:53 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:62169 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261299AbUCAOmn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 09:42:43 -0500
-Message-ID: <40434BD7.9060301@nortelnetworks.com>
-Date: Mon, 01 Mar 2004 09:42:31 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns=20Rullg=E5rd?= <mru@kth.se>
+	Mon, 1 Mar 2004 09:58:27 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:9658 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S261322AbUCAO6Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 09:58:25 -0500
+Date: Mon, 01 Mar 2004 10:01:13 -0500
+From: Enrico Demarin <enricod@videotron.ca>
+Subject: Re: Ibm Serveraid Problem with 2.4.25
+In-reply-to: <20040301033017.GD1270@ait.ac.th>
+To: Alain Fauconnet <alain@ait.ac.th>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
-References: <200402291942.45392.mmazur@kernel.pl> <200402292130.55743.mmazur@kernel.pl> <c1tk26$c1o$1@terminus.zytor.com> <200402292221.41977.mmazur@kernel.pl> <yw1xn0711sgw.fsf@kth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Message-id: <1078153079.4447.2.camel@localhost.localdomain>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
+Content-type: text/plain; CHARSET=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <403DB882.9000401@svorka.no>
+ <1077839333.4823.5.camel@localhost.localdomain>
+ <1077846502.4454.2.camel@localhost.localdomain>
+ <Pine.LNX.4.58L.0402270011140.2029@logos.cnet> <403EEEB9.5030408@svorka.no>
+ <Pine.LNX.4.58L.0402271133220.18055@logos.cnet>
+ <20040301021014.GA1270@ait.ac.th>
+ <1078110630.4446.87.camel@localhost.localdomain>
+ <20040301033017.GD1270@ait.ac.th>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
+Alain , I am pasting you an email i got from Marcelo Tosatti, which I
+think clarifies pretty well the history of 2.4.24 and 2.4.25 :
 
-> Excuse my ignorance, but why can't the headers from the kernel still
-> be used.  They seem to be working fine here.
+-- snip --
 
-For current kernels, the "official" method is to have cleaned up copies 
-of the kernel headers shipped with glibc and placed in 
-/usr/include/linux and /usr/include/asm.  The "real" headers will often 
-work, but not always,
+2.4.24 was under development (had -pre1, -pre2 and -pre3 released). 
 
-To complicate things, if you add new stuff to the kernel (new ioctl 
-commands, etc.) then your app needs to either link against the "real" 
-headers, or else duplicate the definitions.
+At that point, we had to release 2.4.24 without the "-pre" changes (only
+with the security fixes). 
 
-Its kind of a mess.
+So basically 2.4.24-pre was renamed to 2.4.25-pre, and 2.4.25-pre4 was 
+released.
 
-In an ideal world there would be clean "userspace" headers shipped with 
-the kernel, and the kernel would then use those headers plus the 
-kernel-only stuff.
+-- snip --
 
-Chris
+- Enrico
 
+On Sun, 2004-02-29 at 22:30, Alain Fauconnet wrote:
+> Enrico,
+> 
+> Thanks for the update, but...
+> 
+> On Sun, Feb 29, 2004 at 10:10:30PM -0500, Enrico Demarin wrote:
+> > Alain,
+> > 
+> > so far Jo went through all the pre2.4.24 and 25 and the bug appeared
+> > in 2.4.24pre1. 
+> 
+> Are you meaning that  the  bug  was  already  present  in  the  2.4.24
+> release? I'm  a bit confused here.
 
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

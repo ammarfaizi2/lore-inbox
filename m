@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbUKLRaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbUKLRc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbUKLRaK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 12:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbUKLR2K
+	id S262598AbUKLRc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 12:32:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbUKLRae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 12 Nov 2004 12:30:34 -0500
+Received: from relay01.pair.com ([209.68.5.15]:26635 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S261465AbUKLR2K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 12 Nov 2004 12:28:10 -0500
-Received: from postino4.roma1.infn.it ([141.108.26.24]:10668 "EHLO
-	postino4.roma1.infn.it") by vger.kernel.org with ESMTP
-	id S262586AbUKLRLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 12:11:09 -0500
-Subject: Re: isa memory address
-From: Antonino Sergi <Antonino.Sergi@roma1.infn.it>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58L.0411110329260.10663@blysk.ds.pg.gda.pl>
-References: <1099901664.2718.92.camel@delphi.roma1.infn.it>
-	 <418FA2F1.2090003@osdl.org>
-	 <1100014956.30102.54.camel@delphi.roma1.infn.it>
-	 <Pine.LNX.4.58L.0411091638570.9795@blysk.ds.pg.gda.pl>
-	 <1100079437.30102.66.camel@delphi.roma1.infn.it>
-	 <Pine.LNX.4.58L.0411110329260.10663@blysk.ds.pg.gda.pl>
-Content-Type: text/plain
-Message-Id: <1100279455.16321.47.camel@delphi.roma1.infn.it>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 12 Nov 2004 18:10:55 +0100
+X-pair-Authenticated: 24.241.238.70
+Message-ID: <4194F294.4000908@cybsft.com>
+Date: Fri, 12 Nov 2004 11:27:48 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Shane Shrybman <shrybman@aei.ca>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>	 <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>	 <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu>	 <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu>	 <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>	 <20041111215122.GA5885@elte.hu> <1100269881.10971.6.camel@mars>
+In-Reply-To: <1100269881.10971.6.camel@mars>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.28.0.12; VDF 6.28.0.70
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I tried but (on 2.4.2):
-> > - request_region fails but, ignoring it and remapping physical address
-> > to virtual, everything works fine, except for release_region, of course.
-> > - request_mem_region works but what I get from communication with the
-> > actual device are numbers that sometimes are surely wrong.
+Shane Shrybman wrote:
+> On Thu, 2004-11-11 at 16:51, Ingo Molnar wrote:
 > 
->  As both request_region() and request_mem_region() merely reserve
-> different resources in Linux structures, you can't get a different
-> behavior from your device depending on which one you call, if any at all,
-> unless you change code elsewhere at the same time.
+>>i have released the -V0.7.25-1 Real-Time Preemption patch, which can be
+>>downloaded from the usual place:
+>>
+>>    http://redhat.com/~mingo/realtime-preempt/
+>>
+>>this is a fixes-only release that resolves a couple of bugs that slipped
+>>into -V0.7.25-0:
+>>
+>> - lockup/deadlock fix: make debug_direct_keyboard default to 0. It is
+>>   only a debug helper to be used for development, it was never intended
+>>   to be enabled. This fix should resolve the bugs reported by Gunther
+>>   Persoons and Mark H. Johnson.
+> 
+> 
+> Ahh, that probably explains the problems I had with it!
+> 
+> V0.7.25-1 has been stable here with the ivtv driver for 11 hrs. No sign
+> of the ide dma time out issue either. Out of curiosity, do we know what
+> solved that problem?
+> 
+> Regards,
+> 
+> Shane
 > 
 
-You were right, there was a wrong symlink that made me compile for 2.4
-with headers from 2.2; maybe some different macro substitution lead to
-an actual different code. Now it works fine, with 2.6 too.
+What sort of errors did you get about the ide dma timeouts?
 
-Thank you
-
-Antonino Sergi
-
->   Maciej
-
-
-Antonino Sergi <Antonino.Sergi@Roma1.INFN.it>
-
-Radiodating Laboratory
-Physics Department
-University of Rome "La Sapienza"
-P.le Aldo Moro 2
-00185 Rome Italy
-Tel +390649914206
-Fax +390649914208
-
+kr
 

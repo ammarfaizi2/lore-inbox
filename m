@@ -1,63 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289300AbSANXly>; Mon, 14 Jan 2002 18:41:54 -0500
+	id <S289296AbSANXoe>; Mon, 14 Jan 2002 18:44:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289296AbSANXlf>; Mon, 14 Jan 2002 18:41:35 -0500
-Received: from femail47.sdc1.sfba.home.com ([24.254.60.41]:62416 "EHLO
-	femail47.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S289300AbSANXlb>; Mon, 14 Jan 2002 18:41:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Bruce Harada <bruce@ask.ne.jp>, esr@thyrsus.com
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Date: Mon, 14 Jan 2002 10:39:25 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: charlesc@discworld.dyndns.org, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk, eli.carter@inet.com,
-        Michael.Lazarou@etl.ericsson.se
-In-Reply-To: <20020114125228.B14747@thyrsus.com> <20020114173423.A23081@thyrsus.com> <20020115080218.7709cef7.bruce@ask.ne.jp>
-In-Reply-To: <20020115080218.7709cef7.bruce@ask.ne.jp>
+	id <S289301AbSANXoY>; Mon, 14 Jan 2002 18:44:24 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:61658 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S289296AbSANXoM>; Mon, 14 Jan 2002 18:44:12 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: George Anzinger <george@mvista.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 15 Jan 2002 00:42:56 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020114234129.MGOI23959.femail47.sdc1.sfba.home.com@there>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020114234418Z289296-13997+4929@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 January 2002 06:02 pm, Bruce Harada wrote:
-> On Mon, 14 Jan 2002 17:34:23 -0500
+George Anzinger wrote:
+> jogi@planetzork.ping.de wrote:
+> > That's the second test I am normally running. Just running xmms while
+> > doing the kernel compile. I just wanted to check if the system slows
+> > down because of preemption but instead it compiled the kernel even
+> > faster :-) 
 >
-> "Eric S. Raymond" <esr@thyrsus.com> wrote:
-> > Therefore I try to stay focused on Aunt Tillie even though I know
-> > that you are objectively correct and her class of user is likely
-> > not to build kernels regularly for some years yet.
->
-> Change that last line to read "her class of user will never build kernels
-> ever, and would be aggressively disinterested in the possibility of doing
-> so", and you might be closer to the truth.
->
-> Aunt Tillie just DOESN'T CARE, OK? She can talk to her vendor if she gets
-> worried about whether her kernel supports the Flangelistic2000 SuperDoodad.
+> This sort of thing is nice to hear, but, it does show up a problem in
+> the non-preempt kernel.  That preemption improves compile performance
+> implies that the kernel is not doing the right thing during a normal
+> compile and that preemption, to some extent, corrects the problem.  But
+> preemption adds the overhead of additional context switches.  It would
+> be nice to know where the time is coming from.  I.e. lets assume that
+> the actual compile takes about the same amount of execution time with or
+> without preemption.
 
-I think what Eric's REALLY going for is converting some of the Minesweeper 
-Certified Solitaire Experts down at the corner store (and yes there are still 
-corner computer stores in mini-malls around the country) over to The Penguin. 
- (And providing them enough coffee to sober up, and making sure that their 
-minimal training is slightly more than teaching to the test.  Give them some 
-stimulus-response answers that might actually address reality in some small 
-way.)
+That's the case in most of my "benchmarks".
 
-Anyway, if aunt tillie calls for her neighborhood computer mechanic, he's 
-probably not going to be a particularly high powered geek.  He may have 
-aspirations of geekdom, but basically we're talking glorified tech support.
+e.g. dbench 32:
 
-These guys might build a kernel when they install her new cutting edge USB 
-Salad Shooter that is only supported by a kernel newer than the distribution 
-vendor has yet shipped.  And most of them WOULD be lost without auto-probe.
+2.4.18-pre3
+sched-O1-2.4.17-H7.patch
+10_vm-22
+00_nanosleep-5
+bootmem-2.4.17-pre6
+read-latency.patch
+waitq-2.4.17-mainline-1
+plus
+all 2.4.18-pre3.pending ReiserFS stuff
 
-The above maps even more strongly into corporate space, to the point of being 
-a cliche even.  But I still think Aunt Tillie is a couple stepping stones 
-beyond a realistic next jump, and a distraction away from whether or not 
-auto-probe is a cool hack and useful toy.  Not being useful for aunt tillie 
-is not the same as not being useful at all.
+Throughput 41.5565 MB/sec (NB=51.9456 MB/sec  415.565 MBit/sec)
+14.860u 48.320s 1:41.66 62.1%   0+0k 0+0io 938pf+0w
 
-Rob
+with preempt+lock-break
+
+Throughput 47.0049 MB/sec (NB=58.7561 MB/sec  470.049 MBit/sec)
+14.280u 49.370s 1:30.88 70.0%   0+0k 0+0io 939pf+0w
+
+user:	nearly equally
+system:	1 second more with preempt+lock-break
+all:	11 less with preempt+lock-break
+
+> Then for the preemptable kernel to do the job
+> faster something else must go up, idle time perhaps.  If this is the
+> case, then there is some place in the kernel that is wasting cpu time
+> and that is preemptable and the preemptable patch is moving this idle
+> time to the idle process.  
+
+> What ever the reason, while I do want to promote preemption, I think we
+> should look at this issue and, at the very least, explain it.
+
+What do you think about IO-wait for top/ps like SUN have?
+Do you think we lost CPU cycles, there?
+
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277949AbRKSLHS>; Mon, 19 Nov 2001 06:07:18 -0500
+	id <S277942AbRKSLMi>; Mon, 19 Nov 2001 06:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277782AbRKSLHK>; Mon, 19 Nov 2001 06:07:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8716 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277798AbRKSLGy>; Mon, 19 Nov 2001 06:06:54 -0500
-Subject: Re: Devlinks.  Code.  (Dcache abuse?)
-To: neilb@cse.unsw.edu.au (Neil Brown)
-Date: Mon, 19 Nov 2001 11:14:53 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <15352.57742.799052.405674@notabene.cse.unsw.edu.au> from "Neil Brown" at Nov 19, 2001 09:40:14 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S278078AbRKSLM2>; Mon, 19 Nov 2001 06:12:28 -0500
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:12214 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S277942AbRKSLMW>; Mon, 19 Nov 2001 06:12:22 -0500
+Date: Mon, 19 Nov 2001 13:12:20 +0100
+From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+To: Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2 non-code typo's i've encountered
+Message-ID: <20011119131219.A6633@Zenith.starcenter>
+Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E165mO5-0006En-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.15-pre6
+X-Telephone: +32 486 460306
+X-Requested: Beautiful, smart and Linux-lovin' girlfriend
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think you missed part of my point.
-> There are lots of different name spaces in the kernel.
-> Filesystem names.  Driver names.  Module names.
-> 
-> But the namespace that is the current issue, the namespace of
-> currently available devices, is not a namespace where I would expect
-> trademarks to ever come up.  It is name space of interfaces and
-> instances.
+Just saw 2 typo's. Patch beneith...
 
-You mean like adaptec/aic7xxx/0 for the first aic7xxx controller when you
-want to refer to an adaptec card ? And yes - you do need the ability to do
-that kind of thing, not just talk generically about "disks".
+diff -urN linux/drivers/net/wan/sdla_ppp.c linux-new/drivers/net/wan/sdla_ppp.c
+--- linux/drivers/net/wan/sdla_ppp.c	Mon Nov 19 12:49:32 2001
++++ linux-new/drivers/net/wan/sdla_ppp.c	Mon Nov 19 12:59:07 2001
+@@ -2473,7 +2473,7 @@
+ #endif
+ 
+ 		default:
+-			printk(KERN_INFO "%s: ERROR: Unsuported PPP Mode Selected\n",
++			printk(KERN_INFO "%s: ERROR: Unsupported PPP Mode Selected\n",
+ 					card->devname);
+ 			printk(KERN_INFO "%s:        PPP IP Modes: STATIC, PEER or HOST\n",
+ 					card->devname);	
+diff -urN linux/fs/hpfs/super.c linux-new/fs/hpfs/super.c
+--- linux/fs/hpfs/super.c	Mon Nov 19 12:23:04 2001
++++ linux-new/fs/hpfs/super.c	Mon Nov 19 12:58:39 2001
+@@ -3,7 +3,7 @@
+  *
+  *  Mikulas Patocka (mikulas@artax.karlin.mff.cuni.cz), 1998-1999
+  *
+- *  mouning, unmounting, error handling
++ *  mounting, unmounting, error handling
+  */
+ 
+ #include <linux/string.h>
 
-So I still seek an answer. "Shrug, probably wont happen" isnt a good one
 
-Alan
+-- 
+The memory management on the PowerPC can be used to frighten small
+children. (Linus Torvalds.)
+

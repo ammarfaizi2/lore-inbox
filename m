@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbUJZFxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbUJZFrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbUJZFxN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 01:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbUJZFxL
+	id S261935AbUJZFrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 01:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUJZFp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 01:53:11 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:40935 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262157AbUJZFvV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 01:51:21 -0400
-Date: Tue, 26 Oct 2004 07:55:31 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Message-ID: <20041026055530.GA2885@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Pavel Machek <pavel@ucw.cz>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org
-References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr> <200410250822.46023.dtor_core@ameritech.net> <20041025135635.GB3161@crusoe.alcove-fr> <20041025220921.GA5207@elf.ucw.cz>
+	Tue, 26 Oct 2004 01:45:27 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:18117 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261402AbUJZFoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 01:44:00 -0400
+Subject: Re: [PATCH] remove dead tcp exports
+From: Lee Revell <rlrevell@joe-job.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: wa@almesberger.net, hch@lst.de, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041025215216.54b362f9.davem@davemloft.net>
+References: <20041024134309.GB20267@lst.de>
+	 <20041026000710.D3841@almesberger.net>
+	 <20041025204147.667ee2b1.davem@davemloft.net>
+	 <1098765665.9404.5.camel@krustophenia.net>
+	 <20041025215216.54b362f9.davem@davemloft.net>
+Content-Type: text/plain
+Date: Tue, 26 Oct 2004 01:43:57 -0400
+Message-Id: <1098769437.9404.10.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025220921.GA5207@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 12:09:21AM +0200, Pavel Machek wrote:
-
-> > Ok. Suspending never really worked on my laptop so I'll have to assume
-> > you're correct. :)
-> > 
-> > [ Just tried once again to do a suspend to ram, seems that there were
-> > some enhancements in this area lately. 
-> > 
-> >   No luck. Machine suspends ok, but upon waking up, the power led goes
-> >   greek ok, the disk led lights up, but the keyboard is dead, the
-> >   network card is dead, the screen doesn't turn on...
-> > 
-> >   Since this laptop has no serial port I don't see what else I can do,
-> >   except wait another 6 months and try again... :(
+On Mon, 2004-10-25 at 21:52 -0700, David S. Miller wrote:
+> On Tue, 26 Oct 2004 00:41:05 -0400
+> Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> Debug using pc speaker... Or paralel port, or something like that.
+> > Is this really a compelling reason to remove them?  For example ALSA
+> > provides an API for driver writers, just because a certain function
+> > happens not to be used by any does not mean is never will be or that it
+> > should not.
+> 
+> These are actually TCP internals, not a "well defined driver API"
+> as ALSA defines.
+> 
 
-This is a laptop which has no serial or parallel port.
+Yeah but there was also a patch posted that removed a bunch of "dead
+exports" from ALSA.  I was wondering in general what the standard is for
+distinguishing the two cases.
 
-All the interfaces it has are all too high level to be used for
-debugging (USB, firewire, pcmcia etc).
+Lee
 
-I think the speaker would probably work. I'll give it a try and
-see if it helps next time...
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>

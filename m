@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135575AbRDTRgX>; Fri, 20 Apr 2001 13:36:23 -0400
+	id <S135734AbRDTRjx>; Fri, 20 Apr 2001 13:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135734AbRDTRgN>; Fri, 20 Apr 2001 13:36:13 -0400
-Received: from [194.65.138.12] ([194.65.138.12]:43528 "EHLO
-	dominio_gestao.intra.cet.pt") by vger.kernel.org with ESMTP
-	id <S135575AbRDTRgC> convert rfc822-to-8bit; Fri, 20 Apr 2001 13:36:02 -0400
-Message-ID: <25CCC6566D01D411885B00A024559FB701486CC3@EXCHANGE_GERAL>
-From: "Carlos Parada (EST)" <est-c-parada@ptinovacao.pt>
-To: linux-kernel@vger.kernel.org, 6bone@ISI.EDU
-Subject: IPv6 routing
-Date: Fri, 20 Apr 2001 18:37:05 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S135793AbRDTRjp>; Fri, 20 Apr 2001 13:39:45 -0400
+Received: from janeway.cistron.net ([195.64.65.23]:8464 "EHLO
+	janeway.cistron.net") by vger.kernel.org with ESMTP
+	id <S135734AbRDTRja>; Fri, 20 Apr 2001 13:39:30 -0400
+Date: Fri, 20 Apr 2001 19:39:28 +0200
+From: Wichert Akkerman <wichert@cistron.nl>
+To: linux-lvm@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: [linux-lvm] Re: [repost] Announce: Linux-OpenLVM mailing list
+Message-ID: <20010420193928.D23541@cistron.nl>
+Mail-Followup-To: linux-lvm@sistina.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010419144815.J10345@sistina.com> <20010420192413.A17717@sistina.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010420192413.A17717@sistina.com>; from Mauelshagen@sistina.com on Fri, Apr 20, 2001 at 07:24:13PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Previously Heinz J. Mauelshagen wrote:
+> Linux LVM is a Sistina GPL project and there's no danger at all
+> that we want to change its GPL nature!
 
-Hi,
+I think the general sentiment is that LVM is a Linux project,
+currently being managed by Sistina. 
 
-I'm trying to set up an IPv6 network in Linux kernel 2.4.0-test10. In this
-network I'm using just 3 boxs and I would use static routes.
- _____        _____          _____
-|   A   |____|    B   | ____|   C   |     
-|_____|       |_____|        |_____|
+Also, since you have merged patches from other you no longer can
+change the license since Sistina is not the sole copyright holder.
 
-The problem is that I cannot access from A to C machines and vice-versa. But
-the routing problem is a bit strange because, A can access to the two
-interfaces of B, even to B interface in the same network as C. Also C can
-access to both B interfaces and cannot access to machine A.
-i.e. the machines seems that can access to other networks (the routing
-mechanisms seems work fine), but B cannot be able to forward the packet. Is
-this correct ?
+Wichert.
 
-Anybody know if I have a missconfiguration or I'm doing somethings wrong ?
-
-
-Regards.
-
-**********
-Carlos da Fonseca Parada
-PT Inovação, S.A.
-Multimédia e Serviços IP
-
-*   R. Engº José Ferreira Pinto Basto - 3810 Aveiro - Portugal
-* Ext: 1317, 1318
-
+-- 
+   ________________________________________________________________
+ / Generally uninteresting signature - ignore at your convenience  \
+| wichert@cistron.nl                  http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |

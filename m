@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVBOTIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVBOTRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVBOTIN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVBOTIN
+	id S261828AbVBOTRa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVBOTRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:08:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32228 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261836AbVBOTII (ORCPT
+	Tue, 15 Feb 2005 14:17:30 -0500
+Received: from pat.uio.no ([129.240.130.16]:62105 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261828AbVBOTR1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:08:08 -0500
-Date: Tue, 15 Feb 2005 11:08:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andreas Schwab <schwab@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Pty is losing bytes
-In-Reply-To: <jebramy75q.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
-References: <jebramy75q.fsf@sykes.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Feb 2005 14:17:27 -0500
+Subject: Re: [patch 7/13] Encode and decode arbitrary XDR arrays
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       Olaf Kirch <okir@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050122203619.570180000@blunzn.suse.de>
+References: <20050122203326.402087000@blunzn.suse.de>
+	 <20050122203619.570180000@blunzn.suse.de>
+Content-Type: text/plain
+Date: Tue, 15 Feb 2005 14:17:18 -0500
+Message-Id: <1108495038.10073.102.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.989, required 12,
+	autolearn=disabled, AWL 2.01, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+lau den 22.01.2005 Klokka 21:34 (+0100) skreiv Andreas Gruenbacher:
+> vanlig tekstdokument vedlegg (patches.suse)
+> Add xdr_encode_array2 and xdr_decode_array2 functions for encoding
+> end decoding arrays with arbitrary entries, such as acl entries. The
+> goal here is to do this without allocating a contiguous temporary
+> buffer.
 
+net/sunrpc/xdr.c:1024:3: warning: mixing declarations and code
+net/sunrpc/xdr.c:967:16: warning: bad constant expression
 
-On Tue, 15 Feb 2005, Andreas Schwab wrote:
->
-> Recent kernel are losing bytes on a pty. 
+Please don't use these gcc extensions in the kernel.
 
-Great catch.
+Cheers,
+  Trond
 
-I think it may be a n_tty line discipline bug, brought on by the fact that
-the PTY buffering is now 4kB rather than 2kB. 4kB is also the
-N_TTY_BUF_SIZE, and if n_tty has some off-by-one error, that would explain 
-it.
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-Does the problem go away if you change the default value of "chunk" (in 
-drivers/char/tty_io.c:do_tty_write) from 4096 to 2048? If so, that means 
-that the pty code has _claimed_ to have written 4kB, and only ever wrote 
-4kB-1 bytes. That in turn implies that "ldisc.receive_room()" disagrees 
-with "ldisc.receive_buf()".
-
-		Linus

@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUHVPuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUHVPu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267474AbUHVPuX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 11:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHVPuX
+	id S267507AbUHVPu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 11:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbUHVPu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 11:50:23 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:23439 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267474AbUHVPuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 11:50:20 -0400
-Subject: Re: [patch] context-switching overhead in X, ioport(), 2.6.8.1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, eich@suse.de
-In-Reply-To: <20040822142344.GA81458@muc.de>
-References: <2vEzI-Vw-17@gated-at.bofh.it>
-	 <m3n00nwepr.fsf@averell.firstfloor.org>
-	 <1093176046.24272.68.camel@localhost.localdomain>
-	 <20040822142344.GA81458@muc.de>
-Content-Type: text/plain
+	Sun, 22 Aug 2004 11:50:26 -0400
+Received: from legaleagle.de ([217.160.128.82]:59593 "EHLO www.legaleagle.de")
+	by vger.kernel.org with ESMTP id S267507AbUHVPuW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 11:50:22 -0400
+Message-ID: <4128C0BB.9060503@trash.net>
+Date: Sun, 22 Aug 2004 17:50:19 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Voluspa <lista4@comhem.se>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.8-rc4-bk1 problem: unregister_netdevice: waiting for ppp0
+References: <200408221504.i7MF4Z719895@d1o404.telia.com>
+In-Reply-To: <200408221504.i7MF4Z719895@d1o404.telia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1093186067.24609.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 22 Aug 2004 15:47:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-22 at 15:23, Andi Kleen wrote:
-> > The actual code is:
-> > 
-> >        if (ioperm(0, 1024, 1) || iopl(3))
-> >                 FatalError("xf86EnableIOPorts: Failed to set IOPL for
-> > I/O\n")
-> > 
-> > (os-support/linux/lnx_video.c:xf86EnableIO)
-> > 
-> > Flip those around and rebuild.
-> 
-> It would be better to do that in the official release.
+Voluspa wrote:
 
-The current release is in final code freeze so such a change would need
-the release wranglers agreement, I can't just go checking it into the
-tree.
+>Greetings,
+>
+>NOTE
+>I wrote the text below just prior to the posting of
+>01-2.6-cbq-leaks.diff but applying it doesn't change the
+>situation here. I still get the same Oops as below. Slight
+>changes in memory address but the Call Trace is identical.
+>So, different problem?
+>ENDNOTE
+>
+Yes, your problem is a different one, but looks related to
+the one in the thread "Oops: Process zebra, EIP is at
+fib_create_info+0x22b/0x580".
 
+Regards
+Patrick

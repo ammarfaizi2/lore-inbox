@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318196AbSIBBJM>; Sun, 1 Sep 2002 21:09:12 -0400
+	id <S318202AbSIBBfA>; Sun, 1 Sep 2002 21:35:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318198AbSIBBJM>; Sun, 1 Sep 2002 21:09:12 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:53635 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318196AbSIBBJL> convert rfc822-to-8bit; Sun, 1 Sep 2002 21:09:11 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Michael Bellion <bellion@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: How to determine the amount of free kernel memory?
-Date: Mon, 2 Sep 2002 03:08:30 +0200
-User-Agent: KMail/1.4.3
+	id <S318203AbSIBBfA>; Sun, 1 Sep 2002 21:35:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63505 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318202AbSIBBe7>;
+	Sun, 1 Sep 2002 21:34:59 -0400
+Message-ID: <3D72C3F8.A0E50BCB@zip.com.au>
+Date: Sun, 01 Sep 2002 18:50:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209020308.30589.bellion@gmx.de>
+To: Daniel Phillips <phillips@arcor.de>
+CC: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+References: <3D644C70.6D100EA5@zip.com.au> <E17leDK-0004dA-00@starship> <3D72AE2C.F1806BDD@zip.com.au> <E17lf6Y-0004dV-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Daniel Phillips wrote:
+> 
+> ...
+> If lru_cache_add is costly then we can kill both the lock contention and the
+> cacheline pingponging by feeding the new pages into a local list, then
+> grafting the whole list onto the inactive list when we start to scan.
 
-Is there a way to determine the amount of free kernel memory?
-si_meminfo() returns nr_free_pages() for example, but this is
-not what I'm looking for.
-I want to know the amount of memory that is available to the kernel (via 
-vmalloc or kmalloc) without considering userspace memory consumption.
-
-Maybe something like:
-nr_active_pages + nr_inactive_pages + nr_free_pages()
-
-I want to use the functionality from within a kernel module, so i don't have 
-access to nr_active_pages(), nr_inactive_pages() or nr_free_pages().
-
-Thanks for your help.
-	Michael Bellion
-
+2.5.33 does this.

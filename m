@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbTLQIya (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 03:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbTLQIy3
+	id S263836AbTLQJDd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 04:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTLQJDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 03:54:29 -0500
-Received: from mta.hosting-seguridad.com ([63.246.136.14]:62621 "EHLO
-	mta.hosting-seguridad.com") by vger.kernel.org with ESMTP
-	id S263775AbTLQIy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 03:54:28 -0500
-Message-ID: <55791.80.58.1.46.1071651267.squirrel@www.hosting-seguridad.com>
-Date: Wed, 17 Dec 2003 09:54:27 +0100 (CET)
-Subject: Any workaround for mounting an image file (with loop device) which resides on NTFS?
-From: <roman@rs-labs.com>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-X-Mailer: SquirrelMail (version 1.2.6)
-MIME-Version: 1.0
+	Wed, 17 Dec 2003 04:03:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49340 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263836AbTLQJDb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 04:03:31 -0500
+Date: Wed, 17 Dec 2003 01:03:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "srikrish" <srikrish@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, anton@samba.org
+Subject: Re: [PATCH] binfmt_elf.c SIGILL with large external static array on
+ PPC64
+Message-Id: <20031217010353.1fd32589.akpm@osdl.org>
+In-Reply-To: <004101c3c47c$114a32d0$0d0fb609@srikrishnan>
+References: <004101c3c47c$114a32d0$0d0fb609@srikrishnan>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+"srikrish" <srikrish@in.ibm.com> wrote:
+>
+>  When using the follow code compiled as an ELF32 binary on a PPC64 machine, application terminates with a SIGILL.
 
-Scenario: I placed one disk image (image.dd) on a NTFS volume (it's the only
-partition where I have some available space) and my idea was to first
-mount NTFS partition as /mnt/ntfs, and afterwards mounting
-/mnt/ntfs/image.dd (ext3) with loop device.
+Yes.  I have queued up a patch for this from Roland Turner.  It is at
 
-I'm getting the following error at the second mount command:
-ioctl: LOOP_SET_FD: Invalid argument
+	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test10/2.6.0-test10-mm1/broken-out/fix-ELF-exec-with-huge-bss.patch
 
-I googled a bit and it seems to be some kind of incompatibility
-between NTFS driver and loop device, as I read in a former thread at lk-ml
-(but it didn't clarify how to solve the problem). I tried with a Debian
-2.4.18 kernel, but I guess the problem persists on every 2.4.x.
-Did you manage to solve this? I wouldn't mind to switch to an experimental
-kernel branch, if necessary, since the machine I'm going to use is not in
-a production environment. Please, specify clearly with exact version of
-the kernel should I download and necessary patches (if any).
-TIA.
-
--R
-
+Could you please review and test it?
 
 
 

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280026AbRLQOZF>; Mon, 17 Dec 2001 09:25:05 -0500
+	id <S279105AbRLQOhg>; Mon, 17 Dec 2001 09:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280029AbRLQOY4>; Mon, 17 Dec 2001 09:24:56 -0500
-Received: from web20501.mail.yahoo.com ([216.136.226.136]:14008 "HELO
-	web20501.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280026AbRLQOYu>; Mon, 17 Dec 2001 09:24:50 -0500
-Message-ID: <20011217142449.34700.qmail@web20501.mail.yahoo.com>
-Date: Mon, 17 Dec 2001 15:24:49 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: Panic output
-To: pwaechtler@loewe-komp.de
+	id <S279307AbRLQOh0>; Mon, 17 Dec 2001 09:37:26 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:38148 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S279105AbRLQOhR>;
+	Mon, 17 Dec 2001 09:37:17 -0500
+Date: Mon, 17 Dec 2001 15:37:15 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Oktay Akbal <oktay.akbal@s-tec.de>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: Problem with kernel nfs server in 2.4.17-rc1
+Message-Id: <20011217153715.10ffd6f7.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.43.0112171528160.2595-100000@omega.hbh.net>
+In-Reply-To: <20011217141649.2ee44a10.skraw@ithnet.com>
+	<Pine.LNX.4.43.0112171528160.2595-100000@omega.hbh.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+On Mon, 17 Dec 2001 15:30:07 +0100 (CET)
+Oktay Akbal <oktay.akbal@s-tec.de> wrote:
 
-You may also try kmsgdump which will try to catch the
-panic,
-dump it to an interactive (blue) screen and let you
-read all your
-messages, and print them or dump them on a floppy
-disk.
+> I can confirm that this problems exists. We are having this
+> Problem too. I am quite sure that this is not new in 2.4.17-preX.
 
-depending on the nature of the panic, it cannot always
-do
-something usefull, but generally it works.
-
-http://wtarreau.free.fr/kmsgdump/0.4.3/
+You are right, I am seeing this for some time in 2.4 now, it is not really new,
+but continuously annoying ...
 
 Regards,
-Willy
+Stephan
 
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Courrier : http://courrier.yahoo.fr

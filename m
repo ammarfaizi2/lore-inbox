@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269160AbUIBWfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269107AbUIBW1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269160AbUIBWfP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 18:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269158AbUIBWfI
+	id S269107AbUIBW1V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 18:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269156AbUIBWZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 18:35:08 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:47225 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S269160AbUIBWdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 18:33:35 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: jakub@redhat.com, ecd@skynet.be, pavel@suse.cz, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/compat.c: rwsem instead of BKL around
- ioctl32_hash_table
-X-Message-Flag: Warning: May contain useful information
-References: <20040901072245.GF13749@mellanox.co.il>
-	<524qmi2e1s.fsf@topspin.com> <20040902211448.GE16175@wotan.suse.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 02 Sep 2004 15:26:49 -0700
-In-Reply-To: <20040902211448.GE16175@wotan.suse.de> (Andi Kleen's message of
- "Thu, 2 Sep 2004 23:14:48 +0200")
-Message-ID: <52isawtihi.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Thu, 2 Sep 2004 18:25:15 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41353 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S269107AbUIBWVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 18:21:01 -0400
+Date: Thu, 2 Sep 2004 15:19:38 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+In-Reply-To: <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+ <1094159379.14662.322.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 02 Sep 2004 22:26:49.0392 (UTC) FILETIME=[F04D6B00:01C4913B]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andi> It does not make much sense because the ioctl will take the
-    Andi> BKL anyways.
+On Thu, 2 Sep 2004, john stultz wrote:
 
-True, but it seems pretty ugly to protect the ioctl32 hash with the
-BKL.  I think the greater good of reducing use of the BKL should be
-looked at.
+> +struct timesource_t {
+> +	char* name;
+> +	int priority;
+> +	cycle_t (*read)(void);
+> +	cycle_t (*delta)(cycle_t now, cycle_t then);
+> +	nsec_t (*cyc2ns)(cycle_t cycles, cycle_t* remainder);
+> +};
 
-    Andi> If you wanted to fix it properly better make it use RCU -
-    Andi> but it cannot work for the case of calling a compat handler.
+This is defining functions to be called for a timesource. Which means that
+the functionality for clock_gettime cannot be implemented as a fastcall
+anymore on IA64. The delta and the cyc2ns function are always the same.
+The compensation for jitter etc is always the same and can also be
+implemented generically.
 
-I'm not sure I follow what you're saying.  When I looked at this, at
-first I thought RCU would be better for the hash lookup, but I didn't
-see a way to prevent a compat handler from being removed while it was
-running.  That's why I moved to a semaphore, which would hold off the
-removal until the handler was done running.  Is this what you mean?
-Do you see a way to use RCU here?
+Could we change this to avoid the function calls.
 
-Thanks,
-  Roland
+For example.
 
+struct timesource_t {
+	char *name;
+	int priority;
+	int type;
+	void *address;
+	long long int frequency;
+}
+
+The functions are always
+
+delta = (now-then)
+cycle2ns = cycles * (NSEC_PER_SEC / frequency) + remainder
+
+types of time sources
+
+#define TIMESOURCE_CPU 0
+#define TIMESOURCE_MMIO32 1
+#define TIMESOURCE_MMIO64 2
+#define TIMESOURCE_FUNCTION 3 	/* To catch odd cases */

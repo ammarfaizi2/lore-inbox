@@ -1,77 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVCGJvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVCGJ5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVCGJvl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 04:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVCGJvl
+	id S261729AbVCGJ5X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 04:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVCGJ5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 04:51:41 -0500
-Received: from ozlabs.org ([203.10.76.45]:32402 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261728AbVCGJvi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 04:51:38 -0500
+	Mon, 7 Mar 2005 04:57:22 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:58580 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261729AbVCGJ5M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 04:57:12 -0500
+Date: Mon, 7 Mar 2005 01:57:10 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ext2-devl@stanford.edu>
+Subject: [CHECKER] crash after fsync causing serious FS corruptions (ext2,
+ 2.6.11)
+Message-ID: <Pine.GSO.4.44.0503070124460.29202-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16940.9284.79566.526069@cargo.ozlabs.ibm.com>
-Date: Mon, 7 Mar 2005 20:52:04 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: anton@samba.org, linux-kernel@vger.kernel.org,
-       Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Subject: [PATCH] ppc64: kprobes: handle trap variants while processing probes
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is from Ananth N Mavinakayanahalli <ananth@in.ibm.com>.
 
-While processing a kprobe, we were currently not handling all available 
-trap variants available on PowerPC. This lead to the breakage of BUG()
-handling in ppc64.
+Hi,
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+FiSC (our FS checker) issues a warning on ext2, complaining that crash
+after fsync causes file system to corrupt.  FS corrupts in two different
+ways: 1. file contains illegal blocks (such as block # -2) 2. one block
+owned by two different files.
 
-diff -Naurp temp/linux-2.6.11-rc3/arch/ppc64/kernel/kprobes.c linux-2.6.11-rc3/arch/ppc64/kernel/kprobes.c
---- temp/linux-2.6.11-rc3/arch/ppc64/kernel/kprobes.c	2005-02-03 07:26:53.000000000 +0530
-+++ linux-2.6.11-rc3/arch/ppc64/kernel/kprobes.c	2005-02-10 18:08:25.000000000 +0530
-@@ -105,8 +105,16 @@ static inline int kprobe_handler(struct 
- 	p = get_kprobe(addr);
- 	if (!p) {
- 		unlock_kprobes();
--#if 0
- 		if (*addr != BREAKPOINT_INSTRUCTION) {
-+			/* 
-+			 * PowerPC has multiple variants of the "trap"
-+			 * instruction. If the current instruction is a
-+			 * trap variant, it could belong to someone else
-+			 */
-+			kprobe_opcode_t cur_insn = *addr;
-+			if (IS_TW(cur_insn) || IS_TD(cur_insn) || 
-+					IS_TWI(cur_insn) || IS_TDI(cur_insn))
-+		       		goto no_kprobe;
- 			/*
- 			 * The breakpoint instruction was removed right
- 			 * after we hit it.  Another cpu has removed
-@@ -116,7 +124,6 @@ static inline int kprobe_handler(struct 
- 			 */
- 			ret = 1;
- 		}
--#endif
- 		/* Not one of ours: let kernel handle it */
- 		goto no_kprobe;
- 	}
-diff -Naurp temp/linux-2.6.11-rc3/include/asm-ppc64/kprobes.h linux-2.6.11-rc3/include/asm-ppc64/kprobes.h
---- temp/linux-2.6.11-rc3/include/asm-ppc64/kprobes.h	2005-02-03 07:25:50.000000000 +0530
-+++ linux-2.6.11-rc3/include/asm-ppc64/kprobes.h	2005-02-10 18:08:58.000000000 +0530
-@@ -35,6 +35,11 @@ typedef unsigned int kprobe_opcode_t;
- #define BREAKPOINT_INSTRUCTION	0x7fe00008	/* trap */
- #define MAX_INSN_SIZE 1
- 
-+#define IS_TW(instr)		(((instr) & 0xfc0007fe) == 0x7c000008)
-+#define IS_TD(instr)		(((instr) & 0xfc0007fe) == 0x7c000088)
-+#define IS_TDI(instr)		(((instr) & 0xfc000000) == 0x08000000)
-+#define IS_TWI(instr)		(((instr) & 0xfc000000) == 0x0c000000)
-+
- #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)((func_descr_t *)pentry)
- 
- /* Architecture specific copy of original instruction */
+I diagnosed the warning a little bit and it appears that this warning can
+be triggered by the following steps:
+
+1. a file is truncated, so several blocks are freed
+2. a new file is created, and the blocks freed in step 1 are reused
+3. fsync on the new file
+4. crash and run fsck to recover.
+
+fsync should guarantee that a specific file is persistent on disk.
+Presumably, operations on other files should not mess up with the file we
+just fsync (true ?)  However, I also understand that ext2 by default
+relies on e2fsck to provide file system consistency.  Do you guys consider
+the above warning as a bug or not?  Any clarification on this will be very
+helpful.
+
+To reproduce the warning, please download the test case at
+http://fisc.stanford.edu/bug3/crash.tar.bz2, untar, compile and run the
+executable ./crash <disk partition> <mount point> This test case is
+semi-automatically generated.  It may contain more than enough FS
+operations to trigger the warning.  **NOTE**: it'll run mke2fs on <disk
+partition> and reboot your machine!
+
+e2fsck output:
+e2fsck 1.36 (05-Feb-2005)
+/dev/ide/host0/bus0/target0/lun0/part9 was not cleanly unmounted, check
+forced.
+Pass 1: Checking inodes, blocks, and sizes
+Inode 12 has illegal block(s).  Clear? yes
+
+Illegal block #-2 (2305145833) in inode 12.  CLEARED.
+Inode 12, i_blocks is 24, should be 16.  Fix? yes
+
+Duplicate blocks found... invoking duplicate block passes.
+Pass 1B: Rescan for duplicate/bad blocks
+Duplicate/bad block(s) in inode 12: 24
+Duplicate/bad block(s) in inode 13: 24
+Pass 1C: Scan directories for inodes with dup blocks.
+Pass 1D: Reconciling duplicate blocks
+(There are 2 inodes containing duplicate/bad blocks.)
+
+File ... (inode #12, mod time Mon Mar  7 01:27:12 2005)
+  has 1 duplicate block(s), shared with 1 file(s):
+  ... (inode #13, mod time Mon Mar  7 01:27:14 2005)
+Clone duplicate/bad blocks? yes
+
+File ... (inode #13, mod time Mon Mar  7 01:27:14 2005)
+  has 1 duplicate block(s), shared with 1 file(s):
+     ... (inode #12, mod time Mon Mar  7 01:27:12 2005)
+Duplicated blocks already reassigned or cloned.
+
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Unattached inode 12
+Connect to /lost+found? yes
+
+Inode 12 ref count is 2, should be 1.  Fix? yes
+
+Unattached inode 13
+Connect to /lost+found? yes
+
+Inode 13 ref count is 2, should be 1.  Fix? yes
+
+Pass 5: Checking group summary information
+Block bitmap differences:  +(21--22) +(29--31)
+Fix? yes
+
+Free blocks count wrong for group #0 (37, counted=31).
+Fix? yes
+
+Free blocks count wrong (37, counted=31).
+Fix? yes
+
+
+/dev/ide/host0/bus0/target0/lun0/part9: ***** FILE SYSTEM WAS MODIFIED
+*****
+/dev/ide/host0/bus0/target0/lun0/part9: 13/16 files (7.7% non-contiguous),
+29/60 blocks
+running cmd "sudo mount -t ext2 /dev/ide/host0/bus0/target0/lun0/part9
+/mnt/sbd1
+
+-Junfeng
+

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319023AbSIJAJZ>; Mon, 9 Sep 2002 20:09:25 -0400
+	id <S319026AbSIJAMe>; Mon, 9 Sep 2002 20:12:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319024AbSIJAJZ>; Mon, 9 Sep 2002 20:09:25 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58898 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319023AbSIJAJY>; Mon, 9 Sep 2002 20:09:24 -0400
-Date: Mon, 9 Sep 2002 17:17:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Greg KH <greg@kroah.com>
-cc: <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <20020909221727.GF7433@kroah.com>
-Message-ID: <Pine.LNX.4.33.0209091714330.2069-100000@penguin.transmeta.com>
+	id <S319034AbSIJAMe>; Mon, 9 Sep 2002 20:12:34 -0400
+Received: from mta01ps.bigpond.com ([144.135.25.133]:48104 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S319026AbSIJAMd>; Mon, 9 Sep 2002 20:12:33 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Vikas Jain <v0j1217@unix.tamu.edu>
+Subject: Re: How to talk to joystick from kernel space
+Date: Tue, 10 Sep 2002 10:11:29 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.SOL.3.96.1020908204425.19274A-100000@scully.tamu.edu> <1031605114.29718.45.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1031605114.29718.45.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209101011.29965.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Greg, please don't do this
+On Tue, 10 Sep 2002 06:58, Alan Cox wrote:
+> On Mon, 2002-09-09 at 02:45, Vikas Jain wrote:
+> > Can anyone give me some guidance on how do we talk to joystick from
+> > kernel space.
+>
+> Read the documentation supplied with the kernel.
+Specifically, you need to talk to the input subsystem, so you should look in 
+it's documentation directory.
 
-> ChangeSet@1.614, 2002-09-05 08:33:20-07:00, greg@kroah.com
->   USB: storage driver: replace show_trace() with BUG()
+Why do you want to talk to a joystick anyway? Are you trying to add a driver 
+for a particular joystick, or modify behaviour based on some particular 
+kernel behaviour?
 
-that BUG() thing is _way_ out of line, and has killed a few of my machines 
-several times for no good reason. It actively hurts debuggability, because 
-the machine is totally dead after it, and the whole and ONLY point of 
-BUG() messages is to help debugging and make it clear that we can't handle 
-something.
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-In this case, we _can_ handle it, and we're much better off with a machine 
-that works and that you can look up the messages with than killing it.
-
-Rule of thumb: BUG() is only good for something that never happens and 
-that we really have no other option for (ie state is so corrupt that 
-continuing is deadly).
-
-		Linus
+iD8DBQE9fTixW6pHgIdAuOMRAi0fAJ4s02szOK28A8jNHW7x3HZ2Q6p77QCfWr5I
+21rHrWzsz06tLh+qRpxAdS0=
+=yyZL
+-----END PGP SIGNATURE-----
 

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262431AbSJNUrY>; Mon, 14 Oct 2002 16:47:24 -0400
+	id <S262442AbSJNUyw>; Mon, 14 Oct 2002 16:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbSJNUrY>; Mon, 14 Oct 2002 16:47:24 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:27631 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262431AbSJNUrX>; Mon, 14 Oct 2002 16:47:23 -0400
-Subject: Re: [BUG] Compile failure (gcc 2.96 bug?). 2.5.42 raid0.c
-From: Arjan van de Ven <arjanv@redhat.com>
-To: David Mansfield <lkml@dm.cobite.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0210141622460.2876-100000@admin>
-References: <Pine.LNX.4.44.0210141622460.2876-100000@admin>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-kOF0EH5MsPk1NYZ0BQeQ"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 14 Oct 2002 22:54:08 +0200
-Message-Id: <1034628849.3038.23.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S262448AbSJNUyw>; Mon, 14 Oct 2002 16:54:52 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:2056 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262442AbSJNUyv>; Mon, 14 Oct 2002 16:54:51 -0400
+Date: Mon, 14 Oct 2002 23:00:35 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [kbuild-devel] linux kernel conf 0.9
+In-Reply-To: <20021014204026.GB8366@kroah.com>
+Message-ID: <Pine.LNX.4.44.0210142256290.338-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-kOF0EH5MsPk1NYZ0BQeQ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Mon, 14 Oct 2002, Greg KH wrote:
 
-On Mon, 2002-10-14 at 22:27, David Mansfield wrote:
+> I get the following error on Red Hat 7.2:
 >
-> -               sector_t x =3D block;
-> +               volatile sector_t y =3D 0;
-> +               sector_t x =3D block - y;
->                 sector_div(x, (unsigned long)conf->smallest->size);
->                 hash =3D conf->hash_table + x;
->         }
-this appears to be a bad code bug; do_div() requires the first argument
-to be an u64 and we cast it to unsigned long here....
+> g++ -O2 -Wall -g -fPIC -I/usr/lib/qt-2.3.1/include -c qconf.cc -o qconf.o
+> In file included from lkc.h:10,
+>                  from qconf.cc:22:
+> zconf.tab.h:8: conflicting types for `typedef union YYSTYPE YYSTYPE'
+> zconf.tab.h:8: previous declaration as `typedef union YYSTYPE YYSTYPE'
+> zconf.tab.h:38: conflicting types for `YYSTYPE zconflval'
+> zconf.tab.h:38: previous declaration as `YYSTYPE zconflval'
+>
+> when trying to build the lkc package on it's own.
 
+Hmm, another bison version. :)
+Anyway, I've just uploaded a fixed version.
 
---=-kOF0EH5MsPk1NYZ0BQeQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> Either way, nice job, I like the new format and the speed.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Thanks.
 
-iD8DBQA9qy7wxULwo51rQBIRAub8AJ4qxys/NamfcPfsARKKAFajW/T6aQCeMBAs
-KHe/JYaie22QxrrNNfi73ZQ=
-=WR1G
------END PGP SIGNATURE-----
-
---=-kOF0EH5MsPk1NYZ0BQeQ--
+bye, Roman
 

@@ -1,71 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVA0C4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVAZXPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVA0C4g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 21:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVAZXRU
+	id S262445AbVAZXPU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVAZXNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:17:20 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:3265 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262451AbVAZRgj (ORCPT
+	Wed, 26 Jan 2005 18:13:48 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:17424 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262444AbVAZR1t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 12:36:39 -0500
-Date: Wed, 26 Jan 2005 09:36:32 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: [PATCH 19/34]: include/jiffies: add usecs_to_jiffies() function
-Message-ID: <20050126173632.GA2758@us.ibm.com>
-References: <20050125233750.GI12649@us.ibm.com> <20050125185100.64d5c935.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050125185100.64d5c935.akpm@osdl.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 26 Jan 2005 12:27:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type;
+        b=fpZ2XtXBZBJQdihstYx78y0qz3yHDQ8MwLQaxemyC+KyDZQP2y4C2+Z0YL/GUKhVa4KQoP5egwZFiAdU2dGpVR7+l0OKGBeli3Py/GK86stn8QyaWYax4uzgwxQyjDl4TA2946CWQ0fu7Ll8tMFQWzCfWbO+uJpJ7wJ3VnRwJSE=
+Message-ID: <41F7D312.9040509@gmail.com>
+Date: Wed, 26 Jan 2005 18:27:46 +0100
+From: Mikkel Krautz <krautz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: greg@kroah.com, roms@lpg.ticalc.org, jb@technologeek.org
+Subject: [PATCH 3/3] TIGLUSB Cleanups
+Content-Type: multipart/mixed;
+ boundary="------------060506040700090004070508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 06:51:00PM -0800, Andrew Morton wrote:
-> Nishanth Aravamudan <nacc@us.ibm.com> wrote:
-> >
-> > Please consider applying.
-> > 
-> >  Description: Add a usecs_to_jiffies() function.
-> 
-> Please cc linux-kernel on things which aren't utterly trivial?
+This is a multi-part message in MIME format.
+--------------060506040700090004070508
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sorry, Andrew, I actually meant to, but forgot to change the CC line. Sorry for
-the noise directly to you.
+This removes the TIGLUSB-documentation, silverlink.txt.
 
--Nish
+--------------060506040700090004070508
+Content-Type: text/x-patch;
+ name="remove_silverlink_documentation.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline;
+ filename="remove_silverlink_documentation.patch"
 
-Description: Add a usecs_to_jiffies() function. This will be used in one of my
-subsequent patches. With the potential for dynamic HZ values much higher than
-1000, we may need to consider times as small as usecs in terms of jiffies.
-We have msecs_to_jiffies(), jiffies_to_msecs() and jiffies_to_usecs(), but no
-usecs_to_jiffies(). Please check my math.
+Signed-off-by: Mikkel Krautz <krautz@gmail.com>
+---
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+ silverlink.txt |   78 ---------------------------------------------------------
+ 1 files changed, 78 deletions(-)
 
---- 2.6.11-rc2-kj-v/include/linux/jiffies.h	2005-01-24 09:34:19.000000000 -0800
-+++ 2.6.11-rc2-kj/include/linux/jiffies.h	2005-01-25 13:01:56.000000000 -0800
-@@ -287,6 +287,19 @@ static inline unsigned long msecs_to_jif
- #endif
- }
- 
-+static inline unsigned long usecs_to_jiffies(const unsigned int u)
-+{
-+	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+#if HZ <= 1000 && !(1000 % HZ)
-+	return (u + (1000000 / HZ) - 1000) / (1000000 / HZ);
-+#elif HZ > 1000 && !(HZ % 1000)
-+	return u * (HZ / 1000000);
-+#else
-+	return (u * HZ + 999999) / 1000000;
-+#endif
-+}
-+
- /*
-  * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
-  * that a remainder subtract here would not do the right thing as the
+--- clean/Documentation/usb/silverlink.txt
++++ dirty/Documentation/usb/silverlink.txt
+@@ -1,78 +0,0 @@
+--------------------------------------------------------------------------
+-Readme for Linux device driver for the Texas Instruments SilverLink cable
+-and direct USB cable provided by some TI's handhelds.
+--------------------------------------------------------------------------
+-
+-Author: Romain Liévin & Julien Blache
+-Homepage: http://lpg.ticalc.org/prj_usb
+-
+-INTRODUCTION:
+-
+-This is a driver for the TI-GRAPH LINK USB (aka SilverLink) cable, a cable 
+-designed by TI for connecting their TI8x/9x calculators to a computer 
+-(PC or Mac usually). It has been extended to support the USB port offered by
+-some latest TI handhelds (TI84+ and TI89 Titanium).
+-
+-If you need more information, please visit the 'SilverLink drivers' homepage 
+-at the above URL.
+-
+-WHAT YOU NEED:
+-
+-A TI calculator of course and a program capable to communicate with your 
+-calculator.
+-TiLP will work for sure (since I am his developer !). yal92 may be able to use
+-it by changing tidev for tiglusb (may require some hacking...).
+-
+-HOW TO USE IT:
+-
+-You must have first compiled USB support, support for your specific USB host
+-controller (UHCI or OHCI).
+-
+-Next, (as root) from your appropriate modules directory (lib/modules/2.5.XX):
+-
+-       insmod usb/usbcore.o
+-       insmod usb/usb-uhci.o  <OR>  insmod usb/ohci-hcd.o
+-       insmod tiglusb.o
+-
+-If it is not already there (it usually is), create the device:
+-
+-       mknod /dev/tiglusb0 c 115 16
+-
+-You will have to set permissions on this device to allow you to read/write
+-from it:
+-
+-       chmod 666 /dev/tiglusb0
+-       
+-Now you are ready to run a linking program such as TiLP. Be sure to configure 
+-it properly (RTFM).
+-       
+-MODULE PARAMETERS:
+-
+-  You can set these with:  insmod tiglusb NAME=VALUE
+-  There is currently no way to set these on a per-cable basis.
+-
+-  NAME: timeout
+-  TYPE: integer
+-  DEFAULT: 15
+-  DESC: Timeout value in tenth of seconds. If no data is available once this 
+-       time has expired then the driver will return with a timeout error.
+-
+-QUIRKS:
+-
+-The following problem seems to be specific to the link cable since it appears 
+-on all platforms (Linux, Windows, Mac OS-X). 
+-
+-In some very particular cases, the driver returns with success but
+-without any data. The application should retry a read operation at least once.
+-
+-HOW TO CONTACT US:
+-
+-You can email me at roms@lpg.ticalc.org. Please prefix the subject line
+-with "TIGLUSB: " so that I am certain to notice your message.
+-You can also mail JB at jb@jblache.org: he has written the first release of 
+-this driver but he better knows the Mac OS-X driver.
+-
+-CREDITS:
+-
+-The code is based on dabusb.c, printer.c and scanner.c !
+-The driver has been developed independently of Texas Instruments Inc.
+
+--------------060506040700090004070508--

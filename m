@@ -1,84 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUKCBUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbUKCBX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbUKCBUi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 20:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUKCBUi
+	id S261175AbUKCBX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 20:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUKCBX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 20:20:38 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:56222 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261235AbUKCBUW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 20:20:22 -0500
-Date: Wed, 3 Nov 2004 02:21:23 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: mark_h_johnson@raytheon.com, Thomas Gleixner <tglx@linutronix.de>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.9
-Message-ID: <20041103012123.GC16884@elte.hu>
-References: <OFB38B3DE8.983DDEAD-ON86256F40.0062F170-86256F40.0062F1A5@raytheon.com> <20041102191858.GB1216@elte.hu> <20041102192709.GA1674@elte.hu> <32932.192.168.1.8.1099437703.squirrel@192.168.1.8>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32932.192.168.1.8.1099437703.squirrel@192.168.1.8>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 2 Nov 2004 20:23:27 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:26035 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261175AbUKCBXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 20:23:18 -0500
+Message-ID: <41883300.8060707@yahoo.com.au>
+Date: Wed, 03 Nov 2004 12:23:12 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@novell.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay> <20041101223419.GG3571@dualathlon.random> <20041102022122.GJ3571@dualathlon.random> <11900000.1099410137@[10.10.2.4]> <20041102130910.3e779d32.akpm@osdl.org> <20041102215651.GU3571@dualathlon.random> <235610000.1099435275@flay> <20041103010952.GA3571@dualathlon.random>
+In-Reply-To: <20041103010952.GA3571@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
-
-> OK. Already tested RT-V0.6.9 and things are really good, so far. Got
-> it under the jackd-R + 9*fluidsynth workload test, and the comparison
-> to 2.6.9 (vanilla) is getting kind of humiliating :)
+Andrea Arcangeli wrote:
+> On Tue, Nov 02, 2004 at 02:41:15PM -0800, Martin J. Bligh wrote:
 > 
->                                    2.6.9   RT-V0.6.9
->                                  --------- ---------
->  XRUN Rate   . . . . . . . . . :    415         0    /hour
->  Delay Rate (>spare time)  . . :    493         0    /hour
->  Delay Rate (>1000 usecs)  . . :    913         1    /hour
->  Delay Maximum . . . . . . . . :   6877       864    usecs
->  Cycle Maximum . . . . . . . . :   1440      1552    usecs
->  Average DSP Load. . . . . . . :     38.9      40.5  %
->  Average Interrupt Rate  . . . :   1337      1338    /sec
->  Average Context-Switch Rate . :   7488      9048    /sec
-
-cool, good numbers. May i have a stats suggestion for future runs? Could
-you monitor the system (kernel) CPU overhead and userspace overhead as
-well?
-
-> As before, these stats were taken by running jackd -v -dalsa -dhw:0
-> -r44100 -p128 -n2 -S -P, loaded with 9 (nine) fluidsynth instances, on
-> a P4@2.533Ghz laptop, against the onboard sound device (snd-ali5451).
-> The results were averaged for 12 consecutive runs of 5 minutes each.
+>>eh? I don't see how that matters at all. After the DMA transfer, all the 
+>>cache lines will have to be invalidated in every CPUs cache anyway, so
+>>it's guaranteed to be stone-dead zero-degrees-kelvin cold. I don't see how
+>>however hot it becomes afterwards is relevant? 
 > 
-> On the RT kernel, the IRQ 5 handler thread, that serves the ali5451
-> sound device, has been chrt'ed to SCHED_FIFO and to priority=60 (chrt
-> -p -f 60 `pidof "IRQ 5"`). This time thought, I haven't touched the
-> ksoftirqd/0 scheduling policy nor priority.
 > 
-> I am also rehearsing these same tests on my P4/SMT desktop. I'll post
-> those a bit later today.
+> if the cold page becomes hot, it means the hot pages in the hot
+> quicklist will become colder. The cache size is limited, so if something
+> becomes hot, something will become cold.
 > 
-> As a personal comment, I've never, never seen so good figures in any
-> other kernel I've came across in the last couple of years. I hope this
-> can only go to the better ;)
+> The only difference is that the hot pages will become cold during the
+> dma if we return an hot page, or the hot pages will become cold while
+> the cpu touches the data of the previously cold page, if we return a
+> cold page. Or are you worried that the cache snooping is measurable?
+> 
+> I believe the hot-cold thing, is mostly important for the hot
+> allocations not for the cold one. So that the hot allocations are served
+> in a strict LIFO order, that truly matters but the cold allocations are
+> a grey area.
+> 
+> What kind of slowdown can you measure if you drop __GFP_COLD enterely?
+> 
+> Don't get me wrong, __GFP_COLD makes perfect sense since it's so little
+> cost to do it that it most certainly worth the branch in the
+> allocator, but I don't think the hot pages worth a _reservation_ since
+> they'll become cold anwyays after the I/O has completed, so then we
+> could have returned an hot page in the first place without slowing down
+> in the buddy to get it.
+> 
 
-i hope so too :) There's no reason why the performance of the current
--RT kernel couldnt be maintained, there are no corners cut.
+I see what you mean. You could be correct that it would model cache
+behaviour better to just have the last N freed "hot" pages in LIFO
+order on the list, and allocate cold pages from the other end of it.
 
-	Ingo
+You still don't want cold freeing to pollute this list, *but* you do
+want to still batch up cold freeing to amortise the buddy's lock
+aquisition.
+
+You could do that with just one list, if you gave cold pages a small
+extra allowance to batch freeing if the list is full.
+
+> 
+>>If the DMA is to pages that are hot in the CPUs cache - it's WORSE ... we
+>>have more work to do in terms of cacheline invalidates. Mmm ... in terms
+>>of DMAs, we're talking about disk reads (ie a new page allocates) - we're
+>>both on the same page there, right?
+> 
+> 
+> the DMA snoops the cache for the cacheline invalidate but I didn't think
+> it's measurable.
+> 
+> I would really like to see the performance difference of disabling the
+> __GFP_COLD thing for the allocations and to force picking from the head
+> of the list (and to always free the cold pages a the tail), I doubt you
+> will measure anything.
+> 
+
+I think you want to still take them off the cold end. Taking a
+really cache hot page and having it invalidated is worse than
+having some cachelines out of your combined pool of hot pages
+pushed out when you heat the cold page.
+

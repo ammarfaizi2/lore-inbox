@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQKUMdA>; Tue, 21 Nov 2000 07:33:00 -0500
+	id <S129793AbQKUMn4>; Tue, 21 Nov 2000 07:43:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130383AbQKUMcu>; Tue, 21 Nov 2000 07:32:50 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:47112 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129793AbQKUMcm>; Tue, 21 Nov 2000 07:32:42 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
+	id <S129825AbQKUMnq>; Tue, 21 Nov 2000 07:43:46 -0500
+Received: from devserv.devel.redhat.com ([207.175.42.156]:48402 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129793AbQKUMna>; Tue, 21 Nov 2000 07:43:30 -0500
+Date: Tue, 21 Nov 2000 07:13:27 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: beware of dead string constants
+Message-ID: <20001121071327.R1514@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <14874.25691.629724.306563@wire.cadcamlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14874.25691.629724.306563@wire.cadcamlab.org>
-Date: Tue, 21 Nov 2000 06:02:35 -0600 (CST)
-To: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: beware of dead string constants
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14874.25691.629724.306563@wire.cadcamlab.org>; from peter@cadcamlab.org on Tue, Nov 21, 2000 at 06:02:35AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 21, 2000 at 06:02:35AM -0600, Peter Samuelson wrote:
+> 
+> While trying to clean up some code recently (CONFIG_MCA, hi Jeff), I
+> discovered that gcc 2.95.2 (i386) does not remove dead string
+> constants:
+> 
+>   void foo (void)
+>   {
+>     if (0)
+>       printk(KERN_INFO "bar");
+>   }
+> 
+> Annoyingly, gcc forgets to drop the "<6>bar\0".  It shows up in the
+> object file, needlessly clogging your cachelines.
 
-While trying to clean up some code recently (CONFIG_MCA, hi Jeff), I
-discovered that gcc 2.95.2 (i386) does not remove dead string
-constants:
+gcc was never dropping such strings, I've commited a patch to fix this
+a week ago into CVS.
 
-  void foo (void)
-  {
-    if (0)
-      printk(KERN_INFO "bar");
-  }
-
-Annoyingly, gcc forgets to drop the "<6>bar\0".  It shows up in the
-object file, needlessly clogging your cachelines.
-
-This has ramifications for anyone thinking of converting #ifdefs to
-if(){}, which is supposed to be the way of the future.  In my situation
-I am trying to convert '#ifdef CONFIG_MCA' to 'if (MCA_bus)' where
-MCA_bus is #defined to 0 on most architectures.
-
-'static' variables in block scope, same story.
-
-This is mostly a heads-up to say that in this regard gcc is not ready
-for prime time, so we really can't get away with using if() as an ifdef
-yet, at least not without penalty.
-
-I've just asked gcc-help@gcc.gnu.org about this; if I hear anything
-interesting I'll report back.
-
-Peter
+	Jakub
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

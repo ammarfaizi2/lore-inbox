@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263176AbTC1WXt>; Fri, 28 Mar 2003 17:23:49 -0500
+	id <S263177AbTC1WYs>; Fri, 28 Mar 2003 17:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263177AbTC1WXt>; Fri, 28 Mar 2003 17:23:49 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:7085 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263176AbTC1WXs>; Fri, 28 Mar 2003 17:23:48 -0500
-Date: Fri, 28 Mar 2003 22:34:46 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NICs trading places ?
-Message-ID: <20030328223446.GA26102@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Joel Becker <Joel.Becker@oracle.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030328221037.GB25846@suse.de> <20030328222524.GK32000@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030328222524.GK32000@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.4i
+	id <S263178AbTC1WYs>; Fri, 28 Mar 2003 17:24:48 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:24737 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S263177AbTC1WYq>; Fri, 28 Mar 2003 17:24:46 -0500
+Message-ID: <3E84CE29.8070806@nortelnetworks.com>
+Date: Fri, 28 Mar 2003 17:35:21 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: some 2.5.66 issues
+References: <1048893853.1314.8.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 28, 2003 at 02:25:25PM -0800, Joel Becker wrote:
- > 	Is this a Red Hat system?  I encountered the same thing on a
- > RHAS system.
+Ronald Bultje wrote:
 
-I've seen the same issue on a SuSE box, and a Debian box.
- 
- > Basically, Anaconda had controlled the module load order
- > in /etc/modules.conf for 2.4.  Because my network drivers were built in
- > in 2.5, they loaded in the order of the compile-in.  This turned out to
- > be the reverse order.
+> Now, something more problematic. I'm being told to use try_module_get()
+> instead of MOD_INC_USE_COUNT. Cool. Somehow, it returns 1. I had a look
+> at the code in linux/module.h and am a bit confused:
 
-NICs built into kernel in both 2.4 and 2.5.
+> Why does it only return 0 if the module is not alive? This sounds...
+> er... weird? Can someone please enlighten me?
 
-		Dave
+Presumably so you can treat the result as a boolean true/false value.
+
+Chris
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

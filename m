@@ -1,79 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbUBXBTO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 20:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbUBXBTM
+	id S262138AbUBXBTN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 20:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbUBXBQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 20:19:12 -0500
-Received: from 64-52-142-65.client.cypresscom.net ([64.52.142.65]:35246 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id S262182AbUBXBS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 20:18:28 -0500
-Date: Mon, 23 Feb 2004 17:11:28 -0800 (PST)
-From: John Heil <kerndev@sc-software.com>
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel vs AMD x86-64
-In-Reply-To: <1077584461.8414.164.camel@hostmaster.org>
-Message-ID: <Pine.LNX.4.58.0402231707220.13525@scsoftware.sc-software.com>
-References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org> 
- <16435.14044.182718.134404@alkaid.it.uu.se>  <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>
-  <20040222025957.GA31813@MAIL.13thfloor.at>  <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
- <1077584461.8414.164.camel@hostmaster.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Feb 2004 20:16:54 -0500
+Received: from imap.gmx.net ([213.165.64.20]:46731 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262167AbUBXBNy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 20:13:54 -0500
+X-Authenticated: #20799612
+Date: Tue, 24 Feb 2004 02:13:55 +0100
+From: Hansjoerg Lipp <hjlipp@web.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, jamie@shareable.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-ID: <20040224011355.GC6426@hobbes>
+References: <20040216133418.GA4399@hobbes> <20040222020911.2c8ea5c6.pj@sgi.com> <20040222155410.GA3051@hobbes> <20040222125312.11749dfd.pj@sgi.com> <20040222225750.GA27402@mail.shareable.org> <20040222214457.6f8d2224.pj@sgi.com> <20040223142215.GB30321@mail.shareable.org> <20040223173446.GA2830@pclin040.win.tue.nl> <20040223134610.3b6d01a9.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040223134610.3b6d01a9.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Thomas Zehetbauer wrote:
+On Mon, Feb 23, 2004 at 01:46:10PM -0800, Paul Jackson wrote:
+> Andries Brouwer wrote:
+> >  If there is such nonblank text then for SysVR4,
+> >  SunOS, Solaris, IRIX, HPUX, AIX, Unixware, Linux, OpenBSD, Tru64
+> >  this group consists of precisely one argument.
+> >  FreeBSD, BSD/OS, BSDI split the text
+> 
+> Interesting - I notice that 9 Operating Systems, in addition to Linux,
+> don't split the optional shebang argument, and 3 do.
 
-> Date: Tue, 24 Feb 2004 02:01:02 +0100
-> From: Thomas Zehetbauer <thomasz@hostmaster.org>
-> To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: Intel vs AMD x86-64
->
-> On Sam, 2004-02-21 at 19:12 -0800, Linus Torvalds wrote:
-> > Any Intel people on this list: tell your managers to be f*cking ashamed of
-> > themselves. Just because Intel didn't care about their customers and has
-> > been playing with some other 64-bit architecture that nobody wanted to use
-> > is no excuse for not giving credit to AMD for what they did with x86-64.
->
-> This very clear statement deserves standing ovations :-)
->
-> If anyone from Intel is really listening here I would like them to know
-> that I am pretty much pissed of by their product politics as well.
->
-> Although older Celeron processors supported SMP configurations they were
-> not supported and to my knowledge never used in the primary SMP market.
-> So in fact they even helped Intel to increase their revenues by allowing
-> hobbyists to build their own affordable SMP boxes. Nonetheless Intel has
-> decided to disable this capability in current Celeron and even Pentium
-> processors attempting to force hobbyists into the professional market
-> with about four times the cost of previous configurations.
->
-> For my part I have understood the message from Intel, that they do not
-> want hobbyists looking for cheap SMP configurations as their customers
-> and will accordingly buy AMD in the future.
->
-> Tom
->
+Yes. And this shows, that Linux would not be the first OS which splits
+arguments. One more reason, why I'm sure this change won't cause lots of
+problems.
 
-I'll second that.
+> All else equal, I am not enthusiastic about a somewhat arbitrary change
+> that could be done either way, that is actually done more often in other
+> operating systems the current way, and that potentially affects both
+> script files and their interpreters (shells, awk, perl, python, guile,
+> tcl, bc, ...).
+[...]
 
-For whatever it's worth I replaced all my intel business boxes w AMD
-w the advent of the K7/Athlon's and haven't looked back since,
-including SMP. Next up for us will be dual Opteron. I cannot see
-ever returning to Intel.
+As written in my previous mail, it only affects scripts, that already
+have multiple arguments in the shebang line. So, I don't see a lot of
+problems here.
 
+> And, to be truthful, the usual way that I code awk scripts is not as
+> a shbang script with an interpreter of awk,
+> 
+>   #!/bin/awk
+>   BEGIN ...
+> 
+> but rather as a quoted awk script within a shell script:
+> 
+>   #!/bin/sh
+>   awk '
+>     BEGIN ...
+>   '
+> 
+[...]
 
-johnh
+This may be right for awk, although I still consider wrapper scripts to
+be somewhat awkward. But your argument is not true for shells, perl,
+python, ... And I still think, it's somewhat strange, that perl has to
+parse the shebang line of the scripts, because the OS can't do it. And
+as other interpreters don't act this way, there are totally unnecessary
+restrictions writing certain scripts...
 
--
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
+> This is a portable habit, that avoids all the afore mentioned
+> limitations and inconsistencies in shbang handling.
+
+If you write scripts for several OSes you are right. On the other hand,
+I don't see any reason, why one should stick to the limits of some other
+operating systems, when it's not necessary. Acting this way will never
+change these limitations. If the three OSes mentioned above _and_ Linux
+handle the shebang line in a more sensible way, this could be one step
+to get rid of these inconsistencies.
+
+Regards,
+
+	Hansjoerg Lipp

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbTDDPci (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 10:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbTDDPbX (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 10:31:23 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3081 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263773AbTDDP2I (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 10:28:08 -0500
-Date: Fri, 4 Apr 2003 16:39:31 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] interlaced packed pixels
-Message-ID: <20030404163931.E964@flint.arm.linux.org.uk>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Frame Buffer Device Development <linux-fbdev-devel@lists.sourceforge.net>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.21.0304041310440.1720-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0304041310440.1720-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Fri, Apr 04, 2003 at 01:17:15PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+	id S263763AbTDDPWB (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 10:22:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbTDDPUo (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 10:20:44 -0500
+Received: from lrsehosting.com ([198.78.66.31]:57871 "EHLO www.geekizoid.com")
+	by vger.kernel.org with ESMTP id S263758AbTDDPQs (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 10:16:48 -0500
+Date: Fri, 4 Apr 2003 07:28:12 -0800 (PST)
+From: William Scott Lockwood III <vlad@geekizoid.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <Pine.LNX.4.53.0304040752500.2804@chaos>
+Message-ID: <20030404072327.J5167-100000@www.geekizoid.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 01:17:15PM +0200, Geert Uytterhoeven wrote:
-> I'd like to introduce a new frame buffer type to accommodate packed pixel frame
-> buffers that store the even and odd fields separately. This is typically used
-> in graphics hardware for TV output (e.g. set-top boxes).
+On Fri, 4 Apr 2003, Richard B. Johnson wrote:
+> On Thu, 3 Apr 2003, William Scott Lockwood III wrote:
+> > On Thu, 3 Apr 2003, David S. Miller wrote:
+> > >    From: "Richard B. Johnson" <root@chaos.analogic.com>
+> > >    Date: Thu, 3 Apr 2003 15:02:41 -0500 (EST)
+> > >    Well it's not a yahoo users problem because yahoo users can't fix
+> > >    it. Some yahoo users have yahoo "free" mail as their only connection
+> > >    to the internet because of facist network administrators.
+> > > If you want all the SPAM that will result on Linux-kernel, we
+> > > can disable the filter if you want.
+> > > I refuse to sit here and listen to all the "this is the only
+> > > connection person FOO has to the internet" stories, quite frankly I'm
+> > > absolutely sick of hearing them.
+> > > If you don't have properly functioning mail, you can't use these
+> > > lists.
+> > > Period.
+> > When did that become your call?  I didn't realize you owned LKML.
+> Well it's his "baseball" and; "You'll play by my rules or you won't
+> play at all..."
+> FYI, there is no Major Domo. It's Latin, major domus, "master of
+> the house". He doith whatever he careth...
 
-While we're on the subject of framebuffers, one area which needs to be
-looked into is the pixel layout for all of:
-
-- little endian byte, little endian pixel
-	1bpp: word 0 bit 31..0 = pixel 31..0)
-	16bpp: word 0 bit 31..0 = pixel1 bits 15..0 pixel0 bits 15..0) 
-- little endian byte, big endian pixel
-	1bpp: word 0 bit 31..0 = pixel 24..31, 16..23, 8..15, 0..7)
-	16bpp: word 0 bit 31..0 = pixel1 bits 15..0 pixel0 bits 15..0) 
-- big endian byte, big endian pixel
-	1bpp: word 0 bit 31..0 = pixel 0..31)
-	16bpp: word 0 bit 31..0 = pixel0 bits 15..0 pixel1 bits 15..0) 
-
-We currently do not support all these combinations, and so far I haven't
-looked into it.  It is on my (great long) to do list.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Yes, I can see that.  No matter who it alienates.  Weither or not he's
+checked with anyone else either.  How about leting those of us who (like
+Linus) choose to use a commercial email product do so?  Garbage about
+headers, etc. is just that - garbage.  The best list is one that is
+inclusive.  One that tollerates other opinions and choices.  LKML has
+turned into the largest, nastiest click I've ever seen, and that's really
+sad, as I'm sure it scares some good people away.  Look at all the crap I
+and others got for using hotmail - I finally got sick and tired of the
+whining and now have to take 3x as long to read my mail - but it's not a
+hotmail address anymore, so the whining stoped.  Why not spend less timing
+restricting what people can read and post from, and just let people
+participate?
 

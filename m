@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUFJTVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUFJTYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbUFJTVe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 15:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUFJTVc
+	id S262730AbUFJTYC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 15:24:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUFJTYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 15:21:32 -0400
-Received: from s-smtp-osl-02.bluecom.no ([62.101.193.41]:47580 "EHLO
-	s-smtp-osl-02.bluecom.no") by vger.kernel.org with ESMTP
-	id S262459AbUFJTVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 15:21:18 -0400
-Message-ID: <40C8B4AB.9000800@globelan.net>
-Date: Thu, 10 Jun 2004 21:21:15 +0200
-From: Lars Age Kamfjord <lakmailing@globelan.net>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: stian@nixia.no
-Subject: Re: timer + fpu stuff locks my console race
-References: <40C8AFA4.3040705@globelan.net>
-In-Reply-To: <40C8AFA4.3040705@globelan.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jun 2004 15:24:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2458 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262730AbUFJTXy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 15:23:54 -0400
+Date: Thu, 10 Jun 2004 20:23:53 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Tobias Hirning <Tobias.Hirning@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Insults in the kernel-sources
+Message-ID: <20040610192353.GK12308@parcelfarce.linux.theplanet.co.uk>
+References: <200406102053.48615.Tobias.Hirning@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406102053.48615.Tobias.Hirning@gmx.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Throwing in a ACK on 2.4.18-bf2.4 (debian woody vanilla) from ssh
+On Thu, Jun 10, 2004 at 08:53:48PM +0200, Tobias Hirning wrote:
+> Hi people,
+> have you ever tried a 
+> grep "insult" -i -r ./*
+>  in the sourcetree of the kernel?
+> (insult must be replaced by an insult)
+> Haven't?
+> So do and think about, because the you can find to much of insults in 
+> the sources.
+> Tobias
 
-The guy I crashed probably hates me now, but I warned him last week he 
-should give away shellaccounts to everyone he knows.......
-
-Lars Age Kamfjord
-BOFH
-
-Lars Age Kamfjord wrote:
-
-> ACK on 2.6.5 (fedora core 2 vanilla)
->
-> Totally locked my X window system.
->
-> Lars Age Kamfjord
->
-> > Please keep me in CC as I'm not on the mailinglist. I'm currently on a
-> > vaccation, so I can't hook my linux-box to the Internet, but I came 
-> across
-> > a race condition in the "old" 2.4.26-rc1 vanilla kernel.
->
-> > I'm doing some code tests when I came across problems with my program
-> > locking my console (even X if I'm using a xterm).
->
-> > I think first of all gcc triggers the problem, so the full report is 
-> here:
-> > http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15905
->
-> > Stian Skjelstad
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+What, you find them too predictable and commonplace?

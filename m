@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbTLPRLd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 12:11:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTLPRLd
+	id S261881AbTLPR1D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 12:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTLPR1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 12:11:33 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1920 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261950AbTLPRL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 12:11:29 -0500
-Date: Tue, 16 Dec 2003 17:17:00 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200312161717.hBGHH0kX000201@81-2-122-30.bradfords.org.uk>
-To: Sven Luther <sven.luther@wanadoo.fr>, Andries Brouwer <aebr@win.tue.nl>
-Cc: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031216135306.GA7292@iliana>
-References: <20031212131704.A26577@animx.eu.org>
- <20031212194439.GB11215@win.tue.nl>
- <20031216135306.GA7292@iliana>
-Subject: Re: 2.6 and IDE "geometry"
+	Tue, 16 Dec 2003 12:27:03 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39153 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261881AbTLPR1A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 12:27:00 -0500
+Message-ID: <3FDF4060.30303@mvista.com>
+Date: Tue, 16 Dec 2003 09:26:56 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl> <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com> <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl> <3FDE2AC6.30902@mvista.com> <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Sven Luther <sven.luther@wanadoo.fr>:
-> On Fri, Dec 12, 2003 at 08:44:39PM +0100, Andries Brouwer wrote:
-> > On Fri, Dec 12, 2003 at 01:17:04PM -0500, Wakko Warner wrote:
-> > 
-> > > Is there anyway to get kernel 2.6 to use the geometry
-> > > the bios has for an IDE drive?
-> > 
-> > The kernel does not use any geometry.
-> > 
-> > > I have a installation setup that installs a non-linux os and I partition the
-> > > drive under linux.  In 2.4 this has worked flawlessly, however, 2.6 reports
-> > > as # cylinders/16 heads/63 sectors.
-> > 
-> > Aha. So your real question is:
-> > "Is there any way to get *fdisk to use my favorite geometry?"
-> > The answer is: all common fdisk versions allow you to set the geometry.
+Maciej W. Rozycki wrote:
+> On Mon, 15 Dec 2003, George Anzinger wrote:
 > 
-> I believe parted does not. Nor any of the libparted frontends. I may be
-> wrong though.
+> 
+>>> Hmm, you could have simply asked... ;-)  Anyway, an inclusion is doable,
+>>>I guess.
+>>
+>>I suspect I did, but most likey the wrong place.  In any case, I would like to 
+>>think that "read the source, Luke" is the right answer.
+> 
+> 
+>  Certainly it is, but not necessarily the only one. ;-)
+> 
+> 
+>>So, while I am in the asking mode, is there a simple way to turn off the PIT 
+>>interrupt without changing the PIT program?  I would like a way to stop the 
+>>interrupts AND also stop the NMIs that it generates for the watchdog.  I suspect 
+>>that this is a bit more complex that it would appear, due to how its wired.
+> 
+> 
+>  Well, in PC/AT compatible implementations, the counter #0 of the PIT has
+> its gate hardwired to active, so you cannot mask the PIT output itself.  
+> So the only other choices are either reprogramming the counter to a mode
+> that won't cause periodic triggers (which is probably the easiest way, but
+> you don't want to do that for some purpose, right?) or reprogramming
+> interrupt controllers not to accept interrupts arriving from the PIT.
+> 
+>  Note that Linux may behave strangely then. ;-)
 
-If so, I consider it a missing feature in parted - why should the BIOS
-geometry resemble the disk it describes at all?  Some machines have no
-user-definable drive types, forcing you to use an incorrect geometry
-if you install a disk which is not in the table of supported drives.
+This is for the VST code where we want to stop the timer interrupts for a bit IF 
+and only if we are in the idle task AND there are no timers to service, i.e. the 
+interrupt would be useless.  We don't want to mess with the PIT program as that 
+would mess up the time when we turn it on again.  So we just want to stop a few 
+interrupts from time to time.  We catch up after turning the PIT back on by 
+using the TSC or pm_timer or some other source that keeps something close to 
+reasonable time.
+> 
 
-This is no problem for recent Linux kernels, and doesn't even prevent
-you booting from that disk.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-John.

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbTELVvh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 17:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTELVvh
+	id S262801AbTELVxr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 17:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbTELVxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 17:51:37 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32921
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262783AbTELVvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 17:51:36 -0400
-Subject: Re: The disappearing sys_call_table export.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200305121754_MC3-1-388D-BC60@compuserve.com>
-References: <200305121754_MC3-1-388D-BC60@compuserve.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052773544.31825.16.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 12 May 2003 17:53:47 -0400
+Received: from a.smtp-out.sonic.net ([208.201.224.38]:35542 "HELO
+	a.smtp-out.sonic.net") by vger.kernel.org with SMTP id S262801AbTELVxf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 17:53:35 -0400
+X-envelope-info: <dhinds@sonic.net>
+Date: Mon, 12 May 2003 15:06:18 -0700
+From: David Hinds <dhinds@sonic.net>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: David Hinds <dahinds@users.sourceforge.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA 2.5.X sleeping from illegal context
+Message-ID: <20030512150618.B22527@sonic.net>
+References: <1052775331.1995.49.camel@diemos>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 May 2003 22:05:48 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052775331.1995.49.camel@diemos>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-05-12 at 22:51, Chuck Ebbert wrote:
-> Alan Cox wrote:
+On Mon, May 12, 2003 at 04:35:32PM -0500, Paul Fulghum wrote:
 > 
-> >>   ...and on a related topic, if someone wrote a patch to optionally clear
-> >> the swap area at swapoff would it ever be accepted?
-> >
-> > man dd ?
-> 
->   "That can be done manually" does not get you the check mark in
-> the list of features.  Management wants idiot-resistant security.
+> So, are all the PCMCIA drivers supposed to be changed to not
+> release resources in the timer context? And if so, what
+> is the new convention?
 
-man dd
-man bash
+yes.  The timers should be gotten rid of.
 
-idiot proof != kernel side
-
-And its still a waste of time because you dont have enough guarantees about
-things like drive layout.
-
+-- Dave

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131610AbQKKAbv>; Fri, 10 Nov 2000 19:31:51 -0500
+	id <S130905AbQKKAkW>; Fri, 10 Nov 2000 19:40:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131782AbQKKAbl>; Fri, 10 Nov 2000 19:31:41 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:13573 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131610AbQKKAbd>; Fri, 10 Nov 2000 19:31:33 -0500
-Message-ID: <3A0C9277.273FA907@timpanogas.org>
-Date: Fri, 10 Nov 2000 17:27:35 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Ford <david@linux.com>
-CC: sendmail-bugs@sendmail.org, linux-kernel@vger.kernel.org
-Subject: Re: Wild thangs, was: sendmail fails to deliver mail with attachments in 
- /var/spool/mqueue
-In-Reply-To: <3A0C427A.E015E58A@timpanogas.org> <20001110095227.A15010@sendmail.com> <3A0C37FF.23D7B69@timpanogas.org> <20001110101138.A15087@sendmail.com> <3A0C3F30.F5EB076E@timpanogas.org> <20001110133431.A16169@sendmail.com> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <3A0C929B.EE6F7137@linux.com>
+	id <S131744AbQKKAkM>; Fri, 10 Nov 2000 19:40:12 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:33262 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S130905AbQKKAkG>;
+	Fri, 10 Nov 2000 19:40:06 -0500
+Date: Fri, 10 Nov 2000 16:40:07 -0800
+From: Greg KH <greg@wirex.com>
+To: Gerald Haese <Gerald.Haese@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB mouse stops working
+Message-ID: <20001110164006.E1229@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	Gerald Haese <Gerald.Haese@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <00111101012003.01860@dose>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00111101012003.01860@dose>; from Gerald.Haese@gmx.de on Sat, Nov 11, 2000 at 01:01:20AM +0100
+X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 11, 2000 at 01:01:20AM +0100, Gerald Haese wrote:
+> Hi, ...
+> 
+> the following problem is not a new one (for me):
+> 
+> I'm using an SMP system. Everything works fine and (absolutely) stable - 
+> exept my USB mouse :-( It's the USB version of the Wacom Graphire tablet. The 
+> mouse works great for some minutes or up to half an hour and it generates a 
+> lot of interrupts during this time ... And now the mouse stops working. No 
+> interrupt is generated. The USB printer does not work any more. Unloading and 
+> reloading of the USB related modules does not help :-( No interrupts are 
+> registered for USB (seen in /proc/interrupts).
 
+What is the output of /proc/interrupts?  Is USB sharing an interrupt
+with anything else?
 
-David Ford wrote:
+thanks,
 
-David,
+greg k-h
 
-We got to the bottom of it.  sendmail is using a BSD method to react to
-load average which is different than what linux is providing.  You have
-to crank up
-
-O QueueLA = 18
-O RefuseLA = 12 
-
-on a busy Linux server since the defaults will result in large emails
-never getting sent.  
-
-Jeff
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

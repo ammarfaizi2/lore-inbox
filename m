@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271831AbRH0SXw>; Mon, 27 Aug 2001 14:23:52 -0400
+	id <S271829AbRH0SYB>; Mon, 27 Aug 2001 14:24:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271827AbRH0SXm>; Mon, 27 Aug 2001 14:23:42 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:13586 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S271828AbRH0SXf>; Mon, 27 Aug 2001 14:23:35 -0400
-Date: Mon, 27 Aug 2001 12:28:38 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Novell Attacks Linux
-Message-ID: <20010827122838.A20599@vger.timpanogas.org>
-In-Reply-To: <20010825020114.A12724@vger.timpanogas.org> <3B8809A5.DB7B6764@baywinds.org> <20010825153009.B14524@vger.timpanogas.org> <9mcurg$cuo$1@forge.intermeta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <9mcurg$cuo$1@forge.intermeta.de>; from mailgate@hometree.net on Mon, Aug 27, 2001 at 08:02:56AM +0000
+	id <S271827AbRH0SXw>; Mon, 27 Aug 2001 14:23:52 -0400
+Received: from skiathos.physics.auth.gr ([155.207.123.3]:58436 "EHLO
+	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
+	id <S271828AbRH0SXp>; Mon, 27 Aug 2001 14:23:45 -0400
+Date: Mon, 27 Aug 2001 21:23:45 +0300 (EET DST)
+From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+To: Kurt Roeckx <Q@ping.be>
+cc: Jan Niehusmann <jan@gondor.com>,
+        "Grover, Andrew" <andrew.grover@intel.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: VCool - cool your Athlon/Duron during idle
+In-Reply-To: <20010827170304.A226@ping.be>
+Message-ID: <Pine.GSO.4.21.0108272108430.14459-100000@skiathos.physics.auth.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 27, 2001 at 08:02:56AM +0000, Henning P. Schmiedehausen wrote:
-> "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> writes:
+On Mon, 27 Aug 2001, Kurt Roeckx wrote:
+
+> On Mon, Aug 27, 2001 at 02:48:24PM +0300, Liakakis Kostas wrote:
+> > On Mon, 27 Aug 2001, Jan Niehusmann wrote:
+> > 
+> > > (asus writes that one of the problems that can happen with this power
+> > > saving mode are the huge changes in power dissipation, from 60W to 5W
+> > > and back - therefore I assume the power saving mode can save up to 55W)
+> > 
+> > The problem they are describing is not the change in power dissipation,
+> > but the change in current draw from the regulated 1.75V (difference of
+> > about 30A or more).
 > 
-> >On Sat, Aug 25, 2001 at 01:25:09PM -0700, Bruce Ferrell wrote:
-> 
-> >Thanks for the advice, but I don't think I share your views.
-> 
-> And where is page one of this letter? 
-> 
-> IMHO you're trying to do politics (again!) on LKLM with just
-> half-assed information. You're a lawyer, aren't you?
+> And what do you think power is?
+> Maybe it's the voltage times the current?
+
+Your point being? This is power yeah. However I can get 50W with 1V@50A
+and with 50V@1A ... tell me which will be easier for a regulator when
+going from 10 to 50W while trying to keep the voltage steady.
+
+So to rephrase myself the condition of less power dissipation (and that is
+thermal output, not power consumption which isvoltage times current... )
+is the result of less current draw of ~30A. This is a huge difference. And
+this is the problem. There are regulators on certain motherboards which
+can't cope with this. And they increase (not that bad unless you fry a 
+chip) when current drops, or decrease voltage when there is current need
+(crash) of the tolerance limmits.
+
+Sorry for the OT.
+
+-K.
 
 
-People have downloaded NWFS from LKML.  If Novell is making claims
-it's stolen, in the US I have an obligation to inform these people.
-You live in Germany, so I don't expect you to understand our laws.
-Under our law, Novell can go after any of these people, so they 
-need to be warned.
-
-Jeff
-
-
-> 
-> 	Regards
-> 		Henning
-> 
-> -- 
-> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-> 
-> Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-> D-91054 Buckenhof     Fax.: 09131 / 50654-20   
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

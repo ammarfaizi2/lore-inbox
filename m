@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbUCLTKv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 14:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbUCLTKv
+	id S262412AbUCLTH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 14:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbUCLTH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 14:10:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57995 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261726AbUCLTKh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 14:10:37 -0500
-Date: Fri, 12 Mar 2004 11:12:28 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 12 Mar 2004 14:07:58 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:20365 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262412AbUCLTG5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 14:06:57 -0500
+Message-ID: <40520B86.50803@tmr.com>
+Date: Fri, 12 Mar 2004 14:12:06 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Nick Piggin <piggin@cyberone.com.au>
-Cc: piggin@cyberone.com.au, smurf@smurf.noris.de, linux-kernel@vger.kernel.org
+CC: Matthias Urlichs <smurf@smurf.noris.de>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-Message-Id: <20040312111228.3425780b.akpm@osdl.org>
-In-Reply-To: <4051C5F1.2050605@cyberone.com.au>
-References: <404FACF4.3030601@cyberone.com.au>
-	<200403111825.22674@WOLK>
-	<40517E47.3010909@cyberone.com.au>
-	<20040312012703.69f2bb9b.akpm@osdl.org>
-	<pan.2004.03.12.11.08.02.700169@smurf.noris.de>
-	<4051B0C6.2070302@cyberone.com.au>
-	<4051C5F1.2050605@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <404FACF4.3030601@cyberone.com.au> <200403111825.22674@WOLK> <40517E47.3010909@cyberone.com.au> <20040312012703.69f2bb9b.akpm@osdl.org> <pan.2004.03.12.11.08.02.700169@smurf.noris.de> <4051B0C6.2070302@cyberone.com.au>
+In-Reply-To: <4051B0C6.2070302@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
-> Just had a try of doing things like updatedb and dd if=/dev/zero of=./blah
-> It is pretty swappy I guess.
+Nick Piggin wrote:
+> 
+> 
+> Matthias Urlichs wrote:
+> 
+>> Hi, Andrew Morton wrote:
+>>
+>>
+>>> That effect is to cause the whole world to be swapped out when people
+>>> return to their machines in the morning.
+>>>
+>>
+>> The correct solution to this problem is "suspend-to-disk" --
+>> if the machine isn't doing anything anyway, TURN IT OFF.
+>>
+>>
+> 
+> Without arguing that point, the VM also should have a solution
+> to the problem where people don't turn it off.
+> 
+>> One slightly more practical solution from the "you-now-who gets angry
+>> mails" POV anyway, would be to tie the reduced-rate scanning to the load
+>> average -- if nothing at all happens, swap-out doesn't need to happen
+>> either.
+>>
+>>
+> 
+> Well if nothing at all happens we don't swap out, but when something
+> is happening, desktop users don't want any of their programs to be
+> swapped out no matter how long they have been sitting idle. They don't
+> want to wait 10 seconds to page something in even if it means they're
+> waiting an extra 10 minutes throughout the day for their kernel greps
+> and diffs to finish.
 
-You'll need to bring the scanning priority back into the picture: don't
-move mapped pages down onto the inactive list at low scanning priorities. 
-And that eans retaining the remember-the-priority-from-last-time logic.
+I have noticed that 2.6 seems to clear memory (any version I've run for 
+a while) and a lunch break results in a burst of disk activity before 
+the screen saver even gets in to unlock the screen. I know this box has 
+no cron activity during the day, so the pages were not forced out.
 
-Otherwise it's inevitable that even a `cat monster_file > /dev/null' will
-eventually swap out everything it can.
+It's a good thing IMHO to write dirty pages to swap so the space can be 
+reclaimed if needed, but shouldn't the page be marked as clean and left 
+in memory for use without swap-in nif it's needed? I see this on backup 
+servers, and a machine with 3GB of free memory, no mail, no cron and no 
+app running isn't getting much memory pressure ;-)
 
-> By the way, I would be interested to know the rationale behind
-> mark_page_accessed as it is without this patch, also what is it doing in
-> rmap.c (I know hardly anything actually uses page_test_and_clear_young, but
-> still). It seems to me like it only serves to make VM behaviour harder to
-> understand, but I'm probably missing something. Andrew?
+I am not saying the behaviour is wrong, I just fail to see why the last 
+application run isn't still in memory an hour later, absent memory pressure.
 
-hm, that's left-over code which is pretty pointless now.
-
-
-	if (page_test_and_clear_young(page))
-		mark_page_accessed(page);
-
-	if (TestClearPageReferenced(page))
-		referenced++;
-
-The pages in here are never on the LRU, so all the mark_page_accessed()
-will do is to set PG_Referenced.  And we immediately clear it again.  So
-the mark_page_accessed() can be replaced with referenced++.
-
-
+-- 
+		-bill

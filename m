@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132077AbRDJUCN>; Tue, 10 Apr 2001 16:02:13 -0400
+	id <S132038AbRDJUFo>; Tue, 10 Apr 2001 16:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132072AbRDJUCF>; Tue, 10 Apr 2001 16:02:05 -0400
-Received: from sputnik.senv.net ([213.169.3.101]:7940 "HELO sputnik.senv.net")
-	by vger.kernel.org with SMTP id <S132056AbRDJUBw>;
-	Tue, 10 Apr 2001 16:01:52 -0400
-Date: Tue, 10 Apr 2001 23:01:41 +0300 (EEST)
-From: Jussi Hamalainen <count@theblah.org>
-X-X-Sender: <count@mir.senv.net>
+	id <S132046AbRDJUFh>; Tue, 10 Apr 2001 16:05:37 -0400
+Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:64012 "EHLO
+	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
+	id <S132038AbRDJUFE>; Tue, 10 Apr 2001 16:05:04 -0400
+Message-ID: <002101c0c1f9$f5b37450$c358718c@SpeedPC16>
+Reply-To: "gis88530" <gis88530@cis.nctu.edu.tw>
+From: "gis88530" <gis88530@cis.nctu.edu.tw>
 To: <linux-kernel@vger.kernel.org>
-Subject: Re: lockd trouble
-In-Reply-To: <Pine.LNX.4.30.0104102137470.708-100000@mir.senv.net>
-Message-ID: <Pine.LNX.4.33.0104102258040.3166-100000@mir.senv.net>
+In-Reply-To: <034201c0c1e5$adfc2b70$ae58718c@cis.nctu.edu.tw> <20010410194916.A22380@gruyere.muc.suse.de>
+Subject: Re: memory usage
+Date: Wed, 11 Apr 2001 04:08:07 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Apr 2001, Jussi Hamalainen wrote:
+Thanks.
+cat /proc/slabinfo look like as follows.
+Each row have three columns.
+Could you tell me what do they mean in second and third column?
+kmem_cache        29     42
+pio_request            0      0
 
->    program vers proto   port
->     100000    2   tcp    111  portmapper
->     100000    2   udp    111  portmapper
->     100021    1   udp   1024  nlockmgr
->     100021    3   udp   1024  nlockmgr
->     100005    1   udp    686  mountd
->     100005    2   udp    686  mountd
->     100005    1   tcp    689  mountd
->     100005    2   tcp    689  mountd
->     100003    2   udp   2049  nfs
->     100003    2   tcp   2049  nfs
+My second question is:
+We can find memory usage of daemon(apache) by ps or top.
+e.g. apache use 5400k physical memory 
 
-Duhh. Obviously I should have read the documentation before bashing
-my head against the wall. I wasn't running statd. Got it working now,
-sorry about that.
+Does the memory usage of /proc/slabinfo include some of 
+5400k ? I guess 5400k can separate into two part
+(kernel space part and user space part). 
 
-I do have a question about lockd. How do I get it back if I need
-to restart portmap? Running rpc.lockd doesn't seem to have any
-effect whatsoever on the listed rpc services and I can't just
-reload the module since nfs depends on it.
-
--- 
--=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.org ]=-
+Is any thing wrong? Thanks
+Cheers,
+Tom
 

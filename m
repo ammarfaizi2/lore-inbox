@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbUCBJa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 04:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbUCBJa3
+	id S261571AbUCBJVi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 04:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbUCBJVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 04:30:29 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:56246 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261574AbUCBJa1 (ORCPT
+	Tue, 2 Mar 2004 04:21:37 -0500
+Received: from hera.kernel.org ([63.209.29.2]:40075 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261571AbUCBJVg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 04:30:27 -0500
-Date: Tue, 2 Mar 2004 10:30:12 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Hirokazu Takata <takata@linux-m32r.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] m32r - New architecure port to Renesas M32R processor 
-In-Reply-To: <20040302.165524.774041887.takata.hirokazu@renesas.com>
-Message-ID: <Pine.GSO.4.58.0403021028220.9959@waterleaf.sonytel.be>
-References: <20040302.165524.774041887.takata.hirokazu@renesas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Mar 2004 04:21:36 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [CFT][PATCH] 2.6.4-rc1 remove x86 boot page tables
+Date: Tue, 2 Mar 2004 09:21:15 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c21jmb$9g9$1@terminus.zytor.com>
+References: <m1vflp81kq.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1078219275 9738 63.209.29.3 (2 Mar 2004 09:21:15 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 2 Mar 2004 09:21:15 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2004, Hirokazu Takata wrote:
-> We have ported Linux to the M32R processor, which is a 32-bit RISC embedded
-> microprocessor of Renesas Technology.
->
-> I would like to release a patch information for this m32r port.
+Followup to:  <m1vflp81kq.fsf@ebiederm.dsl.xmission.com>
+By author:    ebiederm@xmission.com (Eric W. Biederman)
+In newsgroup: linux.dev.kernel
+> 
+> -	.quad 0x0000000000000000	/* 0x20 unused */
+> -	.quad 0x0000000000000000	/* 0x28 unused */
+> +	.quad 0x40cf9a000000ffff	/* 0x20 kernel 4G code at 0-__PAGE_OFFSET */
+> +	.quad 0x40cf92000000ffff	/* 0x28 kernel 4G data at 0-__PAGE_OFFSET */
+> 
 
-Nice!
+This needs to actually be derived from __PAGE_OFFSET (it may or may
+not be 0xc0000000.)
 
-> Would you merge them to the stock kernel?
-> # Unfortunately, I have linux-2.4.19 based kernel, not latest one.
+I'd suggest:
 
-However, I think you best upgrade to 2.4.25 first.
-Also, please merge/move arch/m32r/drivers with/to drivers/.
+/* Create a descriptor from (base,limit,flags) */
+/* Limit is in 20-bit form! */
+#define DESC(b,l,f)     .long (((l) & 0x0ffff)) |\
+                              (((b) & 0x0000ffff) << 16), \
+			      (((b) & 0x00ff0000) >> 16) | \
+                              (((l) & 0xf0000)) | \
+                              (((f) & 0xf0ff) << 8) | \
+			      (((b) & 0xff000000))
 
-And what about a 2.6 port? :-)
+        DESC(-__PAGE_OFFSET,0xfffff,0xc09a)       /* 0x20 kernel 4G code at -__PAGE_OFFSET */
+        DESC(-__PAGE_OFFSET,0xfffff,0xc092)       /* 0x28 kernel 4G code at -__PAGE_OFFSET */
 
-> This new architecture port has already reported at OLS2003.
-> http://www.linux-m32r.org/cmn/m32r/ols2003_presentation.pdf
-> http://archive.linuxsymposium.org/ols2003/Proceedings/All-Reprints/Reprint-Takata-OLS2003.pdf
+[It broken up into .longs like that, because gas doesn't seem to
+handle 64-bit arithmetric.]
 
-I attended that one, and it looked quite nice!
+Writing all the descriptors in that form may be a good thing :)
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	-hpa

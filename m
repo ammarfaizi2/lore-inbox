@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264657AbSLGSnJ>; Sat, 7 Dec 2002 13:43:09 -0500
+	id <S264665AbSLGSpl>; Sat, 7 Dec 2002 13:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264665AbSLGSnJ>; Sat, 7 Dec 2002 13:43:09 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:43273 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S264657AbSLGSnI>; Sat, 7 Dec 2002 13:43:08 -0500
-Subject: Re: Re[2]: [STATUS] fbdev api.
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Tobias Rittweiler <inkognito.anonym@uni.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.33.0212071058230.8383-100000@maxwell.earthlink.net>
-References: <Pine.LNX.4.33.0212071058230.8383-100000@maxwell.earthlink.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Dec 2002 02:43:33 +0500
-Message-Id: <1039297451.1026.4.camel@localhost.localdomain>
+	id <S264666AbSLGSpl>; Sat, 7 Dec 2002 13:45:41 -0500
+Received: from mnh-1-09.mv.com ([207.22.10.41]:39428 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S264665AbSLGSpk>;
+	Sat, 7 Dec 2002 13:45:40 -0500
+Message-Id: <200212071856.NAA02037@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML device configuration reporting 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 07 Dec 2002 13:56:37 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-08 at 00:05, James Simmons wrote:
-[...]
-> Most of those fixes I already have in BK. I think yres_virtual being
-> set to -1 is wrong. Also do we really need to call check var? The default
-> mode is "trusted". Also fb_find_mode when we use it calls check_var.
-> default_var already has the correct virtual res info. We do need to set
-> fix tho :-)  Thanks for the fixes.
-> 
-That's okay James, the code that calls check_var() during init  is a
-"temporary" code.  Rivafb happens to have a do_maximize() function that
-computes for the highest yres_virtual when it's -1.  Currently, since
-using fbset is broken, I do that to enable ypanning.  But it's not
-important.
+Please pull either
+	http://uml.bkbits.net/mconfig-2.5
+or	http://jdike.stearns.org:5000/mconfig-2.5
 
-Tony
+This update allows the UML device drivers to report their configurations
+to the host.
+
+				Jeff
+
+
+ arch/um/drivers/chan_kern.c     |   66 ++++++++++++++++++++++++++++-
+ arch/um/drivers/fd.c            |    6 ++
+ arch/um/drivers/line.c          |   91 +++++++++++++++++++++++++++++++++++-----
+ arch/um/drivers/mconsole_kern.c |   62 +++++++++++++++++++++++++--
+ arch/um/drivers/null.c          |    5 +-
+ arch/um/drivers/port_user.c     |    9 +++
+ arch/um/drivers/pty.c           |   17 ++++++-
+ arch/um/drivers/ssl.c           |   32 +++++++++++++-
+ arch/um/drivers/stdio_console.c |   30 ++++++++++++-
+ arch/um/drivers/tty.c           |    8 ++-
+ arch/um/drivers/ubd_kern.c      |   39 +++++++++++++++++
+ arch/um/drivers/xterm.c         |    4 +
+ arch/um/include/chan_kern.h     |    3 +
+ arch/um/include/chan_user.h     |    3 -
+ arch/um/include/line.h          |   11 +++-
+ arch/um/include/mconsole_kern.h |   16 ++++++-
+ 16 files changed, 371 insertions(+), 31 deletions(-)
+
+ChangeSet@1.842.6.1, 2002-11-18 15:57:40-05:00, jdike@uml.karaya.com
+  Merged the get_config changes from 2.4.
 
 

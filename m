@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSEBUkU>; Thu, 2 May 2002 16:40:20 -0400
+	id <S315412AbSEBUo2>; Thu, 2 May 2002 16:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315412AbSEBUkT>; Thu, 2 May 2002 16:40:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13574 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315413AbSEBUkS>; Thu, 2 May 2002 16:40:18 -0400
+	id <S315414AbSEBUo1>; Thu, 2 May 2002 16:44:27 -0400
+Received: from alex.intersurf.net ([216.115.129.11]:46606 "HELO
+	alex.intersurf.net") by vger.kernel.org with SMTP
+	id <S315412AbSEBUo1>; Thu, 2 May 2002 16:44:27 -0400
+Date: Thu, 2 May 2002 15:44:25 -0500
+From: Mark Orr <markorr@intersurf.com>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 2.5.12] x86 Boot enhancements, boot protocol 2.04 9/11
-Date: 2 May 2002 13:39:14 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <aas85i$qpq$1@cesium.transmeta.com>
-In-Reply-To: <m11ycuzk4q.fsf@frodo.biederman.org> <m1adriy4im.fsf_-_@frodo.biederman.org> <m16626y4et.fsf_-_@frodo.biederman.org> <m11ycuy48d.fsf_-_@frodo.biederman.org>
-MIME-Version: 1.0
+Subject: 2.5.12-dj1:  IDE trouble - RZ1000 still won't finish booting
+Message-Id: <20020502154425.45437b42.markorr@intersurf.com>
+X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <m11ycuy48d.fsf_-_@frodo.biederman.org>
-By author:    ebiederm@xmission.com (Eric W. Biederman)
-In newsgroup: linux.dev.kernel
-> +0200/2  2.00+  jump                  Jump instruction
 
-I would like to make it an explicit part of the protocol that the jump
-instruction must jump to the first byte following the header.  It can
-therefore be used to determine the end of the header.
+I posted a log about this about a week ago regarding
+Linux 2.5.10 not completing boot on an older system with a
+RZ1000 IDE interface.   (and that RZ1000 by itself, w/ CMD640
+and generic PCI IDE disabled in make config, wouldnt even
+compile  -- it still doesnt with 2.5.12-dj1)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+
+It still crashes at the same place - when the root
+filesystem is remounted with R/W.   The messages look different,
+i.e. the "unexpected interrupt <x> <y>" is gone, but it looks
+like it's still complaining about the same thing:
+
+hda: task_mulout_intr: error=0x04  { DriveStatusError }
+
+then several of these:
+
+   { task_mulout_intr }
+hda:  ide_set_handler: handler not null  old=<some hex> new=<some other hex>
+bug: kernel timer added twice
+
+finally:
+
+end_request: I/O error, dev 03:00, sector 456628
+end_buffer_io_sync: I/O error
+hda: ata_irq_request: hwgroup was not busy!?
+Unable to hand kernel NULL pointer dereference...
+
+...and the usual dumpage.    (which isnt logged, naturally)
+
+--
+Mark Orr
+markorr@intersurf.com

@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUCaWns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 17:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbUCaWns
+	id S262634AbUCaWri (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 17:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbUCaWri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 17:43:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41091 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261832AbUCaWnq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 17:43:46 -0500
-Date: Wed, 31 Mar 2004 14:40:31 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Yusuf Goolamabbas <yusufg@outblaze.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange output from exportfs in 2.6.5-rc3-mm1
-Message-Id: <20040331144031.360c2c3f.rddunlap@osdl.org>
-In-Reply-To: <20040331030439.GA23306@outblaze.com>
-References: <20040331030439.GA23306@outblaze.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 31 Mar 2004 17:47:38 -0500
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:6116 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262634AbUCaWrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 17:47:06 -0500
+Message-ID: <406B4A9E.1060308@blueyonder.co.uk>
+Date: Wed, 31 Mar 2004 23:47:58 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3-mm1
+References: <1Fylv-df-27@gated-at.bofh.it> <1FzAR-1qq-5@gated-at.bofh.it>	<1FzAR-1qq-3@gated-at.bofh.it> <m3vfkl4goh.fsf@averell.firstfloor.org>
+In-Reply-To: <m3vfkl4goh.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Mar 2004 22:47:02.0164 (UTC) FILETIME=[15247D40:01C41772]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Mar 2004 11:04:39 +0800 Yusuf Goolamabbas wrote:
+Andi Kleen wrote:
 
-| In 2.6.5-rc3-mm1, I saw the following via dmesg
-| 
-| exportfs: no version for "init_module" found: kernel tainted.
-| 
-| I am exporting a few filesystems via NFS but this is the first 2.6.x
-| kernel in which I have seen the above message
-| Output of lsmod
-| 
-| nfsd                   94344  - 
-| exportfs                5440  - 
-| lockd                  59912  - 
-| sunrpc                134312  - 
-| e100                   28196  - 
-| ext3                  116104  - 
-| jbd                    55416  - 
-| aic7xxx               164588  - 
-| sd_mod                 17696  - 
-| scsi_mod              109200  - 
+>Sid Boyce <sboyce@blueyonder.co.uk> writes:
+>
+>  
+>
+>>Before the messages above ---
+>>********* Please consider a BIOS update.
+>>********* Disabling USB legacy in the BIOS may also help.
+>>    
+>>
+>
+>You should really update your BIOS. With this BIOS bug you can 
+>get basically random crashes on 64bit systems. The kernel tries
+>to work around them in the idle loop, but they can happen elsewhere
+>too.
+>
+>-Andi
+>
+>
+>
+>  
+>
+I've checked the Acer site and there's no mention of a BIOS for the 
+1501LCe in the upgrades section. I guess their Phoenix 4.0 Release 6.0 
+is the only one to date.
+Regards
+Sid.
 
-I can't reproduce that with 2.6.5-rc3-mm3 (but there are no
-changes to exportfs in -mm3).  Please send your kernel .config file.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 
---
-~Randy
-"You can't do anything without having to do something else first."
--- Belefant's Law

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUBHQVv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 11:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbUBHQVu
+	id S263868AbUBHQPP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 11:15:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbUBHQPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 11:21:50 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:8101 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263777AbUBHQVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 11:21:49 -0500
-Subject: Re: [PROBLEM] 2.6.3-rc1: still no suspend/resume on Centrino
-	notebook (contains agp, lapic, swsusp)
-From: Matthias Hentges <mailinglisten@hentges.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <c05m86$20g$1@sea.gmane.org>
-References: <200402081522.i18FMVl7001382@brain.gnuhh.org>
-	 <c05m86$20g$1@sea.gmane.org>
+	Sun, 8 Feb 2004 11:15:15 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:31643 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263771AbUBHQPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 11:15:09 -0500
+Subject: [BK PATCH] bug fixes for scsi for linux-2.6.3-rc1
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1076257326.1055.2.camel@mhcln03>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 08 Feb 2004 17:22:06 +0100
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Feb 2004 11:14:54 -0500
+Message-Id: <1076256895.2055.6.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am So, den 08.02.2004 schrieb Ari Pollak um 16:57:
-> I should clarify that this does not happen on *all* Centrino notebooks 
-> (and not the ones I've tried), only some.
+The BK tree at
 
-Indeed. I own a Samsung P30 XVM 1500 Centrino laptop. It suspends just
-fine in kernel 2.6.2-mm1 but it wont wake up.
+bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
 
-The difference is that i don't get any messages in /v/l/m or /v/l/m.
+contains four bugfixes for the previous update (actually allow the
+qla2xxx to build as part of the build process and remove its compile
+warnings, fix the mptscsih_exit() discard problem and undelete the
+qlogicfc driver).
 
-Hopefully this will get fixed.
--- 
-Matthias Hentges 
-Cologne / Germany
+The short changelog is:
 
-[www.hentges.net] -> PGP welcome, HTML tolerated
-ICQ: 97 26 97 4   -> No files, no URL's
+Andrew Morton:
+  o Fix qla2xxx warnings
 
-My OS: Debian Woody. Geek by Nature, Linux by Choice
+Andrew Vasquez:
+  o qla2xxx Kconfig fix
+
+James Bottomley:
+  o mpt fusion fix mptscsih_exit() discard
+  o SCSI: undelete qlogicfc driver
+
+
+James
 
 

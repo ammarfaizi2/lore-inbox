@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316847AbSGUQoV>; Sun, 21 Jul 2002 12:44:21 -0400
+	id <S316775AbSGUQn3>; Sun, 21 Jul 2002 12:43:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316857AbSGUQoV>; Sun, 21 Jul 2002 12:44:21 -0400
-Received: from mail.coastside.net ([207.213.212.6]:33527 "EHLO
-	mail.coastside.net") by vger.kernel.org with ESMTP
-	id <S316847AbSGUQoO>; Sun, 21 Jul 2002 12:44:14 -0400
-Mime-Version: 1.0
-Message-Id: <p05111a19b9608eec09b1@[207.213.214.37]>
-Date: Sun, 21 Jul 2002 09:46:39 -0700
-To: linux-kernel@vger.kernel.org
-From: Jonathan Lundell <linux@lundell-bros.com>
-Subject: spurious smp_spurious_interrupt()?
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S316847AbSGUQn3>; Sun, 21 Jul 2002 12:43:29 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:33930 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id <S316775AbSGUQn2>;
+	Sun, 21 Jul 2002 12:43:28 -0400
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: Time problem with 2.5.27 on Intel (and kernel freezes...)
+Date: Sun, 21 Jul 2002 18:45:22 +0200
+Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
+Message-ID: <001001c230d6$04de0930$1211a8c0@pitzeier.priv.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <3D3ADC3E.9050307@milliways.de>
+X-MailScanner: Nothing found, baby
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What's the source of the "never happen" comment in 
-arch/i386/kernel/apic.c (repeated in the printk)? It plainly *does* 
-happen (as Google and my own experience attest--look for 
-call_spurious_interrupt, though), and there's nothing in Intel's 
-documentation to suggest that it shouldn't, or that it's anything but 
-a routine (though presumably rare) occurrence.
+Hi all!
 
-(Note also that the documentation reference is no longer correct. In 
-the 2001 edition it was 7.6.13.5; in the latest edition the APIC gets 
-its own chapter.)
+Something seems to be wrong with my time... Is it the kernel, is
+it my real time clock (I don't guess so...). Here is the
+strange log... (Please have a look at the timestamps).
 
->8.9. SPURIOUS INTERRUPT
->A special situation may occur when a processor raises its task 
->priority to be greater than or equal to the level of the interrupt 
->for which the processor INTR signal is currently being asserted. If 
->at the time the INTA cycle is issued, the interrupt that was to be 
->dispensed has become masked (programmed by software), the local APIC 
->will deliver a spurious-interrupt vector. Dispensing the 
->spurious-interrupt vector does not affect the ISR, so the handler 
->for this vector should return without an EOI.
+Jul 21 16:54:24 test kernel: Console: colour VGA+ 80x25
+       ^^^^^^^^
+Jul 21 16:53:58 test rc.sysinit: Mounting proc filesystem:  succeeded
+       ^^^^^^^^
+Jul 21 16:54:24 test random: Initializing random number generator:
+succeeded
+Jul 21 16:54:24 test kernel: Calibrating delay loop... 591.87 BogoMIPS
+Jul 21 16:53:58 test rc.sysinit: Unmounting initrd:  succeeded
+Jul 21 16:54:25 test kernel: Memory: 127524k/131060k available (1060k
+kernel code, 3148k reserved, 299k data, 208k init, 0k highmem)
+Jul 21 16:53:58 test sysctl: net.ipv4.ip_forward = 0
+Jul 21 16:54:25 test kernel: Security Scaffold v1.0.0 initialized
+Jul 21 16:53:58 test sysctl: net.ipv4.conf.default.rp_filter = 1
+Jul 21 16:54:25 test kernel: Dentry-cache hash table entries: 16384
+(order: 5, 131072 bytes)
+Jul 21 16:53:58 test sysctl: kernel.core_uses_pid = 1
+Jul 21 16:54:25 test kernel: Inode-cache hash table entries: 8192
+(order: 4, 65536 bytes)
+Jul 21 16:53:58 test rc.sysinit: Configuring kernel parameters:
+succeeded
+Jul 21 16:54:25 test kernel: Mount-cache hash table entries: 512 (order:
+0, 4096 bytes)
+Jul 21 16:53:58 test date: Sun Jul 21 16:53:51 CEST 2002
+Jul 21 16:54:26 test netfs: Mounting other filesystems:  succeeded
 
+!?
 
->/*
->  * This interrupt should _never_ happen with our APIC/SMP architecture
->  */
->asmlinkage void smp_spurious_interrupt(void)
->{
->         unsigned long v;
->
->         /*
->          * Check if this really is a spurious interrupt and ACK it
->          * if it is a vectored one.  Just in case...
->          * Spurious interrupts should not be ACKed.
->          */ 
->         v = apic_read(APIC_ISR + ((SPURIOUS_APIC_VECTOR & ~0x1f) >> 1));
->         if (v & (1 << (SPURIOUS_APIC_VECTOR & 0x1f)))
->                 ack_APIC_irq();
->
->         /* see sw-dev-man vol 3, chapter 7.4.13.5 */
->         printk(KERN_INFO "spurious APIC interrupt on CPU#%d, should 
->never happen
->.\n",
->                         smp_processor_id());
->}
+I also had the problem that my kernel seems to boot fine, but near the
+end of initlevel
+3 the kernel hangs. No panic, no log, it's just frozen.
+
+Greetz,
+ Oliver
 
 
--- 
-/Jonathan Lundell.

@@ -1,100 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUEEPsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264706AbUEEPsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUEEPsV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 11:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUEEPsV
+	id S264706AbUEEPsh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 11:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUEEPsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 11:48:21 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:52976 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264704AbUEEPsL (ORCPT
+	Wed, 5 May 2004 11:48:37 -0400
+Received: from cpmx.mail.saic.com ([139.121.17.160]:10663 "EHLO cpmx.saic.com")
+	by vger.kernel.org with ESMTP id S264706AbUEEPsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 11:48:11 -0400
-Date: Wed, 05 May 2004 08:47:56 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: jos.dehaes@bigfoot.com
-Subject: [Bug 2642] New: Oops when mounting a smb filesystem
-Message-ID: <479820000.1083772076@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 May 2004 11:48:32 -0400
+Subject: Re: SATA device timeout using libata
+From: Eamonn Hamilton <EAMONN.HAMILTON@saic.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0405031242510.6080-100000@coffee.psychology.mcmaster.ca>
+References: <Pine.LNX.4.44.0405031242510.6080-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain
+Message-Id: <1083772094.5386.83.camel@ukabzc383.uk.saic.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 05 May 2004 16:48:14 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=2642
+Hi,
 
-           Summary: Oops when mounting a smb filesystem
-    Kernel Version: Linux knudde.be.ubizen.com 2.6.5 #20 Fri Apr 30 17:19:26
-                    CEST 20
-            Status: NEW
-          Severity: normal
-             Owner: fs_samba-smb@kernel-bugs.osdl.org
-         Submitter: jos.dehaes@bigfoot.com
+Generally I can't trigger it on one drive, but that could just be a
+timing issue. All of these controllers are hosted on an Asus A7V
+motherboard with the VIA chipset, and we've managed to make it fall over
+much more rapidly by simply mixing firmware revisions between drives on
+a single controller. 
 
+The problem seems to track the WD2000JD-00F drives, and when one of
+those drives is on the same controller as a WD2000JD-00G the whole thing
+falls over in a couple of minutes.
 
-Distribution: Gentoo Linux
-Hardware Environment: x86, dell optiplex gx1, ati mach64
-Software Environment: Linux 2.6.5 vanilla preempt + supermount patch, glibc
-2.3.2 NPTL, gcc 2.3.3, samba 3.0.2a
+As to the sectors that are failing, they don't seem to repeat and the
+disk itself again reports fine. It also works fine on it's own after a
+reboot. The chap who actually owns the hardware is going to run a test
+under W2K to try and eliminate plain hardware issues.
 
-Gnu C                  3.3.3
-Gnu make               3.80
-binutils               2.14.90.0.8
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.0
-e2fsprogs              1.35
-nfs-utils              1.0.6
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.2.1
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.0
-Modules Loaded         vmnet vmmon binfmt_misc sd_mod usb_storage scsi_mod
-uhci_hcd usbcore
+Does anybody know whether there is a firmware update available for these
+drives, as that seems to be the only difference here.
 
+Cheers,
+Eamonn
 
-Problem Description: Sometimes smb mount gives oops in syslog, but not always.
-The offending process is always nautilus (version 2.6.1). After that that
-accessing the mount point gives processes in uninterruptable sleep. 
-
-
-oops:
-smb_lookup: find //.Trash-jos failed, error=-5
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-00000000
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<00000000>]    Not tainted
-EFLAGS: 00010246   (2.6.5)
-EIP is at 0x0
-eax: d9f94c20   ebx: d68a3f30   ecx: c015e7c0   edx: d81c4ae0
-esi: d68a3fa0   edi: c1329600   ebp: d44d85e0   esp: d68a3efc
-ds: 007b   es: 007b   ss: 0068
-Process nautilus (pid: 6808, threadinfo=d68a2000 task=d6d1cd60)
-Stack: c01c16d6 d44d85e0 d68a3fa0 c015e7c0 d68a3f30 00000000 00000002 00000004
-       d43c4ec4 00000000 d43c0000 d81c4ae0 d4ac8b60 00000000 fffe7b2a d44d85e0
-       00000000 00000000 d43c0000 00000002 00000000 00000000 00000001 00000004
-Call Trace:
- [<c01c16d6>] smb_readdir+0x3f6/0x5a0
- [<c015e7c0>] filldir64+0x0/0x120
- [<c015e489>] vfs_readdir+0x89/0xa0
- [<c015e7c0>] filldir64+0x0/0x120
- [<c015e94e>] sys_getdents64+0x6e/0xaa
- [<c015e7c0>] filldir64+0x0/0x120
- [<c0107009>] sysenter_past_esp+0x52/0x71
- 
-Code:  Bad EIP value.
-
-Steps to reproduce:
-mount an smb filesystem.
-Doesn't happen allways, but has bitten me at least 5 times the last weeks. To
-reproduce for this bugreport, it happened on the first try.
-
+On Mon, 2004-05-03 at 17:45, Mark Hahn wrote:
+> > One controller has 2 X WDC WD2000JD-00G drives which seem to work
+> > perfectly, another has 2 X Maxtor 6Y200M0 which also seem to work fine,
+> > however the the third pair of drives are WDC WD2000JD-00F and these seem
+> > to deliver issues.
+> 
+> please do followup to the list (or linux-raid) if you resolve this!
+> many, many of us are doing similar things (or planning to).
+> 
+> > Basically, when attempting to stress a RAID-5 array while the array is
+> > synchronising, I get the following after an hour or so:   
+> 
+> can you trigger this sort of thing using a stresstest on a single disk,
+> or with raid0?
+> 
+> > ata3: DMA timeout, stat 0x1
+> > ATA: abnormal status 0xD0 on port 0xE087B087
+> > scsi2: ERROR on channel 0, id 0, lun 0, CDB: Read (10) 00 01 92 8d 47 00
+> > 00 08 00
+> > Current sdc: sense key Medium Error
+> > Additional sense: Unrecovered read error - auto reallocate failed
+> > end_request: I/O error, dev sdc, sector 26381639
+> 
+> does that sector repeat across multiple errors?  unfortunately,
+> one good response to this would be to use smartctl (but libata 
+> currently doens't do the passthrough required afaikt...)
+> 
+> > The interesting part here is that the hardware checks out fine using the
+> > manufacturers test disk in the same configuration, and having recabled
+> 
+> it would be interesting to know what the vendor's test actually does...
 

@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129367AbRAaKwQ>; Wed, 31 Jan 2001 05:52:16 -0500
+	id <S129771AbRAaKyQ>; Wed, 31 Jan 2001 05:54:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRAaKwG>; Wed, 31 Jan 2001 05:52:06 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:36364 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129367AbRAaKvr>;
-	Wed, 31 Jan 2001 05:51:47 -0500
-Date: Wed, 31 Jan 2001 11:51:14 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Jurgen Botz <jurgen@botz.org>
-cc: Eric Molitor <emolitor@molitor.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Wavelan IEEE driver 
-In-Reply-To: <200101302222.OAA04184@nova.botz.org>
-Message-ID: <Pine.LNX.4.30.0101311141170.13529-100000@svea.tellus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130319AbRAaKyG>; Wed, 31 Jan 2001 05:54:06 -0500
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:9485 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129771AbRAaKxv>; Wed, 31 Jan 2001 05:53:51 -0500
+From: bsuparna@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: mjacob@feral.com
+cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Message-ID: <CA2569E5.003B5DB2.00@d73mta03.au.ibm.com>
+Date: Wed, 31 Jan 2001 16:12:11 +0530
+Subject: Re: [Kiobuf-io-devel] Re: RFC: Kernel mechanism: Compound event
+	 wait/notify + callback chains
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001, Jurgen Botz wrote:
-> and appears to work.  I did observe a problem with iwconfig dumping
-> core, but it seems to do its job before it dies, so this may be non-
-> critical.
+Mathew,
 
-Make sure you compile wireless-tools using the right headers.  You must
-manually insert -I/path/to/running-linux-version/include in the Makefile.
+   Thanks for mentioning this. I didn't know about it earlier. I've been
+going through the 4/00 kqueue patch on freebsd ...
 
-This is due to a bad (non-existing) ioctl backward and forward
-compatibility, and is being worked on.  Basically, you cannot use the
-tools compiled with one version of the wireless extension headers on a
-kernel with another version of the wireless extensions.  The symptom is at
-best a SEGV, but you may also get strange values.
+   Regards
+   Suparna
 
-/Tobias
+
+  Suparna Bhattacharya
+  Systems Software Group, IBM Global Services, India
+  E-mail : bsuparna@in.ibm.com
+  Phone : 91-80-5267117, Extn : 2525
+
+
+Matthew Jacob <mjacob@feral.com> on 01/30/2001 12:08:48 PM
+
+Please respond to mjacob@feral.com
+
+To:   Suparna Bhattacharya/India/IBM@IBMIN
+cc:   linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject:  [Kiobuf-io-devel] Re: RFC:  Kernel mechanism: Compound event
+      wait/notify + callback chains
+
+
+
+
+
+Why don't you look at Kqueues (from FreeBSD)?
+
+
+
+
+_______________________________________________
+Kiobuf-io-devel mailing list
+Kiobuf-io-devel@lists.sourceforge.net
+http://lists.sourceforge.net/lists/listinfo/kiobuf-io-devel
 
 
 

@@ -1,33 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289139AbSAGMtf>; Mon, 7 Jan 2002 07:49:35 -0500
+	id <S289171AbSAGNDK>; Mon, 7 Jan 2002 08:03:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289148AbSAGMt0>; Mon, 7 Jan 2002 07:49:26 -0500
-Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:51725 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289139AbSAGMtR>;
-	Mon, 7 Jan 2002 07:49:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Peter W?chtler <pwaechtler@loewe-komp.de>
-Subject: Re: [PATCH] updated version of radix-tree pagecache
-Date: Mon, 7 Jan 2002 13:52:18 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Christoph Hellwig <hch@caldera.de>, linux-mm@kvack.org,
-        lkml <linux-kernel@vger.kernel.org>, velco@fadata.bg
-In-Reply-To: <20020105171234.A25383@caldera.de> <3C3972D4.56F4A1E2@loewe-komp.de> <20020107030344.H10391@holomorphy.com>
-In-Reply-To: <20020107030344.H10391@holomorphy.com>
+	id <S289181AbSAGNDB>; Mon, 7 Jan 2002 08:03:01 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:63419 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S289171AbSAGNCw>;
+	Mon, 7 Jan 2002 08:02:52 -0500
+Subject: Re: bug in IBM ServeRAID driver?
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, petter wahlman <petter@bluezone.no>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF493DDACD.A19A0EAB-ON85256B3A.00476E26@raleigh.ibm.com>
+From: "ServeRAID For Linux" <ipslinux@us.ibm.com>
+Date: Mon, 7 Jan 2002 08:02:29 -0500
+X-MIMETrack: Serialize by Router on D04NMS65/04/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 01/07/2002 08:02:29 AM
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16NZGK-0001Q1-00@starship.berlin>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 7, 2002 12:03 pm, William Lee Irwin III wrote:
-> Christoph Hellwig schrieb:
-> >> [please Cc velco@fadata.bg and lkml on reply]
-> >> 
-> >> I've just uploaded an updated version of Momchil Velikov's patch for a
-> >> scalable pagecache using radix trees.  The patch can be found at:
-> >> 
-> >> It contains a number of fixed and improvements by Momchil and me.
+Sorry for the delayed response.   We have been snow-bound and shut-down
+here for several days.   We will address this immediately.   Thanks for
+bringing it to our attention.
+
+
+
+
+                                                                                                 
+                    Jens Axboe                                                                   
+                    <axboe@suse.de       To:     petter wahlman <petter@bluezone.no>             
+                    >                    cc:     linux-kernel@vger.kernel.org, ServeRAID For     
+                                          Linux/Raleigh/IBM@IBMUS                                
+                    01/03/2002           Subject:     Re: bug in IBM ServeRAID driver?           
+                    03:06 PM                                                                     
+                                                                                                 
+                                                                                                 
+
+
+
+On Thu, Jan 03 2002, petter wahlman wrote:
+>
+> While looking through linux-2.4.18pre1/drivers/scsi/ips.c I noticed that
+> a spin_lock_irq is held while doing a possibly blocking operation.
+> Can't this code livelock on SMP if datasize is set?
+>
+> linux-2.4.18pre1/drivers/scsi/ips.c
+>
+>    1778       /* reobtain the lock */
+>    1779       spin_lock_irq(&io_request_lock);
+>    1780
+>    1781       /* command finished -- copy back */
+>    1782       user_area = *((char **) &SC->cmnd[4]);
+>    1783       kern_area = ha->ioctl_data;
+>    1784       datasize = *((u_int32_t *) &SC->cmnd[8]);
+>    1785
+>    1786       if (datasize) {
+>    1787          if (copy_to_user(user_area, kern_area, datasize) > 0) {
+>    1788             DEBUG_VAR(1, "(%s%d) passthru failed - unable to
+> copy out user data",
+>    1789                       ips_name, ha->host_num);
+>
+>
+> I am not subscribed to this list, so please CC me.
+
+Yup, that's surely a nasty bug.
+
+--
+Jens Axboe
+
+
+
+

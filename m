@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUHHEmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUHHEpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265086AbUHHEmU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 00:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUHHEmU
+	id S265093AbUHHEpx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 00:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUHHEpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 00:42:20 -0400
-Received: from out006pub.verizon.net ([206.46.170.106]:41422 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S265086AbUHHEmS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 00:42:18 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible dcache BUG
-Date: Sun, 8 Aug 2004 00:42:15 -0400
-User-Agent: KMail/1.6.82
-Cc: Linus Torvalds <torvalds@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Andrew Morton <akpm@osdl.org>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <20040806031815.GL12308@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408052022060.24588@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408052022060.24588@ppc970.osdl.org>
+	Sun, 8 Aug 2004 00:45:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16579 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265093AbUHHEpv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 00:45:51 -0400
+Date: Sun, 8 Aug 2004 00:45:23 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <arjanv@redhat.com>,
+       <dwmw2@infradead.org>, <greg@kroah.com>, <chrisw@osdl.org>,
+       <sfrench@samba.org>, <mike@halcrow.us>, <trond.myklebust@fys.uio.no>,
+       <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] implement in-kernel keys & keyring management [try #2]
+In-Reply-To: <5147.1091896414@redhat.com>
+Message-ID: <Xine.LNX.4.44.0408080034560.27710-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408080042.16093.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.63.10] at Sat, 7 Aug 2004 23:42:17 -0500
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 August 2004 23:24, Linus Torvalds wrote:
->On Fri, 6 Aug 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
->> It doesn't even take a dput().  Look: we do list_del(), then
->> notice that sucker still has positive refcount and leave it alone.
->>  Now think what happens on the next pass.  That's right, we hit
->> that dentry *again*. And see that list_empty() is false.  And do
->> list_del() one more time.
->
->Well, the sad part is that doing another list_del() won't even
-> necessarily go *boom*. Most of the time it might even leave the
-> list as-is, but often enough it should give list corruption.
->
->> However, what used to be e.g. next dentry might very well be freed
->> by now.  *BOOM*.
->
->Absolutely. It does look like a rather nasty bug.
->
->It doesn't explain what Gene sees, though, unless you can explain
-> how we'd get an anon dentry without knfsd/xfs. Oh well.
->
->I'll commit the obvious one-liner fix, since it might explain _some_
->problems people have seen.
->
->		Linus
+On Sat, 7 Aug 2004, David Howells wrote:
 
-I just had to reboot, after about an 8 hour uptime with the 'one 
-liner' only on top of 2.6.8-rc3.  Out of memory basicly.  tvtime and 
-mozilla were casualties of what must be the Oom killer.  Nothing in 
-the logs.  I had seti@home, X, kde3.3-beta2, and its kmail, plus top, 
-tail, tvtime and mozilla.  Moz died first, or at least thats what I 
-noticed first.
+> >   I guess the pure way to do it is to add 13 new syscalls....
+> 
+> I don't really want to add any syscalls, though I wouldn't be too upset to add
+> just one:-/
+> 
+> What're other people's thoughts on this?
 
+Implement a filesystem interface, e.g. /proc/<pid>/keys
+
+>From here you can have:
+
+  /create
+
+  /<keyid>/update
+          /revoke
+          /chown
+          /chmod
+          ...
+
+Rather than syscalls/prctls for each of these.
+
+For keyrings, you could have:
+
+  /proc/<pid>/keyring/thread
+                     /session
+                     /process
+                     ...
+
+Instead of having /proc/keys and associated locking/seqfile overhead in 
+the kernel, a userspace library could instead traverse /proc to build a 
+global list of keys.
+
+In general, I think you may be able to move logic out of the kernel this 
+way, e.g. userspace searching for keys.
+
+
+- James
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+James Morris
+<jmorris@redhat.com>
+
+

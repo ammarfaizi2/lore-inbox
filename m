@@ -1,52 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263614AbSIQFJM>; Tue, 17 Sep 2002 01:09:12 -0400
+	id <S263627AbSIQFPJ>; Tue, 17 Sep 2002 01:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263625AbSIQFJM>; Tue, 17 Sep 2002 01:09:12 -0400
-Received: from packet.digeo.com ([12.110.80.53]:26300 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263614AbSIQFJL>;
-	Tue, 17 Sep 2002 01:09:11 -0400
-Message-ID: <3D86BA1B.84873680@digeo.com>
-Date: Mon, 16 Sep 2002 22:14:03 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-mm@kvack.org,
+	id <S263632AbSIQFPJ>; Tue, 17 Sep 2002 01:15:09 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:13777 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263627AbSIQFPF>; Tue, 17 Sep 2002 01:15:05 -0400
+Date: Mon, 16 Sep 2002 22:18:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-mm@kvack.org,
        akpm@zip.com.au, hugh@veritas.com, linux-kernel@vger.kernel.org
 Subject: Re: dbench on tmpfs OOM's
-References: <3D86B683.8101C1D1@digeo.com> <210772234.1032213704@[10.10.2.3]>
+Message-ID: <211767585.1032214699@[10.10.2.3]>
+In-Reply-To: <3D86BA1B.84873680@digeo.com>
+References: <3D86BA1B.84873680@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Sep 2002 05:14:03.0598 (UTC) FILETIME=[0A0A9EE0:01C25E09]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> >> ...
-> >> MemTotal:     32107256 kB
-> >> MemFree:      27564648 kB
-> >
-> > I'd be suspecting that your node fallback is bust.
-> >
-> > Suggest you add a call to show_free_areas() somewhere; consider
-> > exposing the full per-zone status via /proc with a proper patch.
-> 
-> Won't /proc/meminfo.numa show that? Or do you mean something
-> else by "full per-zone status"?
+> meminfo.what?   Remember when I suggested that you put
+> a testing mode into the numa code so that mortals could
+> run numa builds on non-numa boxes?
 
-meminfo.what?   Remember when I suggested that you put
-a testing mode into the numa code so that mortals could
-run numa builds on non-numa boxes?
+NUMA aware meminfo is one of the patches you have sitting
+in your tree. I haven't got around to the NUMA-sim yet ...
+maybe after Halloween when management stop asking me to
+get other bits of code in before the freeze ;-)
 
+mbligh@larry:~$ cat /proc/meminfo.numa 
 
-> Looks to me like it's just out of low memory:
-> 
-> > LowFree:          1424 kB
-> 
-> There is no low memory on anything but node 0 ...
-> 
+Node 0 MemTotal:      4194304 kB
+Node 0 MemFree:       3420660 kB
+Node 0 MemUsed:        773644 kB
+Node 0 HighTotal:     3418112 kB
+Node 0 HighFree:      2737992 kB
+Node 0 LowTotal:       776192 kB
+Node 0 LowFree:        682668 kB
 
-It was a GFP_HIGH allocation - just pagecache.
+Node 1 MemTotal:      4147200 kB
+Node 1 MemFree:       4116444 kB
+Node 1 MemUsed:         30756 kB
+Node 1 HighTotal:     4147200 kB
+Node 1 HighFree:      4116444 kB
+Node 1 LowTotal:            0 kB
+Node 1 LowFree:             0 kB
+
+Node 2 MemTotal:      4147200 kB
+Node 2 MemFree:       4131816 kB
+Node 2 MemUsed:         15384 kB
+Node 2 HighTotal:     4147200 kB
+Node 2 HighFree:      4131816 kB
+Node 2 LowTotal:            0 kB
+Node 2 LowFree:             0 kB
+
+Node 3 MemTotal:      4147200 kB
+Node 3 MemFree:       4128432 kB
+Node 3 MemUsed:         18768 kB
+Node 3 HighTotal:     4147200 kB
+Node 3 HighFree:      4128432 kB
+Node 3 LowTotal:            0 kB
+Node 3 LowFree:             0 kB
+
+>> Looks to me like it's just out of low memory:
+>> 
+>> > LowFree:          1424 kB
+>> 
+>> There is no low memory on anything but node 0 ... 
+> 
+> It was a GFP_HIGH allocation - just pagecache.
+
+Ah, but what does a balance_classzone do on a NUMA box?
+Once you've finished rototilling the code you're looking
+at, I think we might have a better clue what it's supposed
+to do, at least ...
+
+M.

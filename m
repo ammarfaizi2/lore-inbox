@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285060AbSAUMKq>; Mon, 21 Jan 2002 07:10:46 -0500
+	id <S285023AbSAUMJ4>; Mon, 21 Jan 2002 07:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285093AbSAUMKi>; Mon, 21 Jan 2002 07:10:38 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11792
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S285060AbSAUMKb>; Mon, 21 Jan 2002 07:10:31 -0500
-Date: Mon, 21 Jan 2002 03:51:06 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Jens Axboe <axboe@suse.de>, Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-In-Reply-To: <20020121123828.C24754@suse.cz>
-Message-ID: <Pine.LNX.4.10.10201210345040.14375-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S285060AbSAUMJq>; Mon, 21 Jan 2002 07:09:46 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:26844 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S285023AbSAUMJh>;
+	Mon, 21 Jan 2002 07:09:37 -0500
+Date: Mon, 21 Jan 2002 17:40:39 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: lse-tech <lse-tech@lists.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+        Paul McKenney <Paul.McKenney@us.ibm.com>, viro@math.psu.edu,
+        anton@samba.org, andrea@suse.dec, tytso@mit.edu
+Subject: [RFC] Peeling off dcache_lock
+Message-ID: <20020121174039.D8289@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Vojtech Pavlik wrote:
+Hi All,
 
-> On Mon, Jan 21, 2002 at 12:29:54PM +0100, Jens Axboe wrote:
-> > On Mon, Jan 21 2002, Vojtech Pavlik wrote:
-> > > I always thought it is like this (and this is what I still believe after
-> > > having read the sprcification):
-> > > 
-> > > ---
-> > > SET_MUTIPLE 16 sectors
-> > > ---
-> > > READ_MULTIPLE 24 sectors
-> > > IRQ
-> > > PIO transfer 16 sectors
-> > > IRQ
-> > > PIO transfer 8 sectors
-> > > ---
-> > > 
-> > > Where am I wrong?
-> > 
-> > I agree completely, see previous mail.
-> > 
-> > > By the way, the device *isn't* required to support any lower multiple
-> > > count than the maximum one it advertizes. Ugly.
-> > 
-> > Oh? That basically narrows down the multi count value from hdparm to a
-> > boolean on-or-off. I'd be surprised to see any drives break with lower
-> > multi count in real life, though..
-> 
-> The spec seems to mandate to check the Identify data again after setting
-> new Multmode to see whether the drive supported the value we wanted to
-> program it to.
+We have been doing experiments with dcache_lock to provide some relief from it.
+Though dcache_lock is not a very hot lock in comparision to BKL but on higher
+end machines it becomes quite contentious. We would like to have feedbacks,
+comments about the approach taken and guidance on how to improve this further.
 
-Forget the TEXT in the command description, cause what you are looking for
-is not there.  It is stated and expressed in the state-diagrams, only.
-There is minimal text, and only timing profiles for the device
-manufacturers.  How to make it go is in the pictures and the text is only
-supporting information.
+As dcache_lock is acquired maximum number of times while doing lookup, the main
+idea was to remove dcache_lock from d_lookup. With the help of Read Copy Update
+it is possible to lookup the hash list of dentries without taking dcache_lock
+but as d_lookup also updates the lru list, removing dcache_lock from d_lookup
+was not straight forward. Various approaches were tried for that and the most
+successful is doing lazy updation of lru list. 
 
-That is why it is so painful to decode, and why it does not fit into the
-requirements of early return of ever 4k or page of data back to the upper
-layers.  So if we can not do the entire transfer w/ contigious memory we
-are forced into this game of jump through the hoops.
+Using this the dcache_lock contention was down from 16.5% to 0.95% on an 
+8-way SMP box and lock utilization was down from 5.3% to 0.89%
+
+The patch for lazy lru updation using RCU can be found here:
+
+http://lse.sourceforge.net/locking/dcache/patches/2.4.17/dcache_rcu-lazy_lru-2.4.17-06.patch
+
+The basic conecpt for this approach is to not update the lru list in d_lookup
+facilitating lockless d_lookup. The lru list can now have dentries with non zero
+reference count also. The lru list is updated while pruning dentry cache. The
+dcache_lock is kept around so that there are no changes in the update side 
+locking.
+
+The implementation details for lazy lru list updation and other approaches
+can be found here:
+
+http://lse.sourceforge.net/locking/dcache/dcache_lock.html 
+
+The above patch works fine with various file systems like ext2, JFS, ext3, /procand has been tested ok with ltp-20020108, dbench, httperf. And doesnot not have
+any adverse effects on uni processor performance.
+
 
 Regards,
+Maneesh
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
 
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/locking/rcupdate.html

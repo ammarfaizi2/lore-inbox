@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbTJMLh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 07:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbTJMLh2
+	id S261723AbTJML6t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 07:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbTJML6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 07:37:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12471 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261683AbTJMLh1 (ORCPT
+	Mon, 13 Oct 2003 07:58:49 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:6671 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261723AbTJML6s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 07:37:27 -0400
-Date: Mon, 13 Oct 2003 04:40:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Kernel thread signal handling.
-Message-Id: <20031013044042.23ab7f69.akpm@osdl.org>
-In-Reply-To: <1066044079.24015.442.camel@hades.cambridge.redhat.com>
-References: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
-	<20031013040219.6ad71a57.akpm@osdl.org>
-	<1066044079.24015.442.camel@hades.cambridge.redhat.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Oct 2003 07:58:48 -0400
+Date: Mon, 13 Oct 2003 13:58:16 +0200 (CEST)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+cc: John Bradford <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens
+ to them?
+In-Reply-To: <33d201c3917d$668c8310$5cee4ca5@DIAMONDLX60>
+Message-ID: <Pine.LNX.4.44.0310131344270.14165-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
->
-> On Mon, 2003-10-13 at 04:02 -0700, Andrew Morton wrote:
-> > Sigh.  Using signals to communicate with kernel threads is evil.  It keeps
-> > on breaking and each site does it differently and we've had plenty of bugs
-> > due to this practice.
+> Hmm.  That could well be an answer.  I'll think about it.
 > 
-> The point in cleaning up allow_signal() et al. is that it gets simple
-> and it stops breaking.
+> Actually I should just write over the whole partition for the present time.
+> When the drive's self-test detected that one bad sector, I could figure out
+> which partition it was in (though not which file, which is why I asked one
+> of those questions several times already).  The drive's self-test read the
+> entire drive and the other partitions had no detectable errors.
 
-It will encourage kernel developers to use signals-to-kernel threads more,
-and we don't *need* this capability.
+Instead of zeroing the entire partition just zero that single sector.
+something like:
 
-People think "I need to send a message to a kernel thread" and then,
-immediately, "ah-hah!  I'll use a signal!"
+dd if=/dev/zero of=/dev/hda bs=512 seek=$lbasector conv=notrunc count=1
 
-> ...
-> This garbage collection involves reading, writing and erasing the flash.
-> It takes CPU time and power. Sometimes userspace wants it to stop
-> happening in the background; sometimes userspace wants it to resume
-> again.
-> 
-> So userspace sends SIGSTOP, SIGCONT and SIGKILL to the garbage
-> collection thread and all of them have the expected effect. 
+possibly first check (by reading in the oposite direction:
+dd if=/dev/hda of=/dev/null bs=512 skip=$lbasector count=1)
+if this is indeed the place were you get the read error (in syslog)...
+if you can read anything from it then read it to a file and write it back 
+from the file...
 
-Sounds like the GC should have been performed by a userspace process in the
-first place?
+as for checking which file contains it... hmm file->sector->lba mapping 
+can be performed... I don't know about the other direction.  Worst case 
+would require checking the mapping of all files on the partition (and 
+assuming it's not in an empty area or non-file system area).
 
-How does userspace identify the JFFS2 process to which to send the signal?
-
-> I don't any the benefit in changing this practice.
-
-Well I know I'm going to lose this one, but at least I get to bitch about
-stuff.
-
-sysfs would be appropriate, as would a sysctl handler.  An ioctl might even
-work, although it gets a visit from the ioctl police and sometimes it is
-hard to obtain an fd on the appropriate filesystem.  If the call rate is
-low, `mount -o remount,...' can be used to send a message to a filesystem.
-
+Cheers,
+MaZe.
 

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265075AbSJRLe2>; Fri, 18 Oct 2002 07:34:28 -0400
+	id <S265076AbSJRLjG>; Fri, 18 Oct 2002 07:39:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265076AbSJRLe2>; Fri, 18 Oct 2002 07:34:28 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:2947 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S265075AbSJRLe1>;
-	Fri, 18 Oct 2002 07:34:27 -0400
-Date: Fri, 18 Oct 2002 13:40:27 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: Xavier Pegenaute <xpegenaute@telepolis.es>
+	id <S265079AbSJRLjG>; Fri, 18 Oct 2002 07:39:06 -0400
+Received: from 62-190-217-213.pdu.pipex.net ([62.190.217.213]:11526 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S265076AbSJRLjF>; Fri, 18 Oct 2002 07:39:05 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210181154.g9IBsG2A001135@darkstar.example.net>
+Subject: Re: 2.5 and lowmemory boxens
+To: _deepfire@mail.ru
+Date: Fri, 18 Oct 2002 12:54:15 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: (May be off-topic) .. i want make my final project playing with kernel Linux ..
-Message-ID: <20021018114027.GB6890@ulima.unil.ch>
-References: <011601c2769a$1e61c400$ca00030a@xavip>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <011601c2769a$1e61c400$ca00030a@xavip>
-User-Agent: Mutt/1.4i
+In-Reply-To: <E182V29-000Pfa-00@f15.mail.ru> from "Samium Gromoff" at Oct 18, 2002 03:11:13 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 01:33:02PM +0200, Xavier Pegenaute wrote:
-> Hi all..
+>    first: i`ve successfully ran 2.5.43 on a 386sx20/4M ram notebook.
 
-Hello ;-))
+Cool, I thought my 486sx20/4M was a good achievement :-)
 
-> i'm a student of computer systems and i want make my final project about
-> Linux and developing over the kernel.
-> 
-> Any one need help about some thing ..?
+>  the one problem was the ppp over serial not working, but i suspect
+>  that it just needs to be recompiled with 2.5 headers (am i right?).
 
-Yes for sure ;-))
+I have found that 16450-based serial ports are unreliable under
+2.5.x.  Enabling interrupt un-masking didn't help, and I suspect that
+it is just the generally more bloated kernel making the cache, (or in
+the case of a 386, the pre-fetch unit :-) ), less efficient, and
+causing data to be lost.
 
-How to use ISDN under 2.5...
+>  the other was, well, the fact that ultra-stripped 2.5.43
+>  still used 200k more memory than 2.4.19, and thats despite it was
+>  compiled with -Os instead of -O2.
+>  actually it was 2000k free with 2.4 vs 1800k  free with 2.5
 
-Of course it's not so tremendous...
+Yes, I've noticed the same thing during my experiments with low-memory boxes.
 
-Have a nice day,
+>  i know Rik had plans of some ultra bloody embedded/lowmem
+>  changes for such cases. i`d like to hear about things in the area :)
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+I am also very interested in it.
+
+John.

@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTFZS7j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 14:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTFZS4x
+	id S262482AbTFZTEk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 15:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTFZTEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 14:56:53 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:4365 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262383AbTFZS4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 14:56:42 -0400
-Date: Thu, 26 Jun 2003 21:10:49 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Matthew Wilcox <willy@debian.org>
-cc: David Woodhouse <dwmw2@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BINFMT_ZFLAT can't be a module
-In-Reply-To: <20030626185659.GR451@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0306262105370.5042-100000@serv>
-References: <20030626180909.GP451@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.44.0306262036030.11817-100000@serv>
- <20030626185659.GR451@parcelfarce.linux.theplanet.co.uk>
+	Thu, 26 Jun 2003 15:04:40 -0400
+Received: from utopia.booyaka.com ([206.168.112.107]:40328 "EHLO
+	utopia.booyaka.com") by vger.kernel.org with ESMTP id S262482AbTFZTDN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 15:03:13 -0400
+Date: Thu, 26 Jun 2003 13:17:26 -0600 (MDT)
+From: Ryan Dooley <ryan@booyaka.com>
+To: linux-kernel@vger.kernel.org
+Subject: Tree based quotas for Linux
+Message-ID: <Pine.LNX.4.44.0306261313250.16327-100000@utopia.booyaka.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 26 Jun 2003, Matthew Wilcox wrote:
+Hello,
 
-> > config ZLIB_INFLATE
-> > 	def_tristate CRAMFS || PPP_DEFLATE || JFFS2_FS || \
-> > 		     ZISOFS_FS || CRYPTO_DEFLATE || \
-> > 		     (BINFMT_FLAT && BINFMT_ZFLAT)
-> 
-> Could you document this in Documentation/kbuild/kconfig-language.txt
-> please?
+Has anybody done any work to make use of Neil Brown's 
+(http://cgi.cse.unsw.edu.au/~neilb/) Tree-Based Quota's 
+(http://cgi.cse.unsw.edu.au/~neilb/patches/linux/) for ext2 or rather 
+to port it to ext3 in 2.5?
 
-Expressions are documented and 'def_tristate ...' is short for 'tristate' 
-and 'default ...'
+Cheers,
+	Ryan
 
-> Does dep_tristate give me that?  Particularly the one with a (*) by it.
-
-Yes.
-
-bye, Roman
 

@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267056AbRGIMzI>; Mon, 9 Jul 2001 08:55:08 -0400
+	id <S267057AbRGINFE>; Mon, 9 Jul 2001 09:05:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267059AbRGIMy7>; Mon, 9 Jul 2001 08:54:59 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:40643 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267056AbRGIMym>; Mon, 9 Jul 2001 08:54:42 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 9 Jul 2001 05:54:43 -0700
-Message-Id: <200107091254.FAA26244@baldur.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: linux-2.4.7-pre3/drivers/char/sonypi.c would hang some non-Sony notebooks
+	id <S267058AbRGINEy>; Mon, 9 Jul 2001 09:04:54 -0400
+Received: from juicer34.bigpond.com ([139.134.6.86]:11727 "EHLO
+	mailin9.bigpond.com") by vger.kernel.org with ESMTP
+	id <S267057AbRGINEh>; Mon, 9 Jul 2001 09:04:37 -0400
+Message-Id: <m15J9BM-000CGlC@localhost>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: kaos@ocs.com.au, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: modules and 2.5 
+In-Reply-To: Your message of "Sat, 07 Jul 2001 10:12:28 -0400."
+             <3B4718CC.483CE54E@mandrakesoft.com> 
+Date: Sun, 08 Jul 2001 17:40:43 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Based on the advice and testing of Bob Dunlop, Alexander Griesser,
-arjan@fenrus.demon.nl, and Stelian Pop, here is a modified sonpypi.c
-patch that detects Sony Vaio computers by requiring a Cardbus bridge
-that has a subsystem vendor ID of Sony, rather than just any PCI device.
-This should avoid erroneous(?) installation and (possible hangs?) from
-this module on Sony desktop machines, although this may break if Sony
-decides to make a PCI-to-Cardbus bridge card and puts its vendor ID
-in the subsystem vendor ID of that device.
+In message <3B4718CC.483CE54E@mandrakesoft.com> you write:
+> IMHO you should be free to bump the module reference count up and down
+> as you wish, and be able to read the module reference count.
+> 
+> If you make that assumption, then it becomes possible to use the module
+> ref count as an internal reference counter, for device opens or
+> something like that.
 
-	I've tried this code on a machine that is a Sony Vaio
-notebook computer and one that is not, and it gets it right in
-both cases.
+Surely the exception rather than the rule?
 
-	I am interested in figuring out a more perfect test, but,
-in all cases, this patch should be better than the current 2.4.7-pre3
-tree and the earlier patches that Bob and I have posted, so it would
-be fine to apply it now.  (In particular, I am following the discussion
-about using "DMI tables"--something I'm not familiar with--but I have
-to leave for a two day trip in a few hours.)
+Sorry, complicating the code and making everyone pay the penalty so
+you can take a confusing short cut in your code is not something we're
+going to agree on.
 
-	Anyhow, I hope this patch is helpful.
+Modules are slower than built in; let's not "fix" this by making
+builtin code slower. 8)
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---- linux-2.4.7-pre3/drivers/char/sonypi.c	Mon Jul  9 05:32:41 2001
-+++ linux/drivers/char/sonypi.c	Mon Jul  9 05:30:22 2001
-@@ -689,8 +689,23 @@
- 	remove:		sonypi_remove,
- };
- 
-+static int __init sony_notebook(void) {
-+	struct pci_dev *dev;
-+
-+	dev = NULL;
-+	while ((dev = pci_find_class(PCI_CLASS_BRIDGE_CARDBUS, NULL)) != NULL){
-+		if (dev->subsystem_vendor == PCI_VENDOR_ID_SONY)
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
- static int __init sonypi_init_module(void) {
--	return pci_module_init(&sonypi_driver);
-+	if (sony_notebook())
-+		return pci_module_init(&sonypi_driver);
-+	else
-+		return -ENODEV;
- }
- 
- static void __exit sonypi_cleanup_module(void) {
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

@@ -1,52 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287279AbSATVlW>; Sun, 20 Jan 2002 16:41:22 -0500
+	id <S288059AbSATVml>; Sun, 20 Jan 2002 16:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287882AbSATVlM>; Sun, 20 Jan 2002 16:41:12 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1042 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287279AbSATVlF>;
-	Sun, 20 Jan 2002 16:41:05 -0500
-Date: Sun, 20 Jan 2002 19:40:38 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Shawn <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <3C4B3703.6080101@namesys.com>
-Message-ID: <Pine.LNX.4.33L.0201201936340.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288051AbSATVmb>; Sun, 20 Jan 2002 16:42:31 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:51364 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S288059AbSATVmQ>;
+	Sun, 20 Jan 2002 16:42:16 -0500
+Message-Id: <m16SPj2-000OVeC@amadeus.home.nl>
+Date: Sun, 20 Jan 2002 21:42:04 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: ak@suse.de (Andi Kleen)
+Subject: Re: performance of O_DIRECT on md/lvm
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <p734rlg90ga.fsf@oldwotan.suse.de>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Hans Reiser wrote:
+In article <p734rlg90ga.fsf@oldwotan.suse.de> you wrote:
 
-> >>and should otherwise check to see if the filesystem supports something
-> >>like pressure_fs_cache(), yes?
-> >
-> >That's incompatible with the concept of memory zones.
->
-> Care to explain more?
+> I think an optional readahead mode for O_DIRECT would be useful. 
 
-On basically any machine we'll have multiple memory zones.
-
-Each of those memory zones has its own free list and each
-of the zones can get low on free pages independantly of the
-other zones.
-
-This means that if the VM asks to get a particular page
-freed, at the very minimum you need to make a page from the
-same zone freeable.
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+I disagree. O_DIRECT says "do not cache. period. I know what I'm doing"
+and the kernel should respect that imho. After all we have sys_readahead for
+the other part...

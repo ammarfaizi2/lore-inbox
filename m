@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVCLRaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVCLRfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbVCLRaL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 12:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVCLRaL
+	id S261312AbVCLRfg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 12:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVCLRfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 12:30:11 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52752 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261879AbVCLRaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 12:30:04 -0500
-Date: Sat, 12 Mar 2005 18:30:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, adaplas@pol.net
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: [2.6 patch] drivers/video/intelfb/: fix a warning
-Message-ID: <20050312173002.GG3814@stusta.de>
-References: <20050312034222.12a264c4.akpm@osdl.org>
+	Sat, 12 Mar 2005 12:35:36 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:6545 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261312AbVCLRf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 12:35:28 -0500
+Message-ID: <4233285C.4000707@drzeus.cx>
+Date: Sat, 12 Mar 2005 18:35:24 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050312034222.12a264c4.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-6261-1110649013-0001-2"
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: LKML <linux-kernel@vger.kernel.org>, Ian Molton <spyro@f2s.com>,
+       Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH][MMC][7/6] Secure Digital (SD) support : Copyright
+References: <422701A0.8030408@drzeus.cx> <20050305113730.B26541@flint.arm.linux.org.uk> <4229A4B4.1000208@drzeus.cx> <20050305124420.A342@flint.arm.linux.org.uk> <422A5E1C.2050107@drzeus.cx>
+In-Reply-To: <422A5E1C.2050107@drzeus.cx>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems I'm at least partially guilty for the following warning coming 
-from Linus' tree:
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-<--  snip  -->
+--=_hades.drzeus.cx-6261-1110649013-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-...
-  CC [M]  drivers/video/intelfb/intelfbdrv.o
-drivers/video/intelfb/intelfbdrv.h:31: warning: 'intelfb_setup' declared `static' but never defined
-...
+I suppose a copyright notice is appropriate to indicate the origins of
+the SD additions.
 
-<--  snip  -->
+mmc.c is the only file with substancial changes so it should be enough
+with a notice there.
 
 
-The fix is simple.
+--=_hades.drzeus.cx-6261-1110649013-0001-2
+Content-Type: text/x-patch; name="mmc-sd-copyright.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc-sd-copyright.patch"
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Index: linux-sd/drivers/mmc/mmc.c
+===================================================================
+--- linux-sd/drivers/mmc/mmc.c	(revision 141)
++++ linux-sd/drivers/mmc/mmc.c	(working copy)
+@@ -2,6 +2,8 @@
+  *  linux/drivers/mmc/mmc.c
+  *
+  *  Copyright (C) 2003-2004 Russell King, All Rights Reserved.
++ *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
++ *  SD support Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
 
---- linux-2.6.11-mm3-full/drivers/video/intelfb/intelfbdrv.h.old	2005-03-12 17:51:06.000000000 +0100
-+++ linux-2.6.11-mm3-full/drivers/video/intelfb/intelfbdrv.h	2005-03-12 17:51:20.000000000 +0100
-@@ -28,7 +28,6 @@
-  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--static int __init intelfb_setup(char *options);
- static void __devinit get_initial_mode(struct intelfb_info *dinfo);
- static void update_dinfo(struct intelfb_info *dinfo,
- 			 struct fb_var_screeninfo *var);
-
+--=_hades.drzeus.cx-6261-1110649013-0001-2--

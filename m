@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314559AbSEBPWs>; Thu, 2 May 2002 11:22:48 -0400
+	id <S314571AbSEBPXm>; Thu, 2 May 2002 11:23:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314558AbSEBPWq>; Thu, 2 May 2002 11:22:46 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:11004 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S314560AbSEBPV7>; Thu, 2 May 2002 11:21:59 -0400
-Message-ID: <3CD15996.8EB1699F@redhat.com>
-Date: Thu, 02 May 2002 16:21:58 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-0.24smp i686)
-X-Accept-Language: en
+	id <S314558AbSEBPWu>; Thu, 2 May 2002 11:22:50 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:10964 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S314557AbSEBPVY>; Thu, 2 May 2002 11:21:24 -0400
+Date: Thu, 02 May 2002 08:18:33 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Daniel Phillips <phillips@bonn-fries.net>
+cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <3968942217.1020327505@[10.10.2.3]>
+In-Reply-To: <20020502153402.A11414@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-In-Reply-To: <E173HX6-00041D-00@the-village.bc.nu> <3CD13FF3.5020406@evision-ventures.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
-> 
-> Uz.ytkownik Alan Cox napisa?:
-> >>>change configs, rebuild without make mrproper).  To do modversions
-> >>>right needs a new version of modutils as well, there is no chance of
-> >>>that work being started until kbuild 2.5 is in the kernel.
-> >>
-> >>How many years was it that I was telling that symbol versioning is
-> >>a silly concept not solving any single problem and the implementation is to say
-> >>the least ugly?
-> >
-> >
-> > Modversions solves a huge number of problems very very well. The fact that
-> > you don't like it doesn't change the reality of the situation.
-> 
-> Could you name *ONE* please? Maybe the following?
+> alpha is the same as mips I think. sparc would be the same too if
+> there's any discontigmem sparc. Dunno of arm. We're talking about
+> architectures needing discontigmem, 99% percent of users  doesn't need
+> discontigmem in the first place, you never need discontigmem in x86 and
 
-It fixes the problem where support people and people who get the
-bugreports have
-to stare at "impossible" problems for hours and hours to find out that
-someone
-has insmod'ed a module for a different kernel (be it an athlon module in
-a i686 kernel
-or someone using perl to replace the built-in kernel version in the .o
-file)
+That's not true. We use discontigmem on the NUMA-Q boxes for NUMA support.
+In some memory models, they're also really discontigous memory machines.
+At the moment I use the contig memory model (so we only use discontig for
+NUMA support) but I may need to change that in the future.
+
+M.
+

@@ -1,67 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262731AbRE3LPJ>; Wed, 30 May 2001 07:15:09 -0400
+	id <S262734AbRE3LPJ>; Wed, 30 May 2001 07:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262734AbRE3LPA>; Wed, 30 May 2001 07:15:00 -0400
-Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:15797 "EHLO
-	fxian.jukie.net") by vger.kernel.org with ESMTP id <S262731AbRE3LOw>;
-	Wed, 30 May 2001 07:14:52 -0400
-Date: Wed, 30 May 2001 07:14:27 -0400 (EDT)
-From: Feng Xian <fxian@fxian.jukie.net>
-X-X-Sender: <fxian@tiger>
-To: David Howells <dhowells@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.3-ac14 spinlock problem? 
-In-Reply-To: <12317.991208196@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.33.0105300713090.29751-100000@tiger>
+	id <S262738AbRE3LPA>; Wed, 30 May 2001 07:15:00 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27666 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262734AbRE3LOt>; Wed, 30 May 2001 07:14:49 -0400
+Subject: Re: Generating valid random .configs
+To: ankry@green.mif.pg.gda.pl
+Date: Wed, 30 May 2001 12:11:58 +0100 (BST)
+Cc: arjanv@redhat.com, anuradha@gnu.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200105300929.LAA02627@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at May 30, 2001 11:29:42 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1553tP-0005pU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+> > 2 months since I last did that, so I should do it again soon..
+> 
+> Some things cannot be properly fixed in CML1.
+>   "$CONFIG_BINFMT_MISC" = "y" -a "$CONFIG_PROC_FS" = "n"
+> is a good example.
 
-Actually it happened only once. then I upgrade my kernel to 2.4.5. problem
-disappeared. I just hope this maybe a known problem.
+Thats a tool not a language limit.
 
-Thanks.
-
-Alex
-
-
-On Wed, 30 May 2001, David Howells wrote:
-
->
-> > I was running something on my Dell dual p3 box (optiplex gx300). my kernel
-> > is linux-2.4.3-ac14. I got the following message:
->
-> How often did this message occur?
->
-> > __rwsem_do_wake(): wait_list unexpectedly empty
-> > [4191] c5966f60 = { 00000001 })
-> > kenel BUG at rwsem.c:99!
-> > invalid operand: 0000
-> > CPU:            1
-> > EIP:            0010:[<c0236b99>]
-> > EFLAGS: 00010282
-> > kenel BUG at /usr/src/2.4.3-ac14/include/asm/spinlock.h:104!
-> >
-> >
-> > I upgrade the kernel to 2.4.5, no such problem any more.
->
-> I suspect something else corrupted the rw-semaphore structure, but that's very
-> hard to prove unless you catch it in the act. If it happens again with any
-> frequency, you might want to try turning on rwsem debugging.
->
-> David
->
-
--- 
-        Feng Xian
-   _o)     .~.      (o_
-   /\\     /V\      //\
-  _\_V    // \\     V_/_
-         /(   )\
-          ^^-^^
-           ALEX
+Alan
 

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267726AbTATA45>; Sun, 19 Jan 2003 19:56:57 -0500
+	id <S267712AbTATA4C>; Sun, 19 Jan 2003 19:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267735AbTATA45>; Sun, 19 Jan 2003 19:56:57 -0500
-Received: from tsv.sws.net.au ([203.36.46.2]:7174 "EHLO tsv.sws.net.au")
-	by vger.kernel.org with ESMTP id <S267726AbTATA4t>;
-	Sun, 19 Jan 2003 19:56:49 -0500
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC][PATCH] Add LSM sysctl hook to 2.5.59
-Date: Mon, 20 Jan 2003 02:05:41 +0100
-User-Agent: KMail/1.5
-Cc: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-References: <200301172154.QAA00757@moss-shockers.ncsc.mil> <200301200139.39092.russell@coker.com.au> <20030120004320.A10659@infradead.org>
-In-Reply-To: <20030120004320.A10659@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200301200205.41049.russell@coker.com.au>
+	id <S267700AbTATA4C>; Sun, 19 Jan 2003 19:56:02 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:26872 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267695AbTATA4C> convert rfc822-to-8bit; Sun, 19 Jan 2003 19:56:02 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <Valdis.Kletnieks@vt.edu>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Sun, 19 Jan 2003 17:05:02 -0800
+In-Reply-To: <200301200036.h0K0aCIJ012273@turing-police.cc.vt.edu>
+Subject: Re: Is the BitKeeper network protocol documented?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030120010504.AAA18836@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jan 2003 01:43, Christoph Hellwig wrote:
-> On Mon, Jan 20, 2003 at 01:39:39AM +0100, Russell Coker wrote:
-> > > What's the reason you can't just live with DAC for sysctls?
-> >
-> > What exactly do you mean by "live with DAC" in this context?  If you mean
-> > "allow UID==0 processes to do whatever they like" then it's not going to
-> > work for any sort of chroot setup.
->
-> This means check the unix file permissions / ACLs only overriden by
-> CAP_FOWNER processes.
+On Sun, 19 Jan 2003 19:36:12 -0500, Valdis.Kletnieks@vt.edu wrote:
 
-I don't think that would do for my chroot environments.  I want to have root 
-owned processes running in a chroot with no ability to escape or to affect 
-the outside environment (and proc is mounted in the chroot).
+>Moral: Let's not get silly here...
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+	Don't blame me. The GPL just says the "preferred" form and leaves us 
+to wonder. As I understand it, however, you cannot ship binaries of a 
+GPL'd project unless you can distribute the source code in the 
+"preferred form .. for making modifications to it".
+
+	I'm still perplexed what you do if the preferred modification form 
+for a work requires consent to a license more restrictive than the 
+GPL in order to make modifications to it. As I see it, you just can't 
+GPL such a project.
+
+	And you can't take a GPL'd work and turn it into a non-GPL'd work 
+and continue to distribute binaries.
+
+	DS
+
 

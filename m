@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTF2UH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTF2UH1
+	id S264809AbTF2UFI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTF2UFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:07:27 -0400
-Received: from h80ad24fc.async.vt.edu ([128.173.36.252]:28032 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263131AbTF2UGz (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:06:55 -0400
-Message-Id: <200306292021.h5TKL5EA003392@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Ricardo Galli <gallir@uib.es>
-Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: Dell vs. GPL 
-In-Reply-To: Your message of "Sun, 29 Jun 2003 21:58:52 +0200."
-             <200306292158.52878.gallir@uib.es> 
-From: Valdis.Kletnieks@vt.edu
-References: <200306291624.47221.gallir@uib.es> <20030629195003.GF26258@mail.jlokier.co.uk>
-            <200306292158.52878.gallir@uib.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1552371368P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 29 Jun 2003 16:21:04 -0400
+	Sun, 29 Jun 2003 16:05:08 -0400
+Received: from 165.Red-217-126-36.pooles.rima-tde.net ([217.126.36.165]:4294
+	"EHLO pau.newtral.org") by vger.kernel.org with ESMTP
+	id S264809AbTF2UFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:05:03 -0400
+Date: Sun, 29 Jun 2003 22:18:13 +0200 (CEST)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+In-Reply-To: <20030628001625.GC18676@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0306292215450.20292-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1552371368P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 27 Jun 2003, Larry McVoy wrote:
 
-On Sun, 29 Jun 2003 21:58:52 +0200, Ricardo Galli said:
+> Maybe we should take a page from Oracle and start advertising.  How's this?
+> 
+>     BitKeeper makes your source unbreakable
+> 
+> I'm only half joking.  If SVN/CVS/Clearcase/anyone else had both the primary
+> and the backup fail, you are just screwed, there isn't anything you can do.
 
-> exclusive rights are owned jointly. Where a computer programme is created by 
-> an employee in the execution of his duties or following the instructions 
-> given by his employer, the employer alone will be entitled to exercise all 
-> economic rights in the programme, unless otherwise provided for by contract.
-> ^^^^^^^^^^^^^^^
+With arch you don't have any problems in recovering as well. Probably you 
+wouldn't need as much hassle, just pick any mirror amb mirror back.
 
-This is no different than the US concept of "work for hire" -except under US
-law, essentially everything done for the employer (software, white papers,
-music, graphic design, etc) is covered by "work for hire".
+Pau
 
---==_Exmh_-1552371368P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+/0owcC3lWbTT17ARAsQiAJ4lfX+/qtDN3xo8+bsmjBtuGHMebwCgo6Zl
-+jd2FagOMzZ9oXZDBijlRyM=
-=tSUj
------END PGP SIGNATURE-----
-
---==_Exmh_-1552371368P--

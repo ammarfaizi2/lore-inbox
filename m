@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUGGSbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265269AbUGGSiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUGGSbE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265292AbUGGSbE
+	id S265269AbUGGSiY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 14:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUGGSiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:31:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22752 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265290AbUGGSbA (ORCPT
+	Wed, 7 Jul 2004 14:38:24 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:26300 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S265269AbUGGSiW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:31:00 -0400
-Date: Wed, 7 Jul 2004 11:29:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: marcelo.tosatti@cyclades.com, mason@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: Unnecessary barrier in sync_page()?
-Message-Id: <20040707112953.0157383e.akpm@osdl.org>
-In-Reply-To: <20040707182025.GJ28479@dualathlon.random>
-References: <20040707175724.GB3106@logos.cnet>
-	<20040707182025.GJ28479@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 7 Jul 2004 14:38:22 -0400
+Message-ID: <5ce509fc0407071138791a4fa0@mail.gmail.com>
+Date: Wed, 7 Jul 2004 11:38:22 -0700
+From: Steve Best <creamygoodness@gmail.com>
+To: Vasant Tiwari <vasant@iitk.ac.in>
+Subject: Re: Non-free bits in linux kernel
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040628004351.GA20236@iitk.ac.in>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20040628004351.GA20236@iitk.ac.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> however the smp_mb() isn't needed in sync_page, simply because it's
->  perfectly ok if we start running sync_page before reading pagelocked.
->  All we care about is to run sync_page _before_ io_schedule() and that we
->  read PageLocked _after_ prepare_to_wait_exclusive.
-> 
->  So the locking in between PageLocked and sync_page is _absolutely_
->  worthless and the smp_mb() can go away.
+I am interested in seeing this list as well.
 
-IIRC, Chris added that barrier (and several similar) for the reads in
-page_mapping().
+On Mon, 28 Jun 2004 06:13:51 +0530, Vasant Tiwari <vasant@iitk.ac.in> wrote:
+> 
+> Hi,
+> 
+>        I have come to know that somebody on the LKML has list of all
+> the non-free parts of Linux kernel. Could the concerned person mail me
+> the list of such code/files.
+> 
+> --
+> With Regards
+> Vasant Tiwari
+> @
+> QOTD:   "Don't let your mind wander -- it's too little to be let out alone."
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

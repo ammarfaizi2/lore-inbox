@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSFLUuw>; Wed, 12 Jun 2002 16:50:52 -0400
+	id <S314284AbSFLUvs>; Wed, 12 Jun 2002 16:51:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSFLUuv>; Wed, 12 Jun 2002 16:50:51 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:9967 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S313867AbSFLUuv>; Wed, 12 Jun 2002 16:50:51 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 12 Jun 2002 14:49:18 -0600
-To: Peter Bornemann <eduard.epi@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] in page_alloc.c in 2.4.19-pre10aa2
-Message-ID: <20020612204918.GC682@clusterfs.com>
-Mail-Followup-To: Peter Bornemann <eduard.epi@t-online.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206122202110.11557-100000@eduard.t-online.de>
+	id <S314278AbSFLUvr>; Wed, 12 Jun 2002 16:51:47 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:23221 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S314284AbSFLUvm>; Wed, 12 Jun 2002 16:51:42 -0400
+Date: Wed, 12 Jun 2002 12:20:50 +0200
+From: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+To: Anjali Kulkarni <anjali@indranetworks.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: scheduler problems
+Message-ID: <20020612122050.A1832@linux-m68k.org>
+In-Reply-To: <200206120714.AAA07894@eagle.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 12, 2002  22:26 +0200, Peter Bornemann wrote:
-> Besides the aa-patches there were no other patches in the kernel but
-> only the Nvidia-driver, which does not seem to be involved, however.
+On Wed, Jun 12, 2002 at 12:14:09AM -0700, Anjali Kulkarni wrote:
+> 
+> > (given that the current 2.2 kernel is 2.2.21, the first thing would 
+> be to
+> > test it there too.)
+> > 
+> 
+> Thanks, I 'll do that.
+> 
+> > > [...] It is due to the fact that the schedule() function does not 
+> find
+> > > the 'current' process in the runqueue. [...]
+> > 
+> > a crash in line 384 means that the runqueue got corrupted by 
+> something,
+> > most likely caused by buggy kernel code outside of the scheduler.
+> 
+> Right, I thought of that, but how is it that it gets corrupt at exactly 
+> the same offset in task_struct of that process and every time with 
+> different processes? (I have run it atleast 20-30 times). And it just 
+> doesnt come if I kill the process in question? 
 
-Please reproduce the error without the nvidia driver loaded, or report
-the problem to the nvidia developers.  Unfortunately it is impossible
-to say what the source of the problem is, as it is possible the nvidia
-driver is overwriting memory elsewhere in the kernel and there is no
-way for anyone to check that.
+I've had similar problems when some code invalidated CPU cache 
+and an interrupt came in at the wrong time.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+Richard

@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272795AbRIGRjf>; Fri, 7 Sep 2001 13:39:35 -0400
+	id <S272792AbRIGR5A>; Fri, 7 Sep 2001 13:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272794AbRIGRjZ>; Fri, 7 Sep 2001 13:39:25 -0400
-Received: from nbd.it.uc3m.es ([163.117.139.192]:16388 "EHLO nbd.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S272792AbRIGRjF>;
-	Fri, 7 Sep 2001 13:39:05 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200109071739.TAA31281@nbd.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <m2bskndlkt.fsf@sympatico.ca> "from Bill Pringlemeir at Sep 7, 2001
- 12:14:58 pm"
-To: Bill Pringlemeir <bpringle@sympatico.ca>
-Date: Fri, 7 Sep 2001 19:39:20 +0200 (CEST)
-CC: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+	id <S272794AbRIGR4u>; Fri, 7 Sep 2001 13:56:50 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:51471 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S272792AbRIGR4f>; Fri, 7 Sep 2001 13:56:35 -0400
+Date: Fri, 7 Sep 2001 23:27:45 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: kernelnewbies <kernelnewbies@nl.linux.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Reg lilo.conf changed and system doesn't boot
+Message-ID: <Pine.LNX.4.10.10109072322550.30022-100000@blrmail>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bill Pringlemeir wrote:"
-> I think that names like __reserved aren't suppose to be used and so a
-> "double underbar" was used instead of a single one.  That is what I
-> meant anyways.  I suppose that is another somewhat murky issue ;-)
+Hi,
+I know that this is not the place to ask this question.Please forgive me.
+I changed the lilo.conf on my machine(redhat 2.2.14-12 kernel) and it
+doesn't boot up. I don't have
+a boot floppy to boot. I have another disk which has an older version of
+linux(2.2.6). I can mount the disk if I boot from the other
+disk(2.2.6). Can I
+in some way alter the lilo.conf of my disk(2.2.14) and boot linux from
+that. Please tell me any ideas to do that.
 
-If I thought hard, I think I could generate a file and line -specific
-name.
+Thanks in advance,
+Warm regards,
+satishj
 
-Peter

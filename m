@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbTK3W2S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 17:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTK3W2S
+	id S261837AbTK3WmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 17:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTK3WmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 17:28:18 -0500
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:2135 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261567AbTK3W2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 17:28:17 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Synaptics PS/2 driver and 2.6.0-test11
-Date: Sun, 30 Nov 2003 17:28:10 -0500
-User-Agent: KMail/1.5.4
-References: <20031130214612.GP2935@mail.muni.cz>
-In-Reply-To: <20031130214612.GP2935@mail.muni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Nov 2003 17:42:25 -0500
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:63762
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S261837AbTK3WmY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 17:42:24 -0500
+Date: Sun, 30 Nov 2003 23:42:19 +0100
+From: Santiago Garcia Mantinan <lkml@manty.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE DMA setting not available on 2.4.23 as a module
+Message-ID: <20031130224219.GA691@man.beta.es>
+References: <20031130195815.GA2409@man.beta.es> <200311302115.07898.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311301728.10563.dtor_core@ameritech.net>
+In-Reply-To: <200311302115.07898.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 November 2003 04:46 pm, Lukas Hejtmanek wrote:
+> Do you have piix.o module loaded or PIIX support compiled-in?
 
-> Nov 30 12:32:23 debian kernel: Synaptics driver resynced.
-> Nov 30 12:33:54 debian kernel: Synaptics driver lost sync at 4th byte
-> Nov 30 12:33:54 debian kernel: Synaptics driver lost sync at 4th byte
-> Nov 30 12:33:54 debian kernel: Synaptics driver lost sync at 1st byte
-> Nov 30 12:33:54 debian kernel: Synaptics driver lost sync at 4th byte
-> Nov 30 12:33:54 debian kernel: Synaptics driver lost sync at 1st byte
-> Nov 30 12:33:54 debian last message repeated 2 times
-> Nov 30 12:33:54 debian kernel: Synaptics driver resynced.
-> Nov 30 12:34:25 debian kernel: Synaptics driver lost sync at 1st byte
->
->
-> It does not happen with 2.4.22 kernel. Is there something I can try?
+I had it compiled in, I didn't knew it could be compiled as a module, I have
+tried compiling it as a module and DMA works ok, however the module along
+with ide-core are not removable as piix says it is being used.
 
-Hi,
+I have compiled the kernel again with ide modular and piix compiled in, just
+in case I had not done it that way before and in fact I had done it that way
+and I have verified that I had done it like that, DMA doesn't work as PIIX
+driver is not used, I don't see any PIIX4 messages or any BM-DMA ones when
+doing it this way, that is the problem.
 
-Are you using ACPI? Does it work without ACPI? Do you have an application
-that periodically polls battery state or temperature? From what I've seen
-many laptops spend considerable amount of time in BIOS when checking
-battery state...
+Hope this clarifies things a little bit.
 
-Dmitry
+If you need any other info/test, don't hesitate to contact.
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

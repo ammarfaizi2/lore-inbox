@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbTFJUiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 16:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTFJUcI
+	id S264095AbTFJUmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 16:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTFJUmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 16:32:08 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:6533 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263964AbTFJShW convert rfc822-to-8bit
+	Tue, 10 Jun 2003 16:42:23 -0400
+Received: from wmail.atlantic.net ([209.208.0.84]:57519 "HELO
+	wmail.atlantic.net") by vger.kernel.org with SMTP id S264095AbTFJUmN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:37:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10552709663662@kroah.com>
-Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
-In-Reply-To: <10552709663992@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 10 Jun 2003 11:49:26 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Tue, 10 Jun 2003 16:42:13 -0400
+Message-ID: <3EE648D8.7000500@techsource.com>
+Date: Tue, 10 Jun 2003 17:08:40 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Schwartz <davids@webmaster.com>
+CC: xyko_ig@ig.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Wrong number of cpus detected/reported
+References: <MDEHLPKNGKAHNMBLJOLKGECIDJAA.davids@webmaster.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1338, 2003/06/09 15:49:08-07:00, greg@kroah.com
-
-PCI: remove pci_present() from drivers/net/fc/iph5526.c
 
 
- drivers/net/fc/iph5526.c |    6 +-----
- 1 files changed, 1 insertion(+), 5 deletions(-)
+David Schwartz wrote:
+
+> 
+> 	This is correct. The machine has 8 logical CPUs implemented inside 4
+> physical CPUs. For more information, search Intel's web pages about
+> 'hyperthreading'.
+> 
 
 
-diff -Nru a/drivers/net/fc/iph5526.c b/drivers/net/fc/iph5526.c
---- a/drivers/net/fc/iph5526.c	Tue Jun 10 11:20:59 2003
-+++ b/drivers/net/fc/iph5526.c	Tue Jun 10 11:20:59 2003
-@@ -232,7 +232,7 @@
- 
- int __init iph5526_probe(struct net_device *dev)
- {
--	if (pci_present() && (iph5526_probe_pci(dev) == 0))
-+	if (iph5526_probe_pci(dev) == 0)
- 		return 0;
- 	return -ENODEV;
- }
-@@ -3720,10 +3720,6 @@
- 	unsigned long timeout;
- 
- 	tmpt->proc_name = "iph5526";
--	if (pci_present() == 0) {
--		printk("iph5526: PCI not present\n");
--		return 0;
--	}
- 
- 	for (i = 0; i <= MAX_FC_CARDS; i++) 
- 		fc[i] = NULL;
+But if the kernel doesn't have HT support, then it won't necessarily 
+balance loads properly.
+
 

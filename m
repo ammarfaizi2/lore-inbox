@@ -1,173 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVCODGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVCODHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVCODGl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 22:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVCODGl
+	id S262212AbVCODHx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 22:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVCODHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 22:06:41 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:15276 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261500AbVCODGc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 22:06:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rDGJ61iD5nmfnjt3oCWtgrDOhrgZc9mbiuvYmWUCrM8VRTyt6YlmuTTTu9RyACznNR6yiCgGYstwvfzfBL/JYT90NHRMMfKYEmLb4yALvHkCIVI+il5IBP9oHqsxYy6pNs2fwdh82/GMXFJf53iwbaCkB/8HQjmmkTkr8hBSRrs=
-Message-ID: <90f56e4805031411593fd945f2@mail.gmail.com>
-Date: Mon, 14 Mar 2005 11:59:26 -0800
-From: Ajay Patel <patela@gmail.com>
-Reply-To: Ajay Patel <patela@gmail.com>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [KBUILD] Bug in make deb-pkg when using seperate source and object directories
-In-Reply-To: <20050313060940.GB7828@mythryan2.michonline.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050313060940.GB7828@mythryan2.michonline.com>
+	Mon, 14 Mar 2005 22:07:53 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:18671 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262212AbVCODH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 22:07:27 -0500
+Date: Mon, 14 Mar 2005 22:07:25 -0500
+From: Mark Studebaker <mds@mds.gotdns.com>
+Subject: Re: ancient portmap segfault
+In-reply-to: <m1d5u3yi1l.fsf@muc.de>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <4236516D.5030001@mds.gotdns.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4233B520.7010307@mds.gotdns.com> <m1d5u3yi1l.fsf@muc.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030420
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam,
+Andi,
+thanks for the response.
 
-I had a similar problem building binrpm-pkg.
-Try following patch. It worked for me.
+The code forks immediately and the new process segfaults immediately. 
+>From an inspection of 'strace -f' on a working version, the next call
+would have been setsid() . (The library call in the code is daemon(0,0)).
+The original Makefile has an LDFLAG of -N (OMAGIC: make text secion writable, 
+don't page-align the data section.... No idea why).
 
-Thanks
-Ajay
+If I compile with ancient gcc/ld,
+it works after compiling without -N and segfaults when compiling with -N.
+If I compile with a recent gcc/ld, it works fine.
 
-Index: Makefile
-===================================================================
-RCS file: ./scripts/package/Makefile,v
-retrieving revision 1.2
-diff -d -c -5 -p -r1.2 Makefile
-*** Makefile    25 Feb 2005 22:35:22 -0000      1.2
---- Makefile    14 Mar 2005 19:56:06 -0000
-*************** clean-files := $(objtree)/kernel.spec
-*** 57,67 ****
-  .PHONY: binrpm-pkg
-  $(objtree)/binkernel.spec: $(MKSPEC) $(srctree)/Makefile
-        $(CONFIG_SHELL) $(MKSPEC) prebuilt > $@
+here's an objump of the segfaulting portmap
+------------------------------------------------
+>  objdump -x /usr/sbin/portmap
 
-  binrpm-pkg: $(objtree)/binkernel.spec
-!       $(MAKE)
-        set -e; \
-        $(CONFIG_SHELL) $(srctree)/scripts/mkversion > $(objtree)/.tmp_version
-        set -e; \
-        mv -f $(objtree)/.tmp_version $(objtree)/.version
-        -@[ -d $(objtree)/../../pkgdir ] || mkdir -p $(objtree)/../../pkgdir
---- 57,67 ----
-  .PHONY: binrpm-pkg
-  $(objtree)/binkernel.spec: $(MKSPEC) $(srctree)/Makefile
-        $(CONFIG_SHELL) $(MKSPEC) prebuilt > $@
+/usr/sbin/portmap:     file format a.out-i386-linux
+/usr/sbin/portmap
+architecture: i386, flags 0x00000002:
+EXEC_P
+start address 0x00000000
 
-  binrpm-pkg: $(objtree)/binkernel.spec
-!       $(MAKE) KBUILD_SRC=
-        set -e; \
-        $(CONFIG_SHELL) $(srctree)/scripts/mkversion > $(objtree)/.tmp_version
-        set -e; \
-        mv -f $(objtree)/.tmp_version $(objtree)/.version
-        -@[ -d $(objtree)/../../pkgdir ] || mkdir -p $(objtree)/../../pkgdir
-*************** clean-files += $(objtree)/binkernel.spec
-*** 74,84 ****
-  # Deb target
-  # ---------------------------------------------------------------------------
-  #
-  .PHONY: deb-pkg
-  deb-pkg:
-!       $(MAKE)
-        $(CONFIG_SHELL) $(srctree)/scripts/package/builddeb
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000f7c  00000000  00000000  00000020  2**2
+                  CONTENTS, ALLOC, LOAD, CODE
+  1 .data         00000110  00000f7c  00000f7c  00000f9c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000018  0000108c  0000108c  00000000  2**2
+                  ALLOC
+SYMBOL TABLE:
+no symbols
 
-  clean-dirs += $(objtree)/debian/
+-------------------
+and here's the objdump of the test without -N
+
+>  objdump -h a.out
+
+a.out:     file format a.out-i386-linux
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00001fe0  00001020  00001020  00000020  2**3
+                  CONTENTS, ALLOC, LOAD, CODE
+  1 .data         00001000  00003000  00003000  00002000  2**3
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00004000  00004000  00000000  2**3
+                  ALLOC
 
 
---- 74,84 ----
-  # Deb target
-  # ---------------------------------------------------------------------------
-  #
-  .PHONY: deb-pkg
-  deb-pkg:
-!       $(MAKE) KBUILD_SRC=
-        $(CONFIG_SHELL) $(srctree)/scripts/package/builddeb
 
-  clean-dirs += $(objtree)/debian/
-  $(MAKE)
+--------------------------------------------------
+so maybe the alignment difference is the problem?
 
-========================================================
+as I said before, I have things working, only reporting this on the possibility
+that it's a bug worth  investigating.
 
-On Sun, 13 Mar 2005 01:09:41 -0500, Ryan Anderson <ryan@michonline.com> wrote:
-> Sam,
+thanks
+mds
+
+
+Andi Kleen wrote:
+> Mark Studebaker <mds@mds.gotdns.com> writes:
 > 
-> When running "make O=something deb-pkg", I get a failure that claims I
-> haven't configured my kernel (I have).  Running it a second time tells
-> me to run "make mrproper"  (include/linux/version.h got built on the
-> first run)
 > 
-> I did some preliminary poking around, but kbuild is still, well, mostly
-> magic to me - I can't see where the object directory is getting lost.
+>>I upgraded from 2.6.5 to 2.6.11.2 and my ancient (libc4 a.out) /sbin/portmap from 1994 that's been running without complaint
+>>on kernels for 11 years now consistently segfaults.
+>>
+>>I upgraded to a version 4 RPM (circa 2002) and that fixed it.
+>>
+>>If some compatibility was broken on purpose, that's fine, although I couldn't find anything in the kernel docs.
+>>I know, I should upgrade everything, but that can break a lot of things too...
+>>Thought I'd mention it though in case it's a bug or somebody else has the same problem.
 > 
-> Think you can take a look?  (Note, this failure shouldn't require
-> anything Debian specific on your system to trigger - it's failing, as
-> far as I can tell, on the $(MAKE) right before the call build the
-> builddeb script, so it should be easy to reproduce)
 > 
-> The log of when I run it follows:
+> It's probably a bug, but your bug report doesn't have enough details
+> to track it down. Do you have a a.out strace and could send an strace log
+> with the segfault and the last tens of system calls before it?
 > 
-> ryan@mythryan2 ~/dev/linux/local-quilt$ blocal deb-pkg
-> make
-> make -C /home/ryan/dev/linux/local-quilt
-> O=/home/ryan/dev/linux/output/local
-> Makefile:487: .config: No such file or directory
->   Using /home/ryan/dev/linux/local-quilt as source for kernel
->   CHK     include/linux/version.h
->   UPD     include/linux/version.h
->   SYMLINK include/asm -> include/asm-i386
->   HOSTCC  scripts/basic/fixdep
->   HOSTCC  scripts/basic/split-include
->   HOSTCC  scripts/basic/docproc
->   SHIPPED scripts/kconfig/zconf.tab.h
->   SHIPPED scripts/kconfig/zconf.tab.c
->   SHIPPED scripts/kconfig/lex.zconf.c
->   HOSTCC  scripts/kconfig/conf.o
->   HOSTCC  scripts/kconfig/mconf.o
->   HOSTCC  scripts/kconfig/zconf.tab.o
->   HOSTLD  scripts/kconfig/conf
-> scripts/kconfig/conf -s arch/i386/Kconfig
-> ***
-> *** You have not yet configured your kernel!
-> ***
-> *** Please run some configurator (e.g. "make oldconfig" or
-> *** "make menuconfig" or "make xconfig").
-> ***
-> make[6]: *** [silentoldconfig] Error 1
-> make[5]: *** [silentoldconfig] Error 2
-> make[4]: *** [include/linux/autoconf.h] Error 2
-> make[3]: *** [all] Error 2
-> make[2]: *** [deb-pkg] Error 2
-> make[1]: *** [deb-pkg] Error 2
-> make: *** [deb-pkg] Error 2
-> 
-> "blocal" is a simple wrapper to cut down on retyping things, it's just
-> this:
-> 
-> ryan@mythryan2 ~/dev/linux/local-quilt$ cat /home/ryan/bin/blocal
-> #!/bin/bash -e
-> 
-> PWD=`pwd`
-> 
-> if [ "$PWD" != "/home/ryan/dev/linux/local-quilt" ]; then
->         cd /home/ryan/dev/linux/local-quilt
-> fi
-> 
-> make O=../output/local/ -j4 CC="ccache distcc" $*
-> 
-> --
-> 
-> Ryan Anderson
->   sometimes Pug Majere
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> -Andi
+
+

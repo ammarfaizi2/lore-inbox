@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUFVU6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266027AbUFVVIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265932AbUFVU6i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbUFVUtH
+	id S266027AbUFVVIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 17:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266021AbUFVVIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:49:07 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:63195 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265932AbUFVUfz (ORCPT
+	Tue, 22 Jun 2004 17:08:17 -0400
+Received: from mail.dif.dk ([193.138.115.101]:29643 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S266040AbUFVVEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:35:55 -0400
+	Tue, 22 Jun 2004 17:04:39 -0400
+Date: Tue, 22 Jun 2004 23:03:38 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Mark Lord <mlord@pobox.com>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: [PATCH] check_region removal - trm290.c
+Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC082C7F96@difpst1a.dif.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16600.38945.759248.188810@alkaid.it.uu.se>
-Date: Tue, 22 Jun 2004 22:35:45 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
-In-Reply-To: <20040622172025.GA6074@infradead.org>
-References: <200405312218.i4VMIISg012277@harpo.it.uu.se>
-	<20040622015311.561a73bf.akpm@osdl.org>
-	<20040622085901.GA31971@infradead.org>
-	<20040622020417.0ec87564.akpm@osdl.org>
-	<20040622091219.GA32146@infradead.org>
-	<20040622021441.4f6aa13c.akpm@osdl.org>
-	<20040622091850.GA32160@infradead.org>
-	<20040622022023.1942fd82.akpm@osdl.org>
-	<16600.17486.81041.111276@alkaid.it.uu.se>
-	<20040622172025.GA6074@infradead.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
- > On Tue, Jun 22, 2004 at 04:38:06PM +0200, Mikael Pettersson wrote:
- > > Swiching to open() on /proc/<pid>/<tid>/perfctr followed by ioctl()s
- > > would be easy to implement. But people @ LKML are sometimes violently
- > > opposed to ioctl()s, that's why the switch to syscalls happended.
- > 
- > I don't remember the details anymore, but lots of the syscalls could
- > really be read/write on special files.  I'll look through the code again
- > and send out draft API document.
 
-I've thought about this, but the FS with multiple files approach
-has several problems:
+Here's a patch to remove check_region from drivers/ide/pci/trm190.c
 
-1. An open file descriptor no longer suffices as a user-space handle.
-   This is because we don't have fd = open("%d/file",dirfd) type
-   system calls.
+As far as I can see this should not make the driver any less safe than it
+currently is, but as Guennadi Liakhovetski has pointed out to me
+previously, it doesn't look quite safe that the driver tries to access
+ports before request_region gets called from ide_hwif_request_regions()
+Unfortunately I'm not quite sure how to rework the driver properly to
+make sure it's safe (suggestions welcome).
 
-2. A mini-fs under /proc/<pid>/<tid>/perfctr/ disappears when the
-   process disappears. Currently, a process' perfctr state lives
-   as long as references remains, whether via the process task_struct,
-   or via some open file descriptor. One use for this is in
-   remote-control applications, where it avoids enforcing
-   parent/child relationships on monitor/target processes.
+Anyway, this gets us one step closer to being able to get rid of
+check_region() completely, and I don't see how it can do any harm. If the
+drivers port access is currently broken, then it's no less broken with
+this patch and we gain the bennefit of one less warning and one less
+check_region user.
+Comments on how to fix this up better are welcome as well as comments on
+whether or not it's sufficient and safe to just get rid of check_region
+without any further changes.
+Patch below is against 2.6.7
 
-Going with a mini-fs is possible (though painful to implement), but
-the remote-control feature would have to be constrained to a debugger
-like model. In particular, the whole notion of using an fd as a handle
-to a state object with its own lifetime would have to be ditched.
 
-/Mikael
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.7-orig/drivers/ide/pci/trm290.c	2004-06-16 07:19:01.000000000 +0200
++++ linux-2.6.7/drivers/ide/pci/trm290.c	2004-06-22 22:53:10.000000000 +0200
+@@ -3,6 +3,10 @@
+  *
+  *  Copyright (c) 1997-1998  Mark Lord
+  *  May be copied or modified under the terms of the GNU General Public License
++ *
++ *  June 22, 2004 - get rid of check_region
++ *                  Jesper Juhl <juhl-lkml@dif.dk>
++ *
+  */
+
+ /*
+@@ -372,16 +376,6 @@ void __devinit init_hwif_trm290(ide_hwif
+ 		if (old != compat && old_mask == 0xff) {
+ 			/* leave lower 10 bits untouched */
+ 			compat += (next_offset += 0x400);
+-#  if 1
+-			if (check_region(compat + 2, 1))
+-				printk(KERN_ERR "%s: check_region failure at 0x%04x\n",
+-					hwif->name, (compat + 2));
+-			/*
+-			 * The region check is not needed; however.........
+-			 * Since this is the checked in ide-probe.c,
+-			 * this is only an assignment.
+-			 */
+-#  endif
+ 			hwif->io_ports[IDE_CONTROL_OFFSET] = compat + 2;
+ 			hwif->OUTW(compat|1, hwif->config_data);
+ 			new = hwif->INW(hwif->config_data);
+
+
+--
+Jesper Juhl <juhl-lkml@dif.dk>
+

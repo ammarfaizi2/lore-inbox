@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUHQIb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUHQIce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268145AbUHQIb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 04:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268160AbUHQIb7
+	id S268158AbUHQIce (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 04:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUHQIcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 04:31:59 -0400
-Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:17536 "EHLO
-	dedasys.com") by vger.kernel.org with ESMTP id S268145AbUHQI2v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 04:28:51 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>, j.s@lmu.de,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8 (or 7?) regression: sleep on older tibooks broken
-References: <873c2ohjrv.fsf@dedasys.com> <1092569364.9539.16.camel@gaston>
-	<873c2n41hs.fsf@dedasys.com> <1092668911.9539.55.camel@gaston>
-	<87llgfdqb7.fsf@dedasys.com> <874qn353on.fsf@dedasys.com>
-	<1092729140.9539.129.camel@gaston>
-From: davidw@dedasys.com (David N. Welton)
-Date: 17 Aug 2004 10:26:51 +0200
-In-Reply-To: <1092729140.9539.129.camel@gaston>
-Message-ID: <87k6vytbjo.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Aug 2004 04:32:08 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:42187 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268158AbUHQI3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 04:29:17 -0400
+Subject: Re: typos
+From: Lee Revell <rlrevell@joe-job.com>
+To: Borislav Petkov <bbpetkov@yahoo.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092730251.18997.16.camel@gollum.tnic>
+References: <1092730251.18997.16.camel@gollum.tnic>
+Content-Type: text/plain
+Message-Id: <1092731414.1859.3.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 17 Aug 2004 04:30:14 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+On Tue, 2004-08-17 at 04:10, Borislav Petkov wrote:
+> Hi there guys,
+> I've been pondering on posting about this for a long time but I guess
+> I'll just go and say it. I've been reading the lkml for about a year now
+> and, I don't know how important it is to you, but I think that typos in
+> the comments in the kernel sources really annoy those who really read
+> them in order to understand what's going on. Well, I'm one of them, and,
+> since the typos are really a lot, I thought that maybe fixing them would
+> be a good idea.
+> Here's a patch. Please, tell me if you don't want such noise on the list
+> but I think that, although not crucial, somewhat correct english in the
+> comments would be better, or?
+> 
+> Regards,
+> Boris
+> 
+> 
 
-> On Tue, 2004-08-17 at 04:38, David N. Welton wrote:
-> > davidw@dedasys.com (David N. Welton) writes:
+--- foo.orig	2004-08-17 04:27:55.000000000 -0400
++++ foo.fixed	2004-08-17 04:29:27.000000000 -0400
+@@ -44,11 +44,11 @@
+ and, I don't know how important it is to you, but I think that typos in
+ the comments in the kernel sources really annoy those who really read
+ them in order to understand what's going on. Well, I'm one of them, and,
+-since the typos are really a lot, I thought that maybe fixing them would
++since there are really a lot of typos, I thought that maybe fixing them would
+ be a good idea.
+-Here's a patch. Please, tell me if you don't want such noise on the list
+-but I think that, although not crucial, somewhat correct english in the
+-comments would be better, or?
++Here's a patch. Please, tell me if you don't want such noise on the
++list.  I think that, although not crucial, somewhat more correct english in the
++comments would be better.
+ 
+ Regards,
+ Boris
 
-> > > If it's useful, I suppose I can try backing of to 2.6.7 to see
-> > > if it suffers from the same problem...
 
-> > 2.6.7 is also broken.  Fresh 2.6.7 compiled, and it doesn't work
-> > either.
-
-> Can you try going backward in time find when it broke ?
-
-2.6.6 sleeps/wakes just fine.  I had a halfhearted look through the 7
-2.6.patch, searching on things like 'ppc' and 'macintosh', but didn't
-2.6.see much that jumped out at me.
-
-Thanks,
--- 
-David N. Welton
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/
-       Photos: http://www.dedasys.com/photos/

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281945AbRKUSrs>; Wed, 21 Nov 2001 13:47:48 -0500
+	id <S281947AbRKUSr6>; Wed, 21 Nov 2001 13:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281944AbRKUSri>; Wed, 21 Nov 2001 13:47:38 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:33008 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S281932AbRKUSrZ>; Wed, 21 Nov 2001 13:47:25 -0500
-Message-ID: <3BFBF6A4.6F1472C6@mvista.com>
-Date: Wed, 21 Nov 2001 10:47:00 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S281944AbRKUSrs>; Wed, 21 Nov 2001 13:47:48 -0500
+Received: from [194.102.114.109] ([194.102.114.109]:58753 "EHLO
+	linux.dec.com.ro") by vger.kernel.org with ESMTP id <S281943AbRKUSrn>;
+	Wed, 21 Nov 2001 13:47:43 -0500
+Date: Wed, 21 Nov 2001 20:48:51 +0200 (EET)
+From: Kovacs Andrei <andik@dec.com.ro>
+To: <linux-kernel@vger.kernel.org>
+Subject: bug in free or in kernel ?
+Message-ID: <Pine.LNX.4.33.0111212039380.2004-100000@linux.dec.com.ro>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Memory allocation question
-In-Reply-To: <E165uQj-0007V2-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > size chuncks.  Currently I am using kmalloc() to allocate a page at a
-> > time.  I don't want to have to worry about mapping/unmapping etc.  I
-> 
-> Use get_free_page() to get page sized chunks
+Hi,
+I have just installed the 2.4.14 kernel and I see some strange values showed
+by free:
 
-What about __get_free_page() ?  I don't need or want the clear page
-(performance issues).
+             total       used       free     shared    buffers     cached
+Mem:        254816     250620       4196          0       2068     165208
+-/+ buffers/cache:      83344     171472
+Swap:       262544      63264     199280
 
-And then to return the page, free_page() ?
+The system has been working for 2 hours and it is in X.
+If I know well... if the buffers are smaller than "- buffers", here 83 mb,
+then the system doesn't work optimally. That shouldn't be a problem but with
+the 2.4.14 kernel I don't see it growing over 5 mb. I tried adjusting the
+buffermem parameters in /proc/sys/vm/buffermem but it doesn't exist anymore. I
+looked in the patches and I saw it has been removed since 2.4.10, but I
+couldn't find the reason for this there or on the mailing list archives. Also,
+the freepages file is missing.
+The system is a P III at 800 MHz and under the 2.4.7 and 2.4.9 kernels all was
+fine.
+Also when I try to tar or untar some files, from time to time the system locks
+up for about 2 or 3 seconds. That didn't happen under 2.4.9.
+
+Thanx
 
 -- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+Kovacs Andrei,
+Network Manager - Digital Electronic Petrosani
+E-mail: andik@dec.com.ro
+Phone: +40-93-226563
+

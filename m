@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264385AbTEaRSD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 13:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTEaRSD
+	id S264549AbTEaRpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 13:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264555AbTEaRpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 13:18:03 -0400
-Received: from tomts14-srv.bellnexxia.net ([209.226.175.35]:6031 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264385AbTEaRSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 13:18:01 -0400
-Subject: Re: [BENCHMARKS] 2.5.70 for 4 filesystems (graphs)
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Randy Rhon <rwhron@earthlink.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054402282.3403.8.camel@mars.goatskin.org>
+	Sat, 31 May 2003 13:45:18 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:21826 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264549AbTEaRpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 13:45:17 -0400
+Date: Sat, 31 May 2003 10:58:50 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pdflush -> noflushd related question
+Message-Id: <20030531105850.7cc92601.akpm@digeo.com>
+In-Reply-To: <200305311841.59599.fsdeveloper@yahoo.de>
+References: <200305311841.59599.fsdeveloper@yahoo.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 31 May 2003 13:31:22 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 May 2003 17:58:39.0195 (UTC) FILETIME=[43C732B0:01C3279E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Michael Buesch <fsdeveloper@yahoo.de> wrote:
+>
+>  So, how to set the interval, or better sayed, how to _stop_
+>  buffer flushing in 2.5?
 
-I have made some graphs of Randy's fs benchmark data. It can be found
-here:
+/proc/sys/vm has the appropriate tunables.  They are documented in
+Documentation/filesystems/proc.txt.
 
-http://zeke.yi.org/linux/graph/fs/2.5.70/fs_rand_reads.php
-http://zeke.yi.org/linux/graph/fs/2.5.70/fs_rand_writes.php
-http://zeke.yi.org/linux/graph/fs/2.5.70/fs_seq_reads.php
-http://zeke.yi.org/linux/graph/fs/2.5.70/fs_seq_writes.php
-
-For 2.5.69:
-
-http://zeke.yi.org/linux/graph/fs/2.5.69/fs_rand_reads.php
-http://zeke.yi.org/linux/graph/fs/2.5.69/fs_rand_writes.php
-http://zeke.yi.org/linux/graph/fs/2.5.69/fs_seq_reads.php
-http://zeke.yi.org/linux/graph/fs/2.5.69/fs_seq_writes.php
-
-If the colours aren't suitable just hit reload until they are. Any
-feedback on the usefulness of these graphs or requests for graphs of
-other data is welcome.
-
-Regards,
-
-Shane
-
-
+You can turn these guys off by setting the sysctls to 1000000000
+I guess.   Problem is, I don't think there's a way of starting them
+again until the ten million seconds expires.  hmm.

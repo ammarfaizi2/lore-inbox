@@ -1,57 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264181AbTEGSvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 14:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbTEGSvM
+	id S264178AbTEGTEw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264202AbTEGTEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 14:51:12 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:27270
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S264181AbTEGSvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 14:51:11 -0400
-Message-ID: <3EB95887.7000909@redhat.com>
-Date: Wed, 07 May 2003 12:03:35 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
+	Wed, 7 May 2003 15:04:52 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:45822 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S264178AbTEGTEu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:04:50 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "David S. Miller" <davem@redhat.com>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+Date: Wed, 7 May 2003 21:13:07 +0200
+User-Agent: KMail/1.5.1
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+References: <20030507104008$12ba@gated-at.bofh.it> <20030507152856.GF412@elf.ucw.cz> <1052323484.9817.14.camel@rth.ninka.net>
+In-Reply-To: <1052323484.9817.14.camel@rth.ninka.net>
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: Eric Piel <Eric.Piel@Bull.Net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: DELAYTIMER_MAX is defined
-References: <3EB7E3DA.C50258A9@Bull.Net> <3EB81719.3050705@mvista.com> <3EB8B5EA.BD5D1C19@Bull.Net> <3EB8BA67.4060708@redhat.com> <3EB8F54C.CC5488F0@Bull.Net> <3EB92023.2000906@mvista.com> <3EB94E8F.2080001@redhat.com> <3EB954DF.7060701@mvista.com>
-In-Reply-To: <3EB954DF.7060701@mvista.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="euc-jp"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305072113.07004.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wednesday 07 May 2003 18:04, David S. Miller wrote:
+> You can define it as follows:
+>
+> 1) If entry exists in COMPAT or TRANSLATE table, invoke
+>    fops->ioctl(), else
+>
+> 2) If ->compat_ioctl() exists, invoke that, else
+>
+> 3) Fail.
 
-george anzinger wrote:
-> Andrew Morton suggested
-> an rlimit for that.  Perhaps that is what should be used here also.
-> 
-> Seem reasonable?
+Another solution could be to use the tables only if
+->compat_ioctl() is undefined or returned -ENOTTY. That
+would save the hash table lookup in many cases and makes
+it possible for a driver to override a generic handler
+with its more specialized version (e.g. CIODEVPRIVATE).
 
-For this as well?  We are getting an awful lot of these it seems.
+> The COMPAT tables are sort of valuable, in that it eliminates
+> the need to duplicate code when all of a drivers ioctls need
+> no translation.
 
-The DELAYTIMER_MAX thing probably can be hardcoded.  I can see no harm
-in limiting it to 1000 or so.  The number of timers can be handled via
-rlimit.
+Right. Of course you can just as well do 
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+	.ioctl = &foo_ioctl,
+	.compat_ioctl = &foo_ioctl,
 
-iD8DBQE+uViH2ijCOnn/RHQRApl3AKC6l4zZMsn7SaiGSw6hb9KZpc5cQACgm1NW
-09sC2WWGZsw1QAUxcTjo8rI=
-=Nafv
------END PGP SIGNATURE-----
+in that case.
 
+Btw: is there any bit in the ioctl number definition that can
+be (ab)used for compat_ioctl? Maybe we don't even need another
+callback if the compatibility mode can be encoded in the
+number itself (simplified):
+
+long compat_sys_ioctl(unsigned int fd, unsigned int cmd,
+	unsigned long arg)
+{
+	long err = sys_ioctl(fd, cmd | _IOC_COMPAT, arg);
+	if (err == -ENOTTY) /* use ioctl_trans table */
+		err = compat_do_ioctl(fd, cmd, arg);
+	return err;
+}
+...
+long foo_ioctl(struct inode * inode, struct file * filp,
+		unsigned int cmd, unsigned long arg)
+{
+	switch(cmd) {
+	case SOMEIOCTL:
+		return do_something(inode, arg);
+	case SOMEIOCTL | _IOC_COMPAT:
+		return compat_do_something(inode, arg);
+	case ANOTHERIOCTL:
+	case ANOTHERIOCTL | _IOC_COMPAT:	
+		return do_something_else(inode, arg);
+	}
+	return -ENOTTY;
+}
+
+	Arnd <><	

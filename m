@@ -1,63 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266546AbRGQOrs>; Tue, 17 Jul 2001 10:47:48 -0400
+	id <S266557AbRGQPKG>; Tue, 17 Jul 2001 11:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266550AbRGQOri>; Tue, 17 Jul 2001 10:47:38 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1920 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266546AbRGQOr0>; Tue, 17 Jul 2001 10:47:26 -0400
-Date: Tue, 17 Jul 2001 10:46:51 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alex Ivchenko <aivchenko@ueidaq.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6 possible problem
-In-Reply-To: <3B54454B.97AA34E6@ueidaq.com>
-Message-ID: <Pine.LNX.3.95.1010717103652.1430A-100000@chaos.analogic.com>
+	id <S266551AbRGQPJr>; Tue, 17 Jul 2001 11:09:47 -0400
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:20698 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S265443AbRGQPJf>; Tue, 17 Jul 2001 11:09:35 -0400
+Message-ID: <35721.193.133.92.239.995382564.squirrel@lbbrown.homeip.net>
+Date: Tue, 17 Jul 2001 16:09:24 +0100 (BST)
+Subject: [RFC][PATCH] Allow compressed initial ramdisks to span multiple floppies
+From: "Leigh Brown" <leigh@solinno.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: leigh@solinno.co.uk
+Reply-To: leigh@solinno.co.uk
+X-Mailer: SquirrelMail (version 1.0.4)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jul 2001, Alex Ivchenko wrote:
+Hi all,
 
-> Guys,
-> 
-> does anybody use interruptible_sleep_on_timeout(&wqhead, jiffies);
-> under 2.4.6 ?
-> It seems that after this call sleeping process is never rescheduled again.
-> Am I doing something wrong in my driver?
-> 
-> 
-> <10716>
-> Knowing that wait queue was reorganized in 2.4 I declared queue head as:
-> 
-> static DECLARE_WAIT_QUEUE_HEAD(wqhead);
-> 
-> and then in ioctl routine
-  ^^^^^^^^^^^^^^^^^^^^^^^^^ Hmm. Don't decare it again.
+This is my first patch (and possibly post) to lkml, although I browse
+the archives quite often.  The patch allows a compressed ramdisk to
+span multiple floppies.  This is handy for installing modern distros
+(YDL in my case) on a machine that can't boot from CD-ROM, where the
+initial ramdisks are several meg in size.  Obviously, I could
+uncompress the ramdisk (which I have actually done) but writing 12 or
+more floppies in this day and age make my toes curl.
 
-funct()
-{
-    size_t ticks;
-    wait_queue_head_t wqhead;
-    init_waitqueue_head(&wqhead);
-
-    ticks = 1 * HZ;        /* For 1 second */
-    while((ticks = interruptible_sleep_on_timeout(&wqhead, ticks)) > 0)
-                  ;
-}
-
-That'd oughtta do it. You can skip the loop if you can stand a short
-timeout.
+Please CC me in any replies for a speedy response.
 
 Cheers,
-Dick Johnson
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+Leigh.
+---
+--- drivers/block/rd.c.orig	Sun Apr  8 23:22:17 2001
++++ drivers/block/rd.c	Mon Jul 16 16:27:56 2001
+@@ -85,7 +85,7 @@
+ #define BUILD_CRAMDISK
+ 
+ void rd_load(void);
+-static int crd_load(struct file *fp, struct file *outfp);
++static int crd_load(struct file *fp, struct file *outfp, kdev_t device, struct inode *inode);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ static int initrd_users;
+@@ -608,7 +608,7 @@
+ 
+ 	if (nblocks == 0) {
+ #ifdef BUILD_CRAMDISK
+-		if (crd_load(&infile, &outfile) == 0)
++		if (crd_load(&infile, &outfile, device, inode) == 0)
+ 			goto successful_load;
+ #else
+ 		printk(KERN_NOTICE
+@@ -787,6 +786,8 @@
+ static int exit_code;
+ static long bytes_out;
+ static struct file *crd_infp, *crd_outfp;
++static kdev_t crd_device;
++static struct inode *crd_inode;
+ 
+ #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
+ 		
+@@ -839,7 +840,23 @@
+ 	
+ 	insize = crd_infp->f_op->read(crd_infp, inbuf, INBUFSIZ,
+ 				      &crd_infp->f_pos);
+-	if (insize == 0) return -1;
++	if (insize == 0) {
++		invalidate_buffers(crd_device);
++		if (crd_infp->f_op->release)
++			crd_infp->f_op->release(crd_inode, crd_infp);
++		printk("Please insert next disk and press ENTER\n");
++		wait_for_keypress();
++		if (blkdev_open(crd_inode, crd_infp) != 0) {
++			printk("Error opening disk.\n");
++			return -1;
++		}
++		crd_infp->f_pos = 0;
++		printk("Loading disk... ");
++		insize = crd_infp->f_op->read(crd_infp, inbuf, INBUFSIZ,
++					      &crd_infp->f_pos);
++	}
++	if (insize == 0)
++		return -1;
+ 
+ 	inptr = 1;
+ 
+@@ -874,7 +891,7 @@
+ }
+ 
+ static int __init 
+-crd_load(struct file * fp, struct file *outfp)
++crd_load(struct file * fp, struct file *outfp, kdev_t device, struct inode *inode)
+ {
+ 	int result;
+ 
+@@ -887,6 +904,8 @@
+ 
+ 	crd_infp = fp;
+ 	crd_outfp = outfp;
++	crd_device = device;
++	crd_inode = inode;
+ 	inbuf = kmalloc(INBUFSIZ, GFP_KERNEL);
+ 	if (inbuf == 0) {
+ 		printk(KERN_ERR "RAMDISK: Couldn't allocate gzip buffer\n");
 

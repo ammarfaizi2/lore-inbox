@@ -1,88 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272601AbTG3BtK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 21:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272615AbTG3BtK
+	id S272650AbTG3Bz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 21:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272615AbTG3Bz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 21:49:10 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:50193 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S272601AbTG3BtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 21:49:04 -0400
-Date: Tue, 29 Jul 2003 21:37:26 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jamie Lokier <jamie@shareable.org>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       James Simmons <jsimmons@infradead.org>, Charles Lepple <clepple@ghz.cc>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off automatic screen clanking
-In-Reply-To: <20030730012533.GA18663@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
- <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com>
- <20030730012533.GA18663@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Jul 2003 21:55:26 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22229 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272650AbTG3BzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 21:55:25 -0400
+Date: Tue, 29 Jul 2003 18:55:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, notting@redhat.com, arjanv@redhat.com,
+       torvalds@osdl.org, shemminger@osdl.org, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove module reference counting.
+Message-ID: <20030730015523.GB5228@kroah.com>
+References: <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org> <20030727193919.832302C450@lists.samba.org> <20030727214701.A23137@devserv.devel.redhat.com> <20030727201242.A29448@devserv.devel.redhat.com> <1059392321.15458.23.camel@dhcp22.swansea.linux.org.uk> <20030730063310.70b5c794.rusty@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030730063310.70b5c794.rusty@rustcorp.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003, Jamie Lokier wrote:
+On Wed, Jul 30, 2003 at 06:33:10AM +1000, Rusty Russell wrote:
+> Agreed that'd be kinda silly.  But I was "educated" earlier that driver
+> loading shouldn't fail just because hardware is missing, due to hotplug.
+> 
+> Is this wrong?
 
-> One of Richard's points is that there is presently no way to fix the
-> box in userspace.  If the kernel crashes during boot, it will blank
-> the screen and there is no way to unblank it in that state.
+No, this is not wrong.  Older pci drivers would refuse to load if they
+didn't find their pci device in the system at that moment in time.  All
+pci drivers converted to the "new" api (new is a very relative term,
+some 3 years old now...) will load just fine even if their devices are
+not present.
 
-Well something like this should work without complicating things during 
-panic.
+Hope this helps,
 
-Index: linux-2.6.0-test2/arch/i386/kernel/traps.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test2/arch/i386/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.0-test2/arch/i386/kernel/traps.c	30 Jul 2003 00:06:00 -0000	1.1.1.1
-+++ linux-2.6.0-test2/arch/i386/kernel/traps.c	30 Jul 2003 01:34:12 -0000
-@@ -248,6 +248,7 @@ bug:
- }
- 
- spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
-+int dont_blank_on_panic;
- 
- void die(const char * str, struct pt_regs * regs, long err)
- {
-@@ -261,8 +262,11 @@ void die(const char * str, struct pt_reg
- 	show_registers(regs);
- 	bust_spinlocks(0);
- 	spin_unlock_irq(&die_lock);
--	if (in_interrupt())
-+	if (in_interrupt()) {
-+		dont_blank_on_panic = 1;
-+		barrier();
- 		panic("Fatal exception in interrupt");
-+	}
- 
- 	if (panic_on_oops) {
- 		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
-Index: linux-2.6.0-test2/drivers/char/vt.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test2/drivers/char/vt.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vt.c
---- linux-2.6.0-test2/drivers/char/vt.c	30 Jul 2003 00:06:17 -0000	1.1.1.1
-+++ linux-2.6.0-test2/drivers/char/vt.c	30 Jul 2003 01:33:41 -0000
-@@ -2696,10 +2696,11 @@ static void vesa_powerdown_screen(unsign
- 
- static void timer_do_blank_screen(int entering_gfx, int from_timer_handler)
- {
-+	extern int dont_blank_on_panic;
- 	int currcons = fg_console;
- 	int i;
- 
--	if (console_blanked)
-+	if (console_blanked || dont_blank_on_panic)
- 		return;
- 
- 	/* entering graphics mode? */
--- 
-function.linuxpower.ca
+greg k-h

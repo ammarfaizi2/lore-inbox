@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264512AbSIVUC1>; Sun, 22 Sep 2002 16:02:27 -0400
+	id <S264509AbSIVUFM>; Sun, 22 Sep 2002 16:05:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264513AbSIVUC0>; Sun, 22 Sep 2002 16:02:26 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:45585 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S264512AbSIVUC0>; Sun, 22 Sep 2002 16:02:26 -0400
-Date: Sun, 22 Sep 2002 17:07:26 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.38
-Message-ID: <20020922200726.GB20520@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jochen Friedrich <jochen@scram.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0209212130360.2433-100000@penguin.transmeta.com> <Pine.LNX.4.44.0209222201000.9027-100000@alpha.bocc.de>
+	id <S264513AbSIVUFL>; Sun, 22 Sep 2002 16:05:11 -0400
+Received: from nrwc-sh10-port200.snet.net ([204.60.52.200]:8321 "EHLO
+	karaya.com") by vger.kernel.org with ESMTP id <S264509AbSIVUFK>;
+	Sun, 22 Sep 2002 16:05:10 -0400
+Message-Id: <200209222012.g8MKCw215045@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Martin Hermanowski <martin@martin.mh57.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UML error message clone failed/new thread failed 
+In-Reply-To: Your message of "Sun, 22 Sep 2002 21:30:31 +0200."
+             <20020922193031.GP15310@martin.mh57.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209222201000.9027-100000@alpha.bocc.de>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+Date: Sun, 22 Sep 2002 16:12:58 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Sep 22, 2002 at 10:02:10PM +0200, Jochen Friedrich escreveu:
-> Hi,
-> 
-> build fails on Alpha:
-> 
-> make[2]: Entering directory `/home/src/linux-2.5.38/fs/partitions'
->   gcc -Wp,-MD,./.check.o.d -D__KERNEL__ -I/home/src/linux-2.5.38/include
-> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev5
-> -Wa,-mev6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=check   -c
-> -o check.o check.c
-> check.c: In function `devfs_create_cdrom':
-> check.c:365: `devfs_handle' undeclared (first use in this function)
-> check.c:365: (Each undeclared identifier is reported only once
+martin@martin.mh57.net said:
+> I prefer Debian packages, user-mode-linux 2.4.18.48um-1 from testing
+> was created on 30 Jul 2002. Were the fixes before that date or should
+> I use a newer version?
 
-See previous posts, it fails on all archs. Linus already merged fixes, IIRC.
+I believe the fix I'm talking about came after that, but I'm not positive
+of it.
 
-- Arnaldo
+				Jeff
+

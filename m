@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267756AbTAHRpS>; Wed, 8 Jan 2003 12:45:18 -0500
+	id <S267827AbTAHRuc>; Wed, 8 Jan 2003 12:50:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267777AbTAHRpS>; Wed, 8 Jan 2003 12:45:18 -0500
-Received: from ip68-0-152-218.tc.ph.cox.net ([68.0.152.218]:40341 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S267756AbTAHRpR>; Wed, 8 Jan 2003 12:45:17 -0500
-Date: Wed, 8 Jan 2003 10:53:57 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][RESEND x 4] Don't ask about "Enhanced Real Time Clock Support" on some archs
-Message-ID: <20030108175357.GA2615@opus.bloom.county>
+	id <S267831AbTAHRuc>; Wed, 8 Jan 2003 12:50:32 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:57790 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S267827AbTAHRub>; Wed, 8 Jan 2003 12:50:31 -0500
+Date: Wed, 8 Jan 2003 12:59:07 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB CF reader reboots PC
+Message-ID: <20030108175907.GB1189@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030108165130.GA1181@Master.Wizards> <20030108173356.GA1189@Master.Wizards> <3E1C64CE.8050709@inet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <3E1C64CE.8050709@inet.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch adds an explicit no list of arches who do not want
-to have the "Enhanced Real Time Clock Support" RTC driver asked.  This
-adds PPC32 (who for a long time had their own 'generic' RTC driver, and
-then have adopted the genrtc driver) and PARISC (who have always used
-the genrtc driver).  Per request of Peter Chubb, IA64 is on this list as
-well.
+On Wed, Jan 08, 2003 at 11:50:06AM -0600, Eli Carter wrote:
+> Murray J. Root wrote:
+> >Ooops - kernel 2.5.5[234]
+> >
+> >On Wed, Jan 08, 2003 at 11:51:30AM -0500, Murray J. Root wrote:
+> >
+> >>ASUS P4S533 (SiS645DX chipset)
+> >>P4 2GHz
+> >>1G PC2700 RAM
+> >>SanDisk SDDR-77 ImageMate Dual Card Reader (using only CF cards)
+> >>
+> >>----------------------------
+> >>devfs compiled in to kernel, devfs=nomount in lilo.conf
+> >> 
+> >>Insert CF card. mount it. cd to it, do reads and/or writes
+> >>umount card. remove card.
+> >>insert a different card (does not happen if the same card is used)
+> >>mount it. system reboots. logs are corrupted
+> >>
+> >>Doesn't happen every time for read - sometimes I can read 2 or 3 cards 
+> >>first
+> >>Happens every time for write - if I write to a card then changing cards
+> >>causes a reboot
+> >>
+> [snip]
+> 
+> Somewhat similar vein, but a different set of symptoms, I've seen a 
+> RedHat box not see that the CF card changed...
+> (USB SanDisk CF & SD reader, also using only CF cards.)
+> 
+> insert 128MB CF card.
+> everything is ok.
+> remove 128MB CF card, still see 128MB partition
+> insert 256MB CF card.
+> see 128MB partition.
+> (based on /proc/partitions)
+> 
+> I've not followed this up to figure out why yet.
+> You might check that situation to see if yours is related at all.
 
-The problem is that on some archs there is no hope of this driver
-working, and having it compiled into the kernel can cause many different
-problems.  On the other hand, there are some arches for whom that driver
-does work, on some platforms.  So having an explicit yes list would
-result in some rather ugly statements.
+Using Mandrake Cooker and nope - it sees the change
+That's actually part of the symptoms - if I put the
+same card back in, no problem. It's only if I use a
+different card that it reboots.
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker
+  #cooker = moderated Mandrake Cooker
 
-===== drivers/char/Kconfig 1.1 vs edited =====
---- 1.1/drivers/char/Kconfig	Tue Oct 29 18:16:55 2002
-+++ edited/drivers/char/Kconfig	Wed Nov 13 07:56:39 2002
-@@ -1053,6 +1053,7 @@
- 
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
-+	depends on !PPC32 && !PARISC && !IA64
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you

@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpCCMrx8WLUWMRnqDTDVy+G3RoQ==
+thread-index: AcQVpLRjNX3NKJYWThKrZF0BZIlpVg==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sat, 03 Jan 2004 15:19:13 +0000
-Message-ID: <00f301c415a4$208c9340$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-Date: Mon, 29 Mar 2004 16:40:13 +0100
-X-Mailer: Microsoft CDO for Exchange 2000
-From: "Pavel Machek" <pavel@ucw.cz>
-To: <Administrator@mangalore.zipworld.com.au>
-Cc: <linux-kernel@vger.kernel.org>,
-        "Rusty trivial patch monkey Russell" <trivial@rustcorp.com.au>,
-        "Andrew Morton" <akpm@zip.com.au>
-Subject: Re: 2.5isms
+Delivery-date: Mon, 05 Jan 2004 13:18:13 +0000
+Message-ID: <030201c415a4$b4658b30$d100000a@sbs2003.local>
 Content-Class: urn:content-classes:message
+Date: Mon, 29 Mar 2004 16:44:21 +0100
 Importance: normal
-References: <20030703200134.GA18459@andromeda> <20031230213050.GA3301@andromeda>
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
+From: "Paul Jackson" <pj@sgi.com>
+To: <Administrator@osdl.org>
+Cc: <ak@muc.de>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+Subject: Re: [PATCH] disable gcc warnings of sign/unsigned comparison
+In-Reply-To: <20040105014122.GW10569@fs.tum.de>
+References: <19ahq-7Rg-11@gated-at.bofh.it><19eEs-5lC-15@gated-at.bofh.it><19kgS-4HT-19@gated-at.bofh.it><m3pte3i17t.fsf@averell.firstfloor.org><20040105014122.GW10569@fs.tum.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20031230213050.GA3301@andromeda>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:40:14.0671 (UTC) FILETIME=[210FA5F0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:44:22.0125 (UTC) FILETIME=[B48E21D0:01C415A4]
 
-Hi!
+> It was a bug in some _prerelease_ versions of gcc 3.3 SuSE decided to 
+> ship in a release of their distribution.
 
-> It seems I've found another 2.5ism.  2.6.0, arch/i386/kernel/dmi_scan.c
-> has
-> 
-> #ifdef CONFIG_SIMNOW
->         /*
->          *      Skip on x86/64 with simnow. Will eventually go away
->          *      If you see this ifdef in 2.6pre mail me !
->          */
->         return -1;
-> #endif
-> 
-> I don't know whose file this is ..
-> 
-> Also, 2.6.0 still has the previously mentioned problem in
-> include/asm/io.h.
-> 
-> Not subscribed, CC me.
+That matches my observations, as I noted an earlier reply on lkml,
+when I recommended against accepting my own patch, on the grounds
+that we shouldn't pollute the Makefile with exceptions that only
+applied to people running the gcc in a particular SuSE distro.
 
-This is obsolete x86-64 code... Please apply,
-								Pavel
-
---- tmp/linux/arch/i386/kernel/dmi_scan.c	2004-01-03 16:12:43.000000000 +0100
-+++ linux/arch/i386/kernel/dmi_scan.c	2004-01-03 16:12:17.000000000 +0100
-@@ -108,15 +108,7 @@
- 	u8 buf[15];
- 	u32 fp=0xF0000;
- 
--#ifdef CONFIG_SIMNOW
--	/*
-- 	 *	Skip on x86/64 with simnow. Will eventually go away
-- 	 *	If you see this ifdef in 2.6pre mail me !
-- 	 */
--	return -1;
--#endif
-- 	
--	while( fp < 0xFFFFF)
-+	while (fp < 0xFFFFF)
- 	{
- 		isa_memcpy_fromio(buf, fp, 15);
- 		if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
-
+Good.  Thanks for the confirmation.
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

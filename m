@@ -1,166 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287358AbRL3IDM>; Sun, 30 Dec 2001 03:03:12 -0500
+	id <S287357AbRL3H5W>; Sun, 30 Dec 2001 02:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287360AbRL3IDD>; Sun, 30 Dec 2001 03:03:03 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:51465 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287358AbRL3ICy>; Sun, 30 Dec 2001 03:02:54 -0500
-Message-ID: <3C2EC95A.79868A85@zip.com.au>
-Date: Sat, 29 Dec 2001 23:59:22 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        torrey.hoffman@myrio.com, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrdkern   
- el panic woes
-In-Reply-To: <3C2EBD62.6A98F670@zip.com.au> <Pine.GSO.4.21.0112300220490.8523-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
+	id <S287358AbRL3H5N>; Sun, 30 Dec 2001 02:57:13 -0500
+Received: from mail6.speakeasy.net ([216.254.0.206]:44484 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S287357AbRL3H5E>; Sun, 30 Dec 2001 02:57:04 -0500
+Subject: Re: [PATCH *] 2.4.17 rmap based VM #9
+From: safemode <safemode@speakeasy.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0112292357420.24031-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0112292357420.24031-100000@imladris.surriel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 30 Dec 2001 02:57:02 -0500
+Message-Id: <1009699023.343.0.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+Seems that not all of the live-deadlocks were fixed.  The one i saw in
+the last version is still present.   It occurs when you're heavily
+swapping out and the nall of a sudden require something to heavily swap
+in (yet not have enough room to be completely in ram so it still has to
+swap things out to refresh the screen in X).  that is to say in my
+lowmem configuration (32MB of ram)  rmap9 still fails where the plain
+kernel succeeds.  Perhaps rml's preempt patch does not play well with
+the new vm,  but i doubt that's the case at all.  
+
+summary:
+	heavy swapping out then user requested large swapin 
+	system response slows to a halt nearly instantly. 
+	Disk activity stops and becomes non-existant, nothing responds.
+
+
+I also ran some tests and looked at the graphs to the rmap9 kernel
+compared to rmap8, I saw little to no difference except that it did it a
+little more quickly. I think rmap has something to show when memory
+allocation gets tough, but whenever i stress it, it locks up.  I'm not
+going to bother making any graphs this time, it would be kind of
+pointless,  something really worth seeing is the stress tests output. 
+
+Here is the data collected anyway on the normal vm load configuration.
+http://safemode.homeip.net/2.4.17-rmap9.vmstat
+
+perhaps tomorrow sometime i'll get a chance to play with the low mem
+config again.  
+
+On Sat, 2001-12-29 at 20:58, Rik van Riel wrote:
+> The 9th version of the reverse mapping based VM is now available.
+> This is an attempt at making a more robust and flexible VM
+> subsystem, while cleaning up a lot of code at the same time. The patch
+> is available from:
 > 
-> Erm...  I don't think so.  Come on - vmtruncate() is obvious candidate
-> for out-of-line.  Please, look how it was done in 2.4.9-ac*.
+>            http://surriel.com/patches/2.4/2.4.17-rmap-9
+> and        http://linuxvm.bkbits.net/
+> 
+> 
+> My big TODO items for a next release are:
+>   - fix page_launder() so it doesn't submit the whole
+>     inactive_dirty list for writeout in one go
+> 
+> rmap 9:
+>   - improve comments all over the place                   (Michael Cohen)
+>   - don't panic if page_remove_rmap() cannot find the
+>     rmap in question, it's possible that the memory was
+>     PG_reserved and belonging to a driver, but the driver
+>     exited and cleared the PG_reserved bit                (me)
+>   - fix the VM livelock by replacing > by >= in a few
+>     critical places in the pageout code                   (me)
+>   - treat the reclaiming of an inactive_clean page like
+>     allocating a new page, calling try_to_free_pages()
+>     and/or fixup_freespace() if required                  (me)
+> rmap 8:
+>   - add ANY_ZONE to the balancing functions to improve
+>     kswapd's balancing a bit                              (me)
+>   - regularize some of the maximum loop bounds in
+>     vmscan.c for cosmetic purposes                        (William Lee Irwin)
+>   - move page_address() to architecture-independent
+>     code, now the removal of page->virtual is portable    (William Lee Irwin)
+>   - speed up free_area_init_core() by doing a single
+>     pass over the pages and not using atomic ops          (William Lee Irwin)
+>   - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
+> rmap 7:
+>   - clean up and document vmscan.c                        (me)
+>   - reduce size of page struct, part one                  (William Lee Irwin)
+>   - add rmap.h for other archs (untested, not for ARM)    (me)
+> rmap 6:
+>   - make the active and inactive_dirty list per zone,
+>     this is finally possible because we can free pages
+>     based on their physical address                       (William Lee Irwin)
+>   - cleaned up William's code a bit                       (me)
+>   - turn some defines into inlines and move those to
+>     mm_inline.h (the includes are a mess ...)             (me)
+>   - improve the VM balancing a bit                        (me)
+>   - add back inactive_target to /proc/meminfo             (me)
+> rmap 5:
+>   - fixed recursive buglet, introduced by directly
+>     editing the patch for making rmap 4 ;)))              (me)
+> rmap 4:
+>   - look at the referenced bits in page tables            (me)
+> rmap 3:
+>   - forgot one FASTCALL definition                        (me)
+> rmap 2:
+>   - teach try_to_unmap_one() about mremap()               (me)
+>   - don't assign swap space to pages with buffers         (me)
+>   - make the rmap.c functions FASTCALL / inline           (me)
+> rmap 1:
+>   - fix the swap leak in rmap 0                           (Dave McCracken)
+> rmap 0:
+>   - port of reverse mapping VM to 2.4.16                  (me)
+> 
+> Rik
+> -- 
+> Shortwave goes a long way:  irc.starchat.net  #swl
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Yeah, I thought that was just too damn ugly to make it out of my
-ethernet port.  Oh well, let's try it anyway.
 
-> BTW, fs/buffer.c part of patch looks mangled.
-
-Looks OK to me.
-
-Here's the latest.  It includes the block_write_full_page()
-chunk (minus the access-bh-after-submit_bh bug which was in
-the original).
-
-So we have three chunks:
-
-generic_file_write(): truncate the blocks when prepare_write()
-fails.  This is for ENOSPC on write-to-end-of-file.
-
-block_write_full_page(): submit the blocks which we managed
-to map.  To prevent exposure of old data.
-
-__block_prepare_write(): zero out and dirty the blocks which
-we managed to instantiate.  This is to prevent exposure of
-stale data on ENOSPC during write() to mid-file.
-
-
-Question: is the block_write_full_page() change correct?  We
-mark the page not-up-to-date, but end_buffer_io_async() is
-going to mark it uptodate anyway.
-
-
-And what should we do with BH_New?
-
-
---- linux-2.4.18-pre1/fs/buffer.c	Fri Dec 21 11:19:14 2001
-+++ linux-akpm/fs/buffer.c	Sat Dec 29 23:39:11 2001
-@@ -1512,6 +1512,7 @@ static int __block_write_full_page(struc
- 	int err, i;
- 	unsigned long block;
- 	struct buffer_head *bh, *head;
-+	int need_unlock;
- 
- 	if (!PageLocked(page))
- 		BUG();
-@@ -1567,8 +1568,34 @@ static int __block_write_full_page(struc
- 	return 0;
- 
- out:
-+	/*
-+	 * ENOSPC, or some other error.  We may already have added some
-+	 * blocks to the file, so we need to write these out to avoid
-+	 * exposing stale data.
-+	 */
- 	ClearPageUptodate(page);
--	UnlockPage(page);
-+	bh = head;
-+	need_unlock = 1;
-+	/* Recovery: lock and submit the mapped buffers */
-+	do {
-+		if (buffer_mapped(bh)) {
-+			lock_buffer(bh);
-+			need_unlock = 0;
-+		}
-+		bh = bh->b_this_page;
-+	} while (bh != head);
-+	do {
-+		struct buffer_head *next = bh->b_this_page;
-+		if (buffer_mapped(bh)) {
-+			set_buffer_async_io(bh);
-+			set_bit(BH_Uptodate, &bh->b_state);
-+			clear_bit(BH_Dirty, &bh->b_state);
-+			submit_bh(WRITE, bh);
-+		}
-+		bh = next;
-+	} while (bh != head);
-+	if (need_unlock)
-+		UnlockPage(page);
- 	return err;
- }
- 
-@@ -1639,6 +1666,17 @@ static int __block_prepare_write(struct 
- 	}
- 	return 0;
- out:
-+	bh = head;
-+	block_start = 0;
-+	do {
-+		if (buffer_new(bh) && !buffer_uptodate(bh)) {
-+			memset(kaddr+block_start, 0, bh->b_size);
-+			set_bit(BH_Uptodate, &bh->b_state);
-+			mark_buffer_dirty(bh);
-+		}
-+		block_start += bh->b_size;
-+		bh = bh->b_this_page;
-+	} while (bh != head);
- 	return err;
- }
- 
---- linux-2.4.18-pre1/mm/filemap.c	Wed Dec 26 11:47:41 2001
-+++ linux-akpm/mm/filemap.c	Sat Dec 29 23:44:03 2001
-@@ -3004,7 +3004,7 @@ generic_file_write(struct file *file,con
- 		kaddr = kmap(page);
- 		status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
- 		if (status)
--			goto unlock;
-+			goto sync_failure;
- 		page_fault = __copy_from_user(kaddr+offset, buf, bytes);
- 		flush_dcache_page(page);
- 		status = mapping->a_ops->commit_write(file, page, offset, offset+bytes);
-@@ -3029,6 +3029,7 @@ unlock:
- 		if (status < 0)
- 			break;
- 	} while (count);
-+done:
- 	*ppos = pos;
- 
- 	if (cached_page)
-@@ -3050,6 +3051,18 @@ out:
- fail_write:
- 	status = -EFAULT;
- 	goto unlock;
-+
-+sync_failure:
-+	/*
-+	 * If blocksize < pagesize, prepare_write() may have instantiated a
-+	 * few blocks outside i_size.  Trim these off again.
-+	 */
-+	kunmap(page);
-+	UnlockPage(page);
-+	page_cache_release(page);
-+	if (pos + bytes > inode->i_size)
-+		vmtruncate(inode, inode->i_size);
-+	goto done;
- 
- o_direct:
- 	written = generic_file_direct_IO(WRITE, file, (char *) buf, count, pos);

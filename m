@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbRBXNhT>; Sat, 24 Feb 2001 08:37:19 -0500
+	id <S129329AbRBXNn3>; Sat, 24 Feb 2001 08:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129326AbRBXNhJ>; Sat, 24 Feb 2001 08:37:09 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:16393 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129319AbRBXNgy>; Sat, 24 Feb 2001 08:36:54 -0500
-Date: Sat, 24 Feb 2001 05:36:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI oddities on Dell Inspiron 5000e w/ 2.4.x 
-In-Reply-To: <200102240941.CAA09708@ibg.colorado.edu>
-Message-ID: <Pine.LNX.4.10.10102240532030.30331-100000@penguin.transmeta.com>
+	id <S129341AbRBXNnT>; Sat, 24 Feb 2001 08:43:19 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:5899 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129329AbRBXNnH>; Sat, 24 Feb 2001 08:43:07 -0500
+Date: Sat, 24 Feb 2001 08:44:26 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Burton Windle <burton@fint.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Detecting SMP
+In-Reply-To: <Pine.LNX.4.21.0102201912150.16545-100000@fint.staticky.com>
+Message-ID: <Pine.LNX.4.33.0102240804040.2548-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Feb 2001, Burton Windle wrote:
+
+>Hello. Is there a way, when running a non-SMP kernel, to detect or
+>otherwise tell (software only; the machine is 2400 miles away) if the
+>system has SMP capibilties? Would /proc/cpuinfo show two CPUs if the
+>kernel is non-SMP?  Thanks!
+>
+>(btw, the kernel in question is a stock RH6.2 kernel 2.2.14-5, and yes, I
+>know I should update it anyways and that a SMP kernel will run on a UP
+>system)
+
+Yes, there are several ways.  How do you want to know how to do
+it, in C, or a bash script?  sysconf is one way, parsing
+/proc/cpuinfo and /proc/stat is another.  Beware though, if you
+parse /proc/cpuinfo or stat, it is very different on different
+architectures, particularly sparc.
+
+Here is some code which should do it more or less correctly on
+any arch:
+
+ncpus=$(egrep -c ^cpu[0-9]+ /proc/stat || :)
+[ "$ncpus" = "0" ] && ncpus=1
 
 
-On Sat, 24 Feb 2001, Jeff Lessem wrote:
-> 
-> >Also, how much memory does this machine have? That "13ff0000" does worry
-> >me a bit..
-> 
-> The comptuer has 320MB.  At this point I am ready to conclude that the
-> computer is broken in some way, because nobody else with an Inspiron
-> 5000e that I have heard from has anything like this problem.
-
-The machine isn't broken. It's Linux.
-
-I didn't believe that you'd have 320MB just because it's such an odd
-number, but the problem is that Linux apparently starts allocating the PCI
-address space just _under_ the 320MB mark (you probably have some memory
-reserved for ACPI that doesn't show up in the e820 memory map).
-
-The PCI allocation needs to be fixed, but I'm off for two days in
-Finland..
-
-		Linus
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+if (argc > 1 && strcmp(argv[1], "-advice") == 0) {
+    printf("Don't Panic!\n");
+    exit(42);
+}
 

@@ -1,94 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTIMNhi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 09:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbTIMNhi
+	id S262149AbTIMNpL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 09:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTIMNpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 09:37:38 -0400
-Received: from email-out1.iomega.com ([147.178.1.82]:38854 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S262148AbTIMNhg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 09:37:36 -0400
-Subject: Re: console lost to Ctrl+Alt+F$n in 2.6.0-test5
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: mpm@selenic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030913015747.GC4489@waste.org>
-References: <1063378664.5059.19.camel@patehci2>
-	 <1063390768.2898.15.camel@patehci2> <20030912230637.GB4489@waste.org>
-	 <1063414148.2892.26.camel@patehci2>  <20030913015747.GC4489@waste.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1063460312.2905.13.camel@patehci2>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 13 Sep 2003 07:38:32 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2003 13:37:35.0558 (UTC) FILETIME=[30E59E60:01C379FC]
+	Sat, 13 Sep 2003 09:45:11 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:1602 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id S262149AbTIMNpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 09:45:07 -0400
+Date: Fri, 12 Sep 2003 17:29:26 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: David Schwartz <davids@webmaster.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Timothy Miller <miller@techsource.com>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: People, not GPL  [was: Re: Driver Model]
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEBNGIAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.44.0309121714540.8729-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Sep 2003, David Schwartz wrote:
+|>> On Gwe, 2003-09-12 at 22:47, Matt D. Robinson wrote:
+|>> > So include GPL_ONLY(), don't include GPL_ONLY(), whatever.  If you
+|>> > don't like it, Mr. Customer, find a Linux distributor that will
+|>> > fix the problem for you.
+|>
+|>> Linux vendors have already recieved, and decided to act on cease and
+|>> desist letters involving adding hooks (ie EXPORT_SYMBOL stuff) for non
+|>> free modules that were not in the base distro. I think that speaks for
+|>> part of the legal view.
+|>
+|>	Who is sending these letters? Who has no respect for the GPL and seeks to
+|>add additional restrictions? IMO, these letters are almost as bad as the SCO
+|>letters. Nobody has any business putting additional licensing restrictions
+|>on code was placed under the GPL.
+|>
+|>	DS
 
-> What video are you using?
-> I'm guessing you've got a framebuffer console?
-> VESA by any chance?
+FUD, Inc.  If these really did exist, they would be more commonly
+known and I'm certain would affect customer choice.  IMHO, I think
+this is the vendor's (and I specifically think of Red Hat) way of
+excusing themselves from having to work with third party vendors
+in order to cover themselves legally with groups like the FSF.
+Whether that's true or not, or if there is some other developer
+contingent at these distribution houses that is preventing the
+EXPORT_SYMBOL{,GPL}() changes due to personal bias, I don't know.
+And I doubt we'll ever know.
 
-I do not yet know how to answer such questions confidently.
+These letters are like WMD -- they exist, you know they do, but you
+just can't find them. :)
 
-I see (redhat-config-xfree86 --> tab Advanced) reports:
-
-Video Card
-Video Card Type = Intel 865
-Memory Size = 16 megabytes
-Driver = i810
-Enable Hardware 3D Acceleration = no
-
-> > Yes, thank you, Ctrl+Alt+F$n now works
-> > if only I CONFIG_DEBUG_SPINLOCK_SLEEP=n.
-
-Please allow me to disavow that first impression.
-
-With CONFIG_DEBUG_SPINLOCK_SLEEP=y, I've now been counting keystrokes
-til crash.  I count each of Ctrl+Alt+F5 and Ctrl+Alt+F7 as one stroke. 
-Sometimes I crash, sometimes I do not.  I began logging life more
-carefully when first I saw a few strokes cause a crash, and thereafter,
-per boot:
-
-8 strokes crashed.
-
-60 strokes did not crash, so I gave up and rebooted to try again.
-
-4 strokes crashed.  The first 2 seeming had logged me out, killing my
-cat /proc/kmsg process.
-
-8 strokes crashed.
-
-26 strokes crashed.
-
-...
-
-The only consistency I see is that always an even number of strokes
-cause a crash i.e. always the Ctrl+Alt+F7 switch back to my X console,
-not the switch to a text console.
-
-To prepare to crash, I only know of: sync umount ext3.  For me as yet
-"Checking ... filesystem..." wastes less than three minutes per crash,
-and I haven't yet perceptibly lost a disk.
-
-> > I wonder if somehow /proc/kmsg now working is a clue?
-
-Meanwhile, whether `sudo cat /proc/kmsg | tee ...` displays printk
-intact or not also varies, without clearly correlating with whether a
-crash will or will not occur.
-
-So far, with CONFIG_DEBUG_SPINLOCK_SLEEP=y, trying `sudo cat /proc/kmsg
-| tee ...` has never run well enough to capture the cause of the crash.
-
-> >  I could easily check ... ssh ...
-
-Remote ssh freezes and remote ping starts losing all packets.
-
-Pat LaVarre
-
-
+--Matt
 

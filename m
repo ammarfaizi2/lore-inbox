@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263553AbTKJNTY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 08:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263556AbTKJNTX
+	id S263485AbTKJNX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 08:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTKJNX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 08:19:23 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:30440 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263553AbTKJNTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 08:19:22 -0500
-Date: Mon, 10 Nov 2003 14:19:11 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Tomasz Chmielewski <mangoo@interia.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compressed tmpfs
-Message-ID: <20031110131911.GA12099@wohnheim.fh-wedel.de>
-References: <3FAF894C.4040806@interia.pl>
+	Mon, 10 Nov 2003 08:23:57 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:64748 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263485AbTKJNX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 08:23:56 -0500
+Subject: Re: [PATCH] cfq + io priorities
+From: Albert Cahalan <albert@users.sf.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1AJ994-0002xM-00@gondolin.me.apana.org.au>
+References: <E1AJ994-0002xM-00@gondolin.me.apana.org.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068469674.734.80.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3FAF894C.4040806@interia.pl>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Nov 2003 08:07:54 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 November 2003 13:49:16 +0100, Tomasz Chmielewski wrote:
+On Mon, 2003-11-10 at 05:19, Herbert Xu wrote:
+> Albert Cahalan <albert@users.sf.net> wrote:
+> > 
+> > Sure, but do it in a way that's friendly to
+> > all the apps and admins that only know "nice".
+> > 
+> > nice_cpu   sets CPU niceness
+> > nice_net   sets net niceness
+> > nice_disk  sets disk niceness
+> > ...
+> > nice       sets all niceness values at once
 > 
-> I was looking for something like tmpfs, but with additional feature - 
-> that all the files in that file system would be compressed.
-> 
-> I think it could be nice for one's RAM, especially in embedded 
-> devices/diskless stations, at a little expense of efficiency.
-> 
-> Is there such a feature in 2.4 kernel yet, and, if not, where should I 
-> look for it?
-> 
-> There is e2compr module on http://sourceforge.net/projects/e2compr/, but 
-> I'm not sure if it can be easily applied to 2.4.22 kernel (seems like 
-> it's for 2.4.17 kernels only).
+> That's a user space problem.  No matter what Jens
+> does, you can always make nice(1) do what you said.
 
-Jffs2 on a ramdisk comes close to what you want.  For something
-better, you have to code it up yourself.
+It's not just the nice command. There's a syscall
+interface you know, and lots of apps use it.
 
-Jörn
+#include <unistd.h>
+int nice(int inc);
 
--- 
-Time? What's that? Time is only worth what you do with it.
--- Theo de Raadt
+You planning to hack ALL those apps? You'll
+convince BSD-centric developers to include
+this Linux-specific change?
+
+Besides, the kernel load average was changed to
+include processes waiting for IO. It just plain
+makes sense to mix CPU usage with IO usage by
+default. Wanting different niceness for CPU
+and IO is a really unusual thing.
+
+

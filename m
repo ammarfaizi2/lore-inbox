@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUIWPwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUIWP7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUIWPwy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 11:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUIWPwy
+	id S266263AbUIWP7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 11:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUIWP7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 11:52:54 -0400
-Received: from cathy.bmts.com ([216.183.128.202]:24053 "EHLO cathy.bmts.com")
-	by vger.kernel.org with ESMTP id S266295AbUIWPwF (ORCPT
+	Thu, 23 Sep 2004 11:59:24 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:37268 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S266263AbUIWP7X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 11:52:05 -0400
-Date: Thu, 23 Sep 2004 11:51:22 -0400
-From: Mike Houston <mikeserv@bmts.com>
-To: vs@namesys.com
+	Thu, 23 Sep 2004 11:59:23 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Mikhail Ramendik <mr@ramendik.ru>
+Subject: Re: 2.6.8.1, USB , "IRQ 11 disabled" on plugging in a device
+Date: Thu, 23 Sep 2004 09:59:19 -0600
+User-Agent: KMail/1.7
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm2 (disable repacker)
-Message-Id: <20040923115122.4b84f991.mikeserv@bmts.com>
-In-Reply-To: <1095945329.6117.25.camel@tribesman.namesys.com>
-References: <20040922131210.6c08b94c.akpm@osdl.org>
-	<1095945329.6117.25.camel@tribesman.namesys.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-bmts-MailScanner: Found to be clean
-X-bmts-MailScanner-SpamCheck: 
-X-MailScanner-From: mikeserv@bmts.com
+Content-Disposition: inline
+Message-Id: <200409230959.19570.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Sep 2004 17:15:29 +0400
-Vladimir Saveliev <vs@namesys.com> wrote:
+> When I plug in a USB device it is not recognized. It does not even
+> appear in lsusb. And it says that it disables IRQ 11 - which is even 
+> NOT the IRQ used by USB!
 
-> Sorry, please replace reiser4-disable-repacker.patch with the
-> attached one.
-> 
-> >  reiser4 update
-> > 
-> 
->
+Does it make any difference if you boot with "pci=routeirq"?
 
-Hello, thank you for that. Reversing the old disable repacker patch
-from broken-out and applying this one fixed a nasty oops on attempting
-to unmount reiser4 for me.
+There is a known problem with USB and prism54 devices not working
+after suspend/resume, and it goes away with "pci=routeirq".
+
+If that does make a difference, can you post the whole dmesg
+log with and without it?

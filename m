@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130920AbRAYRDA>; Thu, 25 Jan 2001 12:03:00 -0500
+	id <S129175AbRAYRCT>; Thu, 25 Jan 2001 12:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129737AbRAYRCn>; Thu, 25 Jan 2001 12:02:43 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:48139 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130920AbRAYRCW>;
-	Thu, 25 Jan 2001 12:02:22 -0500
-Date: Thu, 25 Jan 2001 18:02:12 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "James H. Cloos Jr." <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
-Message-ID: <20010125180212.A25047@gruyere.muc.suse.de>
-In-Reply-To: <14960.13645.936452.235135@pizda.ninka.net> <Pine.LNX.4.30.0101251540001.30299-100000@svea.tellus> <14960.17652.653140.593056@pizda.ninka.net> <m3bssvk3xw.fsf@austin.jhcloos.com> <14960.22256.322768.447815@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S130188AbRAYRCK>; Thu, 25 Jan 2001 12:02:10 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:43017 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129175AbRAYRB7>; Thu, 25 Jan 2001 12:01:59 -0500
+Date: Thu, 25 Jan 2001 12:07:08 -0500
+From: Chris Mason <mason@suse.com>
+To: Ondrej Sury <ondrej@globe.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre10 slowdown at boot.
+Message-ID: <118870000.980442428@tiny>
+In-Reply-To: <87k87jzjlt.fsf@ondrej.office.globe.cz>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14960.22256.322768.447815@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 08:40:16AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 08:40:16AM -0800, David S. Miller wrote:
+
+
+On Thursday, January 25, 2001 05:23:26 PM +0100 Ondrej Sury
+<ondrej@globe.cz> wrote:
+
 > 
-> James H. Cloos Jr. writes:
->  > What exaclty were the issues with the intel cards and sg+csum?
->  > 
->  > Any idea how much work it'd require to surmount them?
+> 2.4.1-pre10 slows down after printing those (maybe ACPI or reiserfs
+> issue), and even SysRQ-(s,u,b) is not imediate and waits several (two+)
+> seconds before (syncing,remounting,booting).
 > 
-> Getting Intel to release full specs on how to make use of
-> TX hardware checksum assist with the eepro100.
+> ACPI: System description tables found
+> ACPI: System description tables loaded
+> ACPI: Subsystem enabled
+> ACPI: System firmware supports: C2
+> ACPI: System firmware supports: S0 S1 S4 S5
+> reiserfs: checking transaction log (device 03:04) ...
+> Warning, log replay starting on readonly filesystem
+> 
 
-It's halfway documented in their e100 driver source, but no real specs 
-unfortunately.
+Here, reiserfs is telling you that it has started replaying transactions in
+the log.  You should also have a reiserfs message telling you how many
+transactions it replayed, and how long it took.  Do you have that message?
 
+-chris
 
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

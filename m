@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289887AbSBKRrg>; Mon, 11 Feb 2002 12:47:36 -0500
+	id <S289865AbSBKRp0>; Mon, 11 Feb 2002 12:45:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289972AbSBKRrV>; Mon, 11 Feb 2002 12:47:21 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:41298 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S289954AbSBKRqh>; Mon, 11 Feb 2002 12:46:37 -0500
-Date: Mon, 11 Feb 2002 12:46:36 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200202111746.g1BHkar11371@devserv.devel.redhat.com>
-To: weber@nyc.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.4 Sound Driver Problem
-In-Reply-To: <mailman.1013448601.14957.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1013448601.14957.linux-kernel2news@redhat.com>
+	id <S289885AbSBKRpG>; Mon, 11 Feb 2002 12:45:06 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:42398 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S289865AbSBKRo6>;
+	Mon, 11 Feb 2002 12:44:58 -0500
+Date: Mon, 11 Feb 2002 18:44:56 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200202111744.SAA08449@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.4 PREEMPT on UP x86 breakage
+Cc: rml@tech9.net, roy@karlsbakk.net, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am using the YMFPCI driver on a Toshiba Tecra 8100.
-> 
-> The sound_alloc_dmap() function in dmabuf.c must be changed from using 
-> __get_free_pages() and virt_to_bus() -> pci_alloc_consistent().
+In 2.5.4, CONFIG_PREEMPT breaks UP x86 kernels by triggering
+the BUG in release_kernel_lock(), kernel/sched.c, line 664.
+The patch below fixed it for me. It's a bit crude, but smp.h
+doesn't export the #define if CONFIG_SMP is disabled.
 
-What the hell are you talking about, I changed it long ago.
-Linus uses ymfpci on his Crusoe Picturebook with no problems.
-What is your kernel version?
+/Mikael
 
--- Pete
+--- linux-2.5.4/include/asm-i386/smplock.h.~1~	Mon Feb 11 12:21:46 2002
++++ linux-2.5.4/include/asm-i386/smplock.h	Mon Feb 11 16:55:18 2002
+@@ -15,7 +15,7 @@
+ #else
+ #ifdef CONFIG_PREEMPT
+ #define kernel_locked()		preempt_get_count()
+-#define global_irq_holder	0
++#define global_irq_holder	0xFF	/* XXX: NO_PROC_ID */
+ #else
+ #define kernel_locked()		1
+ #endif

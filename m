@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268120AbUJDMfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268101AbUJDMiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268120AbUJDMfo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUJDMfo
+	id S268101AbUJDMiI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268094AbUJDMfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:35:44 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:42267 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268094AbUJDMf2 (ORCPT
+	Mon, 4 Oct 2004 08:35:54 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:55210 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S268101AbUJDMfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:35:28 -0400
-Message-ID: <4d8e3fd3041004053560c0f711@mail.gmail.com>
-Date: Mon, 4 Oct 2004 14:35:26 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Subject: Re: [PATCH] AES x86-64-asm impl.
-Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>,
-       Florian Bohrer <florian.bohrer@t-online.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <416142DD.54E0E417@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Oct 2004 08:35:40 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH]adding documentation about power management
+Date: Mon, 4 Oct 2004 14:37:25 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200410041353.59911.oliver@neukum.org> <20041004122843.GA26136@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20041004122843.GA26136@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <2KWl4-wq-25@gated-at.bofh.it>
-	 <m3acv4zz5f.fsf@averell.firstfloor.org>
-	 <41613937.8BF0FE0D@users.sourceforge.net>
-	 <4d8e3fd3041004050927c42438@mail.gmail.com>
-	 <4161401B.96BE2A44@users.sourceforge.net>
-	 <4d8e3fd304100405236f425dd7@mail.gmail.com>
-	 <416142DD.54E0E417@users.sourceforge.net>
+Message-Id: <200410041437.25050.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Oct 2004 15:32:29 +0300, Jari Ruusu
-<jariruusu@users.sourceforge.net> wrote:
-> Paolo Ciarrocchi wrote:
-> > On Mon, 04 Oct 2004 15:20:43 +0300, Jari Ruusu
-> > I understand that, I still don't understand the reaseon.
-> > But hey, feel free to ignore my question ;)
+Am Montag, 4. Oktober 2004 14:28 schrieb Pavel Machek:
+> Hi!
 > 
-> You haven't looked at cryptoloop security, have you?
+> > this is the first part of added documentation about power management
+> > in drivers.
+> 
+> Looks good to me.
+> 								Pavel
 
-No at all.
- 
-> No sane person wants to be accociated with that kind of broken and
-> backdoored scam. I certainly don't.
+Meaning that you'll apply it?
 
-It was just curiosity ;)
-Thank you for the answer.
-
--- 
-Paolo
-Personal home page: www.ciarrocchi.tk
-See my photos: http://paolociarrocchi.fotopic.net/
-Buy cool stuff here: http://www.cafepress.com/paoloc
+	Regards
+		Oliver

@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317848AbSGPOXf>; Tue, 16 Jul 2002 10:23:35 -0400
+	id <S317853AbSGPO2W>; Tue, 16 Jul 2002 10:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317849AbSGPOXe>; Tue, 16 Jul 2002 10:23:34 -0400
-Received: from dsl092-148-080.wdc1.dsl.speakeasy.net ([66.92.148.80]:54450
-	"EHLO tyan.doghouse.com") by vger.kernel.org with ESMTP
-	id <S317848AbSGPOXd>; Tue, 16 Jul 2002 10:23:33 -0400
-Date: Tue, 16 Jul 2002 10:26:17 -0400 (EDT)
-From: <maxwax@speakeasy.net>
-X-X-Sender: <maxwell@tyan.doghouse.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan s2466 stability
-In-Reply-To: <1026833327.1687.59.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0207161020280.2603-100000@tyan.doghouse.com>
+	id <S317855AbSGPO2V>; Tue, 16 Jul 2002 10:28:21 -0400
+Received: from 12-236-56-248.client.attbi.com ([12.236.56.248]:41380 "EHLO
+	turtle.carumba.com") by vger.kernel.org with ESMTP
+	id <S317853AbSGPO2P> convert rfc822-to-8bit; Tue, 16 Jul 2002 10:28:15 -0400
+Date: Tue, 16 Jul 2002 07:28:44 -0700 (PDT)
+From: Jauder Ho <jauderho@carumba.com>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: vojtech@suse.cz, <James.Bottomley@steeleye.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <200207161249.g6GCnQZ9021743@burner.fokus.gmd.de>
+Message-ID: <Pine.LNX.4.44.0207160719260.16633-100000@turtle.carumba.com>
+X-Mailer: UW Pine 4.33 + a bunch of schtuff
+X-BOFH-Msg: Use vi not Emacs.
+X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jul 2002, Alan Cox wrote:
 
-> On Tue, 2002-07-16 at 15:08, Maxwell Spangler wrote:
-> > 6) I have only one issue yet to be resolved: SCSI "loss of streaming" errors 
-> > when trying to burn cd-rs.  I haven't taken the time to figure out what the 
-> > problem is there but the fact that others aren't reporting it suggests 
-> > configuration or something else specific to my system and not indicative of 
-> > the MPX chipset or dual Athlon setup, etc.
-> > 
-> 
-> That one isn a unique report. MPX boards seem to have problems burning
-> CD-R's. I have no idea why
+And path_to_inst does not always do the RightThing(tm). [1] [2] Two
+systems identically configured has the potential of having path_to_inst
+look different. Especially if you have previously installed a device or
+moved stuff around. And if the expectation is that a group of devices will
+come up in a certain sequence (think shared tape devices for instance) and
+it changes, it quickly becomes a nightmare. Not a fun proposition by any
+means.
 
-I thought my SCSI problems were only showing up with my cd-rw drive because 
-that's all I currently have online.
+--Jauder
 
-You're stating that the problems reported have been with cd-rw drives, but not 
-with hard drives, scanners, etc, using the same SCSI equipment on the same 
-systems?
+[1] eg http://www.myri.com/scs/documentation/mug/installation/solaris.html
+[2] http://www.magma.com/support/sun.htm
 
-I had assumed that my failure to be able to use my cd-rw drive would prevent 
-me from [writing] to any type of SCSI drive reliably.  I even thought I had an 
-HP SCSI DDS drive that failed along similar reasons..
+On Tue, 16 Jul 2002, Joerg Schilling wrote:
 
-Can I do anything to help provide more information to diagnose and resolve 
-this?
-
-Replacement of my HP SCSI cdrw drive with a nice new ATAPI 40x writer is not a 
-problem, but the fear that there is an open issue in my system in something as 
-significant as SCSI is bothersome..
-
-Thanks!
-
--- ----------------------------------------------------------------------------
-Maxwell Spangler                                                
-Program Writer                                              
-Greenbelt, Maryland, U.S.A.                         
-Washington D.C. Metropolitan Area 
+> >From vojtech@ucw.cz Tue Jul 16 13:59:27 2002
+>
+> >> It would help, if somebody would correct the current SCSI addressng scheme used
+> >> in Linux. Linux currently uses something called BUS/channel/target/lun.
+> >> This does not reflect reality.
+> >>
+> >> What Linux calls a SCSI bus is definitely not a SCSI bus but a SCSI HBA card.
+> >> What Linux calls a channel really is one of possibly more SCSI busses going
+> >> off one of the SCSI HBA cards. It makes sense to just count SCSI busses.
+>
+> >Well, no. It doesn't. Because the numbers will change if you add a card
+> >(even at runtime - hotplugging USB SCSI is something real happening
+> >today. And that'd be a very bad thing.
+>
+> It hey change, then this is a Linux kernel problem. On Solaris they don't
+> change because Solaris manages /etc/path_to_inst
+>
+> Jörg
+>
+>  EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+>        js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+>        schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+>  URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

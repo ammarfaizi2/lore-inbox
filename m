@@ -1,41 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbSL0Bbz>; Thu, 26 Dec 2002 20:31:55 -0500
+	id <S264715AbSL0Ba4>; Thu, 26 Dec 2002 20:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264724AbSL0Bby>; Thu, 26 Dec 2002 20:31:54 -0500
-Received: from boo-mda02.boo.net ([216.200.67.22]:58379 "EHLO
-	boo-mda02.boo.net") by vger.kernel.org with ESMTP
-	id <S264716AbSL0Bbx>; Thu, 26 Dec 2002 20:31:53 -0500
-Message-Id: <3.0.6.32.20021226204855.007e4e30@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Thu, 26 Dec 2002 20:48:55 -0500
-To: linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: panic during boot: 2.5.53 on alpha
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S264716AbSL0Ba4>; Thu, 26 Dec 2002 20:30:56 -0500
+Received: from dsl2-09018-wi.customer.centurytel.net ([209.206.215.38]:59553
+	"HELO thomasons.org") by vger.kernel.org with SMTP
+	id <S264715AbSL0Bay> convert rfc822-to-8bit; Thu, 26 Dec 2002 20:30:54 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: scott thomason <scott@thomasons.org>
+Reply-To: scott@thomasons.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Measuring impact on interactive tasks
+Date: Thu, 26 Dec 2002 19:39:09 -0600
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212261939.09792.scott@thomasons.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It crossed my mind while load testing some scheduler tunable settings 
+that completely subjective monitoring of X jerkiness perhaps wasn't 
+the most scientific way of measuring the interactive impact of the 
+tunables. I'm no Evil Scientist, but I whipped up a perl script that 
+I think accomplishes something close to capturing those statistics. 
+It captures 1000 samples of what should be a precise .2 second delay 
+(on an idle system it is, with a tiny bit of noise). 
 
-Hello. I'm a 2.5 newbie, and hopefully someone can tell me what I'm doing wrong here.
-
-Turning off module support lets the 2.5.53 kernel compile on an Alpha, but
-when booting on a DS10 the kernel claims that the argument to "root=" is
-invalid, fails to mount the root filesystem, and panics. 
-
-The 2.2 and 2.4 kernels all worked fine with "root=/dev/hda3". The machine
-has a single IDE drive; /boot is mounted on hda1, /tmp on hda2, and / on hda3.
-The gzipped vmlinux and System.map are both in /boot.
-
-There were some patches for 2.5.52 posted last week for Alpha, but most of the
-patch contents were to enable module support which I don't care about at the
-moment. 
-
-Apologies if this is a known issue, or if it's just something dumb that I'm doing. I can provide my config file if anyone's interested.
-
-Thanks in advance,
-jasonp
+Here's the script, along with some output produced while the system 
+was under considerable load (around 13). Would something like this be 
+worth developing further to help rigorously measure the interactive 
+impact of the tunables? Or is there a flaw in the approach? (Jokes 
+about Perl are considered below the belt...)
+---scott
 
 
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Time::HiRes qw/sleep time/;
+
+my %pause = ();
+
+for (my $x = 0; $x < 1000; $x++) {
+  my $start = time();
+  sleep(.2);
+  my $stop = time();
+  my $elapsed = $stop - $start;
+
+  $pause{sprintf('%01.3f', $elapsed)}++;
+}
+
+foreach (sort(keys(%pause))) {
+  print "$_:  $pause{$_}\n";
+}
+
+exit 0;
+
+
+Sample output
+
+time ./int_resp_timer.pl 
+0.192:  1
+0.199:  1
+0.200:  10
+0.201:  201
+0.202:  53
+0.203:  25
+0.204:  22
+0.205:  21
+0.206:  34
+0.207:  29
+0.208:  29
+0.209:  100
+0.210:  250
+0.211:  120
+0.212:  35
+0.213:  16
+0.214:  17
+0.215:  14
+0.216:  9
+0.217:  1
+0.218:  3
+0.219:  3
+0.220:  1
+0.222:  1
+0.233:  1
+0.303:  1
+0.304:  1
+0.385:  1
+
+real    3m28.568s
+user    0m0.329s
+sys     0m1.260s
 

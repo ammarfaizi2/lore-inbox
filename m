@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbVBYN1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbVBYN1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262692AbVBYN1N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 08:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVBYN1N
+	id S262695AbVBYN1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 08:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbVBYN1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 08:27:13 -0500
-Received: from pat.uio.no ([129.240.130.16]:42461 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262692AbVBYN1K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 08:27:10 -0500
-To: James Colannino <lkml@colannino.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to capture kernel panics
-References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
-	<421E96AF.1070908@colannino.org>
-From: Trond Hasle Amundsen <t.h.amundsen@usit.uio.no>
-Organization: Universitas Osloensis
-Date: Fri, 25 Feb 2005 14:26:57 +0100
-In-Reply-To: <421E96AF.1070908@colannino.org> (James Colannino's message of
- "Thu, 24 Feb 2005 19:08:31 -0800")
-Message-ID: <15toee8lqhq.fsf@klodrik.uio.no>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.976, required 12,
-	autolearn=disabled, AWL 0.02, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 25 Feb 2005 08:27:24 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:2783 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262695AbVBYN1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 08:27:20 -0500
+Date: Fri, 25 Feb 2005 14:27:13 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, zwane@holomorphy.com
+Subject: Re: 2.6.11-rc2-mm1 strange messages
+Message-ID: <20050225132712.GA23612@gamma.logic.tuwien.ac.at>
+References: <20050125121704.GA22610@gamma.logic.tuwien.ac.at> <20050125102834.7e549322.akpm@osdl.org> <20050224141015.GA6756@gamma.logic.tuwien.ac.at> <20050224150326.3a82986c.akpm@osdl.org> <20050225012326.GA14302@gamma.logic.tuwien.ac.at> <20050224181412.64a1f351.akpm@osdl.org> <Pine.LNX.4.58.0502242210360.9237@ppc970.osdl.org> <20050224223308.778ef62e.akpm@osdl.org> <20050225091516.GA5875@gamma.logic.tuwien.ac.at> <20050225015243.55e9eff8.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050225015243.55e9eff8.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Colannino <lkml@colannino.org> writes:
+On Fre, 25 Feb 2005, Andrew Morton wrote:
+> Doh.   This works.
 
-> shabanip wrote:
->
->>is there any way to capture and log kernel panics on disk or ...?
->
-> My guess would be, at the very least, it depends on what part of the
-> kernel is causing the panic.
+True. Thanks.
 
-A kernel panic means that the kernel no longer knows what it's doing,
-and therefore stops doing anything immediately. Hence it won't use the
-filesystems and cannot log the panic to anything but the console. I
-would think the best solution to your problem is to set up a serial
-console to another machine, and log everything to disk on that
-machine. See Documentation/serial-console.txt for how to set up a
-serial console.
+Best wishes
 
-Regards,
+Norbert
 
--- 
-Trond Hasle Amundsen <t.h.amundsen@usit.uio.no>
-Center for Information Technology Services, University of Oslo
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>                 Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+BOTCHERBY
+The principle by which British roads are signposted.
+			--- Douglas Adams, The Meaning of Liff

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbTD1Rou (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 13:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbTD1Rou
+	id S261225AbTD1Ryc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 13:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTD1Ryc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 13:44:50 -0400
-Received: from CPE-65-30-34-80.kc.rr.com ([65.30.34.80]:1922 "EHLO
-	cognition.home.hanaden.com") by vger.kernel.org with ESMTP
-	id S261222AbTD1Rot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 13:44:49 -0400
-Message-ID: <3EAD6B7C.4090108@hanaden.com>
-Date: Mon, 28 Apr 2003 12:57:16 -0500
-From: Hanasaki JiJi <hanasaki@hanaden.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030426
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux - LIST <linux-kernel@vger.kernel.org>
-Subject: iptables NAT entry times out but connects from firewall
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Apr 2003 13:54:32 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:10163 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261225AbTD1Ryb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 13:54:31 -0400
+Date: Mon, 28 Apr 2003 11:06:47 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net status
+Message-ID: <20030428180647.GD29784@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030428025022.GA29784@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030428025022.GA29784@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a firewall with two NICs and the below rule to allow an 
-internal host to connect out to smtp servers on the internet.  Some 
-hosts have a connection timeout on a connect from $INTERNAL_IP_OF_SMTP 
-yet connect from the firewall just fine.
+It's back.
 
-iptables -t nat -A POSTROUTING -p tcp -o $NIC_EXTERNAL \
-        --dport 25 -s $INTERNAL_IP_OF_SMTP -j MASQUERADE
+On Sun, Apr 27, 2003 at 07:50:22PM -0700, Larry McVoy wrote:
+> bkbits.net is down, bad disk (again).  Working on it, I'll send mail 
+> when I have an ETA for it being up.
+> -- 
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-ex:
-on firewall:
-	telnet csoc-mail-msfc.csoconline.com 25
-	
-	above connects ok
-
-on $INTERNAL_IP_OF_SMTP
-	telnet csoc-mail-msfc.csoconline.com 25
-
-	connection times out
-
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

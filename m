@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270263AbRHHByk>; Tue, 7 Aug 2001 21:54:40 -0400
+	id <S270264AbRHHCOp>; Tue, 7 Aug 2001 22:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270266AbRHHByb>; Tue, 7 Aug 2001 21:54:31 -0400
-Received: from ns3.keyaccesstech.com ([209.47.245.85]:55557 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S270263AbRHHByV>; Tue, 7 Aug 2001 21:54:21 -0400
-Date: Tue, 7 Aug 2001 21:54:26 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: =?ISO-8859-1?Q?=D8ystein?= Haare <oyhaare@online.no>
+	id <S270267AbRHHCOg>; Tue, 7 Aug 2001 22:14:36 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:24218 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S270264AbRHHCOT>; Tue, 7 Aug 2001 22:14:19 -0400
+Date: Tue, 7 Aug 2001 19:13:50 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: Brian May <bam@snoopy.apana.org.au>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Via chipset
-In-Reply-To: <997225828.10528.4.camel@eagle>
-Message-ID: <Pine.LNX.4.33.0108072147450.11071-100000@terbidium.openservices.net>
+Subject: Re: Encrypted Swap
+In-Reply-To: <84zo9ci4dk.fsf@scrooge.chocbit.org.au>
+Message-ID: <Pine.LNX.4.33.0108071907280.23797-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Aug 2001, Øystein Haare wrote:
+On 7 Aug 2001, Brian May wrote:
 
-> I'm sorry if this question has been answered recently (I'm not
-> subscribed to the list).
->
-> I'm planning on getting a new workstation, and I kinda want an AMD
-> system. But it seems that most (all?) motherboards for the amd cpu's use
-> VIA chipsets, and some people have experienced problems with via
-> chipsets and linux.
+> Example: disk is faulty and will no longer work. How do you guarantee
+> that nobody will be able to read it after you toss it out OR return it
+> to the manufacturer to claim for warranty?
 
-My Asus A7V (not 133, not 266) is fine with Red Hat 7.1, but it only supports
-B-type (100/200 MHz FSB) Athlons. I haven't yet tested it with kernels newer
-than what Red Hat provides, though.
+Most people paranoid with security (US DOD, NSA, etc.) have protocol
+regarding disks with classified data on them: Once classified, always
+classified. A failed disk still under warranty must forfiet that warranty
+to ensure data integrity. If the disk is no longer useful (eg that 575MB
+disk out of the SPARCstation 2 in the corner) then it is to be destroyed
+with fire and the remains slagged.
 
-> Have these problems been fixed, or are they still present?
+> (of course, encrypting swap space is only part of the solution, here
+> you need to encrypt everything).
 
-I'm not having any that aren't being caused by my hard drives right now.
+Encrypting everything is what DISA decided they would do with the DII COE
+operating environment for Windows NT and Solaris. DISA's solution under NT
+was to zero the swapfile at system shutdown as well as use an encryption
+scheme similar to what has been referred to earlier in this thread. The
+solution under Solaris was to do encryption only. I'm not going to go into
+detail about it, but basically, everything but the filesystems on-disk
+have been encrypted. DII COE is not available for public consumption as
+well as export outside the US. Besides, I pity anyone who's forced to use
+it. It really is a miserable thing to be forced to use.
 
-> would I be better off getting a P4 system?
-
-Certainly not. I've seen benchmarks where an Athlon 1.4 beats the stuffing out
-of a P4 1.8. I realize its just a benchmark, but when it happens in about 70%
-of the benchmarks (oriented at different subsytstems) it HAS to be more than
-just coincedence.
-
-And have you seen the price difference lately? Even if the Athlon was slower,
-it's still a lot cheaper.
-
-> Øystein Haare
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 

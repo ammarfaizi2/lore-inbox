@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263791AbTKKVU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 16:20:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbTKKVU0
+	id S263786AbTKKVY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 16:24:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbTKKVY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 16:20:26 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:21220 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263791AbTKKVUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 16:20:25 -0500
-From: "Joseph Shamash" <info@avistor.com>
-To: "Patrick Mansfield" <patmans@us.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, "Peter Chubb" <peter@chubb.wattle.id.au>,
-       "Mike Fedyk" <mfedyk@matchmail.com>
-Subject: RE: 2 TB partition support
-Date: Tue, 11 Nov 2003 13:21:42 -0800
-Message-ID: <HBEHKOEIIJKNLNAMLGAOGEDPDKAA.info@avistor.com>
+	Tue, 11 Nov 2003 16:24:59 -0500
+Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:56776 "EHLO
+	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S263786AbTKKVY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 16:24:58 -0500
+Message-ID: <009001c3a89a$af611130$54dc10c3@amos>
+From: "Kaj-Michael Lang" <milang@tal.org>
+To: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0311101723110.2001-100000@logos.cnet>
+Subject: Re: Linux 2.4.23-rc1
+Date: Tue, 11 Nov 2003 23:27:59 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <20031110213014.A2274@beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Patrick,
+> Hi,
+>
+> Here goes -rc1.
+>
+> It contains network driver fixes (b44, tg3, 8139cp), several x86-64
+> bugfixes, amongst others.
 
->The qlogic (qla2xxx) driver is not in the kernel,
->but is available for use with 2.6.
+Compiling for Alpha fails with:
+...
+gcc -D__KERNEL__ -I/work/collection/talinux/kernel/kernel24/tmp/alpha/linux-
+2.4.22/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-alia
+sing -fno-common -fomit-frame-pointer -pipe -mno-fp-regs -ffixed-8 -mcpu=ev5
+ -Wa,-mev6   -nostdinc -iwithprefix
+nclude -DKBUILD_BASENAME=agpgart_be  -DEXPORT_SYMTAB -c agpgart_be.c
+agpgart_be.c:52: asm/msr.h: No such file or directory
+agpgart_be.c:493: warning: `agp_generic_create_gatt_table' defined but not
+used
+agpgart_be.c:627: warning: `agp_generic_free_gatt_table' defined but not
+used
+...
 
-I have searched without success for this driver.
-Qlogic tech support doesn't seem to know about it. 
-Can you lead me to a link or provide this driver?
+Same config works fine for 2.4.22
 
-Thanks,
-Joe
- 
-
-
------Original Message-----
-From: Patrick Mansfield [mailto:patmans@us.ibm.com]
-Sent: Monday, November 10, 2003 9:30 PM
-To: Joseph Shamash
-Cc: Mike Fedyk; Peter Chubb; linux-kernel@vger.kernel.org
-Subject: Re: 2 TB partition support
-
-
-On Mon, Nov 10, 2003 at 08:03:53PM -0800, Joseph Shamash wrote:
-
-> The limitation we have found in 2.6 is lack FC HBA drivers which 
-> are needed to support large storage capacities.
-> 
-> Any thoughts?
-
-Please clarify "lack FC HBA drivers".
-
-You mean no in kernel drivers? Yeh.
-
-The qlogic (qla2xxx) driver is not in the kernel, but is available for use
-with 2.6.
-
-Martin Bligh included an emulex driver in his last 2.6 patch set.
-
--- Patrick Mansfield
-
-
+-- 
+Kaj-Michael Lang , milang@tal.org
 

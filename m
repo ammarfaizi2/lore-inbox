@@ -1,64 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263063AbUC2S4f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 13:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUC2S4f
+	id S263088AbUC2Sxi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 13:53:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUC2Sxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 13:56:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42971 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263063AbUC2S4b (ORCPT
+	Mon, 29 Mar 2004 13:53:37 -0500
+Received: from mail.gmx.de ([213.165.64.20]:23208 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263090AbUC2Swl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 13:56:31 -0500
-Subject: Re: [EXT3/JBD] Periodic journal flush not enough?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>,
-       Andreas Dilger <adilger@clusterfs.com>
-In-Reply-To: <20040326154851.7a3ad417.akpm@osdl.org>
-References: <20040326231958.GA484@gondor.apana.org.au>
-	 <20040326154851.7a3ad417.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080586577.2285.107.camel@sisko.scot.redhat.com>
+	Mon, 29 Mar 2004 13:52:41 -0500
+X-Authenticated: #1226656
+Date: Mon, 29 Mar 2004 20:52:33 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=)
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+Message-Id: <20040329205233.5b7905aa@vaio.gigerstyle.ch>
+In-Reply-To: <yw1xr7vcn1z2.fsf@ford.guide>
+References: <yw1xsmftnons.fsf@ford.guide>
+	<20040328201719.A14868@jurassic.park.msu.ru>
+	<yw1xoeqhndvl.fsf@ford.guide>
+	<20040328204308.C14868@jurassic.park.msu.ru>
+	<20040328221806.7fa20502@vaio.gigerstyle.ch>
+	<yw1xr7vcn1z2.fsf@ford.guide>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Mar 2004 19:56:17 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Mon__29_Mar_2004_20_52_33_+0200_Z6qKTHO4klZqWf66"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
 
-On Fri, 2004-03-26 at 23:48, Andrew Morton wrote:
-> Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> >
-> > I've encountered a problem with the journal flush timer.  The problem
-> > is that when a filesystem is short on space, relying on a timer-based
-> > flushing mechanism is no longer adequate.  For example, on my P4 2GHz
-> > I can trigger an ENOSPC error by doing
-> > 
-> > while :; do echo test > a; [ -s a ] || break; rm a; done; echo Out of space
-> > 
-> > on an ext3 file system with 12Mb of free space using the usual 5s
-> > journal flush timer.
+--Multipart=_Mon__29_Mar_2004_20_52_33_+0200_Z6qKTHO4klZqWf66
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
 > 
-> I cannot reproduce this.  Please send more details.  Journalling mode,
-> kernel version, etc.
+> We could start by comparing .config files.  Mine is attached.  I've
+> been running a 2.6.3 kernel with that configuration since it was
+> released.  I compiled a gentoo installation using that kernel, so I'd
+> say it's quite stable.
 
-Sounds like it's due to the "b_committed_data" avoidance code.  Ext3
-cannot immediately reuse disk space after a delete, because of lazy
-writeback --- until the final writeback of the delete hits disk, we have
-to be able to undo it.  And because in non-data-journaled modes we allow
-new disk writes to hit disk before a transaction commit, that means we
-can't reuse deleted blocks until after they are committed.
+Ok, I've attached my config. I will take some time this week to debug
+this problem.
+Firstly, I will try out 2.6.3 and see what happens. I think that's the
+best thing that I can do ATM. If the problem doesn't exist with 2.6.3 on
+my alpha then we know where to search for.
 
-I've never seen it reported as a problem outside of artificial test
-scenarios, but if it is something we need to address, Andreas Dilger's
-patch looks good.
+Regards from Switzerland
 
-Cheers,
- Stephen
+Marc
 
+--Multipart=_Mon__29_Mar_2004_20_52_33_+0200_Z6qKTHO4klZqWf66
+Content-Type: application/x-gzip;
+ name="config.tar.gz"
+Content-Disposition: attachment;
+ filename="config.tar.gz"
+Content-Transfer-Encoding: base64
 
+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
+
+--Multipart=_Mon__29_Mar_2004_20_52_33_+0200_Z6qKTHO4klZqWf66--

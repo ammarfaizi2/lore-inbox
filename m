@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264948AbSJ3W4r>; Wed, 30 Oct 2002 17:56:47 -0500
+	id <S264944AbSJ3XI0>; Wed, 30 Oct 2002 18:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264951AbSJ3W4q>; Wed, 30 Oct 2002 17:56:46 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:29614 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S264948AbSJ3W4q>;
-	Wed, 30 Oct 2002 17:56:46 -0500
-Date: Wed, 30 Oct 2002 23:01:59 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: John Gardiner Myers <jgmyers@netscape.com>,
+	id <S264946AbSJ3XI0>; Wed, 30 Oct 2002 18:08:26 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:16869 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264944AbSJ3XIZ>;
+	Wed, 30 Oct 2002 18:08:25 -0500
+Date: Wed, 30 Oct 2002 15:08:56 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "M. R. Brown" <mrbrown@0xd6.org>, Skip Ford <skip.ford@verizon.net>
+cc: James Simmons <jsimmons@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021030230159.GB25231@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0210291237240.1457-100000@blue1.dev.mcafeelabs.com> <3DBF426B.6050208@netscape.com>
-Mime-Version: 1.0
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [BK console] console updates.
+Message-ID: <851270000.1036019336@flay>
+In-Reply-To: <20021030230036.GB29624@0xd6.org>
+References: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net> <200210302332.g9UNWL5e001187@pool-141-150-241-241.delv.east.verizon.net> <20021030230036.GB29624@0xd6.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3DBF426B.6050208@netscape.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Gardiner Myers wrote:
-> I am uncomfortable with the way the epoll code adds its own set of 
-> notification hooks into the socket and pipe code.  Much better would be 
-> to extend the existing set of notification hooks, like the aio poll code 
-> does.
+> * Skip Ford <skip.ford@verizon.net> on Wed, Oct 30, 2002:
+> 
+>> James Simmons wrote:
+>> > 
+>> > bk://linuxconsole.bkbits.net
+>> > 
+>> > BTW I will make patches avaiable as soon as 2.5.45 comes out.
+>> 
+>> Don't even bother posting to the list without a patch.  Saying you want
+>> testers and not providing a patch is just rediculous.
+>> 
+> 
+> Not knowing where/how to stay current is also a bit ridiculous.
+> 
+> http://sf.net/projects/linuxconsole/.  Click on "CVS".
 
-Fwiw, I agree with the above (I'm having a think about it).
+Yeah, of course ... his psychic power must be weakening, he 
+should have magically been able to guess that because ....
 
-I also agree with criticisms that epoll should test and send an event
-on registration, but only _if_ the test is cheap.  Nothing to do with
-correctness (I like the edge semantics as they are), but because
-delivering one event is so infinitesimally low impact with epoll that
-it's preferable to doing a single speculative read/write/whatever.
+That's not a patch, it's a CVS tree. Just mail out a normal
+patch, like everyone else.
 
-Regarding the effectiveness of the optimisation, I'd guess that quite
-a lot of incoming connections do not come with initial data in the
-short scheduling time after a SYN (unless it's on a LAN).  I don't
-know this for sure though.
+M.
 
--- Jamie
- 

@@ -1,50 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131675AbQKZPli>; Sun, 26 Nov 2000 10:41:38 -0500
+        id <S131985AbQKZPp3>; Sun, 26 Nov 2000 10:45:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131985AbQKZPl2>; Sun, 26 Nov 2000 10:41:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41739 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S131675AbQKZPlX>;
-        Sun, 26 Nov 2000 10:41:23 -0500
-Date: Sun, 26 Nov 2000 15:11:20 +0000
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Anders Torger <torger@ludd.luth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to transfer memory from PCI memory directly to user space safely and portable?
-Message-ID: <20001126151120.V2272@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <00112614213105.05228@paganini>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <00112614213105.05228@paganini>; from torger@ludd.luth.se on Sun, Nov 26, 2000 at 02:21:31PM +0100
+        id <S132074AbQKZPpT>; Sun, 26 Nov 2000 10:45:19 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:49287 "EHLO
+        freya.yggdrasil.com") by vger.kernel.org with ESMTP
+        id <S131985AbQKZPpJ>; Sun, 26 Nov 2000 10:45:09 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 26 Nov 2000 07:15:08 -0800
+Message-Id: <200011261515.HAA09753@baldur.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 02:21:31PM +0100, Anders Torger wrote:
-> 	memcpy_toio(iobase, user_space_src, count);
+	Is there some reason why gcc does not put static data that
+is explicitly initialized to zero in .bss?  If not, then fixing
+gcc would provide more space savings than these patches, and
+improve more software than just the Linux kernel.
 
-I hope count isn't provided by userspace here ?
-
-> 1. What happens if the user space memory is swapped to disk? Will 
-> verify_area() make sure that the memory is in physical RAM when it returns, 
-> or will it return -EFAULT, or will something even worse happen?
-
-On i386, you'll sleep implicitly waiting for the page fault to be handled;  in
-the generic case, anything could happen.
-
-> 2. Is this code really portable? I currently have an I386 architecture, and I 
-> could use copy_to/from_user on that instead, but that is not portable. Now, 
-> by using memcpy_to/fromio instead, is this code fully portable?
-
-No.  It would be portable if you were using memcpy_fromuser_toio and it
-existed.
-
-> 3. Will the current process always be the correct one? The copy functions is 
-> directly initiated by the user, and not through an interrupt, so I think the 
-> user space mapping will always be to the correct process. Is that correct?
-
-current should be fine if you're not in a bh/interrupt/kernel thread.
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

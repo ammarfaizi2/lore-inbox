@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266133AbUIVS0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUIVScf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266133AbUIVS0g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 14:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUIVS0g
+	id S266611AbUIVScf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 14:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUIVScf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 14:26:36 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:62647 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S266133AbUIVS0e
+	Wed, 22 Sep 2004 14:32:35 -0400
+Received: from mail.humboldt.co.uk ([81.2.65.18]:51636 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S266611AbUIVScd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 14:26:34 -0400
-Date: Wed, 22 Sep 2004 20:26:33 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, kj <kernel-janitors@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Kernel-janitors] Re: 2.6.9-rc2-kjt1 rio_linux compile error
-Message-ID: <20040922182633.GD20621@stro.at>
-Mail-Followup-To: Nishanth Aravamudan <nacc@us.ibm.com>,
-	Adrian Bunk <bunk@fs.tum.de>, kj <kernel-janitors@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040921221307.GG4260@stro.at> <20040922112157.GB27364@fs.tum.de> <20040922162218.GB1924@us.ibm.com>
+	Wed, 22 Sep 2004 14:32:33 -0400
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sensors@Stimpy.netroedge.com
+Cc: Michael Hunold <hunold-ml@web.de>, Jon Smirl <jonsmirl@gmail.com>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <20040922122848.M14129@linux-fr.org>
+References: <414F111C.9030809@linuxtv.org>
+	 <20040921154111.GA13028@kroah.com>	 <41506099.8000307@web.de>
+	 <41506D78.6030106@web.de> <1095843365.18365.48.camel@localhost>
+	 <20040922102938.M15856@linux-fr.org> <1095854048.18365.75.camel@localhost>
+	 <20040922122848.M14129@linux-fr.org>
+Content-Type: text/plain
+Message-Id: <1095877951.18365.232.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922162218.GB1924@us.ibm.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 22 Sep 2004 19:32:31 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Sep 2004, Nishanth Aravamudan wrote:
+On Wed, 2004-09-22 at 14:38, Jean Delvare wrote:
 
-> On Wed, Sep 22, 2004 at 01:21:58PM +0200, Adrian Bunk wrote:
-> > On Wed, Sep 22, 2004 at 12:13:07AM +0200, maximilian attems wrote:
-> > >...
-> > > added since 2.6.9-rc1-kjt1
-> > >...
-> > > msleep-drivers_char_rio_linux.patch
-> > >   From: Nishanth Aravamudan <nacc@us.ibm.com>
-> > >   Subject: [Kernel-janitors] [PATCH 2.6.9-rc2 20/33] char/rio_linux: replace 	schedule_timeout() with msleep()/msleep_interruptible()
-> > >...
-> > 
-> > This doesn't compile (obvious typo):
-> 
-> Thanks for catching this! Here is the fixed patch:
-> 
+> Aha, this is an interesting point (which was missing from your previous
+> explanation). The base of your proposal would be to have several small i2c
+> "trees" (where a tree is a list of adapters and a list of clients) instead of
+> a larger, unique one. This would indeed solve a number of problems, and I
+> admit that it is somehow equivalent to Michael's classes in that it
+> efficiently prevents the hardware monitoring clients from probing the video
+> stuff. The rest is just details internal to each "tree". As I understand it,
+> each video device would be a tree on itself, while the whole hardware
+> monitoring stuff would constitute one (bigger) tree. Correct?
 
-thanks also fixed in latest kjt.
+I've been rereading the code, and it could be even simpler. How about
+this:
+
+1) The card driver defines an i2c_adapter structure, but never calls
+i2c_add_adapter(). The only extra thing it needs to do is to initialise
+the semaphores in the structure.
+2) The frontend calls i2c_transfer() directly.
+3) The i2c core never gets involved, and there is never any i2c_client
+structure.
+
+This gives us the required reuse of the I2C algo-bit code, without any
+of the list walking or device probing being required.
+
+- Adrian Cox
+Humboldt Solutions Ltd.
+
 

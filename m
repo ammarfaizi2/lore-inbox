@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316609AbSGQUBd>; Wed, 17 Jul 2002 16:01:33 -0400
+	id <S316604AbSGQUDK>; Wed, 17 Jul 2002 16:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSGQUBd>; Wed, 17 Jul 2002 16:01:33 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:36367 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316609AbSGQUBd>; Wed, 17 Jul 2002 16:01:33 -0400
-Date: Wed, 17 Jul 2002 17:04:13 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/13] minimal rmap
-In-Reply-To: <E17Uuti-0004PT-00@starship>
-Message-ID: <Pine.LNX.4.44L.0207171657200.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316610AbSGQUDK>; Wed, 17 Jul 2002 16:03:10 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:28530 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S316604AbSGQUDI>; Wed, 17 Jul 2002 16:03:08 -0400
+Date: Wed, 17 Jul 2002 22:05:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: mgross <mgross@unix-os.sc.intel.com>
+Cc: "Griffiths, Richard A" <richard.a.griffiths@intel.com>,
+       "'Andrew Morton'" <akpm@zip.com.au>,
+       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'Carter K. George'" <carter@polyserve.com>,
+       "'Don Norton'" <djn@polyserve.com>,
+       "'James S. Tybur'" <jtybur@polyserve.com>,
+       "Gross, Mark" <mark.gross@intel.com>
+Subject: Re: fsync fixes for 2.4
+Message-ID: <20020717200535.GP19553@dualathlon.random>
+References: <01BDB7EEF8D4D3119D95009027AE99951B0E6428@fmsmsx33.fm.intel.com> <20020715100719.GE34@dualathlon.random> <200207171735.g6HHZUP28835@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200207171735.g6HHZUP28835@unix-os.sc.intel.com>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Daniel Phillips wrote:
-> On Wednesday 17 July 2002 21:41, Rik van Riel wrote:
-> > On Wed, 17 Jul 2002, Daniel Phillips wrote:
+On Wed, Jul 17, 2002 at 10:44:18AM -0400, mgross wrote:
+> On Monday 15 July 2002 06:07 am, Andrea Arcangeli wrote:
+> > On Fri, Jul 12, 2002 at 02:52:11PM -0700, Griffiths, Richard A wrote:
+> > > Mark is off climbing Mt. Hood, so he asked me to post the data on the
+> > > fsync patch.
+> 
+> I was excited to report the significant improvement of 2.4.19rc1+fsync fix 
+> over 2.4.18 and didn't realize that the improvement was not due to the fsync 
+> patch.   I'm so glad Richard did a careful check, I was on my way out the 
+> door for my vacation :)
+> 
+> I would like to know what's so good about 2.4.19rc1 that gives our block I/O 
+> benchmark that significant improvement over 2.4.18.
 
-> > Nope. If it hits every directory entry once, it'll hit every
-> > page with directory or inode information multiple times, causing
-> > that page to enter the active list and push out process pages.
->
-> Yes, it could get challenging, but it's very desirable to do the
-> optimization somehow.  It's even more desirable to stay focussed on
-> the immediate issues, imho.
+that should be the effect of the first part of my vm updates that gone into 2.4.19pre.
 
-One simple way of getting this right is adding a new list
-to the VM, after which we'd have the following lists:
+> > > It appears from these results that there is no appreciable improvement
+> > > using the
+> > > fsync patch - there is a slight loss of top end on 4 adapters 1 drive.
+> >
+> > that's very much expected, as said with my new design by adding an
+> > additional pass (third pass), I could remove the slight loss that I
+> > expected from the simple patch that puts wait_on_buffer right in the
+> > first pass.
+> >
+> > I mentioned this in my first email of the thread, so it looks all right.
+> > For a rc2 the slight loss sounds like the simplest approch.
+> >
+> > If you care about it, with my new fsync accounting design we can fix it,
+> > just let me know if you're interested about it. Personally I'm pretty
+> > much fine with it this way too, as said in the first email if we block
+> > it's likely bdflush is pumping the queue for us. the slowdown is most
+> > probably due too early unplug of the queue generated by the blocking
+> > points.
+> 
+> I don't care about the very slight (and possibly in the noise floor of our 
+> test) reduction in throughput due to the fsync fix.  I think your's and 
+> Andrews'  assertion of the bdflush / dirty page handling getting stopped up 
+> is likely the problem preventing scaling to my personal goal of 250 to 
+> 300MB/sec on our setup.
 
-1) new_pages list, restricted to a certain size (5% of RAM,
-   50% of the size of the inactive list, ...)
-   FIFO, new pages get added to the front of the list,
-   old pages get their accessed bit cleared and moved to
-   the inactive list
+yep, should be. Actually running multiple fsyncs from multiple tasks
+will kind of workaround the single threaded async flushing of 2.4.
 
-2) inactive list, second chance fifo, target size 1/2 of active list ?
-   pages sit on the inactive list until the pageout code runs into
-   them, if the page was not accessed it will be evicted, if it was
-   accessed it will be moved to the active list
+> 
+> Thanks,
+> 
+> Mark Gross
+> PS I had a very nice time on mount hood.  I didn't make it to the top this 
+> time too much snow had melted off the top of the thing to have a safe attempt 
+> at the summit.  It was a guided (http://www.timberlinemtguides.com) 3 day 
+> climb. 
 
-3) active list, second chance fifo
-   pages on this list get rotated slowly, if they were referenced
-   they go back on the other side of the list, if they were not
-   referenced they go to the inactive list
+:)
 
-With this setup, we should be able to catch things like updatedb
-and common streaming IO; their accesses to the pages should mostly
-happen while the pages are on the new_pages list (1) and they
-shouldn't get referenced again while on the inactive list.
-
-Of course, this isn't the case for things like the directory
-/usr, but we _want_ to cache directories close to the top of
-the tree anyway. Besides, we won't have many of those directories.
-
-An added advantage of this scheme is that we'll no longer need to
-touch the lru list in mark_page_accessed() (reducing contention)
-and use-once might actually work for mmap()d pages.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Andrea

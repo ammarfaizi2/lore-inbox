@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbUKGVNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUKGVRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbUKGVNd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 16:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbUKGVNd
+	id S261682AbUKGVRA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 16:17:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUKGVQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 16:13:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60592 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261685AbUKGVNO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 16:13:14 -0500
-Date: Sun, 7 Nov 2004 13:13:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-cc: davej@redhat.com, "Luck, Tony" <tony.luck@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: EFI partition code broken..
-In-Reply-To: <20041107200351.GA3169@lists.us.dell.com>
-Message-ID: <Pine.LNX.4.58.0411071306000.24286@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411070959560.2223@ppc970.osdl.org>
- <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org> <20041107200351.GA3169@lists.us.dell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 7 Nov 2004 16:16:45 -0500
+Received: from Abe25.a.pppool.de ([213.6.190.37]:36584 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S261685AbUKGVQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 16:16:16 -0500
+In-Reply-To: <200411071438.38516.shawn.starr@rogers.com>
+References: <200411071227.43058.shawn.starr@rogers.com> <418E78A3.9020500@twilight-hall.net> <200411071438.38516.shawn.starr@rogers.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-3--851605761"
+Message-Id: <3A3EDA80-3102-11D9-92BA-000A958E35DC@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: =?ISO-8859-1?Q?Rapha=EBl_Rigo_LKML?= <lkml@twilight-hall.net>,
+       linux-kernel@vger.kernel.org
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
+Date: Sun, 7 Nov 2004 22:16:02 +0100
+To: Shawn Starr <shawn.starr@rogers.com>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--Apple-Mail-3--851605761
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-On Sun, 7 Nov 2004, Matt Domsch wrote:
-> 
-> The check for invalid primary master boot record (PMBR) needs to be
-> moved up ahead of the reads for the GPTs (primary at the start of the
-> disk, alternate/backup at the end of the disk).  When first written,
-> Intel didn't specify that the PMBR (a normal DOS-like MBR partition
-> table with a single entry of type 0xEE covering the whole disk) *had*
-> to exist, so we let the code try looking for GPTs first.  When the
-> PMBR test was added, it should have been added ahead of the GPT tests,
-> not after.  I'll work up a patch to do just that, and will then remove
-> the dependency on IA64.  Fair enough?
+On 07.11.2004, at 20:38, Shawn Starr wrote:
 
-Yes, sounds good. Also, if I understand you correctly, I would suggest
-actually taking the size of the disk from the PMBR 0xEE entry itself,
-rather than depend on what size the disk reports (perhaps double-check
-that it is sane, of course - the more careful the better).
+> That may have been the past, but if they dont distribute the source 
+> any more
+> they are in violation.
 
-With people doing things like concatenating partitions with "md", the size
-of the disk itself is less important than what the partition table was set
-up with - even if the size reporting of the disk itself is reliable.
+There was a lengthy discussion some weeks ago about exactly this.
 
-For example, let's say that you create a EFI table on a RAID (striped or
-whatever), and that in turn then means that the first sub-disk used for
-the RAID will contain (as part of the RAID array) the EFI signature in its 
-PMBR, we don't want to look at the GPT at the end of _that_ disk. See what 
-I'm saying?
+Sveasoft has expressed that they think they're in the clear
+because they're shipping the sourcecode to older versions of
+their distribution and their current version is nothing more
+than their old distribution plus some additional proprietary
+code.
 
-		Linus
+I still believe that this is both incorrect and also impolite
+but we'll only know for sure if someone tries to enforce the GPL
+in this case.
+
+Servus,
+       Daniel
+
+--Apple-Mail-3--851605761
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQY6QkTBkNMiD99JrAQKhEQgApHPKbk4C7Ap6Q4sUhnXhOabX1PAzYPrE
+MgKtmqu8PRDCrDUCwlgnaRnGc9/UbvcRjY7syLIxH2/NqBBaV+AjOPWsc5FFx8TM
+3UoLsfyVKPiz/hbfZMZVLLQ4/wV/5bB0U3k9f7/UcGzynVxJ8DtlXtRyF04AyB9v
+70Gmkh2q++Cu5hMyMK2mZoA4QQM3d/aiL05vAstmvLFcm06BHJUL2vQt0aE6sQPi
+FusOFQOlRqQ03HmmlsEK7BtfsjzJuVSW4NInizJbeJvjJZVdo3r9/+CJkU+HBRVY
+g5+PdTXp9k/NkeXfgi0NWn9lpkkqoGmRk9tnR+PCjzYVSiGsi/QoEQ==
+=hPt3
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-3--851605761--
+

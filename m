@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291693AbSBNO4i>; Thu, 14 Feb 2002 09:56:38 -0500
+	id <S291688AbSBNPCu>; Thu, 14 Feb 2002 10:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291707AbSBNO42>; Thu, 14 Feb 2002 09:56:28 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:50120 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S291693AbSBNO4N>; Thu, 14 Feb 2002 09:56:13 -0500
-Date: Thu, 14 Feb 2002 08:56:10 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200202141456.IAA24921@tomcat.admin.navo.hpc.mil>
-To: mtoseland@cableinet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Fun with OOM on 2.4.18-pre9
-X-Mailer: [XMailTool v3.1.2b]
+	id <S291703AbSBNPCk>; Thu, 14 Feb 2002 10:02:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23059 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291688AbSBNPC1>; Thu, 14 Feb 2002 10:02:27 -0500
+Subject: Re: [PATCH} 2.5.5-pre1 VESA fb
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Thu, 14 Feb 2002 15:16:01 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3C6BC4E7.3070407@evision-ventures.com> from "Martin Dalecki" at Feb 14, 2002 03:08:39 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16bNc9-0000GD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-toad <mtoseland@cableinet.co.uk>:
-> 
-> I do a make -j bzImage
-> I have 2 large processes (Kaffe) running in the background. They are
-> driven by scripts like this:
-> 
-> while true;
-> do su freenet -c java freenet.node.Main;
-> done
-> 
-> I have 512MB of RAM and no swap on 2.4.18-pre9.
-> Kernel eventually slows to a near complete halt, and starts killing
-> processes.
-> It kills Kaffe several times
-> Out of Memory: Killed process xyz (Kaffe)
-> (no I don't have logs, sorry)
-> Each time it's a different pid, having respawned from its parent
-> process. Then later, it apparently becomes unkillable - each time it
-> respawns it is *the same PID*. VT switching works, but otherwise the
-> system is unresponsive. It is not clear whether the make -j is still
-> running. Immediately before this, it did the same thing with dictd, but
-> eventually got around to Kaffe. After a fairly long wait I rebooted with
-> the reset switch.
-> 
-> Any more information useful? Is this known behaviour?
+> This adjusts the VESA fb driver to the new bus mapping API.
+> I think that this time this is providing the right replacement.... but 
+> who knows
 
-Known behaviour - ie. don't do that.
+The VESA fb window will be higher than the ISA window as its a linear
+frame buffer
 
-On most systems a "make -j4", or 6, or even 8 will work. But SOMETHING has
-to give after memory fills up. The number of processes to use for -j
-depends on the system. On mine (256MB, dual pentium pro) I don't do more
-than 6, and 4 works best (lets me run solitare too).
+> -		pmi_base  = (unsigned short*)bus_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
+> +		pmi_base  = (unsigned short*)isa_bus_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+I don't think it actually matters on x86 but phys_to_virt() is probably
+more correct

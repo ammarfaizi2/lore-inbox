@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbTHVEz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 00:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbTHVEz6
+	id S263026AbTHVFI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 01:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbTHVFIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 00:55:58 -0400
-Received: from [202.107.117.26] ([202.107.117.26]:35549 "EHLO ldap")
-	by vger.kernel.org with ESMTP id S263019AbTHVEz4 (ORCPT
+	Fri, 22 Aug 2003 01:08:55 -0400
+Received: from pop.gmx.net ([213.165.64.20]:56030 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263029AbTHVFHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 00:55:56 -0400
-Date: Fri, 22 Aug 2003 12:55:48 +0800
-From: "Bill J.Xu" <xujz@neusoft.com>
-Subject: Re: "ctrl+c" disabled!
-To: Charles Lepple <clepple@ghz.cc>, linux-kernel@vger.kernel.org
-Message-id: <05a501c36869$a7aeee60$2a01010a@avwindows>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-Mailer: Microsoft Outlook Express 6.00.3790.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <036601c367e0$01adabc0$2a01010a@avwindows>
- <3F457A19.8E8A1F65@gmx.de> <04b901c36852$dccc7660$2a01010a@avwindows>
- <3F45830A.5C0F5BCA@gmx.de> <053301c3685c$9ea6fe50$2a01010a@avwindows>
- <bi45b6$kor$1@sea.gmane.org>
+	Fri, 22 Aug 2003 01:07:19 -0400
+Message-Id: <5.2.1.1.2.20030822065336.019d58b8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Fri, 22 Aug 2003 07:11:26 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O17int
+Cc: Voluspa <lista1@comhem.se>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1061510363.3f455cdb079d4@kolivas.org>
+References: <5.2.1.1.2.20030821154224.01990b48@pop.gmx.net>
+ <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net>
+ <200308210723.42789.kernel@kolivas.org>
+ <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net>
+ <5.2.1.1.2.20030821154224.01990b48@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah,that is the result after pressing ctrl+c, ctrl+d. maybe od do not get the "ctrl+c" signal.
-But I use SecureCRT with the same configration at the same PC to telnet the linux box,everything is OK.
-So I think that if there is some thing wrong with linux kernel?
+At 09:59 AM 8/22/2003 +1000, Con Kolivas wrote:
+>Quoting Mike Galbraith <efault@gmx.de>:
+>
+> > > > The most generally effective form of the "down-shift" anti-starvation
+> > > > tactic that I've tried, is to periodically check the head of all queues
+> > > > below current position (can do very quickly), and actively select the
+> > > > oldest task who hasn't run since some defined deadline.  Queues are
+> > > > serviced based upon priority most of the time, and based upon age some
+> > of
+> > > > the time.
+> > >
+> > >Hmm also sounds fudgy.
+> >
+> > Yeah.  I crossbred it with a ~deadline scheduler, and created a mutt.
+>
+>But how did this mutt perform?
 
-Bill
+At the time, I was more concerned by the very long semaphore hold times I 
+was seeing than anything else.  That it helped quite a lot.  It didn't hurt 
+throughput in any way I could see, and it improved irman's latency 
+numbers.  (process load was routinely hitting ~1.5 seconds max latency at 
+the time, that tree cut it to roughly 400-500ms iirc)  Just like anything 
+else that increases fairness though, it hurt X feel somewhat in the 
+presence of load.
 
------ Original Message ----- 
-From: "Charles Lepple" <clepple@ghz.cc>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, August 22, 2003 12:14 PM
-Subject: Re: "ctrl+c" disabled!
+         -Mike 
 
-
-> Bill J.Xu wrote:
-> > after run od -tx1, the following is the result
-> > ------------------------------------------------
-> > bash-2.05# ./od -tx1
-> > 0000000
-> 
-> That's after you pressed ^C in your terminal program? What you have 
-> there shows that od has not received any characters.
-> 
-> Pick another control character, and use 'stty intr' to set that as your 
-> interrupt character. I don't have any experience with SecureCRT, but it 
-> may use ^C to implement the Windows Edit->Copy function.
-> 
-> -- 
-> Charles Lepple <ghz.cc!clepple>
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

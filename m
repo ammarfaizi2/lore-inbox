@@ -1,120 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVCWF2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVCWFkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbVCWF2y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 00:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbVCWF2y
+	id S262801AbVCWFkv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 00:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVCWFkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 00:28:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:34772 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262797AbVCWF2o (ORCPT
+	Wed, 23 Mar 2005 00:40:51 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:13752 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262801AbVCWFkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 00:28:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=SZyCFEVmgN8DB0+NHB8EIdybje5wwx9Py6SxqlGIUQ151rff9OISwQpeMBhVLYl8HKFd+RSGyeccVAzWFsRmBcSg04IkqQZZbncC7V3itdqxhyc325QHFJmxlpQTmhhKW9pEZ7sfX28XsVmsRffu1HRKnlfHhVj9RqM9Ry2bJIg=
-Date: Wed, 23 Mar 2005 14:28:38 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, Jens Axboe <axboe@suse.de>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 04/08] scsi: remove meaningless volatile qualifiers from structure definitions
-Message-ID: <20050323052838.GA31878@htj.dyndns.org>
-References: <20050323021335.960F95F8@htj.dyndns.org> <20050323021335.2655518E@htj.dyndns.org> <1111551327.5520.99.camel@mulgrave> <4240EEFF.8030703@pobox.com>
+	Wed, 23 Mar 2005 00:40:35 -0500
+Date: Tue, 22 Mar 2005 21:40:34 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, dipankar@in.ibm.com, shemminger@osdl.org,
+       akpm@osdl.org, torvalds@osdl.org, rusty@au1.ibm.com, tgall@us.ibm.com,
+       jim.houston@comcast.net, manfred@colorfullife.com, gh@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption and RCU
+Message-ID: <20050323054034.GC1294@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050322055327.GB1295@us.ibm.com> <Pine.OSF.4.05.10503220929500.5287-100000@da410.phys.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4240EEFF.8030703@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.OSF.4.05.10503220929500.5287-100000@da410.phys.au.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, guys.
-
-On Tue, Mar 22, 2005 at 11:22:23PM -0500, Jeff Garzik wrote:
-> James Bottomley wrote:
-> >On Wed, 2005-03-23 at 11:14 +0900, Tejun Heo wrote:
-> >
-> >>	scsi_device->device_busy, Scsi_Host->host_busy and
-> >>	->host_failed have volatile qualifiers, but the qualifiers
-> >>	don't serve any purpose.  Kill them.  While at it, protect
-> >>	->host_failed update in scsi_error for consistency and clarity.
-> >
-> >
-> >Well ... the data here is volatile so what you're advocating is a move
-> >away from a volatile variable model to a protected variable one ... did
-> >you audit all users of both of these to make sure we have protection on
-> >all of them?  It looks like the sata strategy handlers would still rely
-> >on the volatile data.
-
- Yes, I did (well, tried :-).  Adding locking/unlocking was just for
-clarity.  We have synchronization w/ implied memory barrier before and
-after eh processing, so we don't really need to acquire the lock
-there.  And while adding it, I forgot about libata strategy function.
-Sorry about that.  I removed the locking from scsi_error and added
-comments to data structure definition that those fields can be
-accessed without acquiring the host lock.  I think it's clearer this
-way.
-
-> volatile is almost always (a) buggy, or (b) hiding bugs.  At the very 
-> least, barriers are usually needed.
+On Tue, Mar 22, 2005 at 09:55:26AM +0100, Esben Nielsen wrote:
+> On Mon, 21 Mar 2005, Paul E. McKenney wrote:
+[ . . . ]
+> > On Mon, Mar 21, 2005 at 12:23:22AM +0100, Esben Nielsen wrote:
+> > This is in some ways similar to the K42 approach to RCU (which they call
+> > "generations").  Dipankar put together a similar patch for Linux, but
+> > the problem was that grace periods could be deferred for an extremely
+> > long time.  Which I suspect is what you were calling out as causing
+> > RCU batches never to run.
 > 
-> Almost every case really wants to be inside a spinlock, or atomic_t, or 
-> similarly protected.
+> That is where the preempt_by_nonrt_disable/enable() is supposed to help:
+> Then it can't take longer than the normal kernel in the situation where
+> there is no RT tasks running. RT tasks will prolong the grace periods if
+> they go into RCU regions, but they are supposed to be relatively small -
+> and deterministic!
+
+The part that I am missing is how this helps in the case where a non-RT
+task gets preempted in the middle of an RCU read-side critical section
+indefinitely.  Or are you boosting the priority of any task that
+enters an RCU read-side critical section?
+
+> > > > The counter approach might work, and is also what the implementation #5
+> > > > does -- check out rcu_read_lock() in Ingo's most recent patch.
+> > > > 
+> > > 
+> > > Do you refer to your original mail with implementing it in 5 steps?
+> > > In #5 in that one (-V0.7.41-00, right?) you use a lock and as you say that
+> > > forces syncronization between the CPUs - bad for scaling. It does make the
+> > > RCU batches somewhat deterministic, as the RCU task can boost the readers
+> > > to the rcu-task's priority.
+> > > The problem about this approach is that everybody calling into RCU code
+> > > have a worst case behaviour of the systemwide worst case RCU reader 
+> > > section - which can be pretty large (in principle infinite if somebody.)
+> > > So if somebody uses a call to a function in the code containing a RCU read
+> > > area the worst case behavious would be the same as teh worst case latency
+> > > in the simple world where preempt_disable()/preempt_enable() was used.
+> > 
+> > I missed something here -- readers would see the worst-case -writer-
+> > latency rather than the worst-case -reader- latency, right?  Or are you
+> > concerned about the case where some reader blocks the write-side
+> > acquisitions in _synchronize_kernel(), but not before the writer has
+> > grabbed a lock, blocking any readers on the corresponding CPU?
 > 
-> Specifically for SATA, I am making the presumption that SCSI is smart 
-> enough not to mess with host_failed until my error handler completes.
+> I am conserned that readers block each other, too. You do need an rw-mutex
+> allowing an unlimited number of readers for doing this. With the current
+> rw-mutex the readers block each other. I.e. the worst case latency is the
+> worst case reader latency - globally!
+> On the other hand with a rw-lock being unlimited - and thus do not keep
+> track of it readers - the readers can't be boosted by the writer. Then you
+> are back to square 1: The grace period can take a very long time.
 
- Yes, volatile only instructs the compiler to not cache the variable
-in the register and not move around accesses to the variable.  The
-only valid usage would be raw synchronization with variables (busy
-checking, two flag variable synchronization, etc...), but even those
-usages are better off with explicit barriers and cpu relaxations to
-clarify what's going on.
+OK, good point.
 
- Currently all accesses outside eh are properly protected with locks
-except for the following two cases.
+> > Yes, but this is true of every other lock in the system as well, not?
+> 
+> Other locks are not globaly used but only used for a specific subsystem.
+> On a real-time system you are supposed to know which subsystems you can
+> call into and still have a low enough latency as each subsystem has it's
+> own bound. But with a global RCU locking mechanism all RCU using code is
+> to be regarded as _one_ such subsystem.
 
- * sg_proc_seq_show_dev(): read access, informational.  doesn't matter.
- * check looping in scsi_device_quiesce(): we have proper barrier.
+Yep.  As would the things protected by the dcache lock, task list lock,
+and so on, right?
 
+						Thanx, Paul
 
- Signed-off-by: Tejun Heo <htejun@gmail.com>
-
-
-Index: scsi-export/include/scsi/scsi_device.h
-===================================================================
---- scsi-export.orig/include/scsi/scsi_device.h	2005-03-23 09:40:12.000000000 +0900
-+++ scsi-export/include/scsi/scsi_device.h	2005-03-23 14:04:59.000000000 +0900
-@@ -43,7 +43,8 @@ struct scsi_device {
- 	struct list_head    siblings;   /* list of all devices on this host */
- 	struct list_head    same_target_siblings; /* just the devices sharing same target id */
- 
--	volatile unsigned short device_busy;	/* commands actually active on low-level */
-+	unsigned short device_busy;	/* commands actually active on
-+					 * low-level. protected by sdev_lock. */
- 	spinlock_t sdev_lock;           /* also the request queue_lock */
- 	spinlock_t list_lock;
- 	struct list_head cmd_list;	/* queue of in use SCSI Command structures */
-Index: scsi-export/include/scsi/scsi_host.h
-===================================================================
---- scsi-export.orig/include/scsi/scsi_host.h	2005-03-23 09:40:12.000000000 +0900
-+++ scsi-export/include/scsi/scsi_host.h	2005-03-23 14:04:59.000000000 +0900
-@@ -448,8 +448,14 @@ struct Scsi_Host {
- 	wait_queue_head_t       host_wait;
- 	struct scsi_host_template *hostt;
- 	struct scsi_transport_template *transportt;
--	volatile unsigned short host_busy;   /* commands actually active on low-level */
--	volatile unsigned short host_failed; /* commands that failed. */
-+
-+	/*
-+	 * The following two fields are protected with host_lock;
-+	 * however, eh routines can safely access during eh processing
-+	 * without acquiring the lock.
-+	 */
-+	unsigned short host_busy;	   /* commands actually active on low-level */
-+	unsigned short host_failed;	   /* commands that failed. */
-     
- 	unsigned short host_no;  /* Used for IOCTL_GET_IDLUN, /proc/scsi et al. */
- 	int resetting; /* if set, it means that last_reset is a valid value */
+> > In a separate conversation a few weeks ago, Steve Hemminger suggested
+> > placing checks in long RCU read-side critical sections -- this could
+> > be used to keep the worst-case reader latency within the desired bounds.
+> > Not pretty, but, then again, bounding lock latency will require a fair
+> > number of similar changes, I suspect.
+> > 
+> > 						Thanx, Paul
+> > 
+> 
+> Esben
+> 
+> 

@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265916AbTFSTcW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 15:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbTFSTcC
+	id S265923AbTFSTh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 15:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265921AbTFSTh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 15:32:02 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:30636 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S265926AbTFSTbz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 15:31:55 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: David Woodhouse <dwmw2@infradead.org>
-Date: Thu, 19 Jun 2003 21:45:44 +0200
+	Thu, 19 Jun 2003 15:37:57 -0400
+Received: from [203.149.0.18] ([203.149.0.18]:61063 "EHLO
+	krungthong.samart.co.th") by vger.kernel.org with ESMTP
+	id S265932AbTFSTht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 15:37:49 -0400
+Message-ID: <3EF2144D.5060902@thai.com>
+Date: Fri, 20 Jun 2003 02:51:41 +0700
+From: Samphan Raruenrom <samphan@thai.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: matroxfb console oops in 2.4.2x
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <4E2D2240020@vcnet.vc.cvut.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Crusoe's persistent translation on linux?
+References: <3EF1E6CD.4040800@thai.com> <20030619200308.A2135@ucw.cz>
+In-Reply-To: <20030619200308.A2135@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Jun 03 at 14:47, David Woodhouse wrote:
-> On Thu, 2003-06-19 at 13:21, Petr Vandrovec wrote:
+Vojtech Pavlik wrote:
+>>I'm using 2.4.21 kernel on TM5800 Crusoe in Compaq TC1000 Tablet PC.
+>>Currently the performance is not very good but the more I learn
+>>about its architecture the more I'm obessesed about it (just like
+>>the days when I use 68000 Amiga). Too bad that there are very little
+>>information about the chip so I can't do anything much to improve
+>>the performance myself (like enlarge the translation cache? how?).
+> How much 'not very good' is the performance? I'm considering buying an
+> Sharp Actius MM10 notebook, and so far I wasn't able to find ANY numbers
+> on how fast a 1GHz Crusoe actually is, nevermind with Linux running on
+> it ... and how much running Linux affects the expected battery life.
+> Can you share your experience?
 
-> take_over_console() attempts to redraw the screen.
+See http://www.tabletpcbuzz.com/forum/topic.asp?TOPIC_ID=4451
+The guy make a real world benchmark and conclude that a 1 GHZ TM5800
+with latest CMS and PTT should be comparable with 1 GHZ PIIIm.
+Normally TM5800 users will say it is comparable to 600-900 MHz PIII.
 
-It is not take_over_console... It does init first. 
-> >  It is not allowed to call fbdev's putc 
-> > before mode set was issued (at least I always believed to it; before
-> > first mode set hardware is in VGA state)
-> 
-> If I omit the fixes, I just get...
-> 
-> matroxfb: Matrox Mystique (PCI) detected
-> matroxfb: 1280x1024x8bpp (virtual: 1280x1635)
-> matroxfb: framebuffer at 0x1000000, mapped to 0xc017d000, size 2097152
-> matroxfb: Pixel PLL not locked after 5 secs
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  
-This one is culprit. If you'll comment this message out, it will not
-crash.
- 
-> Console: switching to colour frame buffer device 160x64
-> fb0: MATROX VGA frame buffer device
-> 
-> If I call matrox_init_putc() earlier as you suggest, then it seems to
-> end up busy-waiting in mga_fifo()...
+About running Linux on it. Application launch time is not good
+(18 sec. to launch GNOME Help, 7 sec. to relaunch). But after that
+it seems like linux GUI apps are more responsive.
+Building software projects seem to take longer than it should be.
+Building OpenOffice.org take more than 4 days while it take
+about 1-2 days on PIII. I guess the CMS has to translate 'gcc'
+on every invokation?  If so, can the kernel help in any way?
 
-Ok. It means that hardware is completely uninitialized when this happens.
-Probably accelerator clocks are stopped (== message about pixclocks was
-right...) Bad.
-
-Does driver work with your change without problems? It looks strange
-to me that PLL did not stabilized in 5 seconds. Do you get same message
-when you change videomode with fbset, or happens this only once during
-boot, and never again?
-                                        Thanks,
-                                                Petr Vandrovec
+Battery life and Linux should be Ok. You'll have 'longrun' utility
+to control cpu power consumption vs. performance. I understand
+that the CPU already control its power consumption itself, even
+without the help of the kernel, right?
 

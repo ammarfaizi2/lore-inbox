@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVACSoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVACSsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVACSoT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:44:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVACSkr
+	id S261783AbVACSsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVACSon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:40:47 -0500
-Received: from alog0301.analogic.com ([208.224.222.77]:15232 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261772AbVACShT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:37:19 -0500
-Date: Mon, 3 Jan 2005 13:33:40 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [3/8] kill gen_init_cpio.c printk() of size_t warning
-In-Reply-To: <20050103180915.GK29332@holomorphy.com>
-Message-ID: <Pine.LNX.4.61.0501031329030.13385@chaos.analogic.com>
-References: <20050103172013.GA29332@holomorphy.com> <20050103172303.GB29332@holomorphy.com>
- <20050103172615.GD29332@holomorphy.com> <20050103172839.GE29332@holomorphy.com>
- <41D9881B.4020000@pobox.com> <20050103180915.GK29332@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 3 Jan 2005 13:44:43 -0500
+Received: from gateway.penguincomputing.com ([64.243.132.186]:30412 "EHLO
+	inside.penguincomputing.com") by vger.kernel.org with ESMTP
+	id S261817AbVACSmW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 13:42:22 -0500
+X-Mda: Mail::Internet Mail::Sendmail Sendmail +mmhack 1.1 on Linux
+Cc: greg@kroah.com, phil@netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: Ticket #1851 - PATCH for adm1026.c, kernel 2.6.10-bk6
+User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050101001205.6b2a44d3.khali@linux-fr.org>
+Content-Disposition: inline
+Date: Mon, 3 Jan 2005 11:43:55 -0800
+Message-Id: <20050103194355.GA11979@penguincomputing.com>
+References: <41D5D075.4000200@paradyne.com>
+ <20050101001205.6b2a44d3.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+To: LM Sensors <sensors@stimpy.netroedge.com>
+Content-Transfer-Encoding: 8BIT
+From: Justin Thiessen <jthiessen@penguincomputing.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jan 2005, William Lee Irwin III wrote:
+On Sat, Jan 01, 2005 at 12:12:05AM +0100, Jean Delvare wrote:
+> > anybody see how to get a divide by zero in 2.6 adm1026 set_fan_1_min()
+> > ??? It looks fine to me...
+> > 
+> > <http://secure.netroedge.com/~lm78/readticket.cgi?ticket=1851>
+> 
+> Easy. Try setting fan1_min or fan1_div before ever *reading* from the
+> sysfs files. The update fonction not having been called, fan_div[0] is
+> equal to 0.
+> 
+> Justin, can you confirm and provide a patch to fix the issue?
 
-> On Mon, Jan 03, 2005 at 12:59:55PM -0500, Jeff Garzik wrote:
->> This removes whitespace in the process, violating the file's chosen
->> style (and typical lkml style).
->
-> I have no personal interest in the whitespace involved. The following
-> amended patch is likely to avoid inconsistencies with the rest of the
-> file regarding whitespace.
->
->
-> -- wli
->
+Sorry for the slow response.  Real World vacation time intervened.
 
-But it's wrong.
-It should be:
-> +		strlen(target) + 1U,	/* filesize */
+Yes, I confirmed the reported problem.  The patch below should fix it...
+It should also fix any other values-not-initialized- to-hardware-defaults 
+issues.
 
-strlen() already returns a size_t. You need an unsigned 1 to
-not affect it. As previously stated, an integer constant
-is an int, not an unsigned int unless you make it so with
-"U".
+Signed-off-by: Justin Thiessen <jthiessen@penguincomputing.com>
 
->
-> Index: mm1-2.6.10/usr/gen_init_cpio.c
-> ===================================================================
-> --- mm1-2.6.10.orig/usr/gen_init_cpio.c	2005-01-03 06:45:53.000000000 -0800
-> +++ mm1-2.6.10/usr/gen_init_cpio.c	2005-01-03 09:42:18.000000000 -0800
-> @@ -112,7 +112,7 @@
-> 		(long) gid,		/* gid */
-> 		1,			/* nlink */
-> 		(long) mtime,		/* mtime */
-> -		strlen(target) + 1,	/* filesize */
-> +		(unsigned)strlen(target) + 1,/* filesize */
-> 		3,			/* major */
-> 		1,			/* minor */
-> 		0,			/* rmajor */
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+----------------
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--- linux-2.6.10/drivers/i2c/chips/adm1026.c.orig	2005-01-02 15:21:58.000000000 -0800
++++ linux-2.6.10/drivers/i2c/chips/adm1026.c	2005-01-02 16:09:52.000000000 -0800
+@@ -1752,6 +1752,10 @@ int adm1026_detect(struct i2c_adapter *a
+ 	device_create_file(&new_client->dev, &dev_attr_temp2_auto_point2_pwm);
+ 	device_create_file(&new_client->dev, &dev_attr_temp3_auto_point2_pwm);
+ 	device_create_file(&new_client->dev, &dev_attr_analog_out);
++
++	/* Make sure hardware defaults are read into data structure */
++	adm1026_update_device(&new_client->dev);
++
+ 	return 0;
+ 
+ 	/* Error out and cleanup code */
+

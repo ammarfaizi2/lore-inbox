@@ -1,73 +1,96 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSE2BN7>; Tue, 28 May 2002 21:13:59 -0400
+	id <S310206AbSE2Blp>; Tue, 28 May 2002 21:41:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSE2BN6>; Tue, 28 May 2002 21:13:58 -0400
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.133]:26040 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S313113AbSE2BN5>; Tue, 28 May 2002 21:13:57 -0400
-Date: Tue, 28 May 2002 21:18:57 -0400
-From: sean darcy <seandarcy@hotmail.com>
-Subject: Re: Sony DSC-P71 Camera
-To: Colin Slater <hoho@binbash.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Message-id: <3CF42C81.5030004@hotmail.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-Newsgroups: fa.linux.kernel
-In-Reply-To: <fa.f4d1oiv.3kegor@ifi.uio.no>
+	id <S310835AbSE2Blo>; Tue, 28 May 2002 21:41:44 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:62987 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S310206AbSE2Bln>;
+	Tue, 28 May 2002 21:41:43 -0400
+Date: Tue, 28 May 2002 21:34:57 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, yodaiken@fsmlabs.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+Message-ID: <20020528213457.A22540@mark.mielke.cc>
+In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022604318.4123.114.camel@irongate.swansea.linux.org.uk> <3CF42179.29A2CAED@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You don't say which kernel you're using. I have a p71 which I can't get 
-to work with 2.5.18 - see the mass storage thread. OTOH, a stock rh 
-2.4.18 kernel works just fine.
+On Wed, May 29, 2002 at 02:31:53AM +0200, Roman Zippel wrote:
+> Alan Cox wrote:
+> > Perhaps you should spend your
+> > time thinking instead of insinuating everyone on the planet who isnt
+> > working for rtai is a liar ?
+> I am watching this whole mess already quite some time and I am trying
+> very hard to make sense out of this. Victor pretends to be the nice guy
+> here, but if one looks closer, one can see how little respect he has for
 
-What does usbview show? What are the usb and scsi snips from .config. 
-What hapens when you try to mount sd*  ?
+I can't speak for Victor, but...
 
+Is it illegal for Victor to keep his options open?
 
-Colin Slater wrote:
-> Hello, 
->  I just got a Sony DSC-P71 digital camera (wonderful), but it doesn't
-> seem to be working in linux. I beleive it uses the usb mass storage
-> driver, it seems to use an equivilent driver in windows. I have scsi,
-> usb, usb mass storage modules all loaded. 
-> dmesg after I load the usb-storage module, and then plug the camera in:
-> 
-> Initializing USB Mass Storage driver...
-> usb.c: registered new driver usb-storage
-> USB Mass Storage support registered.
-> hub.c: USB new device connect on bus1/1, assigned device number 3
-> scsi0 : SCSI emulation for USB Mass Storage devices
-> 
-> I am useing devfs, and /dev/scsi is empty.
-> 
-> cat /proc/bus/usb/devices:
-> <snip>
-> T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=12  MxCh= 0
-> D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-> P:  Vendor=054c ProdID=0010 Rev= 4.10
-> S:  Manufacturer=Sony
-> S:  Product=Sony DSC
-> C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  2mA
-> I:  If#= 0 Alt= 0 #EPs= 3 Cls=08(stor.) Sub=ff Prot=01 Driver=(none)
-> E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-> E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-> E:  Ad=83(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
-> <snip>
-> 
-> All this happens regardless of NVdriver being loaded or not.
-> 
-> If someone with one of these cameras or the nearly identical DSC-P31
-> could help me, it would be appreciated
-> 
-> Colin
-> 
-> 
+It is really simple. Either A) Victor has a patent, and code in RTAI
+may need to be licensed, or B) Victor has a patent, and code in RTAI
+does not need to be licensed.
 
+The text for the patent is available. Technical people and lawyers
+huddle over a table, decide whether it is worth the risk, and go from
+there. This is the way that every company must go under our current
+legal structure.
 
+Even if you *did* get a 'straight' answer out of Victor, his words
+would not change his ability to sue RTAI. If RTAI needs a license,
+they should *get* a license. If they don't need a license, they don't
+need a license.
+
+What is clear, is that the wrong question is being asked to the wrong
+person. You don't ask Victor whether you can be exempt from potential
+risk. You ask Victor for a license (i.e. written down and signed by
+his company), or you take the risk, and assume that you do not need a
+license. In neither case do you ask "I think my code might infringe on
+your patent, can you make a (verbal) statement publicly that you will
+look away if indeed you ever, at any time in the future, decide that
+it is?"
+
+In fact, if such a question was posed (which I think we have
+observed), I would assume that the company posing the question was not
+legally responsible, and *I*, as a prospective client in need of a RT
+OS for my application, would avoid. The last thing I need is the
+company working on my RT OS to be sued and disappear. I would much
+prefer to work with the company that has the patent.
+
+But then again - this is the crux of the matter. RTAI is suffering due
+to 'patent issues', and RTLinux is not. RTLinux owns the patent, after
+all. This couldn't possibly be RTAI whining because they cannot get
+a large enough customer base, could it?
+
+Sure there are all sorts of precidences that this sets. However, I have
+yet to see any sort of true evolution or development *not* set
+precidences.
+
+The only real argument I have seen from RTAI folk is that Victor isn't
+being a proper Open Source priest. This may annoy other Open Source
+priests, but it does not affect my own opinion of the man. I find the
+'Open Source' religion to have no future. I see applications of an
+Open Source-style license, but as a religion? As an ability to judge a
+person based on some sort of Open Source-defined morality? Nope... no
+future.
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

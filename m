@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbSKHLUf>; Fri, 8 Nov 2002 06:20:35 -0500
+	id <S261854AbSKHLTc>; Fri, 8 Nov 2002 06:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261856AbSKHLUf>; Fri, 8 Nov 2002 06:20:35 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:48314 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261855AbSKHLUe>;
-	Fri, 8 Nov 2002 06:20:34 -0500
-Date: Fri, 8 Nov 2002 12:27:15 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: "David S. Miller" <davem@redhat.com>, mdiehl@dominion.dyndns.org,
-       linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: Re: [documentation] Re: [LARTC] IPSEC FIRST LIGHT! (by non-kernel developer :-))
-Message-ID: <20021108112715.GA20226@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"David S. Miller" <davem@redhat.com>, mdiehl@dominion.dyndns.org,
-	linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-References: <20021107130244.GA25032@outpost.ds9a.nl> <20021108023926.51B985606@dominion.dyndns.org> <20021108094122.GB16512@outpost.ds9a.nl> <20021108.015230.94737520.davem@redhat.com> <20021108111529.GA19850@outpost.ds9a.nl>
+	id <S261855AbSKHLTc>; Fri, 8 Nov 2002 06:19:32 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:44207 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261854AbSKHLTb>; Fri, 8 Nov 2002 06:19:31 -0500
+Date: Fri, 8 Nov 2002 11:14:28 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: ide-cd cdrecord success report
+Message-ID: <20021108111428.F628@nightmaster.csn.tu-chemnitz.de>
+References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee> <20021107180709.GB18866@www.kroptech.com> <32894.62.65.205.175.1036692849.squirrel@webmail.starman.ee> <20021108015316.GA1041@www.kroptech.com> <3DCB1D09.EE25507D@digeo.com> <20021108024905.GA10246@www.kroptech.com> <20021108080558.GR32005@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021108111529.GA19850@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2i
+In-Reply-To: <20021108080558.GR32005@suse.de>; from axboe@suse.de on Fri, Nov 08, 2002 at 09:05:58AM +0100
+X-Spam-Score: -3.6 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18A7HA-0005Te-00*hktHtopVghw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 12:15:29PM +0100, bert hubert wrote:
+Hi Jens,
 
-> This code locks up solid on any ipsec TCP traffic outgoing with this
-> configuration:
+On Fri, Nov 08, 2002 at 09:05:58AM +0100, Jens Axboe wrote:
+> Ok I'm just about convinced now, I'll make 16 the default batch count.
+> I'm very happy to hear that the deadline scheduler gets the job done
+> there.
 
-Also with the following configuration:
+Isn't it exactly seek_cost, which you want?
 
-add 10.0.0.216 10.0.0.12 ah 24500 -A hmac-md5 "1234567890123456";
-spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
-            ah/transport//require;
+Would you like to make it tunable from user space somehow?
 
--or-
+Since Adam already noticed, that there might not be a "perfect"
+value for all, this is the logical next step.
 
-add 10.0.0.216 10.0.0.12 esp 24501 -E 3des-cbc "123456789012123456789012";
-spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
-            esp/transport//require;
- 
-10.0.0.12 is a host which does not exist. 'telnet 10.0.0.12' locks up
-instantly. I'm unsure how to extract more data from my kernel.
+PS: If you update, please consider an update of your comments
+   there, too ;-)
 
-Regards,
+Regards
 
-bert
-
+Ingo Oeser
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263186AbTESWtq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTESWtq
+	id S263320AbTESWw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTESWw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:49:46 -0400
-Received: from orngca-mls01.socal.rr.com ([66.75.160.16]:63475 "EHLO
-	orngca-mls01.socal.rr.com") by vger.kernel.org with ESMTP
-	id S263186AbTESWtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:49:22 -0400
-Date: Mon, 19 May 2003 15:57:28 -0700
-From: Andrew Vasquez <praka@san.rr.com>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b2).
-Message-ID: <20030519225728.GA17279@praka.local.home>
-Mail-Followup-To: Andrew Vasquez <praka@san.rr.com>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+	Mon, 19 May 2003 18:52:57 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:14341 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263317AbTESWwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:52:19 -0400
+Date: Mon, 19 May 2003 16:01:33 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: ricklind@us.ibm.com, linux-kernel@vger.kernel.org, lm@bitmover.com,
+       cs@tequila.co.jp
+Subject: Re: [PATCH] Documentation for iostats
+Message-Id: <20030519160133.58385b88.akpm@digeo.com>
+In-Reply-To: <20030519225542.GE6096@werewolf.able.es>
+References: <200305192118.h4JLIu710201@owlet.beaverton.ibm.com>
+	<20030519154858.3b3e2677.akpm@digeo.com>
+	<20030519225542.GE6096@werewolf.able.es>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.20-ac2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 May 2003 23:05:12.0029 (UTC) FILETIME=[19CDF0D0:01C31E5B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+> > Pet peeve number 4,592: There is no fifteenth month.
+> > 
+> 
+> How about using ISO dates to avoid this confussions ?
+> Last modified: 20030515
 
-A new version of the 8.x series driver for Linux 2.5.x kernels has
-been uploaded to SourceForge:
-
-	http://sourceforge.net/projects/linux-qla2xxx/
-
-In addition to the standard kernel-tree and external build tar-balls,
-a patch file is provided to update v8.00.00b1 sources to v8.00.00b2.
-
-Changes include:
-
- *	- Add support for new 'Hotplug initialization' model. 
- *	- Simplify host template by removing unused callbacks.
- *	- Use scsicam facilities to determine geometry.
- *	- Fix compilation issues for non-ISP23xx builds:
- *	  - Correct register references in qla_dbg.c.
- *	  - Correct Makefile build process.
- *	- Simplify dma_addr_t handling during command queuing given
- *	  new block-layer defined restrictions:
- *	  - Physical addresses not spanning 4GB boundaries.
- *	- Resync with 2.5.69-bk8.
- 
-Regards,
-Andrew Vasquez
-QLogic Corporation
+Still hurts my brain.  I like "15 May 2003".

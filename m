@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266720AbUHCUT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266774AbUHCU0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266720AbUHCUT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 16:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266770AbUHCUT7
+	id S266774AbUHCU0e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 16:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266827AbUHCU0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 16:19:59 -0400
-Received: from posti5.jyu.fi ([130.234.4.34]:34467 "EHLO posti5.jyu.fi")
-	by vger.kernel.org with ESMTP id S266720AbUHCUT5 (ORCPT
+	Tue, 3 Aug 2004 16:26:34 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:3053 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S266774AbUHCU0b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 16:19:57 -0400
-Date: Tue, 3 Aug 2004 23:19:33 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: Robert Olsson <Robert.Olsson@data.slu.se>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <20040803185026.A10580@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.44.0408032256110.2281-100000@silmu.st.jyu.fi>
+	Tue, 3 Aug 2004 16:26:31 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Greg Kroah-Hartman <greg@kroah.com>
+Subject: [PATCH] Document pci_disable_device()
+Date: Tue, 3 Aug 2004 14:26:29 -0600
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Checked: by miltrassassin
-	at posti5.jyu.fi; Tue, 03 Aug 2004 23:19:36 +0300
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408031426.29228.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Aug 2004, Francois Romieu wrote:
+Add documentation for pci_disable_device().  We don't actually
+deallocate IRQ resources in pci_disable_device() yet, but I suspect
+we'll need to do so soon.
 
-> > The first log file is with both patchs applied and the second one with one 
-> > little change to rx8139_rx() to show if it even goes to through 
-> > 
-> > "        while (netif_running(dev) && received < budget
-> >                && (RTL_R8 (ChipCmd) & RxBufEmpty) == 0) {"-section.
-> > 
-> > This was the change which I made.. so you can see in the second log file 
-> > that there won't be any of these messages after the driver has crashed. 
-> If you remove the "if (received > 0) {" test in r8139-10.patch and keep
-> both patches applied, I assume you are back to a crash within 15min (instead
-> of within 2min as suggested by the log), right ?
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-Hmm,
-
-I removed "if (received > 0) {" and tested it something like 3 hours and 
-wasn't able to crash the driver. I will test it for couple more hours 
-tomorrow and if I'm not still able the crash it, we may have find some 
-sort of a solution.
-
-I'm not sure yet if it's a good one because of that earlier crash I had.
-I guess I will also test if
-
-- read the interruption status word that the driver will ack before the
-  actual processing is done;
-
-has something to do it.
-
-We'll see.. I'll get back to you tomorrow with more information.
-
---
-Pasi Sjöholm
-
-
+===== Documentation/pci.txt 1.12 vs edited =====
+--- 1.12/Documentation/pci.txt	2004-06-11 15:09:58 -06:00
++++ edited/Documentation/pci.txt	2004-08-03 14:20:22 -06:00
+@@ -25,6 +25,7 @@
+ 	Discover resources (addresses and IRQ numbers) provided by the device
+ 	Allocate these resources
+ 	Communicate with the device
++	Disable the device
+ 
+ Most of these topics are covered by the following sections, for the rest
+ look at <linux/pci.h>, it's hopefully well commented.
+@@ -162,8 +163,8 @@
+ count on these devices by calling pci_dev_put().
+ 
+ 
+-3. Enabling devices
+-~~~~~~~~~~~~~~~~~~~
++3. Enabling and disabling devices
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Before you do anything with the device you've found, you need to enable
+ it by calling pci_enable_device() which enables I/O and memory regions of
+ the device, allocates an IRQ if necessary, assigns missing resources if
+@@ -179,6 +180,12 @@
+ and also ensures that the cache line size register is set correctly.
+ Make sure to check the return value of pci_set_mwi(), not all architectures
+ may support Memory-Write-Invalidate.
++
++   If your driver decides to stop using the device (e.g., there was an
++error while setting it up or the driver module is being unloaded), it
++should call pci_disable_device() to deallocate any IRQ resources, disable
++PCI bus-mastering, etc.  You should not do anything with the device after
++calling pci_disable_device().
+ 
+ 4. How to access PCI config space
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

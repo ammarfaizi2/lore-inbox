@@ -1,68 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVCHIzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVCHJBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVCHIzX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 03:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVCHIzX
+	id S261896AbVCHJBA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 04:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVCHJBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 03:55:23 -0500
-Received: from penguin.cohaesio.net ([212.97.129.34]:48308 "EHLO
-	mail.cohaesio.net") by vger.kernel.org with ESMTP id S261891AbVCHIzQ
+	Tue, 8 Mar 2005 04:01:00 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:54422 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261896AbVCHJAl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 03:55:16 -0500
-From: Anders Saaby <as@cohaesio.com>
-Organization: Cohaesio A/S
-To: Bernardo Innocenti <bernie@develer.com>
-Subject: Re: NFS client bug in 2.6.8-2.6.11
-Date: Tue, 8 Mar 2005 09:56:40 +0100
-User-Agent: KMail/1.7.2
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Neil Conway <nconway_kernel@yahoo.co.uk>, nfs@lists.sourceforge.net
-References: <422D2FDE.2090104@develer.com> <422D485F.5060709@develer.com> <422D4E5A.1050409@develer.com>
-In-Reply-To: <422D4E5A.1050409@develer.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 04:00:41 -0500
+Date: Tue, 8 Mar 2005 14:39:46 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+Message-ID: <20050308090946.GA4100@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1110189607.11938.14.camel@frecb000686> <20050307223917.1e800784.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200503080956.41086.as@cohaesio.com>
-X-OriginalArrivalTime: 08 Mar 2005 08:55:15.0605 (UTC) FILETIME=[8BCA6C50:01C523BC]
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050307223917.1e800784.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 March 2005 08:03, Bernardo Innocenti wrote:
-> Bernardo Innocenti wrote:
-> > Trond Myklebust wrote:
+On Mon, Mar 07, 2005 at 10:39:17PM -0800, Andrew Morton wrote:
+> 6
+> Lines: 76
+> 
+> Sébastien Dugué <sebastien.dugue@bull.net> wrote:
 > >
-> > I also can't reproduce the problem on an older
-> > client running 2.4.21.
->
-> Well, actually I tried harder with the 2.4.21
-> client and I obtained a similar effect:
->
-> So, instead of ENOENT I get ESTALE on 2.4.21.
->
-> May well be a server bug then.  The server is running
-> 2.6.10-1.766_FC3.  Do you think I should try installing
-> a vanilla kernel on the server?
+> > When reading a file in async mode (using kernel AIO), and the file
+> >  size is lower than the requested size (short read),  the direct IO
+> >  layer reports an incorrect number of bytes read (transferred).
+> > 
+> >   That case is handled for the sync path in 'direct_io_worker' 
+> >  (fs/direct-io.c) where a check is made against the file size.
+> > 
+> >   This patch does the same thing for the async path.
+> 
+> It looks sane to me.  It needs a couple of fixes, below.  One of them is
+> horrid and isn't really a fix at all, but it improves things.
+> 
+> Would Suparna and Badari have time to check the logic of these two patches
+> please?
+> 
 
-We have seen lots of ESTALE's/ENOENT's when the server is running 2.6.10 
-(vanilla). Don't know if this was supposed to be fixed in the 2.6.10-FC 
-kernels, but vanilla 2.6.11 doesen't seem to have this bug at all.
+Bugs in this area seem never-ending don't they - plug one, open up
+another - hard to be confident/verify :( - someday we'll have to
+rewrite a part of this code.
 
-You mention a lot of kernel versions including 2.6.11, and I can't really 
-figure out whether you are talking abount the clients or the server. - 
-Anyways if your server has only run with 2.6.10 - try 2.6.11.
+Hmm, shouldn't dio->result ideally have been adjusted to be within
+i_size at the time of io submission, so we don't have to deal with
+this during completion ? We are creating bios with the right size
+after all. 
 
-- Apologies if I missed something obvious.
+We have this: 
+		if (!buffer_mapped(map_bh)) {
+				....
+				if (dio->block_in_file >=
+                                        i_size_read(dio->inode)>>blkbits) {
+                                        /* We hit eof */
+                                        page_cache_release(page);
+                                        goto out;
+                                }
 
+and
+		dio->result += iov[seg].iov_len -
+                        ((dio->final_block_in_request - dio->block_in_file) <<
+                                        blkbits);
+
+
+can you spot what is going wrong here that we have to try and
+workaround this later ?
+
+Regards
+Suparna
+
+> 
+> 
+> 
+> - i_size is 64 bit, ssize_t is 32-bit
+> 
+> - whitespace tweaks.
+> 
+> - i_size_read() in interrupt context is a no-no.
+> 
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  25-akpm/fs/direct-io.c |   14 +++++++++++---
+>  1 files changed, 11 insertions(+), 3 deletions(-)
+> 
+> diff -puN fs/direct-io.c~direct-io-async-short-read-fix-fix fs/direct-io.c
+> --- 25/fs/direct-io.c~direct-io-async-short-read-fix-fix	2005-03-07 22:28:52.000000000 -0800
+> +++ 25-akpm/fs/direct-io.c	2005-03-07 22:37:18.000000000 -0800
+> @@ -231,7 +231,7 @@ static void finished_one_bio(struct dio 
+>  	if (dio->bio_count == 1) {
+>  		if (dio->is_async) {
+>  			ssize_t transferred;
+> -			ssize_t i_size;
+> +			loff_t i_size;
+>  			loff_t offset;
+>  
+>  			/*
+> @@ -241,11 +241,19 @@ static void finished_one_bio(struct dio 
+>  			spin_unlock_irqrestore(&dio->bio_lock, flags);
+>  
+>  			/* Check for short read case */
+> +
+> +			/*
+> +			 * We should use i_size_read() here.  But we're called
+> +			 * in interrupt context.  If this CPU happened to be
+> +			 * in the middle of i_size_write() when the interrupt
+> +			 * occurred, i_size_read() would lock up.
+> +			 * So we just risk getting a wrong result instead :(
+> +			 */
+> +			i_size = dio->inode->i_size;
+>  			transferred = dio->result;
+> -			i_size = i_size_read (dio->inode);
+>  			offset = dio->iocb->ki_pos;
+>  
+> -			if ((dio->rw == READ) && ((offset + transferred) > i_size))
+> +			if ((dio->rw == READ) && (offset+transferred > i_size))
+>  				transferred = i_size - offset;
+>  
+>  			dio_complete(dio, offset, transferred);
+> _
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@k
 -- 
-Med venlig hilsen - Best regards - Meilleures salutations
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
-Anders Saaby
-Systems Engineer
-------------------------------------------------
-Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
-Phone: +45 45 880 888 - Fax: +45 45 880 777
-Mail: as@cohaesio.com - http://www.cohaesio.com
-------------------------------------------------

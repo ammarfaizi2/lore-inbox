@@ -1,40 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSHBSGB>; Fri, 2 Aug 2002 14:06:01 -0400
+	id <S316339AbSHBSHH>; Fri, 2 Aug 2002 14:07:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316322AbSHBSGB>; Fri, 2 Aug 2002 14:06:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10764 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316088AbSHBSGA>; Fri, 2 Aug 2002 14:06:00 -0400
-Date: Fri, 2 Aug 2002 11:10:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, <alan@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: manipulating sigmask from filesystems and drivers
-In-Reply-To: <shsr8hhqh3d.fsf@charged.uio.no>
-Message-ID: <Pine.LNX.4.44.0208021109210.1108-100000@home.transmeta.com>
+	id <S316342AbSHBSHH>; Fri, 2 Aug 2002 14:07:07 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:62724 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316339AbSHBSHE>; Fri, 2 Aug 2002 14:07:04 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15690.51993.704549.209766@laputa.namesys.com>
+Date: Fri, 2 Aug 2002 22:10:33 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: trond.myklebust@fys.uio.no
+Cc: Hans Reiser <reiser@namesys.com>, Steve Lord <lord@sgi.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Alexander Viro <viro@math.psu.edu>,
+       "Peter J. Braam" <braam@clusterfs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BIG files & file systems
+In-Reply-To: <15690.50598.11204.868852@charged.uio.no>
+References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
+	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
+	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>
+	<1028246981.11223.56.camel@snafu>
+	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>
+	<1028297194.30192.25.camel@jen.americas.sgi.com>
+	<3D4AA0E6.9000904@namesys.com>
+	<shslm7pclrx.fsf@charged.uio.no>
+	<3D4ABAE7.6000709@namesys.com>
+	<15690.49267.930478.333263@laputa.namesys.com>
+	<15690.50598.11204.868852@charged.uio.no>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Tom-Swifty: "We're all out of flowers," Tom said lackadaisically.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust writes:
+ > >>>>> " " == Nikita Danilov <Nikita@Namesys.COM> writes:
+ > 
+ >      > But there still is a problem with applications (if any) calling
+ >      > seekdir/telldir directly...
+ > 
+ > Agreed. Note however that the semantics for seekdir/telldir as
+ > specified by SUSv2 are much weaker than those in our current
+ > getdents()+lseek().
+ > 
+ > >From the Opengroup documentation for seekdir, it states that:
+ > 
+ >   On systems that conform to the Single UNIX Specification, Version 2,
+ >   a subsequent call to readdir() may not be at the desired position if
+ >   the value of loc was not obtained from an earlier call to telldir(),
+ >   or if a call to rewinddir() occurred between the call to telldir()
+ >   and the call to seekdir().
+ > 
+ > IOW assigning a unique offset to each and every entry in the directory
+ > is overkill (unless the user is calling telldir() for all those
+ > entries).
 
+Are you implying some kind of ->telldir() file operation that notifies
+file-system that user has intention to later restart readdir from the
+"current" position and changing glibc to call sys_telldir/sys_seekdir in
+stead of lseek? This will allow file-systems like reiser4 that cannot
+restart readdir from 32bitsful of data to, at least, allocate something
+in kernel on call to ->telldir() and free in ->release().
 
-On 2 Aug 2002, Trond Myklebust wrote:
->
-> Would you therefore be planning on making down() interruptible by
-> SIGKILL?
+ > 
+ > Cheers,
+ >   Trond
 
-Can't do - existing users know that down() cannot fail.
-
-But we already have a "down_interruptible()", so if we introduce the
-notion of "non-interruptible but killable", we can also introduce a
-"down_killable()".
-
-		Linus
-
+Nikita.

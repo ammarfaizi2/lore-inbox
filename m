@@ -1,77 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263593AbTKFNtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 08:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTKFNtZ
+	id S263612AbTKFN6s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 08:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbTKFN6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 08:49:25 -0500
-Received: from ns.suse.de ([195.135.220.2]:18121 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263593AbTKFNtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 08:49:03 -0500
-Date: Thu, 6 Nov 2003 14:47:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Message-ID: <20031106134713.GA798@suse.de>
-References: <3FAA41C3.9060601@gmx.de> <3FAA45A9.20707@cyberone.com.au> <20031106130030.GC1145@suse.de> <3FAA4737.3060906@cyberone.com.au> <20031106130553.GD1145@suse.de> <3FAA4880.8090600@cyberone.com.au> <20031106131141.GE1145@suse.de> <3FAA4D48.6040709@gmx.de> <20031106133136.GA477@suse.de> <3FAA5043.8060907@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FAA5043.8060907@gmx.de>
+	Thu, 6 Nov 2003 08:58:48 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:50048 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263614AbTKFN6B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 08:58:01 -0500
+Date: Thu, 6 Nov 2003 08:59:22 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK2CVS problem
+In-Reply-To: <3FAA4C26.9080900@coyotegulch.com>
+Message-ID: <Pine.LNX.4.53.0311060838180.3117@chaos>
+References: <20031105204522.GA11431@work.bitmover.com> <20031105225134.GA14149@win.tue.nl>
+ <20031106070721.GA18028@mcgroarty.net> <200311061141.00595.andrew@walrond.org>
+ <3FAA4C26.9080900@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 06 2003, Prakash K. Cheemplavam wrote:
-> 
-> >>>Heh indeed, maybe because the archs I use are still at 100. Looks
-> >>>suspiciously like it's loosing timer interrupts, which would indeed
-> >>>point to PIO.
-> >>>
-> >>
-> >>bash-2.05b# hdparm -I /dev/hdc
-> >
-> >
-> >-i please
-> 
-> bash-2.05b# hdparm -i /dev/hdc
-> 
-> /dev/hdc:
-> 
->  Model=LITE-ON LTR-16102B, FwRev=OS0K, SerialNo=
->  Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
->  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
->  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
->  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
->  IORDY=yes, tPIO={min:227,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes:  pio0 pio1 pio2 pio3 pio4
->  DMA modes:  mdma0 mdma1 *mdma2
->  AdvancedPM=no
-> 
->  * signifies the current active mode
-> 
-> The same: dma is active.
+On Thu, 6 Nov 2003, Scott Robert Ladd wrote:
 
-Indeed, so you are ysing multiword mode 2. Can you try and do a dd from
-the drive, while doing a vmstat 1? Also, does that show the jerky
-behaviour?
+> Andrew Walrond wrote:
+> > Somebody getting access to and inserting exploits directly into the linux
+> > source is not something we should take lightly. Whilst we understand the
+> > limits of the problem, the fact that it happened at all could get /.'d out of
+> > all proportion and be used to seriously undermine linux's reputation
+>
+> Well, it's hit /. and OSNews already this morning.
+>
+> Mainstream media is now aware of Linux; for better or worse, someday, an
+> issue like this is going to leak beyond Slashdot onto the pages of the
+> Wall Street Journal and ZDNet. Maybe not this time -- but eventually.
+>
+> Open development is the ultimate in honesty -- and honesty leaves us
+> vulnerable to being bitten by the ignorati and anti-freedom forces.
+>
+> --
+> Scott Robert Ladd
+> Coyote Gulch Productions (http://www.coyotegulch.com)
+> Software Invention for High-Performance Computing
 
-> >>Is it normal that SCSI subsystem gets init'ed, even though nothing of it 
-> >>is activated in the kernel?
-> >
-> >
-> >No, you still have it left in your kernel options.
-> 
-> Cannot be or there is a bug in the makefile. First I tried make 
-> oldconfig, then I noticed this thing coming up, so I did make clen and 
-> still  it caame, then mrproper and everything in config by hand, and 
-> still coming up. But I booted the "old" kernel up, where I didn't have 
-> thouse mouse stutterings and it alsa shows that scsi subsystem gets 
-> activated. What do I do wrong then? Should I post the .config?
+This may not really be the problem. It is well known that
+anybody who has the capabilities of inserting a module into
+the most secure kernel in the universe, could have designed
+the module to give the current caller root privs when some
+module function is executed.
 
-I can't believe there's such a bug, so yeah put your .config somewhere.
+$ whoami
+cracker
+$ od /dev/TROJAN
+$ whoami
+root
+$
 
--- 
-Jens Axboe
+The kernel sources can be inspected using automation, looking
+for accesses to 'current'. The expected patterns can be ignored.
+Accesses to current->XXX,current->YYY,current->YYY, etc., could be
+reviewed. However, this doesn't stop the clever programmer who
+creates a pointer that, using a difficult-to-follow path, has
+access to these structure members.
+
+So, basically, any open-source kernel is vulnerable. Also any
+closed-source kernel is also vulnerable. We already know that
+M$ had hundreds of bugs, perhaps more, that allowed a hacker
+complete unrestricted access to a machine on the network. We
+also know that there are deliberate back-doors inserted to
+allow governments to inspect the contents of these computers
+(search on magic lantern and carnivor).
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

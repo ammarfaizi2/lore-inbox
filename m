@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbUB0HhW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 02:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbUB0HhV
+	id S261730AbUB0IA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 03:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUB0IA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 02:37:21 -0500
-Received: from inventor.gentoo.org ([216.223.235.2]:640 "EHLO meep.gentoo.org")
-	by vger.kernel.org with ESMTP id S261737AbUB0HhU (ORCPT
+	Fri, 27 Feb 2004 03:00:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:7569 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261730AbUB0IAZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 02:37:20 -0500
-Subject: ieee1394 sbp2 broken since 2.6.0-test11
-From: Daniel Robbins <drobbins@gentoo.org>
-To: bcollins@debian.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Gentoo Technologies, Inc.
-Message-Id: <1077867528.12590.79.camel@wave.gentoo.org>
+	Fri, 27 Feb 2004 03:00:25 -0500
+Date: Fri, 27 Feb 2004 00:00:22 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Why no interrupt priorities?
+Message-Id: <20040227000022.0fe37e54.zaitcev@redhat.com>
+In-Reply-To: <mailman.1077822002.21081.linux-kernel2news@redhat.com>
+References: <mailman.1077822002.21081.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 27 Feb 2004 00:38:48 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben,
+On Thu, 26 Feb 2004 11:05:07 -0800
+Tim Bird <tim.bird@am.sony.com> wrote:
 
-I've been having to use the ieee1394 driver from 2.6.0-test10 in order
-to burn CDs reliably. With 2.6.0-test11 and beyond, I experience
-intermittent login failures and then reconnect failures to my firewire
-CD burners. With 2.6.3, even when the login or reconnect goes OK, the
-system can hard-lock while burning. The CD burners are using Oxford 911
-chips, firmware 3.6 and 3.8. I've tested using a variety of firewire PCI
-cards and mainboards, both SMP (uniprocessor hyper-threading) and UP,
-and a couple of different CD drives.
+> What's the rationale for not supporting interrupt priorities
+> in the kernel?
 
-On the linux1394.org site, the Oxford 911 chip has a "works great"
-rating, but it does not indicate what kernel(s) provide this "great"
-functionality -- maybe this information could be added to the site?
+Interrupts interrupt other interrupts today, so this aspect of nested
+interrupts is functional. In fact, it's a major headache, because
+with explosion of the number of interrupt sources in modern x86 servers
+were are pushed against the stack size.
 
-What concerns me is that the ieee1394 drivers seem to be becoming less
-and less reliable and compatible with every 2.6 kernel release. The
-changes being made to the drivers may be fixing issues for some users,
-but they are also breaking things for other (previously happy) firewire
-users. 
+The only thing remaining is something like UNIX spl(). You can overload
+enable_irq, disable_irq with enabling IRQs numbered lower than the IRQ
+being disabled, thus turning them into spl(). This is correct, but stupid.
 
-It appears that more QA is needed to make sure that one person's fix
-doesn't become someone else's "b0rk," as seems to be happening now.
-Without organized testing on a wider range of hardware, new driver
-releases will probably just be differently compatible rather than more
-compatible.
+Nobody writes drivers and arches like so, because if your _rely_ on such
+implementation of enable_irq and disable_irq, the driver or framwork
+becomes silently API dependant, and breaks silently.
 
-I do not have time to assist with ieee1394 development, but will gladly
-send you a variety of firewire parts so that you are able to test the
-ieee1394 drivers on a wider range of hardware, with the goal of having
-driver compatibility issues identified and fixed before they can impact
-Linux users. I will also gladly assist with QA as needed. But ideally,
-it's probably best if a ieee1394 developer is doing QA, since then when
-problems are found they can be immediately debugged and fixed. LKML "my
-firewire is busted" threads are a time-consuming and semi-unproductive
-ordeal for everyone involved, I think.
+If you want PILs like on sparc, well, your architecture can provide them.
+They make no sense on x86, of course, so they are called some arch-specific
+name, like __spl().
 
-I am very interested in Linux having excellent firewire support. I think
-firewire is great. If you or any other capable developer wants to take
-the time to test on a wider variety of hardware to help ensure that the
-mainline ieee1394 driver is as solid and compatible as humanly possible,
-I'll send the hardware.
+Why do you want "interrupt priorities", anyway? Is there a consumer
+electronics application which requires that? No, seriously, what is it?
 
-Please (someone?) take me up on this offer.
-
-Sincerly,
-
-Daniel
-
+-- Pete

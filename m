@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264430AbTK0D7M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 22:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264431AbTK0D7M
+	id S264431AbTK0EJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 23:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTK0EJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 22:59:12 -0500
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:3492 "EHLO
-	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264430AbTK0D7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 22:59:10 -0500
-Subject: 2.6.0-test10 hanging on drive detection
-From: Harold Martin <cocoadev@earthlink.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1069905548.3479.3.camel@localhost>
+	Wed, 26 Nov 2003 23:09:59 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:31001 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S264431AbTK0EJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 23:09:58 -0500
+Message-Id: <5.1.0.14.2.20031127150548.037ea008@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 27 Nov 2003 15:09:51 +1100
+To: Neil Brown <neilb@cse.unsw.edu.au>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: md/raid devices don't show up in /proc/partitions in 2.6
+  :-(
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <16325.16910.697589.124844@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 26 Nov 2003 20:59:08 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I boot 2.6.0-test10, it hangs on this message:
-hdd: ATAPI 40X DVD-ROM drive 512kB Cache, UDMA(33)
+At 11:15 AM 27/11/2003, Neil Brown wrote:
+>I just noticed that md devices do not show up in /proc/partitions in
+>2.6.
+[..]
 
->From my .config:
-grep -i ata .config
-CONFIG_X86_MCE_NONFATAL=y
-# ATA/ATAPI/MFM/RLL support
-# CONFIG_SCSI_SATA is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_ATALK is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_ATARI_PARTITION is not set
+this also caused no end of badness trying to migrate from LVM2 (Linux 2.4) 
+to DM+LVM2 (Linux 2.6) where the major/minor numbers changed.
 
-grep -i IDE .config
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-# Please see Documentation/ide.txt for help/info on IDE drives
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-# CONFIG_IDE_TASKFILE_IO is not set
-# IDE chipset support/bugfixes
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_IDEPCI_SHARE_IRQ is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-CONFIG_IEEE1394_VIDEO1394=m
-# CONFIG_VIDEO_DEV is not set
-# Digital Video Broadcasting Devices
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_SND_TRIDENT is not set
-# Video4Linux support is needed for USB Multimedia device support
+while the real fix is to educate lvmcreate_initrd to be more intelligent (i 
+had to create a new one which includes 
+mknod/devmap_mknod.sh/mkdir/sed/rm/cat/lvdisplay binaries), it is certainly 
+a big trap for the unwary that happen to use LVM1/LVM2 as a root volume.
 
-If there is any other information I can supply, please tell me.
 
-Thanks,
-Harold
+cheers,
+
+lincoln.
 

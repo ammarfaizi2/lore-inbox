@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268620AbTGNJdq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 05:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268640AbTGNJdq
+	id S268640AbTGNJlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 05:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268676AbTGNJlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 05:33:46 -0400
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:37518 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S268620AbTGNJdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 05:33:45 -0400
-Date: Mon, 14 Jul 2003 10:48:32 +0100 (BST)
-From: Ben <linux-kernel-2311@slimyhorror.com>
-X-X-Sender: ben@baphomet.bogo.bogus
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 kernel regression in alarm() syscall behaviour?
-Message-ID: <Pine.LNX.4.56.0307141040020.8394@baphomet.bogo.bogus>
+	Mon, 14 Jul 2003 05:41:09 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:30460 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S268640AbTGNJlH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 05:41:07 -0400
+Date: Mon, 14 Jul 2003 11:55:40 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Morris <jmorris@intercode.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: kmap_types.h (was: Re: Linux 2.4.22-pre3)
+In-Reply-To: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
+Message-ID: <Pine.GSO.4.21.0307141153340.20906-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I'm hitting a similar problem to the one Paul describes. We have
-code in our test framework that does:
+On Sat, 5 Jul 2003, Marcelo Tosatti wrote:
+>   o [CRYPTO-2.4]: Add dummy kmap_types.h header for sparc64
 
-alarm(1)
-do some test that should complete almost immediately (i.e. not block)
-a = alarm(0)
-check that a == 1
+What are the actual purpose and semantics of the KM_* types? I need to add them
+for m68k to make crypto compile.
 
-On Linux 2.0, 2.2, 2.4, and a whole range of Unix-alikes, a = 1. On Linux
-2.5.75-mm1, a=2. This does suggest that the behaviour of 2.5 is wrong...
+Gr{oetje,eeting}s,
 
-Minimal test program:
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-#include <unistd.h>
-#include <stdio.h>
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-int main( int argc, char **argv )
-{
-   int left;
-   alarm( 1 );
-   left = alarm( 0 );
-   printf( "%d\n", left );
-   return 0;
-}
-
-
-Regards,
-Ben

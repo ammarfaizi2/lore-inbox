@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVCPVQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVCPVRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVCPVQE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 16:16:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVCPVQD
+	id S262802AbVCPVRj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 16:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVCPVQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 16:16:03 -0500
-Received: from fire.osdl.org ([65.172.181.4]:3504 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262803AbVCPVPx (ORCPT
+	Wed, 16 Mar 2005 16:16:11 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:55654 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262802AbVCPVQC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 16:15:53 -0500
-Date: Wed, 16 Mar 2005 13:15:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: rostedt@goodmis.org
-Cc: mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
-Message-Id: <20050316131521.48b1354e.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
-	<Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
-	<20050315120053.GA4686@elte.hu>
-	<Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
-	<20050315133540.GB4686@elte.hu>
-	<Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
-	<20050316085029.GA11414@elte.hu>
-	<20050316011510.2a3bdfdb.akpm@osdl.org>
-	<20050316095155.GA15080@elte.hu>
-	<20050316020408.434cc620.akpm@osdl.org>
-	<20050316101906.GA17328@elte.hu>
-	<20050316024022.6d5c4706.akpm@osdl.org>
-	<Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
-	<20050316031909.08e6cab7.akpm@osdl.org>
-	<Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
-	<Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
-	<Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 16 Mar 2005 16:16:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=T8c/GlipFTw90Sx+8Nj172mq3VyilQPbzfqvGWF3ao1mTtCQT20YDOzgMBuPVy8PIsewnaJAOFUKmRy6uTARUonsWGMznNT7i3+Ob9K8cu6FCVcD3/oJsWJnS7n88YBEKRPpWGpaNBiKIfXr9QbbyBY+HmFRkTE9Vts5hyTtLKU=
+Message-ID: <564d96fb05031613156ed210c2@mail.gmail.com>
+Date: Wed, 16 Mar 2005 18:15:58 -0300
+From: =?ISO-8859-1?Q?Rafael_Esp=EDndola?= <rafael.espindola@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Rafael_Esp=EDndola?= <rafael.espindola@gmail.com>
+To: Colin Leroy <colin@colino.net>
+Subject: Re: `dd` problem from cdrom
+Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
+In-Reply-To: <20050316153114.374e095b@jack.colino.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <20050316153114.374e095b@jack.colino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> /*
->   * Try to acquire jbd_lock_bh_state() against the buffer, when j_list_lock
->  is
->   * held.  For ranking reasons we must trylock.  If we lose, schedule away
->  and
->   * return 0.  j_list_lock is dropped in this case.
->   */
->  static int inverted_lock(journal_t *journal, struct buffer_head *bh)
->  {
->  	if (!jbd_trylock_bh_state(bh)) {
->  		spin_unlock(&journal->j_list_lock);
->  		schedule();
->  		return 0;
->  	}
->  	return 1;
->  }
+On Wed, 16 Mar 2005 15:31:14 +0100, Colin Leroy <colin@colino.net> wrote:
+> Hi,
 > 
+> Using 2.6.10 and 2.6.11, trying to use dd from the ide cdrom in my
+> Ibook G4 fails like this:
 
-That's very lame code, that.  The old "I don't know what the heck to do now
-so I'll schedule" trick.  Sorry.
-
->  I guess one way to solve this is to add a wait queue here (before
->  schedule()), and have the one holding the lock to wake up all on the
->  waitqueue when they release it.
-
-yup.  A patch against mainline would be appropriate, please.
+> /dev/hdc:
+>  HDIO_GET_MULTCOUNT failed: Invalid argument
+>  IO_support   =  0 (default 16-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 256 (on)
+>  HDIO_GETGEO failed: Invalid argument
+I have a cdrom drive that does not work with DMA. Maybe yours has the
+same problem.
+  
+> I didn't try older kernels yet; Any idea about this? Is it a kernel bug
+> or a configuration issue? 
+> -- 
+> Colin
+Rafael

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130406AbRCPH6G>; Fri, 16 Mar 2001 02:58:06 -0500
+	id <S130433AbRCPIJ5>; Fri, 16 Mar 2001 03:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130432AbRCPH55>; Fri, 16 Mar 2001 02:57:57 -0500
-Received: from THINK.THUNK.ORG ([216.175.175.162]:27399 "EHLO think")
-	by vger.kernel.org with ESMTP id <S130406AbRCPH5s>;
-	Fri, 16 Mar 2001 02:57:48 -0500
-Date: Fri, 16 Mar 2001 02:56:43 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Patch(2.4.2): serial.c timedia oneliner (Resend)
-Message-ID: <20010316025642.E21403@think>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Gunther Mayer <Gunther.Mayer@t-online.de>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3AB1D312.E6965E0A@t-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3AB1D312.E6965E0A@t-online.de>; from Gunther.Mayer@t-online.de on Fri, Mar 16, 2001 at 09:47:14AM +0100
+	id <S130438AbRCPIJr>; Fri, 16 Mar 2001 03:09:47 -0500
+Received: from tux.rsn.hk-r.se ([194.47.143.135]:25231 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S130433AbRCPIJi> convert rfc822-to-8bit;
+	Fri, 16 Mar 2001 03:09:38 -0500
+Date: Fri, 16 Mar 2001 09:08:06 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Mårten Wikström <Marten.Wikstrom@framfab.se>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com
+Subject: RE: How to optimize routing performance
+In-Reply-To: <E6D22E487D45D411931B00508BCF93E75C0329@storeg001.framfab.se>
+Message-ID: <Pine.LNX.4.21.0103160859580.32076-100000@tux.rsn.bth.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 16, 2001 at 09:47:14AM +0100, Gunther Mayer wrote:
-> I'm sending this since 3 months to the maintainer (tytso@mit.edu)
-> and even submitted to serial.sourceforge.net but never got a reaction.
-> Anybody knows if Ted is still active?
+On Fri, 16 Mar 2001, Mårten Wikström wrote:
 
-Sorry, life's been a bit busy lately, what with the kernel workshop
-organization and other things chewing up huge amounts of my time.....
-I'll try to get an updated serial driver with the various patches that
-I've received integrated together soon.
+[much text] 
+> Thanks! I'll try that out. How can I tell if the driver supports
+> CONFIG_NET_HW_FLOWCONTROL? I'm not sure, but I think the cards are
+> tulip-based, can I then use Robert & Jamal's optimised drivers?
+> It'll probably take some time before I can do further testing. (My employer
+> thinks I've spent too much time on it already...).
 
-						- Ted
+I don't really know how to tell except
+'grep CONFIG_NET_HW_FLOWCONTROL driverfiles'
+
+You said that the cards where 100Mbit DEC cards, I assumed that by that
+you meant that the cards use DECchip 21143 or similar chips.
+If that's true you can use Robert & Jamal's optimised drivers.
+
+Sorry to hear that your employer doesn't see the importance in such a test
+:)
+
+> FYI, Linux had _much_ better delay variation characteristics than FreeBSD.
+> Typically no packet was delayed more than 100usec, whereas FreeBSD had some
+> packets delayed about 2-3 msec.
+
+This sounds promising. So Linux had nice variations until it broke down
+completely and stopped routing because of all the interrupts. I can almost
+guarantee that with the optimised driver and CONFIG_NET_HW_FLOWCONTROL
+you'll see a _big_ improvement in routingperformance.
+
+/Martin
+

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbUCWXT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 18:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUCWXT5
+	id S262918AbUCWXWt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 18:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbUCWXWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 18:19:57 -0500
-Received: from gate.crashing.org ([63.228.1.57]:6784 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262906AbUCWXSQ (ORCPT
+	Tue, 23 Mar 2004 18:22:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47783 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262918AbUCWXWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 18:18:16 -0500
-Subject: [PATCH] More pmac-zilog sleep fix
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1080082996.23208.144.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 24 Mar 2004 10:03:17 +1100
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Mar 2004 18:22:44 -0500
+Date: Tue, 23 Mar 2004 18:22:25 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Kurt Garloff <garloff@suse.de>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Non-Exec stack patches
+In-Reply-To: <20040323231256.GP4677@tpkurt.garloff.de>
+Message-ID: <Pine.LNX.4.58.0403231820420.320@devserv.devel.redhat.com>
+References: <20040323231256.GP4677@tpkurt.garloff.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the long story of "BenH can't get a simple fix right the first time",
-please add this one to pmac_zilog, and now people should enjoy really
-working sleep again on pmac laptops ...
 
-If the serial port was closed, we could use an uninitialized "pwr_delay"
-and pass that to schedule_timeout().
+On Wed, 24 Mar 2004, Kurt Garloff wrote:
 
+> find attached a patch to parse the elf binaries for a PT_GNU_STACK
+> section to set the stack non-executable if possible.
+> Most parts have been shamelessly stolen from Ingo Molnar's more
+> ambitious stackshield
+> http://people.redhat.com/mingo/exec-shield/exec-shield-2.6.4-C9
+> 
+> The toolchain has meainwhile support for marking the binaries with a
+> PT_GNU_STACK section with ot without x bit as needed.
+> 
+> If no such section is found, we leave the stack to whatever the arch
+> defaults to. If there is one, we explicitly disabled the VM_EXEC bit if
+> no x bit is found, otherwise explicitly enable.
+> 
+> I believe this part should be merged into official mainstream kernels.
+> Ingo, what do you think?
 
-===== drivers/serial/pmac_zilog.c 1.7 vs edited =====
---- 1.7/drivers/serial/pmac_zilog.c	Tue Mar 23 16:56:31 2004
-+++ edited/drivers/serial/pmac_zilog.c	Wed Mar 24 10:01:17 2004
-@@ -1627,7 +1627,7 @@
- 	struct uart_pmac_port *uap = dev_get_drvdata(&mdev->ofdev.dev);
- 	struct uart_state *state;
- 	unsigned long flags;
--	int pwr_delay;
-+	int pwr_delay = 0;
- 
- 	if (uap == NULL)
- 		return 0;
+agreed, and the patch looks good to me.
 
-
+	Ingo

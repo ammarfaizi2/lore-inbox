@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268602AbUH3Rik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268699AbUH3Rgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268602AbUH3Rik (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268695AbUH3RhQ
+	id S268699AbUH3Rgn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUH3RgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:37:16 -0400
-Received: from mail.gmx.de ([213.165.64.20]:52717 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268650AbUH3RgK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:36:10 -0400
-X-Authenticated: #18607860
-Message-ID: <4133659B.1000704@gmx.de>
-Date: Mon, 30 Aug 2004 19:36:27 +0200
-From: k7avenger <k7avenger@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
+	Mon, 30 Aug 2004 13:36:01 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:12551 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S268582AbUH3Rb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:31:57 -0400
+Message-ID: <41336CB1.6030105@techsource.com>
+Date: Mon, 30 Aug 2004 14:06:41 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: crash on 2.6.8.1 (reproducible)
+To: Timothy Miller <miller@techsource.com>
+CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>, eric@cisu.net,
+       kernel@kolivas.org, barryn@pobox.com, swsnyder@insightbb.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
+References: <200408021602.34320.swsnyder@insightbb.com>	<410FA145.70701@kolivas.org>	<20040804060625.GE10340@suse.de>	<200408040614.30820.eric@cisu.net>	<20040804130707.GN10340@suse.de> <20040804120633.4dca57b3.akpm@osdl.org> <411ABF85.2080200@techsource.com>
+In-Reply-To: <411ABF85.2080200@techsource.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a kernel crash on the (afaik) latest kernel version 2.6.8.1, 
-which is reproducible.
-The kernel doesn't log anything about the crash.
-It occurs when you are unmounting a ext2/3 filesystem which is prepared 
-in a special way:
-load it into debugfs read-write and create an inode with the number 2 ( 
-mi <2> , I used to give creation time = 0 and link count = 1), then link 
-that inode to . ( link <2> . ). You can mount that image now, should 
-only see a directory named <2> and your system should crash immediately 
-when you are unmounting that image.
-I created such an image, which should work:
-www.gaming-elite.de/upload/unsortiert/proof.tar.gz   ( 2.6 KB)
 
-My ver_linux output:
-______________________________________________________________
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
 
-Linux k7 2.6.8.1 #1 Sun Aug 22 23:27:20 CEST 2004 i686 Pentium III 
-(Coppermine) GenuineIntel GNU/Linux
+Timothy Miller wrote:
+> 
+> 
+> Andrew Morton wrote:
+> 
+>>
+>>
+>> The 896M/128M split has a bit of a problem now each zone has its own LRU:
+>> the size of the highmem zone is less than the amount of memory which is
+>> described by the default /proc/sys/vm/dirty_ratio.  So it is easy to
+>> completely fill highmem with dirty pages.  This causes a fairly large
+>> amount of writeback via vmscan.c's writepage().  This causes poor I/O
+>> submission patterns.  This causes a simple large, linear `dd' write to 
+>> run
+>> at only 50-70% of disk bandwidth.  (This was 6-12 months ago - it 
+>> might be
+>> a bit better now)
+>>
+> 
+> 
+> Hey, that rings a bell.  I have a 3ware 7000-2 controller with two 
+> WD1200JB drives in RAID1.  I find that if I dd from the disk, I get 
+> exactly the read throughput that is the max for the drives (47MB/sec). 
+> However, if I do a WRITE test, the performance is miserable.
+> 
+> I have been going back and forth with 3ware for months, and what's odd 
+> is that my drives with my controller in any machine other than the 
+> primary box get great write throughput, BUT on my main box with 1G of 
+> RAM, I get MISERABLE write throughput.  When I should be getting 
+> 36MB/sec or faster, I get 8 to 12 MB/sec.
+> 
+> Now, I have tried limiting the memory with a mem= boot option, but that 
+> doesn't change the performance any.
+>
 
-Gnu C                  3.3.3
-Gnu make               3.80
-binutils               2.14.90.0.8
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.0
-e2fsprogs              1.35
-xfsprogs               2.6.3
-PPP                    2.4.1
-Linux C Library        2.3.3
-Dynamic linker (ldd)   2.3.3
-Procps                 3.1.15
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-Modules Loaded         loop nvidia ipv6 ppp_async crc_ccitt ppp_generic 
-slhc sg floppy rtc usbcore vfat fat ide_cd sr_mod scsi_mod cdrom unix
-______________________________________________________________
+Scratch all this.  Even if I physically remove half the memory, I STILL 
+get the performance problem.
 
-If you have any more questions about my environment, send me an email: 
-k7avenger@gmx.de

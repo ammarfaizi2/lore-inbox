@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271522AbRHPIjR>; Thu, 16 Aug 2001 04:39:17 -0400
+	id <S271535AbRHPI4R>; Thu, 16 Aug 2001 04:56:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271523AbRHPIjH>; Thu, 16 Aug 2001 04:39:07 -0400
-Received: from finch-post-12.mail.demon.net ([194.217.242.41]:40710 "EHLO
+	id <S271532AbRHPI4H>; Thu, 16 Aug 2001 04:56:07 -0400
+Received: from finch-post-12.mail.demon.net ([194.217.242.41]:23568 "EHLO
 	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S271522AbRHPIiz>; Thu, 16 Aug 2001 04:38:55 -0400
-Date: Thu, 16 Aug 2001 09:37:58 +0100 (BST)
+	id <S271531AbRHPIzv>; Thu, 16 Aug 2001 04:55:51 -0400
+Date: Thu, 16 Aug 2001 09:55:38 +0100 (BST)
 From: Steve Hill <steve@navaho.co.uk>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <200108151713.f7FHDg0n013420@webber.adilger.int>
-Message-ID: <Pine.LNX.4.21.0108160934340.2107-100000@sorbus.navaho>
+In-Reply-To: <125898493.997907155@[169.254.45.213]>
+Message-ID: <Pine.LNX.4.21.0108160938420.2107-100000@sorbus.navaho>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Aug 2001, Andreas Dilger wrote:
+On Wed, 15 Aug 2001, Alex Bligh - linux-kernel wrote:
 
-> Yes, it is possible to increase the size of the in-kernel entropy pool
-> by changing the value in linux/drivers/char/random.c.  You will likely
-> also need to fix up the user-space scripts that save and restore the
-> entropy on shutdown/startup (they can check /proc/sys/kernel/random/poolsize,
-> if available, to see how many bytes to read/write).
+> Some network drivers generate entropy on network interrupts, some
+> don't. Apparently this inconsistent state is the way people want
+> to keep it.
 
-It didn't help - there just isn't enough entropy data being generated
-between boot time and when I extract the random numbers.  This is
-basically a system to install a linux distribution, so it's booted off the
-network with a readonly root NFS, so there is no saved entropy data to
-load, so I'm starting off with an empty entropy pool and having to rely on
-the kernel to generate the data from scratch.  The random numbers are used
-to initialise the ssh and VPN keys.
+This is very bad I would think - if the main source of entropy data is the
+keybaord & mouse, there are a lot of servers out there with no keyboard
+and mouse plugged into them that must be really having problems getting
+enough data.
+
+I was originally using Cobalt's kernel, so I have my suspicions that they
+may have kludged the random number generator into working better with
+their hardware.
+
+> If you want to add entropy on network interrupts, look for the line
+> in your driver which does a request_irq, and | in SA_SAMPLE_RANDOM
+> to the flags value.
+
+I've just added that to the natsemi ethernet driver (used on the Cobalt
+Qube 3's) and the eepro100 driver (used on the Cobalt Raq 3/4) and it
+seems to have fixed the problem, thanks.  I can only assume that this is
+what Cobalt did to their own kernels in the first place...
+
+> I'd prefer a single /proc/ entry to turn entropy on from ALL network
+> devices for precisely the reason you state (SCSI means no IDE
+> entity either), even if its off by default for ALL network
+> devices for paranoia reasons, but there seems to be some religious
+> issue at play which means the state currently depends on which
+> brand of network card you have.
+
+Yes, this would be a very nice idea.
 
 -- 
 

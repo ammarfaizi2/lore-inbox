@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131059AbQLCTjf>; Sun, 3 Dec 2000 14:39:35 -0500
+	id <S131070AbQLCTw6>; Sun, 3 Dec 2000 14:52:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131070AbQLCTjY>; Sun, 3 Dec 2000 14:39:24 -0500
-Received: from wep10a-3.wep.tudelft.nl ([130.161.65.38]:19472 "EHLO
-	wep10a-3.wep.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S131059AbQLCTjP>; Sun, 3 Dec 2000 14:39:15 -0500
-Date: Sun, 3 Dec 2000 20:08:47 +0100 (CET)
-From: Taco IJsselmuiden <taco@wep.tudelft.nl>
-Reply-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
-To: linux-kernel@vger.kernel.org
-Subject: ip_nat_ftp and different ports
-Message-ID: <Pine.LNX.4.21.0012032004390.13059-100000@hewpac.taco.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131100AbQLCTws>; Sun, 3 Dec 2000 14:52:48 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:52114 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S131070AbQLCTwf>;
+	Sun, 3 Dec 2000 14:52:35 -0500
+Date: Sun, 3 Dec 2000 14:21:47 -0500
+Message-Id: <200012031921.OAA17544@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: "Saber Taylor" <aquabrake@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: Saber Taylor's message of Sun, 03 Dec 2000 05:59:47 -0000,
+	<F231OceuLyR1mDxJr5D0000c3f6@hotmail.com>
+Subject: Re: lost dirs after fsck-1.18 (kt133, ide, dma, test10, test11)
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: "Saber Taylor" <aquabrake@hotmail.com>
+   Date: 	Sun, 03 Dec 2000 05:59:47 -0000
 
-I'm having trouble masquerading ftp-ports other than 20/21.
-For some service i'm using, i need to masquerade port 42,43,62,63 for FTP
-(I know it's weird...).
-Now, when using 2.2.x kernels i could use
-'insmod ip_masq_ftp ports=21,41,42,62,63'
-but using 2.4.0-testx the 'ports=' parameter doesn't seem to work for
-ip_nat_ftp.
-Is there any other param I should use (couldn't find it in the docs ;(( )
+   Well that's the last time I run a devel kernel with a nontest
+   system.  sigh.
 
-Please cc me because i'm not on the list (only reading the
-web-archives....)
+   Had one directory replaced with a different directory
+   and also a directory replaced with a file. Possible further
+   corruption.
 
-Thanks,
-Taco.
----
-"I was only 75 years old when I met her and I was still a kid...."
-          -- Duncan McLeod
+   I don't think I lost the directories until I did a 'fsck -y'
+   on the partition. Something to remember.
 
+If it was just the directories that got lost, the files should have
+been reparented to the /lost+found directory for that filesystrem.  If
+however the bug wiped out part of your inode table, then you would have
+probably lost both the directory and the files in that directory, since
+directories and files tend to be stored in the same block group.
+
+   If anyone has advice on recovering the directories other than
+   the following links, I'm all ears:
+
+Without more details about how the corruption happened or what the
+nature of the corruption is, it's hard to give good general advice.
+Those websites aren't bad places to start.  Good luck.....
+
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

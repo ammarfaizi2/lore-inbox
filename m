@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265096AbUGGMrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265100AbUGGMtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265096AbUGGMrX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 08:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265095AbUGGMrX
+	id S265100AbUGGMtk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 08:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUGGMtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 08:47:23 -0400
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:30084 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265099AbUGGMrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 08:47:21 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm6
-Date: Wed, 7 Jul 2004 07:47:16 -0500
-User-Agent: KMail/1.6.2
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>
-References: <20040705023120.34f7772b.akpm@osdl.org> <200407070015.39507.dtor_core@ameritech.net> <20040707063733.GD21066@holomorphy.com>
-In-Reply-To: <20040707063733.GD21066@holomorphy.com>
-MIME-Version: 1.0
+	Wed, 7 Jul 2004 08:49:40 -0400
+Received: from linuxhacker.ru ([217.76.32.60]:61142 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S265100AbUGGMta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 08:49:30 -0400
+Date: Wed, 7 Jul 2004 15:47:32 +0300
+From: Oleg Drokin <green@clusterfs.com>
+To: linux-kernel@vger.kernel.org, braam@clusterfs.com
+Subject: [0/9] Lustre VFS patches for 2.6
+Message-ID: <20040707124732.GA25877@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407070747.16512.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 July 2004 01:37 am, William Lee Irwin III wrote:
-> On Wed, Jul 07, 2004 at 12:15:37AM -0500, Dmitry Torokhov wrote:
-> > The only suspicious thing that I see is that sunzilog tries to register its
-> > serio ports with spinlock held and interrupts off. I wonder if that is what
-> > causing a deadlock. Could you please try applying this patch on top of the
-> > changes to the drivers/Makefile that I sent earlier.
-> 
-> This suspicion is correct. It boots normally with the patch you posted
-> to do that registration outside the interrupts-off critical section
-> applied. Bootlog below.
-> 
+Hello!
 
-Great! I am still somewhat confused why it started locking up with sysfs
-patch - even before sunzilog was calling serio_register_port with interrupts
-off and serio core was downing it's serio_sem as the very first thing. Since
-at the time sunzilog registers its ports no serio drivers have been registered
-yet, effectively the only change introduced by sysfs patch is the call to
-device_register which takes bus' subsystem rwsem and there really should not
-be any congestion.
+   Following this mail, there are nine patches necessary for Lustre support
+   in 2.6. The patches are against latest 2.6 bk snapshot.
+   Compared to previous sets of patches, this one does not change existing
+   structure and field names therefore leaving kernel VFS API completely intact.
+   Also raw operations approach is changed, extra inode operation is introduced
+   that is supposed to be called at the end of parent lookup and do necessary
+   operations, if possible.
+   Of course it would be great if these patches would be included into the
+   kernel right away (and that is one of the reasons this set of patches
+   keeps old API intact). Also there were at least some interest in some of the
+   patches from other parties (e.g. Trond Myklebust was interested in some
+   intent changes as I remember) and we are ready to work with those so that
+   the patches will suit their needs as well.
 
-Maybe rwsems can not be touched with interrupts off? Sparc only? Everywhere?
-(I know that you should not normally call functions that may sleep with
-interrupts off).
-
--- 
-Dmitry
+Bye,
+    Oleg

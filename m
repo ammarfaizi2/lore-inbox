@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263432AbTDYQ3N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 12:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbTDYQ3M
+	id S263301AbTDYQcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 12:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTDYQcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 12:29:12 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:65161
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263432AbTDYQ3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 12:29:12 -0400
-Subject: Re: problem with Serverworks CSB5 IDE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Duncan Laurie <duncan@sun.com>
+	Fri, 25 Apr 2003 12:32:18 -0400
+Received: from mta02.telering.at ([212.95.31.39]:31169 "EHLO smtp.telering.at")
+	by vger.kernel.org with ESMTP id S263301AbTDYQcQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 12:32:16 -0400
+Date: Fri, 25 Apr 2003 16:30:54 +0200
+From: Bernhard Kaindl <kaindl@telering.at>
+X-X-Sender: bkaindl@hase.a11.local
+To: Andreas Gietl <Listen@e-admin.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EA964D1.3070908@sun.com>
-References: <3EA85C5C.7060402@sun.com> <20030423212713.GD21689@puck.ch>
-	 <1051136469.2062.108.camel@dhcp22.swansea.linux.org.uk>
-	 <20030423232909.GE21689@puck.ch> <20030423232909.GE21689@puck.ch>
-	 <20030424080023.GG21689@puck.ch> <3EA85C5C.7060402@sun.com>
-	 <1051268422.5573.25.camel@dhcp22.swansea.linux.org.uk>
-	 <3EA964D1.3070908@sun.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051285350.5902.14.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 Apr 2003 16:42:31 +0100
+Subject: Re: [PATCH][2.4-rc1] fix side effects of the kmod/ptrace secfix
+In-Reply-To: <200304251640.22021.Listen@e-admin.de>
+Message-ID: <Pine.LNX.4.53.0304251607540.26723@hase.a11.local>
+References: <200304250037.45133.Listen@e-admin.de>
+ <Pine.LNX.4.53.0304251215200.2582@hase.a11.local> <200304251640.22021.Listen@e-admin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-04-25 at 17:39, Duncan Laurie wrote:
-> mode because the PCI interrupt pin register is hardwired to zero (don't
-> ask me why...) so it follows a codepath in do_ide_setup_pci_device()
-> where init_chipset isn't called.
+On Fri, 25 Apr 2003, Andreas Gietl wrote:
+>
+> it shows:
+>   PID TTY      STAT   TIME COMMAND
+>  2092 ttyp0    S      0:00 su guest -c ps $PPID;wc -m </proc/$PPID/cmdline
+>       0
 
-That would imply a problem in the PCI layer, since the IRQ should have 
-been assigned, and if the IRQ is not assigned we can't use the device.
+Ah ok, I tested this with LC_CTYPE=de_DE.UTF-8, in this case wc has
+to read the contents of the file. When a single-byte locale is used,
+wc just does fstat64() to get the file size(which returns 0 for the file).
 
-I'll take a look. 
+> but cat shows:
+> su guest -c 'ps $PPID; cat /proc/$PPID/cmdline'
+>   PID TTY      STAT   TIME COMMAND
+>  2144 ttyp0    S      0:00 su guest -c ps $PPID; cat /proc/$PPID/cmdline
+> suguest-cps $PPID; cat /proc/$PPID/cmdline
+>
+> what happened?
 
+This is ok, access_proces_vm() is working.
+
+> > [pid  2599] --- SIGSTOP (Stopped (signal)) @ 0 (0) ---
+> > [pid  2599] write(1, "\n", 1
+>
+> it shows:
+> localhost root # strace -fewrite su -c /bin/echo 2>&1 | grep pid
+> [pid  2159] write(1, "\n", 1
+
+Looks ok also, the task->mm->dumpable check is removed from prace_check_attach
+
+> Looks like my results are slightly diffent, Does this mean i did not apply the
+> patch correctly? I applied it twice manually, because patch did not succeed
+
+The above shows that at least the two-liner task_dumpable diff is applied.
+> and compiled the kernel 3 times...
+
+Sorry for the different output, I should have made my tests safer against
+system variants. It should have applied clean, maybe some white space issue
+or so, I'll check it. shutdown didn't change? What does it on your system?
+
+Bernd

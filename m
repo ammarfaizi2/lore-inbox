@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264526AbTLGUxv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 15:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTLGUxv
+	id S264537AbTLGU6r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 15:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbTLGU54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:53:51 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:11542 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264518AbTLGUxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:53:49 -0500
-Date: Sun, 7 Dec 2003 21:49:26 +0100
-Message-Id: <200312072049.hB7KnQ43000653@callisto.of.borg>
+	Sun, 7 Dec 2003 15:57:56 -0500
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:29484 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264537AbTLGUzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 15:55:44 -0500
+Date: Sun, 7 Dec 2003 21:51:29 +0100
+Message-Id: <200312072051.hB7KpTXn000771@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       macro@ds2.pg.gda.pl, Ralf Baechle <ralf@linux-mips.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 070] NCR53C9x unused SCp.have_data_in
+Subject: [PATCH 140] M68k asm/system.h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NCR53C9x: Remove unused initialization of SCp.have_data_in (from Maciej W.
-Rozycki). This affects the following drivers:
-  - Amiga Oktagon SCSI
-  - DECstation SCSI
+M68k: Add missing #ifdef __KERNEL / #endif (from Christian T. Steigies)
 
-The change for DECstation SCSI sneaked in through a MIPS update.
-
---- linux-2.4.23/drivers/scsi/NCR53C9x.c	Sat Aug 17 14:10:41 2002
-+++ linux-m68k-2.4.23/drivers/scsi/NCR53C9x.c	Wed Jan 22 12:07:13 2003
-@@ -917,7 +917,7 @@
- 		if (esp->dma_mmu_get_scsi_one)
- 			esp->dma_mmu_get_scsi_one(esp, sp);
- 		else
--			sp->SCp.have_data_in = (int) sp->SCp.ptr =
-+			sp->SCp.ptr =
- 				(char *) virt_to_phys(sp->request_buffer);
- 	} else {
- 		sp->SCp.buffer = (struct scatterlist *) sp->buffer;
---- linux-2.4.23/drivers/scsi/oktagon_esp.c	Mon Apr  1 13:02:02 2002
-+++ linux-m68k-2.4.23/drivers/scsi/oktagon_esp.c	Wed Jan 22 12:07:17 2003
-@@ -548,7 +548,7 @@
+--- linux-2.4.23/include/asm-m68k/system.h	2003-10-15 11:13:29.000000000 -0400
++++ linux-m68k-2.4.23/include/asm-m68k/system.h	2003-11-18 22:33:02.000000000 -0500
+@@ -7,6 +7,8 @@
+ #include <asm/segment.h>
+ #include <asm/entry.h>
  
- void dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd *sp)
- {
--        sp->SCp.have_data_in = (int) sp->SCp.ptr =
-+        sp->SCp.ptr =
-                 sp->request_buffer;
++#ifdef __KERNEL__
++
+ /*
+  * switch_to(n) should switch tasks to task ptr, first checking that
+  * ptr isn't the current task, in which case it does nothing.  This
+@@ -156,4 +158,6 @@
  }
+ #endif
  
++#endif /* __KERNEL__ */
++
+ #endif /* _M68K_SYSTEM_H */
 
 Gr{oetje,eeting}s,
 

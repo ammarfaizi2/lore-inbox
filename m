@@ -1,66 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261417AbSIZRLX>; Thu, 26 Sep 2002 13:11:23 -0400
+	id <S261376AbSIZRF2>; Thu, 26 Sep 2002 13:05:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261418AbSIZRLX>; Thu, 26 Sep 2002 13:11:23 -0400
-Received: from www.wotug.org ([194.106.52.201]:51261 "EHLO
-	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
-	id <S261417AbSIZRLW>; Thu, 26 Sep 2002 13:11:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [ANNOUNCE] [patch] kksymoops, in-kernel symbolic oopser, 2.5.38-B0
-Date: Thu, 26 Sep 2002 18:16:27 +0100
-User-Agent: KMail/1.4.2
-Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Arjan van de Ven <arjanv@redhat.com>
-References: <Pine.LNX.4.44.0209252155210.18747-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0209252155210.18747-100000@localhost.localdomain>
+	id <S261381AbSIZRF2>; Thu, 26 Sep 2002 13:05:28 -0400
+Received: from sopris.net ([216.237.72.68]:19728 "EHLO mail.sopris.net")
+	by vger.kernel.org with ESMTP id <S261376AbSIZRF0>;
+	Thu, 26 Sep 2002 13:05:26 -0400
+Message-ID: <004201c2657f$c1a1bed0$f101010a@nathan>
+From: "Nathan" <etherwolf@sopris.net>
+To: "Marc-Christian Petersen" <m.c.p@wolk-project.de>
+Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+References: <200209261901.17679.m.c.p@wolk-project.de>
+Subject: Re: Updated to kernel 2.4.19 and now ipchains and iptables are broke.
+Date: Thu, 26 Sep 2002 11:11:29 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209261816.27194.ruthc@sharra.ivimey.org>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 September 2002 20:56, Ingo Molnar wrote:
-> ------------[ cut here ]------------
-> kernel BUG at time.c:99!
-> invalid operand: 0000
-> CPU:    1
-> EIP:    0060:[<c011bd14>]    Not tainted
-> EFLAGS: 00010246
-> EIP is at sys_gettimeofday+0x84/0x90
-> eax: 0000004e   ebx: cef9e000   ecx: 00000000   edx: 00000068
-> esi: 00000000   edi: 00000000   ebp: bffffad8   esp: cef9ffa0
-> ds: 0068   es: 0068   ss: 0068
-> Process gettimeofday (pid: 549, threadinfo=cef9e000 task=cf84d860)
-> Stack: 4001695c bffff414 40156154 00000004 c0112a40 cef9e000 400168e4
+I saw the config option for netfilter that said if you use this it won't use
+ipchains, so I said no to that...
 
-Something that's been bugging me of late: the Oops output is quite expensive 
-in lines on the terminal, which means if you get a couple of oops before the 
-kernel stops, you're unlikely to see the one that fired first.
+The section of my .config file from make config (yeah I'm a glutton for
+punishment):
 
-To help with this, would it be good to use the following form for the initial 
-part:
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK_DEV is not set
+# CONFIG_NETFILTER is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+# CONFIG_IP_MULTIPLE_TABLES is not set
+# CONFIG_IP_ROUTE_MULTIPATH is not set
+# CONFIG_IP_ROUTE_TOS is not set
+CONFIG_IP_ROUTE_VERBOSE=y
+# CONFIG_IP_ROUTE_LARGE_TABLES is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+CONFIG_NET_IPGRE=y
+# CONFIG_NET_IPGRE_BROADCAST is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6=y
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
 
- kernel BUG at time.c:99, invalid operand: 0000
- CPU 1: EIP:    0060:[<c011bd14>]    Not tainted
- EIP is at sys_gettimeofday+0x84/0x90
- eax: 0000004e   ebx: cef9e000   ecx: 00000000   edx: 00000068
- esi: 00000000   edi: 00000000   ebp: bffffad8   esp: cef9ffa0
- ds: 0068   es: 0068   ss: 0068   eflags: 00010246 [textflags]
 
-Where [textflags] is some arch-specific representation of the flags word.
 
-Also, in the same vein I would like to be able to say (as a kernel option):
+----- Original Message -----
+From: "Marc-Christian Petersen" <m.c.p@wolk-project.de>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Nathan" <etherwolf@sopris.net>
+Sent: Thursday, September 26, 2002 11:02 AM
+Subject: Re: Updated to kernel 2.4.19 and now ipchains and iptables are
+broke.
 
-if kernel-oops {
- copy console output to [printer|serial] port
-}
 
-[printer output == ascii only, of course]
+Hi Nathan,
 
-Regards,
+> This is surely the greenest of green questions (sorry), but I finally got
+my
+> kernel re-compiled the way I want it using the 2.4.19 sources from
+> kernel.org. It loads, seems to be working fine, except ipchains and
+> iptables... ipchains insists that it is incompatible with my kernel, and
+> iptables isn't sure what's going on but it thinks maybe something (. Well
+> fine. I downloaded the latest versions of ipchains/tables from rpmfind and
+> upgraded, same thing.
 
-Ruth
+"Incompatible with this kernel" for ipchains seems so that you have compiled
+Netfilter stuff into your kernel.
+
+"itself or the kernel needs upgrading" for iptables seems so that you either
+haven't compiled netfilter as module(s) or static into the kernel and forgot
+something in the kernel config.
+
+> I haven't been able to find any actual solutions off google for this... a
+> few people mention the same problem but no fixes. Can someone point this
+> rookie in the right direction to fix my packet filters? :-)
+Check your kernel config. "make menuconfig" or "xconfig" and goto:
+
+Networking options  --->
+  IP: Netfilter Configuration  --->
+
+and look if you did it properly.
+
+--
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.
+

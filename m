@@ -1,50 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261546AbTCYGy6>; Tue, 25 Mar 2003 01:54:58 -0500
+	id <S261495AbTCYGxw>; Tue, 25 Mar 2003 01:53:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261570AbTCYGy6>; Tue, 25 Mar 2003 01:54:58 -0500
-Received: from proxy.povodiodry.cz ([62.77.115.11]:8851 "HELO pc11.op.pod.cz")
-	by vger.kernel.org with SMTP id <S261546AbTCYGy5>;
-	Tue, 25 Mar 2003 01:54:57 -0500
-From: "Vitezslav Samel" <samel@mail.cz>
-Date: Tue, 25 Mar 2003 08:06:05 +0100
-To: Alan Cox <alan@redhat.com>, Andre Hedrick <andre@linux-ide.org>
+	id <S261572AbTCYGxw>; Tue, 25 Mar 2003 01:53:52 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:45992 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261495AbTCYGxu>;
+	Tue, 25 Mar 2003 01:53:50 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 25 Mar 2003 08:04:58 +0100 (MET)
+Message-Id: <UTC200303250704.h2P74wE14222.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] tty_io cleanup
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [IDE SiI680] throughput drop to 1/4
-Message-ID: <20030325070605.GA26860@pc11.op.pod.cz>
-Mail-Followup-To: Alan Cox <alan@redhat.com>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20030324072910.GA16596@pc11.op.pod.cz> <Pine.LNX.4.10.10303240943070.8000-100000@master.linux-ide.org> <20030324072910.GA16596@pc11.op.pod.cz> <200303241213.h2OCD6u21467@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10303240943070.8000-100000@master.linux-ide.org> <200303241213.h2OCD6u21467@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 07:13:06AM -0500, Alan Cox wrote:
-> >   Recently I tried to figure out in 2.5.65, why throughput on my disk which
-> > hangs on Silicon Image 680 dropped to 1/4 compared to 2.4.21-pre5, but didn't
-> > found anything useful. Are there any known issues with this driver?
-> 
-> The same code in both cases. Its quite likely the problem is higher up in
-> the block or filesystem layer. It might also be a general IDE layer bug
-> 
-> What does performance look like on your other disk between
-> 2.4.21pre/2.5.65 ?
+Adding the unregister_chrdev_region call that is the counterpart
+to register_chrdev_region, we get a nice cleanup of tty_io.c.
 
-  Will test it as I come back home (it's on my home machine). But I think this
-performance drop is only on the SiI680 interface.
+Andries
 
-On Mon, Mar 24, 2003 at 09:44:38AM -0800, Andre Hedrick wrote:
-> There should be a mode or a flag option in the siimage.h to disable MMIO
-> by default.  I am courious if this is a BARRIER on the read/write screwing
-> the pooch!
-
-  Back in late 2.5.4x (or was it early 2.5.5x ?) I tried
-#undef CONFIG_TRY_MMIO_SIIMAGE but nothing has changed (now there's no such
-symbol defined in siimage.c - gone in 2.5.63).
-
-	Cheers,
-		Vita
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+--- a/drivers/char/tty_io.c	Tue Mar 25 04:54:31 2003
++++ b/drivers/char/tty_io.c	Tue Mar 25 07:48:48 2003
+@@ -2143,31 +2143,16 @@
+  */
+ int tty_unregister_driver(struct tty_driver *driver)
+ {
+-	int	retval;
+-	struct tty_driver *p;
+-	int	i, found = 0;
++	int retval, i;
+ 	struct termios *tp;
+-	const char *othername = NULL;
+-	
++
+ 	if (*driver->refcount)
+ 		return -EBUSY;
+ 
+-	list_for_each_entry(p, &tty_drivers, tty_drivers) {
+-		if (p == driver)
+-			found++;
+-		else if (p->major == driver->major)
+-			othername = p->name;
+-	}
+-	
+-	if (!found)
+-		return -ENOENT;
+-
+-	if (othername == NULL) {
+-		retval = unregister_chrdev(driver->major, driver->name);
+-		if (retval)
+-			return retval;
+-	} else
+-		register_chrdev(driver->major, othername, &tty_fops);
++	retval = unregister_chrdev_region(driver->major, driver->minor_start,
++					  driver->num, driver->name);
++	if (retval)
++		return retval;
+ 
+ 	list_del(&driver->tty_drivers);
+ 
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/char_dev.c b/fs/char_dev.c
+--- a/fs/char_dev.c	Tue Mar 25 04:54:40 2003
++++ b/fs/char_dev.c	Tue Mar 25 07:48:48 2003
+@@ -174,7 +174,8 @@
+ }
+ 
+ /* todo: make void - error printk here */
+-int unregister_chrdev(unsigned int major, const char * name)
++int unregister_chrdev_region(unsigned int major, unsigned int baseminor,
++			     int minorct, const char *name)
+ {
+ 	struct char_device_struct *cd, **cp;
+ 	int ret = 0;
+@@ -184,7 +185,9 @@
+ 
+ 	write_lock(&chrdevs_lock);
+ 	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
+-		if ((*cp)->major == major)
++		if ((*cp)->major == major &&
++		    (*cp)->baseminor == baseminor &&
++		    (*cp)->minorct == minorct)
+ 			break;
+ 	if (!*cp || strcmp((*cp)->name, name))
+ 		ret = -EINVAL;
+@@ -198,6 +201,11 @@
+ 	return ret;
+ }
+ 
++int unregister_chrdev(unsigned int major, const char *name)
++{
++	return unregister_chrdev_region(major, 0, 256, name);
++}
++
+ /*
+  * Called every time a character special file is opened
+  */
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Tue Mar 25 04:54:45 2003
++++ b/include/linux/fs.h	Tue Mar 25 07:35:49 2003
+@@ -1060,6 +1060,8 @@
+ extern int register_chrdev(unsigned int, const char *,
+ 			   struct file_operations *);
+ extern int unregister_chrdev(unsigned int, const char *);
++extern int unregister_chrdev_region(unsigned int, unsigned int, int,
++				    const char *);
+ extern int chrdev_open(struct inode *, struct file *);
+ 
+ /* fs/block_dev.c */

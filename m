@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283810AbRK3Vfr>; Fri, 30 Nov 2001 16:35:47 -0500
+	id <S283805AbRK3VfR>; Fri, 30 Nov 2001 16:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283807AbRK3Vfm>; Fri, 30 Nov 2001 16:35:42 -0500
-Received: from CompactServ-SUrNet.ll.surnet.ru ([195.54.9.58]:38385 "EHLO
-	zzz.zzz") by vger.kernel.org with ESMTP id <S283806AbRK3Vf0>;
-	Fri, 30 Nov 2001 16:35:26 -0500
-Date: Sat, 1 Dec 2001 02:32:52 +0500
-From: Denis Zaitsev <zzz@cd-club.ru>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] mm/swapfile.c/get_swaparea_info - a cosmetic change
-Message-ID: <20011201023252.H23346@zzz.zzz.zzz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S283807AbRK3VfI>; Fri, 30 Nov 2001 16:35:08 -0500
+Received: from cp1s4p1.dashmail.net ([216.36.32.37]:27152 "EHLO sr71.net")
+	by vger.kernel.org with ESMTP id <S283805AbRK3Vey>;
+	Fri, 30 Nov 2001 16:34:54 -0500
+Message-ID: <3C07FB73.9030708@sr71.net>
+Date: Fri, 30 Nov 2001 13:34:43 -0800
+From: "David C. Hansen" <dave@sr71.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [LART] pc_keyb.c changes
+In-Reply-To: <Pine.GSO.4.21.0111300252030.13367-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The header line of /proc/swaps does not match the consequence ones in
-case of devfs' names.  These names are too long in comparison with the
-<Filename> header's part.  So, I've added one tab into the header and
-made the path's part of other lines to be of length 40-1 vs. 32-1.
+Alexander Viro wrote:
 
-Also, I've changed three calls for sprintf with one...
+> 	Could the person who switched from BKL to spin_lock_irqsave() in
+> pc_keyb.c please share whatever the hell he had been smoking?  Free clue:
+> disabling interrupts for long intervals to improve scalability is right up
+> there with fighting for peace and fucking for virginity.
+As I slowly raise my hand to take, um credit....
 
-Linus, please, apply this cosmetic patch (it is against 2.4.16).
+
+This is definitely one of the drivers I to take a second look at, now 
+that I know about the BKL being held for block and char device opens. 
+Do you have any ideas how else to do this safely since aux_count is 
+referenced during an interrupt?
+
+--
+Dave Hansen
+dave@sr71.net
 
 
---- mm/swapfile.c.orig	Sat Dec  1 02:10:17 2001
-+++ mm/swapfile.c	Wed Nov 28 22:05:00 2001
-@@ -804,25 +804,17 @@ int get_swaparea_info(char *buf)
- {
- 	char * page = (char *) __get_free_page(GFP_KERNEL);
- 	struct swap_info_struct *ptr = swap_info;
--	int i, j, len = 0, usedswap;
-+	int i, len;
- 
- 	if (!page)
- 		return -ENOMEM;
- 
--	len += sprintf(buf, "Filename\t\t\tType\t\tSize\tUsed\tPriority\n");
-+	len = sprintf(buf, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
- 	for (i = 0 ; i < nr_swapfiles ; i++, ptr++) {
- 		if ((ptr->flags & SWP_USED) && ptr->swap_map) {
- 			char * path = d_path(ptr->swap_file, ptr->swap_vfsmnt,
- 						page, PAGE_SIZE);
--
--			len += sprintf(buf + len, "%-31s ", path);
--
--			if (!ptr->swap_device)
--				len += sprintf(buf + len, "file\t\t");
--			else
--				len += sprintf(buf + len, "partition\t");
--
--			usedswap = 0;
-+			int j, usedswap = 0;
- 			for (j = 0; j < ptr->max; ++j)
- 				switch (ptr->swap_map[j]) {
- 					case SWAP_MAP_BAD:
-@@ -831,8 +823,12 @@ int get_swaparea_info(char *buf)
- 					default:
- 						usedswap++;
- 				}
--			len += sprintf(buf + len, "%d\t%d\t%d\n", ptr->pages << (PAGE_SHIFT - 10), 
--				usedswap << (PAGE_SHIFT - 10), ptr->prio);
-+			len += sprintf(buf + len, "%-39s %s\t%d\t%d\t%d\n",
-+				       path,
-+				       ptr->swap_device ? "partition" : "file\t",
-+				       ptr->pages << (PAGE_SHIFT - 10),
-+				       usedswap << (PAGE_SHIFT - 10),
-+				       ptr->prio);
- 		}
- 	}
- 	free_page((unsigned long) page);

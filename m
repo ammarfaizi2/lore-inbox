@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbUKQR3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbUKQRbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbUKQR3S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 12:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUKQR15
+	id S262419AbUKQRbs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUKQR3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:27:57 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:25298 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262404AbUKQRX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:23:57 -0500
-Message-ID: <419B8921.4060804@nortelnetworks.com>
-Date: Wed, 17 Nov 2004 11:23:45 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
+	Wed, 17 Nov 2004 12:29:30 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:43493 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262456AbUKQR2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 12:28:38 -0500
+Subject: Re: PATCH (for comment): ide-cd possible race in PIO mode
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-ide@vger.kernel.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] prefer TSC over PM Timer
-References: <Pine.LNX.4.61.0411151531590.22091@twinlark.arctic.org> <1100705099.420.32.camel@localhost.localdomain>
-In-Reply-To: <1100705099.420.32.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <20041117153706.GH26240@suse.de>
+References: <1100697589.32677.3.camel@localhost.localdomain>
+	 <20041117153706.GH26240@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1100708728.420.68.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 17 Nov 2004 16:25:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Mer, 2004-11-17 at 15:37, Jens Axboe wrote:
+> > -		HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
+> > +		spin_lock_irqsave(&ide_lock, flags);
+> > +		HWIF(drive)->OUTBSYNC(WIN_PACKETCMD, IDE_COMMAND_REG);
+> > +		ndelay(400);
+> > +		spin_unlock_irqsave(&ide_lock, flags);
+> >  		return (*handler) (drive);
+> >  	}
+> >  }
+> 
+> What good does the lock do?
 
-> Is gettimeofday supposed to return the right value or be fast ?
+The same as in ide_execute_command - make sure we don't take an IDE
+interrupt that tries to read the state during the delay. That is the old
+2.4 "may drives shared IRQ random fails" fix and why the lock is taken
+in ide_execute_command.
 
-C. All of the above.  :)
 
-Chris

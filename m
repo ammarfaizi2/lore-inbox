@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278078AbRJKDNx>; Wed, 10 Oct 2001 23:13:53 -0400
+	id <S278080AbRJKDVF>; Wed, 10 Oct 2001 23:21:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278079AbRJKDNe>; Wed, 10 Oct 2001 23:13:34 -0400
-Received: from mailhost.enel.ucalgary.ca ([136.159.102.8]:16322 "EHLO
-	mailhost.enel.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S278078AbRJKDNT>; Wed, 10 Oct 2001 23:13:19 -0400
-From: Andreas Dilger <adilger@enel.ucalgary.ca>
-Message-Id: <200110110313.f9B3Dje11005@munet-d.enel.ucalgary.ca>
-Subject: Re: Dump corrupts ext2?
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Wed, 10 Oct 2001 21:13:40 -0600 (MDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9q31re$7hb$1@cesium.transmeta.com> from "H. Peter Anvin" at Oct 10, 2001 07:57:50 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S278079AbRJKDUz>; Wed, 10 Oct 2001 23:20:55 -0400
+Received: from smtp2.orcon.net.nz ([210.55.12.15]:63494 "EHLO
+	smtp2.orcon.net.nz") by vger.kernel.org with ESMTP
+	id <S278080AbRJKDUj>; Wed, 10 Oct 2001 23:20:39 -0400
+Message-ID: <03c201c15204$9519b000$6d0e37d2@lennon>
+From: "Craig Whitmore" <lennon@orcon.net.nz>
+To: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <01101018290109.11498@localhost.localdomain> <35731.24.255.76.12.1002768539.squirrel@webmail.morcant.org>
+Subject: Re: 2.4.11 UDF
+Date: Thu, 11 Oct 2001 16:26:46 +1300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
-> By author:    Andreas Dilger <adilger@turbolabs.com>
-> > In Linus kernels 2.4.11+ the block devices and filesystems all use the
-> > page cache, so no more coherency issues.
-> 
-> How do you find a random block in the page cache?  Last my
-> understanding was that the page cache is organized by inode/offset,
-> which wouldn't lend itself to looking up a random hardware block.
+MAtrix is Encrypted and 5th Element is not Encrypted.. That seems to be the
+only difference between them..
 
-Doh, you are right of course.  I was just thinking "buffer cache" vs.
-"page cache", but of course the address space of /dev/hda1 is different
-than that of any file inside the mounted filesystem.  However, at least
-the ext2 metadata is coherent between user space and kernel space (which
-is half the battle when doing a backup) and your file data can only be
-a few seconds out of date.
+Thanks
+Craig Whitmore
 
-> I understand this can be done by sending a "quiet point" command to the
-> filesystems, followed by an LVM snapshot, but I doubt may people do that!
+----- Original Message -----
+From: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, October 11, 2001 3:48 PM
+Subject: 2.4.11 UDF
 
-Yes, there is now a hook in the VFS to support a snapshot of the filesystem
-for backups (or whatever), which LVM uses.  It is directly supported by
-ext3, reiserfs and XFS.  Other filesystems will only have a fsync_dev() and
-write_super done, but this should be enough to get things to disk.
 
-It turns out that this is also a handy thing for doing "live" fsck on an
-ext2/ext3 filesystem for systems which don't get rebooted very often - you
-can still verify that the disk/cables/kernel haven't corrupted anything.
+> Hi,
+>
+> I recieve the following when mounting The Matrix:
+>
+> Oct 10 19:40:40 ember kernel: UDF-fs INFO UDF 0.9.4.1-ro (2001/06/13)
+Mounting volume
+> 'THE_MATRIX_16X9LB_N_AMERICA', timestamp 1999/08/02 17:29 (1e5c)
+>
+> However, upon ls, I get an empty directory and the following errors dumped
+to syslog:
+>
+> Oct 10 19:40:41 ember kernel: UDF-fs DEBUG
+directory.c:237:udf_get_fileident: 0x0 !=
+> TID_FILE_IDENT_DESC
+> Oct 10 19:40:41 ember kernel: UDF-fs DEBUG
+directory.c:239:udf_get_fileident: offset: 532
+> sizeof: 38 bufsize: 2048
+>
+> I can however mount the 5th Element and I see the following, and recieve
+no errors and a
+> correct ls.
+> Oct 10 19:44:11 ember kernel: UDF-fs INFO UDF 0.9.4.1-ro (2001/06/13)
+Mounting volume
+> 'DVD_VIDEO', timestamp 1997/10/28 11:44 (1e5c)
+>
+> I didn't use UDF in 2.4.10, so perhaps this has already been discussed, if
+so clue me in :>
+>
+> --
+> Morgan Collins [Ax0n] http://sirmorcant.morcant.org
+> Software is something like a machine, and something like mathematics, and
+something like
+> language, and something like thought, and art, and information.... but
+software is not in
+> fact any of those other things.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

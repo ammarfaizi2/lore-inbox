@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290746AbSAYRgs>; Fri, 25 Jan 2002 12:36:48 -0500
+	id <S290748AbSAYRj2>; Fri, 25 Jan 2002 12:39:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290747AbSAYRgi>; Fri, 25 Jan 2002 12:36:38 -0500
-Received: from [212.3.242.3] ([212.3.242.3]:60427 "HELO mail.i4gate.net")
-	by vger.kernel.org with SMTP id <S290746AbSAYRg2>;
-	Fri, 25 Jan 2002 12:36:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: John Kodis <kodis@mail630.gsfc.nasa.gov>
-Subject: Re: Mounting OS-X "Unix" filesystems on Linux
-Date: Fri, 25 Jan 2002 18:36:18 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020125171837.GA31376@tux.gsfc.nasa.gov>
-In-Reply-To: <20020125171837.GA31376@tux.gsfc.nasa.gov>
-Cc: linux-kernel@vger.kernel.org
+	id <S290749AbSAYRjS>; Fri, 25 Jan 2002 12:39:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4110 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290748AbSAYRjO>; Fri, 25 Jan 2002 12:39:14 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Too big EBDA issue
+Date: 25 Jan 2002 09:38:41 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a2s571$8oe$1@cesium.transmeta.com>
+In-Reply-To: <1038781885.20020125205822@udm.net.ru>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020125173630Z290746-13996+12056@vger.kernel.org>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 January 2002 18:18, John Kodis wrote:
-> I'm trying to mount an OS-X Unix filesystem on Linux.  I haven't had
-> any luck at this, and wondered whether this is a known problem, or if
-> I'm doing something wrong.
->
-> I formatted a zip disk on a Mac OS-X, selecting the "Unix" filesystem
-> type and no partitions.  I then inserted this disk in the /dev/hdd,
-> the zip drive on my PC.  I tried mounting hdd and hdd1 through hdd4
-> using types of auto, ufs, udf, sysv, and one or two others, all to no
-> avail.
+Followup to:  <1038781885.20020125205822@udm.net.ru>
+By author:    ASA <llb@udm.net.ru>
+In newsgroup: linux.dev.kernel
+> 
+> Today I had to upgrade DiskOnChip BIOS extender and after that I could not
+> boot linux anymore. After digging hard in problem I found that EBDA was
+> enlarged to 33KB so remaining conventional memory was reduced to 607KB but
+> normal booting proccess bzImage loading requires at least 608 KB. After
+> checking on other systems with DiskOnChip I found their EBDA have sizes
+> typically of 29-31 KB.
+> 
+> Yeah, it is very large EBDA (normal PC's I checked just have only 1 KB
+> EBDA). It seems DickOnChip BIOS requires much space on irder to store own
+> temporary data to implement their TrueFFS.
+> 
+> But I guess that there will be some other BIOS extensions that will require
+> another EBDA space. As far as bzImage loading model requires space of 32 K
+> between 576K (0x90000) and 608K (0x98000) but almost no other place I think
+> there is necessity to extend boot protocol in order to relocate 16-bit mode
+> loader closer to the lowest memory bound, not to the upper one.
+> 
 
-My guess is that you'll probably need to compile support for 'advanced 
-partitions', as you can find in menuconfig under Filesystems - Partition 
-Types. I have no idea which one, though. That'll probably trail and error.
+That was done way way long ago.  If your boot protocol is 2.02 or
+later, you can locate it anywhere between 0x10000 and 0x90000.  This
+applies to bzImages only; zImages are still screwed.
 
-DK
+You need a modern enough bootloader that knows about this and uses it,
+however.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

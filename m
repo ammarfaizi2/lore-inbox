@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317148AbSFQX21>; Mon, 17 Jun 2002 19:28:27 -0400
+	id <S317180AbSFQXcx>; Mon, 17 Jun 2002 19:32:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317170AbSFQX20>; Mon, 17 Jun 2002 19:28:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33042 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317148AbSFQX20>;
-	Mon, 17 Jun 2002 19:28:26 -0400
-Message-ID: <3D0E7041.860710CA@zip.com.au>
-Date: Mon, 17 Jun 2002 16:26:57 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S317181AbSFQXcw>; Mon, 17 Jun 2002 19:32:52 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:5925 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S317180AbSFQXcv>; Mon, 17 Jun 2002 19:32:51 -0400
+Date: Tue, 18 Jun 2002 01:30:31 +0200 (CEST)
+From: Rui Sousa <rui.sousa@laposte.net>
+X-X-Sender: rsousa@localhost.localdomain
+To: "Justin S. Peavey" <jpeavey+kernel@peaveynet.com>
+cc: linux-kernel@vger.kernel.org,
+       emu10k1-devel <emu10k1-devel@lists.sourceforge.net>
+Subject: Re: Oops from EMU10K1 (2.4.18 and CVS version)
+In-Reply-To: <20020616201656.GE15266@colltech.com>
+Message-ID: <Pine.LNX.4.44.0206180120580.2633-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3x slower file reading oddity
-References: <Pine.LNX.4.44.0206171246270.31265-100000@twinlark.arctic.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
+On Sun, 16 Jun 2002, Justin S. Peavey wrote:
+
+> Noticed using maseq (MainActor) application, all attempts to use audio
+> caused the application to crash when opening the /dev/dsp device and
+> generated an oops (see oops1).  Based on the oops error generated
+> (kernel BUG at audio.c:1474!) and a posting from Rui ("Re: Oops in
+> emu10k1 driver", 01 Apr 2002), I upgraded to the latest CVS version of
+> emu10k1.
+
+This one was fixed in kernel 2.4.19-pre8.
+
 > 
-> i was trying to study various cpu & i/o bottlenecks for a backup
-> tool (rdiff-backup) and i stumbled into this oddity:
+> After CVS upgrade, the application now plays about a half-second of
+> audio then crashes again with a different Oops message (see oops2).
+> Strace shows the application now crashing while writing to the sound
+> device.  Just to be experimental, I applied the 2.4 patch sitting in
+> the docs area of the CVS tree, recompiled, installed and re-tested -
+> same problem (see oops3).
 > 
-> # time xargs -0 -n100 cat -- > /dev/null < /tmp/filelist
-> 0.520u 5.310s 0:36.92 15.7%     0+0k 0+0io 11275pf+0w
-> # time xargs -0 -n100 cat -- > /dev/null < /tmp/filelist
-> 0.510u 5.090s 0:35.05 15.9%     0+0k 0+0io 11275pf+0w
-> 
-> # time xargs -0 -P2 -n100 cat -- > /dev/null < /tmp/filelist
-> 0.500u 5.380s 1:30.51 6.4%      0+0k 0+0io 11275pf+0w
-> # time xargs -0 -P2 -n100 cat -- > /dev/null < /tmp/filelist
-> 0.420u 4.810s 1:36.73 5.4%      0+0k 0+0io 11275pf+0w
-> 
-> 3x slower with the two cats in parallel.
+> Any suggestions on where to go next with this?
 
-Note that the CPU time remained constant.  The wall time went up.
-You did more seeking with the dual-thread approach.
+Can you try and install 2.4.19-pre10 with the included emu10k1?
+I suspect you are just hitting a driver miscompilation problem when
+compiling the module outside the kernel tree (somehow not using the 
+correct compile options...) since the crash is inside 
+interrupt_sleep_on().
 
-I rather depends on what is in /tmp/filelist.  I assume it's
-something like the output of `find'.  And I assume you're
-using ext2 or ext3?
+Rui Sousa
 
-- ext2/3 will chop the filesystem up into 128-megabyte block groups.
-
-- It attemts to place all the files in a directory into the same
-  block group.
-
-- It will explicitly place new directories into a different blockgroup
-  from their parent.
-
-And I suspect it's the latter point which has caught you out.  You have
-two threads, and probably each thread's list of 100 files is from a
-different directory.  And hence it lives in a different block group.
-And hence your two threads are competing for the disk head.
-
-Even increasing the elevator read latency won't help you here - we don't
-perform inter-file readahead, so as soon as thread 1 blocks on a read,
-it has *no* reads queued up and the other thread's requests are then 
-serviced.
-
-You'll get best throughput with a single read thread.  There are some
-smarter readahead things we could do in there, but it tends to be
-that device-level readahead fixes everything up anyway.
-
--

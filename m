@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSHXKYv>; Sat, 24 Aug 2002 06:24:51 -0400
+	id <S315540AbSHXKWk>; Sat, 24 Aug 2002 06:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315717AbSHXKYu>; Sat, 24 Aug 2002 06:24:50 -0400
-Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:25249 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315690AbSHXKYu>; Sat, 24 Aug 2002 06:24:50 -0400
-Date: Sat, 24 Aug 2002 04:29:02 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "David S. Miller" <davem@redhat.com>
-cc: silvio@qualys.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH TRIVIAL]: 2.4.19/drivers/acorn/char/mouse_ps2.c
-In-Reply-To: <20020824.030712.128256115.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0208240428460.3234-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam-Babelsberg; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315634AbSHXKWk>; Sat, 24 Aug 2002 06:22:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62882 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315540AbSHXKWk>;
+	Sat, 24 Aug 2002 06:22:40 -0400
+Date: Sat, 24 Aug 2002 03:06:32 -0700 (PDT)
+Message-Id: <20020824.030632.48428103.davem@redhat.com>
+To: szepe@pinerecords.com
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       aurora-sparc-devel@linuxpower.org
+Subject: Re: [patch] 2.4.20-pre4 sparc32 fixup
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020824095004.GW14278@louise.pinerecords.com>
+References: <20020824093304.GU14278@louise.pinerecords.com>
+	<20020824.021937.60281893.davem@redhat.com>
+	<20020824095004.GW14278@louise.pinerecords.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Tomas Szepe <szepe@pinerecords.com>
+   Date: Sat, 24 Aug 2002 11:50:04 +0200
 
-On Sat, 24 Aug 2002, David S. Miller wrote:
-> You haven't attached a patch to any of these emails.
+   > I told you I applied this to my tree already.  Why are you resending it?
+   
+   You must be confusing the patch for something else, I wrote it like 30 minutes
+   ago.
 
-Look at the v2s. It's all right.
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+Aha, no I'm confusing it for a nearly identical patch posted by
+rob@osinvestor.com last week.  It does exactly what your patch
+does, and I do mean precisely. :-)
 

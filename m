@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290756AbSBLEd3>; Mon, 11 Feb 2002 23:33:29 -0500
+	id <S290769AbSBLEsM>; Mon, 11 Feb 2002 23:48:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290760AbSBLEdS>; Mon, 11 Feb 2002 23:33:18 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:38602 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S290756AbSBLEdN>;
-	Mon, 11 Feb 2002 23:33:13 -0500
-From: David Mosberger <davidm@hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15464.39685.717074.844068@napali.hpl.hp.com>
-Date: Mon, 11 Feb 2002 20:33:09 -0800
-To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, davidm@hpl.hp.com, anton@samba.org,
-        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: thread_info implementation
-In-Reply-To: <20020211.202108.77059987.davem@redhat.com>
-In-Reply-To: <15464.36074.246502.582895@napali.hpl.hp.com>
-	<20020211.194222.34761071.davem@redhat.com>
-	<15464.38684.48286.317465@napali.hpl.hp.com>
-	<20020211.202108.77059987.davem@redhat.com>
-X-Mailer: VM 7.00 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	id <S290771AbSBLEsC>; Mon, 11 Feb 2002 23:48:02 -0500
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.45]:50396 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S290760AbSBLErt>; Mon, 11 Feb 2002 23:47:49 -0500
+Date: Mon, 11 Feb 2002 23:46:25 -0500
+From: Nick Orlov <nick.orlov@mail.ru>
+Subject: Re: Linux 2.4.18-pre9-ac1
+In-Reply-To: <Pine.GSO.4.30.0202120151410.7871-100000@balu>
+To: linux-kernel@vger.kernel.org
+Mail-followup-to: linux-kernel@vger.kernel.org
+Message-id: <20020212044625.GA18132@nikolas.hn.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=koi8-r
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.3.27i
+In-Reply-To: <200202112301.g1BN1Th00942@devserv.devel.redhat.com>
+ <Pine.GSO.4.30.0202120151410.7871-100000@balu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 11 Feb 2002 20:21:08 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
+On Tue, Feb 12, 2002 at 01:53:06AM +0100, Pozsar Balazs wrote:
+> 
+> > Linux 2.4.18pre9-ac1
+> ...
+> 
+> Does it contain rmap-12e or still only 12a (as per the changelog)?
 
-  DaveM> The "loads are fast
-  DaveM> on x86" comment I made is basically derived from something he
-  DaveM> told someone else earlier today wrt. the thread_info stuff.
+my patches 2.4.18-pre9 -> pre9-rmap12e & 2.4.18-pre9-ac1 -> ac1-rmap12e
+available at
+http://den.st/nick/2.4.18-pre9-rmap12e.bz2
+http://den.st/nick/2.4.18-pre9-ac1-rmap12e.bz2
 
-  DaveM> So let me rephrase what you've quoted "I totally beg to
-  DaveM> differ, and I _know_ people like Linus will too." :-)
+should be applied against pre9 & pre9-ac1 respectively.
 
-And I know that Linus rejected earlier patches (from Nov 2001) on
-these grounds.
+-- 
+With best wishes,
+	Nick Orlov.
 
-	--david

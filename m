@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319136AbSH2Hni>; Thu, 29 Aug 2002 03:43:38 -0400
+	id <S319131AbSH2H4N>; Thu, 29 Aug 2002 03:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319139AbSH2Hni>; Thu, 29 Aug 2002 03:43:38 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:22933 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S319136AbSH2Hni>;
-	Thu, 29 Aug 2002 03:43:38 -0400
-Date: Thu, 29 Aug 2002 09:47:59 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Why it would be good to have AC interdiff patches
-Message-ID: <20020829074759.GC851@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+	id <S319135AbSH2H4N>; Thu, 29 Aug 2002 03:56:13 -0400
+Received: from [62.70.77.106] ([62.70.77.106]:17062 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S319131AbSH2H4N> convert rfc822-to-8bit;
+	Thu, 29 Aug 2002 03:56:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [BUG+FIX] 2.4 buggercache sucks
+Date: Thu, 29 Aug 2002 10:00:46 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200208281128.28256.roy@karlsbakk.net> <238727922.1030523435@[10.10.2.3]>
+In-Reply-To: <238727922.1030523435@[10.10.2.3]>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208291000.46618.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> Summary: the code below probably isn't the desired solution.
 
-I know I could do interdiff myself using the patchutils.
-I have done it for example for patch-2.4.20-pre4-ac1-ac2.bz2 and it gave
-the first reason:
+Very well - but where is the code to run then?
 
-1) patch-2.4.20-pre4-ac1-ac2.bz2 is only 26K (patch-2.4.20-pre4-ac1.bz2
-   and patch-2.4.20-pre4-ac2.bz2 are both 1.1M), so as AC kernels are
-   very popular, it would reduce bandwight
-2) One could more easyly watch what has changed
-3) The time for compilation would be smaller as you modify less files.
-4) All script on kernel.org are already written for vanilla kernels and
-   I am quiete sure it wouldn't be that hard to include the AC...
-(5) With my ISDN connection it would be much faster to test those news
-   kernels...).
+I mean - this code solved _my_ problem. Without it the server OOMs within 
+minutes of high load, as explained earlier. I'd rather like a clean fix in 
+2.4 than this, although it works.
 
-Thank you very much, and in case of response, don't cc to me, receiving
-email once is enough ;-)
+Any thougths?
 
-Have a great day,
+roy
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

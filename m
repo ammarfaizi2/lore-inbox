@@ -1,86 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVCPNWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbVCPNYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbVCPNWh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 08:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVCPNWh
+	id S262574AbVCPNYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 08:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVCPNXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 08:22:37 -0500
-Received: from mail.dif.dk ([193.138.115.101]:24468 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262588AbVCPNT6 (ORCPT
+	Wed, 16 Mar 2005 08:23:00 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32665 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262580AbVCPNWH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 08:19:58 -0500
-Date: Wed, 16 Mar 2005 14:21:21 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Steven French <sfrench@us.ibm.com>
-Cc: smfrench@austin.rr.com, linux-kernel@vger.kernel.org
-Subject: [PATCH][2/7] cifs: file.c cleanups in incremental bits - kfree
- changes
-Message-ID: <Pine.LNX.4.62.0503161418350.3141@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-633708402-1110979281=:3141"
+	Wed, 16 Mar 2005 08:22:07 -0500
+Date: Wed, 16 Mar 2005 14:21:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, rusty@rustcorp.com.au
+Subject: CPU hotplug on i386
+Message-ID: <20050316132151.GA2227@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi!
 
---8323328-633708402-1110979281=:3141
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I tried to solve long-standing uglyness in swsusp cmp code by calling
+cpu hotplug... only to find out that CONFIG_CPU_HOTPLUG is not
+available on i386. Is there way to enable CPU_HOTPLUG on i386?
 
+								Pavel
 
-This patch (attached) removes pointless checks for NULL before kfree()'ing 
-a pointer. kfree() handles NULL pointers just fine, so checking the 
-pointer first is redundant.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
+--- clean/kernel/power/smp.c	2004-08-15 19:15:06.000000000 +0200
++++ linux/kernel/power/smp.c	2005-03-16 14:16:00.000000000 +0100
+@@ -16,70 +16,39 @@
+ #include <asm/atomic.h>
+ #include <asm/tlbflush.h>
+ 
+-static atomic_t cpu_counter, freeze;
+-
+-
+-static void smp_pause(void * data)
+-{
+-	struct saved_context ctxt;
+-	__save_processor_state(&ctxt);
+-	printk("Sleeping in:\n");
+-	dump_stack();
+-	atomic_inc(&cpu_counter);
+-	while (atomic_read(&freeze)) {
+-		/* FIXME: restore takes place at random piece inside this.
+-		   This should probably be written in assembly, and
+-		   preserve general-purpose registers, too
+-
+-		   What about stack? We may need to move to new stack here.
+-
+-		   This should better be ran with interrupts disabled.
+-		 */
+-		cpu_relax();
+-		barrier();
+-	}
+-	atomic_dec(&cpu_counter);
+-	__restore_processor_state(&ctxt);
+-}
+-
+-cpumask_t oldmask;
++cpumask_t frozen_cpus;
+ 
+ void disable_nonboot_cpus(void)
+ {
+-	printk("Freezing CPUs (at %d)", smp_processor_id());
+-	oldmask = current->cpus_allowed;
+-	set_cpus_allowed(current, cpumask_of_cpu(0));
+-	current->state = TASK_INTERRUPTIBLE;
+-	schedule_timeout(HZ);
+-	printk("...");
+-	BUG_ON(smp_processor_id() != 0);
+-
+-	/* FIXME: for this to work, all the CPUs must be running
+-	 * "idle" thread (or we deadlock). Is that guaranteed? */
+-
+-	atomic_set(&cpu_counter, 0);
+-	atomic_set(&freeze, 1);
+-	smp_call_function(smp_pause, NULL, 0, 0);
+-	while (atomic_read(&cpu_counter) < (num_online_cpus() - 1)) {
+-		cpu_relax();
+-		barrier();
++	int cpu, error;
++	cpus_clear(frozen_cpus);
++	printk("Freezing cpus...\n");
++	for_each_online_cpu(cpu) {
++		if (!cpu)
++			continue;
++		cpu_set(cpu, frozen_cpus);
++		error = cpu_down(cpu);
++		if (!error)
++			continue;
++		printk("Error taking cpu %d down: %d\n", cpu, error);
++		panic("Too many cpus");
+ 	}
+-	printk("ok\n");
++	BUG_ON(smp_processor_id() != 0);
+ }
+ 
+ void enable_nonboot_cpus(void)
+ {
+-	printk("Restarting CPUs");
+-	atomic_set(&freeze, 0);
+-	while (atomic_read(&cpu_counter)) {
+-		cpu_relax();
+-		barrier();
++	int cpu, error;
++	printk("Thawing cpus...\n");
++	for_each_cpu_mask(cpu, frozen_cpus) {
++		if (!cpu)
++			continue;
++		error = cpu_up(cpu);
++		if (!error)
++			continue;
++		printk("Error taking cpu %d up: %d\n", cpu, error);
++		panic("Not enough cpus");
+ 	}
+-	printk("...");
+-	set_cpus_allowed(current, oldmask);
+-	schedule();
+-	printk("ok\n");
+-
+ }
+ 
+ 
 
 -- 
-Jesper Juhl
-
-
---8323328-633708402-1110979281=:3141
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=fs_cifs_file-cleanups-3-kfree-changes.patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.62.0503161421210.3141@dragon.hyggekrogen.localhost>
-Content-Description: fs_cifs_file-cleanups-3-kfree-changes.patch
-Content-Disposition: attachment; filename=fs_cifs_file-cleanups-3-kfree-changes.patch
-
-ZGlmZiAtdXAgbGludXgtMi42LjExLW1tMy9mcy9jaWZzL2ZpbGUuYy53aXRo
-X3BhdGNoXzIgbGludXgtMi42LjExLW1tMy9mcy9jaWZzL2ZpbGUuYw0KLS0t
-IGxpbnV4LTIuNi4xMS1tbTMvZnMvY2lmcy9maWxlLmMud2l0aF9wYXRjaF8y
-CTIwMDUtMDMtMTUgMjI6NDk6MzMuMDAwMDAwMDAwICswMTAwDQorKysgbGlu
-dXgtMi42LjExLW1tMy9mcy9jaWZzL2ZpbGUuYwkyMDA1LTAzLTE1IDIyOjUx
-OjAxLjAwMDAwMDAwMCArMDEwMA0KQEAgLTE0OCw4ICsxNDgsNyBAQCBpbnQg
-Y2lmc19vcGVuKHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjDQogCWFibGUg
-dG8gc2ltcGx5IGRvIGEgZmlsZW1hcF9mZGF0YXdyaXRlL2ZpbGVtYXBfZmRh
-dGF3YWl0IGZpcnN0ICovDQogCWJ1ZiA9IGttYWxsb2Moc2l6ZW9mKEZJTEVf
-QUxMX0lORk8pLCBHRlBfS0VSTkVMKTsNCiAJaWYgKGJ1ZiA9PSBOVUxMKSB7
-DQotCQlpZiAoZnVsbF9wYXRoKQ0KLQkJCWtmcmVlKGZ1bGxfcGF0aCk7DQor
-CQlrZnJlZShmdWxsX3BhdGgpOw0KIAkJRnJlZVhpZCh4aWQpOw0KIAkJcmV0
-dXJuIC1FTk9NRU07DQogCX0NCkBAIC0yNDgsMTAgKzI0Nyw4IEBAIGludCBj
-aWZzX29wZW4oc3RydWN0IGlub2RlICppbm9kZSwgc3RydWMNCiAJCX0NCiAJ
-fQ0KIA0KLQlpZiAoYnVmKQ0KLQkJa2ZyZWUoYnVmKTsNCi0JaWYgKGZ1bGxf
-cGF0aCkNCi0JCWtmcmVlKGZ1bGxfcGF0aCk7DQorCWtmcmVlKGJ1Zik7DQor
-CWtmcmVlKGZ1bGxfcGF0aCk7DQogCUZyZWVYaWQoeGlkKTsNCiAJcmV0dXJu
-IHJjOw0KIH0NCkBAIC0zNDIsOCArMzM5LDcgQEAgc3RhdGljIGludCBjaWZz
-X3Jlb3Blbl9maWxlKHN0cnVjdCBpbm9kZQ0KIC8qCWJ1ZiA9IGttYWxsb2Mo
-c2l6ZW9mKEZJTEVfQUxMX0lORk8pLCBHRlBfS0VSTkVMKTsNCiAJaWYgKGJ1
-ZiA9PSAwKSB7DQogCQl1cCgmcENpZnNGaWxlLT5maF9zZW0pOw0KLQkJaWYg
-KGZ1bGxfcGF0aCkNCi0JCQlrZnJlZShmdWxsX3BhdGgpOw0KKwkJa2ZyZWUo
-ZnVsbF9wYXRoKTsNCiAJCUZyZWVYaWQoeGlkKTsNCiAJCXJldHVybiAtRU5P
-TUVNOw0KIAl9ICovDQpAQCAtMzk2LDggKzM5Miw3IEBAIHN0YXRpYyBpbnQg
-Y2lmc19yZW9wZW5fZmlsZShzdHJ1Y3QgaW5vZGUNCiAJCX0NCiAJfQ0KIA0K
-LQlpZiAoZnVsbF9wYXRoKQ0KLQkJa2ZyZWUoZnVsbF9wYXRoKTsNCisJa2Zy
-ZWUoZnVsbF9wYXRoKTsNCiAJRnJlZVhpZCh4aWQpOw0KIAlyZXR1cm4gcmM7
-DQogfQ0KQEAgLTQzMSw4ICs0MjYsNyBAQCBpbnQgY2lmc19jbG9zZShzdHJ1
-Y3QgaW5vZGUgKmlub2RlLCBzdHJ1DQogCQlsaXN0X2RlbCgmcFNNQkZpbGUt
-PmZsaXN0KTsNCiAJCWxpc3RfZGVsKCZwU01CRmlsZS0+dGxpc3QpOw0KIAkJ
-d3JpdGVfdW5sb2NrKCZmaWxlLT5mX293bmVyLmxvY2spOw0KLQkJaWYgKHBT
-TUJGaWxlLT5zZWFyY2hfcmVzdW1lX25hbWUpDQotCQkJa2ZyZWUocFNNQkZp
-bGUtPnNlYXJjaF9yZXN1bWVfbmFtZSk7DQorCQlrZnJlZShwU01CRmlsZS0+
-c2VhcmNoX3Jlc3VtZV9uYW1lKTsNCiAJCWtmcmVlKGZpbGUtPnByaXZhdGVf
-ZGF0YSk7DQogCQlmaWxlLT5wcml2YXRlX2RhdGEgPSBOVUxMOw0KIAl9IGVs
-c2UNCg==
-
---8323328-633708402-1110979281=:3141--
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

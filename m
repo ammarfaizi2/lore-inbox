@@ -1,78 +1,151 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQKVLf5>; Wed, 22 Nov 2000 06:35:57 -0500
+	id <S130023AbQKVLvl>; Wed, 22 Nov 2000 06:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129582AbQKVLfr>; Wed, 22 Nov 2000 06:35:47 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:2553 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129150AbQKVLfj>;
-	Wed, 22 Nov 2000 06:35:39 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20001121160443.B18150@lahmed.stanford.edu> 
-In-Reply-To: <20001121160443.B18150@lahmed.stanford.edu>  <Pine.LNX.4.21.0011212328570.30344-100000@svea.tellus> 
-To: David Hinds <dhinds@lahmed.stanford.edu>
-Cc: Tobias Ringstrom <tori@tellus.mine.nu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules 
+	id <S129582AbQKVLvc>; Wed, 22 Nov 2000 06:51:32 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:55054 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129150AbQKVLvW>;
+	Wed, 22 Nov 2000 06:51:22 -0500
+Date: Wed, 22 Nov 2000 11:18:20 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>, Ben LaHaise <bcrl@redhat.com>
+Subject: [patch] O_SYNC patch 1/3: Fix fdatasync
+Message-ID: <20001122111820.B6516@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 22 Nov 2000 11:05:20 +0000
-Message-ID: <6911.974891120@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-dhinds@lahmed.stanford.edu said:
->  Is there a technical reason for this?  Not that I know of; but then I
-> also cannot think of a good reason for wanting, say, the generic code
-> built in but the controller support as modules.  I do see reasonable
-> arguments for all-builtin or all-modules.
+This is the first patch out of 3 to fix O_SYNC and fdatasync for
+2.4.0-test11.
 
-register_ss_entry() is broken and when you unload a socket driver it'll get 
-very confused and leave /proc entries behind. You can clean this up by 
-removing pcmcia_core.o and reloading it.
+The patch below fixes fdatasync (at least for ext2) so that it does
+not flush the inode to disk for purely timestamp updates.  It splits
+I_DIRTY into two bits, one bit (I_DIRTY_DATASYNC) which is set only
+for dirty state requiring inode sync for datasync, and I_DIRTY_SYNC
+which marks inodes being dirty at all.  I_DIRTY is the union of the
+two.
 
-If you have pcmcia_core.o built in and a socket driver as a module, then 
-obviously you can't do this without rebooting.
+When setting the bits, only the timestamp updates distinguish between
+the two, setting I_DIRTY_SYNC but not _DATASYNC.  All other updates
+set both bits.  All tests for I_DIRTY naturally test both bits and
+return (dirty==true) if either bit is set, except for ext2_fsync which
+checks the datasync argument and skips the inode flush if only
+I_DIRTY_SYNC is set.
 
-I doubt this was known at the time the Config.in choices were made, but 
-it's sufficient reason right now to leave it as it is.
+The only impact of this change should be to skip the inode update in
+fdatasync() of an ext2 file if the inode's timestamp, but no other
+field, has been modified.
 
-The correct fix is to dump the static socket tables completely, as has
-already happened in the standalone code, but I think that should probably
-wait for 2.5. In the meantime, this patch ought to work around the problem
-for most cases - although it'll still break if you load 2 socket drivers,
-then unload them again FIFO.
+--Stephen
 
-Index: drivers/pcmcia/cs.c
-===================================================================
-RCS file: /net/passion/inst/cvs/linux/drivers/pcmcia/Attic/cs.c,v
-retrieving revision 1.1.2.28
-diff -u -r1.1.2.28 cs.c
---- drivers/pcmcia/cs.c 2000/11/10 14:56:32     1.1.2.28
-+++ drivers/pcmcia/cs.c 2000/11/22 10:37:33
-@@ -416,12 +416,10 @@
+2.4.0test11.00.idirty.diff:
+
+--- linux-2.4.0-test11/fs/ext2/fsync.c.~1~	Tue Nov 21 15:47:35 2000
++++ linux-2.4.0-test11/fs/ext2/fsync.c	Tue Nov 21 15:47:48 2000
+@@ -152,7 +152,9 @@
+ 				      wait);
+ 	}
+ skip:
+-	err |= ext2_sync_inode (inode);
++	if ((inode->i_state & I_DIRTY_DATASYNC) || 
++	    ((inode->i_state & I_DIRTY) && !datasync))
++		err |= ext2_sync_inode (inode);
+ 	unlock_kernel();
+ 	return err ? -EIO : 0;
+ }
+--- linux-2.4.0-test11/fs/inode.c.~1~	Tue Nov 21 15:47:35 2000
++++ linux-2.4.0-test11/fs/inode.c	Tue Nov 21 15:47:48 2000
+@@ -122,14 +122,14 @@
+  *	Mark an inode as dirty. Callers should use mark_inode_dirty.
+  */
+  
+-void __mark_inode_dirty(struct inode *inode)
++void __mark_inode_dirty(struct inode *inode, int flags)
  {
-     int i;
+ 	struct super_block * sb = inode->i_sb;
  
--    for (i = 0; i < sockets; i++) {
-+    for (i = sockets-1; i >= 0; i-- ) {
-        socket_info_t *socket = socket_table[i];
-        if (socket->ss_entry == ss_entry)
--           pcmcia_unregister_socket (socket);
--       else
--           i++;
-+               pcmcia_unregister_socket (socket);
-     }
- } /* unregister_ss_entry */
+ 	if (sb) {
+ 		spin_lock(&inode_lock);
+-		if (!(inode->i_state & I_DIRTY)) {
+-			inode->i_state |= I_DIRTY;
++		if ((inode->i_state & flags) != flags) {
++			inode->i_state |= flags;
+ 			/* Only add valid (ie hashed) inodes to the dirty list */
+ 			if (!list_empty(&inode->i_hash)) {
+ 				list_del(&inode->i_list);
+@@ -196,7 +196,8 @@
+ 							? &inode_in_use
+ 							: &inode_unused);
+ 		/* Set I_LOCK, reset I_DIRTY */
+-		inode->i_state ^= I_DIRTY | I_LOCK;
++		inode->i_state |= I_LOCK;
++		inode->i_state &= ~I_DIRTY;
+ 		spin_unlock(&inode_lock);
  
-
-
---
-dwmw2
-
-
+ 		write_inode(inode, sync);
+@@ -911,7 +912,7 @@
+ 	if ( IS_NODIRATIME (inode) && S_ISDIR (inode->i_mode) ) return;
+ 	if ( IS_RDONLY (inode) ) return;
+ 	inode->i_atime = CURRENT_TIME;
+-	mark_inode_dirty (inode);
++	mark_inode_dirty_sync (inode);
+ }   /*  End Function update_atime  */
+ 
+ 
+--- linux-2.4.0-test11/include/linux/fs.h.~1~	Tue Nov 21 15:47:35 2000
++++ linux-2.4.0-test11/include/linux/fs.h	Tue Nov 21 15:47:48 2000
+@@ -452,16 +452,25 @@
+ };
+ 
+ /* Inode state bits.. */
+-#define I_DIRTY		1
+-#define I_LOCK		2
+-#define I_FREEING	4
+-#define I_CLEAR		8
++#define I_DIRTY_SYNC		1 /* Not dirty enough for O_DATASYNC */
++#define I_DIRTY_DATASYNC	2 /* Data-related inode changes pending */
++#define I_LOCK			4
++#define I_FREEING		8
++#define I_CLEAR			16
+ 
+-extern void __mark_inode_dirty(struct inode *);
++#define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
++
++extern void __mark_inode_dirty(struct inode *, int);
+ static inline void mark_inode_dirty(struct inode *inode)
+ {
+-	if (!(inode->i_state & I_DIRTY))
+-		__mark_inode_dirty(inode);
++	if ((inode->i_state & I_DIRTY) != I_DIRTY)
++		__mark_inode_dirty(inode, I_DIRTY);
++}
++
++static inline void mark_inode_dirty_sync(struct inode *inode)
++{
++	if (!(inode->i_state & I_DIRTY_SYNC))
++		__mark_inode_dirty(inode, I_DIRTY_SYNC);
+ }
+ 
+ struct fown_struct {
+--- linux-2.4.0-test11/mm/filemap.c.~1~	Tue Nov 21 15:47:35 2000
++++ linux-2.4.0-test11/mm/filemap.c	Tue Nov 21 15:47:48 2000
+@@ -2462,7 +2462,7 @@
+ 	if (count) {
+ 		remove_suid(inode);
+ 		inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+-		mark_inode_dirty(inode);
++		mark_inode_dirty_sync(inode);
+ 	}
+ 
+ 	while (count) {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

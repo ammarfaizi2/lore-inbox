@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130668AbRAaN5e>; Wed, 31 Jan 2001 08:57:34 -0500
+	id <S130138AbRAaOEf>; Wed, 31 Jan 2001 09:04:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130660AbRAaN5O>; Wed, 31 Jan 2001 08:57:14 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22791 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130526AbRAaN5K>; Wed, 31 Jan 2001 08:57:10 -0500
-Subject: Re: IBM encryption chip support?
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Wed, 31 Jan 2001 13:57:29 +0000 (GMT)
-Cc: miles@megapath.net (Miles Lane), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101301028450.2518-100000@master.linux-ide.org> from "Andre Hedrick" at Jan 30, 2001 10:29:05 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129944AbRAaOEZ>; Wed, 31 Jan 2001 09:04:25 -0500
+Received: from mdmgrp3-149.accesstoledo.net ([207.43.108.149]:56324 "EHLO
+	rosswinds.net") by vger.kernel.org with ESMTP id <S130138AbRAaOEP>;
+	Wed, 31 Jan 2001 09:04:15 -0500
+Date: Mon, 29 Jan 2001 22:15:11 -0500 (EST)
+From: "Michael B. Trausch" <fd0man@crosswinds.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Version 2.4.1 cannot be built. 
+In-Reply-To: <Pine.LNX.3.95.1010131084632.12689A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.21.0101292213570.460-100000@fd0man.accesstoledo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14NxlL-0002Mf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 30 Jan 2001, Miles Lane wrote:
+On Wed, 31 Jan 2001, Richard B. Johnson wrote:
 > 
-> > Will this chip need any kernel support or
-> > will it just need to be supported in usermode?
-> > 
-> > http://www.zdnet.com/zdnn/stories/news/0,4586,2680013,00.html?chkpt=zdnn_rt_latest
+> I cannot find the source for GNU Make 3.77+ Does anybody know were
+> it is now? Also, for a long time, I have been trying to find
+> the source for bison "yacc". 
 > 
-> It looks like CPRM on the mainboard.........
 
-Its certainly not a new idea. There are a wide number of trusted computing
-situations where high speed public key crypto that is very hard to go around
-the back of is a big win (think credit card data for one). 
+I'd wonder if you actually know where the Free Software Foundation's
+servers lie...
 
-Its also uninteresting for real security applications because nobody will
-be prepared to assume that IBM silicon hasn't been tampered with by the NSA
-and friends.
+But I won't be a total prick and not tell you :)  That'd just be outright
+wrong in the name of free softare.  http://www.gnu.org/ is the
+website... and you can get any of GNU's software from
+ftp://ftp.gnu.org/gnu/.
 
+	- Mike
+
+===========================================================================
+Michael B. Trausch                                    fd0man@crosswinds.net
+Avid Linux User since April, '96!                           AIM:  ML100Smkr
+
+              Contactable via IRC (DALNet) or AIM as ML100Smkr
+===========================================================================
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

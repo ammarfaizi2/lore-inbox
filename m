@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbUBDVyD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 16:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUBDVyD
+	id S266618AbUBDWHC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 17:07:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266617AbUBDWHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 16:54:03 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:44561 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266555AbUBDVx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 16:53:57 -0500
-Message-ID: <40216B25.3020207@techsource.com>
-Date: Wed, 04 Feb 2004 16:59:01 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Dave McCracken <dmccr@us.ibm.com>
-CC: root@chaos.analogic.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Active Memory Defragmentation: Our implementation & problems
-References: <20040204185446.91810.qmail@web9705.mail.yahoo.com> <Pine.LNX.4.53.0402041402310.2722@chaos> <361730000.1075923354@[10.1.1.5]>
-In-Reply-To: <361730000.1075923354@[10.1.1.5]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 17:07:01 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:5597 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S266609AbUBDWGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 17:06:15 -0500
+Date: Wed, 4 Feb 2004 23:05:58 +0100
+From: "Juergen E. Fischer" <fischer@linux-buechse.de>
+To: david.ronis@mcgill.ca
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Douglas Gilbert <dougg@torque.net>
+Subject: Re: Problem with module-init-tools-3.0-pre3
+Message-ID: <20040204220558.GA31361@linux-buechse.de>
+Mail-Followup-To: david.ronis@mcgill.ca, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+	Douglas Gilbert <dougg@torque.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+In-Reply-To: <16417.24074.807107.128849@ronispc.chem.mcgill.ca>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:8b0c050ff9179508392b54e1b921775e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Dave McCracken wrote:
+Hi David,
 
-> 
-> Um, wrong answer.  When you ask for more than one page from the buddy
-> allocator  (order greater than 0) it always returns physically contiguous
-> pages.
-> 
-> Also, one of the near-term goals in VM is to be able to allocate and free
-> large pages from the main memory pools, which requires that something like
-> order 9 or 10 allocations (based on the architecture) succeed.
-> 
+On Wed, Feb 04, 2004 at 16:03:06 -0500, David Ronis wrote:
+> OK, I applied the patch and rebuilt/reinstalled kernel and modules.
+> Problem is still present. =20
 
-What's the x86 large page size?  4M?  16M?  For the sake of arguement, 
-let's call it 4M.  Doesn't matter.
+Ok. That was just a thought.
 
-Let's say this defragmenter allowed the kernel to detect when 1024 4k 
-pages were contiguous and aligned properly and could silently replace 
-the processor mapping tables so that all of these "pages" would be 
-mapped by one TLB entry.  (At such time that some pages need to get 
-freed, the VM would silently switch back to the 4k model.)
+Looks like the same problem was also reported twice on linux-kernel
 
-This would reduce TLB entries for a lot of programs above a certain 
-size, and therefore improve peformance.
+Both while running cdrecord -scanbus with the usb-storage driver, but
+not the aha152x driver  (References:
+<20040106174755.GA8855@paradigm.rfc822.org>
+<1075241217.3851.8.camel@localhost.localdomain>).
 
-The question is:  How much overhead really is caused by TLB misses?  The 
-TLB in the Athlon is like 512 entries.  That means it can know about 2 
-megabytes worth of 4k pages at any one time.
+Your report and those two all involve sg.  So I guess the problem is in
+sg (or an upper layer).
 
+
+J=FCrgen
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAIWzGc/GhTF5ESHURAhnEAJ9+Y0ftSjGVvbxrxJtdT8K5aiI8UgCfRqNz
+b6gjpH24688RYrB2tDSR3J8=
+=EQId
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

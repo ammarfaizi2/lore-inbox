@@ -1,96 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318872AbSHMFs0>; Tue, 13 Aug 2002 01:48:26 -0400
+	id <S318937AbSHMFpX>; Tue, 13 Aug 2002 01:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318902AbSHMFra>; Tue, 13 Aug 2002 01:47:30 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:17309 "EHLO
+	id <S318938AbSHMFpX>; Tue, 13 Aug 2002 01:45:23 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:18074 "EHLO
 	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S318938AbSHMFqY>; Tue, 13 Aug 2002 01:46:24 -0400
-Message-ID: <3D589E11.6093B119@attbi.com>
-Date: Tue, 13 Aug 2002 01:50:09 -0400
+	id <S318937AbSHMFpX>; Tue, 13 Aug 2002 01:45:23 -0400
+Message-ID: <3D589DD3.A8C16F2B@attbi.com>
+Date: Tue, 13 Aug 2002 01:49:07 -0400
 From: Albert Cranford <ac9410@attbi.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH]2.4.20 ARCH=i386 create dmi_scan.h and move decl from dmi_scan.c
+Subject: [patch 1/4] 2.4.20-pre2 i2c updates
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello Marcelo,
-Could you apply the following patch against 2.4.20-pre2.
-Alan C. thought this would be OK to support i2c/sensors.
+Please apply the following four tested patches that update
+2.4.20-pre2 with these I2C changes:
+o Support for SMBus 2.0 PEC Packet Error Checking
+o New adapter-i2c-frodo for SA 1110 board
+o New adapter-i2c-rpx for embeded MPC8XX
+o Remove compat code for < 2.4
+o Replace cli()&sti() with spin_{un}lock_irq()
+o Updated documentation
 Thanks,
 Albert
---- linux/arch/i386/kernel/dmi_scan.c.orig     2002-07-31 23:10:21.000000000 -0400
-+++ linux/arch/i386/kernel/dmi_scan.c  2002-07-31 23:13:52.000000000 -0400
-@@ -9,6 +9,7 @@
- #include <linux/pm.h>
- #include <asm/keyboard.h>
- #include <asm/system.h>
-+#include <asm/dmi_scan.h>
- #include <linux/bootmem.h>
+--- linux/drivers/i2c/Config.in.orig    2002-07-23 01:47:14.000000000 -0400
++++ linux/drivers/i2c/Config.in 2002-07-23 01:47:14.000000000 -0400
+@@ -32,10 +32,10 @@
+          dep_tristate '  Embedded Planet RPX Lite/Classic suppoort' CONFIG_I2C_RPXLITE $CONFIG_I2C_ALGO8XX
+       fi
+    fi
+-   if [ "$CONFIG_405" = "y" ]; then
+-      dep_tristate 'PPC 405 I2C Algorithm' CONFIG_I2C_PPC405_ALGO $CONFIG_I2C
+-      if [ "$CONFIG_I2C_PPC405_ALGO" != "n" ]; then
+-         dep_tristate '  PPC 405 I2C Adapter' CONFIG_I2C_PPC405_ADAP $CONFIG_I2C_PPC405_ALGO
++   if [ "$CONFIG_IBM_OCP" = "y" ]; then
++      dep_tristate 'IBM on-chip I2C Algorithm' CONFIG_I2C_IBM_OCP_ALGO $CONFIG_I2C
++      if [ "$CONFIG_I2C_IBM_OCP_ALGO" != "n" ]; then
++         dep_tristate '  IBM on-chip I2C Adapter' CONFIG_I2C_IBM_OCP_ADAP $CONFIG_I2C_IBM_OCP_ALGO
+       fi
+    fi
  
- unsigned long dmi_broken;
-@@ -127,22 +128,7 @@
-        return -1;
- }
+@@ -47,7 +47,7 @@
+ # This is needed for automatic patch generation: sensors code ends here
  
--
--enum
--{
--       DMI_BIOS_VENDOR,
--       DMI_BIOS_VERSION,
--       DMI_BIOS_DATE,
--       DMI_SYS_VENDOR,
--       DMI_PRODUCT_NAME,
--       DMI_PRODUCT_VERSION,
--       DMI_BOARD_VENDOR,
--       DMI_BOARD_NAME,
--       DMI_BOARD_VERSION,
--       DMI_STRING_MAX
--};
--
--static char *dmi_ident[DMI_STRING_MAX];
-+char *dmi_ident[DMI_STRING_MAX];
+    dep_tristate 'I2C device interface' CONFIG_I2C_CHARDEV $CONFIG_I2C
+-   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C
++   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C $CONFIG_SYSCTL
  
- /*
-  *     Save a DMI string
---- /dev/null   1994-07-17 19:46:18.000000000 -0400
-+++ linux/include/asm-i386/dmi_scan.h  2002-07-31 23:12:49.000000000 -0400
-@@ -0,0 +1,19 @@
-+#ifndef __i386_DMI_SCAN_H
-+#define __i386_DMI_SCAN_H
-+enum
-+{
-+       DMI_BIOS_VENDOR,
-+       DMI_BIOS_VERSION,
-+       DMI_BIOS_DATE,
-+       DMI_SYS_VENDOR,
-+       DMI_PRODUCT_NAME,
-+       DMI_PRODUCT_VERSION,
-+       DMI_BOARD_VENDOR,
-+       DMI_BOARD_NAME,
-+       DMI_BOARD_VERSION,
-+       DMI_STRING_MAX
-+};
-+
-+extern char *dmi_ident[DMI_STRING_MAX];
-+
-+#endif
+ fi
+ endmenu
 
-On Fri, 2002-08-02 at 15:58, Albert Cranford wrote:
-> Hello Linus,
-> Alan suggested that sensors group use a dmi scanner to
-> manage allow/blacklist products.  In order to do this
-> we need to use arch/i386/kernel/dmi_scan.c components.
-> 
-> Could you apply the following patch to facilitate this?
-> Its been tested in linux-2.5.30 with no negative impact on
-> kernel and may be useful for others.
-
-
-Ok by me
+-- 
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net

@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbUDNHn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 03:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbUDNHn3
+	id S263939AbUDNH7W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 03:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263948AbUDNH7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 03:43:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15336 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261723AbUDNHn1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 03:43:27 -0400
-Message-ID: <407CEB91.1080503@pobox.com>
-Date: Wed, 14 Apr 2004 03:43:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] conditionalize some boring buffer_head checks
-Content-Type: multipart/mixed;
- boundary="------------000205040706020706040606"
+	Wed, 14 Apr 2004 03:59:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:8068 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263939AbUDNH7S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 03:59:18 -0400
+Date: Wed, 14 Apr 2004 00:58:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] conditionalize some boring buffer_head checks
+Message-Id: <20040414005832.083de325.akpm@osdl.org>
+In-Reply-To: <407CEB91.1080503@pobox.com>
+References: <407CEB91.1080503@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000205040706020706040606
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> 
+> These checks are executed billions of times per day, with no stack dump 
+> bug reports sent to lkml.  Arguably, they will only trigger on buggy 
+> filesystems (programmer error), and thus IMO shouldn't even be executed 
+> in a non-debug kernel.
+> 
+> Even though BUG_ON() includes unlikely(), I think this patch -- or 
+> something like it -- is preferable.  The buffer_error() checks aren't 
+> even marked unlikely().
+> 
+> This is a micro-optimization on a key kernel fast path.
+> 
 
+buffer_error() was always supposed to be temporary.  Once per month someone
+reports the one in __find_get_block_slow(), but that's all.  The only
+reason for keeping it around is as a debug aid to filesystem developers.
 
-These checks are executed billions of times per day, with no stack dump 
-bug reports sent to lkml.  Arguably, they will only trigger on buggy 
-filesystems (programmer error), and thus IMO shouldn't even be executed 
-in a non-debug kernel.
-
-Even though BUG_ON() includes unlikely(), I think this patch -- or 
-something like it -- is preferable.  The buffer_error() checks aren't 
-even marked unlikely().
-
-This is a micro-optimization on a key kernel fast path.
-
-
-
---------------000205040706020706040606
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-===== fs/buffer.c 1.237 vs edited =====
---- 1.237/fs/buffer.c	Wed Apr 14 03:18:09 2004
-+++ edited/fs/buffer.c	Wed Apr 14 03:39:15 2004
-@@ -2688,6 +2688,7 @@
- {
- 	struct bio *bio;
- 
-+#ifdef BH_DEBUG
- 	BUG_ON(!buffer_locked(bh));
- 	BUG_ON(!buffer_mapped(bh));
- 	BUG_ON(!bh->b_end_io);
-@@ -2698,6 +2699,7 @@
- 		buffer_error();
- 	if (rw == READ && buffer_dirty(bh))
- 		buffer_error();
-+#endif
- 
- 	/* Only clear out a write error when rewriting */
- 	if (test_set_buffer_req(bh) && rw == WRITE)
-===== include/linux/buffer_head.h 1.47 vs edited =====
---- 1.47/include/linux/buffer_head.h	Wed Apr 14 03:18:09 2004
-+++ edited/include/linux/buffer_head.h	Wed Apr 14 03:39:31 2004
-@@ -13,6 +13,8 @@
- #include <linux/wait.h>
- #include <asm/atomic.h>
- 
-+#undef BH_DEBUG
-+
- enum bh_state_bits {
- 	BH_Uptodate,	/* Contains valid data */
- 	BH_Dirty,	/* Is dirty */
-
---------------000205040706020706040606--
-
+We could make it a no-op if !CONFIG_BUFFER_DEBUG.

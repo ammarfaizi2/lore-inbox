@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264254AbUEDUtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264309AbUEDUzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264254AbUEDUtF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 16:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbUEDUtE
+	id S264309AbUEDUzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 16:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUEDUzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 16:49:04 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:30594 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S264254AbUEDUtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 16:49:01 -0400
-Date: Tue, 4 May 2004 13:48:49 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Fix booting some PPC32 machines
-Message-ID: <20040504204849.GA14974@smtp.west.cox.net>
-References: <20040503180945.GL26773@smtp.west.cox.net> <20040504070606.GA11701@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 May 2004 16:55:41 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:26374 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264321AbUEDUzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 16:55:37 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Organization: Linux-Systeme GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.27-pre2: tg3: there's no WARN_ON in 2.4
+Date: Tue, 4 May 2004 22:53:11 +0200
+User-Agent: KMail/1.6.2
+Cc: Adrian Bunk <bunk@fs.tum.de>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, jgarzik@pobox.com,
+       davem@redhat.com
+References: <20040503230911.GE7068@logos.cnet> <20040504204633.GB8643@fs.tum.de>
+In-Reply-To: <20040504204633.GB8643@fs.tum.de>
+X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040504070606.GA11701@suse.de>
-User-Agent: Mutt/1.5.6i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_3KAmASsqFNyW7qO"
+Message-Id: <200405042253.11133@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 09:06:06AM +0200, Olaf Hering wrote:
->  On Mon, May 03, Tom Rini wrote:
-> 
-> > Hello.  The following patch fixes booting on some PPC32 machines with
-> > OpenFirmware, when booted without the aid of an additional bootloader.
-> > The problem is that the linker script for the 'zImage' type targets was
-> > put into the list of dependancies which objcopy would parse as a list of
-> > files to copy into the resulting image.  The fix is to make the phony
-> > zImage targets depend on the linker script.
-> 
-> This fixes netbooting on my B50. But it breaks the dependency to ld.script,
-> which was the whole point of the previous patch.
 
-As I mentioned on IRC, but don't have time ATM to verify, I don't think
-a 'touch' of the ld.script is sufficient a test in this case since it's
-a call-if-changed thing so you'd have to modify ld.script.  Can you do
-that and see if it's really a change?  Thanks.
+--Boundary-00=_3KAmASsqFNyW7qO
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+On Tuesday 04 May 2004 22:46, Adrian Bunk wrote:
+
+Hi Adrian,
+
+> drivers/net/net.o(.text+0x60293): In function `tg3_get_strings':
+> : undefined reference to `WARN_ON'
+> make: *** [vmlinux] Error 1
+> There's no WARN_ON in 2.4.
+
+yep. Either we backport WARN_ON ;) or simply do the attached.
+
+ciao, Marc
+
+--Boundary-00=_3KAmASsqFNyW7qO
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="564_tg3-2.4.27-pre2-1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="564_tg3-2.4.27-pre2-1.patch"
+
+--- old/drivers/net/tg3.c	2004-05-04 14:30:22.000000000 +0200
++++ new/drivers/net/tg3.c	2004-05-04 14:49:58.000000000 +0200
+@@ -51,6 +51,10 @@
+ #define TG3_TSO_SUPPORT	0
+ #endif
+ 
++#ifndef WARN_ON
++#define	WARN_ON(x)	do { } while (0)
++#endif
++
+ #include "tg3.h"
+ 
+ #define DRV_MODULE_NAME		"tg3"
+
+--Boundary-00=_3KAmASsqFNyW7qO--

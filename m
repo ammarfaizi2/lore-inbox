@@ -1,62 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281541AbRKVTqK>; Thu, 22 Nov 2001 14:46:10 -0500
+	id <S281579AbRKVTzC>; Thu, 22 Nov 2001 14:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281560AbRKVTqA>; Thu, 22 Nov 2001 14:46:00 -0500
-Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:6546 "EHLO
-	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
-	id <S281541AbRKVTpx>; Thu, 22 Nov 2001 14:45:53 -0500
-Date: Thu, 22 Nov 2001 19:51:26 +0100
-From: Andreas Bombe <bombe@informatik.tu-muenchen.de>
-To: =?iso-8859-1?Q?Lu=EDs?= Henriques 
-	<lhenriques@criticalsoftware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: copy to suer space
-Message-ID: <20011122195126.A4695@storm.local>
-Mail-Followup-To: =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@criticalsoftware.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011120173309.0262fd10@pop.cus.cam.ac.uk> <200111201759.fAKHx9289954@criticalsoftware.com>
+	id <S281591AbRKVTyw>; Thu, 22 Nov 2001 14:54:52 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:49954 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S281579AbRKVTyh>; Thu, 22 Nov 2001 14:54:37 -0500
+Date: Thu, 22 Nov 2001 21:54:24 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: What are the recommended software RAID patch(es) for 2.2.20?
+Message-ID: <20011122215424.C4809@niksula.cs.hut.fi>
+In-Reply-To: <2173081930.1006455144@[195.224.237.69]> <20011122210503.B4809@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200111201759.fAKHx9289954@criticalsoftware.com>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011122210503.B4809@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Thu, Nov 22, 2001 at 09:05:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 05:53:24PM +0000, Luís Henriques wrote:
-> I don't understand... this means that the paging does not save the a code 
-> segment in memory? (sorry, this question is being done by a newbie...) When a 
-> page is back to memory, what happens? Is read again from the binary file 
-> (executable)?
-
-Code and data pages are mapped from the executable.  Code is read-only
-and can therefore be discarded at any time, since it exists on disk (in
-the executable file, no swap needed).  Data is mapped copy-on-write
-(read-only pages until writes occur, then a writable copy is generated).
-
-So only modified data pages and new mappings not backed by a disk file
-need to be saved in swap space.
-
-> Well... I don't think this will have much impact in my module because what it 
-> does is:
+On Thu, Nov 22, 2001 at 09:05:03PM +0200, you [Ville Herva] claimed:
 > 
->  - change the code in a process
->  - return to the process
->  - next time the process is scheduled, the code will be stored again in the CS
+> cat /dev/hde | md5sum
+> or 
+> cat /dev/hdg | md5sum
+> (hdg and hde are not the same, but successive hde runs are the same as are
+> hdg runs.)
+> 
+> but
+> cat /dev/md0 | md5sum
+> 
+> is different every time. md0 consists of hde and hdg striped together.
+> (Again, I'm not expecting it to be same as hde or hdg, but consistent over
+> successive runs.) Successive hde and hdg runs are consistent even when run
+> in parallel.
+> 
+> Any ideas what could cause this? A short read or something else trivial?
+> 
+> I'll try to go back to 2.2.18pre19 soon, and see if it happens there. Also,
+> I'll try to see where the difference is. The first GB of md0 md5sums ok.
 
-I'm not sure why you would want to actually _change_ code.  You could
-prepare a page in kernel with the busy loop and map that into user
-space.
+Ummh. I'm doing successive runs for /dev/md0 GB at a time, and it seems to
+get corrupted in the middle:
 
-Then make the kernel return to your busy loop and let it call back to
-the kernel again when finished, then remove the mapping to leave no
-traces.  Maybe that could be done by redirecting a signal handler
-pointer and raising that signal.
+#!/usr/bin/perl
+for ($i = 0; $i < 75; $i++)
+{
+   $block = 1024**2;
+   $count = 1024;
+   $| = 1;
+   print "At $i GB\n";
+   
+   system "(dd if=/dev/md0 bs=$block count=$count skip=".($i*$count).
+          "| md5sum) 2>&1";
+}
 
-I don't know how difficult that is, it's just an idea.  But it sure
-sounds easier than modifying a read-only page without side effects.
+diff -c on (modified) output:
 
--- 
-Andreas Bombe <bombe@informatik.tu-muenchen.de>    DSA key 0x04880A44
+*** 5,11 ****
+  At 4 GB 131e2916f3155f7c6df63fe2257e0350  -
+  At 5 GB 502be9c039744eb761f89ada152a1745  -
+  At 6 GB 07012ffe77ad7d6565f2e9576f1cf91e  -
+! At 7 GB ffa5545ee518d3a7724831012d3e4c44  -
+  At 8 GB eec233bf66d33fc81bfa895b022c4b04  -
+  At 9 GB c62e78b9401f91199ce558242faf5da5  -
+  At 10 GB f41d004b63c2481245320c28b9366b08  -
+--- 5,11 ----
+  At 4 GB 131e2916f3155f7c6df63fe2257e0350  -
+  At 5 GB 502be9c039744eb761f89ada152a1745  -
+  At 6 GB 07012ffe77ad7d6565f2e9576f1cf91e  -
+! At 7 GB 4bbbaeefe786c760e342342f6a85ad4e  -
+  At 8 GB eec233bf66d33fc81bfa895b022c4b04  -
+  At 9 GB c62e78b9401f91199ce558242faf5da5  -
+  At 10 GB f41d004b63c2481245320c28b9366b08  -
+(... still running)
+
+I'm puzzled as to why this happens, since (as said) hde and hdg both md5sum
+quite ok. Raid stuff, I gather, should be fairly solid, no? 
+
+
+-- v --
+
+v@iki.fi

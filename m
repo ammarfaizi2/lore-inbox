@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbTLPUNj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 15:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTLPUNi
+	id S262074AbTLPULW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 15:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTLPULW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 15:13:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:25219 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262315AbTLPUNg
+	Tue, 16 Dec 2003 15:11:22 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:65008 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262074AbTLPULS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 15:13:36 -0500
-Date: Tue, 16 Dec 2003 15:16:17 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Kristofer T. Karas" <ktk@ENTERPRISE.BIDMC.HARVARD.EDU>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Linux 2.4.24-pre1: Instant reboot
-In-Reply-To: <3FDF63A2.9090205@enterprise.bidmc.harvard.edu>
-Message-ID: <Pine.LNX.4.53.0312161511350.21535@chaos>
-References: <3FDF63A2.9090205@enterprise.bidmc.harvard.edu>
+	Tue, 16 Dec 2003 15:11:18 -0500
+Message-ID: <3FDF67ED.1070605@us.ltcfwd.linux.ibm.com>
+Date: Tue, 16 Dec 2003 14:15:41 -0600
+From: Linda Xie <lxiep@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, Greg KH <gregkh@us.ibm.com>
+CC: scheel@us.ibm.com, wortman@us.ibm.com
+Subject: PATCH -- kobject_set_name() doesn't allocate enough space
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Dec 2003, Kristofer T. Karas wrote:
 
-> Hi Marcelo, et al,
->
-> Just wanted to report an instantaneous reboot problem with 2.4.24-pre1.
->
-> I don't even see any printk's to the screen; as soon as LILO is finished
-> loading the new kernel, the screen blanks and the BIOS goes through its
-> boot sequence again.  Since I seem to be the only one reporting this to
-> LKML, I suspect I'll have to back out various patches to try to track
-> this down. :-P
->
-> I'm using the same .config as in 2.4.23 with new questions left at their
-> defaults (e.g. XFS=n, OOM_KILLER=n).  I've had no problems with this
-> otherwise rock-stable platform for all varieties of 2.4.x, save for some
-> early USB EHCI issues long ago.
->
-> At work now, so I don't have a full .config handy, but:
-> * Slackware 8.1 based; glibc 2.2.5; gcc 2.95.3
-> * Soltek SL-75DRV2 (UP, Athlon XP 1700, VIA KT266A [VT8366A/VT8233])
-> * Root = ext3 on IDE partition
-> * DevFS, DevPTS, IDE-SCSI=cdrom0, USBStorage, USB EHCI, VFAT
-> * RadeonFB, IPTables, Realtek-8139
-> Everything else in .config is pretty vanilla (e.g. Linus defaults or
-> thereabouts).
->
-> Kris
->
+Hi All,
 
-What CPU did you compile it for? The reboot stuff looks like
-a CPU reset because of a triple fault, i.e., using CMOV when
-there isn't any, etc. Try something more generic and see if
-it boots.
+The sapce allocated in kobject_set_name() is 1 byte less than it should 
+be. The Attached patch fixes this bug.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
+Comments are welcome.
+
+Thanks,
+
+
+
+Linda Xie
+IBM Linux Technology Center
+
+
+
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	Sun Dec 14 21:19:29 2003
++++ b/lib/kobject.c	Sun Dec 14 21:19:29 2003
+@@ -344,12 +344,12 @@
+  		/*
+  		 * Need more space? Allocate it and try again
+  		 */
+-		name = kmalloc(need,GFP_KERNEL);
++		limit = need + 1;
++		name = kmalloc(limit,GFP_KERNEL);
+  		if (!name) {
+  			error = -ENOMEM;
+  			goto Done;
+  		}
+-		limit = need;
+  		need = vsnprintf(name,limit,fmt,args);
+
+  		/* Still? Give up. */
 

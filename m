@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbTIHNDb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 09:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTIHNDa
+	id S262275AbTIHNIB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 09:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTIHNIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 09:03:30 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35567 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261811AbTIHND2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 09:03:28 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-Date: Mon, 8 Sep 2003 15:03:20 +0200
-User-Agent: KMail/1.5.1
-Cc: Andreas Schwab <schwab@suse.de>, <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>
-References: <Pine.LNX.4.44.0309071617380.21192-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0309071617380.21192-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 8 Sep 2003 09:08:01 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:41602 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262275AbTIHNH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 09:07:59 -0400
+Subject: Re: Hardware supported by the kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: DervishD <raul@pleyades.net>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030908095357.GD10358@redhat.com>
+References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD>
+	 <20030907223258.GE28927@redhat.com> <20030908092952.GA51@DervishD>
+	 <20030908095357.GD10358@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309081503.20459.arnd@arndb.de>
+Message-Id: <1063026380.21084.24.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Mon, 08 Sep 2003 14:06:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 September 2003 01:21, Linus Torvalds wrote:
+On Llu, 2003-09-08 at 10:53, Dave Jones wrote:
+> SiS    - Cards like the Xabre are quite cheap, though unsupported,
+>          though SiS folks did seemto wnat to help at one point, then
+>          when quiet.
 
-> In fact, what you'd want to do is not just verify that it compiles, but
-> also verify that the object code matches.
+SiS have also since spun off their graphics division. Someone is porting
+the SiS drivers to current DRI at the moment.
 
-I have checked now that the object code for arch/s390/kernel/compat_ioctl.o
-remains identical and that the whole kernel compiles for s390 and i386,
-after fixing the broken ioctl numbers.
+> S3     - Again, poorly performing, specs/drivers are out there.
 
-> Because there _is_ one case where adding the [1] will still compile, but
-> generate wrong code: if the "size" argument to the _IOx() was not a type,
-> but a real actual array.
+Drivers for 4.2 release by VIA need porting to 4.3
 
-Yes, there had to be a catch. The new version below catches that error
-too, making that a link time failure and also checks that the size
-field does not overflow.
+> who did I miss ?
 
-	Arnd <><
+Trident - documentation is public, nobody has tackled a driver
 
---- 1.1/include/asm-i386/ioctl.h	Tue Feb  5 18:39:44 2002
-+++ edited/include/asm-i386/ioctl.h	Mon Sep  8 13:21:28 2003
-@@ -52,11 +52,21 @@
- 	 ((nr)   << _IOC_NRSHIFT) | \
- 	 ((size) << _IOC_SIZESHIFT))
- 
-+/* provoke compile error for invalid uses of size argument */
-+extern int __invalid_size_argument_for_IOC;
-+#define _IOC_TYPECHECK(t) \
-+	((sizeof(t) == sizeof(t[1]) && \
-+	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
-+	  sizeof(t) : __invalid_size_argument_for_IOC)
-+
- /* used to create numbers */
- #define _IO(type,nr)		_IOC(_IOC_NONE,(type),(nr),0)
--#define _IOR(type,nr,size)	_IOC(_IOC_READ,(type),(nr),sizeof(size))
--#define _IOW(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),sizeof(size))
--#define _IOWR(type,nr,size)	_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),sizeof(size))
-+#define _IOR(type,nr,size)	_IOC(_IOC_READ,(type),(nr),(_IOC_TYPECHECK(size)))
-+#define _IOW(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),(_IOC_TYPECHECK(size)))
-+#define _IOWR(type,nr,size)	_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),(_IOC_TYPECHECK(size)))
-+#define _IOR_BAD(type,nr,size)	_IOC(_IOC_READ,(type),(nr),sizeof(size))
-+#define _IOW_BAD(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),sizeof(size))
-+#define _IOWR_BAD(type,nr,size)	_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),sizeof(size))
- 
- /* used to decode ioctl numbers.. */
- #define _IOC_DIR(nr)		(((nr) >> _IOC_DIRSHIFT) & _IOC_DIRMASK)
+Intel - older stuff is slow, newer onboard video is actually pretty good
+and Intel support this stuff seriously. Its not a radeon but it players
+cube perfectly well 8) Presumably intel will eventually fuse the CPU and
+graphics into one chip.
+
+VIA - XFree 4.2 drivers need porting over to 4.3. Original 4.2 code
+provided by VIA. I've got glxgears kind of working but didnt have time
+to go further and fix the span bugs and the locking v acceleration.
+
+

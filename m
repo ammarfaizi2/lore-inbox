@@ -1,97 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbTEFG3k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 02:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTEFG3k
+	id S262386AbTEFGav (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 02:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbTEFGav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 02:29:40 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47605 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262385AbTEFG3h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 02:29:37 -0400
-Message-ID: <3EB75924.1080304@mvista.com>
-Date: Mon, 05 May 2003 23:41:40 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>, kbuild-devel@lists.sourceforge.net,
-       mec@shout.net,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] asm-generic magic
-Content-Type: multipart/mixed;
- boundary="------------070005030608090803000405"
+	Tue, 6 May 2003 02:30:51 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5861 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262386AbTEFGas (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 02:30:48 -0400
+Date: Mon, 05 May 2003 22:35:54 -0700 (PDT)
+Message-Id: <20030505.223554.88485673.davem@redhat.com>
+To: akpm@digeo.com
+Cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmalloc_percpu
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030505224815.07e5240c.akpm@digeo.com>
+References: <20030505220250.213417f6.akpm@digeo.com>
+	<20030505.211606.28803580.davem@redhat.com>
+	<20030505224815.07e5240c.akpm@digeo.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Andrew Morton <akpm@digeo.com>
+   Date: Mon, 5 May 2003 22:48:15 -0700
 
-This is a multi-part message in MIME format.
---------------070005030608090803000405
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+   I think so.  So we'd end up with:
+   
+   - DEFINE_PER_CPU and kmalloc_percpu() work in core kernel, and use the 32k
+     pool.
+   
+   - DEFINE_PER_CPU in modules uses the 32k pool as well (core kernel does the
+     allocation).
+   
+   - kmalloc_per_cpu() is unavailble to modules (it ain't exported).
+   
+   AFAICT the only thing which will break is sctp, which needs a trivial
+   conversion to DEFINE_PER_CPU.
+   
+Your grep is faulty, we're using kmalloc_percpu() in ipv6 for per-cpu
+and per-device icmp stats.
 
+You solution doesn't work in that case.  Also ipv4 will have the same
+problems if we make that modular at some point.
 
+I also don't see how this fits in for your ext2 fuzzy counter stuff.
+It isn't a "module" for most people, I can't even remember if I've
+ever built ext2 non-statically.  :-)  It almost appears as if you
+are suggesting kmalloc_percpu() is not usable at all.
 
-The attached patch changes topdir/Makefile to make the asm-generic
-stuff to work the way I assumed it was supposed to work.  :)
-
-That is, if the file exists in .../include/asm/ use that one, if not 
-and it exist in .../include/asm-generic/ use the generic one.  This is 
-compatable with current conventions but also allows asm files that do 
-nothing but include the asm-generic file with the same name to go 
-away.  The "magic" is to supply both include and include/asm-generic 
-to CPP.  This causes it, when looking for  <asm/foo.h> to look first 
-in ...include/asm/ and then in .../include/asm-generic/asm.  To make 
-the ladder work we put a link (called asm) in asm-generic to point to ".".
-
-Commits?
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
-
---------------070005030608090803000405
-Content-Type: text/plain;
- name="asm-generic.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="asm-generic.patch"
-
---- linux-2.5.69-wq/Makefile~	2003-05-05 15:33:30.000000000 -0700
-+++ linux/Makefile	2003-05-05 18:00:42.000000000 -0700
-@@ -181,7 +181,7 @@
- 
- NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
- 
--CPPFLAGS	:= -D__KERNEL__ -Iinclude
-+CPPFLAGS	:= -D__KERNEL__ -Iinclude -Iinclude/generic-asm
- CFLAGS 		:= $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
- 	  	   -fno-strict-aliasing -fno-common
- AFLAGS		:= -D__ASSEMBLY__ $(CPPFLAGS)
-@@ -403,7 +403,7 @@
- #	module versions are listed in "prepare"
- 
- .PHONY: prepare
--prepare: include/linux/version.h include/asm include/config/MARKER
-+prepare: include/linux/version.h include/asm include/config/MARKER include/asm-generic/asm
- ifdef KBUILD_MODULES
- ifeq ($(origin SUBDIRS),file)
- 	$(Q)rm -rf $(MODVERDIR)
-@@ -453,6 +453,10 @@
- 	@echo '  Making asm->asm-$(ARCH) symlink'
- 	@ln -s asm-$(ARCH) $@
- 
-+include/asm-generic/asm:
-+	@echo '  Making asm-generic/asm->. symlink'
-+	@ln -s . $@
-+
- # 	Split autoconf.h into include/linux/config/*
- 
- include/config/MARKER: scripts/split-include include/linux/autoconf.h
-child process exited abnormally
-
-
---------------070005030608090803000405--
-
+So there we have it, there are a total of 3 users of kmalloc_percpu()
+(ipv4/ipv6/diskstats) so let's decide if it's going to continue to
+live longer or not before there are any more. :-)

@@ -1,124 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVCaGTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVCaGUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVCaGTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 01:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbVCaGTJ
+	id S262493AbVCaGUF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 01:20:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVCaGUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 01:19:09 -0500
-Received: from redpine-92-161-hyd.redpinesignals.com ([203.196.161.92]:55193
-	"EHLO redpinesignals.com") by vger.kernel.org with ESMTP
-	id S262013AbVCaGS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 01:18:59 -0500
-Message-ID: <424B991C.5040109@redpinesignals.com>
-Date: Thu, 31 Mar 2005 12:00:52 +0530
-From: P Lavin <lavin.p@redpinesignals.com>
-Reply-To: lavin.p@redpinesignals.com
-Organization: www.redpinesignals.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Mar 2005 01:20:04 -0500
+Received: from pirx.hexapodia.org ([199.199.212.25]:20237 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S262493AbVCaGTZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 01:19:25 -0500
+Date: Wed, 30 Mar 2005 22:19:24 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: Ulrich Lauther <ulrich.lauther@siemens.com>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: problem with suspending linux-2.6.12-rc1
+Message-ID: <20050331061924.GA32548@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050328222049.GE1389@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 29, 2005 at 12:20:49AM +0200, Pavel Machek wrote:
+> On Po 28-03-05 10:03:06, Ulrich Lauther wrote:
+> > > > since upgrading from 2.6.11 to 2.6.12-rc1 software suspend doesn't work 
+> > > > anymore for me:
+> > > > The last I see when suspending (echo 4 > /proc/acpi/sleep) is a
+> > > > message refering to eth0, then when "writing to swap space"
+> > > > should appear, the system stops.
 
-Hi Jesper,
-I'm sending this mail to mailing list coz in my company we have some
-restrictions on o/g mails, Sorry for that...
-Lemme ask u smthing, herez the code
-     199     sndpkt = (RSI_sndpkt_t *) RSI_MALLOC(sizeof(RSI_sndpkt_t));
-     200     sndpkt->buf_list = (RSI_buf_t *) RSI_MALLOC(sizeof(RSI_buf_t));
-Here if malloc fails sndpkt->buf_list should be null right ?? & if i
-proceed further ..
+This sounds similar to the swsusp hang I started seeing when I upgraded
+from 2.6.11 to 2.6.12-rc1; my touchpad was failing to reinitialize, so
+input was calling hotplug which tried to exec /sbin/hotplug, and the
+exec() blocked because userland was stopped.  If you do Sysrq-T and see
+a process with a stack trace like
+	wait_for_completion
+	call_usermodehelper
+	kobject_hotplug
+	kobject_del
+	class_device_del
+	class_device_unregister
+	mousedev_disconnect
+	input_unregister_device
+then you're seeing the same kind of bug.
 
-     201     sndpkt->buf_list->start_addr = buf;
-     202     sndpkt->buf_list->length     = length;
-Here itself this should crash right ?? But its not crashing here !!! Wt
-was happening was
+Try the patch below from Dmitry.
 
-201 sndpkt->buf_list->start_addr = buf; was not getting initailised & wn
-we try to access this variable latter
-this was crashing.
+-andy
 
-Actally i'm not checking for return value from kmalloc thatz a mistake,
-I'll fix this but why is it not crashing in line # 201 ??
+===================================================================
 
-Jesper Juhl wrote:
+Input: serio - do not attempt to immediately disconnect port if
+       resume failed, let kseriod take care of it. Otherwise we
+       may attempt to unregister associated input devices which
+       will generate hotplug events which are not handled well
+       during swsusp.
 
->On Wed, 30 Mar 2005, P Lavin wrote:
->
->  
->
->>Date: Wed, 30 Mar 2005 12:45:01 +0530
->>From: P Lavin <lavin.p@redpinesignals.com>
->>To: linux-kernel@vger.kernel.org
->>Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
->>
->>Hi,
->>In my wlan driver module, i allocated some memory using kmalloc in interrupt
->>context, this one failed but its not returning NULL , 
->>    
->>
->
->kmalloc() should always return NULL if the allocation failed.
->
->
->  
->
->>so i was proceeding
->>further everything was going wrong... & finally the kernel crahed. Can any one
->>of you tell me why this is happening ? i cannot use GFP_KERNEL because i'm
->>calling this function from interrupt context & it may block. Any other
->>    
->>
->
->If you need to allocate memory from interrupt context you should be using 
->GFP_ATOMIC (or, if possible, do the allocation earlier in a different 
->context).
->
->
->  
->
-I'm using this flag only, this flag does not guarentee mem allocation,
-right ??
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
->>solution for this ?? I'm concerned abt why kmalloc is not returning null if
->>its not a success ??
->>
->>    
->>
->I have no explanation for that, are you sure that's really what's 
->happening?
->
->
->  
->
-I'm not checking this , but my explanation is given above.
 
->>Is it not necessary to check for NULL before calling kfree() ??
->>    
->>
->
->No, it is not nessesary to check for NULL before calling kfree() since 
->kfree() does    
->
->void kfree (const void *objp)
->{
->	... 
->        if (!objp)
->                return;
->	...
->}
->
->So, if you pass kfree() a NULL pointer it deals with it itself, you don't 
->need to check that explicitly before calling kfree() - that's redundant.
->
->
->  
->
+ serio.c |    1 -
+ 1 files changed, 1 deletion(-)
 
-Regs,
-Lavin
+Index: dtor/drivers/input/serio/serio.c
+===================================================================
+--- dtor.orig/drivers/input/serio/serio.c
++++ dtor/drivers/input/serio/serio.c
+@@ -779,7 +779,6 @@ static int serio_resume(struct device *d
+ 	struct serio *serio = to_serio_port(dev);
+ 
+ 	if (!serio->drv || !serio->drv->reconnect || serio->drv->reconnect(serio)) {
+-		serio_disconnect_port(serio);
+ 		/*
+ 		 * Driver re-probing can take a while, so better let kseriod
+ 		 * deal with it.
+

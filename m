@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290356AbSBKXhh>; Mon, 11 Feb 2002 18:37:37 -0500
+	id <S290605AbSBKXvk>; Mon, 11 Feb 2002 18:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290595AbSBKXh1>; Mon, 11 Feb 2002 18:37:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43532 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290356AbSBKXhS>;
-	Mon, 11 Feb 2002 18:37:18 -0500
-Message-ID: <3C6855A2.4721DDD3@mandrakesoft.com>
-Date: Mon, 11 Feb 2002 18:37:06 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Luigi Genoni <kernel@Expansa.sns.it>,
+	id <S290598AbSBKXva>; Mon, 11 Feb 2002 18:51:30 -0500
+Received: from are.twiddle.net ([64.81.246.98]:8581 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S290596AbSBKXvM>;
+	Mon, 11 Feb 2002 18:51:12 -0500
+Date: Mon, 11 Feb 2002 15:49:17 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Robert Love <rml@tech9.net>, Luigi Genoni <kernel@Expansa.sns.it>,
         Arkadiy Chapkis - Arc <achapkis@mail.dls.net>,
         LINUX-KERNEL@vger.kernel.org
 Subject: Re: thread_info implementation
-In-Reply-To: <Pine.LNX.4.44.0202112140280.6590-100000@Expansa.sns.it> <1013460534.6784.477.camel@phantasy>
+Message-ID: <20020211154917.A19367@are.twiddle.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Robert Love <rml@tech9.net>, Luigi Genoni <kernel@Expansa.sns.it>,
+	Arkadiy Chapkis - Arc <achapkis@mail.dls.net>,
+	LINUX-KERNEL@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0202112140280.6590-100000@Expansa.sns.it> <1013460534.6784.477.camel@phantasy> <3C6855A2.4721DDD3@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C6855A2.4721DDD3@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Feb 11, 2002 at 06:37:06PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> 
-> On Mon, 2002-02-11 at 15:42, Luigi Genoni wrote:
-> 
-> > You are optimist.
-> 
-> The glass is always half full ;)
-> 
-> > I could not manage to make my sparc64 boot with 2.5.3+ kernels.
-> > Now, Actually my problem is reiserFS on sparc64 (I already posted about
-> > this). Let's hope I could run 2.5 on sparc64 soon ;)
-> 
-> I know Dave Miller merged a lot of SPARC64 code into 2.5.4 (including
-> preemptible kernel support for SPARC64!) ... at least it compiles.  I
-> suspect no other arches do right now.
+On Mon, Feb 11, 2002 at 06:37:06PM -0500, Jeff Garzik wrote:
+> ... Richard Henderon got alpha axp going with thread_info,
+> though only in UP so far.
 
-That computing hotshot otherwise known as Richard Henderon got alpha axp
-going with thread_info, though only in UP so far.  So, i386, sparc64,
-and alpha have been hacking into working shape.
+The SMP patch had one stupid missing line.  So that's working now too.
 
-	:Jeff
+Though I seem to be having some problems with NFS.  Mount goes into D
+state for quite some time and the portmapper complains about timeouts
+connecting to localhost.  Anyone else see anything like that?  I suppose
+I'll build an x86 kernel from the same source and see what I can find...
 
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+r~

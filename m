@@ -1,86 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284141AbRLFQoB>; Thu, 6 Dec 2001 11:44:01 -0500
+	id <S284143AbRLFQrl>; Thu, 6 Dec 2001 11:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284933AbRLFQnv>; Thu, 6 Dec 2001 11:43:51 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:26372 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S284141AbRLFQnp>;
-	Thu, 6 Dec 2001 11:43:45 -0500
-Date: Thu, 6 Dec 2001 17:37:55 +0100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Christoph Rohland <cr@sap.com>
-Cc: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        "Roy S.C. Ho" <scho1208@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: question about kernel 2.4 ramdisk
-Message-ID: <20011206173755.D16513@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Christoph Rohland <cr@sap.com>,
-	Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Padraig Brady <padraig@antefacto.com>,
-	"Roy S.C. Ho" <scho1208@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C0D2843.5060708@antefacto.com> <E16BLxI-0003Ic-00@the-village.bc.nu> <snaqhzhj.wl@nisaaru.dvs.cs.fujitsu.co.jp> <m3wv02oz2w.fsf@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3wv02oz2w.fsf@linux.local>
-User-Agent: Mutt/1.3.23i
+	id <S285164AbRLFQrb>; Thu, 6 Dec 2001 11:47:31 -0500
+Received: from [217.172.169.150] ([217.172.169.150]:56238 "EHLO
+	apollo81.plusserver.de") by vger.kernel.org with ESMTP
+	id <S284143AbRLFQrV>; Thu, 6 Dec 2001 11:47:21 -0500
+Message-ID: <3C0FA135.80504@usad.li>
+Date: Thu, 06 Dec 2001 17:47:49 +0100
+From: Robin Walser <robin.walser@usad.li>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.x problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 09:23:03AM +0100, Christoph Rohland wrote:
-> Hi Tachino,
-> 
-> On Wed, 05 Dec 2001, Tachino Nobuhiro wrote:
-> > +		if (!strcmp(optname, "maxfilesize") && value) {
-> > +			p->filepages = simple_strtoul(value, &value, 0)
-> > +				/ K_PER_PAGE;
-> > +			if (*value)
-> > +				return -EINVAL;
-> > +		} else if (!strcmp(optname, "maxsize") && value) {
-> > +			p->pages = simple_strtoul(value, &value, 0)
-> > +				/ K_PER_PAGE;
-> > +			if (*value)
-> > +				return -EINVAL;
-> > +		} else if (!strcmp(optname, "maxinodes") && value) {
-> > +			p->inodes = simple_strtoul(value, &value, 0);
-> > +			if (*value)
-> > +				return -EINVAL;
-> > +		} else if (!strcmp(optname, "maxdentries") && value) {
-> > +			p->dentries = simple_strtoul(value, &value, 0);
-> > +			if (*value)
-> > +				return -EINVAL;
-> > +		}
-> 
-> Please! If you do the limit checking for ramfs adapt the same options
-> like shmem.c i.e. size,nr_inodes,nr_blocks,mode(+uid+gid). Don't
-> invent yet another mount option set. Also give them the same
-> semantics. Best would be to use shmem_parse_options.
+Hi there,
 
-The options are different because the ramfs limits patch predates
-shmfs.
+I didn't know what to do to fix my problem, so I thought I write to 
+you.... So the following is my Problem: ..
 
-> Further thought: Wouldn't it be better to add a no_swap mount option
-> to shmem and try to merge the two? There is a lot of code duplication
-> between mm/shmem.c and fs/ramfs/inode.c.
+Long years ago, I bought every time, Red Hat Linux lalala.. and so on, 
+and as I bought Red Hat Linux 7.2 there came the biggest problem I ever 
+had, when I compile kernels or oder progs then one time to the other the 
+whole computers down, and I get a message like this ....
 
-Possibly.  In fact the patch to fs/ramfs/inode.c will be insufficient
-- the limits patch also requires a change to struct
-address_space_operations in fs.h, and also a change in mm/pagemap.c.
-shmfs applies the limits in a different way which doesn't need this, I
-haven't looked at it enough to see how it's done - by the time shmfs
-came around I'd moved on from the ramfs stuff.
+www.usad.li/robin/fehler1.jpg
+  //                            fehler2.jpg
+ //                             fehler3.jpg
 
-On the other hand one of the nice things about ramfs is it's
-simplicity and ramfs with limits is quite a bit less complex than
-shmfs.  Of course, ramfs without limits is even simpler which is, I
-believe, why Linus didn't merge the patch in the first place.
+So I didn't knew what to do, in ircnet I asked some people they told me 
+that it could might be a memory problem, so they said I should make a 
+memory test with memtest86 ... so I did, but there where no errors, and 
+the message came every time again, the very strange thing is that this 
+never happend until i setup red hat 7.2
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.  -- H.L. Mencken
-http://www.ozlabs.org/people/dgibson
+So if you are interested to help me by my problem, It would be graceful 
+if you write back, otherwise, I'll spend again a lot of time, to fix 
+this problem....
+
+uname -a
+Linux firebird 2.4.7-10 #1 Thu Sep 6 16:46:36 EDT 2001 i686 unknown
+
+gcc -v
+
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
+
+My environment :
+
+
+AMD xxx 1,2 GHz
+512 MB RAM
+40 GB Harddisk
+Riva TNT 2
+and so on (its a futjsu siemens machine )
+
+Sincerely
+
+Robin
+
+PS: besides I'm very sorry for my bad english, but I had no time to 
+correct my writing.... cya
+
+
 

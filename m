@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbUCRHVi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 02:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUCRHVi
+	id S262454AbUCRHWS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 02:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCRHWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 02:21:38 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:35472 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S262451AbUCRHVg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 02:21:36 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Thu, 18 Mar 2004 04:21:33 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Peter Williams <peterw@aurema.com>, linux-kernel@vger.kernel.org
-Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong
- thing
-In-Reply-To: <20040318071754.GA499@ucw.cz>
-Message-ID: <Pine.LNX.4.58.0403180417470.1276@pervalidus.dyndns.org>
-References: <40593015.9090507@aurema.com> <Pine.LNX.4.58.0403180346000.1276@pervalidus.dyndns.org>
- <20040318071754.GA499@ucw.cz>
-X-Archive: encrypt
+	Thu, 18 Mar 2004 02:22:18 -0500
+Received: from isp17.tpi.pl ([193.110.121.246]:35262 "EHLO conecto.pl")
+	by vger.kernel.org with ESMTP id S262454AbUCRHWO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 02:22:14 -0500
+From: =?iso-8859-2?q?Micha=B3_Roszka?= <michal@roszka.pl>
+Reply-To: michal@roszka.pl
+To: linux-kernel@vger.kernel.org
+Subject: [.config] CONFIG_THERM_WINDTUNNEL
+Date: Thu, 18 Mar 2004 08:21:36 +0100
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 8BIT
+Message-Id: <200403180821.44199.michal@roszka.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004, Vojtech Pavlik wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Thu, Mar 18, 2004 at 03:56:35AM -0300, Frédéric L. W. Meunier wrote:
->
-> > Wrongly ? I don't think so, as it has presumably been fixed in
-> > XFree86 after 4.4.0.
-> >
-> > http://www.xfree86.org/cvs/changes.html:
-> >
-> > 6. Do the Linux KDKBDREP ioctl on the correct fd.  This
-> > prevents the fallback that tries to directly program the
-> > keyboard repeat rate, and the related warning messages that
-> > recent Linux kernels generate (David Dawes).
-> >
-> > I'm attaching the patch I extracted from CVS.
-> >
-> > Vojtech, what about adding such information to your HOWTO ? And
-> > better, adding the URL to atkbd.c, so people stop reporting it.
->
-> I'll add the info and the URL into the HOWTO and kill the message.
+Hello,
 
-Here are the URLs directly from CVS (just in case someone
-doesn't trust the diff I sent):
+There is an option in kernel configuration (2.6.3):
+CONFIG_THERM_WINDTUNNEL=m
+How does G4 Windtunnel thermal support work? Does it make an ability to change
+fans speed by the OS or maybe something other/else?
 
-http://cvsweb.xfree86.org/cvsweb/xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_io.c.diff?r1=3.26&r2=3.27
-http://cvsweb.xfree86.org/cvsweb/xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_kbd.c.diff?r1=1.5&r2=1.6
+Greetings,
+- -- 
+Micha³ Roszka
+michal@roszka.pl
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--- 
-http://www.pervalidus.net/contact.html
+iD8DBQFAWU4ENyoZJvl7/4kRAqlMAJ9+nP8FgPU0Toa3ylEl8Ae0uRRcaQCeI2xy
+JajBj0nto2kKfSxgxFqNv1g=
+=SrIH
+-----END PGP SIGNATURE-----

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279450AbRJWO3Q>; Tue, 23 Oct 2001 10:29:16 -0400
+	id <S279451AbRJWOjS>; Tue, 23 Oct 2001 10:39:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279451AbRJWO3G>; Tue, 23 Oct 2001 10:29:06 -0400
-Received: from web13107.mail.yahoo.com ([216.136.174.152]:54542 "HELO
-	web13107.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S279450AbRJWO2t>; Tue, 23 Oct 2001 10:28:49 -0400
-Message-ID: <20011023142922.57681.qmail@web13107.mail.yahoo.com>
-Date: Tue, 23 Oct 2001 07:29:22 -0700 (PDT)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: Strange lilo behaviour with kernel 2.4.10/2.4.12 and devfs
-To: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	id <S279457AbRJWOjI>; Tue, 23 Oct 2001 10:39:08 -0400
+Received: from [194.46.8.33] ([194.46.8.33]:25862 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S279456AbRJWOi5>;
+	Tue, 23 Oct 2001 10:38:57 -0400
+Date: Tue, 23 Oct 2001 15:42:41 +0100
+From: Dale Amon <amon@vnl.com>
+To: linux-kernel@vger.kernel.org
+Subject: ALERT!!!! Attempt to outlaw open source Operating systems
+Message-ID: <20011023154241.I17078@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com> <20010829015050.F27869@vnl.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010829015050.F27869@vnl.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
-I'm having a very strange problem with lilo.
-I run lilo it looks like it is writing the partition
-table but it's not.
-Problem begun in 2.4.10 and continued in 2.4.12
-I double checked: lilo.config is good running lilo -V
-shows that he is reading the config and writes the
-partition table as instructed in lilo.conf but after
-reboot nothing happens (i.e the new kernel )
-I tried different lilo versions (21.7.5 , 22.0.2) and
-the behaviour is unchanged
+If you are not aware of the Fritz Hollings bill that
+is going into possibly closed hearing in two days, I
+think you had all better get on it:
 
-If I boot kernel 2.4.5 surprise lilo is actually
-writing the partition table.
+http://www.newsforge.com/article.pl?sid=01/10/19/154624
 
-Any idea ?
+This bill could make open source operating systems illegal
+in the USA.
 
-Bye
-
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com
+-- 
+------------------------------------------------------
+Use Linux: A computer        Dale Amon, CEO/MD
+is a terrible thing          Village Networking Ltd
+to waste.                    Belfast, Northern Ireland
+------------------------------------------------------

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbTCQSPq>; Mon, 17 Mar 2003 13:15:46 -0500
+	id <S261838AbTCQSPm>; Mon, 17 Mar 2003 13:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261840AbTCQSPq>; Mon, 17 Mar 2003 13:15:46 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6630
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261839AbTCQSPo>; Mon, 17 Mar 2003 13:15:44 -0500
-Subject: re: Ptrace hole / Linux 2.2.25
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030317182040.GA2145@louise.pinerecords.com>
-References: <200303171604.h2HG4Zc30291@devserv.devel.redhat.com>
-	 <1047923841.1600.3.camel@laptop.fenrus.com>
-	 <20030317182040.GA2145@louise.pinerecords.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047929671.24510.15.camel@irongate.swansea.linux.org.uk>
+	id <S261839AbTCQSPm>; Mon, 17 Mar 2003 13:15:42 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:31497 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261838AbTCQSPl>;
+	Mon, 17 Mar 2003 13:15:41 -0500
+Date: Mon, 17 Mar 2003 19:26:35 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][KBUILD] Fix filechk_gen-asm-offsets
+Message-ID: <20030317182635.GB4281@mars.ravnborg.org>
+Mail-Followup-To: Marc Zyngier <mzyngier@freesurf.fr>,
+	sam@ravnborg.org, linux-kernel@vger.kernel.org
+References: <wrpisuib4o8.fsf@hina.wild-wind.fr.eu.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 17 Mar 2003 19:34:32 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <wrpisuib4o8.fsf@hina.wild-wind.fr.eu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-17 at 18:20, Tomas Szepe wrote:
-> Is this critical enough for 2.4.21 to go out?  Or can it wait like
-> some other fairly serious stuff such as the ext3 fixes?  What about
-> the current state of IDE?
+On Mon, Mar 17, 2003 at 12:42:15PM +0100, Marc Zyngier wrote:
+> Sam,
 > 
-> Would it make sense to repackage 2.4.20 into something like 2.4.20-p1
-> or 2.4.20.1 with only the critical stuff applied?
+> It looks like kbuild was recently broken by the filechk changes.
+> At least on Alpha, filechk_gen-asm-offsets is getting nothing but
+> stdin... Not very useful ;-). All platforms but x86 look broken too.
 
-If you build your own kernels apply the patch, if you use vendor kernels
-then you can expect vendor kernel updates to appear or have already
-appeared
+Thanks - forgot to test my last version on ppc (which I use
+for cross-compile testing atm.).
 
+Kai already sent the fix to Linus a few hours ago, so it is solved
+in Linus-BK.
+
+	Sam

@@ -1,75 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129546AbRBXSwh>; Sat, 24 Feb 2001 13:52:37 -0500
+	id <S129562AbRBXS6I>; Sat, 24 Feb 2001 13:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129553AbRBXSwS>; Sat, 24 Feb 2001 13:52:18 -0500
-Received: from smtp3.xs4all.nl ([194.109.127.132]:18703 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S129546AbRBXSwN>;
-	Sat, 24 Feb 2001 13:52:13 -0500
-From: thunder7@xs4all.nl
-Date: Sat, 24 Feb 2001 17:24:48 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: [lkml]Re: reiserfs: still problems with tail conversion
-Message-ID: <20010224172448.A3125@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <20010223221856.A24959@arthur.ubicom.tudelft.nl> <Pine.LNX.4.30.0102241613140.1185-100000@sjoerd.sjoerdnet>
-Mime-Version: 1.0
+	id <S129568AbRBXS5s>; Sat, 24 Feb 2001 13:57:48 -0500
+Received: from [216.151.155.116] ([216.151.155.116]:15110 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S129562AbRBXS5j>; Sat, 24 Feb 2001 13:57:39 -0500
+To: Mark Swanson <swansma@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 242-ac3 loop bug
+In-Reply-To: <20010224181136.18532.qmail@web1301.mail.yahoo.com>
+From: Doug McNaught <doug@wireboard.com>
+Date: 24 Feb 2001 13:57:36 -0500
+In-Reply-To: Mark Swanson's message of "Sat, 24 Feb 2001 10:11:36 -0800 (PST)"
+Message-ID: <m3u25jzz6n.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.30.0102241613140.1185-100000@sjoerd.sjoerdnet>; from iafilius@xs4all.nl on Sat, Feb 24, 2001 at 04:45:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 24, 2001 at 04:45:04PM +0100, Arjan Filius wrote:
-> Hello,
-> 
-> I tried Erik's trigger-program.
-> 
-> After some test i thing it's memory related, and it seems to match the
-> other reports i saw on lkm.
-> With my 384M ram i was not able te reproduce it.
-> With "mem=32M" linux hang while starting a test oracle-db.
-> However i tried (not repeated tests, and after a fresh reboot):
-> ram=128M	; Triggered
-> ram=138M	; Triggered
-> ram=180M	; Triggered
-> ram=192M	; NOT Triggered
-> ram=250M	; NOT Triggered
-> ram=256M	; NOT Triggered
-> 
-> These results say that it memory dependent, and perhaps memory use
-> dependent.
-> With the mem=180M i did some additional tests:
-> 
-> reisertest	; triggered
-> free		; shows only 60M on cached data and 8192 files*8192
-> 		  bytes=64M
-> /sbin/swapout 100M	; make sure enough cache to hold 64M data
-> reisertest	; NOT Triggered !!!!
-> While leaving the data, and executing reisertest in a new dir i'm
-> triggring it again!
-> 
-> So i think i can say, it's triggerable when the cache has no space to hold
-> all the data (64M), but i didn't extensive tests.
-> 
-I can't confirm that. This machine has 512 Mb memory:
+Mark Swanson <swansma@yahoo.com> writes:
 
-free
-             total       used       free     shared    buffers     cached
-Mem:        512940     144916     368024          0      12052     106552
--/+ buffers/cache:      26312     486628
-Swap:      1992052          0    1992052
+> --- Doug McNaught <doug@wireboard.com> wrote:
+> > It's just an artifact of the fact that processes in state D
+> > (uninterruptible sleep) are included in the load average calculation.
+> > Since the loop thread apparently sits in state D waiting for events
+> > on its device, you get a load average of 1 for each mounted loop
+> > device. 
+> 
+> My thought was that the calculation seems to be misleading. The loop
+> process isn't taking up any CPU time. My applications are running
+> faster than ever. I'm guessing that ps (and /proc/loadavg) need to make
+> the distinction between:
+> 1. uninterruptable sleep - where the process is blocking but taking
+> 0CPU
+> 2. uninterruptable sleep - I/O is happening using CPU
+> 
+> But I may not understand what uninterruptable sleep is supposed to
+> mean.
 
-<after the failing test>
-             total       used       free     shared    buffers     cached
-Mem:        512940     144924     368016          0      12052     106552
--/+ buffers/cache:      26320     486620
-Swap:      1992052          0    1992052
+Well, "sleep" means we're not using CPU at all; we're waiting for
+something.  Remember, "load average" isn't purely a CPU measure.
 
-Jurriaan
--- 
-BOFH excuse #167:
+Historically, state D has meant "fast" i/o--reading from disk or tape,
+where the result is supposed to be available very soon and it's not
+worth doing the extra housekeeping to sleep interruptibly.  Processes
+aren't supposed to sit in state D for more than a fraction of a
+second.  This being the case, Unix has always factored state D
+processes into the load average.  For your distinction to work, there
+would have to be an extra flag somewhere saying "I'm in state D, but
+don't factor me into the load average", with corresponding code in the
+load average calculation routine to honor the flag.  Doable, but not
+useful up to now, and only (possibly) worth doing if we get more
+threads like the loop driver that sit in D state for a long time. 
 
-excessive collisions & not enough packet ambulances
-GNU/Linux 2.4.2-ac3 SMP/ReiserFS 2x1730 bogomips load av: 0.26 0.06 0.02
+This is the first example I've seen in Linux of something sitting in
+state D for a long time on purpose.  I agree that IMHO it's not ideal
+(for the reason you outline below, mainly).
+
+> Take sendmail for example. Its default configuration for Linux won't
+> send attachments if the machine's load is too high. If I have 8 loop
+> devices in use and the load is at least 8, this may affect how sendmail
+> operates.
+
+Yup. 
+
+The whole Sendmail/load average thing needs careful thought anyway
+when setting up a production system--a load average of 8 on an 8-way
+system, for example, is a much lighter load than a load of 8 on a
+single-CPU machine.
+
+-Doug

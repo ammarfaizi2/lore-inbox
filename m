@@ -1,93 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131324AbRDFHb7>; Fri, 6 Apr 2001 03:31:59 -0400
+	id <S131344AbRDFHp0>; Fri, 6 Apr 2001 03:45:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131344AbRDFHbt>; Fri, 6 Apr 2001 03:31:49 -0400
-Received: from pD9538CCC.dip.t-dialin.net ([217.83.140.204]:15089 "EHLO
-	tolot.escape.de") by vger.kernel.org with ESMTP id <S131324AbRDFHbn>;
-	Fri, 6 Apr 2001 03:31:43 -0400
-Date: Fri, 6 Apr 2001 09:30:18 +0200
-From: Jochen Striepe <jochen@tolot.escape.de>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: gcc-2.95.3
-Message-ID: <20010406093018.B18157@tolot.escape.de>
-In-Reply-To: <Pine.LNX.4.33.0104060847200.965-100000@boston.corp.fedex.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0104060847200.965-100000@boston.corp.fedex.com>; from jeffchua@silk.corp.fedex.com on Fri, Apr 06, 2001 at 08:49:51AM +0800
-X-Editor: vim/5.7.28
-X-Signature-Color: blue
+	id <S131348AbRDFHpR>; Fri, 6 Apr 2001 03:45:17 -0400
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:35463
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S131344AbRDFHpC>; Fri, 6 Apr 2001 03:45:02 -0400
+Message-ID: <3ACD73E0.2B1DFF6F@math.ethz.ch>
+Date: Fri, 06 Apr 2001 09:44:32 +0200
+From: Giacomo Catenazzi <cate@math.ethz.ch>
+Reply-To: cate@debian.org
+X-Mailer: Mozilla 4.75C-SGI [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: johan.adolfsson@axis.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Arch specific/multiple Configure.help files?
+In-Reply-To: <fa.ggqkpgv.9g0c0b@ifi.uio.no> <fa.k6fq96v.nhaq06@ifi.uio.no> <3ACD68FF.637D8958@math.ethz.ch> <018001c0be69$90dcb200$9db270d5@homeip.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+johan.adolfsson@axis.com wrote:
+> 
+> > This was already discussed on kbuild list.
+> > It is better to have only 1 Configure.help. This help
+> > translation of the file and help busy developers.
+> > They should not rewrite texts in every Configure.help.
+> 
+> I can't see that 1 file makes it easier.
+> The same help text is only present in one file,
+> either arch/$ARCH/Configure.help or
+> Documentation/Configure.help
 
---s2ZSL+KKDSLx8OML
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, if you use both files.
 
-        Hi,
-
-On 06 Apr 2001, Jeff Chua <jeffchua@silk.corp.fedex.com> wrote:
->=20
-> Does anybody have bad experience with gcc-2.95.3?
->=20
-> I'm using gcc-2.95.2 with linux 2.4.3 and have no problem with it.
-
-I'm using gcc-2.95.3 for kernel compilation on latest 2.4.x since it's
-out. Never had any Problem.
-
-
-Linux tolot 2.4.3 #1 Fri Mar 30 09:35:17 CEST 2001 i586 unknown
-=20
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.11.90.0.4
-util-linux             2.11b
-modutils               2.4.5
-e2fsprogs              1.19
-pcmcia-cs              3.0.14
-PPP                    2.4.0
-isdn4k-utils           3.1pre1
-Linux C Library        2.1.3
-ldd: version 1.9.9
-Procps                 2.0.7
-Net-tools              1.59
-Kbd                    0.99
-Sh-utils               2.0.11
-Modules Loaded         nls_utf8 nls_iso8859-15 nls_iso8859-2
-nls_iso8859-1 nls_cp852 nls_cp850 nls_cp437 floppy sr_mod sg isofs
-ne2k-pci 8390 ide-cd cdrom adlib_card opl3 sb sb_lib uart401 sound
-soundcore lp parport serial
+Better a single file because:
+- I18n support. (But not a big issue for us).
+- CML2 merges all arch configurations in one file (really in 4
+file:
+  rules, menu strings, ...)
+  Thus because we merge also configuration, I think that it is
+better
+  not to split the helps.
+- IIRC there is only few ARCH specific configuration, thus we
+don't
+  reduce the size of che Configure.help
+  Note that the arch/config.in have to much configuration item
+  (but they repeat in (nearly) all arch/config.in files, thus
+you
+  should count only the really arch specific item.
 
 
-Hth,
+I would prefer to have config.in and help file togheter. But
+in the
+discussion in kbuild list, it come that is is better to merge
+all configuration in one file and the strings in an other (and
+thus
+not to merge Configure.help to not heve a very huge file).
 
-Jochen.
 
---=20
-"I was gratified to be able to answer promptly, and I did. I said I
-didn't know." -- Mark Twain
+What are the advanteget to split the Configure.help?
 
---s2ZSL+KKDSLx8OML
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> 
+> The help system first checks the file in arch/$ARCH and if
+> the help is not present there it checks the one in Documentation/
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iQEVAwUBOs1wiqrOdlPj1wR/AQGn4Af/dR/G/d318xNRevMKhDFHWkwaW9edRrRI
-vyDxkx5ZWLo0kpp/reecvNhR/29sirSuIiU3KLdmugdVVt3Z6yFyEuVfAs0nH2c3
-jutaCmfzpSKGUKfZk43XgqfnkTovntEl8veRpwRKq1/uUlnT8/G0vjpOPZ1UJhUN
-IhDu1Efvy3Vfl4hBzK6yWUjHweMTuPH94DLIQ5n7+3Qv12p99GJs4KN7LPGabc8m
-YQ3OO0PMUlE8EPb++wUqbemecxx9cnNxGrIcI3bx/F4j+VbULw/eL9o4YKNNFjw2
-gA1OnM6ltF/E4uWTY/XoWx5bCWKX0WvlfsldqaBXYrKpT6XF7Kg6Sw==
-=xMQh
------END PGP SIGNATURE-----
+> > If you should provide a special help on a specific ARCH you
+> > could modify the symbols: instead of
+> > : bool 'std IPC support' CONFIG_IPC
+> > you can do:
+> > : bool 'arch specific IPC help' CONFIG_IPC_STRANGE_ARCH
+> > : define_bool CONFIG_IPC CONFIG_IPC_STRANGE_ARCH
+> 
+> Don't know if you missunderstood me or if I missunderstand
+> you here.
+> The typical use for the arch specific help file would only cover
+> the arch specific CONFIG options (although it could "override"
+> the general help text in Documentation/Configure.help with
+> an arch specific one, but if you do that I guess you're doing
+> something wrong)
 
---s2ZSL+KKDSLx8OML--
+I think I missunderstood you. But this was the big issue for
+splitting Configure.help. (Thus if an developer should use
+at arch specific help, he should use this method)
+
+> 
+> > ESR CML2 have the defualt path for Configure.help build in
+> > the rules files, but it can be overriden by command options
+> > to use an other Configure.help (the format do not change).
+> 
+> I want to be able to use two help files.
+
+I think it is not a big issue. In Makefile we can
+: cat Conf.help.1 Conf.help2 > .Conf.help
+
+
+	giacomo

@@ -1,94 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbUKSAXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbUKSAXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbUKSAXS (ORCPT <rfc822;willy@w.ods.org>);
+	id S261212AbUKSAXS (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Nov 2004 19:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUKSAVJ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbUKSAV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 19:21:09 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41738 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261211AbUKSATU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 19:19:20 -0500
-Date: Fri, 19 Nov 2004 01:19:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: davidm@hpl.hp.com
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] IA64 irq.c: remove CONFIG_X86 code
-Message-ID: <20041119001915.GL4943@stusta.de>
+	Thu, 18 Nov 2004 19:21:28 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:7673 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261212AbUKSASb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 19:18:31 -0500
+Date: Thu, 18 Nov 2004 16:18:17 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] a very tiny /sbin/hotplug
+Message-ID: <20041119001817.GA11847@kroah.com>
+References: <20041118231406.GA11239@kroah.com> <20041118234629.GA3046@gate.ebshome.net> <20041118235301.GD19750@rikers.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041118235301.GD19750@rikers.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't see hos this code could ever be used.
+On Thu, Nov 18, 2004 at 05:53:01PM -0600, Chris Larson wrote:
+> * Eugene Surovegin (ebs@ebshome.net) wrote:
+> > On Thu, Nov 18, 2004 at 03:14:06PM -0800, Greg Kroah-Hartman wrote:
+> > > So, a number of people have complained over the past few years about the
+> > > fact that /sbin/hotplug was a shell script.  Funny enough, it's the
+> > > people on the huge boxes, with huge number of devices that are
+> > > complaining, not the embedded people with limited resources (ironic,
+> > > isn't it...)
+> > 
+> > This is probably because embedded people don't use hotplug at all :).
+> > On dozen different PPC and MIPS boxes I worked on, we never needed 
+> > this feature.
+> 
+> I tend to focus on ARM, and find this very useful.  I know of a number
+> of folks using erik andersen's "diethotplug" (which hasnt been touched
+> in some time).  I look forward to your further hotplug improvements.
 
-Am I correct or did I miss something?
+Yes, diethotplug is based on my old package called, supprise,
+diethotplug, and is located at
+	http://www.kernel.org/pub/linux/utils/kernel/hotplug/
 
+But that only does module loading.  The "full" replacement of today's
+/sbin/hotplug functionality needs this hotplug multiplexer, and a
+diethotplug replacement (which can get much smaller than the current
+diethotplug due to the way modprobe works in 2.6.)
 
-diffstat output:
- arch/ia64/kernel/irq.c |   33 ---------------------------------
- 1 files changed, 33 deletions(-)
+thanks,
 
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.10-rc2-mm2-full/arch/ia64/kernel/irq.c.old	2004-11-19 01:14:22.000000000 +0100
-+++ linux-2.6.10-rc2-mm2-full/arch/ia64/kernel/irq.c	2004-11-19 01:16:31.000000000 +0100
-@@ -132,23 +132,7 @@
-  * each architecture has to answer this themselves, it doesn't deserve
-  * a generic callback i think.
-  */
--#ifdef CONFIG_X86
--	printk(KERN_ERR "unexpected IRQ trap at vector %02x\n", irq);
--#ifdef CONFIG_X86_LOCAL_APIC
--	/*
--	 * Currently unexpected vectors happen only on SMP and APIC.
--	 * We _must_ ack these because every local APIC has only N
--	 * irq slots per priority level, and a 'hanging, unacked' IRQ
--	 * holds up an irq slot - in excessive cases (when multiple
--	 * unexpected vectors occur) that might lock up the APIC
--	 * completely.
--	 */
--	ack_APIC_irq();
--#endif
--#endif
--#ifdef CONFIG_IA64
- 	printk(KERN_ERR "Unexpected irq vector 0x%x on CPU %u!\n", irq, smp_processor_id());
--#endif
- }
- 
- /* startup is the same as "enable", shutdown is same as "disable" */
-@@ -166,11 +150,6 @@
- };
- 
- atomic_t irq_err_count;
--#ifdef CONFIG_X86_IO_APIC
--#ifdef APIC_MISMATCH_DEBUG
--atomic_t irq_mis_count;
--#endif
--#endif
- 
- /*
-  * Generic, controller-independent functions:
-@@ -220,19 +199,7 @@
- 			if (cpu_online(j))
- 				seq_printf(p, "%10u ", nmi_count(j));
- 		seq_putc(p, '\n');
--#ifdef CONFIG_X86_LOCAL_APIC
--		seq_puts(p, "LOC: ");
--		for (j = 0; j < NR_CPUS; j++)
--			if (cpu_online(j))
--				seq_printf(p, "%10u ", irq_stat[j].apic_timer_irqs);
--		seq_putc(p, '\n');
--#endif
- 		seq_printf(p, "ERR: %10u\n", atomic_read(&irq_err_count));
--#ifdef CONFIG_X86_IO_APIC
--#ifdef APIC_MISMATCH_DEBUG
--		seq_printf(p, "MIS: %10u\n", atomic_read(&irq_mis_count));
--#endif
--#endif
- 	}
- 	return 0;
- }
+greg k-h

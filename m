@@ -1,75 +1,141 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLNN6K>; Thu, 14 Dec 2000 08:58:10 -0500
+	id <S129401AbQLNOEv>; Thu, 14 Dec 2000 09:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbQLNN6A>; Thu, 14 Dec 2000 08:58:00 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:17183 "EHLO
-	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129325AbQLNN55>; Thu, 14 Dec 2000 08:57:57 -0500
-Date: Thu, 14 Dec 2000 15:34:53 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Chad Schwartz <cwslist@main.cornernet.com>
-cc: Mark Orr <markorr@intersurf.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dropping chars on 16550
-In-Reply-To: <Pine.LNX.4.30.0012130827380.21891-100000@main.cornernet.com>
-Message-ID: <Pine.LNX.4.21.0012141529580.2159-100000@server.serve.me.nl>
+	id <S129741AbQLNOEl>; Thu, 14 Dec 2000 09:04:41 -0500
+Received: from die-macht.oph.RWTH-Aachen.DE ([137.226.147.190]:29752 "EHLO
+	die-macht") by vger.kernel.org with ESMTP id <S129401AbQLNOEc>;
+	Thu, 14 Dec 2000 09:04:32 -0500
+Message-ID: <3A38CC43.C20E26FD@die-macht.oph.rwth-aachen.de>
+Date: Thu, 14 Dec 2000 14:33:55 +0100
+From: Stefan Becker <stefan@die-macht.oph.rwth-aachen.de>
+Reply-To: Stefan Becker <stefan@oph.rwth-aachen.de>
+Organization: Otto Petersen Haus - Aachen
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dan Merillat <harik@chaos.ao.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE hang when using v4l (bttv) on all kernels.
+In-Reply-To: <200012131411.eBDEBWo14000@vulpine.ao.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-> there are many situations in which a 16550 is KNOWN to be overrunable, all
-> of which can occur in your common PPP connection.
-> 
-> More importantly - if you have 2 16550's talking together (Which is
-> EXACTLY what you have, when you hook it to a modem) there are even MORE
-> overrun possibilities. (For instance, when you fill the transmitter up to
-> 16 bytes - on a uart, and then the receiving side suddenly drops RTS,
-> there is *NO* way for that 16550 to stop its transmitter. Once the bytes
-> are in its fifo, it HAS TO SEND THEM.)
+I see similar effects with IDE DMA. It isn't that bad but it may be
+related.
+The difference is that I use 2.2.18. Whether I use the
+ide.2.2.18.1209.patch or not makes no difference.
 
-Indeed. I saw this behaviour some years ago when I was debugging a
-controller that went beserk when been talked to at a 115k2 buad rate. 
+My box doesn't lockup, but since I bought a second IDE harddisk I cannot
+use DMA anymore.
 
-My modem isn't on 115k2 now, so I don't see the problem often. I'm gonne
-setup a second machine with remote kernel debugging, since I'm sick of
-rebooting when I want to scan something.
+Boot messages from IDE-driver:
 
-> This is where a 654 or an 854 (I'm only listing startech design chips.
-> there are others that would do the job.)  come in handy. They can pause
-> their transmitter WITH bytes in their fifo. (Automated hardware/software
-> flow control.)
+[...]
+Uniform Multi-Platform E-IDE driver Revision: 6.30
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PIIX3: IDE controller on PCI bus 00 dev 39
+PIIX3: chipset revision 0
+PIIX3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xe800-0xe807, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xe808-0xe80f, BIOS settings: hdc:DMA, hdd:pio
+hda: Maxtor 93073U6, ATA DISK drive
+hdc: Maxtor 34098H4, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: Maxtor 93073U6, 29311MB w/2048kB Cache, CHS=59554/16/63, (U)DMA
+hdc: setmax LBA 80043264, native  66055248
+hdc: Maxtor 34098H4, 32253MB w/2048kB Cache, CHS=65531/16/63, (U)DMA
+[...]
 
-Indeed. Most chips I've seen are 1 16550, or pretend to be. Probably an
-issue of cost (At least, I think :))
+My BIOS reject harddisks bigger than 33.8GB. It's a ASUSP2T4 with Intel
+HX430 chipset.
 
-> I have no idea why the 16550 caught on as the "De facto standard" like it
-> did. there are UARTS out there that are more efficient, yet cost only a
-> few dollars more to manufacture.
+Dan Merillat wrote:
 
-Well.. Why is the i386 the defacto standard ? There architectures that are
-a lot better. Reason it is that the some big company used it, and it got
-populair.
+> spurious 8259A interrupt: IRQ7.
+> Failed to read 258048 bytes, got 0: Success
+>  ^^^^^ my v4l program.
+> ide_dmaproc: chipset supported ide_dma_losirq func only: 13
+> hda: lost interrupt
+> ide_dmaproc: chipset supported ide_dma_losirq func only: 13
+> hda: lost interrupt
+> <repeats forever>
 
-> (Your common QUAD 16654 chip costs $20 to an end user, nowadays. Your
-> common QUAD 16554 costs about $15.)
-> 
-> Imagine what the 2-UART chips would cost. (or, mass-produced all-in-1
-> sets even.)
-> 
-> Really makes you think.
+On my box it looks like this (it happens after copying a big amount of
+data from /dev/hda to /dev/hdc):
 
-Indeed.. Why do they save $15 bucks on a modem chipset, and replace it
-with a buggy software driven solution... Making things as cheap as
-possible, to make sure the're chaper then their compatitor.
- 
-> Chad
+[...]
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdc: status timeout: status=0xd0 { Busy }
+hdc: DMA disabled
+hdc: drive not ready for command
+ide1: reset: success
+msp34xx: giving up, reseting chip. Sound will go off, sorry folks :-|
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0xd0 { Busy }
+hda: DMA disabled
+ide0: reset: success
+[...]
+
+The line 
+msp34xx: giving up... 
+makes me think it's also related to bttv.
+
+The difference to Dan's problem is that I can use my box after this. But
+DMA stays disabled.
+I can reenable DMA on both harddisks, but after some time I get the same
+messages again.
+
+> harik@burned:~$ lspci
+> 00:00.0 Host bridge: Intel Corporation 430FX - 82437FX TSC [Triton I] (rev 02)
+> 00:07.0 ISA bridge: Intel Corporation 82371FB PIIX ISA [Triton I] (rev 02)
+> 00:07.1 IDE interface: Intel Corporation 82371FB PIIX IDE [Triton I] (rev 02)
+> 00:08.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W [Millennium II]
+> 00:09.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 21)
+> 00:0a.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 21)
+> 00:0b.0 Multimedia video controller: Brooktree Corporation Bt848 (rev 12)
+
+[root@die-macht:~ ] lspci
+00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II]
+(rev 03)
+00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton
+II] (rev 01)
+00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE
+[Natoma/Triton II]
+00:09.0 Ethernet controller: Compex ReadyLink 2000 (rev 0a)
+00:0a.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W
+[Millennium] (rev 01)
+00:0b.0 SCSI storage controller: Advanced Micro Devices [AMD] 53c974
+[PCscsi] (rev 10)
+00:0c.0 Multimedia video controller: Brooktree Corporation Bt878 (rev
+02)
+00:0c.1 Multimedia controller: Brooktree Corporation Bt878 (rev 02)
 
 
+Okay, I thought 'use the source Luke' and looked at ide.c. 
+I tried some boot-time parameters and had success with "ide0=serialize
+ide1=serialize".
+After reboot I can use DMA just fine and my box is stable.
 
-	Igmar
+Now I get this boot messages:
 
+die-macht kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+die-macht kernel: ide1 at 0x170-0x177,0x376 on irq 15 (serialized with
+ide0)
+
+I seems to work and DMA isn't getting disabled when I access my disks.
+
+Greetings,
+Stefan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

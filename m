@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319304AbSH2TQq>; Thu, 29 Aug 2002 15:16:46 -0400
+	id <S319311AbSH2TUs>; Thu, 29 Aug 2002 15:20:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319305AbSH2TQq>; Thu, 29 Aug 2002 15:16:46 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:55548
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319304AbSH2TQp>; Thu, 29 Aug 2002 15:16:45 -0400
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <aklq8b$220$1@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0208281649540.27728-100000@home.transmeta.com>
-	<1030618420.7290.112.camel@irongate.swansea.linux.org.uk> 
-	<aklq8b$220$1@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 29 Aug 2002 20:24:14 +0100
-Message-Id: <1030649054.7190.164.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319309AbSH2TUs>; Thu, 29 Aug 2002 15:20:48 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:12417 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S319311AbSH2TUs>; Thu, 29 Aug 2002 15:20:48 -0400
+Date: Thu, 29 Aug 2002 15:28:08 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Raj, Ashok" <ashok.raj@intel.com>
+cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Stack Limit...
+In-Reply-To: <8A9A5F4E6576D511B98F00508B68C20A0C84D1CC@orsmsx106.jf.intel.com>
+Message-ID: <Pine.LNX.3.95.1020829152355.12530A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-29 at 19:47, Linus Torvalds wrote:
-> Hmm.. I would assume that you'd just use the high frequency for that?
+On Thu, 29 Aug 2002, Raj, Ashok wrote:
 
-That doesnt work if Im trying to keep the machine running slowly at low
-power but still want the I/O to work. I guess its fudgeable however and
-the battery policy is enough info.
+> Hello.
+> 
+> Please reply to me, since i dont have this email id on the list. 
+> 
+> Could someone tell me at what the kernel stack size limit is? 
+> 
 
-> I don't know the exact details of what kinds of frequencies the Geode
-> supports, but it sounds to me like you don't really need another
-> frequency value.. 
+Only two PAGES, 0x1000 per page on a ix86.
 
-It tops out at about 300Mhz. Life gets excessively interesting because
-about half the I/O on the Geode is imaginary and caused by SMM traps.
-When power saving you normally set the geode to run slowly but spike
-hard to full power when faking hardware. WIthout that some stuff like
-the SB emulation doesnt work very well.
+> Is there a gcc option for x86 that can warn if too large variables are
+> specified in the stack?
+> 
 
-Alan
+sizeof(whatever_local_variable)
+
+> recently we had a problem with one variable accidently declared on the stack
+> which was quite large, and when
+> some calls nested, we noticed stack corruption. Once the variable was moved
+> to global, the corruption went away. We would always see that some member of
+>
+
+Yes strange things happen when stack, which goes down, meets data...
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

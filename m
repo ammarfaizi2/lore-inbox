@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268245AbTCFTYK>; Thu, 6 Mar 2003 14:24:10 -0500
+	id <S268209AbTCFT0J>; Thu, 6 Mar 2003 14:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268266AbTCFTYK>; Thu, 6 Mar 2003 14:24:10 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:43649 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id <S268245AbTCFTYJ>;
-	Thu, 6 Mar 2003 14:24:09 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Thu, 6 Mar 2003 20:33:44 +0100
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, randy.dunlap@verizon.net,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] move SWAP option in menu
-Message-ID: <20030306193344.GA29166@iram.es>
-References: <3E657EBD.59E167D6@verizon.net> <20030305181748.GA11729@iram.es> <20030305131444.1b9b0cf2.rddunlap@osdl.org> <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net>
-User-Agent: Mutt/1.3.28i
+	id <S268272AbTCFT0J>; Thu, 6 Mar 2003 14:26:09 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13074 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268209AbTCFT0H>; Thu, 6 Mar 2003 14:26:07 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Oops in 2.5.64
+Date: Thu, 6 Mar 2003 19:36:12 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b487vc$1u6$1@penguin.transmeta.com>
+References: <3E66E782.5010502@tmsusa.com>
+X-Trace: palladium.transmeta.com 1046979379 4453 127.0.0.1 (6 Mar 2003 19:36:19 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 6 Mar 2003 19:36:19 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 11:43:32AM -0700, Tom Rini wrote:
-> 
-> How's this look?  I picked MMU=x implies SWAP=x for defaults, just
-> because that's how they were before...
+In article <3E66E782.5010502@tmsusa.com>, J Sloan  <joe@tmsusa.com> wrote:
+>
+>2.5.64 was running well, but after a day
+>or so of uptime, in fairly busy use (squid,
+>postfix, dhcp server, iptables, X desktop)
+>I ssh'd in as root, issued an init 3, then
+>a moment later, init 5. A moment after
+>that, the ssh session froze and all internet
+>access stopped as well.
+>
+>The console was frozen, with an oops -
 
-I'd be very surprised if it were possible to have swap on a MMU-less 
-machine (no virtual memory, page faults, etc.). Except for this nitpick, 
-the patch looks fine, but my knowledge of MM is close to zero (and 
-also of the new config language, but I'll have to learn it soon).
+Are you using DRI? There is some evidence that exiting and restarting X
+will not correctly re-initialize the DRI stuff in the kernel, and
+_massive_ kernel memory corruption can ensure when the new X server
+starts. 
 
-> ===== init/Kconfig 1.10 vs edited =====
-> --- 1.10/init/Kconfig	Mon Feb  3 13:19:37 2003
-> +++ edited/init/Kconfig	Thu Mar  6 11:41:51 2003
-> @@ -37,6 +37,16 @@
->  
->  menu "General setup"
->  
-> +config SWAP
-> +	bool "Support for paging of anonymous memory"
-> +	default y if MMU
-> +	default n if !MMU
+At which point you'll get random oopses etc.
 
-Should rather be (from just reading kconfig-language.txt):
+	>CONFIG_AGP=y
+	># CONFIG_AGP3 is not set
+	>CONFIG_AGP_INTEL=y
+	># CONFIG_AGP_VIA is not set
+	># CONFIG_AGP_AMD is not set
+	># CONFIG_AGP_SIS is not set
+	># CONFIG_AGP_ALI is not set
+	># CONFIG_AGP_SWORKS is not set
+	># CONFIG_AGP_AMD_8151 is not set
+	>CONFIG_DRM=y
+	>CONFIG_DRM_TDFX=m
+	>CONFIG_DRM_R128=m
+	># CONFIG_DRM_RADEON is not set
+	>CONFIG_DRM_I810=y
+	># CONFIG_DRM_I830 is not set
+	># CONFIG_DRM_MGA is not set
 
-config SWAP
-	depends on MMU
-	bool "Support for paging of anonymous memory"
-	default y
+Looks like you at least have the DRI kernel modules there.
 
-Comments?
+Try to see if the problem goes away if you start X without DRI support
+(ie remove the "Load 'dri'" or whatever from the XF86Config file, or
+start up in a mode that DRI doesn't support, like 8bpp).
 
-	Gabriel.
+		Linus
+

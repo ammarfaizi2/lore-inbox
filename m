@@ -1,76 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUB2IhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 03:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUB2IhP
+	id S262018AbUB2Ivm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 03:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUB2Ivm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 03:37:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32180 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262014AbUB2IhM (ORCPT
+	Sun, 29 Feb 2004 03:51:42 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:15519 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262018AbUB2Ivi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 03:37:12 -0500
-Date: Sun, 29 Feb 2004 09:36:57 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>, mgross@linux.co.intel.com,
-       tim.bird@am.sony.com, root@chaos.analogic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why no interrupt priorities?
-Message-ID: <20040229083656.GB7264@devserv.devel.redhat.com>
-References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <20040226190259.7965cc76.rddunlap@osdl.org> <opr34h04mx4evsfm@smtp.pacific.net.th>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
-Content-Disposition: inline
-In-Reply-To: <opr34h04mx4evsfm@smtp.pacific.net.th>
-User-Agent: Mutt/1.4.1i
+	Sun, 29 Feb 2004 03:51:38 -0500
+Date: Sun, 29 Feb 2004 09:50:42 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Worrisome IDE PIO transfers...
+In-Reply-To: <200402290121.30498.bzolnier@elka.pw.edu.pl>
+Message-ID: <Pine.GSO.4.58.0402290943580.7483@waterleaf.sonytel.be>
+References: <4041232C.7030305@pobox.com> <200402290121.30498.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 29 Feb 2004, Bartlomiej Zolnierkiewicz wrote:
+> [ Geert added to cc: ]
+>
+> On Sunday 29 of February 2004 00:24, Jeff Garzik wrote:
+> > Looking at the function that is used to transfer data when in PIO mode...
+> >
+> > void taskfile_output_data (ide_drive_t *drive, void *buffer, u32 wcount)
+> > {
+> >          if (drive->bswap) {
+> >                  ata_bswap_data(buffer, wcount);
+> >                  HWIF(drive)->ata_output_data(drive, buffer, wcount);
+> >                  ata_bswap_data(buffer, wcount);
+> >          } else {
+> >                  HWIF(drive)->ata_output_data(drive, buffer, wcount);
+> >          }
+> > }
+> >
+> > Swapping the data in-place is very, very wrong...   you don't want to be
+> > touching the data that userspace might have mmap'd ...  Additionally,
+> > byteswapping back and forth for each PIO sector chews unnecessary CPU.
+>
+> This is used for accessing "normal" disks on beasts with byte-swapped IDE
+> bus (Atari/Q40/TiVo) and "byteswapped" disks on normal machines.
+>
+> [ Hm. actually I don't see how it can be used for accessing "normal" disks,
+>   as data is byteswapped by IDE bus and then swapped back by IDE driver. ]
 
---neYutvxvOLaeuPCA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Why not? The only difference between `normal' and `byteswapped' disks is that
+the bytes in a 16-bit word are swapped (sic :-), so you can convert in both
+directions by swapping the bytes. Normal disks have been used on Atari before,
+so it should (still) work.
 
-On Sun, Feb 29, 2004 at 04:32:54PM +0800, Michael Frank wrote:
-> 
-> Most interrupt controllers can read back IRQ's to see whether it is
-> active. A shared IRQ would be readback active while any device
-> connected to it desires service.
-> 
-> x86 example for 8259A AT-PIC's Returns the state of IRQ0-15 in ax
-> Note that jmp $+2 is only needed on some old 286/386 hardware
-> to meet (real) 8259A cycle time requirements.
-> 
-> - Intel syntax :)
-> 
-> 	mov	al,0ah
-> 	out	0a0h,al
-> 	jmp	$+2
-> 	in	al,0a0h
-> 	mov	ah,al
-> 	mov 	al,0ah
-> 	jmp	$+2
-> 	out 	20h,al
-> 	jmp	$+2
-> 	in 	al,20h
+BTW, the generic tree misses this patch, which was deemed inappropriate before,
+but is needed to make sure the drive identification block is correct on those
+machines:
 
-interesting; however with modern cpus I suspect that a series of in/outs
-like that is more expensive than one or two "surious" hardirq handler
-calls...
+--- linux-2.6.3/drivers/ide/ide-iops.c	Mon Sep 16 09:49:17 2002
++++ linux-m68k-2.6.3/drivers/ide/ide-iops.c	Wed Oct  2 23:01:40 2002
+@@ -360,6 +360,23 @@
+ 	int i;
+ 	u16 *stringcast;
+
++#ifdef __mc68000__
++	if (!MACH_IS_AMIGA && !MACH_IS_MAC && !MACH_IS_Q40 && !MACH_IS_ATARI)
++		return;
++
++#ifdef M68K_IDE_SWAPW
++	if (M68K_IDE_SWAPW) {	/* fix bus byteorder first */
++		u_char *p = (u_char *)id;
++		u_char t;
++		for (i = 0; i < 512; i += 2) {
++			t = p[i];
++			p[i] = p[i+1];
++			p[i+1] = t;
++		}
++	}
++#endif
++#endif /* __mc68000__ */
++
+ 	id->config         = __le16_to_cpu(id->config);
+ 	id->cyls           = __le16_to_cpu(id->cyls);
+ 	id->reserved2      = __le16_to_cpu(id->reserved2);
 
 
---neYutvxvOLaeuPCA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Gr{oetje,eeting}s,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+						Geert
 
-iD8DBQFAQaSoxULwo51rQBIRAqrVAJ91rt4pIJGF/i57EVG0B2q90L+2fwCgjrEZ
-4646RzUMtKXg3oHhbew6rig=
-=S8tc
------END PGP SIGNATURE-----
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---neYutvxvOLaeuPCA--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,72 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbUAOWmW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 17:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbUAOWmW
+	id S263592AbUAOWmN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 17:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbUAOWmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 17:42:22 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:41859
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263595AbUAOWmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 17:42:15 -0500
-Date: Thu, 15 Jan 2004 17:40:54 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: James Cleverdon <jamesclv@us.ibm.com>
-cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Chris McDermott <lcm@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic subarch
- UP installer kernels
-In-Reply-To: <200401151357.16807.jamesclv@us.ibm.com>
-Message-ID: <Pine.LNX.4.58.0401151719460.4208@montezuma.fsmlabs.com>
-References: <7F740D512C7C1046AB53446D3720017361883D@scsmsx402.sc.intel.com>
- <Pine.LNX.4.58.0401141815090.15331@montezuma.fsmlabs.com>
- <200401151357.16807.jamesclv@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Jan 2004 17:42:13 -0500
+Received: from northuist.CNS.CWRU.Edu ([129.22.104.60]:18045 "EHLO
+	ims-msg.TIS.CWRU.Edu") by vger.kernel.org with ESMTP
+	id S263592AbUAOWmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 17:42:00 -0500
+Date: Thu, 15 Jan 2004 17:20:53 -0500
+From: Jim Garrison <garrison@case.edu>
+Subject: 2.6.1 compile error - drivers/block/swim3.c (powerpc)
+To: linux-kernel@vger.kernel.org
+Message-id: <1074205253.636.11.camel@ibook>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.5
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jan 2004, James Cleverdon wrote:
+Hello,
 
-> > In my opinion we should be breaking after we've exceeded the maximum
-> > external vectors we can install. This will of course mean less than
-> > the number of RTEs. James have you actually managed to use the devices
-> > connected to the high (over ~224) RTEs?
->
-> No, I haven't exceeded the available vectors, but wli has on a large NUMA-Q
-> box.
+I know that gcc 3.3.2 is not an officially supported compiler, but this
+error seems to be of the generic kind.  swim3.c fails to compile for me
+on powerpc.
 
-Yes i believe the 8 node NUMA-Qs do this easily.
-
-> The x440 and x445's problems are pre-reserving lots of bus numbers in the
-> BIOS, more than one per PCI slot.  They must be anticipating PCI cards with
-> bridge chips on them.
-
-For some odd reason i thought we had dynamic allocated MP busses.
-
-> I believe that the reason for irq_vector being so large is to allow IRQ (and
-> eventually vector) sharing.  The array is to map from RTE to vector.
-
-What i'm trying to say is that the current code will behave badly when you
-actually do encounter a system with that many RTEs, the actual array
-being that large isn't a problem, the problem is what's going on in
-assign_irq_vector() and later on with set_intr_gate(). By that i mean;
-
-- The interrupt[] stub in entry.S is written with 256 irqs in mind so it
-wouldn't be able to pass higher irq numbers to do_IRQ in it's current
-state.
-
-- "Wrapping" in assign_irq_vector means that you overrite previously
-assigned vector entries in the IDT with whatever interrupt[irq] you happen
-to be installing at the time. To avoid this you should not be allowing
-more than ~224 vectors to be handed out by assign_irq_vector(), with the
-patch and the current code, this is possible.
-
-Lastly i think we should avoid sharing vectors, going the IA64 route and
-setting up irq handling domains of sorts would allow for easier scaling
-both up and down.
+Please CC me in any replies.
 
 Thanks,
-	Zwane
+Jim Garrison
+
+
+
+  CC      drivers/block/swim3.o
+drivers/block/swim3.c:224: error: parse error before '*' token
+drivers/block/swim3.c:224: warning: function declaration isn't a
+prototype
+drivers/block/swim3.c:292: error: parse error before '*' token
+drivers/block/swim3.c:293: warning: function declaration isn't a
+prototype
+drivers/block/swim3.c: In function `do_fd_request':
+drivers/block/swim3.c:302: warning: implicit declaration of function
+`sti'
+drivers/block/swim3.c: In function `start_request':
+drivers/block/swim3.c:315: warning: implicit declaration of function
+`elv_next_request'
+drivers/block/swim3.c:315: warning: assignment makes pointer from
+integer without a cast
+drivers/block/swim3.c:324: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:324: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:325: warning: implicit declaration of function
+`end_request'
+drivers/block/swim3.c:328: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:337: warning: implicit declaration of function
+`rq_data_dir'
+drivers/block/swim3.c:346: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:347: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `set_timeout':
+drivers/block/swim3.c:363: warning: implicit declaration of function
+`save_flags'
+drivers/block/swim3.c:363: warning: implicit declaration of function
+`cli'
+drivers/block/swim3.c:371: warning: implicit declaration of function
+`restore_flags'
+drivers/block/swim3.c: In function `setup_transfer':
+drivers/block/swim3.c:422: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:430: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:431: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:443: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:447: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `xfer_timeout':
+drivers/block/swim3.c:598: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:599: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:601: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `swim3_interrupt':
+drivers/block/swim3.c:623: warning: long unsigned int format, int arg
+(arg 3)
+drivers/block/swim3.c:695: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:696: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:697: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:706: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:715: warning: long unsigned int format, int arg
+(arg 3)
+drivers/block/swim3.c:721: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:722: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:723: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:724: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `floppy_ioctl':
+drivers/block/swim3.c:817: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `floppy_open':
+drivers/block/swim3.c:843: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `floppy_release':
+drivers/block/swim3.c:909: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `floppy_check_change':
+drivers/block/swim3.c:920: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `floppy_revalidate':
+drivers/block/swim3.c:926: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c: In function `swim3_init':
+drivers/block/swim3.c:999: warning: implicit declaration of function
+`alloc_disk'
+drivers/block/swim3.c:999: warning: assignment makes pointer from
+integer without a cast
+drivers/block/swim3.c:1004: error: `FLOPPY_MAJOR' undeclared (first use
+in this function)
+drivers/block/swim3.c:1004: error: (Each undeclared identifier is
+reported only once
+drivers/block/swim3.c:1004: error: for each function it appears in.)
+drivers/block/swim3.c:1009: warning: implicit declaration of function
+`blk_init_queue'
+drivers/block/swim3.c:1009: warning: assignment makes pointer from
+integer without a cast
+drivers/block/swim3.c:1017: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:1018: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:1019: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:1020: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:1021: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:1022: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:1023: error: dereferencing pointer to incomplete
+type
+drivers/block/swim3.c:1024: warning: implicit declaration of function
+`set_capacity'
+drivers/block/swim3.c:1025: warning: implicit declaration of function
+`add_disk'drivers/block/swim3.c:1033: warning: implicit declaration of
+function `put_disk'drivers/block/swim3.c: In function
+`swim3_add_device':
+drivers/block/swim3.c:1084: warning: implicit declaration of function
+`request_irq'
+drivers/block/swim3.c: At top level:
+drivers/block/swim3.c:962: warning: `floppy_off' defined but not used
+make[2]: *** [drivers/block/swim3.o] Error 1
+make[1]: *** [drivers/block] Error 2
+make: *** [drivers] Error 2
+
+

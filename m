@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317427AbSGIThf>; Tue, 9 Jul 2002 15:37:35 -0400
+	id <S317450AbSGITkD>; Tue, 9 Jul 2002 15:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317430AbSGIThe>; Tue, 9 Jul 2002 15:37:34 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50597 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317427AbSGIThc>;
-	Tue, 9 Jul 2002 15:37:32 -0400
-Date: Wed, 10 Jul 2002 21:38:45 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: oleg@tv-sign.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling,
- SCHED_BATCH
-In-Reply-To: <3D27347C.29DC9014@tv-sign.ru>
-Message-ID: <Pine.LNX.4.44.0207102134010.16481-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317452AbSGITkC>; Tue, 9 Jul 2002 15:40:02 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:25477
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S317450AbSGITkA>; Tue, 9 Jul 2002 15:40:00 -0400
+Date: Tue, 9 Jul 2002 12:42:26 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix drivers/media/video/videodev.c on !MODULE case
+Message-ID: <20020709194226.GR695@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Currently videodev_proc_destroy() isn't always compiled in when used.
+Right now it's compiled in based on MODULE && CONFIG_PROC_FS &&
+CONFIG_VIDEO_PROC_FS.  The two problems here the part of the file where
+videodev_proc_destroy resides is already protected by CONFIG_PROC_FS &&
+CONFIG_VIDEO_PROC_FS.  The second problem is that
+videodev_proc_destroy() isn't module specific, and is called on
+CONFIG_PROC_FS && CONFIG_VIDEO_PROC_FS.
 
-On Sat, 6 Jul 2002 oleg@tv-sign.ru wrote:
+This removes the unnecessary tests and updates a comment as well to
+reflect what's being tested.
 
-> Hello.
-> 
-> I beleive this patch against entry.S should be sufficient:
-> 
-> --- entry.S~    Sat Jul  6 21:01:16 2002
-> +++ entry.S     Sat Jul  6 21:06:14 2002
-> @@ -255,7 +255,7 @@
->         testb $_TIF_NEED_RESCHED, %cl
->         jz work_notifysig
->  work_resched:
-> -       call schedule
-> +       call schedule_userspace
->         cli                             # make sure we don't miss an
-> interrupt
->                                         # setting need_resched or
-> sigpending
->                                         # between sampling and the iret
-> 
-> Both calls to schedule() at resume_kernel: and work_pending:
-> have clear kernel/user return path.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-agreed, good catch. This greatly simplifies things.
-
-> And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
-> have policy == SCHED_BATCH.
-
-yep. And even if they do they should be aware of the consequences.
-
-	Ingo
-
+===== drivers/media/video/videodev.c 1.13 vs edited =====
+--- 1.13/drivers/media/video/videodev.c	Wed Apr  3 17:05:11 2002
++++ edited/drivers/media/video/videodev.c	Tue Jul  9 12:38:30 2002
+@@ -288,8 +288,6 @@
+ 	video_dev_proc_entry->owner = THIS_MODULE;
+ }
+ 
+-#ifdef MODULE
+-#if defined(CONFIG_PROC_FS) && defined(CONFIG_VIDEO_PROC_FS)
+ static void videodev_proc_destroy(void)
+ {
+ 	if (video_dev_proc_entry != NULL)
+@@ -298,8 +296,6 @@
+ 	if (video_proc_entry != NULL)
+ 		remove_proc_entry("video", &proc_root);
+ }
+-#endif
+-#endif
+ 
+ static void videodev_proc_create_dev (struct video_device *vfd, char *name)
+ {
+@@ -344,7 +340,7 @@
+ 	}
+ }
+ 
+-#endif /* CONFIG_VIDEO_PROC_FS */
++#endif /* CONFIG_VIDEO_PROC_FS && CONFIG_VIDEO_PROC_FS */
+ 
+ extern struct file_operations video_fops;
+ 

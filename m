@@ -1,30 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136728AbREAVff>; Tue, 1 May 2001 17:35:35 -0400
+	id <S136735AbREAVvY>; Tue, 1 May 2001 17:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136735AbREAVfZ>; Tue, 1 May 2001 17:35:25 -0400
-Received: from cp912944-a.mtgmry1.md.home.com ([24.18.149.178]:55943 "EHLO
-	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S136728AbREAVfP>;
-	Tue, 1 May 2001 17:35:15 -0400
-Date: Tue, 1 May 2001 17:35:12 -0400
-From: Olivier Galibert <galibert@pobox.com>
-To: CML2 <linux-kernel@vger.kernel.org>
-Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...]
-Message-ID: <20010501173512.A2815@zalem.puupuu.org>
-Mail-Followup-To: CML2 <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010427193501.A9805@thyrsus.com> <15084.12152.956561.490805@gargle.gargle.HOWL> <20010429183526.B32748@thyrsus.com> <15085.37569.205459.898540@gargle.gargle.HOWL> <20010430133932.B28849@thyrsus.com> <20010430141623.A15821@cadcamlab.org> <20010430152536.A29699@thyrsus.com> <3AEE80A3.EB0ACEB1@dplanet.ch> <20010501123112.A7699@thyrsus.com>
+	id <S136736AbREAVvN>; Tue, 1 May 2001 17:51:13 -0400
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:54029 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S136735AbREAVu6>;
+	Tue, 1 May 2001 17:50:58 -0400
+Date: Tue, 1 May 2001 23:50:46 +0200
+From: Frank de Lange <frank@unternet.org>
+To: linux-kernel@vger.kernel.org
+Subject: * Re: Severe trashing in 2.4.4
+Message-ID: <20010501235046.A23616@unternet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010501123112.A7699@thyrsus.com>; from esr@thyrsus.com on Tue, May 01, 2001 at 12:31:12PM -0400
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 01, 2001 at 12:31:12PM -0400, Eric S. Raymond wrote:
-> You are proposing an interface that will handle easy cases but blow
-> up in the user's face in any hard one.  That's poor design, frustrating
-> the user exactly when he/she most needs help.
+Well,
 
-Yeah, but what is the current method, vi?
+When a puzzled Alexey wondered whether the problems I was seeing with 2.4.4
+might be related to a failure to execute 'make clean' before compiling the
+kernel, I replied in the negative as I *always* clean up before compiling
+anything. Yet, for the sake of science and such I moved the kernel tree and
+started from scratch.
 
-  OG.
+The problems I was seeing are no more, 2.4.4 behaves like a good kernel should.
+
+Was it me? Was it reiserfs? Was is divine intervention? I will probably never
+find out, but for now this thread, and the accompanying scare, can Resquiam In
+Paces.
+
+Cheers//Frank
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]

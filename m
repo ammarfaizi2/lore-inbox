@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312928AbSC0CEi>; Tue, 26 Mar 2002 21:04:38 -0500
+	id <S312955AbSC0CNl>; Tue, 26 Mar 2002 21:13:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312953AbSC0CE3>; Tue, 26 Mar 2002 21:04:29 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:35342
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S312928AbSC0CEL>; Tue, 26 Mar 2002 21:04:11 -0500
-Message-Id: <5.1.0.14.2.20020326205811.0257a8e8@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 26 Mar 2002 20:58:59 -0500
+	id <S312956AbSC0CNV>; Tue, 26 Mar 2002 21:13:21 -0500
+Received: from holomorphy.com ([66.224.33.161]:8864 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S312955AbSC0CNQ>;
+	Tue, 26 Mar 2002 21:13:16 -0500
+Date: Tue, 26 Mar 2002 18:12:42 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-From: Stevie O <stevie@qrpff.net>
-Subject: =?iso-8859-1?Q?Re:_~~=A5=FE=AC=D9=A5=D8=ABe=A6@=A6=B3_50_?=
- =?iso-8859-1?Q?=B4X=AD=D3=A5?= [
- =?iso-8859-1?Q?=B7=F9=A6=A8=A5\=AA=BA=AE=D7=A8=D2?= !~~
-In-Reply-To: <xov0tZGMM@tpts5.seed.net.tw>
+Cc: trivial@rustcorp.com.au
+Subject: [patch] remove dead comment
+Message-ID: <20020327021242.GE10457@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:10 PM 3/26/2002 -0500, RIMki@sky.seed.net.tw wrote:
-> * * * =A5=FE=AC=D9=A5d=B0=D5=AC=B5=C2=FB=A5[=B7=F9=A9=B1=BC=F6=AFP=A9=DB=B6=D2=A4=A4 ***
->
->1. =A4=EB=A6=AC=A4J 5-10 =B8U
->2. =A4@=A4H=A7Y=A5i=B6}=A9=B1 , =A4=A3=A5=B2=A6h=BD=D0=A4H=A4=E2 !
->3. =A5=FE=AC=D9=A5=D8=ABe=A6@=A6=B3 50 =B4X=AD=D3=A5[=B7=F9=A6=A8=A5\=AA=BA=AE=D7=A8=D2 !
->4. =AC=B5=C2=FB=A4f=A8=FD=BFW=AFS , =C5=FD=AB=C8=A4H=A6Y=A4F=A6^=A8=FD=B5L=BDa !!
-
-You forgot:
-
-5. =FE=ED=C0=ED=BA=BE=DE=AD=BE=EF
-
->=BD=D0=B0=D1=C6[=A7=DA=AD=CC=AA=BA=BA=F4=A7} :  
->
->http://211.78.42.181:5168
+I hate to remove a comment from the kernel, but...
 
 
-http://127.0.0.1:69/
+Cheers,
+Bill
 
-
-
-
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.537   -> 1.538  
+#	        mm/filemap.c	1.69    -> 1.70   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/03/26	wli@tisifone.holomorphy.com	1.538
+# filemap.c:
+#   Remove comments already present in hash.h and not corresponding to any code in filemap.c
+# --------------------------------------------
+#
+diff --minimal -Nru a/mm/filemap.c b/mm/filemap.c
+--- a/mm/filemap.c	Tue Mar 26 18:08:13 2002
++++ b/mm/filemap.c	Tue Mar 26 18:08:13 2002
+@@ -742,26 +742,6 @@
+ }
+ 
+ /*
+- * Knuth recommends primes in approximately golden ratio to the maximum
+- * integer representable by a machine word for multiplicative hashing.
+- * Chuck Lever verified the effectiveness of this technique:
+- * http://www.citi.umich.edu/techreports/reports/citi-tr-00-1.pdf
+- *
+- * These primes are chosen to be bit-sparse, that is operations on
+- * them can use shifts and additions instead of multiplications for
+- * machines where multiplications are slow.
+- */
+-#if BITS_PER_LONG == 32
+-/* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
+-#define GOLDEN_RATIO_PRIME 0x9e370001UL
+-#elif BITS_PER_LONG == 64
+-/*  2^63 + 2^61 - 2^57 + 2^54 - 2^51 - 2^18 + 1 */
+-#define GOLDEN_RATIO_PRIME 0x9e37fffffffc0001UL
+-#else
+-#error Define GOLDEN_RATIO_PRIME for your wordsize.
+-#endif
+-
+-/*
+  * In order to wait for pages to become available there must be
+  * waitqueues associated with pages. By using a hash table of
+  * waitqueues where the bucket discipline is to maintain all

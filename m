@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269841AbUH0BOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269860AbUH0A65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269841AbUH0BOY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 21:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269856AbUH0A74
+	id S269860AbUH0A65 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269831AbUH0A4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:59:56 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:28304 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S269818AbUH0A4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:56:03 -0400
-Message-ID: <412E868E.7070808@kolivas.org>
-Date: Fri, 27 Aug 2004 10:55:42 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Nuno Silva <nuno.silva@vgertech.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Rick Lindsley <ricklind@us.ibm.com>
+	Thu, 26 Aug 2004 20:56:17 -0400
+Received: from serwer.tvgawex.pl ([212.122.214.2]:17318 "HELO
+	mother.localdomain") by vger.kernel.org with SMTP id S269782AbUHZXxT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:53:19 -0400
+Date: Fri, 27 Aug 2004 01:53:18 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.9-rc1-mm1
-References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl> <412E11ED.7040300@kolivas.org> <52540000.1093553736@flay> <412E7004.3070503@kolivas.org> <412E824F.90704@vgertech.com> <412E8475.5000505@kolivas.org> <93300000.1093567895@flay>
-In-Reply-To: <93300000.1093567895@flay>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigB21E78ACF1CFAD9BC13163E3"
+Message-ID: <20040826235318.GB8550@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040826014745.225d7a2c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040826014745.225d7a2c.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigB21E78ACF1CFAD9BC13163E3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Aug 26, 2004 at 01:47:45AM -0700, Andrew Morton wrote:
+> - nicksched is still here.  There has been very little feedback, except that
+>   it seems to slow some workloads on NUMA.
 
-Martin J. Bligh wrote:
-> --On Friday, August 27, 2004 10:46:45 +1000 Con Kolivas <kernel@kolivas.org> wrote:
-> 
-> 
->>Nuno Silva wrote:
->>
->>>Con Kolivas wrote:
->>>
->>>>If you're talking about using the embedded image viewer in kde, that 
->>>>spins on wait and wastes truckloads of cpu (a perfect example of poor 
->>>>coding). Try loading it an external viewer and it will be 1000 times 
->>>>faster. If you're talking about it keeping the disk too busy on the 
->>>>other hand, that's I/O scheduling.
->>>>
->>>
->>>The question is: "can a poorly coded app hang the system for 30secs?"
->>>
->>>That's a DoS ;-)
->>
->>It does not hang the system, only it's dependant tasks (ie other kde thingies)
-> 
-> 
-> the display app (not KDE), however, at least seems to deny X of enough time 
-> that the mouse cursor won't move. Much badness! ;-)
+ I've today returned from -mm series to 2.6.9-rc1 and noticed some
+changes. Usual workload of my celeron 366 consist of bunch of
+transparent Eterms, firefox, xmms playing and some background daemons
+(like spamassassin).
 
-Yes, priority inversion is a nasty thing indeed.
+ Xmms is known for unpleasant behaviour - it sleeps a lot, slowing down
+entire system. This isn't noticable in top, which show ~10% CPU
+dedicated to xmms, but it very easy to feel.
 
-Cheers,
-Con
+ Nick scheduler in contrast to stock scheduler from -linus make
+interativity a lot better. When switching workspaces, windows redraw
+almost instantly (max 2 seconds), whereas in -linus I often have to wait
+up to 8-10 seconds to work.
 
---------------enigB21E78ACF1CFAD9BC13163E3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+ when running -mm, playing xmms don't slow thinhs much. Kernel compile
+is almost as fast, as when xmms is shut. In -linus in turn, playing xmms
+can slow down compile twice.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+ Firefox loading 3-4 pages in tabs in -linus makes all desktop lagging.
+Scheduler from -mm makes load caused by firefox unnoticabled in other
+apps.
 
-iD8DBQFBLoaQZUg7+tp6mRURAqIUAJ42W+UobsWzBH1rErooXajKhfkbKQCggEB1
-Wo+xKgGkoUiU6oAnci/wy2k=
-=xfiN
------END PGP SIGNATURE-----
+ That are my observations. It's nothing scientific and there are no
+solind numbers from benchmarks to support them.
 
---------------enigB21E78ACF1CFAD9BC13163E3--
+-- 
+Tomasz Torcz                        To co nierealne - tutaj jest normalne.
+zdzichu@irc.-nie.spam-.pl          Ziomale na ¿ycie maj± tu patenty specjalne.
+

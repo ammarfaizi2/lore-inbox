@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAKVhD>; Thu, 11 Jan 2001 16:37:03 -0500
+	id <S131576AbRAKVog>; Thu, 11 Jan 2001 16:44:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135220AbRAKVgx>; Thu, 11 Jan 2001 16:36:53 -0500
-Received: from 24-216-78-5.hsacorp.net ([24.216.78.5]:46601 "EHLO
-	mccoy.penguinpowered.com") by vger.kernel.org with ESMTP
-	id <S129631AbRAKVgh>; Thu, 11 Jan 2001 16:36:37 -0500
-From: Jens Petersohn <jkp@mccoy.penguinpowered.com>
-Message-Id: <200101112136.PAA07626@mccoy.penguinpowered.com>
-Subject: Ingo's RAID patch for 2.2.18 final?
-To: linux-kernel@vger.kernel.org
-Date: Thu, 11 Jan 2001 15:36:13 -0600 (CST)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S132957AbRAKVo0>; Thu, 11 Jan 2001 16:44:26 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:21498 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S131576AbRAKVoU>;
+	Thu, 11 Jan 2001 16:44:20 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101112142.f0BLgXE05982@webber.adilger.net>
+Subject: Re: Strange umount problem in latest 2.4.0 kernels
+In-Reply-To: <3A5E0886.4389692E@Hell.WH8.TU-Dresden.De> "from Udo A. Steinberg
+ at Jan 11, 2001 08:24:54 pm"
+To: "Udo A. Steinberg" <sorisor@hell.wh8.tu-dresden.de>
+Date: Thu, 11 Jan 2001 14:42:32 -0700 (MST)
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My appologies if this has been asked before. I'm looking for
-Ingo Molnar's RAID patch for 2.2.18-final. I tried applying A2, but
-it has a number of conflicts in raid1.c which I cannot resolve in
-my meager spare time.
+Udo, you write:
+> Anyway, disabled both lpd and httpd from the startup scripts
+> and now the bug is triggered *every* time. I cannot reboot
+> a single time without partitions being busy. When neither
+> lpd nor httpd run, fsck finds nothing wrong.
+> 
+> The very strange stuff is umount at reboot:
+> 
+> umount: none busy - remounted read-only
+          ^^^^
+Check the output of "mount" and/or your /etc/fstab for a device called
+"none".  On my system, there is devpts which has device "none", so it
+is possible this is busy, and can't be unmounted, and hence root is also
+busy and can't be ro remounted.  Maybe also check /proc/mounts for "none".
 
-Thanks in advance,
+> umount: /: device is busy
+> Remounting root-filesystem read-only
+> mount: / is busy
+> Rebooting.
 
---Jens Petersohn
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

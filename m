@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290184AbSCGBwt>; Wed, 6 Mar 2002 20:52:49 -0500
+	id <S289815AbSCGBxJ>; Wed, 6 Mar 2002 20:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290120AbSCGBwk>; Wed, 6 Mar 2002 20:52:40 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60663 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S289815AbSCGBwb>; Wed, 6 Mar 2002 20:52:31 -0500
-Date: Wed, 6 Mar 2002 20:52:29 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Jeff Dike <jdike@karaya.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-Message-ID: <20020306205229.A15048@redhat.com>
-In-Reply-To: <20020306182026.F866@redhat.com> <200203070127.UAA05891@ccure.karaya.com>
+	id <S290228AbSCGBxC>; Wed, 6 Mar 2002 20:53:02 -0500
+Received: from are.twiddle.net ([64.81.246.98]:19866 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S289815AbSCGBwn>;
+	Wed, 6 Mar 2002 20:52:43 -0500
+Date: Wed, 6 Mar 2002 17:52:03 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, matthew@hairy.beasts.org, bcrl@redhat.com,
+        david@mysql.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+        Hubertus Franke <frankeh@watson.ibm.com>
+Subject: Re: [PATCH] Fast Userspace Mutexes III.
+Message-ID: <20020306175203.A26064@twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	torvalds@transmeta.com, matthew@hairy.beasts.org, bcrl@redhat.com,
+	david@mysql.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+	Hubertus Franke <frankeh@watson.ibm.com>
+In-Reply-To: <E16hjZY-0001AV-00@wagner.rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200203070127.UAA05891@ccure.karaya.com>; from jdike@karaya.com on Wed, Mar 06, 2002 at 08:27:51PM -0500
+In-Reply-To: <E16hjZY-0001AV-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Mon, Mar 04, 2002 at 02:55:36PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 06, 2002 at 08:27:51PM -0500, Jeff Dike wrote:
-> I showed the kernel build segfaulting as an improvement over UML hanging, 
-> which is the alternative behavior.
+On Mon, Mar 04, 2002 at 02:55:36PM +1100, Rusty Russell wrote:
+> +	/* If we take the semaphore from 1 to 0, it's ours. */
+> +	while (!atomic_dec_and_test(count)) {
+> +		if (signal_pending(current)) {
+> +			retval = -EINTR;
+> +			break;
 
-Versus fully allocating the backing store, which would neither hang nor 
-cause segfaults.  This is the behaviour that one expects by default, and 
-should be the first line of defense before going to the overcommit model.  
-Get that aspect of reliability in place, then add the overcommit support.  
-What is better: having uml fail before attempting to boot with an unable 
-to allocate backing store message, or a random oops during early kernel 
-init?  As I see it, supporting the safe mode of operation first makes more 
-sense before adding yet another arch hook.
+This is not safe from wraparound.  Let one thread hold the
+lock forever; let other threads keep trying to take the lock
+while periodically getting SIGALRM.  Eventually one of the
+spinning threads will incorrectly acquire the mutex.
 
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+On sparc32, atomic_t is only 24 bits wide, so it wouldn't
+take very long at all to wrap.  It's slightly longer for 
+the other platforms, but it can still happen.  And note
+that even 64-bit platforms may be using a 32-bit atomic_t.
+
+You really do need that cmpxchg loop.
+
+
+r~

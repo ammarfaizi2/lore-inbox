@@ -1,92 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264423AbTK0B4C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 20:56:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTK0B4C
+	id S264425AbTK0B5x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 20:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTK0B5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 20:56:02 -0500
-Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:51589
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S264423AbTK0Bz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 20:55:59 -0500
-Message-ID: <3FC559AB.7000806@sh0n.net>
-Date: Wed, 26 Nov 2003 20:55:55 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031119 Thunderbird/0.4a
+	Wed, 26 Nov 2003 20:57:53 -0500
+Received: from evrtwa1-ar2-4-35-049-074.evrtwa1.dsl-verizon.net ([4.35.49.74]:60289
+	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S264425AbTK0B5t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 20:57:49 -0500
+Message-ID: <3FC55A10.2040704@candelatech.com>
+Date: Wed, 26 Nov 2003 17:57:36 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Linus Torvalds <torvalds@osdl.org>
-Subject: Random SIGSEGVs and 2.6.0-test10
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "David S. Miller" <davem@redhat.com>
+CC: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Fast timestamps
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>	<p73fzgbzca6.fsf@verdi.suse.de>	<20031126113040.3b774360.davem@redhat.com>	<3FC505F4.2010006@google.com>	<20031126120316.3ee1d251.davem@redhat.com>	<20031126232909.7e8a028f.ak@suse.de>	<20031126143620.5229fb1f.davem@redhat.com>	<20031126235641.36fd71c1.ak@suse.de>	<20031126151352.160b4734.davem@redhat.com>	<3FC53A40.8010904@candelatech.com> <20031126160129.32855a15.davem@redhat.com>
+In-Reply-To: <20031126160129.32855a15.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's funny you mention random userland SIGSEGV's.
+David S. Miller wrote:
+> On Wed, 26 Nov 2003 15:41:52 -0800
+> Ben Greear <greearb@candelatech.com> wrote:
+> 
+> 
+>>I'll try to write up a patch that uses the TSC and lazy conversion
+>>to timeval as soon as I get the rx-all and rx-fcs code happily
+>>into the kernel....
+>>
+>>Assuming TSC is very fast and the conversion is accurate enough, I think
+>>this can give good results....
+> 
+> 
+> I'm amazed that you will be able to write a fast_timestamp
+> implementation without even seeing the API I had specified
+> to the various arch maintainers :-)
 
-I don't know if this some of the fallout wrt CONFIG_PREEMPT being 
-enabled or not but using vmware and running my ncurses mp3 player seems 
-to trigger an oddity:
+Well, I would only aim at x86, with generic code for the
+rest of the architectures.  The truth is, I'm sure others would
+be better/faster at it than me, but we keep discussing it, and it
+never gets done, so unless someone beats me to it, I'll take a stab
+at it...  Might be after Christmas though, busy December coming up!
 
-Apon using vmware, it may sometimes crap out with a internal bug # and 
-in doing so, sometimes my mp3 player will segfault for no reason. This 
-randomly happens. I do have preempt enabled. Even more odd is the fact 
-that even if I have only say 4500K left out of 576MB, there is 0 swap 
-usage. The kernel malloc fails if there is no physical memory? If I have 
-a huge swap file/disk wouldn't it malloc some of that virtual memory? 
-There is no OOM kill either happening since there's no log of that from 
-the kernel saying it did an OOM kill.
+I agree with your approach below.  One thing I was thinking about:
+is it possible that two threads ask for the timestamp of a single skb
+concurrently?  If so, we may need a lock if we want to cache the conversion
+to gettimeofday units....  Of course, the case where multiple readers want
+the timestamp for a single skb may be too rare to warrant caching...
 
-I would certainly like to debug any weird oddities. My systems seem to 
-be good test grounds for such things :-)
+Ben
 
-Thanks,
+> 
+> ====================
+> 
+> But at the base I say we need three things:
+> 
+> 1) Some kind of fast_timestamp_t, the property is that this stores
+>    enough information at time "T" such that at time "T + something"
+>    the fast_timestamp_t can be converted what the timeval was back at
+>    time "T".
+> 
+>    For networking, make skb->stamp into this type.
+> 
+> 2) store_fast_timestamp(fast_timestamp_t *)
+> 
+>    For networking, change do_gettimeofday(&skb->stamp) into
+>    store_fast_timestamp(&skb->stamp)
+> 
+> 3) fast_timestamp_to_timeval(arch_timestamp_t *, struct timeval *)
+> 
+>    For networking, change things that read the skb->stamp value
+>    into calls to fast_timestamp_to_timeval().
+> 
+> It is defined that the timeval given by fast_timestamp_to_timeval()
+> needs to be the same thing that do_gettimeofday() would have recorded
+> at the time store_fast_timestamp() was called.
+> 
+> Here is the default generic implementation that would go into
+> asm-generic/faststamp.h:
+> 
+> 1) fast_timestamp_t is struct timeval
+> 2) store_fast_timestamp() is gettimeofday()
+> 3) fast_timestamp_to_timeval() merely copies the fast_timestamp_t
+>    into the passed in timeval.
+> 
+> And here is how an example implementation could work on sparc64:
+> 
+> 1) fast_timestamp_t is a u64
+> 
+> 2) store_fast_timestamp() reads the cpu cycle counter
+> 
+> 3) fast_timestamp_to_timeval() records the difference between the
+>    current cpu cycle counter and the one recorded, it takes a sample
+>    of the current xtime value and adjusts it accordingly to account
+>    for the cpu cycle counter difference.
+> 
+> This only works because sparc64's cpu cycle counters are synchronized
+> across all cpus, they increase monotonically, and are guarenteed not
+> to overflow for at least 10 years.
+> 
+> Alpha, for example, cannot do it this way because it's cpu cycle counter
+> register overflows too quickly to be useful.
+> 
+> Platforms with inter-cpu TSC synchronization issues will have some
+> troubles doing the same trick too, because one must handle properly
+> the case where the fast timestamp is converted to a timeval on a different
+> cpu on which the fast timestamp was recorded.
+> 
+> Regardless, we could put the infrastructure in there now and arch folks
+> can work on implementations.  The generic implementation code, which is
+> what everyone will end up with at first, will cancel out to what we have
+> currently.
+> 
+> This is a pretty powerful idea that could be applied to other places,
+> not just the networking.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> List:     linux-kernel
-> Subject:  Re: What exactly are the issues with 2.6.0-test10 preempt?
-> From:     Linus Torvalds <torvalds () osdl ! org>
-> Date:     2003-11-24 23:00:40
-> [Download message RAW]
->
-> On Mon, 24 Nov 2003, Bradley Chapman wrote:
-> >
-> > Indeed. Do the same subsystems usually show the memory corruption 
-> issue with
-> > preempt active, or does it just pop up all over the place, 
-> unpredictably?
->
-> There are a few reports of "predictable" memory corruption, in the sense
-> that the same people tend to see the same kinds of oopses _without_ any
-> other signs of memory corruption (ie no random SIGSEGV's in user space
-> etc).
->
-> There's the magic slab corruption thing, there's a strange thread data
-> corruption (one person), and there's the sunrpc timer bug. All are
-> "impossible" bugs that would indicate a small amount of data corruption in
-> some core data structure.
->
-> They are hard to trigger, which makes me personally suspect some
-> user-after-free thing, where the bug happens only when somebody else
-> allocates (and uses) the entry immediately afterwards (so that the old
-> user overwrites stuff that just got initialized for the new user).
->
-> It's not likely to be a wild pointer: those tend to corrupt random memory,
-> and that in turn is a lot more likely to result in _user_ corruptions
-> (causing SIGSEGV's, corrupted files that magically become ok again when
-> re-read, etc), since 99% of all memory tends to be non-kernel data
-> structures.
->
-> The PAGEFREE debug option works well for page allocations, but the slab
-> cache is not very amenable to it. For slab debugging, it would be
-> wonderful if somebody made a _truly_ debugging slab allocator that didn't
-> use the slab cache at all, but used the page allocator (and screw the fact
-> that you use too much memory ;) instead.
->
-> (Sadly, some slab users actually use that stupid "initialize" crap. We
-> should rip it out: it's a disaster from a data cache standpoint too, since
-> it tends to do all the wrong things there, even though it's literally
-> meant to help).
->
->         Linus
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+
 

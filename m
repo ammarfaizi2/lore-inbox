@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbUDNWoj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 18:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUDNWmw
+	id S261991AbUDNWs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 18:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbUDNWml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 18:42:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:53919 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261989AbUDNWZQ convert rfc822-to-8bit
+	Wed, 14 Apr 2004 18:42:41 -0400
+Received: from mail.kroah.org ([65.200.24.183]:54431 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261991AbUDNWZT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 18:25:16 -0400
+	Wed, 14 Apr 2004 18:25:19 -0400
 Subject: Re: [PATCH] I2C update for 2.6.5
-In-Reply-To: <1081981450639@kroah.com>
+In-Reply-To: <10819814502943@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Apr 2004 15:24:11 -0700
-Message-Id: <108198145169@kroah.com>
+Date: Wed, 14 Apr 2004 15:24:10 -0700
+Message-Id: <10819814501036@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,32 +22,28 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.13, 2004/04/02 11:02:40-08:00, mochel@digitalimplant.org
+ChangeSet 1.1643.36.11, 2004/03/30 14:27:21-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Add support for the ALi 1563 in the PCI IRQ routing code.
+[PATCH] I2C: Discard pointless comment in via686a
+
+The simple patch below discards a comment in via686a referencing a file
+that doesn't belong to the Linux tree. Now that I tell people not to do
+that in my porting guide, we better follow our own advice.
 
 
- arch/i386/pci/irq.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/i2c/chips/via686a.c |    1 -
+ 1 files changed, 1 deletion(-)
 
 
-diff -Nru a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
---- a/arch/i386/pci/irq.c	Wed Apr 14 15:13:55 2004
-+++ b/arch/i386/pci/irq.c	Wed Apr 14 15:13:55 2004
-@@ -590,12 +590,13 @@
- {
- 	switch(device)
- 	{
--		case PCI_DEVICE_ID_AL_M1533:
-+	case PCI_DEVICE_ID_AL_M1533:
-+	case PCI_DEVICE_ID_AL_M1563:
-+		printk("PCI: Using ALI IRQ Router\n");
- 			r->name = "ALI";
- 			r->get = pirq_ali_get;
- 			r->set = pirq_ali_set;
- 			return 1;
--		/* Should add 156x some day */
- 	}
- 	return 0;
- }
+diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
+--- a/drivers/i2c/chips/via686a.c	Wed Apr 14 15:14:05 2004
++++ b/drivers/i2c/chips/via686a.c	Wed Apr 14 15:14:05 2004
+@@ -27,7 +27,6 @@
+ /*
+     Supports the Via VT82C686A, VT82C686B south bridges.
+     Reports all as a 686A.
+-    See doc/chips/via686a for details.
+     Warning - only supports a single device.
+ */
+ 
 

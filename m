@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264878AbSLVQcY>; Sun, 22 Dec 2002 11:32:24 -0500
+	id <S264972AbSLVQpY>; Sun, 22 Dec 2002 11:45:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbSLVQcY>; Sun, 22 Dec 2002 11:32:24 -0500
-Received: from jdi.jdimedia.nl ([212.204.192.51]:45723 "EHLO jdi.jdimedia.nl")
-	by vger.kernel.org with ESMTP id <S264878AbSLVQcY>;
-	Sun, 22 Dec 2002 11:32:24 -0500
-Date: Sun, 22 Dec 2002 17:40:27 +0100 (CET)
-From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
-X-X-Sender: igmar@jdi.jdimedia.nl
-To: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalidate: busy buffer + MD RAID 1
-In-Reply-To: <20021219153516.GA10968@linux.kappa.ro>
-Message-ID: <Pine.LNX.4.44.0212221739350.31893-100000@jdi.jdimedia.nl>
-References: <Pine.LNX.4.44.0212181905500.4421-100000@jdi.jdimedia.nl>
- <20021219153516.GA10968@linux.kappa.ro>
+	id <S265063AbSLVQpY>; Sun, 22 Dec 2002 11:45:24 -0500
+Received: from c3po.skynet.be ([195.238.3.237]:6593 "EHLO c3po.skynet.be")
+	by vger.kernel.org with ESMTP id <S264972AbSLVQpX>;
+	Sun, 22 Dec 2002 11:45:23 -0500
+Message-Id: <200212221653.gBMGrT717778@c3po.skynet.be>
+Date: Sun, 22 Dec 2002 17:53:28 +0100 (CET)
+From: Helmut Jarausch <jarausch@skynet.be>
+Reply-To: jarausch@skynet.be
+Subject: Re: [2.4.21-p2] more VIA-IDE problems
+To: linux-kernel@vger.kernel.org
+cc: john@grabjohn.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+John Bradford wrote
 
-Hi,
+> > beginning with 2.4.21-pre1 the kernel disables DMA on my
+> > regular ATA harddrives.
+> >
 
-> I get the same behaviour on several machines .. but I sleep well at night :P
+snip
 
-It didn't eat your FS ?? I'll probably remove the message from the kernel 
-source, it confuses people around here.
+>
+> I think that they are superflous debugging messages, and that DMA is
+>
+> actually re-enabled silently afterwards. I could be wrong, though.
 
+Probably you are right.
 
+I've just run  bonnie++ (1.93) with 2.4.20 and 2.4.21-pre2
+and there are NO significant differences.
 
-	Igmar
+Sorry for the noise!
+
+Helmut.
 
 -- 
+Helmut Jarausch
 
-Igmar Palsenberg
-JDI Media Solutions
-
-Helhoek 30
-6923PE Groessen
-Tel: +31 (0)316 - 596695
-Fax: +31 (0)316 - 596699
-The Netherlands
-
-mailto: i.palsenberg@jdimedia.nl
-PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
-
+Lehrstuhl fuer Numerische Mathematik
+RWTH - Aachen University
+D 52056 Aachen, Germany

@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263054AbTIVI0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 04:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbTIVI0H
+	id S263052AbTIVIUz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 04:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTIVIUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 04:26:07 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:49615 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S263054AbTIVI0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 04:26:04 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
+	Mon, 22 Sep 2003 04:20:55 -0400
+Received: from [217.13.198.2] ([217.13.198.2]:59306 "EHLO
+	server2.netdiscount.de") by vger.kernel.org with ESMTP
+	id S263052AbTIVIUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 04:20:54 -0400
+Date: Mon, 22 Sep 2003 10:20:52 +0200
+From: Christian Leber <christian@leber.de>
 To: linux-kernel@vger.kernel.org
-Subject: Synaptics bk8 + patches
-Date: Mon, 22 Sep 2003 10:25:59 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Subject: Software patents, translation help urgently needed  (especially .it, but anything else too)
+Message-ID: <20030922082052.GB20134@core.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309221025.59347.gallir@uib.es>
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
-	I just tried your last patches at http://w1.894.telia.com/~u89404340/
-patches/touchpad/2.6.0-test5-bk8/v1/.
+Hello,
 
-They not only gives the sync's error:
+there is a an analysis of the amandments to the proposed directive and
+this needs to be translated to some languages, perhaps you can help:
 
-Synaptics driver lost sync at 4th byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver resynced.
-Synaptics driver lost sync at 1st byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver lost sync at 1st byte
-Synaptics driver resynced.
+It's this: http://swpat.ffii.org/papers/eubsa-swpat0202/plen0309/
 
-but also the pointer is almost uncontrollable. 
+Go here:
+http://wiki.ael.be/index.php/TranslatingTheAnalysis
+and #bxl-ffii on irc.debian.org
 
-The pointer's response is not coherent, mainly the speed. Sometimes is 
-slower, other faster, sometimes the mouse even doesn't move, especially 
-in the y axis.
-
-Also, most of the time a tap is considered a very short drag.
+All languages:
+es, da, de, el, en, fr, it, nl, pt, fi, sv
 
 
-Cheers.
+please help
 
--- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
+Thank you
+
+Christian Leber
+
+
+P.S. more about software patents  swpat.ffii.org
+
 

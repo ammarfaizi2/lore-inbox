@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267228AbTAFV7h>; Mon, 6 Jan 2003 16:59:37 -0500
+	id <S267217AbTAFWJJ>; Mon, 6 Jan 2003 17:09:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267231AbTAFV7h>; Mon, 6 Jan 2003 16:59:37 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:14048 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267228AbTAFV7g>;
-	Mon, 6 Jan 2003 16:59:36 -0500
-Date: Mon, 6 Jan 2003 14:04:52 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
-       <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] configurable LOG_BUF_SIZE
-In-Reply-To: <20030106212608.GQ5984@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.33L2.0301061359470.15416-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267233AbTAFWJJ>; Mon, 6 Jan 2003 17:09:09 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15521 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267217AbTAFWJI>; Mon, 6 Jan 2003 17:09:08 -0500
+Date: Mon, 6 Jan 2003 17:17:44 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Patch for initial CapsLock
+Message-ID: <20030106171744.A13815@devserv.devel.redhat.com>
+References: <20030106133716.A7554@devserv.devel.redhat.com> <20030106225218.A1627@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030106225218.A1627@ucw.cz>; from vojtech@suse.cz on Mon, Jan 06, 2003 at 10:52:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jan 2003, Tomas Szepe wrote:
+> Date: Mon, 6 Jan 2003 22:52:18 +0100
+> From: Vojtech Pavlik <vojtech@suse.cz>
 
-| > [rddunlap@osdl.org]
-|
-| > | |---------------------------------------------------------------------------
-| > | | I'd probably be happier if the current one didn't even _ask_ the user (or|
-| > | | only asked the user if kernel debugging is enabled), and just silently   |
-| > | | defaulted to the normal values.                                          |
-| > | |---------------------------------------------------------------------------
-| >
-| Randy,
-|
-| this looks correct to me.  Maybe using if/endif instead of the two
-| 'depends on' would make the entry more explicit to the eye of a future
-| beholder.
+> Sorry for the delay - yes, it's OK.
 
-Hey Tomas,
+Do you want me to do the same for 2.5? It should be a little
+simpler there, and no new exports.
 
-Thanks for looking and giving me your comments.
-
-if/endif would be useful there, especially if there was also an 'else'
-available...
-
--- 
-~Randy
-
+-- Pete

@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbTCCPtd>; Mon, 3 Mar 2003 10:49:33 -0500
+	id <S265857AbTCCPx4>; Mon, 3 Mar 2003 10:53:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266161AbTCCPtc>; Mon, 3 Mar 2003 10:49:32 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:62742 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266095AbTCCPta>; Mon, 3 Mar 2003 10:49:30 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200303031559.h23FxvJ24764@devserv.devel.redhat.com>
-Subject: Linux 2.2.24-rc5
-To: linux-kernel@vger.kernel.org
-Date: Mon, 3 Mar 2003 10:59:57 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S266161AbTCCPx4>; Mon, 3 Mar 2003 10:53:56 -0500
+Received: from angband.namesys.com ([212.16.7.85]:33665 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S265857AbTCCPxy>; Mon, 3 Mar 2003 10:53:54 -0500
+Date: Mon, 3 Mar 2003 19:04:17 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       mason@suse.com, trond.myklebust@fys.uio.no, jaharkes@cs.cmu.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 iget5_locked port attempt to 2.4
+Message-ID: <20030303190417.C4513@namesys.com>
+References: <20030303183838.B4513@namesys.com> <Pine.SOL.3.96.1030303155239.1630A-100000@virgo.cus.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.3.96.1030303155239.1630A-100000@virgo.cus.cam.ac.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok this should be it
+Hello!
 
-Linux 2.2.24-rc5
-o	Fix n_hdlc globals pollution			(Paul Fulghum)
-o	Fix initialisation of sk->sleep			(Holger Smolinksi)
-o	Handle init_ethdev returning null in tulip	(Neale Banks)
-o	Backport rtc wildcard fix to 2.2		(Paul Gortmaker)
-o	Correct wireless config help			(Neale Banks)
-o	Fix smc9194 build				(me)
+On Mon, Mar 03, 2003 at 03:57:19PM +0000, Anton Altaparmakov wrote:
+> > > >    It's me again, I basically got no reply for this iget5_locked patch
+> > > >    I have now. Would there be any objections if I try push it to Marcelo
+> > > >    tomorrow? ;)
+> > > I just binned it. Certainly its not the kind of stuff I want to test in -ac, 
+> > > too many VFS changes outside reiserfs
+> > Andrew Morton said "iget5_locked() looks simple enough, and as far as I can
+> > tell does not change any existing code - it just adds new stuff.",
+> > also this code (in its 2.5 incarnation) was tested in 2.5 for long time already.
+> > Also it fixes real bug (and while I have another reiserfs-only fix for the bug,
+> > it is fairly inelegant).
+> I agree it should go into 2.4 but I don't think the patches you are
+> submitting should go in. From what I can see they are an older version
+> compared to what actually went into 2.5. (I am basing this on the comments
 
-Linux 2.2.24-rc4
-o	Fix ethernet as modules problems		(me)
-o	Fix 8139too and rtl8139 padding			(me)
+What I am submitting is just changesets 1.373.172.1..1.373.172.6 from
+2.5 bk tree. So these patches are what went into 2.5 (plus all the bugs I
+have made during adapting these to 2.4, of course).
 
-Linux 2.2.24-rc3
-o	Backport the ethernet padding fixes		(me)
-	| All done except 8139too, rtl8139]
+> to the functions rather than thorough code comparisons but I don't have
+> time to look at it more in depth atm.) Why don't you use the actual 2.5
+> code and make new patches or at least make use of the patches that finally
+> went into 2.5?
 
-Linux 2.2.24-rc2
+Looking at the changelog, it seems much later on there were ifind_fast() and ifind()
+additions to this code, but I was not sure I should take these too.
+I can though, if people think that would be useful.
 
-o	Apply AMD fix correctly				(Bruce Robson)
-o	Fix possible memory scribble in starfire	(Ion Badulescu)
-
-Linux 2.2.24-rc1
-
-o	Fix a typo in the maintainers			(James Morris)
-o	Dave Niemi has moved				(Dave Niemi)
-o	Fix incorrect blocking on nonblock pipe		(Pete Benie)
-o	Fix misidentification of some AMD processors	(Bruce Robson)
-o	Fix a very obscure skb_realloc_headroom bug	(James Morris)
-o	Fix warning in lance driver			(Thomas Cort)
-o	Fix sign handling bug in pms driver		(Silvio Cesare)
-o	Drop mmap on /proc/<pid>/mem as 2.4/2.5 did	(Michal Zalewski)
-	(also fixes some bugs)
+Bye,
+    Oleg

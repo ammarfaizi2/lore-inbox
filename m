@@ -1,109 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130694AbRA3V0m>; Tue, 30 Jan 2001 16:26:42 -0500
+	id <S132488AbRA3Vcm>; Tue, 30 Jan 2001 16:32:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131904AbRA3V0c>; Tue, 30 Jan 2001 16:26:32 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:16903 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130694AbRA3V0Q>;
-	Tue, 30 Jan 2001 16:26:16 -0500
-From: Daniel Phillips <phillips@innominate.de>
-To: Manfred Spraul <manfred@colorfullife.com>,
-        Rusty Russell <rusty@linuxcare.com.au>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: [RFC] New Improved Stronger Whiter Timers (was: Kernel Janitor)
-Date: Tue, 30 Jan 2001 22:22:01 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <E14NPEr-0005LR-00@halfway> <01013021114409.28895@gimli>
-In-Reply-To: <01013021114409.28895@gimli>
+	id <S132462AbRA3Vcd>; Tue, 30 Jan 2001 16:32:33 -0500
+Received: from fe070.worldonline.dk ([212.54.64.208]:38919 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S132155AbRA3VcS>; Tue, 30 Jan 2001 16:32:18 -0500
+Date: Tue, 30 Jan 2001 22:29:52 +0100
+From: Torben Mathiasen <torben@kernel.dk>
+To: linux@arm.linux.org.uk
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <0101302224070B.28895@gimli>
-Content-Transfer-Encoding: 7BIT
+Subject: [PATCH] Acorn SCSI loading
+Message-ID: <20010130222952.G873@fry>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-OS: Linux 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001, Manfred Spraul wrote:
-> This one is an UP and SMP race:
-> 
->   spin_unlock_irq(&timerlist_lock); 
-> + if (timer->event) 
-> + { 
-> + if ((requeue = timer->event(data))) 
-> + { 
-> + timer->expires += requeue; 
-> + internal_add_timer(timer); 
-> + } 
-> + } 
-> + else 
-> + timer->function(data); /* bad old way */ 
->   spin_lock_irq(&timerlist_lock); 
-> 
-> internal_add_timer assumes that the timerlist_lock is acquired.
 
-Yes, oops, here is the fix.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---- ../2.4.1.clean/include/linux/timer.h	Tue Jan 30 08:24:55 2001
-+++ ./include/linux/timer.h	Tue Jan 30 21:52:58 2001
-@@ -22,6 +22,7 @@
- 	unsigned long expires;
- 	unsigned long data;
- 	void (*function)(unsigned long);
-+	unsigned long (*event)(unsigned long data);
- };
- 
- extern void add_timer(struct timer_list * timer);
-@@ -49,6 +50,9 @@
- static inline void init_timer(struct timer_list * timer)
- {
- 	timer->list.next = timer->list.prev = NULL;
-+	timer->function = NULL;
-+	timer->event = NULL;
-+	timer->data = 0;
- }
- 
- static inline int timer_pending (const struct timer_list * timer)
---- ../2.4.1.clean/kernel/timer.c	Sun Dec 10 18:53:19 2000
-+++ ./kernel/timer.c	Tue Jan 30 22:09:09 2001
-@@ -301,19 +301,30 @@
- 		curr = head->next;
- 		if (curr != head) {
- 			struct timer_list *timer;
--			void (*fn)(unsigned long);
--			unsigned long data;
-+			unsigned long data, requeue;
- 
- 			timer = list_entry(curr, struct timer_list, list);
-- 			fn = timer->function;
-  			data= timer->data;
- 
- 			detach_timer(timer);
- 			timer->list.next = timer->list.prev = NULL;
- 			timer_enter(timer);
- 			spin_unlock_irq(&timerlist_lock);
--			fn(data);
--			spin_lock_irq(&timerlist_lock);
-+			if (timer->event)
-+			{
-+				requeue = timer->event(data);
-+				spin_lock_irq(&timerlist_lock);
-+				if (requeue)
-+				{
-+					timer->expires += requeue;
-+					internal_add_timer(timer);
-+				}
-+			}
-+			else
-+			{
-+				timer->function(data); /* bad old way */
-+				spin_lock_irq(&timerlist_lock);
-+			}
- 			timer_exit();
- 			goto repeat;
- 		}
+Hi,
+
+Just noticed the SCSI drivers for the ACORN bus weren't 
+updated to the new initialization. AFAIK these drivers couldn't 
+have been functional without this patch.
+
+
+Patch is against 2.4.1
+
+
 
 -- 
-Daniel
+Torben Mathiasen <torben@kernel.dk>
+Linux ThunderLAN maintainer 
+http://opensource.compaq.com
+
+
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="acorn_scsi.diff"
+
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/acornscsi.c linux/drivers/acorn/scsi/acornscsi.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/acornscsi.c	Tue Sep 19 00:15:22 2000
++++ linux/drivers/acorn/scsi/acornscsi.c	Tue Jan 30 22:18:50 2001
+@@ -3118,9 +3118,7 @@
+     return pos;
+ }
+ 
+-#ifdef MODULE
+ 
+ Scsi_Host_Template driver_template = ACORNSCSI_3;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/arxescsi.c linux/drivers/acorn/scsi/arxescsi.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/arxescsi.c	Tue Sep 19 00:15:22 2000
++++ linux/drivers/acorn/scsi/arxescsi.c	Tue Jan 30 22:19:06 2001
+@@ -416,8 +416,6 @@
+ 	return pos;
+ }
+ 
+-#ifdef MODULE
+ Scsi_Host_Template driver_template = ARXEScsi;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_1.c linux/drivers/acorn/scsi/cumana_1.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_1.c	Fri Nov 12 01:57:30 1999
++++ linux/drivers/acorn/scsi/cumana_1.c	Tue Jan 30 22:19:29 2001
+@@ -359,9 +359,7 @@
+ 
+ #include "../../scsi/NCR5380.c"
+ 
+-#ifdef MODULE
+ 
+ Scsi_Host_Template driver_template = CUMANA_NCR5380;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_2.c linux/drivers/acorn/scsi/cumana_2.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_2.c	Tue Sep 19 00:15:22 2000
++++ linux/drivers/acorn/scsi/cumana_2.c	Tue Jan 30 22:19:41 2001
+@@ -541,8 +541,6 @@
+ 	return pos;
+ }
+ 
+-#ifdef MODULE
+ Scsi_Host_Template driver_template = CUMANASCSI_2;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/ecoscsi.c linux/drivers/acorn/scsi/ecoscsi.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/ecoscsi.c	Fri Nov 12 01:57:30 1999
++++ linux/drivers/acorn/scsi/ecoscsi.c	Tue Jan 30 22:19:56 2001
+@@ -233,9 +233,7 @@
+ 
+ #include "../../scsi/NCR5380.c"
+ 
+-#ifdef MODULE
+ 
+ Scsi_Host_Template driver_template = ECOSCSI_NCR5380;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/eesox.c linux/drivers/acorn/scsi/eesox.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/eesox.c	Tue Sep 19 00:15:22 2000
++++ linux/drivers/acorn/scsi/eesox.c	Tue Jan 30 22:20:09 2001
+@@ -543,8 +543,6 @@
+ 	return pos;
+ }
+ 
+-#ifdef MODULE
+ Scsi_Host_Template driver_template = EESOXSCSI;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/oak.c linux/drivers/acorn/scsi/oak.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/oak.c	Fri Nov 12 01:57:30 1999
++++ linux/drivers/acorn/scsi/oak.c	Tue Jan 30 22:20:51 2001
+@@ -226,9 +226,7 @@
+ 
+ #include "../../scsi/NCR5380.c"
+ 
+-#ifdef MODULE
+ 
+ Scsi_Host_Template driver_template = OAK_NCR5380;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/powertec.c linux/drivers/acorn/scsi/powertec.c
+--- /opt/kernel/kernels/linux/drivers/acorn/scsi/powertec.c	Tue Sep 19 00:15:22 2000
++++ linux/drivers/acorn/scsi/powertec.c	Tue Jan 30 22:21:00 2001
+@@ -445,8 +445,6 @@
+ 	return pos;
+ }
+ 
+-#ifdef MODULE
+ Scsi_Host_Template driver_template = POWERTECSCSI;
+ 
+ #include "../../scsi/scsi_module.c"
+-#endif
+
+--ReaqsoxgOBHFXBhH--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

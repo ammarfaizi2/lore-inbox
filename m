@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312832AbSCZXaa>; Tue, 26 Mar 2002 18:30:30 -0500
+	id <S312836AbSCZXau>; Tue, 26 Mar 2002 18:30:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312836AbSCZXaV>; Tue, 26 Mar 2002 18:30:21 -0500
-Received: from ns.suse.de ([213.95.15.193]:23047 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312832AbSCZXaG>;
-	Tue, 26 Mar 2002 18:30:06 -0500
-Date: Wed, 27 Mar 2002 00:30:00 +0100
-From: Dave Jones <davej@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: up-to-date bk repository?
-Message-ID: <20020327003000.C7501@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"David S. Miller" <davem@redhat.com>, greearb@candelatech.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CA0FEF7.90003@candelatech.com> <20020326.151104.118632068.davem@redhat.com>
-Mime-Version: 1.0
+	id <S312834AbSCZXak>; Tue, 26 Mar 2002 18:30:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55562 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312833AbSCZXad>; Tue, 26 Mar 2002 18:30:33 -0500
+Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
+To: dean-list-linux-kernel@arctic.org (dean gaudet)
+Date: Tue, 26 Mar 2002 23:47:04 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        andihartmann@freenet.de (Andreas Hartmann),
+        linux-kernel@vger.kernel.org (Kernel-Mailingliste)
+In-Reply-To: <Pine.LNX.4.33.0203261210540.26944-100000@twinlark.arctic.org> from "dean gaudet" at Mar 26, 2002 12:24:58 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16q0ee-0004Dx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 26, 2002 at 03:11:04PM -0800, David S. Miller wrote:
- > 
- > echo -n >include/asm-i386/proc_fs.h
+> what's the point if you're just going to get signal delivery when you
+> least want it, even when malloc returns non-NULL?  it could even be due to
 
-*blink* asm specific proc_fs stuff ?
+If you are running with no overcommit you'll always (for any statistically
+interesting case get the malloc NULL and no signals)
 
-s/asm/linux/ in the #include surely ?
+> it's guaranteed to work in all cases.  (hence, apache-1.3 and other
+> multiprocess daemon superiority over threaded and event-driven code, tee
+> hee :)
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+thttpd -> 1000 hits/second on a 32Mb pentium
+
+I don't hear you 8)
+

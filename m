@@ -1,101 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266257AbTB0Tfy>; Thu, 27 Feb 2003 14:35:54 -0500
+	id <S266615AbTB0Tiy>; Thu, 27 Feb 2003 14:38:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266367AbTB0Tfy>; Thu, 27 Feb 2003 14:35:54 -0500
-Received: from crack.them.org ([65.125.64.184]:24239 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S266257AbTB0Tfu>;
-	Thu, 27 Feb 2003 14:35:50 -0500
-Date: Thu, 27 Feb 2003 14:45:22 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S266622AbTB0Tiy>; Thu, 27 Feb 2003 14:38:54 -0500
+Received: from lmail.actcom.co.il ([192.114.47.13]:58542 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S266615AbTB0Tit>; Thu, 27 Feb 2003 14:38:49 -0500
+Date: Thu, 27 Feb 2003 21:39:44 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalid compilation without -fno-strict-aliasing
-Message-ID: <20030227194522.GA10427@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <873cmbghai.fsf@student.uni-tuebingen.de> <200302262047.h1QKlm0P001784@eeyore.valparaiso.cl> <20030226205754.GA29466@nevyn.them.org> <20030226172213.O3910@devserv.devel.redhat.com> <b3lovr$16j$1@penguin.transmeta.com>
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
+Message-ID: <20030227193943.GA28379@actcom.co.il>
+References: <39710000.1045757490@[10.10.2.4]> <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com> <20030227105056.3fd76ac6.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
-In-Reply-To: <b3lovr$16j$1@penguin.transmeta.com>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <20030227105056.3fd76ac6.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 27, 2003 at 07:30:03PM +0000, Linus Torvalds wrote:
-> In article <20030226172213.O3910@devserv.devel.redhat.com>,
-> Jakub Jelinek  <jakub@redhat.com> wrote:
-> >
-> >To fix that, __constant_memcpy would have to access the data through
-> >union,
-> 
-> Which is impossible, since memcpy _fundamentally_ cannot know what the
-> different types are..
-> 
-> > or you could as well forget about __constant_memcpy and use
-> >__builtin_memcpy where gcc will take care about the constant copying.
-> 
-> Which is impossible because (a) historically __builtin_memcpy does a bad
-> job and (b) it doesn't solve the generic case anyway, ie for other
-> non-memcpy things.
-> 
-> The fact is, for type-based alias analysis gcc needs a way to tell it
-> "this can alias", which it doesn't have.  Unions are _not_ useful,
-> _regardless_ of what silly language lawyers say, since they are not a
-> generic method.  Unions only work for trivial and largely uninteresting
-> cases, and it doesn't _matter_ what C99 says about the issue, since that
-> nasty thing called "real life" interferes.
-> 
-> Until we get some non-union way to say "this can alias", that
-> -fno-strict-alias has to stay because gcc is too broken to allow us
-> doing interesting stuff in-line without it. 
-> 
-> My personal opinion is (and was several years ago when this started
-> coming up) that a cast (any cast) should do it. But I don't are _what_
-> it is, as long as it is syntactically sane and isn't limited to special
-> cases like unions.
 
-Well, if that's all you're asking for, it's easy - I don't know if
-you'll agree that the syntax is sane, but it's there.  From the GCC 3.3
-manual:
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-`may_alias'
-     Accesses to objects with types with this attribute are not
-     subjected to type-based alias analysis, but are instead assumed to
-     be able to alias any other type of objects, just like the `char'
-     type.  See `-fstrict-aliasing' for more information on aliasing
-     issues.
+On Thu, Feb 27, 2003 at 10:50:56AM -0800, Randy.Dunlap wrote:
+> On Thu, 20 Feb 2003 08:54:55 -0800 (PST)
+> Linus Torvalds <torvalds@transmeta.com> wrote:
 
-     Example of use:
+[snipped]=20
 
-          typedef short __attribute__((__may_alias__)) short_a;
+> | A sorted list of bad stack users (more than 256 bytes) in my default bu=
+ild
+> | follows. Anybody can create their own with something like
+> |=20
+> | 	objdump -d linux/vmlinux |
+> | 		grep 'sub.*$0x...,.*esp' |
+> | 		awk '{ print $9,$1 }' |
+> | 		sort > bigstack
+> |=20
+> | and a script to look up the addresses.
 
-          int
-          main (void)
-          { 
-            int a = 0x12345678;
-            short_a *b = (short_a *) &a;
+[snipped]=20
 
-            b[1] = 0;
+> I don't get a nice listing from this script like you did.
+> Example of mine is below.  Do I just have a tools issue?
 
-            if (a == 0x12345678)
-              abort();
-
-            exit(0);
-          }
-
-     If you replaced `short_a' with `short' in the variable
-     declaration, the above program would abort when compiled with
-     `-fstrict-aliasing', which is on by default at `-O2' or above in
-     recent GCC versions.
+See the part where Linus said "...and a script to look up the
+addresses.". You can use 'ksymoops -v vmlinux -m System.map --no-ksyms
+--no-lsmod -A 0xcodebabe' to translate address to symbol.=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
 
-So you define a typedef for unsigned long which has the __may_alias__
-attribute, and you go to town writing memcpy inline with that type
-instead of a normal unsigned long.
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+iD8DBQE+Xml/KRs727/VN8sRApt6AJoDjPSj+7t4STylfcV2CtkR3KYUfACfbrtP
+2U9RyOX/45tDMugXMm2k5M0=
+=onPY
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--

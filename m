@@ -1,73 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263708AbUCVWEj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 17:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUCVWEi
+	id S263713AbUCVWKk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 17:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263716AbUCVWKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 17:04:38 -0500
-Received: from mx1.actcom.net.il ([192.114.47.13]:23192 "EHLO
-	smtp1.actcom.co.il") by vger.kernel.org with ESMTP id S263708AbUCVWEd
+	Mon, 22 Mar 2004 17:10:40 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63106 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263713AbUCVWKd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 17:04:33 -0500
-Date: Tue, 23 Mar 2004 00:03:27 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Jos Hulzink <jos@hulzink.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OSS: cleanup or throw away
-Message-ID: <20040322220326.GF13042@mulix.org>
-References: <200403221955.52767.jos@hulzink.net> <20040322202220.GA13042@mulix.org> <20040322215921.GU16746@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tez2gqrut5pn4jhH"
-Content-Disposition: inline
-In-Reply-To: <20040322215921.GU16746@fs.tum.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 22 Mar 2004 17:10:33 -0500
+Date: Mon, 22 Mar 2004 17:13:43 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, Robert_Hentosh@Dell.com,
+       fleury@cs.auc.dk, linux-kernel@vger.kernel.org
+Subject: RE: spurious 8259A interrupt
+In-Reply-To: <Pine.LNX.4.44.0403222105380.3493-100000@poirot.grange>
+Message-ID: <Pine.LNX.4.53.0403221701460.24245@chaos>
+References: <Pine.LNX.4.44.0403222105380.3493-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 22 Mar 2004, Guennadi Liakhovetski wrote:
 
---tez2gqrut5pn4jhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Mon, 22 Mar 2004, Maciej W. Rozycki wrote:
+>
+> >  Do you really get "spurious 8259A interrupt" messages for the local APIC
+> > timer???  They don't ever leave the unit bound to the processor -- it has
+> > to be something else.  What is your contents of /proc/interrupts?
+>
+> Ok, here's exactly, what I see:
+> 1) during start-up 1 message
+> spurious 8259A interrupt: IRQ7.
+> 2) at run-time ERR: count increases - sometimes several per
+> second, sometimes it remains constant for some time.
+> 3) No more "spurious" messages
+> 4) I saw definitely situations, when between 2 /proc/interrupts snapshots
+> the sum of all (except the timer) interrupts was smaller, than the number
+> of errors, e.g.
+>
+>            CPU0 (2nd shot)
+>   0:      36557  37638 +1081 XT-PIC  timer
+>   1:         59     65    +6 XT-PIC  i8042
+>   2:          0      0       XT-PIC  cascade
+>   5:          0      0       XT-PIC  VIA686A
+>   8:          3      3       XT-PIC  rtc
+>   9:          0      0       XT-PIC  acpi, uhci_hcd, uhci_hcd
+>  10:          0      0       XT-PIC  eth0
+>  12:         84     84       XT-PIC  i8042
+>  14:       1910   1918    +8 XT-PIC  ide0
+>  15:          1      1       XT-PIC  ide1
+> NMI:         18     18
+> LOC:      36460  37541 +1081
+> ERR:         36     57   +21
+>
 
-On Mon, Mar 22, 2004 at 10:59:21PM +0100, Adrian Bunk wrote:
-> On Mon, Mar 22, 2004 at 10:22:21PM +0200, Muli Ben-Yehuda wrote:
-> >...
-> > I've seen
-> > multiple bug reports of cards that work with OSS and don't work with
-> > ALSA (and vice versa), so keeping both seems the proper thing to
-> >...
->=20
-> Wouldn't it be better to get the ALSA drivers working in such cases?
+First, you are using the 8259A (XT-PIC). This means you have
+IO-APIC turned off (or it doesn't exist).
 
-It would; but until they do, ditching OSS is a regression.=20
+> ide0 + i8042 (keyboard) = 14, whereas errors increased by 21. So, if you
+> are right, than Alan's wrong (or my understanding of his statement), and
+> those spurious interrupts occur not only after real ones, or, one real
+> interrupt can produce several spurious ones.
 
-> It's really not a good idea to have two codebases for the same
-> purpose.
+Neither. They are not related. As previously stated, a spurious
+interrupt occurs when the CPU INT line becomes active, but no
+interrupt controller caused it to happen. It's just that simple.
+There is no magic. Given that the CPU needs to have a vector
+placed on the bus every time the INT line goes active, the
+interrupt controller says; "What's a mother to do?". To placate
+the CPU and terminate the INT/INTA cycle, the controller puts
+its lowest-priority vector on the bus. The CPU will eventually
+branch to the address specified for that vector. The code there
+says; "I'm IRQ7, I'm not even hooked...This must be a spurious
+interrupt..."
 
-It is if neither one is witholding effort from the other, and neither
-one does a perfect job for all cases.=20
-
-Cheers,=20
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+Again, it's a hardware problem. It can't be fixed in software.
+Of course, you could get rid of the "!&@#)$^#$)!@^$" message
+that's mucking everybody up. Then you could use defective hardware
+just like Win$
 
 
---tez2gqrut5pn4jhH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+>
+> Thanks
+> Guennadi
+> ---
+> Guennadi Liakhovetski
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAX2KuKRs727/VN8sRAh/vAJ93x0ZB1Qp0VBQW4Nn5MulLqndTKACgpF8L
-xR1CjiuLDQo4vgQbPXT/FZY=
-=a9T5
------END PGP SIGNATURE-----
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
---tez2gqrut5pn4jhH--
+

@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315974AbSETNYH>; Mon, 20 May 2002 09:24:07 -0400
+	id <S315982AbSETNey>; Mon, 20 May 2002 09:34:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315980AbSETNYG>; Mon, 20 May 2002 09:24:06 -0400
-Received: from hopi.hostsharing.net ([66.70.34.150]:55739 "EHLO
-	hopi.hostsharing.net") by vger.kernel.org with ESMTP
-	id <S315974AbSETNYG>; Mon, 20 May 2002 09:24:06 -0400
-Date: Mon, 20 May 2002 15:24:03 +0200
-From: Michael Hoennig <michael@hostsharing.net>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: suid bit on directories
-Message-Id: <20020520152403.3dcc6cc2.michael@hostsharing.net>
-In-Reply-To: <200205201304.IAA07423@tomcat.admin.navo.hpc.mil>
-Organization: http://www.hostsharing.net
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S315983AbSETNex>; Mon, 20 May 2002 09:34:53 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:48063 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S315982AbSETNex>;
+	Mon, 20 May 2002 09:34:53 -0400
+Date: Mon, 20 May 2002 23:31:05 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Miller <davem@redhat.com>
+Subject: Re: [RFC][PATCH] TIMER_BH-less smptimers
+Message-ID: <20020520133105.GC14488@krispykreme>
+In-Reply-To: <20020516185448.A8069@in.ibm.com> <20020520085500.GB14488@krispykreme> <20020520155958.F6270@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jesse,
 
-> The setgid bit on a directory is to support BSD activities. It used to
-> be used for mail delivery.
+Hi Dipankar,
+ 
+> The tasklet code also needs fixing. It is a miracle that the kernel
+> booted when I tested that code. Here is a fixed diff.
 
-this is actually similar usage to my example:
+:) I was surprised it worked with the missing spin_unlock too. Im
+testing the fixed diff now, so far it looks good.
 
-> > It would be a good solution to make files created by Apaches mod_php
-> > in safe-mode, not owned by web:web (or httpd:httpd or somethign)
-> > anymore, but the Owner of the directory. 
+> I am curious about performance of smptimers. It seems that
+> webserver benchmark performance worsens with smptimers (Ingo version)
+> contrary to our expectations. Do you see this ? If so, could this
+> happen because -
 > 
-> No. You loose the fact that the file was NOT created by the user.
-
-the user in my example above would be wwwrun or httpd - and that does not
-make any sense at all! It would make much more sense if the new files
-belonged to the owner of the directory, who is the one who owns the
-virtual host.
-
-> > I do not even see a security hole if nobody other than the user itself
-> > and httpd/web can reach this area in the file system, anyway. And it
-> > is still the users decision that files in this (his) directory should
-> > belong to him.
+> 1) Bouncing around of global_bh_lock cacheline by more cpus compared
+> to earlier timer implemenation ?
+> 2) All per-cpu timers invoked from timer_bh running in one cpu ?
 > 
-> 1. users will steal/bypass quota controls
+> Do you see any other side-effects of smptimers ?
 
-Not in my example - acutally even the other way around.
+We used to see bad behaviour. It turned out to be the per cpu
+timer interrupt firing at exactly the same time on all cpus. One
+cpu would successfully spin_trylock and the others would fail
+and postpone the work.
 
-> 2. Consider what happens if a user creates a file in such a directory
-> and   it is executable. - since the file is fully owned by a different
-> user, it   appears to have been created by that user. What protection
-> mask is on   the file? Can the creator (not owner) make it setuid?
-> (nasty worm   propagation method)
+We now evenly space the per cpu interrupts. Does intel do the same?
 
-Again: it depends on the usage. In my case it is the other way around. A
-use should know what he is doing if he is setting this flag on a
-directory.  And making such files suid again, has to be prevented by the
-code - that I even mentioned in my first mail on this issue.
+> Also, did my PPC changes for smptimers work or you had to fix it ?
 
-> > Actually, the suid bit on directories works at least under FreeBSD. Is
-> > there any reason, why it does not work under Linux?
-> 
-> I don't believe it is in the POSIX definition.
+I tested ppc64 and it worked fine.
 
-I only said, it works under FreeBSD, it is an option there.
-
-	Michael
-
--- 
-Hostsharing eG / c/o Michael Hönnig / Boytinstr. 10 / D-22143 Hamburg
-phone:+49/40/67581419 / mobile:+49/177/3787491 / fax:++49/40/67581426
-http://www.hostsharing.net ---> Webhosting Spielregeln selbst gemacht
+Anton

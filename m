@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbTHaWvY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 18:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbTHaWvY
+	id S263029AbTHaWpr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbTHaWpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 18:51:24 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:13961 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263036AbTHaWt6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 18:49:58 -0400
-Date: Sun, 31 Aug 2003 23:49:37 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, lm@bitmover.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030831224937.GA29239@mail.jlokier.co.uk>
-References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030829154101.GB16319@work.bitmover.com> <20030829230521.GD3846@matchmail.com> <20030830221032.1edf71d0.davem@redhat.com>
+	Sun, 31 Aug 2003 18:45:47 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:56030
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263029AbTHaWpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 18:45:44 -0400
+Date: Mon, 1 Sep 2003 00:46:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Andrea VM changes
+Message-ID: <20030831224610.GB24409@dualathlon.random>
+References: <Pine.LNX.4.44.0308311433410.16240-100000@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030830221032.1edf71d0.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0308311433410.16240-100000@logos.cnet>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Fri, 29 Aug 2003 16:05:21 -0700
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
+On Sun, Aug 31, 2003 at 02:34:01PM -0300, Marcelo Tosatti wrote:
 > 
-> > Does this mean that userspace has to take into consideration that the isn't
-> > coherent for adjacent small memory accesses on sparc?  What could happen if
-> > it doesn't, or does it need to at all?
 > 
-> For shared memory, we enforce the correct mapping alignment
-> so that coherency issues don't crop up.
+> ---------- Forwarded message ----------
+> Date: Sun, 31 Aug 2003 12:43:27 -0300 (BRT)
+> From: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+> To: Andrea Arcangeli <andrea@suse.de>
+> Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+>      Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
+>      lkml <linux-kernel@vger.kernel.org>,
+>      Marc-Christian Petersen <m.c.p@wolk-project.de>
+> Subject: Re: Andrea VM changes
 > 
-> How does this program work?  I haven't taken a close look
-> at it.  Does it use MAP_SHARED or IPC shm?
+> 
+> 
+> On Sun, 31 Aug 2003, Andrea Arcangeli wrote:
+> 
+> > This oom killer on desktops may do a worse selections of the task to
+> > kill (the usual ssh now has a chance to be killed), but it fixes the oom
+> > deadlocks and it won't do stupid things on servers shall a netscape or
+> > whatever else app hit an userspace bug. So I've to prefer it, until I
+> > will write a reliable algorithm for the oom killing that won't fall into
+> > dosable corner cases so easily (mlock/nfs/database as the three most
+> > common examples of where current mainline can fail, btw the lowmem
+> > shortage is another very common DoS that the oom killer will never
+> > notice, my tree doesn't deadlock [or at least not technically, in
+> > practice it may look like a kernel deadlock despite syscalls returns
+> > -ENOMEM ;) ] during lowmem shortage on the 64G boxes).
+> 
+> Suppose you have a big fat hog leaking (lets say, netscape) allocating
+> pages at a slow pace. Now you have a decent well behaved app who is
+> allocating at a fast pace, and gets killed.
+> 
+> The chance the well behaved app gets killed is big, right? 
 
-It uses POSIX shared memory and (necessarily) MAP_SHARED, which
-doesn't constrain the mapping alignment.
+correct. But it's not a bad thing. How can you know it's better to kill
+the hog instead of the well behaved app? if the the hog is allocating at
+slow pace, the admin will simply have to kill it if it grown too big. In
+terms of omm-killing an hog allocating at slow peace, is no different
+from a malloc(1G);bzero(1G);pause(); that leaves 1k free only.
+eventually the hog will be killed too if needed.
 
-I had wondered if some kernels used page faults to maintain coherence
-between multiple shared mappings of the same file.  It's one of the
-things the program checks, and I have seen it mentioned on l-k, which
-made me think it might be implemented.  None of the results for any
-architecture show it, though.
-
-If userspace does create multiple shared mappings at non-coherent
-offsets, what is the recommended method for switching between
-accessing one page (or page cluster?) and accessing the other.  Is it
-msync(), a special system call to flush parts of the data cache, a
-machine instruction, or something else?
-
-Thanks,
--- Jamie
-
-
-
-ps. The program has code to try IPC shm instead.  Change "#ifdef
-SHM_DIR_PREFIX" in __page_alias_map to "#if 0", and add
--DHAVE_SYSV_SHM to the GCC command line.  It should fail the same test
-sizes with a different message.
+Andrea

@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131227AbRCTWbR>; Tue, 20 Mar 2001 17:31:17 -0500
+	id <S131276AbRCTWjR>; Tue, 20 Mar 2001 17:39:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131228AbRCTWbH>; Tue, 20 Mar 2001 17:31:07 -0500
-Received: from saarinen.org ([203.79.82.14]:23978 "EHLO vimfuego.saarinen.org")
-	by vger.kernel.org with ESMTP id <S131227AbRCTWa5>;
-	Tue, 20 Mar 2001 17:30:57 -0500
-From: "Juha Saarinen" <juha@saarinen.org>
-To: "Rik van Riel" <riel@conectiva.com.br>, "Josh Grebe" <squash@primary.net>
-Cc: "Jan Harkes" <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
-Subject: RE: Question about memory usage in 2.4 vs 2.2
-Date: Wed, 21 Mar 2001 10:29:31 +1200
-Message-ID: <LNBBIBDBFFCDPLBLLLHFEEAIJIAA.juha@saarinen.org>
+	id <S131278AbRCTWjI>; Tue, 20 Mar 2001 17:39:08 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:13074 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131276AbRCTWix>; Tue, 20 Mar 2001 17:38:53 -0500
+Date: Tue, 20 Mar 2001 22:37:56 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Doug Ledford <dledford@redhat.com>
+cc: David Ford <david@blue-labs.org>, Peter Lund <firefly@netgroup.dk>,
+        Pozsar Balazs <pozsy@sch.bme.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: esound (esd), 2.4.[12] chopped up sound -- solved
+In-Reply-To: <3AB7BB59.9513514C@redhat.com>
+Message-ID: <Pine.LNX.4.30.0103202159470.13996-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.21.0103201857170.3750-100000@imladris.rielhome.conectiva>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-:: > And can this behavior be tuned so that it uses less of the overall
-:: > memory?
-::
-:: This isn't currently possible. Also, I suspect what we really want
-:: for most situations is a way to better balance between the different
-:: uses of memory.  Again, patches are welcome (I haven't figured out a
-:: way to take care of this balancing yet ... maybe we DO want some way
-:: of limiting memory usage of each subsystem??).
+On Tue, 20 Mar 2001, Doug Ledford wrote:
 
-man ulimit? ;-)
+> Why would esd get a short write() unless it is opening the file in non
+> blocking mode (which I didn't see when I was working on the i810 sound
+> driver)?  If esd is writing to a file in blocking mode and that write is
+> returning short, then that sounds like a driver bug to me.
 
-On a more serious note, is there a way to find out what has been paged out
-to disk, and also limit what can be paged out?
+Please quote chapter and verse.
 
-I could be wrong, but for instance I leave X running for a while (not sure
-about the timing here but let's say several hours), and come back and log in
-again, it is very slow to "come alive". The screen redraws slowly, and
-there's quite a bit of disk access. This only happens if the system is left
-alone for a long period of time (no, I don't have APM running on it).
+I'm looking at http://www.opengroup.org/onlinepubs/7908799/xsh/write.html 
+and cannot see anything which states that write may not return having 
+written fewer data than it was asked to.
 
-Squid behaves the same -- the first access after a long period of inactivity
-causes a lot of disk grinding, but successive accesses are fine.
+The only vaguely relevant text I see is...
 
-Don't see this behaviour with the 2.2.x kernels.
+	Write requests to a pipe or FIFO will be handled the same as a
+	regular file with the following exceptions:
 
+	<...>
 
--- Juha
+	* If the O_NONBLOCK flag is clear, a write request may cause the 
+	  thread to block, but on normal completion it will return
+	  nbyte.
+
+This being an _exception_ clearly implies that for file descriptors other 
+than pipes and fifos, it is _not_ necessary to return nbyte on normal 
+completion.
+
+Applications (and also I believe glibc) which assume otherwise are, 
+technically, broken. Despite being numerous.
+
+-- 
+dwmw2
+
 

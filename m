@@ -1,86 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbTCROdl>; Tue, 18 Mar 2003 09:33:41 -0500
+	id <S262433AbTCROjl>; Tue, 18 Mar 2003 09:39:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262426AbTCROdl>; Tue, 18 Mar 2003 09:33:41 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:34564 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S262414AbTCROdk>; Tue, 18 Mar 2003 09:33:40 -0500
-Date: Tue, 18 Mar 2003 15:42:59 +0100
-From: DervishD <raul@pleyades.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>,
+	id <S262436AbTCROjl>; Tue, 18 Mar 2003 09:39:41 -0500
+Received: from express.corp.cubic.com ([149.63.71.200]:2717 "EHLO
+	express.corp.cubic.com") by vger.kernel.org with ESMTP
+	id <S262433AbTCROjj>; Tue, 18 Mar 2003 09:39:39 -0500
+Message-ID: <Pine.WNT.4.44.0303180946120.1424-100000@GOLDENEAGLE.gameday2000>
+From: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>
+To: DervishD <raul@pleyades.net>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
        Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: select() stress
-Message-ID: <20030318144259.GA1438@DervishD>
-References: <Pine.WNT.4.44.0303171010580.1544-100000@GOLDENEAGLE.gameday2000> <Pine.LNX.4.53.0303171112090.22652@chaos> <20030318102837.GH42@DervishD> <Pine.LNX.4.53.0303180758380.26753@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0303180758380.26753@chaos>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+Date: Tue, 18 Mar 2003 06:49:31 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C2ED5B.ABCDE700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Richard :)
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
- Richard B. Johnson dixit:
-> > > descriptors. You cannot assume that this number is the same
-> > > as the currently open socket. Just use the socket-value. That's
-> > > the file-descriptor.
-> >     Not at all. 'select()' takes a *number of file descriptors* as
-> > its first argument, meaning the maximum number of file descriptors to
-> > check (it checks only the first N file descriptors, being 'N' the
-> > first argument). Usually that first argument is FD_SETSIZE, but the
-> > result of any function returning a number is right if you know that
-> > the return value is what you want.
-> What I said has been misinterpreted. Select takes the highest
-> number fd in the set you want to examine plus 1.
+------_=_NextPart_000_01C2ED5B.ABCDE700
+Content-Type: text/plain;
+	charset="iso-8859-1"
 
-    AFAIK, only if the first argument is 'FD_SETSIZE', but I'm not
-sure of this point.
+This message uses a character set that is not supported by the Internet
+Service.  To view the original message content,  open the attached message.
+If the text doesn't display correctly, save the attachment to disk, and then
+open it using a viewer that can display the original character set. 
+<<message.txt>> 
 
-    And yes, now I understand what you meant, and you're right. If
-you put in the set file descriptor 'N', you *must* put in the first
-argument at least N+1, or the file descriptor won't be checked.
+------_=_NextPart_000_01C2ED5B.ABCDE700
+Content-Type: text/plain;
+	name="message.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="message.txt"
 
-    Anyway, in the case of 'getdtablesize()', and assuming that it
-returns the highest 'openable' file descriptor, it will always return
-a number that is higher than any open file descriptor that the
-process has (except if it's inherited from the parent and the child
-has a lower file descriptor limit, but this involves tweaking with
-getdtablesize()...), since the fd numbers start from zero.
+Received: from GOLDENEAGLE.gameday2000 (GOLDENEAGLE [149.63.50.78]) by =
+CURLY.ds.cubic.com with SMTP (Microsoft Exchange Internet Mail Service =
+Version 5.5.2653.13)
+	id CTBWS181; Tue, 18 Mar 2003 06:35:50 -0800
+Date: Tue, 18 Mar 2003 09:49:31 -0500 (Eastern Standard Time)
+From: Jamie Sparks <jamie.sparks@cubic.com>
+To: DervishD <raul@pleyades.net>
+cc: "Richard B. Johnson" <root@chaos.analogic.com>,=20
+    Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: select() stress
+In-Reply-To: <20030318144632.GB1438@DervishD>
+Message-ID: =
+<Pine.WNT.4.44.0303180946120.1424-100000@GOLDENEAGLE.gameday2000>
+X-X-Sender: sparksj@curly.ds.cubic.com
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=3DX-UNKNOWN
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> They are not the same and are not guaranteed to be related although
-> on some target, they might.
 
-    That's what I didn't understand with getdtablesize(). In the man
-page I can read that the function returns the size of the descriptor
-table for the process, not the highest number for a file descriptor,
-so you can't use it for 'select()', because you can have a socket
-descriptor with value e.g. 40055 open and getdtablesize() will
-return, for example, 1024. That is, you can open 1024 file
-descriptors in your process, but the open call can return 40000 :?
+I cannot find a posix nor linux implementation of getdtablehi().
 
-    This leads me to the following thinking: I thought that the code
-below is a good way of closing all opened file descriptors, but if
-the OS can return an arbitrary number higher than the descriptor
-table size for a file descriptor, won't work:
+To get around it, I do the following:
 
-    for (i=0; i < getdtablesize(); i++) close(i);
+int a =3D3D open("some_file_I_know_exists",O_RDWR);
+close(a);
 
-    How can this be achieved, knowing that the return value for
-getdtablesize() doesn't need to be related with fd numbers (that is,
-the kernel can return any arbitrary value for a file descriptor,
-given that the limit for OPEN_MAX or getdtablesize() is honored)?
+then use a as the 1st param to select().
 
-    Interesting issue :) Thanks, Richard.
+perhaps it ought to be a+1?
 
-    Raúl Núñez de Arenas Coronado
+Jamie
 
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://www.pleyades.net/~raulnac
+On Tue, 18 Mar 2003, DervishD wrote:
+
+>       Hi Richard, again :)
+>
+>       In my last message I told you that getdtablesize() is not
+>   reliable for closing all file descriptors, that its return value is
+>   not necessarily related to the file descriptor index. Well, I =
+forgot
+>   to say that getdtablehi() effectively returns the index for the
+>   largest file descriptor available to the process plus one, that is,
+>   perfect for using with 'select()' and for closing all open files:
+>
+>       for(i=3D3D0; i<getdtablehi(); i++) close(i);
+>
+>       Is this implemented under Linux? I have a piece of software =
+that
+>   relies on the above (now it's written using getdtablesize(), which =
+is
+>   non-correct as you noted) for closing all file descriptors...
+>
+>       Thanks again for noting this, Richard :)
+>
+>       Ra=3DFAl N=3DFA=3DF1ez de Arenas Coronado
+>
+>   --
+>   Linux Registered User 88736
+>   http://www.pleyades.net & http://www.pleyades.net/~raulnac
+>
+
+
+------_=_NextPart_000_01C2ED5B.ABCDE700--

@@ -1,110 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317342AbSGDGYg>; Thu, 4 Jul 2002 02:24:36 -0400
+	id <S317345AbSGDGoJ>; Thu, 4 Jul 2002 02:44:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317343AbSGDGYf>; Thu, 4 Jul 2002 02:24:35 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:36829 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317342AbSGDGYc>;
-	Thu, 4 Jul 2002 02:24:32 -0400
-Message-ID: <3D23EA93.7090106@us.ibm.com>
-Date: Wed, 03 Jul 2002 23:26:27 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mochel@osdl.org
-CC: Greg KH <gregkh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] remove BKL from driverfs
-Content-Type: multipart/mixed;
- boundary="------------060006010200090105010605"
+	id <S317346AbSGDGoI>; Thu, 4 Jul 2002 02:44:08 -0400
+Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:44267 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S317345AbSGDGoI>;
+	Thu, 4 Jul 2002 02:44:08 -0400
+Date: Thu, 4 Jul 2002 03:50:12 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+Message-ID: <20020704035012.O2295@almesberger.net>
+References: <20020702133658.I2295@almesberger.net> <Pine.LNX.3.96.1020704000434.2248F-100000@gatekeeper.tmr.com> <20020704032929.N2295@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020704032929.N2295@almesberger.net>; from wa@almesberger.net on Thu, Jul 04, 2002 at 03:29:29AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060006010200090105010605
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I wrote:
+> This is correct if we can be sure that the use count never reaches
+> 0 here, but then the whole inc/dec exercise is probably redundant.
+> ("probably" as in "it doesn't have to be, but I'd be surprised if
+> it isn't"; I'll give an example in a later posting.)
 
-I saw your talk about driverfs at OLS and it got my attention.  When 
-my BKL debugging patch showed some use of the BKL in driverfs, I was 
-very dissapointed (you can blame Greg if you want).
+Okay, here's an almost correct example (except for the usual
+return-after-removal, plus an unlikely data race described
+below). foo_1 runs first:
 
-text from dmesg after BKL debugging patch:
-release of recursive BKL hold, depth: 1
-[ 0]main:492
-[ 1]inode:149
 
-I see no reason to hold the BKL in your situation.  I replaced it with 
-i_sem in some places and just plain removed it in others.  I believe 
-that you get all of the protection that you need from dcache_lock in 
-the dentry insert and activate.  Can you prove me wrong?
+foo_1(...)
+{
+    MOD_INC_USE_COUNT;
+    ...
+    initiate_asynchronous_execution_of(foo_2);
+    rendezvous(foo_a);
+        /* wait until foo_2 has incremented the use count */
+    ...
+    MOD_DEC_USE_COUNT;
+    ...
+    rendezvous(foo_b); /* release foo_2 */
+    /* cool return-after-removal race */
+}   
+
+foo_2(...)
+{
+    MOD_INC_USE_COUNT;
+    rendezvous(foo_a);
+    rendezvous(foo_b);
+    MOD_DEC_USE_COUNT;
+}
+
+
+(The pseudo-primitive redezvous(X) stops execution until all
+"threads" have reached that point, then they all continue.)
+
+I think the easiest solution is to simply declare such constructs
+illegal.
+
+Note that I'm using "return" loosely - whatever is used to implement
+rendezvous() may execute instructions after unblocking, which would
+race with removal too. Also note that in this case, we may, at least
+theoretically, data race with removal if accessing foo_b after
+unblocking foo_2.
+
+- Werner
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
---------------060006010200090105010605
-Content-Type: text/plain;
- name="driverfs-bkl_remove-2.5.24-0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="driverfs-bkl_remove-2.5.24-0.patch"
-
---- linux-2.5.24-clean/fs/driverfs/inode.c	Thu Jun 20 15:53:45 2002
-+++ linux/fs/driverfs/inode.c	Wed Jul  3 23:18:23 2002
-@@ -146,20 +146,16 @@
- static int driverfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
- {
- 	int res;
--	lock_kernel();
- 	dentry->d_op = &driverfs_dentry_dir_ops;
-  	res = driverfs_mknod(dir, dentry, mode | S_IFDIR, 0);
--	unlock_kernel();
- 	return res;
- }
- 
- static int driverfs_create(struct inode *dir, struct dentry *dentry, int mode)
- {
- 	int res;
--	lock_kernel();
- 	dentry->d_op = &driverfs_dentry_file_ops;
-  	res = driverfs_mknod(dir, dentry, mode | S_IFREG, 0);
--	unlock_kernel();
- 	return res;
- }
- 
-@@ -211,9 +207,9 @@
- 	if (driverfs_empty(dentry)) {
- 		struct inode *inode = dentry->d_inode;
- 
--		lock_kernel();
-+		down(&inode->i_sem);
- 		inode->i_nlink--;
--		unlock_kernel();
-+		up(&inode->i_sem);
- 		dput(dentry);
- 		error = 0;
- 	}
-@@ -353,8 +349,9 @@
- driverfs_file_lseek(struct file *file, loff_t offset, int orig)
- {
- 	loff_t retval = -EINVAL;
-+        struct inode *inode = file->f_dentry->d_inode->i_mapping->host;
- 
--	lock_kernel();
-+	down(&inode->i_sem);	
- 	switch(orig) {
- 	case 0:
- 		if (offset > 0) {
-@@ -371,7 +368,7 @@
- 	default:
- 		break;
- 	}
--	unlock_kernel();
-+	up(&inode->i_sem);
- 	return retval;
- }
- 
-
---------------060006010200090105010605--
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://icapeople.epfl.ch/almesber/_____________________________________/

@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbUKURhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbUKURsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbUKURhY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 12:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbUKURhY
+	id S261723AbUKURsi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 12:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUKURsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 12:37:24 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:39908 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261655AbUKURhT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 12:37:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=t2BQH6GFx6ibYUPdiuRnSKoaoec8oWsZ8UivbLlZjtoMjXk5OHWiDt3AwQJltZsxn2PIt63Z/oXMTBk153kGvoHVwcIYRyuyqKYv0Qaf0+KM7CVLXN0Em39T8qdNnBtqi0QXi/MhgEqjRkHU8wpaibHNOAID+Opx1Xd99LaFE64=
-Message-ID: <29495f1d04112109372bb8ebe4@mail.gmail.com>
-Date: Sun, 21 Nov 2004 09:37:18 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: how netfilter handles fragmented packets
-Cc: cranium2003 <cranium2003@yahoo.com>, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
-       netdev@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.53.0411211714530.18608@yvahk01.tjqt.qr>
+	Sun, 21 Nov 2004 12:48:38 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33288 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261723AbUKURse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 12:48:34 -0500
+Date: Sun, 21 Nov 2004 18:48:33 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] small input cleanup
+Message-ID: <20041121174832.GB2924@stusta.de>
+References: <20041107031256.GD14308@stusta.de> <200411062249.54887.dtor_core@ameritech.net> <20041107172929.GM14308@stusta.de> <20041107174757.GA10086@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041121153154.85910.qmail@web41403.mail.yahoo.com>
-	 <Pine.LNX.4.53.0411211714530.18608@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041107174757.GA10086@ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Nov 2004 17:15:12 +0100 (MET), Jan Engelhardt
-<jengelh@linux01.gwdg.de> wrote:
-> >hello,
-> >          In ip_output.c file ip_fragmet function when
-> >create a new fragmented packet given to output(skb)
-> >function. i want to know which function are actually
-> >called by output(skb)?
+On Sun, Nov 07, 2004 at 06:47:57PM +0100, Vojtech Pavlik wrote:
+> On Sun, Nov 07, 2004 at 06:29:29PM +0100, Adrian Bunk wrote:
+> > On Sat, Nov 06, 2004 at 10:49:54PM -0500, Dmitry Torokhov wrote:
+> > 
+> > > Hi,
+> > 
+> > Hi Dmitry,
+> > 
+> > > On Saturday 06 November 2004 10:12 pm, Adrian Bunk wrote:
+> > > > The patch below does the following cleanups under drivers/input/ :
+> > > > - make some needlessly global code static
+> > > > - remove the completely unused EXPORT_SYMBOL'ed function gameport_rescan
+> > > 
+> > > It will be used (but in some transformed) once I finish gameport sysfs
+> > > support, but it probably need not be exported.
+> > >  
+> > > > - make the EXPORT_SYMBOL'ed function ps2_sendbyte static since it isn't
+> > > >   used outside the file where it's defined
+> > > 
+> > > libps2 is a library for communicating with standard PS/2 device and while
+> > > the function is not currently used it is part of the interface. I would
+> > > like to leave the function as is.
+> > 
+> > my personal opinions:
+> > - if gameport_rescan will not be needed in it's current form, there's
+> >   no need for it (you can always add the "real" function when it's 
+> >   required
 > 
-> use stack_dump() (or was it dump_stack()?)
+> Well, it works in its current form, and drivers should call it when
+> their reinit logic fails to reinitialize the device. They don't, which
+> is a bug, and should be fixed. I don't think removing gameport_rescan()
+> will help fixing them.
 
-dump_stack(), if you want to dump the current process' stack context.
+Fine with me.
 
--Nish
+> > - could ps2_sendbyte be #ifdef 0'ed until it's required?
+> >   this way, it wouldn't make the kernel bigger today
+>  
+> It is used, just not outside libps2. Does the EXPORT_SYMBOL() make the
+> kernel so much bigger?
+
+It doesn't make a big difference, but if an EXPORT_SYMBOL isn't required 
+(and won't be required in the near future), where's the point keeping 
+it?
+
+The situation is clearly different if in-kernel users from other files 
+will be added in the near future.
+
+> Vojtech Pavlik
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

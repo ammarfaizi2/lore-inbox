@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316912AbSG2NIy>; Mon, 29 Jul 2002 09:08:54 -0400
+	id <S316935AbSG2NKr>; Mon, 29 Jul 2002 09:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316916AbSG2NIu>; Mon, 29 Jul 2002 09:08:50 -0400
-Received: from gzp11.gzp.hu ([212.40.96.53]:60173 "EHLO gzp11.gzp.hu")
-	by vger.kernel.org with ESMTP id <S316912AbSG2NIt>;
-	Mon, 29 Jul 2002 09:08:49 -0400
+	id <S316999AbSG2NKr>; Mon, 29 Jul 2002 09:10:47 -0400
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:36822 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
+	id <S316935AbSG2NKk>; Mon, 29 Jul 2002 09:10:40 -0400
 To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@myhost.mynet>
-Subject: Re: Linux 2.4.19-rc3-ac3 and ext3 problems
-References: <20020729123706.GC463@gzp2.myhost.mynet> <20020729123706.GC463@gzp2.gzp.hu> <1027951169.842.36.camel@irongate.swansea.linux.org.uk>
-Organization: gzp
-User-Agent: tin/1.5.13-20020614 ("Sugar") (UNIX) (Linux/2.4.18 (i686))
-Message-ID: <54f8.3d453f27.952a5@gzp1.myhost.mynet>
-Date: Mon, 29 Jul 2002 13:12:07 -0000
+Subject: Re: [lkml] Re: About the need of a swap area
+References: <3D42907C.mailFS15JQVA@viadomus.com>
+	<20020727144228.GQ1548@niksula.cs.hut.fi>
+	<3D42C62F.mail5XQ31DIAC@viadomus.com>
+	<20020727170124.GR1465@niksula.cs.hut.fi>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: 29 Jul 2002 09:14:01 -0400
+In-Reply-To: <20020727170124.GR1465@niksula.cs.hut.fi>
+Message-ID: <9cffzy2brs6.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk>:
+Ville Herva <vherva@niksula.hut.fi> writes:
 
-|> Extreme usage of a IC35L060AVVA07-0 ATA DISK drive,
-|> 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, UDMA(100)
-|> on a PDC20268: (U)DMA Burst Bit ENABLED Primary MASTER Mode
-|> Secondary MASTER Mode controller ends up with:
-| 
-| Thanks. If you try the same with the base 2.4.19-rc3 can you duplicate
-| the problem or not ?
+> > How to configure it?
+> 
+> Through the tunables in /proc/sys/vm/.
 
-No, seems like I can't.
+By the way, speaking of /proc/sys, could we decide on either hyphens,
+or underscores, but not both?
 
+# ls /proc/sys/vm
+bdflush  max_map_count  min-readahead      page-cluster
+kswapd   max-readahead  overcommit_memory  pagetable_cache
 
+(this is 2.4.19-rc3)
+
+I'd submit a patch except the asbestos underwear is in the wash
+today.  (IOW, I don't know which would be preferred... I suspect
+underscores.)
+
+ian

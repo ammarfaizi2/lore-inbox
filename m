@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261802AbSIXVJX>; Tue, 24 Sep 2002 17:09:23 -0400
+	id <S261818AbSIXVNN>; Tue, 24 Sep 2002 17:13:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261801AbSIXVJX>; Tue, 24 Sep 2002 17:09:23 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56072 "EHLO
+	id <S261820AbSIXVNN>; Tue, 24 Sep 2002 17:13:13 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56840 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261802AbSIXVJV>; Tue, 24 Sep 2002 17:09:21 -0400
-Date: Tue, 24 Sep 2002 17:06:57 -0400 (EDT)
+	id <S261818AbSIXVNM>; Tue, 24 Sep 2002 17:13:12 -0400
+Date: Tue, 24 Sep 2002 17:10:54 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: jbradford@dial.pipex.com
-cc: Padraig Brady <padraig.brady@corvil.com>, linux-kernel@vger.kernel.org
-Subject: Re: hdparm -Y hangup
-In-Reply-To: <200209230944.g8N9iN83000129@darkstar.example.net>
-Message-ID: <Pine.LNX.3.96.1020924170534.19732B-100000@gatekeeper.tmr.com>
+To: Jens Axboe <axboe@suse.de>
+cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm2
+In-Reply-To: <20020923071633.GA15479@suse.de>
+Message-ID: <Pine.LNX.3.96.1020924170725.19732C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Sep 2002 jbradford@dial.pipex.com wrote:
+On Mon, 23 Sep 2002, Jens Axboe wrote:
 
-> > Hrm, OK thanks for the info. Perhaps it should be removed
-> > from hdparm or a (DANGEROUS) put beside the description
-> > until it's fixed.
+> Ah interesting. I do still think that it is worth to investigate _why_
+> both elevator_linus and deadline does not prevent the read starvation.
+> The read-latency is a hack, not a solution imo.
 > 
-> The person to contact would be Mark Lord, the hdparm maintainer, (see the hdparm manual page for his E-Mail address).
+> >  tagged command queueing on scsi - it appears to be quite stupidly
+> >  implemented.
+> 
+> Ahem I think you are being excessively harsh, or maybe passing judgement
+> on something you haven't even looked at. Did you consider that you
+> _drive_ may be the broken component? Excessive turn-around times for
+> request when using deep tcq is not unusual, by far.
 
-Rather than have Mark Lord set the option DANGEROUS (it shouldn't be)
-perhaps it could be made to work more than once...  Odd problem, is
-something not getting set or cleared when the drive is spun up the first
-time?
+I do think that's what he meant!  I think most drives are optimized this
+way, and performance would be better if the kernel used the queueing more
+sparingly, so the drive couldn't just run with the writes and let the
+reads take the leftovers. 
+
+I think that's a better long run solution, although the fix addresses the
+immediate problem.
 
 -- 
 bill davidsen <davidsen@tmr.com>

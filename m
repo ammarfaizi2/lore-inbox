@@ -1,90 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267989AbUHSATE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUHSAVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267989AbUHSATE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 20:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267967AbUHSATE
+	id S267769AbUHSAVw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 20:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUHSAVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 20:19:04 -0400
-Received: from viriato2.servicios.retecal.es ([212.89.0.45]:59825 "EHLO
-	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S267989AbUHSASy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 20:18:54 -0400
-Message-ID: <4123F1E6.2080308@hispalinux.es>
-Date: Thu, 19 Aug 2004 02:18:46 +0200
-From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040714)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: [PATCH] Firmware Loader is orphan
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5AC2C0AB6C352CD94764EB23"
+	Wed, 18 Aug 2004 20:21:51 -0400
+Received: from holomorphy.com ([207.189.100.168]:21947 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267753AbUHSAUw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 20:20:52 -0400
+Date: Wed, 18 Aug 2004 17:20:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: Hugh Dickins <hugh@veritas.com>, "David S. Miller" <davem@redhat.com>,
+       raybry@sgi.com, ak@muc.de, benh@kernel.crashing.org,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: page fault fastpath patch v2: fix race conditions, stats for 8,32     and    512 cpu SMP
+Message-ID: <20040819002038.GW11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+	Hugh Dickins <hugh@veritas.com>,
+	"David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
+	benh@kernel.crashing.org, manfred@colorfullife.com,
+	linux-ia64@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+References: <2uexw-1Nn-1@gated-at.bofh.it> <2uCTq-2wa-55@gated-at.bofh.it> <pan.2004.08.18.23.50.13.562750@umich.edu> <20040819000151.GU11200@holomorphy.com> <Pine.GSO.4.58.0408182005080.9340@sapphire.engin.umich.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0408182005080.9340@sapphire.engin.umich.edu>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5AC2C0AB6C352CD94764EB23
-Content-Type: multipart/mixed;
- boundary="------------030001090603060008040701"
+On Wed, 18 Aug 2004, William Lee Irwin III wrote:
+>> exit_mmap() has removed the vma from ->i_mmap and ->mmap prior to
+>> unmapping the pages, so this should be safe unless that operation
+>> can be caught while it's in progress.
 
-This is a multi-part message in MIME format.
---------------030001090603060008040701
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Wed, Aug 18, 2004 at 08:07:24PM -0400, Rajesh Venkatasubramanian wrote:
+> No. Unfortunately exit_mmap() removes vmas from ->i_mmap after removing
+> page table pages. Maybe we can reverse this, though.
 
-Hello.
+Something like this?
 
-The author and maintainer of the firmware loader died on May. I think 
-this little piece is very important for the kernel. Anybody is taking 
-care of firmware loader?
--- 
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-jabber ID               <rreylinux at jabber dot org>
-Huella GPG - 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
----------------------------------------------------------------
-	http://augcyl.org/planet/
----------------------------------------------------------------
 
---------------030001090603060008040701
-Content-Type: text/plain;
- name="firmware_loader_orphan.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="firmware_loader_orphan.patch"
-
---- linux-2.6-rrey/MAINTAINERS.orig	2004-08-19 01:57:52.405537120 +0200
-+++ linux-2.6-rrey/MAINTAINERS	2004-08-19 02:05:25.001988245 +0200
-@@ -822,10 +822,8 @@
- S:	Maintained
+Index: mm1-2.6.8.1/mm/mmap.c
+===================================================================
+--- mm1-2.6.8.1.orig/mm/mmap.c	2004-08-16 23:47:16.000000000 -0700
++++ mm1-2.6.8.1/mm/mmap.c	2004-08-18 17:18:26.513559632 -0700
+@@ -1810,6 +1810,14 @@
+ 	mm->map_count -= unmap_vmas(&tlb, mm, mm->mmap, 0,
+ 					~0UL, &nr_accounted, NULL);
+ 	vm_unacct_memory(nr_accounted);
++	/*
++	 * Walk the list again, actually closing and freeing it.
++	 */
++	while (vma) {
++		struct vm_area_struct *next = vma->vm_next;
++		remove_vm_struct(vma);
++		vma = next;
++	}
+ 	BUG_ON(mm->map_count);	/* This is just debugging */
+ 	clear_page_tables(tlb, FIRST_USER_PGD_NR, USER_PTRS_PER_PGD);
+ 	tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
+@@ -1822,16 +1830,6 @@
+ 	mm->locked_vm = 0;
  
- FIRMWARE LOADER (request_firmware)
--P:	Manuel Estrada Sainz
--M:	ranty@debian.org
- L:	linux-kernel@vger.kernel.org
--S:	Maintained
-+S:	Orphan
+ 	spin_unlock(&mm->page_table_lock);
+-
+-	/*
+-	 * Walk the list again, actually closing and freeing it
+-	 * without holding any MM locks.
+-	 */
+-	while (vma) {
+-		struct vm_area_struct *next = vma->vm_next;
+-		remove_vm_struct(vma);
+-		vma = next;
+-	}
+ }
  
- FPU EMULATOR
- P:	Bill Metzenthen
-
---------------030001090603060008040701--
-
---------------enig5AC2C0AB6C352CD94764EB23
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBI/Hqw4Wp058o43cRAtKsAKDVaq5iH4gsYqp8flq+el1s4eSe5QCgvdNE
-XGtYcpAsXL97F3I02uuvTBQ=
-=8fjp
------END PGP SIGNATURE-----
-
---------------enig5AC2C0AB6C352CD94764EB23--
+ /* Insert vm structure into process list sorted by address

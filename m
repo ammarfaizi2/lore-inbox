@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267242AbTBDMLk>; Tue, 4 Feb 2003 07:11:40 -0500
+	id <S267243AbTBDMQI>; Tue, 4 Feb 2003 07:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267244AbTBDMLk>; Tue, 4 Feb 2003 07:11:40 -0500
-Received: from ns.suse.de ([213.95.15.193]:30731 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267242AbTBDMLk>;
-	Tue, 4 Feb 2003 07:11:40 -0500
-Date: Tue, 4 Feb 2003 13:20:48 +0100
-From: Dave Jones <davej@suse.de>
+	id <S267244AbTBDMQI>; Tue, 4 Feb 2003 07:16:08 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22510 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267243AbTBDMQI>; Tue, 4 Feb 2003 07:16:08 -0500
+Date: Tue, 4 Feb 2003 13:25:36 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
 To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: vda@port.imtp.ilyichevsk.odessa.ua,
+       linux-kernel <linux-kernel@vger.kernel.org>,
        lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] gcc 2.95 vs 3.21 performance
-Message-ID: <20030204132048.D16744@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	lse-tech <lse-tech@lists.sourceforge.net>
-References: <336780000.1044313506@flay>
+Subject: Re: gcc 2.95 vs 3.21 performance
+Message-ID: <20030204122536.GV6915@fs.tum.de>
+References: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com> <200302040656.h146uJs10531@Port.imtp.ilyichevsk.odessa.ua> <162450000.1044342810@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <336780000.1044313506@flay>; from mbligh@aracnet.com on Mon, Feb 03, 2003 at 03:05:06PM -0800
+In-Reply-To: <162450000.1044342810@[10.10.2.4]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 03:05:06PM -0800, Martin J. Bligh wrote:
- > People keep extolling the virtues of gcc 3.2 to me, which I'm
- > reluctant to switch to, since it compiles so much slower. But
- > it supposedly generates better code, so I thought I'd compile
- > the kernel with both and compare the results. This is gcc 2.95
- > and 3.2.1 from debian unstable on a 16-way NUMA-Q. The kernbench
- > tests still use 2.95 for the compile-time stuff.
- > 
- > The results below leaves me distinctly unconvinced by the supposed 
- > merits of modern gcc's. Not really better or worse, within experimental
- > error. But much slower to compile things with.
+On Mon, Feb 03, 2003 at 11:13:31PM -0800, Martin J. Bligh wrote:
+> > I'm afraid it's code generation engine. It is just worse than
+> > M$ or Intel's one. It is not easily fixable,
+> > GCC folks have tremendous task at hand.
+> > 
+> > I wonder whether some big companies supposedly supporting 
+> > Linux (e.g. Intel) can help GCC team (for example by giving
+> > away some code and/or developer time).
+> 
+> Comparing Intel's compiler vs GCC on Linux would be more interesting.
+> Anyone got a copy and some time to burn?
 
-What kernel was kernbench compiling ? The reason I'm asking is that
-2.5s (and more recent 2.4.21pre's) will use -march flags for more
-aggressive optimisation on newer gcc's.
-If you want to compare apples to apples, make sure you choose
-something like i386 in the processor menu, and then it'll always
-use -march=i386 instead of getting fancy with things like -march=pentium4
+There are already people who have done this, e.g.
 
-        Dave
+  http://www.coyotegulch.com/reviews/intel_comp/intel_gcc_bench2.html
+
+compares g++ and Intel's C++ compiler with C++ code.
+
+> M.
+
+cu
+Adrian
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

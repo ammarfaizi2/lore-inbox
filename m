@@ -1,52 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264838AbTBEUZN>; Wed, 5 Feb 2003 15:25:13 -0500
+	id <S264844AbTBEU23>; Wed, 5 Feb 2003 15:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264844AbTBEUZN>; Wed, 5 Feb 2003 15:25:13 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:3856 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S264838AbTBEUZL>;
-	Wed, 5 Feb 2003 15:25:11 -0500
-Date: Wed, 5 Feb 2003 21:34:45 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>, lm@bitmover.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-Message-ID: <20030205203445.GA4467@mars.ravnborg.org>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	Dave Kleikamp <shaggy@austin.ibm.com>, lm@bitmover.com,
-	linux-kernel@vger.kernel.org
-References: <20030205174021.GE19678@dualathlon.random> <200302051404.21524.shaggy@austin.ibm.com> <20030205201055.GL19678@dualathlon.random>
-Mime-Version: 1.0
+	id <S264853AbTBEU22>; Wed, 5 Feb 2003 15:28:28 -0500
+Received: from packet.digeo.com ([12.110.80.53]:58524 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264844AbTBEU20>;
+	Wed, 5 Feb 2003 15:28:26 -0500
+Message-ID: <3E417624.2762A635@digeo.com>
+Date: Wed, 05 Feb 2003 12:37:56 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.59-mm8 with contest
+References: <200302052221.55663.conman@kolivas.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030205201055.GL19678@dualathlon.random>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Feb 2003 20:37:56.0437 (UTC) FILETIME=[76D55850:01C2CD56]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 09:10:55PM +0100, Andrea Arcangeli wrote:
-> > Andrea,
-> > The change from block_truncate_page to nobh_truncate_page was done in 
-> > Changeset 1.879.43.1.  This was created on January 9th, but not merged 
-> > into Linus' tree until Monday, so it is not in 2.5.59.  I think the 
+Con Kolivas wrote:
 > 
-> if you think it's normal the thing sounds very messy. I mean, how can
-> a changeset be numbered 1.879.43.1 and not be included in 2.5.59?
+> ..
+> 
+> This seems to be creeping up to the same as 2.5.59
+> ...
+> and this seems to be taking significantly longer
+> ...
+> And this load which normally changes little has significantly different
+> results.
+> 
 
-cset 1.952.1.4 is the one that Linus released 2.5.59 on.
-Now I started doing some development based on cset 1.875 - a few days older.
+There were no I/O scheduler changes between -mm7 and -mm8.  I
+demand a recount!
 
-Tomorrow Linus release a new kernel, cset 1.973 for example.
-Next week Linus merge my work, that will be numbered 1.875.1.1..1.875.1.3
-
-You will see that my cset will be listed on the web on the date where
-I did the commit, but it will not appear on kernel.org until
-Linus merge my stuff.
-So you cannot deduct from the numbers in what release a certain cset belongs.
-
-The fact that cset's appear on the web as they are orginally committed
-is annoying tracking the kernel, and Larry sometime ago noted that they
-may do some changes in that respect.
-
-	Sam
+ Makefile                               |   32 
+ arch/alpha/kernel/time.c               |   12 
+ arch/arm/kernel/time.c                 |    8 
+ arch/i386/Kconfig                      |   18 
+ arch/i386/kernel/Makefile              |    3 
+ arch/i386/kernel/apm.c                 |   16 
+ arch/i386/kernel/io_apic.c             |    2 
+ arch/i386/kernel/time.c                |   14 
+ arch/i386/mm/hugetlbpage.c             |   72 
+ arch/ia64/kernel/time.c                |   12 
+ arch/m68k/kernel/time.c                |    8 
+ arch/m68knommu/kernel/time.c           |    8 
+ arch/mips/au1000/common/time.c         |   12 
+ arch/mips/baget/time.c                 |    8 
+ arch/mips/dec/time.c                   |   16 
+ arch/mips/ite-boards/generic/time.c    |   16 
+ arch/mips/kernel/sysirix.c             |    4 
+ arch/mips/kernel/time.c                |   12 
+ arch/mips/mips-boards/generic/time.c   |   16 
+ arch/mips/philips/nino/time.c          |    8 
+ arch/mips64/mips-boards/generic/time.c |   16 
+ arch/mips64/sgi-ip22/ip22-timer.c      |   16 
+ arch/mips64/sgi-ip27/ip27-timer.c      |   12 
+ arch/parisc/kernel/sys_parisc32.c      |    4 
+ arch/parisc/kernel/time.c              |   16 
+ arch/ppc/kernel/time.c                 |   12 
+ arch/ppc/platforms/pmac_time.c         |    8 
+ arch/ppc64/kernel/time.c               |   16 
+ arch/s390/kernel/time.c                |   12 
+ arch/s390x/kernel/time.c               |   12 
+ arch/sh/kernel/time.c                  |   12 
+ arch/sparc/kernel/pcic.c               |    8 
+ arch/sparc/kernel/time.c               |   12 
+ arch/sparc64/kernel/time.c             |   16 
+ arch/um/kernel/time_kern.c             |    4 
+ arch/v850/kernel/time.c                |    8 
+ arch/x86_64/kernel/time.c              |   12 
+ drivers/char/Makefile                  |    7 
+ drivers/scsi/aic7xxx/aic79xx_osm.c     |   18 
+ drivers/scsi/aic7xxx/aic79xx_osm.h     |    3 
+ drivers/scsi/aic7xxx/aic7xxx_osm.c     |   15 
+ drivers/scsi/aic7xxx/aic7xxx_osm.h     |    3 
+ drivers/scsi/scsi_error.c              |   98 
+ fs/exec.c                              |    4 
+ fs/fs-writeback.c                      |   12 
+ fs/hugetlbfs/inode.c                   |  227 
+ fs/super.c                             |  138 
+ include/linux/hugetlb.h                |   10 
+ include/linux/module.h                 |    2 
+ include/linux/sched.h                  |   47 
+ include/linux/sysctl.h                 |    4 
+ include/linux/time.h                   |    4 
+ init/Kconfig                           |    3 
+ init/main.c                            |   14 
+ kernel/ksyms.c                         |    8 
+ kernel/module.c                        |   53 
+ kernel/sched.c                         |  512 
+ kernel/sysctl.c                        |    4 
+ kernel/time.c                          |   19 
+ kernel/timer.c                         |    6 
+ mm/Makefile                            |    2 
+ mm/memory.c                            |   10 
+ mm/mmap.c                              |    5 
+ mm/page_alloc.c                        |    5 
+ scripts/Makefile.build                 |   29 
+ scripts/Makefile.lib                   |    1 
+ scripts/Makefile.modver                |   18 
+ sound/pci/rme9652/hammerfall_mem.c     |    7 
+ sound/sound_firmware.c                 |30559 +++++++++++++++++++++------------
+ 69 files changed, 21001 insertions(+), 11339 deletions(-)

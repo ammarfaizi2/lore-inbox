@@ -1,75 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263899AbSLUTcu>; Sat, 21 Dec 2002 14:32:50 -0500
+	id <S264614AbSLUTkx>; Sat, 21 Dec 2002 14:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264010AbSLUTcu>; Sat, 21 Dec 2002 14:32:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29447 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263899AbSLUTcs>; Sat, 21 Dec 2002 14:32:48 -0500
-Date: Sat, 21 Dec 2002 11:39:46 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Ulrich Drepper <drepper@redhat.com>, <bart@etpmod.phys.tue.nl>,
-       <davej@codemonkey.org.uk>, <hpa@transmeta.com>,
-       <terje.eggestad@scali.com>, <matti.aarnio@zmailer.org>,
-       <hugh@veritas.com>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <20021221171808.GA23577@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0212211127240.2168-100000@home.transmeta.com>
+	id <S264617AbSLUTkw>; Sat, 21 Dec 2002 14:40:52 -0500
+Received: from 115.8.237.216.globalpac.com ([216.237.8.115]:61370 "EHLO
+	mail.yessos.com") by vger.kernel.org with ESMTP id <S264614AbSLUTkv>;
+	Sat, 21 Dec 2002 14:40:51 -0500
+Message-ID: <3E04C5A8.6050204@tmsusa.com>
+Date: Sat, 21 Dec 2002 11:48:56 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Partial Success with 2.5.52bk6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Forgive me if any of this is old news -
 
-On Sat, 21 Dec 2002, Jamie Lokier wrote:
->
-> Linus Torvalds wrote:
-> > Yes, you can make the "clobbers %eax/%edx/%ecx" argument, but the fact is,
-> > we quite fundamentally need to save %edx/%ecx _anyway_.
->
-> On the kernel side, yes.  In the userspace trampoline, it's not required.
+I loaded up 2.5.52bk6 on a couple of systems here and took it
+for a spin - both systems had previously run 2.4.18-RH, 2.4.19-aa,
+and 2.4.19/20-ckX
 
-No, it _is_ required.
+I found it rather impressive - subjectively speaking, the 2.5 kernel
+had a snappier feel on the desktop. Mozilla page scrolling remained
+smooth while loading a page with many images on 2.5, while scrolling
+stuttered and hesitated while loading the same page on 2.4.20-ck2.
 
-There are a few registers that _have_ to be saved on the user side,
-because the kernel will trash them. Those registers are:
+2.5 also remained usable while running dbench or ltp -
 
- - eflags (kernel has no sane way to restore things like TF in it
-   atomically with a sysexit)
- - ebp (kernel has to reload it with arg-6)
- - ecx/edx (kernel _cannot_ restore them).
+On the down side, modules that loaded automatically under 2.4 now
+have to be manually loaded - for instance my iptables script has
+to now first manually load each and every needed module before it
+issues any iptables commands or it dies - 2.4 automagically loaded
+the required modules.
 
-Your games with looking at %eip are fragile as hell.
+And now we come to the little show stopper - one of my systems has
+an intel motherboard with built-in i810 video. I can manually load
+the agp module, but it yields a cosmetic oops:
 
-> You're optimising the _rare_ case.
+[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+Uninitialised timer!
+This is just a warning.  Your computer is OK
+function=0x00000000, data=0x0
+Call Trace:
+ [<c011fd01>] check_timer_failed+0x61/0x70
+ [<c011fffc>] del_timer+0x1c/0x80
+ [<e095a648>] i830_takedown+0x38/0x3e0 [i830]
+ [<e095f3f5>] i830_stub_unregister+0x35/0x60 [i830]
+ [<e092123f>] 0xe092123f
+ [<e09621e8>] __func__.30+0x0/0x9 [i830]
+ [<c012b474>] sys_init_module+0x1a4/0x1c0
+ [<c01095eb>] syscall_call+0x7/0xb
 
-NO. I'm making it WORK.
 
-> This is accompanied by changing this line in arch/i386/kernel/signal.c:
->
-> 	regs->eip -= 2;
+More seriously, any attempt to load the i810 drm module fails:
 
-You're full of it.
+# modprobe i810
+FATAL: Error inserting i810 
+(/lib/modules/2.5.52bk6/kernel/drivers/char/drm/i810.ko): Cannot 
+allocate memory
 
-You're adding fundamental complexity and special cases, because you have
-a political agenda that you want to support, that is not really
-supportable.
 
-The fact is, system calls have a special calling convention anyway, and
-doing them the way we're doing them now is a hell of a lot saner than
-making much more complex code. Saving and restoring the two registers
-means that they get easier and more efficient to use from inline asms for
-example, and means that the code is simpler.
+Any hope for i810 drm soon?  Other than that it's looking sweet here.
 
-Your suggestion has _zero_ advantages. Doing two register pop's takes a
-cycle, and means that the calling sequence is simple and has no special
-cases.
+Kudos for an awesome kernel in the making!
 
-Th eexample code you posted is fragile as hell. Looking at "eip" means
-that the different system call entry points now have to be extra careful
-not to have the same return points, which is just _bad_ programming.
+Best Regards,
 
-		Linus
+Joe
 
 

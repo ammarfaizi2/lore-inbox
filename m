@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpA4nopDsXRLdQyagIJvyY7h+MA==
+thread-index: AcQVpA4xuvGlmne4QGiOjhPG5gwPmg==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sat, 03 Jan 2004 03:48:20 +0000
-Message-ID: <00a101c415a4$0e27dd90$d100000a@sbs2003.local>
+Delivery-date: Sat, 03 Jan 2004 03:45:58 +0000
+Message-ID: <00aa01c415a4$0e315370$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
-Date: Mon, 29 Mar 2004 16:39:42 +0100
+X-AuthUser: davidel@xmailserver.org
 X-Mailer: Microsoft CDO for Exchange 2000
-From: "Paul Mundt" <lethal@linux-sh.org>
+Date: Mon, 29 Mar 2004 16:39:43 +0100
+From: "Davide Libenzi" <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
 To: <Administrator@osdl.org>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.0-rc1 - Watchdog patches
 Content-Class: urn:content-classes:message
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,Wim Van Sebroeck <wim@iguana.be>, Linus Torvalds <torvalds@osdl.org>,Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+        <mingo@redhat.com>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-References: <20040103002459.K30061@infomag.infomag.iguana.be>
+Subject: Re: [PATCH 1/2] kthread_create 
+In-Reply-To: <20040103030802.BD1DB2C06E@lists.samba.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-	micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="xHFwDpU9dbj6ez1V"
-Content-Disposition: inline
-In-Reply-To: <20040103002459.K30061@infomag.infomag.iguana.be>
-User-Agent: Mutt/1.4.1i
+Content-Type: TEXT/PLAIN;
+	charset="US-ASCII"
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:39:42.0984 (UTC) FILETIME=[0E2C9880:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:39:44.0265 (UTC) FILETIME=[0EF00F90:01C415A4]
 
-This is a multi-part message in MIME format.
+On Sat, 3 Jan 2004, Rusty Russell wrote:
 
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> In message <Pine.LNX.4.44.0401020856150.2278-100000@bigblue.dev.mdolabs.com> you write:
+> > Rusty, you still have to use global static data when there is no need.
+> 
+> And you're still putting obscure crap in the task struct when there's
+> no need.  Honestly, I'd be ashamed to post such a patch.
 
-Wim,
-
-On Sat, Jan 03, 2004 at 12:24:59AM +0100, Wim Van Sebroeck wrote:
->  drivers/char/watchdog/shwdt.c        |   14 +-
->=20
-This change is useless, it's just whitespace modification. Perhaps you may =
-want
-to be more careful with diff in the future so you don't constantly generate
-superfluous changes. There definitely seems to be a lot of whitespace chang=
-es
-throughout the rest of these patches as well..
+Ashamed !? Take a look at your original patch and then define shame. You 
+had a communication mechanism that whilst being a private 1<->1 
+communication among two tasks, relied on a single global message 
+strucure, lock and mutex. Honestly I do not like myself to add stuff 
+inside a strcture for one-time use. Not because of adding 12 bytes to the 
+struct, that are laughable. But because it is used by a small piece of 
+code w/out a re-use ability for other things.
 
 
---xHFwDpU9dbj6ez1V
-Content-Transfer-Encoding: 7bit
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+> > I like this version better though ;)
+> 
+> I think I should seek a second opinion though.
 
-iD8DBQE/9jrl1K+teJFxZ9wRAgozAJ45JuaqEBwpXqk/uBOvNK1t4Sr+KwCfSJWH
-I7c006Ll4UJkAFFxy2IfH7Q=
-=gDL9
------END PGP SIGNATURE-----
+But of course, even a third one ;)
 
---xHFwDpU9dbj6ez1V--
+
+
+- Davide
+
+
+
+

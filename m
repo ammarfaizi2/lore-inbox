@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbTHWMvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 08:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTHWMvy
+	id S265741AbTHWMps (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 08:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbTHWMps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 08:51:54 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:15371 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S263618AbTHWMvx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 08:51:53 -0400
-Subject: [PATCH 2.6.0-test4][NET] 3c509.c: remove device.name field
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: netdev@oss.sgi.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 23 Aug 2003 18:43:29 +0530
-Message-Id: <1061644409.1141.18.camel@lima.royalchallenge.com>
-Mime-Version: 1.0
+	Sat, 23 Aug 2003 08:45:48 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22028 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264109AbTHWMpk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 08:45:40 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH 2.6][TRIVIAL] Update ide.txt documentation to current
+ ide.c
+Date: 23 Aug 2003 12:37:20 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bi7n60$ur7$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.51.0308211225120.23765@dns.toxicfilms.tv> <20030821124807.700db5d3.martin.zwickel@technotrend.de>
+X-Trace: gatekeeper.tmr.com 1061642240 31591 192.168.12.62 (23 Aug 2003 12:37:20 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <20030821124807.700db5d3.martin.zwickel@technotrend.de>,
+Martin Zwickel  <martin.zwickel@technotrend.de> wrote:
+	[... snip ...]
+| -- 
+| MyExcuse:
+| We've picked COBOL as the language of choice.
+| 
+| Martin Zwickel <martin.zwickel@technotrend.de>
+| Research & Development
+| 
+| TechnoTrend AG <http://www.technotrend.de>
 
-This patch removes the device name field which is no longer present.
-
-
---- linux-2.6.0-test4/drivers/net/3c509.c	2003-08-23 13:14:30.000000000 +0530
-+++ linux-2.6.0-test4-nvk/drivers/net/3c509.c	2003-08-23 18:34:35.000000000 +0530
-@@ -629,8 +629,6 @@
- 			   el3_mca_adapter_names[mdev->index], slot + 1);
- 
- 		/* claim the slot */
--		strncpy(device->name, el3_mca_adapter_names[mdev->index],
--				sizeof(device->name));
- 		mca_device_set_claim(mdev, 1);
- 
- 		if_port = pos4 & 0x03;
-
+Programming COBOL is like having sex with your sister... you may do it
+well and enjpy it greatly, but you don't want your mother to know.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

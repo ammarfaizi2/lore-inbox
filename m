@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266141AbRGGMSQ>; Sat, 7 Jul 2001 08:18:16 -0400
+	id <S266138AbRGGMS4>; Sat, 7 Jul 2001 08:18:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266138AbRGGMSF>; Sat, 7 Jul 2001 08:18:05 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:45767 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266141AbRGGMRz>;
-	Sat, 7 Jul 2001 08:17:55 -0400
-Message-ID: <3B46FDF1.A38E5BB6@mandrakesoft.com>
-Date: Sat, 07 Jul 2001 08:17:53 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S266151AbRGGMSr>; Sat, 7 Jul 2001 08:18:47 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2314 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266138AbRGGMSk>; Sat, 7 Jul 2001 08:18:40 -0400
+Subject: Re: Athlon oops traced to CONFIG_MK7 code in arch/i386/lib/mmx.c
+To: cshihpin@dso.org.sg (Richard Chan)
+Date: Sat, 7 Jul 2001 13:19:00 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+In-Reply-To: <20010707091046.A2355@cshihpin.dso.org.sg> from "Richard Chan" at Jul 07, 2001 09:10:46 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>, Ben LaHaise <bcrl@redhat.com>,
-        Jes Sorensen <jes@sunsite.dk>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
-In-Reply-To: <E15Iqqm-0005jr-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15Ir36-0005l7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> >  > that the expected lifespan for 32 bit systems is now less than 3 years, so
-> >  > elaborate planning that delays implementation buys us nothing more than a
-> >  > smaller window of usefulness.
-> > Maybe by then only 64-bit cpus will matter.  Who knows.
-> 
-> Reality check.
-> 
-> Embedded PCI 32bit processors are going to be very common
-> People are only now retiring 486's
-> 
-> So add another seven or eight years to your estimate
+> I'm interested if there is an explanation of the MK7 specific code in mmx.c and
+> whether that could really be the source of the problem. I would like to get
+> to the bottom of this.
 
-Given a little more context, I thought we were talking specifically
-about 64bit-PCI-on-32bit-machines?
+As far as we can tell the problem is 'using a VIA chipset'. The code itself
+is a fast copying loop using mmx/3dnow/amd athlon extended mmx stuff
 
-Assuming that, AFAICS Ben's statement seems more correct.
+Pick up an Athlon documentation set (pdf on the web site) and you should be
+able to follow it. prefetch does what you'd expect, sfence is a store fence
+for non temporal stores (ie out of order stuff) amd movntq is an out of order
+move
 
-And IMHO we definitely should not optimize for 64-bit-on-32-bit case. 
-Let CONFIG_HIGHMEM grow dma_addr_t to 64-bits, for that case only...
+> FWIW - the RedHat 7.1 stock 2.4.2 athlon kernel boots successfully without oopsen.
 
--- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+That doesn't have CONFIG_MK7k

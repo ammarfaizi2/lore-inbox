@@ -1,68 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280670AbRKJQjZ>; Sat, 10 Nov 2001 11:39:25 -0500
+	id <S278099AbRKJQsp>; Sat, 10 Nov 2001 11:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280684AbRKJQjO>; Sat, 10 Nov 2001 11:39:14 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:14912 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S280670AbRKJQjC>; Sat, 10 Nov 2001 11:39:02 -0500
-Date: Sat, 10 Nov 2001 17:37:51 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mathijs Mohlmann <mathijs@knoware.nl>
-Cc: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] fix loop with disabled tasklets
-Message-ID: <20011110173751.C1381@athlon.random>
-In-Reply-To: <20011110122141.B2C68231A4@brand.mmohlmann.demon.nl> <20011110.053720.55510115.davem@redhat.com> <20011110160301.B1381@athlon.random> <20011110152845.8328F231A4@brand.mmohlmann.demon.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011110152845.8328F231A4@brand.mmohlmann.demon.nl>; from mathijs@knoware.nl on Sat, Nov 10, 2001 at 04:29:00PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S277722AbRKJQsf>; Sat, 10 Nov 2001 11:48:35 -0500
+Received: from unicef.org.yu ([194.247.200.148]:32019 "EHLO unicef.org.yu")
+	by vger.kernel.org with ESMTP id <S278099AbRKJQsT>;
+	Sat, 10 Nov 2001 11:48:19 -0500
+Date: Sat, 10 Nov 2001 17:47:15 +0100 (CET)
+From: Davidovac Zoran <zdavid@unicef.org.yu>
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+cc: "'Matthias Schniedermeyer'" <ms@citd.de>,
+        Erik Andersen <andersen@codepoet.org>,
+        Rik van Riel <riel@conectiva.com.br>, Ben Israel <ben@genesis-one.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Disk Performance
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CABE@mail0.myrio.com>
+Message-ID: <Pine.LNX.4.33.0111101746020.11836-100000@unicef.org.yu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 10, 2001 at 04:29:00PM +0100, Mathijs Mohlmann wrote:
-> On Saturday 10 November 2001 16:03, Andrea Arcangeli wrote:
-> > just playing with the "softirq_raise" would be much simpler but I can
-> > see only one problem: we don't know what cpu the tasklet is scheduled
-> > into, so we don't know where to signal the local softirq.
-> >
-> > So it seems to fix the looping problem of disabled tasklets we should
-> > really dschedule the tasklet in tasklet_disable (and of course to forbid
-> > it to be scheduled when disabled in tasklet_schedule) and later to
-> > reschedule it in tasklet_enable.
-> 
-> Or add a cpu field to struct tasklet_struct.
+try
+hdparm -d1 /dev/hda
+hdparm -d1 /dev/hdb
+and test them now
+On Fri, 9 Nov 2001, Torrey Hoffman wrote:
 
-of course, but that has to be maintained with locking too that
-invalidates the simplicity of such approch. My point was that if we have
-to play with the tasklet locking I guess we can as well drop the tasklet
-from the queue and be more scalable so you can schedule thousand of
-disabled tasklets at zero do_softirq cost (that was first Dave
-suggestion).
+> Erik Andersen wrote:
+>
+> >The Promise controller has two identical 46.1GB IBM-DTLA-307045 7200
+> >rpm hard drives on it.  The controller is capable of ATA100.  The hard
+> >drives are capable of ATA100.  And yet even with CONFIG_IDEDMA_AUTO
+> >set, these drives both come up running 3.39 MB/s.
+>
+> Interesting...
+>
+> You've got the PDC20267 chipset, I have two cards with the PDC20268
+> chipset (Ultra TX2/100) and they both work fine - although the BIOS
+> setting shows as PIO, the kernel correctly enables UDMA-100 for the
+> Maxtor drives attached to them for me (CONFIG_IDEDMA_AUTO is on.)
+>
+> And, I have an identical IBM drive on my motherboard (VIA) controller
+> and it comes up fine too, so it isn't the hard drive....
+>
+>
+> Linux rivendell.arnor.net 2.4.14-pre6 #2 SMP Wed Oct 31 21:29:03 PST 2001
+> i686 unknown
+> ...
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: IDE controller on PCI bus 00 dev 39
+> VP_IDE: chipset revision 16
+> VP_IDE: not 100% native mode: will probe irqs later
+> VP_IDE: VIA vt82c596b (rev 23) IDE UDMA66 controller on pci00:07.1
+>     ide0: BM-DMA at 0x9000-0x9007, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0x9008-0x900f, BIOS settings: hdc:DMA, hdd:DMA
+> PDC20268: IDE controller on PCI bus 00 dev 90
+> PDC20268: chipset revision 2
+> PDC20268: not 100% native mode: will probe irqs later
+> PDC20268: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
+> Mode.
+>     ide2: BM-DMA at 0xac00-0xac07, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0xac08-0xac0f, BIOS settings: hdg:pio, hdh:pio
+> PDC20268: IDE controller on PCI bus 00 dev 98
+> PDC20268: chipset revision 1
+> PDC20268: not 100% native mode: will probe irqs later
+> PDC20268: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
+> Mode.
+>     ide4: BM-DMA at 0xc000-0xc007, BIOS settings: hdi:pio, hdj:pio
+>     ide5: BM-DMA at 0xc008-0xc00f, BIOS settings: hdk:pio, hdl:pio
+> hda: IBM-DTLA-307045, ATA DISK drive
+> hdc: PLEXTOR CD-R PX-W1210A, ATAPI CD/DVD-ROM drive
+> hdd: TOSHIBA DVD-ROM SD-M1402, ATAPI CD/DVD-ROM drive
+> hde: Maxtor 4W060H4, ATA DISK drive
+> hdg: Maxtor 4W060H4, ATA DISK drive
+> hdi: Maxtor 4W060H4, ATA DISK drive
+> hdk: Maxtor 4W060H4, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0x9c00-0x9c07,0xa002 on irq 18
+> ide3 at 0xa400-0xa407,0xa802 on irq 18
+> ide4 at 0xb000-0xb007,0xb402 on irq 19
+> ide5 at 0xb800-0xb807,0xbc02 on irq 19
+> hda: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=5606/255/63, UDMA(66)
+> hde: 117347328 sectors (60082 MB) w/2048KiB Cache, CHS=116416/16/63,
+> UDMA(100)
+> hdg: 117347328 sectors (60082 MB) w/2048KiB Cache, CHS=116416/16/63,
+> UDMA(100)
+> hdi: 117347328 sectors (60082 MB) w/2048KiB Cache, CHS=116416/16/63,
+> UDMA(100)
+> hdk: 117347328 sectors (60082 MB) w/2048KiB Cache, CHS=116416/16/63,
+> UDMA(100)
+> ...
+>
+> Torrey Hoffman
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-> > Infact at the moment it's even impossible to remove a tasklet from the
-> > queue if it remains disabled forever. tasklet_kill will deadlock on a
-> > tasklet that is disabled.
-> I think this is the responsability of the device driver writer (or who ever 
-> uses it). AFAIK there is no defined behavior for this case. I vote for 
-> removing the tasklet without it ever being run.
-
-yes, dropping it only after it run is an implementation detail, it can
-delay a bit but it doesn't matter much. If we change the "disabled
-tasklet" case (also for tasklet_kill, so you can kill also a disabled
-tasklet) it may end to be more handy to also kill a scheduled tasklet
-before it run, these will be more implementation details too and I agree
-with you and Alan that here the semantics of running the tasklet before
-killing it or not doesn't matter and should be considered undefined
-behaviour. The only semantics of tasklet_kill are that the tasklet will
-stop running after tasklet_kill returned and as Alan noted it depends on
-the timing anyways.
-
-btw, the patches I seen floating around checking the ->count before
-tasking are racy.
-
-Andrea

@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264863AbUEJQfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264865AbUEJQhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264863AbUEJQfG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 12:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbUEJQfF
+	id S264865AbUEJQhO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 12:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbUEJQhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 12:35:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31376 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264856AbUEJQfA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 12:35:00 -0400
-Date: Mon, 10 May 2004 17:34:58 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: "Smart, James" <James.Smart@Emulex.com>
-Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [(re)Announce] Emulex LightPulse Device Driver
-Message-ID: <20040510163458.GD19144@parcelfarce.linux.theplanet.co.uk>
-References: <3356669BBE90C448AD4645C843E2BF28034F92F0@xbl.ma.emulex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 May 2004 12:37:12 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:4009 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264867AbUEJQgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 12:36:52 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH] hci-usb bugfix
+Date: Mon, 10 May 2004 18:36:35 +0200
+User-Agent: KMail/1.6.2
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Sebastian Schmidt <yath@yath.eu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org> <1084205974.9639.16.camel@pegasus>
+In-Reply-To: <1084205974.9639.16.camel@pegasus>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <3356669BBE90C448AD4645C843E2BF28034F92F0@xbl.ma.emulex.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405101836.35239.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 09, 2004 at 12:33:35AM -0400, Smart, James wrote:
-> The source for the driver can be downloaded from it's project page on source
-> forge - http://sourceforge.net/projects/lpfcxxxx/ . Be sure to download the
-> 20040507 snapshot - and the version for the 2.6 kernel.
+Am Montag, 10. Mai 2004 18:19 schrieb Marcel Holtmann:
+> Hi Alan,
+> 
+> > It looks like the problem is that hci_usb_disconnect() is trying to do too 
+> > much.  When called for the SCO interface it should simply return.
+> 
+> I came to the same conclusion, but I used the attached patch.
 
-You might want to consider changing the name of this driver.  aic7xxx
-trips a number of spamfilters, so maybe just lpfc would be a good name
-for it?
+Which is wrong. It assumes that interfaces are disconnected in a certain
+order, which happens only by chance in your case.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+	Regards
+		Oliver

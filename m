@@ -1,438 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264628AbSKYSfC>; Mon, 25 Nov 2002 13:35:02 -0500
+	id <S265077AbSKYSuY>; Mon, 25 Nov 2002 13:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264654AbSKYSfB>; Mon, 25 Nov 2002 13:35:01 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:12734 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id <S264628AbSKYSd5>; Mon, 25 Nov 2002 13:33:57 -0500
-From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
-Organization: INFN
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: e7500 and IRQ assignment
-Date: Mon, 25 Nov 2002 19:41:53 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <233C89823A37714D95B1A891DE3BCE5202AB1994@xch-a.win.zambeel.com> <Pine.LNX.4.50.0211251038280.1462-100000@montezuma.mastecende.com> <200211251934.47959.gabrielli@roma2.infn.it>
-In-Reply-To: <200211251934.47959.gabrielli@roma2.infn.it>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_x7m49471TXgHtKG"
-Message-Id: <200211251941.53206.gabrielli@roma2.infn.it>
+	id <S264990AbSKYSuX>; Mon, 25 Nov 2002 13:50:23 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:13216 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S264936AbSKYSuV>;
+	Mon, 25 Nov 2002 13:50:21 -0500
+Date: Mon, 25 Nov 2002 19:57:19 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>, rwhron@earthlink.net
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.4.20-rc2-aa1 with contest
+Message-ID: <20021125185719.GF9623@dualathlon.random>
+References: <200211230929.31413.conman@kolivas.net> <20021124162845.GC12212@dualathlon.random> <200211251744.35509.conman@kolivas.net> <3DE1CBE5.C6576272@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DE1CBE5.C6576272@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 24, 2002 at 11:06:13PM -0800, Andrew Morton wrote:
+> Con Kolivas wrote:
+> > 
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > >On Sat, Nov 23, 2002 at 09:29:22AM +1100, Con Kolivas wrote:
+> > >> -----BEGIN PGP SIGNED MESSAGE-----
+> > >> Hash: SHA1
+> > >> process_load:
+> > >> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> > >> 2.4.18 [3]              109.5   57      119     44      1.50
+> > >> 2.4.19 [3]              106.5   59      112     43      1.45
+> > >> 2.4.20-rc1 [3]          110.7   58      119     43      1.51
+> > >> 2.4.20-rc1aa1 [3]       110.5   58      117     43      1.51*
+> > >> 2420rc2aa1 [1]          212.5   31      412     69      2.90*
+> > >>
+> > >> This load just copies data between 4 processes repeatedly. Seems to take
+> > >> longer.
+> > >
+> > >you go into linux/include/blkdev.h and increase MAX_QUEUE_SECTORS to (2
+> > ><< (20 - 9)) and see if it makes any differences here? if it doesn't
+> > >make differences it could be the a bit increased readhaead but I doubt
+> > >it's the latter.
+> > 
+> > No significant difference:
+> > 2420rc2aa1              212.53  31%     412     69%
+> > 2420rc2aa1mqs2          227.72  29%     455     71%
+> 
+> process_load is a CPU scheduler thing, not a disk scheduler thing.  Something
+> must have changed in kernel/sched.c.
+> 
+> It's debatable whether 210 seconds is worse than 110 seconds in
+> this test, really.  You have four processes madly piping stuff around and
+> four to eight processes compiling stuff.  I don't see why it's "worse"
+> that the compile happens to get 31% of the CPU time in this kernel.  One
+> would need to decide how much CPU it _should_ get before making that decision.
 
---Boundary-00=_x7m49471TXgHtKG
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+I see, so it's probably one of the core o1 scheduler design fixes I did
+in my tree to avoid losing around 60% of the available cpu power in smp
+in critical workloads due design bugs in the o1 scheduler (partly
+reduced by a factor of 10 in 2.5 because of the HZ=1000 but that's also
+additional overhead that showup in all the userspace cpu intensive
+benchmarks posted to l-k, compared to the right fix that is needed
+anyways in 2.5 too since HZ=1000 only hides the problem partially, and
+s390 idle patch won't let the local smp interrupts running on idle
+cpus anyways). So this result should be a good thing, or anyways it's
+not interesting for what we're trying to benchmark here.
 
-On 19:34, lunedì 25 novembre 2002, Emiliano Gabrielli wrote:
+> 
+> > ...
+> > 
+> > The machine stops responding but sysrq works. It wont write anything to the
+> > logs. To get the error I have to run the mem_load portion of contest, not
+> > just mem_load by itself. The purpose of mem_load is to be just that - a
+> > memory load during the contest benchmark and contest will kill it when it
+> > finishes testing in that load. To reproduce it yourself, run mem_load then do
+> > a kernel compile make -j(4xnum_cpus).  If that doesnt do it I'm not sure how
+> > else you can see it. sys-rq-T shows too much stuff on screen for me to make
+> > any sense of it and scrolls away without me being able to scroll up.
+> 
+> Try sysrq-p.
 
-> I have downloaded the prepatched kernel from www.aslab.com (linux-2.4.19-1)
-> (they affirm their servers use 7500) and even in this case no change
-> appened...
->
-> I have HT enabled in the BIOS; SMP and IO-APIC are compiled in the
-> kernel...
->
-> but I still receive some buggy messages in dmesg (see attachement), btw my
-> full custom device has IRQ routed to 0 (see my lspci)
->
-> If anybody as some IDEA ... I will happy ;P
->
-> best regards,
+indeed it might be sysrq+p the interesting one, I would had find out
+from the sysrq+t. the problem with sysrq+p is that with the improved
+irq-balance patch in my tree will likely dump only 1 cpu, I should send
+an IPI to get a reliable sysrq+p from all cpus at the same time like I
+did in the alpha port some time ago. Of course this is not a problem at
+all if his testbox is UP.
 
-sorry, I have forgotten to attach files ... 
+The main problem of the elevator-lowlatency patch is that it increases fariness
+of an order of magnitude so it can hardly be the fastest kernel on dbench
+anymore.
 
-my apologises
+Again many thanks to Randy for these so useful accurate benchmarks.
 
--- 
-Emiliano Gabrielli
+2.4.20-rc1aa1                            73.92           75.22           71.79
+					 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.4.20-rc2-ac1-rmap15-O1                 53.09           54.85           51.09
+2.4.20-rc2aa1                            64.60           65.33           63.98
+					 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.5.31-mm1-dl-ew                         59.55           61.51           57.00
+2.5.32-mm1-dl-ew                         55.43           57.15           53.13
+2.5.32-mm2-dl-ew                         54.01           57.38           47.48
+2.5.33-mm1-dl-ew                         52.02           54.86           46.74
+2.5.33-mm5                               49.61           53.42           41.31
+2.5.40-mm1                               70.39           73.85           65.24
+2.5.42                                   67.72           70.50           66.05
+2.5.43-mm2                               67.32           69.92           65.11
+2.5.44-mm5                               69.47           71.86           66.14
+2.5.44-mm6                               69.03           71.66           64.11
 
-dip. di Fisica
-2° Università di Roma "Tor Vergata"
+you see rc2aa1 is slower than rc1aa1. Not that much as I would had expected,
+I was expecting something horrible of the order of the 30mbyte/sec, so it's
+quite a great result IMHO considering the queue was only 1Mbyte, but still it's
+noticeable (note that the queue now is 1M even for seeks, not only for
+contigous I/O, previously it was 32M for contigous I/O where it's
+useless to apply the elevator because I/O is contigous in the first
+place and it was something like 256k for seeks). It would be interesting
+to see how dbench 192 on reiserfs reacts to this patch applied on top of
+2.4.20rc2aa1. 4M is a saner value for the queue size, 1M was too small
+but I wanted to show the lowest latency ever in contest.  With this one
+contest should show still a very low read latency (and write latency too
+unlike read-latency, if you would ever test fsync or O_SYNC/O_DIRECT and
+not only read latency), but dbench should run faster, I doubt it's as
+fast as rc1aa1 but it could be a good tradeoff.
 
---Boundary-00=_x7m49471TXgHtKG
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="lspci"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="lspci"
+--- 2.4.20rc2aa1/drivers/block/ll_rw_blk.c.~1~	2002-11-21 06:06:02.000000000 +0100
++++ 2.4.20rc2aa1/drivers/block/ll_rw_blk.c	2002-11-25 19:45:03.000000000 +0100
+@@ -421,7 +421,7 @@ int blk_grow_request_list(request_queue_
+ 	}
+ 	q->batch_requests = q->nr_requests;
+ 	q->max_queue_sectors = max_queue_sectors;
+-	q->batch_sectors = max_queue_sectors / 2;
++	q->batch_sectors = max_queue_sectors / 4;
+ 	BUG_ON(!q->batch_sectors);
+ 	atomic_set(&q->nr_sectors, 0);
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
+--- 2.4.20rc2aa1/include/linux/blkdev.h.~1~	2002-11-21 06:24:18.000000000 +0100
++++ 2.4.20rc2aa1/include/linux/blkdev.h	2002-11-25 19:44:09.000000000 +0100
+@@ -244,7 +244,7 @@ extern char * blkdev_varyio[MAX_BLKDEV];
+ 
+ #define MAX_SEGMENTS 128
+ #define MAX_SECTORS 255
+-#define MAX_QUEUE_SECTORS (1 << (20 - 9)) /* 1 mbytes when full sized */
++#define MAX_QUEUE_SECTORS (4 << (20 - 9)) /* 4 mbytes when full sized */
+ #define MAX_NR_REQUESTS (MAX_QUEUE_SECTORS >> (10 - 9)) /* 1mbyte queue when all requests are 1k */
+ 
+ #define PageAlignSize(size) (((size) + PAGE_SIZE -1) & PAGE_MASK)
 
-03:0c.0 Class ff00: Altera Corporation: Unknown device 0005 (rev 02)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 0
-	Region 0: Memory at fc200000 (32-bit, non-prefetchable) [size=1K]
-
-
---Boundary-00=_x7m49471TXgHtKG
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="dmesg"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="dmesg"
-
-U:     After generic, caps: 3febfbff 00000000 00000000 00000000
-CPU:             Common caps: 3febfbff 00000000 00000000 00000000
-CPU1: Intel(R) XEON(TM) CPU 2.00GHz stepping 04
-Total of 2 processors activated (7969.17 BogoMIPS).
-cpu_sibling_map[0] = 1
-cpu_sibling_map[1] = 0
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-Setting 3 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 3 ... ok.
-Setting 4 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 4 ... ok.
-Setting 5 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 5 ... ok.
-Setting 6 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 6 ... ok.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0, 2-10, 2-11, 2-20, 2-21, 2-22, 2-23, 3-0, 3-1, 3-2, 3-3, 3-4, 3-5, 3-6, 3-7, 3-8, 3-9, 3-10, 3-11, 3-12, 3-13, 3-14, 3-15, 3-16, 3-17, 3-18, 3-19, 3-20, 3-21, 3-22, 3-23, 4-0, 4-1, 4-2, 4-3, 4-4, 4-5, 4-6, 4-7, 4-8, 4-9, 4-10, 4-11, 4-12, 4-13, 4-14, 4-15, 4-16, 4-17, 4-18, 4-19, 4-20, 4-21, 4-22, 4-23, 5-0, 5-1, 5-2, 5-3, 5-4, 5-5, 5-6, 5-7, 5-8, 5-9, 5-10, 5-11, 5-12, 5-13, 5-14, 5-15, 5-16, 5-17, 5-18, 5-19, 5-20, 5-21, 5-22, 5-23, 6-0, 6-1, 6-2, 6-3, 6-4, 6-5, 6-6, 6-7, 6-8, 6-9, 6-10, 6-11, 6-12, 6-13, 6-14, 6-15, 6-16, 6-17, 6-18, 6-19, 6-20, 6-21, 6-22, 6-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=0
-number of MP IRQ sources: 20.
-number of IO-APIC #2 registers: 24.
-number of IO-APIC #3 registers: 24.
-number of IO-APIC #4 registers: 24.
-number of IO-APIC #5 registers: 24.
-number of IO-APIC #6 registers: 24.
-testing the IO APIC.......................
-
-IO APIC #2......
-.... register #00: 02008000
-.......    : physical APIC id: 02
- WARNING: unexpected IO-APIC, please mail
-          to linux-smp@vger.kernel.org
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 00000000
-.......     : arbitration: 00
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 003 03  0    0    0   0   0    1    1    39
- 02 003 03  0    0    0   0   0    1    1    31
- 03 003 03  0    0    0   0   0    1    1    41
- 04 003 03  0    0    0   0   0    1    1    49
- 05 003 03  0    0    0   0   0    1    1    51
- 06 003 03  0    0    0   0   0    1    1    59
- 07 003 03  0    0    0   0   0    1    1    61
- 08 003 03  0    0    0   0   0    1    1    69
- 09 003 03  0    0    0   0   0    1    1    71
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 003 03  0    0    0   0   0    1    1    79
- 0d 003 03  0    0    0   0   0    1    1    81
- 0e 003 03  0    0    0   0   0    1    1    89
- 0f 003 03  0    0    0   0   0    1    1    91
- 10 003 03  1    1    0   1   0    1    1    99
- 11 003 03  1    1    0   1   0    1    1    A1
- 12 003 03  1    1    0   1   0    1    1    A9
- 13 003 03  1    1    0   1   0    1    1    B1
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-
-IO APIC #3......
-.... register #00: 03000000
-.......    : physical APIC id: 03
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 03000000
-.......     : arbitration: 03
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 000 00  1    0    0   0   0    0    0    00
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 000 00  1    0    0   0   0    0    0    00
- 05 000 00  1    0    0   0   0    0    0    00
- 06 000 00  1    0    0   0   0    0    0    00
- 07 000 00  1    0    0   0   0    0    0    00
- 08 000 00  1    0    0   0   0    0    0    00
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  1    0    0   0   0    0    0    00
- 0f 000 00  1    0    0   0   0    0    0    00
- 10 000 00  1    0    0   0   0    0    0    00
- 11 000 00  1    0    0   0   0    0    0    00
- 12 000 00  1    0    0   0   0    0    0    00
- 13 000 00  1    0    0   0   0    0    0    00
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-
-IO APIC #4......
-.... register #00: 04000000
-.......    : physical APIC id: 04
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 04000000
-.......     : arbitration: 04
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 000 00  1    0    0   0   0    0    0    00
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 000 00  1    0    0   0   0    0    0    00
- 05 000 00  1    0    0   0   0    0    0    00
- 06 000 00  1    0    0   0   0    0    0    00
- 07 000 00  1    0    0   0   0    0    0    00
- 08 000 00  1    0    0   0   0    0    0    00
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  1    0    0   0   0    0    0    00
- 0f 000 00  1    0    0   0   0    0    0    00
- 10 000 00  1    0    0   0   0    0    0    00
- 11 000 00  1    0    0   0   0    0    0    00
- 12 000 00  1    0    0   0   0    0    0    00
- 13 000 00  1    0    0   0   0    0    0    00
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-
-IO APIC #5......
-.... register #00: 05000000
-.......    : physical APIC id: 05
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 05000000
-.......     : arbitration: 05
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 000 00  1    0    0   0   0    0    0    00
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 000 00  1    0    0   0   0    0    0    00
- 05 000 00  1    0    0   0   0    0    0    00
- 06 000 00  1    0    0   0   0    0    0    00
- 07 000 00  1    0    0   0   0    0    0    00
- 08 000 00  1    0    0   0   0    0    0    00
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  1    0    0   0   0    0    0    00
- 0f 000 00  1    0    0   0   0    0    0    00
- 10 000 00  1    0    0   0   0    0    0    00
- 11 000 00  1    0    0   0   0    0    0    00
- 12 000 00  1    0    0   0   0    0    0    00
- 13 000 00  1    0    0   0   0    0    0    00
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-
-IO APIC #6......
-.... register #00: 06000000
-.......    : physical APIC id: 06
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 06000000
-.......     : arbitration: 06
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 000 00  1    0    0   0   0    0    0    00
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 000 00  1    0    0   0   0    0    0    00
- 05 000 00  1    0    0   0   0    0    0    00
- 06 000 00  1    0    0   0   0    0    0    00
- 07 000 00  1    0    0   0   0    0    0    00
- 08 000 00  1    0    0   0   0    0    0    00
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  1    0    0   0   0    0    0    00
- 0f 000 00  1    0    0   0   0    0    0    00
- 10 000 00  1    0    0   0   0    0    0    00
- 11 000 00  1    0    0   0   0    0    0    00
- 12 000 00  1    0    0   0   0    0    0    00
- 13 000 00  1    0    0   0   0    0    0    00
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ5 -> 0:5
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-IRQ16 -> 0:16
-IRQ17 -> 0:17
-IRQ18 -> 0:18
-IRQ19 -> 0:19
-.................................... done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1996.5784 MHz.
-..... host bus clock speed is 99.8288 MHz.
-cpu: 0, clocks: 998288, slice: 332762
-CPU0<T0:998288,T1:665520,D:6,S:332762,C:998288>
-cpu: 1, clocks: 998288, slice: 332762
-CPU1<T0:998288,T1:332752,D:12,S:332762,C:998288>
-checking TSC synchronization across CPUs: passed.
-migration_task 0 on cpu=0
-migration_task 1 on cpu=1
-PCI: PCI BIOS revision 2.10 entry at 0xfd875, last bus=7
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 2: assuming transparent
-PCI: Discovered primary peer bus 10 [IRQ]
-PCI: Discovered primary peer bus 11 [IRQ]
-PCI: Discovered primary peer bus 12 [IRQ]
-PCI: Using IRQ router PIIX [8086/2480] at 00:1f.0
-PCI->APIC IRQ transform: (B0,I29,P0) -> 16
-PCI->APIC IRQ transform: (B0,I29,P1) -> 19
-PCI->APIC IRQ transform: (B0,I29,P2) -> 18
-PCI->APIC IRQ transform: (B7,I1,P0) -> 16
-PCI->APIC IRQ transform: (B7,I2,P0) -> 17
-PCI->APIC IRQ transform: (B7,I3,P0) -> 18
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-Starting kswapd
-bigpage subsystem: allocated 0 bigpages (=0MB).
-allocated 32 pages and 32 bhs reserved for the highmem bounces
-VFS: Diskquotas version dquot_6.5.0 initialized
-aio_setup: num_physpages = 65504
-aio_setup: sizeof(struct page) = 48
-Journalled Block Device driver loaded
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-ACPI: Core Subsystem version [20011018]
-ACPI: Subsystem enabled
-ACPI: System firmware supports S0 S1 S4 S5
-Processor[0]: C0 C1
-Processor[1]: C0 C1
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Real Time Clock Driver v1.10e
-i810_rng hardware driver 0.9.8 loaded
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH3: IDE controller on PCI bus 00 dev f9
-PCI: Enabling device 00:1f.1 (0005 -> 0007)
-PCI: No IRQ known for interrupt pin A of device 00:1f.1. Probably buggy MP table.
-ICH3: chipset revision 2
-ICH3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x2060-0x2067, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x2068-0x206f, BIOS settings: hdc:pio, hdd:pio
-hda: IC35L040AVER07-0, ATA DISK drive
-hdc: LG CD-ROM CRD-8522B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-blk: queue c040aa24, I/O limit 4095Mb (mask 0xffffffff)
-hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=79780/16/63, UDMA(100)
-Partition check:
- hda: [PTBL] [5005/255/63] hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 >
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-loop: loaded (max 8 devices)
-SCSI subsystem driver Revision: 1.00
-kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
-mice: PS/2 mouse device common for all mice
-md: linear personality registered as nr 1
-md: raid0 personality registered as nr 2
-md: raid1 personality registered as nr 3
-md: raid5 personality registered as nr 4
-raid5: measuring checksumming speed
-   8regs     :  2358.400 MB/sec
-   32regs    :  1432.800 MB/sec
-   pIII_sse  :  2574.000 MB/sec
-   pII_mmx   :  2343.600 MB/sec
-   p5_mmx    :  2314.800 MB/sec
-raid5: using function: pIII_sse (2574.000 MB/sec)
-md: multipath personality registered as nr 7
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-IP: routing cache hash table of 4096 buckets, 64Kbytes
-TCP: Hash tables configured (established 131072 bind 43690)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 268k freed
-Adding Swap: 1052248k swap-space (priority -1)
-IA-32 Microcode Update Driver: v1.11 <tigran@veritas.com>
-microcode: CPU1 no microcode found! (sig=f24, pflags=2)
-microcode: CPU0 no microcode found! (sig=f24, pflags=2)
-eepro100.c:v1.09j-t 9/29/99 Donald Becker http://www.scyld.com/network/eepro100.html
-eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
-eth0: OEM i82557/i82558 10/100 Ethernet, 00:30:48:12:1E:82, IRQ 17.
-  Board assembly 000000-000, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0xb874c1d3).
-eth1: OEM i82557/i82558 10/100 Ethernet, 00:30:48:12:24:99, IRQ 18.
-  Board assembly 000000-000, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0xb874c1d3).
-
---Boundary-00=_x7m49471TXgHtKG--
-
+Andrea

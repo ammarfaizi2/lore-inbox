@@ -1,77 +1,51 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154434-19608>; Mon, 25 Jan 1999 12:02:33 -0500
-Received: by vger.rutgers.edu id <154040-19608>; Mon, 25 Jan 1999 11:52:45 -0500
-Received: from dax.scot.redhat.com ([195.89.149.242]:1382 "EHLO dax.scot.redhat.com" ident: "sct") by vger.rutgers.edu with ESMTP id <154069-19607>; Mon, 25 Jan 1999 11:48:32 -0500
-Date: Mon, 25 Jan 1999 16:55:50 GMT
-Message-Id: <199901251655.QAA04607@dax.scot.redhat.com>
-From: "Stephen C. Tweedie" <sct@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: Heinz Mauelshagen <mauelsha@ez-darmstadt.telekom.de>
-Cc: andrea@e-mind.com, linux-kernel@vger.rutgers.edu, mge@ts1.ez-darmstadt.telekom.de, Stephen Tweedie <sct@redhat.com>
-Subject: Re: [patch] dynamic buffer cache hash table size
-In-Reply-To: <9901222301.AA13563@mailgate99.telekom.de>
-References: <Pine.LNX.3.96.990122204549.961E-100000@laser.bogus> <9901222301.AA13563@mailgate99.telekom.de>
+Received: by vger.rutgers.edu via listexpand id <155133-19608>; Mon, 25 Jan 1999 17:33:21 -0500
+Received: by vger.rutgers.edu id <154396-19608>; Mon, 25 Jan 1999 17:26:27 -0500
+Received: from wsdw01.win.tue.nl ([131.155.70.5]:3672 "EHLO wsdw01.win.tue.nl" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154411-19608>; Mon, 25 Jan 1999 17:20:00 -0500
+Date: Mon, 25 Jan 1999 23:26:48 +0100 (MET)
+From: dwguest@win.tue.nl (Guest section DW)
+Message-Id: <199901252226.XAA20449@wsdw01.win.tue.nl>
+To: alan@lxorguk.ukuu.org.uk, dhamm@itserve.com, torvalds@transmeta.com
+Subject: The Linux 64 GiB Limit - was: Re: oops! Should be fdisk broken?
+Cc: linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi,
+> 	From: David Hamm <dhamm@itserve.com>
+> 
+> 	 I have an 84g raid unit I'm trying to fdisk.  When the computer boots I get
+> 	the  following info on the drive. 
+> 	SCSI device sdb: hdwr sector= 512 bytes. Sectors= 164659200 [80400 MB] [80.4 GB] 
+> 	When I fdisk it I get different info and after partitioning and mke2fs the 
+> 	dirve only mounts with 14g of space.  I know this is a geometry issue but why 
+> 	is it an issue?  Can fdisk be fixed? 
+> 
+> Not if you do not provide any detail at all.
 
-On Sat, 23 Jan 1999 0:00:23 MET, Heinz Mauelshagen
-<mauelsha@ez-darmstadt.telekom.de> said:
+	From dhamm@itserve.com Mon Jan 25 16:48:31 1999
+	From: David Hamm <dhamm@itserve.com>
 
-> Have to do that test run later, but have a look at the already existing
-> one below.
+	Disk /dev/sdb: 64 heads, 32 sectors, 14864 cylinders
 
-> Ingo Molnar asked me just today for a profile.
-> Most of the time is wasted in sync_buffers.
+Aha! Very good. You lost precisely 2^27 sectors, that is 64 GiB,
+or, more relevant, 2^16 cylinders.
 
-I am not surprised.  Currently we have no way to flush completed
-writeback buffers off the LOCKED list and back onto the CLEAN list.
-sync() is therefore wandering over clean buffers all the time.
+No surprise, since cylinders is a short.
 
-Could you try the following patch (against 2.2.0-pre9)?  It allows both
-sync and bdflush to refile such completed buffers back to the CLEAN
-list.
+So, the following should improve things. (Unverified, untested.)
 
---Stephen
+Andries
 
-----------------------------------------------------------------
---- fs/buffer.c.~1~	Wed Jan 20 13:35:22 1999
-+++ fs/buffer.c	Mon Jan 25 15:39:28 1999
-@@ -247,6 +248,9 @@
- 				}
- 				wait_on_buffer (bh);
- 				goto repeat2;
-+			} else {
-+				refile_buffer(bh);
-+				goto repeat2;
- 			}
- 		}
- 
-@@ -1752,7 +1788,7 @@
- #ifdef DEBUG
- 		for(nlist = 0; nlist < NR_LIST; nlist++)
- #else
--		for(nlist = BUF_DIRTY; nlist <= BUF_DIRTY; nlist++)
-+		for(nlist = BUF_LOCKED; nlist <= BUF_DIRTY; nlist++)
- #endif
- 		 {
- 			 ndirty = 0;
-@@ -1772,6 +1808,13 @@
- 					  
- 					  /* Clean buffer on dirty list?  Refile it */
- 					  if (nlist == BUF_DIRTY && !buffer_dirty(bh) && !buffer_locked(bh))
-+					   {
-+						   refile_buffer(bh);
-+						   continue;
-+					   }
-+					  
-+					  /* Unlocked buffer on locked list?  Refile it */
-+					  if (nlist == BUF_LOCKED && !buffer_locked(bh))
- 					   {
- 						   refile_buffer(bh);
- 						   continue;
+
+--- hdreg.h~    Fri Jan 22 16:49:34 1999
++++ hdreg.h     Mon Jan 25 23:13:06 1999
+@@ -114,7 +114,7 @@
+ struct hd_geometry {
+       unsigned char heads;
+       unsigned char sectors;
+-      unsigned short cylinders;
++      unsigned long cylinders;
+       unsigned long start;
+ };
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

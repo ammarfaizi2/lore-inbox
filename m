@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290232AbSA3RJ2>; Wed, 30 Jan 2002 12:09:28 -0500
+	id <S290206AbSA3RJ3>; Wed, 30 Jan 2002 12:09:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290206AbSA3RI2>; Wed, 30 Jan 2002 12:08:28 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:42500 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S290227AbSA3RHz>; Wed, 30 Jan 2002 12:07:55 -0500
-Date: Wed, 30 Jan 2002 09:07:18 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>, Dave Jones <davej@suse.de>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fbdev accel wrapper. II
-In-Reply-To: <20020130102147.C16937@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10201300905260.7609-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290214AbSA3RIb>; Wed, 30 Jan 2002 12:08:31 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:45320 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290221AbSA3RH3>; Wed, 30 Jan 2002 12:07:29 -0500
+Date: Wed, 30 Jan 2002 20:07:27 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Dave Jones <davej@suse.de>, Sebastian Dr?ge <sebastian.droege@gmx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+Message-ID: <20020130200727.A1158@namesys.com>
+In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de> <20020130194408.A2153@namesys.com> <20020130175523.M24012@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020130175523.M24012@suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-> On Tue, Jan 29, 2002 at 03:59:26PM -0800, James Simmons wrote:
-> >     if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR)
-> >         region.color = attr_bgcol_ec(p,vc);
-> >     else 
-> >         region.color = info->pseudo_palette)[attr_bgcol_ec(p,vc)];
->                         ^                    ^
-> 
-> I hope this is a typing mistake that's not present in the real source. 8)
+On Wed, Jan 30, 2002 at 05:55:23PM +0100, Dave Jones wrote:
+>  > You do not play with a hdparm in your boot scripts, do you?
+>  > I do (will retry without this now).
+>  > How about others?
+>  No, my testboxes autoconfigure with the right settings.
+In fact I am able to reproduce with just bare booting into /bin/bash
+remounting reiserfs into rw mode and do depmod -a
+Hmmm. Interesting thing is may be only those who have reiserfs as root are
+affected? Going to check it now (though scsi system with reiserfs root still
+looks fine running stressetsts).
 
-The above is my pseudo code I wrote in the email. 
-
-
+Bye,
+    Oleg

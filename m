@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUJIXER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267543AbUJIXVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUJIXER (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 19:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUJIXEK
+	id S267543AbUJIXVH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 19:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJIXVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 19:04:10 -0400
-Received: from findaloan.ca ([66.11.177.6]:18352 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S267543AbUJIXEA (ORCPT
+	Sat, 9 Oct 2004 19:21:06 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:24987 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267543AbUJIXVE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 19:04:00 -0400
-Date: Sat, 9 Oct 2004 18:59:32 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Martijn Sipkema <martijn@entmoot.nl>
-Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041009225932.GA10732@mark.mielke.cc>
-Mail-Followup-To: Martijn Sipkema <martijn@entmoot.nl>,
-	David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-References: <000801c4ae35$3520ac90$161b14ac@boromir> <MDEHLPKNGKAHNMBLJOLKEEAPOOAA.davids@webmaster.com> <20041009184922.GA8032@mark.mielke.cc> <001d01c4ae43$06f83c30$161b14ac@boromir>
+	Sat, 9 Oct 2004 19:21:04 -0400
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+From: Dave Hansen <haveblue@us.ibm.com>
+To: dwalker@mvista.com
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
+       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
+       New Zhang Haitao <hzhang@ch.mvista.com>,
+       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
+In-Reply-To: <1097307234.13748.1.camel@dhcp153.mvista.com>
+References: <41677E4D.1030403@mvista.com>
+	 <1097304045.1442.166.camel@krustophenia.net>
+	 <1097307234.13748.1.camel@dhcp153.mvista.com>
+Content-Type: text/plain
+Message-Id: <1097364034.8085.1.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001d01c4ae43$06f83c30$161b14ac@boromir>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 09 Oct 2004 16:20:34 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004 at 10:00:35PM +0100, Martijn Sipkema wrote:
-> [...]
-> > Please - people who don't agree, just ensure that Linux is documented
-> > to not implement select() on sockets without O_NONBLOCK properly.
-> Actually, the behaviour isn't correct for sockets with O_NONBLOCK
-> either, since EAGAIN may only be returned when recvmsg() would not
-> block without O_NONBLOCK.
+On Sat, 2004-10-09 at 00:33, Daniel Walker wrote:
+> Do you have 4k stacks turned off? The docs make note of this.
 
-At least this one is acceptable, though, as most current applications
-won't break, or be open to attack. I agree - it should also be documented
-as improper, but with enough words to point out that it isn't a big deal.
+Isn't this a better thing to spell out in a Kconfig file than some
+documentation?
 
-I think you and I are on the same page.
-
-Cheers,
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+-- Dave
 

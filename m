@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264405AbRFSQhA>; Tue, 19 Jun 2001 12:37:00 -0400
+	id <S264413AbRFSQma>; Tue, 19 Jun 2001 12:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264407AbRFSQgu>; Tue, 19 Jun 2001 12:36:50 -0400
-Received: from AStrasbourg-201-2-1-133.abo.wanadoo.fr ([193.251.1.133]:58618
-	"EHLO glacon.bureau.logidee.com") by vger.kernel.org with ESMTP
-	id <S264405AbRFSQgb>; Tue, 19 Jun 2001 12:36:31 -0400
-Date: Tue, 19 Jun 2001 18:36:02 +0200
-To: Alexandr Andreev <andreev@niisi.msk.ru>
-Cc: "David L. Parsley" <parsley@linuxjedi.org>, linux-kernel@vger.kernel.org
-Subject: Re: Using cramfs as root filesystem on diskless machine
-Message-ID: <20010619183602.N21063@logidee.com>
+	id <S264411AbRFSQmU>; Tue, 19 Jun 2001 12:42:20 -0400
+Received: from pD9E16C60.dip.t-dialin.net ([217.225.108.96]:26607 "EHLO
+	tolot.escape.de") by vger.kernel.org with ESMTP id <S264407AbRFSQmH>;
+	Tue, 19 Jun 2001 12:42:07 -0400
+Date: Tue, 19 Jun 2001 18:42:00 +0200
+From: Jochen Striepe <jochen@tolot.escape.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20-pre4
+Message-ID: <20010619184200.A25821@tolot.escape.de>
+In-Reply-To: <20010619172219.A18744@tolot.escape.de> <E15CNM0-00067q-00@the-village.bc.nu> <20010619182635.A24252@tolot.escape.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3B2F7374.9000707@niisi.msk.ru>
-User-Agent: Mutt/1.3.18i
-From: Stephane Casset <sept@logidee.com>
+In-Reply-To: <20010619182635.A24252@tolot.escape.de>
+User-Agent: Mutt/1.3.19i
+X-Editor: vim/5.8.3
+X-Signature-Color: blue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Tue, Jun 19, 2001 at 07:44:52PM +0400, Alexandr Andreev écrivait :
-> David L. Parsley wrote
->
-> Possibly, some symlinks are broken, or some libraries are missed, on my 
-> rootfs...
-> But it is very strange, that ext2fs ramdisk image works with the same 
-> rootfs on it.
-> I'll try to investigate it by myself.
+        Hi again,
 
-I have almost the same problem, I am using a cramfs root filesystem, not a
-ramdisk cramfs. When I use the very same content on ext2 mounted read-only
-everything work as expected, but with cramfs some daemons don't start
-(mingetty for example)... 
+On 19 Jun 2001, Jochen Striepe <jochen@tolot.escape.de> wrote:
+> 
+> Now it stops with
 
-I mount tmpfs in /tmp and files touched in /var are symlinks to files in
-/tmp... 
+OK, this resolved to nothing (my mistake). Now it works fine. Until it
+reaches
 
-I don't have a clue of what goes wrong, hints a more than welcome ;)
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+        fs/filesystems.a \
+        net/network.a \
+        drivers/block/block.a drivers/char/char.o drivers/misc/misc.a drivers/net/net.a drivers/scsi/scsi.a drivers/cdrom/cdrom.a drivers/pci/pci.a drivers/pnp/pnp.a drivers/video/video.a \
+        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/scsi/scsi.a(aic7xxx.o): In function `aic7xxx_load_seeprom':
+aic7xxx.o(.text+0x12a76): undefined reference to `memcpy'
+make: *** [vmlinux] Error 1
 
-linux is 2.4.5-ac15+patch for cramfs by Daniel Quinlan+Mathias
-Killian (http://www.cs.helsinki.fi/linux/linux-kernel/2001-01/1064.html)
 
-Regards,
-Sept
+HAND,
+
+Jochen.
+
 -- 
-Stéphane Casset           LOGIDÉE sàrl          Se faire plaisir d'apprendre
-3, quai Kléber, Tour Sébastopol   Tel : +33 388 23 69 77  casset@logidee.com
-F-67080 STRASBOURG Cedex 3        Fax : +33 388 23 70 00  http://logidee.com
+"Gosh that takes me back ... or forward.  That's the trouble with time
+travel, you never can tell."
+                -- Dr. Who

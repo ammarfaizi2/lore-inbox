@@ -1,61 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVA2CpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVA2CqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbVA2CpW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 21:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbVA2CpW
+	id S262842AbVA2CqN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 21:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVA2CqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 21:45:22 -0500
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:53633 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262839AbVA2CpQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 21:45:16 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [RFC][PATCH] add driver matching priorities
-Date: Fri, 28 Jan 2005 21:45:13 -0500
-User-Agent: KMail/1.7.2
-Cc: g@parcelfarce.linux.theplanet.co.uk, Adam Belay <abelay@novell.com>,
-       greg@kroah.com, rml@novell.com, linux-kernel@vger.kernel.org
-References: <1106951404.29709.20.camel@localhost.localdomain> <200501281823.27132.dtor_core@ameritech.net> <20050129001105.GQ8859@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050129001105.GQ8859@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 28 Jan 2005 21:46:13 -0500
+Received: from neapel230.server4you.de ([217.172.187.230]:20652 "EHLO
+	neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S262842AbVA2Cpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 21:45:47 -0500
+Date: Sat, 29 Jan 2005 03:45:42 +0100
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Restrict procfs permissions
+Message-ID: <20050129024542.GB12270@lsrfire.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501282145.13837.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 January 2005 19:11, Al Viro wrote:
-> On Fri, Jan 28, 2005 at 06:23:26PM -0500, Dmitry Torokhov wrote:
-> > On Friday 28 JanuarDy 2005 17:30, Adam Belay wrote:
-> > > Of course this patch is not going to be effective alone.  We also need
-> > > to change the init order.  If a driver is registered early but isn't the
-> > > best available, it will be bound to the device prematurely.  This would
-> > > be a problem for carbus (yenta) bridges.
-> > > 
-> > > I think we may have to load all in kernel drivers first, and then begin
-> > > matching them to hardware.  Do you agree?  If so, I'd be happy to make a
-> > > patch for that too.
-> > > 
-> > 
-> > I disagree. The driver core should automatically unbind generic driver
-> > from a device when native driver gets loaded. I think the only change is
-> > that we can no longer skip devices that are bound to a driver and match
-> > them all over again when a new driver is loaded.  
-> 
-> And what happens if we've already got the object busy?
-> 
+Hi all,
 
-Mark it as dead and release structures when holder lets it go. With hotplug
-pretty much everywhere more and more systems can handle it. Plus one could
-argue that if an object needs a special driver to function properly it will
-unlikely be busy before native driver is loaded.
+this patch adds a umask option to the proc filesystem.  It can be used
+to restrict the permission of users to view each others process
+information.  E.g. on a multi-user shell server one could use a setting
+of umask=077 to allow all users to view info about their own processes,
+only.  It should prevent "command line snooping" and generally increases
+privacy on the server.
 
-Also, one still can do what Adam offers by pre-loading native drivers in
-cases whent is required but still support more flexible default scheme.
+Top and ps can cope with such restrictions, they simply are quiet about
+files they cannot access.
 
--- 
-Dmitry
+The umask option affects permissions of the numerical directories in
+/proc, only (the process info).  And root can see everything, of course,
+even with a umask setting of 0777.  Default umask is 0, i.e. unchanged
+permissions.
+
+The patch is inspired by the /proc restriction parts of the GrSecurity
+patch.  The main difference is the ability to configure the restrictions
+dynamically.  You can change the umask setting by running
+
+   # mount -o remount,umask=007 /proc
+
+Testing has been *very* light so far -- it compiles and boots.  Patch is
+against 2.6.11-rc2-bk6.
+
+Comments are very welcome.
+
+Thanks,
+Rene
+
+
+diff -rup linux-2.6.11-rc2-bk6/fs/proc/base.c l/fs/proc/base.c
+--- linux-2.6.11-rc2-bk6/fs/proc/base.c	2005-01-28 23:42:44.000000000 +0000
++++ l/fs/proc/base.c	2005-01-28 23:58:38.000000000 +0000
+@@ -1222,7 +1222,7 @@ static struct dentry *proc_pident_lookup
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+-	inode->i_mode = p->mode;
++	inode->i_mode = p->mode & ~proc_umask;
+ 	/*
+ 	 * Yes, it does not scale. And it should not. Don't add
+ 	 * new entries into /proc/<tgid>/ without very good reasons.
+@@ -1537,7 +1537,7 @@ struct dentry *proc_pid_lookup(struct in
+ 		put_task_struct(task);
+ 		goto out;
+ 	}
+-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
++	inode->i_mode = (S_IFDIR|S_IRUGO|S_IXUGO) & ~proc_umask;
+ 	inode->i_op = &proc_tgid_base_inode_operations;
+ 	inode->i_fop = &proc_tgid_base_operations;
+ 	inode->i_nlink = 3;
+@@ -1592,7 +1592,7 @@ static struct dentry *proc_task_lookup(s
+ 
+ 	if (!inode)
+ 		goto out_drop_task;
+-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
++	inode->i_mode = (S_IFDIR|S_IRUGO|S_IXUGO) & ~proc_umask;
+ 	inode->i_op = &proc_tid_base_inode_operations;
+ 	inode->i_fop = &proc_tid_base_operations;
+ 	inode->i_nlink = 3;
+diff -rup linux-2.6.11-rc2-bk6/fs/proc/inode.c l/fs/proc/inode.c
+--- linux-2.6.11-rc2-bk6/fs/proc/inode.c	2005-01-28 23:42:44.000000000 +0000
++++ l/fs/proc/inode.c	2005-01-28 23:56:11.000000000 +0000
+@@ -22,6 +22,8 @@
+ 
+ extern void free_proc_entry(struct proc_dir_entry *);
+ 
++umode_t proc_umask = 0;
++
+ static inline struct proc_dir_entry * de_get(struct proc_dir_entry *de)
+ {
+ 	if (de)
+@@ -127,9 +129,14 @@ int __init proc_init_inodecache(void)
+ 	return 0;
+ }
+ 
++static int parse_options(char *, uid_t *, gid_t *);
+ static int proc_remount(struct super_block *sb, int *flags, char *data)
+ {
++	uid_t dummy_uid;
++	gid_t dummy_gid;
++
+ 	*flags |= MS_NODIRATIME;
++	parse_options(data, &dummy_uid, &dummy_gid);
+ 	return 0;
+ }
+ 
+@@ -144,12 +151,13 @@ static struct super_operations proc_sops
+ };
+ 
+ enum {
+-	Opt_uid, Opt_gid, Opt_err
++	Opt_uid, Opt_gid, Opt_umask, Opt_err
+ };
+ 
+ static match_table_t tokens = {
+ 	{Opt_uid, "uid=%u"},
+ 	{Opt_gid, "gid=%u"},
++	{Opt_umask, "umask=%o"},
+ 	{Opt_err, NULL}
+ };
+ 
+@@ -181,6 +189,11 @@ static int parse_options(char *options,u
+ 				return 0;
+ 			*gid = option;
+ 			break;
++		case Opt_umask:
++			if (match_octal(args, &option))
++				return 0;
++			proc_umask = option;
++			break;
+ 		default:
+ 			return 0;
+ 		}
+diff -rup linux-2.6.11-rc2-bk6/fs/proc/internal.h l/fs/proc/internal.h
+--- linux-2.6.11-rc2-bk6/fs/proc/internal.h	2005-01-28 23:42:44.000000000 +0000
++++ l/fs/proc/internal.h	2005-01-28 23:58:29.000000000 +0000
+@@ -16,6 +16,8 @@ struct vmalloc_info {
+ 	unsigned long	largest_chunk;
+ };
+ 
++extern umode_t proc_umask;
++
+ #ifdef CONFIG_MMU
+ #define VMALLOC_TOTAL (VMALLOC_END - VMALLOC_START)
+ extern void get_vmalloc_info(struct vmalloc_info *vmi);

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265759AbSKYWoI>; Mon, 25 Nov 2002 17:44:08 -0500
+	id <S265787AbSKYWtM>; Mon, 25 Nov 2002 17:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbSKYWoI>; Mon, 25 Nov 2002 17:44:08 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:6283 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265759AbSKYWoH>; Mon, 25 Nov 2002 17:44:07 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 25 Nov 2002 14:52:16 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: John Myers <jgmyers@netscape.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] new poll callback'd wake up hell ...
-In-Reply-To: <Pine.LNX.4.50.0211251433200.1793-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.50.0211251451060.1793-100000@blue1.dev.mcafeelabs.com>
-References: <3DE29EB9.9050301@netscape.com>
- <Pine.LNX.4.50.0211251433200.1793-100000@blue1.dev.mcafeelabs.com>
+	id <S265791AbSKYWtM>; Mon, 25 Nov 2002 17:49:12 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:23309 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S265787AbSKYWtL>; Mon, 25 Nov 2002 17:49:11 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB19C3@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'Joao \"Alberto M. dos Reis \" \"(listas de discucao)'" 
+	<lista@vudu.ath.cx>,
+       lista do kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Network Load Balance
+Date: Mon, 25 Nov 2002 14:56:00 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Nov 2002, Davide Libenzi wrote:
+Did you try to work with ANS (Advanced Network Service) in the e1000 driver?
+bThere is also a utility procfg that ca be used to configure this 
 
-> On Mon, 25 Nov 2002, John Myers wrote:
->
-> > Davide Libenzi writes:
-> >  > 1) Move the wake_up() call done inside the poll callback outside the lock
-> >
-> > You can't.  You need to hold the lock over the callback or your callback
-> > could end up accessing a freed epitem.
->
-> No, look at the code :
->
-> http://www.xmailserver.org/linux-patches/sys_epoll-2.5.49-0.58.diff
->
-> The function ep_collect_ready_items() increases the usage count under
-> lock. So the epintem is protected, and the file* cannot desappear because
-> of the read lock on epsem.
+Thanks
+Manish
 
-Ops, I understood the f_op->poll() not the wake_up(). It can be solved in
-the same way. I'll do it now.
+-----Original Message-----
+From: Joao "Alberto M. dos Reis " "(listas de discucao)
+[mailto:lista@vudu.ath.cx]
+Sent: Monday, November 25, 2002 2:44 PM
+To: lista do kernel
+Subject: Network Load Balance
 
 
+There is any way to make 2 intel ethernet cards working as one, like the
+Network Load Balance (NLB - Windows) in the Intel Ethernet adapters with
+the Adaptive Load Balance feature on linux? 
+
+I know that in windows it works, but in the linux? Anyone has any
+ideias? 
+
+Joao Reis.
 
 
-- Davide
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

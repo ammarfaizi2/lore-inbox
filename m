@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVALUtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVALUtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVALUtU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 15:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVALUpE
+	id S261427AbVALUtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 15:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVALUpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 15:45:04 -0500
-Received: from [82.147.40.124] ([82.147.40.124]:64640 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S261378AbVALUmK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 15:42:10 -0500
-Subject: Re: i2c_adapter i2c-0: Bus collision!
-From: Stian Jordet <liste@jordet.nu>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050112212316.44efcedb.khali@linux-fr.org>
-References: <1073527236.624.7.camel@buick> <1073707567.621.5.camel@buick>
-	 <1074304828.780.2.camel@chevrolet.hybel>
-	 <20040117094856.2f8b44c8.khali@linux-fr.org>
-	 <1105461895.8299.2.camel@localhost.localdomain>
-	 <20050112212316.44efcedb.khali@linux-fr.org>
-Content-Type: text/plain
-Date: Wed, 12 Jan 2005 21:41:51 +0100
-Message-Id: <1105562511.4811.0.camel@localhost.localdomain>
+	Wed, 12 Jan 2005 15:45:52 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:61493 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261429AbVALUgG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 15:36:06 -0500
+Date: Wed, 12 Jan 2005 22:36:06 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Takashi Iwai <tiwai@suse.de>, ak@suse.de, mingo@elte.hu,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, greg@kroah.com, VANDROVE@vc.cvut.cz
+Subject: [PATCH] fix: macros to detect existance of unlocked_ioctl and compat_ioctl
+Message-ID: <20050112203606.GA23307@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106140636.GE25629@mellanox.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 12,.01.2005 kl. 21.23 +0100, skrev Jean Delvare:
-> Hi Stian,
-> 
-> > about a year ago I asked for help with my motherboard, claiming i2c
-> > bus collisions all the time. Now I found the solution, the sensor uses
-> > the isa bus, not the i2c. Funny it sometimes worked with i2c-viapro,
-> > but with i2c-isa it works all the time :)
-> 
-> Thanks a lot for keeping us informed.
-> 
-> Too bad you did not tell us you had the possibility to use the ISA
-> access in the first place. It is well known that ISA access is more
-> reliable than SMBus or I2C.
-> 
-> It also might explain why MBM was working without a problem. I suppose
-> it was also using the ISA interface, same as you do now.
+Hi!
+I just noticed that my original patch says "ioctl_compat" all over the place
+while the actual field name in -mm2 is "compat_ioctl". Doh.
+Here's a replacement patch.
+PS. Please dont flame me, I do not maintain out of kernel modules, myself :)
 
-Believe me, had I known it, I would have told you :) Anyway, a happy
-ending :) Thanks for your support.
+To make life bearable for out-of kernel modules, the following patch
+adds 2 macros so that existance of unlocked_ioctl and compat_ioctl
+can be easily detected.
+ 
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 
-Best regards,
-Stian
-
+diff -puN include/linux/fs.h~ioctl-rework include/linux/fs.h
+--- 25/include/linux/fs.h~ioctl-rework	Thu Dec 16 15:48:31 2004
++++ 25-akpm/include/linux/fs.h	Thu Dec 16 15:48:31 2004
+@@ -907,6 +907,12 @@ typedef struct {
+ 
+ typedef int (*read_actor_t)(read_descriptor_t *, struct page *, unsigned long, unsigned long);
+ 
++/* These macros are for out of kernel modules to test that
++ * the kernel supports the unlocked_ioctl and compat_ioctl
++ * fields in struct file_operations. */
++#define HAVE_COMPAT_IOCTL 1
++#define HAVE_UNLOCKED_IOCTL 1
++
+ /*
+  * NOTE:
+  * read, write, poll, fsync, readv, writev can be called

@@ -1,91 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129725AbRAOTCJ>; Mon, 15 Jan 2001 14:02:09 -0500
+	id <S129532AbRAOTE3>; Mon, 15 Jan 2001 14:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129789AbRAOTB7>; Mon, 15 Jan 2001 14:01:59 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:61424 "EHLO rob.devdep.sysgo.de")
-	by vger.kernel.org with ESMTP id <S129601AbRAOTBs>;
-	Mon, 15 Jan 2001 14:01:48 -0500
-From: Robert Kaiser <rob@sysgo.de>
-Reply-To: rob@sysgo.de
+	id <S129627AbRAOTET>; Mon, 15 Jan 2001 14:04:19 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:31130 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S129532AbRAOTEJ>; Mon, 15 Jan 2001 14:04:09 -0500
+Importance: Normal
+Subject: Slot Number Question
 To: linux-kernel@vger.kernel.org
-Subject: [SOLVED + PATCH] Re: Anybody got 2.4.0 running on a 386 ?
-Date: Mon, 15 Jan 2001 19:38:05 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <01010922090000.02630@rob> <01011000082300.03050@rob> <3A5C8DB2.48A4A48@yahoo.com>
-In-Reply-To: <3A5C8DB2.48A4A48@yahoo.com>
-Cc: Ingo Molnar <mingo@elte.hu>, mo6 <sjoos@pandora.be>,
-        Brian Gerst <bgerst@didntduck.org>, Miles Lane <miles@megapathdsl.net>,
-        Paul Gortmaker <p_gortmaker@yahoo.com>,
-        "Tom G. Christensen" <tom.christensen@get2net.dk>,
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Linus Torvalds <torvalds@transmeta.com>
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF164CE1E4.54391C01-ON852569D5.0067049B@raleigh.ibm.com>
+From: "Jack Hammer" <jhammer@us.ibm.com>
+Date: Mon, 15 Jan 2001 14:03:25 -0500
+X-MIMETrack: Serialize by Router on D04NMS46/04/M/IBM(Release 5.0.3 (Intl)|21 March 2000) at
+ 01/15/2001 02:04:07 PM
 MIME-Version: 1.0
-Message-Id: <01011520014201.12336@rob>
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+My adapter configuration utility needs to instruct the user which physical
+adapter needs attention ( when there may be multiple adapters in the system
+).    My question is :  How do I determine the ( machine ) slot number of a
+PCI adapter ?
 
-I finally found the reason why 386es have trouble booting the 2.4.0 kernel:
+In BIOS and other OS's this may be doneby examining the system's  PCI
+Routing Tables.    I don't think I can get to those from Linux.
 
-In routine pagetable_init() in arch/i386/mm/init.c, a pte gets installed before
-it actually has been filled with valid entries. This causes the kernel text
-segment to be temporarily unmapped. Pentiums are only lucky to not crash
-because they have a bigger TLB than 386s.
+PCI Devices are defined by  BUS,  DEVICE, and FUNCTION.    In Linux there
+is a function ( defined in pci.h near the end of the file ) called   "
+PCI_SLOT( devfn ) "   but from what I can see this returns what PCI calls
+the device.   PCI device is not the machine's slot number.   This function
+even uses the encoded byte which is named  devfn  ( I assume from PCI
+device and PCI function ) ,   but this function treats it as slot and
+function.
 
-Here is a patch to fix this:
+Any help is appreciated.  Thanks in advance.
 
---- init.c.orig	Wed Nov 29 07:43:39 2000
-+++ init.c	Mon Jan 15 18:36:08 2001
-@@ -317,7 +317,7 @@
- 	pgd_t *pgd, *pgd_base;
- 	int i, j, k;
- 	pmd_t *pmd;
--	pte_t *pte;
-+	pte_t *pte, *pte_base;
- 
- 	/*
- 	 * This can be zero as well - no problem, in that case we exit
-@@ -366,11 +366,7 @@
- 				continue;
- 			}
- 
--			pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
--			set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte)));
--
--			if (pte != pte_offset(pmd, 0))
--				BUG();
-+			pte_base = pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
- 
- 			for (k = 0; k < PTRS_PER_PTE; pte++, k++) {
- 				vaddr = i*PGDIR_SIZE + j*PMD_SIZE + k*PAGE_SIZE;
-@@ -378,6 +374,10 @@
- 					break;
- 				*pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
- 			}
-+			set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte_base)));
-+			if (pte_base != pte_offset(pmd, 0))
-+				BUG();
-+
- 		}
- 	}
- 
-Thanks to everybody who helped with ideas and suggestions, especially Ingo
-Molnar!
+Jack L. Hammer
+RAID Client/Server Development
+IBM Personal Systems Group
+(919)-254-8665
 
-
-Cheers
-
-Rob
-
-----------------------------------------------------------------
-Robert Kaiser                         email: rkaiser@sysgo.de
-SYSGO RTS GmbH
-Am Pfaffenstein 14                    phone: (49) 6136 9948-762
-D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

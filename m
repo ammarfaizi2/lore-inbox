@@ -1,85 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbTGDFNw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 01:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265778AbTGDFNw
+	id S265779AbTGDFjD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 01:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbTGDFjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 01:13:52 -0400
-Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:25077 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S265772AbTGDFNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 01:13:50 -0400
-Date: Fri, 04 Jul 2003 01:27:56 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
-In-reply-to: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com
-Message-id: <200307040128.11894.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
+	Fri, 4 Jul 2003 01:39:02 -0400
+Received: from holomorphy.com ([66.224.33.161]:26055 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265779AbTGDFjA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 01:39:00 -0400
+Date: Thu, 3 Jul 2003 22:53:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, zboszor@freemail.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm1
+Message-ID: <20030704055315.GW26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Helge Hafting <helgehaf@aitel.hist.no>, zboszor@freemail.hu,
+	linux-kernel@vger.kernel.org
+References: <3F0407D1.8060506@freemail.hu> <3F042AEE.2000202@freemail.hu> <20030703122243.51a6d581.akpm@osdl.org> <20030703200858.GA31084@hh.idb.hist.no> <20030703141508.796e4b82.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030703141508.796e4b82.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jul 03, 2003 at 02:15:08PM -0700, Andrew Morton wrote:
+> ok.  If you're feeling keen could you please revert the cpumask_t patch.
+> And please send the .config, thanks.
 
-On Thursday 03 July 2003 23:08, Linus Torvalds wrote:
-> Please do this in user space. The "overflow every 2^32 packets" thing is
-> _not_ a problem, if you just gather the statistics at any kind of
-> reasonable interval.
+Zwane reproduced this and when I compiled an identical kernel for him
+it went away; the only difference wsa the compiler version.
 
-The packet counters are fine (for now, that is), but the tx_bytes and rx_bytes 
-counters need those 64-bits. 4GB (= 2^32 bytes) is not enough. For example:
+i.e. this looks like a compiler issue of some kind.
 
-- - gigabit ethernet will cause 32-bit counters to overflow about every 34 
-seconds (at full speed.)
-- - 10Gb/s ethernet will only take about 3.4 seconds
-- - a user like me, who has 5Mbit/s connection to the net can cause the counter 
-to overflow in 1 hour 54 minutes
+Boszormenyi, Helge, could I get compiler versions? Zwane had
 
-(Most of the time, the devices are not maxed out, but we have to check the 
-worst case scenario.) Now, how often should the user space 
-statistics-gathering program should run? Well, at least every 30 seconds, for 
-now that should be good, but the rein of 10Gb/s is approaching...
+<zwane:#offtopic> gcc (GCC) 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+<zwane:#offtopic> Copyright (C) 2002 Free Software Foundation, Inc.
+<zwane:#offtopic> This is free software; see the source for copying conditions
++.  There is NO
+<zwane:#offtopic> warranty; not even for MERCHANTABILITY or FITNESS FOR A
++PARTICULAR PURPOSE.
 
-> I'd hate to penalise performance for something like this. We have
-> generally avoided locking _entirely_ for statistics, exactly because
-> people felt that there are major performance issues wrt network packet
-> handling, and that "perfect statistics" aren't important enough to
-> penalize performance over.
+so this looks like one of the offending compilers; the one I used that worked
+was:
 
-I agree with you, that is why I made it optional so the user may choose to 
-sacrifice performace for statistics when needed.
+$ gcc --version
+gcc (GCC) 3.3 (Debian)
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Additionally, I am sure there is a way of optimizing the patch I wrote (i.e. 
-actual transmition is locked with a lock from struct net_device.) I am aware 
-that this patch is a major undertaking, but it is only a matter of time 
-before someone will have to do it anyway.
-
-> Remember: "perfect is the enemy of good".
-
-Very true.
+Going over the disassemblies...
 
 
-Jeff.
-
-- -- 
-Only two things are infinite, the universe and human stupidity, and I'm 
-not sure about the former.
-		- Albert Einstein
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/BRBjwFP0+seVj/4RAnDSAJ90uOIpgtk0O7YLSsdj97kNbhr/jgCgrmlS
-GYbA4luLnY7bli1jYVuZD3s=
-=7zXz
------END PGP SIGNATURE-----
-
+-- wli

@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbUBRDXO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 22:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBRDXO
+	id S262078AbUBRD2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 22:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUBRD2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 22:23:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56336 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261957AbUBRDXJ convert rfc822-to-8bit (ORCPT
+	Tue, 17 Feb 2004 22:28:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5861 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262652AbUBRD14 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 22:23:09 -0500
-Message-ID: <4032DA76.8070505@zytor.com>
-Date: Tue, 17 Feb 2004 19:22:30 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
+	Tue, 17 Feb 2004 22:27:56 -0500
+Date: Tue, 17 Feb 2004 19:27:28 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <4032D893.9050508@zytor.com>
+Message-ID: <Pine.LNX.4.58.0402171919240.2686@home.osdl.org>
+References: <16433.38038.881005.468116@samba.org> <16433.47753.192288.493315@samba.org>
+ <Pine.LNX.4.58.0402170704210.2154@home.osdl.org> <16434.41376.453823.260362@samba.org>
+ <c0uj52$3mg$1@terminus.zytor.com> <Pine.LNX.4.58.0402171859570.2686@home.osdl.org>
+ <4032D893.9050508@zytor.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com> <Pine.LNX.4.58.0402171910550.2686@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402171910550.2686@home.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id i1I3MUf12577
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Wed, 18 Feb 2004, H. Peter Anvin wrote:
-> 
->>Those of us who have been involved with the issue have fought
->>*extremely* hard against DWIM decoders which try to decode the latter
->>sequences into ".." -- it's incorrect, and a security hazard.  The
->>only acceptable decodings is to throw an error, or use an out-of-band
->>encoding mechanism to denote "bad bytecode."
-> 
-> Somebody correctly pointed out that you do not need any out-of-band 
-> encoding mechanism - the very fact that it's an invalid sequence is in 
-> itself a perfectly fine flag. No out-of-band signalling required.
-> 
-> The only thing you should make sure of is to not try to normalize it (that 
-> would hide the error). Just keep carrying the bad sequence along, and 
-> everybody is happy. Including the filesystem functions that get the "bad" 
-> name and match it exactly to what it should be matched against.
-> 
 
-Well, the reason you'd want an out-of-band mechanism is to be able to
-display it as some kind of escapes.  Consider a UTF-8 decoder which uses
-values in the 0x800000xx range to encode "bogus bytes"; that way it
-wouldn't alias to anything else, but the bogus sequence "C0 AE" could be
-represented as 0x800000C0 0x800000AE and displayed to the user as
-\xC0\xAE\xC0\xAE ... which is different from \u00C0\u00AE ("À®", C3 80
-C2 AE).  This would make it possible to figure out in, for example, an
-ls listing, what those broken filenames are actually composed of.
 
-There are some advantages to being able to represent all possible byte
-sequences and present them to the user, even if they're bogus.
+On Tue, 17 Feb 2004, H. Peter Anvin wrote:
+> 
+> Well, this is also true :)  I still say it belongs in userspace.
 
-	-hpa
+The thing is, I do agree with Tridge on one simple fact: it's very hard 
+indeed to do atomic file operations from user space.
 
+That's not necessarily a problem if samba is the only process accessing
+the directories in question, since then samba could do all locking
+internally and make sure that it never does anything inconsistent.
+
+However, clearly people who run samba on a machine want to potentially 
+_also_ export that same filesystem as a NFS volume, as a way to have both 
+Windows and UNIX clients access the same data. And that pretty much means 
+that other people _will_ access the directories, and that samba can't do 
+its internal locking in that kind of environment.
+
+This is why I am symphathetic to the need to add _some_ kind of support 
+for this. And the only common place ends up being the kernel.
+
+> For 100% bug-compatibility with Windows, though, it is probably
+> worthwhile to have the filename in the native filesystem be not what a
+> Windows user would see, but rather the normalized filename.  That makes
+> a userspace implementation much easier.
+
+Oh, absolutely. But that's something that samba can easily do internally: 
+it can choose to just entirely ignore filenames that aren't normalized, or 
+it can export it on the wire (obviously in the normalized UCS-2 format), 
+and just consider non-normalized names to be another "case". In fact, 
+that's what the naive implementation would do anyway, so that's not any 
+added complexity.
+
+(And samba clearly _cannot_ show the client a non-normalized name per se, 
+since the smb protocol ends up using UCS-2).
+
+		Linus

@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbTI0XxV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 19:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbTI0XxV
+	id S262278AbTI0XwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 19:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTI0XwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 19:53:21 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57753 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262280AbTI0XxU (ORCPT
+	Sat, 27 Sep 2003 19:52:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:56217 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262278AbTI0XwJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 19:53:20 -0400
-Date: Sat, 27 Sep 2003 16:39:36 -0700
+	Sat, 27 Sep 2003 19:52:09 -0400
+Date: Sat, 27 Sep 2003 16:38:27 -0700
 From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
+To: Anton Blanchard <anton@samba.org>
+Cc: ak@muc.de, linux-kernel@vger.kernel.org
 Subject: Re: Prefered method to map PCI memory into userspace.
-Message-Id: <20030927163936.24861de4.davem@redhat.com>
-In-Reply-To: <p7365je6cnm.fsf@oldwotan.suse.de>
-References: <1064609623.16160.11.camel@ArchiveLinux.suse.lists.linux.kernel>
-	<20030926211740.GA27352@tsunami.ccur.com.suse.lists.linux.kernel>
-	<1064623209.631.26.camel@gaston.suse.lists.linux.kernel>
-	<20030926210034.3a1b4de7.davem@redhat.com.suse.lists.linux.kernel>
-	<p7365je6cnm.fsf@oldwotan.suse.de>
+Message-Id: <20030927163827.241dbb4c.davem@redhat.com>
+In-Reply-To: <20030926135908.GB9381@krispykreme>
+References: <A8WS.6Uf.9@gated-at.bofh.it>
+	<A8WR.6Uf.7@gated-at.bofh.it>
+	<Aezg.6hA.9@gated-at.bofh.it>
+	<m3zngqhmfr.fsf@averell.firstfloor.org>
+	<20030926135908.GB9381@krispykreme>
 X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,26 +28,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Sep 2003 07:09:01 +0200
-Andi Kleen <ak@suse.de> wrote:
+On Fri, 26 Sep 2003 23:59:08 +1000
+Anton Blanchard <anton@samba.org> wrote:
 
-> "David S. Miller" <davem@redhat.com> writes:
 > 
-> > If someone is looking for something to do, it would be incredibly
-> > value to make it so that all arches support this, and in particular
-> > get right the case of mmap()'ing the PCI host bridge.
-> > 
-> > If this were done, the PCI domain code in xfree86 could be enabled
-> > for all Linux platforms, not just the ones that have this implemented
-> > properly.
+> > Just curious - what does the X server use on these many systems then ?
 > 
-> What semantics would it have? Can the "seek offset" just be the 
-> bus address?
-> 
-> If yes then it would be trivial to implement for x86/x86-64
+> FYI ppc64 and some ppc32 systems fall into the cant use /dev/mem
+> category. The answer is to use pci domains (ie using /proc/bus/pci/...
+> to be able to mmap PCI memory and IO regions)
 
-I did everything for x86 already, egrep for "PCI_MMAP" under
-arch/i386/.
+Exactly.
 
-The uncompleted part is the PCI host bridge mmap() support, I just
-never got around to it.  Someone can easily complete it.
+XFREE86-4.3.0 and later has full domain infrastructure, it just isn't
+enabled on anything other than ppc and sparc because the other platforms
+haven't made their /proc/bus/pci/* mmap() arch support routines fully
+functional yet.

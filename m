@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269848AbUJVIqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270746AbUJVIqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269848AbUJVIqf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270746AbUJVIqc
+	id S270746AbUJVIqs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270782AbUJVIqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:46:32 -0400
-Received: from pD9E39197.dip.t-dialin.net ([217.227.145.151]:62981 "EHLO
-	pro01.local.promotion-ie.de") by vger.kernel.org with ESMTP
-	id S269848AbUJVIqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 04:46:31 -0400
-From: alex@local.promotion-ie.de
-Subject: Re: [ALPHA 2.6.9] __ioremap gone in include/asm-alpha/io.h
-To: Kernel-List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098432320.30655.8.camel@pro30.local.promotion-ie.de>
-References: <1098432320.30655.8.camel@pro30.local.promotion-ie.de>
+	Fri, 22 Oct 2004 04:46:48 -0400
+Received: from gate.firmix.at ([80.109.18.208]:34962 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S270746AbUJVIqo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 04:46:44 -0400
+Subject: Re: Linux v2.6.9 and GPL Buyout
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41757478.4090402@drdos.com>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+	 <417550FB.8020404@drdos.com>
+	 <1098218286.8675.82.camel@mentorng.gurulabs.com>
+	 <41757478.4090402@drdos.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098434690.30820.29.camel@pro30.local.promotion-ie.de>
+Organization: Firmix Software GmbH
+Message-Id: <1098434791.17993.9.camel@tara.firmix.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 10:44:50 +0200
+X-Mailer: Ximian Evolution 1.5.5 
+Date: Fri, 22 Oct 2004 10:46:31 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fr, den 22.10.2004 schrieb Alexander Rauth um 10:05:
-> In 2.6.9 __ioremap( ) is gone in include/asm-alpha/io.h resp. the
-> #define that linked alphas generic ioremap was deleted
-> 
-> Which brakes build on alpha.
-> Could we revert the cleanup that caused this????
-> Or complete it ????
-I forgot the compile log ... 
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0xdbac): In function `fb_mmap':
-include/asm/io.h:73: undefined reference to `__ioremap'
-drivers/built-in.o(.text+0xdbbc):include/asm/io.h:73: undefined
-reference to `__ioremap'
-make: *** [.tmp_vmlinux1] Error 1
+[ shortened CC: because it is not that inreseting ]
 
-adding following line to include/asm-alpha/io.h fixed compile:
+On Tue, 2004-10-19 at 14:09 -0600, Jeff V. Merkey wrote:
+[...]
+> No.  They seem to have some factual concrete evidence IP covered under 
+> Employee
+> agreements was used and subsequently converted into Linux, and they are 
+> very
+> confident of this.  From a cursory viewpoint, it looks valid.  I think 
 
-#define __ioremap(a,s) alpha_mv.mv_ioremap((unsigned long)(a),(s))
+They did not and do not show in court anything (and didn't showed
+anything that passed the simple checks in other places) though they were
+askes several times by the judge.
+So AFAICT and IMHO (and IANAL) there is no reason to believe they have
+anything (except false accusations, rumors, FUD, creative selection of
+truth, and lies).
+So even from cursory viewpoint one should primarily see the pure facts
+and afterwards (with separate quality) believe in words.
 
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268807AbRHBGEO>; Thu, 2 Aug 2001 02:04:14 -0400
+	id <S268814AbRHBGbB>; Thu, 2 Aug 2001 02:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268809AbRHBGED>; Thu, 2 Aug 2001 02:04:03 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:53998 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S268807AbRHBGDx>; Thu, 2 Aug 2001 02:03:53 -0400
-Message-ID: <3B68ED37.BB46A1AD@mvista.com>
-Date: Wed, 01 Aug 2001 23:03:35 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S268816AbRHBGav>; Thu, 2 Aug 2001 02:30:51 -0400
+Received: from goliath.siemens.de ([194.138.37.131]:58353 "EHLO
+	goliath.siemens.de") by vger.kernel.org with ESMTP
+	id <S268814AbRHBGam>; Thu, 2 Aug 2001 02:30:42 -0400
+X-Envelope-Sender-Is: Andrej.Borsenkow@mow.siemens.ru (at relayer goliath.siemens.de)
+From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Persistent device numbers
+Date: Thu, 2 Aug 2001 10:30:44 +0400
+Message-ID: <000901c11b1c$a87b1f40$21c9ca95@mow.siemens.ru>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <Pine.LNX.4.33L.0108020126290.5582-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Wed, 1 Aug 2001, george anzinger wrote:
-> > Chris Friesen wrote:
-> > > george anzinger wrote:
-> > >
-> > > > The testing I have done seems to indicate a lower overhead on a lightly
-> > > > loaded system, about the same overhead with some load, and much more
-> > > > overhead with a heavy load.  To me this seems like the wrong thing to
-> > >
-> > > What about something that tries to get the best of both worlds?  How about a
-> > > tickless system that has a max frequency for how often it will schedule?  This
-> >
-> > How would you do this?  Larger time slices?  But _most_ context
-> > switches are not related to end of slice.  Refuse to switch?
-> > This just idles the cpu.
-> 
-> Never set the next hit of the timer to (now + MIN_INTERVAL).
-> 
-> This way we'll get to run the current task until the timer
-> hits or until the current task voluntarily gives up the CPU.
+As far as I understand, currently kernel assigns device numbers dynamically.
+It means, that actual, user visible, controller/drive name may change if
 
-The overhead under load is _not_ the timer interrupt, it is the context
-switch that needs to set up a "slice" timer, most of which never
-expire.  During a kernel compile on an 800MHZ PIII I am seeing ~300
-context switches per second (i.e. about every 3 ms.)   Clearly the
-switching is being caused by task blocking.  With the ticked system the
-"slice" timer overhead is constant.
-> 
-> We can check for already-expired timers in schedule().
+- hardware configuaration is changed (added ot removed controller, added or
+removed drive)
 
-Delaying "alarm" timers is bad form.  
-Especially for someone who is working on high-res-timers :)
+- for some reasons order of initialisation in kernel changes (which may
+result in nasty surprise after update)
 
-George
+Moreover, it near to impossible to know which name device gets in advance
+(or why it gets this name).
+
+Most commercial systems (O.K. those I looked into) have some sort of logical
+device numbering that assigns fixed name based on some unique hardware
+address (cf /etc/path_to_inst in Solaris). Hardware address usually is a
+path needed to access device - i.e. Bus/Slot/Channel[/drive id], so that you
+can set
+
+PCI0/Slot3/Channel1 == eth3
+
+and this never changes if you add or remove any card.
+
+Do I miss something and Linux has such mechanism?
+
+TIA
+
+-andrej

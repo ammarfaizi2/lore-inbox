@@ -1,39 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUFVJFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUFVJLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUFVJFb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 05:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUFVJFb
+	id S261682AbUFVJLT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 05:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUFVJLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 05:05:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13481 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261638AbUFVJF1 (ORCPT
+	Tue, 22 Jun 2004 05:11:19 -0400
+Received: from tao.natur.cuni.cz ([195.113.56.1]:531 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id S261682AbUFVJLQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 05:05:27 -0400
-Date: Tue, 22 Jun 2004 02:04:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: mikpe@csd.uu.se, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
-Message-Id: <20040622020417.0ec87564.akpm@osdl.org>
-In-Reply-To: <20040622085901.GA31971@infradead.org>
-References: <200405312218.i4VMIISg012277@harpo.it.uu.se>
-	<20040622015311.561a73bf.akpm@osdl.org>
-	<20040622085901.GA31971@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jun 2004 05:11:16 -0400
+X-Obalka-From: mmokrejs@natur.cuni.cz
+Date: Tue, 22 Jun 2004 11:10:55 +0200 (CEST)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Linux Kernel Mailing <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot compile linux-2.4.27-rc1 ... ipt_REJECT.c
+In-Reply-To: <16599.20905.527283.517210@alkaid.it.uu.se>
+Message-ID: <Pine.OSF.4.51.0406221110120.311179@tao.natur.cuni.cz>
+References: <Pine.OSF.4.51.0406211343160.157782@tao.natur.cuni.cz>
+ <16598.56442.254480.281844@alkaid.it.uu.se> <Pine.OSF.4.51.0406211848480.202417@tao.natur.cuni.cz>
+ <16599.20905.527283.517210@alkaid.it.uu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Tue, Jun 22, 2004 at 01:53:11AM -0700, Andrew Morton wrote:
-> > Also there should be a document or a manpage or something which describes,
-> > in detail:
-> > 
-> > - the user/kernel API  (separate document, probably)
-> 
-> It also needs moving back to /proc/<pid>/ files from the syscall API.
+On Mon, 21 Jun 2004, Mikael Pettersson wrote:
 
-What does this mean?
+Thanks, this patch helped.
+
+> Martin MOKREJ? writes:
+>  > gcc -D__KERNEL__ -I/usr/src/linux-2.4.27-rc1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -fno-unit-at-a-time   -nostdinc -iwithprefix include -DKBUILD_BASENAME=vt  -c -o vt.o vt.c
+>  > vt.c: In function `do_kdsk_ioctl':
+>  > vt.c:166: warning: comparison is always false due to limited range of data type
+>  > vt.c: In function `do_kdgkb_ioctl':
+>  > vt.c:283: warning: comparison is always false due to limited range of data type
+>
+> This happens with many gcc-3.x versions, not just gcc-3.4.
+> In any case, it doesn't prevent a successful kernel build.
+>
+>  > gcc -D__KERNEL__ -I/usr/src/linux-2.4.27-rc1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -fno-unit-at-a-time   -nostdinc -iwithprefix include -DKBUILD_BASENAME=highmem  -c -o highmem.o highmem.c
+>  > highmem.c:133: error: conflicting types for 'kmap_high'
+>  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:59: error: previous declaration of 'kmap_high' was here
+>  > highmem.c:133: error: conflicting types for 'kmap_high'
+>  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:59: error: previous declaration of 'kmap_high' was here
+>  > highmem.c:158: error: conflicting types for 'kunmap_high'
+>  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:60: error: previous declaration of 'kunmap_high' was here
+>  > highmem.c:158: error: conflicting types for 'kunmap_high'
+>  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:60: error: previous declaration of 'kunmap_high' was here
+>
+> This is HIGHMEM which I never tested before. The problem is yet
+> another FASTCALL/fastcall discrepancy where a function's definition
+> doesn't have the exact same attributes as its prototype.
+>
+> My updated gcc340 patch fixes this problem. Get
+> <http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-v2-2.4.27-rc1>
+> or simply apply the patch below on top of the previous version.
+>
+> /Mikael
+>
+> --- linux-2.4.27-rc1/mm/highmem.c.~1~	2003-06-14 13:30:29.000000000 +0200
+> +++ linux-2.4.27-rc1/mm/highmem.c	2004-06-21 22:42:58.000000000 +0200
+> @@ -129,7 +129,7 @@
+>  	return vaddr;
+>  }
+>
+> -void *kmap_high(struct page *page, int nonblocking)
+> +void fastcall *kmap_high(struct page *page, int nonblocking)
+>  {
+>  	unsigned long vaddr;
+>
+> @@ -154,7 +154,7 @@
+>  	return (void*) vaddr;
+>  }
+>
+> -void kunmap_high(struct page *page)
+> +void fastcall kunmap_high(struct page *page)
+>  {
+>  	unsigned long vaddr;
+>  	unsigned long nr;
+>
+
+-- 
+Martin Mokrejs
+GPG key is at http://www.natur.cuni.cz/~mmokrejs

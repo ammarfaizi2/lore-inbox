@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268207AbUHVUhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUHVUoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268207AbUHVUhT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 16:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268211AbUHVUhT
+	id S266603AbUHVUoL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 16:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268191AbUHVUoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 16:37:19 -0400
-Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:27029 "EHLO
-	dedasys.com") by vger.kernel.org with ESMTP id S268207AbUHVUhO
+	Sun, 22 Aug 2004 16:44:11 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:37863 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S266603AbUHVUoI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 16:37:14 -0400
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Incompatibility List
-References: <87r7q0th2n.fsf@dedasys.com>
-	<200408221045.29316.mbuesch@freenet.de>
-From: davidw@dedasys.com (David N. Welton)
-Date: 22 Aug 2004 22:34:42 +0200
-Message-ID: <871xhyrjx9.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 22 Aug 2004 16:44:08 -0400
+Message-ID: <41290606.10101@drzeus.cx>
+Date: Sun, 22 Aug 2004 22:45:58 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: platform bus, usage?
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch <mbuesch@freenet.de> writes:
+I'm in the process of writing a driver for a SD/MMC card reader. Since 
+this is the first driver I'm writing I'm having some difficulties 
+fitting it into the linux driver model. I've read all the documentation 
+I can find to no avail.
 
-> What about some Wiki based database?
+The device is attached to the LPC bus and cannot be found using PNP. 
+ From what I can gather this driver should therefore be organised under 
+the platform bus. I can't figure out how to do this though. I've created 
+the device structure, with platform_bus_type at .bus. I've called 
+device_register with the structure. Now how to I create a device object 
+and attach this to the bus? With PCI I guess this handles itself using 
+the PCI id:s.
 
-That's what it is, more or less.  I'm just putting the finishing
-touches on the wiki software, and I wanted to ask for a few
-entries to work with, and people interested in playing with the wiki
-before publicizing it.
+At the moment I just let the driver play by itself. But that doesn't 
+seem to be using the driver model properly.
 
-Oh, just so it's clear, by the way, the contents of the wiki will be
-under a free license.
+Any pointers would be helpful. Documentation, functions, example 
+drivers, anything.
 
--- 
-David N. Welton
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/
-       Photos: http://www.dedasys.com/photos/
+Rgds
+Pierre Ossman
+

@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262572AbRENXc5>; Mon, 14 May 2001 19:32:57 -0400
+	id <S262578AbRENXhR>; Mon, 14 May 2001 19:37:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262577AbRENXcr>; Mon, 14 May 2001 19:32:47 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64153 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262572AbRENXc3>; Mon, 14 May 2001 19:32:29 -0400
-Date: Mon, 14 May 2001 17:32:13 -0600
-Message-Id: <200105142332.f4ENWDO19375@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: hpa@transmeta.com (H. Peter Anvin), jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        torvalds@transmeta.com (Linus Torvalds), viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E14zOfH-0001LG-00@the-village.bc.nu>
-In-Reply-To: <3B0038B3.EBB9747A@transmeta.com>
-	<E14zOfH-0001LG-00@the-village.bc.nu>
+	id <S262581AbRENXhH>; Mon, 14 May 2001 19:37:07 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:47343 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S262578AbRENXhA>; Mon, 14 May 2001 19:37:00 -0400
+Message-ID: <3B006D1C.CFBD1CC8@resilience.com>
+Date: Mon, 14 May 2001 16:41:16 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>,
+        Wayne Whitney <whitney@math.berkeley.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4 kernel reports wrong amount of physical memory
+In-Reply-To: <Pine.LNX.4.33.0105142025000.18102-100000@duckman.distro.conectiva> <3B006CC7.AAD065BA@resilience.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > > (c) does not require devfs.  most distros ship without it afaik, and
-> > > switching to it is not an overnight process, and requires devfsd to be
-> > > useful in the real world.
-> > > 
-> > 
-> > It does, however, not manage permissions, nor does it provide for a sane
-> > namespace (it exposes too many internal implementation details in the
-> > interface -- in particular, the driver becomes part of the namespace, and
-> > devices move around between drivers regularly.)
+Jeff Golds wrote:
 > 
-> It is also very hard to tar that device file.
+> Rik van Riel wrote:
+> >
+> > On Mon, 14 May 2001, Wayne Whitney wrote:
+> > > In mailing-lists.linux-kernel, you wrote:
+> > >
+> > > > You need to compile highmem support into the kernel if you want to
+> > > > use more than 890 MB of RAM, set it to maximum 4GB for best
+> > > > performance...
+> > >
+> > > On a similar note, what is the maximum physical memory supported
+> > > by the 4GB option?
+> >
+> > Ummm, 4GB maybe? ;)
+> >
+> > Rik
 > 
-> As to devfsd well Al Viro was reporting races in it long ago that I
-> don't believe Richard has had time to fix nor has anyone else fixed.
+> Ahh, it's totally obvious.  1 GB option = 890 MB, 4 GB option = 4GB.  Can I assume a linear relation and get 66.2 MB when I select the 64 MB option?
+> 
+> ;)
+> 
+> -Jeff
+> 
 
-Actually, it was devfs, not devfsd that Al was complaining about.
-Fortunately these races are hard to trigger without deliberately
-trying to trigger them, otherwise I'd be inundated with bug reports
-:-/
+That's GB not MB =P
 
-> What is the state on devfs there ?
+-Jeff
 
-Getting very close now. This last weekend was my first time for ages
-that I've had an uninterrupted weekend to hack on Linux and didn't
-have other really urgent stuff to deal with.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Jeff Golds
+jgolds@resilience.com

@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbVBCP74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVBCQB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbVBCP74 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 10:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263471AbVBCP74
+	id S262880AbVBCQB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 11:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbVBCQB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 10:59:56 -0500
-Received: from alog0137.analogic.com ([208.224.220.152]:10368 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263459AbVBCP7u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 10:59:50 -0500
-Date: Thu, 3 Feb 2005 11:00:00 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Pankaj Agarwal <pankaj@toughguy.net>
-cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Linux Net <linux-net@vger.kernel.org>
-Subject: Re: Query - Regarding strange behaviour.
-In-Reply-To: <015901c50a07$721f2620$8d00150a@dreammac>
-Message-ID: <Pine.LNX.4.61.0502031057150.10053@chaos.analogic.com>
-References: <001501c509ff$d4be02e0$8d00150a@dreammac>
- <Pine.LNX.4.61.0502031017430.9404@chaos.analogic.com>
- <015901c50a07$721f2620$8d00150a@dreammac>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 3 Feb 2005 11:01:57 -0500
+Received: from mail.suse.de ([195.135.220.2]:31390 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262880AbVBCQBo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 11:01:44 -0500
+Date: Thu, 3 Feb 2005 16:37:47 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Oskar Senft <oskar.senft@gmx.de>
+Subject: ISDN4Linux Bug in isdnhdlc.c
+Message-ID: <20050203153747.GB6990@pingi3.kke.suse.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+	Oskar Senft <oskar.senft@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Feb 2005, Pankaj Agarwal wrote:
+Hi,
 
-> its not even allowing me to copy it ...then surely it wont allow me mv as 
-> well... what else can i try...
->
-
-You didn't even bother to follow my carefully-written instructions!
-
-**PLONK**
-
-Since you seem to know everything, go to pound sand.
+Oskar found a critical bug in isdnhdlc.c, please
+apply this simple fix to next versions.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+
+From: Oskar Senft <oskar.senft@gmx.de>
+
+isdnhdlc_decode is called multiple times for bigger frames, so
+decrementing dsize is a bad idea and can cause a overflow of
+the dst buffer.
+
+
+Signed-off-by: Karsten Keil <kkeil@suse.de>
+
+diff -ur linux-2.6.11-rc2.org/drivers/isdn/hisax/isdnhdlc.c linux-2.6.11-rc2/drivers/isdn/hisax/isdnhdlc.c
+--- linux-2.6.11-rc2.org/drivers/isdn/hisax/isdnhdlc.c	2004-11-23 15:53:25.000000000 +0100
++++ linux-2.6.11-rc2/drivers/isdn/hisax/isdnhdlc.c	2005-02-03 15:50:06.352137856 +0100
+@@ -308,7 +308,7 @@
+ 				hdlc->crc = crc_ccitt_byte(hdlc->crc, hdlc->shift_reg);
+ 
+ 				// good byte received
+-				if (dsize--) {
++				if (hdlc->dstpos < dsize) {
+ 					dst[hdlc->dstpos++] = hdlc->shift_reg;
+ 				} else {
+ 					// frame too long
+
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

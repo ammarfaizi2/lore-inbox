@@ -1,80 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317812AbSGVV7m>; Mon, 22 Jul 2002 17:59:42 -0400
+	id <S317860AbSGVWDk>; Mon, 22 Jul 2002 18:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317830AbSGVV7m>; Mon, 22 Jul 2002 17:59:42 -0400
-Received: from pop.adiglobal.com ([66.207.47.93]:35847 "EHLO
-	mail.adiglobal.com") by vger.kernel.org with ESMTP
-	id <S317812AbSGVV7m>; Mon, 22 Jul 2002 17:59:42 -0400
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
-To: Rik van Riel <riel@conectiva.com.br>, Adrian Bunk <bunk@fs.tum.de>
-Date: Mon, 22 Jul 2002 18:02:27 -0400
+	id <S317861AbSGVWDk>; Mon, 22 Jul 2002 18:03:40 -0400
+Received: from dsl-213-023-038-020.arcor-ip.net ([213.23.38.20]:5811 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317860AbSGVWDj>;
+	Mon, 22 Jul 2002 18:03:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: DAC960 Bitrot
+Date: Tue, 23 Jul 2002 00:02:40 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com> <E17Sai1-0002T7-00@starship> <20020711100828.GE808@suse.de>
+In-Reply-To: <20020711100828.GE808@suse.de>
 MIME-Version: 1.0
-Subject: Re: bug database/webpage
-CC: Thomas Molina <tmolina@cox.net>, <linux-kernel@vger.kernel.org>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       Dave Jones <davej@suse.de>
-Message-ID: <3D3C48B3.28286.71E531C@localhost>
-References: <Pine.LNX.4.44L.0207221820210.3086-100000@imladris.surriel.com>
-In-reply-to: <Pine.NEB.4.44.0207222337060.10993-100000@mimas.fachschaften.tu-muenchen.de>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17WlGV-00052g-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The discussion actually started because Dave said he did not have much time 
-these days to maintain the page and Thomas offered to help.
-
-For the time being, continuing to maintain Dave's page may be the best 
-solution, I don't know.  People should tell Thomas what they think would 
-be the best use of his time *now* to help the community.
-
-Personally, I think there is a huge value in setting up a bug database, but
-only after the feature freeze.  This way, all the developers can go to one 
-place with all the problems listed and focus on fixing bugs for a while.
-Once the 2.6 release appears, the bug database can be discontinued if 
-there is no longer much interest.
-As Rik pointed out, the key thing here is _maintained_ and the only time 
-where we can be certain a bug database is going to be well maintained is 
-between feature freeze and release, because that's when everyone will be 
-working on fixing as many bugs as possible to make a rock solid release.
-
-Cheers,
-
--- Guillaume
-
-
-
-On 22 Jul 2002 at 23:39, Adrian Bunk wrote:
-
-> On Mon, 22 Jul 2002, Rik van Riel wrote:
+On Thursday 11 July 2002 12:08, Jens Axboe wrote:
+> On Thu, Jul 11 2002, Daniel Phillips wrote:
+> > On Thursday 11 July 2002 08:47, Jens Axboe wrote:
+> > > Leonard has promised me to convert DAC960 to the "new" pci dma api for
+> > > years (or so it seems, actual date may vary, no purchase necessary). I
+> > > do have a Mylex controller here myself these days, so it's not
+> > > completely impossible that I may do it on a rainy day.
+> > 
+> > Well, tell me what the new api is and I'll dive in there.  For the record,
 > 
-> > On Mon, 22 Jul 2002, Thomas Molina wrote:
-> >
-> > > http://members.cox.net/tmolina
-> > >
-> > > Would something like this be sufficient, or would a full-fledged server
-> > > be required?  Feedback/comments are welcome
-> >
-> > A simple page _that is being maintained_ is much better than a
-> > database which accumulates hundreds of stale entries over time ;)
+> Documentation/DMA-mapping.txt. Also, DAC960 initial bio conversion
+> happened before the interface was finalized, so it may need changes in
+> that regard as well. Documentation/block/biodoc.txt is your friend there
+> :-)
 > 
-> davej runs such a simple page since several months at
->   http://www.codemonkey.org.uk/Linux-2.5.html
+> a quick make drivers/block/DAC960.o shows the following stuff needs
+> changing immediately:
 > 
-> > Rik
-> 
-> cu
-> Adrian
-> 
-> -- 
-> 
-> You only think this is a free country. Like the US the UK spends a lot of
-> time explaining its a free country because its a police state.
-> 								Alan Cox
-> 
-> 
+> 1) q->queue_lock is a pointer to a lock, not the lock itself. Probably
+> add a per-controller spinlock to DAC960_Controller_T, and pass that to
+> blk_init_queue(). Then change DAC960_AcquireControllerLock and friends
+> in DAC960.h accordingly.
 
+The big change here appears to be the move to per-device request queues.  
+Somebody apparently already started to update this driver (you?) but 
+obviously didn't try to compile it.  This is new territory for me, so I'll be 
+moving gingerly in here for a while.
 
+For those locks, I just removed the &'s, which seems like the right thing to 
+do.   The "Controller" lock really seems to be a request queue lock.  Now I 
+think I need to allocate and initialize a request queue, possibly in 
+DAC960_CreateAuxiliaryStructures.  Am I getting warm?
+
+-- 
+Daniel

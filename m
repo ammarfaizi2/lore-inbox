@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbSJ1RB6>; Mon, 28 Oct 2002 12:01:58 -0500
+	id <S261373AbSJ1Q7f>; Mon, 28 Oct 2002 11:59:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261368AbSJ1RB5>; Mon, 28 Oct 2002 12:01:57 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:63659 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261312AbSJ1RB4>;
-	Mon, 28 Oct 2002 12:01:56 -0500
-Date: Mon, 28 Oct 2002 08:58:51 -0800 (PST)
-Message-Id: <20021028.085851.94768450.davem@redhat.com>
-To: willy@debian.org
-Cc: alan@lxorguk.ukuu.org.uk, rmk@arm.linux.org.uk, hugh@veritas.com,
-       akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shmem missing cache flush
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021028170633.R27461@parcelfarce.linux.theplanet.co.uk>
-References: <20021028163649.P27461@parcelfarce.linux.theplanet.co.uk>
-	<20021028.085536.32752918.davem@redhat.com>
-	<20021028170633.R27461@parcelfarce.linux.theplanet.co.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261376AbSJ1Q7f>; Mon, 28 Oct 2002 11:59:35 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:27120 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261373AbSJ1Q7d>;
+	Mon, 28 Oct 2002 11:59:33 -0500
+Date: Mon, 28 Oct 2002 09:00:14 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm show_free_areas layout
+Message-ID: <526010000.1035824414@flay>
+In-Reply-To: <Pine.LNX.4.44.0210281628550.10378-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0210281628550.10378-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Matthew Wilcox <willy@debian.org>
-   Date: Mon, 28 Oct 2002 17:06:33 +0000
+> Could we rearrange it? with the hot and cold taps and batchwater
+> levels first: those who are interested can swim back to them?
+> Omit the word "Zone " (I'd love non-NUMAs to omit "Node 0 " but
+> didn't find the right #define).  
 
-   On Mon, Oct 28, 2002 at 08:55:36AM -0800, David S. Miller wrote:
-   > Need to go into the revision history, discover who added these
-   > calls, and ask them why they were added.
-   
-   They're in 2.2.20, if it helps...
+#ifdef CONFIG_NUMA, or for less ugly code, you should just be able
+to do "if (numnodes > 1)", which will optimise away by the compiler
+on non-NUMA.
 
-That's not so useful, it's the who and why that matters. :-)
+M.
+

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286495AbRLUAQe>; Thu, 20 Dec 2001 19:16:34 -0500
+	id <S286499AbRLUAYO>; Thu, 20 Dec 2001 19:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286496AbRLUAQZ>; Thu, 20 Dec 2001 19:16:25 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:28679 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S286495AbRLUAQV>; Thu, 20 Dec 2001 19:16:21 -0500
-Message-ID: <3C227F0E.E6A9CF76@zip.com.au>
-Date: Thu, 20 Dec 2001 16:15:10 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S286500AbRLUAYE>; Thu, 20 Dec 2001 19:24:04 -0500
+Received: from mons.uio.no ([129.240.130.14]:3551 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S286499AbRLUAXy>;
+	Thu, 20 Dec 2001 19:23:54 -0500
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, andrea@suse.de,
+        davej@codemonkey.org.uk, Chuck Lever <cel@monkey.org>
+Subject: Re: Possible O_DIRECT problems ?
+In-Reply-To: <20011221000806.A26849@suse.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 21 Dec 2001 01:23:45 +0100
+In-Reply-To: <20011221000806.A26849@suse.de>
+Message-ID: <shssna58lpq.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: gregor@suhr.home.cs.tu-berlin.de, linux-kernel@vger.kernel.org
-Subject: Re: OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe 
- devfs
-In-Reply-To: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>,
-		<3C210AB9.5000900@suhr.home.cs.tu-berlin.de> <200112202338.fBKNcCI05673@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> 
-> Gregor Suhr writes:
-> > ...
-> > kernel BUG at slab.c:815!
+>>>>> " " == Dave Jones <davej@suse.de> writes:
 
-Somebody tried to create the same cache twice.  This can
-happen when loading a buggy module the second time, various
-things.
+     > Andrea, lk,
+     >  I just experimented with O_DIRECT in conjunction with fsx,
+     > and the results aren't pretty.
 
-Please, apply this patch and run it again.
+     > Over NFS it survives around 921 operations, all local
+     > filesystems (ext2,ext3,reiser tested) just 6 operations.  I've
+     > put the source to a modified fsx at
+     > http://www.codemonkey.org.uk/cruft/fsx-odirect.c
 
---- linux-2.4.17-rc2/mm/slab.c	Tue Dec 18 19:37:31 2001
-+++ linux-akpm/mm/slab.c	Thu Dec 20 16:14:19 2001
-@@ -811,8 +811,10 @@ next:
- 			kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
- 
- 			/* The name field is constant - no lock needed. */
--			if (!strcmp(pc->name, name))
-+			if (!strcmp(pc->name, name)) {
-+				printk(__FUNCTION__ ": %s\n", name);
- 				BUG();
-+			}
- 		}
- 	}
+Dave,
+
+   O_DIRECT for NFS isn't yet merged into the kernel. Are these Chuck
+Lever's NFS patches you've been testing?
+
+Cheers,
+   Trond

@@ -1,29 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291426AbSBSOg1>; Tue, 19 Feb 2002 09:36:27 -0500
+	id <S291431AbSBSOfH>; Tue, 19 Feb 2002 09:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291434AbSBSOgW>; Tue, 19 Feb 2002 09:36:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43534 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291426AbSBSOf1>; Tue, 19 Feb 2002 09:35:27 -0500
-Subject: Re: 2.4.18-pre9-ac4 filesystem corruption
-To: kristian.peters@korseby.net (Kristian)
-Date: Tue, 19 Feb 2002 14:49:43 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        andre@linux-ide.org
-In-Reply-To: <20020219153248.39a1b7fc.kristian.peters@korseby.net> from "Kristian" at Feb 19, 2002 03:32:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291430AbSBSOer>; Tue, 19 Feb 2002 09:34:47 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:25092 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291426AbSBSOeg>;
+	Tue, 19 Feb 2002 09:34:36 -0500
+Date: Tue, 19 Feb 2002 11:34:15 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: [PATCH *] new struct page shrinkage
+Message-ID: <Pine.LNX.4.33L.0202191131050.1930-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16dBaR-0000fj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> memtest86 completed successfully.
-> I'll test with -rc2-ac1 for ext2 corruption again.
+Hi Linus,
 
-Thanks. If you do see it can you test with ide=nodma as well and see what
-that does. Andre will probably also want to know how long your IDE cables
-are 8)
+The patch has been changed like you wanted, with page->zone
+shoved into page->flags. I've also pulled the thing up to
+your latest changes from linux.bkbits.net so you should be
+able to just pull it into your tree from:
+
+bk://linuxvm.bkbits.net/linux-2.5-struct_page
+
+You can also view the patch on:
+
+http://surriel.com/patches/2.5/2.5.5-p2-struct_page5
+
+I'm not retransmitting it to lkml as very little has changed.
+Please apply the patch to your 2.5 tree.
+
+thank you,
+
+Rik
+
+----> begin standard blurb of explanation <----
+
+I've forward-ported a small part of the -rmap patch to 2.5,
+the shrinkage of the struct page. Most of this code is from
+William Irwin and Christoph Hellwig.
+
+The executive summary:
+o page->wait is removed, instead we use a hash table of wait
+  queues per zone ... collisions are ok because of wake-all
+  semantics
+o page->virtual is only used on highmem machines and sparc64,
+  other machines calculate the address instead
+o page->zone is moved into page->flags
+
+Linus, please pull from the bk tree:
+
+bk://linuxvm.bkbits.net/linux-2.5-struct_page
+
+

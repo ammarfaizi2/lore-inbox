@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268709AbTGJBnp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 21:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268711AbTGJBnp
+	id S268711AbTGJBux (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 21:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268736AbTGJBux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 21:43:45 -0400
-Received: from h68-147-156-215.cg.shawcable.net ([68.147.156.215]:39296 "EHLO
-	tooleweb.homelinux.com") by vger.kernel.org with ESMTP
-	id S268709AbTGJBno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 21:43:44 -0400
-Message-ID: <3F0CC833.20607@tooleweb.homelinux.com>
-Date: Wed, 09 Jul 2003 19:58:11 -0600
-From: Robert Toole <tooler@tooleweb.homelinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en
+	Wed, 9 Jul 2003 21:50:53 -0400
+Received: from c16805.randw1.nsw.optusnet.com.au ([210.49.26.171]:65157 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S268711AbTGJBuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 21:50:52 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: VIA KT400-A AGP 3.0 Support
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16140.51447.73888.717087@wombat.chubb.wattle.id.au>
+Date: Thu, 10 Jul 2003 12:01:27 +1000
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Davide Libenzi <davidel@xmailserver.org>, Mel Gorman <mel@csn.ul.ie>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: 2.5.74-mm1
+In-Reply-To: <200307100059.57398.phillips@arcor.de>
+References: <20030703023714.55d13934.akpm@osdl.org>
+	<200307082027.13857.phillips@arcor.de>
+	<20030709222426.GA24923@mail.jlokier.co.uk>
+	<200307100059.57398.phillips@arcor.de>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> "Daniel" == Daniel Phillips <phillips@arcor.de> writes:
 
-I am wondering if anyone is currently working on a fix for AGP 3.0 on 
-the VIA KT400, KT400-A chipsets, and is looking for someone to test patches.
 
-I am using a Gigabyte GA-7VAX-A board with the KT400-A chipset, and a 
-Matrox Marvel eTV Video card (G450). This is a 4X card, but it appears 
-to me that VIA removed AGP 2.0 support from the KT400-A.
+Daniel> I like your idea of allowing normal users to set SCHED_RR, but
+Daniel> automatically placing some bound on cpu usage.  It's
+Daniel> guaranteed not to break any existing programs.
 
-As far as I can tell, although my videocard is 4X, according to 
-Giga-byte, the KT400-A supports only 4X and 8X cards using AGP 3.0 mode 
-only.
+I suspect that what's really wanted here is not SCHED_RR but
+guaranteed rate-of-forward progress.  A dynamic-window-constrained
+scheduler (that guarantees not that you'll run until you sleep, but
+that in any (settable) time period you'll get the opportunity to run
+for at least (a smaller settable period)) is closer to what's wanted.
 
-I have tried the backport from the 2.5 tree that was posted a while ago, 
-and while it appeared to work, X crashed hard every time I ran a 3D app.
+See http://www.cs.bu.edu/fac/richwest/dwcs.html
 
-Thanks in advance,
-
--- 
-Robert Toole
-tooler@tooleweb.homelinux.com
-
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories,   all slightly different.

@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUGMOwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUGMOzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbUGMOwz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 10:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUGMOwy
+	id S265290AbUGMOzo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 10:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbUGMOzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 10:52:54 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:4218 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265287AbUGMOww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 10:52:52 -0400
-Message-ID: <40F3F73D.7090004@yahoo.com.au>
-Date: Wed, 14 Jul 2004 00:52:45 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
+	Tue, 13 Jul 2004 10:55:44 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:41687 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265290AbUGMOzm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 10:55:42 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Dhruv Matani <dhruvbird@gmx.net>, Evaldo Gardenali <evaldo@gardenali.biz>,
+       justin.piszcz@mitretek.org
+Subject: Re: DriveReady SeekComplete Error...
+Date: Tue, 13 Jul 2004 17:01:41 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <1089721822.4215.3.camel@localhost.localdomain> <40F3D4AC.9050407@gardenali.biz> <1089729992.3594.7.camel@localhost.localdomain>
+In-Reply-To: <1089729992.3594.7.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Joe Korty <joe.korty@ccur.com>, linux-kernel@vger.kernel.org
-Subject: Re: preempt-timing-2.6.8-rc1
-References: <20040713122805.GZ21066@holomorphy.com> <20040713143600.GA22758@tsunami.ccur.com> <20040713144028.GH21066@holomorphy.com>
-In-Reply-To: <20040713144028.GH21066@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407131701.41218.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Tue, Jul 13, 2004 at 05:28:05AM -0700, William Lee Irwin III wrote:
-> 
->>>This patch uses the preemption counter increments and decrements to time
->>>non-preemptible critical sections.
->>>This is an instrumentation patch intended to help determine the causes of
->>>scheduling latency related to long non-preemptible critical sections.
->>>Changes from 2.6.7-based patch:
->>>(1) fix unmap_vmas() check correctly this time
->>>(2) add touch_preempt_timing() to cond_resched_lock()
->>>(3) depend on preempt until it's worked out wtf goes wrong without it
-> 
-> 
-> On Tue, Jul 13, 2004 at 10:36:00AM -0400, Joe Korty wrote:
-> 
->>You preemption-block hold times will improve *enormously* if you move all
->>softirq processing down to the daemon (and possibly raise the daemon to
->>one of the higher SCHED_RR priorities, to compensate for softirq processing
->>no longer happening at interrupt level).
-> 
-> 
-> Plausible. Got a patch?
-> 
 
-Make MAX_SOFTIRQ_RESTART 1?
+Hi,
 
-I don't think you should make ksoftirq a realtime task, because that
-defeats the purpose of having it to prevent livelocking userspace
-doesn't it?
+On Tuesday 13 of July 2004 16:47, Dhruv Matani wrote:
+> One more thing I forgot to mention is that if I use that hard 80-pin
+> cable, then I do not get such errors at boot time, but get them when
+> some service is loading, and if I use the cheaper more flexible
+> cable(with possibly lesser number of cables), then I get these errors
 
-However, you may want to increase it from nice +19. Probably just to
-nice 0 would be an idea.
+You get "BadCRC" errors.  They usually indicate bad cabling.
+
+> while the kernel is loading as well as when some service is loading.
+> That service is smartd.
+
+Are you sure it is _exactly_ the same error?
+
+If it is "task_no_data_intr" one then it is harmless
+(means that command is not supported by a drive).
+
+You may also want to check http://smartmontools.sf.net
+
+> Again, only in 2.4.20-8, in the previous version(the default that came
+> with RedHat-7.2), there is no such problem. Also, I use a re-compiled
+> version of the 2.4.20-8 kernel, whereas the default RedHat provided one
+> for 7.2, but the errors persist even for the default RedHat-9 kernel
+> 2.4.20-8, so I suspect that it's a kernel thing.
+
+RedHat has its own bugtracking system for their kernels.
+
+Please check if you can reproduce the problem with the current
+vanilla kernel from kernel.org.
+
+> One more thing! In RedHat-9 with 2.4.20-8, sometimes, the number of
+> processes just increases like mad! and the whole system becomes
+> unstable. Then I get errors like I/O error, and hda can not be read
+> from, and a whole list of blocks.
+
+AFAICS the current kernel for RH9 is kernel-2.4.20-31.9 and you should
+be using it instead of > 1 year old 2.4.20-8 version.
+
+Bartlomiej
+

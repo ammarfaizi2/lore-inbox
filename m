@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVAKUJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVAKUKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbVAKUJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVAKUJu
+	id S262440AbVAKUKo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 15:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAKUKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:09:50 -0500
-Received: from av5-2-sn3.vrr.skanova.net ([81.228.9.114]:13776 "EHLO
-	av5-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S262409AbVAKUIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:08:09 -0500
-To: Laurent CARON <lcaron@apartia.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to burn DVDs
-References: <41E2F823.1070608@apartia.fr>
-From: Peter Osterlund <petero2@telia.com>
-Date: 11 Jan 2005 21:08:06 +0100
-In-Reply-To: <41E2F823.1070608@apartia.fr>
-Message-ID: <m3wtujafvd.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jan 2005 15:10:04 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:17107 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262480AbVAKUJh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:09:37 -0500
+Subject: Re: New Linux System time proposal
+From: john stultz <johnstul@us.ibm.com>
+To: linux-os@analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0501110930280.26281@chaos.analogic.com>
+References: <Pine.LNX.4.61.0501110930280.26281@chaos.analogic.com>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 12:09:27 -0800
+Message-Id: <1105474167.4152.7.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent CARON <lcaron@apartia.fr> writes:
+On Tue, 2005-01-11 at 09:31 -0500, linux-os wrote:
+> I think that Linux time should be re-thought and done over once and
+> for all. 
 
-> I recently upgraded to 2.6.10 and tried (today) to burn a dvd with
-> growisofs.
-> 
-> It seems there is a problem
-> 
-> Here is the output
-> 
-> 
-> # growisofs -Z /dev/scd0 -R -J ~/foobar
-> 
-> WARNING: /dev/scd0 already carries isofs!
-> About to execute 'mkisofs -R -J /root/sendmail.mc | builtin_dd
-> of=/dev/scd0 obs=32k seek=0'
-> INFO:ingISO-8859-15 character encoding detected by locale settings.
->         Assuming ISO-8859-15 encoded filenames on source filesystem,
->         use -input-charset to override.
-> Total translation table size: 0
-> Total rockridge attributes bytes: 252
-> Total directory bytes: 0
-> Path table size(bytes): 10
-> /dev/scd0: "Current Write Speed" is 4.1x1385KBps.
-> :-[ WRITE@LBA=0h failed with SK=4h/ASC=08h/ACQ=03h]: Input/output error
-> :-( write failed: Input/output error
-> 
-> Needless to say it works fine with 2.6.9
+I agree, and I've been working on this for awhile. 
 
-According to the Mt Fuji spec, 4/08/03 means:
+You can find an outdated summery of my ideas here:
+http://lwn.net/Articles/100665/
 
-        LOGICAL UNIT COMMUNICATION CRC ERROR (ULTRA-DMA/32)
+And as soon as I get ppc64 booting I'll be sending out a new release of
+the code. 
 
-I don't know what could be causing this error though.
+thanks
+-john
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+

@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVDDXt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVDDXyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVDDXt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 19:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVDDXte
+	id S261523AbVDDXyf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 19:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVDDXxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 19:49:34 -0400
-Received: from gate.crashing.org ([63.228.1.57]:16058 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261514AbVDDXq7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 19:46:59 -0400
-Subject: Re: iomapping a big endian area
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: "David S. Miller" <davem@davemloft.net>, matthew@wil.cx,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1112623143.5813.5.camel@mulgrave>
-References: <1112475134.5786.29.camel@mulgrave>
-	 <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>
-	 <20050402183805.20a0cf49.davem@davemloft.net>
-	 <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>
-	 <1112499639.5786.34.camel@mulgrave>
-	 <20050402200858.37347bec.davem@davemloft.net>
-	 <1112502477.5786.38.camel@mulgrave>  <1112601039.26086.49.camel@gaston>
-	 <1112623143.5813.5.camel@mulgrave>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 09:43:39 +1000
-Message-Id: <1112658219.26086.110.camel@gaston>
+	Mon, 4 Apr 2005 19:53:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12297 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261525AbVDDXt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 19:49:59 -0400
+Date: Tue, 5 Apr 2005 00:49:55 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc2
+Message-ID: <20050405004955.A4370@flint.arm.linux.org.uk>
+Mail-Followup-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org> <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org> <20050404232419.GA8859@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050404232419.GA8859@parcelfarce.linux.theplanet.co.uk>; from viro@parcelfarce.linux.theplanet.co.uk on Tue, Apr 05, 2005 at 12:24:19AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-04 at 08:59 -0500, James Bottomley wrote:
-> On Mon, 2005-04-04 at 17:50 +1000, Benjamin Herrenschmidt wrote:
-> > I disagree. The driver will never "know" ...
+On Tue, Apr 05, 2005 at 12:24:19AM +0100, Al Viro wrote:
+> On Mon, Apr 04, 2005 at 02:32:52PM -0700, Linus Torvalds wrote:
+> > This is also the point where I ask people to calm down, and not send me
+> > anything but clear bug-fixes etc. We're definitely well into -rc land. So 
+> > keep it quiet out there,
 > 
-> ? the driver has to know.  Look at the 53c700 to see exactly how awful
-> it is.  This beast has byte and word registers.  When used BE, all the
-> byte registers alter their position (to both inb and readb).
+> 	* missing include in arm/kernel/time.c - see #ifdef CONFIG_PM
+> further down in the file.
 
-What I mean is that the driver doesn't have "know" whatever CPU/bus
-combo endianness will require it to use "native" or "swapped" access.
-What the driver knows is wether the device it tries to access need BE or
-LE accessors.
+See previous threads.
 
-> > I don't think it's sane. You know that your device is BE or LE and use
-> > the appropriate interface. "native" doesn't make sense to me in this
-> > context.
-> 
-> Well ... it's like this. Native means "pass through without swapping"
-> and has an easy implementation on both BE and LE platforms.  Logically
-> io{read,write}{16,32}be would have to do byte swaps on LE platforms.
-> Being lazy, I'm opposed to doing the work if there's no actual use for
-> it, so can you provide an example of a BE bus (or device) used on a LE
-> platform that would actually benefit from this abstraction?
+The include should be in linux/sysdev.h.  The reason this has come up is
+because the ARM changes got merged before the generic changes, so there's
+currently a minor disparity with the calling convention for system
+device suspend methods.
 
-I don't think drivers will benefit from "native" vs. "swapping". Taht
-means that pretty much all drivers that care will end up with #ifdef
-crap to pick up the right one based on the CPU endian, and some wil get
-it wrong of course. No, I _do_ thing that this should be hidden in the
-implementation, and we should provide "le" and "be" accessors (le beeing
-the current ones, be new ones). Which one swap or not is in the
-implementation of those accessors for the architecture, but the driver
-shouldn't have to care.
+IOW, when sysdev.h is updated to prototype the function pointer with
+pm_message_t, this'll also be solved.
 
-Ben.
+Therefore, if anything, linux/pm.h should be added to linux/sysdev.h as
+the minimal patch.
 
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

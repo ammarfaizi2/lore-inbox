@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263078AbSJFAhZ>; Sat, 5 Oct 2002 20:37:25 -0400
+	id <S263100AbSJFAkw>; Sat, 5 Oct 2002 20:40:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263080AbSJFAhZ>; Sat, 5 Oct 2002 20:37:25 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:19925 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S263078AbSJFAhY>; Sat, 5 Oct 2002 20:37:24 -0400
-Date: Sat, 5 Oct 2002 21:42:52 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Nicolas Pitre <nico@cam.org>
-cc: Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
-       Ben Collins <bcollins@debian.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <Pine.LNX.4.44.0210051549570.5197-100000@xanadu.home>
-Message-ID: <Pine.LNX.4.44L.0210052142180.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263102AbSJFAkw>; Sat, 5 Oct 2002 20:40:52 -0400
+Received: from holomorphy.com ([66.224.33.161]:5332 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S263100AbSJFAkv>;
+	Sat, 5 Oct 2002 20:40:51 -0400
+Date: Sat, 5 Oct 2002 17:44:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Gigi Duru <giduru@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021006004438.GG10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Gigi Duru <giduru@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, Nicolas Pitre wrote:
-> On Sat, 5 Oct 2002, Larry McVoy wrote:
->
-> > > patches in the kernel every day.  Now this isn't possible anymore without
-> >
-> > Nonsense.  There are all sorts of people who have taken the BK trees and
-> > made the patch snapshots available on timely basis.
->
-> Timely != real time.
+On Sat, Oct 05, 2002 at 12:36:50PM -0700, Gigi Duru wrote:
+> As an embedded developer, I can't stand bloat. I think
+> an OS designer should feel the same, and develop in a
+> fully modular and configurable manner, going for both
+> speed and size. For a long time I've felt that Linux
+> has got it right, but lately I'm not that sure
+> anymore. 
 
-That can be fixed, except for the fact that my script can't
-pull changesets before they've been pushed to the place I
-pull them from ;))
+Identifying the portions of the kernel with the largest codesize and/or
+static data size would help other developers accommodate your needs.
+Similarly for dynamic boot-time and runtime allocations.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Even better, if you yourself took action to correct this regression it
+would be as welcome as any other Linux development activity.
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Bill

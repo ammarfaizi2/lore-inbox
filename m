@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283625AbRK3Ofq>; Fri, 30 Nov 2001 09:35:46 -0500
+	id <S283660AbRK3O5C>; Fri, 30 Nov 2001 09:57:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283659AbRK3Ofg>; Fri, 30 Nov 2001 09:35:36 -0500
-Received: from cosxlat13.coserv.com ([209.223.12.13]:43282 "EHLO twu.net")
-	by vger.kernel.org with ESMTP id <S283625AbRK3OfS>;
-	Fri, 30 Nov 2001 09:35:18 -0500
-Date: Fri, 30 Nov 2001 08:35:35 -0600 (CST)
-From: Jessica Blank <jessica@twu.net>
-To: linux-kernel@vger.kernel.org
-Subject: Slow start -- Linux vs. NT -- it's time to acknowledge the problem!
-Message-ID: <Pine.LNX.4.40.0111300834270.3351-100000@twu.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283661AbRK3O4x>; Fri, 30 Nov 2001 09:56:53 -0500
+Received: from 209-161-7-161.bradetich.boi.fiberpipe.net ([209.161.7.161]:5778
+	"EHLO beavis.ybsoft.com") by vger.kernel.org with ESMTP
+	id <S283660AbRK3O4l>; Fri, 30 Nov 2001 09:56:41 -0500
+Subject: Re: Possible bug with the keyboard_tasklet? or is it softirq
+	tasklet  scheduling?
+From: Ryan Bradetich <rbradetich@uswest.net>
+To: george anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C0739DE.4E2EF490@mvista.com>
+In-Reply-To: <1007100759.13785.8.camel@beavis> 
+	<3C0739DE.4E2EF490@mvista.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 30 Nov 2001 07:56:35 -0700
+Message-Id: <1007132195.13785.10.camel@beavis>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello esteemed kernel hackers:
+> I found this same problem in while trying to run down timer bh issues. 
+> With out looking at the keyboard driver (since this is IMHO a tasklet
+> issue), I recommend that we not set the "pending" bit
+> (__cpu_raise_softirq()) if the tasklet fails because of count !=0, and
+> then modify the enable macro to, if the count is now 0, do the
+> __cpu_raise_softirq().  This still leaves the issue of the
+> tasklet_trylock(t), which will fail in the same way, but there we are
+> contending with another cpu and the rules say it can only run on one cpu
+> at a time.
 
-	As you doubtless know, NT and BSD both have a broken slow-start
-implementation. As you may not know, when you try having a Linux box
-co-exist on a network with a Windows box, this seems to cause the Windows
-box to CROWD OUT the Linux box on the network.
+hmm.. interesting.  I agree with you that this is a softirq tasklet
+scheduling problem, not just related to the keyboard tasklet.  According
+to the rules you stated, the tasklet_trylock(t) is bogus and can be
+removed.  So what you suggest is to reschedule the tasklet, but not
+raise the pending bit if the tasklet is disabled.  I can live with that
+:)
 
-	There is a fix to Solaris for this-- or a "workaround", I should
-say:
+I will produce and test a patch based on this tonight.
 
-http://www.sun.com/sun-on-net/performance/tcp.slowstart.html
+> On the other hand, why is this bothering you?  You don't say what kernel
+> version you are on, but the later versions push this sort of thing off
+> to ksoftirqd (a kernel thread) which allows the system to boot (even if
+> the thread doesn't exist yet, and it doesn't at this point).
 
-	THERE IS NO FIX TO LINUX FOR THIS. At least, not as far as I could
-find-- and I just got done Web-searching for a solid 15 minutes, finding
-MULTIPLE references to the Solaris workaround in the process.
+Sorry, I am running (available from cvs.parisc-linux.org)
+Linux vega 2.4.16-pa5 #2 SMP Thu Nov 29 21:35:27 MST 2001 parisc unknown
 
-	It is high time this problem is acknowledged and FIXED. I am
-forced to share a network with a bunch of NT servers, some of which get
-plenty of traffic-- enough so that they manage to crowd out my machine to
-the tune of 600ish ms ping times to the Linux box versus only **70**
-(!!!!!!) to the Windows box. THESE MACHINES ARE ON THE SAME NETWORK, but
-the Linux box is as sluggish, latency-wise, as telnetting into a box on a
-MODEM-- whereas the Windows box, where latency isn't even as important (no
-one telnets into them), is nice and zippy.
+Since this code is arch independent, it is very similar to the 2.4.16
+kernel.  (Before posting to the list, I did verify that this problem
+existed in the 2.4.16 kernel, and the code paths were the same.)
 
-	I do not want to have to move to Solaris.
 
-	Please, how can this problem be solved? PLEASE CC ME ANY
-SOLUTION(S) DISCUSSED!
+The reason I tracked this problem down was, if I enabled CONFIG_SMP
+(C200+ is a single processor system), the system would "hang" after the
+following bootup message:
 
-							--Jessica
+Based upon Swansea University Computer Society NET3.039
 
-=========================================
-  J e s s i c a    L e a h    B l a n k
------------------------------------------
-  Programmer * Unix Sysadmin * Web Geek
-   jessica@jessl.org -- cell@jessl.org
- -`-,-{@  http://www.jessl.org/  @}-,-`-
-=========================================
+UP kernels worked fine, but SMP kernels would "hang" every time.  I
+still do not understand why toggling CONFIG_SMP triggered this "hang",
+but it did.  Looks I need to keep digging further and try to understand
+why CONFIG_SMP "hangs" the system.
 
+
+
+> The tasklet info suggests that it is ok for a tasklet to reschedule
+> itself, however, in the current system, this means that it will run each
+> interrupt.  Surly a timer would be a better answer, except we don't have
+> sub jiffie timers... yet.
+> -- 
+> George           george@mvista.com
+> High-res-timers: http://sourceforge.net/projects/high-res-timers/
+> Real time sched: http://sourceforge.net/projects/rtsched/
+> 
+
+
+Thanks for your feedback George!
+
+- Ryan
+parisc-linux newbie kernel hacker.
 
 

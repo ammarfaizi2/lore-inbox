@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262841AbUCRSLR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 13:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbUCRSLR
+	id S262812AbUCRSKM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 13:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbUCRSKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 13:11:17 -0500
-Received: from smtp02.uc3m.es ([163.117.136.122]:31190 "EHLO smtp02.uc3m.es")
-	by vger.kernel.org with ESMTP id S262838AbUCRSLE (ORCPT
+	Thu, 18 Mar 2004 13:10:12 -0500
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:62215 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S262812AbUCRSKF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 13:11:04 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200403181811.i2IIB1f18197@oboe.it.uc3m.es>
-Subject: Re: floppy driver 2.6.3 question
-In-Reply-To: <20040318161647.GT22234@suse.de> from Jens Axboe at "Mar 18, 2004
- 05:16:48 pm"
-To: Jens Axboe <axboe@suse.de>
-Date: Thu, 18 Mar 2004 19:11:01 +0100 (MET)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Thu, 18 Mar 2004 13:10:05 -0500
+Subject: Re: [Kernel-janitors] [announce] 2.6.5-rc1-kj1 patchset
+From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: kjo <kernel-janitors@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040317141757.26364225.rddunlap@osdl.org>
+References: <20040317141757.26364225.rddunlap@osdl.org>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Governo Eletronico - SP
+Message-Id: <1079633140.22854.38.camel@telecentrolivre>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 18 Mar 2004 15:05:40 -0300
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Also sprach Jens Axboe:"
-> > I mean that I thought that if ->flags & REQ_SPECIAL were set, then
-> > we were obliged to flush the driver request queue before treating 
-> > this request, and I also thought that the driver was liable to receive
-> > such things from somewhere else.
-> 
-> I dunno where you get those crazy ideas, REQ_SPECIAL has absolutely
-> nothing to do with that.
+Em Qua, 2004-03-17 às 19:17, Randy.Dunlap escreveu:
+> patch is at:
+> http://developer.osdl.org/rddunlap/kj-patches/2.6.5-rc1/2.6.5-rc1-kj1.patch.bz2  [2004-03-16]
 
-Sorry about that. Perhaps I saw it in 2.5.
+Randy, the file is wrong, the correct is:
 
+http://developer.osdl.org/rddunlap/kj-patches/2.6.5-rc1/2.6.5-rc1-kj1.diff.bz2
 
-> You may use REQ_SPECIAL bit as you see fit, and ->special as well. You
-> don't have to use them together, must do though. However, as I said
-> earlier, if you push these requests on to someone else request queue,
-> you must not fiddle with REQ_SPECIAL and/or ->special. In that case you
-> cannot touch/use more than what the block layer already does.
+:-)
 
-Well hooray. All seems to be working fine now that I shifted the burden
-to ->special and stopped playing with ->flags (touch wood). Even
-revalidation is working AOK as far as I can tell. I'll reenable that
-read of the first block a-la-floppy to see if it causes some extra magic.
+-- 
+Luiz Fernando N. Capitulino
+<lcapitulino@prefeitura.sp.gov.br>
+<http://www.telecentros.sp.gov.br>
 
-Many thanks!
-
-
-> > Are you going to say, set REQ_SPECIAL on everything and add all the
-> > real request info and a bit more to ->special? I suspect you are!
-> 
-> That's where to put it, indeed. But if you pass it on...
-
-
-Peter

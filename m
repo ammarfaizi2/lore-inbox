@@ -1,86 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbUKDRU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbUKDRTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbUKDRU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbUKDRU0
+	id S262313AbUKDRTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbUKDRNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:20:26 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:15785 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id S262299AbUKDRQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:16:20 -0500
-Subject: Re: is killing zombies possible w/o a reboot?
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Russell Miller <rmiller@duskglow.com>, Jim Nelson <james4765@verizon.net>,
-       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-In-Reply-To: <4189FEBF.9000800@hist.no>
-References: <200411030751.39578.gene.heskett@verizon.net>
-	 <20041103192648.GA23274@DervishD> <4189586E.2070409@verizon.net>
-	 <200411031644.58979.rmiller@duskglow.com>  <4189FEBF.9000800@hist.no>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1099588567.2865.27.camel@cambridge>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 04 Nov 2004 17:16:07 +0000
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 12:13:42 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:40029 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262299AbUKDRFh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:05:37 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc1 4/4] driver-model: attach/detach sysfs node implemented
+Date: Thu, 4 Nov 2004 12:05:31 -0500
+User-Agent: KMail/1.6.2
+Cc: Tejun Heo <tj@home-tj.org>, rusty@rustcorp.com.au, mochel@osdl.org,
+       greg@kroah.com
+References: <20041104074330.GG25567@home-tj.org> <20041104074628.GK25567@home-tj.org>
+In-Reply-To: <20041104074628.GK25567@home-tj.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200411041205.32028.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 10:04, Helge Hafting wrote:
-> Russell Miller wrote:
-> >On Wednesday 03 November 2004 16:15, Jim Nelson wrote:
-> >
-> >Anyway, is there a way to simply signal a syscall that it is to be interrupted 
-> >and forcibly cause the syscall to end? 
-> >
-> There is a way.  Processes go into D state happens all the time
-> when waiting for disk io or similiar.  Then the io happens a few ms later,
-> and the fs or device driver tells the kernel to wake up the process
-> so it gets a chance at the next scheduling opportunity. So the mechanism to
-> unstick a prcess exists, and is used by every device driver that
-> use sleeping.  Which is most of them.
+On Thursday 04 November 2004 02:46 am, Tejun Heo wrote:
+>  ma_04_manual_attach.patch
 > 
-> Breakage happens when something never comes out of D-state.
-> One could write a trivial syscall (or addition to "kill") that "wakes"
-> processes waiting for io.  It itsn't hard to do at all - just copy the
-> waking code from any device driver.  This will allow to kill and
-> fully remove any process that hangs around in D-state.  This might
-> also release other stuck resources as the syscall
-> continues, returns to userspace, and allows the process to die.
+>  This patch implements device interface nodes attach and detach.
+> Reading attach node shows the name of applicable drivers.  Writing a
+> driver name attaches the device to the driver.  Writing anything to
+> the write-only detach node detaches the driver from the currently
+> associated driver.
 > 
-> Unfortunately, this isn't enough.  In some cases the syscall
-> expects the io device interrupt handler to have done something
-> vital - but this haven't happened when we forcibly wakes a process.
-> We can hope for an io error, but might get a crash instead. This
-> can be fixes with a lot of work - basically check at every wakeup
-> if the process were woken by this new killing mechanism and
-> act accordingly.  It shouldn't be hard, but _lots_ of work
-> inspecting every sleeping point, at least every device driver.
+...
+> +/**
+> + *   detach - manually detaches the device from its associated driver.
+> + *
+> + *   This is a write-only node.  When any value is written, it detaches
+> + *   the device from its associated driver.
+> + */
+> +static ssize_t detach_store(struct device * dev, const char * buf, size_t
+> n)
+> +{
+> +     down_write(&dev->bus->subsys.rwsem);
+> +     device_release_driver(dev);
+> +     up_write(&dev->bus->subsys.rwsem);
+> +     return n;
+> +}
 
-Timeouts and interruptible sleeps are the two ways to solve the problem.
-All good drivers should have covering timeouts in case the event they
-where hoping for never happens.
+This will not work for pretty much any bus but PCI because only PCI
+allows to detach a driver leaving children devices on the bus. The
+rest of buses remove children devices when disconnecting parent.
 
-If the code path that assumes magic has happened after it wakes up
-doesn't check its not defensive enough. Also you can make tasks
-interruptible so signals can get through:
+Also, there usually much more going on with regard to locking and
+other bus-specific actions besides taking bus's rwsem when binding
+devices. Serio bus will definitely get upset if you try to disconnect
+even a leaf device in the manner presented above and I think USB
+will get upset as well.
 
-result = wait_event_interruptible(dev->waitq,dev_irq_event(dev));
-      
-if (result) {
-     printk(KERN_ALERT "dev_irq_wait: Interrupted by a signal\n");
-     return -ERESTARTSYS;
-};
+I have tried the naïve approach as well but in the end we need bus
+-specific helper to do manual connect/disconnect. Please take a look
+at these:
 
-As you have noted you can't always make things interruptible, but decent
-timeouts should always exist. Hardware has bugs too!
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109908274124446&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109912528510337&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109912553831130&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109912553827412&w=2
+
 -- 
-Alex, Kernel Hacker: http://www.bennee.com/~alex/
-
-In English, every word can be verbed.  Would that it were so in our
-programming languages.
-
+Dmitry

@@ -1,179 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129178AbQKOHeH>; Wed, 15 Nov 2000 02:34:07 -0500
+	id <S129091AbQKOIYA>; Wed, 15 Nov 2000 03:24:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKOHd5>; Wed, 15 Nov 2000 02:33:57 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:20868 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129091AbQKOHdi>;
-	Wed, 15 Nov 2000 02:33:38 -0500
-Date: Tue, 14 Nov 2000 22:48:45 -0800
-Message-Id: <200011150648.WAA03713@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: comandante@zaralinux.com
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <3A11C0C9.665B1EB0@zaralinux.com> (message from Jorge Nerin on
-	Tue, 14 Nov 2000 23:46:33 +0100)
-Subject: Re: kernel BUG at sock.c:722! (2.4.0-test11-pre4)
-In-Reply-To: <3A11C0C9.665B1EB0@zaralinux.com>
+	id <S129045AbQKOIXv>; Wed, 15 Nov 2000 03:23:51 -0500
+Received: from 13dyn206.delft.casema.net ([212.64.76.206]:3847 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129091AbQKOIXf>; Wed, 15 Nov 2000 03:23:35 -0500
+Message-Id: <200011150753.IAA05451@cave.bitwizard.nl>
+Subject: 2.4. continues after Aieee...
+To: linux-kernel@vger.kernel.org
+Date: Wed, 15 Nov 2000 08:53:23 +0100 (MET)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Tue, 14 Nov 2000 23:46:33 +0100
-   From: Jorge Nerin <comandante@zaralinux.com>
 
-   Well, first saw this in test11-pre1, and now in test11-pre4 I report it
-   again.
+Shouldn't the system be "halted" after an "Aiee, killing interrupt
+handler"?
 
-Do you use any one of USB, PCMCIA+Yenta, or ATM?  If so, please give
-the following patch a try.
 
-If not, do you use KHTTPD?  If so, please don't... it's unmaintained,
-buggy, and to eventually be replaced by TUX.
+Modem status change from 0x63 to 0xf3
+Unable to handle kernel NULL pointer dereference at virtual address 00000629
+ printing eip:
+c4854fcc
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c4854fcc>]
+EFLAGS: 00010002
+eax: 00000620   ebx: c1e80000   ecx: c1f28000   edx: 00000000
+esi: c2749800   edi: 000000f3   ebp: c3ba6000   esp: c26d7dc0
+ds: 0018   es: 0018   ss: 0018
+Process agetty (pid: 299, stackpage=c26d7000)
+Stack: c487f3e3 c3ba6578 c487f3e2 00000212 00000145 00010082 c487f3e9 00000246 
+       c3ba6578 c487f3e8 c4855603 c1e80000 00000002 c3ba6000 c487f3e2 c3ba6000 
+       0000000b c3ba6000 c26d7eb4 c0274400 00000002 0002001d c4859d8f c1e80000 
+Call Trace: [<c487f3e3>] [<c487f3e2>] [<c487f3e9>] [<c487f3e8>] [<c4855603>] [<c487f3e2>] [<c4859d8f>] 
+       [<c484f358>] [<c484f471>] [<c010b681>] [<c010b7f2>] [<c010a4e0>] [<c0116ce9>] [<c0122a4d>] [<c01233ed>] 
+       [<c0123683>] [<c01235bc>] [<c014c87c>] [<c012e032>] [<c010a423>] 
+Code: f6 40 09 08 0f 85 22 01 00 00 8b 86 bc 00 00 00 a8 06 0f 84 
+Aiee, killing interrupt handler
+Scheduling in interrupt
+kernel BUG at sched.c:692!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0116019>]
+EFLAGS: 00010292
+eax: 0000001b   ebx: 00000000   ecx: c1f28000   edx: 00000000
+esi: 00000000   edi: 0000000b   ebp: c26d7cb8   esp: c26d7c68
+ds: 0018   es: 0018   ss: 0018
+Process agetty (pid: 299, stackpage=c26d7000)
+Stack: c01eb041 c01eb216 000002b4 c1172160 c26d6000 0000000b 00000282 c26d6000 
+       00000020 00000086 00000000 c3fca000 c26d6000 c26d6000 c011a9cf c26d6000 
+       c1172160 00000000 c26d6000 00000629 00000629 c011abca 00000000 00000000 
+Call Trace: [<c01eb041>] [<c01eb216>] [<c011a9cf>] [<c011abca>] [<c0111a88>] [<c010a956>] [<c0111da6>] 
+       [<c01ea15e>] [<c0111a88>] [<c010e586>] [<c010b681>] [<c01e16c1>] [<c01e16c1>] [<c0188b92>] [<c010a564>] 
+       [<c4854fcc>] [<c487f3e3>] [<c487f3e2>] [<c487f3e9>] [<c487f3e8>] [<c4855603>] [<c487f3e2>] [<c4859d8f>] 
+       [<c484f358>] [<c484f471>] [<c010b681>] [<c010b7f2>] [<c010a4e0>] [<c0116ce9>] [<c0122a4d>] [<c01233ed>] 
+       [<c0123683>] [<c01235bc>] [<c014c87c>] [<c012e032>] [<c010a423>] 
+Code: 0f 0b 90 8d 65 bc 5b 5e 5f 89 ec 5d c3 89 f6 55 89 e5 83 ec 
+Aiee, killing interrupt handler
+Scheduling in interrupt
+kernel BUG at sched.c:692!
+invalid operand: 0000
 
---- ./drivers/sbus/char/su.c.~1~	Sat Oct 14 03:09:04 2000
-+++ ./drivers/sbus/char/su.c	Tue Nov 14 23:28:09 2000
-@@ -1,4 +1,4 @@
--/* $Id: su.c,v 1.42 2000/10/14 10:09:04 davem Exp $
-+/* $Id: su.c,v 1.43 2000/11/15 07:28:09 davem Exp $
-  * su.c: Small serial driver for keyboard/mouse interface on sparc32/PCI
-  *
-  * Copyright (C) 1997  Eddie C. Dost  (ecd@skynet.be)
-@@ -2001,6 +2001,7 @@
- #endif
- 		schedule();
- 	}
-+	current->state = TASK_RUNNING;
- 	remove_wait_queue(&info->open_wait, &wait);
- 	if (extra_count)
- 		info->count++;
-@@ -2219,7 +2220,7 @@
-  */
- static __inline__ void __init show_su_version(void)
- {
--	char *revision = "$Revision: 1.42 $";
-+	char *revision = "$Revision: 1.43 $";
- 	char *version, *p;
- 
- 	version = strchr(revision, ' ');
---- ./drivers/sbus/char/sab82532.c.~1~	Sat Oct 14 03:09:04 2000
-+++ ./drivers/sbus/char/sab82532.c	Tue Nov 14 23:28:09 2000
-@@ -1,4 +1,4 @@
--/* $Id: sab82532.c,v 1.52 2000/10/14 10:09:04 davem Exp $
-+/* $Id: sab82532.c,v 1.53 2000/11/15 07:28:09 davem Exp $
-  * sab82532.c: ASYNC Driver for the SIEMENS SAB82532 DUSCC.
-  *
-  * Copyright (C) 1997  Eddie C. Dost  (ecd@skynet.be)
-@@ -1833,6 +1833,7 @@
- #endif
- 		schedule();
- 	}
-+	current->state = TASK_RUNNING;
- 	remove_wait_queue(&info->open_wait, &wait);
- 	if (!tty_hung_up_p(filp))
- 		info->count++;
-@@ -2133,7 +2134,7 @@
- 
- static inline void __init show_serial_version(void)
- {
--	char *revision = "$Revision: 1.52 $";
-+	char *revision = "$Revision: 1.53 $";
- 	char *version, *p;
- 
- 	version = strchr(revision, ' ');
---- ./drivers/usb/storage/transport.c.~1~	Sun Nov 12 00:22:27 2000
-+++ ./drivers/usb/storage/transport.c	Tue Nov 14 22:28:51 2000
-@@ -423,6 +423,7 @@
- 	if (status) {
- 		/* something went wrong */
- 		up(&(us->current_urb_sem));
-+		current->state = TASK_RUNNING;
- 		remove_wait_queue(&wqh, &wait);
- 		kfree(dr);
- 		return status;
-@@ -480,6 +481,7 @@
- 	if (status) {
- 		/* something went wrong */
- 		up(&(us->current_urb_sem));
-+		current->state = TASK_RUNNING;
- 		remove_wait_queue(&wqh, &wait);
- 		return status;
- 	}
---- ./drivers/usb/usb.c.~1~	Tue Nov 14 14:21:38 2000
-+++ ./drivers/usb/usb.c	Tue Nov 14 22:27:22 2000
-@@ -951,6 +951,7 @@
- 	if (status) {
- 		// something went wrong
- 		usb_free_urb(urb);
-+		current->state = TASK_RUNNING;
- 		remove_wait_queue(&wqh, &wait);
- 		return status;
- 	}
-@@ -961,6 +962,7 @@
- 	} else
- 		status = 1;
- 
-+	current->state = TASK_RUNNING;
- 	remove_wait_queue(&wqh, &wait);
- 
- 	if (!status) {
---- ./drivers/usb/net1080.c.~1~	Sun Nov 12 00:22:26 2000
-+++ ./drivers/usb/net1080.c	Tue Nov 14 22:27:49 2000
-@@ -653,6 +653,7 @@
- 		dbg ("waited for %d urb completions", temp);
- 	}
- 	dev->wait = 0;
-+	current->state = TASK_RUNNING;
- 	remove_wait_queue (&unlink_wakeup, &wait); 
- 
- 	mutex_unlock (&dev->mutex);
---- ./drivers/usb/usb-ohci.c.~1~	Tue Oct 31 12:58:00 2000
-+++ ./drivers/usb/usb-ohci.c	Tue Nov 14 22:28:15 2000
-@@ -654,6 +654,7 @@
- 				set_current_state(TASK_UNINTERRUPTIBLE);
- 				while (timeout && (urb->status == USB_ST_URB_PENDING))
- 					timeout = schedule_timeout (timeout);
-+				current->state = TASK_RUNNING;
- 				remove_wait_queue (&unlink_wakeup, &wait); 
- 				if (urb->status == USB_ST_URB_PENDING) {
- 					err ("unlink URB timeout");
-@@ -765,6 +766,7 @@
- 				set_current_state(TASK_UNINTERRUPTIBLE);
- 				while (timeout && dev->ed_cnt)
- 					timeout = schedule_timeout (timeout);
-+				current->state = TASK_RUNNING;
- 				remove_wait_queue (&freedev_wakeup, &wait);
- 				if (dev->ed_cnt) {
- 					err ("free device %d timeout", usb_dev->devnum);
---- ./drivers/atm/atmtcp.c.~1~	Sat Jun 24 05:40:27 2000
-+++ ./drivers/atm/atmtcp.c	Tue Nov 14 22:29:32 2000
-@@ -77,6 +77,7 @@
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 		schedule();
- 	}
-+	current->state = TASK_RUNNING;
- 	remove_wait_queue(&vcc->sleep,&wait);
- 	return error;
- }
---- ./drivers/pcmcia/yenta.c.~1~	Tue Nov  7 21:04:48 2000
-+++ ./drivers/pcmcia/yenta.c	Tue Nov 14 22:29:54 2000
-@@ -585,6 +585,7 @@
- 		add_wait_queue(&socket->wait, &wait);
- 		if (!socket->events)
- 			schedule_timeout(HZ);
-+		current->state = TASK_RUNNING;
- 		remove_wait_queue(&socket->wait, &wait);
- 	} while (!signal_pending(current));
- 	MOD_DEC_USE_COUNT;
---- ./net/atm/signaling.c.~1~	Tue Jul 11 22:52:09 2000
-+++ ./net/atm/signaling.c	Tue Nov 14 22:40:26 2000
-@@ -50,6 +50,7 @@
- 		}
- 		schedule();
- 	}
-+	current->state = TASK_RUNNING;
- 	remove_wait_queue(&sigd_sleep,&wait);
- #else
- 	if (!sigd) {
+
+After this, the call trace becomes longer and longer, but the system
+keeps on oopsing... 
+
+				Roger.
+
+
+
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+*       Common sense is the collection of                                *
+******  prejudices acquired by age eighteen.   -- Albert Einstein ********
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

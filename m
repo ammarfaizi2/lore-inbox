@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267373AbUHJBEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUHJBI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267373AbUHJBEH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 21:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUHJBEH
+	id S267382AbUHJBI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 21:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUHJBI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 21:04:07 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:17143 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267373AbUHJBED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 21:04:03 -0400
-Date: Mon, 9 Aug 2004 18:03:58 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6] Remove spaces from Skystar2 pci_driver.name field
-Message-ID: <20040810010358.GA9344@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Mon, 9 Aug 2004 21:08:57 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4047 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267382AbUHJBI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 21:08:56 -0400
+Subject: Re: 2.4.x vs 2.6.x: denormal handling and audio performance
+From: Lee Revell <rlrevell@joe-job.com>
+To: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>
+In-Reply-To: <1092099606.22613.12.camel@mindpipe>
+References: <1092079195.16794.257.camel@cmn37.stanford.edu>
+	 <1092099606.22613.12.camel@mindpipe>
+Content-Type: text/plain
+Message-Id: <1092100150.22613.16.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 09 Aug 2004 21:09:10 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-08-09 at 21:00, Lee Revell wrote:
+> On Mon, 2004-08-09 at 15:19, Fernando Pablo Lopez-Lezcano wrote:
+> > Hi all, I've been trying to track weird behavior I'm experiencing when
+> > trying to use 2.6.x for "pro audio" applications
+>
+> In case anyone thinks this is an application bug, here are some links
+> pertaining to the P4 denormals-are-zero issue
 
-More...
 
-Please apply,
-~Deepak
+If the denormals-are-zero bit is the issue then I believe this patch
+should fix the problem.
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+Lee
+
+--- arch/i386/kernel/i387_orig.c	2004-08-09 21:06:00.000000000 -0400
++++ arch/i386/kernel/i387.c	2004-08-09 21:06:05.000000000 -0400
+@@ -34,7 +34,7 @@
+ 		memset(&current->thread.i387.fxsave, 0, sizeof(struct i387_fxsave_struct));
+ 		asm volatile("fxsave %0" : : "m" (current->thread.i387.fxsave)); 
+ 		mask = current->thread.i387.fxsave.mxcsr_mask;
+-		if (mask == 0) mask = 0x0000ffbf;
++		if (mask == 0) mask = 0x0000ffff;
+ 	} 
+ 	mxcsr_feature_mask &= mask;
+ 	stts();
 
 
-===== drivers/media/dvb/b2c2/skystar2.c 1.7 vs edited =====
---- 1.7/drivers/media/dvb/b2c2/skystar2.c	Tue Jul 13 06:27:49 2004
-+++ edited/drivers/media/dvb/b2c2/skystar2.c	Mon Aug  9 17:58:34 2004
-@@ -2345,7 +2345,7 @@
- MODULE_DEVICE_TABLE(pci, skystar2_pci_tbl);
- 
- static struct pci_driver skystar2_pci_driver = {
--	.name = "Technisat SkyStar2 driver",
-+	.name = "SkyStar2",
- 	.id_table = skystar2_pci_tbl,
- 	.probe = skystar2_probe,
- 	.remove = skystar2_remove,
 
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment and
- will die here like rotten cabbages." - Number 6

@@ -1,93 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264446AbTIIVFH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264464AbTIIVFG
+	id S264418AbTIIVRX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTIIVRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:05:06 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38161 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264446AbTIIVEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:04:55 -0400
-Date: Tue, 9 Sep 2003 22:04:52 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
-Message-ID: <20030909220452.S4216@flint.arm.linux.org.uk>
-Mail-Followup-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20030909204803.N4216@flint.arm.linux.org.uk> <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com>; from zwane@linuxpower.ca on Tue, Sep 09, 2003 at 04:02:58PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 9 Sep 2003 17:17:23 -0400
+Received: from unsol-intbg.internet-bg.net ([212.124.67.226]:60683 "HELO
+	ns.unixsol.org") by vger.kernel.org with SMTP id S264418AbTIIVRF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:17:05 -0400
+Message-ID: <3F5E434D.6080801@unixsol.org>
+Date: Wed, 10 Sep 2003 00:17:01 +0300
+From: Georgi Chorbadzhiyski <gf@unixsol.org>
+Organization: Unix Solutions Ltd. (http://unixsol.org)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030811
+X-Accept-Language: en, en-us, bg
+MIME-Version: 1.0
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [2.6-test] Bug in usb-storage or scsi?
+References: <Pine.LNX.4.44L0.0309091639580.643-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0309091639580.643-100000@ida.rowland.org>
+Content-Type: multipart/mixed;
+ boundary="------------040400000203080104000703"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 04:02:58PM -0400, Zwane Mwaikambo wrote:
-> On Tue, 9 Sep 2003, Russell King wrote:
-> 
-> > --- orig/drivers/char/watchdog/amd7xx_tco.c	Sat Jun 14 22:33:48 2003
-> > +++ linux/drivers/char/watchdog/amd7xx_tco.c	Tue Sep  9 20:45:16 2003
-> > @@ -294,7 +294,7 @@
-> >  	.fops	= &amdtco_fops
-> >  };
-> >  
-> > -static struct pci_device_id amdtco_pci_tbl[] __initdata = {
-> > +static struct pci_device_id amdtco_pci_tbl[] = {
-> >  	/* AMD 766 PCI_IDs here */
-> >  	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_OPUS_7443, PCI_ANY_ID, PCI_ANY_ID, },
-> >  	{ 0, }
-> 
-> That's not a bug.
->
-> > --- orig/drivers/char/watchdog/i810-tco.c	Sun Aug  3 11:21:11 2003
-> > +++ linux/drivers/char/watchdog/i810-tco.c	Tue Sep  9 20:45:16 2003
-> > @@ -301,7 +301,7 @@
-> >   * register a pci_driver, because someone else might one day
-> >   * want to register another driver on the same PCI id.
-> >   */
-> > -static struct pci_device_id i810tco_pci_tbl[] __initdata = {
-> > +static struct pci_device_id i810tco_pci_tbl[] = {
-> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AA_0,	PCI_ANY_ID, PCI_ANY_ID, },
-> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AB_0,	PCI_ANY_ID, PCI_ANY_ID, },
-> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0,	PCI_ANY_ID, PCI_ANY_ID, },
-> 
-> Neither is that.
-> 
-> > --- orig/drivers/char/hw_random.c	Sat Jun 14 22:33:46 2003
-> > +++ linux/drivers/char/hw_random.c	Tue Sep  9 20:45:16 2003
-> > @@ -149,7 +149,7 @@
-> >   * register a pci_driver, because someone else might one day
-> >   * want to register another driver on the same PCI id.
-> >   */
-> > -static struct pci_device_id rng_pci_tbl[] __initdata = {
-> > +static struct pci_device_id rng_pci_tbl[] = {
-> >  	{ 0x1022, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
-> >  	{ 0x1022, 0x746b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
-> 
-> This too
+This is a multi-part message in MIME format.
+--------------040400000203080104000703
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ok, I'm happy that this aren't (after reading someone elses explaination).
+Alan Stern wrote:
+> On Tue, 9 Sep 2003, Georgi Chorbadzhiyski wrote:
+>>I was able to access my Music Pen mp3 player using usb-storage driver
+>>in 2.4 without any problems. After updating to 2.6 this was not possible
+>>anymore. It seems that usb-storage driver in 2.6 detect the device but
+>>I was unable to access /dev/sda1. "mount -t vfat /dev/sda1 /mnt" returns
+>>this error: "mount: /dev/sda1 is not a valid block device"
+>>
+>>Under 2.4.21-ck3, sda1 is corectly registered.
+>>
+>>Please see the attached files containing dmesg snippets from 2.4 and 2.6
+>>kerneles as well as 2.6 config. If you need more information I'll be glad
+>>to provide it.
+>>
+>>The 2.4 kernel that I tested was 2.4.21-ck3
+>>The 2.6 kernel that I tested was 2.6.0-test5-mm1, 2.6.0-test4 and 2.6.0-test1
+> 
+> 
+> More problems with that stupid MODE-SENSE cache page!  There are so many 
+> USB storage devices that have problems with that -- I wonder if it's worth 
+> the effort to try to continue supporting it?
+> 
+> Georgi, the problem is with your mp3 player, not usb-storage or SCSI.  
+> It's crashing when given a perfectly legal SCSI command.  Linux 2.4
+> doesn't issue the command; that's why it works okay.
 
-Having these different makes it hard to ensure that no further bad cases
-exist in the tree though.
+Well it probably is tested only with windows, so it's no suprise that
+device's USB implementation is buggy.
 
-I want this to be foolproof, because its me people bug when their cardbus
-cards oops when they insert the damned things.  If people are happy to
-ignore this issue, I'm happy to ignore the bug reports.
+> If you want a temporary fix for 2.6.0, you can do this:  Edit the 
+> routine sd_read_cache_type in the file drivers/scsi/sd.c (near line 1100).  
+> Get rid of (or #ifdef out) most of the function; just leave the last few 
+> lines where it does:
+> 
+> 		printk(KERN_ERR "%s: assuming drive cache: write through\n",
+> 		       diskname);
+> 		sdkp->WCE = 0;
+> 		sdkp->RCD = 0;
+> 
+> You might want to change the KERN_ERR to KERN_NOTICE.
 
-It basically isn't something I want to deal with, and we need to find a
-way to stop these stupidities appearing in the first place.
+Thanks a lot! That worked fine! Now the device is detected and working.
 
-Any ideas?
+Ugly patch is attached for reference. I hope some workaround for this kind
+of buggy devices is developed in the future. Thank again.
+
+> However, you might also want to think twice before doing this if you have 
+> any other SCSI disks, because making this change will affect all of them.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+Georgi Chorbadzhiyski
+http://georgi.cybcom.net/
+
+--------------040400000203080104000703
+Content-Type: text/plain;
+ name="mpen_fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mpen_fix.diff"
+
+--- linux-2.6.0-test5/drivers/scsi/sd-org.c	2003-09-09 23:58:43.000000000 +0300
++++ linux-2.6.0-test5/drivers/scsi/sd.c	2003-09-10 00:11:21.000000000 +0300
+@@ -1098,6 +1098,7 @@
+ static void
+ sd_read_cache_type(struct scsi_disk *sdkp, char *diskname,
+ 		   struct scsi_request *SRpnt, unsigned char *buffer) {
++#if 0
+ 	int len = 0, res;
+ 
+ 	const int dbd = 0;	   /* DBD */
+@@ -1150,6 +1151,11 @@
+ 		sdkp->WCE = 0;
+ 		sdkp->RCD = 0;
+ 	}
++#endif
++	printk(KERN_NOTICE "%s: assuming drive cache: write through\n",
++	       diskname);
++	sdkp->WCE = 0;
++	sdkp->RCD = 0;
+ }
+ 
+ /**
+
+--------------040400000203080104000703--
+

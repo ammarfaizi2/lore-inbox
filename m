@@ -1,80 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264785AbTIIWe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 18:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbTIIWe0
+	id S264849AbTIIWb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 18:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264892AbTIIWbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 18:34:26 -0400
-Received: from codepoet.org ([166.70.99.138]:40363 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S264785AbTIIWcS (ORCPT
+	Tue, 9 Sep 2003 18:31:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13202 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264849AbTIIWax (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 18:32:18 -0400
-Date: Tue, 9 Sep 2003 16:32:18 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix 2.4.x incorrect argv[0] for init
-Message-ID: <20030909223218.GA11277@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-	linux-kernel <linux-kernel@vger.kernel.org>
+	Tue, 9 Sep 2003 18:30:53 -0400
+Date: Tue, 9 Sep 2003 15:12:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Pratt <slpratt@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+Message-Id: <20030909151246.6d42656b.akpm@osdl.org>
+In-Reply-To: <3F5E4EF5.1030005@austin.ibm.com>
+References: <3F5D023A.5090405@austin.ibm.com>
+	<20030908155639.2cdc8b56.akpm@osdl.org>
+	<3F5E4EF5.1030005@austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In both 2.4.x and in 2.6.x, when someone specifies "init=" to
-select an alternative binary to run instead of /sbin/init,
-argv[0] is not set correctly.  This is a problem for programs
-such as busybox that multiplex applications based on the value of
-argv[0].  For example, even if you specify init=/bin/sh" on the
-kernel command line, busybox will still receive "/sbin/init" as
-argv[0], and will therefore run init rather than /bin/sh...
+Steven Pratt <slpratt@austin.ibm.com> wrote:
+>
+> >
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/broken-out/sched-CAN_MIGRATE_TASK-fix.patch
+> >
+> This patch improves specjjb over test5 and has no real effect on any of 
+> kernbench, volanomark or specsdet.
 
-This patch fixes it.  Please apply,
+Fine, it's a good fix.
 
- -Erik
+> >
+> >and if you have time, also test5 plus sched-CAN_MIGRATE_TASK-fix.patch plus
+> >
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/broken-out/sched-balance-fix-2.6.0-test3-mm3-A0.patch
+> >  
+> >
+> This patch degrades both specjbb and volanomark, and to a lesser degree 
+> specsdet
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+ok.  And just confirming: that was test5 plus
+sched-CAN_MIGRATE_TASK-fix.patch plus
+sched-balance-fix-2.6.0-test3-mm3-A0.patch?
 
+I didn't expect a regression from sched-balance-fix.
 
---- orig/init/main.c	2003-08-30 10:50:15.000000000 -0600
-+++ linux-2.4.22/init/main.c	2003-08-30 10:50:15.000000000 -0600
-@@ -545,6 +545,12 @@
- #endif
- }
- 
-+static void run_init_process(char *init_filename)
-+{
-+	argv_init[0] = init_filename;
-+	execve(init_filename, argv_init, envp_init);
-+}
-+
- extern void prepare_namespace(void);
- 
- static int init(void * unused)
-@@ -587,10 +593,12 @@
- 	 */
- 
- 	if (execute_command)
--		execve(execute_command,argv_init,envp_init);
--	execve("/sbin/init",argv_init,envp_init);
--	execve("/etc/init",argv_init,envp_init);
--	execve("/bin/init",argv_init,envp_init);
--	execve("/bin/sh",argv_init,envp_init);
-+		run_init_process(execute_command);
-+
-+	run_init_process("/sbin/init");
-+	run_init_process("/etc/init");
-+	run_init_process("/bin/init");
-+	run_init_process("/bin/sh");
-+
- 	panic("No init found.  Try passing init= option to kernel.");
- }
+> >What I'm afraid of is that those patches will yield improved results over
+> >test5, and that adding
+> >
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/broken-out/sched-2.6.0-test2-mm2-A3.patch
+> >
+> I tried adding this patch to stock test5 and it failed to apply 
+> cleanly.  I have not had a chance to look at why.  Did you mean for this 
+> to be applied by itself, or was this supposed to go on top of one of the 
+> other patches?
+
+Yes, it applies on top of the other two patches.
+
+Thanks for working on this: it's pretty important right now.
+

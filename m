@@ -1,75 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267494AbRGUAxF>; Fri, 20 Jul 2001 20:53:05 -0400
+	id <S267500AbRGUBG2>; Fri, 20 Jul 2001 21:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267496AbRGUAwz>; Fri, 20 Jul 2001 20:52:55 -0400
-Received: from suntan.tandem.com ([192.216.221.8]:59824 "EHLO
-	suntan.tandem.com") by vger.kernel.org with ESMTP
-	id <S267494AbRGUAwn>; Fri, 20 Jul 2001 20:52:43 -0400
-Message-ID: <3B58CBA3.BD2C194@compaq.com>
-Date: Fri, 20 Jul 2001 17:24:03 -0700
-From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+	id <S267506AbRGUBGR>; Fri, 20 Jul 2001 21:06:17 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:63678 "EHLO snfc21.pbi.net")
+	by vger.kernel.org with ESMTP id <S267503AbRGUBGK>;
+	Fri, 20 Jul 2001 21:06:10 -0400
+Date: Fri, 20 Jul 2001 18:08:37 -0700
+From: Bruce Korb <bkorb@pacbell.net>
+Subject: Re: Strange fixinclude behavior for GCC 3.0
+To: GCC-Bugs <gcc-bugs@gcc.gnu.org>, Raul Nunez <dervishd@jazzfree.com>
+Cc: bkorb@pacbell.net, linux-kernel@vger.kernel.org
+Message-id: <3B58D615.11E727EF@pacbell.net>
+Organization: Home
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-4GB i586)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>, Larry McVoy <lm@bitmover.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Common hash table implementation
-In-Reply-To: <01071815464209.12129@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3B5731FC.76653135@veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Daniel Phillips wrote:
-> 
-> On Wednesday 18 July 2001 03:34, Larry McVoy wrote:
-> > We've got a fairly nice hash table interface in BitKeeper that we'd
-> > be happy to provide under the GPL.  I've always thought it would be
-> > cool to have it in the kernel, we use it everywhere.
-> >
-> > http://bitmover.com:8888//home/bk/bugfixes/src/src/mdbm
 
-Thanks, Larry. Your hashing functions are much more sophisticated than
-the simple modulo operator I've been using for hashing by inode
-number.
+>     Hello everybody at GCC :)
 
+Hello,
 
-> I think the original poster was thinking more along the lines of a
-> generic insertion, deletion and lookup interface, which we are now
-> doing in an almost-generic way in a few places.  Once place that is
-> distinctly un-generic is the buffer hash, for no good reason that I
-> can see.  This would be a good starting point for a demonstration.
-> 
+> 2.- Fixincludes fixes [several] includes from the linux kernel [...]
 
-Daniel's correct. I'm hashing function agnostic, but would like some
-common code to simplify the management of a hash table.
+I ran fixincl against today's 2.4.7:
 
-Richard Guenther sent the following link to his own common hashing
-code, which makes nice use of pseudo-templates:
+> ....
+> Applying machine_name             to linux/a.out.h
+> Fixed:  linux/a.out.h
+> ....
+> Applying avoid_wchar_t_type       to linux/nls.h
+> Fixed:  linux/nls.h
+> ....
+> Applying io_quotes_def            to linux/i2c.h
+> Fixed:  linux/i2c.h
+> ....
+> Applying io_quotes_use            to net/irda/irtty.h
+> Fixed:  net/irda/irtty.h
+> Applying io_quotes_use            to net/irda/irmod.h
+> Fixed:  net/irda/irmod.h
+> Applying machine_name             to net/dsfield.h
+> Fixed:  net/dsfield.h
+> ....
+> Cleaning up unneeded directories:
 
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/~checkout~/glame/glame/src/include/hash.h?rev=1.5&content-type=text/plain
+It looks like six headers got fixed.  "linux/a.out.h" and "linux/nls.h"
+were properly fixed, "net/dsfield.h" is an unavoidable dumb fix,
+and there are *three* files that were unchanged and appear in
+the fixed directory:  linux/i2c.h net/irda/irtty.h net/irda/irmod.h
+All three were "fixed" by io_quotes_def or _use.  Since there
+is supposed to be code that does a byte-by-byte comparison of
+the results before the output file gets created, it is curious
+indeed.  Something is tripping something up.  Thanks for your report!
 
-A few things I would consider changing are:
+ - Bruce
 
-  - ditching the pprev pointer
-  - encapsulating the next pointer inside a struct hash_head_##FOOBAR
-  - stripping out the hard-coded hashing function, and allowing the
-    user to provide their own
+$ for f in `find * -type f` ; do diff -u $SDIR/$f $f ; done
+--- /work/kernel/linux-2.4.7/include/linux/a.out.h
++++ linux/a.out.h       Fri Jul 20 17:44:23 2001
+@@ -127,7 +136,7 @@
+ #define SEGMENT_SIZE PAGE_SIZE
+ #endif
 
-All the backslashes offend my aesthetic sensibility, but the
-preprocessor provides no alternative. ;)
+-#ifdef linux
++#ifdef __linux__
+ #include <asm/page.h>
+ #if defined(__i386__) || defined(__mc68000__)
+ #define SEGMENT_SIZE   1024
+--- /work/kernel/linux-2.4.7/include/linux/nls.h
++++ linux/nls.h Fri Jul 20 17:44:23 2001
+@@ -1,10 +1,21 @@
+ #ifndef _LINUX_NLS_H
+ #define _LINUX_NLS_H
 
+ #include <linux/init.h>
 
--- 
-Brian Watson                 | "The common people of England... so 
-Linux Kernel Developer       |  jealous of their liberty, but like the 
-Open SSI Clustering Project  |  common people of most other countries 
-Compaq Computer Corp         |  never rightly considering wherein it 
-Los Angeles, CA              |  consists..."
-                             |      -Adam Smith, Wealth of Nations,
-1776
+ /* unicode character */
++#ifndef __cplusplus
+ typedef __u16 wchar_t;
++#endif
+ 
+ struct nls_table {
+        char *charset;
+--- /work/kernel/linux-2.4.7/include/linux/i2c.h
++++ linux/i2c.h Fri Jul 20 17:44:26 2001
+<<NO CHANGES>>
 
-mailto:Brian.J.Watson@compaq.com
-http://opensource.compaq.com/
+--- /work/kernel/linux-2.4.7/include/net/irda/irtty.h
++++ net/irda/irtty.h    Fri Jul 20 17:44:29 2001
+<<NO CHANGES>>
+
+--- /work/kernel/linux-2.4.7/include/net/irda/irmod.h
++++ net/irda/irmod.h    Fri Jul 20 17:44:29 2001
+<<NO CHANGES>>
+
+--- /work/kernel/linux-2.4.7/include/net/dsfield.h
++++ net/dsfield.h       Fri Jul 20 17:44:29 2001
+@@ -51,7 +60,7 @@
+ }
+ 
+ 
+-#if 0 /* put this later into asm-i386 or such ... */
++#if 0 /* put this later into asm-__i386__ or such ... */
+ 
+ static inline void ip_change_dsfield(struct iphdr *iph,__u16 dsfield)
+ {

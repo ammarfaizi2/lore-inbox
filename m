@@ -1,168 +1,208 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131633AbRAOXgK>; Mon, 15 Jan 2001 18:36:10 -0500
+	id <S131365AbRAOXgu>; Mon, 15 Jan 2001 18:36:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbRAOXft>; Mon, 15 Jan 2001 18:35:49 -0500
-Received: from mx03.uni-tuebingen.de ([134.2.3.13]:9477 "EHLO
-	mx03.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S131365AbRAOXfk>; Mon, 15 Jan 2001 18:35:40 -0500
-Date: Tue, 16 Jan 2001 00:28:59 +0100 (CET)
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
-To: Robert Reither <e8925573@student.tuwien.ac.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with bigblock support of fat
-In-Reply-To: <Pine.HPX.4.10.10101152002410.23822-100000@stud4.tuwien.ac.at>
-Message-ID: <Pine.LNX.3.96.1010116000553.327D-100000@yksi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130510AbRAOXgk>; Mon, 15 Jan 2001 18:36:40 -0500
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:61388 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S131541AbRAOXgJ>; Mon, 15 Jan 2001 18:36:09 -0500
+Message-Id: <5.0.2.1.2.20010115152847.00a8a380@pop.we.mediaone.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 15 Jan 2001 15:36:26 -0800
+To: linux-kernel@vger.kernel.org
+From: Eric Taylor <et@rocketship.com>
+Subject: tcp no-ack bug can-rpt, w/script incl (this bugs 4 u)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tcp developers: (Alan Cox: you probably could fix in a minute)
 
-On Mon, 15 Jan 2001, Robert Reither wrote:
+I've been told that this is THE PLACE to contact
+linux kernel developers. Ok, I've got a repeatable
+bug that I've reported elsewhere to no avail. Hope
+this is the place:
 
-> I encounted really bad problems with 2048 Bytes/sec MO-Drive.
-> I'm using an Olympus PowerMO 640.
-> MO was formated with FAT32.
-> 
-> i try to read a file from it (used : 'pico /mo/file.txt') ...
-> And got a nice crash : Segmentation Fault
+Includes 2 perl scripts to reproduce it and info about what
+I see not working with tcpdump traces.
 
-Even worse. Trying to read any file on a 2k hwblk FAT yields an oops
-actually.
+(i'm not a subscriber - to reach me use my email address)
 
-> OK, was easy to find this bug, fs/fat/cvf.c has a bug in bigblock_cvf struct
-> the field with the read function was a NULL.
-> I changed this to generic_file_read (like with default blocksize), and
-> tested it. First seemed to work fine, but :
-> 
-> If i write a file to an empty MO-Disk, the start-cluster is 2 in the 
-> table. But the real data was written to (and also read from)
-> cluster 33 by linux !
+thnx
+et
 
-The generic routines do not handle the (rather braindead) case of
-hwblksize > logical blksize. FAT uses a logical block (sector/whatever
-you like to name it) size of 512 byte, which obviously sucks. Now,
-generic_file_read miscalculates the blocks it has to get, but in the same
-way as generic_file_write, so two errors yield a working setup, but only
-for data you wrote with a buggy kernel. You won't be able to access any
-previously written data in this way.
 
-A few days ago, I posted the below patch as a quick band-aid to get at
-least the read() part back to a working state again. It also disables the
-equally dysfunctional mmap() on 2k media. It ought to disable write() as
-well, but I didn't bother. Just don't do it. It's probably best to use the
-patch to backup your data and reformat your MOs with a sane fs. Run, don't
-walk. ;-)
 
-Regards,
+from my prior posts:
 
-Daniel.
 
---[snip]--
---- cvf.c.vanilla	Mon Jan  1 22:46:20 2001
-+++ cvf.c	Mon Jan  1 23:31:23 2001
-@@ -51,6 +51,9 @@
- 	const char *buf,
- 	size_t count,
- 	loff_t *ppos);
-+ssize_t bigblock_fat_file_read(struct file *filp, char *buf, size_t count,
-+                               loff_t *ppos);
-+
- 
- struct cvf_format default_cvf = {
- 	0,	/* version - who cares? */	
-@@ -92,7 +95,7 @@
- 	default_fat_access,
- 	NULL,
- 	default_fat_bmap,
--	NULL,
-+	bigblock_fat_file_read,
- 	default_fat_file_write,
- 	NULL,
- 	NULL
---- file.c.vanilla	Mon Jan  1 22:46:26 2001
-+++ file.c	Tue Jan 16 00:15:16 2001
-@@ -4,6 +4,9 @@
-  *  Written 1992,1993 by Werner Almesberger
-  *
-  *  regular file handling primitives for fat-based filesystems
-+ *
-+ *  2001-1-1 Daniel Kobras <kobras@linux.de>:
-+ *  Added quick&dirty read operation for large sector media.
-  */
- 
- #define ASC_LINUX_VERSION(V, P, S)	(((V) * 65536) + ((P) * 256) + (S))
-@@ -114,6 +117,56 @@
- 	return retval;
- }
- 
-+/* This is a hack. No readahead and other fancy stuff, but hopefully enough
-+ * to get MOs working again. [dk]
-+ * FIXME: Not sure whether I got error checking right.
-+ */
-+ssize_t bigblock_fat_file_read(struct file *filp, char *buf, size_t count, 
-+                           loff_t *ppos)
-+{
-+	struct inode *inode = filp->f_dentry->d_inode;
-+	int phys, pos;
-+	struct buffer_head *bh;
-+	size_t to_go, done;
-+	char *buf_start = buf;
-+
-+	/* Taken from 2.2 source. */
-+	if (!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))
-+		return -EINVAL;
-+	
-+	if (*ppos > inode->i_size || !count)
-+		return 0;
-+
-+	if (inode->i_size - *ppos < count) 
-+		count = inode->i_size - *ppos;
-+
-+	pos = *ppos>>SECTOR_BITS;
-+	to_go = SECTOR_SIZE - (*ppos&(SECTOR_SIZE-1));
-+	goto _start;
-+	
-+	do {
-+		to_go = SECTOR_SIZE;
-+_start:
-+		phys = fat_bmap(inode, pos++);
-+		if (!phys)
-+			return -EIO;
-+		bh = fat_bread(inode->i_sb, phys);
-+		if (!bh)
-+			return -EIO;
-+		done = to_go > count ? count : to_go;
-+		if (copy_to_user(buf, bh->b_data, done)) {
-+			fat_brelse(inode->i_sb, bh);
-+			return -EFAULT;
-+		}
-+		fat_brelse(inode->i_sb, bh);
-+		buf += done;
-+		*ppos += done;
-+	} while ((count -= done));
-+
-+	return buf - buf_start;
-+}	
-+	
-+	
- void fat_truncate(struct inode *inode)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
---- inode.c.vanilla	Tue Jan  2 00:36:18 2001
-+++ inode.c	Tue Jan  2 00:22:04 2001
-@@ -820,6 +820,9 @@
- 		inode->i_size = CF_LE_L(de->size);
- 	        inode->i_op = &fat_file_inode_operations;
- 	        inode->i_fop = &fat_file_operations;
-+		/* FIXME: mmap is broken with large hwblocks! [dk] */
-+		if (sb->s_blocksize > 512)
-+			inode->i_fop->mmap = NULL;
- 		inode->i_mapping->a_ops = &fat_aops;
- 		MSDOS_I(inode)->mmu_private = inode->i_size;
- 	}
+--------------------
+Hi:
 
+I have been trying to figure out
+why linux tcp is failing to ack
+properly in some situations.
+
+I can easily reproduce this error
+using 2 perl scripts. (see below) I
+create a socket server in one
+script, a client in another, start
+sending, suspend the receiver and
+wait 4 minutes. The socket will get
+disconnected. It should not do
+this, it should send an ack with a
+window of 0, which it fails to do.
+Both the client and the server can
+be on the same system to easily see
+the error.
+
+To any developer who might be
+listening - please help me find and
+fix this problem.
+
+Thanks
+Eric
+
+
+---- debugging info follows ------------------
+
+
+
+If I run the client from a windows
+system, linux behaves properly,
+sending acks/window 0, and when I
+unsuspend the receiver, all
+re-starts up in a few seconds.
+
+When going linux to linux, it fails
+almost always. When it does fail, I
+see the sender trying to send a
+large block (1-2k bytes) and when
+no ack comes back the sender goes
+into it's retransmit loop waiting
+1,2,4... seconds. I also see the
+retransmit count going up with:
+/proc/net/tcp
+
+When it fails, the last ack sent
+back shows a window size of more
+than 15000. Here is a sample:
+
+21:48:23.376528   lo > 127.0.0.1.5000 > 127.0.0.1.1052: . 1:1(0) ack 1255213 win 18158 <nop,nop,timestamp 21258536 21258536> (DF)
+21:48:23.379304   lo > 127.0.0.1.1052 > 127.0.0.1.5000: P 1255213:1255256(43) ack 1 win 31072 <nop,nop,timestamp 21258536 21258536> (DF)
+21:48:23.384049   lo > 127.0.0.1.1052 > 127.0.0.1.5000: P 1255256:1257234(1978) ack 1 win 31072 <nop,nop,timestamp 21258537 21258536
+
+No further acks here. This last
+send occurs until the retransmit
+count is exhausted. Then the socket
+is closed.
+
+Once in a while, it does not fail,
+when it works, I see the sender
+(tcpdump trace) sending only a 1
+byte record. And I see all the acks
+with a window getting smaller until
+it reaches zero. At that point, the
+sender is probing by sending 1 byte
+records.
+
+Here is a sample where it does
+work:
+
+22:13:34.161580   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5444248 win 11616 <nop,nop,timestamp 21409615 21409615> (DF)
+22:13:34.161979   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5451992 win 7744 <nop,nop,timestamp 21409615 21409615> (DF)
+22:13:34.162322   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5459736 win 3872 <nop,nop,timestamp 21409615 21409615> (DF)
+22:13:34.162553   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5463608 win 3872 <nop,nop,timestamp 21409615 21409615> (DF)
+22:13:34.179785   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5467480 win 0 <nop,nop,timestamp 21409617 21409615> (DF)
+22:13:34.379759   lo > 127.0.0.1.1053 > 127.0.0.1.5000: . 5467479:5467479(0) ack 1 win 31072 <nop,nop,timestamp 21409637 21409617> (DF)
+22:13:34.379856   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5467480 win 0 <nop,nop,timestamp 21409637 21409615> (DF)
+22:13:34.779762   lo > 127.0.0.1.1053 > 127.0.0.1.5000: . 5467479:5467479(0) ack 1 win 31072 <nop,nop,timestamp 21409677 21409637> (DF)
+22:13:34.779852   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5467480 win 0 <nop,nop,timestamp 21409677 21409615> (DF)
+22:13:35.579755   lo > 127.0.0.1.1053 > 127.0.0.1.5000: . 5467479:5467479(0) ack 1 win 31072 <nop,nop,timestamp 21409757 21409677> (DF)
+22:13:35.579842   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5467480 win 0 <nop,nop,timestamp 21409757 21409615> (DF)
+
+server resumed here.
+
+22:18:33.572608   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5467480 win 3872 <nop,nop,timestamp 21439556 21409615> (DF)
+22:18:33.572714   lo > 127.0.0.1.1053 > 127.0.0.1.5000: P 5467480:5471352(3872) ack 1 win 31072 <nop,nop,timestamp 21439556 21439556> (DF)
+22:18:33.572910   lo > 127.0.0.1.5000 > 127.0.0.1.1053: . 1:1(0) ack 5471352 win 3872 <nop,nop,timestamp 21439556 21439556> (DF)
+22:18:33.573007   lo > 127.0.0.1.1053 > 127.0.0.1.5000: P 5471352:5475224(3872) ack 1 win 31072 <nop,nop,timestamp 21439556 21439556
+
+------------------------------------------------------
+
+
+
+To reproduce: create the 2 perl
+files, badclient.pl and
+badserver.pl shown below.
+
+>From two terminal windows:
+
+>perl badserver.pl 5000
+>perl badclient.pl
+
+You will see for the server (hit control-z):
+
+[1028]$ perl badserver.pl 5000
+waiting for connection on port 5000
+accept connection from 127.0.0.1, 1052
+hello there /badclient.pl/   //   // 1
+hello there /badclient.pl/   //   // 1001
+hello there /badclient.pl/   //   // 2001
+hello there /badclient.pl/   //   // 3001
+---type control z ---
+[1]+  Stopped                 perl badserver.pl 5000
+
+You will see nothing for the client.
+
+---badclient.pl----
+
+use IO::Socket;
+
+$client = IO::Socket::INET->new("localhost:5000") or die $@;
+$a = shift;
+$b = shift;
+$i=1;
+while(1) {
+  print $client "hello there /$0/   /$a/   /$b/ $i\n";
+  $i++;
+}
+
+close($client);
+
+
+---badserver.pl---
+
+
+
+use IO::Socket;
+use Socket;
+$port = shift or die "usage: perl server port_number\n";
+
+$server = IO::Socket::INET->new(
+		LocalPort =>$port,
+		Type => SOCK_STREAM,
+		Reuse    => 1,
+		Listen    => 10,
+		)
+		or die "cannot create server : $@\n";
+print "waiting for connection on port $port\n";			
+while ($client = $server->accept()) {
+    $other = getpeername($client) or die "cannot get peer $!\n";
+    ($port,$iaddr) = unpack_sockaddr_in($other);
+    $ip_addr = inet_ntoa($iaddr);
+	print "accept connection from $ip_addr, $port\n";
+    $i=0;
+    while( $_ = <$client> ) {
+        if($i%1000 == 0){print $_;}
+	$i++;
+    }
+    print "done with this connection\n";
+}			
+			
+close($server);
+								
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

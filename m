@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUHORcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUHORdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUHORcf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 13:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUHORcf
+	id S266199AbUHORdu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 13:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266004AbUHORdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 13:32:35 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:5766 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S263770AbUHORcc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 13:32:32 -0400
-Date: Sun, 15 Aug 2004 19:32:11 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@infradead.org>,
-       wli@holomorphy.com, davem@redhat.com, geert@linux-m68k.org,
-       schwidefsky@de.ibm.com, linux390@de.ibm.com, sparclinux@vger.kernel.org,
-       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: architectures with their own "config PCMCIA"
-In-Reply-To: <20040814204711.GD1387@fs.tum.de>
-Message-ID: <Pine.LNX.4.61.0408151928490.12687@scrub.home>
-References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org>
- <20040807172518.GA25169@fs.tum.de> <200408072013.01168.arnd@arndb.de>
- <20040811201725.GJ26174@fs.tum.de> <20040811214032.GC7207@mars.ravnborg.org>
- <20040812001003.GV26174@fs.tum.de> <Pine.LNX.4.58.0408121056270.20634@scrub.home>
- <20040814204711.GD1387@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Aug 2004 13:33:49 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7627 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266199AbUHORc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 13:32:58 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <1092578502.6543.4.camel@twins>
+References: <20040726204720.GA26561@elte.hu>
+	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
+	 <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe>
+	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
+	 <20040814072009.GA6535@elte.hu>  <20040815115649.GA26259@elte.hu>
+	 <1092578502.6543.4.camel@twins>
+Content-Type: text/plain
+Message-Id: <1092591223.1118.27.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 15 Aug 2004 13:33:43 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2004-08-15 at 10:01, Peter Zijlstra wrote:
 
-On Sat, 14 Aug 2004, Adrian Bunk wrote:
-
-> > This is less a problem, as here it's clear that you want a boolean result, 
-> > but something like "FOO=n" is really a string compare and FOO could be of 
-> > any type (that 99% of all symbols are boolean/tristate symbols doesn't 
-> > really help).
+> It still locks up hard for me when voluntary-preempt=3, however it does
+> finish the boot; dmesg attached. The lockup occurs several minutes into
+> use; usually by by the time I've started X, launched evolution and
+> selected my first imap folder the machine's dead.
 > 
-> Wouldn't it be better to require a string or hex to always be quoted  
-> like "somestring"?
+> If you need more information or want me to try some patches, just let me
+> know.
 
-What about normal numbers? I don't think requiring quotes everywhere for 
-this is a good idea.
+These look a bit worrisome:
 
-bye, Roman
+Aug 15 15:24:11 twins kernel: Total of 2 processors activated (5537.79 BogoMIPS).
+Aug 15 15:24:11 twins kernel: WARNING: This combination of AMD processors is not suitable for SMP.
+Aug 15 15:24:11 twins kernel: ENABLING IO-APIC IRQs
+
+Aug 15 15:24:11 twins kernel: I/O APIC: AMD Errata #22 may be present. In the event of instability try
+Aug 15 15:24:11 twins kernel:         : booting with the "noapic" option.
+
+Lee
+
+
+

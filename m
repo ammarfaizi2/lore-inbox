@@ -1,107 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261357AbSJCQUo>; Thu, 3 Oct 2002 12:20:44 -0400
+	id <S261731AbSJCQlQ>; Thu, 3 Oct 2002 12:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261360AbSJCQUo>; Thu, 3 Oct 2002 12:20:44 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:41484 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261357AbSJCQUm>;
-	Thu, 3 Oct 2002 12:20:42 -0400
-Date: Thu, 3 Oct 2002 09:23:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
-Subject: Re: EVMS Submission for 2.5
-Message-ID: <20021003162326.GB32588@kroah.com>
-References: <02100216332002.18102@boiler> <20021002224343.GB16453@kroah.com> <02100307131100.05904@boiler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <02100307131100.05904@boiler>
-User-Agent: Mutt/1.4i
+	id <S261733AbSJCQlQ>; Thu, 3 Oct 2002 12:41:16 -0400
+Received: from triton.neptune.on.ca ([205.233.176.2]:43666 "EHLO
+	triton.neptune.on.ca") by vger.kernel.org with ESMTP
+	id <S261731AbSJCQlP>; Thu, 3 Oct 2002 12:41:15 -0400
+Date: Thu, 3 Oct 2002 12:46:48 -0400 (EDT)
+From: Steve Mickeler <steve@neptune.ca>
+X-X-Sender: steve@triton.neptune.on.ca
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: addressing > 128 scsi discs
+In-Reply-To: <200210031638.g93Gc4804388@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0210031246240.1829-100000@triton.neptune.on.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 07:13:11AM -0500, Kevin Corry wrote:
-> On Wednesday 02 October 2002 17:43, Greg KH wrote:
-> > Some comments on the code:
-> > 	- you might want to post a patch with the whole evms portion of
-> > 	  the code, for those people without BitKeeper to see.
-> > 	- The #ifdef EVMS_DEBUG lines are still in AIXlvm_vge.c, I
-> > 	  thought you said you were going to fix this file up?
-> > 	- The OS2 and S390 files don't look like they have been fixed,
-> > 	  like you said you would before submission.
-> 
-> I have been working on these, and should have them done very soon. At the 
-> very least, I expect to get OS2 done today. I will let you know as soon as it 
-> is ready.
-> 
-> > 	- evms_ecr.h and evms_linear.h have a lot of unneeded typedefs.
-> 
-> For the time being, I have removed these files from the tree. As I mentioned 
-> the other day, they are a long way from providing any useful clustering 
-> functionality.
-> 
-> > 	- the md code duplication has not been addressed, as you said it
-> > 	  would be.
-> 
-> We will be addressing this. Unfortunately, I don't see this as being a 
-> simple, overnight fix. Finding a way to consolidate the common code may take 
-> some time.
 
-My main point about these comments is that you stated in a message a few
-days ago that you would fix these issues before trying to submit the
-code for inclusion in the kernel.  As you can imagine, I was a bit
-surprised to see them not fixed in this release you were proposing to be
-included in the main tree :)
+Do you have something that patches clean against 2.4.19-vanilla ?
 
-> > 	- the BK repository contains a _lot_ of past history and merges
-> > 	  that are probably unnecessary to have.  A few, small
-> > 	  changesets are nicer to look at :)
-> 
-> No offense meant, Greg, but that seems a bit contradictory. The way I see it, 
-> I can maintain our Bitkeeper tree in one of two ways.
-> 
-> 1) Try to mirror the usage of our CVS tree. This means that each file or 
-> small group of files that gets checked into CVS also gets checked into 
-> Bitkeeper, and the comment logs can stay closely in sync. Doing this produces 
-> a _lot_ of _small_ changesets, but each one is fairly easy to read and 
-> understand. However, as you mentioned, it does produce a very long history.
-> 
-> 2) Just do a periodic sync with the current CVS tree, maybe every three days 
-> or so. This will obviously produce far less history, but each changeset may 
-> be quite large, and thus harder to read and understand, especially since the 
-> comments will likely be something along the lines of "sync'ing with CVS".
+On Thu, 3 Oct 2002, Pete Zaitcev wrote:
 
-Note, this is just my opinion of how to use BitKeeper, not the "rule":
+> > Is there a way in 2.4 to address more than 128 scsi discs ?
+>
+> Official major allocation allows 256. You can take a patch from
+> a fresh Red Hat to do it.
+>
+> Also, you can use devfs or a combo of Kurt's scsi-many and scsidev.
+>
+> -- Pete
+>
 
-You can use BitKeeper for kernel development in two ways:
-	- as a tree to work out of, accepting changes and doing
-	  incremental things all along the way, including merging with
-	  the main releases.
-	- or as a way to send changes to a maintainer.
 
-I don't think you can really have it both ways, like you are trying to
-do here.  Your repository contains 138 changesets that are not in the
-main tree.  That's not a nice thing to try to make someone pull from (I
-know in my USB work, I sure wouldn't do that.)
 
-It's much nicer (this is just my opinion as a maintainer who uses
-BitKeeper, I don't speak for Linus) to be presented with a tree to pull
-from that _only_ contains a small number of changes.  Not 138 different
-changes.
+[-] Steve Mickeler [ steve@neptune.ca ]
 
-So I recommend you use two BitKeeper trees.  One to do your work out of
-(much like the one you have today), and one that you use to send changes
-to other people with.  I know the JFS group does it this way, if you
-want to see another example besides the USB group.
+[|] Todays root password is brought to you by /dev/random
 
-> So, I will send in a few patches that introduce just the core code so 
-> everyone can get a good look. There will be four files coming: evms.c, 
-> evms.h, evms_ioctl.h, and evms_biosplit.h.
+[+] 1024D/9AA80CDF = 4103 9E35 2713 D432 924F  3C2E A7B9 A0FE 9AA8 0CDF
 
-Thank you, that sounds like a much saner approach.
-
-thanks,
-
-greg k-h

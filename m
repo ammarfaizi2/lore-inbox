@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271938AbTHMWtY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 18:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271941AbTHMWtY
+	id S271812AbTHMW6M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 18:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271941AbTHMW6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 18:49:24 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:49566 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S271938AbTHMWtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 18:49:23 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: 2.6.0-test3-mm1
-Date: Thu, 14 Aug 2003 00:49:19 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org
-References: <20030809203943.3b925a0e.akpm@osdl.org> <3F37DFDC.6080308@mvista.com> <20030813201829.GA15012@mars.ravnborg.org>
-In-Reply-To: <20030813201829.GA15012@mars.ravnborg.org>
+	Wed, 13 Aug 2003 18:58:12 -0400
+Received: from trolis.narbutas-ir-ko.lt ([213.197.143.58]:11954 "HELO
+	trolis.narbutas-ir-ko.lt") by vger.kernel.org with SMTP
+	id S271812AbTHMW6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 18:58:11 -0400
+Date: Thu, 14 Aug 2003 01:58:02 +0300 (EEST)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
+To: maney@pobox.com, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Martin Maney <maney@two14.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200308140049.20465.schlicht@uni-mannheim.de>
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+References: <20030812213645.GA1079@furrr.two14.net> <Pine.LNX.4.44.0308131155090.4279-100000@localhost.localdomain>
+ <20030813181330.GA1122@furrr.two14.net>
+In-Reply-To: <20030813181330.GA1122@furrr.two14.net>
+X-Mailer: Mahogany 0.65.0 'Claire', compiled for Linux 2.4.18-rc4 i686
+X-Qmail-Scanner-Message-ID: <106081549252728904@trolis.narbutas-ir-ko.lt>
+Message-Id: <S271812AbTHMW6L/20030813225811Z+15085@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 August 2003 22:18, Sam Ravnborg wrote:
-> On Mon, Aug 11, 2003 at 11:26:36AM -0700, George Anzinger wrote:
-> > >that patch sets DEBUG_INFO to y by default, even if whether DEBUG_KERNEL
-> > >nor KGDB is enabled. The attached patch changes this to enable
-> > > DEBUG_INFO by default only if KGDB is enabled.
-> >
-> > Looks good to me, but.... just what does this turn on?  Its been a
-> > long time and me thinks a wee comment here would help me remember next
-> > time.
->
-> DEBUG_INFO add "-g" to CFLAGS.
-> Main reason to introduce this was that many architectures always use
-> "-g", so a config option seemed more appropriate.
-> I do not agree that this should be dependent on KGDB.
-> To my knowledge -g is useful also without using kgdb.
+On Wed, 13 Aug 2003 13:13:30 -0500 Martin Maney <maney@two14.net> wrote:
 
-Yes, one can enable or disable DEBUG_INFO as soon as DEBUG_KERNEL is selected, 
-this does not depend on KGDB.
+> At this point the outcome was pretty much a foregone conclusion, but
+> yep, reverting to ".id" stopped the corruption for this test case.  As
+> Alan said, it "fixed" it only because that incorrect test happens to
+> force the driver to use the lower DMA speed.  I had been about to
+> report on that when your request for the explicit test arrived, but in
+> short it's that rc1 (and earlier) were disabling the "66" clock speed,
+> while rc2 was, correctly, finding no reason not to enable it.  The real
+> bug, be it hardware or software, is that enabling the higher speed
+> causes the corruption.
 
-With the patch DEBUG_INFO is enabled by default only if KGDB is selected, but 
-even if KGDB is not selected you still may enable it by hand.
+Do you have the latest Promise BIOS? If not, does it still happen with
+the latest one?
 
-The problem was that DEBUG_INFO was enabled even if it was not reachable 
-because DEBUG_KERNEL was not selected....
+Regards,
+Nerijus
 
-  Thomas

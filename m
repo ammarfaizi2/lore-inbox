@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUCDWUo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 17:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUCDWUo
+	id S261978AbUCDWYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 17:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbUCDWYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 17:20:44 -0500
-Received: from [193.108.190.253] ([193.108.190.253]:33459 "EHLO
-	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
-	id S261986AbUCDWUl convert rfc822-to-8bit (ORCPT
+	Thu, 4 Mar 2004 17:24:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55684 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261978AbUCDWYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 17:20:41 -0500
-Subject: smbfs patch
-From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1078438839.10042.6.camel@luke>
+	Thu, 4 Mar 2004 17:24:39 -0500
+Date: Thu, 4 Mar 2004 14:26:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rui Saraiva <rmps@joel.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-rc1-mm2: 3 dumps at __make_request, system freeze
+Message-Id: <20040304142638.47b00812.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0403042127580.28900@joel.ist.utl.pt>
+References: <Pine.LNX.4.58.0403041834350.28568@joel.ist.utl.pt>
+	<20040304111204.6db8bd6e.akpm@osdl.org>
+	<Pine.LNX.4.58.0403042127580.28900@joel.ist.utl.pt>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Mar 2004 23:20:39 +0100
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that smbfs no longer respects the "uid" and "gid" mount
-options passed to it by mount.(I think it stopped when the server was
-upgraded to Samba 3.0. Not sure though, since my client was upgraded to
-Linux 2.6.3 at around the same time). I've made this small patch that
-fixes it (bear with me, this is my first patch to the kernel :-)  ):
+Rui Saraiva <rmps@joel.ist.utl.pt> wrote:
+>
+> On Thu, 4 Mar 2004, Andrew Morton wrote:
+> 
+> > Rui Saraiva <rmps@joel.ist.utl.pt> wrote:
+> > >
+> > > Yesterday I got these 3 dumps (on dmesg) while compiling (on ext3 fs) the
+> > > kernel and some other userland utilities.
+> >
+> > Could you please add this?
+> >
+> > --- 25/drivers/block/ll_rw_blk.c~blk-unplug-when-max-request-queued-fix	Wed Mar  3 16:03:01 2004
+> > +++ 25-akpm/drivers/block/ll_rw_blk.c	Wed Mar  3 16:03:32 2004
+> 
+> [CUT]
+> 
+> I'm still experiencing some problems with that patch applied. I was again
+> compiling the kernel (no tvtime this time) and got this:
+> 
+> Unable to handle kernel paging request at virtual address c1810f70 printing eip:
+> c02783ae
+> *pde = 00006063
+> *pte = 01810000
+> Oops: 0000 [#1]
+> PREEMPT DEBUG_PAGEALLOC
+> CPU:    0
+> EIP:    0060:[<c02783ae>]    Not tainted VLI
+> EFLAGS: 00010086
+> EIP is at __make_request+0x3ae/0x6a0
 
-======== Start patch ========
---- kernel-source-2.6.3.orig/fs/smbfs/proc.c    2004-02-19
-08:55:44.000000000 +0 000
-+++ kernel-source-2.6.3/fs/smbfs/proc.c         2004-03-04
-13:56:04.000000000 +0 000
-@@ -1834,7 +1834,13 @@
- static void
- smb_finish_dirent(struct smb_sb_info *server, struct smb_fattr *fattr)
- {
--       if (fattr->f_unix)
-+
-+       if (server->mnt->uid)
-+               fattr->f_uid = server->mnt->uid;
-+       if (server->mnt->gid)
-+               fattr->f_gid = server->mnt->gid;
-+
-+       if (fattr->f_unix)
-                return;
-  
-        fattr->f_mode = server->mnt->file_mode;
-======= End patch ========
+OK, I screwed up.  If we ended up finding a merge in the elevator, local
+variable `req' in __make_request() can end up pointing at the now-freed-up
+request.
 
-
--- 
-Søren Hansen
-
+Thanks.  I suggest that you disable CONFIG_DEBUG_PAGEALLOC for now - the
+bug is otherwise harmless.

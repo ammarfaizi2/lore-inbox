@@ -1,84 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbUBUIHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 03:07:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbUBUIHZ
+	id S261534AbUBUI1E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 03:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUBUI1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 03:07:25 -0500
-Received: from gate.crashing.org ([63.228.1.57]:5805 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261524AbUBUIHT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 03:07:19 -0500
-Subject: [PATCH] Fix use of sector_t in swim3 driver
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077350468.851.36.camel@gaston>
+	Sat, 21 Feb 2004 03:27:04 -0500
+Received: from pr-117-210.ains.net.au ([202.147.117.210]:37317 "EHLO
+	mail.ocs.com.au") by vger.kernel.org with ESMTP id S261541AbUBUI0w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 03:26:52 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN 
+In-reply-to: Your message of "Sat, 21 Feb 2004 08:58:53 BST."
+             <20040221075853.GA828@elte.hu> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 21 Feb 2004 19:01:08 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 21 Feb 2004 19:26:32 +1100
+Message-ID: <3762.1077351992@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sat, 21 Feb 2004 08:58:53 +0100, 
+Ingo Molnar <mingo@elte.hu> wrote:
+>* Ingo Molnar <mingo@elte.hu> wrote:
+>> perhaps using a simple 64-bit generation counter would be better.
+>> Samba would get a new syscall to get the sum of each generation
+>> counter down to the root dentry - a total validation of the pathname.
+>> If the counter matches with that in the userspace cache entry then no
+>> need to re-create the cache. Such generation counters would be usable
+>> for multiple file servers as well. Hm?
+>
+>generation counters are problematic if they are not persistent. But
+>there's a pretty natural persistent 'generation counter' which could be
+>used for Samba's purpose: the mtime of the directory ...
+>... monotonity is important: two successive directory operations to not be
+>possible within the same nanosecond.
 
-This driver won't build with CONFIG_LBD due to a 64 bits division.
-
-Use the "simple" fix of a cast down to 32 bits, this is only
-a floppy driver, no need to do sector_div.
-
-Please, apply.
-
-Ben.
-
-===== drivers/block/swim3.c 1.32 vs edited =====
---- 1.32/drivers/block/swim3.c	Sat Feb 14 19:29:14 2004
-+++ edited/drivers/block/swim3.c	Sat Feb 21 18:57:10 2004
-@@ -319,7 +319,7 @@
- #if 0
- 		printk("do_fd_req: dev=%s cmd=%d sec=%ld nr_sec=%ld buf=%p\n",
- 		       req->rq_disk->disk_name, req->cmd,
--		       req->sector, req->nr_sectors, req->buffer);
-+		       (long)req->sector, req->nr_sectors, req->buffer);
- 		printk("           rq_status=%d errors=%d current_nr_sectors=%ld\n",
- 		       req->rq_status, req->errors, req->current_nr_sectors);
- #endif
-@@ -346,8 +346,13 @@
- 			}
- 		}
- 
--		fs->req_cyl = req->sector / fs->secpercyl;
--		x = req->sector % fs->secpercyl;
-+		/* Do not remove the cast. req->sector is now a sector_t and
-+		 * can be 64 bits, but it will never go past 32 bits for this
-+		 * driver anyway, so we can safely cast it down and not have
-+		 * to do a 64/32 division
-+		 */
-+		fs->req_cyl = ((long)req->sector) / fs->secpercyl;
-+		x = ((long)req->sector) % fs->secpercyl;
- 		fs->head = x / fs->secpertrack;
- 		fs->req_sector = x % fs->secpertrack + 1;
- 		fd_req = req;
-@@ -614,7 +619,7 @@
- 	fd_req->sector += s;
- 	fd_req->current_nr_sectors -= s;
- 	printk(KERN_ERR "swim3: timeout %sing sector %ld\n",
--	       (rq_data_dir(fd_req)==WRITE? "writ": "read"), fd_req->sector);
-+	       (rq_data_dir(fd_req)==WRITE? "writ": "read"), (long)fd_req->sector);
- 	end_request(fd_req, 0);
- 	fs->state = idle;
- 	start_request(fs);
-@@ -730,7 +735,7 @@
- 			} else {
- 				printk("swim3: error %sing block %ld (err=%x)\n",
- 				       rq_data_dir(fd_req) == WRITE? "writ": "read",
--				       fd_req->sector, err);
-+				       (long)fd_req->sector, err);
- 				end_request(fd_req, 0);
- 				fs->state = idle;
- 			}
-
+Why do you need monotonity?  Samba only cares if the dcache entry
+changes, the indicator from kernel to user space does not have to be
+monotonically increasing, just different.
 

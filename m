@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293206AbSCJT6G>; Sun, 10 Mar 2002 14:58:06 -0500
+	id <S293217AbSCJUTy>; Sun, 10 Mar 2002 15:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293207AbSCJT54>; Sun, 10 Mar 2002 14:57:56 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:23980 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S293206AbSCJT5q>; Sun, 10 Mar 2002 14:57:46 -0500
-Date: Sun, 10 Mar 2002 11:58:25 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Message-ID: <220305212.1015761504@[10.10.2.3]>
-In-Reply-To: <E16jVSZ-0008FH-00@the-village.bc.nu>
-In-Reply-To: <E16jVSZ-0008FH-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S293218AbSCJUTo>; Sun, 10 Mar 2002 15:19:44 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:29710 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S293217AbSCJUTe>; Sun, 10 Mar 2002 15:19:34 -0500
+Message-ID: <3C8BBFCF.5010504@namesys.com>
+Date: Sun, 10 Mar 2002 23:19:27 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Itai Nahshon <itai@siftology.com>
+CC: Larry McVoy <lm@bitmover.com>, Tom Lord <lord@regexps.com>,
+        jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207132558.D27932@work.bitmover.com> <3C8B1B25.7000208@namesys.com> <200203101941.g2AJfSD19756@lmail.actcom.co.il>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So if anything its just not worth the effort of breaking the 
-> 386 setup either 8). 386 SMP is a different issue but I don't 
-> see any lunatics doing a 386 based sequent port thankfully.
+Itai Nahshon wrote:
 
-Hey, don't count it out ... someone was emailing me a week or
-two ago, asking what the internal structure of a Sequent Symmetry 
-was, so that they could get Linux running on it. OK, so they gave 
-up when I gave them an outline of what was in there, but ... ;-)
+>On Sunday 10 March 2002 10:36, Hans Reiser wrote:
+>
+>>I think that if version control becomes as simple as turning on a plugin
+>>for a directory or file, and then adding a little to the end of a
+>>filename to see and list the old versions, Mom can use it.
+>>
+>
+>IIRC that was a feature in systems from DEC even before
+>VMS (I'm talking about the late 70's).  eg. file.txt;2 was revision 2
+>of file.txt.
+>
 
-M.
+Was it easy?  Did people like it?  Any lessons/successes?
 
-PS. No I'm not suggesting we should support 386 SMP ;-)
+Hans
+
 

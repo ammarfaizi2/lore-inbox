@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268544AbUJDTaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268553AbUJDTaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268544AbUJDTaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 15:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268482AbUJDTRz
+	id S268553AbUJDTaI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 15:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUJDTYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 15:17:55 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:14062 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S268458AbUJDTNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 15:13:32 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: swsusp: fix suspending with mysqld
-Date: Mon, 4 Oct 2004 21:09:58 +0200
-User-Agent: KMail/1.7
-References: <20041004122422.GA2601@elf.ucw.cz>
-In-Reply-To: <20041004122422.GA2601@elf.ucw.cz>
+	Mon, 4 Oct 2004 15:24:24 -0400
+Received: from mail.gmx.net ([213.165.64.20]:10931 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268457AbUJDTPr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 15:15:47 -0400
+X-Authenticated: #20450766
+Date: Mon, 4 Oct 2004 21:11:18 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Paul Jackson <pj@sgi.com>
+cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, alan@lxorguk.ukuu.org.uk,
+       olaf+list.linux-kernel@olafdietsche.de, george@mvista.com,
+       akpm@osdl.org, juhl-lkml@dif.dk, clameter@sgi.com, drepper@redhat.com,
+       johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com,
+       Simon.Derr@bull.net
+Subject: Re: [OT] Re: patches inline in mail
+In-Reply-To: <20041003232033.7790445f.pj@sgi.com>
+Message-ID: <Pine.LNX.4.60.0410042108490.3871@poirot.grange>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+ <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+ <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
+ <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
+ <415AF4C3.1040808@mvista.com> <Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
+ <415B0C9E.5060000@mvista.com> <Pine.LNX.4.61.0409292143050.2744@dragon.hygekrogen.localhost>
+ <415B4FEE.2000209@mvista.com> <20040930222928.1d38389f.akpm@osdl.org>
+ <1096633681.21867.14.camel@localhost.localdomain> <415DD31A.3020004@mvista.com>
+ <87vfdtglrx.fsf@goat.bogus.local> <1096730402.25131.18.camel@localhost.localdomain>
+ <Pine.LNX.4.60.0410032255360.5054@poirot.grange> <20041003232033.7790445f.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410042109.58519.lkml@kcore.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 October 2004 14:24, Pavel Machek wrote:
-> Hi!
->
-> mysqld does signal calls in pretty tight loop, and swsusp is not able
-> to stop processes in such case. This should fix it. Please apply,
->         Pavel
+On Sun, 3 Oct 2004, Paul Jackson wrote:
 
-Pavel,
+> Guennadi wrote:
+> > However, everybody (not pine-users) complains, that white spaces got 
+> > corrupted. And if I export the email I see ...
+> 
+> I complained about the same extra space to a colleague of mine,
+> Simon Derr <Simon.Derr@bull.net>.
+> 
+> A day later, Simon wrote back to me:
+> > I think I found the culprit:
+> > pine 4.60 and later have a feature about 'flowed text' that has to be
+> > explicitely turned off and that messes with whitespaces.
+> 
+> And indeed, that fixed his patches, from my perspective.
 
-I applied your patch to 2.6.9-rc3. Unfortunately, now the system doesn't suspend anymore, it comes back almost immediately:
+Thanks to all, who replied. This:
 
-Stopping tasks: ====================================================|
-Freeing memory: ...................................|
-radeonfb: suspending to state: 3...
-agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-agpgart: Putting AGP V2 device at 0000:00:00.0 into 0x mode
-agpgart: Putting AGP V2 device at 0000:01:00.0 into 0x mode
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-PCI: Setting latency timer of device 0000:00:1d.1 to 64
-PCI: Setting latency timer of device 0000:00:1d.1 to 64
-PCI: Setting latency timer of device 0000:00:1d.2 to 64
-PCI: Setting latency timer of device 0000:00:1d.2 to 64
-PCI: Setting latency timer of device 0000:00:1d.7 to 64
-ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 10 (level, low) -> IRQ 10
-ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 10 (level, low) -> IRQ 10
-PCI: Setting latency timer of device 0000:00:1f.5 to 64
-ACPI: PCI interrupt 0000:00:1f.6[B] -> GSI 10 (level, low) -> IRQ 10
-PCI: Setting latency timer of device 0000:00:1f.6 to 64
-radeonfb: resumed !
-Restarting tasks... done
+--- .pinerc~	Sat Oct  2 22:59:50 2004
++++ .pinerc	Mon Oct  4 20:13:03 2004
+@@ -82,6 +82,7 @@
+ 	signature-at-bottom,
+ 	no-pass-control-characters-as-is,
+ 	prefer-plain-text,
++	quell-flowed-text,
+ 	slash-collapses-entire-thread,
+ 	enable-bounce-cmd,
+ 	enable-msg-view-urls,
 
+helped (I hope).
 
-The system never reaches suspend.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 
-Jan
-
--- 
-BOFH excuse #323:
-
-Your processor has processed too many instructions.  Turn it off immediately, do not type any commands!!

@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319832AbSIMX6W>; Fri, 13 Sep 2002 19:58:22 -0400
+	id <S319834AbSINAQi>; Fri, 13 Sep 2002 20:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319833AbSIMX6W>; Fri, 13 Sep 2002 19:58:22 -0400
-Received: from packet.digeo.com ([12.110.80.53]:13037 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S319832AbSIMX6V>;
-	Fri, 13 Sep 2002 19:58:21 -0400
-Message-ID: <3D827CB0.D227D0E9@digeo.com>
-Date: Fri, 13 Sep 2002 17:02:56 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Dave Hansen <haveblue@us.ibm.com>, colpatch@us.ibm.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-zone^Wnode kswapd process
-References: <20020913045938.GG2179@holomorphy.com> <617478427.1031868636@[10.10.2.3]> <3D8232DE.9090000@us.ibm.com> <3D823702.8E29AB4F@digeo.com> <3D8251D6.3060704@us.ibm.com> <3D82566B.EB2939D5@digeo.com> <3D826C25.5050609@us.ibm.com> <20020913234653.GF3530@holomorphy.com>
+	id <S319835AbSINAQi>; Fri, 13 Sep 2002 20:16:38 -0400
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:59908 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S319834AbSINAQh>; Fri, 13 Sep 2002 20:16:37 -0400
+Date: Sat, 14 Sep 2002 02:21:26 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible bug and question about ide_notify_reboot in drivers/ide/ide.c (2.4.19)
+Message-ID: <20020914002126.GD26758@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020913023744.78077.qmail@web40510.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Sep 2002 00:03:01.0731 (UTC) FILETIME=[17767330:01C25B82]
+Content-Disposition: inline
+In-Reply-To: <20020913023744.78077.qmail@web40510.mail.yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> On Fri, Sep 13, 2002 at 03:52:21PM -0700, Dave Hansen wrote:
-> > Here's a per-node kswapd.  It's actually per-pg_data_t, but I guess that
-> > they're equivalent.  Matt is going to follow up his topology API with
-> > something to bind these to their respective nodes.
-> 
-> >From 64 parallel tiobench 64's (higher counts livelock in fork() etc.):
-> 
->    38 root      15   0     0    0     0 RW   23.0  0.0   1:11 kswapd0
->  4779 wli       22   0  4460 3588  1648 R    17.9  0.0   0:16 top
-> 
-> ...
-> 
->  4779 wli       25   0  4460 3592  1648 R    14.1  0.0   0:27 top
->    38 root      15   0     0    0     0 DW    3.5  0.0   1:31 kswapd0
-> 
+On Thu, 12 Sep 2002, Alex Davis wrote:
 
-Why do I see only one kswapd here?
+> Second, why do we need to put the disks on standby before halting? I ask because putting
 
-Are you claiming an overall 4x improvement, or what?
+To make the broken ones flush their caches...
 
-I'll add some instrumentation whch tells us how many pages
-kswapd is reclaiming versus direct reclaim.
+> the disks on standby puts my hard drives into a coma!! When I power up after a halt, I have
+
+hard to believe. IDE drives spin up automatically from standby mode. If
+not, they're broken. Plus, IDE drives will spin up from any state except
+"defective" or "power loss" with a soft reset (and only broken drives
+will lose their write cache over soft reset).
+
+> to go into the BIOS and force auto-detect to wake them back up. I've removed the "standby"
+> code and things seem to be functioning normally. I have an Epox 8K7A motherboard with two
+> Maxtor Hard drives (model 5T040H4).
+
+My Maxtor 4W060H4 behaves well in standby.
+
+Workaround: do a reboot :-)
+
+-- 
+Matthias Andree

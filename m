@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUFCPzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265011AbUFCPyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264836AbUFCPzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbUFCPyq
+	id S265011AbUFCPyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUFCPxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:54:46 -0400
-Received: from CS2075.cs.fsu.edu ([128.186.122.75]:37149 "EHLO mail.cs.fsu.edu")
-	by vger.kernel.org with ESMTP id S264836AbUFCPxh (ORCPT
+	Thu, 3 Jun 2004 11:53:17 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:43388 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264908AbUFCPuq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:53:37 -0400
-Message-ID: <1086278015.07e5e9ff7c143@system.cs.fsu.edu>
-Date: Thu,  3 Jun 2004 11:53:35 -0400
-From: khandelw@cs.fsu.edu
-To: Mike Jagdis <mjagdis@eris-associates.co.uk>
-Cc: jyotiraditya@softhome.net, linux-kernel@vger.kernel.org
-Subject: Re: Select/Poll
-References: <courier.40BD66BD.00006D7D@softhome.net>
-	<1086190109.a0ea5ca71914e@system.cs.fsu.edu>
-	<20040603151058.GA3169@eris-associates.co.uk>
-In-Reply-To: <20040603151058.GA3169@eris-associates.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Disposition: inline
+	Thu, 3 Jun 2004 11:50:46 -0400
+Date: Thu, 3 Jun 2004 08:49:36 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, greg@kroah.com
+Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
+Message-Id: <20040603084936.532c6c81.pj@sgi.com>
+In-Reply-To: <1086243997.29390.527.camel@bach>
+References: <20040602161115.1340f698.pj@sgi.com>
+	<1086222156.29391.337.camel@bach>
+	<20040602212547.448c7cc7.pj@sgi.com>
+	<1086243997.29390.527.camel@bach>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 12.151.80.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I meant it in the context of TCP. I thought it was implicit enough, because if
-he was using UDP then packet loss is expected. (not necessary that it will
-happen)
+This patch (fix-sys-cpumap-for-352-nr_cpus) doesn't work.  Passing -1UL
+to cpumask_scnprintf() suppresses all of the requested output, because
+of the following code in lib/vsprintf.c vsnprintf():
 
-- Amit Khandelwal
+        /* Reject out-of-range values early */
+        if (unlikely((int) size < 0)) {
+                /* There can be only one.. */
+                static int warn = 1;
+                WARN_ON(warn);
+                warn = 0;
+                return 0;
+        }
 
- Quoting Mike Jagdis <mjagdis@eris-associates.co.uk>:
+Using PAGE_SIZE works ok.  Well, lets throw in a -1 to leave a slot for
+the newline, while we're here.
 
-> On Wed, Jun 02, 2004 at 11:28:29AM -0400, khandelw@cs.fsu.edu wrote:
-> > Hello,
-> >    Can you give more details - Like which machine which vendor etc.,
-> > On a sony vaio pcg frv31 laptop/ redhat 9.0/ after firing some 36,000+
-> request
-> > my select multiplexed server used to fail. With select I believe you not
-> get
-> > any packet loss...
->
-> Then you'd be wrong. Poll/select tell you when desriptors
-> are readable/writable. They do *not* impose any magic queuing
-> mechanism that guarantees the buffers won't overflow. If the
-> low level protocol is non-flow controlled like UDP you *have*
-> to read data faster than it arrives and not write data faster
-> than it is being transmitted.
->
-> Mike
->
-> --
-> Mike Jagdis                        Web: http://www.eris-associates.co.uk
-> Eris Associates Limited            Tel: +44 7780 608 368
-> Reading, England                   Fax: +44 118 926 6974
->
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+Index: 2.6.7-rc2-mm2/drivers/base/node.c
+===================================================================
+--- 2.6.7-rc2-mm2.orig/drivers/base/node.c	2004-06-03 08:24:19.000000000 -0700
++++ 2.6.7-rc2-mm2/drivers/base/node.c	2004-06-03 08:26:12.000000000 -0700
+@@ -24,7 +24,7 @@ static ssize_t node_read_cpumap(struct s
+ 	/* 2004/06/03: buf currently PAGE_SIZE, need > 1 char per 4 bits. */
+ 	BUILD_BUG_ON(NR_CPUS/4 > PAGE_SIZE/2);
+ 
+-	len = cpumask_scnprintf(buf, -1UL, mask);
++	len = cpumask_scnprintf(buf, PAGE_SIZE-1, mask);
+ 	len += sprintf(buf + len, "\n");
+ 	return len;
+ }
 
 
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

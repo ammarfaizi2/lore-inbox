@@ -1,110 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbTHYJ6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 05:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbTHYJ6Y
+	id S261817AbTHYJw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 05:52:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbTHYJw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 05:58:24 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:53922 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S261663AbTHYJ6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 05:58:21 -0400
-To: <akpm@osdl.org>
-Subject: [PATCH 2.6.0-test2] abi doc
-From: <ffrederick@prov-liege.be>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Mon, 25 Aug 2003 12:23:16 CEST
-Reply-To: <ffrederick@prov-liege.be>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [10.10.0.30]
-X-Mailer: NOCC v0.9.5
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S261663AbTHYJ6V/20030825095821Z+189143@vger.kernel.org>
+	Mon, 25 Aug 2003 05:52:27 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:36032 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261817AbTHYJwZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 05:52:25 -0400
+Date: Mon, 25 Aug 2003 11:52:32 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: torvalds@osdl.org, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs explaining to you?
+Message-ID: <20030825095232.GD3020@elf.ucw.cz>
+References: <20030822215315.GD2306@elf.ucw.cz> <Pine.LNX.4.33.0308221454420.2310-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0308221454420.2310-100000@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Hi!
 
-             Here's a sysctl doc patch against 2.6.0-test2 for abi.
-Could you apply ?
+> > > Secondly, you can actually remove the second command line parameter 
+> > > ("noresume") by simply specifying a NULL partition to this parameter. It 
+> > > requires about a 5-line change, and makes things simpler. 
+> > 
+> > You'd better not. You are expected to have one "resume=/foo/bar"
+> > specified as append in lilo. You want to able to say noresume and do
+> > one boot without resuming. Turning resume with
+> > "resume=/dev/nonexistent" would be playing roulete with command line
+> > argument order.
+> 
+> AFAIK, you could have
+> 
+> resume=/dev/hda3 always appended to your command line. Should you suspend 
+> and not want to resume, you should be able to manually add
+> 
+> "resume=" on the command line after the above, and have the setup function 
+> called again, which would reset it to NULL, thereby keeping the same 
 
-Regards,
-Fabian
+I'm not sure if it is easy to guarantee that you are adding *after*
+parameters automatically appended with LILO.
 
-diff -Naur orig/Documentation/sysctl/README edited/Documentation/sysctl/README
---- orig/Documentation/sysctl/README	2003-07-27 17:07:20.000000000 +0000
-+++ edited/Documentation/sysctl/README	2003-08-11 22:42:59.000000000 +0000
-@@ -55,6 +55,7 @@
- by piece basis, or just some 'thematic frobbing'.
- 
- The subdirs are about:
-+abi/		execution domains & personalities
- debug/		<empty>
- dev/		device specific information (eg dev/cdrom/info)
- fs/		specific filesystems
-diff -Naur orig/Documentation/sysctl/abi.txt edited/Documentation/sysctl/abi.txt
---- orig/Documentation/sysctl/abi.txt	1970-01-01 00:00:00.000000000 +0000
-+++ edited/Documentation/sysctl/abi.txt	2003-08-11 22:41:29.000000000 +0000
-@@ -0,0 +1,54 @@
-+Documentation for /proc/sys/abi/* kernel version 2.6.0.test2
-+	(c) 2003,  Fabian Frederick <ffrederick@users.sourceforge.net>
-+
-+For general info : README.
-+
-+==============================================================
-+
-+This path is binary emulation relevant aka personality types aka abi.
-+When a process is executed, it's linked to an exec_domain whose
-+personality is defined using values available from /proc/sys/abi.
-+You can find further details about abi in include/linux/personality.h.
-+
-+Here are the files featuring in 2.6 kernel :
-+
-+- defhandler_coff
-+- defhandler_elf
-+- defhandler_lcall7
-+- defhandler_libcso
-+- fake_utsname
-+- trace
-+
-+===========================================================
-+defhandler_coff:
-+defined value :
-+PER_SCOSVR3
-+0x0003 | STICKY_TIMEOUTS | WHOLE_SECONDS | SHORT_INODE
-+
-+===========================================================
-+defhandler_elf:
-+defined value : 
-+PER_LINUX
-+0
-+
-+===========================================================
-+defhandler_lcall7:
-+defined value :
-+PER_SVR4
-+0x0001 | STICKY_TIMEOUTS | MMAP_PAGE_ZERO,
-+
-+===========================================================
-+defhandler_libsco:
-+defined value:
-+PER_SVR4
-+0x0001 | STICKY_TIMEOUTS | MMAP_PAGE_ZERO,
-+
-+===========================================================
-+fake_utsname:
-+Unused
-+
-+===========================================================
-+trace:
-+Unused
-+
-+===========================================================
+> > > -EAGAIN allows the drivers/devices that really need special care to 
+> > > specify it. Otherwise, we'll end up calling ->suspend() twice for power 
+> > > down for each device (those that can do w/ interrupts enabled and those 
+> > > that need interrupts disabled), which also requires every single driver to 
+> > > check whether or not interrupts are enabled, instead of just those that 
+> > > need it. 
+> > 
+> > No, you should have simply let it alone and pass "level" parameter
+> > telling driver if interrupts were disabled or not. No need to
+> > constantly change API while trying to stabilise the code.
+> 
+> ...and modify each driver to check for it? 
 
-
-___________________________________
-
-
-
+Well, those drivers should have the checks already, otherwise they are
+buggy, but I guess I see your point now.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

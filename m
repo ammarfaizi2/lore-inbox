@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288525AbSADNcB>; Fri, 4 Jan 2002 08:32:01 -0500
+	id <S288582AbSADNgb>; Fri, 4 Jan 2002 08:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288624AbSADNbv>; Fri, 4 Jan 2002 08:31:51 -0500
-Received: from mail.spylog.com ([194.67.35.220]:12460 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S288525AbSADNbh>;
-	Fri, 4 Jan 2002 08:31:37 -0500
-Date: Fri, 4 Jan 2002 16:31:28 +0300
-From: Andrey Nekrasov <andy@spylog.ru>
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: [bug report] [patch] ultra-scalable O(1) SMP and UP scheduler
-Message-ID: <20020104133128.GA1473@spylog.ru>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: SpyLOG ltd.
+	id <S288620AbSADNgV>; Fri, 4 Jan 2002 08:36:21 -0500
+Received: from ns.caldera.de ([212.34.180.1]:55173 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S288582AbSADNgO>;
+	Fri, 4 Jan 2002 08:36:14 -0500
+Date: Fri, 4 Jan 2002 14:36:04 +0100
+Message-Id: <200201041336.g04Da4l15036@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: esr@thyrsus.com ("Eric S. Raymond")
+Cc: Erik Andersen <andersen@codepoet.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Andreas Schwab <schwab@suse.de>
+Subject: Re: LSB1.1: /proc/cpuinfo
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20020104080358.A11215@thyrsus.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+In article <20020104080358.A11215@thyrsus.com> you wrote:
+> If the PPC etc. have 32-bit ints then I stand corrected, but I thought the 
+> compiler ports on those machines used the native register size same as
+> everybody else.
 
-2.4.17 + O(1) patch + gcc 2.95.2
+ANY Linux for to a 64bit machines use the LP64 programming model which
+means that long != int.
 
-
-...
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.17-A0/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=i686    -c -o md.o md.c
-md.c: In function `md_thread':
-md.c:2934: structure has no member named `nice'
-md.c: In function `md_do_sync':
-md.c:3387: structure has no member named `nice'
-md.c:3466: structure has no member named `nice'
-md.c:3475: structure has no member named `nice'
-make[3]: *** [md.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.17-A0/drivers/md'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.17-A0/drivers/md'
-make[1]: *** [_subdir_md] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.17-A0/drivers'
-make: *** [_dir_drivers] Error 2
-suse:/usr/src/linux # 
-
-
+	Christoph
 
 -- 
-bye.
-Andrey Nekrasov, SpyLOG.
+Of course it doesn't work. We've performed a software upgrade.

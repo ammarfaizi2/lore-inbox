@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVCGRBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVCGRFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVCGRBV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 12:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVCGRBV
+	id S261893AbVCGRFb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 12:05:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVCGRFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 12:01:21 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:394 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261889AbVCGRBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 12:01:17 -0500
-Message-ID: <422C88CD.7000009@pobox.com>
-Date: Mon, 07 Mar 2005 12:01:01 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Fibre attached pcnet/32
-References: <1110198605.28860.32.camel@localhost.localdomain>
-In-Reply-To: <1110198605.28860.32.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Mar 2005 12:05:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15592 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261893AbVCGRFZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 12:05:25 -0500
+Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050304160451.4c33919c.akpm@osdl.org>
+	 <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1110215114.15117.234.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 07 Mar 2005 17:05:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> The current driver does workarounds for errata that do not work with
-> fibre attached devices. This patch avoids doing the workaround on the
-> only known fibre attach pcnet/32 hardware. All handling is automated on
-> pci sub-ids
-> 
-> Patch by: Guido Guenther
-> Signed-off-by: Alan Cox <alan@redhat.com>
+Hi,
 
+On Mon, 2005-03-07 at 16:40, Stephen C. Tweedie wrote:
 
-Linus already has this:
+> Andrew, can you remember why we ended up with both of those locks in the
+> first place?  If we can do it, the efficient way out here is to abandon
+> the journal_head_lock and use the bh_state_lock for both.  We already
+> hold that over many of the key refile spots, and this would avoid the
+> need to take yet another lock in those paths.
 
-ChangeSet@1.1966.107.1, 2005-01-27 15:55:00-05:00, brazilnut@us.ibm.com
-   [PATCH] pcnet32: 79c976 with fiber optic fix
+Actually, I realised there's an easier way: provide a variant of
+__journal_unfile_buffer() which doesn't clear jh->b_transaction.
 
-   After testing this patch I agree that it should be applied.  The one
-   change I made was to print the device name (ethN) instead of 'pcnet32'.
-   Tested ia32.
+That's a subtle change in the logic, but everywhere that is calling
+this, we already hold various locks --- except for that elusive
+bh_journal_head lock.
 
-   From: Guido Guenther <agx@sigxcpu.org>,
-         Lars Munch <lars@segv.dk>
+But since everywhere else is using _other_ locks, the transient state
+where we're on the transaction but not on a list won't be visible ---
+we'll have refiled before we drop the lock.
 
-   Skip PHY selection on Allied Telesyn 2701FX, it looses the link 
-otherwise.
-   Fix up the AT 2700FX as well.
+I think things should work just fine with this change.
+__journal_unfile_buffer() already handles the case where we're called
+with b_transaction set but no b_jlist, for example.
 
-   Signed-Off-By: Guido Guenther <agx@sigxcpu.org>
-   Signed-off-by: Andrew Morton <akpm@osdl.org>
-   signed-off-by: Don Fry <brazilnut@us.ibm.com>
-   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+--Stephen
+
 

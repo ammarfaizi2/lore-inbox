@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279645AbRJXXiG>; Wed, 24 Oct 2001 19:38:06 -0400
+	id <S279647AbRJXXkv>; Wed, 24 Oct 2001 19:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279647AbRJXXhv>; Wed, 24 Oct 2001 19:37:51 -0400
-Received: from ns.suse.de ([213.95.15.193]:17165 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S279645AbRJXXhh>;
-	Wed, 24 Oct 2001 19:37:37 -0400
-Date: Thu, 25 Oct 2001 01:38:12 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Mike <maneman@gmx.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Machine Check Exception in >2.4.5: Where to comment MCE out?
-In-Reply-To: <3BD74E4C.8A9BB52C@gmx.net>
-Message-ID: <Pine.LNX.4.30.0110250136360.3197-100000@Appserv.suse.de>
+	id <S279648AbRJXXkb>; Wed, 24 Oct 2001 19:40:31 -0400
+Received: from bugs.unl.edu.ar ([168.96.132.208]:63703 "HELO bugs.unl.edu.ar")
+	by vger.kernel.org with SMTP id <S279647AbRJXXkZ>;
+	Wed, 24 Oct 2001 19:40:25 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>
+To: Robert Love <rml@tech9.net>
+Subject: Re: howto see shmem
+Date: Wed, 24 Oct 2001 20:39:57 -0300
+X-Mailer: KMail [version 1.3]
+Cc: Marc Brekoo <kernel@brekoo.no-ip.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011024214017.E5B1D2AB49@bugs.unl.edu.ar> <20011024232744.F14D62AB49@bugs.unl.edu.ar> <1003966646.3520.110.camel@phantasy>
+In-Reply-To: <1003966646.3520.110.camel@phantasy>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011024233958.A58AB2AB49@bugs.unl.edu.ar>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Oct 2001, Mike wrote:
+On Mié 24 Oct 2001 20:37, Robert Love wrote:
+> On Wed, 2001-10-24 at 19:27, Martín Marqués wrote:
+> > [...]
+> > ------ Shared Memory Segments --------
+> > key       shmid     owner     perms     bytes     nattch    status
+> > 0x00000000 65536     nobody    600       46084     11        dest
+> > [...]
+> > I can see 46084 bytes in shared memory used by the apache.
+> > Am I wrong?
+>
+> Nope.  Applications know how much the are sharing because they can
+> easily see what region of memory is shared/mapped into their's.
+>
+> The reason the kernel can't figure out the net shared memory is because
+> there is no simple way -- it has to add up the shared regions of all
+> applications, counting each shared segment only once.  Too much work.
 
-> ... various disable MCE stuff..
+Yes, I guess you are right. I just checked on and old RH server with a 2.2.x 
+kernel, and the sum of the shared memory of each application doesn't give me 
+the amount of shared memory that free gives me.
 
-You don't need to recompile your kernel. You can boot with 'nomce'
-as an argument, and the code gets disabled.
-
-This has been in -ac, and -linus for a few revisions now.
-
-regards,
-
-Dave.
+Thanks to all!
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Porqué usar una base de datos relacional cualquiera,
+si podés usar PostgreSQL?
+-----------------------------------------------------------------
+Martín Marqués                  |        mmarques@unl.edu.ar
+Programador, Administrador, DBA |       Centro de Telematica
+                       Universidad Nacional
+                            del Litoral
+-----------------------------------------------------------------

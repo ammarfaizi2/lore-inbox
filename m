@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVAZXnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVAZXnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVAZXnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVAZXlm
+	id S261368AbVAZXnP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVAZXmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:41:42 -0500
-Received: from dspnet.fr.eu.org ([62.73.5.179]:34827 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S261667AbVAZSbV (ORCPT
+	Wed, 26 Jan 2005 18:42:02 -0500
+Received: from news.suse.de ([195.135.220.2]:34794 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261674AbVAZSce (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 13:31:21 -0500
-Date: Wed, 26 Jan 2005 19:31:21 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-os <linux-os@analogic.com>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-Message-ID: <20050126183121.GA93329@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-os <linux-os@analogic.com>, Rik van Riel <riel@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	James Antill <james.antill@redhat.com>,
-	Bryn Reeves <breeves@redhat.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com> <20050126181006.GA80759@dspnet.fr.eu.org> <Pine.LNX.4.61.0501261315220.18301@chaos.analogic.com>
+	Wed, 26 Jan 2005 13:32:34 -0500
+Subject: Re: 2.6.11-rc2/ext3 quota allocation bug on error path ...
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Jan Kara <jack@suse.cz>
+In-Reply-To: <20050122155044.GA4573@mail.13thfloor.at>
+References: <20050122155044.GA4573@mail.13thfloor.at>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1106764346.13004.232.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501261315220.18301@chaos.analogic.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 26 Jan 2005 19:32:27 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 01:20:53PM -0500, linux-os wrote:
-> On Wed, 26 Jan 2005, Olivier Galibert wrote:
-> >Given that the man page itself says that unless you're using MAP_FIXED
-> >start is only a hint and you should use 0 if you don't care things can
-> >get real annoying real fast.  Imagine if you want to mmap a <4K file
-> >and mmap then returns 0, i.e. NULL, as the mapping address as you
-> >asked.  It's illegal from the point of view of susv3[1] and it's real
-> >annoying in a C/C++ program.
-> 
-> mmap() can (will) return 0 if you use 0 as the hint and use MAP_FIXED
-> at 0. That's the reason why one does NOT check for NULL with mmap() but
-> for MAP_FAILED (which on this system is (void *)-1.
+Hello,
 
-All the paragraph was under an obvious "when you do not use MAP_FIXED"
-precondition.  The patch is not supposed to change anything to the
-MAP_FIXED case.  Malloc does not use MAP_FIXED.  Usual file mmaping
-as an alternative to read() does not use MAP_FIXED.
+On Sat, 2005-01-22 at 16:50, Herbert Poetzl wrote:
+> --- ./fs/ext3/xattr.c.orig	2005-01-22 15:07:50 +0100
+> +++ ./fs/ext3/xattr.c		2005-01-22 16:45:09 +0100
+> @@ -773,7 +773,7 @@ inserted:
+>  				error = ext3_journal_get_write_access(handle,
+>  								      new_bh);
+>  				if (error)
+> -					goto cleanup;
+> +					goto cleanup_dquot;
+>  				lock_buffer(new_bh);
+>  				BHDR(new_bh)->h_refcount = cpu_to_le32(1 +
+>  					le32_to_cpu(BHDR(new_bh)->h_refcount));
+> @@ -783,7 +783,7 @@ inserted:
+>  				error = ext3_journal_dirty_metadata(handle,
+>  								    new_bh);
+>  				if (error)
+> -					goto cleanup;
+> +					goto cleanup_dquot;
+>  			}
+>  			mb_cache_entry_release(ce);
+>  			ce = NULL;
+> @@ -844,6 +844,10 @@ cleanup:
+>  
+>  	return error;
+>  
+> +cleanup_dquot:
+> +	DQUOT_FREE_BLOCK(inode, 1);
+> +	goto cleanup;
+> +
+>  bad_block:
+>  	ext3_error(inode->i_sb, __FUNCTION__,
+>  		   "inode %ld: bad block %d", inode->i_ino,
 
-  OG.
+looks good. Can this please be added?
+
+THanks,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

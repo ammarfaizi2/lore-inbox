@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbSLJOnM>; Tue, 10 Dec 2002 09:43:12 -0500
+	id <S261854AbSLJOlI>; Tue, 10 Dec 2002 09:41:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261950AbSLJOnM>; Tue, 10 Dec 2002 09:43:12 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:62431 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S261907AbSLJOnK>; Tue, 10 Dec 2002 09:43:10 -0500
-Date: Tue, 10 Dec 2002 15:50:49 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH 2.4.20-BK] export pci symbols for pcmcia modules
-Message-ID: <20021210155049.F18849@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S261855AbSLJOlH>; Tue, 10 Dec 2002 09:41:07 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:61901 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261854AbSLJOlH>; Tue, 10 Dec 2002 09:41:07 -0500
+Date: Tue, 10 Dec 2002 14:48:52 +0000
+From: Dave Jones <davej@suse.de>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
+Message-ID: <20021210144852.GD26361@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Antonino Daplas <adaplas@pol.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1039522886.1041.17.camel@localhost.localdomain> <20021210131143.GA26361@suse.de> <1039538881.2025.2.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1039538881.2025.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two symbols are not exported by the pci code, yet they are used
-by (at least) the pcmcia modules.
+On Tue, Dec 10, 2002 at 09:47:24PM +0500, Antonino Daplas wrote:
+ > On Tue, 2002-12-10 at 18:11, Dave Jones wrote:
+ > > On Tue, Dec 10, 2002 at 05:21:29PM +0500, Antonino Daplas wrote:
+ > >  > 2.  The i810 driver for Xfree86 will also fail to load because of
+ > >  > version mismatch (0.99 vs 1.0).  Rolling back the version corrects the
+ > >  > problem.
+ > > 
+ > > Ugh, that's great. So X has to be patched every time the agpgart code
+ > > gets a new revision ? That sounds really unpleasant.
+ > > 
+ > Actually, X is complaining that the kernel version was too old, crazy
+ > no?
 
-The attached patch makes it all happy again.
+That chunk of X code is crap. So much so, that someone even put a
+comment there (not that what they suggested was much better).
 
-Stelian.
+See line 122 of http://www.atomised.org/docs/XFree86-4.2.1/agp_8c-source.html
 
-===== drivers/pci/pci.c 1.38 vs edited =====
---- 1.38/drivers/pci/pci.c	Tue Nov 19 14:38:18 2002
-+++ edited/drivers/pci/pci.c	Tue Dec 10 13:53:53 2002
-@@ -2155,6 +2155,8 @@
- EXPORT_SYMBOL(pci_do_scan_bus);
- EXPORT_SYMBOL(pci_scan_slot);
- EXPORT_SYMBOL(pci_scan_bus);
-+EXPORT_SYMBOL(pci_scan_device);
-+EXPORT_SYMBOL(pci_read_bridge_bases);
- #ifdef CONFIG_PROC_FS
- EXPORT_SYMBOL(pci_proc_attach_device);
- EXPORT_SYMBOL(pci_proc_detach_device);
+        Dave
 
--- 
-Stelian Pop <stelian@popies.net>

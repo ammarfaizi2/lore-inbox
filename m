@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLNSpt>; Thu, 14 Dec 2000 13:45:49 -0500
+	id <S131869AbQLNSs2>; Thu, 14 Dec 2000 13:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbQLNSpi>; Thu, 14 Dec 2000 13:45:38 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:16903 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129345AbQLNSpe>;
-	Thu, 14 Dec 2000 13:45:34 -0500
-Date: Thu, 14 Dec 2000 19:14:43 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.0-test13-pre1 Makefile fixes
-Message-ID: <20001214191443.A3079@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129602AbQLNSsS>; Thu, 14 Dec 2000 13:48:18 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:65199 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S131869AbQLNSr6>; Thu, 14 Dec 2000 13:47:58 -0500
+Date: Thu, 14 Dec 2000 13:17:28 -0500 (EST)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: test13-pre1 Makefiles
+Message-ID: <Pine.LNX.4.30.0012141315250.15676-200000@viper.haque.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1585941084-976817848=:15676"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-  test13 pre1 contains
-(1) lowercase agp :-(
-(2) even if matroxfb is compiled into kernel, you can have some
-    parts of it compiled as modules (i2c support, g400 second head)
-BTW, why both-m rule is not in Rules.make? I copied this one
-from drivers/Makefile...
-				Thanks,
-					Petr Vandrovec
-					vandrove@vc.cvut.cz
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-diff -urdN linux/drivers/char/Makefile linux/drivers/char/Makefile
---- linux/drivers/char/Makefile	Thu Dec 14 17:43:18 2000
-+++ linux/drivers/char/Makefile	Thu Dec 14 17:53:14 2000
-@@ -155,7 +155,7 @@
- subdir-$(CONFIG_FTAPE) += ftape
- subdir-$(CONFIG_DRM) += drm
- subdir-$(CONFIG_PCMCIA) += pcmcia
--subdir-$(CONFIG_agp) += agp
-+subdir-$(CONFIG_AGP) += agp
- 
- ifeq ($(CONFIG_FTAPE),y)
- obj-y       += ftape/ftape.o
-diff -urdN linux/drivers/video/Makefile linux/drivers/video/Makefile
---- linux/drivers/video/Makefile	Thu Dec 14 17:43:18 2000
-+++ linux/drivers/video/Makefile	Thu Dec 14 18:05:03 2000
-@@ -6,6 +6,8 @@
- O_OBJS   :=
- M_OBJS   :=
- 
-+mod-subdirs	:= matrox
-+
- # All of the (potential) objects that export symbols.
- # This list comes from 'grep -l EXPORT_SYMBOL *.[hc]'.
- 
-@@ -119,6 +121,8 @@
- obj-$(CONFIG_FBCON_MFB)           += fbcon-mfb.o
- obj-$(CONFIG_FBCON_VGA)           += fbcon-vga.o
- obj-$(CONFIG_FBCON_HGA)           += fbcon-hga.o
-+
-+both-m	:= $(filter $(mod-subdirs), $(subdir-y))
- 
- include $(TOPDIR)/Rules.make
- 
+---1463811839-1585941084-976817848=:15676
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+Small errors in two Makefiles
+
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
+
+
+---1463811839-1585941084-976817848=:15676
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="t13p1-Makefiles-1.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0012141317280.15676@viper.haque.net>
+Content-Description: 
+Content-Disposition: attachment; filename="t13p1-Makefiles-1.diff"
+
+ZGlmZiAtdXJ3IGxpbnV4LTIuNC4wLXRlc3QxMy5vcmlnL01ha2VmaWxlIGxp
+bnV4L01ha2VmaWxlDQotLS0gbGludXgtMi40LjAtdGVzdDEzLm9yaWcvTWFr
+ZWZpbGUJVGh1IERlYyAxNCAxMzoxMTozNCAyMDAwDQorKysgbGludXgvTWFr
+ZWZpbGUJVGh1IERlYyAxNCAxMzoxMjo0NiAyMDAwDQpAQCAtMSw3ICsxLDcg
+QEANCiBWRVJTSU9OID0gMg0KIFBBVENITEVWRUwgPSA0DQogU1VCTEVWRUwg
+PSAwDQotRVhUUkFWRVJTSU9OID0gLXRlc3QxMg0KK0VYVFJBVkVSU0lPTiA9
+IC10ZXN0MTMNCiANCiBLRVJORUxSRUxFQVNFPSQoVkVSU0lPTikuJChQQVRD
+SExFVkVMKS4kKFNVQkxFVkVMKSQoRVhUUkFWRVJTSU9OKQ0KIA0KZGlmZiAt
+dXJ3IGxpbnV4LTIuNC4wLXRlc3QxMy5vcmlnL2RyaXZlcnMvY2hhci9NYWtl
+ZmlsZSBsaW51eC9kcml2ZXJzL2NoYXIvTWFrZWZpbGUNCi0tLSBsaW51eC0y
+LjQuMC10ZXN0MTMub3JpZy9kcml2ZXJzL2NoYXIvTWFrZWZpbGUJVGh1IERl
+YyAxNCAxMjoyODoyMiAyMDAwDQorKysgbGludXgvZHJpdmVycy9jaGFyL01h
+a2VmaWxlCVRodSBEZWMgMTQgMTM6MTM6MjEgMjAwMA0KQEAgLTE1NSw3ICsx
+NTUsNyBAQA0KIHN1YmRpci0kKENPTkZJR19GVEFQRSkgKz0gZnRhcGUNCiBz
+dWJkaXItJChDT05GSUdfRFJNKSArPSBkcm0NCiBzdWJkaXItJChDT05GSUdf
+UENNQ0lBKSArPSBwY21jaWENCi1zdWJkaXItJChDT05GSUdfYWdwKSArPSBh
+Z3ANCitzdWJkaXItJChDT05GSUdfQUdQKSArPSBhZ3ANCiANCiBpZmVxICgk
+KENPTkZJR19GVEFQRSkseSkNCiBvYmoteSAgICAgICArPSBmdGFwZS9mdGFw
+ZS5vDQo=
+---1463811839-1585941084-976817848=:15676--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

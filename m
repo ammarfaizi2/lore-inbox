@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266128AbUALMnv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 07:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266132AbUALMnv
+	id S266132AbUALMoL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 07:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUALMoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 07:43:51 -0500
-Received: from hostmaster.org ([80.110.173.103]:9091 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S266128AbUALMnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 07:43:49 -0500
-Subject: Re: 2.4.24 SMP lockups
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58L.0401121016350.5007@logos.cnet>
-References: <Pine.LNX.4.44.0401102311310.14466-100000@chimarrao.boston.redhat.com>
-	 <Pine.LNX.4.58L.0401121016350.5007@logos.cnet>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lww8Pz1ttVOfv1MJEP0w"
-Message-Id: <1073911413.1384.4.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Mon, 12 Jan 2004 13:43:38 +0100
+	Mon, 12 Jan 2004 07:44:11 -0500
+Received: from [212.239.225.130] ([212.239.225.130]:641 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S266132AbUALMoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 07:44:04 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: Bart Samwel <bart@samwel.tk>
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
+Date: Mon, 12 Jan 2004 13:43:34 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Dax Kelson <dax@gurulabs.com>,
+       Kiko Piris <kernel@pirispons.net>, Bartek Kania <mrbk@gnarf.org>,
+       Simon Mackinlay <smackinlay@mail.com>
+References: <3FFFD61C.7070706@samwel.tk> <200401121212.44902.lkml@kcore.org> <4002836A.8050908@samwel.tk>
+In-Reply-To: <4002836A.8050908@samwel.tk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401121343.34688.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 12 January 2004 12:22, Bart Samwel wrote:(
+> Jan De Luyck wrote:
+> > Patch applied, kernel built, laptop_mode activated, but my disk just
+> > doesn't want to spin down...
+>
+> [...]
+>
+> > But the disk never spins down. Not that I can tell, hdparm -C /dev/hda
+> > always tells me active/idle, and the sdsl tool also reports 100% disk
+> > spinning...
+> >
+> > anything else I have to activate/check?
+>
+> Two things to try:
+>
+> 1. Check your HD with hdparm -I /dev/hdX, and see what it says at the
+> "Standby timer values:" entry. Mine says:
+>
+> Standby timer values: spec'd by Standard, with device specific minimum
 
---=-lww8Pz1ttVOfv1MJEP0w
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Mine gives:
 
-Is there any solution yet to get kernel oops reports / sysrq output when
-running X?
+Standby timer values: spec'd by Vendor, no device specific minimum
 
-Tom
+(is an HITACHI_DK23EA-40)
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-       mail pgp-key-request@hostmaster.org
+> smart_spindown script instead (I posted this a while ago, with one of
+> the laptop_mode patches).
 
-If there is a god, you are an authorized representative.
+Will do.
 
---=-lww8Pz1ttVOfv1MJEP0w
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> 2. Stop klogd, do "echo 1 > /proc/sys/vm/block_dump" and see which
+> process keeps your disk spun up using dmesg.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Welll.... i see no READs, and the writes i see is spamd, kmail, pdflush, 
+reiserfs/0.
 
-iQEVAwUAQAKWb2D1OYqW/8uJAQJm2Qf9F503/xz7iVIiQAO8Lz0/nwrPQQxhWFCi
-Z1Q/v0CZJPqDxBAtuqlPU3FtBgH38UyHw3jxRL3bEkDKNB33jGjj+YHr1OPA9LrJ
-+fAXPP7LB9Yc/UVBge1HkUJQmcdABETIxNjgpI5O2HNto1f9F5Q0hdmqcQv54j8Z
-8/KIG/D4RL4+Fov9kyUvVREH7NBRjtkJqLDishOhN6d4F80mcbYxiYvWbMINupeP
-47B8TrCLDeLUmjJUs+6qUTLpPN3nqWhR7GisPWP9XRpfQGeo8/E+0qfxX9KRzo9D
-P1/w+EgnVb8agMgekgfVygqq2lyi93cJ6ylGh6x4f7BWffirNOFl7g==
-=QdHt
------END PGP SIGNATURE-----
-
---=-lww8Pz1ttVOfv1MJEP0w--
+Jan
+-- 
+The only possible interpretation of any research whatever in the `social
+sciences' is: some do, some don't.
+		-- Ernest Rutherford
 

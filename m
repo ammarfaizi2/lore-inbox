@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263320AbTCNT5E>; Fri, 14 Mar 2003 14:57:04 -0500
+	id <S263477AbTCNUA7>; Fri, 14 Mar 2003 15:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263474AbTCNT5E>; Fri, 14 Mar 2003 14:57:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31506 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263320AbTCNT5D>; Fri, 14 Mar 2003 14:57:03 -0500
-Date: Fri, 14 Mar 2003 20:07:46 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ed Vance <EdV@macrolink.com>
-Cc: "'Adam J. Richter'" <adam@yggdrasil.com>, driver@jpl.nasa.gov,
-       dwmw2@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: devfs + PCI serial card = no extra serial ports
-Message-ID: <20030314200746.I23686@flint.arm.linux.org.uk>
-Mail-Followup-To: Ed Vance <EdV@macrolink.com>,
-	"'Adam J. Richter'" <adam@yggdrasil.com>, driver@jpl.nasa.gov,
-	dwmw2@infradead.org, linux-kernel@vger.kernel.org
-References: <11E89240C407D311958800A0C9ACF7D1A33DE3@EXCHANGE>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33DE3@EXCHANGE>; from EdV@macrolink.com on Fri, Mar 14, 2003 at 11:49:54AM -0800
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+	id <S263480AbTCNUA7>; Fri, 14 Mar 2003 15:00:59 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:63150 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S263477AbTCNUA5>; Fri, 14 Mar 2003 15:00:57 -0500
+Message-ID: <3E7235B7.5050407@nortelnetworks.com>
+Date: Fri, 14 Mar 2003 15:04:07 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, kai@tp1.ruhr-uni-bochum.de
+Subject: Re: Kernel setup() and initrd problems
+References: <Pine.GHP.4.53.0303130942100.16619@alderaan.science-computing.de> <Pine.LNX.4.44.0303131051160.7342-100000@chaos.physics.uiowa.edu> <b4t9i6$eon$1@cesium.transmeta.com> <3E722D31.6050702@nortelnetworks.com> <3E7230D2.7010309@zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 11:49:54AM -0800, Ed Vance wrote:
-> Anybody know of any other (worse) technical issues with PCI/setserial 
-> on the 2.4 kernels?
+H. Peter Anvin wrote:
+> Chris Friesen wrote:
+> 
+>>
+>> Below is the script that I used to pivot from a standard ramdisk (for 
+>> with
+>> the infrastructure is already in place in our build environment) to a 
+>> tmpfs
+>> filesystem.  This requires no changes to the boot args.
 
-Please note that one of the things I've recently done is to put a lot
-of effort into re-working the PCI serial code in 2.5, hopefully without
-breaking too much other stuff.  It works here with my, ah hem, limited
-PCI serial devices.
+> ... which means that you either have boot args or rdev so that /dev/ram0 
+> is the root filesystem (or it wouldn't work.)
 
-One of the areas I've tried to improve is our "port guessing" algorithm.
-Hopefully, this will allow more serial cards to just work like the one
-which started this thread, but only time will tell if this is successful.
+Yes, but after the pivot, /dev/ram0 isn't the real filesytem, its tmpfs
+mounted at /.  Isn't that what the original poster was talking about,
+where the root on the final running system is not the same as what the
+machine was booted with?
 
-It hasn't hit Linus' tree yet, so please don't go looking there for it
-yet.
+Maybe I'm just confused.
 
-I'm also not going to suggest backporting it to 2.4 either, but if some
-one is feeling brave enough, they're welcome to try (this is what Open
-Source is all about!) 8)
+
+Chris
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287710AbSAXMs0>; Thu, 24 Jan 2002 07:48:26 -0500
+	id <S287748AbSAXMun>; Thu, 24 Jan 2002 07:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287731AbSAXMsQ>; Thu, 24 Jan 2002 07:48:16 -0500
-Received: from [213.225.90.118] ([213.225.90.118]:7687 "HELO lexx.infeline.org")
-	by vger.kernel.org with SMTP id <S287710AbSAXMsD>;
-	Thu, 24 Jan 2002 07:48:03 -0500
-Date: Thu, 24 Jan 2002 13:46:50 +0100 (CET)
-From: Ketil Froyn <ketil@froyn.net>
-X-X-Sender: ketil@lexx.infeline.org
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Which version of glibc?
-In-Reply-To: <Pine.LNX.4.33.0201231042130.16094-100000@speech.corp.fedex.com>
-Message-ID: <Pine.LNX.4.40L0.0201241341450.27930-100000@lexx.infeline.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287743AbSAXMu0>; Thu, 24 Jan 2002 07:50:26 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:63496 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S287731AbSAXMuM>; Thu, 24 Jan 2002 07:50:12 -0500
+From: Norbert Preining <preining@logic.at>
+Date: Thu, 24 Jan 2002 13:36:50 +0100
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: Daniel Nofftz <nofftz@castor.uni-trier.de>, linux-kernel@vger.kernel.org
+Subject: Re: amd athlon cooling on kt266/266a chipset
+Message-ID: <20020124133650.B25946@alpha.logic.tuwien.ac.at>
+In-Reply-To: <Pine.LNX.4.40.0201241212250.7304-100000@infcip10.uni-trier.de> <1011874755.22707.17.camel@psuedomode>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1011874755.22707.17.camel@psuedomode>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Jeff Chua wrote:
+On Don, 24 Jan 2002, Ed Sweetman wrote:
+> Furthermore, I haven't heard of anyone where the patch actually makes an
+> improvement in temp with the patch.  But i have heard of people saying
 
-> Should I upgrade to glibc-2.2.5 for linux kernel compilation?
->
-> I'm on gcc-2.95.3, glibc-2.1.3
+Well, I am a counterexample. I used another patch doing the same
+(the one from www.vcool.de) and it reduced my CPU temp by around 15-20 C!
+In summer this can be of real good use!
 
-Unless I'm missing something, your version of glibc shouldn't matter.
-glibc is not linked to the kernel. Your version of gcc, on the other hand,
-is quite important. I guess you're ok with 2.95.3, and if you're not, I'm
-sure you'll find out soon enough :)
+Best wishes
 
-Ketil
+Norbert
 
+-----------------------------------------------------------------------
+Norbert Preining <preining@logic.at> 
+University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
+-----------------------------------------------------------------------
+`The best way to get a drink out of a Vogon is to stick 
+your finger down his throat...'
+
+                 --- The Book, on one of the Vogon's social inadequacies. 
+                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy

@@ -1,95 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263396AbTD1DQX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 23:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbTD1DQX
+	id S262737AbTD1DZS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 23:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTD1DZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 23:16:23 -0400
-Received: from [66.62.77.7] ([66.62.77.7]:203 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S263396AbTD1DQV (ORCPT
+	Sun, 27 Apr 2003 23:25:18 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:7688 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S262737AbTD1DZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 23:16:21 -0400
-Subject: Re: Why DRM exists (or: Larry's cloning complaint)
-From: Dax Kelson <dax@gurulabs.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051500506.2974.69.camel@mentor.gurulabs.com>
+	Sun, 27 Apr 2003 23:25:17 -0400
+Date: Sun, 27 Apr 2003 23:44:15 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Mark Grosberg <mark@nolab.conman.org>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Combined fork-exec syscall.
+Message-ID: <20030428034415.GC32043@mark.mielke.cc>
+References: <Pine.LNX.4.53.0304271831250.8792@twinlark.arctic.org> <Pine.BSO.4.44.0304272140340.23296-100000@kwalitee.nolab.conman.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Apr 2003 21:28:27 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSO.4.44.0304272140340.23296-100000@kwalitee.nolab.conman.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry, you did a horrible -- horrible -- job in stating your
-argument/complaint/statement that makes it hard to respond to in any
-meaningful way.
+On Sun, Apr 27, 2003 at 09:43:38PM -0400, Mark Grosberg wrote:
+> The idea would be that the file mapping array would be easier to scan
+> (kind of like how poll() is a lot easier than select()).
 
-You used the word "copying" with two different meanings in a long
-discussion that intermingled Open Source development, DRM, multiple
-implementations of software striving for the same goal, and software
-theft (warez) and Audio/Video content theft.
+This brings up the whole poll() vs select() vs /dev/poll vs ... discussion.
 
-The best response I can make is:
+poll() is not necessarily faster than select(). If FD_CLOEXEC is not fast
+enough, then perhaps efforts should be put into improving FD_CLOEXEC in the
+kernel, rather than implementing a new system call that nobody will use
+because it isn't defined by POSIX. If the argument is that vfork(), exec()
+must scan the file descriptors to determine which ones have FD_CLOEXEC set,
+then perhaps the answer is to index the FD_CLOEXEC bits of file descriptors?
 
-1. Everyone agrees that using (warezing) software in violation of it's
-license is wrong. Everyone agrees that unauthorized copying of
-Audio/Video content is wrong. WTF does this have to do with Open Source?
+> > if you look at such webservers they tend to have a separate process just
+> > for the purpose of spawning cgi/etc. and use some IPC to pass the data to
+> > the cgi spawner.
+> Yup. I suppose for Apache this could be an alternate interface of the APR
+> spawn process function.
 
-2. In my observation, most modern "DRM" systems target copying of
-Audio/Video content, NOT software. Your statement "The open source
-community, in my opinion, is certainly a contributing factor in the
-emergence of the DMCA and DRM efforts." boggles the mind. WTF does this
-have to do with Open Source?
+The Apache 2.0 documentation refers to mod_cgid as a method of
+avoiding the scenario that involves fork() copying all threads, not
+fork() scanning all file descriptors. Other than complexity of having
+a separate 'spawning daemon', I'm not sure that providing a spawn()
+system call would make things any faster. A CGI is going to take a
+fair amount of time to complete regardless of where it is spawned
+from. If you need speed, write your own mod_feature.c, or use an
+alternative such as mod_perl.
 
-Now getting on the crux of your complaint (again, WTF was all this
-warezing/DRM nonsense):
+mark
 
-3. Reverse engineering and multiple competing implementations of
-software is allowed and upheld in courts over and over again (unless
-patent infringement is involved). You are very unhappy with this.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-There are thousands of examples of competing implementations, many not
-even involving Open Source. 
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-Larry, where would your company be today if Compaq and Phoenix didn't
-reverse engineer the IBM PC BIOS?
-
-Larry, how much money do you make from people using Linux as their OS
-platform?  After all, it is competitive implementation of UNIX?
-
-So on one hand, this LEGAL activity of reverse engineering and competing
-implementations has benefited you and your company, and on the other, it
-might put you out of business some day.
-
-Deal with it. Your situation is no different then thousands of other
-companies. Nobody forced you into your line of business.
-
-Did Wordperfect complain in public about MS Word re-implementing
-features that Wordperfect created? How about WordStar?
-
-Multiple competing implementations (Open Source or otherwise) is GOOD
-FOR THE CONSUMER!
-
-For most non-niche problems (especially the larger ones), there are
-going to be competing software solutions. There will likely be an Open
-Source competitor in there. Assuming the problem is irritating enough,
-the Open Source competitor will be vibrant and constantly improving.
-Eventually the Open Source competitor will mature and powerful. The
-commercial guys better scramble to stay ahead feature wise, lower the
-price of their offering (witness Windows 2003 Web Server Edition), or
-offer a service/"total solution". Software is slowly, eventually
-becoming a commodity. Eventually, the lion share of revenue will come
-from "services", not software licensing.  
-
-Not a fun position to be in for the commercial software vendor, but oh
-what a lovely environment for the consumer!
-
-Companies have no god given right to have a market. Companies have no
-god given right to earn a profit (unless a govt allowed monopoly, ie
-Telcos). Time marches on, things change. Adapt or die.
-
-Dax Kelson
+                           http://mark.mielke.cc/
 

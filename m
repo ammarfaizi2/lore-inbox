@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280343AbRJaRbw>; Wed, 31 Oct 2001 12:31:52 -0500
+	id <S280344AbRJaRhc>; Wed, 31 Oct 2001 12:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280341AbRJaRbr>; Wed, 31 Oct 2001 12:31:47 -0500
-Received: from viper.haque.net ([66.88.179.82]:61894 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S280332AbRJaRaE>;
-	Wed, 31 Oct 2001 12:30:04 -0500
-Date: Wed, 31 Oct 2001 12:29:22 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: <submit-linux-dev-kernel@ns1.yggdrasil.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
-In-Reply-To: <Pine.LNX.3.96.1011031121150.24635G-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33.0110311225200.23299-100000@viper.haque.net>
+	id <S280346AbRJaRhX>; Wed, 31 Oct 2001 12:37:23 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:4616 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280344AbRJaRhS>;
+	Wed, 31 Oct 2001 12:37:18 -0500
+Date: Wed, 31 Oct 2001 15:37:45 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Timur Tabi <ttabi@interactivesi.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Module Licensing?
+In-Reply-To: <3BE034F6.8070201@interactivesi.com>
+Message-ID: <Pine.LNX.4.33L.0110311535250.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, Bill Davidsen wrote:
+On Wed, 31 Oct 2001, Timur Tabi wrote:
+> Rik van Riel wrote:
+>
+> > Since your program, which happens to consist of one open
+> > source part and one proprietary part, is partly a derived
+> > work from the kernel source (by using kernel header files
+> > and the inline functions in it) your whole work must be
+> > distributed under the GPL.
+>
+> I contest your meaning of the word "work".  The open source portion of
+> my module is one "work", and the closed source portion is another
+> "work".  I could deliver these two works as separate tarballs, if I
+> wanted.
 
-> I still am missing this, obviously after I partition the drive I do mke2fs
-> so I can use the partition. I don't see what sequence you follow which
-> triggers this, can you clarify?
+Let me quote you, from 2 emails back in the thread:
 
-I thought i already sent you (maybe it was to someone else in private
-email) the steps/cases that succeed/fail. I'll dig up the email if
-not.
+ "The fact that the open source portions and the closed source portions
+  can't function on their own is irrelevant, IMHO."
 
-What version of glibc are you compiled against? I've got 2.1.3. it could
-also be controller specific. I tried it on a HPT366. Haven't tried it on
-my onboard (440bx motherboard).
+The irrelevance here is IYHO ... it may well be judged that
+since these two portions of the work need each other in order
+to function, the thing really is one work.
 
-I've only seen one confirmation on the list that duplicates what I'm
-seeing.
+You're well into the danger zone here...
 
-More info later.
+regards,
 
+Rik
 -- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+http://www.surriel.com/		http://distro.conectiva.com/
 
-  "Alcohol and calculus don't mix.             Developer/Project Lead
-   Don't drink and derive." --Unknown          http://www.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 

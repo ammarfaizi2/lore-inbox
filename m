@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272712AbTHPKoB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 06:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272731AbTHPKoB
+	id S272708AbTHPKeO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 06:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272710AbTHPKeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 06:44:01 -0400
-Received: from AMarseille-201-1-3-2.w193-253.abo.wanadoo.fr ([193.253.250.2]:15911
-	"EHLO gaston") by vger.kernel.org with ESMTP id S272712AbTHPKoA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 06:44:00 -0400
-Subject: Re: [BUG] slab debug vs. L1 alignement
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F3E02EE.8080909@colorfullife.com>
-References: <3F3D558D.5050803@colorfullife.com>
-	 <1060990883.581.87.camel@gaston>  <3F3D8D3B.3020708@colorfullife.com>
-	 <1061026667.881.100.camel@gaston>  <3F3E02EE.8080909@colorfullife.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061030600.582.121.camel@gaston>
+	Sat, 16 Aug 2003 06:34:13 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:51870 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272708AbTHPKeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 06:34:12 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Sat, 16 Aug 2003 12:34:10 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Brandon Stewart <rbrandonstewart@yahoo.com>
+Cc: bos@serpentine.com, jan@rychter.com, linux-kernel@vger.kernel.org
+Subject: Re: Centrino support
+Message-Id: <20030816123410.56cbb550.skraw@ithnet.com>
+In-Reply-To: <3F3D469B.2020507@yahoo.com>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com>
+	<1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
+	<3F3D469B.2020507@yahoo.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 16 Aug 2003 12:43:20 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Aug 2003 16:46:19 -0400
+Brandon Stewart <rbrandonstewart@yahoo.com> wrote:
 
-> >
-> Hmm. That means slab debugging did it's job: The driver contains the 
-> wrong assumption that all pointers are cache line aligned. Without slab 
-> debugging, this would result in rare data corruptions in O_DIRECT apps. 
-> With slab debugging on, it's exposed immediately.
+> I thought that this line of argument was due to FCC regulations. That 
+> is, software settings would allow the hardware to violate frequency or 
+> strength-of-signal limitations set by government regulations. This is 
+> only from memory, so feel free to correct.
 
-As we discussed on IRC, I think SCSI host drivers (at least) can assume
-beeing passed aligned buffers, if somebody don't agree, please speak
-up ;) Christoph said that O_DIRECT has strict alignement rules too.
+I think I have read in an earlier thread something the like.
+But I cannot understand how this can be logically linked to releasing docs. If
+all companies would follow this thought e.g. Siemens would never have released
+the docs for ISDN chipsets and therefore no ISDN drivers would be in the
+kernel. I'd rather say someone with money is afraid ...
+Mobile equipment like laptops is a booming market and it all turns around
+shares...
+There is another point about this topic. How does M$ (with their centrino
+drivers) guarantee that no user tries to switch on the addtional ETSI
+frequencies? I doubt this is possible at all. Of course you can simply ignore
+that there are ETSI frequencies which basically means to ignore the
+overwhelming part of europe and their respective regulation.
+Some political explosives are in this thread ...
 
-Ben.
+Regards,
+Stephan
 

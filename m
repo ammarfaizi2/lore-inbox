@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVCKSbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVCKSbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVCKSbI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVCKS2x
+	id S261285AbVCKSbK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVCKS06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:28:53 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14865 "HELO
+	Fri, 11 Mar 2005 13:26:58 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17681 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261260AbVCKSQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:16:13 -0500
-Date: Fri, 11 Mar 2005 19:16:07 +0100
+	id S261262AbVCKSQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:16:22 -0500
+Date: Fri, 11 Mar 2005 19:16:15 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: ambx1@neo.rr.com, perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/pnp/: possible cleanups
-Message-ID: <20050311181606.GC3723@stusta.de>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] AGP: make some code static
+Message-ID: <20050311181615.GE3723@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,184 +22,213 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global function:
-  - core.c: pnp_remove_device
-- remove the following unneeded EXPORT_SYMBOL's:
-  - card.c: pnp_add_card
-  - card.c: pnp_remove_card
-  - card.c: pnp_add_card_device
-  - card.c: pnp_remove_card_device
-  - card.c: pnp_add_card_id
-  - core.c: pnp_register_protocol
-  - core.c: pnp_unregister_protocol
-  - core.c: pnp_add_device
-  - core.c: pnp_remove_device
-  - pnpacpi/core.c: pnpacpi_protocol
-  - driver.c: pnp_add_id
-  - isapnp/core.c: isapnp_read_byte
-  - manager.c: pnp_auto_config_dev
-  - resource.c: pnp_register_dependent_option
-  - resource.c: pnp_register_independent_option
-  - resource.c: pnp_register_irq_resource
-  - resource.c: pnp_register_dma_resource
-  - resource.c: pnp_register_port_resource
-  - resource.c: pnp_register_mem_resource
+This patch makes some needlessly global code static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 27 Feb 2005
+- 25 Feb 2005
 
- drivers/pnp/card.c         |    7 +------
- drivers/pnp/core.c         |    7 ++-----
- drivers/pnp/driver.c       |    1 -
- drivers/pnp/isapnp/core.c  |    1 -
- drivers/pnp/manager.c      |    1 -
- drivers/pnp/pnpacpi/core.c |    5 ++---
- drivers/pnp/resource.c     |    8 --------
- include/linux/pnp.h        |    2 --
- 8 files changed, 5 insertions(+), 27 deletions(-)
+ drivers/char/agp/ali-agp.c      |    4 ++--
+ drivers/char/agp/amd-k7-agp.c   |    2 +-
+ drivers/char/agp/amd64-agp.c    |    2 +-
+ drivers/char/agp/ati-agp.c      |    2 +-
+ drivers/char/agp/backend.c      |    6 +++---
+ drivers/char/agp/efficeon-agp.c |    2 +-
+ drivers/char/agp/frontend.c     |    6 +++---
+ drivers/char/agp/nvidia-agp.c   |    2 +-
+ drivers/char/agp/sis-agp.c      |    2 +-
+ drivers/char/agp/sworks-agp.c   |    2 +-
+ drivers/char/agp/via-agp.c      |    5 ++---
+ include/linux/agp_backend.h     |    2 --
+ 12 files changed, 17 insertions(+), 20 deletions(-)
 
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c.old	2005-02-26 15:54:16.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c	2005-02-26 16:16:07.000000000 +0100
-@@ -19,7 +19,7 @@
- #include "base.h"
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/ali-agp.c.old	2005-01-30 18:46:21.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/ali-agp.c	2005-01-30 18:46:45.000000000 +0100
+@@ -192,7 +192,7 @@
+ 	{4, 1024, 0, 3}
+ };
  
- LIST_HEAD(pnp_cards);
--LIST_HEAD(pnp_card_drivers);
-+static LIST_HEAD(pnp_card_drivers);
+-struct agp_bridge_driver ali_generic_bridge = {
++static struct agp_bridge_driver ali_generic_bridge = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= ali_generic_sizes,
+ 	.size_type		= U32_APER_SIZE,
+@@ -215,7 +215,7 @@
+ 	.agp_destroy_page	= ali_destroy_page,
+ };
  
+-struct agp_bridge_driver ali_m1541_bridge = {
++static struct agp_bridge_driver ali_m1541_bridge = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= ali_generic_sizes,
+ 	.size_type		= U32_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd-k7-agp.c.old	2005-01-30 18:46:58.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd-k7-agp.c	2005-01-30 18:47:08.000000000 +0100
+@@ -358,7 +358,7 @@
+ 	{.mask = 1, .type = 0}
+ };
  
- static const struct pnp_card_device_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
-@@ -380,11 +380,6 @@
- 	pnp_unregister_driver(&drv->link);
+-struct agp_bridge_driver amd_irongate_driver = {
++static struct agp_bridge_driver amd_irongate_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= amd_irongate_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd64-agp.c.old	2005-01-30 18:47:31.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd64-agp.c	2005-01-30 18:47:39.000000000 +0100
+@@ -243,7 +243,7 @@
  }
  
--EXPORT_SYMBOL(pnp_add_card);
--EXPORT_SYMBOL(pnp_remove_card);
--EXPORT_SYMBOL(pnp_add_card_device);
--EXPORT_SYMBOL(pnp_remove_card_device);
--EXPORT_SYMBOL(pnp_add_card_id);
- EXPORT_SYMBOL(pnp_request_card_device);
- EXPORT_SYMBOL(pnp_release_card_device);
- EXPORT_SYMBOL(pnp_register_card_driver);
---- linux-2.6.11-rc4-mm1-full/include/linux/pnp.h.old	2005-02-26 15:54:39.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/include/linux/pnp.h	2005-02-26 15:54:59.000000000 +0100
-@@ -353,7 +353,6 @@
- int pnp_register_protocol(struct pnp_protocol *protocol);
- void pnp_unregister_protocol(struct pnp_protocol *protocol);
- int pnp_add_device(struct pnp_dev *dev);
--void pnp_remove_device(struct pnp_dev *dev);
- int pnp_device_attach(struct pnp_dev *pnp_dev);
- void pnp_device_detach(struct pnp_dev *pnp_dev);
- extern struct list_head pnp_global;
-@@ -399,7 +398,6 @@
- static inline void pnp_unregister_protocol(struct pnp_protocol *protocol) { }
- static inline int pnp_init_device(struct pnp_dev *dev) { return -ENODEV; }
- static inline int pnp_add_device(struct pnp_dev *dev) { return -ENODEV; }
--static inline void pnp_remove_device(struct pnp_dev *dev) { }
- static inline int pnp_device_attach(struct pnp_dev *pnp_dev) { return -ENODEV; }
- static inline void pnp_device_detach(struct pnp_dev *pnp_dev) { ; }
  
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c.old	2005-02-26 15:55:56.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c	2005-02-26 16:48:31.000000000 +0100
-@@ -158,13 +158,14 @@
-  *
-  * this function will free all mem used by dev
-  */
+-struct agp_bridge_driver amd_8151_driver = {
++static struct agp_bridge_driver amd_8151_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= amd_8151_sizes,
+ 	.size_type		= U32_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/ati-agp.c.old	2005-01-30 18:48:22.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/ati-agp.c	2005-01-30 18:48:30.000000000 +0100
+@@ -393,7 +393,7 @@
+ 	return 0;
+ }
+ 
+-struct agp_bridge_driver ati_generic_bridge = {
++static struct agp_bridge_driver ati_generic_bridge = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= ati_generic_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/include/linux/agp_backend.h.old	2005-01-30 18:49:55.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/include/linux/agp_backend.h	2005-01-30 18:50:02.000000000 +0100
+@@ -94,8 +94,6 @@
+ extern struct agp_bridge_data *agp_bridge;
+ extern struct list_head agp_bridges;
+ 
+-extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
 -
-+#if 0
- void pnp_remove_device(struct pnp_dev *dev)
+ extern void agp_free_memory(struct agp_memory *);
+ extern struct agp_memory *agp_allocate_memory(struct agp_bridge_data *, size_t, u32);
+ extern int agp_copy_info(struct agp_bridge_data *, struct agp_kern_info *);
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/backend.c.old	2005-01-30 18:48:45.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/backend.c	2005-01-30 18:50:19.000000000 +0100
+@@ -50,7 +50,7 @@
+ 	.minor = AGPGART_VERSION_MINOR,
+ };
+ 
+-struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
++static struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
+ 	&agp_generic_find_bridge;
+ 
+ struct agp_bridge_data *agp_bridge;
+@@ -96,7 +96,7 @@
+ EXPORT_SYMBOL(agp_backend_release);
+ 
+ 
+-struct { int mem, agp; } maxes_table[] = {
++static struct { int mem, agp; } maxes_table[] = {
+ 	{0, 0},
+ 	{32, 4},
+ 	{64, 28},
+@@ -323,7 +323,7 @@
+ 	return 0;
+ }
+ 
+-void __exit agp_exit(void)
++static void __exit agp_exit(void)
  {
- 	if (!dev || dev->card)
- 		return;
- 	__pnp_remove_device(dev);
  }
-+#endif  /*  0  */
  
- static int __init pnp_init(void)
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/efficeon-agp.c.old	2005-01-30 18:50:32.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/efficeon-agp.c	2005-01-30 18:50:42.000000000 +0100
+@@ -303,7 +303,7 @@
+ }
+ 
+ 
+-struct agp_bridge_driver efficeon_driver = {
++static struct agp_bridge_driver efficeon_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= efficeon_generic_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/frontend.c.old	2005-01-30 18:50:57.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/frontend.c	2005-01-30 18:51:27.000000000 +0100
+@@ -235,7 +235,7 @@
+ 
+ /* File private list routines */
+ 
+-struct agp_file_private *agp_find_private(pid_t pid)
++static struct agp_file_private *agp_find_private(pid_t pid)
  {
-@@ -174,7 +175,3 @@
+ 	struct agp_file_private *curr;
  
- subsys_initcall(pnp_init);
- 
--EXPORT_SYMBOL(pnp_register_protocol);
--EXPORT_SYMBOL(pnp_unregister_protocol);
--EXPORT_SYMBOL(pnp_add_device);
--EXPORT_SYMBOL(pnp_remove_device);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c.old	2005-02-26 15:57:01.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c	2005-02-26 15:57:26.000000000 +0100
-@@ -124,7 +124,7 @@
- 	return ACPI_FAILURE(status) ? -ENODEV : 0;
+@@ -250,7 +250,7 @@
+ 	return NULL;
  }
  
--struct pnp_protocol pnpacpi_protocol = {
-+static struct pnp_protocol pnpacpi_protocol = {
- 	.name	= "Plug and Play ACPI",
- 	.get	= pnpacpi_get_resources,
- 	.set	= pnpacpi_set_resources,
-@@ -242,7 +242,7 @@
- }
- 
- int pnpacpi_disabled __initdata;
--int __init pnpacpi_init(void)
-+static int __init pnpacpi_init(void)
+-void agp_insert_file_private(struct agp_file_private * priv)
++static void agp_insert_file_private(struct agp_file_private * priv)
  {
- 	if (acpi_disabled || pnpacpi_disabled) {
- 		pnp_info("PnP ACPI: disabled");
-@@ -266,4 +266,3 @@
- }
- __setup("pnpacpi=", pnpacpi_setup);
+ 	struct agp_file_private *prev;
  
--EXPORT_SYMBOL(pnpacpi_protocol);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c.old	2005-02-26 16:09:23.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c	2005-02-26 16:09:52.000000000 +0100
-@@ -217,6 +217,5 @@
- 
- EXPORT_SYMBOL(pnp_register_driver);
- EXPORT_SYMBOL(pnp_unregister_driver);
--EXPORT_SYMBOL(pnp_add_id);
- EXPORT_SYMBOL(pnp_device_attach);
- EXPORT_SYMBOL(pnp_device_detach);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c.old	2005-02-26 16:11:16.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c	2005-02-26 16:11:39.000000000 +0100
-@@ -952,7 +952,6 @@
- EXPORT_SYMBOL(isapnp_present);
- EXPORT_SYMBOL(isapnp_cfg_begin);
- EXPORT_SYMBOL(isapnp_cfg_end);
--EXPORT_SYMBOL(isapnp_read_byte);
- EXPORT_SYMBOL(isapnp_write_byte);
- 
- static int isapnp_read_resources(struct pnp_dev *dev, struct pnp_resource_table *res)
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c.old	2005-02-26 16:11:47.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c	2005-02-26 16:12:11.000000000 +0100
-@@ -563,7 +563,6 @@
- 
- 
- EXPORT_SYMBOL(pnp_manual_config_dev);
--EXPORT_SYMBOL(pnp_auto_config_dev);
- EXPORT_SYMBOL(pnp_activate_dev);
- EXPORT_SYMBOL(pnp_disable_dev);
- EXPORT_SYMBOL(pnp_resource_change);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c.old	2005-02-26 16:12:19.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c	2005-02-26 16:13:37.000000000 +0100
-@@ -478,14 +478,6 @@
+@@ -262,7 +262,7 @@
+ 	agp_fe.file_priv_list = priv;
  }
  
+-void agp_remove_file_private(struct agp_file_private * priv)
++static void agp_remove_file_private(struct agp_file_private * priv)
+ {
+ 	struct agp_file_private *next;
+ 	struct agp_file_private *prev;
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/nvidia-agp.c.old	2005-01-30 18:52:18.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/nvidia-agp.c	2005-01-30 18:52:26.000000000 +0100
+@@ -288,7 +288,7 @@
+ };
  
--EXPORT_SYMBOL(pnp_register_dependent_option);
--EXPORT_SYMBOL(pnp_register_independent_option);
--EXPORT_SYMBOL(pnp_register_irq_resource);
--EXPORT_SYMBOL(pnp_register_dma_resource);
--EXPORT_SYMBOL(pnp_register_port_resource);
--EXPORT_SYMBOL(pnp_register_mem_resource);
--
--
- /* format is: pnp_reserve_irq=irq1[,irq2] .... */
  
- static int __init pnp_setup_reserve_irq(char *str)
+-struct agp_bridge_driver nvidia_driver = {
++static struct agp_bridge_driver nvidia_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= nvidia_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/sis-agp.c.old	2005-01-30 18:52:39.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/sis-agp.c	2005-01-30 18:52:47.000000000 +0100
+@@ -119,7 +119,7 @@
+ 	{4, 1024, 0, 3}
+ };
+ 
+-struct agp_bridge_driver sis_driver = {
++static struct agp_bridge_driver sis_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes 	= sis_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/sworks-agp.c.old	2005-01-30 18:52:59.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/sworks-agp.c	2005-01-30 18:53:08.000000000 +0100
+@@ -409,7 +409,7 @@
+ 	agp_device_command(command, 0);
+ }
+ 
+-struct agp_bridge_driver sworks_driver = {
++static struct agp_bridge_driver sworks_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= serverworks_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.11-rc2-mm2-full/drivers/char/agp/via-agp.c.old	2005-01-30 18:53:41.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/via-agp.c	2005-01-30 18:54:19.000000000 +0100
+@@ -162,7 +162,7 @@
+ }
+ 
+ 
+-struct agp_bridge_driver via_agp3_driver = {
++static struct agp_bridge_driver via_agp3_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= agp3_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
+@@ -185,7 +185,7 @@
+ 	.agp_destroy_page	= agp_generic_destroy_page,
+ };
+ 
+-struct agp_bridge_driver via_driver = {
++static struct agp_bridge_driver via_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= via_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
 

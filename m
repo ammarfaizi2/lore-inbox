@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261714AbSI0Q5S>; Fri, 27 Sep 2002 12:57:18 -0400
+	id <S261712AbSI0Q4B>; Fri, 27 Sep 2002 12:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262149AbSI0Q5R>; Fri, 27 Sep 2002 12:57:17 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:49861 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261714AbSI0Q5N>; Fri, 27 Sep 2002 12:57:13 -0400
-Date: Fri, 27 Sep 2002 09:58:12 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Vasquez <praka@san.rr.com>,
-       Michael Clark <michael@metaparadigm.com>,
-       "David S. Miller" <davem@redhat.com>, wli@holomorphy.com, axboe@suse.de,
-       akpm@digeo.com, linux-kernel@vger.kernel.org, patmans@us.ibm.com,
-       andrew.vasquez@qlogic.com
-Subject: Re: [PATCH] deadline io scheduler
-Message-ID: <20020927165812.GB1366@beaverton.ibm.com>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Vasquez <praka@san.rr.com>,
-	Michael Clark <michael@metaparadigm.com>,
-	"David S. Miller" <davem@redhat.com>, wli@holomorphy.com,
-	axboe@suse.de, akpm@digeo.com, linux-kernel@vger.kernel.org,
-	patmans@us.ibm.com, andrew.vasquez@qlogic.com
-References: <3D92B450.2090805@pobox.com> <20020926.001343.57159108.davem@redhat.com> <3D92B83E.3080405@pobox.com> <20020926.003503.35357667.davem@redhat.com> <3D92C206.2050905@metaparadigm.com> <20020926174148.GB1843@beaverton.ibm.com> <3D934BE7.8010907@pobox.com> <20020926192106.GD1843@beaverton.ibm.com> <20020927054153.GA27698@praka.local.home> <3D93F363.4070306@pobox.com>
+	id <S261714AbSI0Q4A>; Fri, 27 Sep 2002 12:56:00 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:24074 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261712AbSI0Qz7>; Fri, 27 Sep 2002 12:55:59 -0400
+Date: Fri, 27 Sep 2002 18:01:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [RFC] LSM changes for 2.5.38
+Message-ID: <20020927180118.A32610@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20020927003210.A2476@sgi.com> <20020926225147.GC7304@kroah.com> <20020927174849.A32207@infradead.org> <20020927165556.GH11530@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D93F363.4070306@pobox.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020927165556.GH11530@kroah.com>; from greg@kroah.com on Fri, Sep 27, 2002 at 09:55:56AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik [jgarzik@pobox.com] wrote:
-> Wow, thanks for all that information, and it's great that you've 
-> integrated Arjan's work and feedback.
+On Fri, Sep 27, 2002 at 09:55:56AM -0700, Greg KH wrote:
+> For cases like the module_* hooks, and the other examples you pointed
+> out, I agree.
 > 
-> There is one big question left unanswered...  Where can the source for 
-> the latest version with all this wonderful stuff be found?  :)  I don't 
-> see a URL even for 6.01b5.
+> For other cases, capable() is just not fine grained enough to actually
+> know what is going on (like CAP_SYS_ADMIN).  In those cases you need an
+> extra hook to determine where in the kernel you are.
 
-I case you already did not get the url.
-
-	http://download.qlogic.com/drivers/5642/qla2x00-v6.1b5-dist.tgz
-
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+Either we make capable fine grained enough (64 or 128bit capability
+vectors, I have some old code for that around and I know SGI used that
+more than a year ago) or we replace the capable in those cases with hooks
+entirely.
 

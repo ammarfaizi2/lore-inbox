@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTJLGF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 02:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263425AbTJLGF1
+	id S263426AbTJLG3p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 02:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTJLG3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 02:05:27 -0400
-Received: from adsl-67-67-9-206.dsl.okcyok.swbell.net ([67.67.9.206]:39640
-	"HELO homer.d-oh.org") by vger.kernel.org with SMTP id S263424AbTJLGFV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 02:05:21 -0400
-From: "Alex Adriaanse" <alex_a@caltech.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: ReiserFS patch for updating ctimes of renamed files
-Date: Sun, 12 Oct 2003 01:05:19 -0500
-Message-ID: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
+	Sun, 12 Oct 2003 02:29:45 -0400
+Received: from cartman.gtsi.sk ([62.168.96.9]:59573 "EHLO cartman.gtsi.sk")
+	by vger.kernel.org with ESMTP id S263426AbTJLG3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 02:29:44 -0400
+Subject: Oops on APM wakeup on 2.4.22/23-pre, works with 2.6.0-test
+To: linux-kernel@vger.kernel.org
+Date: Sun, 12 Oct 2003 08:29:41 +0200 (CEST)
+Cc: sfr@canb.auug.org.au, apmd-list@lists.nit.ca
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E1A8ZjZ-0000gQ-00@trillian.meduna.org>
+From: Stanislav Meduna <stano@meduna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I ran into some trouble trying to do incremental backups with GNU tar
-(using --listed-incremental) where renaming a file in between backups would
-cause the file to disappear upon restoration.  When investigating the issue
-I discovered that this doesn't happen on ext2, ext3, and tmpfs filesystems
-but only on ReiserFS filesystems.  I also noticed that for example ext3
-updates the affected file's ctime upon rename whereas ReiserFS doesn't, so
-I'm thinking this causes tar to believe that the file existed before the
-first backup was taking under the new name, and as a result it doesn't back
-it up during the second backup.  So I believe ReiserFS needs to update
-ctimes for renamed files in order for incremental GNU tar backups to work
-reliably.
+I am trying to get the suspend to RAM working on an old
+Compaq Armada 1592 notebook.
 
-I made some changes to the reiserfs_rename function that I *think* should
-fix the problem.  However, I don't know much about ReiserFS's internals, and
-I haven't been able to test them out to see if things work now since I can't
-afford to deal with potential FS corruption with my current Linux box.
+With the kernel 2.4.22 from Debian unstable or with vanilla
+2.4.23-pre7 I am getting an Oops on wakeup in apmd.
+Unfortunately I am not able to capture it, as there
+is an endless series of Oopsen with stacks longer
+than tens of screens - judging from the patterns in
+the addresses this actually looks like some recursive
+call somewhere. It is completely reproducible. Nothing
+is logged on the disk - the machine never comes up
+enough to be able to write something to disk.
 
-I included a patch below against the 2.4.22 kernel with my changes.  Would
-somebody mind taking a look at this to see if I did things right here (and
-perhaps wouldn't mind testing it out either)?  If it works then I (and I'm
-sure others who've experienced the same problem) would like to see the
-changes applied to the next 2.4.x (and 2.6.x?) release.
+With 2.6.0-test7 the wakeup works fine - unfortunately I can't
+use 2.6.0 due to other problems such as unstable PCMCIA
+when removing devices and inability to compile standalone
+pcmcia-cs modules against it (I think both are known).
 
-Thanks a lot.
+apmd is 3.2.0 from Debian unstable.
 
-Alex
+Getting the oops through a serial console is a bit complicated
+right now (have to solder null-modem cable first etc), so I would
+like to know first whether this kind of problem is known
+and whether there are some other suggested things/patches
+to try.
 
---- fs/reiserfs/namei.c.orig    Mon Aug 25 06:44:43 2003
-+++ fs/reiserfs/namei.c Sun Oct 12 00:39:05 2003
-@@ -1207,6 +1207,8 @@
-     journal_mark_dirty (&th, old_dir->i_sb, old_de.de_bh);
-     old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
-     new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
-+    old_inode->i_ctime = CURRENT_TIME;
-+    reiserfs_update_sd (&th, old_inode);
+Please, Cc: the followups to me, I don't read the lists
+regularly.
 
-     if (new_dentry_inode) {
-        // adjust link number of the victim
+Thanks
+-- 
+                                  Stano
 

@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281433AbRKMBoM>; Mon, 12 Nov 2001 20:44:12 -0500
+	id <S281430AbRKMCAj>; Mon, 12 Nov 2001 21:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281430AbRKMBoC>; Mon, 12 Nov 2001 20:44:02 -0500
-Received: from f86.law4.hotmail.com ([216.33.149.86]:64775 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S281434AbRKMBnw>;
-	Mon, 12 Nov 2001 20:43:52 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: mpitts@suite224.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Testing Kernel Releases Before Being Released (Was Re: Re: loop back broken
- in 2.2.14)
-Date: Tue, 13 Nov 2001 01:43:46 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F86CRjNLBQ2qKollLJy0000e278@hotmail.com>
-X-OriginalArrivalTime: 13 Nov 2001 01:43:46.0725 (UTC) FILETIME=[A2919550:01C16BE4]
+	id <S281434AbRKMCAT>; Mon, 12 Nov 2001 21:00:19 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:46571 "EHLO
+	smtprelay1.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S281430AbRKMCAR>; Mon, 12 Nov 2001 21:00:17 -0500
+Date: Mon, 12 Nov 2001 21:01:58 -0500 (EST)
+From: "Steven N. Hirsch" <shirsch@adelphia.net>
+X-X-Sender: <hirsch@atx.fast.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: fdisk doesn't know # of cylinders w/ 2.4.15pre2
+Message-ID: <Pine.LNX.4.33.0111122057120.4249-100000@atx.fast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Be patient Linus will open up the 2.5.x tree as soon as he thinks that the 
-2.4.x tree is done and ready to say his good bye´s to.
+I haven't seen any other reports of this, but fdisk is suddenly unable to 
+figure out the geometry of unpartitioned SCSI drives with 2.4.15pre2!  It 
+comes up complaining that the number of cylinders must be set at the 
+expert menu.
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+If I reboot with 2.4.10-ac12 it works as it always did; assuming a 
+reasonable geometry and permitting me to partition the disk.  Once 
+partitioned, it IS recognized correctly by the newer kernel.
+
+Quite repeatable.
+
+Steve
+
 

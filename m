@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265369AbTBFF6Z>; Thu, 6 Feb 2003 00:58:25 -0500
+	id <S265382AbTBFF7V>; Thu, 6 Feb 2003 00:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265382AbTBFF6Z>; Thu, 6 Feb 2003 00:58:25 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:59141 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265369AbTBFF6Y>; Thu, 6 Feb 2003 00:58:24 -0500
-Date: Thu, 6 Feb 2003 07:07:42 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.59 won't boot, 2.5.58 will, how to I use bitkeeper to get 'in between' ?
-Message-ID: <20030206060742.GA6458@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
+	id <S265506AbTBFF7V>; Thu, 6 Feb 2003 00:59:21 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:63504 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S265382AbTBFF7T>;
+	Thu, 6 Feb 2003 00:59:19 -0500
+Date: Thu, 6 Feb 2003 07:02:23 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Larry McVoy <lm@work.bitmover.com>, Ben Collins <bcollins@debian.org>,
+       Larry McVoy <lm@bitmover.com>, Andrea Arcangeli <andrea@e-mind.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: openbkweb-0.0
+Message-ID: <20030206060223.GB6859@alpha.home.local>
+References: <20030206021029.GW19678@dualathlon.random> <20030206030908.GA26137@work.bitmover.com> <20030206042303.GB523@phunnypharm.org> <20030206043737.GA27374@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030206043737.GA27374@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Until now, all 2.5.59-based kernels (2.5.59 vanilla, 2.5.59 + vmlinux
-patch, 2.5.59-mm[1-8]) hang very early in the boot-process on my system,
-right after 'Uncompressing Linux...'
+On Wed, Feb 05, 2003 at 08:37:37PM -0800, Larry McVoy wrote:
+> > You may want to enable mod_deflate, and then scripts can easily make use
+> > of gzip compressed data. May not be an end-all, but something to
+> > consider.
+> 
+> Gzip will give 4:1 what these scripts are doing is more like 1000:1.  
+> So gzipping the data gets you down to 250:1.  That's still way more
+> bandwidth, way too much to be acceptable.
 
-I am willing to try which patch between 2.5.58 and 2.5.59 caused this,
-but I can't find out how to extract these patches. If I browse the
-linux-2.5 repository on the web-interface @ bitkeeper, I don't see a
-message 'And with this patch-set, we've reached 2.5.58 - any patches
-after this apply to 2.5.58 and will create 2.5.59 in due time'.
+Larry, would it be acceptable/possible to regularly push some data/metadata
+to sites like kernel.org that people already consult for kernel development ?
+This way, Andrea's tool would only have to check kernel.org, and not bkbits.net.
 
-/usr/src/linux/Documentation/BK-usage/ seems to focus more on uploading
-patches. There is something on getting the diff between two kernel
-versions, but I need finer patches/revisions/changesets. I can see how
-to download the initial tree, but what do I do next?
+Another solution is to fetch from a reverse proxy-cache on a high-bandwidth
+site, provided that we know what to cache, of course. This could even reduce
+your current HTTP usage since nearly everything should be cacheable for a very
+long period.
 
-Thanks,
-Jurriaan
--- 
-In case of fire, do not attempt to use lifts.
-(To which was added:)
-Try a fire extinguisher.
-GNU/Linux 2.4.21-pre3-ac5 SMP/ReiserFS 2x2339 bogomips load av: 0.00 0.16 0.16
+You know, sometimes I fetch changesets from bkbits.net with my browser, and
+I later convert them from html to text with a very trivial sed script. And it
+happens that I remember you saying that the bandwidth costs you very much, then
+I feel a bit guilty (although about once a week may not be too much) and I
+wonder what would happen if everyone did the same regularly.
+
+You may also try to cap the bandwidth from the web server, to dissuade people
+from using it, but still not closing it. This could also help you not to pay
+for the extra bytes.
+
+Just some suggestions, of course. I wouldn't like your http service to be
+closed since I sometimes use it.
+
+Cheers,
+Willy
+

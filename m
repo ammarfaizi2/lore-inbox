@@ -1,54 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271977AbRH2OVR>; Wed, 29 Aug 2001 10:21:17 -0400
+	id <S271978AbRH2Oar>; Wed, 29 Aug 2001 10:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271976AbRH2OVH>; Wed, 29 Aug 2001 10:21:07 -0400
-Received: from wit.mht.bme.hu ([152.66.80.190]:42892 "HELO wit.wit.mht.bme.hu")
-	by vger.kernel.org with SMTP id <S271977AbRH2OUy>;
-	Wed, 29 Aug 2001 10:20:54 -0400
-Date: Wed, 29 Aug 2001 16:21:05 +0200 (CEST)
-From: Csanad Szabo <csanad.szabo@wit.mht.bme.hu>
-To: Kernel <linux-kernel@vger.kernel.org>
-Cc: Netfilter <netfilter@lists.samba.org>
-Subject: kernel panic because of route manipulation
-Message-ID: <Pine.LNX.4.02.10108281433410.1828-100000@wit.wit.mht.bme.hu>
+	id <S271982AbRH2Oah>; Wed, 29 Aug 2001 10:30:37 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52486 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271978AbRH2OaY>; Wed, 29 Aug 2001 10:30:24 -0400
+Subject: Re: Keeping the 'cached' memory under control
+To: monkeyiq@users.sourceforge.net (monkeyiq)
+Date: Wed, 29 Aug 2001 15:33:52 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, monkeyiq@users.sourceforge.net
+In-Reply-To: <200108291300.f7TD05T01627@monkeyiq.dnsalias.org> from "monkeyiq" at Aug 29, 2001 11:00:05 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15c6Pg-0007gR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+>   Also my special internet keys didn't work on the ac tree from my
+> USB keyboard but using the same .config work fine in 2.4.9 anyone
+> experienced a similar thing? This is with vmlinuz-2.4.7-ac9 and some
+> 2.4.8-ac kernels that I've tried.
 
-I'm writing a kernel module that uses the netfilter framework to catch IP
-packets upon which I want to manipulate the kernel routing table.
-
-I use the ip_rt_ioctl (in: net/ipv4/fib_frontend.c) to manipulate the
-routing table. I succeeded to manipulate it whenever my kernel module is
-not registered to a netfilter hook.
-
-Unfortunately, whenever my kernel module has registered a function to a
-netfilter hook and I want to add/delete a valid routing entry it leads to
-kernel panic. I found out that the function 'rtmsg_fib' (in: 
-net/ipv4/fib_hash.c) calls 'alloc_skb' nonatomically (the kernel
-error msg can be found in net/core/skbuff.c, lines 172-4) although the
-arguments passed to alloc_skb, i.e., size and gfp_mask, are the same as in
-those cases when the routing entry is taken successfully.
-
-Is there any spinlock, semaphore or memory management operation which I
-have forgotten to investigate? Or having a pointer to a packet I cannot
-freely manipulate the routing table as in any other case? What can lead to
-such a kernel panic?
-
-I'm using the kernel 2.4.3 on an HP Omnibook 900 (i686). If anyone can
-help me I'm willing to send him the kernel module and the list of
-the changes (printk with KERN_ALERT) I made.
-
-Regards,
-
-	Csanad
---------------------------------------------------------------------------
-Csanad Szabo, Ph.D. Student                    mail: csanad@wit.mht.bme.hu
-Technical University of Budapest          Department of Telecommunications
-
-
-
+The -ac tree has a newer input device layer so check you have the hid not
+hidbp based modules loaded  and report it to the input device maintainer

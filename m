@@ -1,163 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265596AbSJSNGv>; Sat, 19 Oct 2002 09:06:51 -0400
+	id <S265597AbSJSNPU>; Sat, 19 Oct 2002 09:15:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265597AbSJSNGv>; Sat, 19 Oct 2002 09:06:51 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:20180 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265596AbSJSNGt>;
-	Sat, 19 Oct 2002 09:06:49 -0400
-Message-Id: <5.1.0.14.2.20021019143721.00b43c50@wen-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 19 Oct 2002 15:09:52 +0200
-To: linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: massive context switching.. how to trap
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_14391265==_"
+	id <S265600AbSJSNPU>; Sat, 19 Oct 2002 09:15:20 -0400
+Received: from a169250.upc-a.chello.nl ([62.163.169.250]:2308 "EHLO
+	walton.kettenis.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265597AbSJSNPT>; Sat, 19 Oct 2002 09:15:19 -0400
+Date: Sat, 19 Oct 2002 15:20:19 +0200 (CEST)
+Message-Id: <200210191320.g9JDKJWs001201@elgar.kettenis.dyndns.org>
+From: Mark Kettenis <kettenis@chello.nl>
+To: dan@debian.org, mingo@elte.hu
+CC: mgross@unix-os.sc.intel.com, linux-kernel@vger.kernel.org,
+       phil-list@redhat.com
+In-reply-to: <20021018004847.GA27817@nevyn.them.org> (message from Daniel
+	Jacobowitz on Thu, 17 Oct 2002 20:48:47 -0400)
+Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
+References: <Pine.LNX.4.44.0210171009240.12653-100000@localhost.localdomain> <200210180004.g9I04OP17510@unix-os.sc.intel.com> <20021018004847.GA27817@nevyn.them.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_14391265==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+   Date: Thu, 17 Oct 2002 20:48:47 -0400
+   From: Daniel Jacobowitz <dan@debian.org>
 
-Greetings,
+   You'd have to ask Mark Kettenis about that.  Mark, it looks like you
+   updated the kernel to write namesz == 6, but BFD still expects 5 (and
+   elfcore_write_note writes 6)?  Shouldn't we accept both, anyway?
 
-While load testing 2.5.43-mm2, I noticed some peculiar context switch 
-storms.  (The test load is a make -j30 bzImage.  Box is a PIII-500 w. 128MB 
-ram, using gcc 2.95.3)  I do not see storms running the same load under 
-2.5.44.virgin.
+Depends...
 
-Trying narrow down what the heck it could be, I wrote attached 
-diff.txt.  Twice, it produced the cleaned/processed output in trace1.txt 
-(near start of build!).  One running task with > 100000 context 
-switches/sec seems unlikely, so I suspect I missed the event, and wonder if 
-there's a better way to photograph the little beasty.  The output in 
-trace2.txt is pretty typical.. seems to be much scheduling with no place to go.
+The whole story about the SSE register stuff is a bit muddy.  IIRC,
+the support for the reg-xfp sections was added by Jim Blandy to
+support unofficial kernel patches that were developed/used internally
+at RedHat.  That's probably why Jim picked this weird value for
+NT_FPXREG.  Only some parts of those kernel patches ended up in
+Linus's tree, and even those bits underwent some changes for which I
+adjusted GDB.  Even now the official kernel still doesn't have support
+for the SSE registers in core files, and as far as I know there is no
+patch floating around that's in wide use (yet) that adds this support.
+Therefore, I don't think we should "contaminate" our source with
+backwards compatibility hacks.  That's what I suggested when I
+submitted a patch for BFD.  See the thread at:
 
-Ideas on how to better focus my camera?
+   http://sources.redhat.com/ml/binutils/2002-07/msg00096.html
 
-	-Mike
---=====================_14391265==_
-Content-Type: text/plain; name="diff.txt";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="diff.txt"
+As you can see from the last message I got permission to change 5 into
+6.  Then I went on holiday, and forgot about the stuff :-(.  I assume
+Alan would be still OK with the patch, so I'll add the change in a moment.
 
-LS0tIGtlcm5lbC9zY2hlZC5jLm9yZwlGcmkgT2N0IDE4IDE0OjQ2OjM2IDIwMDIKKysrIGtlcm5l
-bC9zY2hlZC5jCVNhdCBPY3QgMTkgMTQ6MDc6MDggMjAwMgpAQCAtOTU0LDYgKzk1NCwyNSBAQAog
-CXByaW9fYXJyYXlfdCAqYXJyYXk7CiAJc3RydWN0IGxpc3RfaGVhZCAqcXVldWU7CiAJaW50IGlk
-eDsKKwlpbnQgbm93ID0gamlmZmllczsKKwlzdGF0aWMgaW50IHRpbWVvdXQsIGNvbnRleHQ7CisK
-KwlpZiAoY29udGV4dCsrID4gMTAwMDAwKSB7CisJCXN0cnVjdCB0YXNrX3N0cnVjdCAqIHA7CisJ
-CXN0YXRpYyB2b2lkIHNob3dfdGFzayh0YXNrX3QgKiBwKTsKKworCQlyZWFkX2xvY2soJnRhc2ts
-aXN0X2xvY2spOworCQlmb3JfZWFjaF9wcm9jZXNzKHApCisJCQlpZiAocC0+c3RhdGUgPT0gVEFT
-S19SVU5OSU5HKQorCQkJCXNob3dfdGFzayhwKTsKKwkJcmVhZF91bmxvY2soJnRhc2tsaXN0X2xv
-Y2spOworCQljb250ZXh0ID0gMDsKKwkJcHJpbnRrKCJTUEFDRVJcblxuIik7CisJfQorCWlmICh0
-aW1lX2FmdGVyKG5vdywgdGltZW91dCkpIHsKKwkJY29udGV4dCA9IDA7CisJCXRpbWVvdXQgPSBu
-b3cgKyBIWjsKKwl9CiAKIAkvKgogCSAqIFRlc3QgaWYgd2UgYXJlIGF0b21pYy4gIFNpbmNlIGRv
-X2V4aXQoKSBuZWVkcyB0byBjYWxsIGludG8K
---=====================_14391265==_
-Content-Type: text/plain; name="trace1.txt";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="trace1.txt"
+In the light of the discussion above, I don't think Ingo's patch
+should change NT_FPXREG/NT_PRFPXREG from 20 to 0x46e62b7f (and the
+name shouldn't be changed either I think).  We should change it in
+GDB/BFD instead from 0x46e62b7f.  The value 20 is already publically
+available in the current kernel headers and glibc headers.  What are
+your feelings about that, Ingo?
 
-Z2NjICAgICAgICAgICBSIEM2N0Q0MDAwICAgICAwICAgNTAzICAgIDQ2OSAgICAgICAgICAgICAg
-ICAgICAgIChOT1RMQikKVHJhY2U7IGMwMTEzYTg3IDxzbGVlcF9vbis1Yi84ND4KVHJhY2U7IGMw
-MTEzNzAwIDxkZWZhdWx0X3dha2VfZnVuY3Rpb24rMC8zND4KVHJhY2U7IGMwMTNjZjNmIDxzbGVl
-cF9vbl9idWZmZXIrZi8xND4KVHJhY2U7IGMwMTc0ZWM1IDxkb19nZXRfd3JpdGVfYWNjZXNzKzI5
-MS80ZWM+ClRyYWNlOyBjMDE3NTE2NyA8am91cm5hbF9nZXRfd3JpdGVfYWNjZXNzKzQ3LzY4PgpU
-cmFjZTsgYzAxNmQyMWEgPGV4dDNfcmVzZXJ2ZV9pbm9kZV93cml0ZSszMi9hOD4KVHJhY2U7IGMw
-MTc0NTc0IDxzdGFydF90aGlzX2hhbmRsZStiOC8xYzA+ClRyYWNlOyBjMDE3NDYzNSA8c3RhcnRf
-dGhpc19oYW5kbGUrMTc5LzFjMD4KVHJhY2U7IGMwMTZkMmFhIDxleHQzX21hcmtfaW5vZGVfZGly
-dHkrMWEvMzQ+ClRyYWNlOyBjMDE2ZDM1NyA8ZXh0M19kaXJ0eV9pbm9kZSs5My8xMDA+ClRyYWNl
-OyBjMDE1NWIxMCA8X19tYXJrX2lub2RlX2RpcnR5KzMwL2Q4PgpUcmFjZTsgYzAxNTBkNzggPHVw
-ZGF0ZV9hdGltZSs0OC81MD4KVHJhY2U7IGMwMTI5NjI2IDxkb19nZW5lcmljX2ZpbGVfcmVhZCsz
-NDIvMzUwPgpUcmFjZTsgYzAxMjk5ZTcgPF9fZ2VuZXJpY19maWxlX2Fpb19yZWFkKzFjYi8xZTQ+
-ClRyYWNlOyBjMDEyOTY3NCA8ZmlsZV9yZWFkX2FjdG9yKzAvMWE4PgpUcmFjZTsgYzAxMjlhNDUg
-PGdlbmVyaWNfZmlsZV9haW9fcmVhZCs0NS81MD4KVHJhY2U7IGMwMTNiOTg5IDxkb19zeW5jX3Jl
-YWQrODEvYjQ+ClRyYWNlOyBjMDE0NWYyMCA8ZG9fbG9va3VwKzE4Lzg4PgpUcmFjZTsgYzAxNGU1
-OTYgPGRwdXQrMWEvMWIwPgpUcmFjZTsgYzAxMzA5NTYgPGJ1ZmZlcmVkX3JtcXVldWUrZmEvMTIw
-PgpUcmFjZTsgYzAxMzA5NmYgPGJ1ZmZlcmVkX3JtcXVldWUrMTEzLzEyMD4KVHJhY2U7IGMwMTNi
-YTgxIDx2ZnNfcmVhZCtjNS8xNDQ+ClRyYWNlOyBjMDE0MzkxYyA8a2VybmVsX3JlYWQrNDAvNGM+
-ClRyYWNlOyBjMDE0NDIzMSA8cHJlcGFyZV9iaW5wcm0rYWQvYjg+ClRyYWNlOyBjMDE0NDcyNyA8
-ZG9fZXhlY3ZlKzEzYi8yNTA+ClRyYWNlOyBjMDEwNWFjZiA8c3lzX2V4ZWN2ZSsyZi82MD4KVHJh
-Y2U7IGMwMTA2ZjZiIDxzeXNjYWxsX2NhbGwrNy9iPgo=
---=====================_14391265==_
-Content-Type: text/plain; name="trace2.txt";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="trace2.txt"
-
-Y2MxICAgICAgICAgICBSIEM2RjhFMDAwICAgICAwICAyMzc2ICAgMjMyNiAgICAgICAgICAgICAg
-ICAgICAgIChOT1RMQikKVHJhY2U7IGMwMTEzODI0IDx1c2VyX3NjaGVkdWxlKzgvYz4KVHJhY2U7
-IGMwMTA2ZjkyIDx3b3JrX3Jlc2NoZWQrNS8xNj4KCmNjMSAgICAgICAgICAgUiBDNEEyRTAwMCAg
-ICAgMCAgMjM3NyAgIDIzNDQgICAgICAgICAgICAgICAgICAgICAoTk9UTEIpClRyYWNlOyBjMDEx
-MzgyNCA8dXNlcl9zY2hlZHVsZSs4L2M+ClRyYWNlOyBjMDEwNmY5MiA8d29ya19yZXNjaGVkKzUv
-MTY+CgpjYzEgICAgICAgICAgIFIgQzU0RUMwMDAgICAgIDQgIDI1NjYgICAyNTUzICAgICAgICAg
-ICAgICAgICAgICAgKE5PVExCKQpUcmFjZTsgYzAxMTM4MjQgPHVzZXJfc2NoZWR1bGUrOC9jPgpU
-cmFjZTsgYzAxMDZmOTIgPHdvcmtfcmVzY2hlZCs1LzE2PgoKY2MxICAgICAgICAgICBSIEMxREQ4
-MDAwICAgIDE2ICAyNTY4ICAgMjU2MSAgICAgICAgICAgICAgICAgICAgIChOT1RMQikKVHJhY2U7
-IGMwMTEzODI0IDx1c2VyX3NjaGVkdWxlKzgvYz4KVHJhY2U7IGMwMTA2ZjkyIDx3b3JrX3Jlc2No
-ZWQrNS8xNj4KCmNjMSAgICAgICAgICAgUiBDMkMwNjAwMCAgICAgNCAgMjU3MSAgIDI1MTkgICAg
-ICAgICAgICAgICAgICAgICAoTk9UTEIpClRyYWNlOyBjMDExMzgyNCA8dXNlcl9zY2hlZHVsZSs4
-L2M+ClRyYWNlOyBjMDEwNmY5MiA8d29ya19yZXNjaGVkKzUvMTY+CgpjYzEgICAgICAgICAgIFIg
-QzExMEE5QTAgICAgMTYgIDI1ODEgICAyNTM4ICAgICAgICAgICAgICAgICAgICAgKE5PVExCKQpU
-cmFjZTsgYzAxYWQwOTcgPGlvX3NjaGVkdWxlK2IvMTQ+ClRyYWNlOyBjMDEyOGUzMiA8d2FpdF9v
-bl9wYWdlX2JpdCthMi9iOD4KVHJhY2U7IGMwMTE0YTM0IDxhdXRvcmVtb3ZlX3dha2VfZnVuY3Rp
-b24rMC8zOD4KVHJhY2U7IGMwMTE0YTM0IDxhdXRvcmVtb3ZlX3dha2VfZnVuY3Rpb24rMC8zOD4K
-VHJhY2U7IGMwMTM0ZDU2IDxzaG1lbV9nZXRwYWdlKzFhNi81MTg+ClRyYWNlOyBjMDEzNWExZSA8
-ZG9fc2htZW1fZmlsZV9yZWFkKzRlLzFhOD4KVHJhY2U7IGMwMTM1YmQ2IDxzaG1lbV9maWxlX3Jl
-YWQrNWUvNzg+ClRyYWNlOyBjMDEzYmE4MSA8dmZzX3JlYWQrYzUvMTQ0PgpUcmFjZTsgYzAxM2Jk
-MWEgPHN5c19yZWFkKzJhLzNjPgpUcmFjZTsgYzAxMDZmNmIgPHN5c2NhbGxfY2FsbCs3L2I+Cgpj
-YzEgICAgICAgICAgIFIgQzU0NUUwMDAgICAgIDQgIDI2MDkgICAyNTkyICAgICAgICAgICAgICAg
-ICAgICAgKE5PVExCKQpUcmFjZTsgYzAxMTM4MjQgPHVzZXJfc2NoZWR1bGUrOC9jPgpUcmFjZTsg
-YzAxMDZmOTIgPHdvcmtfcmVzY2hlZCs1LzE2PgoKY2MxICAgICAgICAgICBSIEMxMTAzODMwICAg
-ICAwICAyNjI5ICAgMjYxMyAgICAgICAgICAgICAgICAgICAgIChOT1RMQikKVHJhY2U7IGMwMWFk
-MDk3IDxpb19zY2hlZHVsZStiLzE0PgpUcmFjZTsgYzAxMjhlMzIgPHdhaXRfb25fcGFnZV9iaXQr
-YTIvYjg+ClRyYWNlOyBjMDExNGEzNCA8YXV0b3JlbW92ZV93YWtlX2Z1bmN0aW9uKzAvMzg+ClRy
-YWNlOyBjMDExNGEzNCA8YXV0b3JlbW92ZV93YWtlX2Z1bmN0aW9uKzAvMzg+ClRyYWNlOyBjMDEz
-NGQ1NiA8c2htZW1fZ2V0cGFnZSsxYTYvNTE4PgpUcmFjZTsgYzAxMzVhMWUgPGRvX3NobWVtX2Zp
-bGVfcmVhZCs0ZS8xYTg+ClRyYWNlOyBjMDEzNWJkNiA8c2htZW1fZmlsZV9yZWFkKzVlLzc4PgpU
-cmFjZTsgYzAxM2JhODEgPHZmc19yZWFkK2M1LzE0ND4KVHJhY2U7IGMwMTNiZDFhIDxzeXNfcmVh
-ZCsyYS8zYz4KVHJhY2U7IGMwMTA2ZjZiIDxzeXNjYWxsX2NhbGwrNy9iPgoKY2MxICAgICAgICAg
-ICBSIEMxMEIzQzQwICAgICA0ICAyNzA2ICAgMjY5MiAgICAgICAgICAgICAgICAgICAgIChOT1RM
-QikKVHJhY2U7IGMwMWFkMDk3IDxpb19zY2hlZHVsZStiLzE0PgpUcmFjZTsgYzAxMjhlMzIgPHdh
-aXRfb25fcGFnZV9iaXQrYTIvYjg+ClRyYWNlOyBjMDExNGEzNCA8YXV0b3JlbW92ZV93YWtlX2Z1
-bmN0aW9uKzAvMzg+ClRyYWNlOyBjMDExNGEzNCA8YXV0b3JlbW92ZV93YWtlX2Z1bmN0aW9uKzAv
-Mzg+ClRyYWNlOyBjMDEzNGQ1NiA8c2htZW1fZ2V0cGFnZSsxYTYvNTE4PgpUcmFjZTsgYzAxMzVh
-MWUgPGRvX3NobWVtX2ZpbGVfcmVhZCs0ZS8xYTg+ClRyYWNlOyBjMDEzNWJkNiA8c2htZW1fZmls
-ZV9yZWFkKzVlLzc4PgpUcmFjZTsgYzAxM2JhODEgPHZmc19yZWFkK2M1LzE0ND4KVHJhY2U7IGMw
-MTNiZDFhIDxzeXNfcmVhZCsyYS8zYz4KVHJhY2U7IGMwMTA2ZjZiIDxzeXNjYWxsX2NhbGwrNy9i
-PgoKY2MxICAgICAgICAgICBSIEM1MEE2MDAwICAgICAwICAyNzA4ICAgMjY4MSAgICAgICAgICAg
-ICAgICAgICAgIChOT1RMQikKVHJhY2U7IGMwMTEzODI0IDx1c2VyX3NjaGVkdWxlKzgvYz4KVHJh
-Y2U7IGMwMTA2ZjkyIDx3b3JrX3Jlc2NoZWQrNS8xNj4KCmNjMSAgICAgICAgICAgUiBDNDg2MDAw
-MCAgICAgNCAgMjczMyAgIDI3MzEgICAgICAgICAgICAgICAgICAgICAoTk9UTEIpClRyYWNlOyBj
-MDExMzgyNCA8dXNlcl9zY2hlZHVsZSs4L2M+ClRyYWNlOyBjMDEwNmY5MiA8d29ya19yZXNjaGVk
-KzUvMTY+CgpjYzEgICAgICAgICAgIFIgQzMwMTIwMDAgICAgIDAgIDI3MzcgICAyNzIyICAgICAg
-ICAgICAgICAgICAgICAgKE5PVExCKQpUcmFjZTsgYzAxMTM4MjQgPHVzZXJfc2NoZWR1bGUrOC9j
-PgpUcmFjZTsgYzAxMDZmOTIgPHdvcmtfcmVzY2hlZCs1LzE2PgoKZ2NjICAgICAgICAgICBSIEM2
-MjUyMDAwICAgIDE2ICAyNzM4ICAgMjU3NyAgICAgICAgICAgICAgICAgICAgIChOT1RMQikKVHJh
-Y2U7IGMwMTEzYTg3IDxzbGVlcF9vbis1Yi84ND4KVHJhY2U7IGMwMTEzNzAwIDxkZWZhdWx0X3dh
-a2VfZnVuY3Rpb24rMC8zND4KVHJhY2U7IGMwMTNjZjNmIDxzbGVlcF9vbl9idWZmZXIrZi8xND4K
-VHJhY2U7IGMwMTc0ZWM1IDxkb19nZXRfd3JpdGVfYWNjZXNzKzI5MS80ZWM+ClRyYWNlOyBjMDE3
-NTE2NyA8am91cm5hbF9nZXRfd3JpdGVfYWNjZXNzKzQ3LzY4PgpUcmFjZTsgYzAxNmQyMWEgPGV4
-dDNfcmVzZXJ2ZV9pbm9kZV93cml0ZSszMi9hOD4KVHJhY2U7IGMwMTc0NTc0IDxzdGFydF90aGlz
-X2hhbmRsZStiOC8xYzA+ClRyYWNlOyBjMDE3NDYzNSA8c3RhcnRfdGhpc19oYW5kbGUrMTc5LzFj
-MD4KVHJhY2U7IGMwMTZkMmFhIDxleHQzX21hcmtfaW5vZGVfZGlydHkrMWEvMzQ+ClRyYWNlOyBj
-MDE2ZDM1NyA8ZXh0M19kaXJ0eV9pbm9kZSs5My8xMDA+ClRyYWNlOyBjMDE1NWIxMCA8X19tYXJr
-X2lub2RlX2RpcnR5KzMwL2Q4PgpUcmFjZTsgYzAxNTBkNzggPHVwZGF0ZV9hdGltZSs0OC81MD4K
-VHJhY2U7IGMwMTI5NjI2IDxkb19nZW5lcmljX2ZpbGVfcmVhZCszNDIvMzUwPgpUcmFjZTsgYzAx
-Mjk5ZTcgPF9fZ2VuZXJpY19maWxlX2Fpb19yZWFkKzFjYi8xZTQ+ClRyYWNlOyBjMDEyOTY3NCA8
-ZmlsZV9yZWFkX2FjdG9yKzAvMWE4PgpUcmFjZTsgYzAxMjlhNDUgPGdlbmVyaWNfZmlsZV9haW9f
-cmVhZCs0NS81MD4KVHJhY2U7IGMwMTNiOTg5IDxkb19zeW5jX3JlYWQrODEvYjQ+ClRyYWNlOyBj
-MDExZTEyZSA8dXBkYXRlX3Byb2Nlc3NfdGltZXMrMmEvMzA+ClRyYWNlOyBjMDExZTAwNiA8dXBk
-YXRlX3dhbGxfdGltZSsxMi8zYz4KVHJhY2U7IGMwMTFlMmRmIDxkb190aW1lcis0Yi9jYz4KVHJh
-Y2U7IGMwMTI0YTU2IDxyY3VfcHJvY2Vzc19jYWxsYmFja3MrZGUvZjg+ClRyYWNlOyBjMDExYjE0
-OSA8dGFza2xldF9hY3Rpb24rM2QvNjA+ClRyYWNlOyBjMDExYWZjYSA8ZG9fc29mdGlycSs1YS9h
-Yz4KVHJhY2U7IGMwMTNiYTgxIDx2ZnNfcmVhZCtjNS8xNDQ+ClRyYWNlOyBjMDE0MzkxYyA8a2Vy
-bmVsX3JlYWQrNDAvNGM+ClRyYWNlOyBjMDE0NDIzMSA8cHJlcGFyZV9iaW5wcm0rYWQvYjg+ClRy
-YWNlOyBjMDE0NDcyNyA8ZG9fZXhlY3ZlKzEzYi8yNTA+ClRyYWNlOyBjMDEwNWFjZiA8c3lzX2V4
-ZWN2ZSsyZi82MD4KVHJhY2U7IGMwMTA2ZjZiIDxzeXNjYWxsX2NhbGwrNy9iPgo=
---=====================_14391265==_--
-
+Mark

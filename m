@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316081AbSEJUsD>; Fri, 10 May 2002 16:48:03 -0400
+	id <S316090AbSEJUwt>; Fri, 10 May 2002 16:52:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316090AbSEJUsC>; Fri, 10 May 2002 16:48:02 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:58559 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316081AbSEJUsC>; Fri, 10 May 2002 16:48:02 -0400
-Date: Fri, 10 May 2002 22:47:58 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kill task in TASK_UNINTERRUPTIBLE
-Message-ID: <20020510204758.GA19106@artax.karlin.mff.cuni.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CD9B44F.4A023A70@mvista.com> <Pine.LNX.4.21.0205090140240.32715-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316094AbSEJUws>; Fri, 10 May 2002 16:52:48 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:28592 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S316090AbSEJUws>;
+	Fri, 10 May 2002 16:52:48 -0400
+Date: Fri, 10 May 2002 16:52:48 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iget_locked [1/6]
+In-Reply-To: <20020510203658.GA23583@ravel.coda.cs.cmu.edu>
+Message-ID: <Pine.GSO.4.21.0205101649540.19226-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 09, 2002 at 01:49:35AM +0200, Roman Zippel wrote:
-> > > Except for processes accessing NFS files while the NFS server is down:
-> > > they will be stuck in TASK_UNINTERRUPTIBLE until the NFS server comes
-> > > back up again.
+
+
+On Fri, 10 May 2002, Jan Harkes wrote:
+
+> > > +			if (err) {
+> > > +				destroy_inode(inode);
+> > > +				return NULL;
+> > > +			}
 > > 
-> > A REALLY good argument for puting timeouts on your NSF mounts!  Don't
-> > leave home without them.
+> > Please, take that code out of the path - will be cleaner that way.
 > 
-> Use "mount -o intr" and you can kill the process.
+> Ok, a later patch already makes 'set' required, and I was only using the
+> failure path in Coda. I'll change this so that set never fails.
 
-Could someone please explain to me how this works? IIRC NFS uses
-generic_file_read as most other filesystems. And whe WaitOnPage in there
-sleeps in uninterruptible state. I was told, that though it would be
-easy to change here, it's almost impossible in page-fault, because
-trying to handle a signal might trigger the very same page-fault again.
+I'm not sure that it's a good assumption - just add if (err) goto set_failed;
+and take the cleanup there. 
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+> > >    destroy_inode: reiserfs_destroy_inode,
+> > >    read_inode: reiserfs_read_inode,
+> > > -  read_inode2: reiserfs_read_inode2,
+> > 
+> > Why do we keep ->read_inode() here?
+> 
+> Just in case someone outside of reiser calls 'iget' on a reiserfs inode.
+> I guess it's not really necessary to have it around.
+
+Umm...  Wait a second.  If reiserfs ->read_inode() would work, they wouldn't
+need ->read_inode2() in the first place.  So any external caller of iget()
+is going to have problems anyway, isn't it?
+ 
+> > > Here we simply add an argument to insert_inode_hash. If at some
+> > > point a FS specific getattr method is implemented it will be possible to
+> > > completely remove all uses of i_ino in the VFS.
+> >
+> > How about
+> > 
+> > static inline void insert_inode_hash(struct inode *inode)
+> > { 
+> >         __insert_inode_hash(inode, inode->i_hash);
+> 
+> Ok, will do that.
+> 
+> Should I create one patch that goes in relative to iget_locked-6, or
+> resubmit updated patches for each step? I guess an additional patch is
+> the easiest. Or a -6a that replaces the existing -6.
+
+-6a - incremental to -6 would mostly revert the stuff done in -6.
+

@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264874AbUD2Vs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbUD2VvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264874AbUD2Vs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264983AbUD2Vs5
+	id S262142AbUD2VvG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbUD2VtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:48:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20102 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264986AbUD2Vpf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:45:35 -0400
-Date: Thu, 29 Apr 2004 22:45:28 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Timothy Miller <miller@techsource.com>
-Cc: Paul Wagland <paul@wagland.net>, Rik van Riel <riel@redhat.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
+	Thu, 29 Apr 2004 17:49:11 -0400
+Received: from mesa.unizar.es ([155.210.11.66]:18664 "EHLO relay.unizar.es")
+	by vger.kernel.org with ESMTP id S264981AbUD2VsI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 17:48:08 -0400
+From: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>
+Reply-To: koke@sindominio.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Date: Thu, 29 Apr 2004 23:47:16 +0200
+User-Agent: KMail/1.6.1
+Cc: Timothy Miller <miller@techsource.com>, Paul Wagland <paul@wagland.net>,
+       Rik van Riel <riel@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>,
        David Gibson <david@gibson.dropbear.id.au>,
        Marc Boucher <marc@linuxant.com>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Message-ID: <20040429214528.GO17014@parcelfarce.linux.theplanet.co.uk>
 References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net> <4091757B.3090209@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <4091757B.3090209@techsource.com>
-User-Agent: Mutt/1.4.1i
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404292347.17431.koke_lkml@amedias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 05:36:59PM -0400, Timothy Miller wrote:
- 
-> While we're on all of this, are we going to change "tained" to some 
-> other less alarmist word?
+On Jueves, 29 de Abril de 2004 23:36, Timothy Miller wrote:
+>
+> Hmmm... how about "untrusted"?  Not sure...
+>
 
-"screwed"
+I like "untrusted". Another option is some like "binary only modules can make 
+your system unstable and kernel developers have nothing to do with that" (but 
+well written, and shorter if possible).
+
+-- 
+Jorge Bernal aka. Koke
+koke@amedias.org // koke@sindominio.net
+JID: koke@zgzjabber.ath.cx

@@ -1,76 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265906AbTF3VpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 17:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbTF3VpI
+	id S265911AbTF3Vtd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 17:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265915AbTF3Vtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 17:45:08 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:2455 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S265906AbTF3VpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 17:45:04 -0400
-Date: Tue, 1 Jul 2003 00:03:06 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] patch-O1int-0306302317 for 2.5.73 interactivity
-Message-ID: <20030630220306.GA17246@gmx.de>
-References: <200307010029.19423.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-In-Reply-To: <200307010029.19423.kernel@kolivas.org>
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.5.73-bk7-O1int i686
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
-User-Agent: Mutt/1.5.4i
+	Mon, 30 Jun 2003 17:49:32 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:51729 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S265911AbTF3VtT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 17:49:19 -0400
+Message-ID: <3F00ACF2.7020709@zianet.com>
+Date: Mon, 30 Jun 2003 15:34:42 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: gilson r <gilsonr@highstream.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5.72 doesn't load up
+References: <200306301655.06221.gilsonr@highstream.net> <200306302301.42046.m.c.p@wolk-project.de>
+In-Reply-To: <200306302301.42046.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Perhaps this option should just be set as default and don't
+even prompt the user for it during make config/menuconfig/xconfig.
+99% of the people probably want this option and for those who
+don't probably have the smarts to just manually edit the .config and
+remove it.
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Steve
 
-Hello,
+Marc-Christian Petersen wrote:
 
-I'm running this patch for a couple of hours and it is worse than the
-plain 2.5.73-bk7. It doesn't hang exactly (and I didn't listen to any
-music, yet) but during normal work (switching x-screens, scrolling in
-browser, pressing keys, etc.) the systems hangs non-deterministically
-for maybe half a second or so. For example, when I typed this sentence I
-noticed that pressing the backspace key didn't trigger anything for a
-while and then it continued with the sentence (correctly, tho).
-I cannot reproduce it and the machine is doing virtually nothing. Please
-tell me if you need more information.
-
-On Tue, Jul 01, 2003 at 12:29:19AM +1000, Con Kolivas wrote:
-> Buried deep in another mail thread was the latest implementation of my
-> O1int
-> patch so I've brought it to the surface to make it clear this one is
-> significantly different from past iterations.
+>On Monday 30 June 2003 22:55, gilson r wrote:
 >
-> Summary:
-> Decreases audio skipping with loads.
-> Smooths out X performance with load.
+>Hi Gilson,
+>
+>  
+>
+>>Just as when I tried 2.5.64, I get now the same result with 2.5.72.
+>>    
+>>
+>Consider using .73 :)
+>
+>  
+>
+>>When I reboot with the new kernel, I get:
+>>   "Booting 'Linux-2.5.72'
+>>   kernel (hd1,14)/vmlinuz-2.5.72 ro root=/dev/hdb2 hdc=ide-scsi
+>> [Linux - bzImage, setup=0x1400, size=0xdd72f]
+>>   initrd (hd1,14)/initrd-2.5.72.img
+>> [Linux - initrd @ 0xf7cb000, 0x14d14 bytes]
+>> Uncompressing Linux... Ok, booting the kernel."
+>>And it hangs there, whether I compile with Mandrake-9.1 or RedHat-8.
+>>I'd love to learn what I'm doing wrong.
+>>    
+>>
+>Well, does it _really_ hang or are you able to ping that machine from another 
+>machine? Your error looks like the 8435989 times discussed misconfiguration 
+>;)
+>
+>CONFIG_INPUT=y
+>CONFIG_VT=y
+>CONFIG_VT_CONSOLE=y
+>
+>Make sure you have the above set in your .config
+>
+>Or, to speak in menuconfig language:
+>
+>Input device support ->
+> [*] Input devices (needed for keyboard, mouse, ...)
+>Character devices ->
+> [*] Virtual terminal
+>    [*] Support for console on virtual terminal
+>
+>
+>ciao, Marc
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 
---=20
-Regards,
 
-Wiktor Wodecki
-
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/ALOa6SNaNRgsl4MRAoPyAKCkwR39wzLrdc8uJ7ZOw0DHaCrpJwCgkutK
-LKl+vJVwQC65i+Dm/V6RyNM=
-=OrL+
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbTDHOJD (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 10:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbTDHOJD (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 10:09:03 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:11322 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261809AbTDHOJC (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 10:09:02 -0400
-Date: Tue, 8 Apr 2003 17:20:20 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] New kernel tree for embedded linux
-Message-ID: <20030408142020.GS159052@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	linux-kernel@vger.kernel.org
-References: <20030407171037.GB8178@wohnheim.fh-wedel.de> <20030408093329.GT23095@lug-owl.de>
+	id S261814AbTDHOWa (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 10:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbTDHOWa (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 10:22:30 -0400
+Received: from HDOfa-01p2-156.ppp11.odn.ad.jp ([61.116.131.156]:64920 "HELO
+	hokkemirin.dyndns.org") by vger.kernel.org with SMTP
+	id S261814AbTDHOWa (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 10:22:30 -0400
+Date: Tue, 08 Apr 2003 23:34:05 +0900 (JST)
+Message-Id: <20030408.233405.74750582.whatisthis@jcom.home.ne.jp>
+To: tiwai@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre7/PCI : Unable to attach Sound module of VIA686A 
+From: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
+In-Reply-To: <s5hr88dqjc3.wl@alsa2.suse.de>
+References: <s5h1y0esjov.wl@alsa2.suse.de>
+	<20030407.212307.74751577.whatisthis@jcom.home.ne.jp>
+	<s5hr88dqjc3.wl@alsa2.suse.de>
+X-Mailer: Mew version 3.2 on Emacs 21.3 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030408093329.GT23095@lug-owl.de>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 08, 2003 at 11:33:30AM +0200, you [Jan-Benedict Glaw] wrote:
-> On Mon, 2003-04-07 19:10:37 +0200, Jörn Engel <joern@wohnheim.fh-wedel.de>
-> wrote in message <20030407171037.GB8178@wohnheim.fh-wedel.de>:
-> > Hi!
-> > 
-> > Some days ago, I've started a -je [*] tree which will focus on memory
-> > reduction for the linux kernel.
-> 
-> If you can live with being blind, substiture printk with a macro (doing
-> nothing but eventually evaluating the parameters). That'll easily give
-> you another 100K or even more.
+Dear Takashi,
 
-There was a quite flexible solution proposed sometime ago...
+ I tested this patch w/aic7xxx , that's OK.
 
-http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=20021024030143.GA13661%40eskimo.com&rnum=4&prev=/groups%3Fq%3Dprintk%2BCONFIG_TINY%26num%3D50%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26sa%3DN%26tab%3Dwg
+Regards,
+Ohta
 
-
-
--- v --
-
-v@iki.fi
+------ /proc/ioports w/alsa-0.9.2 ------
+5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+d000-d00f : VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE
+  d000-d007 : ide0
+  d008-d00f : ide1
+d400-d41f : VIA Technologies, Inc. USB
+  d400-d41f : usb-uhci
+d800-d81f : VIA Technologies, Inc. USB (#2)
+  d800-d81f : usb-uhci
+dc00-dcff : VIA Technologies, Inc. VT82C686 AC97 Audio Controller
+  dc00-dcff : VIA686A
+e000-e003 : VIA Technologies, Inc. VT82C686 AC97 Audio Controller
+e400-e403 : VIA Technologies, Inc. VT82C686 AC97 Audio Controller
+  e400-e401 : MPU401 UART
+e800-e8ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
+  e800-e8ff : 8139too
+ec00-ecff : PCI device 1317:9511 (Linksys)
+  ec00-ecff : tulip

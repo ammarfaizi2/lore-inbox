@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132605AbRDKPTA>; Wed, 11 Apr 2001 11:19:00 -0400
+	id <S132608AbRDKP2E>; Wed, 11 Apr 2001 11:28:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132613AbRDKPSu>; Wed, 11 Apr 2001 11:18:50 -0400
-Received: from deckard.concept-micro.com ([62.161.229.193]:15400 "EHLO
-	deckard.concept-micro.com") by vger.kernel.org with ESMTP
-	id <S132605AbRDKPSl>; Wed, 11 Apr 2001 11:18:41 -0400
-Message-ID: <XFMail.20010411171302.petchema@concept-micro.com>
-X-Mailer: XFMail 1.4.7p2 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S132606AbRDKP1x>; Wed, 11 Apr 2001 11:27:53 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:1043 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S132607AbRDKP1m>; Wed, 11 Apr 2001 11:27:42 -0400
+To: Ulrich.Lauther@mchp.siemens.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2 bug in handling vfat?
+In-Reply-To: <200104102022.f3AKM8Q03806@emma.mchp.siemens.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: 12 Apr 2001 00:27:23 +0900
+In-Reply-To: <200104102022.f3AKM8Q03806@emma.mchp.siemens.de>
+Message-ID: <87d7ajzcbo.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.102
 MIME-Version: 1.0
-In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C1A1@pcmailsrv1.sac.unify.com>
-Date: Wed, 11 Apr 2001 17:13:02 +0200 (MEST)
-X-Face: #eTSL0BRng*(!i1R^[)oey6`SJHR{3Sf4dc;"=af8%%;d"%\#"Hh0#lYfJBcm28zu3r^/H^
- d6!9/eElH'p0'*,L3jz_UHGw"+[c1~ceJxAr(^+{(}|DTZ"],r[jSnwQz$/K&@MT^?J#p"n[J>^O[\
- "%*lo](u?0p=T:P9g(ta[hH@uvv
-Organization: Concept Micro
-From: Pierre Etchemaite <petchema@concept-micro.com>
-To: "Manuel A. McLure" <mmt@unify.com>
-Subject: RE: Still IRQ routing problems with VIA
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
-Le 10-Apr-2001, Manuel A. McLure écrivait :
-> This may be the difference - I always set "Plug-n-Play OS: No" on all my
-> machines. Linux works fine and it doesn't seem to hurt Windows 98 any.
+Hi,
 
-I've been told it affects the way IRQs are assigned; With "PnP OS: No", some
-boards (seen on several Asus mainboards, ie Phoenix-Award BIOS) try to
-share IRQs as much as possible; It usually works, but the performance may
-suffer a bit.
+I think that it is the bug of FAT-fs.
+Please try the following patch.
 
-
-
+Thanks
 -- 
-We are the dot in 0.2 Kb/s
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+
+--=-=-=
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=fat-2.4.3.diff.gz
+Content-Transfer-Encoding: base64
+
+H4sICDZ21DoAA2ZhdC0yLjQuMy5kaWZmAIWNQWuDMACFz+ZXvMtAG6MxtummFdw/GGywo0iNa6Da
+YiKr/fWL68H1MJpLwvve99LotgUbhzccdT9emIjWURqdBv0VtyZuaxt32uyj/V98Twhj7IHsfaoG
+7+oMSHCZ8W0mXiA454RS+v+y93EY8XoekAhwniVOe561hJQlWLrh4RZ0viTKksDTvUVTT+Gk6iHs
+j9X87k69PeQEDo+9vrjMKrACZjKVvUb2WnXue6vMtzJ2JXlOmKdb+AtvjLW6UwEWnxZIJee32dVM
+UcBf+BMkD2JBfX8JYxfdAHY7bALqVLhz15lX55ZY/7aSJMjJD1vXZKiiAQAA
+--=-=-=--
+

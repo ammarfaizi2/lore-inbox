@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263008AbUK0BsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbUK0Bv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbUK0BsL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbUK0Brb
+	id S263030AbUK0Bv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263034AbUK0BrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 20:47:31 -0500
+	Fri, 26 Nov 2004 20:47:01 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263008AbUKZTiT (ORCPT
+	by vger.kernel.org with ESMTP id S263030AbUKZTi3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:38:19 -0500
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Brian King <brking@us.ibm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <419FD58A.3010309@us.ibm.com>
-References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-	 <1100917635.9398.12.camel@localhost.localdomain>
-	 <1100934567.3669.12.camel@gaston>
-	 <1100954543.11822.8.camel@localhost.localdomain>
-	 <419FD58A.3010309@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101137279.2756.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 24 Nov 2004 11:49:18 +0000
+	Fri, 26 Nov 2004 14:38:29 -0500
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+cc: Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: Xen VMM patch set - take 2 
+In-reply-to: Your message of "Fri, 19 Nov 2004 23:16:33 GMT."
+             <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> 
+Date: Thu, 25 Nov 2004 15:46:55 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CXLph-0000XC-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-11-20 at 23:38, Brian King wrote:
-> Alan Cox wrote:
-> > Some of the Intel CPU's are very bad at lock handling so it is an issue.
-> > Also most PCI config accesses nowdays go to onboard devices whose
-> > behaviour may well be quite different to PCI anyway. PCI has become a
-> > device management API.
-> 
-> Does this following patch address your issues with this patch, Alan?
 
-Doesn't seem related to it
+After an initial flourish of comments which I believe we've
+managed to address, it's all gone very quiet.
+
+Is that stunned silence or universal agreement? ;-)
+
+Thanks,
+Ian
+
+http://xen.sf.net
+
+> OK folks, this is my second attempt to post the arch xen patches,
+> this time against 2.6.10-rc2.
+> 
+> We need 6 core patches and a bug fix:
+> 
+>  1. add ptep_establish_new to make va available
+>  2. return code for arch_free_page
+>  3. runtime disable of VT console
+>  4. /dev/mem io_remap_page_range for CONFIG_XEN
+>  5. split free_irq into teardown_irq
+>  6. alloc_skb_from_cache
+> 
+> Bug fix:
+>  7. handle fragemented skbs correctly in icmp_filter
+> 
+> The actual new architecture, arch xen, is too big to post to the list,
+> so here's a link:
+>  http://www.cl.cam.ac.uk/netos/xen/downloads/arch-xen.patch
+> 
+> Likewise for the virtual block, network, and console drivers:
+>  http://www.cl.cam.ac.uk/netos/xen/downloads/drivers-xen.patch
+> 
+> Applying the above 9 patches should give you everything you need to
+> build full-featured arch xen kernels.
+> 
+> Arch xen will be maintained by myself, Keir Fraser, Christian Limpach
+> and Steve hand. 
+> 
+> Cheers,
+> Ian
+> 
 

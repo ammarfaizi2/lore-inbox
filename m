@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265783AbSKFQCu>; Wed, 6 Nov 2002 11:02:50 -0500
+	id <S265798AbSKFQL2>; Wed, 6 Nov 2002 11:11:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265784AbSKFQCu>; Wed, 6 Nov 2002 11:02:50 -0500
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:43272 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S265783AbSKFQCt>;
-	Wed, 6 Nov 2002 11:02:49 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Voyager subarchitecture for 2.5.46
-References: <200211061503.gA6F3DW02053@localhost.localdomain>
-	<1036597115.10238.40.camel@irongate.swansea.linux.org.uk>
-From: Christer Weinigel <christer@weinigel.se>
-Date: 06 Nov 2002 17:09:25 +0100
-In-Reply-To: <1036597115.10238.40.camel@irongate.swansea.linux.org.uk>
-Message-ID: <871y5yel3e.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S265800AbSKFQL2>; Wed, 6 Nov 2002 11:11:28 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:28041 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S265798AbSKFQLX>; Wed, 6 Nov 2002 11:11:23 -0500
+Date: Wed, 6 Nov 2002 11:18:42 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: James Cleverdon <jamesclv@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Kswapd madness in 2.4 kernels
+In-Reply-To: <20021106111149.GC3823@x30.school.suse.de>
+Message-ID: <Pine.LNX.4.44L.0211061118100.22953-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> > What I need is an option simply not to compile in the TSC code and use the PIT 
-> > instead.  What I'm trying to do with the TSC and PIT options is give three 
-> > choices:
-> > 
-> > 1. Don't use TSC (don't compile TSC code): X86_TSC=n, X86_PIT=y
-> > 
-> > 2. May use TSC but check first (blacklist, notsc kernel option).  X86_TSC=y, 
-> > X86_PIT=y
-> > 
-> > 3. TSC is always OK so don't need PIT.  X86_TSC=y, X86_PIT=n
-> 
-> [Plus we need X86_CYCLONE and we may need X86_SOMETHING else for some
-> pending stuff]
 
-Yes, for example the NatSemi SC2200 has a 32+1 bit "High Resolution
-Timer" that can be clocked either at 1MHz or 27MHz and that can
-generate an interrupt whenever it wraps around.
+On Wed, 6 Nov 2002, Andrea Arcangeli wrote:
 
-Just using the High Resolution timer would avoid the known problems
-with the TSC (stops on HLT, a bug when the low 32 bits of the TSC wrap
-around) and the PIT (something somewhere, maybe SMM mode, seems to
-mess upp the latch values).
+> On Tue, Nov 05, 2002 at 02:13:00PM -0800, James Cleverdon wrote:
+> > Status report:
+> >
+> > Due to dependencies, I didn't try the two recommended patches alone.  I ran
+> > Andrea's 2.4.20-pre10aa1 kernel on the test load for one week.  Low memory
+> > was conserved and kswapd never went out of control.  Presumably,
+> > 05_vm_16_active_free_zone_bhs-1 did the job for buffers, and the inode patch
+> > continued to work.
+>
+> yes, for stability the related-bh patch is known to be more than enough
+> and this is a nice confirmation. I would also like to integrated some
+> bit of andrew's nuke-buffer patch for performance reasons (to maximize
+> the free memory utilization), not for stability. For stability teaching
+> the VM about the problem is the right fix IMHO, good to have regardless
+> in case for some reason the bh cannot be nucked if we can't take a lock
+> or similar. But the bit that drops the bhs after reads may improve
+> memory utilization when there is no memory pressure at all. The part I
+> wouldn't merge in 2.4 from the Andrew's patch is the drop after writes,
+> that has the potential of slowing down rewrite. I'm not saying it will
+> slow down the rewrite performance, but there is definitely the
+> potential. My fix instead has no way to affect read/writes w/o memory
+> pressure compared to mainline (i.e. in a <1G machine).
+>
+> > Are there any plans on getting these into 2.4.21?
 
-  /Christer
+I will look closely at -aa during 2.4.21-pre stage, yes.
 
--- 
-"Just how much can I get away with and still go to heaven?"
+Andrea, please bug me on that.
 
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136746AbRAHE5o>; Sun, 7 Jan 2001 23:57:44 -0500
+	id <S136852AbRAHE6p>; Sun, 7 Jan 2001 23:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136763AbRAHE5e>; Sun, 7 Jan 2001 23:57:34 -0500
-Received: from frontier.axistangent.net ([63.101.14.200]:5623 "EHLO
-	foozle.turbogeek.org") by vger.kernel.org with ESMTP
-	id <S136746AbRAHE5b>; Sun, 7 Jan 2001 23:57:31 -0500
-Date: Sun, 7 Jan 2001 22:57:30 -0600
-From: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
-To: linux-kernel@vger.kernel.org
-Cc: axel@uni-paderborn.de
-Subject: [PATCH] More Configure.help fixes
-Message-ID: <20010107225730.A8883@foozle.turbogeek.org>
+	id <S136851AbRAHE6f>; Sun, 7 Jan 2001 23:58:35 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:43280 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S136763AbRAHE6Q>;
+	Sun, 7 Jan 2001 23:58:16 -0500
+Date: Sun, 7 Jan 2001 23:58:15 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Dan Hollis <goemon@anime.net>
+Cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+        "John O'Donnell" <johnod@voicefx.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: [OT] Re: .br blacklisted ?
+Message-ID: <20010107235815.B26813@xi.linuxpower.cx>
+In-Reply-To: <20010107223013.A26813@xi.linuxpower.cx> <Pine.LNX.4.30.0101072021090.6048-100000@anime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <Pine.LNX.4.30.0101072021090.6048-100000@anime.net>; from goemon@anime.net on Sun, Jan 07, 2001 at 08:24:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dag Wieers caught all the double word's in Configure.help (from the
-looks of the patch we're quite a bunch of stutterers), here's another
-patch that catches mainly some combined words, a '2.3' -> '2.4', and
-inproper capitalizations.
+On Sun, Jan 07, 2001 at 08:24:16PM -0800, Dan Hollis wrote:
+> On Sun, 7 Jan 2001, Gregory Maxwell wrote:
+> > You are suggesting that it is acceptable to implement technological
+> > barriers to a minority expressing speech that is unacceptable to the
+> > majority. This is not acceptable.
+> 
+> See Rowan v. United States Post Office.
+> 
+> *Your* right to free speech stops at *my* property.
+> 
+> Under no circumstances does your right to free speech trump the rights of
+> the unwilling recipient. Full Stop. End of story.
 
-Also, two of the translation's for Configure.help have stale URL's...
-I've XXX'd them, and sent a mail to the addresses for the maintainers
-of the Spanish and Italian translation to see if there is a new URL.
-
-The patch applies to 2.4.0 clean and to -ac4 with a bunch of offset
-warnings, but manages to match all the hunks. (go, patch!)
-
--- 
-Jeremy M. Dolan <jmd@turbogeek.org>
-OpenPGP key = http://turbogeek.org/openpgp-key
-OpenPGP fingerprint = 494C 7A6E 19FB 026A 1F52  E0D5 5C5D 6228 DC43 3DEE
+Your right to 'not listen' ends when it becomes attempt to manipulate
+companies and government to immorally limit speech of mine which does not
+affect you in any way.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

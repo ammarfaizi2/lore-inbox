@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288205AbSAIRNG>; Wed, 9 Jan 2002 12:13:06 -0500
+	id <S288814AbSAIROG>; Wed, 9 Jan 2002 12:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288814AbSAIRM5>; Wed, 9 Jan 2002 12:12:57 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:39940 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288205AbSAIRMo>; Wed, 9 Jan 2002 12:12:44 -0500
-Date: Wed, 9 Jan 2002 20:12:39 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] [PATCH] Suppress compilation warnings on big endian platform for reiserfs
-Message-ID: <20020109201239.B2123@namesys.com>
-In-Reply-To: <20020109200340.A2123@namesys.com> <Pine.LNX.4.21.0201091353230.20977-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S288828AbSAIRNw>; Wed, 9 Jan 2002 12:13:52 -0500
+Received: from web14906.mail.yahoo.com ([216.136.225.58]:64772 "HELO
+	web14906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S288814AbSAIRNQ>; Wed, 9 Jan 2002 12:13:16 -0500
+Message-ID: <20020109171315.71461.qmail@web14906.mail.yahoo.com>
+Date: Wed, 9 Jan 2002 12:13:15 -0500 (EST)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: Re: About Loop Device
+To: Doug McNaught <doug@wireboard.com>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+In-Reply-To: <m3r8oz8ngr.fsf@varsoon.denali.to>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0201091353230.20977-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Can you explain that detailed for me? I mean the whole
+command I can use to connect the loop device and the
+floppy disk.
 
-On Wed, Jan 09, 2002 at 01:56:02PM -0200, Marcelo Tosatti wrote:
+Thanks.
 
-> >    BTW, do you mean you won't accept any more patches until 2.4.19-pre1? (or what -pre1 do you mean?)
-> No, I'm just saying that you should send me non-bugfixes patches on
-> -pre1 kernels.
+Michael
 
-Ah, ok.
 
-Bye,
-    Oleg
+--- Doug McNaught <doug@wireboard.com> wrote:
+> Michael Zhu <mylinuxk@yahoo.ca> writes:
+> 
+> > Thanks for the reply. But when I try to use the
+> > command "mount -o loop /dev/fd0 /floppy", the
+> mount
+> > returns an error saying "mount: you must specify
+> the
+> > filesystem type". What is wrong? Thanks.
+> 
+> You probably want losetup(8) instead of mount.
+> 
+> -Doug
+> -- 
+> Let us cross over the river, and rest under the
+> shade of the trees.
+>    --T. J. Jackson, 1863
+
+
+______________________________________________________________________ 
+Web-hosting solutions for home and business! http://website.yahoo.ca

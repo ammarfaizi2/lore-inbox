@@ -1,64 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269453AbUJSPKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269452AbUJSPPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269453AbUJSPKK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 11:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269452AbUJSPKE
+	id S269452AbUJSPPV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 11:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269456AbUJSPPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 11:10:04 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:5049 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S269457AbUJSPJn
+	Tue, 19 Oct 2004 11:15:20 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269452AbUJSPPD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 11:09:43 -0400
-From: Alistair John Strachan <alistair@devzero.co.uk>
-Reply-To: alistair@devzero.co.uk
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.9: performance issues on Via Epia
-Date: Tue, 19 Oct 2004 16:04:22 +0100
-User-Agent: KMail/1.7.1
+	Tue, 19 Oct 2004 11:15:03 -0400
+Date: Tue, 19 Oct 2004 11:14:47 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Register corruption --patch
+Message-ID: <Pine.LNX.4.61.0410191112100.4820@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410191604.22747.alistair@devzero.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-I recently upgraded from 2.6.8.1 to 2.6.9 (the release, not -final) on my Via 
-Epia 5000 router. Now when I transfer files from the machine's HD vsftpd can 
-only achieve 3MB/s.
+This 'C' compiler destroys parameters passed to functions
+even though the code does not alter that parameter.
 
-I believe this is some performance problem specifically related to XFS, or 
-something specific to the local VM, because if I transfer from an NFS mounted 
-directory on the same machine, vsftpd easily achieves the 10MB/s I'm used to.
+gcc (GCC) 3.3.3 20040412 (Red Hat Linux 3.3.3-7)
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Top shows something typical to this during transfers from the machine's local 
-HD;
+For instance:
 
-Cpu(s):  0.7% us,  9.2% sy,  0.0% ni,  0.3% id, 84.5% wa,  5.3% hi,  0.0% si
+asmlinkage void __up(struct semaphore *sem)
+{
+     wake_up(&sem->wait);
+}
 
-Which seems like an awful lot of wait time. Anybody got any suggestions of 
-where to start reverting patches? The amount of difference between 2.6.8.1 
-and 2.6.9 is quite daunting.
+This was from /usr/src/linux-2.6.9/arch/i386/kernel/semaphore.c
+It this case, the value of 'sem' is destroyed which means that
+certain assembly-language helper functions no longer work.
 
-By the way, copying a file locally on the system from the same partition to 
-another directory is far more efficient.
+This was discovered by Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
 
-[root] 16:02 [~] time cp /var/cache/swapfile here
-`/var/cache/swapfile' -> `here'
+I have been having trouble with mysterious things like:
 
-real    0m37.904s
-user    0m0.115s
-sys     0m13.033s
+(1) Code that sleeps while holding a semaphore sometimes never
+releases that semaphore.
+(2) SCSI disk files disappearing after boot.
+(3) SCSI disk corruption preventing mounting after a boot.
+(4) Data errors in email.
+(5) Network connections failing to go away `netstat -c` shows
+hundreds of lines of very old history.
+... etc.
 
--- 
+The 'C' compiler is provided in a recent Fedora distribution.
+
+The following patch seems to fix it all!
+
+
+--- linux-2.6.9/arch/i386/kernel/semaphore.c.orig	2004-08-14 01:36:56.000000000 -0400
++++ linux-2.6.9/arch/i386/kernel/semaphore.c	2004-10-19 08:06:15.000000000 -0400
+@@ -198,9 +198,11 @@
+  #endif
+  	"pushl %eax\n\t"
+  	"pushl %edx\n\t"
+-	"pushl %ecx\n\t"
++	"pushl %ecx\n\t"	// Register to save
++	"pushl %ecx\n\t"	// Passed parameter
+  	"call __down\n\t"
+-	"popl %ecx\n\t"
++	"addl $0x04, %esp\t\n"	// Bypass corrupted parameter
++	"popl %ecx\n\t"		// Restore original
+  	"popl %edx\n\t"
+  	"popl %eax\n\t"
+  #if defined(CONFIG_FRAME_POINTER)
+@@ -220,9 +222,11 @@
+  	"movl  %esp,%ebp\n\t"
+  #endif
+  	"pushl %edx\n\t"
+-	"pushl %ecx\n\t"
++	"pushl %ecx\n\t"	// Save register
++	"pushl %ecx\n\t"	// Passed parameter
+  	"call __down_interruptible\n\t"
+-	"popl %ecx\n\t"
++	"addl $0x04, %esp\n\t"	// Bypass corrupted parameter
++	"popl %ecx\n\t"		// Restore register
+  	"popl %edx\n\t"
+  #if defined(CONFIG_FRAME_POINTER)
+  	"movl %ebp,%esp\n\t"
+@@ -241,9 +245,11 @@
+  	"movl  %esp,%ebp\n\t"
+  #endif
+  	"pushl %edx\n\t"
+-	"pushl %ecx\n\t"
++	"pushl %ecx\n\t"		// Save register
++	"pushl %ecx\n\t"		// Passed parameter
+  	"call __down_trylock\n\t"
+-	"popl %ecx\n\t"
++	"addl $0x04, %esp\n\t"		// Bypass corrupted parameter
++	"popl %ecx\n\t"			// Restore register
+  	"popl %edx\n\t"
+  #if defined(CONFIG_FRAME_POINTER)
+  	"movl %ebp,%esp\n\t"
+@@ -259,9 +265,11 @@
+  "__up_wakeup:\n\t"
+  	"pushl %eax\n\t"
+  	"pushl %edx\n\t"
+-	"pushl %ecx\n\t"
++	"pushl %ecx\n\t"	// Save register
++	"pushl %ecx\n\t"	// Passed parameter
+  	"call __up\n\t"
+-	"popl %ecx\n\t"
++	"addl $0x04, %esp\n\t"	// Bypass corrupted parameter
++	"popl %ecx\n\t"		// Restore register
+  	"popl %edx\n\t"
+  	"popl %eax\n\t"
+  	"ret"
+
+
+I think these 'helper' functions are no longer useful because
+they counted on a certain behavior of a 'C' compiler. This
+behavior may not continue to exist. This patch is a temporary
+solution to the observed problem. The correct solution is
+probably to get rid of these 'helper' functions altogether.
+
+Linus, please check this out.
+
 Cheers,
-Alistair.
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+Why is the government concerned about the lunitic fringe? Think about it!
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/AI Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbRCNPiH>; Wed, 14 Mar 2001 10:38:07 -0500
+	id <S131444AbRCNPuJ>; Wed, 14 Mar 2001 10:50:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbRCNPh6>; Wed, 14 Mar 2001 10:37:58 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:60816 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S131407AbRCNPhw>;
-	Wed, 14 Mar 2001 10:37:52 -0500
-Date: Wed, 14 Mar 2001 10:36:40 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-cc: <linux-kernel@vger.kernel.org>, AmNet Computers <amnet@amnet-comp.com>
-Subject: magic device renumbering was -- Re: Linux 2.4.2ac20
-In-Reply-To: <3AAF8A71.1C71D517@faceprint.com>
-Message-ID: <Pine.SGI.4.31L.02.0103141026460.532128-100000@irix2.gl.umbc.edu>
+	id <S131455AbRCNPt7>; Wed, 14 Mar 2001 10:49:59 -0500
+Received: from s057.dhcp212-109.cybercable.fr ([212.198.109.57]:23556 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S131444AbRCNPtj>; Wed, 14 Mar 2001 10:49:39 -0500
+Message-ID: <3AAF929E.7D1F2F05@baretta.com>
+Date: Wed, 14 Mar 2001 16:47:42 +0100
+From: Alex Baretta <alex@baretta.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 5Mb missing...
+In-Reply-To: <Pine.LNX.4.33.0103070958110.1424-100000@mikeg.weiden.de> <l03130302b6d530a44df8@[192.168.239.101]> <3AAF977D.DE602385@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin Dalecki wrote:
+> 
+> Jonathan Morton wrote:
+> >
+> > The kernel itself takes up some RAM, which is simply subtracted from the
+> > "total memory available" field in the memory summaries available to
+> > user-mode processes.  This is perfectly normal.
+> 
+> The kernel reserves 4m for hilself. The off by one error is a rounding
+> bug.
 
-The problem:
+Sounds pretty reasonable. I have actually tested the memory card
+with memtest, just to make sure that it was all there and working
+properly, and the test succeeded, so it must really be the kernel
+eating away a few megs.
 
-drivers change their detection schemes; and changes in the kernel can
-change the order in which devices are assigned names.
-
-For example, the DAC960(?) drivers changed their order of
-detecting controllers, and I did _not_ have fun, given that the machine in
-question had about 40 disks to deal with, spread across two controllers.
-
-This can create a lot of problems for people upgrading large, production
-quality systems -- as, in the worst case, the system won't complete the
-boot cycle; or in middle cases, the user/sysadmin is stuck rewriting X
-amount of files and trying again; or in small cases, you find out that
-your SMC and Intel ethernet cards are reversed, and have to go fix things
-...
-
-Possible solutions(?):
-
-Solaris uses an /etc/path_to_inst file, to keep track of device ordering,
-et al.
-
-Maybe we should consider something similar, where a physical device to
-logical device map is kept and used to keep things consistent on
-kernel/driver changes; device addition/removal, and so forth ...
-
-I am, of course, open to better solutions.
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
-
-
+Alex

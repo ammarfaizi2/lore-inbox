@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261679AbSJCRkJ>; Thu, 3 Oct 2002 13:40:09 -0400
+	id <S261754AbSJCRIK>; Thu, 3 Oct 2002 13:08:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261669AbSJCRkJ>; Thu, 3 Oct 2002 13:40:09 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:53388 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S261679AbSJCRkI>; Thu, 3 Oct 2002 13:40:08 -0400
-Date: Thu, 3 Oct 2002 13:45:40 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AFS filesystem for Linux (2/2)
-Message-ID: <20021003174540.GB25718@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <torvalds@transmeta.com> <Pine.LNX.4.33.0210021730170.22980-100000@penguin.transmeta.com> <13691.1033635939@warthog.cambridge.redhat.com> <20021003165304.GA25718@ravel.coda.cs.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021003165304.GA25718@ravel.coda.cs.cmu.edu>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S261756AbSJCRIK>; Thu, 3 Oct 2002 13:08:10 -0400
+Received: from ns.suse.de ([213.95.15.193]:57093 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261754AbSJCRIJ>;
+	Thu, 3 Oct 2002 13:08:09 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: Sequence of IP fragment packets on the wire
+References: <anh7es$mpl$1@forge.intermeta.de.suse.lists.linux.kernel> <20021003.035352.132919623.davem@redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Oct 2002 19:13:25 +0200
+In-Reply-To: "David S. Miller"'s message of "3 Oct 2002 13:04:19 +0200"
+Message-ID: <p73smznqwcq.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 12:53:04PM -0400, Jan Harkes wrote:
-> On Thu, Oct 03, 2002 at 10:05:39AM +0100, David Howells wrote:
-> > To have a heterogenous cache, the VLDB record and vnode index records could be
-> > extended to 2K or 4K in size, or maybe separate catalogues and indices could
-> > be maintained for different filesystem types, and a 0th tier could be a
-> > catalogue of different types held within this cache, complete with information
-> > as to the entry sizes of the tier 1, 2 and 3 catalogues.
+"David S. Miller" <davem@redhat.com> writes:
+>    
+>    Is there a way to configure this? Maybe even connection specific? 
 > 
-> Or you could use a hash or a userspace daemon that can map a fs-specific
-> handle to a local cache file.
+> No.
 
-I just thought of the fh_to_dentry stuff that is used by knfsd. Those
-fh keys should be just the right (and fs independent) thing to index
-such a generic fs-cache with.
+Actually there used to be an old netfilter module around (I think it was
+one of the early netfilter demo modules) that reversed the fragments. Of 
+course it is not efficient at all and not recommended.
 
-Jan
-
+-Andi

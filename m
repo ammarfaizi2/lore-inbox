@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277271AbRJDXwC>; Thu, 4 Oct 2001 19:52:02 -0400
+	id <S277273AbRJDXwC>; Thu, 4 Oct 2001 19:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277270AbRJDXvy>; Thu, 4 Oct 2001 19:51:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50951 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277273AbRJDXvn>; Thu, 4 Oct 2001 19:51:43 -0400
-Date: Thu, 4 Oct 2001 16:51:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>, <mingo@elte.hu>,
-        jamal <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>, <netdev@oss.sgi.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <1002239236.872.8.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0110041650410.975-100000@penguin.transmeta.com>
+	id <S277271AbRJDXvx>; Thu, 4 Oct 2001 19:51:53 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:20747 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S277270AbRJDXvf>;
+	Thu, 4 Oct 2001 19:51:35 -0400
+Date: Thu, 4 Oct 2001 16:56:52 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mike Kravetz <kravetz@us.ibm.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Context switch times
+In-Reply-To: <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.40.0110041655010.1022-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 4 Oct 2001, Mike Kravetz wrote:
 
-On 4 Oct 2001, Robert Love wrote:
+> On Thu, Oct 04, 2001 at 10:42:37PM +0000, Linus Torvalds wrote:
+> > Could we try to hit just two? Probably, but it doesn't really matter,
+> > though: to make the lmbench scheduler benchmark go at full speed, you
+> > want to limit it to _one_ CPU, which is not sensible in real-life
+> > situations.
 >
-> Agreed.  I am actually amazed that the opposite of what is happening
-> does not happen -- that more people aren't clamoring for this solution.
+> Can you clarify?  I agree that tuning the system for the best LMbench
+> performance is not a good thing to do!  However, in general on an
+> 8 CPU system with only 2 'active' tasks I would think limiting the
+> tasks to 2 CPUs would be desirable for cache effects.
+>
+> I know that running LMbench with 2 active tasks on an 8 CPU system
+> results in those 2 tasks being 'round-robined' among all 8 CPUs.
+> Prior analysis leads me to believe the reason for this is due to
+> IPI latency.  reschedule_idle() chooses the 'best/correct' CPU for
+> a task to run on, but before schedule() runs on that CPU another
+> CPU runs schedule() and the result is that the task runs on a
+> ?less desirable? CPU.  The nature of the LMbench scheduler benchmark
+> makes this occur frequently.  The real question is: how often
+> does this happen in real-life situations?
 
-Ehh.. I think that most people who are against Ingo's patches are so
-mainly because there _is_ an alternative that looks nicer.
+Well, if you remember the first time this issue was discussed on the
+mailing list was due a real life situation not due a bench run.
 
-		Linus
+
+
+
+- Davide
+
 

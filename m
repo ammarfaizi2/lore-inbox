@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265756AbUFXVy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUFXVy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbUFXVy7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S265772AbUFXVy7 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 24 Jun 2004 17:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUFXVxu
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUFXVx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:53:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265813AbUFXVwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:52:16 -0400
-Date: Thu, 24 Jun 2004 14:54:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: andrea@suse.de, nickpiggin@yahoo.com.au, tiwai@suse.de, ak@suse.de,
-       ak@muc.de, tripperda@nvidia.com, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-Id: <20040624145441.181425c8.akpm@osdl.org>
-In-Reply-To: <20040624165629.GG21066@holomorphy.com>
-References: <20040623213643.GB32456@hygelac>
-	<20040623234644.GC38425@colin2.muc.de>
-	<s5hhdt1i4yc.wl@alsa2.suse.de>
-	<20040624112900.GE16727@wotan.suse.de>
-	<s5h4qp1hvk0.wl@alsa2.suse.de>
-	<20040624164258.1a1beea3.ak@suse.de>
-	<s5hy8mdgfzj.wl@alsa2.suse.de>
-	<20040624152946.GK30687@dualathlon.random>
-	<40DAF7DF.9020501@yahoo.com.au>
-	<20040624165200.GM30687@dualathlon.random>
-	<20040624165629.GG21066@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 24 Jun 2004 17:53:29 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:9432 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S265772AbUFXVtf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:49:35 -0400
+Date: Thu, 24 Jun 2004 17:49:23 -0400
+From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+To: Chad Kitching <CKitching@powerlandcomputers.com>
+Cc: Yaroslav Halchenko <yoh@psychology.rutgers.edu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: alienware hardware
+Message-ID: <20040624214923.GZ728@washoe.rutgers.edu>
+Mail-Followup-To: Chad Kitching <CKitching@powerlandcomputers.com>,
+	Yaroslav Halchenko <yoh@psychology.rutgers.edu>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <18DFD6B776308241A200853F3F83D5072817@pl6w2kex.lan.powerlandcomputers.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <18DFD6B776308241A200853F3F83D5072817@pl6w2kex.lan.powerlandcomputers.com>
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> Is there any chance you could send in thise improved implementation of
-> zone fallback watermarks and describe the deficiencies in the current
-> scheme that it corrects?
+I remember I've tried to boot 2.6.6 kernel included with debian (they
+have pretty much everything in modules) with pci=noacpi and acpi=off
+options... it didn't help - it was slow as hell... 
 
-We decided earlier this year that the watermark stuff should be
-forward-ported in toto, but I don't recall why.  Nobody got around to doing
-it because there have been no bug reports.
+I will try again with them and this kernel shortly. Thanx for advice
 
-It irks me that the 2.4 algorithm gives away a significant amount of
-pagecache memory.  It's a relatively small amount, but it's still a lot of
-memory, and all the 2.6 users out there at present are not reporting
-problems, so we should not penalise all those people on behalf of the few
-people who might need this additional fallback protection.
+--
+Yarik
 
-It should be runtime tunable - that doesn't seem hard to do.  All the
-infrastructure is there now to do this.
+On Thu, Jun 24, 2004 at 04:42:33PM -0500, Chad Kitching wrote:
+> Have you tried booting with noapic, nolapic, noioapic and/or acpi=off? 
+> Unfortunately since you compiled all your drivers into the kernel, 
+> asking you to try without loading any of them won't work without a 
+> recompile.
 
-Note that this code was sigificantly changed between 2.6.5 and 2.6.7.
+> > -----Original Message-----
+> > From: Yaroslav Halchenko [mailto:yoh@psychology.rutgers.edu]
+> > Sent: June 24, 2004 4:10 PM
+> > Subject: Re: alienware hardware
 
-First thing to do is to identify some workload which needs the patch. 
-Without that, how can we test it?
+
+> > it is seems to be more general problem, because it slows down not only
+> > dpkg process - booting on 2.4.26 kernel takes about 5 minutes to
+> > complete and of cause no dpkg is involved in that process.
+
+> > I took dpkg as just single example, I don't what to try else on...
+> > bogomips reports about 50% of what is in /proc/cpuinfo, so it looks
+> > normal... I'm suspecting IDE, so it looks like when app has 
+> > to work with
+> > HDD then it slows down although HDD bulb doesn't report an 
+> > activity....
+> > but I might be wrong. btw - I will put hdparm as well on the
+> > webpage
+
+> > We are about to setup X on that beast and I will try may be some other
+> > programs... suggestions?
+
+
+-- 
+                                                  Yaroslav Halchenko
+                  Research Assistant, Psychology Department, Rutgers
+          Office  (973) 353-5440 x263
+   Ph.D. Student  CS Dept. NJIT
+             Key  http://www.onerussian.com/gpg-yoh.asc
+ GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+

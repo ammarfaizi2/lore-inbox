@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129105AbQKKVws>; Sat, 11 Nov 2000 16:52:48 -0500
+	id <S129308AbQKKVz6>; Sat, 11 Nov 2000 16:55:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129520AbQKKVwi>; Sat, 11 Nov 2000 16:52:38 -0500
-Received: from albatross.prod.itd.earthlink.net ([207.217.120.120]:5298 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129105AbQKKVwb>; Sat, 11 Nov 2000 16:52:31 -0500
-To: "reiser.angus" <reiser.angus@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.0-test11-pre2 compilation error:  undefined reference to `bust_spinlocks'
-In-Reply-To: <3A0DBD06.3070409@wanadoo.fr>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 11 Nov 2000 13:52:23 -0800
-In-Reply-To: <3A0DBD06.3070409@wanadoo.fr>
-Message-ID: <m3y9yq5g88.fsf@matrix.mandrakesoft.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S129145AbQKKVzs>; Sat, 11 Nov 2000 16:55:48 -0500
+Received: from cx425802-a.blvue1.ne.home.com ([24.0.54.216]:19972 "EHLO
+	wr5z.localdomain") by vger.kernel.org with ESMTP id <S129136AbQKKVzi>;
+	Sat, 11 Nov 2000 16:55:38 -0500
+Date: Sat, 11 Nov 2000 15:55:23 -0600 (CST)
+From: Thomas Molina <tmolina@home.com>
+To: Stephen Thomas <stephen.thomas@insignia.com>
+cc: Mark Hindley <mh15@st-andrews.ac.uk>, linux-sound@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: opl3 under 2.4.0-test10
+In-Reply-To: <3A0DAD50.8C55A494@insignia.com>
+Message-ID: <Pine.LNX.4.21.0011111550130.953-100000@wr5z.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"reiser.angus" <reiser.angus@wanadoo.fr> writes:
+On Sat, 11 Nov 2000, Stephen Thomas wrote:
 
-> cannot make a success compilation of 2.4.0-test11pre2 with the same
-> .config than for a successfull 2.4.0-test10 compilation.
-> Same problem when apply patch-2.4.0test11pre2-ac1 from alan cox
+> Mark Hindley wrote:
+> > I am trying to setup my ALS 110 soundcard under my build of kernel
+> > 2.4.0-test10.
+> > 
+> > I have built in isapnp support and also the sb and opl3 drivers.
+> > 
+> > However, even though I pass opl3=0x388 on the Kernel command line all
+> > I get is an isapnp panic.
 > 
-> arch/i386/mm/mm.o: In function `do_page_fault':
-> arch/i386/mm/mm.o(.text+0x821): undefined reference to `bust_spinlocks'
-> make: *** [vmlinux] Erreur 1
+> CONFIG_SOUND_YM3812=y
+> 
+> and I'm passing "opl3=0x388" to the driver.  However, if I query
+> what synth devices the driver supports, it only reports an
+> AWE32-0.4.4 (RAM512k) sample device.  I expect it report an FM synth
+> device, too.  I get the same (lack of) effect if I go via the
+> adlib_card code, by saying "adlib=0x388".  My investigations so
+> far have shown that when opl3_detect() first tries to get the
+> signature of the OPL3 device, it gets 0xff from the inb() (line
+> 195 of drivers/sound/opl3.c in test11pre1), while the corresponding
+> code in 2.2.18pre19 gets 0x00.
 
-apply this patch (if you look in the archive of lkml you'll see it was
-posted a day ago by Keith Owens :
+Can you try resetting CONFIG_SOUND_YM3812 to m rather than y.  I had a
+similar problem and that is the workaround I came up with.  I haven't
+gone back and tried to see why it happened; maybe I need to.
 
-Index: 0-test11-pre2.1/arch/i386/kernel/traps.c
---- 0-test11-pre2.1/arch/i386/kernel/traps.c Fri, 10 Nov 2000 13:10:37 +1100 kaos (linux-2.4/A/c/1_traps.c 1.1.2.2.1.1.2.1.2.3.1.2.3.1.1.2 644)
-+++ 0-test11-pre2.1(w)/arch/i386/kernel/traps.c Fri, 10 Nov 2000 16:06:48 +1100 kaos (linux-2.4/A/c/1_traps.c 1.1.2.2.1.1.2.1.2.3.1.2.3.1.1.2 644)
-@@ -382,6 +382,18 @@ static void unknown_nmi_error(unsigned c
- 	printk("Do you have a strange power saving mode enabled?\n");
- }
- 
-+extern spinlock_t console_lock, timerlist_lock;
-+/*
-+ * Unlock any spinlocks which will prevent us from getting the
-+ * message out (timerlist_lock is acquired through the
-+ * console unblank code)
-+ */
-+void bust_spinlocks(void)
-+{
-+	spin_lock_init(&console_lock);
-+	spin_lock_init(&timerlist_lock);
-+}
-+
- #if CONFIG_X86_IO_APIC
- 
- int nmi_watchdog = 1;
-@@ -394,19 +406,7 @@ static int __init setup_nmi_watchdog(cha
- 
- __setup("nmi_watchdog=", setup_nmi_watchdog);
- 
--extern spinlock_t console_lock, timerlist_lock;
- static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
--
--/*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out (timerlist_lock is aquired through the
-- * console unblank code)
-- */
--void bust_spinlocks(void)
--{
--	spin_lock_init(&console_lock);
--	spin_lock_init(&timerlist_lock);
--}
- 
- inline void nmi_watchdog_tick(struct pt_regs * regs)
- {
-
--
-
-
--- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

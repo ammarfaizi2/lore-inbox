@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTKAWrS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 17:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTKAWrS
+	id S261267AbTKAXWl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 18:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbTKAXWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 17:47:18 -0500
-Received: from 015.atlasinternet.net ([212.9.93.15]:25311 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S261193AbTKAWrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 17:47:17 -0500
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: Peter Osterlund <petero2@telia.com>
-Subject: Re: Synaptics losing sync
-Date: Sat, 1 Nov 2003 23:47:14 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200311011751.39610.gallir@uib.es> <m2k76jssvx.fsf@p4.localdomain>
-In-Reply-To: <m2k76jssvx.fsf@p4.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sat, 1 Nov 2003 18:22:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8662 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261267AbTKAXWk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 18:22:40 -0500
+Date: Sat, 1 Nov 2003 15:24:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: svdmade@planet.nl, linux-kernel@vger.kernel.org
+Subject: Re: Di-30 non working [bug 967]
+Message-Id: <20031101152453.42346338.akpm@osdl.org>
+In-Reply-To: <200311012228.29085.bzolnier@elka.pw.edu.pl>
+References: <3FA41703.1030408@planet.nl>
+	<200311012228.29085.bzolnier@elka.pw.edu.pl>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311012347.14642.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 November 2003 22:04, Peter Osterlund shaped the electrons 
-to shout:
-> > The laptop is a Dell X200 with APM and cpufreq enabled, and IO-apic
-> > disabled.
-> >
-> > I tested with and w/o preemptive kernel and cpufreq with the same
-> > results.
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
 >
-> Did you try without APM? My laptop loses many clock ticks if I enable
-> APM. It works fine with ACPI though.
+> Noticed by Stuart_Hayes@Dell.com:
+> 
+> I've noticed that, in the 2.6 (test 9) kernel, the "cmd" field (of type int)
+> in struct request has been removed, and it looks like all of the code in
+> ide-tape has just had a find & replace run on it to replace any instance of
+> rq.cmd or rq->cmd with rq.flags or rq->flags.
 
-It seems this is the problem, running with acpi during half an hour 
-without any error. The synaptics mouse feels much "smoother" too.
+Nasty.
 
-But ACPI doesn't see the battery nor the power button in my laptop though. 
+> @@ -193,6 +193,11 @@ enum rq_flag_bits {
+>  	__REQ_PM_SUSPEND,	/* suspend request */
+>  	__REQ_PM_RESUME,	/* resume request */
+>  	__REQ_PM_SHUTDOWN,	/* shutdown request */
+> +	__REQ_IDETAPE_PC1,	/* packet command (first stage) */
+> +	__REQ_IDETAPE_PC2,	/* packet command (second stage) */
+> +	__REQ_IDETAPE_READ,
+> +	__REQ_IDETAPE_WRITE,
+> +	__REQ_IDETAPE_READ_BUFFER,
+>  	__REQ_NR_BITS,		/* stops here */
+>  };
 
-Thanks, after months trying the new synaptics driver, fianlly you pointed 
-out the problem.
+This takes us up to about 28 flags; we'll run out soon.
 
--- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
+Probably it is time to split this into generic and private flags, as we did
+with bh_state_bits.  The scope of the "private" section needs to be
+defined: maybe "whoever created the queue"?
+
+blk_dump_rq_flags() will need updating.  Probably change it to only decode
+the "generic" flags, and print "bit XX" for the remainders.
+
+Your patch forgot to update rq_flags[] btw.
 

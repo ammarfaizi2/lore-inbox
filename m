@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267226AbUBMVYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 16:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267229AbUBMVYu
+	id S267234AbUBMV3S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 16:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUBMV3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 16:24:50 -0500
-Received: from [80.72.36.106] ([80.72.36.106]:34989 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S267226AbUBMVYq (ORCPT
+	Fri, 13 Feb 2004 16:29:17 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:14604 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S267234AbUBMV2X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 16:24:46 -0500
-Date: Fri, 13 Feb 2004 22:24:40 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Daniel Drake <dan@reactivated.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is nForce2 good choice under Linux?
-In-Reply-To: <402D3448.7080105@reactivated.net>
-Message-ID: <Pine.LNX.4.58.0402132205510.31906@alpha.polcom.net>
-References: <Pine.LNX.4.58.0402132048330.31906@alpha.polcom.net>
- <402D3448.7080105@reactivated.net>
+	Fri, 13 Feb 2004 16:28:23 -0500
+Date: Fri, 13 Feb 2004 22:27:35 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dmapool (was: Re: Linux 2.6.3-rc2)
+In-Reply-To: <20040210162259.GA26620@kroah.com>
+Message-ID: <Pine.LNX.4.58.0402121629210.7855@serv>
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
+ <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be>
+ <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be> <20040210145558.A4684@infradead.org>
+ <20040210162259.GA26620@kroah.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your fast response!
+Hi,
 
-> I haven't tried the SATA or firewire capabilities of my board, but I believe 
-> both work. Everything else (sound, network, ...) works OK.
+On Tue, 10 Feb 2004, Greg KH wrote:
 
-Is anybody using these features? I am thinking about connecting two 120GB 
-WD SATA drives (raid) to improve performance and seek times. But I have to 
-know if SATA controller works under Linux... (i think it is Silicon Image 
-controller or something like that...) Is TCQ supported on these 
-controllers? Or it depends on disks being used?
+> How about dropping this into your arch if you can't use the
+> include/asm-generic/dma-mapping.h file.  Or I can add it as
+> include/asm-generic/dma-mapping-broken.h and you can repoint your arch
+> to use it.  Which would be easier for you?
 
+I don't think adding a dma-mapping-broken.h is correct either.
+Some m68k scsi drivers are still badly broken, because they use some
+archaic API and need an update to something sane.
+I think the problem is that DMA-API.txt suggest there is separate API for
+coherent/noncoherent (especially dma_alloc_coherent()/
+dma_alloc_noncoherent()). DMA-mapping.txt is better here as it
+distinguishes between consistent and streaming mappings.
+m68k needs something similiar as arm, consistent allocations are mapped
+noncachable into the kernel and dma_map* does the necessary cache flushes.
+With that you would already get very far and would do the right thing for
+most noncoherent archs. This would only would only leave us with some
+special cases which had to be fixed to make a driver coherency aware.
+So I would suggest to drop e.g. dma_alloc_noncoherent() (parisc seems to
+be the only user and it's simply a kmalloc) and merge the rest of
+DMA-API.txt with DMA-mapping.txt or make at least consistent with it and
+maybe add a bit more information what the functions do in the coherent/
+noncoherent case.
 
-> Apparently, nvidia are working on new (binary) drivers for nforce-audio which 
-> will do hardware mixing and the likes.
-
-Hope it will work with ALSA...
-
-
-> Yes, there is a problem. This is a hardware problem, which can likely be fixed 
-> in a BIOS update. Those who have tried contacting manufacturers have basically 
-> failed.
-> There is a bug relating to the C1 disconnect feature of AMD CPU's. It causes a 
-> total system freeze. There is some quite detailed info on this in recent 
-> threads, search the archive if you are interested.
->
-> For the majority of people (as I understand it), these lockups can be totally 
-> avoided by *not* using APIC/IOAPIC. I never met a lockup until I enabled APIC 
-> for the first time. The older XTPIC paths are generally not fast enough to 
-> trigger the C1 bug. Ross Dickson has done some great work here, and he has 
-> produced patches which workaround this particular bug. His last two revisions 
-> of patches have worked great for me (and others), not a lockup since.
-
-You mean that kernel 2.6-mm with this patch with APIC and ACPI enabled 
-works OK? Is this patch a complete fix or a workaround?
-
-Btw. Is CPU frequency scaling supported on this board (with ACPI)? What 
-about other power saving technologies?
-
-
-> I have been perfectly happy with my NF7-S, except from the one time it failed 
-> on me (didn't boot up), and I had to get it replaced. I think there is a 
-> general risk involved in buying nforce2 boards, their rate of failure is 
-> fairly high. Still, the benefits are nice.
-
-Wow! This fringtens me! What do you mean? Why are they so failure-able? 
-Are they worse than other new boards in it? Are they, at least, easily, 
-fast and free replaced (under warranty)?
-
-
-Thanks again!
-
-
-Grzegorz Kulewski
-
+bye, Roman

@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbTKHIJf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 03:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTKHIJf
+	id S261659AbTKHIfy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 03:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTKHIfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 03:09:35 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:59831 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261640AbTKHIJe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 03:09:34 -0500
-Date: Sat, 8 Nov 2003 09:05:53 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Oleg OREL <oleg_orel@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel preemption (kernel 2.6 of course)
-In-Reply-To: <20031108012755.41882.qmail@web80007.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.56.0311080808590.19316@earth>
-References: <20031108012755.41882.qmail@web80007.mail.yahoo.com>
+	Sat, 8 Nov 2003 03:35:54 -0500
+Received: from web60206.mail.yahoo.com ([216.109.118.101]:14178 "HELO
+	web60206.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261659AbTKHIfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 03:35:53 -0500
+Message-ID: <20031108083553.17849.qmail@web60206.mail.yahoo.com>
+Date: Sat, 8 Nov 2003 00:35:53 -0800 (PST)
+From: "Mr. Mailing List" <mailinglistaddie@yahoo.com>
+Subject: will this bug be addressed before test10?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugzilla.kernel.org/show_bug.cgi?id=1229
 
-On Fri, 7 Nov 2003, Oleg OREL wrote:
+It's made it this far, and it's still just as horrible
+a bug:(
 
-> I was browsing linux kernel to undetsnand how kernel preemption does
-> work. I was hacking around schedulee_tick and other functions called out
-> of timer interrupt and was unable to found any call to schedule() or
-> switch_to() to peempt currently running task, instead just mangling
-> around current and inactive runqueues.
 
-the timer interrupt indeed cannot reschedule because interrupt contexts
-must never schedule. But the timer interrupt does have the ability to
-reschedule the currently running task, via setting the 'need resched'
-flag:
-
-                set_tsk_need_resched(p);
-
-this flag then gets detected by the entry.S 'return from interrupt' code
-[right when the timer irq returns] which then calls schedule().
-
-	ingo
+__________________________________
+Do you Yahoo!?
+Protect your identity with Yahoo! Mail AddressGuard
+http://antispam.yahoo.com/whatsnewfree

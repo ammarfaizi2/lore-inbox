@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261909AbSI3EAE>; Mon, 30 Sep 2002 00:00:04 -0400
+	id <S261916AbSI3E1E>; Mon, 30 Sep 2002 00:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261910AbSI3EAE>; Mon, 30 Sep 2002 00:00:04 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:23312 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261909AbSI3EAD>;
-	Mon, 30 Sep 2002 00:00:03 -0400
-Date: Sun, 29 Sep 2002 21:00:05 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic/exception dump support in 2.5?
-In-Reply-To: <1033334307.13795.11.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33L2.0209292059240.2691-100000@dragon.pdx.osdl.net>
+	id <S261918AbSI3E1D>; Mon, 30 Sep 2002 00:27:03 -0400
+Received: from ausadmmsps305.aus.amer.dell.com ([143.166.224.100]:2825 "HELO
+	AUSADMMSPS305.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S261916AbSI3E1D>; Mon, 30 Sep 2002 00:27:03 -0400
+X-Server-Uuid: bc938b4d-8e35-4c08-ac42-ea3e606f44ee
+Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E8E0@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: kai-germaschewski@uiowa.edu, davej@codemonkey.org.uk
+cc: linux-kernel@vger.kernel.org
+Subject: RE: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
+Date: Sun, 29 Sep 2002 23:32:22 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 11890C5D1784934-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Sep 2002, Alan Cox wrote:
+> 	drivers/{s390,macintosh,acorn}/
+> makes it (IMO) cleaner to share drivers between 
+> e.g. s390 and  s390x, or possibly i386/x86_64 in the future.
 
-| On Sun, 2002-09-29 at 21:42, Shawn Starr wrote:
-| >
-| > It would really be nice if I could capture kernel exceptions/and oopsies
-| > on a file, or over a network connection. Redirecting console=lp0 to
-| > printer doesnt really let me paste dumps to LKML =)
-| >
-| > Any solutions? Will we have a way to properly dump kernel failures
-| > (exceptions/oopies) somewhere?
-|
-| The netdump patch can do this, including the actual kernel image
-| -
+The i386 EDD "driver" could probably be shared with x86-64, I hadn't thought
+about it before.  Likewise the IA64 efivars driver *may* eventually be
+shared with x86 or others if Intel's plans come to fruition.  So I'd vote
+for something in drivers/ rather than arch/ for such shareable modules.  I'm
+open to moving each of these if told where the "right" place should be.
+Neither are char or block drivers, so those don't make sense - purely
+driverfs/proc interfaces.  Nor are they "bus" drivers ala ide or scsi.
+drivers/misc is empty and I think people want to keep it that way...
 
-Is this something different from netconsole?
-Where can I find netdump?
+Some ideas for these:
+drivers/i386
+drivers/efi
+
+Thoughts?
 
 Thanks,
--- 
-~Randy
+Matt
+
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

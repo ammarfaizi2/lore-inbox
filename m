@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266920AbRGHQs6>; Sun, 8 Jul 2001 12:48:58 -0400
+	id <S266924AbRGHQ73>; Sun, 8 Jul 2001 12:59:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266921AbRGHQst>; Sun, 8 Jul 2001 12:48:49 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:6660 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266920AbRGHQsq>;
-	Sun, 8 Jul 2001 12:48:46 -0400
-Date: Sat, 30 Jun 2001 14:10:23 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Barry Wu <wqb123@yahoo.com>
+	id <S266925AbRGHQ7U>; Sun, 8 Jul 2001 12:59:20 -0400
+Received: from fepout3.telus.net ([199.185.220.238]:32798 "EHLO
+	priv-edtnes11-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id <S266924AbRGHQ7N>; Sun, 8 Jul 2001 12:59:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Brad Pepers <brad@linuxcanada.com>
+Organization: Linux Canada Inc.
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: For comment: draft BIOS use document for the kernel
+Date: Sun, 8 Jul 2001 10:59:02 -0600
+X-Mailer: KMail [version 1.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: about linux mips ext2fs
-Message-ID: <20010630141022.B142@toy.ucw.cz>
-In-Reply-To: <20010625155706.66345.qmail@web13907.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010625155706.66345.qmail@web13907.mail.yahoo.com>; from wqb123@yahoo.com on Mon, Jun 25, 2001 at 08:57:06AM -0700
+In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu> <01062211113100.01758@dragon.linuxcan.com> <20010630144733.C255@toy.ucw.cz>
+In-Reply-To: <20010630144733.C255@toy.ucw.cz>
+MIME-Version: 1.0
+Message-Id: <01070810590200.18804@dragon.linuxcan.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Saturday 30 June 2001 08:47, Pavel Machek wrote:
+> Hi!
+>
+> > > 1.3	Type 'apm -s'
+> > > 	The machine should standby
+> > >
+> > > 1.4	Wake it and type 'apm -S'
+> > > 	The machine should suspend
+> >
+> > According to the man pages, "apm -s" does a suspend and "apm -S" does a
+> > standby.
+>
+> No, original seems good.
+>
+> apm -s: suspend to ram
+> apm -S: suspend to disk
 
-> I want port linux to our mipsel system. The kernel
-> can work and system stop at mount root file system.
-> I download root file system for mipsel from MIPS
-> company. Because our system have no ethernet
-> interface,
-> I have to copy root file system directly to our hard
-> disk. I put hard disk under intel linux, and using 
-> fdisk and make ex2fs on it. Then I copy root file 
-> system to hard disk. After finished, I place this hard
-> disk under our mipsel environment. I do not know if 
-> it can work under this environment, the kernel can
-> mount root file system? If someone knows, please help
-> me.
-
-Yes, it can work.
+The apm man pages do not mention suspend to ram vrs suspend to disk but only 
+suspend vrs standby as Alan did and they say its the other way around.  So 
+are the man pages wrong then?
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Brad Pepers
+brad@linuxcanada.com

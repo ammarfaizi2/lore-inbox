@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130056AbRBATIB>; Thu, 1 Feb 2001 14:08:01 -0500
+	id <S130337AbRBATKV>; Thu, 1 Feb 2001 14:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130043AbRBATHv>; Thu, 1 Feb 2001 14:07:51 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:2548 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130211AbRBATHk>; Thu, 1 Feb 2001 14:07:40 -0500
-Date: Thu, 1 Feb 2001 17:07:00 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: David Gould <dg@suse.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] vma limited swapin readahead
-In-Reply-To: <20010201105933.A12074@archimedes.oak.suse.com>
-Message-ID: <Pine.LNX.4.21.0102011706010.1321-100000@duckman.distro.conectiva>
+	id <S131175AbRBATKB>; Thu, 1 Feb 2001 14:10:01 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:43137 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131173AbRBATJu>; Thu, 1 Feb 2001 14:09:50 -0500
+Date: Thu, 1 Feb 2001 14:08:49 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: idalton@ferret.phonewave.net
+cc: List User <lists@chaven.com>, Alan Chandler <alan@chandlerfamily.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: spelling of disc (disk) in /devfs
+In-Reply-To: <20010201102748.B6959@ferret.phonewave.net>
+Message-ID: <Pine.LNX.3.95.1010201135204.17840B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, David Gould wrote:
-> On Thu, Feb 01, 2001 at 11:26:01AM +0000, Stephen C. Tweedie wrote:
-
-> > Also remember that the readahead pages won't actually get mapped into
-> > memory, so they can be recycled easily.  So, under swapping you tend
-> > to find that the extra readin pages are going to be replacing old,
-> > unneeded readahead pages to some extent, rather than swapping out
-> > useful pages.
+On Thu, 1 Feb 2001 idalton@ferret.phonewave.net wrote:
+[Snipped...]
 > 
-> Ok. I am convinced. I would have even thought of this myself
-> eventually...
+> And in terms of casual usage, I've nearly always used 'disk' in
+> reference to media that can be mounted read-write, and 'disc' to media
+> that can only be mounted read-only.
+> 
+> More technically, 'disc' is a single media layer (usually a CD-ROM) and
+> 'disk' is a removable media device with a protective casing.
+> 
+> Non-removable storage are generally refered to as 'drives'.
+> 
 
-See http://distro.conectiva.com.br/bugzilla/show_bug.cgi?id=1175
-for more information about this bug, and a proposed way to fix
-the problem.
+Webster says (but what did he know), that "disc" is an abbreviation
+for "discount", a variation of "disk", or a "phonograph record".
 
-Or the whole Linux-MM bugzilla:
-	http://www.linux-mm.org/bugzilla.shtml
+Disk is even more obscure, It relates to plowing and harrowing.
+However buried in the text is a reference to "round flat plate coated
+with a magnetic substance upon which data for a computer is stored"
 
-cheers,
+Disque isn't listed, and the French Security Police had it
+exterminated from the language when it started to show up on
+boxes of "disquettes". Last I heard, their 'Disk' is roughly-
+translated to "train in a box".
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+So, we should call them paradigms ;^.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

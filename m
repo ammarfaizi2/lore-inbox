@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263368AbTIBAGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 20:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbTIBAGQ
+	id S263371AbTIBAQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 20:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTIBAQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 20:06:16 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:7309 "EHLO terminus.zytor.com")
-	by vger.kernel.org with ESMTP id S263368AbTIBAGO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 20:06:14 -0400
-Message-ID: <3F53DEE1.5000709@zytor.com>
-Date: Mon, 01 Sep 2003 17:05:53 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
+	Mon, 1 Sep 2003 20:16:59 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:16035
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S263371AbTIBAPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 20:15:54 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Ian Kumlien <pomac@vapor.com>, Daniel Phillips <phillips@arcor.de>
+Subject: Re: [SHED] Questions.
+Date: Tue, 2 Sep 2003 10:23:24 +1000
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+References: <1062324435.9959.56.camel@big.pomac.com> <200309011707.20135.phillips@arcor.de> <1062457396.9959.243.camel@big.pomac.com>
+In-Reply-To: <1062457396.9959.243.camel@big.pomac.com>
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Wes Janzen <superchkn@sbcglobal.net>,
-       Maciej Soltysiak <solt@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: -mm patches on www.kernel.org ?
-References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv> <20030901211108.GE31760@matchmail.com> <3F53B937.10103@sbcglobal.net> <20030901225339.GH31760@matchmail.com>
-In-Reply-To: <20030901225339.GH31760@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309021023.24763.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> On Mon, Sep 01, 2003 at 04:25:11PM -0500, Wes Janzen wrote:
-> 
->>I think he's saying, why not put a link to the mm kernels from the 
->>www.kernel.org homepage, just like the ac kernels...  At least that's 
->>how I read it.
-> 
-> Ok, then I can agree with that.
+On Tue, 2 Sep 2003 09:03, Ian Kumlien wrote:
+> On Mon, 2003-09-01 at 17:07, Daniel Phillips wrote:
+> > IMHO, this minor change will provide a more solid, predictable base for
+> > Con and Nick's dynamic priority and dynamic timeslice experiments.
+>
+> Most definitely.
 
-Can't do it.  The -mm kernels aren't a single patch, they're patch sets, 
-and they won't work with the system that we have set up.  If akpm wants 
-to make a unified patch for each patch set in addition to the set itself 
-then it can be done.
+No, the correct answer is maybe... if after it's redesigned and put through 
+lots of testing to ensure it doesn't create other regressions. I'm not saying 
+it isn't correct, just that it's a major architectural change you're 
+promoting. Now isn't the time for that.
 
-	-hpa
+Why not just wait till 2.6.10 and plop in a new scheduler a'la dropping in a 
+new vm into 2.4.10... <sigh> 
+
+The cpu scheduler simply isn't broken as the people on this mailing list seem 
+to think it is. While my tweaks _look_ large, they're really just tweaking 
+the way the numbers feed back into a basically unchanged design. All the 
+incremental changes have been modifying the same small sections of sched.c 
+over and over again. Nick's changes change the size of timeslices and the 
+priority variation in a much more fundamental way but still use the basic 
+architecture of the scheduler. 
+
+Promoting a new scheduler design entirely is admirable and ultimately probably 
+worth pursuing but not 2.6 stuff.
+
+Con
 

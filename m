@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282498AbRLOMz5>; Sat, 15 Dec 2001 07:55:57 -0500
+	id <S282499AbRLONE6>; Sat, 15 Dec 2001 08:04:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282499AbRLOMzr>; Sat, 15 Dec 2001 07:55:47 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:4360 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S282498AbRLOMzf>; Sat, 15 Dec 2001 07:55:35 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Mike Galbraith <mikeg@wen-online.de>
-Subject: Re: pivot_root and initrd kernel panic woes
-Date: Sat, 15 Dec 2001 14:51:14 -0200
-X-Mailer: KMail [version 1.2]
-Cc: Alexander Viro <viro@math.psu.edu>, Joy Almacen <joy@empexis.com>,
-        <wa@almesberger.net>, <linux-kernel@vger.kernel.org>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0112151238450.306-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.LNX.4.33.0112151238450.306-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Message-Id: <01121514511400.01834@manta>
-Content-Transfer-Encoding: 7BIT
+	id <S282508AbRLONEi>; Sat, 15 Dec 2001 08:04:38 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:30997 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S282499AbRLONEa>;
+	Sat, 15 Dec 2001 08:04:30 -0500
+Date: Sat, 15 Dec 2001 14:04:23 +0100
+From: Rene Rebe <rene.rebe@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: kernel hangs on num-lock press
+Message-Id: <20011215140423.0f8ac337.rene.rebe@gmx.net>
+Organization: FreeSourceCommunity ;-)
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 December 2001 10:14, Mike Galbraith wrote:
-> On Thu, 13 Dec 2001, vda wrote:
-> > On Thursday 13 December 2001 06:19, Alexander Viro wrote:
-> > > On Thu, 13 Dec 2001, vda wrote:
-> > > > BTW, don't go for 2.4x, x>10. initrd is broken there and is still
-> > > > unfixed.
-> > >
-> > > Bullshit.
-> >
-> > I have a slackware initrd (minix) which is booting fine with 2.4.10
-> > but fails to boot with 2.4.12 and later (same .config, same bootloader,
-> > same hardware, same AC voltage in the wall outlet, time of day differs by
-> > 1 minute), so it might be true :-)
->
-> Hmm.. works here with 2.5.1-pre8.
->
-> 	-Mike
-> ...
-> RAMDISK driver initialized: 16 RAM disks of 12288K size 1024 blocksize
-> ...
-> RAMDISK: Compressed image found at block 0
-> Freeing initrd memory: 5161k freed
-> MINIX-fs: mounting unchecked file system, running fsck is recommended.
-> VFS: Mounted root (minix filesystem).
-> Freeing unused kernel memory: 236k freed
+Hi all.
 
-I'd like to try it, can you send a .config?
---
-vda
+I have usb-only system here: MB: sis735; Keyboard: cherry 3000 USB and
+a Logitech Pilot USB mouse.
+
+When I press num-lock the first time after boot-up or often after switching
+between X and a VC (Matrox-FB) my system hangs for a second (even sound-
+stops) and I get this message:
+
+Dec 15 14:01:19 jackson kernel: keyboard: Timeout - AT keyboard not present?(ed)
+Dec 15 14:01:19 jackson kernel: keyboard: Timeout - AT keyboard not present?(f4)
+
+With my last Asus k7m maiboard and the same hardware (internal and external)
+I got this messages not that often - and I never had such hangs where even
+the sound stops ...
+
+Any idea??
+
+k33p h4ck1n6
+  René
+
+-- 
+René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+
+eMail:    rene.rebe@gmx.net
+          rene@rocklinux.org
+
+Homepage: http://www.tfh-berlin.de/~s712059/index.html
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

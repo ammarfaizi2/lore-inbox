@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbTJNX7w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 19:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTJNX7w
+	id S262036AbTJNX6v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 19:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTJNX6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 19:59:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:14484 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262064AbTJNX7u (ORCPT
+	Tue, 14 Oct 2003 19:58:51 -0400
+Received: from mail.kroah.org ([65.200.24.183]:148 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262036AbTJNX6u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 19:59:50 -0400
-Date: Tue, 14 Oct 2003 16:54:36 -0700
+	Tue, 14 Oct 2003 19:58:50 -0400
+Date: Tue, 14 Oct 2003 16:55:08 -0700
 From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] add USB gadget Configure help entries
-Message-ID: <20031014235436.GC18311@kroah.com>
-References: <20031011120508.GU24300@fs.tum.de>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add Handspring Treo 600 ids
+Message-ID: <20031014235508.GD18311@kroah.com>
+References: <1065681411.12124.23.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031011120508.GU24300@fs.tum.de>
+In-Reply-To: <1065681411.12124.23.camel@mentor.gurulabs.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 11, 2003 at 02:05:08PM +0200, Adrian Bunk wrote:
-> In 2.4.23-pre7 USB gadget support was added but no Configure.help 
-> entries were added.
-> 
-> The patch below adds these missing entries. the help texts were copied 
-> from 2.6, please check whether they are correct for 2.4, too.
+On Thu, Oct 09, 2003 at 12:36:52AM -0600, Dax Kelson wrote:
+> I've tested this with my new Treo 600 and it works. Please apply.
 
-Applied, thanks.
+Thanks, I've applied it to my tree and will send it to Marcelo in a few
+days.
 
 greg k-h

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267568AbSLSGm6>; Thu, 19 Dec 2002 01:42:58 -0500
+	id <S267548AbSLSGjj>; Thu, 19 Dec 2002 01:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267566AbSLSGm6>; Thu, 19 Dec 2002 01:42:58 -0500
-Received: from [212.209.10.215] ([212.209.10.215]:12699 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S267568AbSLSGm5>;
-	Thu, 19 Dec 2002 01:42:57 -0500
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE565@mailse01.axis.se>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
-       "'starvik@axis.com'" <mikael.starvik@axis.com>,
-       "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.21-pre2
-Date: Thu, 19 Dec 2002 07:49:32 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S267552AbSLSGjj>; Thu, 19 Dec 2002 01:39:39 -0500
+Received: from willow.seitz.com ([146.145.147.180]:16 "EHLO willow.seitz.com")
+	by vger.kernel.org with ESMTP id <S267548AbSLSGjj>;
+	Thu, 19 Dec 2002 01:39:39 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Thu, 19 Dec 2002 01:47:12 -0500
+To: "D.A.M. Revok" <marvin@synapse.net>
+Cc: linux-kernel@vger.kernel.org, rossb@google.com
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133  Promise ctrlr, or...
+Message-ID: <20021219064712.GA29538@willow.seitz.com>
+References: <Pine.LNX.4.10.10212180241580.8350-100000@master.linux-ide.org> <200212181635.58164.marvin@synapse.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212181635.58164.marvin@synapse.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It reverts the s/extern __inline__/static __inline__/g changes
+On Wed, Dec 18, 2002 at 04:35:58PM -0500, D.A.M. Revok wrote:
+> I figured out what it is, more...
+> hdparm -X12 ( to set PIO instead of UDMA ) /does not/ fix it, so I dug 
+> into BIOS and re-enabled the bios for that controller...
 
-We have replaced all static inline with extern inline to keep
-the size of the image down when compiling with GCC 3.2 
-(because the maximum size to inline has changed in 3.2 I think,
-I can get a clarification from the gcc-cris guy if necessary).
-Is this a non preferred way to do it?
+Ah, I can verify this has fixed the lockups for me too.  I previously
+had the BIOS disabled cause it takes so long to boot, but recently
+reenabled it.  smartctl can hapily operate on all drives now.
 
->a junk file in arch/cris/drivers/bluetooth/bt.patch
+> Does my having the "bios" for that controller turned off create the 
+> problem? ( I don't boot from those drives, so didn't see any reason to 
+> have it...  )
 
-Why is it junk? The bluetooth options should only be visible
-if you have an OpenBT source tree available. The Makefile 
-in arch/cris/drivers/bluetooth/ checks your tree and then
-runs the patch. This was previously done with a perl 
-script instead. In the long run we should probably switch
-to the official Bluetooth stack in Linux (i.e. Bluez).
+I do now boot from my Promise controlled drives, and yes, I need the
+BIOS.
 
->although if Axis would glance over and fixup the ide bits
->that would be great as its not a platform I have access too
+-- 
+Ross Vandegrift
+ross@willow.seitz.com
 
-Yes, I will take a look at it
-
-/Mikael
+A Pope has a Water Cannon.                               It is a Water Cannon.
+He fires Holy-Water from it.                        It is a Holy-Water Cannon.
+He Blesses it.                                 It is a Holy Holy-Water Cannon.
+He Blesses the Hell out of it.          It is a Wholly Holy Holy-Water Cannon.
+He has it pierced.                It is a Holey Wholly Holy Holy-Water Cannon.
+He makes it official.       It is a Canon Holey Wholly Holy Holy-Water Cannon.
+Batman and Robin arrive.                                       He shoots them.

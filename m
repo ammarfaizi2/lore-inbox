@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286190AbRLJIOR>; Mon, 10 Dec 2001 03:14:17 -0500
+	id <S286191AbRLJIUQ>; Mon, 10 Dec 2001 03:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286191AbRLJIN4>; Mon, 10 Dec 2001 03:13:56 -0500
-Received: from zero.tech9.net ([209.61.188.187]:43782 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S286190AbRLJINs>;
-	Mon, 10 Dec 2001 03:13:48 -0500
-Subject: Re: "Colo[u]rs"
-From: Robert Love <rml@tech9.net>
-To: Stevie O <stevie@qrpff.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011210024959.01c81c20@whisper.qrpff.net>
-In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
-	<5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net> 
-	<5.1.0.14.2.20011210024959.01c81c20@whisper.qrpff.net>
-Content-Type: text/plain
+	id <S286192AbRLJIUH>; Mon, 10 Dec 2001 03:20:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8454 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286191AbRLJIT5>; Mon, 10 Dec 2001 03:19:57 -0500
+Subject: Re: Linux 2.4.17-pre5
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Mon, 10 Dec 2001 08:28:57 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), anton@samba.org, davej@suse.de,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <E16DJ2T-0002Af-00@wagner> from "Rusty Russell" at Dec 10, 2001 04:31:41 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
-Date: 10 Dec 2001 03:13:55 -0500
-Message-Id: <1007972036.1237.36.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E16DLo2-0001CL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-10 at 03:00, Stevie O wrote:
+> Agreed, but does the current x86 code does map them like this or not?
+> If it does, I'm curious as to why they saw a problem which this fixed.
 
-> For the n-way associative deal:
+The current x86 code maps the logical cpus as with the physical ones. In
+other words its how they come off the mainboard. Which for HT seems to
+be with each HT as (n, n+1)
 
-If the cache is n-way associative, it can store n lines at each
-mapping.  So even though two virtual addresses map to the same cache
-line, they can both be stored.  Of course, if you have k addresses such
-that k>n, then you reach the same problem as direct map (the case where
-n=1) caches.
+> understand what is happening.  I posted my findings, and I'd really
+> like to get some feedback from others doing the same thing.
 
-To reiterate, the point of coloring would be to prevent the case of
-multiple addresses mapping to the same line.  Let me give you a
-real-life example.  We recently have been trying to color the kernel
-stack.  If every process's stack lies at the same address (let alone the
-same page multiple and offset), then they all map to the same place in
-the cache and we can effectively only cache one of them (and
-subsequently cache miss on every other access).  If we "color" the
-location of the stack, we make sure they don't all map to the same
-place.  This obviously involves some knowledge of the cache system, but
-it tends to be general enough that we can get it right for all cases.
+I never saw your stuff. 
 
-If you are _really_ interested in this, an excellent and very thorough
-book is UNIX Systems for Modern Architectures: Symmetric Multiprocessing
-and Caching for Kernel Programmers, by Curt Schimmel.
+> BUT I CAN'T DO THAT WHEN THERE'S NO DISCUSSION ABOUT PATCHES FROM
+> ANONYMOUS SOURCES WHICH GET MERGED!  FUCK ARGHH FUCK FUCK FUCK.
 
-	Robert Love
+A mailing list doesn't scale to that. I do have a cunning-plan (tm) but
+that requires some work and while its doable for 2.2 or 2.4 I know that
+making Linus do or change any tiny bit of his behaviour isn't going to
+happen which rather limits the behaviour.
 
+Think about
+
+	mail patch to linus-patches@...
+
+	linus-patches@ is a script that does
+
+		find the diff
+		find the paths in the diff
+		regexp them against the list of notifications
+			email each matching notification a copy
+		
+with the regexps including
+
+	*	torvalds@transmeta.com
+
+so its like mailing Linus but anyone who cares can web add/remove themselves
+from the cc list, and its invisible to Linus too.
+
+> BTW: Alchemy, Voodoo, Zen and Cards.  Maybe you should start hacking
+> on something more deterministic? 8)
+
+Well actually Alchemy is MIPS and nothing to do with me. Trying to turn a
+Voodoo card into a video4linux overlay is, Zen is ftp.linux.org.uk and I
+hack card drivers. So 3 out of 4.
+
+Alan

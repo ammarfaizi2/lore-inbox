@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262037AbTCLVHx>; Wed, 12 Mar 2003 16:07:53 -0500
+	id <S262031AbTCLVGk>; Wed, 12 Mar 2003 16:06:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262042AbTCLVHw>; Wed, 12 Mar 2003 16:07:52 -0500
-Received: from bitmover.com ([192.132.92.2]:55983 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262037AbTCLVHt>;
-	Wed, 12 Mar 2003 16:07:49 -0500
-Date: Wed, 12 Mar 2003 13:18:32 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312211832.GA6587@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030312174244.GC13792@work.bitmover.com> <Pine.LNX.4.44.0303121324510.14172-100000@xanadu.home> <20030312195120.GB7275@work.bitmover.com> <20030312210513.GA6948@nevyn.them.org>
+	id <S262037AbTCLVGk>; Wed, 12 Mar 2003 16:06:40 -0500
+Received: from rth.ninka.net ([216.101.162.244]:47303 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S262031AbTCLVGi>;
+	Wed, 12 Mar 2003 16:06:38 -0500
+Subject: Re: named vs 2.5.64-mm5
+From: "David S. Miller" <davem@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: jjs <jjs@tmsusa.com>, linux-kernel@vger.kernel.org,
+       James Morris <jmorris@intercode.com.au>
+In-Reply-To: <20030312113126.703de259.akpm@digeo.com>
+References: <3E6F7C78.1040302@tmsusa.com>
+	 <20030312113126.703de259.akpm@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047503813.17931.2.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312210513.GA6948@nevyn.them.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 Mar 2003 13:16:53 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Larry, this brings up something I was meaning to ask you before this
-> thread exploded.  What happens to those "logical change" numbers over
-> time?
+On Wed, 2003-03-12 at 11:31, Andrew Morton wrote:
+> The changelog has:
+> 
+> # --------------------------------------------
+> # 03/03/08      jmorris@intercode.com.au        1.1083
+> # [NET]: Nuke SO_BSDCOMPAT.
+> # --------------------------------------------
+> 
+> Maybe James can tell us what is going on here.
+> 
+> We should at least place a cap on the number of times that message
+> is printed.
 
-They are stable in the CVS tree because the CVS tree isn't distributed.
-So "Logical change 1.900" in the context of the exported CVS tree is 
-always the same thing.  That's one advantage centralized has, things
-don't shift around on you.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Feel free to send a patch for that.
+
+SO_BSDCOMPAT has had ZERO side effects since 2.0.x, and it's been
+thus scheduled to be removed for years.  It was merely a binary
+state passed in and out of the kernel to the user and had no effect
+on socket behavior at all.
+
+Any application still referencing this ancient thing either expects
+some kind of different behavior from setting SO_BSDCOMPAT non-zero,
+or really doesn't rely on anything at all.
+
+Since SO_BSDCOMPAT has had zero side effects for 5 or so years, this
+means that the safe change is to remove all references to SO_BSDCOMPAT
+that exist in any application.
+

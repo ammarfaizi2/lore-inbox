@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314835AbSENAaG>; Mon, 13 May 2002 20:30:06 -0400
+	id <S314838AbSENAao>; Mon, 13 May 2002 20:30:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314838AbSENAaF>; Mon, 13 May 2002 20:30:05 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60166 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S314835AbSENAaC>; Mon, 13 May 2002 20:30:02 -0400
-Date: Mon, 13 May 2002 21:29:40 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020514002938.GA20889@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-	<linux-kernel@vger.kernel.org>
-In-Reply-To: <20020512204140.GB7593@conectiva.com.br> <Pine.LNX.4.33.0205131355060.32241-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S314841AbSENAam>; Mon, 13 May 2002 20:30:42 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:54766 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S314838AbSENAaj>; Mon, 13 May 2002 20:30:39 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
+Message-ID: <15584.23204.925373.44968@wombat.chubb.wattle.id.au>
+Date: Tue, 14 May 2002 10:30:28 +1000
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, axboe@suse.de, akpm@zip.com.au,
+        martin@dalecki.de, neilb@cse.unsw.edu.au
+Subject: Re: [PATCH] remove 2TB block device limit
+In-Reply-To: <20020513131339.A4610@infradead.org>
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, May 13, 2002 at 01:57:15PM -0700, Linus Torvalds escreveu:
-> 
-> On Sun, 12 May 2002, Arnaldo Carvalho de Melo wrote:
-> 
-> > Em Sun, May 12, 2002 at 09:31:03PM +0100, Dr. David Alan Gilbert escreveu:
-> > > Perhaps insisting that each check in message includes a single line (sub
-> > > 60 chars) description; could turn those into description : name and
-> > > remove dupes?
-> > 
-> > That'd be nice indeed, like %{summary} and %{description} in rpm spec files 8)
-> 
-> seem to do when they just want to check something in (ie very few people
-> would send an email saying "fix misc problems" as the body of the email,
-> yet it's easy to do when you do "bk citool").
+>>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
 
-As a bk newbie I'm trying to follow these rules... 8)
+Christoph> On Mon, May 13, 2002 at 08:28:30PM +1000, Peter Chubb
+Christoph> wrote:
+>> There's now a patch available against 2.5.15, and the BK repository
+>> has been updated to v2.5.15 as well:
+>> 
+>> http://www.gelato.unsw.edu.au/patches/2.5.15-largefile-patch
+>> bk://gelato.unsw.edu.au:2023/
 
-- Arnaldo
+Christoph> This looks really good, I'd like to see something like that
+Christoph> merged soon!  Some comments:
+
+Christoph>  - please move the sector_t typedef from <linux/types.h> to
+Christoph> <asm/types.h>, so 64 bit arches don't have to have the
+Christoph> CONFIG_ option at all, some 32bit plattforms that are
+Christoph> unlikely to ever support large disks (m68k comes to mind)
+Christoph> can make it 32bit unconditionally and some like i386 can
+Christoph> use a config option.  - sector_div should move to a common
+Christoph> header (blkdev.h?)
+
+That's not a bad idea, I'll do it.
+
+Christoph> And something related to general sector_t usage:
+
+Christoph>  - what about sector_t vs daddr_t?  Linux still has
+Christoph> daddr_t, but it is still always 32bit, I think a big
+Christoph> s/sector_t/daddr_t/ would fit the traditional unix way of
+Christoph> doing disk addressing
+
+Yes I considered that, but daddr_t is exported to userland by the tape
+ioctls, and is defined to be 32-bit, so it'd require out-of-kernel changes.
+
+Besides, Jens had introduced sector_t for the purpose of counting
+blocks and sectors, so I thought I may as well use it.  One could
+argue that it's misnamed (personally, I liked Ben's `blkoff_t' for
+offset in blocks), but it's been thare for four months or so, and was
+already being used in likely places throughout the block layer.  I
+just extended its use to all the places I thought were necessary
+(there may be some paths that I've missed; but I hope not).
+
+Christoph>  - why is the get_block block argument
+Christoph> a sector_t?  It presents a logical filesystem block which
+Christoph> usually is larger than the sector, not to mention that for
+Christoph> the usual blocksize == PAGE_SIZE case a ulong is enough as
+Christoph> that is the same size the pagecache limit triggers.
+
+For filesystems that *can* handle logical filesystem blocks beyond the
+2^32 limit (i.e., that use >32bit offsets in their on-disc format),
+the get_block() argument has to be > 32bits long.  At  the moment
+that's only JFS and XFS, but reiserfs version 4 looks as if it might
+go that way.  We'll need this especially when the pagecache limit is
+gone.
+
+Besides, blocksize is not usually pagesize.  ext[23] uses 1k or 4k
+blocks depending on the size and expected use of the filesystem; alpha
+pagesize is usually 8k, for example.  The arm uses 4k, 16k or 32k
+pagesizes depending on the model.
+
+So on 32-bit systems, ulong is not enough.  (in fact if you look at
+jfs, the first thing jfs_get_block does is convert the block number
+arg to a 64-bit number).
+
+Peter C

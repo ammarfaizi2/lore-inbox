@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265162AbTFMSgF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbTFMSgF
+	id S265476AbTFMShA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbTFMSg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:36:05 -0400
-Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:34697 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265162AbTFMSgD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:36:03 -0400
-Date: Fri, 13 Jun 2003 12:49:38 -0600 (MDT)
-From: James Bourne <jbourne@hardrock.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: linux-kernel@vger.kernel.org, "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: 2.4.21-uv1 patch released
-In-Reply-To: <20030613114249.6769b3fc.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.44.0306131246020.9166-100000@cafe.hardrock.org>
+	Fri, 13 Jun 2003 14:36:59 -0400
+Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:3462
+	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
+	id S265476AbTFMSgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 14:36:36 -0400
+From: "jds" <jds@soltis.cc>
+To: Dominik Brodowski <linux@brodo.de>, akpm@diego.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems in kernel 2.4.70-mm9 with pcmcia xircom_cb
+Date: Fri, 13 Jun 2003 12:21:35 -0600
+Message-Id: <20030613181745.M128@soltis.cc>
+In-Reply-To: <20030613183320.GA4765@brodo.de>
+References: <20030613183320.GA4765@brodo.de>
+X-Mailer: Open WebMail 1.90 20030212
+X-OriginatingIP: 180.175.220.238 (jds)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jun 2003, Randy.Dunlap wrote:
 
-> I can't boot 2.4.21 without the latest aic7xyz tarball applied,
-> from http://people.FreeBSD.org/~gibbs/linux/SRC/
+  Hi:
+
+    Thanks ....... again, my pcmcia card bus xircom_cb working good.
+
+  Regards.
+
+
+---------- Original Message -----------
+From: Dominik Brodowski <linux@brodo.de>
+To: jds@soltis.cc, akpm@diego.com
+Sent: Fri, 13 Jun 2003 20:33:20 +0200
+Subject: Re: Problems in kernel 2.4.70-mm9 with pcmcia xircom_cb
+
+> Hi "jds",
 > 
-> The 2.4.21 driver just hangs during boot.
-
-Nifty...
-
-Justin, is this a confirmed problem with the aic79xx driver in 2.4.21 and is
-there a 2.4.21-rc8 or later patch that will go in clean?  (I'm thinking the
-2.4-20030603 patch should).
-
-Thanks,
-James
-
+> Please run "oldconfig" on your .config, and select 
 > 
-> --
-> ~Randy
+> CONFIG_YENTA  CardBus yenta-compatible bridge support (NEW) "y"
 > 
-
--- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
-
+> (Or run any other config tool of your choice and adjust this setting).
+> 
+> If CONFIG_YENTA wasn't set before, this is likely the cause of the problem.
+> If not, please contact me again.
+> 
+> 	Dominik
+------- End of Original Message -------
 

@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbTDOFXo (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264293AbTDOFXo (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 01:23:44 -0400
-Received: from granite.he.net ([216.218.226.66]:50698 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S264272AbTDOFXn (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 01:23:43 -0400
-Date: Mon, 14 Apr 2003 22:35:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB speedtouch: discard packets for non-existant vcc's
-Message-ID: <20030415053539.GB8761@kroah.com>
-References: <200304121349.39418.baldrick@wanadoo.fr>
+	id S264293AbTDOF3f (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbTDOF3f (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 01:29:35 -0400
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:21228 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id S264293AbTDOF3e (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 01:29:34 -0400
+Date: Tue, 15 Apr 2003 07:52:29 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.67-mm3
+Message-ID: <20030415055229.GJ14552@wind.cocodriloo.com>
+References: <20030414015313.4f6333ad.akpm@digeo.com> <20030415020057.GC706@holomorphy.com> <20030415041759.GA12487@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304121349.39418.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030415041759.GA12487@holomorphy.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 12, 2003 at 01:49:39PM +0200, Duncan Sands wrote:
-> I broke part of the udsl_decode_rawcell logic in a previous patch, leading to
-> possible hangs on startup/shutdown.  I've attached the 2.4 and 2.5 versions.
-> Thanks to Subodh Srivastava and Ted Phelps for their bug reports.  Here is the
-> 2.5 patch included inline for reference:
+On Mon, Apr 14, 2003 at 09:17:59PM -0700, William Lee Irwin III wrote:
+> On Mon, Apr 14, 2003 at 07:00:57PM -0700, William Lee Irwin III wrote:
+> > Hence, this "FIXME: do not do for zone highmem". Presumably this is a
+> 
+> Another FIXME patch:
+> 
+> 
+> It's a bit of an open question as to how much of a difference this one
+> makes now, but it says "FIXME". fault_in_pages_writeable() and 
+> fault_in_pages_readable() have a limited "range" with respect to the
+> size of the region they can prefault; as they are now, they are only
+> meant to handle spanning a page boundary. This converts them to iterate
+> over the virtual address range specified and so touch each virtual page
+> within it once as specified. As per the comment within the "FIXME",
+> this is only an issue if PAGE_SIZE < PAGE_CACHE_SIZE.
+> 
+> [patch snip]
 
-Applied to my 2.4 and 2.5 trees, thanks.
+Page clustering? I did a simple patch yesterday called "cow-ahead", which
+may be related: on a write to a COW page, it breaks the COW from several pages
+at the same time. The implementation survived a complete debian 2.2 boot
+and a fork bomb. Please have a look. The idea came from a discussion with
+Martin J. Bligh... we liked the name too much not to implement it.
 
-greg k-h
+Greets, Antonio.

@@ -1,92 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbUKVQzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbUKVRKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbUKVQzi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 11:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbUKVQoZ
+	id S262222AbUKVRKE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 12:10:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbUKVRHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:44:25 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:15327 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262132AbUKVQWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:22:55 -0500
-Subject: Re: drivers/w1/: why is dscore.c not ds9490r.c ?
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Adrian Bunk <bunk@stusta.de>
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20041122133344.GA19419@stusta.de>
-References: <20041121220251.GE13254@stusta.de>
-	 <1101108672.2843.55.camel@uganda>  <20041122133344.GA19419@stusta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WpoNA6IRBvXGmkFmRn9I"
-Organization: MIPT
-Date: Mon, 22 Nov 2004 19:25:45 +0300
-Message-Id: <1101140745.9784.7.camel@uganda>
+	Mon, 22 Nov 2004 12:07:39 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:7066 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262222AbUKVRBp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 12:01:45 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 22 Nov 2004 17:52:01 +0100
+From: Gerd Knorr <kraxel@suse.de>
+To: Johannes Stezenbach <js@convergence.de>, Gerd Knorr <kraxel@suse.de>,
+       Johannes Stezenbach <js@linuxtv.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Takashi Iwai <tiwai@suse.de>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: modprobe + request_module() deadlock
+Message-ID: <20041122165201.GA2060@bytesex>
+References: <20041122102502.GF29305@bytesex> <20041122141607.GA21184@linuxtv.org> <20041122144432.GB575@bytesex> <20041122153637.GA10673@convergence.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Mon, 22 Nov 2004 16:21:31 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041122153637.GA10673@convergence.de>
+X-GPG-Fingerprint: 79C4 EE94 CC44 6DD4 58C6  3088 DBB7 EC73 8750 D2C4  [1024D/8750D2C4]
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I can fix that in the driver, by delaying the request_module() somehow
+> > until the saa7134 module initialization is finished.  I don't think that
+> > this is a good idea through as it looks like I'm not the only one with
+> > that problem ...
+> 
+> Delaying request_module() sounds ugly. Anyway, if you can
+> get it to work reliably...
 
---=-WpoNA6IRBvXGmkFmRn9I
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I think I can, havn't tried yet through.
 
-On Mon, 2004-11-22 at 14:33 +0100, Adrian Bunk wrote:
-> On Mon, Nov 22, 2004 at 10:31:12AM +0300, Evgeniy Polyakov wrote:
-> > On Mon, 2004-11-22 at 01:02, Adrian Bunk wrote:
-> > > Hi Evgeniy,
-> >=20
-> > Hello, Adrian.
->=20
-> Hi Evgeniy,
->=20
-> > > drivers/w1/Makefile in recent 2.6 kernels contains:
-> > >   obj-$(CONFIG_W1_DS9490)         +=3D ds9490r.o=20
-> > >   ds9490r-objs    :=3D dscore.o
-> > >=20
-> > > Is there a reason, why dscore.c isn't simply named ds9490r.c ?
-> >=20
-> > dscore.c is a core function set to work with ds2490 chip.
-> > ds9490* is built on top of it.
-> > Any vendor can create it's own w1 bus master using this chip,=20
-> > not ds9490.
->=20
-> if it was built on top of it, I'd have expected ds9490r.o to contain=20
-> additional object files.
+> Actually dvb-bt8xx.ko has a similar problem (no hotplug for DVB). It
+> uses bttv_sub_register(), though, but this doesn't do probing
+> and the PCI ids have to be in bttv-cards.c. It would be nicer
+> if dvb-bt8xx.ko could use a similar mechanism as dvb-ttpci.ko.
 
-DS9490 does not have anything except this chip and simple 64bit memory
-chip,
-so it is not needed to have any additional code.
+Well, you can use the second PCI function.
 
-> How would a different w1 bus master chip look like in=20
-> drivers/w1/Makefile?
+> Or do you plan to add request_module("dvb-bt8xx") in bttv-driver.c?
 
-obj-m: proprietary_module.o
-proprietary_module-objs: dscore.o proprietary_module_init.o
+I can do that as well, bttv knows anyway which ones are dvb cards and
+which ones are not.
 
-Actually it will live outside the kernel tree, but will require ds2490
-driver.
-It could be called ds2490.c but I think dscore is better name.
+> And how about cx88 (I haven't checked this)?
 
-> > 	Evgeniy Polyakov
->=20
-> cu
-> Adrian
->=20
---=20
+cx88-dvb has a PCI ID table.  The cx2388x has a separate PCI function
+for the MPEG stuff which makes it a bit easier to get that handled
+by hotplug directly ;)
 
---=-WpoNA6IRBvXGmkFmRn9I
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBohMJIKTPhE+8wY0RAjdFAJ4tMfeL5jtKsQS7+8Xmj6wwytnuOACgg2r/
-ly13rxU3zlmD7EAUTQJFeCE=
-=Scs6
------END PGP SIGNATURE-----
-
---=-WpoNA6IRBvXGmkFmRn9I--
+  Gerd
 

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292150AbSCDITJ>; Mon, 4 Mar 2002 03:19:09 -0500
+	id <S292229AbSCDIVJ>; Mon, 4 Mar 2002 03:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292223AbSCDITA>; Mon, 4 Mar 2002 03:19:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57867 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292150AbSCDISq>;
-	Mon, 4 Mar 2002 03:18:46 -0500
-Message-ID: <3C832D66.6DC279E@zip.com.au>
-Date: Mon, 04 Mar 2002 00:16:38 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Gigabit Performance 2.4.19-preX - Excessive locks, calls, waits
-In-Reply-To: <20020304001223.A29448@vger.timpanogas.org>
+	id <S292237AbSCDIVA>; Mon, 4 Mar 2002 03:21:00 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:61452 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S292223AbSCDIUn>; Mon, 4 Mar 2002 03:20:43 -0500
+From: Helge Hafting <helgehaf@idb.hist.no>
+Date: Mon, 4 Mar 2002 09:19:28 +0100
+To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Message-ID: <20020304081928.GA21138@hh.idb.hist.no>
+In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <E16heCm-0000Q5-00@starship.berlin> <757370000.1015212846@tiny>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <757370000.1015212846@tiny>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
-> 
-> ...
->  34880 total                                      0.0202
->  28581 default_idle                             595.4375
->   1125 __rdtsc_delay                             35.1562
->   1094 eth_type_trans                             5.2596
->    657 skb_release_data                           4.5625
->    378 __make_request                             0.2596
->    335 alloc_skb_frame                            1.1020
+On Sun, Mar 03, 2002 at 10:34:07PM -0500, Chris Mason wrote:
+[...]
+> 3) Some drives may not be very smart about ordered tags.  We need
+> to figure out which is faster, using the ordered tag or using a
+> simple cache flush (when writeback is on).  The good news about
+> the cache flush is that it doesn't require major surgery in the
+> scsi error handlers.
 
-Note how eth_type_trans is now the most expensive function.  This
-is because it's the first place where the CPU touches the
-just-arrived ethernet header.
+Isn't that a userspace thing?  I.e. use ordered tags in the best
+way possible for drives that _are_ smart about ordered tags.
+Let the admin change that with a hdparm-like utility
+if testing (or specs) confirms that this particular
+drive takes a performance hit.  
 
-It would be interesting to add a prefetch() to the driver at the
-earliest possible time to get the header read underway.  Maybe
-the IP header too?
+I thing the days of putting up with any stupid hw is
+slowly going away.  Linux is a serious server os these
+days, and disk makers will be smart about ordered tags
+if some server os do benefit from it.  It won't
+really cost them much either.  
 
--
+Old hw is another story of course - some sort of
+fallback might be useful for that. But probably
+not for next year's drives. :-)
+
+Helge Hafting

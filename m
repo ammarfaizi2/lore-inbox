@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTI3LSc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 07:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTI3LSc
+	id S261313AbTI3L2f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 07:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbTI3L2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 07:18:32 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:26241 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261336AbTI3LSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 07:18:31 -0400
-Date: Tue, 30 Sep 2003 12:18:10 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309301118.h8UBIAn8001562@81-2-122-30.bradfords.org.uk>
-To: Wade <neroz@ii.net>, Jani Monoses <jani@iv.ro>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F7943B5.3010705@ii.net>
-References: <20030930111839.09934efa.jani@iv.ro>
- <3F7943B5.3010705@ii.net>
-Subject: Re: bk2svn repo updatedness?
+	Tue, 30 Sep 2003 07:28:35 -0400
+Received: from [62.197.173.195] ([62.197.173.195]:11400 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S261313AbTI3L2d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 07:28:33 -0400
+Date: Tue, 30 Sep 2003 14:28:30 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Rogier Wolff <Swen-Trap1@BitWizard.nl>,
+       Artur Klauser <Artur.Klauser@computer.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: div64.h:do_div() bug
+Message-ID: <20030930112830.GK1058@mea-ext.zmailer.org>
+References: <Pine.LNX.4.51.0309291503030.7947@enm.xynhfre.bet> <20030930095229.GA32421@bitwizard.nl> <20030930101438.GJ1058@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930101438.GJ1058@mea-ext.zmailer.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Wade <neroz@ii.net>:
-> Jani Monoses wrote:
-> > How timely should the sources in the subversion repo of the 2.6 kernel
-> > be? I see that right now they are almost 2 days behind linux.bkbits.net
+On Tue, Sep 30, 2003 at 01:14:38PM +0300, Matti Aarnio wrote:
+> On Tue, Sep 30, 2003 at 11:52:29AM +0200, Rogier Wolff wrote:
+> > On Mon, Sep 29, 2003 at 03:25:19PM +0200, Artur Klauser wrote:
+> > > I've found that a bug in asm-arm/div64.h:do_div() is preventing correct
+> > > conversion of timestamps in smbfs (and probably ntfs as well) from NT to
 > > 
-> > thanks
-> > Jani
-> > 
+> > Nope. 
 > 
-> Depends if Larry is in a good mood or not.
+>   Nope yourself.
+> 
+> > >   if (in.n64 != out.n64) {
+> > >     printf("FAILURE: asm/div64.h:do_div() is broken for 64-bit dividends\n");
+> > 
+> > do_div should be/is documented as not doing 64 bit dividents. It does
+> > 64/32 -> 32 divides, IIRC... 
+> 
+>   64/32 -> 64,32
+> 
+> The REMAINDER is 32 bit value.
 
-Don't post flamebait - Larry posted to the list a few days ago stating
-that he is busy with non work things at the moment.
+Non-native english speaker makes the mistake..  MODULUS is 32 bits as is
+DIVISOR, REMAINDER is 64 bit, as is DIVIDEND.
 
-If there is a problem with the Bit Keeper repositories, have you
-contacted anyone at Bit Mover, as he suggested?
+That is:
+	DIVIDEND / DIVISOR -> REMAINDER , MODULUS
 
-John.
+and
+	REMAINDER * DIVISOR + MODULUS = DIVIDEND
+
+> > 		Roger. 
+ 
+/Matti Aarnio

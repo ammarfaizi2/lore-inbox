@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbULHBQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbULHBTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbULHBQc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 20:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULHBO5
+	id S261985AbULHBTK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 20:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULHBRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 20:14:57 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15634 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261984AbULHBOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 20:14:33 -0500
-Date: Wed, 8 Dec 2004 02:14:29 +0100
+	Tue, 7 Dec 2004 20:17:42 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:61578 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261988AbULHBPw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 20:15:52 -0500
+Date: Wed, 8 Dec 2004 02:14:19 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] scsi/ahci.c: remove an unused function (fwd)
-Message-ID: <20041208011429.GF5496@stusta.de>
+Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] DVB av7110_hw.c: remove unused functions (fwd)
+Message-ID: <20041208011419.GD5496@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -31,41 +30,59 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Fri, 29 Oct 2004 02:26:13 +0200
+Date:	Fri, 29 Oct 2004 02:16:52 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [2.6 patch] scsi/ahci.c: remove an unused function
+To: linux-dvb-maintainer@linuxtv.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] DVB av7110_hw.c: remove unused functions
 
-The patch below removes an unused function from drivers/scsi/ahci.c
+The patch below removes three unused functions from 
+drivers/media/dvb/ttpci/av7110_hw.c
 
 
 diffstat output:
- drivers/scsi/ahci.c |    9 ---------
- 1 files changed, 9 deletions(-)
+ drivers/media/dvb/ttpci/av7110_hw.c |   15 ---------------
+ 1 files changed, 15 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm1-full/drivers/scsi/ahci.c.old	2004-10-28 23:28:09.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/scsi/ahci.c	2004-10-28 23:28:17.000000000 +0200
-@@ -504,15 +504,6 @@
- 	ahci_fill_sg(qc);
- }
+--- linux-2.6.10-rc1-mm1-full/drivers/media/dvb/ttpci/av7110_hw.c.old	2004-10-28 23:04:59.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/media/dvb/ttpci/av7110_hw.c	2004-10-28 23:05:26.000000000 +0200
+@@ -577,21 +577,11 @@
  
--static inline void ahci_dma_complete (struct ata_port *ap,
--                                     struct ata_queued_cmd *qc,
--				     int have_err)
+ #ifdef CONFIG_DVB_AV7110_OSD
+ 
+-static inline int ResetBlend(struct av7110 *av7110, u8 windownr)
 -{
--	/* get drive status; clear intr; complete txn */
--	ata_qc_complete(ata_qc_from_tag(ap, ap->active_tag),
--			have_err ? ATA_ERR : 0);
+-	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetNonBlend, 1, windownr);
 -}
 -
- static void ahci_intr_error(struct ata_port *ap, u32 irq_stat)
+ static inline int SetColorBlend(struct av7110 *av7110, u8 windownr)
  {
- 	void *mmio = ap->host_set->mmio_base;
+ 	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetCBlend, 1, windownr);
+ }
+ 
+-static inline int SetWindowBlend(struct av7110 *av7110, u8 windownr, u8 blending)
+-{
+-	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetWBlend, 2, windownr, blending);
+-}
+-
+ static inline int SetBlend_(struct av7110 *av7110, u8 windownr,
+ 		     enum av7110_osd_palette_type colordepth, u16 index, u8 blending)
+ {
+@@ -606,11 +596,6 @@
+ 			     windownr, colordepth, index, colorhi, colorlo);
+ }
+ 
+-static inline int BringToTop(struct av7110 *av7110, u8 windownr)
+-{
+-	return av7110_fw_cmd(av7110, COMTYPE_OSD, WTop, 1, windownr);
+-}
+-
+ static inline int SetFont(struct av7110 *av7110, u8 windownr, u8 fontsize,
+ 			  u16 colorfg, u16 colorbg)
+ {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

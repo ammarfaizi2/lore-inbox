@@ -1,84 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267612AbRGNKyM>; Sat, 14 Jul 2001 06:54:12 -0400
+	id <S267630AbRGNLnS>; Sat, 14 Jul 2001 07:43:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267620AbRGNKyC>; Sat, 14 Jul 2001 06:54:02 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:16084 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267612AbRGNKxt>; Sat, 14 Jul 2001 06:53:49 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Alexander Viro <viro@math.psu.edu>
-Date: Sat, 14 Jul 2001 20:53:23 +1000 (EST)
+	id <S267631AbRGNLnH>; Sat, 14 Jul 2001 07:43:07 -0400
+Received: from polypc17.chem.rug.nl ([129.125.25.92]:60801 "EHLO
+	polypc17.chem.rug.nl") by vger.kernel.org with ESMTP
+	id <S267630AbRGNLm6>; Sat, 14 Jul 2001 07:42:58 -0400
+Date: Sat, 14 Jul 2001 13:42:46 +0200 (CEST)
+From: "J.R. de Jong" <jdejong@chem.rug.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x swap >= 2*memsize requirement status.
+Message-ID: <Pine.LNX.4.21.0107141326001.12808-100000@polypc17.chem.rug.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15184.9379.88029.737764@notabene.cse.unsw.edu.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Abramo Bagnara <abramo@alsa-project.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        nfs-devel@linux.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: [NFS] [PATCH] Bug in NFS - should init be allowed to set umask???
-In-Reply-To: message from Alexander Viro on Saturday July 14
-In-Reply-To: <15183.53052.826318.795664@notabene.cse.unsw.edu.au>
-	<Pine.GSO.4.21.0107140126330.19749-100000@weyl.math.psu.edu>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday July 14, viro@math.psu.edu wrote:
-> 
-> 
-> On Sat, 14 Jul 2001, Neil Brown wrote:
-> 
-> > On Friday July 13, torvalds@transmeta.com wrote:
-> > > 
-> > > On Sat, 14 Jul 2001, Neil Brown wrote:
-> > > >
-> > > > I've found a 4th option.  We make it so that fs->umask does not affect
-> > > > nfsd
-> > > 
-> > > Me likee.
-> > > 
-> > > Applied. I'd only like to double-check that you made sure you changed all
-> > > callers?
-> > 
-> > There is just the call to vfs_mknod in net/unix/af_unix.c that I
-> > mentioned.  I'm not sure what to do about that one.
-> > 
-> > A
-> >     find -name '*.[ch]' | xargs egrep 'vfs_(mkdir|mknod|create)'
-> 
-> RTFM grep(1). \< is your friend...
+Hi all,
 
-But then you don't get to see and inspect random samplings of the
-kernel, and thereby increase your general knowledge.
-The false-positive of devfs_mknod gives a remarkable (if inacurate)
-inside into the relationship between vfs and de-vfs :-)
+I noticed that among fellow linux users there is much confusion about the
+2.4.x swap requirement. Some heard that it is a _requirement_ to have >=
+2*memsize swap or none at all, and others heard that it is advisory in the
+sense that performance/stability wil drop drastically when one does not
+take this advice to heart.
 
-Similarly searching for "umask" finds lots of matches for cpumask and
-so it a steping stone into learning more about SMP infrastructure....
-:-)
+There was a heated debate about the wisdom of the supposed requirement,
+especially since many found it to be a major drawback compared to the
+2.2.x series. However, I think there is a need for clarity on the real
+status of the issue. Which brings me to my question: Can anyone shed some
+light on how 'required' this requirement really is and what one could
+expect to happen when this requirement is not met?
 
-It's call "stratified sampling" and can be a more effective way to
-sample a large body of data than put random sampling.
+Regards,
 
-> 
-> >   2 matches in net/unix/af_unix.c  one is a comment, the other is the
-> >                                    one in question
-> > 
-> > To be maximally conservative, you might want to apply this patch,
-> > just in case it is important.
-> 
-> It is. Ability to connect == write permissions on AF_UNIX socket. So
-> umask matters.
+Johan de Jong.
 
-I certainly appreciate that permissions on an AF_UNIX socket matter,
-but wondered why they were set to "sock->inode->i_mode" rather than
-simply 0666.  Maybe - I thought - sock->inode->i_mode already has the
-umask applied in some way, and so re-appling it was not necessary.
-Where-from comes the mode that is in sock->inode->i_mode ?
 
-NeilBrown

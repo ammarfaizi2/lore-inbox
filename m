@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293018AbSBVWC1>; Fri, 22 Feb 2002 17:02:27 -0500
+	id <S293020AbSBVWE1>; Fri, 22 Feb 2002 17:04:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293019AbSBVWCR>; Fri, 22 Feb 2002 17:02:17 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:39947 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S293018AbSBVWCD>; Fri, 22 Feb 2002 17:02:03 -0500
-Date: Fri, 22 Feb 2002 22:59:49 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: G?rard Roudier <groudier@free.fr>, Arjan van de Ven <arjanv@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-Message-ID: <20020222225949.J7238@suse.cz>
-In-Reply-To: <20020222154011.B5783@suse.cz> <20020221211606.F1418-100000@gerard> <20020222223444.A7238@suse.cz> <3C76BE88.B082831E@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C76BE88.B082831E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Feb 22, 2002 at 04:56:24PM -0500
+	id <S293021AbSBVWES>; Fri, 22 Feb 2002 17:04:18 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:32903 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S293020AbSBVWEC>;
+	Fri, 22 Feb 2002 17:04:02 -0500
+Date: Sat, 23 Feb 2002 00:05:37 +0200 (EET)
+From: Teodor Iacob <theo@astral.kappa.ro>
+X-X-Sender: <theo@linux.kappa.ro>
+Reply-To: <Teodor.Iacob@astral.kappa.ro>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problem? 802.1q kernel 2.4.18-rc1-rmap12f
+In-Reply-To: <a55sem$425$2@ncc1701.cistron.net>
+Message-ID: <Pine.LNX.4.31.0202230003150.2719-100000@linux.kappa.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 04:56:24PM -0500, Jeff Garzik wrote:
-> Vojtech Pavlik wrote:
-> > For some adapters, this is possible, for other it is not (at all). You
-> > happen to be a maintainer of one for which it is possible, and thus your
-> > point of view is quite different from mine - mine comes from USB and
-> > other parts of the device world, where no order can even be defined.
-> > 
-> > And because of that, I do not think that having the host adapters decide
-> > what device gets what number is a good idea. They should provide the
-> > information if they have it, but the final decision should definitely be
-> > done in userspace, by the hotplug agent.
-> > 
-> > Ie. it should be configurable.
-> 
-> For the future, we need to get away from legacy methods of disk
-> ordering, indeed.
 
-Exactly.
+On Fri, 22 Feb 2002, Miquel van Smoorenburg wrote:
 
-> For Gerard's case, I can see a userspace agent running in initramfs
-> discovering the order...
+> In article <Pine.LNX.4.31.0202221815590.28962-100000@linux.kappa.ro>,
+> Teodor Iacob  <Teodor.Iacob@astral.kappa.ro> wrote:
+> >I want to use the eth0 as 2 subinterfaces with 802.1q with vlan IDs 3 and
+> >5, so this is how I set the whole thing up:
+> >
+> >/sbin/ifconfig eth0 up # This to make the link of the interface up
+> >vconfig add eth0 5
+> >vconfig add eth0 3
+> >
+> >/sbin/ifconfig eth0.5 inet ..etc..
+> >/sbin/ifconfig eth0.3 inet ...etc..
+> >
+> >and I have also the default gateway through the eth0.5 vlan.
+> >
+> >Now after a fresh start, I can ping whatever I want, but I cannot start a
+> >file transfer, it just locks up after first 1024 bytes ( as seen with tick
+> >in simple ftp command ).
+>
+> Did you patch the ethernet driver so that it supports the bigger
+> MTUs needed for VLAN support ? It's all described in the VLAN patch docs.
 
-The same agent that decides for the other cases - only in Gerard's case
-it has more information to work with, we just have to make sure it can
-access the information.
+Is there any drawback to use this patch? :
+In const char i82557_config_cmd[22] = {
+-       0x68, 0, 0x40, 0xf2, 0xBD,              /* 0xBD->0xFD=Force
+full-duplex */
++       0x68, 0, 0x40, 0xfa, 0xBD,              /* 0xBD->0xFD=Force
+full-duplex */
 
-> Most filesystems have some sort of serial number of labelling capability
-> which allows them to be addressed independent of spindle, or starting
-> position on that spindle [partition].
 
-Yes, yes, yes.
+I use the other 2 interfaces in normal mode and they are eepro100 too,
+only one uses 2 tagged subinterfaces.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Btw, I was able to reconfigure the whole thing and it does work fine now,
+but I can't really make a test now with the other two interfaces since I
+did all this remotely.
+
+
+>
+> Mike.
+> --
+> Computers are useless, they only give answers. --Pablo Picasso
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

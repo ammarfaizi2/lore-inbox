@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265483AbSJaXdg>; Thu, 31 Oct 2002 18:33:36 -0500
+	id <S265521AbSJaXpq>; Thu, 31 Oct 2002 18:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265484AbSJaXdg>; Thu, 31 Oct 2002 18:33:36 -0500
-Received: from almesberger.net ([63.105.73.239]:1032 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265483AbSJaXdf>; Thu, 31 Oct 2002 18:33:35 -0500
-Date: Thu, 31 Oct 2002 20:39:35 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net,
-       lkcd-devel-admin@lists.sourceforge.net,
-       lkcd-general@lists.sourceforge.net,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>
-Subject: Re: [lkcd-devel] Re: What's left over.
-Message-ID: <20021031203935.Z1421@almesberger.net>
-References: <OFAA5C1DF6.DA161B71-ON80256C63.007D0F0E@portsmouth.uk.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFAA5C1DF6.DA161B71-ON80256C63.007D0F0E@portsmouth.uk.ibm.com>; from richardj_moore@uk.ibm.com on Thu, Oct 31, 2002 at 10:47:41PM +0000
+	id <S265526AbSJaXpq>; Thu, 31 Oct 2002 18:45:46 -0500
+Received: from dp.samba.org ([66.70.73.150]:61382 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265522AbSJaXpp>;
+	Thu, 31 Oct 2002 18:45:45 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What's left over. 
+In-reply-to: Your message of "Thu, 31 Oct 2002 10:15:58 -0000."
+             <20021031101558.GB7487@fib011235813.fsnet.co.uk> 
+Date: Fri, 01 Nov 2002 08:14:16 +1100
+Message-Id: <20021031235212.F0B952C0FC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard J Moore wrote:
-> and so do many people. In fact netdump, mcode and lkcd are all
-> complementary parts of the same need.
+In message <20021031101558.GB7487@fib011235813.fsnet.co.uk> you write:
+> On Thu, Oct 31, 2002 at 02:00:31PM +1100, Rusty Russell wrote:
+> > They have, IIRC.  Interestingly, it was less invasive (existing source
+> > touched) than the LVM2/DM patch you merged.
+> 
+> FUD.  I added to three areas of existing code:
 
-It's the "complementary" that worries me. Once you have mcore, what
-good are direct dumps to the network or the disk for ? With mcore,
-the whole issue of accessing stable storage is eliminated.
+[ 40-line detailed explanation snipped ]
 
-I don't know if the approach of having multiple quasi-equivalent
-means of storing a dump is something that Linus dislikes about
-LKCD, but I think it might be worth exploring if LKCD's chance of
-acceptance could be improved by focusing on a single but general
-mechanism.
+Woah!  War's over dude!  We won!
 
-I think it would be a pity if we ended up not having crash dumps
-in 2.6 only because they're over-featured ...
+I used Rusty's Unreliable Intrusiveness-o-meter (number of existing
+non-config files touched), as I said.
 
-- Werner
+I didn't read code or anything so unscientific or accurate.  But both
+DM and EVMS were way down on the "intrusiveness" list.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

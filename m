@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264220AbTIIQjG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 12:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264222AbTIIQjF
+	id S264230AbTIIQhP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 12:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTIIQhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 12:39:05 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:64897
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264220AbTIIQjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 12:39:03 -0400
-Date: Tue, 9 Sep 2003 12:38:51 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Greg KH <greg@kroah.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       John Levon <levon@movementarian.org>
-Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
-In-Reply-To: <Pine.LNX.4.53.0309090739270.14426@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.53.0309091142550.14426@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com>
- <20030908155048.GA10879@kroah.com> <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com>
- <20030908230852.GA3320@kroah.com> <Pine.LNX.4.53.0309090739270.14426@montezuma.fsmlabs.com>
+	Tue, 9 Sep 2003 12:37:15 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:34197 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S264230AbTIIQhK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 12:37:10 -0400
+Message-ID: <3F5E01B4.3050507@terra.com.br>
+Date: Tue, 09 Sep 2003 13:37:08 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kill unneeded include in net/sched
+Content-Type: multipart/mixed;
+ boundary="------------000909010606030501090604"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003, Zwane Mwaikambo wrote:
+This is a multi-part message in MIME format.
+--------------000909010606030501090604
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > So an empty release() function is the wrong thing to do in 99.99% of the
-> > situations in the kernel (the one exception seems to be the mca release
-> > function that recently got added for use when the bus is doing probing
-> > logic.)
-> > 
-> > Does this help out?
-> 
-> Yes thanks, i was confused over which memory references had to be 
-> maintained.
+	Hi Andrew,
 
-Ok i had another look and i can see why you need a seperate release 
-function, as we don't always do the kobject_cleanup immediately.
+	This patch (against 2.6-test5) kills all the remaining code that 
+Randy's checkversion.pl said was using linux/version.h unnecessary on 
+net/sched.
 
-John and myself had a look and now we have the following race on 
-->release() function exit.
+	Please apply.
 
-my_release_fn()
-{
-	complete(&my_completion);
-	<== [1] stall anywhere here, e.g. preempt/schedule
-}
+	Cheers,
 
-cleanup_module()
-{
-	wait_for_completion(&my_completion);
-	<== [1] this task gets scheduled, free()s module text
-}
+Felipe
+
+--------------000909010606030501090604
+Content-Type: text/plain;
+ name="net_sched-checkversion.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="net_sched-checkversion.patch"
+
+diff -u -rN linux-2.6.0-test5/net/sched/sch_htb.c linux-2.6.0-test5-fwd/net/sched/sch_htb.c
+--- linux-2.6.0-test5/net/sched/sch_htb.c	Mon Sep  8 16:50:08 2003
++++ linux-2.6.0-test5-fwd/net/sched/sch_htb.c	Tue Sep  9 11:58:01 2003
+@@ -32,7 +32,6 @@
+ #include <asm/bitops.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+-#include <linux/version.h>
+ #include <linux/sched.h>
+ #include <linux/string.h>
+ #include <linux/mm.h>
+
+--------------000909010606030501090604--
+

@@ -1,54 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265059AbUAGGaa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 01:30:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUAGGaa
+	id S266136AbUAGGjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 01:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUAGGjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 01:30:30 -0500
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:22165 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265059AbUAGGa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 01:30:28 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: [2.6.0-mm2] PM timer still has problems
-Date: Wed, 7 Jan 2004 01:30:21 -0500
-User-Agent: KMail/1.5.4
-Cc: Karol Kozimor <sziwan@hell.org.pl>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>, jw schultz <jw@pegasys.ws>
-References: <20031230204831.GA17344@hell.org.pl> <200401050117.06681.dtor_core@ameritech.net> <1073377877.2752.38.camel@localhost>
-In-Reply-To: <1073377877.2752.38.camel@localhost>
+	Wed, 7 Jan 2004 01:39:16 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:10702 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266136AbUAGGjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 01:39:11 -0500
+Message-ID: <3FFBA98D.1080901@comcast.net>
+Date: Wed, 07 Jan 2004 00:39:09 -0600
+From: Ian Pilcher <i.pilcher@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401070130.21769.dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] sysctl equivalent of "idle=poll"
+Content-Type: multipart/mixed;
+ boundary="------------050305000703010607060500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 January 2004 03:31 am, john stultz wrote:
-> On Sun, 2004-01-04 at 22:17, Dmitry Torokhov wrote:
-> > I decided to go hpet way and use tsc in ACPI PM timer to do delay
-> > stuff and monotonic clock.
->
-> I think you have a valid point that as loops_per_jiffy isn't updated,
-> delay_pmtmr() and delay_pit() are broken w/ CPUFREQ.
->
-> However I don't understand using the TSC for montonic_clock. I have no
-> clue why the HPET folks implemented it that way (likely my fault for
-> not enough documentaiton), but I haven't had the time to try to clean
-> up that code. And really, if your TSC is reliable enough for
-> monotonic_clock, why are you using the pmtmr? :) Unless it specifically
-> is resolving an issue, I'd drop that change.
->
+This is a multi-part message in MIME format.
+--------------050305000703010607060500
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I thought (it seems that I was mistaken) that the goal of monotonic_clock
-is to privide high-resolution cheap timestamps that are guaranteed never
-go back as there is no adjustments to the time. The normal clock it supposed
-to be stable and accurate but probably give lower resolution. In case of
-pmtmr vs. TSC seems to have higher resolution and is cheap so it was used.
+The previous version of this patch didn't get any response, so on the
+"no news is good news" theory ... Any comments before I send this off to
+Marcelo?
 
-Dmitry 
+This adds a new x86-only sysctl, /proc/sys/kernel/idle_poll, which does
+basically the same thing as the "idle=poll" boot parameter (except that
+it can be turned on and off).
+
+This patch does not affect the ability of the APM and/or ACPI subsystems
+to override the default idle function.  It adds one symbol,
+pm_idle_poll, to the global namespace.
+
+This patch applies cleanly to 2.4.23, 2.4.24, and 2.4.25-pre4.
+
+-- 
+========================================================================
+Ian Pilcher                                        i.pilcher@comcast.net
+========================================================================
+
+--------------050305000703010607060500
+Content-Type: text/plain;
+ name="idle_poll.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="idle_poll.patch"
+
+diff -ur linux-2.4.25-pre4/arch/i386/kernel/process.c linux/arch/i386/kernel/process.c
+--- linux-2.4.25-pre4/arch/i386/kernel/process.c	2004-01-07 00:01:39.000000000 -0600
++++ linux/arch/i386/kernel/process.c	2004-01-07 00:04:22.000000000 -0600
+@@ -62,6 +62,12 @@
+ void (*pm_idle)(void);
+ 
+ /*
++ * Use polling instead of HLT instructions?  (Has no effect if pm_idle is over-
++ * ridden by APM, ACPI, etc.)
++ */
++int pm_idle_poll = 0;
++
++/*
+  * Power off function, if any
+  */
+ void (*pm_power_off)(void);
+@@ -77,10 +83,9 @@
+ }
+ 
+ /*
+- * We use this if we don't have any better
+- * idle routine..
++ * Idle using HLT instructions; saves power & keeps cpu's cool.
+  */
+-void default_idle(void)
++static void hlt_idle(void)
+ {
+ 	if (current_cpu_data.hlt_works_ok && !hlt_counter) {
+ 		__cli();
+@@ -118,6 +123,18 @@
+ }
+ 
+ /*
++ * Default idle routine; can be overridden by APM, ACPI, etc.  (See cpu_idle &
++ * pm_idle.)
++ */
++void default_idle(void)
++{
++	if (pm_idle_poll)
++		poll_idle();
++	else
++		hlt_idle();
++}
++
++/*
+  * The idle thread. There's no useful work to be
+  * done, so just try to conserve power and have a
+  * low exit latency (ie sit in a loop waiting for
+@@ -145,7 +162,7 @@
+ {
+ 	if (!strncmp(str, "poll", 4)) {
+ 		printk("using polling idle threads.\n");
+-		pm_idle = poll_idle;
++		pm_idle_poll = 1;
+ 	}
+ 
+ 	return 1;
+diff -ur linux-2.4.25-pre4/Documentation/sysctl/kernel.txt linux/Documentation/sysctl/kernel.txt
+--- linux-2.4.25-pre4/Documentation/sysctl/kernel.txt	2001-09-30 14:26:08.000000000 -0500
++++ linux/Documentation/sysctl/kernel.txt	2004-01-07 00:15:56.000000000 -0600
+@@ -22,6 +22,7 @@
+ - domainname
+ - hostname
+ - htab-reclaim                [ PPC only ]
++- idle_poll                   [ x86 only ]
+ - java-appletviewer           [ binfmt_java, obsolete ]
+ - java-interpreter            [ binfmt_java, obsolete ]
+ - l2cr                        [ PPC only ]
+@@ -105,6 +106,20 @@
+  
+ ==============================================================
+ 
++idle_poll: (x86 only)
++
++Setting this to a non-zero value causes the idle loop in the
++kernel to poll on the need reschedule flag instead of waiting
++for an interrupt to happen.  This can result in an improvement
++in performance on SMP systems (albeit at the cost of an increase
++in power consumption).
++
++Note that the power management subsystem (APM or ACPI) can
++override the default idle function, in which case this setting
++will have no effect.
++
++==============================================================
++
+ l2cr: (PPC only)
+ 
+ This flag controls the L2 cache of G3 processor boards. If
+diff -ur linux-2.4.25-pre4/include/linux/pm.h linux/include/linux/pm.h
+--- linux-2.4.25-pre4/include/linux/pm.h	2002-08-02 19:39:45.000000000 -0500
++++ linux/include/linux/pm.h	2004-01-07 00:04:22.000000000 -0600
+@@ -185,6 +185,10 @@
+ 
+ #endif /* CONFIG_PM */
+ 
++#ifdef CONFIG_X86
++extern int pm_idle_poll;
++#endif
++
+ extern void (*pm_idle)(void);
+ extern void (*pm_power_off)(void);
+ 
+diff -ur linux-2.4.25-pre4/include/linux/sysctl.h linux/include/linux/sysctl.h
+--- linux-2.4.25-pre4/include/linux/sysctl.h	2004-01-07 00:01:56.000000000 -0600
++++ linux/include/linux/sysctl.h	2004-01-07 00:04:22.000000000 -0600
+@@ -128,6 +128,7 @@
+ 	KERN_PPC_L3CR=57,       /* l3cr register on PPC */
+ 	KERN_EXCEPTION_TRACE=58, /* boolean: exception trace */
+  	KERN_CORE_SETUID=59,	/* int: set to allow core dumps of setuid apps */
++	KERN_IDLE_POLL=60,  	/* boolean: use polling for idle threads? */
+ };
+ 
+ 
+diff -ur linux-2.4.25-pre4/kernel/sysctl.c linux/kernel/sysctl.c
+--- linux-2.4.25-pre4/kernel/sysctl.c	2003-11-28 12:26:21.000000000 -0600
++++ linux/kernel/sysctl.c	2004-01-07 00:04:22.000000000 -0600
+@@ -31,6 +31,7 @@
+ #include <linux/sysrq.h>
+ #include <linux/highuid.h>
+ #include <linux/swap.h>
++#include <linux/pm.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -275,6 +276,10 @@
+ 	{KERN_EXCEPTION_TRACE,"exception-trace",
+ 	 &exception_trace,sizeof(int),0644,NULL,&proc_dointvec},
+ #endif	
++#ifdef CONFIG_X86
++	{KERN_IDLE_POLL,"idle_poll",
++	&pm_idle_poll,sizeof(int),0644,NULL,&proc_dointvec},
++#endif
+ 	{0}
+ };
+ 
+
+--------------050305000703010607060500--
 

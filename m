@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262882AbSKYLeP>; Mon, 25 Nov 2002 06:34:15 -0500
+	id <S262887AbSKYLvI>; Mon, 25 Nov 2002 06:51:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262884AbSKYLeP>; Mon, 25 Nov 2002 06:34:15 -0500
-Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:44042 "HELO
-	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S262882AbSKYLeP>; Mon, 25 Nov 2002 06:34:15 -0500
-Message-ID: <20021125114124.13129.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S262901AbSKYLvI>; Mon, 25 Nov 2002 06:51:08 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:26898 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id <S262887AbSKYLvI>;
+	Mon, 25 Nov 2002 06:51:08 -0500
+Message-ID: <3DE21010.9050407@netscape.net>
+Date: Mon, 25 Nov 2002 12:57:04 +0100
+From: David Zaffiro <davzaffiro@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: nl, en-us
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Date: Mon, 25 Nov 2002 19:41:24 +0800
-Subject: Re: [Benchmark] AIM results
-X-Originating-Ip: 194.185.48.246
-X-Originating-Server: ws5-1.us4.outblaze.com
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: willy@w.ods.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling x86 with and without frame pointer
+References: <19005.1037854033@kao2.melbourne.sgi.com> <20021121192045.GE3636@alpha.home.local> <3DE1E384.8000801@netscape.net> <200211251009.gAPA9np09476@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@digeo.com>
-> Paolo Ciarrocchi wrote:
-> > 
-> > Hi all,
-> > I've ran the AIM benchmark against 2.4.19 and 2.5.49 on my laptop (PIII@800 Reiserfs)
+>>since "-momit-leaf-frame-pointer" makes a trade-off between both
+>>other options: it omits framepointers for leaf functions (callees
+>>that aren't callers as well) and it doesn't for branch-functions.
 > 
-> AIM9, I assume.
+> 
+> Which does not sound quite right for me. FP should be omitted
+> only if function contains less than half dozen stack references,
+> otherwise not. It does not matter whether it is a leaf function or not.
 
-Yes
- 
-> It's a rather dumb benchmark, but fun.  Lots of really tiny
-> microbenchmarks, easy to see what's going on.
+Leaf functions generally do not contain more than half dozen 
+stackreferences, and are generally called more or equally often as there 
+callers. The slight overhead of leaf functions that do contain a dozen 
+stackreferences is much smaller than the overhead of omitting 
+framepointers in /all/ branch functions including those with dozens of 
+stackreferences. Maybe gcc's optimizer could be adapted in the (near) 
+future to compare either speed or sizes of possibly generated code, with 
+and without framepointer, if the compile is not a debug one.
 
-I can run it for every 2.5.* linus will release. 
-Do you think it is a good idea or just a waste of time ?
+But in the mean time, in most "userland" projects I've tested with, the 
+-momit-leaf-frame-pointer resulted in almost te same codesize as 
+compiles with framepointer, along with more or less the same speed as 
+"-fomit-frame-pointer". I wouldn't know how to benchmark kernel-configs 
+though, and I haven't seen anyone doing this with the framepointer 
+options yet...
 
-Paolo
 
+> OTOH, AFAIK frame pointers make debugging easier, development kernels
+> are better to be compiled with fp in every func.
 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
+Honestly, I think that's a shortcoming of the debugger if that's true. 
+The debugger could store the stackpointer position after a call or 
+calculate it based on sub/add/push/pop's, instead of borrowing it from 
+ebp.  I'm just concerned about the extra costs (in speed and size) of 
+always omiting the framepointer.
 
-Powered by Outblaze
+(It shouldn't be impossible to debug regparm- and stdcall-functions as 
+well, I wonder why this could be a problem at the moment. But just 
+"omitting framepointers" at least doesn't mix up the (IMHO: somewhat 
+thoughtlessly defined) i386 32-bit C-callingconvention.)
+

@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVCIQoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVCIQyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbVCIQoi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 11:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVCIQnp
+	id S261775AbVCIQyd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 11:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVCIQyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 11:43:45 -0500
-Received: from [151.97.230.9] ([151.97.230.9]:61956 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261692AbVCIQlE (ORCPT
+	Wed, 9 Mar 2005 11:54:33 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:15483 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261775AbVCIQyb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 11:41:04 -0500
-Subject: [patch 1/1] x86-64: forgot asmlinkage on sys_mmap
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it, ak@suse.de
-From: blaisorblade@yahoo.it
-Date: Sat, 05 Mar 2005 20:00:04 +0100
-Message-Id: <20050305190005.0943C4B47@zion>
+	Wed, 9 Mar 2005 11:54:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=T2FYGL9rBqoVY2Wb8TTuiHyHyVzj0hgIud2Lax2QpLLPhiR4kCMIjKJ8kkOmYeLiatwARoVCU2O8HyvoB4HQzEQICR9rtbzBZ6v/Pq61Y2yYwQew4NPWJ4xDmwaFVyoiK+kijHUBhzRKAXratNpslFva2ZgNzjHQeZ+wcASxCew=
+Message-ID: <9e4733910503090854e245740@mail.gmail.com>
+Date: Wed, 9 Mar 2005 11:54:30 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Re: [announce 7/7] fbsplash - documentation
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050308223728.GA11065@spock.one.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050308021706.GH26249@spock.one.pl>
+	 <200503080418.08804.arnd@arndb.de>
+	 <20050308223728.GA11065@spock.one.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 8 Mar 2005 23:37:29 +0100, Michal Januszewski <spock@gentoo.org> wrote:
+> On Tue, Mar 08, 2005 at 04:18:07AM +0100, Arnd Bergmann wrote:
+> 
+> > It should probably just use its own hotplug agent instead of calling
+> > the helper directly.
+> 
+> I've just had a look at it, and it seems possible. From what I have seen
+> in the firmware_class.c code, it would require:
+>  - registering a class somewhere in the initializaton code
+>  - every time a request from fbcon is generated:
+>    - register the class device
+>    - create a timer
+>    - call kobject_hotplug() to send the event to userspace
+>    - unregister the device
 
-CC: Andi Kleen <ak@suse.de>
+framebuffer already has a class registered. check out /sys/class/grpahics.
 
-I think it should be there, please check better.
+You should be able to just call request_firmware and have it download
+your image whenever you need it. It doesn't have to be firmware,
+request_firmware will download anything.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.11-paolo/arch/x86_64/kernel/sys_x86_64.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/x86_64/kernel/sys_x86_64.c~x86-64-asmlinkage-forgot arch/x86_64/kernel/sys_x86_64.c
---- linux-2.6.11/arch/x86_64/kernel/sys_x86_64.c~x86-64-asmlinkage-forgot	2005-03-05 19:58:38.339212568 +0100
-+++ linux-2.6.11-paolo/arch/x86_64/kernel/sys_x86_64.c	2005-03-05 19:58:51.062278368 +0100
-@@ -38,7 +38,7 @@ asmlinkage long sys_pipe(int __user *fil
- 	return error;
- }
- 
--long sys_mmap(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
-+asmlinkage long sys_mmap(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
- 	unsigned long fd, unsigned long off)
- {
- 	long error;
-_
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVCWOAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVCWOEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVCWOAy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 09:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVCWN6d
+	id S261601AbVCWOEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 09:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVCWOEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 08:58:33 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:39440 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262552AbVCWN6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 08:58:03 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andrew Morton <akpm@osdl.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Samsung 40G drive locking up 2.6.11
-Date: Wed, 23 Mar 2005 15:57:42 +0200
-User-Agent: KMail/1.5.4
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
-References: <200503221431.31549.vda@ilport.com.ua> <20050323023853.28c9a432.akpm@osdl.org>
-In-Reply-To: <20050323023853.28c9a432.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Wed, 23 Mar 2005 09:04:15 -0500
+Received: from smtp-out.tiscali.no ([213.142.64.144]:62982 "EHLO
+	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262399AbVCWOD7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 09:03:59 -0500
+Subject: Re: forkbombing Linux distributions
+From: Natanael Copa <mlists@tanael.org>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: aq <aquynh@gmail.com>, "Hikaru1@verizon.net" <Hikaru1@verizon.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050323134525.GA5374@harddisk-recovery.com>
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+	 <20050322112628.GA18256@roll>
+	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
+	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
+	 <20050323134525.GA5374@harddisk-recovery.com>
+Content-Type: text/plain
+Date: Wed, 23 Mar 2005 15:03:56 +0100
+Message-Id: <1111586636.27969.81.camel@nc>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503231557.42614.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 March 2005 12:38, Andrew Morton wrote:
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> >
-> > dd if=/dev/hdc of=/dev/null with this disk
-> >  kills the system. Drive may do it's work
-> >  for minute or two, but then it does 'klak' sound.
-> >  With udma5 (default) Linux froze solid, no SysRq key, nothing.
-> >  Powercycling helps.
+On Wed, 2005-03-23 at 14:45 +0100, Erik Mouw wrote:
+> On Wed, Mar 23, 2005 at 01:37:38PM +0100, Natanael Copa wrote:
+> > On Wed, 2005-03-23 at 19:56 +0900, aq wrote:
+> > > > /etc/limits does a better job at stopping forkbombs.
 > > 
-> >  With udma3, it did not die, but still spews IDE errors.
-> >  I will try to collect more data points.
+> > but does not limit processes that are started from the boot scripts. So
+> > if a buggy non-root service is exploited, an attacker would be able to
+> > easily shut down the system.
 > 
-> Did it work OK under earlier kernels?  If so, which?
+> That's easy to fix: set limits from initrd or initramfs.
 
-I've tried only 2.6.11.
+..or run "ulimit -u" early in the boot scripts.
 
-In spite seeing it going belly up at least four times,
-taking the whole box with it, I cannot make this damned
-drive fail anymore.
+What I suggest is doing the reverse. Let the kernel be restrictive by
+default and let distro's or sysadmins open up if they need more
+processes.
 
-Seems to be one of those nasty intermittent hardware failures.
 --
-vda
+Natanael Copa
+
 

@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUGMSHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUGMSRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265701AbUGMSHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 14:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265703AbUGMSHa
+	id S265722AbUGMSRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 14:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbUGMSRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 14:07:30 -0400
-Received: from cantor.suse.de ([195.135.220.2]:46240 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265701AbUGMSH2 (ORCPT
+	Tue, 13 Jul 2004 14:17:16 -0400
+Received: from snota.svorka.net ([194.19.72.11]:42691 "HELO snota.svorka.net")
+	by vger.kernel.org with SMTP id S265722AbUGMSRN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 14:07:28 -0400
-Date: Tue, 13 Jul 2004 20:07:27 +0200
-From: Olaf Hering <olh@suse.de>
-To: David Brownell <david-b@pacbell.net>
-Cc: Gary_Lerhaupt@Dell.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Stuart_Hayes@Dell.com
-Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
-Message-ID: <20040713180727.GA11583@suse.de>
-References: <FD3BA83843210C4BA9E414B0C56A5E5C07DD91@ausx2kmpc104.aus.amer.dell.com> <40CF0049.2010307@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+	Tue, 13 Jul 2004 14:17:13 -0400
+X-Qmail-Scanner-Mail-From: eldiablo@svorka.net via snota
+X-Qmail-Scanner: 1.20st (Clear:RC:1(194.19.72.135):. Processed in 0.090786 secs) process 11968 
+Message-ID: <40F42715.9010705@svorka.net>
+Date: Tue, 13 Jul 2004 20:16:53 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robin Holt <holt@sgi.com>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6] Module writing?
+References: <40F40DE9.5010909@svorka.net> <20040713174403.GA17868@lnx-holt.americas.sgi.com>
+In-Reply-To: <20040713174403.GA17868@lnx-holt.americas.sgi.com>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <40CF0049.2010307@pacbell.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jun 15, David Brownell wrote:
+Robin Holt wrote:
 
-> Gary_Lerhaupt@Dell.com wrote:
-> >Stuart Hayes here at Dell has identified this or/and mix-up in the
-> >ehci-hcd driver.  Because of this, ehci-hcd is not properly released by
-> >BIOSes supporting full 2.0 and port behavior can then become erratic.
-> 
-> Good patch, it should be merged.  That handoff code actually
-> predates general availability of BIOSes handling _any_ EHCI
-> controllers, and your patch resolves a problem I'd seen on a
-> newish board but hadn't yet had time to track down (beyond
-> knowing that broken BIOS handoff was the issue).
+ >What are you specifically thinking of doing?  Is there a part of the
+ >kernel you are specfically interested in?  I might be able to point
+ >you at some projects that could use some help.  They presume that
+ >the person doing the work has some experience in programming.  The
+ >kernel pieces are fairly well hammered on by many experience kernel
+ >programmers, but alot of the drivers need some attention.
+ >
+ >If I were you, I think I would try to find a set of drivers that
+ >has not been getting updated recently and look to contribute to the
+ >cleanup effort in those drivers.
+ >
+ >Good Luck,
+ >Robin Holt
+ >
+ >On Tue, Jul 13, 2004 at 06:29:29PM +0200, Espen FjellvÊr Olsen wrote:
+ >
 
-David,
+> I have started to write some kernel modules for fun now, but they are a
+> bit empty :)
+> it's just some printk's and some other simple things.
+>
+> I wonder if there are any good howtoes out on the Net somewhere, I've
+> read a bit on: http://tldp.org/LDP/lkmpg, but I'm afraid it's a bit
+> outdated(?)
+>
+> I'm only doing this for fun(at this time, maybe it becomes serious
+> when i become a bit older;) ) so i don't want to spend any
+> money on a book, or on an course.
+>
+>
+> Best regards
+> Espen FjellvfÊr Olsen
+> eldiablo@svorka.net
+> Norway
+>
+>
+>
+>
+I'm new to all this with kernel hacking, so writing any drivers would be 
+quite difficult for me i think.
+I'm just trying to learn where to start, and what to start with, I'm not 
+a guru in C, but I'm learning ;)
+But if anyone have a driver which need some looking after I could gladly 
+look at the TODO or something :)
 
-there are 2 reports about breakage by this patch. One is on lkml, and
-another one is in my bugzilla inbox. How can we fix that one? I assume
-that handoff patch is correct.
-
-  <6>NET: Registered protocol family 17
-  <3>ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
-  <3>ehci_hcd 0000:00:1d.7: can't reset
-  <3>ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
-  <4>ehci_hcd: probe of 0000:00:1d.7 failed with error -95
-
-this is a FSC Amilo D7830 notebook, the guy on lkml has a  Asus P4P800 board.
-
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, n√úRNBERG

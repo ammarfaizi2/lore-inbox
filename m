@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbTICK2M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 06:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbTICK2M
+	id S261795AbTICKav (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 06:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTICKau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 06:28:12 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:50315 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261756AbTICK2J
+	Wed, 3 Sep 2003 06:30:50 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:22028 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261795AbTICKat
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 06:28:09 -0400
-Date: Wed, 3 Sep 2003 11:28:05 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Gianni Tedesco <giannit@securewave.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mmap(MAP_PRIVATE) question
-Message-ID: <20030903102804.GA21455@mail.jlokier.co.uk>
-References: <1062581651.489.5.camel@lemsip>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062581651.489.5.camel@lemsip>
-User-Agent: Mutt/1.4.1i
+	Wed, 3 Sep 2003 06:30:49 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: [ACPI] Where do I send APIC victims?
+Date: Wed, 3 Sep 2003 10:30:49 +0000 (UTC)
+Organization: Cistron
+Message-ID: <bj4fsp$9j4$1@news.cistron.nl>
+References: <20030903080852.GA27649@k3.hellgate.ch> <200309031123.58713.adq_dvb@lidskialf.net> <20030903093808.GA28594@k3.hellgate.ch>
+X-Trace: ncc1701.cistron.net 1062585049 9828 62.216.30.38 (3 Sep 2003 10:30:49 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gianni Tedesco wrote:
-> Hi all,
-> 
-> >From the mmap(2) manpage it says:
-> 
-> MAP_PRIVATE
-> Create a private copy-on-write mapping.  Stores to the region do not
-> affect the  original  file.   It  is  unspecified whether changes made
-> to the file after the mmap call are visible in the mapped region.
-> 
-> What is linux behaivour in this area? I am guessing if the page is
-> modified between the call to mmap() and fault-in then the modified copy
-> is seen by the application? But what about modifications after the page
-> is already in page-cache?
+Roger Luethi  <rl@hellgate.ch> wrote:
+>> Are these VIA KT333/KT400 chipsets? If so, there's a known bug in many BIOSes 
+>Yes, at least some of them are. I often don't know, since the reports just
+>say "Rhine ethernet broke in the new kernel" (VIA based boards typically
+>come with Rhine ethernet integrated into the south bridge).
 
-The page cache page is mapped into the application just like a shared
-mapping, until the application writes to the mapped region and
-triggers the copy-on-write fault.
+I posted that i use a mini-itx VIA C3 with integrated via-rhine.
+Only difference is the CPU speed (533/800/1000 Mhz) i believe.
 
-This means that if you write() to the page prior to the copy-on-write
-fault, you may see the changes in application memory straight away.
-If some other process writes to the page through a writable mapping,
-you may see the changes.
+Danny
 
-On the other hand you may not.  On some of the architectures which
-Linux supports, the CPU's cache is not sufficiently coherent to
-guarantee that what is written with write(), or by another process,
-will be seen in this application's memory.  Indeed, you might see a
-mixture of some of the written data and some of the data before it was
-written, with no particular guarantee of which bits of data or in what
-order.
+-- 
+I think so Brain, but why does a forklift 
+have to be so big if all it does is lift forks?
 
--- Jamie

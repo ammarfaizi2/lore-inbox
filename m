@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316653AbSEUVlN>; Tue, 21 May 2002 17:41:13 -0400
+	id <S314747AbSEUVoL>; Tue, 21 May 2002 17:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316655AbSEUVlM>; Tue, 21 May 2002 17:41:12 -0400
-Received: from mail.invtools.com ([209.81.227.140]:26891 "EHLO
-	mail.invtools.com") by vger.kernel.org with ESMTP
-	id <S316653AbSEUVlL>; Tue, 21 May 2002 17:41:11 -0400
-From: "Jon Hedlund" <JH_ML@invtools.com>
-To: sct@redhat.com, akpm@zip.com.au
-Date: Tue, 21 May 2002 16:40:06 -0500
-Subject: 2.2 kernel - Ext3 & Raid patches
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3CEA7866.23557.390B7FFC@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
+	id <S314753AbSEUVoK>; Tue, 21 May 2002 17:44:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3278 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314747AbSEUVoK>;
+	Tue, 21 May 2002 17:44:10 -0400
+Date: Tue, 21 May 2002 14:30:11 -0700 (PDT)
+Message-Id: <20020521.143011.30682853.davem@redhat.com>
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.17
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <86256BC0.0067E23B.00@smtpnotes.altec.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last September Stephan told someone on the linux-kernel list that 
-Ext3 and Raid 1 didn't work together on the 2.2 kernel. 
-Has this been fixed or have I just been lucky?  I've been using ext3 
-on a Raid 1 array of two IBM 75GB ide drives with kernel 2.2.19.  
-Three times in the last 9 months one of the drives reported errors 
-and dropped offline, each time I have fdisked the bad drive, 
-formatted it, fsck'ed it and found no problems, fdisked it again, and 
-raidhotadd'ed it back in and it restored the array without problems.
-Two questions:
-1. Besides the faulty drive, is my data in danger from this software 
-configuration and I've just been lucky or would this configuration not 
-trigger the problems Stephan was warning about?
-2. What is the "proper" fix for the patch collision between the raid 
-patch and the ext3 patch in /include/linux/fs.h? I've just been 
-changing the line
-#define BH_LowPrio 8
-to
-#define BH_LowPrio 5
-around line 198, it's been working but I don't know enough about the 
-code to know if that might mess something else up or not work 
-under some conditions.
-Thanks,
-JonH
+   From: Wayne.Brown@altec.com
+   Date: Tue, 21 May 2002 13:52:08 -0500
+
+   Under 2.5.17 there is a problem with gtop 1.0.9.
+
+The /proc/meminfo output changed, and this makes a lot of programs
+reading that file explode.

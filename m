@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265419AbTFMQKg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 12:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265423AbTFMQKg
+	id S265403AbTFMQJM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 12:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265419AbTFMQJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 12:10:36 -0400
-Received: from origo.imsb.au.dk ([192.38.35.2]:37560 "EHLO origo.imsb.au.dk")
-	by vger.kernel.org with ESMTP id S265419AbTFMQJS (ORCPT
+	Fri, 13 Jun 2003 12:09:12 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:8581 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265403AbTFMQJJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 12:09:18 -0400
-Date: Fri, 13 Jun 2003 19:22:56 +0200 (CEST)
-From: Morten Kjeldgaard <mok@imsb.au.dk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: fatal error with nForce2 system
-In-Reply-To: <1055493950.5169.15.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0306131919370.12961-100000@origo.imsb.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Jun 2003 12:09:09 -0400
+Subject: RE: e1000 performance hack for ppc64 (Power4)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Herman Dierks <hdierks@us.ibm.com>
+Cc: "Feldman, Scott" <scott.feldman@intel.com>, David Gibson <dwg@au1.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>,
+       Nancy J Milliner <milliner@us.ibm.com>,
+       Ricardo C Gonzalez <ricardoz@us.ibm.com>,
+       Brian Twichell <twichell@us.ibm.com>, netdev@oss.sgi.com
+In-Reply-To: <OF0078342A.E131D4B1-ON85256D44.0051F7C0@pok.ibm.com>
+References: <OF0078342A.E131D4B1-ON85256D44.0051F7C0@pok.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055521263.3531.2055.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Jun 2003 09:21:03 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Alan,
+Too long to quote:
+http://marc.theaimsgroup.com/?t=105538879600001&r=1&w=2
 
-> The hang and the Nvidia driver crash may be unrelated problems
-> unfortunately. The first candidate is probably to run memtest86 on
-> the system, and then to check the usual suspects (fan, psu voltage). 
+Wouldn't you get most of the benefit from copying that stuff around in
+the driver if you allocated the skb->data aligned in the first place? 
 
-I'll go over the system with a fine comb, to make sure it is not hardware 
-related. Then I'll see if I can reproduce the crashes without the nVidia 
-drivers ever having been loaded.
+There's already code to align them on CPU cache boundaries:
+#define SKB_DATA_ALIGN(X)       (((X) + (SMP_CACHE_BYTES - 1)) & \
+                                 ~(SMP_CACHE_BYTES - 1))
 
-Morten
+So, do something like this:
+#ifdef ARCH_ALIGN_SKB_BYTES
+#define SKB_ALIGN_BYTES ARCH_ALIGN_SKB_BYTES
+#else
+#define SKB_ALIGN_BYTES SMP_CACHE_BYTES
+#endif
+#define SKB_DATA_ALIGN(X)       (((X) + (ARCH_ALIGN_SKB - 1)) & \
+                                 ~(SKB_ALIGN_BYTES - 1))
 
+You could easily make this adaptive to no align on th arch size when the
+request is bigger than that, just like in the e1000 patch you posted.  
 -- 
-Morten Kjeldgaard <mok@imsb.au.dk>
-Department of Molecular Biology, Aarhus University
-Gustav Wieds Vej 10 C, DK-8000 Aarhus C, Denmark
-Lab +45 89425026 * Mobile +45 89428063 * Fax +45 86123178
-Home +45 86188180 * ICQ 27224900 * http://imsb.au.dk/~mok
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbTDEWw3 (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 17:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTDEWw3 (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 17:52:29 -0500
-Received: from jalon.able.es ([212.97.163.2]:41695 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id S262706AbTDEWwC (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 17:52:02 -0500
-Date: Sun, 6 Apr 2003 01:03:28 +0200
+	id S262721AbTDEXBB (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 18:01:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbTDEXBB (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 18:01:01 -0500
+Received: from jalon.able.es ([212.97.163.2]:30433 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id S262721AbTDEXA4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 18:00:56 -0500
+Date: Sun, 6 Apr 2003 01:12:20 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
 To: "J.A. Magallon" <jamagallon@able.es>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre7
-Message-ID: <20030405230328.GA12864@werewolf.able.es>
+Subject: [PATCH] e1000 close
+Message-ID: <20030405231220.GI12864@werewolf.able.es>
 References: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva> <20030405224233.GA12746@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,22 +27,35 @@ On 04.06, J.A. Magallon wrote:
 > 
 > On 04.04, Marcelo Tosatti wrote:
 > > 
+> > So here goes -pre7. Hopefully the last -pre.
+> > 
+> 
 
-This kills a redundant printk declaration. AFAIR it broke some people's
-builds.
+Supposed to cure a dev_close called without dev_open.
+Is this still needed ?
 
---- linux/include/asm-i386/spinlock.h.orig    2002-10-15 10:12:25.000000000 +0100
-+++ linux/include/asm-i386/spinlock.h 2002-10-15 10:12:35.000000000 +0100
-@@ -6,9 +6,6 @@
- #include <asm/page.h>
- #include <linux/config.h>
+--- linux-2.4.20/drivers/net/e1000/e1000_main.c.orig	2003-03-11 13:45:26.000000000 -0800
++++ linux-2.4.20/drivers/net/e1000/e1000_main.c	2003-03-11 14:12:12.000000000 -0800
+@@ -997,6 +997,9 @@
+ 	unsigned long size;
+ 	int i;
  
--extern int printk(const char * fmt, ...)
--	__attribute__ ((format (printf, 1, 2)));
--
- /* It seems that people are forgetting to
-  * initialize their spinlocks properly, tsk tsk.
-  * Remember to turn this off in 2.4. -ben
++	if(!adapter->tx_ring.buffer_info)
++		return;
++
+ 	/* Free all the Tx ring sk_buffs */
+ 
+ 	for(i = 0; i < adapter->tx_ring.count; i++) {
+@@ -1062,6 +1065,9 @@
+ 	unsigned long size;
+ 	int i;
+ 
++	if(!adapter->rx_ring.buffer_info)
++		return;
++
+ 	/* Free all the Rx ring sk_buffs */
+ 
+ 	for(i = 0; i < adapter->rx_ring.count; i++) {
 
 -- 
 J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:

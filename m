@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315406AbSHNSuN>; Wed, 14 Aug 2002 14:50:13 -0400
+	id <S319267AbSHNTJn>; Wed, 14 Aug 2002 15:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319267AbSHNSuN>; Wed, 14 Aug 2002 14:50:13 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:15328 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S315406AbSHNSuM>;
-	Wed, 14 Aug 2002 14:50:12 -0400
-Date: Wed, 14 Aug 2002 11:54:05 -0700
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problem : can't make pipe non-blocking on 2.5.X
-Message-ID: <20020814185405.GD24047@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020814181902.GA24047@bougret.hpl.hp.com> <Pine.LNX.3.95.1020814143548.137A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1020814143548.137A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S319268AbSHNTJm>; Wed, 14 Aug 2002 15:09:42 -0400
+Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:14527 "EHLO
+	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S319267AbSHNTJm>; Wed, 14 Aug 2002 15:09:42 -0400
+Date: Wed, 14 Aug 2002 15:13:27 -0400 (EDT)
+From: "Kendrick M. Smith" <kmsmith@umich.edu>
+X-X-Sender: kmsmith@mspacman.gpcc.itd.umich.edu
+To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
+Subject: Re: patch 01/38: switches in fs/Config.in, fs/Config.help
+Message-ID: <Pine.SOL.4.44.0208141507050.10938-100000@mspacman.gpcc.itd.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 14, 2002 at 02:43:01PM -0400, Richard B. Johnson wrote:
-> On Wed, 14 Aug 2002, Jean Tourrilhes wrote:
-> 
-> > 
-> >   pipe(trigger_pipe);
-> > 
->     if((flags = fcntl(trigger_pipe[0], F_GETFL)) != -1);
->        flags &= ~O_NDELAY;
->     fcntl(trigger_pipe[0], F_SETFL, flags);
 
-	Same error. Please try again.
+>>>>> " " == Christoph Hellwig <hch@infradead.org> writes:
 
-	Jean
+     > On Tue, Aug 13, 2002 at 06:55:35PM -0400, Kendrick M. Smith
+     > wrote:
+    >> This patch defines new switches in fs/Config.in -
+    >> CONFIG_NFS_V4: enables nfsv4 client CONFIG_NFSD_V4: enables
+    >> nfsv4 server CONFIG_SUNRPC_GSSD_CLNT: enables in-kernel client
+    >> for GSSD
+
+     > This should be the last patch after the code got in..
+
+I agree, patch 1/38 should be renumbered to 38/38, and everything else
+shifted back by one.  If I have to repost the patchset (e.g. after rediff
+to 2.5.32), I'll be sure to do this.
+
+In the meantime, patch 1/38 does not conflict with any of the others;
+the patches can be applied cleanly in the order
+  2,3,4,....,38, 1
+Maybe we can just consider this to be the patch ordering for purposes of
+deciding which to apply to the 2.5.31 tree?  This way I won't have to
+repost 200K of patches before 2.5.32 comes out...
+
+Thanks,
+ Kendrick
+

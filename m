@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQLXIqv>; Sun, 24 Dec 2000 03:46:51 -0500
+	id <S129460AbQLXI7X>; Sun, 24 Dec 2000 03:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbQLXIql>; Sun, 24 Dec 2000 03:46:41 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:50700 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129370AbQLXIq0>;
-	Sun, 24 Dec 2000 03:46:26 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200012240815.eBO8FjG523728@saturn.cs.uml.edu>
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-To: jes@linuxcare.com (Jes Sorensen)
-Date: Sun, 24 Dec 2000 03:15:45 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d34rzulwyf.fsf@lxplus015.cern.ch> from "Jes Sorensen" at Dec 23, 2000 09:11:20 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S129627AbQLXI7N>; Sun, 24 Dec 2000 03:59:13 -0500
+Received: from attila.bofh.it ([213.92.8.2]:49104 "HELO attila.bofh.it")
+	by vger.kernel.org with SMTP id <S129460AbQLXI64>;
+	Sun, 24 Dec 2000 03:58:56 -0500
+Date: Sun, 24 Dec 2000 09:28:35 +0100
+From: "Marco d'Itri" <md@Linux.IT>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, viro@math.psu.edu
+Subject: innd mmap bug in 2.4.0-test12
+Message-ID: <20001224092835.B649@wonderland.linux.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen writes:
-> Albert D Cahalan <acahalan@cs.uml.edu> writes:
+I can confirm the bug which loses updates to the inn active file when
+it's unmapped is present again in 2.4.0-test12.
 
-[about using huge physical allocations for number crunching]
+I put "cp active active.ok" in the rc file before shutting down the
+daemon and at the next boot the files are different, every time.
 
->> 2. Programming a DMA controller with multiple addresses isn't
->> as fast as programming it with one.
->
-> LOL
->
-> Consider that allocating the larger block of memory is going
-> to take a lot longer than it will take for the DMA engine to
-> read the scatter/gather table entries and fetch a new address
-> word now and then.
+Alexander Viro posted this test case:
 
-Say it takes a whole minute to allocate the memory. It wouldn't
-of course, because you'd allocate memory at boot, but anyway...
-Then the app runs, using that memory, for a multi-hour surgery.
-The allocation happens once; the inter-node DMA transfers occur
-dozens or hundreds of times per second.
+#include <unistd.h>
+main(argc,argv)
+int argc;
+char **argv;
+{
+        int fd;
+        char c=0;
+        truncate(argv[1], 10);
+        fd = open(argv[1], 1);
+        lseek(fd, 16384, 0);
+        write(fd, &c, 1);
+        close(fd);
+}
+
+but I tried it and it gives the correct result (a 16384 bytes long file
+with only the first few bytes non-zeroed).
+
+Linux wonderland 2.4.0-test12 #15 Thu Dec 21 16:40:16 CET 2000 i586 unknown
+
+-- 
+ciao,
+Marco
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

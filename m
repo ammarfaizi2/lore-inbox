@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283858AbRLAANt>; Fri, 30 Nov 2001 19:13:49 -0500
+	id <S281202AbRLAARt>; Fri, 30 Nov 2001 19:17:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283857AbRLAANe>; Fri, 30 Nov 2001 19:13:34 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:48656 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S283853AbRLAANM>;
-	Fri, 30 Nov 2001 19:13:12 -0500
-Date: Fri, 30 Nov 2001 22:12:53 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, Larry McVoy <lm@bitmover.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <Pine.GSO.4.21.0111301226190.15083-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33L.0111302210560.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281205AbRLAARj>; Fri, 30 Nov 2001 19:17:39 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:58108
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281202AbRLAARZ>; Fri, 30 Nov 2001 19:17:25 -0500
+Date: Fri, 30 Nov 2001 16:17:17 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Nathan Poznick <poznick@conwaycorp.net>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "Andrey V. Savochkin" <saw@saw.sw.com.sg>
+Subject: Re: 2.4.16 freezed up with eepro100 module
+Message-ID: <20011130161717.G504@mikef-linux.matchmail.com>
+Mail-Followup-To: Nathan Poznick <poznick@conwaycorp.net>,
+	linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"Andrey V. Savochkin" <saw@saw.sw.com.sg>
+In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com> <20011129095107.A17457@conwaycorp.net> <3C070FEC.3602CB49@pobox.com> <20011130114506.A4789@bee.lk> <15367.44557.930845.66428@abasin.nj.nec.com> <20011130163131.A12298@conwaycorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011130163131.A12298@conwaycorp.net>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Alexander Viro wrote:
+Added Jeff & Andrey to cc list because they were the last two to modify the
+driver according to the comments at the top of eepro100.c
 
-> Fact of life: we all suck at reviewing our own code.  You, me, Ken
-> Thompson, anybody - we tend to overlook bugs in the code we'd written.
-> Depending on the skill we can compensate - there are technics for
-> that, but it doesn't change the fact that review by clued people who
-> didn't write the thing tends to show bugs we'd missed for years.
+On Fri, Nov 30, 2001 at 04:31:31PM -0600, Nathan Poznick wrote:
+> Thus spake Sven Heinicke:
+> > 
+> > I have eepro100's on other systems and never had a problem.  They
+> > never have been made to work as hard as the DELLs though.  I am
+> > trying the same DELL with a 3C996-T 1000Bt card using the driver from
+> > 3COM (we plan on moving that system to a 1000Bt system but the switch
+> > hasn't arrived yet) and it is running at 100Bt with the same
+> > software.  If you don't hear form me assume it surrived.  Been up a
+> > day so far, took the DELL like 3 days of heavy use to crash before.
+> 
+> Ok, I finally had a chance to work on this, and here's what I know:
+> 
+> 1) I found a workload under which I was able to reliably make the
+> network on the machine die (a few hundred of the "eth0: card reports
+> no resources." errors showed up which continued until I took down the
+> network and removed the module).  Unfortunately, the workload was with
+> an in-house app, so all I can describe are the conditions associated
+> with it: 2 processes with a total of about 600 threads, 1.5gb of
+> memory, about 500 network connections, and a lot of disk and network
+> I/O. 
+> 
+You can run the test against eepro100 with tcpdump redirected to a log file,
+and post that on the web somewhere.  That would probably be helpful.
 
-Absolutely agreed.  Note that this goes hand in hand with
-another issue, no matter how scary it may sound to other
-people ... <drum roll>
+Also, some sort of profiling.
 
-	DOCUMENTATION
-
-Because, without documentation we can only see what code
-does and not what it's supposed to do.
-
-This in turn means other people cannot identify bugs in
-the code, simply because they're not sure what the code
-is supposed to do.
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Jeff, Andrey, can you comment?

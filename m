@@ -1,58 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUJSGsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268094AbUJSHNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUJSGsn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 02:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268053AbUJSGsn
+	id S268094AbUJSHNi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 03:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJSHNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 02:48:43 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:6289 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268058AbUJSGse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 02:48:34 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: forcing PS/2 USB emulation off
-Date: Tue, 19 Oct 2004 01:48:30 -0500
-User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>, Alexandre Oliva <aoliva@redhat.com>,
-       linux-kernel@vger.kernel.org
-References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br> <20041018164539.GC18169@kroah.com> <20041019063057.GA3057@ucw.cz>
-In-Reply-To: <20041019063057.GA3057@ucw.cz>
+	Tue, 19 Oct 2004 03:13:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48298 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268088AbUJSHNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 03:13:12 -0400
+Date: Tue, 19 Oct 2004 00:13:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ben Collins <bcollins@debian.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, willy@debian.org,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: [BK PATCH] SCSI updates for 2.6.9
+In-Reply-To: <200410190012.28071.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.58.0410190009260.2287@ppc970.osdl.org>
+References: <1098137016.2011.339.camel@mulgrave> <200410182341.13648.dtor_core@ameritech.net>
+ <200410190012.28071.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410190148.30386.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 October 2004 01:30 am, Vojtech Pavlik wrote:
-> On Mon, Oct 18, 2004 at 09:45:39AM -0700, Greg KH wrote:
+
+Ben,
+ does this look ok to you?
+
+Arguably the SCSI layer should also have proper prefixes for its constants
+- and in fact they do kind of exist as the GPCMD_xxx constants.  Oh, well.
+Regardless, the sbp2 constants do look like they want prefixing..
+
+		Linus
+
+On Tue, 19 Oct 2004, Dmitry Torokhov wrote:
+
+> On Monday 18 October 2004 11:41 pm, Dmitry Torokhov wrote:
+> > On Monday 18 October 2004 05:03 pm, James Bottomley wrote:
+> > 
+> > > Matthew Wilcox:
+> > >   o Add SPI-5 constants to scsi.h
+> > 
+> > This breaks Firewire SBP2 build:
+> > 
+> >   CC [M]  drivers/ieee1394/sbp2.o
+> > In file included from drivers/ieee1394/sbp2.c:78:
+> > drivers/ieee1394/sbp2.h:61:1: warning: "ABORT_TASK_SET" redefined
+> > In file included from drivers/scsi/scsi.h:31,
+> >                  from drivers/ieee1394/sbp2.c:67:
+> > include/scsi/scsi.h:255:1: warning: this is the location of the previous definition
+> > In file included from drivers/ieee1394/sbp2.c:78:
+> > drivers/ieee1394/sbp2.h:62:1: warning: "LOGICAL_UNIT_RESET" redefined
+> > In file included from drivers/scsi/scsi.h:31,
+> >                  from drivers/ieee1394/sbp2.c:67:
+> > include/scsi/scsi.h:267:1: warning: this is the location of the previous definition
+> > 
+> > It looks like firewire has its own set of commands with conflicting names.
+> > Who should win?
+> > 
 > 
-> > I'm a little leary of changing the way the kernel grabs the USB hardware
-> > from the way we have been doing it for the past 6 years.  So by
-> > providing the option for people who have broken machines like these, we
-> > will let them work properly, and it should not affect any of the zillion
-> > other people out there with working hardware.
-> > 
-> > Or, if we can determine a specific model of hardware that really needs
-> > this option enabled, we can do that automatically.  If you look at the
-> > patch, we do that for some specific IBM machines for this very reason.
-> > 
-> > Is there any consistancy with the type of hardware that you see being
-> > reported for this issue?
+> I think something like the patch below shoudl work.
+> 
+> -- 
+> Dmitry
+> 
+> 
+> ===================================================================
+> 
+> 
+> ChangeSet@1.1963, 2004-10-19 00:08:16-05:00, dtor_core@ameritech.net
+>   IEEE1394: SBP-2 - rename some constants to fix clash with new
+>             SCSI core defines.
+>   
+>   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+> 
+>  sbp2.c |    8 ++++----
+>  sbp2.h |   18 +++++++++---------
+>  2 files changed, 13 insertions(+), 13 deletions(-)
+> 
+> 
+> ===================================================================
+> 
+> 
+> 
+> diff -Nru a/drivers/ieee1394/sbp2.c b/drivers/ieee1394/sbp2.c
+> --- a/drivers/ieee1394/sbp2.c	2004-10-19 00:10:58 -05:00
+> +++ b/drivers/ieee1394/sbp2.c	2004-10-19 00:10:58 -05:00
+> @@ -1088,7 +1088,7 @@
+>  	scsi_id->query_logins_orb->query_response_hi = ORB_SET_NODE_ID(hi->host->node_id);
+>  	SBP2_DEBUG("sbp2_query_logins: query_response_hi/lo initialized");
 >  
-> Like 30% of all notebooks? ;) They do boot without the USB handoff, the
-> PS/2 mouse works, but only as a PS/2 mouse, no extended capabilities
-> detection is possible due to the BIOS interference.
+> -	scsi_id->query_logins_orb->lun_misc = ORB_SET_FUNCTION(QUERY_LOGINS_REQUEST);
+> +	scsi_id->query_logins_orb->lun_misc = ORB_SET_FUNCTION(SBP2_QUERY_LOGINS_REQUEST);
+>  	scsi_id->query_logins_orb->lun_misc |= ORB_SET_NOTIFY(1);
+>  	if (scsi_id->sbp2_device_type_and_lun != SBP2_DEVICE_TYPE_LUN_UNINITIALIZED) {
+>  		scsi_id->query_logins_orb->lun_misc |= ORB_SET_LUN(scsi_id->sbp2_device_type_and_lun);
+> @@ -1199,7 +1199,7 @@
+>  	scsi_id->login_orb->login_response_hi = ORB_SET_NODE_ID(hi->host->node_id);
+>  	SBP2_DEBUG("sbp2_login_device: login_response_hi/lo initialized");
+>  
+> -	scsi_id->login_orb->lun_misc = ORB_SET_FUNCTION(LOGIN_REQUEST);
+> +	scsi_id->login_orb->lun_misc = ORB_SET_FUNCTION(SBP2_LOGIN_REQUEST);
+>  	scsi_id->login_orb->lun_misc |= ORB_SET_RECONNECT(0);	/* One second reconnect time */
+>  	scsi_id->login_orb->lun_misc |= ORB_SET_EXCLUSIVE(exclusive_login);	/* Exclusive access to device */
+>  	scsi_id->login_orb->lun_misc |= ORB_SET_NOTIFY(1);	/* Notify us of login complete */
+> @@ -1325,7 +1325,7 @@
+>  	scsi_id->logout_orb->reserved3 = 0x0;
+>  	scsi_id->logout_orb->reserved4 = 0x0;
+>  
+> -	scsi_id->logout_orb->login_ID_misc = ORB_SET_FUNCTION(LOGOUT_REQUEST);
+> +	scsi_id->logout_orb->login_ID_misc = ORB_SET_FUNCTION(SBP2_LOGOUT_REQUEST);
+>  	scsi_id->logout_orb->login_ID_misc |= ORB_SET_LOGIN_ID(scsi_id->login_response->length_login_ID);
+>  
+>  	/* Notify us when complete */
+> @@ -1390,7 +1390,7 @@
+>  	scsi_id->reconnect_orb->reserved3 = 0x0;
+>  	scsi_id->reconnect_orb->reserved4 = 0x0;
+>  
+> -	scsi_id->reconnect_orb->login_ID_misc = ORB_SET_FUNCTION(RECONNECT_REQUEST);
+> +	scsi_id->reconnect_orb->login_ID_misc = ORB_SET_FUNCTION(SBP2_RECONNECT_REQUEST);
+>  	scsi_id->reconnect_orb->login_ID_misc |=
+>  		ORB_SET_LOGIN_ID(scsi_id->login_response->length_login_ID);
+>  
+> diff -Nru a/drivers/ieee1394/sbp2.h b/drivers/ieee1394/sbp2.h
+> --- a/drivers/ieee1394/sbp2.h	2004-10-19 00:10:58 -05:00
+> +++ b/drivers/ieee1394/sbp2.h	2004-10-19 00:10:58 -05:00
+> @@ -52,15 +52,15 @@
+>  	u8 cdb[12];
+>  };
+>  
+> -#define LOGIN_REQUEST			0x0
+> -#define QUERY_LOGINS_REQUEST		0x1
+> -#define RECONNECT_REQUEST		0x3
+> -#define SET_PASSWORD_REQUEST		0x4
+> -#define LOGOUT_REQUEST			0x7
+> -#define ABORT_TASK_REQUEST		0xb
+> -#define ABORT_TASK_SET			0xc
+> -#define LOGICAL_UNIT_RESET		0xe
+> -#define TARGET_RESET_REQUEST		0xf
+> +#define SBP2_LOGIN_REQUEST		0x0
+> +#define SBP2_QUERY_LOGINS_REQUEST	0x1
+> +#define SBP2_RECONNECT_REQUEST		0x3
+> +#define SBP2_SET_PASSWORD_REQUEST	0x4
+> +#define SBP2_LOGOUT_REQUEST		0x7
+> +#define SBP2_ABORT_TASK_REQUEST		0xb
+> +#define SBP2_ABORT_TASK_SET		0xc
+> +#define SBP2_LOGICAL_UNIT_RESET		0xe
+> +#define SBP2_TARGET_RESET_REQUEST	0xf
+>  
+>  #define ORB_SET_LUN(value)                      (value & 0xffff)
+>  #define ORB_SET_FUNCTION(value)                 ((value & 0xf) << 16)
 > 
-
-I will send a list of examples tomorrow but so far it includes IBM
-Thinkpads, Dells, Sonys, Compaqs, Fujitsus, Toshibas, Supermicro-based
-boards and nonames. 
-
-We risk growing that DMI list pretty big ;)
-
--- 
-Dmitry

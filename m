@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275210AbTHAKFi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 06:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275211AbTHAKFi
+	id S270703AbTHAK1i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 06:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270707AbTHAK1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 06:05:38 -0400
-Received: from AMarseille-201-1-1-232.w193-252.abo.wanadoo.fr ([193.252.38.232]:14375
-	"EHLO gaston") by vger.kernel.org with ESMTP id S275210AbTHAKFh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 06:05:37 -0400
-Subject: Re: [Linux-fbdev-devel] [PATCH] Framebuffer: 2nd try: client
-	notification mecanism & PM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <1059570860.2418.2.camel@gaston>
-References: <1059484419.8537.19.camel@gaston>
-	 <20030729174919.GC2601@openzaurus.ucw.cz> <1059567270.8545.70.camel@gaston>
-	 <1059570860.2418.2.camel@gaston>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059732286.8184.43.camel@gaston>
+	Fri, 1 Aug 2003 06:27:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6830 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270703AbTHAK1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 06:27:36 -0400
+Date: Fri, 1 Aug 2003 12:27:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: ooyama eiichi <ooyama@tritech.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAW or BLK in 2.4.21
+Message-ID: <20030801102733.GO7920@suse.de>
+References: <20030801.192419.68158364.ooyama@tritech.co.jp>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 01 Aug 2003 12:04:46 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030801.192419.68158364.ooyama@tritech.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James, if you are ok, can you get that upstream to Linus asap so
-I can start pushing the driver bits for radeon & aty128 ?
+On Fri, Aug 01 2003, ooyama eiichi wrote:
+> Hi.
+> I am developping a block device kernel module in 2.4 series.
+> And i want to make a distinction between raw I/O and block I/O,
+> in the request function i wrote for my module.
+> But i could not find the way.
+> 
+> my_request_fn(request_queue_t *q, int rw, struct buffer_head * bh)
+> 
+> Is it possible ?
+> I would be happy if someone give me a hint about this.
 
-Ben.
+No, it is not possible to tell the difference inside your request_fn.
+
+-- 
+Jens Axboe
+

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbTADXdE>; Sat, 4 Jan 2003 18:33:04 -0500
+	id <S261900AbTADXfx>; Sat, 4 Jan 2003 18:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbTADXdE>; Sat, 4 Jan 2003 18:33:04 -0500
-Received: from main.gmane.org ([80.91.224.249]:16038 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S261742AbTADXdC>;
-	Sat, 4 Jan 2003 18:33:02 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Steven Barnhart" <sbarn03@softhome.net>
-Subject: Re: 2.5.54-mm3
-Date: Sat, 04 Jan 2003 18:41:19 -0500
-Message-ID: <pan.2003.01.04.23.41.14.859710@softhome.net>
-References: <3E16A2B6.A741AE17@digeo.com> <pan.2003.01.04.15.47.43.915841@softhome.net> <3E174FBB.9065575A@digeo.com> <002401c2b441$4e03eff0$18df9641@steven> <3E17644D.59E3F205@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.0 (The whole remains beautiful)
+	id <S261907AbTADXfx>; Sat, 4 Jan 2003 18:35:53 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:34949 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S261900AbTADXfw>; Sat, 4 Jan 2003 18:35:52 -0500
+From: Richard Stallman <rms@gnu.org>
+To: riel@conectiva.com.br
+CC: lm@bitmover.com, mark@mark.mielke.cc, billh@gnuppy.monkey.org,
+       paul@clubi.ie, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-reply-to: <Pine.LNX.4.50L.0301032014120.2429-100000@imladris.surriel.com>
+	(message from Rik van Riel on Fri, 3 Jan 2003 20:17:52 -0200 (BRST))
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Reply-to: rms@gnu.org
+References: <20030102013736.GA2708@gnuppy.monkey.org>
+ <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
+ <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc>
+ <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com>
+ <E18UYT2-0004xV-00@fencepost.gnu.org> <Pine.LNX.4.50L.0301032014120.2429-100000@imladris.surriel.com>
+Message-Id: <E18Uxxp-00045n-00@fencepost.gnu.org>
+Date: Sat, 04 Jan 2003 18:44:25 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 04 Jan 2003 14:46:37 +0000, Andrew Morton wrote:
+    How about expanding the acronym IP to mean "intellectual patrimony" ?
 
-> Your .config was not attached.
-> 
-> There is a devfs mounting problem in 2.5.54.  If you're using devfs
-> you may find that
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.54/2.5.54-mm3/broken-out/devfs-mount-fix.patch
-> will help
+The term "intellectual patrimony" might be a good one for some
+purposes, but if you want people to know you are using it, I suggest
+you spell it out in full every time.  At present, when people see the
+abbreviation "IP", they will think "intellectual property".
 
-.config is now attached and no, I am not using devfs.
-
-> The device node exists in /dev.  It sounds like no kernel driver
-> has registered itself against tht node's major/minor.   Make really
-> sure that you have compiled the appropriate driver for your hardware;
-> things may have changed.  All else fails, send lspci and dmesg output
-> to this list and/or davej@codemonkey.org.uk
-
-I also attached the dmesg output from 2.5.54. Hope that helps. Sometime
-tonight/tomorrow I will reboot 2.5 and attempt to get the lspci output for
-the list.
-
-Steven
+However, it is usually best to talk about "copyright", or about
+"patents", or about "trademarks", and avoid generalizations that would
+tend to blur the boundaries.  The widespread use of "intellectual
+property" leads people to suppose these laws (and the issues they
+raise) are mostly similar, but they are not.
 
 
 

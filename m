@@ -1,90 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317110AbSFBBxr>; Sat, 1 Jun 2002 21:53:47 -0400
+	id <S317112AbSFBB7I>; Sat, 1 Jun 2002 21:59:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317111AbSFBBxq>; Sat, 1 Jun 2002 21:53:46 -0400
-Received: from andiamo.com ([161.58.172.50]:30850 "EHLO andiamo.com")
-	by vger.kernel.org with ESMTP id <S317110AbSFBBxp>;
-	Sat, 1 Jun 2002 21:53:45 -0400
-From: "Hua Zhong" <hzhong@andiamo.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: <viro@math.psu.edu>
-Subject: look for a patch: bad inode handling
-Date: Sat, 1 Jun 2002 18:53:46 -0700
-Message-ID: <FEEFKBEFIEBONNKJABKDCEOPDKAA.hzhong@andiamo.com>
+	id <S317113AbSFBB7H>; Sat, 1 Jun 2002 21:59:07 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40140 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317112AbSFBB7G>; Sat, 1 Jun 2002 21:59:06 -0400
+Date: Sun, 2 Jun 2002 03:58:56 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Anthony Spinillo <tspinillo@linuxmail.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: INTEL 845G Chipset IDE Quandry
+Message-ID: <Pine.SOL.4.30.0206020318090.29792-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We encountered a kernel crash due to bad inode as shown in the following
-kgdb trace:
 
-Trying to connect to remotehost sup1
-kmem_extra_free_checks (cachep=0xc200f2e0, slabp=0xe9056a64,
-objp=0xe8689005)
-    at slab.c:1210
-1210                    BUG();
-warning: shared library handler failed to enable breakpoint
-Connected
-(gdb) where
-#0  kmem_extra_free_checks (cachep=0xc200f2e0, slabp=0xe9056a64,
-    objp=0xe8689005) at slab.c:1210
-#1  0xc01288a9 in kmem_cache_free (cachep=0xc200f2e0, objp=0xe8689005)
-    at slab.c:1437
-#2  0xc013855c in open_namei (
-    pathname=0xe8689000 "/etc/", 'Z' <repeats 195 times>..., flag=66,
-    mode=1929, nd=0xe9cf7f84) at namei.c:1184
-#3  0xc012e752 in filp_open (
-    filename=0xe8689000 "/etc/", 'Z' <repeats 195 times>..., flags=65,
-    mode=1929) at open.c:646
-#4  0xc012ea8e in sys_open (filename=0xbfffff27 "/etc/sprom.1", flags=65,
-    mode=1929) at open.c:790
-#5  0xc0106da4 in system_call () at af_packet.c:1889
-#6  0x08049062 in ?? () at af_packet.c:1889
-#7  0x40074177 in ?? () at af_packet.c:1889
-(gdb) lsmod
-(gdb)
+> Alan,
+>
+> This is one of the versions of INTEL which has extra bandwidth if you
+> want
+> wanted to the async IO.  Meaning the device could be set faster than the
+> host when reading from the host.  However when writing to the host the
+> device "must" be set to match.  The buffer is not capable of safely
+> handling the extra push.
+>
+> So in 2.4 we will properly time the host, unlike 2.5 which has elected
+> to overdrive the hardware.
 
-The kernel version is Monta Vista's 2.4.17. We searched online and found a
-patch
-as following: http://www.uwsg.iu.edu/hypermail/linux/kernel/0202.1/1769.html
+Only in piix driver (Intel & Efar) and user have to explicitly compile
+support for it, it have nothing to do with kernel version and everything
+with driver version.
 
-I also searched whether the recent kernels have already had this fix, and I
-found
-(according to the changelogs), the "bad inode handling" is in 2.5.6 pre1 and
-2.4.19 pre3
-already submitted by Al Viro, but the fix seems to be different:
+> The effect is the following.  "LINUS are you listening?"
+				 ^^^^^^^^^^^^^^^^^^^^^^^^
+Andre, you forgot to cc Linus ;)
 
-diff -Nru a/fs/bad_inode.c b/fs/bad_inode.c
---- a/fs/bad_inode.c    Tue Feb 26 11:57:57 2002
-+++ b/fs/bad_inode.c    Tue Feb 26 11:57:57 2002
-@@ -17,9 +17,7 @@
-  */
- static int bad_follow_link(struct dentry *dent, struct nameidata *nd)
- {
--       dput(nd->dentry);
--       nd->dentry = dget(dent);
--       return 0;
-+       return vfs_follow_link(nd, ERR_PTR(-EIO));
- }
+> Ultra DMA 100 uses 4 data clocks to transfer "X" amount of data.
+> Ultra DMA 133 uses 3 data clocks to transfer "X" amount of data.
+>
+> So if a bad host trys to push the limits, it ends up missing a data
+> strobe and the DATA goes away quietly without warning.  NICE!
+>
+> Maybe now people will understand why 2.5 is falling apart and it is not
+> Martin's fault.  He is just getting bad information and bad patches.
 
+Poor Marcin, he is so misinformed by bad people trying to spoil ATA stuff.
 
-I assume they solve the same problem (because from the 2.5.6 changelog Al
-seemed to be
-inspired by the original patch), and I prefer a patch that is accepted by
-official kernels. However since the above patch is retrieved from a large
-set of pre-patchs, I may have missed some parts.
+Bad patches? Who is the bad guy making the bad patches?
+Let me guess, it is Vojtech removing others people copyrighted "sick
+timing tables". Or maybe it is Jens doing at least TCQ?
+Or maybe it is me... etc.
 
-I want to know which patch I should use to solve this problem? Thanks a lot.
+> He actual has nearly the same model I was working on to use fucntion
 
-Hua
+It is really funny... but some people read code and know facts...
+
+> pointers in the style of "MiniPort (tm)".  I will explain why this is
+> desired later.
+
+in Q4 I guess
+
+> Cheers,
+
+Greets...
+
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> PS AntonA, my promise to you to inform Linus of one of the major design
+> flaws of 2.5 is now met.
+
+What a nice FUD.
+What is this major design flaw? Experimental (on demand) code in piix
+driver? Or you no longer being ATA maintainer?
+
+Ok, I really wanted to be quiet, but this time it is too much...
+sorry for bad words/irony but that is how things look like...
+
+Some people (me included) are putting much effort in cleaning/improving
+all this mess, and you keep spreading FUD and discrediting them.
+
+--
+Bartlomiej
 
 

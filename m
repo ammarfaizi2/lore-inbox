@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbUCLAvn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 19:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUCLAvm
+	id S261869AbUCLAue (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 19:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbUCLAue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 19:51:42 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:11145 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S261872AbUCLAvh (ORCPT
+	Thu, 11 Mar 2004 19:50:34 -0500
+Received: from gate.crashing.org ([63.228.1.57]:54998 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261869AbUCLAuc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 19:51:37 -0500
-Subject: Re: LKM rootkits in 2.6.x
-From: Dax Kelson <dax@gurulabs.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Christophe Saout <christophe@saout.de>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040311235021.GB21330@redhat.com>
-References: <200403112033.i2BKX9B6005538@eeyore.valparaiso.cl>
-	 <1079037332.8048.3.camel@leto.cs.pocnet.net>
-	 <20040311235021.GB21330@redhat.com>
+	Thu, 11 Mar 2004 19:50:32 -0500
+Subject: [PATCH] ppc32: Fix G5 config space access lockup
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Dan Burcaw <dburcaw@terrasoftsolutions.com>
 Content-Type: text/plain
-Message-Id: <1079052692.5345.0.camel@mentor.gurulabs.com>
+Message-Id: <1079052360.24360.317.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 11 Mar 2004 17:51:33 -0700
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Mar 2004 11:46:00 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-11 at 16:50, Dave Jones wrote:
-> On Thu, Mar 11, 2004 at 09:35:32PM +0100, Christophe Saout wrote:
-> 
->  > > It _is_ forbidden. This isn't any kind of accident we are talking about,
->  > > this is out and out fraud.
->  > 
->  > I'm talking about binary modules, not rootkits. Vendors aren't doing
->  > forbidden things, are they?
-> 
-> Yes.
-> 
-> 		Dave
+Fix a typo in the code that prevents lockup on config space access
+to sleeping devices on ppc32/G5. Please apply.
 
-What Vendors and modules?
+===== arch/ppc/platforms/pmac_feature.c 1.55 vs edited =====
+--- 1.55/arch/ppc/platforms/pmac_feature.c	Wed Feb 18 16:49:46 2004
++++ edited/arch/ppc/platforms/pmac_feature.c	Fri Mar 12 11:44:41 2004
+@@ -1359,7 +1359,7 @@
+ 		mb();
+ 		k2_skiplist[1] = NULL;
+ 	} else {
+-		k2_skiplist[0] = pdev;
++		k2_skiplist[1] = pdev;
+ 		mb();
+ 		MACIO_BIC(KEYLARGO_FCR1, K2_FCR1_FW_CLK_ENABLE);
+ 	}
+
 

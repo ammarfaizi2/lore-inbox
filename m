@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUI1OfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267792AbUI1Oey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267869AbUI1OfH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 10:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUI1OfH
+	id S267792AbUI1Oey (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 10:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUI1Oey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 10:35:07 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:45955 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267749AbUI1Oeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 10:34:37 -0400
-Date: Tue, 28 Sep 2004 09:34:12 -0500
-From: Robin Holt <holt@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Robin Holt <holt@sgi.com>, jlan@engr.sgi.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, csa@oss.sgi.com, akpm@osdl.org,
-       guillaume.thouvenin@bull.net, tim@physik3.uni-rostock.de,
-       corliss@digitalmages.com
-Subject: Re: [PATCH 2.6.9-rc2 2/2] enhanced MM accounting data collection
-Message-ID: <20040928143412.GA5608@lnx-holt.americas.sgi.com>
-References: <4158956F.3030706@engr.sgi.com> <41589927.5080803@engr.sgi.com> <20040928023350.611c84d8.pj@sgi.com> <20040928113858.GA1090@lnx-holt.americas.sgi.com> <20040928062949.2ab2249e.pj@sgi.com>
+	Tue, 28 Sep 2004 10:34:54 -0400
+Received: from moutng.kundenserver.de ([212.227.126.191]:763 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S267792AbUI1Oc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 10:32:26 -0400
+Date: Tue, 28 Sep 2004 16:32:11 +0200
+From: Sven Schuster <schuster.sven@gmx.de>
+To: Andreas Happe <andreashappe@flatline.ath.cx>
+Cc: James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz,
+       Michal Ludvig <michal@logix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.9-rc2 2/2] cryptoapi: make /proc/crypto optional
+Message-ID: <20040928143211.GA18136@zion.homelinux.com>
+References: <20040927084149.GA3625@final-judgement.ath.cx> <Xine.LNX.4.44.0409271151500.21876-100000@thoron.boston.redhat.com> <20040928122117.GA21010@final-judgement.ath.cx> <20040928122332.GB21010@final-judgement.ath.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
 Content-Disposition: inline
-In-Reply-To: <20040928062949.2ab2249e.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040928122332.GB21010@final-judgement.ath.cx>
+User-Agent: Mutt/1.5.6i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:38b5f051b8cd178556c5593940405c4a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Is there any non-trivial risk that some other "unfortunate side affect"
-> exists today, that we'd find on benchmarking?
 
-When I last owned csa, I was running benchmarks before each SGI release.
-The tests were a simple matter of grabbing belay or belay2 and running
-setting up an FC disk vault (one was usually attached that had 16 disks
-and use Jack's runit script to launch it.  I would then take the
-output and use Jack's web page to graph and compare it to the previous.
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Additionally, every time I got access to a new larger system, I would
-run the tests on there and check for any odd affects of CSA.
 
-Nothing interesting ever popped up from LBS2.1.1 all the way through
-to LBS3.0.
+Hi Andreas,
 
-> 
-> I'm not sure its worth benchmarking again, but I slightly suspect it is,
-> and if benchmarking was done, I'd do it with these calls both inline and
-> out of line, to see what affect that had on runtime.  If no affect on
-> runtime, I'd tend toward the out of line calls - at least saving a
-> little kernel text space.
+just one little thing I noticed:
 
-AIM7 is far to big of a hammer to find this level of micro-optimization.
-You could probably find or write a simple microbenchmark which shows
-the difference that introducing the code causes, but I would doubt it
-would show the inline versus the callout.  Either way, we have probably
-spent more time discussing benchmarking this than it is worth at this
-point of time.
+On Tue, Sep 28, 2004 at 02:23:32PM +0200, Andreas Happe told us:
+> diff -u -r -N linux-2.6.8/crypto/Kconfig linux-sysfs/crypto/Kconfig
+> --- linux-2.6.8/crypto/Kconfig	2004-09-28 12:50:31.000000000 +0200
+> +++ linux-sysfs/crypto/Kconfig	2004-09-28 12:18:25.000000000 +0200
+> @@ -16,6 +16,15 @@
+>  	  HMAC: Keyed-Hashing for Message Authentication (RFC2104).
+>  	  This is required for IPSec.
+> =20
+> +config CRYPTO_PROC
+> +	bool "Legacy /proc/crypto interface (OBSOLETE)"
+> +	depends on PROC_FS && CRYPTO
+> +	help
+> +	  Displays cipher specific information via /proc/crypto.
+> +	  Please use /sysfs/class/crypto instead.
+> +
+> +	  When in double say Y.
 
-I would expect the do_no_page() path will be the easiest to identify
-the change.  I have a simple test which maps a large region and
-then touches a large number of pages.  The whole loop is surronded by
-reading of the Shub RTC register.  This was done to determine the
-effect of quicklists on page faulting.  That type of microbenchmark
-might be your best bet at finding the problem.
+In double?? Probably should be "in doubt"...
 
-Robin
+
+Sven
+
+--=20
+Linux zion 2.6.9-rc1-mm4 #1 Tue Sep 7 12:57:19 CEST 2004 i686 athlon i386 G=
+NU/Linux
+ 16:31:14  up 2 days, 15:44,  3 users,  load average: 0.21, 0.07, 0.02
+
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBWXXro4FAdB2PneQRAkMcAJ4vkOjlq6Kr9bcoKZXYZadTlAFtZgCeLjoe
+Mv12dpteUi8V2ZBcO2ERfPI=
+=E0U8
+-----END PGP SIGNATURE-----
+
+--nFreZHaLTZJo0R7j--

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264647AbSLXPVD>; Tue, 24 Dec 2002 10:21:03 -0500
+	id <S264686AbSLXPet>; Tue, 24 Dec 2002 10:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264686AbSLXPVD>; Tue, 24 Dec 2002 10:21:03 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:8709 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264647AbSLXPVC>;
-	Tue, 24 Dec 2002 10:21:02 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212241541.gBOFf1rt000606@darkstar.example.net>
-Subject: Re: KERNEL: assertion tcp.c in 2.4.20
-To: byron@markerman.com (Byron Albert)
-Date: Tue, 24 Dec 2002 15:41:00 +0000 (GMT)
+	id <S265012AbSLXPet>; Tue, 24 Dec 2002 10:34:49 -0500
+Received: from mail-5.tiscali.it ([195.130.225.151]:44110 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id <S264686AbSLXPes>;
+	Tue, 24 Dec 2002 10:34:48 -0500
+Date: Tue, 24 Dec 2002 16:42:35 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Andrew Morton <akpm@digeo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E087C19.3000307@markerman.com> from "Byron Albert" at Dec 24, 2002 10:24:09 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: [2.5.53] Cannot open root device
+Message-ID: <20021224154235.GA318@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20021224131957.GA549@dreamland.darkstar.lan> <3E087A37.DDF392D0@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3E087A37.DDF392D0@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have been seeing some odd errors in 2.4.20.
-> KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
-> KERNEL: assertion 
-> ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed 
-> at af_inet.c(689)
-> KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
-> KERNEL: assertion 
-> ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed 
-> at af_inet.c(689)
-> KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
-> KERNEL: assertion 
-> ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed 
-> at af_inet.c(689)
+Il Tue, Dec 24, 2002 at 07:16:07AM -0800, Andrew Morton ha scritto: 
+> > VFS: Cannot open root device "305" or 03:05
 > 
-> Could some one tell me what that means and if I should be worried.
+> Does this fix t?
 > 
-> Also  I get alot other TCP: messages  Could some one explain to me what 
-> these mean?
-> TCP: drop open request from 63.65.68.246/33287
-> TCP: drop open request from 24.184.185.85/3568
-> TCP: drop open request from 24.184.185.85/3569
-> TCP: drop open request from 24.184.185.85/3567
-> TCP: drop open request from 24.184.185.85/3570
-> TCP: drop open request from 24.184.185.85/3571
-> TCP: drop open request from 24.184.185.85/3572
-> TCP: drop open request from 24.184.185.85/3573
-> TCP: drop open request from 24.184.185.85/3574
-> TCP: drop open request from 24.184.185.85/3575
-> NET: 147 messages suppressed.
+> 
+> --- 25/init/do_mounts.c~devfs-fix	Tue Dec 24 07:15:16 2002
+> +++ 25-akpm/init/do_mounts.c	Tue Dec 24 07:15:21 2002
+> @@ -848,11 +848,6 @@ void prepare_namespace(void)
+>  {
+>  	int is_floppy;
+>  
+> -#ifdef CONFIG_DEVFS_FS
+> -	sys_mount("devfs", "/dev", "devfs", 0, NULL);
+> -	do_devfs = 1;
+> -#endif
+> -
+>  	md_run_setup();
+>  
+>  	if (saved_root_name[0]) {
 
-Looks like a SYN flood.  What is this machine being used for?  It
-might indicate a SYN flood attack, or trying to serve more connections
-than the machine can handle.
+Yes, now I  can mount my root  fs. I still have problems  with the other
+filesystems, but maybe this is related to modules...
 
-John.
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Mi piace avere amici rispettabili;
+Mi piace essere il peggiore della compagnia.

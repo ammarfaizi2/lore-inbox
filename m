@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263357AbTKQGZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 01:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTKQGZZ
+	id S263364AbTKQGs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 01:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTKQGs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 01:25:25 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:49894 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263357AbTKQGZY convert rfc822-to-8bit (ORCPT
+	Mon, 17 Nov 2003 01:48:58 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:8374 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S263364AbTKQGs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 01:25:24 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Yet another UDP pmtud iss, it's different, really
-Date: Sun, 16 Nov 2003 22:25:08 -0800
-Message-ID: <7E713DB94F47914DB5AAB80DE8EEA875015398BE@fmsmsx410.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Yet another UDP pmtud iss, it's different, really
-Thread-Index: AcOrFhfE3N/A09UoQnmuk+bmA9PDVgBvPrSw
-From: "Johnson, Chester F" <chester.f.johnson@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Nov 2003 06:25:09.0163 (UTC) FILETIME=[8C7DAFB0:01C3ACD3]
+	Mon, 17 Nov 2003 01:48:57 -0500
+Date: Mon, 17 Nov 2003 06:48:32 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
+       Urlich Drepper <drepper@redhat.com>,
+       Michal Wronski <wrona@mat.uni.torun.pl>
+Subject: Re: [PATCH] POSIX message queues - syscalls & SIGEV_THREAD
+Message-ID: <20031117064832.GA16597@mail.shareable.org>
+References: <Pine.GSO.4.58.0311161546260.25475@Juliusz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0311161546260.25475@Juliusz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-List,
+Krzysztof Benedyczak wrote:
+> Intuitive
+> solution is with FUTEX_FD & poll but this will have synchronization
+> problems. The solution with one futex and multiple values would be very
+> complicated (we need mechanism for cancellation of notification and of
+> course information which queue(s) produced event(s)). On the another hand
+> I can think about signals doing all the work - using thread sig mask we
+> have synchronization and signals can carry quite a lot information. Of
+> course this are only suggestions and I can miss something about futexes.
 
-This is not the same as the pmtud issues discussed ad-nauseum from 1999
-through 2001. It really is different. Trust me, please read on.
+Please can you describe your "intuitive solution" using FUTEX_FD more clearly?
 
-Well, it is similar, but with a twist. We are in the middle of deploying
-DiffServ compliant QoS throughout our networks and stumbled across an
-issue that occurs when we configure our routers to mark the DiffServ
-Code Points (DSCP) for UDP traffic (AFS, NFS, other full frame size UDP
-traffic).
+I don't quite understand what you wrote, but there are flaws(*) in the
+current FUTEX_FD implementation which I would like to fix anyway.
 
-The problem is that when the marked traffic reaches an IPsec/Ethernet
-segment, and the DF bit set to true, an ICMP message is returned to the
-transmitting host to say basically "fix your MTU". Since we have changed
-the ToS field with DSCP information, the ICMP message no longer matches
-anything in the route cache hash. If the ToS field is not "0", it must
-match src, dst, and ToS in the cache. Well, we changed one of them and
-there can be no such match.
+Perhaps we can improve async futexes in a way which is useful for you?
 
-The net result is that the transmitting host sends another 1500 byte
-packet and the process repeats itself. Ultimately the data transfer
-fails. When we stop DSCP marking, MTU negotiation works just fine, but
-we have no QoS.
+Thanks,
+-- Jamie
 
-This kind of match might be great if we use a Linux platform as a
-router. It may indeed be useful for higher performance DiffServ routing.
-This kind of match requirement for an end-host is problematic. In our
-estimation it looks like a bug.
-
-Can anyone out there help sort this out?
-
-Chester Johnson
-Network Transport Engineering
-Intel Corporation
-
+(*) FUTEX_FD cannot be used as a drop-in replacement for synchronous
+futexes, due to a race condition in cancellation.

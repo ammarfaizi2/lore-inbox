@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317313AbSFLDDT>; Tue, 11 Jun 2002 23:03:19 -0400
+	id <S317318AbSFLDFq>; Tue, 11 Jun 2002 23:05:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317317AbSFLDDS>; Tue, 11 Jun 2002 23:03:18 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:27791 "EHLO
+	id <S317323AbSFLDFp>; Tue, 11 Jun 2002 23:05:45 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:55704 "EHLO
 	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317313AbSFLDDS>; Tue, 11 Jun 2002 23:03:18 -0400
-Date: Wed, 12 Jun 2002 04:03:03 +0100 (BST)
+	id <S317318AbSFLDFp>; Tue, 11 Jun 2002 23:05:45 -0400
+Date: Wed, 12 Jun 2002 04:05:31 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Burton Windle <bwindle@fint.org>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] swap 1/4 swapon memleak
-In-Reply-To: <Pine.LNX.4.21.0206120343290.1036-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0206120359270.1036-100000@localhost.localdomain>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] swap 2/4 unsafe SwapCache check
+In-Reply-To: <Pine.LNX.4.21.0206120359270.1036-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0206120403280.1036-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burton reported Kernel memory leak with swapon/swapoff? LKML 31 May.
-swapon uses rw_swap_page_nolock to read swap_header page (peculiar!
-should probably rework that sometime), nothing freed the buffers
-from the page, and thus the page was also never freed.
+Recent testing has shown that the BUG() check in try_to_unuse is unsafe.
+delete_from_swap_cache does final swap_free just after removing page
+from swap cache, and add_to_swap_cache does swap_duplicate just before
+putting page into swap cache, therefore swapin_readahead may resurrect
+a dying swap entry and assign a new page to it.  That's fine, there's
+no need to change this ordering; but it does mean that try_to_unuse's
+page may have left the swap cache yet its swap_map count still be set.
+That BUG() has done good service for swapoff sanity, but now abandon it.
 
---- 2.4.19-pre10/mm/page_io.c	Mon Nov 19 23:19:42 2001
-+++ linux/mm/page_io.c	Tue Jun 11 19:02:30 2002
-@@ -120,8 +120,10 @@
- 		PAGE_BUG(page);
- 	/* needs sync_page to wait I/O completation */
- 	page->mapping = &swapper_space;
--	if (!rw_swap_page_base(rw, entry, page))
--		UnlockPage(page);
--	wait_on_page(page);
-+	if (rw_swap_page_base(rw, entry, page))
-+		lock_page(page);
-+	if (!block_flushpage(page, 0))
-+		PAGE_BUG(page);
- 	page->mapping = NULL;
-+	UnlockPage(page);
- }
+--- 2.4.19-pre10/mm/swapfile.c	Tue Jun  4 13:54:20 2002
++++ linux/mm/swapfile.c	Tue Jun 11 19:02:30 2002
+@@ -671,10 +671,7 @@
+ 		 * private" pages, but they are handled by tmpfs files.
+ 		 * Note shmem_unuse already deleted its from swap cache.
+ 		 */
+-		swcount = *swap_map;
+-		if ((swcount > 0) != PageSwapCache(page))
+-			BUG();
+-		if ((swcount > 1) && PageDirty(page)) {
++		if ((*swap_map > 1) && PageDirty(page) && PageSwapCache(page)) {
+ 			rw_swap_page(WRITE, page);
+ 			lock_page(page);
+ 		}
 

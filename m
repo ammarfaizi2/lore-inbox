@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263584AbUD2Gak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263604AbUD2GdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbUD2Gak (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbUD2Gah
+	id S263604AbUD2GdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 02:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUD2GdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:30:37 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25561 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263584AbUD2G3y (ORCPT
+	Thu, 29 Apr 2004 02:33:12 -0400
+Received: from gate.crashing.org ([63.228.1.57]:24706 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263604AbUD2GdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 02:29:54 -0400
-Date: Thu, 29 Apr 2004 08:29:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Kenneth Johansson <ken@kenjo.org>,
-       Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] DVD writing in 2.6.6-rc2
-Message-ID: <20040429062949.GB3558@suse.de>
-References: <1083088772.2679.11.camel@tiger> <20040427183607.GA3011@suse.de> <8n23m1-g22.ln1@legolas.mmuehlenhoff.de> <20040428113056.GA2150@suse.de> <1083176956.2679.19.camel@tiger> <20040428200953.GA3470@suse.de> <20040428221334.GA22404@taniwha.stupidest.org> <20040429061956.GA3558@suse.de> <20040429062436.GA6507@taniwha.stupidest.org>
+	Thu, 29 Apr 2004 02:33:07 -0400
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, brettspamacct@fastclick.com,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040428232222.1be25448.akpm@osdl.org>
+References: <409021D3.4060305@fastclick.com>
+	 <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com>
+	 <40905127.3000001@fastclick.com> <20040428180038.73a38683.akpm@osdl.org>
+	 <16528.23219.17557.608276@cargo.ozlabs.ibm.com>
+	 <20040428185342.0f61ed48.akpm@osdl.org>
+	 <20040428194039.4b1f5d40.akpm@osdl.org>
+	 <16528.28485.996662.598051@cargo.ozlabs.ibm.com>
+	 <1083219158.20089.128.camel@gaston> <20040428232222.1be25448.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1083219952.29596.131.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040429062436.GA6507@taniwha.stupidest.org>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 29 Apr 2004 16:25:53 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28 2004, Chris Wedgwood wrote:
-> On Thu, Apr 29, 2004 at 08:19:58AM +0200, Jens Axboe wrote:
+On Thu, 2004-04-29 at 16:22, Andrew Morton wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> >
+> > 
+> > > The really strange thing is that the behaviour seems to get worse the
+> > > more RAM you have.  I haven't noticed any problem at all on my laptop
+> > > with 768MB, only on the G5, which has 2.5GB.  (The laptop is still on
+> > > 2.6.2-rc3 though, so I will try a newer kernel on it.)
+> > 
+> > Your G5 also has a 2Gb IO hole in the middle of zone DMA, it's possible
+> > that the accounting doesn't work properly.
 > 
-> > Yeah, with 'retries' I mean waiting retries. The command does expire
-> > and ide-cd notices it just doesn't put an upper bound on how long it
-> > waits.  A minute or so should suffice, unless the caller specifies
-> > otherwise.
-> 
-> Can we poke the IDE drive is it's hung or reset it in these cases?  I
-> wonder more in the general case where I've had to reboot because the
-> burner went nuts for some reason...
+> heh.  It should have zone->spanned_pages - zone->present_pages = 2G.
 
-Drive needs to be reset. Something like this should be all that's
-needed.
+That should be fine, I'll check later, I can't reboot mine right now.
 
-===== drivers/ide/ide-cd.c 1.81 vs edited =====
---- 1.81/drivers/ide/ide-cd.c	Mon Apr 26 22:56:10 2004
-+++ edited/drivers/ide/ide-cd.c	Thu Apr 29 08:29:07 2004
-@@ -844,7 +844,6 @@
- 		case GPCMD_FORMAT_UNIT:
- 		case GPCMD_RESERVE_RZONE_TRACK:
- 		case GPCMD_CLOSE_TRACK:
--		case GPCMD_FLUSH_CACHE:
- 			wait = ATAPI_WAIT_PC;
- 			break;
- 		default:
+I'm initializing the zone with free_area_init_node() and I _am_ passing
+the hole size. Paul, also check if you have NUMA enabled in .config, it changes
+the way zones are initialized, I may have gotten that case wrong.
 
--- 
-Jens Axboe
+Ben.
+
 

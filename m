@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290228AbSCSSof>; Tue, 19 Mar 2002 13:44:35 -0500
+	id <S290818AbSCSSvZ>; Tue, 19 Mar 2002 13:51:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290593AbSCSSob>; Tue, 19 Mar 2002 13:44:31 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:43790 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S290228AbSCSSoR>;
-	Tue, 19 Mar 2002 13:44:17 -0500
-Date: Tue, 19 Mar 2002 10:43:44 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19pre3-ac2
-In-Reply-To: <Pine.NEB.4.44.0203191852570.3932-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.33L2.0203191043240.8339-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290796AbSCSSvP>; Tue, 19 Mar 2002 13:51:15 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:55801
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S290593AbSCSSvC>; Tue, 19 Mar 2002 13:51:02 -0500
+Date: Tue, 19 Mar 2002 10:52:25 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: John Jasen <jjasen1@umbc.edu>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reading your email via tcpdump
+Message-ID: <20020319185225.GT2254@matchmail.com>
+Mail-Followup-To: Mike Galbraith <mikeg@wen-online.de>,
+	John Jasen <jjasen1@umbc.edu>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020319181130.GQ2254@matchmail.com> <Pine.LNX.4.10.10203191953420.421-100000@mikeg.wen-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I'll look into it.
+On Tue, Mar 19, 2002 at 07:56:27PM +0100, Mike Galbraith wrote:
+> On Tue, 19 Mar 2002, Mike Fedyk wrote:
+> > That's not the problem part of the tcpdump output.  The problem is that part
+> > of an email previously read on the linux box (with no samba runing. (also,
+> > no smbfs MikeG?)) showed up in the tcpdump output...
+> 
+> Yes.  That's exactly what worried me. (no clue as to security issues)
 
-~Randy
-
-On Tue, 19 Mar 2002, Adrian Bunk wrote:
-
-| On Tue, 19 Mar 2002, Alan Cox wrote:
-|
-| > Linux 2.4.19pre3-ac2
-| >...
-| > o	Add iconfig  (save/extract config from kernel	(Randy Dunlap)
-| > 	image file)
-| >...
-|
-| This sounds like a nice feature. Unfortunately it doesn't compile when you
-| are building a kernel without module support (CONFIG_MODULES is not set):
-|
-| <--  snip  -->
-|
-| ...
-| gcc -D__KERNEL__ -I/home/bunk/linux/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -DEXPORT_SYMTAB -c -o configs.o configs.c
-| In file included from configs.c:2:
-| /home/bunk/linux/linux/include/linux/module.h:21: linux/modversions.h: No such file or directory
-| make[2]: *** [configs.o] Error 1
-| make[2]: Leaving directory `/home/bunk/linux/linux/kernel'
-| make[1]: *** [first_rule] Error 2
-| make[1]: Leaving directory `/home/bunk/linux/linux/kernel'
-| make: *** [_dir_kernel] Error 2
-|
-| <--  snip  -->
-|
-| cu
-| Adrian
-|
-| -
-
+What computer is 10.0.0.101?

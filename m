@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261754AbSJIOw6>; Wed, 9 Oct 2002 10:52:58 -0400
+	id <S261779AbSJIOj2>; Wed, 9 Oct 2002 10:39:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261793AbSJIOw6>; Wed, 9 Oct 2002 10:52:58 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:13060 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261754AbSJIOw5>; Wed, 9 Oct 2002 10:52:57 -0400
-Date: Wed, 9 Oct 2002 10:58:32 -0400
-From: Ben Collins <bcollins@debian.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: BK kernel commits list
-Message-ID: <20021009145832.GC26771@phunnypharm.org>
-References: <20021009144414.GZ26771@phunnypharm.org> <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com> <27367.1034175300@passion.cambridge.redhat.com>
+	id <S261815AbSJIOj2>; Wed, 9 Oct 2002 10:39:28 -0400
+Received: from smtp09.iddeo.es ([62.81.186.19]:49317 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id <S261779AbSJIOjX>;
+	Wed, 9 Oct 2002 10:39:23 -0400
+Date: Wed, 9 Oct 2002 16:45:02 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Brendan J Simon <brendan.simon@bigpond.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: linux kernel conf 0.8
+Message-ID: <20021009144502.GD2954@werewolf.able.es>
+References: <Pine.LNX.4.33L2.0210090730450.1001-100000@dragon.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <27367.1034175300@passion.cambridge.redhat.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33L2.0210090730450.1001-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Wed, Oct 09, 2002 at 16:34:04 +0200
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 03:55:00PM +0100, David Woodhouse wrote:
-> 
-> bcollins@debian.org said:
-> >  Just please make sure that the changeset info where it describes all
-> > the files in the delta. I.e. the ones that are moved, deleted, new.
-> > There's no way to deduce moves from the patch. 
-> 
-> This bit?
-> 
-> # This patch includes the following deltas:
-> #                  ChangeSet    1.713   -> 1.714
-> #       arch/i386/math-emu/poly.h       1.3     -> 1.4
-> #
 
-Yeah, that's it.
+On 2002.10.09 Randy.Dunlap wrote:
+>On Thu, 10 Oct 2002, Brendan J Simon wrote:
+>
+>| Roman Zippel wrote:
+>|
+>| >>But the fact that xconfig depends on QT is going to make some people hate
+>| >>it.
+>| >>
+...
+>| This is a difficult one.  GUI's toolkits are a bit of religion
+>| (fundamentalist types too).
+>|
+...
+>
+>stick with TCL/TK, like xconfig currently uses ?
+>or is it not sufficient?  or just too ugly?
+>
 
-> Any idea how to get it other than 'bk export -tpatch | sed' ?
+What is linux kernel conf written in ?
+- perl: use perl-gtk (I think there is also a perl-qt)
+- python: use py-gtk...
 
-Probably some sort of "bk changes" output. Try checking the -d spec
-options.
+Use whatever the language gives. I never undestook why use tcl/tk
+on a perl/python config system.
 
-> I need to do some real work... play with ths script and sort it out between 
-> yourselves :)
-
-I can't. Requires using BK :)
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-pre10-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))

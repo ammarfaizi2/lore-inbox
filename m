@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268693AbUIHQ3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269072AbUIHQbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268693AbUIHQ3O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 12:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268698AbUIHQ3O
+	id S269072AbUIHQbP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 12:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269045AbUIHQaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 12:29:14 -0400
-Received: from mail.gmx.de ([213.165.64.20]:12766 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268693AbUIHQ3K (ORCPT
+	Wed, 8 Sep 2004 12:30:46 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:48607 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268698AbUIHQae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 12:29:10 -0400
-X-Authenticated: #7369570
-From: Alexej Davidov <alexej.davidov@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: smbfs errors
-Date: Wed, 8 Sep 2004 18:29:04 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 8 Sep 2004 12:30:34 -0400
+Subject: Re: Major XFS problems...
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: Anando Bhattacharya <a3217055@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040908154434.GE390@unthought.net>
+References: <20040908123524.GZ390@unthought.net>
+	 <322909db040908080456c9f291@mail.gmail.com>
+	 <20040908154434.GE390@unthought.net>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1094661418.19981.36.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 09 Sep 2004 02:36:58 +1000
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409081829.04807.alexej.davidov@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2004-09-09 at 01:44, Jakob Oestergaard wrote:
+> SMP systems on 2.6 have a problem with XFS+NFS.
 
-I can't mount shares of some servers since I use kernel 2.6.x. As it works 
-with smbclient and also with smbmount on kernel 2.4.x, I assume the problem 
-lies within smbfs.
+Knfsd threads in 2.6 are no longer serialised by the BKL, and the
+change has exposed a number of SMP issues in the dcache.  Try the
+two patches at
 
-Kernel version: 2.6.8.1
-Samba version: 3.0.4
-Dist: Debian unstable
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108330112505555&w=2
 
-I get errors when I try to mount a share from OS/2 4.0:
+and
 
-1) smbmount
-everything's fine
+http://linus.bkbits.net:8080/linux-2.5/cset@1.1722.48.23
 
-2) cd into the mounted dir
-smbfs output:
-  smb_setup_bcc: Packet too large 4257>4096
-  smb_add_request: request [f7298e80, mid=0] timed out! 
+(the latter is in recent Linus kernels).  If you're still having
+problems after applying those patches, Nathan and I need to know.
 
-3) ls in the mounted dir
-smbfs output:
-  smb_receive_header: short packet: 0
-  smb_add_request: request [f7353e80, mid=1] timed out!
-Then ls says: ls: .: Input/output error
-
-4) cd ..
-smbfs output:
-  smb_get_length: Invalid NBT packet, code 39
-  smb_add_request: request [f736be80, mid=2] timed out!
-
-5) umount
-everything's fine
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
 
 
-Also, it's not possible to mount a share from a server running Samba 3.0.6 on 
-Suse with kernel 2.4.21. I get ``smb_add_request: request[xxxxxxx, mid=x] 
-timed out!'' all the time, and this time also already when when I try to 
-mount.
-
-I can mount shares, however, from other systems, namely all Windows versions 
-and OS/2 3.0
-
-If it is of any help, I could also supply samba logs and tcpdump dumps.
-
-Btw: I tried to enable SMBFS_DEBUG and SMBFS_DEBUG_VERBOSE in smbfs' Makefile, 
-but that didn't change anything.
-
-Thanks in advance
-Alexej
-
-Please cc to my address, as I'm not subscribed to this list.

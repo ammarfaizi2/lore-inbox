@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133013AbRA0T0M>; Sat, 27 Jan 2001 14:26:12 -0500
+	id <S130969AbRA0T2W>; Sat, 27 Jan 2001 14:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135271AbRA0T0D>; Sat, 27 Jan 2001 14:26:03 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:44294 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S133013AbRA0TZq>;
-	Sat, 27 Jan 2001 14:25:46 -0500
-Date: Sat, 27 Jan 2001 14:25:44 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: patrick.mourlhon@wanadoo.fr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SBF queueing?
-Message-ID: <20010127142544.F6821@xi.linuxpower.cx>
-In-Reply-To: <20010127134448.B6821@xi.linuxpower.cx> <20010127195232.B1326@MourOnLine.dnsalias.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <20010127195232.B1326@MourOnLine.dnsalias.org>; from patrick.mourlhon@wanadoo.fr on Sat, Jan 27, 2001 at 07:52:32PM +0100
+	id <S135271AbRA0T2M>; Sat, 27 Jan 2001 14:28:12 -0500
+Received: from marks-43.caltech.edu ([131.215.92.43]:31751 "EHLO
+	velius.chaos2.org") by vger.kernel.org with ESMTP
+	id <S130969AbRA0T15>; Sat, 27 Jan 2001 14:27:57 -0500
+Date: Sat, 27 Jan 2001 11:26:54 -0800 (PST)
+From: Jacob Luna Lundberg <jacob@velius.chaos2.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete
+ Error }
+In-Reply-To: <20010127141730.C27929@suse.de>
+Message-ID: <Pine.LNX.4.32.0101271121070.1098-100000@velius.chaos2.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27, 2001 at 07:52:32PM +0100, patrick.mourlhon@wanadoo.fr wrote:
-> Hi Gregory!
-> You might have a look on linux/Documentation/networking/policy-routing.txt
-> I think this was down by Alexey Kuznetov
 
-Thanks for the quick reply. But that's not exactly what I was looking for.
-I was trying to find out if anyone was working on a peticular queueing
-algorithim that Linux doesn't currently have.
+I gave it a whirl.  Sadly, no change.
 
-> You might have a look to iproute + tc and HOWTO on advanced networking
+On Sat, 27 Jan 2001, Jens Axboe wrote:
+> My gut tells me that this is the 'get last written' command, and even
+> with the quiet flag we get the IDE error status printed. Could you
+> try and add
+>
+> 	goto use_toc;
+>
+> add the top of drivers/cdrom/cdrom.c:cdrom_get_last_written() and
+> see if that makes the error disappear?
 
-You mean this "HOWTO on advanced networking"?
-http://www.ds9a.nl/2.4Routing/
+-Jacob
 
-Look at the second authors name on the page. :)
+-- 
 
-> patrick mourlhon
+Reechani, Sentrosi, Vasi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

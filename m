@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292045AbSBYRiH>; Mon, 25 Feb 2002 12:38:07 -0500
+	id <S293397AbSBYRiH>; Mon, 25 Feb 2002 12:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293397AbSBYRh6>; Mon, 25 Feb 2002 12:37:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58896 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292045AbSBYRhl>; Mon, 25 Feb 2002 12:37:41 -0500
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 25 Feb 2002 17:50:39 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
-        mingo@elte.hu, matthew@hairy.beasts.org (Matthew Kirkwood),
-        bcrl@redhat.com (Benjamin LaHaise), david@mysql.com (David Axmark),
-        wli@holomorphy.com (William Lee Irwin III),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202250919580.4567-100000@home.transmeta.com> from "Linus Torvalds" at Feb 25, 2002 09:20:33 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293444AbSBYRh5>; Mon, 25 Feb 2002 12:37:57 -0500
+Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:14976 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S293397AbSBYRho>;
+	Mon, 25 Feb 2002 12:37:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Son of Unbork (1 of 3)
+Date: Sat, 23 Feb 2002 19:30:26 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+In-Reply-To: <Pine.GSO.4.21.0202251224150.3162-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0202251224150.3162-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16fPGp-0005bj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16egwF-00006e-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 25 Feb 2002, Alan Cox wrote:
-> >
-> > As opposed to adding special cases to the kernel which are unswappable and
-> > stand to tangle up bits of the generic vfs - eg we would have a vma with
-> > a vm_file but that file would not be in the dcache ?
+On February 25, 2002 06:24 pm, Alexander Viro wrote:
+> On Sat, 23 Feb 2002, Daniel Phillips wrote:
 > 
-> Why should they be unswappable?
+> > This three patch set completes the removal of ext2-specific includes from 
+> > fs.h.  When this is done, your kernel will compile a little faster, the Ext2 
+> > source will be organized a little better, and then infamous fs.h super_block 
+> > union will no longer hurt your eyes.  When every filesystem has been changed 
+> > in a similar way, fs.h will finally be generic, in-memory super_blocks will be
+> > somewhat smaller, and the kernel will compile quite a lot faster.  And peace
+> > will come once more to Middle-Earth.  (I made that last part up.)
+> > 
+> > Patch 1 adds alloc_super and destroy_super methods to struct file_system.  A 
+> 
+> Vetoed.
 
-Any kernel special cases it adds will be unswappable because they are in
-kernel space (not the semaphores here - we want them to be swappable and
-they can be)
+Thanks for the eloquent and informative response.
 
-> It's the same thing as giving a -1 to mmap. That doesn't make it
-> unswappable.
-
-When you create a shared mapping by passing -1 to mmap we do
-
-        } else if (flags & MAP_SHARED) {
-                error = shmem_zero_setup(vma);
-
-shmem_zero_setup does
-
-        file = shmem_file_setup("dev/zero", size);
-        if (IS_ERR(file))
-                return PTR_ERR(file);
-
-        if (vma->vm_file)
-                fput (vma->vm_file);
-        vma->vm_file = file;
-        vma->vm_ops = &shmem_vm_ops;
-
-and we are back creating file names. Basically because a shared mmap in
-Linux needs vma->vm_file, and vma->vm_file needs all the rest of the logic
-behind it
-
-Thats why I am saying that magic name picking is something that user space
-might as well do for unnamed objects. We end up with names and vm_file
-however we do it
+-- 
+Daniel

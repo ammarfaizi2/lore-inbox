@@ -1,88 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265750AbUFIM1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265747AbUFIM2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265750AbUFIM1q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUFIM1W
+	id S265747AbUFIM2d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 08:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUFIM2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:27:22 -0400
-Received: from svana.org ([203.20.62.76]:6157 "EHLO svana.org")
-	by vger.kernel.org with ESMTP id S265690AbUFIM0F (ORCPT
+	Wed, 9 Jun 2004 08:28:01 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:16272 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265766AbUFIMYC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:26:05 -0400
-Date: Wed, 9 Jun 2004 22:20:30 +1000
-From: Martijn van Oosterhout <kleptog@svana.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org, davem@redhat.com,
-       yoshfuji@linux-ipv6.org, pekkas@netcore.fi, jmorris@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: UDP sockets bound to ANY send answers with wrong src ip address
-Message-ID: <20040609122030.GA14854@svana.org>
-Reply-To: Martijn van Oosterhout <kleptog@svana.org>
-References: <200406091425.39324.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 9 Jun 2004 08:24:02 -0400
+Date: Wed, 9 Jun 2004 14:22:26 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: reiserfs-dev@namesys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [STACK] >3k call path in reiserfs
+Message-ID: <20040609122226.GE21168@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200406091425.39324.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.3.28i
-X-PGP-Key-ID: Length=1024; ID=0x0DC67BE6
-X-PGP-Key-Fingerprint: 295F A899 A81A 156D B522  48A7 6394 F08A 0DC6 7BE6
-X-PGP-Key-URL: <http://svana.org/kleptog/0DC67BE6.pgp.asc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+reiserfs has some stack-hungry functions as well.  Could you put them
+on a diet?
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+stackframes for call path too long (3024):
+    size  function
+      32  reiserfs_delete_inode
+       0  reiserfs_delete_object
+     132  reiserfs_do_truncate
+     468  reiserfs_cut_from_item
+     492  reiserfs_delete_item
+     104  search_for_position_by_key
+      16  search_by_entry_key
+     208  search_by_key
+       0  __bread
+       0  __getblk
+       0  __getblk_slow
+       0  find_or_create_page
+       0  add_to_page_cache_lru
+       0  lru_cache_add
+       0  preempt_schedule
+      84  schedule
+      16  __put_task_struct
+      20  audit_free
+      36  audit_log_start
+      16  __kmalloc
+       0  __get_free_pages
+      28  __alloc_pages
+     284  try_to_free_pages
+       0  out_of_memory
+       0  mmput
+      16  exit_aio
+       0  __put_ioctx
+      16  do_munmap
+       0  split_vma
+      36  vma_adjust
+       0  fput
+       0  __fput
+       0  locks_remove_flock
+      12  panic
+       0  sys_sync
+       0  sync_inodes
+     308  sync_inodes_sb
+       0  do_writepages
+     128  mpage_writepages
+       4  write_boundary_block
+       0  ll_rw_block
+      28  submit_bh
+       0  bio_alloc
+      88  mempool_alloc
+     256  wakeup_bdflush
+      20  pdflush_operation
+       0  printk
+      16  release_console_sem
+      16  __wake_up
+       0  printk
+       0  vscnprintf
+      32  vsnprintf
+     112  number
 
-On Wed, Jun 09, 2004 at 02:25:39PM +0300, Denis Vlasenko wrote:
-> I observe that UDP sockets listening on ANY
-> send response packets with ip addr derived from
-> ip address of interface which is used to send 'em
-> instead of using dst ip address of client's packet.
->=20
-> I was bitten by this with DNS and NTP.
+Jörn
 
-This is the responsibility of the program. Unless the UDP packet is
-bound to a particular address, or the program specifies an IP, the
-kernel will pick one. For this reason both the BIND and NTP daemons
-open a socket for each interface so they can control this. netstat on
-my machine shows:
-
-udp        0      0 192.168.1.225:123       0.0.0.0:*                      =
-    =20
-udp        0      0 127.0.0.1:123           0.0.0.0:*                      =
-    =20
-udp        0      0 0.0.0.0:123             0.0.0.0:*                      =
- =20
-
-for the NTP server. The DNS has similar machanism. Remember, UDP
-doesn't involve connections, so there is no concept of "replying" to a
-packet, the program has to manage that itself.
-
-In your example, if you tell netcat which address to bind to, it will
-work.
-
-Hope this helps,
---=20
-Martijn van Oosterhout   <kleptog@svana.org>   http://svana.org/kleptog/
-> Patent. n. Genius is 5% inspiration and 95% perspiration. A patent is a
-> tool for doing 5% of the work and then sitting around waiting for someone
-> else to do the other 95% so you can sue them.
-
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQFAxwCOY5Twig3Ge+YRAuhNAJ9nPZoSBpqFJ6VKJeBEfZ/mGa1R2wCbBfzd
-crXiVHsXqOnJ/gXHkGju+xM=
-=vPAq
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--
+-- 
+A quarrel is quickly settled when deserted by one party; there is
+no battle unless there be two.
+-- Seneca

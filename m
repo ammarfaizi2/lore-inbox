@@ -1,45 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277024AbRJQS0C>; Wed, 17 Oct 2001 14:26:02 -0400
+	id <S276695AbRJQSVm>; Wed, 17 Oct 2001 14:21:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277027AbRJQSZw>; Wed, 17 Oct 2001 14:25:52 -0400
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:42765 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S277024AbRJQSZf>;
-	Wed, 17 Oct 2001 14:25:35 -0400
-Date: Wed, 17 Oct 2001 11:28:03 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Christoph Lameter <christoph@lameter.com>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: GPLONLY kernel symbols??? 
-In-Reply-To: <Pine.LNX.4.33.0110162314320.7330-100000@devel.office>
-Message-ID: <Pine.LNX.4.10.10110171126480.5821-100000@innerfire.net>
+	id <S276716AbRJQSVd>; Wed, 17 Oct 2001 14:21:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61196 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276695AbRJQSV2>; Wed, 17 Oct 2001 14:21:28 -0400
+Date: Wed, 17 Oct 2001 11:21:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Paul Gortmaker <p_gortmaker@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Making diff(1) of linux kernels faster
+In-Reply-To: <Pine.LNX.4.21.0110171442580.11099-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0110171112010.961-300000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="168447515-72610408-1003342863=:961"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Oct 2001, Christoph Lameter wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> On Wed, 17 Oct 2001, Keith Owens wrote:
-> 
-> > On Tue, 16 Oct 2001 21:59:03 -0700 (PDT),
-> > Christoph Lameter <christoph@lameter.com> wrote:
-> > >The loop driver is not GPL compatible???
+--168447515-72610408-1003342863=:961
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+
+On Wed, 17 Oct 2001, Marcelo Tosatti wrote:
 > >
-> > In 2.4.11 loop.c has no MODULE_LICENCE.  It will take a while for all
-> > modules to be correctly flagged.
-> 
-> Then do not output such a message. This is not M$ windows.
-> 
-And how do you expect them to find all of the modules that don't have
-MODULE_LICENCE if they can't see an indicator in the boot messages?
+> > And I've for a long time thought about adding a "readahead()" system call.
+> > There are just too many uses for it, it has come up in many different
+> > areas..
+>
+> There is a paper on USENIX 2001 which does implement directory readahead
+> and it shows huge improvements for some workload.
 
-	Gerhard
+Hmm.. The implementation is trivial, it's really just a simple 3-line
+while-loop, with the rest of the code just doing argument checking etc.
 
---
-Gerhard Mack
+Attached is the kernel diff ("ra-diff") along with a stupid program
+("preread.c"), cribbed mostly from Pauls first patch to use it to pre-read
+a while tree.
 
-gmack@innerfire.net
+It took much longer to compile the kernel and reboot, and write the
+test-program than it did to write the patch itself ;)
 
-<>< As a computer I find your faith in technology amusing.
+It walks the whole kernel tree in 0.2 seconds of CPU-time on my machine
+(of course, if it actually needs to start IO, the 0.2 seconds becomes 0.3
+seconds of CPU time and almost a minute and a half of wall-clock.
+Anyway, it clearly isn't a CPU-hog like doing a real "read" would have
+been).
 
+And unlike the read, it doesn't have any impact on the active queue.
+
+		Linus
+
+--168447515-72610408-1003342863=:961
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=ra-diff
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0110171121030.961@penguin.transmeta.com>
+Content-Description: 
+Content-Disposition: attachment; filename=ra-diff
+
+ZGlmZiAtdSAtLXJlY3Vyc2l2ZSAtLW5ldy1maWxlIHByZTMvbGludXgvYXJj
+aC9pMzg2L2tlcm5lbC9lbnRyeS5TIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwv
+ZW50cnkuUw0KLS0tIHByZTMvbGludXgvYXJjaC9pMzg2L2tlcm5lbC9lbnRy
+eS5TCU1vbiBPY3QgIDggMTA6Mzk6NTggMjAwMQ0KKysrIGxpbnV4L2FyY2gv
+aTM4Ni9rZXJuZWwvZW50cnkuUwlXZWQgT2N0IDE3IDEwOjAyOjM5IDIwMDEN
+CkBAIC02MjEsNiArNjIxLDcgQEANCiAJLmxvbmcgU1lNQk9MX05BTUUoc3lz
+X25pX3N5c2NhbGwpCS8qIHJlc2VydmVkIGZvciBUVVggKi8NCiAJLmxvbmcg
+U1lNQk9MX05BTUUoc3lzX25pX3N5c2NhbGwpCS8qIFJlc2VydmVkIGZvciBT
+ZWN1cml0eSAqLw0KIAkubG9uZyBTWU1CT0xfTkFNRShzeXNfZ2V0dGlkKQ0K
+KwkubG9uZyBTWU1CT0xfTkFNRShzeXNfcmVhZGFoZWFkKQkvKiAyMjUgKi8N
+CiANCiAJLnJlcHQgTlJfc3lzY2FsbHMtKC4tc3lzX2NhbGxfdGFibGUpLzQN
+CiAJCS5sb25nIFNZTUJPTF9OQU1FKHN5c19uaV9zeXNjYWxsKQ0KZGlmZiAt
+dSAtLXJlY3Vyc2l2ZSAtLW5ldy1maWxlIHByZTMvbGludXgvaW5jbHVkZS9h
+c20taTM4Ni91bmlzdGQuaCBsaW51eC9pbmNsdWRlL2FzbS1pMzg2L3VuaXN0
+ZC5oDQotLS0gcHJlMy9saW51eC9pbmNsdWRlL2FzbS1pMzg2L3VuaXN0ZC5o
+CU1vbiBPY3QgIDggMTA6NDA6MTYgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUv
+YXNtLWkzODYvdW5pc3RkLmgJV2VkIE9jdCAxNyAxMDowMzowMyAyMDAxDQpA
+QCAtMjI5LDYgKzIyOSw3IEBADQogI2RlZmluZSBfX05SX2ZjbnRsNjQJCTIy
+MQ0KICNkZWZpbmUgX19OUl9zZWN1cml0eQkJMjIzCS8qIHN5c2NhbGwgZm9y
+IHNlY3VyaXR5IG1vZHVsZXMgKi8NCiAjZGVmaW5lIF9fTlJfZ2V0dGlkCQky
+MjQNCisjZGVmaW5lIF9fTlJfcmVhZGFoZWFkCQkyMjUNCiANCiAvKiB1c2Vy
+LXZpc2libGUgZXJyb3IgbnVtYmVycyBhcmUgaW4gdGhlIHJhbmdlIC0xIC0g
+LTEyNDogc2VlIDxhc20taTM4Ni9lcnJuby5oPiAqLw0KIA0KZGlmZiAtdSAt
+LXJlY3Vyc2l2ZSAtLW5ldy1maWxlIHByZTMvbGludXgvbW0vZmlsZW1hcC5j
+IGxpbnV4L21tL2ZpbGVtYXAuYw0KLS0tIHByZTMvbGludXgvbW0vZmlsZW1h
+cC5jCU1vbiBPY3QgMTUgMTY6MTc6NDAgMjAwMQ0KKysrIGxpbnV4L21tL2Zp
+bGVtYXAuYwlXZWQgT2N0IDE3IDEwOjIxOjM3IDIwMDENCkBAIC0xNTIwLDYg
+KzE1MjAsNTMgQEANCiAJcmV0dXJuIHJldHZhbDsNCiB9DQogDQorc3RhdGlj
+IHNzaXplX3QgZG9fcmVhZGFoZWFkKHN0cnVjdCBmaWxlICpmaWxlLCB1bnNp
+Z25lZCBsb25nIGluZGV4LCB1bnNpZ25lZCBsb25nIG5yKQ0KK3sNCisJc3Ry
+dWN0IGFkZHJlc3Nfc3BhY2UgKm1hcHBpbmcgPSBmaWxlLT5mX2RlbnRyeS0+
+ZF9pbm9kZS0+aV9tYXBwaW5nOw0KKwl1bnNpZ25lZCBsb25nIG1heDsNCisN
+CisJaWYgKCFtYXBwaW5nIHx8ICFtYXBwaW5nLT5hX29wcyB8fCAhbWFwcGlu
+Zy0+YV9vcHMtPnJlYWRwYWdlKQ0KKwkJcmV0dXJuIC1FSU5WQUw7DQorDQor
+CS8qIExpbWl0IGl0IHRvIHRoZSBzaXplIG9mIHRoZSBmaWxlLi4gKi8NCisJ
+bWF4ID0gKG1hcHBpbmctPmhvc3QtPmlfc2l6ZSArIH5QQUdFX0NBQ0hFX01B
+U0spID4+IFBBR0VfQ0FDSEVfU0hJRlQ7DQorCWlmIChpbmRleCA+IG1heCkN
+CisJCXJldHVybiAwOw0KKwltYXggLT0gaW5kZXg7DQorCWlmIChuciA+IG1h
+eCkNCisJCW5yID0gbWF4Ow0KKw0KKwkvKiBBbmQgbGltaXQgaXQgdG8gYSBz
+YW5lIHBlcmNlbnRhZ2Ugb2YgdGhlIGluYWN0aXZlIGxpc3QuLiAqLw0KKwlt
+YXggPSBucl9pbmFjdGl2ZV9wYWdlcyAvIDI7DQorCWlmIChuciA+IG1heCkN
+CisJCW5yID0gbWF4Ow0KKw0KKwl3aGlsZSAobnIpIHsNCisJCXBhZ2VfY2Fj
+aGVfcmVhZChmaWxlLCBpbmRleCk7DQorCQlpbmRleCsrOw0KKwkJbnItLTsN
+CisJfQ0KKwlyZXR1cm4gMDsNCit9DQorDQorYXNtbGlua2FnZSBzc2l6ZV90
+IHN5c19yZWFkYWhlYWQoaW50IGZkLCBsb2ZmX3Qgb2Zmc2V0LCBzaXplX3Qg
+Y291bnQpDQorew0KKwlzc2l6ZV90IHJldDsNCisJc3RydWN0IGZpbGUgKmZp
+bGU7DQorDQorCXJldCA9IC1FQkFERjsNCisJZmlsZSA9IGZnZXQoZmQpOw0K
+KwlpZiAoZmlsZSkgew0KKwkJaWYgKGZpbGUtPmZfbW9kZSAmIEZNT0RFX1JF
+QUQpIHsNCisJCQl1bnNpZ25lZCBsb25nIHN0YXJ0ID0gb2Zmc2V0ID4+IFBB
+R0VfQ0FDSEVfU0hJRlQ7DQorCQkJdW5zaWduZWQgbG9uZyBsZW4gPSAoY291
+bnQgKyAoKGxvbmcpb2Zmc2V0ICYgflBBR0VfQ0FDSEVfTUFTSykpID4+IFBB
+R0VfQ0FDSEVfU0hJRlQ7DQorCQkJcmV0ID0gZG9fcmVhZGFoZWFkKGZpbGUs
+IHN0YXJ0LCBsZW4pOw0KKwkJfQ0KKwkJZnB1dChmaWxlKTsNCisJfQ0KKwly
+ZXR1cm4gcmV0Ow0KK30NCisNCiAvKg0KICAqIFJlYWQtYWhlYWQgYW5kIGZs
+dXNoIGJlaGluZCBmb3IgTUFEVl9TRVFVRU5USUFMIGFyZWFzLiAgU2luY2Ug
+d2UgYXJlDQogICogc3VyZSB0aGlzIGlzIHNlcXVlbnRpYWwgYWNjZXNzLCB3
+ZSBkb24ndCBuZWVkIGEgZmxleGlibGUgcmVhZC1haGVhZA0K
+--168447515-72610408-1003342863=:961
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="preread.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0110171121031.961@penguin.transmeta.com>
+Content-Description: 
+Content-Disposition: attachment; filename="preread.c"
+
+I2luY2x1ZGUgPHN5cy90eXBlcy5oPg0KI2luY2x1ZGUgPHN5cy9zdGF0Lmg+
+DQojaW5jbHVkZSA8ZGlyZW50Lmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQoj
+aW5jbHVkZSA8c3lzL2ZjbnRsLmg+DQoNCi8qIFByZWxvYWQgdGhlIE9TJ3Mg
+Y2FjaGUgd2l0aCBhbGwgZmlsZXMgb2Ygb25lIGJyYW5jaCBmb3IgcmVjdXJz
+aXZlIGRpZmZzICovDQoNCiNkZWZpbmUgX19OUl9yZWFkYWhlYWQgMjI1DQoN
+CmFzbSgNCiJfX3JlYWRhaGVhZDpcblx0Ig0KICAgICAgICAicHVzaGwgJWVi
+eFxuXHQiDQogICAgICAgICJwdXNobCAlZXNpXG5cdCINCgkibW92bCAxMigl
+ZXNwKSwlZWJ4XG5cdCINCgkibW92bCAxNiglZXNwKSwlZWN4XG5cdCINCgki
+bW92bCAyMCglZXNwKSwlZWR4XG5cdCINCgkibW92bCAyNCglZXNwKSwlZXNp
+XG5cdCINCgkibW92bCAkMjI1LCVlYXhcblx0Ig0KCSJpbnQgJDB4ODBcblx0
+Ig0KCSJwb3BsICVlc2lcblx0Ig0KCSJwb3BsICVlYnhcblx0Ig0KCSJyZXQi
+DQopOw0KDQpleHRlcm4gc3NpemVfdCBfX3JlYWRhaGVhZChpbnQgZmQsIGxv
+ZmZfdCBvZmZzZXQsIHNpemVfdCBzaXplKTsNCg0Kdm9pZA0KcHJlcmVhZCAo
+ZGlyKQ0KCWNvbnN0IGNoYXIgKmRpcjsNCnsNCg0KICBESVIgKmQ7DQogIHN0
+cnVjdCBkaXJlbnQgKmRlbnQ7DQoNCiAgZCA9IG9wZW5kaXIoZGlyKTsNCiAg
+aWYgKGQgPT0gTlVMTCkgcmV0dXJuOw0KDQogIHdoaWxlICgoZGVudCA9IHJl
+YWRkaXIoZCkpICE9IE5VTEwpDQogICAgew0KICAgICAgaW50IGZkOw0KICAg
+ICAgc3RydWN0IHN0YXQgc3Q7DQogICAgICBjaGFyICpuYW1lLCAqcGF0aDsN
+Cg0KICAgICAgbmFtZSA9IGRlbnQtPmRfbmFtZTsNCiAgICAgIGlmIChuYW1l
+WzBdID09ICcuJyAmJiAobmFtZVsxXSA9PSAwIHx8IChuYW1lWzFdID09ICcu
+JyAmJiBuYW1lWzJdID09IDApKSkNCiAgICAgICAgICAgIGNvbnRpbnVlOw0K
+DQogICAgICBwYXRoID0gbWFsbG9jKHN0cmxlbihkaXIpK3N0cmxlbihuYW1l
+KSsyKTsNCiAgICAgIHN0cmNweShwYXRoLCBkaXIpOw0KICAgICAgc3RyY2F0
+KHBhdGgsICIvIik7DQogICAgICBzdHJjYXQocGF0aCwgbmFtZSk7DQoNCiAg
+ICAgIGZkID0gb3BlbihwYXRoLCBPX1JET05MWSk7DQogICAgICBpZiAoZmQg
+Pj0gMCkgew0KICAgICAgCWlmIChmc3RhdChmZCwgJnN0KSA9PSAwKSB7DQoJ
+ICAgICAgaWYgKFNfSVNESVIoc3Quc3RfbW9kZSkpDQoJICAgICAgICAgICBw
+cmVyZWFkKHBhdGgpOw0KCSAgICAgIGVsc2UgaWYgKFNfSVNSRUcoc3Quc3Rf
+bW9kZSkpDQoJICAgICAgICB7DQogICAgICAgICAgCV9fcmVhZGFoZWFkKGZk
+LCAwLCB+MFVMKTsNCgkgICAgICAgIH0NCgl9DQoJY2xvc2UoZmQpOw0KICAg
+ICAgfQ0KICAgICAgZnJlZShwYXRoKTsNCiAgfQ0KICBjbG9zZWRpcihkKTsN
+Cn0NCg0KaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQ0Kew0KCXBy
+ZXJlYWQoYXJndlsxXSk7DQoJcmV0dXJuIDA7DQp9DQo=
+--168447515-72610408-1003342863=:961--

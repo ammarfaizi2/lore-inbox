@@ -1,99 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbUCKF0j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 00:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUCKF0j
+	id S262647AbUCKFf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 00:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbUCKFfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 00:26:39 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:19096 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261601AbUCKF0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 00:26:33 -0500
-Date: Thu, 11 Mar 2004 14:29:59 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: RE: [PATCH] fix PCI interrupt setting for ia64
-In-reply-to: <20040311.103447.10929472.t-kochi@bq.jp.nec.com>
-To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, kaneshige.kenji@jp.fujitsu.com
-Cc: davidm@hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Message-id: <MDEEKOKJPMPMKGHIFAMAIEMADGAA.kaneshige.kenji@jp.fujitsu.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Content-type: text/plain;	charset="us-ascii"
-Content-transfer-encoding: 7bit
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Thu, 11 Mar 2004 00:35:53 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:13797 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262647AbUCKFfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 00:35:46 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16463.64173.334000.250278@napali.hpl.hp.com>
+Date: Wed, 10 Mar 2004 21:35:41 -0800
+To: David Brownell <david-b@pacbell.net>
+Cc: davidm@hpl.hp.com, Grant Grundler <iod00d@hp.com>,
+       Greg KH <greg@kroah.com>, vojtech@suse.cz,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, pochini@shiny.it
+Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
+In-Reply-To: <404FD24D.1070200@pacbell.net>
+References: <20031028013013.GA3991@kroah.com>
+	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>
+	<3FA12A2E.4090308@pacbell.net>
+	<16289.29015.81760.774530@napali.hpl.hp.com>
+	<16289.55171.278494.17172@napali.hpl.hp.com>
+	<3FA28C9A.5010608@pacbell.net>
+	<16457.12968.365287.561596@napali.hpl.hp.com>
+	<404959A5.6040809@pacbell.net>
+	<16457.26208.980359.82768@napali.hpl.hp.com>
+	<4049FE57.2060809@pacbell.net>
+	<20040308061802.GA25960@cup.hp.com>
+	<16460.49761.482020.911821@napali.hpl.hp.com>
+	<404CEA36.2000903@pacbell.net>
+	<16461.35657.188807.501072@napali.hpl.hp.com>
+	<404E00B5.5060603@pacbell.net>
+	<16462.1463.686711.622754@napali.hpl.hp.com>
+	<404E2B98.6080901@pacbell.net>
+	<16462.48341.393442.583311@napali.hpl.hp.com>
+	<404F40C2.3080003@pacbell.net>
+	<16463.22710.230252.777998@napali.hpl.hp.com>
+	<404FD24D.1070200@pacbell.net>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> On Wed, 10 Mar 2004 18:43:25 -0800, David Brownell <david-b@pacbell.net> said:
 
-Sorry, I misunderstood your concern.
+  David.B> David Mosberger wrote:
 
-I think you are right. Probe_irq_on() still have another problems even if my
-patch
-is applied. For example, if buggy PCI device generates interrupts during its
-device
-driver calls probe_irq_on(), these interrupts might be considered as
-spurious and
-IRQ probing will fail. I think this is another problem than I pointed out.
+  >> The current OHCI relies on the internals of the dma_pool()
+  >> implementation.  ...
 
-In addition to this, if probe_irq_on() is used for PCI interrupts (level
-triggered),
-interrupts are generated repeatedly because there are no handlers which
-clears
-these interrupt request. But I think this is not a problem, because these
-interrupts
-will be masked by probe_irq_on() or probe_irq_off() soon. If this is a
-problem, I think
-probe_irq_on() should never be used for PCI (level triggered) interrupt
-probing.
+  David.B> It'd be good if you said _how_ you think it relies on such
+  David.B> internals.
 
-Regards,
-Kenji Kaneshige
+  >>  I thought I did.  Suppose somebody changed the dma_pool code
+  >> such that it would overwrite freed memory with an
+  >> 0xf00000000000000 pattern.
 
+  David.B> Erm, _anything_ the dma_pool code does with freed memory is
+  David.B> legal.
 
-> -----Original Message-----
-> From: linux-ia64-owner@vger.kernel.org
-> [mailto:linux-ia64-owner@vger.kernel.org]On Behalf Of Takayoshi Kochi
-> Sent: Thursday, March 11, 2004 10:35 AM
-> To: kaneshige.kenji@jp.fujitsu.com
-> Cc: davidm@hpl.hp.com; linux-ia64@vger.kernel.org;
-> linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] fix PCI interrupt setting for ia64
->
->
-> Hi,
->
-> From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-> Subject: RE: [PATCH] fix PCI interrupt setting for ia64
-> Date: Thu, 11 Mar 2004 09:34:06 +0900
->
-> > Hi,
-> >
-> > I'm sorry that the report falls behind. I wanted to check out by using
-> > real device driver which uses a probe_irq_on(), but I don't
-> have appropriate
-> > environment now.
-> >
-> > Though I didn't check out on a real machine yet, I believe my
-> patch doesn't
-> > have any influence on probe_irq_on() because current
-> probe_irq_on() calls
-> > startup callback to unmask the RTEs as you said before.
->
-> My concern was that if there's a buggy PCI device that raises
-> interrupts all the time until it's initialized by some device driver,
-> probe_irq_on() would not work as expected regardless of whether
-> your patch is applied or not.  I thought masking the interrupt line
-> doesn't work around this case.
->
-> ---
-> Takayoshi Kochi <t-kochi@bq.jp.nec.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Glad to see we agree on that!
 
+  David.B> Anyway, please (a) see if 2.6.4 works for you, and (b)
+  David.B> direct any future followups on this thread _only_ to
+  David.B> linux-usb-devel.
+
+The patch that's in 2.6.4 definitely looks like a step in the right
+direction.  I still have some concerns.  I'll follow up on
+linux-usb-devel with more details.
+
+Thanks,
+
+	--david

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbTFZNVB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 09:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTFZNVB
+	id S261365AbTFZNXY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 09:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbTFZNXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 09:21:01 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:14090 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261292AbTFZNU7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 09:20:59 -0400
-Date: Thu, 26 Jun 2003 15:22:54 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel patch release checklist available
-Message-ID: <20030626132254.GA27843@alpha.home.local>
-References: <16122.53870.710841.141793@wombat.chubb.wattle.id.au>
+	Thu, 26 Jun 2003 09:23:24 -0400
+Received: from [62.12.131.37] ([62.12.131.37]:41631 "HELO debian")
+	by vger.kernel.org with SMTP id S261365AbTFZNXX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 09:23:23 -0400
+Date: Thu, 26 Jun 2003 15:37:11 +0200
+From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
+To: linux-kernel@vger.kernel.org
+Subject: eepro100 - solved.
+Message-Id: <20030626153711.7cee5401.zdavatz@ywesee.com>
+Organization: ywesee - intellectual capital connected
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16122.53870.710841.141793@wombat.chubb.wattle.id.au>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 26, 2003 at 09:01:02PM +1000, Peter Chubb wrote:
-> 
-> After being burnt a few times in forgetting something that I should
-> have done when releasing a patch against the kernel, I've created a
-> Kernel Patch Release Checklist at
-> 
-> http://www.gelato.unsw.edu.au/IA64wiki/PatchReleaseChecklist 
+Got this one by myself. Sorry for the traffic.
 
-Good idea. I think this should go into the Documentation directory.
-I would personnaly add :
-- "1.4.3 have you described side-effects you're aware of, or incompatibilities
-  or breakage of other patches ?"
-- "1.5.2. Have you checked that your patch still applies without fuzz on latest
-dev kernel ?" (which is not implied nor excused by 1.4.2).
+Zeno
 
-Cheers,
-Willy
+Hi List
 
+I am doing a kernel with make-kpkg -rev ywesee.1 kernel_image
+
+And then install it with dpkg -i kernel-image.... .deb
+
+My maschine now boots great on the new 2.4.21 execpt that I do not have any network connection anymore.
+
+I loaded the drivers for my onboard Intel Network eepro100 (plus the other two options below).
+
+With the Debian Kernel bf24-2.4.20 my network connection is great...
+
+Any hints anyone?
+
+Thanks in advance.
+
+Zeno
+
+PS: Linux is great!

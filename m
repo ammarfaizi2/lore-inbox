@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315221AbSENXGa>; Tue, 14 May 2002 19:06:30 -0400
+	id <S316144AbSENXYD>; Tue, 14 May 2002 19:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316137AbSENXG3>; Tue, 14 May 2002 19:06:29 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:64009 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S315221AbSENXG3>;
-	Tue, 14 May 2002 19:06:29 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: blenderman@wanadoo.be
+	id <S316145AbSENXYC>; Tue, 14 May 2002 19:24:02 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24332 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316144AbSENXYC>; Tue, 14 May 2002 19:24:02 -0400
+Subject: Re: IDE *data corruption* VIA VT8367
+To: hgs@anna-strasse.de
+Date: Wed, 15 May 2002 00:43:30 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP problem when compiling 
-In-Reply-To: Your message of "Tue, 14 May 2002 19:35:51 +0200."
-             <200205141935.51167.blenderman@wanadoo.be> 
-Mime-Version: 1.0
+In-Reply-To: <379487051.20020514195533@anna-strasse.de> from "Henning Schroeder" at May 14, 2002 07:55:33 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 15 May 2002 09:06:18 +1000
-Message-ID: <14699.1021417578@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E177lx4-0000e6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 May 2002 19:35:51 +0200, 
-Pol <blenderman@wanadoo.be> wrote:
->I get this error when I compile the kernel 2.4.18 with make -j (make bzImage)
->cpp0: gcc: Internal compiler error: program cc1 got fatal signal 11
+> These combinations give errors: (hda hdc hde hdg), (hdc hde hdg)
+> 
+> These combinations run flawless: (hda hdc hde), (hde hdg), (hda hdc
+> hdg). I did not test more combinations because every test takes some
+> hours.
+> 
+> Attaching hdg as a slave drive to the first promise port (which gives
+> me hdf instead and the second promise port emtpy) makes the array run
+> fine, but performance drops to a figure comparable to a single drive.
+> 
+> There are no error logs whatsoever (except for the dt output). Without
+> RAID-array and without heavy IDE access, the machine runs stable.
+> 
+> Kernels tested: 2.4.18, 2.4.19pre8
+> 
+> Has anybody seen this before? Any info would be appreciated. I would
+> be happy to provide more information.
 
-Unless you have a very large machine, make -j when using make >= 3.78
-will overload the system.  Use make -jN where N == number of cpus as a
-starting point.  gcc has been known to segfault when it runs out of
-memory.
+I have multiple similar reports, and in all cases where people tried, switching
+to a non via chipset cured it - it might be co-incidence but I have enough
+reports I suspect its some kind of hardware incompatibility/limit with
+the VIA and multiple promise ide controllers
 

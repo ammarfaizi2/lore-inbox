@@ -1,86 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbUAIWyX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 17:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUAIWyX
+	id S264420AbUAIXDc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 18:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUAIXDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 17:54:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12446 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262965AbUAIWyU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 17:54:20 -0500
-Date: Fri, 9 Jan 2004 14:55:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm1 - OOPs and hangs during modprobe
-Message-Id: <20040109145534.5a6ca6bd.akpm@osdl.org>
-In-Reply-To: <200401091733.i09HXEQa003372@turing-police.cc.vt.edu>
-References: <200401091733.i09HXEQa003372@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Jan 2004 18:03:32 -0500
+Received: from moutng.kundenserver.de ([212.227.126.176]:220 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264420AbUAIXD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 18:03:29 -0500
+Message-ID: <3FFF33B2.1050707@marcush.de>
+Date: Sat, 10 Jan 2004 00:05:22 +0100
+From: Marcus Hartig <marcus@marcush.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.1-mm1 oopses
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:9d75d3da258886da80f58b1205b7baad
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> Summary: 2.6.1-mm1 gives an OOPs while doing a modprobe.  Subsequent
-> references to /proc/modules hang (causing hangs while doing a 'shutdown'
-> because of scripts trying to rmmod modules.  lsmod and 'cat /proc/modules'
-> hang as well after the oops.
-> 
-> This one's from trying to load ip_conntrack_ftp:
-> 
-> Module len 6897 truncated
-> Unable to handle kernel NULL pointer dereference at virtual address 00000004
->  printing eip:
-> c013040b
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT
-> CPU:    0
-> EIP:    0060:[<c013040b>]    Not tainted VLI
-> EFLAGS: 00010002
-> EIP is at sys_init_module+0x90/0x225
-> eax: 00000004   ebx: 0807a3e8   ecx: c03d5c30   edx: d187b104
-> esi: 00000000   edi: cf220000   ebp: cf221fbc   esp: cf221fb0
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 172, threadinfo=cf220000 task=cf4606c0)
-> Stack: 0807a3e8 00000002 080573a0 cf220000 c03548de 0807a3e8 00001af1 0807a088
->        00000002 080573a0 bfffe8c0 00000080 0000007b 0000007b 00000080 ffffd41a
->        00000073 00000287 bfffe8c0 0000007b
-> Call Trace:
->  [<c03548de>] sysenter_past_esp+0x43/0x65
-> 
-> Code: d8 57 3d c0 ff 05 d8 57 3d c0 0f 8e ac 06 00 00 89 c2 e9 9f 01 00 00 fa bf 00 e0 ff ff 21 e7 ff 47 14 8b 15 e8 57 3d c0 8d 40 04 <89> 56 04 89 42 04 a3 e8 57 3d c0 c7 40 04 e8 57 3d c0 fb 8b 47
->  <6>note: modprobe[172] exited with preempt_count 1
-> Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-> in_atomic():1, irqs_disabled():0
-> Call Trace:
->  [<c011b50f>] __might_sleep+0xa4/0xac
->  [<c011f16f>] do_exit+0xd9/0x389
->  [<c010c5d2>] do_divide_error+0x0/0xad
->  [<c011893d>] do_page_fault+0x35f/0x4b2
->  [<c014576f>] unmap_vm_area+0x2c/0x73
->  [<c0145a81>] vfree+0x25/0x27
->  [<c0130354>] load_module+0x790/0x7b7
->  [<c01185de>] do_page_fault+0x0/0x4b2
->  [<c035535f>] error_code+0x2f/0x38
->  [<c013040b>] sys_init_module+0x90/0x225
->  [<c03548de>] sysenter_past_esp+0x43/0x65
-> 
-> My original thought was that the ip_conntrack_ftp.ko got corrupted,
+Hi,
 
-My original thought is about Rusty. 
+patching 2.6.1 to mm1 from A. Morton, the kernel oopses after connecting
+to my dsl provider:
 
-The `check for truncated module' patch is clearly triggering when it should
-not be.  It then incorrectly returns "success" from load_module() even
-though load_module() failed.
+------------------------------------------------------------------------
+Jan  9 18:16:51 redtuxi kernel: ip_conntrack version 2.1 (4095 buckets, 
+32760 max) - 300 bytes per conntrack
+Jan  9 18:16:51 redtuxi kernel: Module len 6534 truncated
+Jan  9 18:16:51 redtuxi kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000004
+Jan  9 18:16:51 redtuxi kernel:  printing eip:
+Jan  9 18:16:51 redtuxi kernel: c0137630
+Jan  9 18:16:51 redtuxi kernel: *pde = 00000000
+Jan  9 18:16:51 redtuxi kernel: Oops: 0002 [#1]
+Jan  9 18:16:51 redtuxi kernel: PREEMPT
+Jan  9 18:16:51 redtuxi kernel: CPU:    0
+Jan  9 18:16:51 redtuxi kernel: EIP:    0060:[<c0137630>]    Tainted: P 
+   VLI
+Jan  9 18:16:51 redtuxi kernel: EFLAGS: 00210002
+Jan  9 18:16:51 redtuxi kernel: EIP is at sys_init_module+0xc0/0x250
+Jan  9 18:16:51 redtuxi kernel: eax: 00000004   ebx: 08074de8   ecx: 
+c1384d70   edx: e09c7bc4
+Jan  9 18:16:51 redtuxi kernel: esi: 00000000   edi: c02bd278   ebp: 
+d65dc000   esp: d65ddfa4
+Jan  9 18:16:51 redtuxi kernel: ds: 007b   es: 007b   ss: 0068
+Jan  9 18:16:51 redtuxi kernel: Process modprobe (pid: 4275, 
+threadinfo=d65dc000 task=d65df940)
+Jan  9 18:16:51 redtuxi kernel: Stack: 08074de8 00001986 08074088 
+08074de8 00000002 08053670 d65dc000 c027f4c6
+Jan  9 18:16:51 redtuxi kernel:        08074de8 00001986 08074088 
+00000002 08053670 bfffe890 00000080 0000007b
+Jan  9 18:16:51 redtuxi kernel:        0000007b 00000080 ffffd41a 
+00000073 00200287 bfffe890 0000007b
+Jan  9 18:16:51 redtuxi kernel: Call Trace:
+Jan  9 18:16:51 redtuxi kernel:  [<c027f4c6>] sysenter_past_esp+0x43/0x65
+Jan  9 18:16:51 redtuxi kernel:
+Jan  9 18:16:51 redtuxi kernel: Code: 76 12 89 f9 ff 05 78 d2 2b c0 0f 
+8e 5f 07 00 00 89 c2 eb b3 fa bd 00 e0 ff ff 21 e5 ff 45 14 8b 15 88 d2 
+2b c0 8d 40
+04 89 42 04 <89> 56 04 c7 40 04 88 d2 2b c0 a3 88 d2 2b c0 fb 8b 45 08 ff 4d
+Jan  9 18:16:51 redtuxi kernel:  <6>note: modprobe[4275] exited with 
+preempt_count 1
+Jan  9 18:16:51 redtuxi kernel: bad: scheduling while atomic!
+Jan  9 18:16:51 redtuxi kernel: Call Trace:
+Jan  9 18:16:51 redtuxi kernel:  [<c011ccf9>] schedule+0x5b9/0x5c0
+Jan  9 18:16:51 redtuxi kernel:  [<c0147903>] unmap_page_range+0x43/0x70
+Jan  9 18:16:51 redtuxi kernel:  [<c0147af8>] unmap_vmas+0x1c8/0x220
+Jan  9 18:16:51 redtuxi kernel:  [<c014ba2b>] exit_mmap+0x7b/0x190
+Jan  9 18:16:51 redtuxi kernel:  [<c011e8ba>] mmput+0x7a/0xf0
+Jan  9 18:16:51 redtuxi kernel:  [<c01229ad>] do_exit+0x15d/0x3f0
+Jan  9 18:16:51 redtuxi kernel:  [<c010d0cc>] die+0xfc/0x100
+Jan  9 18:16:51 redtuxi kernel:  [<c011ac78>] do_page_fault+0x1f8/0x512
+Jan  9 18:16:51 redtuxi kernel:  [<c0151877>] vfree+0x27/0x40
+Jan  9 18:16:51 redtuxi kernel:  [<c0136bdf>] load_module+0xbf/0xa50
+Jan  9 18:16:51 redtuxi kernel:  [<c011aa80>] do_page_fault+0x0/0x512
+Jan  9 18:16:51 redtuxi kernel:  [<c027f6c7>] error_code+0x2f/0x38
+Jan  9 18:16:51 redtuxi kernel:  [<c0137630>] sys_init_module+0xc0/0x250
+Jan  9 18:16:51 redtuxi kernel:  [<c027f4c6>] sysenter_past_esp+0x43/0x65
+Jan  9 18:16:51 redtuxi kernel:
+-------------------------------------------------------------------------
 
-A `patch -R' of
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm1/broken-out/check-for-truncated-modules.patch
-
-should fix it up.
+Marcus

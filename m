@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268240AbTBNIpv>; Fri, 14 Feb 2003 03:45:51 -0500
+	id <S268246AbTBNIt4>; Fri, 14 Feb 2003 03:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268246AbTBNIpt>; Fri, 14 Feb 2003 03:45:49 -0500
-Received: from host88-156.pool80116.interbusiness.it ([80.116.156.88]:21888
-	"EHLO igor.opun.it") by vger.kernel.org with ESMTP
-	id <S268240AbTBNIps>; Fri, 14 Feb 2003 03:45:48 -0500
-Message-ID: <3E4CAEFC.92914AB3@libero.it>
-Date: Fri, 14 Feb 2003 09:55:24 +0100
-From: Abramo Bagnara <abramo.bagnara@libero.it>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en, it
+	id <S268247AbTBNIt4>; Fri, 14 Feb 2003 03:49:56 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:40147 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S268246AbTBNItz>; Fri, 14 Feb 2003 03:49:55 -0500
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: NO BOOT since 2.5.60-bk1
+Date: Fri, 14 Feb 2003 09:59:37 +0100
+User-Agent: KMail/1.5
+Cc: Michael Stolovitzsky <romat8@netvision.net.il>,
+       linux-kernel@vger.kernel.org
+References: <200302131507.37380.schlicht@uni-mannheim.de> <200302132007.38595.schlicht@uni-mannheim.de> <20030213205956.GA24361@codemonkey.org.uk>
+In-Reply-To: <20030213205956.GA24361@codemonkey.org.uk>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_+/KT+Z/1UPSYthw";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200302140959.43126.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Thu, 13 Feb 2003, Davide Libenzi wrote:
-> >
-> > It does not have necessarily to be just another ioctl/fcntl, it can be a
-> > write. About security, chages might be allowed only to the task that
-> > created the fd, if you're concerned. It's not that someone will starve
-> > w/out such functionality though.
-> 
-> I'd actually like to reserve writes to _sending_ signals. Especially if
-> you have another process that listens in on the signals you get, it might
-> want to also force the signals through.
 
-This reminds me the unfortunate (and much needed) lack of an unified way
-to send/receive out-of-band data to/from a regular fd.
+--Boundary-02=_+/KT+Z/1UPSYthw
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: signed data
+Content-Disposition: inline
 
-Something like:
-	oob = fd_open(fd, channel, flags);
-	write(oob, ...)
-	read(oob, ....)
-	close(oob);
+On Thursday, 13. February 2003 21:59, Dave Jones wrote:
+> Can you try -bk3 ?
+> It may have contained some of the signal fixes that went in recently.
+> I'm not sure how many of those made it into -bk1/bk2.
+>
+> 		Dave
 
-Don't you think it's time to introduce it and to start to avoid the
-proliferation of different tricky ways to do the same things?
+Sorry for the delay, but this machine compiles slowly... ;-)
+And you were right, the problem is fixed in -bk3!
 
--- 
-Abramo Bagnara                       mailto:abramo.bagnara@libero.it
+Thanks alot!
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
+  Thomas
+--Boundary-02=_+/KT+Z/1UPSYthw
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+TK/+YAiN+WRIZzQRAo3BAJ9D/bWtGmMR+LAa6v3OCGBRqVmoSACfY5yg
+a4D91Bmx5Bj7XJ+geZy8wJQ=
+=ZYc7
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_+/KT+Z/1UPSYthw--
+

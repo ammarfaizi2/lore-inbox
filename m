@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266817AbUFZFKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUFZGMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266817AbUFZFKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 01:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266930AbUFZFKK
+	id S266362AbUFZGMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 02:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266930AbUFZGMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 01:10:10 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:41660 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S266817AbUFZFKF (ORCPT
+	Sat, 26 Jun 2004 02:12:09 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:14385 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S266362AbUFZGMG convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 01:10:05 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Sat, 26 Jun 2004 02:12:06 -0400
+Subject: Re: [PATCH] Breaking ext2 file size limit of 2TB
+Reply-To: goldwyn_r@myrealbox.com
+From: "Goldwyn Rodrigues" <goldwyn_r@myrealbox.com>
+To: jbglaw@lug-owl.de
+CC: linux-kernel@vger.kernel.org
+Date: Sat, 26 Jun 2004 11:41:58 +0530
+X-Mailer: NetMail ModWeb Module
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16605.1322.355489.223220@napali.hpl.hp.com>
-Date: Fri, 25 Jun 2004 22:10:02 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jack Steiner <steiner@sgi.com>, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - Reduce TLB flushing during process migration
-In-Reply-To: <20040623143318.07932255.akpm@osdl.org>
-References: <20040623143844.GA15670@sgi.com>
-	<20040623143318.07932255.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Message-ID: <1088230318.9825981cgoldwyn_r@myrealbox.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 23 Jun 2004 14:33:18 -0700, Andrew Morton <akpm@osdl.org> said:
+> You're using a reserved field; how do you mean "compatible" in this
+> situation? Think of a filesystem with real files > 2TB. How will an
+> unpatched ext3fs driver handle those files? You'll only see the <2TB
+> content, right?
 
-  Andrew> Jack Steiner <steiner@sgi.com> wrote:
 
-  >> This patch adds a platform specific hook to allow an arch-specific
-  >> function to be called after an explicit migration.
+When I say compatible, I mean the the filesystem need not be formatted. All you need to do patch the kernel, and re-coompile the module/kernel, and remove the old module and insert the new one (if you are using ext3 as a module). 
 
-  Andrew> OK by me.  David, could you please merge this up?
+Currently there is a function in ext3_max_size() which limits the file size to 2TB because of the number of blocks, namely i_blocks. 
 
-  Andrew> Jack, please prepare an update for Documentation/cachetlb.txt.
 
-Jack, could you send me an updated patch which has all the revisions requested?
-Also, my preference would be for tlb_migrate_finish() to be a true no-op
-(not a call to a no-op function) when compiling for a platform that
-doesn't need this hook.  Could you look into this?
+> May an unpatched version under any circumstances clear the high-order
+> bits of the newly introduced 64bit integer, just because it doesn't know
+> to preserve this reserved field's value?
 
-Thanks,
+With an unpatched version you would not be able to create a file greater than 2TB at all and considers that all files are below 2TB.
 
-	--david
+
+> Being unfamiliar eith ext3's internals, are there other
+> reserved/free-for-future-use fields that don't clash with the HURD?
+
+Andreas has proposed a few fields but I want to make sure that those fields as well are not used.
+
+
+> Are you proposing a patch like this for ext2, too?
+> 
+
+Once approved, it can be used for ext2 as well. Converting the current patch for ext2 would be childs play. ext2 and ext3 use almost the same structures (actually from my point of view, exactly the same but am afraid to use the word "exactly").
+
+-- 
+Goldwyn :o)
+
+

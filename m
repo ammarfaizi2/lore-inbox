@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUDZTFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263338AbUDZTKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbUDZTFi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 15:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUDZTFh
+	id S263338AbUDZTKb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 15:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbUDZTKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 15:05:37 -0400
-Received: from linux.us.dell.com ([143.166.224.162]:7265 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S263324AbUDZTFX
+	Mon, 26 Apr 2004 15:10:31 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:39940 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S263338AbUDZTK0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 15:05:23 -0400
-Date: Mon, 26 Apr 2004 14:03:24 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: akpm@osdl.org
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] efibootmgr location change
-Message-ID: <20040426190324.GB32755@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="24zk1gE8NUlDmwG9"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 26 Apr 2004 15:10:26 -0400
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5g8ygi4l3q.fsf@patl=users.sf.net>
+To: linux-kernel@vger.kernel.org
+Subject: Load hid.o module synchronously?
+Date: 26 Apr 2004 15:10:24 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am using the 2.6.5 kernel on a modular boot disk.  I am finding that
+invocations of "modprobe" are returning sooner than I would like.
 
---24zk1gE8NUlDmwG9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+For example, I invoke "modprobe hid" to make my USB keyboard work.
+This loads the module and exits immediately, causing my script to
+proceed, before the USB keyboard is probed and ready.
 
-I moved the home of the efibootmgr utility from domsch.com to
-linux.dell.com.  Note the move in drivers/firmware/Kconfig, also note
-version 0.5.0-test3 or above is necessary.=20
+I want to wait until the driver is finished initializing (i.e., a USB
+keyboard is either found or not found) before my script continues.
+How can I do that?
 
-Thanks,
-Matt
+I seem to be having similar problems loading certain other modules
+(PCMCIA, Ethernet), but hid.o is the only one for which I have not
+found a convenient workaround.
 
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+I apologize if this is a stupid question.  I have spent some time
+searching both the Linux source code and the linux-kernel archives to
+no avail.
 
---- linux-2.6.5.orig/drivers/firmware/Kconfig	2004-04-24 06:58:08.000000000=
- -0400
-+++ linux-2.6.5/drivers/firmware/Kconfig	2004-04-27 03:57:17.723835477 -0400
-@@ -27,11 +27,11 @@ config EFI_VARS
- 	  write, create, and destroy EFI variables through this interface.
-=20
- 	  Note that using this driver in concert with efibootmgr requires=20
--	  at least test release version 0.5.0-test1 or later, which is=20
-+	  at least test release version 0.5.0-test3 or later, which is=20
- 	  available from Matt Domsch's website located at:
--	  http://domsch.com/linux/ia64/efibootmgr/testing/efibootmgr-0.5.0-test1.=
-tar.gz
-+	  http://linux.dell.com/efibootmgr/testing/efibootmgr-0.5.0-test3.tar.gz
-=20
- 	  Subsequent efibootmgr releases may be found at:
--	  http://domsch.com/linux/ia64/efibootmgr
-+	  http://linux.dell.com/efibootmgr
-=20
- endmenu
+Thanks!
 
---24zk1gE8NUlDmwG9
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAjVz8Iavu95Lw/AkRAmpNAJ9Qq8sG7rrvgZbPhDjczqktApy35gCgh/eB
-yY4PnuVw5wvBmFhVjV+ppyo=
-=bWPJ
------END PGP SIGNATURE-----
-
---24zk1gE8NUlDmwG9--
+ - Pat

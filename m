@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280608AbRKNOf0>; Wed, 14 Nov 2001 09:35:26 -0500
+	id <S280612AbRKNOpq>; Wed, 14 Nov 2001 09:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280612AbRKNOfQ>; Wed, 14 Nov 2001 09:35:16 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:64145 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280608AbRKNOfJ>; Wed, 14 Nov 2001 09:35:09 -0500
-Date: Wed, 14 Nov 2001 14:35:07 +0000 (GMT)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: <alastair@gurney>
-To: <linux-kernel@vger.kernel.org>
-Subject: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-Message-ID: <Pine.GSO.4.33.0111141421230.14971-100000@gurney>
+	id <S280618AbRKNOpg>; Wed, 14 Nov 2001 09:45:36 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:56338 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S280612AbRKNOpY>; Wed, 14 Nov 2001 09:45:24 -0500
+Message-ID: <3BF2837B.4B63FBA5@didntduck.org>
+Date: Wed, 14 Nov 2001 09:45:15 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Willi =?iso-8859-1?Q?N=FC=DFer?= <wilhelm.nuesser@sap.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Comparison of PAE and Non-PAE 2..4.14 (p8) in high load
+In-Reply-To: <3BF27557.30007@sap.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks - I'm having real problems getting our new dual CPU server
-going. It's a 2x Athlon XP 1800+ on a Tyan mobo, AMD 760MP chipset, with
-an Adaptec SCSI controller and 512Mb DDR SDRAM. I'm not a Linux newbie
-at all, but I've never tried running it on such exotic hardware before,
-and it doesn't seem happy....
+Willi Nüßer wrote:
+> 
+> Hi,
+> 
+> after my first posting to lkml where we compared distributor
+> provided kernels vs. a plain 2.4.14-pre8 it was pointed
+> out that between PAE and non-PAE kernels some performance
+> differences might exist.
+> 
+> We checked this last night and here are the first results.
+> Again,
+> a) the relevant quantity dialog steps per second is a
+> measure for the throughput our application servers runs.
+> b) our application server and the corresponding database
+> (SAP DB) run on 4 way Dell, 1 GB at boot time enabled.
+> 
+> Results:
+> ---------
+> 
+> 2.4.7
+>         2.4.14p8 PAE            2.4.14p4 non- PAE
+> -------------------------------------------------------------
+>    1.80         13.42                   15.47
+>    1.10         13.28                   14.76
+>    1.20                 14.08                   14.63
+>    1.26         13.17                   15.30
+>    1.35         13.41                   14.51
+> 
+> This means that we did see a performance decrease of about
+> 6 % compared to 2.4.14p8 nonPAE but still 2.4.14p8 is an order
+> of magnitude faster than 2.4.7
 
-I installed Red Hat 7.2 and the machine boots fine, using SMP or UP
-kernels (Red Hat 2.4.9-7), but totally HANGS at the login prompt. Can't
-type, can't reboot, can't do anything. Single user mode _does_ let me
-in, however, and this is the only progress so far.
+PAE mode increases the size of the page table entries to 64-bits, and
+the x86 doesn't do 64-bit operations very well.  Plus it has three
+levels of tables to work with instead of two.  It is the only way to
+support more than 4GB of memory so it's a tradeoff between high memory
+support and performance.  If you have less memory, don't run a PAE
+kernel.
 
-I then tried building a custom 2.4.15-pre4 (on another machine), which
-compiled perfectly happily, and I installed this on the server. It
-panic'd due to failure to mount the root filesystem. I made an
-initrd.img, and it then got further (detecting and initialising the SCSI
-controller), but still panic'd with the same message.
+--
 
-I then threw down the gauntlet and installed the rawhide Athlon
-SMP kernel (based on 2.4.13) which also booted fine but HUNG at the
-login prompt, as above. Finally, I tried the i686 version, which spewed
-out tons of error messages regarding "invalid symbols" in the ext3
-module.
-
-Either way, I'm stumped. Am I up against an Athlon / chipset problem
-here, or is something else wrong? What do I need to do to get my
-custom-built 2.4.15-pre4 rolling - why can't it mount the root
-partition?
-
-Cheers
-Alastair
-
-_____________________________________________
-Alastair Stevens
-MRC Biostatistics Unit
-Cambridge UK
----------------------------------------------
-phone - 01223 330383
-email - alastair.stevens@mrc-bsu.cam.ac.uk
-web - www.mrc-bsu.cam.ac.uk
-
+				Brian Gerst

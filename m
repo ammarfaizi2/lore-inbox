@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284956AbRLFDEk>; Wed, 5 Dec 2001 22:04:40 -0500
+	id <S284955AbRLFDIk>; Wed, 5 Dec 2001 22:08:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284955AbRLFDEa>; Wed, 5 Dec 2001 22:04:30 -0500
-Received: from dsl-213-023-038-088.arcor-ip.net ([213.23.38.88]:47376 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S284952AbRLFDEO>;
-	Wed, 5 Dec 2001 22:04:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Nathan Scott <nathans@sgi.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>, Andi Kleen <ak@suse.de>,
-        Andreas Gruenbacher <ag@bestbits.at>
-Subject: Re: [PATCH] Revised extended attributes interface
-Date: Thu, 6 Dec 2001 04:05:32 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-xfs@oss.sgi.com
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com>
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com>
+	id <S284953AbRLFDIa>; Wed, 5 Dec 2001 22:08:30 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:55823 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284954AbRLFDIV>; Wed, 5 Dec 2001 22:08:21 -0500
+Date: Wed, 5 Dec 2001 19:19:19 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: "David S. Miller" <davem@redhat.com>, <lm@bitmover.com>,
+        <Martin.Bligh@us.ibm.com>, <riel@conectiva.com.br>,
+        <lars.spam@nocrew.org>, <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: SMP/cc Cluster description
+In-Reply-To: <20011206135224.12c4b123.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.40.0112051915440.1644-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Boqr-0000m9-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 5, 2001 04:32 am, Nathan Scott wrote:
-> Here is the revised interface.  I believe it takes into account
-> the issues raised so far - further suggestions are also welcome,
-> of course.
+On Thu, 6 Dec 2001, Rusty Russell wrote:
 
-Hi Nathan,
+> I'd love to say that I can solve this with RCU, but it's vastly non-trivial
+> and I haven't got code, so I'm not going to say that. 8)
 
-I still don't like the class parsing inside the kernel, it's hard to see
-what is good about that.
+Lockless algos could help if we're able to have "good" quiescent point
+inside the kernel. Or better have a good quiescent infrastructure to have
+lockless code to plug in.
 
-Is there a difference between these two?:
 
-   long sys_setxattr(char *path, char *name, void *value, size_t size, int flags)
-   long sys_lsetxattr(char *path, char *name, void *value, size_t size, int flags)
 
---
-Daniel
+- Davide
+
+

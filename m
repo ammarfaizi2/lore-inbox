@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264545AbUATB06 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 20:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbUATBZQ
+	id S265115AbUATBUu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 20:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbUATBTA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 20:25:16 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:54933 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S263810AbUATBWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 20:22:37 -0500
-Message-Id: <5.1.0.14.2.20040120122107.04c80ec0@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 20 Jan 2004 12:22:25 +1100
-To: Rusty Russell <rusty@au1.ibm.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: [patch] RCU for low latency [2/2] 
-Cc: dipankar@in.ibm.com, paul.mckenney@us.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040120004745.2C58617DD8@ozlabs.au.ibm.com>
-References: <Your message of "Thu, 15 Jan 2004 11:33:21 +0530." <20040115060320.GA3985@in.ibm.com>
+	Mon, 19 Jan 2004 20:19:00 -0500
+Received: from mail.kroah.org ([65.200.24.183]:32457 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265350AbUATBMt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 20:12:49 -0500
+Subject: Re: [PATCH] Driver Core update and fixes for 2.6.1
+In-Reply-To: <1074561161776@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 19 Jan 2004 17:12:41 -0800
+Message-Id: <1074561161146@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:25 AM 20/01/2004, Rusty Russell wrote:
->CONFIG_LOW_LATENCY (Description: Sacrifice some raw performance to
->increase latency) makes more sense, and would fit here, too.
+ChangeSet 1.1505, 2004/01/19 16:57:07-08:00, greg@kroah.com
 
-_high_ latency and _low_ performance.
-i want one of those!
+[PATCH] Kobject: prevent oops in kset_find_obj() if kobject_name() is NULL
 
-:-)
+Thanks to Hollis Blanchard <hollisb@us.ibm.com> for pointing this out.
 
 
-cheers,
+ lib/kobject.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-lincoln.
+
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	Mon Jan 19 17:04:40 2004
++++ b/lib/kobject.c	Mon Jan 19 17:04:40 2004
+@@ -547,7 +547,7 @@
+ 	down_read(&kset->subsys->rwsem);
+ 	list_for_each(entry,&kset->list) {
+ 		struct kobject * k = to_kobj(entry);
+-		if (!strcmp(kobject_name(k),name)) {
++		if (kobject_name(k) && (!strcmp(kobject_name(k),name))) {
+ 			ret = k;
+ 			break;
+ 		}
 

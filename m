@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVCPQEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVCPQFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbVCPQEN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 11:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVCPQEM
+	id S262659AbVCPQFh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 11:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVCPQFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 11:04:12 -0500
-Received: from radius8.csd.net ([204.151.43.208]:50327 "EHLO
-	bastille.tuells.org") by vger.kernel.org with ESMTP id S262658AbVCPQEG
+	Wed, 16 Mar 2005 11:05:36 -0500
+Received: from info.elf.stuba.sk ([147.175.111.14]:57864 "EHLO
+	info.elf.stuba.sk") by vger.kernel.org with ESMTP id S262659AbVCPQFU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 11:04:06 -0500
-Date: Wed, 16 Mar 2005 10:10:09 -0700
-From: marcus hall <marcus@tuells.org>
-To: linux-kernel@vger.kernel.org
-Subject: 8259 PIC overwrite problems
-Message-ID: <20050316171009.GA6665@bastille.tuells.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Wed, 16 Mar 2005 11:05:20 -0500
+Message-ID: <42385A65.7060604@kasr.elf.stuba.sk>
+Date: Wed, 16 Mar 2005 17:10:13 +0100
+From: peto <fodrek@kasr.elf.stuba.sk>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: regatta <regatta@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 32Bit vs 64Bit
+References: <5a3ed5650503160744730b7db4@mail.gmail.com>
+In-Reply-To: <5a3ed5650503160744730b7db4@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned: by AntiVirus filter AVilter (msg.KTdhWGOc@delta.elf.stuba.sk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello..
 
-I am having a problem with a 2.4.20 kernel running on a Geode processor.
-I think I am seeing a problem with the ICW2 of the primary 8259 PIC
-being overwritten...
 
-The kernel is configured with APIC enabled, although the geode actually
-has the old-standard 8259A equivalents cascaded together.  The immediately
-visable symptom I see is the message "unexpected IRQ trap at vector a8",
-which is in apic.c in the ack_none() function.  If I un-configure APIC,
-I get the similar (but less informative) message from head.S
-"Unknown interrupt".  I sometimes see vectors like "cc" or "c8" instead of
-"a8".
+regatta wrote:
 
-What I believe is happening is that the ICW2 register in the PIC is being
-somehow overwritten with "a8", "cc", or "c8", then on the next interrupt, it
-sends out that vector which takes me to IRQ0xa8_interrupt (or whichever
-vector), which reports the bogus interrupt, but the real interrupt has been
-lost, so I never get an ack to the PIC and interrupts cease.  Actually, I
-suspect that the "cc", "c8", etc values are probably interrupt masks being
-written to 0x21 after somebody accidently writes something to 0x20 that
-looks like an ICW1 (bit 4==1).
+>Hi everyone,
+>
+>I have a question about the 64Bit mode in AMD 64bit
+>
+>My question is if I run a 32Bit application in Optreon AMD 64Bit with
+>Linux 64Bit does this give my any benefit ? I mean running 32Bit
+>application in 64Bit machine with 64 Linux is it better that running
+>it in 32Bit or doesn't make any different at all ?
+>  
+>
+It differs on type of the  appliction you used. measured values in Linux
+shows that x86-64 64 bit app+OS+CPU have performance from 120% to 500% 
+of the performance of the 32 bit conterpart
 
-Now, experimenting around, I have put in some test code called from ack_none()
-to look at the PICs, and I see various reasonable interrupts pending (eth0,
-sound, timer, etc.).  So, I tried calling interrupt[irq]() after receiving
-the bogus interrupt, and I subsequently get another bogus interrupt, and
-so on (my printk() calls bog things down and I die pretty soon afterwards,
-but it does look like every interrupt is using the bogus vector).  This has
-me pretty well convinced that the ICW2 has somehow been overwritten.
+in MS OS it is x86-64   as 80%-190% of the 32 bit MS OS
 
-Has anything like this been seen elsewhere?  I seem to always see this
-problem show up when dealing with the sound driver, so I'm thinking that
-something may very well have some outb() arguments reversed or something,
-but since the OCW2 register is write-only, I can't readily check the sanity
-until I start getting bogus interrupts.
+It is because pointer manipultaion takes longer time because of higer 
+width od the 64 bit pointers but 64 bit multiplication is 6 times faster 
+no x86-64 system then in 32 bit system and in Windows there is tragic 
+memory management tak causes higher pointer manipulation. But there are 
+pracitcaly no anothere performance differency in both architectures
 
-I'm trying to generate a work-around to re-program the 8259 when the bogus
-interrupts occur (unfortunately, this seems to also reset the edge detect),
-but I'd really rather find the source of the problem, so any suggestions on
-strategies to find the culprit would be most welcomed!
 
-Thanks in advance!
+Yours faithfuly
+Peter Fodrek
 
-Marcus Hall
-CorAccess Systems
+

@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbTLCJLG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 04:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTLCJLG
+	id S264520AbTLCJDF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 04:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbTLCJCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 04:11:06 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:4622 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264522AbTLCJK6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 04:10:58 -0500
-Message-ID: <3FCDAB29.8020301@aitel.hist.no>
-Date: Wed, 03 Dec 2003 10:21:45 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: Stephan von Krawczynski <skraw@ithnet.com>, torvalds@osdl.org,
-       jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312021439.52933.gene.heskett@verizon.net> <20031202213228.5747cbfe.skraw@ithnet.com> <200312021648.07050.gene.heskett@verizon.net>
-In-Reply-To: <200312021648.07050.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Dec 2003 04:02:47 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:9939 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S264526AbTLCIuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 03:50:54 -0500
+Date: Wed, 3 Dec 2003 09:50:00 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Ben Collins <bcollins@debian.org>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix use-after-free in sbp2.c
+Message-ID: <20031203085000.GC1117@admingilde.org>
+Mail-Followup-To: Ben Collins <bcollins@debian.org>,
+	linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20031201210212.GA2184@admingilde.org> <20031202233125.GP19051@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H8ygTp4AXg6deix2"
+Content-Disposition: inline
+In-Reply-To: <20031202233125.GP19051@phunnypharm.org>
+User-Agent: Mutt/1.3.28i
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> On Tuesday 02 December 2003 15:32, Stephan von Krawczynski wrote:
-> 
->>On Tue, 2 Dec 2003 14:39:52 -0500
->>
->>Gene Heskett <gene.heskett@verizon.net> wrote:
->>
->>>[...]
->>>Its not your emails (as Linus) to nvidia that will fix that, but a
->>>concerted effort, emailing them for a resolution from everyone who
->>>owns one of their products _might_ eventually make a difference.
->>
->>Make the difference yourself: don't buy such products. I stopped
->>some time ago and I am very happy with _my choice_, not relying on
->>theirs'.
-> 
-> 
-> So what are you using?  And how does it work, at least for a 
-> non-gamer?
-> 
-I have a matrox G550.  Not known for the best 3D performance,
-but it is good enough for tuxracer which is my heaviest 3D app.
-It is supposed to be good at 2D.
 
-It should be fine for a non-gamer, one of the things matrox does well
-is a nice sharp flicker-free picture.  (A feature that don't require
-any os support either!)  The picture is certainly better than the
-radeon I use at work, that one has some flickering in high-frequency
-images such as the default X background.
+--H8ygTp4AXg6deix2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Helge Hafting
+hi :)
 
+On Tue, Dec 02, 2003 at 06:31:25PM -0500, Ben Collins wrote:
+> Could you test what's in our repo first?
+will do next time ;)
+
+> We've already fixed this, but it was done in a way different way than
+> you did (we got rid of the semaphore).
+well thats even better
+
+your code is much cleaner,
+i just wanted to make it work with minimal changes as
+i didn't knew it was already fixed.
+
+thanks for the great 1394 work! :)
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  Department of Computer Science 3       _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+
+--H8ygTp4AXg6deix2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/zaO3j/Eaxd/oD7IRAhmNAJ0WYny1SiJl/Vo+lhMxObChrF+PJACfZeTU
+4qJDkLXkT8YRnKGTQKOLCds=
+=meSe
+-----END PGP SIGNATURE-----
+
+--H8ygTp4AXg6deix2--

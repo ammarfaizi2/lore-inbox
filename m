@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267459AbSKQFEr>; Sun, 17 Nov 2002 00:04:47 -0500
+	id <S267462AbSKQFRh>; Sun, 17 Nov 2002 00:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267461AbSKQFEr>; Sun, 17 Nov 2002 00:04:47 -0500
-Received: from mnh-1-29.mv.com ([207.22.10.61]:50949 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S267459AbSKQFEr>;
-	Sun, 17 Nov 2002 00:04:47 -0500
-Message-Id: <200211170515.AAA04761@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.5.47-1
+	id <S267463AbSKQFRh>; Sun, 17 Nov 2002 00:17:37 -0500
+Received: from calc.cheney.cx ([207.70.165.48]:61630 "EHLO calc.cheney.cx")
+	by vger.kernel.org with ESMTP id <S267462AbSKQFRg>;
+	Sun, 17 Nov 2002 00:17:36 -0500
+Date: Sat, 16 Nov 2002 23:24:34 -0600
+From: Chris Cheney <ccheney@cheney.cx>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.47+ input as module broken
+Message-ID: <20021117052434.GF26199@cheney.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Nov 2002 00:15:15 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates UML to 2.5.47.
+When CONFIG_INPUT=m is set the following occurs:
 
-Functionally, this is the same UML as the last working patch I had, which
-was for 2.5.44, which was up to UML 2.4.19-12.  Since I'm now up to 2.4.19-31,
-I have a bunch of merging to do, and those patches will be forthcoming.
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+drivers/built-in.o(.text+0x39b43): In function `kd_nosound':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x39b5c): In function `kd_nosound':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x39c07): In function `kd_mksound':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x3a8a2): In function `kbd_bh':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x3a8b0): In function `kbd_bh':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x3a8c1): more undefined references to `input_event' follow
+drivers/built-in.o(.text+0x3ad73): In function `kbd_connect':
+: undefined reference to `input_open_device'
+drivers/built-in.o(.text+0x3ad97): In function `kbd_disconnect':
+: undefined reference to `input_close_device'
+drivers/built-in.o(.init.text+0x2391): In function `kbd_init':
+: undefined reference to `input_register_handler'
 
-The patch is available at
-	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.47-1.bz2
- 
-For the other UML mirrors and other downloads, see 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
- 
-Other links of interest:
- 
-	The UML project home page : http://user-mode-linux.sourceforge.net
-	The UML Community site : http://usermodelinux.org
- 
- 				Jeff
+Chris Cheney
 
+cc: any replies

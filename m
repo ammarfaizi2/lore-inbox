@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293722AbSEALRO>; Wed, 1 May 2002 07:17:14 -0400
+	id <S310206AbSEALXZ>; Wed, 1 May 2002 07:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310190AbSEALRN>; Wed, 1 May 2002 07:17:13 -0400
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:2308 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S293722AbSEALRM>; Wed, 1 May 2002 07:17:12 -0400
-Message-Id: <5.1.0.14.2.20020501130602.00cabaf0@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 01 May 2002 13:14:25 +0200
+	id <S310224AbSEALXY>; Wed, 1 May 2002 07:23:24 -0400
+Received: from heavymos.kumin.ne.jp ([61.114.158.133]:34823 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP
+	id <S310206AbSEALXX>; Wed, 1 May 2002 07:23:23 -0400
+Message-Id: <200205011123.AA00059@prism.kumin.ne.jp>
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+Date: Wed, 01 May 2002 20:23:11 +0900
 To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: SEVERE Problems in 2.5.12 at uid0 access
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Cc: nakasei@fa.mdis.co.jp
+Subject: 2.5.12 compile error ( e100, Alternate Intel driver )
+MIME-Version: 1.0
+X-Mailer: AL-Mail32 Version 1.12
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-server01:/ # cd /var/log
+I compile 2.5.12 without framebuffer console and boot up fine.
+First I use EtherExpressPro/100 support ( e100, Altrenate Intel driver ),
+but compile error occured. this driver is default.
+I change EtherExpressPro/100 support ( eepro100, original Becker driver ),
+then compile and boot up fine.
 
-server01:/var/log# ls -laF
-<snip>
-drwxr-s---    2 mail     adm           104 Mar 12 23:29 exim/
-<snip>
+=== compile error EtherExpressPro/100 support ( e100, Altrenate Intel driver ) ===
 
-server01:/var/log# ls -laF exim
-ls: exim/.: Permission denied
-ls: exim/..: Permission denied
-ls: exim/rejectlog: Permission denied
-ls: exim/mainlog: Permission denied
-total 0
-server01:/var/log# whoami
-root
-server01:/var/log# id
-uid=0(root) gid=0(root) groups=0(root)
-server01:/var/log#
+io_apic.c:221: warning: `move' defined but not used
+drivers/net/net.o: In function `e100_diag_config_loopback':
+drivers/net/net.o(.text+0x52ff): undefined reference to `e100_phy_reset'
+make: *** [vmlinux] Error 1
 
-
-What hell is that? could be a ReiseFs problem (/var is a ReiserFs partition)
-Ok, ill try on a ext3 partition:
-
-server01:/var/log# cd /boot
-server01:/boot# mkdir a
-server01:/boot# ls -laF
-total 2368
-<snip>
-drwxr-xr-x    2 root     root         4096 May  1 12:08 a/
-<snip>
-server01:/boot# chown mail.adm a
-server01:/boot# chmod 750 a
-server01:/boot# ls -laF
-total 2368
-<snip>
-drwxr-x---    2 mail     adm          4096 May  1 12:08 a/
-<snip>
-server01:/boot# ls -laF a
-ls: a/.: Permission denied
-ls: a/..: Permission denied
-total 0
-server01:/boot# id
-uid=0(root) gid=0(root) groups=0(root)
-server01:/boot#
-
-
-???? WELL?????
-reboting to previous kernel version (2.5.8-pre2+1_6_reiserfs patchs)
-
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

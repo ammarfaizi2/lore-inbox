@@ -1,32 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUIVSPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUIVSSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUIVSPA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 14:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIVSPA
+	id S266603AbUIVSSF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 14:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUIVSSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 14:15:00 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:38288
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S266572AbUIVSPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 14:15:00 -0400
-Date: Wed, 22 Sep 2004 11:14:16 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: lkml@einar-lueck.de
-Cc: elueck@de.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC][PATCH 1/2] ipv4 multipath routing, bk head
-Message-Id: <20040922111416.66563786.davem@davemloft.net>
-In-Reply-To: <4151A8E5.6060600@de.ibm.com>
-References: <4151A8E5.6060600@de.ibm.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 22 Sep 2004 14:18:04 -0400
+Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:57617 "EHLO
+	smtp-vbr15.xs4all.nl") by vger.kernel.org with ESMTP
+	id S266603AbUIVSSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 14:18:01 -0400
+Date: Wed, 22 Sep 2004 20:18:00 +0200
+From: Koos Vriezen <koos.vriezen@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Javascript bug with 2.6.8.1
+Message-ID: <20040922181800.GA20060@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+sledgedog wrote:
+> hi,
+> the error occurs with any navigator and only with the kernel 2.6.8
+> the javascript on an https interactive site of a bank won't
+> display the full page and hang in the middle .
+> But with the kernel 2.6.7 on same machine with same
+> programs there is no problem the full page is displayed.
+> I can reproduce the problem on different machines.
+> I'd like to be personally CC'ed the answers/comments posted to the
+> list in response to my posting.
 
-We've all seen your patches already, you don't need to send them
-again.
+Coincidence, I was bashing the #debian channel today with this problem
+too. Used 'lynx -source www.iu.nl/nl' as testcase. After ignoring 
+"it's ECN, you moron" and some tcpdump analyses, turned out to be 2.6.8.1
+related. I really hope someone explains in this thread if 2.6.8.1 needs 
+some extra configuring compared to 2.6.7 or either point to a patch or
+so.
 
-Thanks.
+Koos

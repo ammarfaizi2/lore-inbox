@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289351AbSAVS7A>; Tue, 22 Jan 2002 13:59:00 -0500
+	id <S289346AbSAVTCk>; Tue, 22 Jan 2002 14:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289352AbSAVS6v>; Tue, 22 Jan 2002 13:58:51 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:21134 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id <S289351AbSAVS6e>;
-	Tue, 22 Jan 2002 13:58:34 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alex Romosan <romosan@sycorax.lbl.gov>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre5
-In-Reply-To: <Pine.LNX.4.21.0201221538310.2059-100000@freak.distro.conectiva>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: 22 Jan 2002 10:58:22 -0800
-In-Reply-To: <Pine.LNX.4.21.0201221538310.2059-100000@freak.distro.conectiva> (message from Marcelo Tosatti on Tue, 22 Jan 2002 15:40:57 -0200 (BRST))
-Message-ID: <87hepedxgx.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S289354AbSAVTCa>; Tue, 22 Jan 2002 14:02:30 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:34721 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S289346AbSAVTCM>; Tue, 22 Jan 2002 14:02:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: 520047054719-0001@t-online.de (Oliver Neukum)
+Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
+To: jan.ciger@epfl.ch, Samuel Maftoul <maftoul@esrf.fr>
+Subject: Re: umounting
+Date: Tue, 22 Jan 2002 20:01:44 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020122150703.B13509@pcmaftoul.esrf.fr> <m16T2IB-02103HC@ligsg2.epfl.ch>
+In-Reply-To: <m16T2IB-02103HC@ligsg2.epfl.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-ID: <16T6BH-1ZiPWiC@fwd07.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-> On 22 Jan 2002, Alex Romosan wrote:
-> 
-> > Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-> > 
-> > > Well, here goes pre5.
-> > > 
-> > > 
-> > 
-> > this patch seems to be generated against pre4, not 2.4.17. just a
-> > heads up.
-> 
-> Eeek. Right.
-> 
-> I've just uploaded a new patch on top of the old one. 
+> When a second user comes and unmounts a disk, then the data are flushed
+> (the old data) and he gets a fs corruption, because the data were not from
+> his disk.
 
-the two patches are not quite equivalent. if i now try to reverse the
-patch i get two failures:
+No. The sbp2 driver should report a disk change. If such a thing happens,
+there's a kernel bug. Pulling out a mounted disk may cause a corrupted
+filesystem on that disk but not on others.
 
-patching file net/ipv4/icmp.c
-Hunk #3 FAILED at 495.
-1 out of 3 hunks FAILED -- saving rejects to file net/ipv4/icmp.c.rej
-patching file net/ipv4/ipconfig.c
-patching file net/ipv4/netfilter/ip_conntrack_standalone.c
-patching file net/ipv6/icmp.c
-Unreversed patch detected!  Ignore -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-1 out of 1 hunk ignored -- saving rejects to file net/ipv6/icmp.c.rej
-patching file net/ipv6/tcp_ipv6.c
-
-i think i'll download a pristine 2.4.17 and start again.
-
---alex--
-
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+	Regards
+		Oliver

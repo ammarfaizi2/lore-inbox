@@ -1,35 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267875AbTAMNsD>; Mon, 13 Jan 2003 08:48:03 -0500
+	id <S267898AbTAMNtG>; Mon, 13 Jan 2003 08:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267809AbTAMNsD>; Mon, 13 Jan 2003 08:48:03 -0500
-Received: from [61.11.237.102] ([61.11.237.102]:51975 "HELO
-	cse-qmail.cse.iitkgp.ernet.in") by vger.kernel.org with SMTP
-	id <S267875AbTAMNsC>; Mon, 13 Jan 2003 08:48:02 -0500
-Date: 13 Jan 2003 19:26:43 +0530
-Message-ID: <Pine.LNX.4.33L2.0301131922180.4477-100000@cpusrv-ibm-5.cse.iitkgp.ernet.in>
-From: "Vadlapudi Madhu" <Vadlapudi.Madhu@cse.iitkgp.dhs.org>
+	id <S267809AbTAMNtG>; Mon, 13 Jan 2003 08:49:06 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:12480 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S267898AbTAMNtD>; Mon, 13 Jan 2003 08:49:03 -0500
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
 To: linux-kernel@vger.kernel.org
-Cc: "Vadlapudi.Madhu - 01cs6020" <vmadhu@cse.iitkgp.dhs.org>
-X-X-Sender: <vmadhu@cpusrv-ibm-5.cse.iitkgp.ernet.in>
-Subject: Is linux kernel is available for any AMD processors?
+Subject: patch for errno-issue (with soundcore)
+Date: Mon, 13 Jan 2003 14:57:53 +0100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200301131457.24264.thomas.schlichter@web.de>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_H4ON3OVJ0IBRF2BNFRYK"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI friends,
 
-Just i want to know, whether linux kernel is available any of the AMD's
-processors. If yes, please direct towards a web page where i can get some
-more information.
+--------------Boundary-00=_H4ON3OVJ0IBRF2BNFRYK
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-Please CC me the answer mail, as i am mailing from outside mailing list.
+Hi,
 
-Thanks in advance.
+here is a simple patch to export the errno-symbol from the /lib/errno.c file. 
+This solves the problem with the soundcore module and works perfectly for 
+me...
 
--- 
+   Thomas Schlichter
 
-Rgds,
-Madhu V
+P.S.: This patch is made against the 2.5.56 tree
+
+
+--------------Boundary-00=_H4ON3OVJ0IBRF2BNFRYK
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="errno_patch.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="errno_patch.diff"
+
+diff -urP linux-2.5.56/lib/Makefile linux-2.5.56_patched/lib/Makefile
+--- linux-2.5.56/lib/Makefile	Fri Jan 10 21:11:20 2003
++++ linux-2.5.56_patched/lib/Makefile	Mon Jan 13 13:15:41 2003
+@@ -9,7 +9,7 @@
+ L_TARGET := lib.a
+
+ export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o \
+-	       crc32.o rbtree.o radix-tree.o kobject.o
++	       crc32.o rbtree.o radix-tree.o kobject.o errno.o
+
+ obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+diff -urP linux-2.5.56/lib/errno.c linux-2.5.56_patched/lib/errno.c
+--- linux-2.5.56/lib/errno.c	Fri Jan 10 21:11:40 2003
++++ linux-2.5.56_patched/lib/errno.c	Mon Jan 13 13:17:21 2003
+@@ -4,4 +4,8 @@
+  *  Copyright (C) 1991, 1992  Linus Torvalds
+  */
+
++#include <linux/module.h>
++
+ int errno;
++
++EXPORT_SYMBOL(errno);
+
+--------------Boundary-00=_H4ON3OVJ0IBRF2BNFRYK--
 

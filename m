@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265475AbSK1NNA>; Thu, 28 Nov 2002 08:13:00 -0500
+	id <S265477AbSK1NSG>; Thu, 28 Nov 2002 08:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265477AbSK1NNA>; Thu, 28 Nov 2002 08:13:00 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64268 "EHLO
+	id <S265480AbSK1NSG>; Thu, 28 Nov 2002 08:18:06 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:65292 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265475AbSK1NM7>; Thu, 28 Nov 2002 08:12:59 -0500
-Date: Thu, 28 Nov 2002 08:18:59 -0500 (EST)
+	id <S265477AbSK1NSF>; Thu, 28 Nov 2002 08:18:05 -0500
+Date: Thu, 28 Nov 2002 08:24:12 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Benchmark] AIM9 results
-In-Reply-To: <r1_20021126213149.29517.qmail@linuxmail.org>
-Message-ID: <Pine.LNX.3.96.1021128081509.9795A-100000@gatekeeper.tmr.com>
+Subject: Re: =?ISO-8859-1?Q?RE=C2=A0:?= Clock is suddently ticking too fast !  [Kernel2.4.19-pre10-ac2, Intel]
+In-Reply-To: <r1_1038354638.2534.76.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.96.1021128081914.9795B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Nov 2002, Paolo Ciarrocchi wrote:
+On Wed, 27 Nov 2002, Alan Cox wrote:
 
-> stream_pipe 10000 2807.4       280740.00 Stream Pipe Messages/second
-> stream_pipe 10000 2602.3       260230.00 Stream Pipe Messages/second
-> stream_pipe 10000 2487.1       248710.00 Stream Pipe Messages/second
+> Old IBM PC has PIC (peripheral interrupt controller) - does the 16 IRQ
+> lines and attaches them to the CPU
 > 
-> dgram_pipe 10000 2756.9       275690.00 DataGram Pipe Messages/second
-> dgram_pipe 10000 2460.5       246050.00 DataGram Pipe Messages/second
-> dgram_pipe 10000 2377.9       237790.00 DataGram Pipe Messages/second
-> 
-> pipe_cpy 10000 4164.8       416480.00 Pipe Messages/second
-> pipe_cpy 10000 3736.4       373640.00 Pipe Messages/second
-> pipe_cpy 10000 3670.4       367040.00 Pipe Messages/second
-> 
-> ram_copy 10000 23801.6    595516032.00 Memory to Memory Copy/second
-> ram_copy 10000 23583    590046660.00 Memory to Memory Copy/second
-> ram_copy 10000 23578    589921560.00 Memory to Memory Copy/second
+> Modern PC also as APIC (advanced peripheral interrupt controller) which
+> is in two parts - locsl apic is on the CPU, and talks over a link to one
+> or more io-apics that attach to the devices on the bus
 
-You didn't comment on these, but it clearly looks as if all methods of IPC
-are getting slower, even shared memory. This has been discussed
-previously, some of it has known areas of improvement, so I'm surprised
-that the -mm kernel was slower.
+That's interesting, I thought when the first APIC came out it was the one
+on the CPU as stood for "Attached Processor Interrupt Controller" to
+replace the 8259. Acronym overload? 
+
+> "noapic" says to run the box like an old IBM PC
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315614AbSEZDdh>; Sat, 25 May 2002 23:33:37 -0400
+	id <S315616AbSEZDig>; Sat, 25 May 2002 23:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315616AbSEZDdg>; Sat, 25 May 2002 23:33:36 -0400
-Received: from bitmover.com ([192.132.92.2]:10197 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315614AbSEZDdf>;
-	Sat, 25 May 2002 23:33:35 -0400
-Date: Sat, 25 May 2002 20:33:37 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, Wolfgang Denk <wd@denx.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020525203337.C19792@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-	Wolfgang Denk <wd@denx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020525140532.A11297@work.bitmover.com> <20020525212053.5B88A11972@denx.denx.de> <20020525142317.B17692@work.bitmover.com> <1022381182.11811.65.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S315619AbSEZDif>; Sat, 25 May 2002 23:38:35 -0400
+Received: from relay01.valueweb.net ([216.219.253.235]:12298 "EHLO
+	relay01.valueweb.net") by vger.kernel.org with ESMTP
+	id <S315616AbSEZDif>; Sat, 25 May 2002 23:38:35 -0400
+Message-ID: <3CF05852.9AED3237@opersys.com>
+Date: Sat, 25 May 2002 23:36:50 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: yodaiken@fsmlabs.com
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP - Warning actual technical content.
+In-Reply-To: <Pine.LNX.4.44.0205251651460.4120-100000@home.transmeta.com> <Pine.LNX.4.44.0205251729490.4355-100000@home.transmeta.com> <20020525212832.A6479@hq.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 26, 2002 at 03:46:22AM +0100, Alan Cox wrote:
-> On Sat, 2002-05-25 at 22:23, Larry McVoy wrote:
-> > On Sat, May 25, 2002 at 11:20:48PM +0200, Wolfgang Denk wrote:
-> > > > RTAI switch the copyright on "their" sourcebase to LGPL?  So explain to
-> > > > me how you can take a GPLed source base, change it, and then change the
-> > > > license.  Are you saying that 100% of that source base has been rewritten?
-> > > Did you notice that the RTAI core is now released under GPL?
-> > 
-> > And why is that?  Could it be that RTAI is derived from RTL, and RTL is
-> > GPLed, and it was illegal for RTAI to ever have been anything but GPL?
-> 
-> Larry - I think you are out of order. If you are going to make serious
-> allegations like that then back them up with proof, and preferably on a
-> different mailing list.
 
-Sorry Alan, but they asked for it.  All day long they have been saying 
-stuff that isn't true.  "The RTAI core is now released under the GPL"
-and then you go look and it says LGPL.  And the claims that they respect
-the GPL in the parts that came from RTL is crap, go look at the copyrights
-they put on the files, files they didn't create, and it says LGPL, not GPL.
+yodaiken@fsmlabs.com wrote:
+> I'm ignoring the 10 billionth rehash of the RTLinux/RTAI debate since
+> there seems very little purpose in not doing so.  People who have actual
+> questions should feel free to ask me directly - publically or privately, I
+> don't mind. Those on tape loops can keep repeating themselves without
+> my assistance.
 
-Go read the code and then see what you think.  It's blatent.  You either
-haven't read the code or I just don't understand your position.  It's
-exactly like someone took a GPLed device driver, enhanced it, and then 
-decided that they could put their different and incompatible license on it.
+Every last time you said this you answered none of the questions I brought forth.
+Are you serious this time that you will really answer questions?
 
-Don't take my word for it, go read the code.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+I just want to make sure before I take the time for the n'th time to
+write a list.
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

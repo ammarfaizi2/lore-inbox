@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130692AbQKPXis>; Thu, 16 Nov 2000 18:38:48 -0500
+	id <S131441AbQKPXkH>; Thu, 16 Nov 2000 18:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131507AbQKPXih>; Thu, 16 Nov 2000 18:38:37 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36682 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130692AbQKPXiZ>; Thu, 16 Nov 2000 18:38:25 -0500
-Subject: Re: Which compiler to use?
-To: peterd@pnd-pc.demon.co.uk (Peter Denison)
-Date: Thu, 16 Nov 2000 23:09:11 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0011162255460.1527-100000@pnd-pc.demon.co.uk> from "Peter Denison" at Nov 16, 2000 11:02:35 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131507AbQKPXjr>; Thu, 16 Nov 2000 18:39:47 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:51213 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131441AbQKPXjo>; Thu, 16 Nov 2000 18:39:44 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: rdtsc to mili secs?
+Date: 16 Nov 2000 15:09:39 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8v1pfj$p5e$1@cesium.transmeta.com>
+In-Reply-To: <3A078C65.B3C146EC@mira.net> <20001114222240.A1537@bug.ucw.cz> <3A12FA97.ACFF1577@transmeta.com> <20001116115730.A665@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wY9Z-0008WR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please note that 2.91.66 WILL NOT correctly build any bit of 2.4 (or
-> probably 2.2) on i386 that uses the kernel version of strstr, because of a
-> register allocation bug. This currently affects the DEPCA driver, but very
-> few other things.
+Followup to:  <20001116115730.A665@suse.cz>
+By author:    Vojtech Pavlik <vojtech@suse.cz>
+In newsgroup: linux.dev.kernel
 > 
-> 2.95.2 is OK in this instance and elsewhere for me (YMMV).
+> Anyway, this should be solvable by checking for clock change in the
+> timer interrupt. This way we should be able to detect when the clock
+> went weird with a 10 ms accuracy. And compensate for that. It should be
+> possible to keep a 'reasonable' clock running even through the clock
+> changes, where reasonable means constantly growing and as close to real
+> time as 10 ms difference max.
+> 
 
-2.95.2 miscompiles strstr in some cases too. Current 2.2 however has strstr
-no longer inlined. I got bored of playing guess the compiler bug
+Actually, on machines where RDTSC works correctly, you'd like to use
+that to detect a lost timer interrupt.
 
+It's tough, it really is :(
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

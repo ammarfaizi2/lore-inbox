@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbUCWSFR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 13:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbUCWSFQ
+	id S262768AbUCWSFa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 13:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbUCWSF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 13:05:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44260 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262750AbUCWSFJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 13:05:09 -0500
-Message-ID: <40607C46.8000409@pobox.com>
-Date: Tue, 23 Mar 2004 13:04:54 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Tue, 23 Mar 2004 13:05:29 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:8203 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262768AbUCWSFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 13:05:17 -0500
+Date: Tue, 23 Mar 2004 18:05:15 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Christian Vogel <vogel@skunk.physik.uni-erlangen.de>
+cc: linux-kernel@vger.kernel.org, <torvalds@osdl.org>
+Subject: Re: [PATCH] tgafb: missing include (Linux 2.6.4)
+In-Reply-To: <20040323142308.A22635@skunk.physik.uni-erlangen.de>
+Message-ID: <Pine.LNX.4.44.0403231801200.2419-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: linux-ide@vger.kernel.org
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       miquels@cistron.nl
-Subject: [sata]  libata update
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This adds a driver for SiS SATA, and updates Intel ICH5 (ata_piix) 
-probing.  Particularly users with combined mode probing problems and 
-modprobe+rmmod+modprobe problems.  Please test.
-
-BK repositories (note that these URLs are BK not HTTP):
-	http://gkernel.bkbits.net/libata-2.4
-	http://gkernel.bkbits.net/libata-2.6
-
-Patches:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.4.25-libata11.patch.bz2
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.5-rc2-bk3-libata1.patch.bz2
-
-This will go upstream once 2.6.5 is released.
+We have tga patches coming. I haven't heard from Jay tho. I will ping him 
+again. The below patch is a temporary fix only.
 
 
+
+On Tue, 23 Mar 2004, Christian Vogel wrote:
+
+> Hi, in 2.6.4 drivers/video/tgafb.c is missing a include, complaining about
+> color_table[] and others not being defined.
+> 
+> --- drivers/video/tgafb.c       2004/03/22 16:09:55     1.1
+> +++ drivers/video/tgafb.c       2004/03/22 16:15:38
+> @@ -25,6 +25,7 @@
+>  #include <linux/pci.h>
+>  #include <asm/io.h>
+>  #include <video/tgafb.h>
+> +#include <linux/selection.h>
+>  
+>  /*
+>   * Local functions.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318768AbSIDBRa>; Tue, 3 Sep 2002 21:17:30 -0400
+	id <S318741AbSIDBeK>; Tue, 3 Sep 2002 21:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318779AbSIDBRa>; Tue, 3 Sep 2002 21:17:30 -0400
-Received: from holomorphy.com ([66.224.33.161]:36770 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318768AbSIDBRa>;
-	Tue, 3 Sep 2002 21:17:30 -0400
-Date: Tue, 3 Sep 2002 18:15:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.33-mm1
-Message-ID: <20020904011503.GT888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>
-References: <3D7437AC.74EAE22B@zip.com.au> <20020904004028.GS888@holomorphy.com> <3D755E2D.7A6D55C6@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D755E2D.7A6D55C6@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S318757AbSIDBeK>; Tue, 3 Sep 2002 21:34:10 -0400
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:43455 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S318741AbSIDBeJ>; Tue, 3 Sep 2002 21:34:09 -0400
+Message-ID: <3D7563B2.2090707@linux.org>
+Date: Tue, 03 Sep 2002 21:36:50 -0400
+From: John Weber <john.weber@linux.org>
+Organization: Linux Online
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux on Toshiba Libretto 70CT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> It also looks like there's either a bit of internal fragmentation or a
->> missing kmem_cache_reap() somewhere:
->>   ext3_inode_cache:    20001KB    51317KB   38.97
->>       dentry_cache:     4734KB    18551KB   25.52
->>    radix_tree_node:     1811KB     1923KB   94.20
->>        buffer_head:     1132KB     1378KB   82.12
+The kernel locks up completely whenever I launch any particularly large 
+application under X (xterm is fine, netscape locks up the box).
+I've confirmed that this isn't just X locking up, as the machine is 
+completely frozen (doesn't respond to pings, doesn't respond to three 
+finger salute, etc).
 
-On Tue, Sep 03, 2002 at 06:13:17PM -0700, Andrew Morton wrote:
-> That's really outside the control of slablru.  It's determined
-> by the cache-specific LRU algorithms, and the allocation order.
-> You'll need to look at the second-last and third-last columns in
-> /proc/slabinfo (boy I wish that thing had a heading line, or a nice
-> program to interpret it):
-> ext3_inode_cache     959   2430    448  264  270    1
-> That's 264 pages in use, 270 total.  If there's a persistent gap between
-> these then there is a problem - could well be that slablru is not locating
-> the pages which were liberated by the pruning sufficiently quickly.
-> Calling kmem_cache_reap() after running the pruners will fix that up.
+Just to make sure that this isn't a VM/Memory problem:
+I've run (and the machine passed) memtest86.
+I've tried running X with swapoff (and the machine still locks up).
 
-# grep ext3_inode_cache /proc/slabinfo 
-ext3_inode_cache   18917  87012    448 7686 9668    1
-...
-ext3_inode_cache:     8098KB    38052KB   21.28
+- Kernel 2.4.19
+- GLIBC 2.2.90
+- XFree86 4.2.0
 
-Looks like a persistent gap from here.
+I can reproduce this error every single time I run X.  However, I have 
+not been able to see the problem on the shell.
 
+Anyone ever see this problem?  Does anyone have pointers on how I can 
+better troubleshoot the problem?
 
-Cheers,
-Bill

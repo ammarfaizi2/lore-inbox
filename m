@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264762AbUEaUBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUEaUEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264762AbUEaUBB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 16:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUEaUBB
+	id S264763AbUEaUEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 16:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUEaUEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 16:01:01 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:52352 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264762AbUEaUA6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 16:00:58 -0400
-Date: Mon, 31 May 2004 22:01:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Pokey the Penguin <pokey@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] psmouse/usb interaction fix
-Message-ID: <20040531200120.GA1747@ucw.cz>
-References: <20040531174012.BA07D2B2B58@ws5-7.us4.outblaze.com> <20040531180341.GA17125@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040531180341.GA17125@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 31 May 2004 16:04:50 -0400
+Received: from virgo.i-cable.com ([203.83.111.75]:53437 "HELO
+	virgo.i-cable.com") by vger.kernel.org with SMTP id S264763AbUEaUEt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 16:04:49 -0400
+Message-ID: <40BB88B5.8080300@ezrs.com>
+Date: Mon, 31 May 2004 21:34:13 +0200
+From: Michael Brennan <mbrennan@ezrs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040509
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 31, 2004 at 11:03:42AM -0700, Greg KH wrote:
+Hi!
+I've recently started to follow this list.
+I read the swap discussion here, and I was wondering about what Nick 
+Pigging said about grepping the kernel tree.
 
-> > The patch is ported from a SuSE kernel to 2.6.7-rc2. It's been
-> > around for at least two minor releases. The maintainer was
-> > contacted regarding merging but failed to respond.
-> > 
-> > Patch vital to certain laptop users. Please apply.
-> 
-> But this breaks users who want BIOS usb support instead of native Linux
-> support, right?  Sure, there are not many people who want that, but I do
-> know people who rely on this (like installer kernels, and early boot
-> issues with USB keyboards.)
- 
-I wrote the patch, SuSE 9.1 is shipping with it - too many BIOSes get
-the USB support wrong - don't expect keyboards and mice which don't
-honor the SET_IDLE command, etch. In my experience the BIOS USB support
-causes much more pain than good, namely preventing the normal PS/2 mice
-and keyboards to work properly.
+Nick Piggin wrote:
+ > For example, I have 57MB swapped right now. It allows me to instantly
+ > grep the kernel tree. If I turned swap off, each grep would probably
+ > take 30 seconds.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Are the pages swapped to disk as a result of the grep run?
+Im still running 2.4.25. And when I do a grep on the linux kernel tree, 
+it always takes at least 2 minutes at every run. Almost all physical 
+ram, and 21MB of swap is used. Should the files read by grep be cached 
+in memory/swap?
+
+Michael Brennan

@@ -1,116 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268494AbUHLJgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268502AbUHLJn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268494AbUHLJgg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 05:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268500AbUHLJgg
+	id S268502AbUHLJn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 05:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268500AbUHLJn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 05:36:36 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:61395 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268494AbUHLJgG (ORCPT
+	Thu, 12 Aug 2004 05:43:29 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:53387 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S261232AbUHLJnY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 05:36:06 -0400
-Date: Thu, 12 Aug 2004 15:18:37 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH] new bitmap list format (for cpusets)
-Message-ID: <20040812094837.GA3946@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20040811131155.GA4239@in.ibm.com> <20040811091732.411edb6d.pj@sgi.com> <20040811180558.GA4066@in.ibm.com> <20040811134018.1551e03b.pj@sgi.com>
+	Thu, 12 Aug 2004 05:43:24 -0400
+Subject: Re: [PATCH] SCSI midlayer power management
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Nathan Bryant <nbryant@optonline.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       "'James Bottomley'" <James.Bottomley@steeleye.com>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+In-Reply-To: <411AA24C.6050303@optonline.net>
+References: <4119611D.60401@optonline.net>
+	 <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
+	 <1092262602.3553.14.camel@laptop.cunninghams>
+	 <411AA24C.6050303@optonline.net>
+Content-Type: text/plain
+Message-Id: <1092303123.3214.3.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="1yeeQ81UyVL57Vl7"
-Content-Disposition: inline
-In-Reply-To: <20040811134018.1551e03b.pj@sgi.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 12 Aug 2004 19:39:51 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, 2004-08-12 at 08:48, Nathan Bryant wrote: 
+> Just to speculate about what would be required for swsusp: you probably 
+> need to be using a SCSI LLD that properly implements pci suspend/resume, 
+> which implies you need to make sure the card's DMA state machine is 
+> flushed and idle before suspend completes. I've got a patch that fixes 
+> this much up for aic7xxx. And my other midlayer-level patch may also 
+> help... What happens during resume is interesting. I think maybe the 
+> problem is not what the drive is expecting, but what the card's state 
+> engine is expecting when it tries to map commands to command buffers in 
+> DMA space.  Maybe you need to suspend the LLD from the context of the 
+> kernel that is doing the image load, and then resume from the context of 
+> the kernel that was just loaded.
 
-On Wed, Aug 11, 2004 at 01:40:18PM -0700, Paul Jackson wrote:
-> 
-> Since I've gotten this far without having the definition of 'struct cpuset'
-> exposed in a header file, I'd like to see if I can continue that.  I'll
-> give this other approach a try - though it will be a day or so before I
-> can get to it - prior commitments.  Unless of course, someone sends me such
-> a patch first ;).
+I fully agree. That's what I'm doing at the moment; it's been a while
+since I looked at swsusp though, so can't say anything about Pavel &
+Patrick's implementation.
 
-Ok revised patch attached
+> >With my 'device tree' code, I'm getting the struct dev of the device
+> >we're using via the struct block_device in the swap_info struct.
+> >
+> Right, though you also need to get the host adapter's struct device, if 
+> you're not already doing so, that is. Many IDE host drivers don't bother 
+> with suspend/resume callbacks at the pci_driver level, but SCSI needs 
+> callbacks because the BIOS usually doesn't handle things for us.
 
-> However an equivalent detail would matter.  Can I mark cpuset_init_smp()
-> as "__init" ?  Hmmm ... likely I can, since two routines called at the
-> same time, sched_init_smp() and smp_init(), are marked __init.  This
-> suggests that my interpretation of that comment was wrong, and that
-> you're entirely right -- calls made in either place can be marked
-> __init.  Is that comment above misleading?
+The host adapter isn't in the device's chain of parents?
 
-That I believe applies only to the rest_init function which does not have
-the __init qualifier
+Nigel 
 
-Regards,
+-- 
+Nigel Cunningham
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-Dinakar
+Many today claim to be tolerant. But true tolerance can cope with others
+being intolerant.
 
-
-
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="cpuset-init-2.patch"
-
-diff -Naurp linux-2.6.8-rc2-mm2-cs3/include/linux/cpuset.h linux-2.6.8-rc2-mm2-cs3.new/include/linux/cpuset.h
---- linux-2.6.8-rc2-mm2-cs3/include/linux/cpuset.h	2004-08-05 17:22:31.000000000 +0530
-+++ linux-2.6.8-rc2-mm2-cs3.new/include/linux/cpuset.h	2004-08-12 18:58:51.000000000 +0530
-@@ -15,6 +15,7 @@
- #ifdef CONFIG_CPUSETS
- 
- extern int cpuset_init(void);
-+extern void cpuset_init_smp(void);
- extern void cpuset_fork(struct task_struct *p);
- extern void cpuset_exit(struct task_struct *p);
- extern const cpumask_t cpuset_cpus_allowed(const struct task_struct *p);
-diff -Naurp linux-2.6.8-rc2-mm2-cs3/init/main.c linux-2.6.8-rc2-mm2-cs3.new/init/main.c
---- linux-2.6.8-rc2-mm2-cs3/init/main.c	2004-08-05 17:22:31.000000000 +0530
-+++ linux-2.6.8-rc2-mm2-cs3.new/init/main.c	2004-08-12 18:06:54.000000000 +0530
-@@ -708,6 +708,8 @@ static int init(void * unused)
- 	smp_init();
- 	sched_init_smp();
- 
-+	cpuset_init_smp();
-+
- 	/*
- 	 * Do this before initcalls, because some drivers want to access
- 	 * firmware files.
-diff -Naurp linux-2.6.8-rc2-mm2-cs3/kernel/cpuset.c linux-2.6.8-rc2-mm2-cs3.new/kernel/cpuset.c
---- linux-2.6.8-rc2-mm2-cs3/kernel/cpuset.c	2004-08-11 22:02:47.000000000 +0530
-+++ linux-2.6.8-rc2-mm2-cs3.new/kernel/cpuset.c	2004-08-12 18:55:34.000000000 +0530
-@@ -1270,7 +1270,6 @@ int __init cpuset_init(void)
- 	struct dentry *root;
- 	int err;
- 
--	top_cpuset.cpus_allowed = cpu_possible_map;
- 	top_cpuset.mems_allowed = node_possible_map;
- 
- 	init_task.cpuset = &top_cpuset;
-@@ -1296,6 +1295,17 @@ out:
- }
- 
- /**
-+ * cpuset_init_smp - initialize cpus_allowed
-+ *
-+ * Description: Initialize cpus_allowed after cpu_possible_map is initialized 
-+ **/
-+
-+void __init cpuset_init_smp(void)
-+{
-+	top_cpuset.cpus_allowed = cpu_possible_map;
-+}
-+
-+/**
-  * cpuset_fork - attach newly forked task to its parents cpuset.
-  * @p: pointer to task_struct of forking parent process.
-  *
-
---1yeeQ81UyVL57Vl7--

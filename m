@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVCIMw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVCIM6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVCIMw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 07:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVCIMwZ
+	id S262356AbVCIM6w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 07:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVCIM6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 07:52:25 -0500
-Received: from bgerelbas02.asiapac.hp.net ([15.219.201.135]:36055 "EHLO
-	bgerelbas02.ind.hp.com") by vger.kernel.org with ESMTP
-	id S262344AbVCIMwX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 07:52:23 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 9 Mar 2005 07:58:52 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:46304 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262356AbVCIM6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 07:58:49 -0500
+Message-ID: <422EF2B0.7070304@grupopie.com>
+Date: Wed, 09 Mar 2005 12:57:20 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Problem with DCE with Kernel Patch
-Date: Wed, 9 Mar 2005 18:21:49 +0530
-Message-ID: <3EB96D97711EAA45B291A31082CC865601511595@bgeexc04.asiapacific.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problem with DCE with Kernel Patch
-Thread-Index: AcUkpsJ6XgcoeTkZRrW2x9T1tYfkWQ==
-From: "Singal, Manoj Kumar (STSD)" <manoj-kumar.singal@hp.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 09 Mar 2005 12:51:50.0603 (UTC) FILETIME=[C314F9B0:01C524A6]
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: inconsistent kallsyms data [2.6.11-mm2]
+References: <20050308033846.0c4f8245.akpm@osdl.org> <20050308192900.GA16882@isilmar.linta.de> <20050308123554.669dd725.akpm@osdl.org> <20050308204521.GA17969@isilmar.linta.de>
+In-Reply-To: <20050308204521.GA17969@isilmar.linta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dominik Brodowski wrote:
+> On Tue, Mar 08, 2005 at 12:35:54PM -0800, Andrew Morton wrote:
+> 
+>>Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+>>
+>>>compiling -mm2 on my x86 box results in:
+>>>
+>>>SYSMAP  .tmp_System.map
+>>>Inconsistent kallsyms data
+>>>Try setting CONFIG_KALLSYMS_EXTRA_PASS
+>>>make: *** [vmlinux] Fehler 1
+>>>
+>>>gcc-Version 3.4.3 20050110 (Gentoo Linux 3.4.3.20050110, ssp-3.4.3.20050110-0, pie-8.7.7)
+>>>
+>>
+>>Did CONFIG_KALLSYMS_EXTRA_PASS fix it up?
+> 
+> 
+> Yes.
 
-Hello,
+It doesn't happen to me here :(
 
-While installing DCE 0.1.13 on RH Linux AS 2.1 Kernel 2.4.18-e.54smp
-running on Itanium, the system hangs and becomes unbootable. It then has
-to be started in single user mode, the dce rpm has to be removed and
-then booted. This happens with kernel patch 52/54. 
+Can you send me privately a tar.bz2 containing your .config, 
+.tmp_kallsyms1.S and .tmp_kallsyms2.S so I can try to figure out what's 
+going on?
 
-Has anyone faced a similar problem and resolved it ? . Any pointers in
-this regard will be really *nice*.
+TIA,
 
-Thanks in advance.
 -- 
-Manoj
+Paulo Marques - www.grupopie.com
 
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

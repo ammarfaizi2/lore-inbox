@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289536AbSAJQpQ>; Thu, 10 Jan 2002 11:45:16 -0500
+	id <S289541AbSAJQsq>; Thu, 10 Jan 2002 11:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289539AbSAJQpG>; Thu, 10 Jan 2002 11:45:06 -0500
-Received: from svr3.applink.net ([206.50.88.3]:10254 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S289536AbSAJQpD>;
-	Thu, 10 Jan 2002 11:45:03 -0500
-Message-Id: <200201101644.g0AGibSr029326@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Andrew Morton <akpm@zip.com.au>, Rob Landley <landley@trommello.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Thu, 10 Jan 2002 10:40:46 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16OM59-0001hQ-00@the-village.bc.nu> <200201091932.g09JW9A27178@snark.thyrsus.com> <3C3CA091.B28D5DFC@zip.com.au>
-In-Reply-To: <3C3CA091.B28D5DFC@zip.com.au>
+	id <S289543AbSAJQsg>; Thu, 10 Jan 2002 11:48:36 -0500
+Received: from [62.98.202.87] ([62.98.202.87]:260 "EHLO
+	gandalf.rhpk.springfield.inwind.it") by vger.kernel.org with ESMTP
+	id <S289539AbSAJQsa>; Thu, 10 Jan 2002 11:48:30 -0500
+Date: Thu, 10 Jan 2002 17:44:17 +0100 (CET)
+From: Cristiano Paris <c.paris@libero.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.18pre2 oops using agpgart
+Message-ID: <Pine.LNX.4.33.0201101742380.219-100000@gandalf.rhpk.springfield.inwind.it>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 January 2002 13:57, Andrew Morton wrote:
-[snip]
->
-> Without LL, Linux cannot reasonably be used for professional audio
-> work that involves real time FX or real time synthesis. The default
-> kernel has worst-case latencies noticeably worse than Windows, and
-> most people are reluctant to use that system already, not just because
-> of instability but latencies also. Its not a matter of it being "a bit
-> of a problem" - the 100msec worst case latencies visible in the
-> standard kernel make it totally implausible that you would ever deploy
-> Linux in a situation where RT FX/synthesis were going to happen.
->
-> By contrast, if we get LL in place, then we can potentially use Linux
-> in "black box"/"embedded" systems designed specifically for audio
-> users; all the flexibility of Linux, but if they choose to ignore most
-> of that, they'll still have a black rack-mounted box capable of doing
-> everything (more mostly everything) currently done by dedicated
-> hardware. As general purpose CPU performance continues to increase,
-> this becomes more and more overwhelmingly obvious as the way forward
-> for audio processing.
->
+It finally turned out that using the agpgart module with my notebook makes
+my machine crash and reset. Here's the last oops :
 
-I keep on seeing these "Blackbox" apps like Tivo using Linux but the
-fact remains the average folks cannot get any reasonable kind of A/V
-performance and support under Linux.    That's what we need.
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+c012f857
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c012f857>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010212
+eax: 00000000   ebx: ca5e3a80   ecx: 00000000   edx: c0254f34
+esi: 00000000   edi: ffffffe9   ebp: c14062e0   esp: c9a6bf54
+ds: 0018   es: 0018   ss: 0018
+Process fetchmail (pid: 3134, stackpage=c9a6b000)
+Stack: bfffeebc ffffffe9 c012e73a bfffeebc cc8c8000 00000000 bfffeeac c012e71a
+       cf6902e0 c14062e0 00000000 00000003 cc8c8000 bffff624 cf6902e0 c14062e0
+       bffff624 bfffeeac 00000000 00000001 00000001 c012ea4a cc8c8000 00000000
+Call Trace: [<c012e73a>] [<c012e71a>] [<c012ea4a>] [<c0106b0b>]
+Code: 89 50 04 89 02 ff 0d 24 4f 25 c0 31 c0 b9 1a 00 00 00 89 df
+Error (Oops_bfd_perror): set_section_contents Bad value
 
-Needing to save money and get some fast cash (I'm unemployed), 
-yesterday, I swapped out my dual P-III motherboard in my BeOS box
-for a Via C-III (700MHz) based system.    And I got my first real hiccups
-while using the OS when I was playing MP3s and _launching_ the TV
-program _full screen_(640x480 on 640x480 virtual desktop window).
+>>EIP; c012f856 <get_empty_filp+16/108>   <=====
+Trace; c012e73a <dentry_open+16/188>
+Trace; c012e71a <filp_open+52/5c>
+Trace; c012ea4a <sys_open+36/94>
+Trace; c0106b0a <system_call+32/38>
 
-Obviously, when this stuff is done right, more CPU power can only help,
-but it still has to be done right.  As I am sure that you know, BeOS claims
-average latency of 250 microseconds.
+I've seen many of these oops. Please help.
 
+Cristiano
 
--- 
-timothy.covell@ashavan.org.
+----
+GnuPG Public Key Fingerprint (certserver.pgp.com)
+pub  1024D/BF762716 2002-01-08 Cristiano Paris (privata) <c.paris@libero.it>
+     Key fingerprint = 91BA C55F 4B75 730D 5FB3  16AB 4202 9ACA BF76 2716
+

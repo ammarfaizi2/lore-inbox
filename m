@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbTJ1U4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 15:56:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTJ1U4Q
+	id S261771AbTJ1VNo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 16:13:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbTJ1VNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 15:56:16 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:31160 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261342AbTJ1U4N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 15:56:13 -0500
-Message-ID: <3F9ED7EB.6070800@namesys.com>
-Date: Tue, 28 Oct 2003 23:56:11 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Tue, 28 Oct 2003 16:13:44 -0500
+Received: from ns.suse.de ([195.135.220.2]:51920 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261771AbTJ1VNn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 16:13:43 -0500
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>
+	<1067329994.861.3.camel@teapot.felipe-alfaro.com>
+	<20031028093233.GA1253@elf.ucw.cz>
+	<1067351431.1358.11.camel@teapot.felipe-alfaro.com>
+	<20031028172818.GB2307@elf.ucw.cz>
+	<1067372182.864.11.camel@teapot.felipe-alfaro.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: This PIZZA symbolizes my COMPLETE EMOTIONAL RECOVERY!!
+Date: Tue, 28 Oct 2003 22:13:41 +0100
+In-Reply-To: <1067372182.864.11.camel@teapot.felipe-alfaro.com> (Felipe
+ Alfaro Solana's message of "Tue, 28 Oct 2003 21:16:23 +0100")
+Message-ID: <jewuapoyka.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-CC: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-Subject: Re: Blockbusting news, results get worse
-References: <785F348679A4D5119A0C009027DE33C105CDB39B@mcoexc04.mlm.maxtor.com> <3cba01c39c6f$141529a0$24ee4ca5@DIAMONDLX60>
-In-Reply-To: <3cba01c39c6f$141529a0$24ee4ca5@DIAMONDLX60>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So it turns out that reiserfstune currently can mark bad blocks  for 
-unmounted filesystems, and that the patches that were not uptodate were 
-just patches for doing it for mounted filesystems.  So, problem is found 
-to have already been solved after much miscommunication, sorry about that.
+Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
+
+> Does "gettimeofday()" have into account the effect of adjusting the time
+> twice a year, once to make time roll forward one hour and another one to
+> roll it back?
+
+There's no such thing in UTC.
+
+Andreas.
 
 -- 
-Hans
-
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

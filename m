@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269981AbSISGWO>; Thu, 19 Sep 2002 02:22:14 -0400
+	id <S269984AbSISG1Z>; Thu, 19 Sep 2002 02:27:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269984AbSISGWO>; Thu, 19 Sep 2002 02:22:14 -0400
-Received: from mta05ps.bigpond.com ([144.135.25.137]:61386 "EHLO
-	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S269981AbSISGWN>; Thu, 19 Sep 2002 02:22:13 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: "Michael Duane" <Mike.Duane@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: CDCether.c
-Date: Thu, 19 Sep 2002 16:20:57 +1000
-User-Agent: KMail/1.4.5
-References: <4C568C6A13479744AA1EA3E97EEEB3231B7DDC@schumi.digeo.com>
-In-Reply-To: <4C568C6A13479744AA1EA3E97EEEB3231B7DDC@schumi.digeo.com>
+	id <S269996AbSISG1Z>; Thu, 19 Sep 2002 02:27:25 -0400
+Received: from packet.digeo.com ([12.110.80.53]:19082 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S269984AbSISG1Y>;
+	Thu, 19 Sep 2002 02:27:24 -0400
+Message-ID: <3D896F73.5D1265B5@digeo.com>
+Date: Wed, 18 Sep 2002 23:32:19 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209191620.58022.bhards@bigpond.net.au>
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: Shawn Starr <spstarr@sh0n.net>, sct@redhat.com,
+       Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] EXT3 vs EXT2 results with rmap14a and testing with 
+ contest 0.34
+References: <200209182118.12701.spstarr@sh0n.net> <200209182140.30364.spstarr@sh0n.net> <1032403983.3d893c0f8986b@kolivas.net> <200209190016.26609.spstarr@sh0n.net> <20020919061301.GB13929@clusterfs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Sep 2002 06:32:19.0932 (UTC) FILETIME=[4E19D1C0:01C25FA6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andreas Dilger wrote:
+> 
+> ...
+> > Kernel                                        Time                    CPU
+> > 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            325.39                82%
+> > 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            411.47                64%
+> 
+> I don't see this as hugely surprising.  ext3 uses more CPU than ext2.
+> If you are using up the CPU doing other things, then naturally ext3
+> will take a longer wall-clock time to complete the same tasks as ext2.
 
-On Thu, 19 Sep 2002 09:49, Michael Duane wrote:
-> Who is the maintainer of CDCEther.c?  I am having a problem
-> with packets getting "wedged" somewhere on the way out
-> and need to know if others have reported this problem.
-Others have reported probems that normally look something like "it works fine 
-for some minutes to days, and then all connectivity stops, till I reboot or 
-re-insert the module", but I can't duplicate. Does this match your problem?
+Yup.  But here the CPU load is less; obviously some more seeking
+was done.  That's fairly normal for ext3 - it has to write the journal
+as well as the filesystem....
+ 
+> I know that Andrew has been doing a bunch of work to reduce ext3 CPU
+> usage/locking/etc., but I think that is all in 2.5 kernels.
+> 
 
-There are some races, but I can't explain the problem from them. I do need to 
-fix the races, but I only do this when I have some spare time (after work, 
-SO, and some other hobbies).
-
-> I'm running the 2.4.17 kernel and using a Broadcom DOCSIS
-> modem based around a 3345.
-Most people have reported the problem with Via UHCI chipsets, and usb-uhci 
-driver. Does this match your configuration?
-
-You might care to upgrade the kernel too.
-
-Brad
-
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9iWzJW6pHgIdAuOMRAvXrAJ9JfDSnx25dKI7yXvQC2XjNEydS+wCgpKMe
-kSP0H8AB5Sj8Ebo6SGAPVNs=
-=RTI4
------END PGP SIGNATURE-----
-
+I had a little patch.  Stephen is working on the big fix.

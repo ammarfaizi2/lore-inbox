@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbUKVQa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbUKWFr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbUKVQa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 11:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbUKVQ3m
+	id S261370AbUKWFr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 00:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUKWFpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:29:42 -0500
-Received: from holomorphy.com ([207.189.100.168]:10906 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262152AbUKVPvN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 10:51:13 -0500
-Date: Mon, 22 Nov 2004 07:51:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [2.6.10-rc2] XFS filesystem corruption
-Message-ID: <20041122155106.GG2714@holomorphy.com>
-References: <200411221530.30325.lkml@kcore.org>
+	Tue, 23 Nov 2004 00:45:34 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:42958 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261370AbUKWFn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 00:43:57 -0500
+Subject: Re: [2.6 patch] MODULE_PARM_: remove the __deprecated
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: rusty@rustcorp.com.au, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041122155619.GG19419@stusta.de>
+References: <20041122155619.GG19419@stusta.de>
+Content-Type: text/plain
+Date: Tue, 23 Nov 2004 00:43:56 -0500
+Message-Id: <1101188636.4245.2.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411221530.30325.lkml@kcore.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 03:30:29PM +0100, Jan De Luyck wrote:
-> [resend with correct email address for LKML]
-> [Please CC all answers from linux-xfs to me, since I'm not subscribed on that list]
-> Yesterday I encountered an on-the-fly corruption of my /home filesystem. It worked perfectly one second, the next I hit these nice errors:
-> Nov 21 16:37:22 precious kernel: 0x0: 31 9e ce 63 cf ff 9c cf ff 31 61 63 ff ff ff ff 
-> Nov 21 16:37:23 precious kernel: Filesystem "hda5": XFS internal error xfs_da_do_buf(2) at line 2273 of file fs/xfs/xfs_da_btree.c.  Caller 0xc01fb908
-> Nov 21 16:37:23 precious kernel:  [xfs_da_do_buf+905/2160] xfs_da_do_buf+0x389/0x870
+On Mon, 2004-11-22 at 16:56 +0100, Adrian Bunk wrote:
+> MODULE_PARM_ might be deprecated.
+> But there are still over 2000 places in the kernel where it's used.
 
-I don't have any ideas at the moment, but please cc: me also. I'd like
-to watch for issues I do understand as this bug's nature is clarified.
+Changing MODULE_PARM to module_param is not exactly rocket science.  You
+could probably fix them all with a perl script.
 
+Lee
 
--- wli

@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbSLaPup>; Tue, 31 Dec 2002 10:50:45 -0500
+	id <S263280AbSLaQHm>; Tue, 31 Dec 2002 11:07:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSLaPup>; Tue, 31 Dec 2002 10:50:45 -0500
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:51981 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S263246AbSLaPuo>; Tue, 31 Dec 2002 10:50:44 -0500
-Subject: Recent 2.4.x PPP bug? (PPPIOCDETACH file->f_count=3)
-To: linux-kernel@vger.kernel.org
-Date: Tue, 31 Dec 2002 16:59:06 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E18TOnK-0007Tp-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	id <S263291AbSLaQHm>; Tue, 31 Dec 2002 11:07:42 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:39113 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263280AbSLaQH2>;
+	Tue, 31 Dec 2002 11:07:28 -0500
+Date: Tue, 31 Dec 2002 17:15:35 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200212311615.RAA24207@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org
+Subject: [PATCH] ide-scsi ref count bug & oops in 2.4.20-ac2/2.4.21-pre2
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This bug affects modular ide-scsi in 2.4.20-ac2 and 2.4.21-pre2.
+Inserting the ide-scsi module and letting it control an odd number
+of drives, and then rmmod:ing ide-scsi, results in the following:
 
-Starting with recent 2.4.19 and 2.4.20 kernels, when any
-one (or both) of my two permanent PPP connections goes
-down (usually due to the ISP rebooting their equipment),
-quite often something bad happens.
+(after inserting ide-scsi; hdc is my CD writer)
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: PHILIPS   Model: CDRW2412A         Rev: P1.5
+  Type:   CD-ROM                             ANSI SCSI revision: 02
 
-Dec 31 16:31:52 alf kernel: PPPIOCDETACH file->f_count=3
-Dec 31 16:31:52 alf kernel: PPPIOCDETACH file->f_count=3
+(after rmmod ide-scsi)
+scsi : 0 hosts left.
+idescsi_cleanup: hdc: failed to unregister! 
+hdc: usage 0, busy 0, driver d08a00e0, Dbusy 1
+hdc: exit_idescsi_module() called while still busy
 
-Dec 31 16:31:52 alf pppd[31783]: Hangup (SIGHUP)
-Dec 31 16:31:52 alf pppd[31783]: Modem hangup
-Dec 31 16:31:52 alf pppd[27363]: Hangup (SIGHUP)
-Dec 31 16:31:52 alf pppd[27363]: Modem hangup
-Dec 31 16:31:52 alf pppd[31783]: Connection terminated.
-Dec 31 16:31:52 alf pppd[27363]: Connection terminated.
-Dec 31 16:31:52 alf pppd[27363]: Connect time 3961.2 minutes.
-Dec 31 16:31:52 alf pppd[27363]: Sent 12744359 bytes, received 11908495 bytes.
-Dec 31 16:31:52 alf pppd[31783]: Connect time 3961.2 minutes.
-Dec 31 16:31:52 alf pppd[31783]: Sent 13843367 bytes, received 38226866 bytes.
-Dec 31 16:31:53 alf pppd[31783]: Couldn't release PPP unit: Invalid argument
-Dec 31 16:31:53 alf pppd[27363]: Couldn't release PPP unit: Invalid argument
-Dec 31 16:31:54 alf pppd[31783]: Couldn't create new ppp unit: Inappropriate ioctl for device
-Dec 31 16:31:54 alf pppd[27363]: Couldn't create new ppp unit: Inappropriate ioctl for device
+Rebooting after this then triggers an oops in ide.c:ide_notify_reboot()'s
+call to DRIVER(drive)->cleanup(drive), since DRIVER(drive) [hdc] still
+points to the idescsi_driver structure in the unloaded ide-scsi module.
 
-Then the "Couldn't create new ppp unit" messages are repeated
-very often until pppd is killed with SIGKILL (SIGHUP or SIGTERM
-don't work).  Killing and restarting pppd seems to be the only
-way to restore the connection, despite the pppd "persist" and
-"maxfail 0" options.
+It turns out that there is a long-standing reference counting bug
+in all versions of ide-scsi in current 2.2/2.4/2.5 kernels: ide-scsi
+abuses DRIVER(drive)->busy as an integer counter when in fact ->busy
+is only a 1-bit field.
 
-I've tried to google for the "PPPIOCDETACH file->f_count=3"
-message, and found that someone had this problem with PPPoE.
-In my case, this is normal PPP over a serial port, which has
-always been rock solid for me.
+In 2.4.20-ac2/2.4.21-pre2, idescsi_driver.busy is zero after init
+because idescsi_setup() does one ++ and one -- for each drive.
+At "rmmod ide-scsi", idescsi_release() does a DRIVER(drive)->busy--
+on each ide-scsi drive. Since they all point to the same idescsi_driver,
+idescsi_driver.busy is decremented to -(number of drives) % 2.
+With an odd number of ide-scsi drives, the driver is marked busy,
+idescsi_cleanup() fails to clean up, and ide_notify_reboot() oopses.
 
-Please help - is this a known problem, which could be fixed
-in recent 2.4.21-pre kernels?
+ide-scsi.c in other kernels (2.2, 2.4 before 20-ac2/21-pre2, 2.5) also
+abuses DRIVER(drive)->busy, but there it has two complementary bugs
+that cancel each other. idescsi_setup() increments ->busy for each
+ide-scsi drive, and idescsi_release() decrements ->busy for each drive.
+busy equals (number of drives) % 2 while ide-scsi is loaded, but is
+zero as the module is being removed. ide-scsi unloads cleanly, but ->busy
+clearly incorrect and useless.
 
-Thanks,
-Marek
+The patch below applies to 2.4.20-ac2 and 2.4.21-pre2. It's a minimal
+fix: instead of decrementing busy, idescsi_release() sets busy to zero
+since that's the only valid value at this point. Tested & works for me.
 
+Long-term, someone needs to decide whether idescsi_release() really
+needs to loop over all drives. They all point to idescsi_driver, so
+a single "idescsi_driver.busy = 0;" should suffice.
+
+/Mikael
+
+--- linux-2.4.20-ac2/drivers/scsi/ide-scsi.c.~1~	2002-12-31 15:31:12.000000000 +0100
++++ linux-2.4.20-ac2/drivers/scsi/ide-scsi.c	2002-12-31 15:59:53.000000000 +0100
+@@ -900,7 +900,7 @@
+ 	for (id = 0; id < MAX_HWIFS * MAX_DRIVES; id++) {
+ 		drive = idescsi_drives[id];
+ 		if (drive)
+-			DRIVER(drive)->busy--;
++			DRIVER(drive)->busy = 0;
+ 	}
+ 	return 0;
+ }

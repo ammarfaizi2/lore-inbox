@@ -1,88 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265594AbSJXSFl>; Thu, 24 Oct 2002 14:05:41 -0400
+	id <S265580AbSJXR6b>; Thu, 24 Oct 2002 13:58:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265595AbSJXSFl>; Thu, 24 Oct 2002 14:05:41 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:13703 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S265594AbSJXSFj>;
-	Thu, 24 Oct 2002 14:05:39 -0400
-Date: Thu, 24 Oct 2002 11:15:13 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Mark Peloquin <peloquin@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-       <viro@math.psu.edu>
-Subject: Re: Switching from IOCTLs to a RAMFS
-In-Reply-To: <3DB831FF.4000900@pobox.com>
-Message-ID: <Pine.LNX.4.44.0210241051340.983-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265584AbSJXR6b>; Thu, 24 Oct 2002 13:58:31 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:59398 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265580AbSJXR63>; Thu, 24 Oct 2002 13:58:29 -0400
+Date: Thu, 24 Oct 2002 19:04:35 +0100
+From: John Levon <levon@movementarian.org>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: dipankar@gamebox.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release, version 5 - I think this one's ready
+Message-ID: <20021024180435.GB8915@compsoc.man.ac.uk>
+References: <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk> <3DB83156.5000402@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB83156.5000402@mvista.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *184mLT-0006Ku-00*kKa4NxjTb1s* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 24, 2002 at 12:43:50PM -0500, Corey Minyard wrote:
 
-On Thu, 24 Oct 2002, Jeff Garzik wrote:
-
-> Mark Peloquin wrote:
-> > Based on the feedback and comments regarding
-> > the use of IOCTLs in EVMS, we are switching to
-> > the more preferred method of using a ram based
-> > fs. Since we are going through this effort, I
-> > would like to get it right now, rather than
-> > having to switch to another ramfs system later
-> > on. The question I have is:  should we roll our
-> > own fs, (a.k.a. evmsfs) or should we use sysfs
-> > for this purpose? My initial thoughts are that
-> > sysfs should be used. However, recent discussions
-> > about device mapper have suggested a custom ramfs.
-> > Which is the *best* choice?
+> #define NOTIFY_DONE        0x0000        /* Don't care */
+> #define NOTIFY_OK        0x0001        /* Suits me */
+> #define NOTIFY_STOP_MASK    0x8000        /* Don't call further */
 > 
-> 
-> (cc'd viro and mochel, as I feel they are 'owners' in the subject area)
-> 
-> Let's jump back a bit, for a second.  Why is procfs bad news?  There are 
-> minor issues with the implementation of single-page output and lack of 
-> pure file operations, but the big issue is lack of a sane namespace. 
-> sysfs is no better than procfs if we keep heaving junk into it without 
-> thinking about proper namespace organization.
+> I'mt taking these to mean that NOTIFY_DONE means you didn't handle it, 
+> NOTIFY_OK means you did handle it, and you "or" on NOTIFY_STOP_MASK if 
+> you want it to stop.  I'm thinking that stopping is probably a bad idea, 
+> if the NMI is really edge triggered.
 
-That's one of my personal goals: to mandate some amount of sanity in the 
-namespace organization. Without it, sysfs is basically just a modernized 
-procfs. 
+> There's a comment in do_nmi() that says that the NMI is edge triggered. 
 
-> I personally prefer a separate filesystem for what you describe.  That 
-> gives the EVMS team control over their own portion of the namespace, 
-> while giving complete flexibility.  I do _not_ see sysfs as simply a 
-> procfs replacement -- sysfs IMO is more intended as a way to organize 
-> certain events and export internal kernel structure.
+So there is. Darn. You could special case default_do_nmi, only printing
+out "Unknown NMI" iff the reason inb() check fails, /and/ no previous
+handlers set handled. Theoretically we have to take the cost of the
+inb() every time otherwise we can lose one of the NMISC-based things in
+default_do_nmi ... I can always see if this makes a noticable practical
+difference for oprofile under high interrupt load
 
-I do not view those as necessarily competing goals. The mission statement 
-of sysfs is to "export kernel objects, their attributes, and their 
-relation to other objects". 
+(I also need to be able to remove the NMI watchdog handler, but that's
+an oprofile-specific problem).
 
-EVMS, like any other subsystem, has a set of objects and methods to
-operate on them, as exported via attributes. They have their have their
-own object hierarchy, and in no way do I want to dilute that (or pollute
-anything else ;).  sysfs should be able to handle this. It does today,
-though it's not as seamless as I would prefer it.
+Perhaps things will end being best to leave the current fast-path thing,
+but we should make sure that we've explored the possibilities of
+removing it first ;)
 
-I would rather mature the API and consolidate the common code, than have N 
-copies of the same filesystem, each with a slightly different purpose, in 
-existence. There are so many benefits:
+thanks
+john
 
-- Less code duplication, and less places to fix identical bugs. 
-
-- It makes it easier to write for; instead of having to copy n' paste a
-  new filesystem to export your subsystem's objects, you can add a field 
-  to a structure and call a function.
-
-- It's easier for the user to mount one filesystem and get everything, 
-  instead of trying to figure out what fs has what ifno. 
-
-- It's easier to associate objects between subsystems, since you can 
-  internally create relative symlinks between two objects (and soon with a
-  single call). 
-
-
-	-pat
-
+-- 
+"This is playing, not work, therefore it's not a waste of time."
+	- Zath

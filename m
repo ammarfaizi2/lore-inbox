@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266994AbTGTMJO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 08:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266997AbTGTMJO
+	id S266997AbTGTMOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 08:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267004AbTGTMOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 08:09:14 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29153
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S266994AbTGTMJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 08:09:13 -0400
-Subject: Re: [PATCH] drivers/video/vesafb.c, kernel 2.6.0-test1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roberto Sanchez <rcsanchez97@yahoo.es>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jsimmons@infradead.org, geert@linux-m68k.org, torvalds@osdl.org
-In-Reply-To: <20030720021133.53368.qmail@web41804.mail.yahoo.com>
-References: <20030720021133.53368.qmail@web41804.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058703699.32239.4.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 20 Jul 2003 13:21:39 +0100
+	Sun, 20 Jul 2003 08:14:33 -0400
+Received: from zork.zork.net ([64.81.246.102]:52432 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S266997AbTGTMOc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 08:14:32 -0400
+To: James Morris <jmorris@intercode.com.au>
+Cc: netdev@oss.sgi.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0-test1-mm1] TCP connections over ipsec hang after a few
+ seconds
+References: <Mutt.LNX.4.44.0307201552580.22965-100000@excalibur.intercode.com.au>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: James Morris <jmorris@intercode.com.au>,
+ netdev@oss.sgi.com,  <linux-kernel@vger.kernel.org>
+In-Reply-To: <Mutt.LNX.4.44.0307201552580.22965-100000@excalibur.intercode.com.au> (James
+ Morris's message of "Sun, 20 Jul 2003 15:58:13 +1000 (EST)")
+Date: Sun, 20 Jul 2003 13:29:24 +0100
+Message-ID: <6u8yqt8jq3.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-07-20 at 03:11, Roberto Sanchez wrote:
-> --- linux-2.6.0-test1.orig/drivers/video/vesafb.c       2003-07-13
-> 23:30:36.000000000 -0400
-> +++ linux/drivers/video/vesafb.c        2003-07-19 20:30:18.000000000 -0400
-> @@ -227,7 +227,7 @@
->         vesafb_defined.xres = screen_info.lfb_width;
->         vesafb_defined.yres = screen_info.lfb_height;
->         vesafb_fix.line_length = screen_info.lfb_linelength;
-> -       vesafb_fix.smem_len = screen_info.lfb_size * 65536;
-> +       vesafb_fix.smem_len = screen_info.lfb_width * screen_info.lfb_height *
-> screen_info.lfb_depth;
->         vesafb_fix.visual   = (vesafb_defined.bits_per_pixel == 8) ?
->                 FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+James Morris <jmorris@intercode.com.au> writes:
 
-This will make some systems crash on boot.
+> On Sat, 19 Jul 2003, Sean Neakums wrote:
+>
+>> twenty.  The problem seems unrelated to the amount of data
+>> transferred; I've tried both bulk rsync transfers and ssh sessions.
+>> I've also tested the same boxes over 100baseT; still happens.
+>
+> It sounds a bit like a pmtu problem related to the wireless bridge, but 
+> that would be dependent on amount of data transferred and should not 
+> happen on 100baseT.
 
-width * height * depth is in bits. You tben need to chop that down to
-bytes and maybe allow room for the scroll buffer, but only if its still
-under the size of the entire frame buffer.
+I am seeing a lot of "pmtu discvovery on SA AH/03537192/c0a80003" type
+messages (I forgot to check for them when on 100baseT; will recheck
+that).  Are these indicative of such a problem?  I seem to recall that
+reducing the max MTU is not as straightforward as just adjusting the
+interfaces' mtu setting.  What should I do to eliminate pmtu as the
+source of the problem?
 
-See the final 2.4 changes
+> Transport mode (just blowfish encryption) looks to be working ok for me,
+> I'm able to ftp uncompressed kernel tarballs between two boxes over 
+> gigabit ethernet with no apparent problems.
+
+I had been using 3des with AH; just retried with blowfish 448 and no
+AH with much the same result.
 

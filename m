@@ -1,86 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270143AbTGUOyS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270148AbTGUOyS
+	id S270169AbTGUOvr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270173AbTGUOvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:54:18 -0400
-Received: from firewall.mdc-dayton.com ([12.161.103.180]:8904 "EHLO
-	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
-	id S270143AbTGUOyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:54:10 -0400
-From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <bullet.train@ntlworld.com>, <no_spam@ntlworld.com>
-Subject: Re: Fwd: Missing interrupts?
-Date: Mon, 21 Jul 2003 11:20:07 -0500
-Message-ID: <PMEMILJKPKGMMELCJCIGCEFOCDAA.kfrazier@mdc-dayton.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Mon, 21 Jul 2003 10:51:47 -0400
+Received: from colin2.muc.de ([193.149.48.15]:24585 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S270169AbTGUOvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 10:51:42 -0400
+Date: 21 Jul 2003 17:06:43 +0200
+Date: Mon, 21 Jul 2003 17:06:43 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andi Kleen <ak@muc.de>, linas@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: KDB in the mainstream 2.4.x kernels?
+Message-ID: <20030721150643.GA70173@colin2.muc.de>
+References: <m3smp3y38y.fsf@averell.firstfloor.org> <1681.1058705718@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1681.1058705718@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your posting caught my eye, as I am currently having a problem with a device
-driver not receiving interrupts on a Pentium 4 system.  In the debugging
-process we found that our board is asserting it's interrupt, but my driver
-never receives it (sound familiar?).  I added code to the linux kernel
-(version 2.4.20-8) to determine if the IRQ was getting to the O/S once my
-system hangs.  We found that not only is it NOT getting to the O/S, it never
-even makes it to the 8259 Programmable Interrupt Controller.  Futhermore, it
-appears that things on the motherboard are is such a bad state, that no
-other interrupts are getting through (keyboard, mouse, network, etc).  This
-same board and driver works fine in a Pentium 3 system.
+On Sun, Jul 20, 2003 at 10:55:18PM +1000, Keith Owens wrote:
+> On Fri, 18 Jul 2003 22:43:57 +0200, 
+> >I actually started on porting the KDB backtracer recently to get
+> >reliable frame pointer based backtraces, but it turns out the code
+> >for that is so complicated and ugly that the chances of ever merging
+> >it would be very slim.
+> 
+> Mainly because the kernel is full of special cases and i386 provides no
 
+Yes I agree. It is an ugly problem, which usually results in ugly
+solutions too.
 
-
->Machines test where everything worked: kernels 2.4.18-10 and 2.4.18-24.8.0
-> on athlon based PCs
-
-
->Machine where interrupts failed to appear: kernel 2.4.18-3 on a pentium 4.
-
-Are you running these tests using the same board?  You might try moving the
-board for this device driver from the athlon PC to the pentium 4 PC just to
-insure it is not a problem with the board.
-
->I register the interrupt on open with
-
->
-err=request_irq(pi_stage.interrupt,pi_int_handler,SA_SHIRQ,PI_IRQ_ID,(void*)
-> &pi_stage);
-
-Is the value in pi_stage.interrupt assigned from the irq element of the
-pci_dev structure (returned by pci_find_device routine)?  This is the
-preferred way to obtain your IRQ rather than look directly at your device's
-config space.
-
-Even though you are indicating that you will share the IRQ, have you tried
-adjusting BIOS settings or moving board to another slot to try to establish
-a unique IRQ for yourself?  That would at least prevent another device
-driver from getting in your way.
-
-Just curious:  Are you receiving any interrupts at all in the pentium 4
-system?  Or is it running for awhile and then missing some?  Does a missing
-interrupt hang your system?
-
-
-
-Kathy Frazier
-Senior Software Engineer
-Max Daetwyler Corporation-Dayton Division
-2133 Lyons Road
-Miamisburg, OH 45342
-Tel #: 937.439-1582 ext 6158
-Fax #: 937.439-1592
-Email: kfrazier@daetwyler.com
-http://www.daetwyler.com
-
-
-
+-Andi

@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269641AbUICL5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269654AbUICMAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269641AbUICL5f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 07:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269643AbUICL5f
+	id S269654AbUICMAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 08:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269653AbUICMAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 07:57:35 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:22931 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269641AbUICL5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 07:57:23 -0400
-Subject: Re: PROBLEM: Full CPU-usage on sis5513-chipset disc
-	input/output-operations
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hendrik Fehr <s4248297@rcs.urz.tu-dresden.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094206957.413845ed84b54@rmc60-231.urz.tu-dresden.de>
-References: <1094206957.413845ed84b54@rmc60-231.urz.tu-dresden.de>
-Content-Type: text/plain
+	Fri, 3 Sep 2004 08:00:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38796 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269645AbUICMAT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 08:00:19 -0400
+Message-ID: <41385CC2.9020703@pobox.com>
+Date: Fri, 03 Sep 2004 08:00:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: NM Lists <mlists@paris.monnet.biz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock with Promise Driver, still in 2.6.9-rc1
+References: <1094204856.18563.7.camel@nicathlon.monnet.biz>
+In-Reply-To: <1094204856.18563.7.camel@nicathlon.monnet.biz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094208914.7535.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 03 Sep 2004 11:55:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-03 at 11:22, Hendrik Fehr wrote:
-> (note: i use ide0=ata66 because my machine is a laptop which uses a short 40c
-> wire that is equal to an long (i thing 18 inches) 80c cable.)
+NM Lists wrote:
+> This has already been reported I think, but here it is again. In some
+> bugzilla somewhere this has been incorrectly reported as a software Raid
+> vs. Promise driver incompatibility; in fact, it appears to be a problem
+> when both SATA channels are being used at the same time (which obviously
+> happens a lot with raid!)
+> 
+> How to trigger it:
+> 
+> # cat /dev/sda > /dev/null &
+> # hdparm -t /dev/sdb &
+> # hdparm -t /dev/sda &
 
-That should be fine - if it was not you would get CRC errors.
 
-> hda: 78140160 sectors (40007 MB), CHS=65535/16/63, UDMA(100)
-> hda: cache flushes supported
->  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 < p5 p6 p7 p8 >
+Well, I'm not familiar with this problem, at least.
 
-This all looks fine
+Can you provide info as described in REPORTING-BUGS (in the kernel tree)?
 
-> hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
+Can you define ATA_DEBUG and ATA_VERBOSE_DEBUG in 
+include/linux/libata.h, and provide output when it deadlocks?
 
-Likewise. So it is booting up with DMA enabled and ought to be fast for
-both devices. What does hdparm -t /dev/hda say ?
+Did you try 2.6.9-rc1 snapshot?
+
+If nothing else, can you record the bug at http://bugzilla.kernel.org/ 
+to make sure its not lost?
+
+	Jeff
+
 

@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269092AbUJKREb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269057AbUJKREc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269092AbUJKREb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 13:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269049AbUJKRDX
+	id S269057AbUJKREc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 13:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268957AbUJKRDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 13:03:23 -0400
-Received: from mproxy.gmail.com ([216.239.56.242]:19354 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269101AbUJKQxK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 12:53:10 -0400
-Message-ID: <9f50a7a0041011095324253e7f@mail.gmail.com>
-Date: Mon, 11 Oct 2004 11:53:09 -0500
-From: Jerone Young <jerone@gmail.com>
-Reply-To: Jerone Young <jerone@gmail.com>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Subject: Re: via-velocity heads up (was (Re: Linux 2.6.9-rc4 - pls test (and no more patches))
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-In-Reply-To: <20041011072307.GA18577@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Oct 2004 13:03:13 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:10949 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S269070AbUJKQrO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 12:47:14 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: Totally broken PCI PM calls
+Date: Mon, 11 Oct 2004 09:47:38 -0700
+User-Agent: KMail/1.6.2
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
+References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com>
+In-Reply-To: <16746.2820.352047.970214@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
-	 <20041011072307.GA18577@electric-eye.fr.zoreil.com>
+Message-Id: <200410110947.38730.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I also am able to finally use the via-velocity card without it
-taking down my router! The patches resolve issues with the card.  I
-have been heavily using it now without a problem on X86_64 Linux.  I
-have an Abit A8V with integrated Via Velocity card
+On Sunday 10 October 2004 9:24 pm, Paul Mackerras wrote:
+> Linus Torvalds writes:
+> 
+> > And they are unbroken again (well, at least they work for me again).  
+> > Partly by the PM_ renumbering under discussion.
+> 
+> Interesting.  I find that with suspend-to-ram, USB keyboards don't
+> work after resume, and that the system will hang on resume if you
+> remove a USB device during sleep.
 
+A "hang" sounds like the pmcore bug I reported about a year ago...
 
-On Mon, 11 Oct 2004 09:23:07 +0200, Francois Romieu
-<romieu@fr.zoreil.com> wrote:
-> Linus Torvalds <torvalds@osdl.org> :
-> [...]
-> > Summary of changes from v2.6.9-rc3 to v2.6.9-rc4
-> > ============================================
-> [...]
-> > Fran?ois Romieu:
-> >   o via-velocity: properly manage the count of adapters
-> >   o via-velocity: removal of unused velocity_info.xmit_lock
-> >   o via-velocity: velocity_give_rx_desc() removal
-> >   o via-velocity: received ring wrong index and missing barriers
-> >   o via-velocity: early invocation of init_cam_filter()
-> >   o via-velocity: removal of incomplete endianness handling
-> >   o via-velocity: wrong buffer offset in velocity_init_td_ring()
-> >   o via-velocity: comment fixes
-> 
-> The attribution is a bit misleading as Tejun Heo <tj@home-tj.org>
-> did the real work (he appears in the logs though).
-> 
-> People should really, really, test this code if they have been
-> experiencing issues with the driver lately.
-> 
-> Test reports welcome here or on netdev@oss.sgi.com.
-> 
-> --
-> Ueimor
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+It's rather foolish of the PM core to use the same semaphore to
+protect system-wide suspend/resume operations that it uses to
+for mutual exclusion on the device add/remove (which suspend
+and resume callbacks did happily in 2.4) ... since it's routine to
+unplug peripherals on suspended systems!
+
+Alternatively, if you're combininging USB_SUSPEND with any
+system-wide suspend operation, you're asking for trouble;
+the PM core is just not ready for that.  (In fact I've wondered
+if maybe 2.6.9 shouldn't discourage that combination more
+actively...)
+
+But a keyboard-specific issue might be improved with the
+HID patch I posted last week, teaching that driver how to
+handle suspend() and resume() callbacks.
+
+- Dave
+

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316518AbSEUFUm>; Tue, 21 May 2002 01:20:42 -0400
+	id <S316519AbSEUFYt>; Tue, 21 May 2002 01:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316519AbSEUFUl>; Tue, 21 May 2002 01:20:41 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:39339 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316518AbSEUFUk>; Tue, 21 May 2002 01:20:40 -0400
-Date: Tue, 21 May 2002 00:20:24 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Peter Chubb <peter@chubb.wattle.id.au>, <trivial@rustcorp.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Allow aic7xx firmware to be built from BK tree. 
-In-Reply-To: <200205210507.g4L570948949@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.44.0205210012470.1673-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316521AbSEUFYs>; Tue, 21 May 2002 01:24:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62661 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316519AbSEUFYr>;
+	Tue, 21 May 2002 01:24:47 -0400
+Date: Mon, 20 May 2002 22:10:55 -0700 (PDT)
+Message-Id: <20020520.221055.106159485.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.16
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0205202143010.949-100000@home.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 May 2002, Justin T. Gibbs wrote:
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Mon, 20 May 2002 22:10:31 -0700 (PDT)
+   
+   I tried to make the interface fairly generic, so that people could easily
+   do any (or none, like on x86) of these optimizations with little or no
+   overhead.
 
-> >Some people are using source control management systems which
-> >leave the managed files read-only.
->
-> These people shouldn't be rebuilding the firmware. 8-)
+It still needs to handle the "unmapping entire address space"
+vs. "unmapping munmap-like operation".  Currently we'll flush
+excessively when doing exit_mmap().
 
-True, but some do anyway...
+I'll go and hack this into your new stuff.
 
-> Only with lots of MD5 junk and other complicated rules.  I have no problem
-> with changing the name of the shipped files and using a link if that will
-> finally put this issue to rest.
-
-Okay, I'll take care of it. I think it should be done and over with, then.
-
---Kai
-
-
+I guess you didn't read my emails from today for some reason,
+I explained all of this.

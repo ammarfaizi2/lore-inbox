@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264572AbTDPUKf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 16:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264576AbTDPUKf
+	id S264596AbTDPUYy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 16:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264597AbTDPUYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 16:10:35 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:54794 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264572AbTDPUKd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 16:10:33 -0400
-Date: Wed, 16 Apr 2003 22:19:48 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kdevt-diff
-Message-ID: <20030416201948.GA18717@win.tue.nl>
-References: <UTC200304142201.h3EM19S07185.aeb@smtp.cwi.nl> <20030414221110.GK4917@ca-server1.us.oracle.com> <200304142218.h3EMIKIO017775@turing-police.cc.vt.edu> <b7k1gg$6uc$1@cesium.transmeta.com>
+	Wed, 16 Apr 2003 16:24:54 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:64563 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264596AbTDPUYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 16:24:52 -0400
+Date: Wed, 16 Apr 2003 13:35:39 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: ak@muc.de, willy@debian.org, davem@redhat.com,
+       linux-kernel@vger.kernel.org, anton@samba.org, schwidefsky@de.ibm.com,
+       davidm@hpl.hp.com, matthew@wil.cx, ralf@linux-mips.org, rth@redhat.com
+Subject: Re: Reduce struct page by 8 bytes on 64bit
+Message-Id: <20030416133539.0ac01968.akpm@digeo.com>
+In-Reply-To: <20030416151112.GB1505@parcelfarce.linux.theplanet.co.uk>
+References: <20030415112430.GA21072@averell>
+	<20030416.054521.26525548.davem@redhat.com>
+	<20030416140715.GA2159@averell>
+	<20030416.072638.65480350.davem@redhat.com>
+	<20030416144312.GA2327@averell>
+	<20030416145532.GA1505@parcelfarce.linux.theplanet.co.uk>
+	<20030416150427.GA2496@averell>
+	<20030416151112.GB1505@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b7k1gg$6uc$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Apr 2003 20:36:39.0933 (UTC) FILETIME=[E22642D0:01C30457]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 16, 2003 at 09:48:16AM -0700, H. Peter Anvin wrote:
-
-> Not really, but it's certainly a nice capability.  However, iso9660
-> (RockRidge, actually) has 64 bits of dev_t space; it's actually split
-> into two 32-bit entries specified as "high 32 bits" and "low 32 bits."
+Matthew Wilcox <willy@debian.org> wrote:
+>
+> Jacob's would break if we hashed to different spinlocks.  But we don't, we
+> shift right by 8, so we get the same spinlock for atomic things that are on
+> the same "cacheline" (i think PA cachelines are actually 64 or 128 bytes,
+> depending on model).
 > 
-> I'm not positive if Linux expects those to contain major:minor or
-> 0:<16-bit-dev_t>.
 
-      case SIG('P','N'):
-        { int high, low;
-          high = isonum_733(rr->u.PN.dev_high);
-          low = isonum_733(rr->u.PN.dev_low);
-          /*
-           * The Rock Ridge standard specifies that if sizeof(dev_t) <= 4,
-           * then the high field is unused, and the device number is completely
-           * stored in the low field.  Some writers may ignore this subtlety,
-           * and as a result we test to see if the entire device number is
-           * stored in the low field, and use that.
-           */
-          if((low & ~0xff) && high == 0) {
-            inode->i_rdev = mk_kdev(low >> 8, low & 0xff);
-          } else {
-            inode->i_rdev = mk_kdev(high, low);
-          }
-        }
-        break;
+Are you prepared to cast this in stone?
 
-(Here isonum_733 gets 32 bits.)
+If so then I think Jacob's approach would be preferable, don't you agree?
 
+It needs some compiler-detection magic around the anon union though.

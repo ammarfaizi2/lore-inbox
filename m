@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289290AbSBNBP3>; Wed, 13 Feb 2002 20:15:29 -0500
+	id <S289294AbSBNBQt>; Wed, 13 Feb 2002 20:16:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289294AbSBNBPN>; Wed, 13 Feb 2002 20:15:13 -0500
-Received: from sc-gw.scientific.de ([194.121.255.233]:49084 "EHLO
-	sarah.scientific.de") by vger.kernel.org with ESMTP
-	id <S289290AbSBNBPF>; Wed, 13 Feb 2002 20:15:05 -0500
-Subject: [patch] tmpfs: incr. link-count on directory rename
-From: Uli Martens <um@scientific.de>
-To: Christoph Rohland <cr@sap.com>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 14 Feb 2002 02:07:18 +0100
-Message-Id: <1013648840.2317.5.camel@isax>
-Mime-Version: 1.0
+	id <S289307AbSBNBQm>; Wed, 13 Feb 2002 20:16:42 -0500
+Received: from web14401.mail.yahoo.com ([216.136.174.58]:22379 "HELO
+	web14401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289294AbSBNBQc>; Wed, 13 Feb 2002 20:16:32 -0500
+Message-ID: <20020214011631.38381.qmail@web14401.mail.yahoo.com>
+Date: Wed, 13 Feb 2002 17:16:31 -0800 (PST)
+From: Sanjeev Lakshmanan <survivor_eagles@yahoo.com>
+Subject: USB device driver
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202131955210.17093-100000@northface.intercarve.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph, hi all! 
+Hi all
 
-When I move a directory into another on a tmpfs filesystem, the
-link-count of the new parent directory isn't getting incremented. 
-(which leads to find getting hickup, which eg. lets dpkg produce a
-"bzip2" binary package without binaries, generally not a nice thing) 
+I need to develop a USB device driver for a custom
+made switch. I shall give a brief description.
 
-test: 
+ The switch (which is connected to the USB port of a
+Linux box running REdHat 7.1) has four RJ 45
+connectors for ethernet cables and it needs to
+exchange data packets of size 8 bytes every .5
+seconds. The Transmit ethernet port(1,2,3,4) and
+Receive ethernet port(1,2,3,4) need to be selected for
+each transfer and the data packet which is to be sent
+out and received on those ports changes accordingly.
 
-isax@home:/tmp/test$ mkdir t1 
-isax@home:/tmp/test$ mkdir t2 
-isax@home:/tmp/test$ mv t2 t1 
-isax@home:/tmp/test$ ls -lRa 
-.: 
-total 0 
-drwxr-xr-x    5 isax     isax            0 Feb 13 23:05 . 
-drwxrwxrwt   13 root     root            0 Feb 13 23:04 .. 
-drwxr-xr-x    2 isax     isax            0 Feb 13 23:05 t1 
+Please let me know how I can start off writing the
+code for  this driver.
 
-./t1: 
-total 0 
-drwxr-xr-x    2 isax     isax            0 Feb 13 23:05 . 
-drwxr-xr-x    5 isax     isax            0 Feb 13 23:05 .. 
-drwxr-xr-x    2 isax     isax            0 Feb 13 23:05 t2 
+Also please let me know if there are any SIMILAR
+device drivers already developed and available.
 
-./t1/t2: 
-total 0 
-drwxr-xr-x    2 isax     isax            0 Feb 13 23:05 . 
-drwxr-xr-x    2 isax     isax            0 Feb 13 23:05 .. 
+I am aware of the files
+usr/src/linux/drivers/usb/usb.*
+but as I have no prior experience with device drivers,
+I am unable to start off.
 
-the link count of "t1", "t1/." and "t1/t2/.." should be "3", not "2". 
-The following patch seems to work fine for me and is tested on my
-machine running debian's 2.4.17-1 and user-mode-linux 2.5.1-1. 
-This is my first patch to the kernel, so I suppose there is a really
-huge mistake in my patch I don't see now... 
- 
---- linux/mm/shmem.orig Wed Feb 13 00:56:14 2002
-+++ linux/mm/shmem.c    Wed Feb 13 18:09:04 2002
-@@ -1085,6 +1085,9 @@
- {
-        int error = -ENOTEMPTY;
- 
-+       if (S_ISDIR(old_dentry->d_inode->i_mode)) {
-+               new_dir->i_nlink++;
-+       }
-        if (shmem_empty(new_dentry)) {
-                struct inode *inode = new_dentry->d_inode;
-                if (inode) {
+Regards,
+Sanjeev.
 
--- 
-uli martens
 
+
+
+__________________________________________________
+Do You Yahoo!?
+Send FREE Valentine eCards with Yahoo! Greetings!
+http://greetings.yahoo.com

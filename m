@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313606AbSDJTZT>; Wed, 10 Apr 2002 15:25:19 -0400
+	id <S313638AbSDJT3b>; Wed, 10 Apr 2002 15:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313622AbSDJTZT>; Wed, 10 Apr 2002 15:25:19 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:57218 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313606AbSDJTZR>; Wed, 10 Apr 2002 15:25:17 -0400
-Date: Wed, 10 Apr 2002 13:24:51 -0600
-Message-Id: <200204101924.g3AJOp113305@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-In-Reply-To: <20020410184010.GC3509@turbolinux.com>
+	id <S313641AbSDJT3a>; Wed, 10 Apr 2002 15:29:30 -0400
+Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:2821 "EHLO
+	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
+	id <S313638AbSDJT33>; Wed, 10 Apr 2002 15:29:29 -0400
+Message-ID: <004b01c1e0c6$01d690f0$7e0aa8c0@bridge>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: "Andrew Morton" <akpm@zip.com.au>, "lkml" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CB4203D.C3BE7298@zip.com.au>
+Subject: Re: [prepatch] address_space-based writeback
+Date: Wed, 10 Apr 2002 12:29:17 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger writes:
-> On Apr 10, 2002  09:33 -0600, Richard Gooch wrote:
-> > Even though I'm using persistent superblockss, which is supposed to
-> > allow one to move devices from one controller to another, I can't
-> > use my RAID) set in this configuration. Looks like a bug.
-> > 
-> > md0: former device scsi/host2/bus0/target1/lun0/part2 is unavailable, removing from array!
-> > md: md0, array needs 6 disks, has 5, aborting.
+This sounds like a wonderful piece of work.
+I'm also inspired by the rmap stuff coming down 
+the pipe.   I wonder if there would be any interference
+between the two, or could they leverage each other?
+
+Jeremy
+
+----- Original Message ----- 
+From: "Andrew Morton" <akpm@zip.com.au>
+Sent: Wednesday, April 10, 2002 4:21 AM
+
+
 > 
-> Note that this appears to be your real problem.
-
-No. I tested all 6 partitions used in the RAID set. They are all
-available.
-
-> > Note the following line from the kernel logs above:
-> > md: can not import scsi/host6/bus0/target0/lun0/part2, has active inodes!
-> > 
-> > Well, that's no surprise, as this partition has /usr! And this
-> > partition isn't even mentioned in the /etc/raidtab file. But I note
-> > that it has the same device number in this (the broken) configuration
-> > as /dev/sd/c0b0t1u0p2 has in the working configuration.
+> This is a largish patch which makes some fairly deep changes.  It's
+> currently at the "wow, it worked" stage.  Most of it is fairly
+> mature code, but some conceptual changes were recently made.
+> Hopefully it'll be in respectable state in a few days, but I'd
+> like people to take a look.
 > 
-> That is a red herring, I think.
-
-Then what *is* the problem?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> The idea is: all writeback is against address_spaces.  All dirty data
+> has the dirty bit set against its page.  So all dirty data is
+> accessible by
+ (snip)

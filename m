@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277785AbRJIPnl>; Tue, 9 Oct 2001 11:43:41 -0400
+	id <S277791AbRJIPpk>; Tue, 9 Oct 2001 11:45:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277784AbRJIPn3>; Tue, 9 Oct 2001 11:43:29 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:57864 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S277785AbRJIPnR>; Tue, 9 Oct 2001 11:43:17 -0400
-Message-Id: <200110091543.f99FhFVJ009433@pincoya.inf.utfsm.cl>
-To: root@chaos.analogic.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel size 
-In-Reply-To: Message from "Richard B. Johnson" <root@chaos.analogic.com> 
-   of "Tue, 09 Oct 2001 10:52:50 -0400." <Pine.LNX.3.95.1011009105102.5543A-100000@chaos.analogic.com> 
-Date: Tue, 09 Oct 2001 11:43:14 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S277790AbRJIPp3>; Tue, 9 Oct 2001 11:45:29 -0400
+Received: from ns.suse.de ([213.95.15.193]:57610 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S277788AbRJIPpU>;
+	Tue, 9 Oct 2001 11:45:20 -0400
+Date: Tue, 9 Oct 2001 17:45:50 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: <Jose_Jorge@teklynx.fr>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kapmidled and AMD K6-2
+In-Reply-To: <OFD647EAB7.926A3491-ONC1256AE0.00534E9E@bradycorp.com>
+Message-ID: <Pine.LNX.4.30.0110091735160.31520-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> said:
-> On Tue, 9 Oct 2001, Ingo Oeser wrote:
+On Tue, 9 Oct 2001 Jose_Jorge@teklynx.fr wrote:
 
-[...]
+> for the AMD K6-2 on a DFI motherboard AT/ATX, using the AT power supply,
+> this option is buggy. I mean the cycles kapmidled works doesn't cool the
+> processor, they hot him.
 
-> > strip -R .ident -R .comment -R .note
-> > 
-> > is your friend. 
+Initially, I thought was odd. The spec seemed straight forward
+enough, and doesn't say we have to do any special magic.
+Just that "During the execution of the HLT instruction, the AMD-K6-2
+processor executes a Halt special cycle."
 
-[...]
+The next bit is interesting however..
 
-> Yes! Wonderful...
-> -rwxr-xr-x   1 root     root      1571516 Oct  9 10:50 vmlinux
-> -rwxr-xr-x   1 root     root      1590692 Oct  1 13:26 vmlinux.OLD
-> 
-> That got rid of some cruft.
+"After BRDY# is sampled asserted during this cycle, and then EWBE#
+is also sampled asserted (if not masked off), the processor enters
+the halt state in which the processor disables most of its internal
+clock distribution."
 
-Yep. A WHOOPing 1.2% of the total. BTW, is this stuff ever being loaded
-into RAM with the executable kernel, discarded on boot, or what?
+EWBE is a feature that is enabled with bits 2-3 of the EFER MSR.
+This controls the behaviour of the CPU with respect to ordering
+of write cycles. Behaviour here can affect performance, and from
+my interpretation of the above, the amount of power saving that
+is possible.
 
-IMHO, it would be more productive to go after savings via .init*, and
-perhaps bug the GCC/binutils people to merge strings...
+You can control the EWBE register using powertweak
+(http://www.powertweak.org), but if you don't want to/are unable
+to build that, and want to do some further tests, let me know
+and I'll hack something up.
+
+If this feature is affecting temperature dramatically, it may
+be worth us clearing this on boot up.
+
+I've heard reports from Athlon users who also say HLT doesn't
+do anything regarding temperature for their systems. I wonder
+if it also has a similar feature tucked away in an MSR somewhere..
+
+regards,
+
+Dave.
+
 -- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

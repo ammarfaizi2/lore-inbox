@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTD3QjL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 12:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTD3QjL
+	id S262217AbTD3QxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 12:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTD3QxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 12:39:11 -0400
-Received: from mailer.syr.edu ([128.230.18.29]:11697 "EHLO mailer.syr.edu")
-	by vger.kernel.org with ESMTP id S261807AbTD3QjI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 12:39:08 -0400
-X-WebMail-UserID: mamiling
-Date: Wed, 30 Apr 2003 12:51:28 -0400
-From: "Matthew A. Miling" <mamiling@mailbox.syr.edu>
-To: linux-kernel@vger.kernel.org
-X-EXP32-SerialNo: 00105840
-Subject: Measuring CPU with Hyperthreading and Linux
-Message-ID: <3EB61ACD@OrangeMail>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: InterChange (Hydra) SMTP v3.61.08
+	Wed, 30 Apr 2003 12:53:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44856 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S262217AbTD3QxP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 12:53:15 -0400
+To: Gabriel Paubert <paubert@iram.es>
+Cc: Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
+       joe briggs <jbriggs@briggsmedia.com>, linux-kernel@vger.kernel.org
+Subject: Re: software reset
+References: <200304291037.13598.jbriggs@briggsmedia.com.suse.lists.linux.kernel>
+	<p73vfwx2uw8.fsf@oldwotan.suse.de>
+	<20030430075004.GB13859@mail.jlokier.co.uk>
+	<m1llxsfdpg.fsf@frodo.biederman.org> <20030430161525.GA3834@iram.es>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 30 Apr 2003 11:02:41 -0600
+In-Reply-To: <20030430161525.GA3834@iram.es>
+Message-ID: <m1he8fgbpq.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Gabriel Paubert <paubert@iram.es> writes:
 
-Please personally CC my email address to any responses:
-  mamiling@syr.edu
+> On Wed, Apr 30, 2003 at 05:04:59AM -0600, Eric W. Biederman wrote:
+> > 
+> > And as an interesting data point all a triple fault does on a modern
+> > system is to put the cpu in a weird stopped state.  Some hardware
+> > usually the southbridge then detects this and if properly configured
+> > will trigger the reset line.
+> > 
+> > I believe this may actually go back into history as far as the 486 but
+> > I have not done the researched to see how far back this behavior goes.
+> 
+> Try 286. It was the fastest (actually only) way to make a 286 switch back
+> from protected to real mode.
 
-I am currently running a dual Pentium 4 Xeon 2.4 GHz system containing Red Hat 
-Linux 6.2 with the 2.4.20 kernel.  The Pentium 4 Xeons report 4 cpu's to 
-/proc/cpuinfo because they are hyperthreaded.
+A triple fault would put a 286 into coma mode?  And the hardware had to
+reset the chip?
 
-My problem lies in trying to measure the CPU usage with such programs as top 
-or gtop.  Typically, I see CPU loads in excess of 100% when I run top with 
-some of my signal processing applications, but not more than 200%.  Is this 
-value out of 100%, 200%, or 400%?  How does this dual, HT system kernel report 
-this info to the OS?
+Just trying to be clear on what you are saying.
 
-Any help would be appreciated.  Thanks
-
-Matt
-
--------------------------------------------
-
- Matthew A. Miling
- Graduate Student - Computer Engineering
- Syracuse University
-
- phone:  (315) 456-1215
- cell:   (315) 380-9307
- e-mail: mamiling@syr.edu
-         matt@miling.com
-
--------------------------------------------
-
+Eric

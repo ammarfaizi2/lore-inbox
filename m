@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUKXCpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUKXCsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbUKXCpS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 21:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUKXCnp
+	id S261712AbUKXCsU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 21:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKXCsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 21:43:45 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:22944 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261688AbUKXCnM (ORCPT
+	Tue, 23 Nov 2004 21:48:20 -0500
+Received: from mail.gmx.net ([213.165.64.20]:46268 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261697AbUKXCrn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 21:43:12 -0500
-Date: Wed, 24 Nov 2004 04:45:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
+	Tue, 23 Nov 2004 21:47:43 -0500
+X-Authenticated: #4399952
+Date: Wed, 24 Nov 2004 03:48:57 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
        Karsten Wiese <annabellesgarden@yahoo.de>,
@@ -24,44 +24,44 @@ Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
        Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
        Esben Nielsen <simlo@phys.au.dk>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-9
-Message-ID: <20041124034520.GA12785@elte.hu>
-References: <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <1101257903.13780.15.camel@krustophenia.net>
+Message-ID: <20041124034857.084e2e05@mango.fruits.de>
+In-Reply-To: <20041124031908.GA12028@elte.hu>
+References: <20041111215122.GA5885@elte.hu>
+	<20041116125402.GA9258@elte.hu>
+	<20041116130946.GA11053@elte.hu>
+	<20041116134027.GA13360@elte.hu>
+	<20041117124234.GA25956@elte.hu>
+	<20041118123521.GA29091@elte.hu>
+	<20041118164612.GA17040@elte.hu>
+	<20041122005411.GA19363@elte.hu>
+	<20041123175823.GA8803@elte.hu>
+	<20041124012827.625fa7e1@mango.fruits.de>
+	<20041124031908.GA12028@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101257903.13780.15.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 24 Nov 2004 04:19:08 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Tue, 2004-11-23 at 18:58 +0100, Ingo Molnar wrote:
-> > i have released the -V0.7.30-9 Real-Time Preemption patch, which can be
-> > downloaded from the usual place:
+> 
+> * Florian Schmidt <mista.tapas@gmx.net> wrote:
+> 
+> > Hi, i have some problem with unresolved symbols loading my alsa sound
+> > card driver with this kernel version. At first i suspected an unclean
+> > build, but then i did make clean bzImage modules and the unresolved
+> > symbols persist (i have wakeup/nonpreemptible/interrupts-off tracing
+> > enabled (see .config)):
 > > 
-> >     http://redhat.com/~mingo/realtime-preempt/
+> > snd_pcm: Unknown symbol user_trace_stop
 > 
-> I have notices some weird interactivity issues with this.  These are
-> also present in T3.
+> does adding this line to kernel/latency.c resolve it?:
 > 
-> The symptom is that CPU bound tasks like kernel compiles will starve
-> I/O bound tasks like evolution for a _long_ time.  If I have a kernel
-> build and external modules building at the same time and Evolution
-> goes to "Update message list...", it can sit and spin with a blank
-> message pane for a minute or two.  If I suspend the builds, the
-> message list renders immediately.
+>   EXPORT_SYMBOL(user_trace_stop);
 
-could you try the vanilla -rc2-mm2 kernel (with PREEMPT enabled), does
-it behave in such a way too? At first sight this could be a property of
-the upstream scheduler, but maybe it's special to PREEMPT_RT.
+yes, modules load fine now. thanks.
 
-	Ingo
+flo

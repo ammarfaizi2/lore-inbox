@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282971AbRLCIvt>; Mon, 3 Dec 2001 03:51:49 -0500
+	id <S283004AbRLCIvf>; Mon, 3 Dec 2001 03:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284368AbRLCItj>; Mon, 3 Dec 2001 03:49:39 -0500
-Received: from marine.sonic.net ([208.201.224.37]:48225 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S284828AbRLCG4t>;
-	Mon, 3 Dec 2001 01:56:49 -0500
-X-envelope-info: <dhinds@sonic.net>
-Date: Sun, 2 Dec 2001 22:56:44 -0800
-From: David Hinds <dhinds@sonic.net>
-To: Ian Morgan <imorgan@webcon.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        dhinds@zen.stanford.edu
-Subject: Re: BUG() in spinlock.h loading ds.o
-Message-ID: <20011202225644.A14160@sonic.net>
-In-Reply-To: <20011201120541.B28295@sonic.net> <Pine.LNX.4.40.0112022135520.1798-100000@light.webcon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0112022135520.1798-100000@light.webcon.net>
-User-Agent: Mutt/1.3.22.1i
+	id <S284483AbRLCIuo>; Mon, 3 Dec 2001 03:50:44 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:53262 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S284439AbRLBXwP>;
+	Sun, 2 Dec 2001 18:52:15 -0500
+Message-Id: <200112022351.fB2NppgY023031@sleipnir.valparaiso.cl>
+To: Larry McVoy <lm@bitmover.com>
+cc: Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue 
+In-Reply-To: Your message of "Sun, 02 Dec 2001 12:25:26 -0800."
+             <20011202122526.A2622@work.bitmover.com> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 02 Dec 2001 20:51:50 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 02, 2001 at 10:25:56PM -0500, Ian Morgan wrote:
-> 
-> Well, I've tried the new 30-Nov-01 package, but ds.o still keeps causing
-> oopses consistently, whether in UP or SMP. I've also turned on kernel BUG()
-> reporting, which seems to indicate a problem in spinlock.h. Hare are a
-> couple sample oopses:
+Larry McVoy <lm@bitmover.com> said:
+> vonbrand@sleipnir.valparaiso.cl on Sat, Dec 01, 2001 at 08:18:06PM -0300
 
-Oh.  Hmmm.  The problem is that the PCMCIA package doesn't know about
-the spinlock debugging option, so it mis-sized the spinlock data
-structure.
+[...]
 
-I can modify the PCMCIA Configure script to process this option.  Of
-course this doesn't address your main problem with the orinoco driver.
+> > I'd say it is better because the mutations themselves (individual patches)
+> > go through a _very_ harsh evaluation before being applied in the "official"
+> > sources. 
 
--- Dave
+> Which is exactly Victor's point.  That evaluation is the design.  If the 
+> mutation argument held water then Linus would apply *ALL* patches and then
+> remove the bad ones.  But he doesn't.  Which just goes to show that on this
+> mutation nonsense, he's just spouting off.
+
+Who is to say that bad mutations can't be weeded out _before_ a full
+organism is built? It seems not to happen openly in nature's evolution
+(then again, there are non-viable embryos, various DNA repair mechanisms
+that seem to go wrong all the time in certain parts of the genome, parts
+that mutate very fast while others don't change, ...), but this is just a
+metaphor, not a slavish following. We certainly (at least think we) can do
+better than just random typing.
+
+In your reading, the environment (which evaluates individuals) is the
+design. Right (in the sense that you end up with individuals fit to that
+environment), but also very wrong (as many quite different layouts will
+work).
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+
+

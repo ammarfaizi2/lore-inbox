@@ -1,101 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265710AbSJYAMb>; Thu, 24 Oct 2002 20:12:31 -0400
+	id <S265723AbSJYAQR>; Thu, 24 Oct 2002 20:16:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265714AbSJYAMb>; Thu, 24 Oct 2002 20:12:31 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:40395 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S265710AbSJYAM2>; Thu, 24 Oct 2002 20:12:28 -0400
-Date: Thu, 24 Oct 2002 17:18:34 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI device order problem
-Message-ID: <20021024171834.A23109@lucon.org>
-References: <20021024163945.A21961@lucon.org> <3DB88715.7070203@pobox.com> <20021024165631.A22676@lucon.org> <3DB88CD1.5090204@pobox.com>
-Mime-Version: 1.0
+	id <S265716AbSJYAQR>; Thu, 24 Oct 2002 20:16:17 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:55540 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S265730AbSJYAPv>; Thu, 24 Oct 2002 20:15:51 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DB88CD1.5090204@pobox.com>; from jgarzik@pobox.com on Thu, Oct 24, 2002 at 08:14:09PM -0400
+Content-Transfer-Encoding: 7bit
+Message-ID: <15800.36506.919790.573523@wombat.chubb.wattle.id.au>
+Date: Fri, 25 Oct 2002 10:21:46 +1000
+To: willy@debian.org, trivial@rustcorp.com.au
+cc: linux-kernel@vger.kernel.org
+Subject: Fix name of discarded section in modules.h
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 08:14:09PM -0400, Jeff Garzik wrote:
-> H. J. Lu wrote:
-> 
-> >On Thu, Oct 24, 2002 at 07:49:41PM -0400, Jeff Garzik wrote:
-> >  
-> >
-> >>H. J. Lu wrote:
-> >>
-> >>    
-> >>
-> >>>In arch/i386/kernel/pci-pc.c, there are
-> >>>
-> >>>/*
-> >>>* Sort the device list according to PCI BIOS. Nasty hack, but since some
-> >>>* fool forgot to define the `correct' device order in the PCI BIOS specs
-> >>>* and we want to be (possibly bug-to-bug ;-]) compatible with older kernels 
-> >>>* which used BIOS ordering, we are bound to do this... 
-> >>>*/
-> >>>
-> >>>static void __devinit pcibios_sort(void)
-> >>>
-> >>>The problem is on my MB:
-> >>>
-> >>>00:00.0 Host bridge: Intel Corp. e7500 [Plumas] DRAM Controller (rev 03)
-> >>>00:00.1 Class ff00: Intel Corp. e7500 [Plumas] DRAM Controller Error Reporting ( rev 03)
-> >>>00:03.0 PCI bridge: Intel Corp. e7500 [Plumas] HI_C Virtual PCI Bridge (F0) (rev 03)
-> >>>00:03.1 Class ff00: Intel Corp. e7500 [Plumas] HI_C Virtual PCI Bridge (F1) (rev 03)
-> >>>00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
-> >>>00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
-> >>>00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 42)
-> >>>00:1f.0 ISA bridge: Intel Corp. 82801CA ISA Bridge (LPC) (rev 02)
-> >>>00:1f.1 IDE interface: Intel Corp. 82801CA IDE U100 (rev 02)
-> >>>00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
-> >>>01:0c.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-> >>>02:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
-> >>>02:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
-> >>>02:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
-> >>>02:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
-> >>>03:07.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
-> >>>03:07.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
-> >>>03:08.0 RAID bus controller: 3ware Inc 3ware 7000-series ATA-RAID (rev 01)
-> >>>
-> >>>Eth1 becomes:
-> >>>03:07.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
-> >>>
-> >>>and eth0 becomes:
-> >>>03:07.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
-> >>>
-> >>>Is that a good idea to have an option to sort the PCI device by PCI bus and
-> >>>slot numbers?
-> >>> 
-> >>>
-> >>>      
-> >>>
-> >>Without answering your specific question, but addressing $subject, what 
-> >>problem is caused by the PCI device order you see?
-> >>    
-> >>
-> >
-> >It is different from the hardware documentation. The hardware manual says
-> >it has 2 NICs, NIC 1 (03:07.0) and NIC2 (03:07.1), which makes senses
-> >to me. NIC 1 is a special one which supports IPMI over LAN. Since we
-> >only use one NIC now, we'd like to use NIC 1 and call it eth0.
-> >  
-> >
-> 
-> Well, overall, depending on ordering is error-prone (as you see).  I 
-> would suggest migrating to a less-fragile scheme.  nameif and ethtool 
-> together should get you exactly the device you need...  (though I wonder 
-> why simply using eth1 is so awful, if this situation is constant...)
 
-We can use eth1. It is just very confusing since Linux and hardware
-manual don't agree which one is the first NIC. Also, when we upgrade
-the BIOS, the BIOS order may change. As for other schemes, we don't want
-to change every software which access ethX.
+Hi folks,
+   Changeset 
+	     willy@debian.org|ChangeSet|20021016154637|46581
+in linux 2.5 changed the name of .exit.text to .text.exit.
 
+Unfortunately, one change got missed.  Here it is:
 
-H.J.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.808   -> 1.809  
+#	include/linux/module.h	1.17    -> 1.18   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/25	peterc@gelato.unsw.edu.au	1.809
+# Fix name of .text.exit section in include/linux/module.h
+# --------------------------------------------
+#
+diff -Nru a/include/linux/module.h b/include/linux/module.h
+--- a/include/linux/module.h	Fri Oct 25 10:20:05 2002
++++ b/include/linux/module.h	Fri Oct 25 10:20:05 2002
+@@ -311,7 +311,7 @@
+  */
+ #define MODULE_GENERIC_TABLE(gtype,name) \
+ static const struct gtype##_id * __module_##gtype##_table \
+-  __attribute__ ((unused, __section__(".data.exit"))) = name
++  __attribute__ ((unused, __section__(".exit.data"))) = name
+ 
+ #ifndef __GENKSYMS__
+ 

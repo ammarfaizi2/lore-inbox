@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276097AbRJPM2n>; Tue, 16 Oct 2001 08:28:43 -0400
+	id <S273358AbRJPM2w>; Tue, 16 Oct 2001 08:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276074AbRJPM2c>; Tue, 16 Oct 2001 08:28:32 -0400
-Received: from curlew.cs.man.ac.uk ([130.88.13.7]:40965 "EHLO
-	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S273358AbRJPM2V>; Tue, 16 Oct 2001 08:28:21 -0400
-Date: Tue, 16 Oct 2001 13:28:51 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM
-Message-ID: <20011016132851.B74778@compsoc.man.ac.uk>
-In-Reply-To: <20011015211216.A1314@localhost> <Pine.LNX.4.40.0110151742440.1380-100000@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0110151742440.1380-100000@dlang.diginsite.com>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+	id <S276099AbRJPM2n>; Tue, 16 Oct 2001 08:28:43 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5388 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S273358AbRJPM2j>; Tue, 16 Oct 2001 08:28:39 -0400
+Date: Tue, 16 Oct 2001 08:23:56 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Wilson <defiler@null.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
+In-Reply-To: <009a01c155c7$89fa9c40$c800000a@Artifact>
+Message-ID: <Pine.LNX.3.96.1011016082207.23885B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 15, 2001 at 05:53:32PM -0700, David Lang wrote:
+On Mon, 15 Oct 2001, Wilson wrote:
 
-> before switching my production machines from 2.4.5 to a newer kernel.
 
-running such an old kernel does not give a fair comparison. Personally I've
-found the /current/ ac VM to be stable and give slightly smoother feel than
-the linus tree VM.
+> I see 512MB PC2100 Registered DIMMs for $105 on Pricewatch.
+> Am I missing something here?
 
-regards
-john
+Yes. The price of PC2100 is dropping like a rock everywhere, and the
+source I quoted at $50 is now just over $100. We're shooting at an
+off-topic moving target ;-)
 
 -- 
-"I hear you have four hundred and eighty six PCs for sale ?"
-	- Some Fool 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

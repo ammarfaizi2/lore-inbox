@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133055AbRDRIdK>; Wed, 18 Apr 2001 04:33:10 -0400
+	id <S133058AbRDRIxW>; Wed, 18 Apr 2001 04:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133056AbRDRIdA>; Wed, 18 Apr 2001 04:33:00 -0400
-Received: from jalon.able.es ([212.97.163.2]:34493 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S133055AbRDRIc4>;
-	Wed, 18 Apr 2001 04:32:56 -0400
-Date: Wed, 18 Apr 2001 10:32:45 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S133059AbRDRIxM>; Wed, 18 Apr 2001 04:53:12 -0400
+Received: from stm.lbl.gov ([131.243.16.51]:12814 "EHLO stm.lbl.gov")
+	by vger.kernel.org with ESMTP id <S133058AbRDRIxB>;
+	Wed, 18 Apr 2001 04:53:01 -0400
+Date: Wed, 18 Apr 2001 01:52:54 -0700
+From: David Schleef <ds@schleef.org>
+To: Dawson Engler <engler@csl.Stanford.EDU>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac9
-Message-ID: <20010418103245.A4458@werewolf.able.es>
-In-Reply-To: <E14pfRK-0003bR-00@the-village.bc.nu>
+Subject: Re: [CHECKER] copy_*_user length bugs?
+Message-ID: <20010418015254.A29893@stm.lbl.gov>
+Reply-To: David Schleef <ds@schleef.org>
+In-Reply-To: <200104180439.VAA21983@csl.Stanford.EDU>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E14pfRK-0003bR-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 18, 2001 at 02:03:18 +0200
-X-Mailer: Balsa 1.1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104180439.VAA21983@csl.Stanford.EDU>; from engler@csl.Stanford.EDU on Tue, Apr 17, 2001 at 09:39:15PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 04.18 Alan Cox wrote:
+On Tue, Apr 17, 2001 at 09:39:15PM -0700, Dawson Engler wrote:
+> Hi All,
 > 
-> 2.4.3-ac9
-.. 
-> 2.4.3-ac8
-> o	ACPI updates					(Andrew Grover)
+> at the suggestion of Chris (chris@ferret.lmh.ox.ac.uk) I wrote a simple
+> checker to warn when the length parameter to copy_*_user was (1) an
+> integer and (2) not checked < 0.    
+> 
+> As an example, the ipv6 routine rawv6_geticmpfilter gets an integer 'len'
+> from user space, checks that it is smaller than a struct size and then
+> uses length as an argument to copy_to_user: 
+> 
+>                 if (get_user(len, optlen))
+>                         return -EFAULT;
+>                 if (len > sizeof(struct icmp6_filter))
+>                         len = sizeof(struct icmp6_filter);
+>                 if (put_user(len, optlen))
+>                         return -EFAULT;
+>                 if (copy_to_user(optval, &sk->tp_pinfo.tp_raw.filter, len))
+>                         return -EFAULT;
+> 
+> Is this a real bug?  Or is the checked rule only applicable to
+> __copy_*_user routines rather than copy_*_user routines?  (If its a real
+> bug, theres about 8 others that we found).
 
-Patch for ac9 generates a file named linux/acpi-20010413.diff. It partially
-applies, some hunks failed and some offset. Is this rest of your work ?
 
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
+The len parameter is an unsigned value, so this code is ok as
+long as access_ok() correctly checks that the range to copy
+doesn't stray outside of the userspace range, including the
+possible wraparound for a very large len.  access_ok() on i386
+checks for the wraparound.  m68k doesn't use it.  PowerPC
+is correct, but only because TASK_SIZE is 0x80000000.  If it
+is ever changed, there could be a problem.  I didn't check
+other architectures, because I don't understand the asm.
 
-Linux werewolf 2.4.3-ac8 #2 SMP Wed Apr 18 01:10:27 CEST 2001 i686
+
+
+
+dave...
 

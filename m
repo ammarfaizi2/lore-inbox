@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVCHLkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVCHLkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbVCHLkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 06:40:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVCHLhF
+	id S262014AbVCHLkL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 06:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVCHLj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 06:37:05 -0500
-Received: from mx01.qsc.de ([213.148.129.14]:64400 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S262009AbVCHLZ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 06:25:26 -0500
-Message-ID: <422D8BA3.9020703@exactcode.de>
-Date: Tue, 08 Mar 2005 12:25:23 +0100
-From: Rene Rebe <rene@exactcode.de>
-Organization: ExactCode
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050205)
-X-Accept-Language: en-us, en
+	Tue, 8 Mar 2005 06:39:26 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:42927 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262014AbVCHLgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 06:36:12 -0500
+Message-ID: <422D8F2A.4010002@jp.fujitsu.com>
+Date: Tue, 08 Mar 2005 20:40:26 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Raphael Jacquot <raphael.jacquot@imag.fr>
-CC: Mateusz Berezecki <mateuszb@gmail.com>, linux-kernel@vger.kernel.org,
-       t2 developers mailing list <t2@exactcode.de>
-Subject: Re: Atheros wi-fi card drivers (?)
-References: <422C7722.40301@gmail.com> <422C7979.9050404@imag.fr>
-In-Reply-To: <422C7979.9050404@imag.fr>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH] 2/2 Prezeroing large blocks of pages during allocation
+ Version 4
+References: <20050307194021.E6A86E594@skynet.csn.ul.ie> <422D42BF.4060506@jp.fujitsu.com> <Pine.LNX.4.58.0503081012270.30439@skynet>
+In-Reply-To: <Pine.LNX.4.58.0503081012270.30439@skynet>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Mel Gorman wrote:
 
-Raphael Jacquot wrote:
+>>>      
+>>>
+>>Now, 5bits per  MAX_ORDER pages.
+>>I think it is simpler to use "char[]" for representing type of  memory alloc
+>>type than bitmap.
+>>
+>>    
+>>
+>
+>Possibly, but it would also use up that bit more space. That map could be
+>condensed to 3 bits but would make it that bit (no pun) more complex and
+>difficult to merge. On the other hand, it would be faster to use a char[]
+>as it would be an array-index lookup to get a pageblock type rather than a
+>number of bit operations.
+>
+>So, it depends on what people know to be better in general because I have
+>not measured it to know for a fact. Is it better to use char[] and use
+>array indexes rather than bit operations or is it better to leave it as a
+>bitmap and condense it later when things have settled down?
+>  
+>
+Hmm, Okay, I'll wait for condensed version.
+BTW, in space consumption/cache view,  does using bitmap have  real 
+benefit   ?
 
-> as your name appears european, there are no software patents (yet ?) so 
-> you should be able to release that code as required for interoperability
-
-The release of that source does not depend on software patents (which 
-seem to be acked yesterday for europe ... ;-()
-
-However with software patents a company could sue you for violating a 
-patent wheter you wrote the code or reverse engeneered it. E.g. for a 
-"transmitting information without cables, e.g. binary encoded via a 
-radio signal modulated this and that way. claims: any implementation 
-that transmit information without cables (including birds in the air) 
-... and so on the usual patent fluff ..." patent.
-
-Yours,
-
--- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-             http://www.exactcode.de/ | http://www.t2-project.org/
-             +49 (0)30  255 897 45
+Thanks
+-- Kame <kamezawa.hiroyu@jp.fujitsu.com>
 

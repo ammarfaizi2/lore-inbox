@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287177AbSABXEh>; Wed, 2 Jan 2002 18:04:37 -0500
+	id <S287957AbSABXKO>; Wed, 2 Jan 2002 18:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287166AbSABXCq>; Wed, 2 Jan 2002 18:02:46 -0500
-Received: from ns.crrstv.net ([216.94.219.4]:4755 "EHLO mail.crrstv.net")
-	by vger.kernel.org with ESMTP id <S287170AbSABXCf>;
-	Wed, 2 Jan 2002 18:02:35 -0500
-Date: Wed, 2 Jan 2002 19:01:08 -0400 (AST)
-From: skidley <skidley@crrstv.net>
-X-X-Sender: skidley@localhost.localdomain
-To: Timothy Covell <timothy.covell@ashavan.org>
-cc: Keith Owens <kaos@ocs.com.au>, adrian kok <adriankok2000@yahoo.com.hk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: system.map
-In-Reply-To: <200201022117.g02LHbSr022224@svr3.applink.net>
-Message-ID: <Pine.LNX.4.43.0201021853300.2334-100000@localhost.localdomain>
+	id <S287184AbSABXKF>; Wed, 2 Jan 2002 18:10:05 -0500
+Received: from dialin-145-254-151-098.arcor-ip.net ([145.254.151.98]:34326
+	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
+	id <S287181AbSABXJv>; Wed, 2 Jan 2002 18:09:51 -0500
+Message-ID: <3C339284.3F88FE68@loewe-komp.de>
+Date: Thu, 03 Jan 2002 00:06:44 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: B16
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.17-xfs i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: robert@schwebel.de
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        Jason Sodergren <jason@mugwump.taiga.com>,
+        Anders Larsen <anders@alarsen.net>, rkaiser@sysgo.de
+Subject: Re: [PATCH][RFC] AMD Elan patch
+In-Reply-To: <Pine.LNX.4.33.0201021823210.3056-100000@callisto.local>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Timothy Covell wrote:
- 
-> However, I'm concerned about searching in "/usr/src/linux" for it.
-> Linus has taken great pains to point out that we shouldn't be building
-> our kernels in /usr/src/linux, it would seem that this is reenforcing a
-> mistake.
+Robert Schwebel schrieb:
 > 
-I'm curious as to why kernels shouldn't be built in /usr/src/linux. Also
-this may be a dumb question but if I have built my kernels in /usr/src and want to move them to /home for eg. will that screw up things? Installing some apps from source sometimes they search for the kernel source during configure. If a kernel was compiled and moved to a different dir will this matter? 
+> On Wed, 2 Jan 2002, Robert Schwebel wrote:
+> > I've already searched through all manuals I could find on the AMD site
+> > (http://www.amd.com/epd/processors/4.32bitcont/13.lan4xxfam/23.lansc410/index.html)
+> > but couldn't find anything related to the CPUID command...
+> 
+> Aaargh, does anyone have a brown paper bag for me? The infomration is in
+> the User Manual.
+> 
+> Model  0ah means "enhanced Am486 SX1 write back mode"
+> Family 04h means "Am486 CPU"
+> 
+> Which IMHO doesn't say that this combination means _exactly_ the SC410.
+> 
 
--- 
-  . ---                                   .----.
-  |o_o |                                 /_ 0  |      
-  |:_/ |   Give Micro$oft the Bird!!!!   \_    |
- //   \ \  Use Linux!!!!                 /      \
-(|     | )                              | )  | | | 
-/'\_   _/`\                             | )  | | |   
-\___)=(___/                             |_)  (_) |  
-Chad Young                               \______/
-Registered Linux User #195191           (_______|
-@ http://counter.li.org
------------------------------------------------------------------------
-Linux localhost 2.4.18pre1 #2 Fri Dec 28 14:41:58 AST 2001 i686 unknown
-  6:50pm  up  4:35,  4 users,  load average: 0.01, 0.00, 0.00
-
+IIRC the difference between SC410 and SC400 is an embedded PCMCIA controller
+and perhaps a LCD controller.
+The CPU core should be the same.

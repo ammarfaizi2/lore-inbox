@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUEWBPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbUEWBfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUEWBPy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 21:15:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEWBPy
+	id S261931AbUEWBfq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 21:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUEWBfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 21:15:54 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:15047 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262065AbUEWBPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 21:15:53 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: ebiederm@xmission.com (Eric W. Biederman), linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm5
-References: <20040522013636.61efef73.akpm@osdl.org>
-	<m165aorm70.fsf@ebiederm.dsl.xmission.com>
-	<20040522180837.3d3cc8a9.akpm@osdl.org>
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: 22 May 2004 18:15:51 -0700
-In-Reply-To: <20040522180837.3d3cc8a9.akpm@osdl.org>
-Message-ID: <527jv4ymd4.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	Sat, 22 May 2004 21:35:46 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:16775 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S261931AbUEWBfo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 21:35:44 -0400
+Date: Sun, 23 May 2004 03:35:37 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Thomas Winischhofer <thomas@winischhofer.net>
+Cc: Francois Romieu <romieu@fr.zoreil.com>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ioctl number 0xF3
+Message-ID: <20040523013537.GB29269@vana.vc.cvut.cz>
+References: <40AF42B3.8060107@winischhofer.net> <1085228451.14486.0.camel@laptop.fenrus.com> <40AF4A13.4020005@winischhofer.net> <20040522125108.GB4589@devserv.devel.redhat.com> <40AF55AF.2020506@winischhofer.net> <20040522163214.A32228@electric-eye.fr.zoreil.com> <40AF73D5.5010202@winischhofer.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 23 May 2004 01:15:51.0670 (UTC) FILETIME=[7D05F960:01C44063]
+Content-Disposition: inline
+In-Reply-To: <40AF73D5.5010202@winischhofer.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> I don't think we can expect all architectures to be able
-    Andrew> to implement atomic 64-bit IO's, can we?
+On Sat, May 22, 2004 at 05:37:57PM +0200, Thomas Winischhofer wrote:
+> 
+> Hm. Were the matrox folks asked for a "clear interface" in advance when 
+> they started using the 'n' ioctls? Am I too polite? ;)
 
-    Andrew> ergo, drivers which want to use readq and writeq should
-    Andrew> provide the appropriate locking.
+You are too polite. 
 
-Perhaps we should have ARCH_HAS_ATOMIC_WRITEQ or something so that
-drivers don't add the overhead of locking on architectures where it's
-not necessary?
+In the past ncpfs was using 'n' with 'all' subcodes assigned to it.
+Back when I needed some numbers, I simple shrunk ncpfs to 0x00-0xDF, assigning
+0xE0-0xFF to matroxfb (I maintain both, so it is simple...). It looks like that
+someone visited ncpfs's assignment since then, as now ncpfs has only 0x00-0x7F
+assigned to it (according to the ioctl-numbers; I have no idea who made this
+0x80-0xDF hole in my nice range).
 
-(I happen to be working on a driver that needs atomic 64-bit writes,
-and where those writes happen to be in the fast path)
+On other side, matroxfb uses standard VIDIOC_* v4l2 ioctls for exporting
+TV-out's brightness/saturation/... to the userspace. And it causes neverending
+pain. Currently Debian's /usr/include headers contain VIDIOC_S_CTRL
+definition:
 
-Thanks,
-  Roland
+#define VIDIOC_S_CTRL           _IOW  ('V', 28, struct v4l2_control)
+
+while kernel uses
+
+#define VIDIOC_S_CTRL           _IOWR ('V', 28, struct v4l2_control)
+
+and so no apps built with /usr/include headers on Debian do work on matroxfb's
+(or anyone else's) v4l2 interface :-( Better to not give description of your ioctls to anyone,
+or they'll "fix" them.
+						Best regards,
+							Petr Vandrovec
+ 

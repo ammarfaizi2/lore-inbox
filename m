@@ -1,72 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317664AbSGaDCM>; Tue, 30 Jul 2002 23:02:12 -0400
+	id <S317668AbSGaDIV>; Tue, 30 Jul 2002 23:08:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317665AbSGaDCM>; Tue, 30 Jul 2002 23:02:12 -0400
-Received: from mail.gmx.de ([213.165.64.20]:42713 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317664AbSGaDCL>;
-	Tue, 30 Jul 2002 23:02:11 -0400
-Date: Wed, 31 Jul 2002 06:05:19 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix x86 page table init
-Message-ID: <20020731030519.GA27694@callisto.yi.org>
-References: <3D47412D.1060407@quark.didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D47412D.1060407@quark.didntduck.org>
-User-Agent: Mutt/1.4i
+	id <S317672AbSGaDIV>; Tue, 30 Jul 2002 23:08:21 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48141 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317668AbSGaDIV>; Tue, 30 Jul 2002 23:08:21 -0400
+Date: Tue, 30 Jul 2002 23:05:58 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: zhengchuanbo <zhengcb@netpower.com.cn>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: can the driver e100 be applied in 2.4?
+In-Reply-To: <200207291425517.SM00792@zhengcb>
+Message-ID: <Pine.LNX.3.96.1020730230310.6974D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 09:45:17PM -0400, Brian Gerst wrote:
-> The recent changes to the x86 page table init reintroduced a bug with 
-> the 4k pagetables.  The page table must be filled with entries before it 
-> is inserted into the pmd or else you risk a tlb miss on a kernel code 
-> page causing an oops.  This patch takes a different approach than before 
-> - it allows for reuse of the boot pagetable pages instead of allocating 
-> new ones.
+On Mon, 29 Jul 2002, zhengchuanbo wrote:
 
-In the patch below, isn't there a bootmem page leak in case !pmd_none(*pmd)?
+> 
+> in linux2.5 there is a new driver e100 to replace eepro100. is e100 better than eepro100 in performance such as throughput? and can the driver e100 be applied in 2.4?
+> please cc. thanks.
 
-> diff -urN linux-bk/arch/i386/mm/init.c linux/arch/i386/mm/init.c
-> --- linux-bk/arch/i386/mm/init.c	Tue Jul 30 20:59:27 2002
-> +++ linux/arch/i386/mm/init.c	Tue Jul 30 21:02:41 2002
-> @@ -70,10 +70,14 @@
->   */
->  static pte_t * __init one_page_table_init(pmd_t *pmd)
->  {
-> -	pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-> -	set_pmd(pmd, __pmd(__pa(page_table) | _KERNPG_TABLE));
-> -	if (page_table != pte_offset_kernel(pmd, 0))
-> -		BUG();	
-> +	pte_t *page_table;
-> +	page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-> +	if (pmd_none(*pmd)) {
-> +		set_pmd(pmd, __pmd(__pa(page_table) | _KERNPG_TABLE));
-> +		if (page_table != pte_offset_kernel(pmd, 0))
-> +			BUG();	
-> +	} else
-> +		page_table = pte_offset_kernel(pmd, 0);
->  
->  	return page_table;
->  }
-> @@ -107,9 +111,7 @@
->  
->  		pmd = pmd_offset(pgd, vaddr);
->  		for (; (pmd_ofs < PTRS_PER_PMD) && (vaddr != end); pmd++, pmd_ofs++) {
-> -			if (pmd_none(*pmd)) 
-> -				one_page_table_init(pmd);
-> -
-> +			one_page_table_init(pmd);
->  			vaddr += PMD_SIZE;
->  		}
->  		pmd_ofs = 0;
-
+You should be able to pull the code from Intel and compile it for your 2.4
+kernel. I have done that, and it was so free of tricks all I remember is
+the compile and 'make install.' I have not tried the 2.5 code, I got the
+Intel source.
 
 -- 
-Dan Aloni
-da-x@gmx.net
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

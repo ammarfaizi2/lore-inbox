@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbUL3UUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUL3UZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbUL3UUT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 15:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUL3UUS
+	id S261711AbUL3UZR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 15:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbUL3UZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 15:20:18 -0500
-Received: from black.click.cz ([62.141.0.10]:47511 "EHLO click.cz")
-	by vger.kernel.org with ESMTP id S261710AbUL3UUP (ORCPT
+	Thu, 30 Dec 2004 15:25:16 -0500
+Received: from mail1.cluenet.de ([195.20.121.7]:31940 "EHLO mail1.cluenet.de")
+	by vger.kernel.org with ESMTP id S261711AbUL3UZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 15:20:15 -0500
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: for USB guys - strange saying in switching HID proxy dongle
-Date: Thu, 30 Dec 2004 21:18:10 +0100
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Thu, 30 Dec 2004 15:25:12 -0500
+Date: Thu, 30 Dec 2004 21:25:11 +0100
+From: Daniel Roesen <dr@cluenet.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: [PATCH] trivial comment wording/typo fix regarding taint flags
+Message-ID: <20041230202511.GA6359@srv01.cluenet.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412302118.10210.cijoml@volny.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+Hi Andrew,
 
-we discused it on bluez mailing list and this looks like your problem:
+trivial patch to 2.6.10 correcting a comment.
 
-usb 3-1: USB disconnect, address 4
-usb 3-1: new full speed USB device using uhci_hcd and address 5
-input: USB HID v1.11 Keyboard [0a12:1000] on usb-0000:00:1d.2-1
-input: USB HID v1.11 Mouse [0a12:1000] on usb-0000:00:1d.2-1
-notas:/home/cijoml# hid2hci
-Switching device 0a12:1000 to HCI mode failed (Invalid or incomplete multibyte 
-or wide character)
 
-----
-Dongle is switched normally to HCI mode
+Best regards,
+Daniel
 
-Thanks for fixing
+Signed-off-by: Daniel Roesen <dr@cluenet.de>
 
-Michal
+diff -uprN linux-2.6.10.orig/kernel/panic.c linux-2.6.10/kernel/panic.c
+--- linux-2.6.10.orig/kernel/panic.c	2004-12-24 22:35:29.000000000 +0100
++++ linux-2.6.10/kernel/panic.c	2004-12-30 19:11:07.000000000 +0100
+@@ -128,7 +128,7 @@ EXPORT_SYMBOL(panic);
+  *  'F' - Module has been forcibly loaded.
+  *  'S' - SMP with CPUs not designed for SMP.
+  *  'R' - User forced a module unload.
+- *  'M' - Machine had a machine check experience.
++ *  'M' - System experienced a machine check exception.
+  *  'B' - System has hit bad_page.
+  *
+  *	The string is overwritten by the next call to print_taint().

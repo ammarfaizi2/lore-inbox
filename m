@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTHXAOF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 20:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTHXAOF
+	id S263338AbTHXAag (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 20:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTHXAag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 20:14:05 -0400
-Received: from public1-brig1-3-cust85.brig.broadband.ntl.com ([80.0.159.85]:13243
-	"EHLO ppg_penguin.kenmoffat.uklinux.net") by vger.kernel.org
-	with ESMTP id S261151AbTHXAOB (ORCPT
+	Sat, 23 Aug 2003 20:30:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48572 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263338AbTHXAaf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 20:14:01 -0400
-Date: Sun, 24 Aug 2003 01:13:59 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org
-Subject: Re: *sigh* something is wrong with bkcvs again
-In-Reply-To: <20030823191458.GA25535@work.bitmover.com>
-Message-ID: <Pine.LNX.4.56.0308240110220.22919@ppg_penguin>
-References: <20030823012724.GC31894@vitelus.com> <20030823191458.GA25535@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Aug 2003 20:30:35 -0400
+Date: Sat, 23 Aug 2003 17:22:51 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: hugh@veritas.com, willy@debian.org, linux-kernel@vger.kernel.org,
+       parisc-linux@lists.parisc-linux.org, drepper@redhat.com
+Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
+ tst-mmap-eofsync in glibc on parisc)
+Message-Id: <20030823172251.4e656f9a.davem@redhat.com>
+In-Reply-To: <1061680279.1785.534.camel@mulgrave>
+References: <20030822110144.5f7b83c5.davem@redhat.com>
+	<Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
+	<20030822113106.0503a665.davem@redhat.com>
+	<1061578568.2053.313.camel@mulgrave>
+	<20030822121955.619a14eb.davem@redhat.com>
+	<1061591255.1784.636.camel@mulgrave>
+	<20030822154100.06314c8e.davem@redhat.com>
+	<1061600974.2090.809.camel@mulgrave>
+	<20030823144330.5ddab065.davem@redhat.com>
+	<1061677283.1992.471.camel@mulgrave>
+	<20030823155312.63f996f6.davem@redhat.com>
+	<1061680279.1785.534.camel@mulgrave>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry,
+On 23 Aug 2003 18:11:16 -0500
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
- just because the subject contains the magic letters "bk" does not mean
-it's neccesarily an attack on your product.  Without trying to check out
-the latest 2.6 kernel to confirm this, it looks like somebody is playing
-with copyrights.  And where are you reading an oops into it ?
+> On Sat, 2003-08-23 at 17:53, David S. Miller wrote:
+> > How often do writes happen to files while private mappings
+> > to it exist? :-)  This is one of the reasons I think this
+> > discussion is a bit silly.
+ ...
+> Not having to flush the private mappings is a huge optimisation.
 
-Ken
+You're not answering my question :(
 
-On Sat, 23 Aug 2003, Larry McVoy wrote:
-
-> This is your message recast in the context of the kernel, or at least
-> this is what it sounded like to me:
->
->     *Sigh*.  The kernel oops *again*.  How dare you give me this kernel
->     for free and then break it.  Fix it, right now, and I'd like an
->     apology along with the fix.  Hurry up.
->
-> Maybe you didn't intend it to sound like that and you'd like to rephrase it.
->
-> On Fri, Aug 22, 2003 at 06:27:24PM -0700, Aaron Lehmann wrote:
-> > At the *root* of a fresh checkout:
-> >
-> > $ head -2 Makefile
-> > #
-> > # Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
-> >
-> > It's the XFS makefile...
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
--- 
- Peace, love, linux
-
-
+I know that when the case _DOES_ happen, your optimization is
+worthwhile, my question is not about this.  My question is about
+how often does this case happen.
 

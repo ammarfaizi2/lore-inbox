@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313537AbSDPC5P>; Mon, 15 Apr 2002 22:57:15 -0400
+	id <S313534AbSDPDI4>; Mon, 15 Apr 2002 23:08:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313544AbSDPC5P>; Mon, 15 Apr 2002 22:57:15 -0400
-Received: from rj.SGI.COM ([204.94.215.100]:38064 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S313537AbSDPC5O>;
-	Mon, 15 Apr 2002 22:57:14 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Rob Radez <rob@osinvestor.com>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [RFC] Making drivers/char/watchdog 
-In-Reply-To: Your message of "Mon, 15 Apr 2002 22:32:28 -0400."
-             <Pine.LNX.4.33.0204152222100.17511-100000@pita.lan> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Apr 2002 12:56:45 +1000
-Message-ID: <12454.1018925805@kao2.melbourne.sgi.com>
+	id <S313544AbSDPDIz>; Mon, 15 Apr 2002 23:08:55 -0400
+Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:11015 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S313534AbSDPDIy>;
+	Mon, 15 Apr 2002 23:08:54 -0400
+Date: Mon, 15 Apr 2002 21:59:33 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <davej@suse.de>
+cc: <linux-kernel@vger.kernel.org>, <fdavis@si.rr.com>
+Subject: [PATCH] 2.5.8-dj1: net/atm/resources.c
+Message-ID: <Pine.LNX.4.33.0204152150470.13897-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Apr 2002 22:32:28 -0400 (EDT), 
-Rob Radez <rob@osinvestor.com> wrote:
->This e-mail probably doesn't affect 99% of you out there, but it's coming
->into your inboxes anyways :-).  How would people feel about moving the
->22 watchdog drivers into their own subdirectory off of drivers/char/ in
->both 2.4 and 2.5?  (Well, 2.5 only has 18 at the moment, but I'm planning
->on adding the 4 2.4-only drivers to 2.5 once updating 2.4 is done)
->
->I've received a bunch of inquiries about breaking them into their own
->subdirectory.  At the moment there are 20 watchdog drivers in
->drivers/char/ and 2 in drivers/sbus/char/ in 2.4, and 16 in drivers/char/
->and 2 in drivers/sbus/char/ in 2.5.  I think putting them all into one
->place will make them easier to maintain, more standardized, and less
->buggy.
+Hello all,
+   I received the following while 'make bzImage', and have attached a 
+patch that appears to fix it. Please review for inclusion.
+Regards,
+Frank
 
-Moving the watchdogs to their own directory makes sense, but watch out
-for config sensitivity.  ATM drivers/sbus is only selected if the arch
-is not m68k (anybody know why?) and the whole drivers/sbus/char
-directory is conditioned on CONFIG_SBUSCHAR.
+resources.c:86: parse error before `int'
+resources.c: In function `atm_dev_register':
+resources.c:87: number of arguments doesn't match prototype
+/usr/src/linux/include/linux/atmdev.h:417: prototype declaration
+resources.c:92: warning: implicit declaration of function `alloc_atm_dev'
+resources.c:92: `type' undeclared (first use in this function)
+resources.c:92: (Each undeclared identifier is reported only once
+resources.c:92: for each function it appears in.)
+resources.c:92: warning: assignment makes pointer from integer without a cast
+resources.c:98: `number' undeclared (first use in this function)
+resources.c:100: warning: implicit declaration of function `free_atm_dev'
+resources.c:113: `ops' undeclared (first use in this function)
+resources.c:114: `flags' undeclared (first use in this function)
+resources.c: At top level:
+resources.c:36: warning: `__alloc_atm_dev' defined but not used
+make[3]: *** [resources.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/net/atm'
+
+--- net/atm/resources.c.old	Mon Apr 15 21:42:25 2002
++++ net/atm/resources.c	Mon Apr 15 21:48:31 2002
+@@ -82,14 +82,14 @@
+ 	return NULL;
+ }
+ 
+-struct atm_dev *atm_dev_register(const char *type, const struct atmdev_ops *ops
++struct atm_dev *atm_dev_register(const char *type, const struct atmdev_ops *ops,
+ 				int number, atm_dev_flags_t *flags)
+ {
+ 	struct atm_dev *dev = NULL;
+ 
+ 	spin_lock(&atm_dev_lock);
+ 
+-	dev = alloc_atm_dev(type);
++	dev = __alloc_atm_dev(type);
+ 	if (!dev) {
+ 		printk(KERN_ERR "atm_dev_register: no space for dev %s\n",
+ 		    type);
+
 

@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263245AbTDRWSC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 18:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTDRWSC
+	id S263277AbTDRWWc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 18:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTDRWWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 18:18:02 -0400
-Received: from ool-4352eb9e.dyn.optonline.net ([67.82.235.158]:3468 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id S263245AbTDRWSB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 18:18:01 -0400
-Date: Fri, 18 Apr 2003 18:29:07 -0400
-From: Nick Orlov <bugfixer@list.ru>
-To: Christoph Hellwig <hch@infradead.org>,
-       Andrei Ivanov <andrei.ivanov@ines.ro>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm4
-Message-ID: <20030418222907.GA4127@nikolas>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrei Ivanov <andrei.ivanov@ines.ro>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro> <20030418205403.GA3366@nikolas> <20030418225447.A8626@infradead.org> <20030418221029.GA3956@nikolas> <20030418231204.A8747@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20030418231204.A8747@infradead.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 18 Apr 2003 18:22:32 -0400
+Received: from web41811.mail.yahoo.com ([66.218.93.145]:36440 "HELO
+	web41811.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263277AbTDRWWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 18:22:30 -0400
+Message-ID: <20030418223423.66409.qmail@web41811.mail.yahoo.com>
+Date: Fri, 18 Apr 2003 15:34:23 -0700 (PDT)
+From: Christian Staudenmayer <eggdropfan@yahoo.com>
+Subject: Booting 2.5.67-ac1 makes the kernel panic
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 11:12:04PM +0100, Christoph Hellwig wrote:
-> On Fri, Apr 18, 2003 at 06:10:29PM -0400, Nick Orlov wrote:
-> > No, I don't.
-> 
-> Please mount it.  The code duplication has been removed from devfs
-> as stated in the changelog.
-> 
+hello,
 
-Sure, I'll try it as soon as I get home.
-Will provide you results in 2 hours approx.
-Hopefully it'll work :)
+(sorry for posting this again, but the kind solution given
+by Patrick Mansfield turn out to be no solution at all.
+Thanks anyways :)
 
-Thanks,
-	Nick.
+i recently compiled 2.5.67-ac1 on my machine which uses the
+aic7xxx driver for an old adaptec 2940 scsi controller.
+When booting, the kernel panics after loading the scsi driver
+with the following message:
 
--- 
-With best wishes,
-	Nick Orlov.
+Process swapper (pid: 1, threadinfo=dbf8e000 task=dbf8c040)
+Stack: c15259a8 c15259a8 00000001 00000002 dbf8fe48 c022cd1a c15259a8 000000ff
+       dbf8fe3c dbf8fe40
+Call Trace:
+ [<c022cd1a>] ide_xlate_1024+0x106/0x18c
+ [<c01654aa>] handle_ide_mess+0x14e/0x1e8
+ [<c016557f>] msdos_partition+0x3b/0x3ec
+ [<c01171fa>] release_console_sem+0x32/0x94
+ [<c0117165>] printk+0xfd/0x114
+ [<c016491d>] check_partition+0xa1/0xec
+ [<c0164c13>] register_disk+0xa7/0x144
+ [<c0164c28>] register_disk+0xbc/0x144
+ [<c0218301>] add_disk+0x35/0x44
+ [<c021829c>] exact_match+0x0/0xc
+ [<c02182a8>] exact_lock+0x0/0x24
+ [<c0273589>] sd_attach+0x1d/0x244
+ [<c023d9c0>] scsi_register_device+0xb8/0xe4
+ [<c010502c>] init+0x0/0x144
+ [<c0105049>] init+0x1d/0x144
+ [<c010502c>] init+0x0/0x144
+ [<c01079c1>] kernel_thread_helper+0x5/0xc
 
+Code: 8b 40 38 be 93 74 31 c0 ff d0 89 c1 c7 03 3f 00 00 00 85 ff
+ <0>Kernel panic: Attempted to kill init!
+
+Note: this does not happen with 2.4.20, 2.4.21-pre7, 2.4.21-pre7-ac1 or 2.5.67-bk8
+It does, however happen with 2.5.67-ac2, but the error message is some lines longer
+and some of the addresses have changed.
+
+I'd be really grateful for any insight on this problem.
+
+Greetings, Chris
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Platinum - Watch CBS' NCAA March Madness, live on your desktop!
+http://platinum.yahoo.com

@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311264AbSCSOUZ>; Tue, 19 Mar 2002 09:20:25 -0500
+	id <S311268AbSCSOUZ>; Tue, 19 Mar 2002 09:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311267AbSCSOUP>; Tue, 19 Mar 2002 09:20:15 -0500
-Received: from atlas.inria.fr ([138.96.66.22]:23761 "EHLO atlas.inria.fr")
-	by vger.kernel.org with ESMTP id <S311262AbSCSOUA>;
-	Tue, 19 Mar 2002 09:20:00 -0500
-Message-Id: <200203191419.g2JEJfM07465@atlas.inria.fr>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Nicolas.Turro@sophia.inria.fr (Nicolas Turro)
-Subject: Re: amd nvidia and mem=nopentium
-Date: Tue, 19 Mar 2002 15:19:40 +0100
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16lx1N-0004NZ-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S311264AbSCSOUP>; Tue, 19 Mar 2002 09:20:15 -0500
+Received: from dc-mx08.cluster0.hsacorp.net ([209.225.8.18]:15000 "EHLO
+	dc-mx08.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S311267AbSCSOUD>; Tue, 19 Mar 2002 09:20:03 -0500
+Message-Id: <3.0.3.32.20020319082013.00e41d30@pop.charter.net>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 3.0.3 (32)
+Date: Tue, 19 Mar 2002 08:20:13 -0600
+To: Mike Dresser <mdresser_l@windsormachine.com>,
+        Rik van Riel <riel@conectiva.com.br>
+From: Pete Cervasio <cervasio@charter.net>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
+  Configure.help
+Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0203181358540.25105-100000@router.windsormac
+ hine.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks for your answer, Alan.
-
-Le Vendredi 15 Mars 2002 20:05, Alan Cox a écrit :
-> > Hi, i have system dual athlon  XP 1900+ system and a nvidia graphic board
-> > : I need to use the mem=nopentium kernel parameter in order to run X
-> > without crashes. I'd like to know :
-> > 1- what are the consequences of  'mem=nopentium' ? Any performance loss ?
+At 02:00 PM 3/18/2002 -0500, Mike Dresser wrote:
+>On Mon, 18 Mar 2002, Rik van Riel wrote:
 >
-> Yes. On the whole probably not a lot. You are running XP not MP processors
-> and the like so you are obviously not too worried about stability. You
-> might want to see if it actually does crash without nopentium.
-
-Well... In fact, i am really worried about stability, but i don't have much 
-choice on the configuration. I have to choose between this config
-and a dual 2.0 Ghz Xeon (RDRAM) which has roughtly the same perfs,
-but which is 50% more expensive !
-
- Do you have pointers  showing stability problems when using
-XP processor in a multiprocessor context ?
-
-The Athlon actually crashes as soon as I start X with the nvidia board if i 
-don't use the mem=nopentium option.
-With a Matrox G450, i don't need this option...
-
-> > i intend to use a gigabit ethernet adapter on this box.
-> > 2- is there any fix going on that i should monitor ?
+>> > The unit here is B, which does conflict with the unit bel, but is
+>> > widely used to mean byte in computer contexts.
+>>
+>> Also, the kilobell is highly unlikely to be used ;)
+>>
+>> Rik
 >
-> Some gige cards don't seem to work with some dual athlon bioses. Other than
-> that it should be fine
+>Dunno about that, the S/N ratio on slashdot seems to get into the kB's
+>somedays.
+>
 
-I've juste tested an Intel e1000 on it and achieved 900 Mbits/s with ttcp....
-So i guess it works... I do some nfs benches right now to see if i can
-reach the disk transfer limit (around 40 Mo/s for sequencial acces on a big 
-file).
+Your threshold is set too high.  Read at -1 for megabels.  ;)
 
-N. Turro
+Best regards,
+Pete C.
+
+------------------------------------------------------------------------
+Your Leaping Tiger kung-fu is no match for my Frightened Piglet style!
+------------------------------------------------------------------------
+

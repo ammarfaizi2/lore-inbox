@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281757AbRKZPCn>; Mon, 26 Nov 2001 10:02:43 -0500
+	id <S281732AbRKZPEL>; Mon, 26 Nov 2001 10:04:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281750AbRKZPCb>; Mon, 26 Nov 2001 10:02:31 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29445 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281749AbRKZPCT>; Mon, 26 Nov 2001 10:02:19 -0500
-Date: Mon, 26 Nov 2001 13:02:07 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Ian Stirling <root@mauve.demon.co.uk>
-Cc: Allan Sandfeld <linux@sneulv.dk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Releases
-In-Reply-To: <200111261451.OAA03381@mauve.demon.co.uk>
-Message-ID: <Pine.LNX.4.33L.0111261301390.1491-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S281749AbRKZPEC>; Mon, 26 Nov 2001 10:04:02 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:16571 "EHLO
+	c0mailgw05.prontomail.com") by vger.kernel.org with ESMTP
+	id <S281732AbRKZPDr>; Mon, 26 Nov 2001 10:03:47 -0500
+Message-ID: <3C0259B4.86124AE1@starband.net>
+Date: Mon, 26 Nov 2001 10:03:16 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: PPC Question
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, Ian Stirling wrote:
+I don't mind trying to compile release kernels on a PPC box, however
+when I send a bug report to LKML, everyone shoots it down and tells me
+to use someone else's source tree.
 
-> However, I for one never run a -pre kernel.
-
-> I don't run -pre, because rightly or wrongly, I've got the impression
-> that these get even less testing than releases.
-
-I think the opening sentence of your email states
-the reason for that pretty well.
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
+If people do not care about PPC in the kernel, should it be included in
+the source, or should I just forget about trying to use the 'stock'
+kernel and use someone else's PPC source tree (which are usually a few
+versions behind) in order to compile the kernel?
 

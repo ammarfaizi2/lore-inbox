@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUAOCzP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 21:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266455AbUAOCzP
+	id S266408AbUAOCjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 21:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266410AbUAOCjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 21:55:15 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:57059 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S266454AbUAOCzM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 21:55:12 -0500
-Message-ID: <4006010B.7000002@wmich.edu>
-Date: Wed, 14 Jan 2004 21:55:07 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm3 lm_sensors outdated?
-References: <4005CB88.5000409@wmich.edu> <20040114232052.GA9914@kroah.com>
-In-Reply-To: <20040114232052.GA9914@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 14 Jan 2004 21:39:24 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:21154 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S266408AbUAOCjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 21:39:13 -0500
+Subject: Re: Serial ATA (SATA) for Linux status report
+From: Matthias Hentges <mailinglisten@hentges.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4005D9E7.2070203@bigfoot.com>
+References: <20031203204445.GA26987@gtf.org>
+	 <87hdyyxjgl.fsf@stark.xeocode.com> <20040114225653.GA32704@codepoet.org>
+	 <4005D195.3010008@inp-net.eu.org>  <4005D9E7.2070203@bigfoot.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1074134345.6094.11.camel@mhcln02>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 15 Jan 2004 03:39:06 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Jan 14, 2004 at 06:06:48PM -0500, Ed Sweetman wrote:
-> 
->>sensors: numerical sysctl 7 2 1 is obsolete.
->>sensors: numerical sysctl 7 2 1 is obsolete.
->>
->>I now get these warnings when loading the i2c via686a and viapro modules 
->> in my dmesg output.
-> 
-> 
-> These warnings are coming from userspace, not the modules.
-> 
-> I recommend upgrading to the latest release of lmsensors (they should be
-> making a new release any day now to handle 2.6.1 properly.)
-> 
+Hello all,
 
-the modules themselves aren't making sysfs entries and lm_sensors is 
-integrated with the kernel. so i tried sensors just in case and didn't 
-realize it would output messages into the message log and not terminal. 
-   In any case, i was simply wondering if the kernel's lm_sensors was 
-outdated or if i was running into a compilation or configuration problem 
-brought on by any recent changes.   It would appear though that the 
-sensors in the kernel are incompatible with the kernel, at least some of 
-them.
+Am Don, 2004-01-15 um 01.08 schrieb Erik Steffl:
+> Raphael Rigo wrote:
+> ...<ICH5problems snipped>...
+> > One possible workaround it to enable both PATA and SATA drivers (using 
+> > libata) and pass "ide2=noprobe ide3=noprobe" to kernel at boot.
+> > More detailled answer can be found here : 
+> > http://www.hentges.net/howtos/p4p800_deluxe.html
+> 
+>    I have pretty much the same setup he recommends in UPDATE except of 
+> the "ide2=noprobe ide3=noprobe" kernel boot options, not sure why would 
+> that be needed but my system (interl D865PERL, cd burner, ide and sata 
+> disks) works OK without it.
+
+The "Update" section describes the setup which - after *weeks* of
+frustrating trail-and-error - managed to get things going.
+
+Notice the unusual BIOS setting (Enhanced Mode - SATA only) which did
+the trick and enabled PATA *and* SATA.
+You may want to try that if you haven't already.
+
+The ideN=noprobe my indeed not be necessary . It was recommended by Jeff
+Garzik to me at some time IIRC. Kernel 2.6 does *not* need the noprobe
+stuff AFAICT.
+
+FWIW my P4P800 Deluxe is working flawlessly with 4 P-ATA devices (2 HDs,
+a ZIP100 and a 48x Burner) and one SATA 160Gb HD.
+
+I'm using 2.4.22-bk36 with matching libata patch so i'd think that any
+kernel 2.4.23+ will do the trick.
+
+HTH and GL
+-- 
+
+Matthias Hentges 
+Cologne / Germany
+
+[www.hentges.net] -> PGP welcome, HTML tolerated
+ICQ: 97 26 97 4   -> No files, no URL's
+
+My OS: Debian Woody. Geek by Nature, Linux by Choice
 

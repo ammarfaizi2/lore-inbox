@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267916AbUJSDkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUJSEPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267916AbUJSDkh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 23:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUJSDkh
+	id S267926AbUJSEPd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 00:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUJSEPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 23:40:37 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:14020 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S267916AbUJSDkg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 23:40:36 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Len Brown <len.brown@intel.com>
-Subject: Re: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
-Date: Mon, 18 Oct 2004 20:41:02 -0700
+	Tue, 19 Oct 2004 00:15:33 -0400
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:59512 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267926AbUJSEPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 00:15:31 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Weird... 2.6.9 kills FC2 gcc
+Date: Mon, 18 Oct 2004 23:15:27 -0500
 User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-References: <200410051309.02105.david-b@pacbell.net> <1097906636.14156.41.camel@d845pe>
-In-Reply-To: <1097906636.14156.41.camel@d845pe>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Mark Haverkamp <markh@osdl.org>
+References: <4174697B.90306@pobox.com> <41747A28.2000101@pobox.com> <41748A9D.2080306@pobox.com>
+In-Reply-To: <41748A9D.2080306@pobox.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410182041.02192.david-b@pacbell.net>
+Message-Id: <200410182315.27807.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 October 2004 11:03 pm, Len Brown wrote:
-> > - ACPI (this should probably replace the new /proc/acpi/wakeup)
+On Monday 18 October 2004 10:31 pm, Jeff Garzik wrote:
 > 
-> Agreed.  That file is a temporary solution.
-> The right solution is for the devices to appear in the right
-> place in the device tree and to hang the wakeup capabilities
-> off of them there.
+> More data points:
+> 
+> No problems at all on x86-64.
+> 
+> No ICE on 32-bit x86 gcc 3.4.2, with 2.6.9 release kernel.
+> 
+> So this ICE appears to be a bug specific to 3.3.x or perhaps Fedora.
+> 
+> 	Jeff
+> 
 
-So what would that patch need before ACPI could convert to use it?
+For what it worth this is on mutated RH 8.0:
 
-I didn't notice any obvious associations between the strings in
-the acpi/wakeup file and anything in sysfs.  Which of USB1..USB4
-was which of the three controllers shown by "lspci" (and which
-one was "extra"!), as one head-scratcher.
+[dtor@core dtor]$ make
+  CHK     include/linux/version.h
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/asm-i386/asm_offsets.h
+  CHK     include/linux/compile.h
+  AS      arch/i386/kernel/vsyscall.o
+include/linux/compiler.h:20: warning: parameter name starts with a digit in #define
+include/linux/compiler.h:20: badly punctuated parameter list in #define
+make[1]: *** [arch/i386/kernel/vsyscall.o] Error 1
+make: *** [arch/i386/kernel] Error 2
+[dtor@core dtor]$ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/specs
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix --disable-checking --with-system-zlib --enable-__cxa_atexit --host=i386-redhat-linux
+Thread model: posix
+gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
 
-For PCI, I'd kind of expect pci_enable_wake() to trigger the
-additional ACPI-specific work to make sure the device can
-actually wake that system.   Seems like dev->platform_data
-might need to combine with some platform-specific API hook.
 
-- Dave
+-- 
+Dmitry

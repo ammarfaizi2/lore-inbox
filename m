@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261596AbSJWAEr>; Tue, 22 Oct 2002 20:04:47 -0400
+	id <S261527AbSJWADP>; Tue, 22 Oct 2002 20:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261623AbSJWAEr>; Tue, 22 Oct 2002 20:04:47 -0400
-Received: from packet.digeo.com ([12.110.80.53]:30671 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261596AbSJWAEq>;
-	Tue, 22 Oct 2002 20:04:46 -0400
-Message-ID: <3DB5E909.7F2AF339@digeo.com>
-Date: Tue, 22 Oct 2002 17:10:49 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S261596AbSJWADP>; Tue, 22 Oct 2002 20:03:15 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:59374 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S261527AbSJWADP>; Tue, 22 Oct 2002 20:03:15 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: New panic (io-apic / timer?) going from 2.5.44 to 2.5.44-mm1
-References: <440550000.1035330723@flay>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Oct 2002 00:10:49.0144 (UTC) FILETIME=[A42C4380:01C27A28]
+Message-ID: <15797.59564.331886.37542@wombat.chubb.wattle.id.au>
+Date: Wed, 23 Oct 2002 10:09:16 +1000
+To: Jesse Pollard <pollard@admin.navo.hpc.mil>
+Cc: Tim Hockin <thockin@sun.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
+In-Reply-To: <354127220@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> Hmmm ... 2.5.43-mm2 and 2.5.44 work fine, but 2.5.44-mm1 (and mm2)
-> panic consistently on boot for a 16 way NUMA-Q.
-> 
-> Normally this box will boot with TSC on or off. If anyone has any pointers as
-> to what's changed in the mm patchset going from 43-mm2 to 44-mm1 that
-> might have touched this area (I can't see anything), please poke me in the
-> eye. Otherwise I'll just keep digging into it ....
-> 
+>>>>> "Jesse" == Jesse Pollard <pollard@admin.navo.hpc.mil> writes:
 
+Jesse> On Tuesday 22 October 2002 12:37 pm, Tim Hockin wrote:
 
-Is possibly the code which defers the allocation of the per-cpu
-memory until the secondary processors are being brought online.
+Jesse> And I really doubt that anybody has 10000 unique groups (or
+Jesse> even close to that) running under any system. The center I'm at
 
-I've decided to toss that.  It's causing some grief for architectures,
-and only buys us 10k * (NR_CPUS - nr-cpus) worth of memory anyway.
+well... if you put each user in his or her own group, the total number
+of unique groups gets pretty big pretty fast.  
 
-Well.  It would be useful for NUMA to be able to place the per-cpu storage
-into node-local memory.  But the code doesn't do that.  It just uses
-kmalloc on the boot cpu, and we don't have an alloc_pages_for_another_cpu()
-API..
+That doesn't mean, however, that one needs to be in thousands of
+groups simultaneously.
+
+Peter C

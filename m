@@ -1,52 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbVCEAUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263449AbVCEANF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbVCEAUM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbVCEARB
+	id S263449AbVCEANF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263421AbVCEAIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:17:01 -0500
-Received: from manson.clss.net ([65.211.158.2]:7406 "HELO manson.clss.net")
-	by vger.kernel.org with SMTP id S263066AbVCDXdp (ORCPT
+	Fri, 4 Mar 2005 19:08:35 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1221 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263287AbVCDWGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 18:33:45 -0500
-Message-ID: <20050304233321.4882.qmail@manson.clss.net>
-From: "Alan Curry" <pacman-kernel@manson.clss.net>
-Subject: Re: SVGATextMode on 2.6.11
-To: linux-kernel@vger.kernel.org
-Date: Fri, 4 Mar 2005 18:33:21 -0500 (EST)
-In-Reply-To: <no.id> from "Alan Curry" at Mar 02, 2005 05:38:59 PM
-MIME-Version: 1.0
+	Fri, 4 Mar 2005 17:06:10 -0500
+Date: Fri, 4 Mar 2005 14:01:19 -0800
+From: Greg KH <greg@kroah.com>
+To: Wen Xiong <wendyx@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
+Message-ID: <20050304220116.GA1201@kroah.com>
+References: <42225A47.3060206@us.ltcfwd.linux.ibm.com> <20050228063954.GB23595@kroah.com> <4228CE41.2000102@us.ltcfwd.linux.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <4228CE41.2000102@us.ltcfwd.linux.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
->
->Was SVGATextMode's cursor-setting ability removed as a result of an
->intentional change, or might it get fixed? Or might CUR_DEFAULT become
->tunable? Maybe another control sequence could make the current cursor
->settings the default, like setterm -store does for foreground and background
->colors.
+On Fri, Mar 04, 2005 at 04:08:17PM -0500, Wen Xiong wrote:
+> +int get_jsm_board_number(void)
+> +{
+> +        struct list_head *tmp;
+> +        struct jsm_board *cur_board_entry;
+> +        int adapter_count = 0;
+> +        u64 lock_flags;
+> +
+> +        spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
+> +        list_for_each(tmp, &jsm_board_head) {
+> +        cur_board_entry =
+> +                list_entry(tmp, struct jsm_board,
+> +                        jsm_board_entry);
+> +                adapter_count++;
+> +        }
+> +        spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
+> +
+> +        return adapter_count;
+> +}
 
-I found the cause of this new behavior: font loading. SVGATextMode can be
-configured to load a font with consolechars. It does that after setting the
-cursor. In 2.6.11 vgacon_adjust_height() was changed to reset the cursor in
-addition to the font size. The solution is: disable SVGATextMode's font
-loading, and if you want to change the font, do it before you run SVGATextMode.
+Should this be static?
 
-The second problem remains a mystery:
+And it's returning the number of boards, not the current board number,
+right?
 
->On another note, the resize function of SVGATextMode has been affected
->strangely too. Sometimes, when resizing the screen to a mode larger than
->80x25, the video settings come out correctly but the terminal only uses the
->first 25 lines, with the bottom of the screen being blank. This one is hard
->to reproduce. I can reproduce it by doing a full boot (which includes an
->SVGATextMode call from /etc/rcS.d/S60svgatextmode) followed by a manual
->SVGATextMode on tty2. The first one works, and the second one screws up the
->terminal size. When I try to reproduce that series of events without the call
->from /etc/rcS.d, the problem doesn't show up.
->
->In any case, when that problem _does_ show up, it can be fixed by immediately
->running the same command again, on the same tty where it just screwed up. And
->it never fails twice without an intervening reboot.
+And you have a indenting error in the list_for_each() section...
+
+> +static ssize_t jsm_driver_version_show(struct device_driver *ddp, char *buf)
+> +{
+> +	return snprintf(buf, PAGE_SIZE, "jsm_version: %s\n", "jsm: 1.1-1-INKERNEL");
+
+Shouldn't that value also be in MODULE_VERSION()?  And if so, it should
+be a #define somewhere.
+
+Also, don't put "jsm:" in your sysfs files, the file name describes what
+the value should be.  That goes for a lot of your sysfs files.
+
+> +static ssize_t jsm_driver_debug_show(struct device_driver *ddp, char *buf)
+> +{
+> +	return snprintf(buf, PAGE_SIZE, "0x%x\n", debug);
+> +}
+
+"debug" is not a nice variable to have in the global namespace :(
+
+Also, why not just make this a module paramater, that way it can be
+modified through that interface, and you don't have to create your own?
+
+> +#define JSM_VERIFY_BOARD(p, bd)				\
+> +	if (!p)						\
+> +		return 0;				\
+> +	bd = (struct jsm_board *)dev_get_drvdata(p);	\
+
+Cast is not needed.
+
+> +	if (!bd)					\
+> +		return 0;				\
+> +	if (bd->state != BOARD_READY)			\
+> +		return 0;				\
+
+Don't break out of functions from within a macro.  Will cause headaches
+for people reviewing your code in the future.
+
+And shouldn't you be returning an error if one of these checks fail?
+
+> +static ssize_t jsm_ports_state_show(struct device *p, char *buf)
+> +{
+> +	struct jsm_board *bd;
+> +	int count = 0;
+> +	int i = 0;
+> +
+> +	JSM_VERIFY_BOARD(p, bd);
+> +
+> +	for (i = 0; i < bd->nasync; i++) {
+> +		count += snprintf(buf + count, PAGE_SIZE - count,
+> +			"%d %s\n", bd->channels[i]->ch_portnum,
+> +			bd->channels[i]->ch_open_count ? "Open" : "Closed");
+> +	}
+> +	return count;
+
+No, make this a per-port value.  You are showing more than one value in
+a single file.  You do this for a few other sysfs files :(
+
+And who cares about this value?
+
+> +static ssize_t jsm_ports_baud_show(struct device *p, char *buf)
+> +{
+> +	struct jsm_board *bd;
+> +	int count = 0;
+> +	int i = 0;
+> +
+> +	JSM_VERIFY_BOARD(p, bd);
+> +
+> +	for (i = 0; i < bd->nasync; i++) {
+> +		count +=  snprintf(buf + count, PAGE_SIZE - count,
+> +			"%d %d\n", bd->channels[i]->ch_portnum, bd->channels[i]->ch_old_baud);
+> +	}
+> +	return count;
+> +}
+> +static DEVICE_ATTR(ports_baud, S_IRUSR, jsm_ports_baud_show, NULL);
+
+What's wrong with the standard tty ioctls that return this value, and
+the other values you are exporting through sysfs?  What is all of this
+data needed for?
+
+> +#define JSM_VERIFY_CHANNEL(p, ch)			\
+> +	if (!p)						\
+> +		return 0;				\
+> +	ch = (struct jsm_channel *)class_get_devdata(p);\
+> +	if (!ch)					\
+> +		return 0;				\
+> +	if (ch->ch_bd->state != BOARD_READY)		\
+> +		return 0;				\
+
+Again, don't put return in a macro, and return an error if there really
+is one.
+
+thanks,
+
+greg k-h

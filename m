@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268390AbTBNOKU>; Fri, 14 Feb 2003 09:10:20 -0500
+	id <S268396AbTBNOPJ>; Fri, 14 Feb 2003 09:15:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268400AbTBNOKU>; Fri, 14 Feb 2003 09:10:20 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:24089 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S268390AbTBNOKQ>;
-	Fri, 14 Feb 2003 09:10:16 -0500
-Message-ID: <3E4CFB11.1080209@mvista.com>
-Date: Fri, 14 Feb 2003 08:20:01 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
+	id <S268400AbTBNOPJ>; Fri, 14 Feb 2003 09:15:09 -0500
+Received: from hugin.diku.dk ([130.225.96.144]:12292 "HELO hugin.diku.dk")
+	by vger.kernel.org with SMTP id <S268396AbTBNOPI>;
+	Fri, 14 Feb 2003 09:15:08 -0500
+Date: Fri, 14 Feb 2003 15:25:00 +0100 (MET)
+From: Peter Finderup Lund <firefly@diku.dk>
+To: Robert Dewar <dewar@gnat.com>
+cc: tjm@codegen.com, <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>,
+       <peter@jazz-1.trumpet.com.au>
+Subject: Re: [discuss] Re: [Bug 350] New: i386 context switch very slow
+ compared to 2.4 due to wrmsr (performance)
+In-Reply-To: <20030214140336.501F2F2D7B@nile.gnat.com>
+Message-ID: <Pine.LNX.4.44L0.0302141522350.4760-100000@ask.diku.dk>
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, suparna@in.ibm.com,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-References: <m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com> <20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com> <20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org> <3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org> <3E4A70EA.4020504@mvista.com> <20030214001310.B2791@almesberger.net>
-In-Reply-To: <20030214001310.B2791@almesberger.net>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 14 Feb 2003, Robert Dewar wrote:
 
-Werner Almesberger wrote:
+> > > The only way to get from long-mode back to legacy-mode is to reset the
+> > > processor.  It can be done in software but you will likely lose interrupts.
+> >
+> > Smartdrv.sys and triple-faults come back, all is forgiven!  ;)
+>
+> I have an idea, perhaps we can make the keyboard controller recognize a special
+> command that will reset the processor :-) :-)
 
-|Corey Minyard wrote:
-|
-|>Another thought.  If you add a delay with all other processors and
-|>interrupts off, the disk devices
-|>will run out of things to do.
-|
-|
-|But the network will be there, patiently waiting for its chance to
-|strike. Likewise, I guess: USB (e.g. move the mouse at the wrong
-|moment to crash the system).
+Do you think there is room enough left in the ROM for the microcontroller
+used as keyboard controller?  We also need to squeeze in the already
+planned backwards compatibility feature to mask the A20 line thru a
+special command, you know.
 
-Yes, we were talking about temporary stopgaps.
+But maybe we could move both these features into the motherboard chipset?
 
-But, I had another idea.  What about using power management?  If you 
-suspended everything, would that be good enough.  I looked at a few 
-drivers, and it seemed so.
-
-- -Corey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+TPsOmUvlb4BhfF4RAic3AJ4qKgL0CHROXoyu30rWlhfzlBxOEgCfSzJ6
-GeM4AJbZLaHv8GeD5N/uaHI=
-=Dg5Q
------END PGP SIGNATURE-----
+-Peter
 
 

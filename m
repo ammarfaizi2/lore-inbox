@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311108AbSCMTlb>; Wed, 13 Mar 2002 14:41:31 -0500
+	id <S311123AbSCMToL>; Wed, 13 Mar 2002 14:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311112AbSCMTlV>; Wed, 13 Mar 2002 14:41:21 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:54669 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S311108AbSCMTlR>;
-	Wed, 13 Mar 2002 14:41:17 -0500
-Message-ID: <3C8FAB25.1080706@us.ibm.com>
-Date: Wed, 13 Mar 2002 11:40:21 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S311119AbSCMToC>; Wed, 13 Mar 2002 14:44:02 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55049 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S311123AbSCMTnm>; Wed, 13 Mar 2002 14:43:42 -0500
+Date: Wed, 13 Mar 2002 14:41:52 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Martin Wirth <Martin.Wirth@dlr.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+In-Reply-To: <3C8F1801.6070107@dlr.de>
+Message-ID: <Pine.LNX.3.96.1020313143751.4797A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: "'Jonathan A. Davis'" <davis@jdhouse.org>, walter <walt@nea-fast.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: oracle rmap kernel version
-In-Reply-To: <794826DE8867D411BAB8009027AE9EB913D03D23@FMSMSX38>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> Depends on your hardware configuration and how you stress your system with
-> db workload, you should consider some performance patch from the linux
-> scalability effort project.
-> http://lse.sourceforge.net
+On Wed, 13 Mar 2002, Martin Wirth wrote:
 
-In particular, take a look at the rollup patches:
-http://sourceforge.net/project/shownotes.php?release_id=77093
+> The normal way to use multithreading under UNIX is the pthread
+> library. Here the condition variables are the equivalent to kernel
+> wait queues. So I think to really implement a fast pthread lib based
+> on futexes one needs some means to implement condition variables
+> (with synchronous futex release to implement  pthread_cond_wait(..)!).
 
-This one has been tested pretty well.
-http://prdownloads.sourceforge.net/lse/lse01.patch
+Let me mention this again... The IBM release of NGPT states that Linus has
+approved the inclusion of the NGPT patches in the mainline kernel. Will
+this be in 2.4.19 release? I've been running 2.4.17 for NGPT, haven't
+tried 2.4.19 other than to see the patch didn't apply).
 
-This could use some more testing, but is not bad by any means:
-http://prdownloads.sourceforge.net/lse/lse02.patch
-
-BTW, what SCSI controllers are you planning on using?  Some are better 
-than others.
+(NGPT = Next Generation Pthreads, a cleaner and faster POSIX threads)
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

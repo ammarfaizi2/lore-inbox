@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267103AbSLaAsz>; Mon, 30 Dec 2002 19:48:55 -0500
+	id <S267099AbSLaArh>; Mon, 30 Dec 2002 19:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267104AbSLaAsz>; Mon, 30 Dec 2002 19:48:55 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:39905 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267103AbSLaAsy> convert rfc822-to-8bit; Mon, 30 Dec 2002 19:48:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Manfred Spraul <manfred@colorfullife.com>,
-       Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: question on context of kfree_skb()
-Date: Tue, 31 Dec 2002 01:57:06 +0100
-User-Agent: KMail/1.4.3
+	id <S267103AbSLaArh>; Mon, 30 Dec 2002 19:47:37 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6416 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267099AbSLaArh>;
+	Mon, 30 Dec 2002 19:47:37 -0500
+Date: Mon, 30 Dec 2002 16:51:03 -0800
+From: Greg KH <greg@kroah.com>
+To: John Bradford <john@grabjohn.com>
 Cc: linux-kernel@vger.kernel.org
-References: <3E10C991.4060807@colorfullife.com>
-In-Reply-To: <3E10C991.4060807@colorfullife.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212310157.06624.oliver@neukum.name>
+Subject: Re: New kernel bug database on-line
+Message-ID: <20021231005103.GG814@kroah.com>
+References: <200212310000.gBV000hW004368@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212310000.gBV000hW004368@darkstar.example.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 30. Dezember 2002 23:32 schrieb Manfred Spraul:
-> Mulix wrote:
-> >dev_kfree_skb_any() should be called when you could be either
-> >executing in interrupt context or not.
->
-> dev_kfree_skb_any() can misdetect the context: You must not use the
-> function if you hold an irq spinlock and you might be running from BH or
-> process context.
+On Mon, Dec 30, 2002 at 11:59:59PM +0000, John Bradford wrote:
+> A couple of weeks ago, I started a thread about writing a bug database
+> dedicated to Linux kernel development.
+> 
+> My theory is that by making it Linux kernel development specific, it
+> can save more time, and make bug tracking easier than a generic bug
+> database.
+> 
+> Anyway, version 1.0 is now on-line:
+> 
+> http://grabjohn.com/kernelbugdatabase/
 
-What then shall be used under these circumstances ?
-Could you perhaps summarise the issue ?
+Hm, on this page it says the latest Development kernel is 2.5.54, does
+this database travel forward in time?  :)
 
-	Regards
-		Oliver
+> For the time being, you'll have to E-Mail me a request for a user
+> account, (which you need to do anything with it), but I've also put
+> some screenshots on-line here:
 
+Automated account creation should be your first new feature you add to
+this program, almost no one will use this if you make them do that.
+
+thanks,
+
+greg k-h

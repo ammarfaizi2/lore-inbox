@@ -1,45 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267856AbUJDJH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUJDJVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267856AbUJDJH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 05:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267863AbUJDJH6
+	id S267872AbUJDJVS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 05:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUJDJVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 05:07:58 -0400
-Received: from dialpool2-139.dial.tijd.com ([62.112.11.139]:6016 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S267856AbUJDJHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 05:07:50 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.9-rc3] suspend-to-disk oddities
-Date: Mon, 4 Oct 2004 11:07:11 +0200
-User-Agent: KMail/1.7
+	Mon, 4 Oct 2004 05:21:18 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:5607 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S267872AbUJDJVO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 05:21:14 -0400
+Message-ID: <416117A1.25DE5FCE@tv-sign.ru>
+Date: Mon, 04 Oct 2004 13:28:01 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dev@sw.ru, torvalds@osdl.org
+Subject: Re: [PATCH] alternate stack dump fix.
+References: <41602238.A828A852@tv-sign.ru>
+		<20041003100603.6429acdd.akpm@osdl.org>
+		<41610845.E03B482D@tv-sign.ru> <20041004012731.2634bff8.akpm@osdl.org>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410041107.12049.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+Andrew Morton wrote:
+> 
+> In that case I'm not understanding you.  Are you saying that your patch
+> fixes the same problem as that which Kirill's patch fixed?
 
-Just tried swsusp, works great, besides a few strange things:
+It seems to me, yes.
 
-- The suspend routine is unable to shutdown the mysqld process:
+Here the pseudo code for CONFIG_FRAME_POINTER:
 
-Oct  4 10:19:43 precious kernel: Stopping tasks: =================================================
-Oct  4 10:19:43 precious kernel:  stopping tasks failed (1 tasks remaining)
-Oct  4 10:19:43 precious kernel: Restarting tasks...<6> Strange, mysqld not stopped
-Oct  4 10:19:43 precious kernel:  done
+int valid_stack_ptr(struct thread_info *tinfo, void *p)
+{
+	return	p > (void *)tinfo &&
+		p < (void *)tinfo + THREAD_SIZE - 3;
+}
 
-- USB subsystem is totally unworking until I reinitialise it (using /etc/init.d/hotplug restart)
-- modem does not work (uses ALSA module snd_intel8x0m with a 'modem daemon'). Restarting the daemon makes things work.
-- ALSA mixer volume is set to 0 for all channels (can be fixed by running /etc/init.d/alsa start at resume)
+long print_context_stack(thread_info *tinfo, long *stack, long ebp)
+{
+	while (valid_stack_ptr(tinfo, ebp))
+	{
+		print_symbol("%s", *(ebp+4));
+		ebp = *(unsigned long *)ebp;
+	}
 
-Otherwise than these small problems it works fine, from within X. Using the radeon driver.
+	return ebp;
+}
 
-Jan
--- 
-Beauty and harmony are as necessary to you as the very breath of life.
+void show_trace(struct task_struct *task, unsigned long * stack)
+{
+	while (1) {
+		struct thread_info *context = (struct thread_info *)
+			((unsigned long)stack & (~(THREAD_SIZE - 1)));
+
+		ebp = print_context_stack(context, stack, ebp);
+
+		stack = (unsigned long*)context->previous_esp;
+		if (!stack)
+			break;
+		printk(" =======================\n");
+	}
+}
+
+show_trace() now does not use task argument in the main
+loop. Instead, it converts stack to thread_info* context,
+and passes it to print_context_stack() and (implicitly)
+to valid_stack_ptr().
+
+valid_stack_ptr() does not care now whether or not it is
+irq stack, it just does bounds checking.
+
+Please note, i simply deleted this printk("Stack pointer is garbage"),
+it can be restored, if neccessary.
+
+Did i miss something?
+
+> That wasn't at all clear from your earlier comments.
+
+Yes, sorry.
+
+Oleg.

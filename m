@@ -1,53 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130766AbRBCDkk>; Fri, 2 Feb 2001 22:40:40 -0500
+	id <S129041AbRBCDsv>; Fri, 2 Feb 2001 22:48:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130834AbRBCDkb>; Fri, 2 Feb 2001 22:40:31 -0500
-Received: from kullstam.ne.mediaone.net ([66.30.138.210]:49800 "HELO
-	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
-	id <S130766AbRBCDkQ>; Fri, 2 Feb 2001 22:40:16 -0500
-From: "Johan Kullstam" <kullstam@ne.mediaone.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS Oops (2.4.1, deterministic, symlink related)
-In-Reply-To: <Pine.LNX.4.30.0102021438320.9097-100000@age.cs.columbia.edu>
-Organization: none
-Date: 02 Feb 2001 22:43:42 -0500
-In-Reply-To: <Pine.LNX.4.30.0102021438320.9097-100000@age.cs.columbia.edu>
-Message-ID: <m2hf2ce8i9.fsf@euler.axel.nom>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S129191AbRBCDsb>; Fri, 2 Feb 2001 22:48:31 -0500
+Received: from ganymede.or.intel.com ([134.134.248.3]:22797 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S129041AbRBCDsZ>; Fri, 2 Feb 2001 22:48:25 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFEE@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'lkml'" <linux-kernel@vger.kernel.org>
+Cc: "'mblack@csihq.com'" <mblack@csihq.com>
+Subject: RE: IDE timeouts 2.4.1
+Date: Fri, 2 Feb 2001 19:48:21 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu <ionut@cs.columbia.edu> writes:
+I'm also getting a ton of these, along with lots of
+file corruption.  I could handle the timeouts and
+rebooting every once in awhile if I didn't also have
+the corruption.
 
-> On Fri, 2 Feb 2001, Alan Cox wrote:
-> 
-> > Oh I can see why Hans wants to cut down his bug reporting load. I can also
-> > say from experience it wont work. If you put #error in then everyone will
-> > mail him and complain it doesnt build, if you put #warning in nobody will
-> > read it and if you dont put anything in you get the odd bug report anyway.
-> >
-> > Basically you can't win and unfortunately a shrink wrap forcing the user
-> > to read the README file for the kernel violates the GPL ..
-> 
-> Oh, don't get me wrong, I fully understand that it's a lose-lose
-> situation. All I'm saying is that it was an incredibly bad idea to have
-> two compilers, one broken and one ok, identify themselves as the same
-> version.
+Do I have some incorrect IDE parameters?
 
-unfortunately, it's not limited to redhat and it's not limited to
-redhat's gcc-2.96.  gcc-2.95.2 has some bugs (a certain strength
-reduction bug comes to mind).  no new official gcc has come for over a
-year.  many distributions have applied a patch to fix the strength
-reduction bug.  do they all alter their version number?  of those that
-do, do they alter it consistently?
+(using 2.4.0, not 2.4.1)
+dual Pentium III 933 MHz (STL2 board)
+SAMSUNG 20 GB IDE hard drive
+ServerWorks chipset
 
--- 
-J o h a n  K u l l s t a m
-[kullstam@ne.mediaone.net]
-Don't Fear the Penguin!
+details----------------------------------
+
+Feb  2 19:34:51 localhost kernel: Linux version 2.4.0
+(rdunlap@localhost.localdomain) (gcc version 2.95.3 19991030 (prerelease))
+#34 SMP Tue Jan 30 17:49:24 PST 2001 
+Feb  2 19:35:00 localhost kernel: DMI table at 0x000EF5C0. 
+Feb  2 19:35:00 localhost kernel: BIOS Vendor: Intel Corporation 
+Feb  2 19:35:01 localhost kernel: BIOS Version:
+STL20.86B.0016.P01.0010111108 
+Feb  2 19:35:01 localhost kernel: BIOS Release: 10/11/2000 
+Feb  2 19:35:01 localhost kernel: System Vendor: Intel. 
+Feb  2 19:35:01 localhost kernel: Product Name: STL2. 
+Feb  2 19:35:01 localhost kernel: Version  . 
+Feb  2 19:35:01 localhost kernel: Serial Number  . 
+Feb  2 19:35:01 localhost kernel: Board Vendor: Intel. 
+Feb  2 19:35:01 localhost kernel: Board Name: STL2. 
+Feb  2 19:35:01 localhost kernel: Board Version: 133-639718. 
+Feb  2 19:35:01 localhost kernel: Asset Tag: 0000000000000000. 
+Feb  2 19:35:01 localhost kernel: Uniform Multi-Platform E-IDE driver
+Revision: 6.31 
+Feb  2 19:35:02 localhost kernel: ide: Assuming 33MHz system bus speed for
+PIO modes; override with idebus=xx 
+Feb  2 19:35:02 localhost kernel: ServerWorks OSB4: IDE controller on PCI
+bus 00 dev 79 
+Feb  2 19:35:02 localhost kernel: ServerWorks OSB4: chipset revision 0 
+Feb  2 19:35:02 localhost kernel: ServerWorks OSB4: not 100% native mode:
+will probe irqs later 
+Feb  2 19:35:02 localhost kernel: hda: SAMSUNG SV2006D fc2_17, ATA DISK
+drive 
+Feb  2 19:35:02 localhost kernel: hdb: TOSHIBA CD-ROM XM-6402B, ATAPI CDROM
+drive 
+Feb  2 19:35:02 localhost kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14 
+Feb  2 19:35:02 localhost kernel: hda: 40142592 sectors (20553 MB) w/480KiB
+Cache, CHS=2498/255/63 
+Feb  2 19:35:02 localhost kernel: hdb: ATAPI 32X CD-ROM drive, 256kB Cache 
+Feb  2 19:35:02 localhost kernel: Uniform CD-ROM driver Revision: 3.12 
+Feb  2 19:35:02 localhost kernel: Partition check: 
+Feb  2 19:35:02 localhost kernel:  hda: hda1 hda2 hda3 < hda5 hda6 hda7 > 
+
+/dev/hda:
+ Model=SAMSUNG SV2006D fc2_17, FwRev=LS100, SerialNo=V7**BT0521
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=32256, SectSize=512, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=480kB, MaxMultSect=16, MultSect=off
+ CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=40142592
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: sdma0 sdma1 sdma2 *mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3
+udma4 
+
+/dev/hda:
+ I/O support  =  0 (default 16-bit)
+
+           CPU0       CPU1       
+  0:      15519       9063    IO-APIC-edge  timer
+  1:        404        289    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+ 12:          0          0    IO-APIC-edge  PS/2 Mouse
+ 14:      21517      20366    IO-APIC-edge  ide0
+ 18:        138        121   IO-APIC-level  eth0
+NMI:      24511      24512 
+LOC:      24491      24492 
+ERR:          0
+
+00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if 8a
+[Master SecP PriP])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 set
+	Region 4: I/O ports at 5440 [size=16]
+
+
+~Randy_________________________________________
+________________________________________ 
+Michael D. Black wrote:
+Happens every night on both hda and hdc -- no sure yet what triggers it but 
+it is repeatable. Has happened since I've installed this machine with all 
+the 2.4.x series. 
+Jan 31 00:34:16 kernel: hdc: timeout waiting for DMA 
+Jan 31 00:34:16 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
+only: 14 
+Jan 31 00:34:16 kernel: hdc: irq timeout: status=0x58 { DriveReady 
+SeekComplete DataRequest } 
+Jan 31 00:34:26 kernel: hdc: timeout waiting for DMA 
+Jan 31 00:34:26 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
+only: 14 
+Jan 31 00:34:26 kernel: hdc: irq timeout: status=0x58 { DriveReady 
+SeekComplete DataRequest } 
+Jan 31 00:34:36 kernel: hdc: timeout waiting for DMA 
+Jan 31 00:34:36 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
+only: 14 
+Jan 31 00:34:36 kernel: hdc: irq timeout: status=0x58 { DriveReady 
+SeekComplete DataRequest } 
+Jan 31 00:34:46 kernel: hdc: timeout waiting for DMA 
+Jan 31 00:34:46 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
+only: 14 
+Jan 31 00:34:46 kernel: hdc: irq timeout: status=0x58 { DriveReady 
+SeekComplete DataRequest } 
+Jan 31 00:34:46 kernel: hdc: DMA disabled 
+Jan 31 00:34:46 i kernel: ide1: reset: success 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

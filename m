@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318933AbSHEXh2>; Mon, 5 Aug 2002 19:37:28 -0400
+	id <S318975AbSHFDwl>; Mon, 5 Aug 2002 23:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318935AbSHEXh2>; Mon, 5 Aug 2002 19:37:28 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:42210 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318933AbSHEXh1>;
-	Mon, 5 Aug 2002 19:37:27 -0400
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200208052340.g75NesD13179@eng2.beaverton.ibm.com>
-Subject: /proc/partitions problem in 2.5.30 ?
-To: linux-kernel@vger.kernel.org
-Date: Mon, 5 Aug 2002 16:40:54 -0700 (PDT)
-Cc: pbadari@us.ibm.com
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318977AbSHFDwl>; Mon, 5 Aug 2002 23:52:41 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:52135 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318975AbSHFDwk>;
+	Mon, 5 Aug 2002 23:52:40 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] kprobes for 2.5.30 
+In-reply-to: Your message of "Mon, 05 Aug 2002 09:10:08 MST."
+             <Pine.LNX.4.44.0208050906030.1753-100000@home.transmeta.com> 
+Date: Tue, 06 Aug 2002 12:18:13 +1000
+Message-Id: <20020806035803.23FC54B65@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <Pine.LNX.4.44.0208050906030.1753-100000@home.transmeta.com> you wri
+te:
+> 
+> On Mon, 5 Aug 2002, Rusty Russell wrote:
+> > 
+> > In testing, I came up against the "spin_unlock() causes schedule()
+> > inside interrupt" problem.
+> 
+> It shouldn't cause a schedule, it should cause a big warning (with 
+> complete trace) to be printed out. Or did you mean something else?
 
+Yes, that's what I meant.
 
-I am having problems with /proc/partitions NOT being correct for 2.5.30.
-It does not seem to show the correct number of blocks. Any ideas on
-how to fix this ? 2.5.29 seems to work fine.
+> Maybe the warning should be changed to
+> 
+> 	Warning, kernel is mixing metaphors. "It's not rocket surgery".
+> 
+> to make it clear why it's a bad idea.
 
-# sfdisk -l /dev/sda
+Oh yes, that's *much* clearer!
 
-Disk /dev/sda: 2212 cylinders, 255 heads, 63 sectors/track
-Units = cylinders of 8225280 bytes, blocks of 1024 bytes, counting from 0
+I am reading from this that we *should* be explicitly disabling
+preemption in interrupt handlers if we rely on the cpu number not
+changing underneath us, even if it's (a) currently unneccessary, and
+(b) arch-specific code.
 
-   Device Boot Start     End   #cyls   #blocks   Id  System
-/dev/sda1   *      0+      5       6-    48163+  83  Linux
-/dev/sda2          6    1256    1251  10048657+  83  Linux
-/dev/sda3       1257    1510     254   2040255   82  Linux swap
-/dev/sda4       1511    2211     701   5630782+   f  Win95 Ext'd (LBA)
-/dev/sda5       1511+   2129     619-  4972086   83  Linux
-/dev/sda6       2130+   2178      49-   393561   83  Linux
-/dev/sda7       2179+   2211      33-   265041   83  Linux
-
-# grep sda /proc/partitions
-   8     0   71096640 sda
-   8     1     192654 sda1
-   8     2   40194630 sda2
-   8     3    8161020 sda3
-   8     4          4 sda4
-   8     5   19888344 sda5
-   8     6    1574244 sda6
-   8     7    1060164 sda7
-
-As you can see, #blocks does not seem to match.
-
-
-Thanks,
-Badari
-
+Yes?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

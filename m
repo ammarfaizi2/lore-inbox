@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUFGN5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUFGOAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264623AbUFGN5u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 09:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264646AbUFGN5t
+	id S264652AbUFGOAS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 10:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264653AbUFGOAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 09:57:49 -0400
-Received: from holomorphy.com ([207.189.100.168]:14775 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264623AbUFGN5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 09:57:42 -0400
-Date: Mon, 7 Jun 2004 06:57:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-Message-ID: <20040607135738.GZ21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Con Kolivas <kernel@kolivas.org>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>
-References: <200406070139.38433.kernel@kolivas.org> <20040607135631.GY21007@holomorphy.com>
+	Mon, 7 Jun 2004 10:00:18 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:35024 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264652AbUFGOAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 10:00:12 -0400
+Date: Mon, 7 Jun 2004 15:00:09 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Arjan van de Ven <arjanv@redhat.com>,
+       Russell Leighton <russ@elegant-software.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <-> getpid() bug in 2.6?]
+Message-ID: <20040607140009.GA21480@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	Russell Leighton <russ@elegant-software.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <40C1E6A9.3010307@elegant-software.com> <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> <40C32A44.6050101@elegant-software.com> <40C33A84.4060405@elegant-software.com> <1086537490.3041.2.camel@laptop.fenrus.com> <40C3AD9E.9070909@elegant-software.com> <20040607121300.GB9835@devserv.devel.redhat.com> <6uu0xn5vio.fsf@zork.zork.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040607135631.GY21007@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <6uu0xn5vio.fsf@zork.zork.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 07, 2004 at 06:56:31AM -0700, William Lee Irwin III wrote:
-> There is only one "array" per runqueue; the removed code should be at
-> most a BUG_ON() or WARN_ON(); I opted to delete it altogether.
+On Mon, Jun 07, 2004 at 02:48:31PM +0100, Sean Neakums wrote:
+> > for example ia64 doesn't have it.
+> 
+> Then what is the sys_clone2 implementation in arch/is64/kernel/entry.S for?
 
-JIFFIES_TO_NS() is unused.
+It's clone with a slightly different calling convention.
 
-Index: kolivas-2.6.7-rc2/kernel/sched.c
-===================================================================
---- kolivas-2.6.7-rc2.orig/kernel/sched.c	2004-06-07 06:49:10.104411000 -0700
-+++ kolivas-2.6.7-rc2/kernel/sched.c	2004-06-07 06:50:39.987747000 -0700
-@@ -74,7 +74,6 @@
-  * Some helpers for converting nanosecond timing to jiffy resolution
-  */
- #define NS_TO_JIFFIES(TIME)	((TIME) / (1000000000 / HZ))
--#define JIFFIES_TO_NS(TIME)	((TIME) * (1000000000 / HZ))
- 
- //This is the time all tasks within the same priority round robin.
- #define RR_INTERVAL		((10 * HZ / 1000) ? : 1)

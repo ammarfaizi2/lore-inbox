@@ -1,94 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272622AbTHFWO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 18:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272623AbTHFWO2
+	id S272355AbTHFWLp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 18:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272381AbTHFWLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 18:14:28 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:41091 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S272585AbTHFWOT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 18:14:19 -0400
-From: Willy Gardiol <gardiol@libero.it>
-Reply-To: gardiol@libero.it
-To: Michael Buesch <fsdeveloper@yahoo.de>,
-       Frank Van Damme <frank.vandamme@student.kuleuven.ac.be>
-Subject: Re: [2.6] system is very slow during disk access
-Date: Thu, 7 Aug 2003 00:19:16 +0200
-User-Agent: KMail/1.5.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <200308062052.10752.fsdeveloper@yahoo.de> <200308062129.26371.frank.vandamme@student.kuleuven.ac.be> <200308062131.46017.fsdeveloper@yahoo.de>
-In-Reply-To: <200308062131.46017.fsdeveloper@yahoo.de>
+	Wed, 6 Aug 2003 18:11:45 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:31497 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S272355AbTHFWLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 18:11:44 -0400
+Message-ID: <3F318021.1010409@techsource.com>
+Date: Wed, 06 Aug 2003 18:24:33 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200308070019.17442.gardiol@libero.it>
+To: Con Kolivas <kernel@kolivas.org>
+CC: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O12.2int for interactivity
+References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <3F303494.3030406@techsource.com> <1060133030.3f3058a68e126@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
 
-Try to unmask IRQ, this should realy help... 
-hdparm -u1 /dev/hda
+Con Kolivas wrote:
+> Quoting Timothy Miller <miller@techsource.com>:
+> 
 
-I usually do on my disks:
-hdparm -c1 -u1 -d1 -X69 /dev/hda
-(note: use -X69 only for for an UDMA 100 or 133 drive)
+> 
+> 
+> Thank you for your commentary which I agree with. With respect to these 
+> potential issues I have always worked on a fix for where I thought real world 
+> applications might cause these rather than try and fix it for just that program.
+> It was actually the opposite reason that my patch prevented thud from working; 
+> it is idle tasks that become suddenly cpu hogs that in the real world are 
+> potential starvers,  and I made a useful fix for that issue. Thud just happened 
+> to simulate those conditions and I only tested for it after I heard of thud. So 
+> just a (hopefully reassuring) reminder; I'm not making an xmms interactivity 
+> estimator, nor an X estimator, nor a "fix this exploit" one and so on.
+> 
 
-> > Maybe you just didn't enable DMA on them. Use hdparm -v /dev/foo to find
-> > out.
->
-> DMA is on.
->
-> root@lfs:/home/mb> hdparm -v /dev/hda
->
-> /dev/hda:
->  multcount    = 16 (on)
->  IO_support   =  1 (32-bit)
->  unmaskirq    =  0 (off)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 256 (on)
->  geometry     = 14244/16/63, sectors = 80418240, start = 0
->
->
-> root@lfs:/home/mb> hdparm -v /dev/hdc
->
-> /dev/hdc:
->  multcount    = 16 (on)
->  IO_support   =  1 (32-bit)
->  unmaskirq    =  0 (off)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 256 (on)
->  geometry     = 14244/16/63, sectors = 80418240, start = 0
 
-- -- 
+I have always assumed that things like X and xmms were just examples of 
+the various sorts of things people would run when testing your scheduler.
 
-! 
- Willy Gardiol - gardiol@libero.it
- gardiol.eu.org
- Use linux for your freedom.
+But it was a mistaken assumption on my part that thud was an artificial 
+work load.  The author of thud, I believe it was, explained to me how 
+thud is a simulation of a real workload, reverse-engineered from 
+real-world experience.
 
-   "La guerra non farà mai finire 
-    alcuna guerra, nel migliore dei
-    casi sarà stata una guerra in più."
+My apologies.
 
-      Gino Strada, Buskashì
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/MX7kQ9qolN/zUk4RApDfAJ9RG7HO3j1rHI/A7ZpfljJdNtzIsgCcC+PS
-hQofsS2lrTLMFh4JwgzAVp4=
-=0g9b
------END PGP SIGNATURE-----
 

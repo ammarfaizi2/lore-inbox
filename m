@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289233AbSAIH5z>; Wed, 9 Jan 2002 02:57:55 -0500
+	id <S289229AbSAIINq>; Wed, 9 Jan 2002 03:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289229AbSAIH5q>; Wed, 9 Jan 2002 02:57:46 -0500
-Received: from firewall.synchrotron.fr ([193.49.43.1]:10972 "HELO out.esrf.fr")
-	by vger.kernel.org with SMTP id <S288546AbSAIH5h>;
-	Wed, 9 Jan 2002 02:57:37 -0500
-Date: Wed, 9 Jan 2002 08:57:15 +0100
-From: Samuel Maftoul <maftoul@esrf.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: boot messeage
-Message-ID: <20020109085715.A6702@pcmaftoul.esrf.fr>
-In-Reply-To: <20020109064104.15170.qmail@web15003.mail.bjs.yahoo.com>
+	id <S289237AbSAIINg>; Wed, 9 Jan 2002 03:13:36 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47119 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289229AbSAIIN0>;
+	Wed, 9 Jan 2002 03:13:26 -0500
+Date: Wed, 9 Jan 2002 09:12:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Oops with eject and cdrom affects 2.4 & 2.5
+Message-ID: <20020109091217.K19814@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0201090809080.30141-100000@netfinity.realnet.co.sz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <20020109064104.15170.qmail@web15003.mail.bjs.yahoo.com>; from hanhbkernel@yahoo.com.cn on Wed, Jan 09, 2002 at 02:41:04PM +0800
+In-Reply-To: <Pine.LNX.4.33.0201090809080.30141-100000@netfinity.realnet.co.sz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 02:41:04PM +0800, hanhbkernel wrote:
-> When booting Linux, the kernel messages are shown on
-> screen. 
-> I don't like to show these messages, so  "Support for
-> console on virtual terminal" and "Support for console
-> on serial port" are not chose when compiling kernel.
-> But using the new kernel, computer can't boot. If one
-> of "Support for console on virtual terminal" and
-> "Support for console on serial port" is chose,
-> Computer can be booted. If I don¡¯t like the booting
-> messages shown through terminal or HyperTerminal on
-> screen. Would you like to tell me how could I do?
+On Wed, Jan 09 2002, Zwane Mwaikambo wrote:
+> Hi Jens, Marcelo,
+> 	Doing an "eject" with my somewhat damaged SuSE 5.3 CD gave me the
+> appended reproducible oops. This bug is present in both 2.4 (visual
+> inspection) and 2.5. Here is the code path before the oops
+> 
+> ide-cd.c
+> static
+> int cdrom_queue_packet_command(ide_drive_t *drive, struct packet_command
+> *pc)
+> {
+> <snip>
+> 		if (ide_do_drive_cmd (drive, &req, ide_wait)) { <== [1]
+> 			printk("%s: do_drive_cmd returned
+> stat=%02x,err=%02x\n",
+> 				drive->name, req.buffer[0],
+> req.buffer[1]);
+> 			/* FIXME: we should probably abort/retry or
+> something */
+> <snip>
+> 
+> [1] ide_do_drive_cmd returns -EIO so we end up doing the printk. Tadow!
+> NULL dereference because of (char *)req.buffer. Then again, this printk
+> seems quite redundant IMO.
 
-Use the "Support for console on virtual terminal and output the stuff to
-a non used seria port : 
-append to lilo something like this: append="console=/dev/tty4"
-        Sam
+Yes, just kill the printk instead.
+
+-- 
+Jens Axboe
+

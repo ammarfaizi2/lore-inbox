@@ -1,348 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVAWUfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVAWUr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVAWUfy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 15:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVAWUfy
+	id S261351AbVAWUr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 15:47:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVAWUr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 15:35:54 -0500
-Received: from weber.sscnet.ucla.edu ([128.97.42.3]:43429 "EHLO
-	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
-	id S261353AbVAWUfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 15:35:07 -0500
-Message-ID: <41F40A72.1000400@cogweb.net>
-Date: Sun, 23 Jan 2005 12:34:58 -0800
-From: David Liontooth <liontooth@cogweb.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
+	Sun, 23 Jan 2005 15:47:27 -0500
+Received: from mail.joq.us ([67.65.12.105]:56192 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261351AbVAWUrS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 15:47:18 -0500
+To: Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sun, 23 Jan 2005 14:48:45 -0600
+In-Reply-To: <20050122165458.GA14426@elte.hu> (Ingo Molnar's message of
+ "Sat, 22 Jan 2005 17:54:58 +0100")
+Message-ID: <87pszvlvma.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: cpia@risc.uni-linz.ac.at,
-       Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>,
-       linux-kernel@vger.kernel.org
-Subject: CPIA under 2.6.10-ac8 -- lacking sysfs support?
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting a black screen from my Ezonics ez.com usb webcam:
+Ingo Molnar <mingo@elte.hu> writes:
 
-$ xawtv
-This is xawtv-3.94, running on Linux/i686 (2.6.10-ac8)
-xinerama 0: 1600x1200+0+0
-xinerama 1: 1280x854+0+1200
-/dev/video0 [v4l]: no overlay support
-v4l-conf had some trouble, trying to continue anyway
-ioctl: VIDIOCGFBUF(base=(nil);height=0;width=0;depth=0;bytesperline=0): 
-Invalid argument
-ioctl: 
-VIDIOCSPICT(brightness=32768;hue=32768;colour=32767;contrast=32768;whiteness=0;depth=24;palette=RGB24): 
-Invalid argument
-ioctl: 
-VIDIOCSPICT(brightness=32767;hue=32768;colour=32768;contrast=32768;whiteness=0;depth=24;palette=RGB24): 
-Invalid argument
-ioctl: 
-VIDIOCSPICT(brightness=32768;hue=32767;colour=32768;contrast=32768;whiteness=0;depth=24;palette=RGB24): 
-Invalid argument
-ioctl: 
-VIDIOCSPICT(brightness=32768;hue=32768;colour=32768;contrast=32767;whiteness=0;depth=24;palette=RGB24): 
-Invalid argument
+> thanks for the testing. The important result is that nice--20
+> performance is roughly the same as SCHED_ISO. This somewhat
+> reduces the urgency of the introduction of SCHED_ISO.
 
-The directory /proc/cpia exists but is empty, which means cpia-control 
-isn't working.
-Is this a sysfs issue? dmesg says "Please fix your driver for proper 
-sysfs support, see http://lwn.net/Articles/36850/"
+Doing more runs and a more thorough analysis has driven me to a
+different conclusion.  The important result is that *neither* nice-20
+*nor* SCHED_ISO work properly in their current forms.
 
-Cheers,
-Dave
+For further comparison, I booted an old 2.4.19 kernel with Andrew
+Morton's low-latency patches and ran the same test SCHED_FIFO, with
+and without background compiles.  The results were roughly the same as
+SCHED_FIFO on 2.6.11-rc1...
 
+  http://www.joq.us/jack/benchmarks/2.4ll-fifo
+  http://www.joq.us/jack/benchmarks/2.4ll-fifo+compile
 
-Details:
+In addition, I extracted some across the board information by grepping
+for key results.  Looking at these numbers in aggregate paints a
+pretty convincing picture that neither of the new scheduler prototypes
+are performing adequately compared to SCHED_FIFO on either 2.4ll or
+2.6.
 
-I'm running Debian sid with kernel 2.6.10-ac8 and
+  http://www.joq.us/jack/benchmarks/cycle_max.log
+  http://www.joq.us/jack/benchmarks/delay_max.log
+  http://www.joq.us/jack/benchmarks/xrun_count.log
 
-libsysfs1               1.2.0-4        
-sysfsutils              1.2.0-4        
+Looking at delay_max broken down by directory is particularly
+striking.  Below, I grouped the values by scheduling class to show the
+striking differences.  These kinds of worst-case numbers are what
+realtime applications designers are generally most interested in...
 
-$ v4l-conf
-v4l-conf: using X11 display :0
-dga: version 2.0
-mode: 1600x2054, depth=24, bpp=32, bpl=7168, base=0xec000000
-/dev/video0 [v4l2]: ioctl VIDIOC_QUERYCAP: Invalid argument
-/dev/video0 [v4l]: no overlay support
+============= SCHED_FIFO ==============
+...benchmarks/2.4ll-fifo...
+Delay Maximum . . . . . . . . :   823   usecs
+Delay Maximum . . . . . . . . :   303   usecs
+...benchmarks/2.4ll-fifo+compile...
+Delay Maximum . . . . . . . . :   926   usecs
+Delay Maximum . . . . . . . . :   663   usecs
+...benchmarks/sched-fifo...
+Delay Maximum . . . . . . . . :   347   usecs
+Delay Maximum . . . . . . . . :   277   usecs
+Delay Maximum . . . . . . . . :   246   usecs
+...benchmarks/sched-fifo+compile...
+Delay Maximum . . . . . . . . :   285   usecs
+Delay Maximum . . . . . . . . :   269   usecs
+Delay Maximum . . . . . . . . :   277   usecs
+Delay Maximum . . . . . . . . :   569   usecs
+Delay Maximum . . . . . . . . :   461   usecs
 
-# dmesg:
+============= nice(-20) ==============
+...benchmarks/nice-20...
+Delay Maximum . . . . . . . . : 13818   usecs
+Delay Maximum . . . . . . . . : 155637   usecs
+Delay Maximum . . . . . . . . :   487   usecs
+Delay Maximum . . . . . . . . : 160328   usecs
+Delay Maximum . . . . . . . . : 495328   usecs
+...benchmarks/nice-20+compile...
+Delay Maximum . . . . . . . . : 183083   usecs
+Delay Maximum . . . . . . . . :  5976   usecs
+Delay Maximum . . . . . . . . : 18155   usecs
+Delay Maximum . . . . . . . . :   557   usecs
 
-cpia: Ignoring new-style parameters in presence of obsolete ones
-V4L-Driver for Vision CPiA based cameras v1.2.3
-Since in-kernel colorspace conversion is not allowed, it is disabled by 
-default now. Users should fix the applic
-ations in case they don't work without conversion reenabled by setting 
-the 'colorspace_conv' module parameter to
- 1<6>USB driver for Vision CPiA based cameras v1.2.3
-USB CPiA camera found
-videodev: "CPiA Camera" has no release callback.
-Please fix your driver for proper sysfs support, see 
-http://lwn.net/Articles/36850/
-usbcore: registered new driver cpia
+============= SCHED_ISO ==============
+...benchmarks/sched-iso...
+Delay Maximum . . . . . . . . : 21410   usecs
+Delay Maximum . . . . . . . . : 36830   usecs
+Delay Maximum . . . . . . . . :  4062   usecs
+...benchmarks/sched-iso+compile...
+Delay Maximum . . . . . . . . : 98909   usecs
+Delay Maximum . . . . . . . . : 39414   usecs
+Delay Maximum . . . . . . . . : 40294   usecs
+Delay Maximum . . . . . . . . : 217192   usecs
+Delay Maximum . . . . . . . . : 156989   usecs
 
-# lspci:
+Looked at this way, there really is no question.  The new scheduler
+prototypes are falling short significantly.  Could this be due to
+their lack of priority distinctions between realtime threads?  Maybe.
+I can't say for sure.  I'll be interested to see what happens when Con
+is ready for me to try his new priority-based SCHED_ISO prototype.
 
-0000:00:0b.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 50)
-0000:00:0b.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 50)
-0000:00:0b.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
+On a different note, the fact that 2.6 is finally performing as well
+as 2.4+lowlat on this test represents significant progress.  In fact,
+it performed slightly better (I don't know whether that improvement is
+statistically significant).
 
-# lsusb
-Bus 002 Device 004: ID 0553:0002 STMicroelectronics Imaging Division 
-(VLSI Vision) CPiA WebCam
-Bus 002 Device 003: ID 06bd:0001 AGFA-Gevaert NV SnapScan 1212U
-Bus 002 Device 002: ID 0451:1446 Texas Instruments, Inc. TUSB2040/2070 Hub
-Bus 002 Device 001: ID 0000:0000
-Bus 001 Device 002: ID 046d:c00c Logitech, Inc. Optical Wheel Mouse
-Bus 001 Device 001: ID 0000:0000
-
-# lsusb -vvv
-Bus 002 Device 004: ID 0553:0002 STMicroelectronics Imaging Division 
-(VLSI Vision) CPiA WebCam
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0         8
-  idVendor           0x0553 STMicroelectronics Imaging Division (VLSI 
-Vision)
-  idProduct          0x0002 CPiA WebCam
-  bcdDevice            1.00
-  iManufacturer           0
-  iProduct                1
-  iSerial                 0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           73
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0x80
-    MaxPower              250mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol    255
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            1
-          Transfer Type            Isochronous
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0000  bytes 0 once
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       1
-      bNumEndpoints           1
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol    255
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            1
-          Transfer Type            Isochronous
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x01c0  bytes 448 once
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       2
-      bNumEndpoints           1
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol    255
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            1
-          Transfer Type            Isochronous
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x02c0  bytes 704 once
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       3
-      bNumEndpoints           1
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol    255
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            1
-          Transfer Type            Isochronous
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x03c0  bytes 960 once
-        bInterval               1
-
-# usbview
-
-USB Camera
-Speed: 12Mb/s (full)
-USB Version:  1.00
-Device Class: 00(>ifc )
-Device Subclass: 00
-Device Protocol: 00
-Maximum Default Endpoint Size: 8
-Number of Configurations: 1
-Vendor Id: 0553
-Product Id: 0002
-Revision Number:  1.00
-
-Config Number: 1
-    Number of Interfaces: 1
-    Attributes: 80
-    MaxPower Needed: 250mA
-
-    Interface Number: 0
-        Name: cpia
-        Alternate Number: 0
-        Class: ff(vend.)
-        Sub Class: 0
-        Protocol: 0
-        Number of Endpoints: 1
-
-            Endpoint Address: 81
-            Direction: in
-            Attribute: 1
-            Type: Isoc
-            Max Packet Size: 0
-            Interval: 1ms
-
-    Interface Number: 0
-        Name: cpia
-        Alternate Number: 1
-        Class: ff(vend.)
-        Sub Class: 0
-        Protocol: 0
-        Number of Endpoints: 1
-
-            Endpoint Address: 81
-            Direction: in
-            Attribute: 1
-            Type: Isoc
-            Max Packet Size: 448
-            Interval: 1ms
-
-    Interface Number: 0
-        Name: cpia
-        Alternate Number: 2
-        Class: ff(vend.)
-        Sub Class: 0
-        Protocol: 0
-        Number of Endpoints: 1
-
-            Endpoint Address: 81
-            Direction: in
-            Attribute: 1
-            Type: Isoc
-            Max Packet Size: 704
-            Interval: 1ms
-
-    Interface Number: 0
-        Name: cpia
-        Alternate Number: 3
-        Class: ff(vend.)
-        Sub Class: 0
-        Protocol: 0
-        Number of Endpoints: 1
-
-            Endpoint Address: 81
-            Direction: in
-            Attribute: 1
-            Type: Isoc
-            Max Packet Size: 960
-            Interval: 1ms
-
-# v4l-info
-
-### video4linux device info [/dev/video0] ###
-general info
-    VIDIOCGCAP
-        name                    : "CPiA Camera"
-        type                    : 0x201 [CAPTURE,SUBCAPTURE]
-        channels                : 1
-        audios                  : 0
-        maxwidth                : 352
-        maxheight               : 288
-        minwidth                : 48
-        minheight               : 48
-
-channels
-    VIDIOCGCHAN(0)
-        channel                 : 0
-        name                    : "Camera"
-        tuners                  : 0
-        flags                   : 0x0 []
-        type                    : CAMERA
-        norm                    : 0
-
-tuner
-ioctl VIDIOCGTUNER: Invalid argument
-
-audio
-ioctl VIDIOCGAUDIO: Invalid argument
-
-picture
-    VIDIOCGPICT
-        brightness              : 32768
-        hue                     : 32768
-        colour                  : 32768
-        contrast                : 32768
-        whiteness               : 0
-        depth                   : 24
-        palette                 : RGB24
-
-buffer
-ioctl VIDIOCGFBUF: Invalid argument
-
-window
-    VIDIOCGWIN
-        x                       : 0
-        y                       : 0
-        width                   : 352
-        height                  : 288
-        chromakey               : 0
-        flags                   : 0
-
-
-
-
+Congratulations to all who had a hand in making this happen!
+-- 
+  joq

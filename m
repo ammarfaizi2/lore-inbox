@@ -1,96 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265079AbTLWKNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 05:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTLWKNv
+	id S265095AbTLWKVN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 05:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTLWKVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 05:13:51 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:7088
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265079AbTLWKNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 05:13:48 -0500
-Date: Tue, 23 Dec 2003 02:13:45 -0800
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [2.6.0-mm1] kernel BUG in include/linux/list.h:148!
-Message-ID: <20031223101345.GH7522@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+	Tue, 23 Dec 2003 05:21:13 -0500
+Received: from [194.243.27.136] ([194.243.27.136]:46596 "HELO
+	venere.pandoraonline.it") by vger.kernel.org with SMTP
+	id S265095AbTLWKVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 05:21:08 -0500
+Subject: Error when deleting file..
+From: Carlo <devel@integra-sc.it>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1072117013.19052.39.camel@atena>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PW0Eas8rCkcu1VkF"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: joshk@triplehelix.org (Joshua Kwan)
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Dec 2003 19:20:52 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
+i receive the follow message error when i delete file from a large
+partition (100GB) of an IDE drive (120GB) with reiserfs filesystem and
+kernel 2.4.22. Other partitions are EXT3.
+ 
+I received this message several time in my test that erase jpeg files in
+nested directories.
+May i increase the verbose of this error?
 
---PW0Eas8rCkcu1VkF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Got one of these while messing with some DVDs and CDs (mounting them,
-etc.) One of them was not inside the drive correctly, so i had to eject
-it while mount was running. Could this have happened then? I didn't look
-at dmesg immediately after when that may have occurred.
-
-kernel BUG at include/linux/list.h:148!
-invalid operand: 0000 [#2]
-PREEMPT=20
+hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
+DataRequest }
+ide0: Drive 0 didn't accept speed setting. Oh, well.
+hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+ 
+hda: CHECK for good STATUS
+Unable to handle kernel paging request at virtual address ffffffe0
+ printing eip:
+c0146553
+*pde = 00002063
+*pte = 00000000
+Oops: 0000
 CPU:    0
-EIP:    0060:[<c016ae51>]    Not tainted VLI
-EFLAGS: 00010202
-EIP is at prune_dcache+0x1dc/0x1e9
-eax: 00000000   ebx: cd4eab80   ecx: cd4eab94   edx: cd537e9c
-esi: cd4eabf0   edi: c13b2000   ebp: 0000007e   esp: c13b3e7c
-ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 8, threadinfo=3Dc13b2000 task=3Dc13b8d00)
-Stack: cd567480 00000000 00000080 c13b2000 00000004 cffdeb20 c016b2e7 00000=
-080=20
-       c01436c3 00000080 000000d0 0000de8b 001a673c 00000000 0000001e 00000=
-000=20
-       000000f6 c035e874 00000001 ffffff85 c0144a88 000000f6 000000d0 00000=
-0d0=20
-Call Trace:
- [<c016b2e7>] shrink_dcache_memory+0x23/0x25
- [<c01436c3>] shrink_slab+0x110/0x153
- [<c0144a88>] balance_pgdat+0x1d6/0x1f0
- [<c0144bb4>] kswapd+0x112/0x122
- [<c011e113>] autoremove_wake_function+0x0/0x4f
- [<c03001c6>] ret_from_fork+0x6/0x14
- [<c011e113>] autoremove_wake_function+0x0/0x4f
- [<c0144aa2>] kswapd+0x0/0x122
- [<c0109255>] kernel_thread_helper+0x5/0xb
+EIP:    0010:[<c0146553>]    Not tainted
+EFLAGS: 00010213
+eax: cded5f68   ebx: ffffffe0   ecx: cded5000   edx: 00000010
+esi: 00000000   edi: cded5e40   ebp: cded5e68   esp: cb18bf24
+ds: 0018   es: 0018   ss: 0018
+Process rmdir (pid: 21907, stackpage=cb18b000)
+Stack: 00000000 cded5e40 cded5e40 c2dfc340 cded5e40 bffffae8 c01465dd
+cded5e40
+       cded5e40 c013fa0f cded5e40 000001fe cb7d9040 c2dfc340 cded5e40
+c018d840
+       c013fb69 cded5e40 cded5d40 cb18bf9c 00000000 fffffff0 cded5e40
+cded5e40
+Call Trace:    [<c01465dd>] [<c013fa0f>] [<c018d840>] [<c013fb69>]
+[<c013fc84>]
+  [<c0114d00>] [<c01088a3>]
+ 
+Code: 8b 03 8b 36 85 c0 75 32 8d 4b 18 8b 51 04 8b 43 18 89 50 04
 
-Code: 01 a8 08 75 12 8b 47 08 83 6f 14 01 a8 08 74 b0 e8 ca 1b fb ff eb a9 =
-e8 c3 1b fb ff eb e7 0f 0b 95 00 9d 96 31 c0 e9 29 ff ff ff <0f> 0b 94 00 9=
-d 96 31 c0 e9 10 ff ff ff 55 57 56 53 83 ec 0c 8b=20
- <6>note: kswapd0[8] exited with preempt_count 2
+[]$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 8
+model name      : AMD Athlon(tm) XP 2700+
+stepping        : 1
+cpu MHz         : 2158.060
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 4299.16
+ 
 
---=20
-Joshua Kwan
 
---PW0Eas8rCkcu1VkF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+  
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iQIVAwUBP+gVWKOILr94RG8mAQIPvg/9H2hcpu2aB1KNmFcGMXYmLYHK0U5muoNu
-tN95/SO4frI+RaH8BBRz8qzUgFkkvohHXr4suTl+qSr21Sho1a3n36oE7efoErfm
-UD5M+aOIT8UwxoEX5u4eueFCFeJUkJ88TlSZoOOet/4gOKTa2fxvnQsK/u1l2jPE
-fWN32We/Tyhi3TIvucEhBG4VUrbN510N1p7RGm4lVQmK1tfmVJVHYDPL2nf8BhZD
-AjDSAMhw+NIj2JPlId905OuZEbeXi4sTv53esOgLNwXpdAbbF5SMcdSoBSnwUplM
-+720hhMYDcA4xYPkEcll1dwbeSJ8spE7pKAbJ2qxPueZsTCG7o2MqCb9MsP2m75W
-CPs/JLiuK38CUYqvh8HOfK8+KveDPg74dT0zuvsaCiSh3+qCZYEg1LaJuqdL2s1+
-w1VUWZ/hwODjmTF6nc29ROZTb1NBlHFMp5ZfpoJ3uDMvjh7Jy1/uESM2ghCDjmZh
-BMm+B1C7dXbQzPayd+hu+yXgHBbh/tJdI4BSkAWz/wD9T9EdR09m+0T4lFXK2Ujx
-qU+DeOz/FU1weBvGSQa6BlIEbPqcwahqwCfNqiL81QoGwXIzbSzn7sSdoM9pI4Zu
-qV+hlugMJ8tdCbOpg01Xw9qFmlwFJGTMDl5Uwj6U2U8jo/CKjXLbt+DtxExE1wHu
-RYXrqasAVnY=
-=UZzL
------END PGP SIGNATURE-----
-
---PW0Eas8rCkcu1VkF--

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262062AbSJTKx0>; Sun, 20 Oct 2002 06:53:26 -0400
+	id <S261645AbSJTLB1>; Sun, 20 Oct 2002 07:01:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261645AbSJTKx0>; Sun, 20 Oct 2002 06:53:26 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:57608 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262062AbSJTKxZ>; Sun, 20 Oct 2002 06:53:25 -0400
-Message-Id: <200210201053.g9KArdp18247@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andre Hedrick <andre@linux-ide.org>, Brian Gerst <bgerst@didntduck.org>
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
-Date: Sun, 20 Oct 2002 13:46:29 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Christian Borntraeger <linux@borntraeger.net>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10210191738160.24031-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10210191738160.24031-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S262368AbSJTLB1>; Sun, 20 Oct 2002 07:01:27 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:65293 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261645AbSJTLB1>;
+	Sun, 20 Oct 2002 07:01:27 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: longjmp/setjmp in kernel
+In-reply-to: Your message of "Sun, 20 Oct 2002 11:31:35 +0100."
+             <20021020113135.A25278@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 20 Oct 2002 21:07:20 +1000
+Message-ID: <23470.1035112040@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 October 2002 22:41, Andre Hedrick wrote:
-> > Nobody asked you to bypass the protection, only to sanely error out
-> > when it is found.  Refusing to read the disk is ok, but allowing
-> > the system to crash is not.
->
-> I thought I specified what was need to decode the issue, maybe since
-> there are two multiple threads now I have lost track of which one I
-> am responding.  Thus I will repeat in this thread.
->
-> True, however since I suspect the device was attempting to thwart and
-> crash the system, until a trace of the sense data returns from the
-> device and the re-action of the kernel to those target responses, not
-> much can be done to prevent such a crash.
+On Sun, 20 Oct 2002 11:31:35 +0100, 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>For instance, one of my patches - the rdunzip one.  It would be _really_
+>nice to get some feedback on it; it isn't perfect, because the behaviour
+>of gunzip is inherently undeterministic when given bad input data.  The
+>only real solution IMHO is setjmp/longjmp, which I think would suck in
+>the kernel.  I would have expected _this_ to attract some comments from
+>people like you.  Maybe you feel that setjmp/longjmp is an approprate
+>solution.  Unfortunately, I don't know that because no one has replied
+>to tell me so.
 
-So how Christian Borntraeger <linux@borntraeger.net> can help you?
+Why should setjmp/longjmp suck in kernel?  I use it in kdb to recover
+from debugging errors and to quit large amounts of output without
+overloading every bit of debugging code with checks for "has the user
+typed q?".  It meant I had to write/modify setjmp/longjmp code to work in
+the kernel for i386 and ia64, no big deal.
 
-Is there any way to dump sense data and record kernel responses?
---
-vda
+Given the kernel model, there are few places where setjmp/longjmp make
+sense.  If the code takes locks, disables interrupts etc. then forget
+setjmp, cleanup after longjmp is too messy.  But if you want to recover
+from unexpected events in a large body of code which does not take
+locks then it is a valid use for longjmp, especially if the code
+requires several levels of function calls and you want to bail out from
+a low level function.
+

@@ -1,35 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318326AbSHEHPz>; Mon, 5 Aug 2002 03:15:55 -0400
+	id <S318328AbSHEHWB>; Mon, 5 Aug 2002 03:22:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318332AbSHEHPz>; Mon, 5 Aug 2002 03:15:55 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:15355 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318326AbSHEHPy>; Mon, 5 Aug 2002 03:15:54 -0400
-Subject: Re: 2.4.19 IDE Partition Check issue
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10208042350020.11932-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10208042350020.11932-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Aug 2002 09:37:26 +0100
-Message-Id: <1028536646.16550.6.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318329AbSHEHWB>; Mon, 5 Aug 2002 03:22:01 -0400
+Received: from mail.aurema.com ([203.31.96.1]:27145 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id <S318328AbSHEHVz>;
+	Mon, 5 Aug 2002 03:21:55 -0400
+Date: Mon, 5 Aug 2002 17:25:21 +1000 (EST)
+From: Kingsley Cheung <kingsley@aurema.com>
+X-X-Sender: kingsley@kingsley.sw.oz.au
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible Bug in "sys_init_module"? 
+In-Reply-To: <3340.1028525729@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.44.0208051552270.11259-100000@kingsley.sw.oz.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 07:52, Andre Hedrick wrote:
-> > Any chance of lba48 working on a:
-> > 
+On Mon, 5 Aug 2002, Keith Owens wrote:
 
-> >     - Intel 82371FB PIIX IDE [Triton I] (rev 02) (On P-I Triton I mobo) ?
+> Kingsley Cheung <kingsley@aurema.com> wrote:
+> >Please cc me since I'm not on the mailing list.
+> >
+> >Assume that one script invokes modprobe which calls "sys_init_module" 
+> >first.  The big kernel lock is taken and then plenty of sanity checks 
+> >done. After dependencies are checked and updated, the "init_module" 
+> >function of the module is invoked. Now if this function happens to block, 
+> >the kernel lock is dropped. A call to "sys_init_module" by modprobe in 
+> >the other script to initialise a second module dependent on the first 
+> >could then take the big kernel lock, check the dependencies and find them 
+> >okay, and then have its "init_module" function invoked. And if this 
+> >second module relies on the first module being properly initialised 
+> >before it is loaded, this can break. 
 > 
-> NO confirmed from Intel, their T13 representative, untested in Linux
+> This is a trade off between two conflicting requirements.  If a module
+> fails during initialization then we want the module symbols to debug
+> the module.  But those same symbols should not be considered valid when
+> doing insmod.  The query_module() interface does not have the
+> flexibility to distinguish between the two types of user space query.
+>
+> In any case the problem is bigger than module symbols.  What happens
+> when a module_init breaks after registering some functions?  The
+> functions are registered and can be called, but the module is stuffed.
+> insmod symbols are just one instance of the wider problem - if a module
+> fails during init or exit and does not recover then the kernel is in an
+> unreliable state.  It is broken, you get to keep the pieces.
+>
 
+Keith,
 
-Ok Andre is the expert - I thought PIO worked on te Triton IDE for LBA48
-?
+Thanks for the quick reply. I understand the need for having the module 
+symbols in early for debugging purposes.  However, I'm not sure I see what 
+the invalid state of the module symbols has to do with the problem. 
+
+Now I'm assuming you're saying the module symbols are invalid because the  
+initialisation function has yet to complete.  Please correct me if I'm 
+wrong.  For this reason shouldn't another concurrent call to 
+"sys_init_module" wait or be prevented from invoking the "init_module" 
+function of a module that is dependent on the first module until the 
+first module has its initialisation complete?  For debugging purposes 
+"query_module" should still be able to see the symbols and other relevant 
+data of the first module but no module dependent on the first 
+uninitialised module should ever be loaded. 
+
+Anyway, at this point I'm still not certain I've completely grasped your 
+reply. Maybe I didn't make my first email clear.  If this is so, then 
+what I was saying is that the invocation of "init_module" functions of 
+*dependent* modules needs be appropriately serialised.  Right now 
+"sys_init_module" is relying on the big kernel lock to completely 
+serialise these calls but if any "init_module" function blocks, the 
+kernel lock is released and this serialisation can be broken.  Maybe one 
+way to avoid this is to check the flags of modules depended on during 
+"sys_init_module". So if the MOD_RUNNING flag is not set for the module 
+we depend on, then the module currently being loaded must have its 
+invocation of "sys_init_module" wait or return an appropriate error 
+indicating why.
+
+		Kingsley
 

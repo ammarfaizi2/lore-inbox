@@ -1,113 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270832AbTHOUgE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 16:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270833AbTHOUgE
+	id S270850AbTHOUjV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 16:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270845AbTHOUjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 16:36:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26823 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270832AbTHOUf5 (ORCPT
+	Fri, 15 Aug 2003 16:39:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56007 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270846AbTHOUjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 16:35:57 -0400
-Subject: [PATCH] libaio-0.3.93 fix dynamic linking and compatibility
-From: Daniel McNeil <daniel@osdl.org>
-To: "linux-aio@kvack.org" <linux-aio@kvack.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1060712778.1962.17.camel@ibm-c.pdx.osdl.net>
-References: <1060712778.1962.17.camel@ibm-c.pdx.osdl.net>
-Content-Type: multipart/mixed; boundary="=-wKekMEi2iWRz8lHzbfXF"
-Organization: 
-Message-Id: <1060979752.1962.55.camel@ibm-c.pdx.osdl.net>
+	Fri, 15 Aug 2003 16:39:17 -0400
+Date: Fri, 15 Aug 2003 13:35:50 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Christian Axelsson <smiler@lanil.mine.nu>
+Cc: bos@serpentine.com, linux-kernel@vger.kernel.org
+Subject: Re: Centrino support
+Message-Id: <20030815133550.33a5918a.rddunlap@osdl.org>
+In-Reply-To: <3F3D417A.5090404@lanil.mine.nu>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com>
+	<1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
+	<3F3D417A.5090404@lanil.mine.nu>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Aug 2003 13:35:52 -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Aug 2003 22:24:26 +0200 Christian Axelsson <smiler@lanil.mine.nu> wrote:
 
---=-wKekMEi2iWRz8lHzbfXF
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+| Bryan O'Sullivan wrote:
+| 
+| >If you want built-in wireless in the nearish term, you'll have to get a
+| >supported MiniPCI card and replace your Centrino card.
+| >
+| >  
+| >
+| Got a list of supported good working cards?
 
-I found the problem with the libaio-0.3.93 library.  The changes
-which added backward compatibility with older libaio (like 0.3.13)
-broke dynamic linking.  FYI, libaio-0.3.92 links dynamically.
+Mini-PCI or CardBus?
+I think that some people just add a CardBus wireless card.
 
-Here is a patch to the libaio-0.3.93 which fixes dynamic linking and
-adds compatibility with binaries built with the old libraries.  I've
-tested the by building binaries on redhat 9 (libaio-0.3.93) and 
-redhat 8 (libaio-0.3.13).  I've tested the AIO interfaces on
-2.6.0-test2-mm4 using both old and new binaries.
+| >As far as CPU is concerned, if you're using recent 2.5 or 2.6 kernels,
+| >there's Pentium M support in cpufreq.  Jeremy Fitzhardinge has written a
+| >userspace daemon that varies the Pentium M CPU frequency in response to
+| >load.
+| >  
+| >
+| Can you please point me to this daemon?
 
-Daniel <daniel@osdl.org>
+http://www.goop.org/~jeremy/speedfreq/
 
---=-wKekMEi2iWRz8lHzbfXF
-Content-Disposition: attachment; filename=patch.libaio-0.3-93.fix
-Content-Type: text/x-patch; name=patch.libaio-0.3-93.fix; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -rupN -X /home/daniel/dontdiff libaio-0.3.93/src/compat-0_1.c libaio-0.3.93-fix.compat/src/compat-0_1.c
---- libaio-0.3.93/src/compat-0_1.c	2002-09-13 15:36:45.000000000 -0700
-+++ libaio-0.3.93-fix.compat/src/compat-0_1.c	2003-08-14 17:30:46.444768358 -0700
-@@ -57,3 +57,36 @@ int compat0_1_io_getevents(io_context_t 
- 			const_timeout ? &timeout : NULL);
- }
- 
-+/*
-+ * Compatible interfaces that still need an entry point.
-+ */
-+
-+SYMVER(compat0_1_io_queue_init, io_queue_init, 0.1);
-+int compat0_1_io_queue_init(int maxevents, io_context_t *ctxp)
-+{
-+	return io_queue_init(maxevents, ctxp);
-+}
-+
-+SYMVER(compat0_1_io_queue_run, io_queue_run, 0.1);
-+int compat0_1_io_queue_run(io_context_t ctx)
-+{
-+	return io_queue_run(ctx);
-+}
-+
-+SYMVER(compat0_1_io_submit, io_submit, 0.1);
-+int compat0_1_io_submit(io_context_t ctx, long nr, struct iocb **iocbs)
-+{
-+        return io_submit(ctx, nr, iocbs);
-+}
-+
-+SYMVER(compat0_1_io_queue_wait, io_queue_wait, 0.1);
-+int compat0_1_io_queue_wait(io_context_t ctx, struct timespec *timeout)
-+{
-+        return io_getevents(ctx, 0, 0, NULL, timeout);
-+}
-+
-+SYMVER(compat0_1_io_queue_release, io_queue_release, 0.1);
-+int compat0_1_io_queue_release(io_context_t ctx)
-+{
-+	return io_destroy(ctx);
-+}
-diff -rupN -X /home/daniel/dontdiff libaio-0.3.93/src/io_queue_init.c libaio-0.3.93-fix.compat/src/io_queue_init.c
---- libaio-0.3.93/src/io_queue_init.c	2002-09-26 08:56:29.000000000 -0700
-+++ libaio-0.3.93-fix.compat/src/io_queue_init.c	2003-08-14 17:45:14.225491960 -0700
-@@ -21,9 +21,6 @@
- #include <sys/stat.h>
- #include <errno.h>
- 
--#include "syscall.h"
--
--SYMVER(io_queue_init, io_queue_init, 0.1);
- int io_queue_init(int maxevents, io_context_t *ctxp)
- {
- 	if (maxevents > 0) {
-diff -rupN -X /home/daniel/dontdiff libaio-0.3.93/src/io_submit.c libaio-0.3.93-fix.compat/src/io_submit.c
---- libaio-0.3.93/src/io_submit.c	2002-09-26 08:56:29.000000000 -0700
-+++ libaio-0.3.93-fix.compat/src/io_submit.c	2003-08-14 17:49:27.025975498 -0700
-@@ -20,5 +20,4 @@
- #include <libaio.h>
- #include "syscall.h"
- 
--SYMVER(io_submit, io_submit, 0.1);
- io_syscall3(int, io_submit, io_context_t, ctx, long, nr, struct iocb **, iocbs)
-
---=-wKekMEi2iWRz8lHzbfXF--
-
+--
+~Randy

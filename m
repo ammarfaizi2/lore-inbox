@@ -1,94 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbUKQHKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbUKQHNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbUKQHKO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 02:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbUKQHKO
+	id S262223AbUKQHNO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 02:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUKQHNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 02:10:14 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:2453 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S262220AbUKQHJ7 (ORCPT
+	Wed, 17 Nov 2004 02:13:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54165 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262223AbUKQHNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 02:09:59 -0500
-Subject: Re: 2.6.10-rc2-mm1: oops when accessing reiser4 fs's (maybe fix
-	provided)
-From: Vladimir Saveliev <vs@namesys.com>
-To: Mathieu Segaud <matt@minas-morgul.org>
-Cc: reiserfs-list@namesys.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <874qjptyl1.fsf@barad-dur.crans.org>
-References: <874qjptyl1.fsf@barad-dur.crans.org>
-Content-Type: multipart/mixed; boundary="=-gLZgRza9uPOe2WI0L/IL"
-Message-Id: <1100675389.1399.27.camel@tribesman.namesys.com>
+	Wed, 17 Nov 2004 02:13:08 -0500
+Date: Tue, 16 Nov 2004 23:12:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: hch@infradead.org, geert@linux-m68k.org, torvalds@osdl.org,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH 475] HP300 LANCE
+Message-Id: <20041116231248.5f61e489.akpm@osdl.org>
+In-Reply-To: <20041116084341.GA24484@infradead.org>
+References: <200410311003.i9VA3UMN009557@anakin.of.borg>
+	<20041101142245.GA28253@infradead.org>
+	<20041116084341.GA24484@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 17 Nov 2004 10:09:49 +0300
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-gLZgRza9uPOe2WI0L/IL
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Hello
-
-On Tue, 2004-11-16 at 21:53, Mathieu Segaud wrote:
-> I tried 2.6.10-rc2-mm1 and the last reiser4 updates gave some (many many)
-> oopses flooding my screen :).
-> I tried reverting reiser4-fix-deadlock.patch and oopses are gone.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> > There's tons of leaks in the hplcance probing code, and it doesn't release
+>  > he memory region on removal either.
+>  > 
+>  > Untested patch to fix those issues below:
 > 
-Would you please instead try the attached patch? 
+>  ping.
 
-> I tried this one because thru the quick traces on my screen, I saw a reference
-> to get_current_context.
-> The speed of the traces and the unasibility of the box prevented me from
-> making differences between "real" oopses and BUG_ON(), sorry for that...
-> 
-> If you want some traces I can provide them ASAP (e.g. tomorrow)
+The fix needs a fix:
 
 
-
-
---=-gLZgRza9uPOe2WI0L/IL
-Content-Disposition: attachment; filename=1.1755
-Content-Type: text/plain; name=1.1755; charset=koi8-r
-Content-Transfer-Encoding: 7bit
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/11/15 16:23:47+03:00 vs@tribesman.namesys.com 
-#   unix_file_filemap_nopage: missing context creation is added
-# 
-# plugin/file/file.c
-#   2004/11/15 16:23:45+03:00 vs@tribesman.namesys.com +5 -1
-#   unix_file_filemap_nopage: missing context creation is added
-# 
-diff -Nru a/plugin/file/file.c b/plugin/file/file.c
---- a/plugin/file/file.c	2004-11-17 09:36:11 +03:00
-+++ b/plugin/file/file.c	2004-11-17 09:36:11 +03:00
-@@ -1961,8 +1961,10 @@
- {
- 	struct page *page;
- 	struct inode *inode;
--
-+	reiser4_context ctx;
-+	
- 	inode = area->vm_file->f_dentry->d_inode;
-+	init_context(&ctx, inode->i_sb);
+diff -puN drivers/net/hplance.c~hp300-lance-leak-fixes-fix drivers/net/hplance.c
+--- 25/drivers/net/hplance.c~hp300-lance-leak-fixes-fix	2004-11-16 23:11:46.546476832 -0800
++++ 25-akpm/drivers/net/hplance.c	2004-11-16 23:12:00.027427416 -0800
+@@ -96,7 +96,7 @@ static int __devinit hplance_init_one(st
+ 	hplance_init(dev, d);
+ 	err = register_netdev(dev);
+ 	if (err)
+-		goto out_free_netdev;
++		goto out_release_mem_region;
  
- 	/* block filemap_nopage if copy on capture is processing with a node of this file */
- 	down_read(&reiser4_inode_data(inode)->coc_sem);
-@@ -1972,6 +1974,8 @@
- 
- 	drop_nonexclusive_access(unix_file_inode_data(inode));
- 	up_read(&reiser4_inode_data(inode)->coc_sem);
-+
-+	reiser4_exit_context(&ctx);
- 	return page;
- }
- 
-
---=-gLZgRza9uPOe2WI0L/IL--
+ 	dio_set_drvdata(d, dev);
+ 	return 0;
+_
 

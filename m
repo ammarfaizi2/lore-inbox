@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVAWW4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVAWW6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVAWW4b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 17:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVAWW4b
+	id S261371AbVAWW6T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 17:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVAWW6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 17:56:31 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:49642 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S261369AbVAWW43 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 17:56:29 -0500
-Date: Sun, 23 Jan 2005 23:56:28 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: negative diskspace usage
-Message-ID: <20050123225628.GA27675@wiggy.net>
-Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
-	linux-kernel@vger.kernel.org
-References: <20050121141106.GG7147@wiggy.net> <20050122212328.GC11170@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050122212328.GC11170@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+	Sun, 23 Jan 2005 17:58:18 -0500
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:3768 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261371AbVAWW6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 17:58:06 -0500
+Message-ID: <41F42BD2.4000709@kolivas.org>
+Date: Mon, 24 Jan 2005 09:57:22 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jack O'Quin" <joq@io.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87pszvlvma.fsf@sulphur.joq.us>
+In-Reply-To: <87pszvlvma.fsf@sulphur.joq.us>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig394DAE8639A686236A1BDFB9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andries Brouwer wrote:
-> I assume this was produced by statfs or statfs64 or so.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig394DAE8639A686236A1BDFB9
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-statfs64 indeed.
+Jack O'Quin wrote:
+> Looked at this way, there really is no question.  The new scheduler
+> prototypes are falling short significantly.  Could this be due to
+> their lack of priority distinctions between realtime threads?  Maybe.
+> I can't say for sure.  I'll be interested to see what happens when Con
+> is ready for me to try his new priority-based SCHED_ISO prototype.
 
-> Are you still able to examine the situation?
+There are two things that the SCHED_ISO you tried is not that SCHED_FIFO 
+is - As you mentioned there is no priority support, and it is RR, not 
+FIFO. I am not sure whether it is one and or the other responsible. Both 
+can be added to SCHED_ISO. I haven't looked at jackd code but it should 
+be trivial to change SCHED_FIFO to SCHED_RR to see if RR with priority 
+support is enough or not. Second the patch I sent you is fine for 
+testing; I was hoping you would try it. What you can't do with it is 
+spawn lots of userspace apps safely SCHED_ISO with it - it will crash, 
+but it not take down your hard disk. I've had significantly better 
+results with that patch so far. Then we cn take it from there.
 
-No, but I do have some more information. A e2fsck run on that filesystem
-was just as interesting:
+Cheers,
+Con
 
-/dev/md4: clean, 16/132480 files, -15514/264960 blocks
+--------------enig394DAE8639A686236A1BDFB9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Forcing an e2fsck revelated a few groups with incorrect block counts:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Free blocks count wrong for group #2 (34308, counted=32306).
-Free blocks count wrong for group #6 (45805, counted=32306).
-Free blocks count wrong for group #8 (14741, counted=2354).
-Free blocks count wrong (280474, counted=252586).
+iD8DBQFB9CvUZUg7+tp6mRURAmhuAJ9qWbvi+mb34+i/Lk4UmmxojkbFFgCdGCLd
+x1mB3uv9e2UZhzQM/8TY/L4=
+=9xfk
+-----END PGP SIGNATURE-----
 
-After fixing those everything returned to normal. I did run dumpe2fs
-on the filesystem, if that is interesting I can retrieve and post that.
-
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+--------------enig394DAE8639A686236A1BDFB9--

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbTGHRH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 13:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbTGHRH6
+	id S264830AbTGHRFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 13:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbTGHRFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 13:07:58 -0400
-Received: from dnsc6804027.pnl.gov ([198.128.64.39]:43649 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S264898AbTGHRH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 13:07:57 -0400
-Date: Tue, 8 Jul 2003 10:22:25 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Andi Kleen <ak@suse.de>
-Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] parallel directory operations
-Message-ID: <20030708102225.D4482@schatzie.adilger.int>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, bzzz@tmi.comex.ru,
-	linux-kernel@vger.kernel.org
-References: <87wuetukpa.fsf@gw.home.net.suse.lists.linux.kernel> <p73brw5qmxk.fsf@oldwotan.suse.de> <87of05ujfo.fsf@gw.home.net> <20030708134601.7992e64a.ak@suse.de>
+	Tue, 8 Jul 2003 13:05:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17798 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264830AbTGHRFx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 13:05:53 -0400
+Date: Tue, 8 Jul 2003 18:20:28 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, hannal@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH] Fastwalk: reduce cacheline bouncing of d_count (Changelog@1.1024.1.11)
+Message-ID: <20030708172028.GB1939@parcelfarce.linux.theplanet.co.uk>
+References: <16138.53118.777914.828030@charged.uio.no> <1057673804.4357.27.camel@dhcp22.swansea.linux.org.uk> <16138.56467.342593.715679@charged.uio.no> <1057677613.4358.33.camel@dhcp22.swansea.linux.org.uk> <20030708164426.GB10004@www.13thfloor.at> <1057683213.5228.3.camel@dhcp22.swansea.linux.org.uk> <20030708170628.GA13593@www.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030708134601.7992e64a.ak@suse.de>; from ak@suse.de on Tue, Jul 08, 2003 at 01:46:01PM +0200
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <20030708170628.GA13593@www.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 08, 2003  13:46 +0200, Andi Kleen wrote:
-> On Tue, 08 Jul 2003 15:28:27 +0000 bzzz@tmi.comex.ru wrote:
-> > dynlocks implements 'lock namespace', so you can lock A for namepace N1 and
-> > lock B for namespace N1 and so on. we need this because we want to take lock
-> > on _part_ of directory.
-> 
-> Ok, a mini database lock manager. Wouldn't it be better to use a small hash 
-> table and lock escalation on overflow for this?  Otherwise you could
-> have quite a lot of entries queued up in the list if the server is slow.
+On Tue, Jul 08, 2003 at 07:06:28PM +0200, Herbert Poetzl wrote:
+> every change (if it's not a bugfix, and even those) bear
+> a risk, what I like about the fastwalk patch is not the
 
-That was my initial thought also, but the number of locks that are in
-existence at one time are very small (i.e. number of threads active in
-a directory at one time).  Having a "more scalable" locking setup will,
-I think, hurt performance for the common case.
+exactly.  2.4 is not the place for cleanups that make the code easier
+to read because those cleanups can introduce new bugs.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

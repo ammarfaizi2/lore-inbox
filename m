@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbSLQJDb>; Tue, 17 Dec 2002 04:03:31 -0500
+	id <S264815AbSLQJZ1>; Tue, 17 Dec 2002 04:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbSLQJDb>; Tue, 17 Dec 2002 04:03:31 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:47883 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261364AbSLQJDa>; Tue, 17 Dec 2002 04:03:30 -0500
-Message-Id: <200212170905.gBH95Ns16805@Port.imtp.ilyichevsk.odessa.ua>
+	id <S264839AbSLQJZ1>; Tue, 17 Dec 2002 04:25:27 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:40138 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264815AbSLQJZ0> convert rfc822-to-8bit; Tue, 17 Dec 2002 04:25:26 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Xavier LaRue <paxl@videotron.ca>, linux-kernel@vger.kernel.org
-Subject: Re: My cpu fuzzy problem was due to XMMS
-Date: Tue, 17 Dec 2002 11:54:39 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <20021217011600.08f8cd81.paxl@videotron.ca>
-In-Reply-To: <20021217011600.08f8cd81.paxl@videotron.ca>
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: Hanna Linder <hannal@us.ibm.com>, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] updated scheduler tunables
+Date: Tue, 17 Dec 2002 10:33:11 +0100
+User-Agent: KMail/1.4.3
+Cc: anton@samba.org, hannal@us.ibm.com
+References: <1040091321.854.8.camel@phantasy> <69970000.1040093092@w-hlinder>
+In-Reply-To: <69970000.1040093092@w-hlinder>
+Organization: WOLK - Working Overloaded Linux Kernel
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+Message-Id: <200212171033.11300.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 December 2002 04:16, Xavier LaRue wrote:
-> :).. I just found it out :)
->
-> But now my real problem.. That probably slow down considerably my
-> box, How to make my L2 cache reconized
-> my dmesg is hosted here http://paxl.no-ip.org/~paxl/dmesg.txt
+On Tuesday 17 December 2002 03:44, Hanna Linder wrote:
 
-It does *NOT* slow down your box if kernel cannot parse
-CPIUD cache size info. Cache does not need any help from kernel to function.
-It is typically enabled by BIOS at boot, that's all.
+Hi Robert,
 
-If you can prove otherwise (that is, your cache is disabled),
-that is a problem. Problem in BIOS.
+> One vote for including this in 2.5. (as if this were a democracy... ;)
+another vote.
 
-Cache size *reporting* is a minor issue. You can track it yourself.
-You have the code, right?
---
-vda
+ciao, Marc

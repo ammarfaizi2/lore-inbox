@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbVBXOKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVBXOZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262350AbVBXOKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 09:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVBXOK3
+	id S262355AbVBXOZs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 09:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVBXOZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 09:10:29 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:20376 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262350AbVBXOKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 09:10:21 -0500
-Date: Thu, 24 Feb 2005 15:10:15 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1 strange messages
-Message-ID: <20050224141015.GA6756@gamma.logic.tuwien.ac.at>
-References: <20050125121704.GA22610@gamma.logic.tuwien.ac.at> <20050125102834.7e549322.akpm@osdl.org>
+	Thu, 24 Feb 2005 09:25:48 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:63175 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262355AbVBXOZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 09:25:28 -0500
+Subject: Re: 2.6.11-rc5
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Cc: Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <421DCD44.1020504@tiscali.de>
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
+	 <20050224062908.GJ3163@waste.org>  <421DCD44.1020504@tiscali.de>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 24 Feb 2005 09:25:11 -0500
+Message-Id: <1109255111.1452.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050125102834.7e549322.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
+On Thu, 2005-02-24 at 13:49 +0100, Matthias-Christian Ott wrote:
+> Matt Mackall wrote:
 
-On Die, 25 Jan 2005, Andrew Morton wrote:
-> Norbert Preining <preining@logic.at> wrote:
+> >Very small.
 > >
-> > ACPI: DSDT (v001 ACER   IBIS     0x20020930 MSFT 0x0100000e) @ 0x00000000
-> >  Built 1 zonelists
-> >  __iounmap: bad address c00fffd9
+> >[   ] patch-2.6.11-rc5.bz2               23-Feb-2005 20:20   14   
+> >[   ] patch-2.6.11-rc5.bz2.sign          23-Feb-2005 20:20  248   
+> >[   ] patch-2.6.11-rc5.gz                23-Feb-2005 20:20   37   
+> >[   ] patch-2.6.11-rc5.gz.sign           23-Feb-2005 20:20  248   
+> >[   ] patch-2.6.11-rc5.sign              23-Feb-2005 20:20  248   
+> >
+> >Seems to have passed the gpg signature test on my end.
+> >
+> >  
+> >
+> The file seems to be empty.
 
-I still have this with 2.6.11-rc4-mm1 and the patch you proposed is
-included in this kernel. Is this something I should be nervous about, or
-is there a fix?
+Anyone know if the linux-2.6.11-rc5.tar.bz2 has all the changes in it?
+The tarball rc5 is smaller than rc4. Was there a lot taken out?
 
-Best wishes
+-- Steve
 
-Norbert
 
-> Can you please add this?
-> 
-> --- 25/arch/i386/mm/ioremap.c~iounmap-debugging	2005-01-25 10:26:29.448809152 -0800
-> +++ 25-akpm/arch/i386/mm/ioremap.c	2005-01-25 10:27:07.054092280 -0800
-> @@ -233,7 +233,8 @@ void iounmap(volatile void __iomem *addr
->  		return; 
->  	p = remove_vm_area((void *) (PAGE_MASK & (unsigned long __force) addr));
->  	if (!p) { 
-> -		printk("__iounmap: bad address %p\n", addr);
-> +		printk("iounmap: bad address %p\n", addr);
-> +		dump_stack();
->  		return;
->  	}
->  
-> _
-> 
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SIDCUP (n.)
-One of those hats made from tying knots in the corners of a
-handkerchief.
-			--- Douglas Adams, The Meaning of Liff

@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268846AbUHLW2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268840AbUHLW2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268846AbUHLW2b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268837AbUHLW2b
+	id S268840AbUHLW2D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268837AbUHLW2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:28:31 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:16364 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S268846AbUHLW0o (ORCPT
+	Thu, 12 Aug 2004 18:28:02 -0400
+Received: from mail.gmx.de ([213.165.64.20]:22947 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268845AbUHLW01 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:26:44 -0400
-Subject: Re: suspend2 with smp
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040812215644.GA20021@elf.ucw.cz>
-References: <20040812215644.GA20021@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1092349414.24776.16.camel@laptop.cunninghams>
+	Thu, 12 Aug 2004 18:26:27 -0400
+X-Authenticated: #1725425
+Date: Fri, 13 Aug 2004 00:44:56 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-Id: <20040813004456.09b0841b.Ballarin.Marc@gmx.de>
+In-Reply-To: <411BDD11.8070400@tmr.com>
+References: <20040807001427.GA10890@ucw.cz>
+	<200408070001.i7701PSa006663@burner.fokus.fraunhofer.de>
+	<1091899593.20043.14.camel@kryten.internal.splhi.com>
+	<411BDD11.8070400@tmr.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 13 Aug 2004 08:23:35 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, 12 Aug 2004 17:11:45 -0400
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-On Fri, 2004-08-13 at 07:56, Pavel Machek wrote:
-> Hi!
 > 
-> At some point I claimed that SMP support in suspend2 is "probably
-> broken". I guess I should post more data:
+> But they *don't* map to consistent device names. All hot pluggable 
+> devices seem to map to the next available name. Looking at one of my 
+> utility systems, it has IDE drives mapped by Redhat with ide-scsi, real 
+> SCSI drives, a couple of flash card slots mapped to SCSI, and a USB 
+> device, all in the /dev/sdX namespace. And in the order in which they 
+> were detected (connected, in other words).
 > 
-> It is broken in theory.
+> Joerg hasn't made it any better, but it isn't great anyway. I recommend 
+> a script to do discovery and make symlinks somewhere to names which 
+> always match the same device.
 > 
-> CPU is basically looping in loop marked by #, while its memory is
-> being overwriten. Now, the code probably works in practice, but it
-> should be really written in assembly so that compiler can not do
-> something stupid.
-> 
-> Compilers are not designed to deal with their stack (etc) randomly
-> overwritten, so compiler may do anything it wants here. I see that -O0
-> may help a lot here, but it simply is not the right thing to do.
-> 
-> At least /* FIXME: should be rewritten to assembly */ should be added there.
 
-Ah, okay. So it's not that the code itself broken, but that you don't
-trust the assembler to do the right thing with the code. I'll happily
-include an inline asm routine if you'll code it for me (I don't know x86
-assembly). In case I haven't said it already, feel free to take the
-freezer changes and put them in your code. I'd only be submitting a
-patch to do the same anyway.
+That's exactly what udev allows you to do (among a lot of other things).
 
-Nigel
--- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
-
+Marc

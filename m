@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292973AbSBVTsx>; Fri, 22 Feb 2002 14:48:53 -0500
+	id <S292974AbSBVTsx>; Fri, 22 Feb 2002 14:48:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292974AbSBVTsi>; Fri, 22 Feb 2002 14:48:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39942 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292970AbSBVTrl>; Fri, 22 Feb 2002 14:47:41 -0500
-Subject: Re: 2.4.17: oops in kapm-idled?   (on IBM Thinkpad A30P [2653-66U])
-To: beh@icemark.net (Benedikt Heinen)
-Date: Fri, 22 Feb 2002 20:01:27 +0000 (GMT)
-Cc: jdthood@mail.com (Thomas Hood), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0202222029550.1126-100000@berenium.icemark.ch> from "Benedikt Heinen" at Feb 22, 2002 08:34:02 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292970AbSBVTsl>; Fri, 22 Feb 2002 14:48:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40712 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292973AbSBVTro>;
+	Fri, 22 Feb 2002 14:47:44 -0500
+Message-ID: <3C76A053.55A32E77@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 14:47:31 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16eLsl-0002w4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+In-Reply-To: <20020221213342.T1547-100000@gerard>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	snd-*		-> ALSA 0.9.0beta9
-> 	e100		-> EtherExpress Pro driver from Intel,
-> 			   compiled from the debian e100-source package
-> 	xsvc		-> Summit (Accelerated X) driver
-> 			   The problem also occurs without it;
-> 			   Just trying Accelerated X since I can't get
-> 			   agpgart+XFree86+DRI to run...  agpgart fails
-> 			   on modprobe... :/
-> 	vmnet/vmmon	-> VMware 3.0
-> 	pcmcia stuff	-> pcmcia-cs-3.1.31
+Gérard Roudier wrote:
+> On Fri, 22 Feb 2002, Jeff Garzik wrote:
+> > Only 1-2 SCSI drivers do PCI probing "the right way"...  IIRC aic7xxx is
+> > one of them.
+> 
+> Could you, please, not mix PCI probing and SCSI probing.
+> 
+> Average user does not care about PCI probing. But it does care on booting
+> the expected kernel image and mounting the expected partitions.
+> It also doesn't care of code aesthetical issue even with free software
+> since average user is not a kernel hacker.
 
-Is there a reason for using all this non standard stuff. Can you reproduce
-the problem if you don't load ALSA (I dont think alsa is prime candidate
-here) and you've never loaded either vmware or xsvc or the non kernel 
-pcmcia since boot ?
+Most SCSI drivers are not using the 2.4 PCI API, which has been
+documented and stable for a while now.
 
-Obviously try with a few of them out and see - I've seen several vmware with
-new apm code interactions for one , although none of the others were oopses
+This is need for transparented support for cardbus and hotplug PCI, not
+some pie-in-the-sky code asthetic.  This will become further important
+as 2.5.x transitions more and more to Mochel's driver model work, which
+will among other things provide a sane power management model.
+
+To tangent, IDE and SCSI hotplug issues are interesting, because a lot
+of people forget or mix up the two types of hotplug, board (host)
+hotplug and drive hotplug.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

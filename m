@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272781AbRIMWhr>; Thu, 13 Sep 2001 18:37:47 -0400
+	id <S272795AbRIMWqI>; Thu, 13 Sep 2001 18:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272774AbRIMWhi>; Thu, 13 Sep 2001 18:37:38 -0400
-Received: from gte1-22.ce.ftel.net ([206.24.95.226]:45029 "EHLO spinics.net")
-	by vger.kernel.org with ESMTP id <S272782AbRIMWhU>;
-	Thu, 13 Sep 2001 18:37:20 -0400
-Date: Thu, 13 Sep 2001 15:37:35 -0700
-Message-Id: <200109132237.f8DMbZ224264@spinics.net>
-From: spamtrap@spinics.net (Rick Ellis)
-X-Real-username: ellis
-To: linux-kernel@vger.kernel.org
-Subject: Re: iSCSI support for Linux??
-In-Reply-To: <017401c13c61$9fc5d000$0a02a8c0@consensys.com>
-Organization: S.P.C.A.A.
+	id <S272782AbRIMWp6>; Thu, 13 Sep 2001 18:45:58 -0400
+Received: from ezri.xs4all.nl ([194.109.253.9]:7625 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S272774AbRIMWpv>;
+	Thu, 13 Sep 2001 18:45:51 -0400
+Date: Fri, 14 Sep 2001 00:46:13 +0200 (CEST)
+From: Eric Lammerts <eric@lammerts.org>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Booting linux using Novell NetWare Remote Program Loader
+In-Reply-To: <88lneREmw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.33.0109140038200.10430-100000@ally.lammerts.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <017401c13c61$9fc5d000$0a02a8c0@consensys.com> you write:
 
->I am also investigating the iSCSI stuff now, and focusing on the server
->side. I found most implementors have no support to authentication and
->security. That's the reason why I prefer to the Cisco one, which support
->CHAP authentication. But I can't find the server code in their site,
->http://sourceforge.net/projects/linux-iscsi/, only the driver and daemon on
->client side here. So can you tell me where I can get a linux server code
->matching this client?
+On 13 Sep 2001, Kai Henningsen wrote:
 
-Have you tried the code from UNH?
+> eric@lammerts.org (Eric Lammerts)  wrote on 09.09.01 in <Pine.LNX.4.33.0109092306580.11042-100000@ally.lammerts.org>:
+>
+> > I used to have Netware bootroms that didn't do RPL. They talked NCP
+> > (like every other Netware client) and read a floppy image from
+> > SYS:LOGIN. I never tried them with mars_nwe though.
+>
+> What do you mean, "didn't do RPL"? That *is* how Novell RPL works. Also
+> has a configfile under SYS:LOGIN where you can assign images to MAC
+> addresses. Well, MAC address + IPX network pairs, IIRC. It's been a while.
 
-  http://www.cs.uml.edu/~mbrown/iSCSI/
+It's a long time ago, but I remember reading documentation on RPL and
+non-RPL bootroms. What I know for sure is that my bootroms worked
+without loading RPL.NLM on the server.
+
+Eric
 

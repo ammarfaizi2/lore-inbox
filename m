@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbTCGXGf>; Fri, 7 Mar 2003 18:06:35 -0500
+	id <S261848AbTCGXGi>; Fri, 7 Mar 2003 18:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261844AbTCGXGf>; Fri, 7 Mar 2003 18:06:35 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:57004 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id <S261842AbTCGXGe>;
-	Fri, 7 Mar 2003 18:06:34 -0500
-Date: Fri, 7 Mar 2003 15:17:09 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: acx100_pci.o GPL but only binary version
-Message-ID: <20030307231709.GA10152@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S261844AbTCGXGh>; Fri, 7 Mar 2003 18:06:37 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46349 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261848AbTCGXGg>; Fri, 7 Mar 2003 18:06:36 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Date: Fri, 7 Mar 2003 23:16:47 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b4b98v$14m$1@penguin.transmeta.com>
+References: <200303020011.QAA13450@adam.yggdrasil.com> <20030307123237.GG18420@atrey.karlin.mff.cuni.cz> <20030307165413.GA78966@dspnet.fr.eu.org> <20030307190848.GB21023@atrey.karlin.mff.cuni.cz>
+X-Trace: palladium.transmeta.com 1047079021 15886 127.0.0.1 (7 Mar 2003 23:17:01 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 7 Mar 2003 23:17:01 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote :
-> 
-> On Fri, 2003-03-07 at 20:17, alx wrote:
-> > acx100_pci.o wanna be a linux driver from the TI acx100 chipset.
-> > but it doesn't work at all!
-> > - First ifconfig SegFault 
-> > - Second hangs the machine
-> 
-> Its a known one. No source, the GPL license appears to be a fiction 
-> designed to violate the Linux copyright. I guess someone needs a DMCA
-> takedown order in the post
+In article <20030307190848.GB21023@atrey.karlin.mff.cuni.cz>,
+Pavel Machek  <pavel@suse.cz> wrote:
+>
+>So, basically, if branch was killed and recreated after each merge
+>from mainline, problem would be solved, right?
 
-	Actually, the problem is that TI (which we believe is the
-author of the driver) doesn't itself distribute this driver, but it
-seems that it has misteriously "leaked" on the net and it's just basic
-Linux users that are putting it on their web page.
-	If you look at the Linux-Wlan mailing list archive, you will
-see that this driver also contain code from the linux-wlan-ng driver,
-and I don't know yet if they cut'n'paste code from the GPL version or
-just bought the development kit from Linux-Wlan.
-	Anyway, as this driver doesn't seem to work (check the various
-mailing list), I don't think there is any point making a big fuss and
-we should politely ask TI (or whoever wrote the driver) to come clear
-on this one.
+Wrong.
 
-	Have fun...
+Now think three trees.  Each merging back and forth between each other. 
 
-	Jean
+Or, in the case of something like the Linux kernel tree, where you don't
+have two or three trees.  You've got at least 20 actively developed
+concurrent trees with branches at different points. 
 
-P.S. : And in the Howto, TI is still marked as "unsupported".
+Trust me. CVS simple CANNOT do this. You need the full information.
+
+Give it up.  BitKeeper is simply superior to CVS/SVN, and will stay that
+way indefinitely since most people don't seem to even understand _why_
+it is superior. 
+
+		Linus

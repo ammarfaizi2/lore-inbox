@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132125AbQLLQzp>; Tue, 12 Dec 2000 11:55:45 -0500
+	id <S132160AbQLLQ54>; Tue, 12 Dec 2000 11:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132160AbQLLQz0>; Tue, 12 Dec 2000 11:55:26 -0500
-Received: from finch-post-12.mail.demon.net ([194.217.242.41]:47627 "EHLO
-	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S132125AbQLLQzT>; Tue, 12 Dec 2000 11:55:19 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
-Newsgroups: list.linux-kernel
-Subject: Re: [PATCH] generic_serial's block_til_ready
-Date: 12 Dec 2000 16:24:48 -0000
-Organization: Alfie's Internet Node
-Message-ID: <915jgg$pbb$1@alfie.demon.co.uk>
-In-Reply-To: <Pine.LNX.4.21.0012121643100.27903-100000@panoramix.bitwizard.nl>
-X-Newsreader: NN version 6.5.0 CURRENT #119
+	id <S132206AbQLLQ5p>; Tue, 12 Dec 2000 11:57:45 -0500
+Received: from ip44.packplace.ethernet.citizens.swva.net ([206.153.170.44]:16905
+	"EHLO crib.corepower.com") by vger.kernel.org with ESMTP
+	id <S132160AbQLLQ50>; Tue, 12 Dec 2000 11:57:26 -0500
+Date: Tue, 12 Dec 2000 11:27:00 -0500 (EST)
+From: raubitsj@dynabytesystems.com
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] unresolved symbols in ext2.o (2.4.0-test12)
+Message-ID: <Pine.LNX.4.21.0012121122370.25443-100000@crib.corepower.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patrick@bitwizard.nl (Patrick van de Lageweg) writes:
-> This patch renames the block_til_ready of generic serial to
-> gs_block_til_ready. 
-> 
-> it helps when other modules have a "static block_til_ready" defined when
-> used older modutils.
 
-Do you mean older than the version specified as being required in
-Documention/CHANGES?
+Below is a patch i need to fix two unresolved symbols when ext2 was
+compiled as a module.
 
-If so, then I'm not surprised the patch has not been applied (how many
-times have you sent it?).
+-jeff
 
--- 
- `O O'  | Nick.Holloway@pyrites.org.uk
-// ^ \\ | http://www.pyrites.org.uk/
+--- linux-2.4.0-test12/kernel/ksyms.c	Tue Dec 12 11:19:17 2000
++++ linux/kernel/ksyms.c	Tue Dec 12 11:18:57 2000
+@@ -252,6 +252,8 @@
+ EXPORT_SYMBOL(lock_may_read);
+ EXPORT_SYMBOL(lock_may_write);
+ EXPORT_SYMBOL(dcache_readdir);
++EXPORT_SYMBOL(buffer_insert_inode_queue);
++EXPORT_SYMBOL(fsync_inode_buffers);
+ 
+ /* for stackable file systems (lofs, wrapfs, cryptfs, etc.) */
+ EXPORT_SYMBOL(default_llseek);
+
+  ------------------------------------------------------------------------
+       Jeff Raubitschek 
+       DynaByte Systems
+       raubitsj@DynaByteSystems.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

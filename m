@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131762AbRBWTUh>; Fri, 23 Feb 2001 14:20:37 -0500
+	id <S131871AbRBWTWr>; Fri, 23 Feb 2001 14:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131789AbRBWTU2>; Fri, 23 Feb 2001 14:20:28 -0500
-Received: from imcs.rutgers.edu ([165.230.57.130]:60837 "EHLO imcs.Rutgers.EDU")
-	by vger.kernel.org with ESMTP id <S131762AbRBWTUK>;
-	Fri, 23 Feb 2001 14:20:10 -0500
-Date: Fri, 23 Feb 2001 14:09:25 -0500 (EST)
-From: Rob Cermak <cermak@IMCS.rutgers.edu>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [FAQ] pls add migrate 2.2 -> 2.4 Re: 3c509 + sb16 bug
-In-Reply-To: <E14WNYd-0006tS-00@the-village.bc.nu>
-Message-ID: <Pine.SOL.4.21.0102231357590.26512-100000@imcs.rutgers.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131873AbRBWTWh>; Fri, 23 Feb 2001 14:22:37 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:33285 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S131871AbRBWTWX>; Fri, 23 Feb 2001 14:22:23 -0500
+Date: Fri, 23 Feb 2001 20:19:21 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Srinivas Surabhi <srinivas.surabhi@wipro.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: floppy linux installation
+Message-ID: <20010223201921.I16276@arthur.ubicom.tudelft.nl>
+In-Reply-To: <77452D621329.AAA5459@vindhya.mail.wipro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <77452D621329.AAA5459@vindhya.mail.wipro.com>; from srinivas.surabhi@wipro.com on Fri, Feb 23, 2001 at 12:19:05PM +0530
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-
-You've mentioned this before.  I emailed Steve directly since I had the
-same sort of problem with a trio of ethernet cards.  Hardware detection
-goes wacky when mixing isapnp userspace tools with the CONFIG_ISAPNP
-support in the kernel.  Steve told me: "I'm running debian sid, with
-isapnptools package version: 1.21-2"
-
-This should go into the FAQ at http://www.tux.org/lkml/
-
-Here is Alan's quote: Fri, 16 Feb 2001 12:34:03 +0000 (GMT) 
-"Dont mix isapnp tools with a 2.4 kernel unless you disable ISA PnP
-support in the kernel. It needs to have one or the other do it, not both"
-
-If you use isapnp tools, make sure your config looks like this:
-
-#
-# Plug and Play configuration
-#
-CONFIG_PNP=y
-# CONFIG_ISAPNP is not set
-
-Rob
-
-On Fri, 23 Feb 2001, Alan Cox wrote:
-
-> > Perhaps it's cold comfort, but I found long ago that
-> > 3c509 and SB don't mix too well, at least in Linux.
+On Fri, Feb 23, 2001 at 12:19:05PM +0530, Srinivas Surabhi wrote:
+> I need help from somebody.
 > 
-> I've had them mixed ok before
+> Iwant to install Linux with just floppythrough FTP server.
+
+This is off topic for the linux kernel mailing list.
+
+> I am searching in net regarding How to make FTP installation floppy .
 > 
-> > ISA devices are somewhat dumb, switching one
-> > of the cards for a PCI version does the trick here.
-> 
-> I think the problem here thought isnt the 3c509 and SB card, its the kernel
-> plug and play code. You might want to try building kernels with no PnP support
-> at all and see how they behave
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> can any body pls refer some web sites or procedure?.
+
+Quite a lot of linux distributions allow you to install linux with a
+couple of floppies and an FTP server. I know both Debian and SuSE can
+work that way because I tried it myself. See:
+
+  http://www.debian.org/
+  http://www.suse.com/ or http://www.suse.de/en/
+
+I'm quite sure the other distributions also support install via FTP.
 
 
+Erik
 
-
-
-
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

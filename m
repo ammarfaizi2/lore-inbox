@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbTILW7G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 18:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTILW7G
+	id S261813AbTILXEx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 19:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTILXEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 18:59:06 -0400
-Received: from postino5b.prima.com.ar ([200.42.0.178]:46354 "HELO
-	postino5.prima.com.ar") by vger.kernel.org with SMTP
-	id S261930AbTILW7E convert rfc822-to-8bit (ORCPT
+	Fri, 12 Sep 2003 19:04:53 -0400
+Received: from holomorphy.com ([66.224.33.161]:36030 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261813AbTILXEw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 18:59:04 -0400
-Subject: Re: Stack size
-From: Matias Alejo Garcia <kernel@matiu.com.ar>
-To: Kernel <linux-kernel@vger.kernel.org>
-Cc: brenosp@brasilsec.com.br
-In-Reply-To: <20030912104114.B21503@build.pdx.osdl.net>
-References: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br>
-	 <20030912104114.B21503@build.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1063412374.1470.11.camel@runner>
+	Fri, 12 Sep 2003 19:04:52 -0400
+Date: Fri, 12 Sep 2003 16:06:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Breno <brenosp@brasilsec.com.br>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: stack overflow
+Message-ID: <20030912230601.GU4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Breno <brenosp@brasilsec.com.br>,
+	Kernel List <linux-kernel@vger.kernel.org>
+References: <002b01c37956$d88d67c0$f8e4a7c8@bsb.virtua.com.br> <20030912165047.Z18851@schatzie.adilger.int>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 12 Sep 2003 20:19:34 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030912165047.Z18851@schatzie.adilger.int>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 12, 2003 at 04:50:47PM -0600, Andreas Dilger wrote:
+> Well, with the exception of the fact that STACK_LIMIT is 8MB, and kernel
+> stacks are only 8kB (on i386)...
+> Also, see "do_IRQ()" (i386) for CONFIG_DEBUG_STACKOVERFLOW to see this already.
 
-On Sun, 2003-10-12 at 08:35, Breno wrote:
-       ^^^^^^^^^^^^^^^^^^^^   
-On Fri, 2003-09-12 at 13:41, Chris Wright wrote:
-> [Hey, any chance you could join us in September? ;-) "Date:   Sun, 12 Oct
-> 2003 13:35:33 +0100"]
+What he actually wants is in-kernel user stack overflow checking, which
+is basically impossible since user stacks are demand paged. He's been
+told this before and failed to absorb it.
 
-Breno: 
+There have been attempts to use i386 segmentation for stack limit
+checks written but they should probably not be confused with this.
 
-Carpe diem! Live the present!
 
--- 
-matías <-> http://matiu.com.ar
+-- wli

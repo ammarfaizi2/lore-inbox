@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUD1BCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264572AbUD1BDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUD1BCg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 21:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbUD1BCf
+	id S264572AbUD1BDr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 21:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUD1BDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 21:02:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53167 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264560AbUD1BCc (ORCPT
+	Tue, 27 Apr 2004 21:03:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62639 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264573AbUD1BDY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 21:02:32 -0400
-Date: Tue, 27 Apr 2004 18:04:38 -0700
-From: Dave Olien <dmo@osdl.org>
-To: thornber@redhat.com
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] trivial patch to dm-target.c
-Message-ID: <20040428010438.GA17809@osdl.org>
+	Tue, 27 Apr 2004 21:03:24 -0400
+Date: Tue, 27 Apr 2004 18:02:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shantanu Goel <sgoel01@yahoo.com>
+Cc: trond.myklebust@fys.uio.no, sgoel01@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page
+ writeback
+Message-Id: <20040427180253.5a043319.akpm@osdl.org>
+In-Reply-To: <20040428004707.89142.qmail@web12824.mail.yahoo.com>
+References: <1083080207.2616.31.camel@lade.trondhjem.org>
+	<20040428004707.89142.qmail@web12824.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Shantanu Goel <sgoel01@yahoo.com> wrote:
+>
+> Andrew/Trond,
+> 
+> Any consensus as to what the right approach is here?
 
-This patch just adds __init and __exit qualifiers on dm_target_init()
-and dm_target_exit(), since these are called only by dm_init() and
-dm_exit(), which are also have these qualifiers respectively.
+For now I suggest you do
 
+-	err = WRITEPAGE_ACTIVATE;
++	err = 0;
 
-diff -ur linux-2.6.6-rc2-udm1-original/drivers/md/dm-target.c linux-2.6.6-rc2-udm1-patched/drivers/md/dm-target.c
---- linux-2.6.6-rc2-udm1-original/drivers/md/dm-target.c	2004-04-27 17:59:53.000000000 -0700
-+++ linux-2.6.6-rc2-udm1-patched/drivers/md/dm-target.c	2004-04-27 17:59:25.000000000 -0700
-@@ -181,12 +181,12 @@
- 	.map  = io_err_map,
- };
- 
--int dm_target_init(void)
-+int __init dm_target_init(void)
- {
- 	return dm_register_target(&error_target);
- }
- 
--void dm_target_exit(void)
-+void __exit dm_target_exit(void)
- {
- 	if (dm_unregister_target(&error_target))
- 		DMWARN("error target unregistration failed");
+in nfs_writepage().
+
+> One cheap though perhaps hack'ish solution would be to
+> introduce yet another special error code like
+> WRITEPAGE_ACTIVATE which instead of moving the page to
+> the head of the active list instead moves it to the
+> head of the inactive list.
+
+It would be better to set a flag in the backing_dev so that page reclaim
+knows to not enter writepage at all.

@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbTAUXYZ>; Tue, 21 Jan 2003 18:24:25 -0500
+	id <S267344AbTAUX32>; Tue, 21 Jan 2003 18:29:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267342AbTAUXYZ>; Tue, 21 Jan 2003 18:24:25 -0500
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:15495 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S267248AbTAUXYV>; Tue, 21 Jan 2003 18:24:21 -0500
-Message-ID: <3E2DD8CB.5B984772@attbi.com>
-Date: Tue, 21 Jan 2003 18:33:31 -0500
-From: Jim Houston <jim.houston@attbi.com>
-Reply-To: jim.houston@attbi.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-       high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: posix timers patch comments.
-References: <Pine.LNX.4.33L2.0301210952330.30777-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S267347AbTAUX32>; Tue, 21 Jan 2003 18:29:28 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:28349 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267344AbTAUX31>;
+	Tue, 21 Jan 2003 18:29:27 -0500
+Subject: Re: [RFC][PATCH] linux-2.5.59_lost-tick_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <p731y36m6d0.fsf@oldwotan.suse.de>
+References: <1043189962.15683.82.camel@w-jstultz2.beaverton.ibm.com.suse.lists.linux.kernel>
+	 <p731y36m6d0.fsf@oldwotan.suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1043191868.15688.93.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 21 Jan 2003 15:31:08 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" wrote:
+On Tue, 2003-01-21 at 15:27, Andi Kleen wrote:
+> Comments:
 > 
-> Hi Jim,
+> Basic idea is good. The x86-64 2.4 tree has a similar solution for the
+> same problem. Especially with HZ=1000 this is really needed, because
+> now lost ticks are far more common than with the HZ=100 in 2.4.
+> I would consider some form of this patch as requirement for 2.6 release.
 > 
-> I'm reviewing both George's and your POSIX/high-res-timers patches.
-> I might not send you comments every time that I come across something,
-> and I might not cc lkml on every comment (unless you want me to).
-> 
-> Anyway, here's a beginning.
-> 
-> In functions get_eip(), check_expiry(), and run_posix_timers(),
-> the <regs> parameter is a void *.  Linus generally doesn't like
-> void * parameters, so they should be avoided as much as possible,
-> and I don't see any reason that <regs> in all of these can't be
-> declared as <struct pt_regs *> instead of <void *>.  Is there a
-> good reason?
-> 
-> BTW, when do expect to have any updated patches?
-> 
-> Is your email address changing to @comcast.net?
+> what happens when 1000000 does not evenly divide HZ? 
+> I think some ports use HZ=1024
 
-Hi Randy,
+Then it comes out to close enough? I'm probably just not getting the
+problem. Could you further explain?
 
-It makes sense to include lkml in the discussion.  It's an
-interesting balancing act.  If you openly criticize code that you 
-hope will be included in the kernel, you risk having your arguments
-used as a reason for its rejection.  If there is no visible discussion,
-the patch will be perceived as un-reviewed.
+> Why is the condition > and not >= ? Eactly two ticks offset is already
+> one lost. In fact even >= 1.5*HZ would be dubious.
 
-The code that uses get_eip() is just debug.  It may go away soon.
-I was feeling lazy and didn't want to chase down the header files needed
-to for "struct pt_regs".  I just made the change and it was easy.
-It turns out that pt_regs was already defined. I also found the
-instruction_pointer() macro so I can get rid of the get_eip() function I
-added.  The timer code has to deal with timer overruns so it always
-calculates the amount of time that a time interrupt is delayed.  I'm logging
-the EIP values which correspond to these long interrupt lockouts.
+Exactly two, yes. However 1.5 wouldn't quite do it, as jiffies would be
+incremented once and delay_at_last_interrupt should be set to .5*HZ,
+thus loosing no time.
 
-I'm not sure when I will do the next patch.  I only have a few small
-changes in the queue.  I'm tempted to put it off a few days.
+> I would like to have some statistics counter somewhere in /proc for lost 
+> ticks, so that it can be checked for after bug reports. Perhaps even
+> printk for the first 5 or so.
 
-I'm hoping that Comcast won't make me change email addresses.
+Yea, I had some printk code in there, but I have a card here that can
+cause 30ms SMI stalls once per sec, so it was getting a bit verbose.
+Although printing out for the first five, would be fine. I'll add that
+right away. Thanks!
 
-Jim Houston
+> Could you please add spaces after /* and before */
+
+Doh, I read and read those style guidelines, but my fingers never seem
+to take to em'. 
+
+thanks again,
+-john
+
+

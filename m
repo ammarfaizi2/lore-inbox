@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287647AbSAQBE0>; Wed, 16 Jan 2002 20:04:26 -0500
+	id <S287488AbSAQBEg>; Wed, 16 Jan 2002 20:04:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287490AbSAQBES>; Wed, 16 Jan 2002 20:04:18 -0500
-Received: from apogee.whack.org ([167.216.255.203]:31481 "EHLO mx1.whack.org")
-	by vger.kernel.org with ESMTP id <S287488AbSAQBEE>;
-	Wed, 16 Jan 2002 20:04:04 -0500
-Date: Wed, 16 Jan 2002 17:03:58 -0800 (PST)
-From: Wilson Yeung <wilson@whack.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org, <linux-net@vger.kernel.org>
-Subject: Re: hires timestamps for netif_rx()
-In-Reply-To: <20020116.161759.68040363.davem@redhat.com>
-Message-ID: <Pine.GSO.4.40.0201161658260.28457-100000@apogee.whack.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287490AbSAQBE1>; Wed, 16 Jan 2002 20:04:27 -0500
+Received: from chiark.greenend.org.uk ([212.22.195.2]:13060 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S287488AbSAQBEV>; Wed, 16 Jan 2002 20:04:21 -0500
+Date: Thu, 17 Jan 2002 01:04:20 +0000
+From: Andrew Kanaber <akanaber@chiark.greenend.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] cs46xx: sound distortion after hours of use
+Message-ID: <20020117010420.B31976@chiark.greenend.org.uk>
+In-Reply-To: <200201151224.g0FCO8E06163@Port.imtp.ilyichevsk.odessa.ua> <3C449426.6000300@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <3C449426.6000300@us.ibm.com>; from haveblue@us.ibm.com on Tue, Jan 15, 2002 at 09:32:01PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, David S. Miller wrote:
->    I'd love to have a run-time tuneable kernel parameter that lets me use
->    do_gettimeofday() instead of get_fast_time for received packet
->    timestamping.  Does this seem reasonable?
->
-> Can you demonstrate a difference in accurace between these two
-> routines on any architecture :-)
+On Tue, Jan 15, 2002 at 09:32:01PM +0000, David C. Hansen wrote:
+> BTW, I have a Thinkpad T21.  Do any of you have a non-IBM notebook?
 
-The discreprency is that get_fast_time() returns the current value of
-xtime, while do_gettimeofday() may actually calculate the time and
-consider both xtime and the jiffies.
+I have a non-IBM non-notebook apparently with this problem. It's an Athlon
+XP/Via KT266A desktop system with a Turtle Beach Santa Cruz soundcard,
+running kernel 2.4.17 with cs46xx as a module and APM compiled in. Sound
+became very distorted playing MP3s, rmmod cs46xx followed by modprobe cs46xx
+fixed the problem. It's only happened once so far, but I've only had this
+machine for two weeks.
 
+I'm afraid cat /proc/apm doesn't seem to reproduce the problem for me
+either.
 
+Andrew

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbSKCUe7>; Sun, 3 Nov 2002 15:34:59 -0500
+	id <S262500AbSKCU25>; Sun, 3 Nov 2002 15:28:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262430AbSKCUe7>; Sun, 3 Nov 2002 15:34:59 -0500
-Received: from main.gmane.org ([80.91.224.249]:58780 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S262425AbSKCUe6>;
-	Sun, 3 Nov 2002 15:34:58 -0500
-To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-Path: not-for-mail
-From: Nicholas Wourms <nwourms@netscape.net>
-Subject: Re: Petition against kernel configuration options madness...
-Date: Sun, 03 Nov 2002 15:40:19 -0500
-Message-ID: <aq41ev$dt9$2@main.gmane.org>
-References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz>
-Reply-To: nwourms@netscape.net
-NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
+	id <S262506AbSKCU25>; Sun, 3 Nov 2002 15:28:57 -0500
+Received: from ellpspace.math.ualberta.ca ([129.128.207.67]:41124 "EHLO
+	ellpspace.math.ualberta.ca") by vger.kernel.org with ESMTP
+	id <S262500AbSKCU25>; Sun, 3 Nov 2002 15:28:57 -0500
+Date: Sun, 3 Nov 2002 13:35:28 -0700
+From: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Filesystem Capabilities in 2.6?
+Message-ID: <20021103133528.A14177@ellpspace.math.ualberta.ca>
+Reply-To: michal@harddata.com
+References: <Pine.GSO.4.21.0211030048170.25010-100000@steklov.math.psu.edu> <1036307763.31699.214.camel@thud>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: main.gmane.org 1036355871 14249 130.127.121.177 (3 Nov 2002 20:37:51 GMT)
-X-Complaints-To: usenet@main.gmane.org
-NNTP-Posting-Date: Sun, 3 Nov 2002 20:37:51 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1036307763.31699.214.camel@thud>; from dax@gurulabs.com on Sun, Nov 03, 2002 at 12:16:02AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On Sun, Nov 03, 2002 at 12:16:02AM -0700, Dax Kelson wrote:
+> 
+> Speaking of user 'nobody', modern best practices (and shipped vendor
+> configuration) strongly discourages lumping everything under 'nobody'.
+> 
+> Each app should run in its own security context by itself.  That is why
+> I have all the following users in my /etc/passwd:
+> 
+> apache nscd squid xfs ident rpc pcap nfsnobody radvd gdm named ntp
 
-> Too bad you don't have any suggestions. I completely agree this should
-> be simplified, while I wouldn't be happy to lose the possibility of not
-> compiling AT keyboard support in.
+As a side issue each of these "users", or most of them, has likely also
+its own group and one needs also few groups for other purposes.  Seems
+like the next potential point to bump into a numbers of groups barrier
+although probably most of these does not need to be shared.  Still if
+this will become a part of a widely used security mechanisms there could
+be extra demands on memberships.
 
-Why not set the default option for AT Keyboard support on i386 platforms to 
-"Y"?
-
-Cheers,
-Nicholas
-
-
-
+  Michal

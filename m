@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbUCPAJA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 19:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUCPAIO
+	id S263017AbUCPANF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 19:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbUCPAKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:08:14 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13487 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262888AbUCPACK convert rfc822-to-8bit
+	Mon, 15 Mar 2004 19:10:51 -0500
+Received: from mail.kroah.org ([65.200.24.183]:16047 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262860AbUCPACN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:02:10 -0500
+	Mon, 15 Mar 2004 19:02:13 -0500
 Subject: Re: [PATCH] i2c driver fixes for 2.6.4
-In-Reply-To: <10793913953583@kroah.com>
+In-Reply-To: <10793913913858@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 14:56:35 -0800
-Message-Id: <10793913953926@kroah.com>
+Date: Mon, 15 Mar 2004 14:56:31 -0800
+Message-Id: <10793913912632@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,402 +22,35 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1608.74.17, 2004/03/15 13:09:45-08:00, aurelien@aurel32.net
+ChangeSet 1.1557.61.11, 2004/02/23 16:28:43-08:00, khali@linux-fr.org
 
-[PATCH] I2C: New chip driver: ds1621
+[PATCH] I2C: fix Hangs with w83781d
 
-The following patch against kernel 2.6.4-mm1 adds the ds1621 driver (an
-I2C sensor). I have ported it from the 2.4 version.
-
-It has been reviewed by Jean Delvare, partly on IRC, and it is
-"compliant" with Mark Hoffman's refactoring.
-
-
- drivers/i2c/chips/Kconfig  |   11 +
- drivers/i2c/chips/Makefile |    1 
- drivers/i2c/chips/ds1621.c |  345 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 357 insertions(+)
+Here is a patch for the w83781d driver that prevents register bits from
+being arbitrary changed when we force temp2/3 to comparator mode. Keith
+Duthie had been reporting various problems with that driver and finally
+found that this arbitrary change was the cause of them. He also tested
+this patch, which he confirmed to work.
 
 
-diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
---- a/drivers/i2c/chips/Kconfig	Mon Mar 15 14:33:54 2004
-+++ b/drivers/i2c/chips/Kconfig	Mon Mar 15 14:33:54 2004
-@@ -33,6 +33,17 @@
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called asb100.
- 
-+config SENSORS_DS1621
-+      	tristate "Dallas Semiconductor DS1621 and DS1625"
-+	depends on I2C && EXPERIMENTAL
-+	select I2C_SENSOR
-+	help
-+	  If you say yes here you get support for Dallas Semiconductor
-+	  DS1621 and DS1625 sensor chips. 
+ drivers/i2c/chips/w83781d.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
+--- a/drivers/i2c/chips/w83781d.c	Mon Mar 15 14:37:03 2004
++++ b/drivers/i2c/chips/w83781d.c	Mon Mar 15 14:37:03 2004
+@@ -1632,7 +1632,11 @@
+ 		if (type != w83781d) {
+ 			/* enable comparator mode for temp2 and temp3 so
+ 			   alarm indication will work correctly */
+-			w83781d_write_value(client, W83781D_REG_IRQ, 0x41);
++			i = w83781d_read_value(client, W83781D_REG_IRQ);
++			if (!(i & 0x40))
++				w83781d_write_value(client, W83781D_REG_IRQ,
++						    i | 0x40);
 +
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called ds1621.
-+
- config SENSORS_FSCHER
- 	tristate "FSC Hermes"
- 	depends on I2C && EXPERIMENTAL
-diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
---- a/drivers/i2c/chips/Makefile	Mon Mar 15 14:33:54 2004
-+++ b/drivers/i2c/chips/Makefile	Mon Mar 15 14:33:54 2004
-@@ -8,6 +8,7 @@
- obj-$(CONFIG_SENSORS_W83781D)	+= w83781d.o
- 
- obj-$(CONFIG_SENSORS_ADM1021)	+= adm1021.o
-+obj-$(CONFIG_SENSORS_DS1621)	+= ds1621.o
- obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
- obj-$(CONFIG_SENSORS_FSCHER)	+= fscher.o
- obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
-diff -Nru a/drivers/i2c/chips/ds1621.c b/drivers/i2c/chips/ds1621.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/i2c/chips/ds1621.c	Mon Mar 15 14:33:54 2004
-@@ -0,0 +1,345 @@
-+/*
-+    ds1621.c - Part of lm_sensors, Linux kernel modules for hardware
-+             monitoring
-+    Christian W. Zuckschwerdt  <zany@triq.net>  2000-11-23
-+    based on lm75.c by Frodo Looijaard <frodol@dds.nl>
-+    Ported to Linux 2.6 by Aurelien Jarno <aurelien@aurel32.net> with 
-+    the help of Jean Delvare <khali@linux-fr.org>
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-sensor.h>
-+#include "lm75.h"
-+
-+/* Addresses to scan */
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
-+static unsigned short normal_i2c_range[] = { 0x48, 0x4f, I2C_CLIENT_END };
-+static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
-+static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
-+
-+/* Insmod parameters */
-+SENSORS_INSMOD_1(ds1621);
-+static int polarity = -1;
-+MODULE_PARM(polarity, "i");
-+MODULE_PARM_DESC(polarity, "Output's polarity: 0 = active high, 1 = active low");
-+
-+/* Many DS1621 constants specified below */
-+/* Config register used for detection         */
-+/*  7    6    5    4    3    2    1    0      */
-+/* |Done|THF |TLF |NVB | 1  | 0  |POL |1SHOT| */
-+#define DS1621_REG_CONFIG_MASK		0x0C
-+#define DS1621_REG_CONFIG_VAL		0x08
-+#define DS1621_REG_CONFIG_POLARITY	0x02
-+#define DS1621_REG_CONFIG_1SHOT		0x01
-+#define DS1621_REG_CONFIG_DONE		0x80
-+
-+/* The DS1621 registers */
-+#define DS1621_REG_TEMP			0xAA /* word, RO */
-+#define DS1621_REG_TEMP_MIN		0xA1 /* word, RW */
-+#define DS1621_REG_TEMP_MAX		0xA2 /* word, RW */
-+#define DS1621_REG_CONF			0xAC /* byte, RW */
-+#define DS1621_COM_START		0xEE /* no data */
-+
-+/* The DS1621 configuration register */
-+#define DS1621_ALARM_TEMP_HIGH		0x40
-+#define DS1621_ALARM_TEMP_LOW		0x20
-+
-+/* Conversions. Rounding and limit checking is only done on the TO_REG
-+   variants. Note that you should be a bit careful with which arguments
-+   these macros are called: arguments may be evaluated more than once.
-+   Fixing this is just not worth it. */
-+#define ALARMS_FROM_REG(val) ((val) & \
-+                              (DS1621_ALARM_TEMP_HIGH | DS1621_ALARM_TEMP_LOW))
-+
-+/* Each client has this additional data */
-+struct ds1621_data {
-+	struct semaphore update_lock;
-+	char valid;			/* !=0 if following fields are valid */
-+	unsigned long last_updated;	/* In jiffies */
-+
-+	u16 temp, temp_min, temp_max;	/* Register values, word */
-+	u8 conf;			/* Register encoding, combined */
-+};
-+
-+static int ds1621_attach_adapter(struct i2c_adapter *adapter);
-+static int ds1621_detect(struct i2c_adapter *adapter, int address,
-+			 int kind);
-+static void ds1621_init_client(struct i2c_client *client);
-+static int ds1621_detach_client(struct i2c_client *client);
-+static struct ds1621_data *ds1621_update_client(struct device *dev);
-+
-+/* This is the driver that will be inserted */
-+static struct i2c_driver ds1621_driver = {
-+	.owner		= THIS_MODULE,
-+	.name		= "ds1621",
-+	.id		= I2C_DRIVERID_DS1621,
-+	.flags		= I2C_DF_NOTIFY,
-+	.attach_adapter	= ds1621_attach_adapter,
-+	.detach_client	= ds1621_detach_client,
-+};
-+
-+static int ds1621_id = 0;
-+
-+static u16 swap_bytes(u16 val)
-+{
-+	return (val >> 8) | (val << 8);
-+}
-+
-+/* All registers are word-sized, except for the configuration register.
-+   DS1621 uses a high-byte first convention, which is exactly opposite to
-+   the usual practice. */
-+static int ds1621_read_value(struct i2c_client *client, u8 reg)
-+{
-+	if (reg == DS1621_REG_CONF)
-+		return i2c_smbus_read_byte_data(client, reg);
-+	else
-+		return swap_bytes(i2c_smbus_read_word_data(client, reg));
-+}
-+
-+/* All registers are word-sized, except for the configuration register.
-+   DS1621 uses a high-byte first convention, which is exactly opposite to
-+   the usual practice. */
-+static int ds1621_write_value(struct i2c_client *client, u8 reg, u16 value)
-+{
-+	if (reg == DS1621_REG_CONF)
-+		return i2c_smbus_write_byte_data(client, reg, value);
-+	else
-+		return i2c_smbus_write_word_data(client, reg,
-+						 swap_bytes(value));
-+}
-+
-+static void ds1621_init_client(struct i2c_client *client)
-+{
-+	int reg = ds1621_read_value(client, DS1621_REG_CONF);
-+	/* switch to continous conversion mode */
-+	reg &= ~ DS1621_REG_CONFIG_1SHOT;
-+
-+	/* setup output polarity */
-+	if (polarity == 0)
-+		reg &= ~DS1621_REG_CONFIG_POLARITY;
-+	else if (polarity == 1)
-+		reg |= DS1621_REG_CONFIG_POLARITY;
-+	
-+	ds1621_write_value(client, DS1621_REG_CONF, reg);
-+	
-+	/* start conversion */
-+	i2c_smbus_write_byte(client, DS1621_COM_START);
-+}
-+
-+#define show(value)							\
-+static ssize_t show_##value(struct device *dev, char *buf)		\
-+{									\
-+	struct ds1621_data *data = ds1621_update_client(dev);		\
-+	return sprintf(buf, "%d\n", LM75_TEMP_FROM_REG(data->value));	\
-+}
-+
-+show(temp);
-+show(temp_min);
-+show(temp_max);
-+
-+#define set_temp(suffix, value, reg)					\
-+static ssize_t set_temp_##suffix(struct device *dev, const char *buf,	\
-+				 size_t count)				\
-+{									\
-+	struct i2c_client *client = to_i2c_client(dev);			\
-+	struct ds1621_data *data = ds1621_update_client(dev);		\
-+	data->value = LM75_TEMP_TO_REG(simple_strtoul(buf, NULL, 10));	\
-+	ds1621_write_value(client, reg, data->value);			\
-+	return count;							\
-+}
-+
-+set_temp(min, temp_min, DS1621_REG_TEMP_MIN);
-+set_temp(max, temp_max, DS1621_REG_TEMP_MAX);
-+
-+static ssize_t show_alarms(struct device *dev, char *buf)
-+{
-+	struct ds1621_data *data = ds1621_update_client(dev);
-+	return sprintf(buf, "%d\n", ALARMS_FROM_REG(data->conf));
-+}
-+
-+static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
-+static DEVICE_ATTR(temp1_input, S_IRUGO , show_temp, NULL);
-+static DEVICE_ATTR(temp1_min, S_IWUSR | S_IRUGO , show_temp_min, set_temp_min);
-+static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp_max, set_temp_max);
-+
-+
-+static int ds1621_attach_adapter(struct i2c_adapter *adapter)
-+{
-+	return i2c_detect(adapter, &addr_data, ds1621_detect);
-+}
-+
-+/* This function is called by i2c_detect */
-+int ds1621_detect(struct i2c_adapter *adapter, int address,
-+                  int kind)
-+{
-+	int conf, temp;
-+	struct i2c_client *new_client;
-+	struct ds1621_data *data;
-+	int err = 0;
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA 
-+				     | I2C_FUNC_SMBUS_WORD_DATA 
-+				     | I2C_FUNC_SMBUS_WRITE_BYTE))
-+		goto exit;
-+
-+	/* OK. For now, we presume we have a valid client. We now create the
-+	   client structure, even though we cannot fill it completely yet.
-+	   But it allows us to access ds1621_{read,write}_value. */
-+	if (!(new_client = kmalloc(sizeof(struct i2c_client) +
-+				   sizeof(struct ds1621_data),
-+				   GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+	memset(new_client, 0, sizeof(struct i2c_client) +
-+	       sizeof(struct ds1621_data));
-+	
-+	data = (struct ds1621_data *) (new_client + 1);
-+	i2c_set_clientdata(new_client, data);
-+	new_client->addr = address;
-+	new_client->adapter = adapter;
-+	new_client->driver = &ds1621_driver;
-+	new_client->flags = 0;
-+
-+
-+	/* Now, we do the remaining detection. It is lousy. */
-+	if (kind < 0) {
-+		conf = ds1621_read_value(new_client, DS1621_REG_CONF);
-+		if ((conf & DS1621_REG_CONFIG_MASK) != DS1621_REG_CONFIG_VAL)
-+			goto exit_free;
-+		temp = ds1621_read_value(new_client, DS1621_REG_TEMP);
-+		if (temp & 0x007f)
-+			goto exit_free;
-+		temp = ds1621_read_value(new_client, DS1621_REG_TEMP_MIN);
-+		if (temp & 0x007f)
-+			goto exit_free;
-+		temp = ds1621_read_value(new_client, DS1621_REG_TEMP_MAX);
-+		if (temp & 0x007f)
-+			goto exit_free;
-+	}
-+
-+	/* Determine the chip type - only one kind supported! */
-+	if (kind <= 0)
-+		kind = ds1621;
-+
-+	/* Fill in remaining client fields and put it into the global list */
-+	strlcpy(new_client->name, "ds1621", I2C_NAME_SIZE);
-+
-+	new_client->id = ds1621_id++;
-+	data->valid = 0;
-+	init_MUTEX(&data->update_lock);
-+
-+	/* Tell the I2C layer a new client has arrived */
-+	if ((err = i2c_attach_client(new_client)))
-+		goto exit_free;
-+
-+	/* Initialize the DS1621 chip */
-+	ds1621_init_client(new_client);
-+
-+	/* Register sysfs hooks */
-+	device_create_file(&new_client->dev, &dev_attr_alarms);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_input);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_min);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_max);
-+	
-+	return 0;
-+
-+/* OK, this is not exactly good programming practice, usually. But it is
-+   very code-efficient in this case. */
-+      exit_free:
-+	kfree(new_client);
-+      exit:
-+	return err;
-+}
-+
-+static int ds1621_detach_client(struct i2c_client *client)
-+{
-+	int err;
-+
-+	if ((err = i2c_detach_client(client))) {
-+		dev_err(&client->dev,
-+		        "ds1621.o: Client deregistration failed, client not detached.\n");
-+		return err;
-+	}
-+
-+	kfree(client);
-+
-+	return 0;
-+}
-+
-+
-+static struct ds1621_data *ds1621_update_client(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct ds1621_data *data = i2c_get_clientdata(client);
-+	u8 new_conf;
-+
-+	down(&data->update_lock);
-+
-+	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
-+	    (jiffies < data->last_updated) || !data->valid) {
-+
-+		dev_dbg(&client->dev, "Starting ds1621 update\n");
-+
-+		data->conf = ds1621_read_value(client, DS1621_REG_CONF);
-+
-+		data->temp = ds1621_read_value(client, DS1621_REG_TEMP);
-+		
-+		data->temp_min = ds1621_read_value(client,
-+		                                    DS1621_REG_TEMP_MIN);
-+		data->temp_max = ds1621_read_value(client,
-+						    DS1621_REG_TEMP_MAX);
-+
-+		/* reset alarms if neccessary */
-+		new_conf = data->conf;
-+		if (data->temp < data->temp_min)
-+			new_conf &= ~DS1621_ALARM_TEMP_LOW;
-+		if (data->temp > data->temp_max)
-+			new_conf &= ~DS1621_ALARM_TEMP_HIGH;
-+		if (data->conf != new_conf)
-+			ds1621_write_value(client, DS1621_REG_CONF,
-+					   new_conf);
-+
-+		data->last_updated = jiffies;
-+		data->valid = 1;
-+	}
-+
-+	up(&data->update_lock);
-+
-+	return data;
-+}
-+
-+static int __init ds1621_init(void)
-+{
-+	return i2c_add_driver(&ds1621_driver);
-+}
-+
-+static void __exit ds1621_exit(void)
-+{
-+	i2c_del_driver(&ds1621_driver);
-+}
-+
-+
-+MODULE_AUTHOR("Christian W. Zuckschwerdt <zany@triq.net>");
-+MODULE_DESCRIPTION("DS1621 driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(ds1621_init);
-+module_exit(ds1621_exit);
+ 			for (i = 0; i < 3; i++)
+ 				data->pwmenable[i] = 1;
+ 		}
 

@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVCFU6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVCFVEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVCFU6U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 15:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVCFU6U
+	id S261497AbVCFVEg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 16:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVCFVEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 15:58:20 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43525 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261504AbVCFU54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 15:57:56 -0500
-Date: Sun, 6 Mar 2005 21:57:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: davem@davemloft.net
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/802/fc.c: #if 0 fc_type_trans
-Message-ID: <20050306205754.GO5070@stusta.de>
+	Sun, 6 Mar 2005 16:04:35 -0500
+Received: from coderock.org ([193.77.147.115]:40877 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261497AbVCFVEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 16:04:33 -0500
+Date: Sun, 6 Mar 2005 22:04:26 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: emoenke@gwdg.de, linux-kernel@vger.kernel.org, nacc@us.ibm.com
+Subject: Re: [patch 2/6] 12/34: cdrom/cdu31a: replace interruptible_sleep_on() with wait_event_interruptible()
+Message-ID: <20050306210426.GA32564@nd47.coderock.org>
+References: <20050306103155.4AC7D1F202@trashy.coderock.org> <422AECBF.7040507@rainbow-software.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <422AECBF.7040507@rainbow-software.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The only user of fc_type_trans (drivers/net/fc/iph5526.c) is BROKEN in 
-2.6 and removed in -mm.
+On 06/03/05 12:42 +0100, Ondrej Zary wrote:
+> domen@coderock.org wrote:
+> >Use wait_event_interruptible() instead of the deprecated
+> >interruptible_sleep_on(). The patch is straight-forward as the macros 
+> >should result in the same execution. Patch is compile-tested (still throws 
+> >out warnings
+> >regarding {save,restore}_flags()).
+> >
+> >Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+> >Signed-off-by: Domen Puncer <domen@coderock.org>
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Uh, this one escaped me, as schedule() (sleep_on) after cli() is clearly
+wrong. Btw. what was the reason for this?
 
----
+> I've posted a patch for the cdu31a driver some time ago that removes 
+> almost all usage of interruptible_sleep_on() and also 
+> {save,restore}_flags() - it uses semaphore instead.
+> The only remaining code is in sony_sleep() function when using 
+> IRQ-driven operation.
+> 
+> See http://lkml.org/lkml/2004/12/18/107
+> The patch is big because I've messed with the formatting...
 
- include/linux/fcdevice.h |    2 --
- net/802/fc.c             |    2 ++
- 2 files changed, 2 insertions(+), 2 deletions(-)
+I looked at it, and rewrote some of it into smaller patches. If you don't
+mind, can i send them to you for review and testing?
 
---- linux-2.6.11-mm1-full/include/linux/fcdevice.h.old	2005-03-06 21:40:36.000000000 +0100
-+++ linux-2.6.11-mm1-full/include/linux/fcdevice.h	2005-03-06 21:41:07.000000000 +0100
-@@ -24,12 +24,10 @@
- #define _LINUX_FCDEVICE_H
- 
- 
- #include <linux/if_fc.h>
- 
- #ifdef __KERNEL__
--extern unsigned short	fc_type_trans(struct sk_buff *skb, struct net_device *dev); 
--
- extern struct net_device *alloc_fcdev(int sizeof_priv);
- #endif
- 
- #endif	/* _LINUX_FCDEVICE_H */
---- linux-2.6.11-mm1-full/net/802/fc.c.old	2005-03-06 21:41:12.000000000 +0100
-+++ linux-2.6.11-mm1-full/net/802/fc.c	2005-03-06 21:41:35.000000000 +0100
-@@ -94,12 +94,13 @@
- 	return arp_find(fch->daddr, skb);
- #else
- 	return 0;
- #endif
- }
- 
-+#if 0
- unsigned short
- fc_type_trans(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct fch_hdr *fch = (struct fch_hdr *)skb->data;
- 	struct fcllc *fcllc;
- 
-@@ -127,12 +128,13 @@
- 		skb_pull(skb, sizeof (struct fcllc));
- 		return fcllc->ethertype;
- 	}
- 
- 	return ntohs(ETH_P_802_2);
- }
-+#endif  /*  0  */
- 
- static void fc_setup(struct net_device *dev)
- {
- 	dev->hard_header	= fc_header;
- 	dev->rebuild_header	= fc_rebuild_header;
-                 
 
+	Domen

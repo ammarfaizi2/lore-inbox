@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268384AbTCFVVp>; Thu, 6 Mar 2003 16:21:45 -0500
+	id <S268377AbTCFVS3>; Thu, 6 Mar 2003 16:18:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268391AbTCFVVp>; Thu, 6 Mar 2003 16:21:45 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:52400 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S268384AbTCFVVo>;
-	Thu, 6 Mar 2003 16:21:44 -0500
-Date: Thu, 6 Mar 2003 13:32:17 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: yoshfuji@linux-ipv6.org, kazunori@miyazawa.org, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: (usagi-core 12294) Re: [PATCH] IPv6 IPsec support
-Message-ID: <20030306213217.GA6358@f00f.org>
-References: <20030305233025.784feb00.kazunori@miyazawa.org> <20030305.072149.121185037.davem@redhat.com> <20030306.004820.41101302.yoshfuji@linux-ipv6.org> <20030305.154100.28816301.davem@redhat.com>
+	id <S268384AbTCFVS3>; Thu, 6 Mar 2003 16:18:29 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17576
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268377AbTCFVS2>; Thu, 6 Mar 2003 16:18:28 -0500
+Subject: Re: Make ipconfig.c work as a loadable module.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robin Holt <holt@sgi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com>
+References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046990052.18158.121.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030305.154100.28816301.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 22:34:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 03:41:00PM -0800, David S. Miller wrote:
+On Thu, 2003-03-06 at 21:10, Robin Holt wrote:
+> The patch at the end of this email makes ipconfig.c work as a loadable 
+> module under the 2.5.  The diff was taken against the bitkeeper tree 
+> changeset 1.1075.
 
-> Note that this coincides with the idea to eventually have an
-> address-family independant flow cache.
+The right fix is to delete ipconfig.c, it has been the right fix for a long
+long time. There are initrd based bootp/dhcp setups that can also then mount
+a root NFS partition and they do *not* need any kernel helper.
 
-Actually... at that point being able to monitor updates to the
-flow-cache would be useful for various statistical purposes and
-applications, especially if the flow cache was able to periodically
-export utilization counters...
+Indeed probably the biggest distro using nfs root (LTSP) doesn't use ipconfig
+even on 2.4. 
 
-
-  --cw
+DaveM can you just remove the thing. See http://www.ltsp.org for initrds that
+don't need it in

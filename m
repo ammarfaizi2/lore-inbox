@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289009AbSBIQJg>; Sat, 9 Feb 2002 11:09:36 -0500
+	id <S289010AbSBIQOf>; Sat, 9 Feb 2002 11:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289012AbSBIQJY>; Sat, 9 Feb 2002 11:09:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55562 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289009AbSBIQJJ>; Sat, 9 Feb 2002 11:09:09 -0500
-Subject: Re: [PATCH] Updated Fix For "make pdfdocs"
-To: jferg3@swbell.net (Jason Ferguson)
-Date: Sat, 9 Feb 2002 16:22:42 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-In-Reply-To: <1013267043.510.10.camel@werewolf> from "Jason Ferguson" at Feb 09, 2002 09:04:03 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S289011AbSBIQOZ>; Sat, 9 Feb 2002 11:14:25 -0500
+Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:61947
+	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S289010AbSBIQOW>; Sat, 9 Feb 2002 11:14:22 -0500
+Date: Sat, 9 Feb 2002 16:14:18 +0000
+From: Mark Zealey <mark@zealos.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        kernelnewbies@nl.linux.org
+Subject: Re: ANNOUNCE: Janitor weekend!
+Message-ID: <20020209161418.GA19088@itsolve.co.uk>
+In-Reply-To: <20020207020105.GP8973@conectiva.com.br> <NDBBJHDEALBBOIDJGBNNOEKBCDAA.ktatgenhorst@earthlink.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZaGw-0007QN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <NDBBJHDEALBBOIDJGBNNOEKBCDAA.ktatgenhorst@earthlink.net>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux sunbeam 2.4.17-wli2 
+X-Homepage: http://zealos.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> deviceiobook.tmpl. Problem is that include/asm-i386/io.h doesnt provide
-> documentation, so trying to include said nonexistant documentation
-> causes the whole process to fail.
+On Sat, Feb 09, 2002 at 10:20:10AM -0500, Karl wrote:
 
-What would be better would be to dig out and merge the documentation
-patch for this file from an older 2.4.-ac. I'll go find out what
-happened to it
+> 
+> 
+>      Is this perhaps the WRONG weekend? I have checked many times. There is
+> a fella 'Johnflux' asleep there but he is alone.
 
+Maybe you went onto a split server. Try hogan, the server I am on, shows 68
+people atm.
+
+-- 
+
+Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
+mark@zealos.org
+mark@itsolve.co.uk
+
+UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
+!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
+!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
+
+(www.geekcode.com)

@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133056AbREHSEt>; Tue, 8 May 2001 14:04:49 -0400
+	id <S133083AbREHSGT>; Tue, 8 May 2001 14:06:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133040AbREHSEk>; Tue, 8 May 2001 14:04:40 -0400
-Received: from eagle.verisign.com ([208.206.241.105]:46742 "EHLO
-	eagle.verisign.com") by vger.kernel.org with ESMTP
-	id <S133029AbREHSEg>; Tue, 8 May 2001 14:04:36 -0400
-From: slurn@verisign.com
-Message-Id: <200105081804.LAA06108@slurndal-lnx.verisign.com>
-Subject: Re: kdb wishlist
-To: quintela@mandrakesoft.com (Juan Quintela)
-Date: Tue, 8 May 2001 11:04:29 -0700 (PDT)
-Cc: slurn@verisign.com, george@mvista.com (george anzinger),
-        kaos@melbourne.sgi.com (Keith Owens), kdb@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <m2itjbspvl.fsf@trasno.mitica> from "Juan Quintela" at May 08, 2001 07:38:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S133040AbREHSGJ>; Tue, 8 May 2001 14:06:09 -0400
+Received: from comverse-in.com ([38.150.222.2]:12234 "EHLO
+	eagle.comverse-in.com") by vger.kernel.org with ESMTP
+	id <S133083AbREHSGD>; Tue, 8 May 2001 14:06:03 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678EA9@mail-in.comverse-in.com>
+From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+To: "'Pavel Machek'" <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: RE: PCMCIA IDE flash problem found
+Date: Tue, 8 May 2001 14:05:04 -0400 
+Importance: low
+X-Priority: 5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> >>>>> "slurn" == slurn  <slurn@verisign.com> writes:
-> 
-> >> 
-> >> Keith Owens wrote:
-> >> > 
-> >> > This is part of my kdb wishlist, does anybody fancy writing the code to
-> >> > add any of these features?  It would be a nice project for anybody
-> >> > wanting to start on the kernel.  Replies to kdb@oss.sgi.com please.
-> >> > Current patches at http://oss.sgi.com/projects/kdb/download/
-> >> > 
-> >> > * Change kdb invocation key from ^A to ^X^X^X within 3 seconds.  ^A is
-> >> >   used by emacs, bash, minicom etc.
-> >> > 
-> >> ^X^X swaps point and mark in emacs.  One (well, I) often will do
-> >> ^X^X^X^X to examine where mark is and then return to point.
-> 
-> slurn> How about using the break condition instead.  This is only for the
-> slurn> serial port, and most terminal emulators (e.g. kermit, minicom) provide
-> slurn> a means to generate a break condition on the serial port. 
-> 
-> kdb uses BREAK in the serial port (that minicom uses C-a for sending a
-> break is an anecdote :)  But the problem at hang is the console.  I
-> vote for the ^X^X^X as I a think that it is not a difficult shortcut.
-> (and yes, I also use emacs and ^X^X all the time, but I think that
-> this combination is not specially bad, and I suppose that the pet
-> aplication of other people will have problems with something like:
-> ^A^A^A that I never use). 
-> 
-> Later, Juan.
+Why did not you take care of the request_region() call and just disabled it?
+The ports will be considered free by the system, and another device might 
+grab them later on!
 
-Unless something has changed, the console uses the 'pause' 
-key and the serial port uses ^A (for x86, anyway).
+Vassilii
 
-I may be out of date, however.
+-----Original Message-----
+From: Pavel Machek [mailto:pavel@suse.cz]
+Sent: Tuesday, May 08, 2001 8:14 AM
+To: kernel list
+Subject: PCMCIA IDE flash problem found
 
-scott
 
+Hi!
+
+2.4.[123] changed name of ide-cs module, which means your pcmcia setup
+breaks... This is how to undo the damage. Works for me, do *not* apply
+into anything official.
+
+								Pavel
+
+--- clean/drivers/ide/ide-cs.c	Sun Apr  1 00:23:29 2001
++++ linux/drivers/ide/ide-cs.c	Tue May  8 14:06:09 2001
+@@ -95,7 +96,7 @@
+ static int ide_event(event_t event, int priority,
+ 		     event_callback_args_t *args);
+ 
+-static dev_info_t dev_info = "ide-cs";
++static dev_info_t dev_info = "ide_cs";
+ 
+ static dev_link_t *ide_attach(void);
+ static void ide_detach(dev_link_t *);
+@@ -388,9 +389,12 @@
+ 	MOD_DEC_USE_COUNT;
+     }
+ 
++#if 0
+     request_region(link->io.BasePort1, link->io.NumPorts1,"ide-cs");
+     if (link->io.NumPorts2)
+ 	request_region(link->io.BasePort2, link->io.NumPorts2,"ide-cs");
++#endif
++    printk("Should call request_region\n");
+     
+     info->ndev = 0;
+     link->dev = NULL;

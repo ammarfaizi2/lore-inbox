@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317976AbSFSTGm>; Wed, 19 Jun 2002 15:06:42 -0400
+	id <S317977AbSFSTH7>; Wed, 19 Jun 2002 15:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317977AbSFSTGl>; Wed, 19 Jun 2002 15:06:41 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:61889 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S317976AbSFSTGk>; Wed, 19 Jun 2002 15:06:40 -0400
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-From: Steven Cole <scole@lanl.gov>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.44.0206181340380.3031-100000@loke.as.arizona.edu>
-References: <Pine.LNX.4.44.0206181340380.3031-100000@loke.as.arizona.edu>
-Content-Type: text/plain
+	id <S317978AbSFSTH6>; Wed, 19 Jun 2002 15:07:58 -0400
+Received: from jeeves.momenco.com ([64.169.228.99]:62478 "EHLO
+	host099.momenco.com") by vger.kernel.org with ESMTP
+	id <S317977AbSFSTH5>; Wed, 19 Jun 2002 15:07:57 -0400
+From: "Matthew Dharm" <mdharm@momenco.com>
+To: "Balakrishnan Ananthanarayanan" <balakris_ananth@email.com>,
+       <linux-mips@oss.sgi.com>, <linux-kernel@vger.kernel.org>,
+       <redhat-list@redhat.com>
+Subject: RE: MIPS - Serial port
+Date: Wed, 19 Jun 2002 12:07:51 -0700
+Message-ID: <NEBBLJGMNKKEEMNLHGAICEIECHAA.mdharm@momenco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 19 Jun 2002 13:04:52 -0600
-Message-Id: <1024513492.13955.13.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20020619120414.8473.qmail@email.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-06-19 at 05:18, Craig Kulesa wrote:
-> 
-> 
-> Where:  http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/
-> 
-> This patch implements Rik van Riel's patches for a reverse mapping VM 
-> atop the 2.5.23 kernel infrastructure.  The principal sticky bits in 
-> the port are correct interoperability with Andrew Morton's patches to 
-> cleanup and extend the writeback and readahead code, among other things.  
-> This patch reinstates Rik's (active, inactive dirty, inactive clean) 
-> LRU list logic with the rmap information used for proper selection of pages 
-> for eviction and better page aging.  It seems to do a pretty good job even 
-> for a first porting attempt.  A simple, indicative test suite on a 192 MB 
-> PII machine (loading a large image in GIMP, loading other applications, 
-> heightening memory load to moderate swapout, then going back and 
-> manipulating the original Gimp image to test page aging, then closing all 
-> apps to the starting configuration) shows the following:
-> 
-> 2.5.22 vanilla:
-> Total kernel swapouts during test = 29068 kB
-> Total kernel swapins during test  = 16480 kB
-> Elapsed time for test: 141 seconds
-> 
-> 2.5.23-rmap13b:
-> Total kernel swapouts during test = 40696 kB
-> Total kernel swapins during test  =   380 kB
-> Elapsed time for test: 133 seconds
-> 
-> Although rmap's page_launder evicts a ton of pages under load, it seems to 
-> swap the 'right' pages, as it doesn't need to swap them back in again.
-> This is a good sign.  [recent 2.4-aa work pretty nicely too]
-> 
-> Various details for the curious or bored:
-> 
-> 	- Tested:   UP, 16 MB < mem < 256 MB, x86 arch. 
-> 	  Untested: SMP, highmem, other archs. 
-                    ^^^
-I tried to boot 2.5.23-rmap13b on a dual PIII without success.
+The RM7000 does not have an on-chip serial port.  The EV board has
+it's own UART.
 
-	Freeing unused kernel memory: 252k freed
-hung here with CONFIG_SMP=y
-	Adding 1052248k swap on /dev/sda6.  Priority:0 extents:1
-	Adding 1052248k swap on /dev/sdb1.  Priority:0 extents:1
+Matt
 
-The above is the edited dmesg output from booting 2.5.23-rmap13b as an
-UP kernel, which successfully booted on the same 2-way box.
+--
+Matthew D. Dharm                            Senior Software Designer
+Momentum Computer Inc.                      1815 Aston Ave.  Suite 107
+(760) 431-8663 X-115                        Carlsbad, CA 92008-7310
+Momentum Works For You                      www.momenco.com
 
-Steven
+> -----Original Message-----
+> From: owner-linux-mips@oss.sgi.com
+> [mailto:owner-linux-mips@oss.sgi.com]On Behalf Of Balakrishnan
+> Ananthanarayanan
+> Sent: Wednesday, June 19, 2002 5:04 AM
+> To: linux-mips@oss.sgi.com; linux-kernel@vger.kernel.org;
+> redhat-list@redhat.com
+> Subject: MIPS - Serial port
+>
+>
+> Hi all,
+>
+>    Is there anyone who has accessed the serial port of an
+> RM7000 MIPS processor? If u can provide me the code please
+> - or atleast the Serial PORT number of an RM7000 proc.
+> mounted on an EV64120A Galileo Board?
+>
+> Balakrishnan
+>
+> --
+> __________________________________________________________
+> Sign-up for your own FREE Personalized E-mail at Mail.com
+> http://www.mail.com/?sr=signup
+>
+> Save up to $160 by signing up for NetZero Platinum Internet service.
+> http://www.netzero.net/?refcd=N2P0602NEP8
+>
 

@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271333AbRIOTRl>; Sat, 15 Sep 2001 15:17:41 -0400
+	id <S272518AbRIOTTL>; Sat, 15 Sep 2001 15:19:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272519AbRIOTRc>; Sat, 15 Sep 2001 15:17:32 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:20798 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S272518AbRIOTRR>; Sat, 15 Sep 2001 15:17:17 -0400
-Subject: Re: Feedback on preemptible kernel patch
-From: Robert Love <rml@tech9.net>
-To: phillips@bonn-fries.net
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
-Date: 15 Sep 2001 15:18:16 -0400
-Message-Id: <1000581501.32705.46.camel@phantasy>
-Mime-Version: 1.0
+	id <S272519AbRIOTTB>; Sat, 15 Sep 2001 15:19:01 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48710 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S272518AbRIOTSo>; Sat, 15 Sep 2001 15:18:44 -0400
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Strange /dev/loop behavior
+In-Reply-To: <Pine.LNX.4.33.0109141505530.29038-100000@winds.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Sep 2001 13:10:24 -0600
+In-Reply-To: <Pine.LNX.4.33.0109141505530.29038-100000@winds.org>
+Message-ID: <m13d5otgm7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-09-09 at 23:24, Daniel Phillips wrote:
-> This may not be your fault.  It's a GFP_NOFS recursive allocation - this
-> comes either from grow_buffers or ReiserFS, probably the former.  In
-> either case, it means we ran completely out of free pages, even though
-> the caller is willing to wait.  Hmm.  It smells like a loophole in vm
-> scanning.
+Byron Stanoszek <gandalf@winds.org> writes:
 
-Hi, Daniel.  If you remember, a few users of the preemption patch
-reported instability and/or syslog messages such as:
+> Is there any known method of copying/compressing the loopback-mounted file-
+> system that always guarantees consistency after a sync, without requiring the
+> fs to be unmounted first?
 
-Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
-Sep  9 23:08:02 sjoerd last message repeated 93 times
-Sep  9 23:08:02 sjoerd kernel: cation failed (gfp=0x70/1).
-Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
-Sep  9 23:08:02 sjoerd last message repeated 281 times
+Mounting read-only and then syncing might do it.  Going directly to
+the block device on 2.4.x is not supported when the filesystem is
+mounted.  This is because the page cache is not coherent with the
+block cache, and there are now plans to make this the case.   In
+general this won't work anyway because some other program might 
+be modifying your fs while you read the block device.
 
-It now seems that all of them are indeed using ReiserFS.  There are no
-other reported problems with the preemption patch, except from those
-users...
-
-I am beginning to muse over the source, looking at when kmalloc is
-called with GFP_NOFS in ReiserFS, and then the path that code takes in
-the VM source.
-
-I assume the kernel VM code has a hole somewhere, and the request is
-falling through?  It should wait, even if no pages were free so, right? 
-
-Where should I begin looking?  How does it relate to ReiserFS?  How is
-preemption related?
-
-Thank you very much,
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Eric

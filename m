@@ -1,49 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270605AbTHORK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 13:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270608AbTHORK0
+	id S270626AbTHOQv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267724AbTHOQM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 13:10:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27832 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270605AbTHORKW (ORCPT
+	Fri, 15 Aug 2003 12:12:27 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S267952AbTHOQJD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 13:10:22 -0400
-Date: Fri, 15 Aug 2003 10:06:56 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: ndiamond@wta.att.ne.jp, linux-kernel@vger.kernel.org
-Subject: Re: Trying to run 2.6.0-test3
-Message-Id: <20030815100656.19f1770f.rddunlap@osdl.org>
-In-Reply-To: <20030815164300.GA31121@triplehelix.org>
-References: <0a5b01c36305$4dec8b80$1aee4ca5@DIAMONDLX60>
-	<20030815111442.A12422@flint.arm.linux.org.uk>
-	<0d7c01c3632a$668da140$1aee4ca5@DIAMONDLX60>
-	<20030815164300.GA31121@triplehelix.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 15 Aug 2003 12:09:03 -0400
+Date: Fri, 15 Aug 2003 12:26:50 -0300
+From: Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
+To: tim@cyberelk.net
+Cc: grant@torque.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] pd.c: blk_init_queue() changes
+Message-ID: <20030815152650.GR1685@duckman.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jx/LfW4V5TfZLeq7"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Aug 2003 09:43:00 -0700 Joshua Kwan <joshk@triplehelix.org> wrote:
 
-| On Fri, Aug 15, 2003 at 09:39:07PM +0900, Norman Diamond wrote:
-| > I will do that in my next build.  For some reason I wasn't sure if yenta
-| > would handle 16-bit cards.  But this turns out not to be necessary.  Also
-| > the PCMCIA suggestions which Felipe Alfaro Solana suggested (the suggestions
-| > which I intended to try) turned out not to be necessary.  The winner is the
-| > next one:
-| 
-| Note that if you don't already have CONFIG_ISA enabled, 16-bit CardBus
-| devices will refuse to work.
+--jx/LfW4V5TfZLeq7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-16-bit PCMCIA is ISA-like, 32-bit CardBus is basically PCI.
-I've never heard of 16-bit CardBus.  Are there some?
 
---
-~Randy
+The following patch against 2.6-bk changes pd.c to the new
+blk_init_queue()/blk_cleanup_queue() interface, and makes the error
+handling on pd_init() cleaner.
+
+Without these changes, pd.c is unable to compile.
+
+--=20
+Eduardo
+
+
+diff -Nru a/drivers/block/paride/pd.c b/drivers/block/paride/pd.c
+--- a/drivers/block/paride/pd.c	Fri Aug 15 12:15:46 2003
++++ b/drivers/block/paride/pd.c	Fri Aug 15 12:15:46 2003
+@@ -654,7 +654,7 @@
+ 	return pd_identify(disk);
+ }
+=20
+-static struct request_queue pd_queue;
++static struct request_queue *pd_queue;
+=20
+ static int pd_detect(void)
+ {
+@@ -704,7 +704,7 @@
+ 			set_capacity(p, disk->capacity);
+ 			disk->gd =3D p;
+ 			p->private_data =3D disk;
+-			p->queue =3D &pd_queue;
++			p->queue =3D pd_queue;
+ 			add_disk(p);
+ 		}
+ 	}
+@@ -782,7 +782,7 @@
+ 	spin_lock_irqsave(&pd_lock, saved_flags);
+ 	end_request(pd_req, success);
+ 	pd_busy =3D 0;
+-	do_pd_request(&pd_queue);
++	do_pd_request(pd_queue);
+ 	spin_unlock_irqrestore(&pd_lock, saved_flags);
+ }
+=20
+@@ -888,22 +888,37 @@
+=20
+ static int __init pd_init(void)
+ {
++	int ret =3D -EINVAL;
+ 	if (disable)
+-		return -1;
+-	if (register_blkdev(major, name))
+-		return -1;
++		goto err;
+=20
+-	blk_init_queue(&pd_queue, do_pd_request, &pd_lock);
+-	blk_queue_max_sectors(&pd_queue, cluster);
++	ret =3D register_blkdev(major, name);
++	if (ret < 0)
++		goto err;
++	=09
++
++	pd_queue =3D blk_init_queue(do_pd_request, &pd_lock);
++	if (!pd_queue) {
++		ret =3D -ENOMEM;
++		goto err_unregister;
++	}
++	blk_queue_max_sectors(pd_queue, cluster);
+=20
+ 	printk("%s: %s version %s, major %d, cluster %d, nice %d\n",
+ 	       name, name, PD_VERSION, major, cluster, nice);
+ 	pd_init_units();
+ 	if (!pd_detect()) {
+-		unregister_blkdev(major, name);
+-		return -1;
++		ret =3D -ENODEV;
++		goto err_freequeue;
+ 	}
+ 	return 0;
++
++err_freequeue:
++	blk_cleanup_queue(pd_queue);
++err_unregister:
++	unregister_blkdev(major, name);
++err:
++	return ret;
+ }
+=20
+ static void __exit pd_exit(void)
+@@ -920,7 +935,7 @@
+ 			pi_release(disk->pi);
+ 		}
+ 	}
+-	blk_cleanup_queue(&pd_queue);
++	blk_cleanup_queue(pd_queue);
+ }
+=20
+ MODULE_LICENSE("GPL");
+
+--jx/LfW4V5TfZLeq7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/PPu5caRJ66w1lWgRApaLAJ9AxACS717wXSNnvsbeArn9F6cMVgCgqhtI
+5svYozHoik+cpofD7vWjf2g=
+=Ictw
+-----END PGP SIGNATURE-----
+
+--jx/LfW4V5TfZLeq7--

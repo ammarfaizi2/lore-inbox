@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276856AbRJHMB7>; Mon, 8 Oct 2001 08:01:59 -0400
+	id <S276864AbRJHMNm>; Mon, 8 Oct 2001 08:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276864AbRJHMBt>; Mon, 8 Oct 2001 08:01:49 -0400
-Received: from mout02.kundenserver.de ([195.20.224.133]:59942 "EHLO
-	mout02.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S276856AbRJHMBg>; Mon, 8 Oct 2001 08:01:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: TreeWater Society Berlin
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.10-ac7 vmware-2.0.4-1142 breakage
-Date: Mon, 8 Oct 2001 14:02:05 +0200
-X-Mailer: KMail [version 1.3]
+	id <S276870AbRJHMNd>; Mon, 8 Oct 2001 08:13:33 -0400
+Received: from apollos.ttu.ee ([193.40.254.143]:37895 "EHLO apollos.ttu.ee")
+	by vger.kernel.org with ESMTP id <S276864AbRJHMNa>;
+	Mon, 8 Oct 2001 08:13:30 -0400
+Date: Mon, 8 Oct 2001 14:13:46 +0200 (EET)
+From: david <david@apollos.ttu.ee>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PCI problem with 2.4.10 on 82434LX chipset
+In-Reply-To: <9pqr52$7fu$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0110081412540.9299-100000@apollos.ttu.ee>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011008120206.A3DC0F62@shrek.lisa.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 8 Oct 2001, Linus Torvalds wrote:
 
-Does someone already fixed the vmmon compiling problems
-with current kernels?
+> In article <Pine.LNX.4.33.0110072319040.2878-100000@apollos.ttu.ee>,
+> david  <david@apollos.ttu.ee> wrote:
+> >
+> >PCI: PCI BIOS revision 2.10 entry at 0xfd6f2, last bus=0
+> >PCI: System does not support PCI
+> >
+> >Any hope getting PCI bus working on this box? Maybe some hints? Thanx :)
+>
+> The type-2 config space accesses were broken in 2.4.10 due to an ACPI
+> rewrite, that got fixed in the 2.4.11-pre kernels (should be fixed in
+> pre1 already, but you might as well test pre5).
+>
+> Most people never noticed, because type 1 tends to be what most machines
+> use.
+>
+> The 2.4.11 kernels are under ftp.kernel.org:/pub/linux/kernel/testing,
+>
 
-BTW: 2.4.10-ac7 is running (v3) nfsroot mounted here on 2-way SMP
-server (2.4.8, knfsd, reiserfs) __SMOOTH__ && __FINE__.
-Congrat's to everybody involved!
+Yep, pre* patch worked too, thanx :)
 
-If only I could swap via nbd now, I would explode from pride ;-)
+Taavi Tuisk
 
-Hans-Peter

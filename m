@@ -1,57 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292195AbSBYTZA>; Mon, 25 Feb 2002 14:25:00 -0500
+	id <S293437AbSBYT0j>; Mon, 25 Feb 2002 14:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293219AbSBYTYt>; Mon, 25 Feb 2002 14:24:49 -0500
-Received: from a213-22-82-74.netcabo.pt ([213.22.82.74]:4874 "EHLO
-	skyblade.homeip.net") by vger.kernel.org with ESMTP
-	id <S292195AbSBYTYe>; Mon, 25 Feb 2002 14:24:34 -0500
-Date: Mon, 25 Feb 2002 19:24:23 +0000 (WET)
-From: =?iso-8859-15?Q?Jos=E9_Carlos_Monteiro?= <jcm@skyblade.homeip.net>
-To: John Alvord <jalvo@mbay.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Emu10k1 SPDIF passthru doesn't work if CONFIG_NOHIGHMEM is not
- enabled
-Message-ID: <Pine.LNX.4.33.0202251918520.5719-100000@skyblade.homeip.net>
+	id <S293438AbSBYT0a>; Mon, 25 Feb 2002 14:26:30 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:17420 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S293437AbSBYT0V>; Mon, 25 Feb 2002 14:26:21 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 25 Feb 2002 11:28:59 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Erich Focht <focht@ess.nec.de>, Mike Kravetz <kravetz@us.ibm.com>,
+        Jesse Barnes <jbarnes@sgi.com>, Peter Rival <frival@zk3.dec.com>,
+        <lse-tech@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] NUMA scheduling
+In-Reply-To: <20020225110327.A22497@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0202251121390.1499-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Seg, 2002-02-25 at 18:16, John Alvord wrote:
-> I know it is again more work, but the next usual step is to determine
-> the differences between the two pre levels and add them in one at a
-> time to the working pre level until the function break occurs.
+On Mon, 25 Feb 2002, Larry McVoy wrote:
 
-Ok, but I think that may be a little bit out of my league. I mean, I'd
-like to help, but where am I supposed to find all the individual patches?
-Is is possible to break the pre1-pre2 patch file into individual files?
-
-Or, is there a repository for that sort of thing? Or if someone emailed me
-all the 7 patches in individual files, I could test them one by one.
-
-
-Regards
-Zé
-
-
-> On Sun, 24 Feb 2002 22:28:34 +0000 (WET), I wrote:
-> >> Emu10k1 SPDIF passthru with the creative/kernel OSS driver only works
-> >> if the kernel option CONFIG_NOHIGHMEM is set. If one of the other two
-> >> related options (CONFIG_HIGHMEM4G or CONFIG_HIGHMEM64G) is used
-> >> instead, the sound card is unable to "pass" AC3 streams "through" the
-> >> SPDIF output; only PCM and multi-channel sound gets out.
+> On Mon, Feb 25, 2002 at 10:55:03AM -0800, Martin J. Bligh wrote:
+> > > - The load_balancing() concept is different:
+> > > 	- there are no special time intervals for balancing across pool
+> > > 	boundaries, the need for this can occur very quickly and I
+> > > 	have the feeling that 2*250ms is a long time for keeping the
+> > > 	nodes unbalanced. This means: each time load_balance() is called
+> > > 	it _can_ balance across pool boundaries (but doesn't have to).
 > >
-> >I tested all the pre-patches between kernels 2.4.12 and 2.4.13
-> >and I found that kernel 2.4.13-pre2 was the one that broke it.
-> >2.4.13-pre2:
-> >- Alan Cox: more merging
-> >- Ben Fennema: UDF module license
-> >- Jeff Mahoney: reiserfs endian safeness
-> >- Chris Mason: reiserfs O_SYNC/fsync performance improvements
-> >- Jean Tourrilhes: wireless extension update
-> >- Joerg Reuter: AX.25 updates
-> >- David Miller: 64-bit DMA interfaces
+> > Imagine for a moment that there's a short spike in workload on one node.
+> > By agressively balancing across nodes, won't you incur a high cost
+> > in terms of migrating all the cache data to the remote node (destroying
+> > the cache on both the remote and local node), when it would be cheaper
+> > to wait for a few more ms, and run on the local node?
+>
+> Great question!  The answer is that you are absolutely right.  SGI tried
+> a pile of things in this area, both on NUMA and on traditional SMPs (the
+> NUMA stuff was more page migration and the SMP stuff was more process
+> migration, but the problems are the same, you screw up the cache).  They
+> never got the page migration to give them better performance while I was
+> there and I doubt they have today.  And the process "migration" from CPU
+> to CPU didn't work either, people tended to lock processes to processors
+> for exactly the reason you alluded to.
+>
+> If you read the early hardware papers on SMP, they all claim "Symmetric
+> Multi Processor", i.e., you can run any process on any CPU.  Skip forward
+> 3 years, now read the cache affinity papers from the same hardware people.
+> You have to step back and squint but what you'll see is that these papers
+> could be summarized on one sentence:
+>
+> 	"Oops, we lied, it's not really symmetric at all"
+>
+> You should treat each CPU as a mini system and think of a process reschedule
+> someplace else as a checkpoint/restart and assume that is heavy weight.  In
+> fact, I'd love to see the scheduler code forcibly sleep the process for
+> 500 milliseconds each time it lands on a different CPU.  Tune the system
+> to work well with that, then take out the sleep, and you'll have the right
+> answer.
+
+I made this test on 8 way NUMA machines ( thx to OSDLAB ). When a CPUs
+went idle i let it sample the status/load of the system with 100HZ
+frequency and i had a variable trigger time derivate that fired a task
+steal if a certain load was observed on the same CPU for a time > K ms
+I tested it with kernel builds and surprisingly enough having the idle to
+observe a load for more than 60ms was a performance loss on these
+machines. The moral of the story is:
+
+	"Cache trashing wheighs but wasted CPU time too ..."
+
+
+
+
+- Davide
 
 

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273288AbTHMNzj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 09:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274978AbTHMNzj
+	id S275003AbTHMN6H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 09:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275050AbTHMN6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 09:55:39 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:18936 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S273288AbTHMNzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 09:55:38 -0400
-Subject: Re: [ACPI] [BK PATCH] ACPI Updates for 2.4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       acpi-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255EECD@orsmsx401.jf.intel.com>
-References: <F760B14C9561B941B89469F59BA3A8470255EECD@orsmsx401.jf.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060782897.8513.50.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 13 Aug 2003 14:54:58 +0100
+	Wed, 13 Aug 2003 09:58:07 -0400
+Received: from windsormachine.com ([206.48.122.28]:16006 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S275003AbTHMN56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 09:57:58 -0400
+Date: Wed, 13 Aug 2003 09:57:56 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Realtek network card
+In-Reply-To: <3F3A3773.5070108@pobox.com>
+Message-ID: <Pine.LNX.4.56.0308130957120.10007@router.windsormachine.com>
+References: <20030813133059.616f0faa.skraw@ithnet.com> <3F3A3773.5070108@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.3 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-08-12 at 23:36, Grover, Andrew wrote:
-> Hi Marcelo, here's a bunch of ACPI updates.
-> 
-> bk pull http://linux-acpi.bkbits.net/linux-acpi-2.4
+On Wed, 13 Aug 2003, Jeff Garzik wrote:
 
-Is this available as a patch file somewhere ?
+> > 00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd.: Unknown device 8131 (rev 10)
+> > 	Subsystem: Realtek Semiconductor Co., Ltd.: Unknown device 8139
+>
+>
+> The subsystem device id seems to indicate 8139, so you probably just
+> need to add pci ids to 8139too.c.
+>
+> 	Jeff
 
+8139 - 8131 = 8, think he might have the same problem i had a while ago
+that you found, where the card just wasn't inserted right, and one bit was
+off?
+
+Mike

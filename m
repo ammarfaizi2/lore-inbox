@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVCGJJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVCGJPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVCGJJH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 04:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVCGJJG
+	id S261717AbVCGJPH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 04:15:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVCGJPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 04:09:06 -0500
-Received: from mx2.mail.ru ([194.67.23.122]:57411 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S261716AbVCGJHg (ORCPT
+	Mon, 7 Mar 2005 04:15:07 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8668 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261717AbVCGJPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 04:07:36 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Alex Aizman <itn780@yahoo.com>
-Subject: Re: [ANNOUNCE 2/6] Open-iSCSI High-Performance Initiator for Linux
-Date: Mon, 7 Mar 2005 12:08:02 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <422BFEC6.70305@yahoo.com>
-In-Reply-To: <422BFEC6.70305@yahoo.com>
-MIME-Version: 1.0
+	Mon, 7 Mar 2005 04:15:01 -0500
+Date: Mon, 7 Mar 2005 10:14:48 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kconfig: DEBUG_PAGEALLOC and SOFTWARE_SUSPEND are incompatible on i386
+Message-ID: <20050307091448.GC8311@elf.ucw.cz>
+References: <20050306030852.23eb59db.akpm@osdl.org> <20050306225730.GA1414@elf.ucw.cz> <20050306195954.6d13cff9.akpm@osdl.org> <20050307051241.GA5083@ip68-4-98-123.oc.oc.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503071208.02285.adobriyan@mail.ru>
-X-Spam: Not detected
+In-Reply-To: <20050307051241.GA5083@ip68-4-98-123.oc.oc.cox.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 March 2005 09:12, Alex Aizman wrote:
->           Common header files:
->           - iscsi_ifev.h (user/kernel events).
->           - iscsi_if.h (iSCSI open interface over netlink);
->           - iscsi_proto.h (RFC3720 #defines and types);
+On Ne 06-03-05 21:12:41, Barry K. Nathan wrote:
+> On i386, SOFTWARE_SUSPEND requires the CPU to have PSE support, but
+> DEBUG_PAGEALLOC disables PSE. Thus, allowing both options to be enabled
+> simultaneously makes no sense. This patch disables DEBUG_PAGEALLOC if
+> SOFTWARE_SUSPEND is enabled; it also displays a comment to briefly
+> explain why DEBUG_PAGEALLOC is missing in that case.
 
-> --- linux-2.6.11.orig/include/scsi/iscsi_if.h
-> +++ linux-2.6.11.dima/include/scsi/iscsi_if.h
+ACK.
+									Pavel
 
-> +/**
-> + * struct iscsi_transport - down calls
-> + *
-> + * @name: transport name
-> + * @caps: iSCSI Data-Path capabilities
-> + * @create_snx: create new iSCSI session object
-> + * @destroy_snx: destroy existing iSCSI session object
-> + * @create_cnx: create new iSCSI connection
-> + * @bind_cnx: associate this connection with existing iSCSI session and
-> + *            specified transport descriptor
-> + * @destroy_cnx: destroy inactive iSCSI connection
-> + * @set_param: set iSCSI Data-Path operational parameter
-> + * @start_cnx: set connection to be operational
-> + * @stop_cnx: suspend connection
-> + * @send_pdu: send iSCSI PDU, Login, Logout, NOP-Out, Reject, Text.
-> + *
-> + * API provided by generic iSCSI Data Path module
-> + */
-> +struct iscsi_transport {
-> +	char            *name;
-> +	unsigned int    caps;
-> +	unsigned int    max_cnx;
-> +	iscsi_snx_h (*create_session) (iscsi_snx_h cp_snx,
-> +			uint32_t initial_cmdsn, uint32_t *sid);
-> +	void (*destroy_session) (iscsi_snx_h dp_snx);
-> +	iscsi_cnx_h (*create_cnx) (iscsi_snx_h dp_snx, iscsi_cnx_h cp_cnx,
-> +			uint32_t cid);
-> +	int (*bind_cnx) (iscsi_snx_h dp_snx, iscsi_cnx_h dp_cnx,
-> +			uint32_t transport_fd, int is_leading);
-> +	int (*start_cnx) (iscsi_cnx_h dp_cnx);
-> +	void (*stop_cnx) (iscsi_cnx_h dp_cnx);
-> +	void (*destroy_cnx) (iscsi_cnx_h dp_cnx);
-> +	int (*set_param) (iscsi_cnx_h dp_cnx, iscsi_param_e param,
-> +			  uint32_t value);
-> +	int (*send_pdu) (iscsi_cnx_h dp_cnx, struct iscsi_hdr *hdr,
-> +			 char *data, uint32_t data_size);
-> +};
+> --- linux-2.6.11-bk2/arch/i386/Kconfig.debug	2004-12-24 13:34:45.000000000 -0800
+> +++ linux-2.6.11-bk2-bkn2/arch/i386/Kconfig.debug	2005-03-06 20:59:07.000000000 -0800
+> @@ -38,9 +38,12 @@
+>  
+>  	  This option will slow down process creation somewhat.
+>  
+> +comment "Page alloc debug is incompatible with Software Suspend on i386"
+> +	depends on DEBUG_KERNEL && SOFTWARE_SUSPEND
+> +
+>  config DEBUG_PAGEALLOC
+>  	bool "Page alloc debugging"
+> -	depends on DEBUG_KERNEL
+> +	depends on DEBUG_KERNEL && !SOFTWARE_SUSPEND
+>  	help
+>  	  Unmap pages from the kernel linear mapping after free_pages().
+>  	  This results in a large slowdown, but helps to find certain types
 
-create_snx		in comment but not in structure
-destroy_snx		in comment but not in structure
-
-destroy_session		in structure but not in comment
-create_session		in structure but not in comment
-max_cnx			in structure but not in comment
-
-	Alexey
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

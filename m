@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbULVB3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbULVBjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbULVB3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 20:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbULVB3U
+	id S261938AbULVBjE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 20:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbULVBjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 20:29:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:215 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261936AbULVB3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 20:29:17 -0500
-Date: Tue, 21 Dec 2004 17:29:06 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourcefoge.net.kroah.org,
-       linux-kernel@vger.kernel.org, laforge@gnumonks.org
+	Tue, 21 Dec 2004 20:39:04 -0500
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:120 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261938AbULVBjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 20:39:01 -0500
 Subject: Re: My vision of usbmon
-Message-ID: <20041221172906.3b9cbbbd@lembas.zaitcev.lan>
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+       linux-usb-devel@lists.sourcefoge.net.kroah.org,
+       linux-kernel@vger.kernel.org, laforge@gnumonks.org
 In-Reply-To: <20041222005726.GA13317@kroah.com>
 References: <20041219230454.5b7f83e3@lembas.zaitcev.lan>
-	<20041222005726.GA13317@kroah.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	 <20041222005726.GA13317@kroah.com>
+Content-Type: text/plain
+Date: Wed, 22 Dec 2004 12:38:54 +1100
+Message-Id: <1103679534.5055.2.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Dec 2004 16:57:26 -0800, Greg KH <greg@kroah.com> wrote:
+On Tue, 2004-12-21 at 16:57 -0800, Greg KH wrote:
+> On Sun, Dec 19, 2004 at 11:04:54PM -0800, Pete Zaitcev wrote:
+> > Hi, Guys:
+> > 
+> > This is usbmon which I cooked up because I got tired from adding dbg()'s
+> > and polluting my dmesg. I use it to hunt bugs in USB storage devices so
+> > far, and it's useful, although limited at this stage.
+> > 
+> > I looked at the Harding's USBmon patch, and I think he got a few things right.
+> > The main of them is that I underestimated the benefits of placing the special
+> > files into the filesystem namespace. When we discussed it with Greg in the
+> > airport, we decided that having some sort of Netlink-style socket would be
+> > the best option. I decided to make a u-turn and attach those sockets into
+> > the namespace (currently under /dbg, but it can change). What this buys us is:
+> > 
 
-> It looks great, thanks for doing this work.  Let me know when you want
-> it added to the kernel tree.
+Is there any reason why these debug filesystems are going under the
+root directory? Why not /sys/debug or /sys/kernel/debug or something?
 
-Thanks, Greg. There's a little tidbit in usbmon about which I wish you to
-make a pronouncement explicitly:
+Nick
 
-+	/* XXX Is this how I pin struct bus? Ask linux-usb-devel */
-+	kobject_get(&ubus->class_dev.kobj);
-+	mbus->u_bus = ubus;
-+	ubus->mon_bus = mbus;
 
-Is this a good way to guarantee that mbus->u_bus won't be dangling?
-This is used not just when someone pulls a PCMCIA card, but also
-in case of plain rmmod ohci-hcd.
-
--- Pete

@@ -1,40 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264924AbTFCEB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 00:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbTFCEB7
+	id S264925AbTFCEa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 00:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbTFCEa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 00:01:59 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:19842
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264924AbTFCEB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 00:01:58 -0400
-Date: Tue, 3 Jun 2003 00:03:42 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Con Kolivas <kernel@kolivas.org>
-cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       Paul P Komkoff Jr <i@stingr.net>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI interrupt storm (was Re: Linux 2.4.21rc6-ac1)
-In-Reply-To: <200306031201.09642.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.50.0306030002010.14455-100000@montezuma.mastecende.com>
-References: <F760B14C9561B941B89469F59BA3A84725A2CC@orsmsx401.jf.intel.com>
- <200306031012.07832.kernel@kolivas.org> <200306031201.09642.kernel@kolivas.org>
+	Tue, 3 Jun 2003 00:30:59 -0400
+Received: from dyn-ctb-210-9-245-29.webone.com.au ([210.9.245.29]:2820 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264925AbTFCEa5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 00:30:57 -0400
+Message-ID: <3EDC279C.9070300@cyberone.com.au>
+Date: Tue, 03 Jun 2003 14:44:12 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [BENCHMARK] 100Hz v 1000Hz with contest
+References: <200306031322.01389.kernel@kolivas.org>
+In-Reply-To: <200306031322.01389.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jun 2003, Con Kolivas wrote:
+Well thats nice, AS holds up OK...
 
-> At least I can provide you with the acpi info from dmesg when it booted, and 
-> I'll try Zwane's hack in the near future to see if it helps.
+Con Kolivas wrote:
 
-Andrew, i picked this up on the tailend of another bug report, there 
-should be a new one opened but i haven't checked. I presume the tree you 
-have in 2.5.70 and 2.4.21rc6-ac1 are relatively the same.
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>I've attempted to answer the question does 1000Hz hurt responsiveness in 2.5 
+>as much as I've found in 2.4; since subjectively the difference wasn't there 
+>in 2.5. Using the same config with preempt enabled here are results from 
+>2.5.70-mm3 set at default 1000Hz and at 100Hz (mm31):
+>
+>no_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          1   79      94.9    0.0     0.0     1.00
+>2.5.70-mm31         1   77      94.8    0.0     0.0     1.00
+>cacherun:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          1   76      97.4    0.0     0.0     0.96
+>2.5.70-mm31         1   74      98.6    0.0     0.0     0.96
+>process_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          2   108     68.5    64.5    28.7    1.37
+>2.5.70-mm31         2   107     69.2    67.0    29.0    1.39
+>ctar_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          3   114     70.2    1.0     5.3     1.44
+>2.5.70-mm31         3   105     73.3    0.7     3.8     1.36
+>xtar_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          3   123     62.6    2.3     5.7     1.56
+>2.5.70-mm31         3   122     61.5    2.0     4.9     1.58
+>io_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          4   116     66.4    40.6    18.8    1.47
+>2.5.70-mm31         4   114     65.8    41.0    19.3    1.48
+>io_other:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          2   116     66.4    50.0    22.2    1.47
+>2.5.70-mm31         2   112     67.9    46.1    21.4    1.45
+>read_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          2   104     75.0    8.2     5.8     1.32
+>2.5.70-mm31         2   100     76.0    7.5     7.0     1.30
+>list_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          2   95      80.0    0.0     7.4     1.20
+>2.5.70-mm31         2   92      82.6    0.0     5.4     1.19
+>mem_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          2   98      80.6    53.0    2.0     1.24
+>2.5.70-mm31         2   95      81.1    53.0    2.1     1.23
+>dbench_load:
+>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2.5.70-mm3          4   313     24.3    5.0     56.9    3.96
+>2.5.70-mm31         4   297     24.9    4.5     52.5    3.86
+>
+>At first glance everything looks faster at 100Hz. However it is well known 
+>that it will take slightly longer even with no load at 1000Hz. Taking that 
+>into consideration and looking more at the final ratios than the absolute 
+>numbers it is apparent that the difference is statistically insignificant, 
+>except on ctar_load.
+>
+>Previously I had benchmark results on 1000Hz which showed preempt improved the 
+>results in a few of the loads. For my next experiment I will compare 100Hz 
+>with preempt to 100Hz without.
+>
+>Con
+>-----BEGIN PGP SIGNATURE-----
+>Version: GnuPG v1.2.1 (GNU/Linux)
+>
+>iD8DBQE+3BRIF6dfvkL3i1gRAnEbAKCpaj/kajzKV3qVrWGRIhOh+Q8O8gCfZp6c
+>M3Iq1D/41t+4SB2jtNYQc48=
+>=NMfC
+>-----END PGP SIGNATURE-----
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-http://bugzilla.kernel.org/show_bug.cgi?id=370
-
--- 
-function.linuxpower.ca

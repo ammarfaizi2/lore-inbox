@@ -1,74 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262129AbTCLW6j>; Wed, 12 Mar 2003 17:58:39 -0500
+	id <S262133AbTCLXC6>; Wed, 12 Mar 2003 18:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbTCLW6Q>; Wed, 12 Mar 2003 17:58:16 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:54736 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262083AbTCLW5c>;
-	Wed, 12 Mar 2003 17:57:32 -0500
-Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
-From: Mark Haverkamp <markh@osdl.org>
-To: Christoffer Hall-Frederiksen <hall@jiffies.dk>
-Cc: linux-scsi@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux aacraid devel <linux-aacraid-devel@dell.com>
-In-Reply-To: <20030228133037.GB7473@jiffies.dk>
-References: <20030228133037.GB7473@jiffies.dk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047510381.12193.28.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 12 Mar 2003 15:06:21 -0800
+	id <S262130AbTCLXC4>; Wed, 12 Mar 2003 18:02:56 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:5521 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S262096AbTCLXCw>; Wed, 12 Mar 2003 18:02:52 -0500
+Message-ID: <3E6FBF15.6080904@bogonomicon.net>
+Date: Wed, 12 Mar 2003 17:13:25 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andre@linux-ide.org
+Subject: Re: time loss using ide-scsi under 2.4.21-pre5-ac2
+References: <200303122246.h2CMkf519689@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-28 at 05:30, Christoffer Hall-Frederiksen wrote:
-> I have a dell poweredge 1650 with a perc3/DI controller. When the
-> AACRAID driver loads it stops with the following lines:
+Alan Cox wrote:
+>>I'm seeing seconds of time loss per minute while ripping CDs via grip 
+>>and it's internal cdparanoia.  Grip uses the scsi generic device for 
 > 
-> AAC0: kernel 2.7.4 build 3170
-> AAC0: monitor 2.7.4 build 3170
-> AAC0: bios 2.7.0 build 3170
-> AAC0: serial 0b9c810d3
-> scsi0 : percraid
 > 
+> hdparm -u1 
 
-We just ran into this too at osdl.  I have something that gets the
-driver to load, but I'm not sure what the right thing is to do.
+That fixed it.
 
-The cmd_per_lun element of the driver_template is set to
-AAC_NUM_IO_FIB.  This is 512. 
-
-During probe, scsi_alloc_sdev is called.  It calls
-scsi_adjust_queue_depth with the cmd_per_lun value. 
-scsi_adjust_queue_depth returns without doing anything if the tags value
-is greater than 256.  This leaves the Scsi_Device queue_depth at zero. 
-Later when an I/O is queued, scsi_request_fn checks for device_busy >=
-queue_depth.  If so, the function does a break and exits.  This is where
-it hangs.
-
-To get things to load I set cmd_per_lun to 256.  I don't know if the is
-the correct way to deal with the problem.  Maybe someone else can say
-something about that.
+- Bryan
 
 
-
-===== drivers/scsi/aacraid/linit.c 1.12 vs edited =====
---- 1.12/drivers/scsi/aacraid/linit.c	Mon Feb 24 13:03:30 2003
-+++ edited/drivers/scsi/aacraid/linit.c	Wed Mar 12 14:32:18 2003
-@@ -693,7 +693,7 @@
- 	this_id:        	16,
- 	sg_tablesize:   	16,
- 	max_sectors:    	128,
--	cmd_per_lun:    	AAC_NUM_IO_FIB,
-+	cmd_per_lun:    	256,
- 	eh_abort_handler:       aac_eh_abort,
- 	eh_device_reset_handler:aac_eh_device_reset,
- 	eh_bus_reset_handler:	aac_eh_bus_reset,
-
-
--- 
-Mark Haverkamp <markh@osdl.org>
 

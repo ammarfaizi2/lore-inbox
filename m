@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318219AbSHDTF3>; Sun, 4 Aug 2002 15:05:29 -0400
+	id <S318212AbSHDTLO>; Sun, 4 Aug 2002 15:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318220AbSHDTF3>; Sun, 4 Aug 2002 15:05:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:40441 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318219AbSHDTF2>; Sun, 4 Aug 2002 15:05:28 -0400
-Subject: Re: Linux 2.4.19-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Devilkin <Devilkin-LKML@blindguardian.org>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200208042057.57130.Devilkin-LKML@blindguardian.org>
-References: <200208041746.g74Hkgr24437@devserv.devel.redhat.com> 
-	<200208042057.57130.Devilkin-LKML@blindguardian.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Aug 2002 21:27:19 +0100
-Message-Id: <1028492839.15200.14.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318214AbSHDTLO>; Sun, 4 Aug 2002 15:11:14 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41223 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318212AbSHDTLM>; Sun, 4 Aug 2002 15:11:12 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: <linux-kernel@vger.kernel.org>
+From: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] 3: 2.5.30-smph
+Message-Id: <E17bQpw-0001qM-00@flint.arm.linux.org.uk>
+Date: Sun, 04 Aug 2002 20:14:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-04 at 19:57, Devilkin wrote:
-> On Sunday 04 August 2002 19:46, Alan Cox wrote:
-> <snip>
-> 
-> There seems to be some problem with VIA IDE IRQ's on 2.4.19-ac2.
+This patch has been verified to apply cleanly to 2.5.30
 
-Ok based on Petr's comments about VIA stuff being a bit funny. We can
-refine this test later.
+This patch fixes a build warning in smp.h.  register_cpu_notifier uses
+struct notifier_block in its argument list.  Unfortunately, there are
+places where smp.h is included before the definition of this structure.
 
---- arch/i386/kernel/pci-i386.c~	2002-08-04 20:06:54.000000000 +0100
-+++ arch/i386/kernel/pci-i386.c	2002-08-04 20:06:54.000000000 +0100
-@@ -277,6 +277,11 @@
- 	if((r9 & 0x0A) != 0x0A)		/* Legacy only */
- 		return 0;
- 		
-+	/* Leave alone VIA chips */
-+	
-+	if (dev->vendor == PCI_VENDOR_ID_VIA)
-+		return 0;
-+		
- 	/* Request programmability */
- 	
- 	pci_write_config_byte(dev, PCI_CLASS_PROG, r9|0x05);
+ include/linux/smp.h |    2 ++
+ 1 files changed, 2 insertions
+
+--- orig/include/linux/smp.h	Fri Aug  2 21:13:42 2002
++++ linux/include/linux/smp.h	Sun Aug  4 13:08:12 2002
+@@ -100,6 +100,8 @@
+ #define per_cpu(var, cpu)			var
+ #define this_cpu(var)				var
+ 
++struct notifier_block;
++
+ /* Need to know about CPUs going up/down? */
+ static inline int register_cpu_notifier(struct notifier_block *nb)
+ {

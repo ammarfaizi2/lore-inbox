@@ -1,74 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263750AbTE3PRC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 11:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbTE3PRB
+	id S263760AbTE3Pns (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 11:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbTE3Pns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 11:17:01 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:34577 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S263750AbTE3PRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 11:17:00 -0400
-Date: Sat, 31 May 2003 01:29:42 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: David Woodhouse <dwmw2@infradead.org>,
-       matsunaga <matsunaga_kazuhisa@yahoo.co.jp>,
-       <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
-In-Reply-To: <20030530144959.GA4736@wohnheim.fh-wedel.de>
-Message-ID: <Mutt.LNX.4.44.0305310101550.30969-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 30 May 2003 11:43:48 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:49333 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263760AbTE3Pnp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 11:43:45 -0400
+Date: Fri, 30 May 2003 10:56:58 -0500
+Subject: [CHECKER] aacraid user pointer use
+Content-Type: multipart/mixed; boundary=Apple-Mail-9-841091333
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: linux-kernel@vger.kernel.org
+To: Junfeng Yang <yjf@stanford.edu>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Message-Id: <585B8A2C-92B7-11D7-A2DA-000A95A0560C@us.ibm.com>
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003, Jörn Engel wrote:
 
-> The following creates a central workspace per cpu for the zlib.  The
-> original idea was to save memory for embedded, but this should also
-> improve performance for smp.
-> 
-> Currently, each user of the zlib has to provide a workspace for the
-> zlib to draw memory from.  Each workspace amounts to 400k for deflate
-> or 50k for inflate.  Four users exist, as of 2.4.20:
-> jffs2:	inflate & deflate, initialized once, 450k
-> cramfs:	inflate,	   initialized once,  50k
-> zisofs:	inflate,	   initialized once,  50k
-> ppp:	inflate & deflate, per channel,      450k * n
+--Apple-Mail-9-841091333
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	delsp=yes;
+	charset=US-ASCII;
+	format=flowed
 
-In 2.5 (and soon 2.4), the crypto/deflate.c module makes use of zlib as
-well.  This is typically used in ipsec for ipcomp.  Each ipcomp security
-association has a zlib context, and access to the workspace is serialized 
-by the security association's bh lock.
+Stanford checker said:
+---------------------------------------------------------
+[BUG] at least bad programming practice. file_opetations.ioctl ->
+aac_cfg_ioctl -> aac_do_ioctl -> close_getadapter_fib ->
+aac_close_fib_context. All other functions called by aac_do_ioctl assume
+arg is a user pointer. It is unknown what will happen.
 
-(Something needs to be done for this particular case in general: a box
-with 1000 tunnels could use use 450MB of atomic kernel memory just for
-zlib workspaces alone.  A solution I've been looking at for this is to
-allow workspaces to be dynamically sized based on the compression
-parameters instead of using worst-case figures.  The memory savings may be
-up to 90% in this case).
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/ 
+commctrl.c:277:aac_close_fib_context:
+ERROR:TAINTED:277:277: dereferencing tainted ptr 'fibctx' [Callstack:
+/home/junfeng/linux-2.5.63/drivers/scsi/sg.c:1002:aac_cfg_ioctl((tainted
+3)) ->
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/ 
+linit.c:671:aac_do_ioctl((tainted
+2)) ->
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/ 
+commctrl.c:421:close_getadapter_fib((tainted
+1)) ->
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/ 
+commctrl.c:348:aac_close_fib_context((tainted
+1))]
 
-> This patch creates an extra workspace of 400k per cpu, that is used for
-> both inflate and deflate.  One of the central workspaces is used for
-> users that don't provide their own.  Semaphore protection is done in
-> zlib_(in|de)flateInit() and zlib_(in|de)flateEnd, so the user has to
-> call those functions more often to release the semaphores before
-> returning to userspace.
+	while (!list_empty(&fibctx->fibs)) {
+		struct list_head * entry;
+		/*
+		 *	Pull the next fib from the fibs
+		 */
 
-This won't work for the bh lock protected case outlined above, and will
-cause contention between different users of zlib.
+Error --->
+		entry = fibctx->fibs.next;
+		list_del(entry);
+		fib = list_entry(entry, struct hw_fib, header.FibLinks);
+		fibctx->count--;
+---------------------------------------------------------
 
+As it turns out, the driver is fine. It is dereferencing a  
+user-supplied pointer (fibctx), but it keeps a list of valid structures  
+and has already made sure fibctx is one of them before using it. This  
+is in contrast to the PCMCIA code, which uses a magic number to verify  
+(as discussed yesterday) rather than keeping a list of all valid  
+pointers.
 
-- James
+The attached aacraid patch may help the checker, and should be  
+functionally equivalent... but isn't necessary.
+
 -- 
-James Morris
-<jmorris@intercode.com.au>
+Hollis Blanchard
+IBM Linux Technology Center
 
+--Apple-Mail-9-841091333
+Content-Disposition: attachment;
+	filename=aacraid-userptr.diff
+Content-Transfer-Encoding: 7bit
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="aacraid-userptr.diff"
 
+===== drivers/scsi/aacraid/commctrl.c 1.2 vs edited =====
+--- 1.2/drivers/scsi/aacraid/commctrl.c	Wed May  7 21:08:36 2003
++++ edited/drivers/scsi/aacraid/commctrl.c	Thu May 29 17:33:17 2003
+@@ -214,8 +214,8 @@
+ 	if (found == 0)
+ 		return -EINVAL;
+ 
+-	if((fibctx->type != FSAFS_NTC_GET_ADAPTER_FIB_CONTEXT) ||
+-		 (fibctx->size != sizeof(struct aac_fib_context)))
++	if((aifcp->type != FSAFS_NTC_GET_ADAPTER_FIB_CONTEXT) ||
++		 (aifcp->size != sizeof(struct aac_fib_context)))
+ 		return -EINVAL;
+ 	status = 0;
+ 	spin_lock_irqsave(&dev->fib_lock, flags);
+@@ -224,16 +224,16 @@
+ 	 *	-EAGAIN
+ 	 */
+ return_fib:
+-	if (!aac_list_empty(&fibctx->hw_fib_list)) {
++	if (!aac_list_empty(&aifcp->hw_fib_list)) {
+ 		struct aac_list_head * entry;
+ 		/*
+ 		 *	Pull the next fib from the fibs
+ 		 */
+-		entry = (struct aac_list_head*)(ulong)fibctx->hw_fib_list.next;
++		entry = (struct aac_list_head*)(ulong)aifcp->hw_fib_list.next;
+ 		aac_list_del(entry);
+ 		
+ 		hw_fib = aac_list_entry(entry, struct hw_fib, header.FibLinks);
+-		fibctx->count--;
++		aifcp->count--;
+ 		spin_unlock_irqrestore(&dev->fib_lock, flags);
+ 		if (copy_to_user(f.fib, hw_fib, sizeof(struct hw_fib))) {
+ 			kfree(hw_fib);
+@@ -244,11 +244,11 @@
+ 		 */
+ 		kfree(hw_fib);
+ 		status = 0;
+-		fibctx->jiffies = jiffies/HZ;
++		aifcp->jiffies = jiffies/HZ;
+ 	} else {
+ 		spin_unlock_irqrestore(&dev->fib_lock, flags);
+ 		if (f.wait) {
+-			if(down_interruptible(&fibctx->wait_sem) < 0) {
++			if(down_interruptible(&aifcp->wait_sem) < 0) {
+ 				status = -EINTR;
+ 			} else {
+ 				/* Lock again and retry */
+@@ -341,11 +341,11 @@
+ 	if(found == 0)
+ 		return 0; /* Already gone */
+ 
+-	if((fibctx->type != FSAFS_NTC_GET_ADAPTER_FIB_CONTEXT) ||
+-		 (fibctx->size != sizeof(struct aac_fib_context)))
++	if((aifcp->type != FSAFS_NTC_GET_ADAPTER_FIB_CONTEXT) ||
++		 (aifcp->size != sizeof(struct aac_fib_context)))
+ 		return -EINVAL;
+ 	spin_lock_irqsave(&dev->fib_lock, flags);
+-	status = aac_close_fib_context(dev, fibctx);
++	status = aac_close_fib_context(dev, aifcp);
+ 	spin_unlock_irqrestore(&dev->fib_lock, flags);
+ 	return status;
+ }
 
-
-
+--Apple-Mail-9-841091333--
 

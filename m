@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132198AbRAQEbW>; Tue, 16 Jan 2001 23:31:22 -0500
+	id <S131108AbRAQEje>; Tue, 16 Jan 2001 23:39:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131108AbRAQEbN>; Tue, 16 Jan 2001 23:31:13 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:4872 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S130199AbRAQEbJ>; Tue, 16 Jan 2001 23:31:09 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: junio@siamese.dhis.twinsun.com
-Date: Wed, 17 Jan 2001 14:21:51 +1100 (EST)
+	id <S132216AbRAQEjY>; Tue, 16 Jan 2001 23:39:24 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:59408 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S131108AbRAQEjF>; Tue, 16 Jan 2001 23:39:05 -0500
+Date: Tue, 16 Jan 2001 20:39:04 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Jonathan Thackray <jthackray@zeus.com>
+Subject: Re: 'native files', 'object fingerprints' [was: sendpath()]
+In-Reply-To: <Pine.LNX.4.30.0101161020200.673-100000@elte.hu>
+Message-ID: <Pine.LNX.4.30.0101162036040.12389-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14949.4047.622440.985949@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: 2.4.1-pre7 raid5syncd oops
-In-Reply-To: message from junio@siamese.dhis.twinsun.com on  January 16
-In-Reply-To: <7vzogr47qb.fsf@siamese.dhis.twinsun.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  January 16, junio@siamese.dhis.twinsun.com wrote:
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000003
-> c01ccf91
-> *pde = 00000000
-> Oops: 0002
-> CPU:    0
-> EIP:    0010:[<c01ccf91>]
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010086
-> eax: ffffffff   ebx: c1490400   ecx: cfdeb000   edx: cfeed13c
-> esi: cfdeb000   edi: 00001e29   ebp: 00000013   esp: cfba7e80
-> ds: 0018   es: 0018   ss: 0018
-> Process raid5syncd (pid: 9, stackpage=cfba7000)
-> Stack: c01ccfe0 cfdeb000 c1490400 00000000 c01cd430 c1490400 c1490400 0003c53c 
->        00001e29 00000013 00000000 00000000 cfba6000 00001000 00000000 00000000 
->        00000000 c1490400 c01cf2a8 c1490400 00078a78 00000000 00000000 cfba6000 
-> Call Trace: [<c01ccfe0>] [<c01cd430>] [<c01cf2a8>] [<c01d708b>] [<c01cf40f>] [<c01d63cd>] [<c01074b8>] 
-> Code: 89 50 04 8b 51 04 8b 01 89 02 c7 41 04 00 00 00 00 c3 8d b6 
-> 
-> >>EIP; c01ccf91 <remove_hash+11/30>   <=====
-> Trace; c01ccfe0 <get_free_stripe+30/50>
-....
+On Tue, 16 Jan 2001, Ingo Molnar wrote:
 
-This is really odd.
-It looks like sh->hash_next == -1.
-But, sh->hash_next is only ever set from
-   ->hash_next for some other sh, by the line
-		*sh->hash_pprev = sh->hash_next;
-in remove_hash, or to an entry from the stripe_hashtbl array.
-and stripe_hashtbl[] is only ever set to the address of a stripe_head,
-or to the value of a sh->hash_next, or to zero at initialisation.
+> But even user-space code could use 'native files', via the following, safe
+> mechanizm:
 
-Or in short "this cannot happen" :-)
+so here's an alternative to ingo's proposal which i think solves some of
+the other objections raised.  it's something i've proposed in the past
+under the name "extended file handles".
 
-Is there any chance of a memory error?
+struct extended_file_permission {
+	int refcount;
+	some form of mutex to protect refcount;
+        some list structure head;
+};
 
-Has this happened more than once?
+struct extended_file {
+	struct file *file;
+	struct extended_file_permission *perm;
+        whatever list foo is needed to link with extended_file_perm above;
+};
 
-NeilBrown
+if you allocate a few huge arrays of struct extended_file, then you can
+verify if a pointer passed from user space fits into one of those arrays
+pretty quickly.
+
+struct task has a struct extended_file_permission * added to it to
+indicate which perm struct that task is associated with.
+
+so you just compare the f->perm to current->extended_file_perm and you
+know if the task is allowed to use it or not.
+
+clone() allows you to create tasks sharing the same
+extended_file_permissions.
+
+fork()/exec() would create new extended_file_perms -- which implicitly
+causes all those files to be closed.  this gives you pretty light cgi
+fork()/exec() off a main "process" which is handling thousands of sockets.
+
+i also proposed various methods of doing O_foo flag inheritance... but the
+above is more interesting.
+
+-dean
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261939AbSIYILq>; Wed, 25 Sep 2002 04:11:46 -0400
+	id <S261940AbSIYIVe>; Wed, 25 Sep 2002 04:21:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261942AbSIYILq>; Wed, 25 Sep 2002 04:11:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:32522 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261939AbSIYILp>; Wed, 25 Sep 2002 04:11:45 -0400
-Date: Wed, 25 Sep 2002 10:17:00 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Adeos <adeos-main@mail.freesoftware.fsf.org>,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: [PATCH] Adeos nanokernel for 2.5.38 1/2: no-arch code
-Message-ID: <20020925081700.GA4778@atrey.karlin.mff.cuni.cz>
-References: <3D8E8371.D2070D87@opersys.com> <20020922045907.C35@toy.ucw.cz> <3D90D388.746D0C0D@opersys.com> <20020924220607.GD1496@atrey.karlin.mff.cuni.cz> <3D90F3AC.84AFDE93@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D90F3AC.84AFDE93@opersys.com>
-User-Agent: Mutt/1.3.28i
+	id <S261941AbSIYIVe>; Wed, 25 Sep 2002 04:21:34 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:30126 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261940AbSIYIVd>;
+	Wed, 25 Sep 2002 04:21:33 -0400
+Date: Wed, 25 Sep 2002 10:35:15 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] thread-flock-2.5.38-A3
+Message-ID: <Pine.LNX.4.44.0209251030170.5122-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > You can't
-> > run two copies of linux, because they would fight over memory; right?
-> 
-> Currently we can't, you're right. But I've already detailed how to do
-> this in a paper I wrote last july on how to obtain Linux SMP clusters
-> with as few modifications to the kernel as possible. The paper is
-> available on the web:
-> http://opersys.com/ftp/pub/Adeos/practical-smp-clusters.ps
-> (If you stil can't access the web as said in the other email, I can
-> send you a copy off-list if you want.)
+Ulrich found another small detail wrt. POSIX requirements for threads -
+this time it's the recursion features (read-held lock being write-locked
+means an upgrade if the same 'process' is the owner, means a deadlock if a
+different 'process').
 
-Its okay now, thanx.
+this requirement even makes some sense - the group of threads who own a
+lock really own all rights to the lock as well.
 
-> > Do you have something that can run alongside linux?
-> 
-> Certainly. According to some reports it's already used in some commercial
-> systems and, as today's RTAI announcement reads, it will be the basis
-> for the next release of RTAI.
+the attached patch against BK-curr fixes this, all testcases pass now.  
+(inter-process testcases as well, which are not affected by this patch.)
 
-Ok. Good luck pushing it through linus ;-).
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+(SIGURG and SIGIO semantics should also continue to work - there's some
+more stuff we can optimize with the new pidhash in this area, but that's
+for later.)
+
+	Ingo
+
+--- linux/fs/locks.c.orig	Wed Sep 25 10:28:26 2002
++++ linux/fs/locks.c	Wed Sep 25 10:28:41 2002
+@@ -252,7 +252,7 @@
+ 		return -ENOMEM;
+ 
+ 	fl->fl_file = filp;
+-	fl->fl_pid = current->pid;
++	fl->fl_pid = current->tgid;
+ 	fl->fl_flags = (cmd & LOCK_NB) ? FL_FLOCK : FL_FLOCK | FL_SLEEP;
+ 	fl->fl_type = type;
+ 	fl->fl_end = OFFSET_MAX;
+@@ -308,7 +308,7 @@
+ 		fl->fl_end = OFFSET_MAX;
+ 	
+ 	fl->fl_owner = current->files;
+-	fl->fl_pid = current->pid;
++	fl->fl_pid = current->tgid;
+ 	fl->fl_file = filp;
+ 	fl->fl_flags = FL_POSIX;
+ 	fl->fl_notify = NULL;
+@@ -348,7 +348,7 @@
+ 		fl->fl_end = OFFSET_MAX;
+ 	
+ 	fl->fl_owner = current->files;
+-	fl->fl_pid = current->pid;
++	fl->fl_pid = current->tgid;
+ 	fl->fl_file = filp;
+ 	fl->fl_flags = FL_POSIX;
+ 	fl->fl_notify = NULL;
+@@ -377,7 +377,7 @@
+ 		return -ENOMEM;
+ 
+ 	fl->fl_owner = current->files;
+-	fl->fl_pid = current->pid;
++	fl->fl_pid = current->tgid;
+ 
+ 	fl->fl_file = filp;
+ 	fl->fl_flags = FL_LEASE;
+@@ -669,7 +669,7 @@
+ 	int error;
+ 
+ 	fl.fl_owner = current->files;
+-	fl.fl_pid = current->pid;
++	fl.fl_pid = current->tgid;
+ 	fl.fl_file = filp;
+ 	fl.fl_flags = FL_POSIX | FL_ACCESS | FL_SLEEP;
+ 	fl.fl_type = (read_write == FLOCK_VERIFY_WRITE) ? F_WRLCK : F_RDLCK;
+@@ -1241,7 +1241,7 @@
+ 	*before = fl;
+ 	list_add(&fl->fl_link, &file_lock_list);
+ 
+-	error = f_setown(filp, current->pid, 1);
++	error = f_setown(filp, current->tgid, 1);
+ out_unlock:
+ 	unlock_kernel();
+ 	return error;
+@@ -1632,7 +1632,7 @@
+ 	lock.fl_start = 0;
+ 	lock.fl_end = OFFSET_MAX;
+ 	lock.fl_owner = owner;
+-	lock.fl_pid = current->pid;
++	lock.fl_pid = current->tgid;
+ 	lock.fl_file = filp;
+ 
+ 	if (filp->f_op && filp->f_op->lock != NULL) {
+

@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbTKTBuj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 20:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTKTBuj
+	id S264289AbTKTCKM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 21:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbTKTCKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 20:50:39 -0500
-Received: from relay-5v.club-internet.fr ([194.158.96.110]:60109 "EHLO
-	relay-5v.club-internet.fr") by vger.kernel.org with ESMTP
-	id S264233AbTKTBuh convert rfc822-to-8bit (ORCPT
+	Wed, 19 Nov 2003 21:10:11 -0500
+Received: from CPE-138-130-214-20.qld.bigpond.net.au ([138.130.214.20]:22999
+	"EHLO mx.jeeves.bpa.nu") by vger.kernel.org with ESMTP
+	id S264289AbTKTCKH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 20:50:37 -0500
-From: pinotj@club-internet.fr
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Date: Thu, 20 Nov 2003 02:50:35 CET
-Mime-Version: 1.0
-X-Mailer: Medianet/v2.0
-Message-Id: <mnet1.1069293035.2246.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 19 Nov 2003 21:10:07 -0500
+From: Ben Hoskings <ben@jeeves.bpa.nu>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: transmeta cpu code question
+Date: Thu, 20 Nov 2003 12:10:04 +1000
+User-Agent: KMail/1.5.4
+References: <20031120020218.GJ3748@schottelius.org>
+In-Reply-To: <20031120020218.GJ3748@schottelius.org>
+Cc: Nico Schottelius <nico-mutt@schottelius.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200311201210.04780.ben@jeeves.bpa.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Date: Wed, 19 Nov 2003 17:07:53 -0800
->De: Andrew Morton <akpm@osdl.org>
->A: pinotj@club-internet.fr
->Copie à: linux-kernel@vger.kernel.org
->Sujet: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+On Thu, 20 Nov 2003 12:02 pm, Nico Schottelius wrote:
+> Hello!
 >
->pinotj@club-internet.fr wrote:
->>
->> kernel BUG at mm/slab.c:1957!
-[...]
+> What does this do:
 >
->urgh, there are several reports of this and it's always the buffer_head
->slab.  The code in there is trivial so perhaps it's just that the large
->number of buffer_heads makes them a fat target.
+>                 printk(KERN_INFO "CPU: Processor revision %u.%u.%u.%u,
+> %u MHz\n",
+>                        (cpu_rev >> 24) & 0xff,
+>                        (cpu_rev >> 16) & 0xff,
+>                        (cpu_rev >> 8) & 0xff,
+>                        cpu_rev & 0xff,
+>                        cpu_freq);
 >
->You should have also seen the message "slab: double free detected in cache
->'buffer_head', objp 0xNNNNNNNN".
+> (from arch/i386/kernel/cpu/transmeta.c)
+>
+> Does not & 0xff make no sense? 0 & 1 makes 0, 1 & 1 makes 1,
+> no changes.
 
-Yeah, you right, I forgot to mention it, it was just above the Oops in the logs:
----
-slab: double free detected in cache 'buffer_head', objp cd09af18.
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:1957!
----
+I may be wrong, but afaik the 0xff's are there to truncate the other values to 
+8-bit. 0xff == 0b11111111, which is 8-bit.
 
->Don't know, sorry.
+>From the bitshifting above, cpu_rev seems to be a 32-bit value, so the four 
+sections of cpu_rev (>>24, >>16, >>8 and >>0) are being ANDed with 0xff to 
+show only the 8 low bits (post-shift).
 
-Is there any thing I can do to help figure out where does the problem comes from ? Anyway, thanks for your answer.
+>
+> And I don't understand why we do this for 8bit and shifting the
+> cpu_rev...
+>
+> Can someone enlighten me (with CC' as I am not subscribed) ?
+>
+> Nico
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Regards,
-
-Jerome Pinot
+-- 
+Ben
 

@@ -1,55 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVCRSt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVCRSxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVCRSt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 13:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVCRSt1
+	id S261771AbVCRSxy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 13:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVCRSxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 13:49:27 -0500
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:19984 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261764AbVCRStN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 13:49:13 -0500
-Date: Fri, 18 Mar 2005 19:49:15 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg Stark <gsstark@mit.edu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11 breaks modules gratuitously
-Message-Id: <20050318194915.580c3511.khali@linux-fr.org>
-In-Reply-To: <3JrTO-1C4-41@gated-at.bofh.it>
-References: <3JrTO-1C4-41@gated-at.bofh.it>
-X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Mar 2005 13:53:54 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:17283 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261771AbVCRSxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 13:53:50 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [patch] SUSPEND_PD_PAGES-fix
+Date: Fri, 18 Mar 2005 19:56:43 +0100
+User-Agent: KMail/1.7.1
+Cc: coywolf@gmail.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20050316202800.GA22750@everest.sosdg.org> <20050318113957.GC32253@elf.ucw.cz> <200503181434.59214.rjw@sisk.pl>
+In-Reply-To: <200503181434.59214.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503181956.46089.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
-
-> When you guys go on these "make needlessly global code static" kicks
-> you should maybe consider that even functions that aren't currently
-> used by any other area of the tree might be useful for module writers.
+On Friday, 18 of March 2005 14:34, Rafael J. Wysocki wrote:
+> Hi,
 > 
-> Instead of just checking which functions are currently used by other
-> parts of the kernel perhaps you should think about what makes a
-> logical API and stick to that, even if not all of the functions are
-> currently used.
+> On Friday, 18 of March 2005 12:39, Pavel Machek wrote:
+> > Hi!
+> > 
+> > 
+> > > This fixes SUSPEND_PD_PAGES, which wastes one page under most cases.
+> > 
+> > Ok, applied to my tree, will eventually propagate it. (I hope it looks
+> > okay to you, rafael).
+> 
+> SUSPEND_PD_PAGES is not necessary in swsusp any more. :-)  We can just
+> drop it, together with the pagedir_order variable, which is not used.  I'll
+> send a patch later today.
 
-I'd second that. Cleanups are good and I do not deny that Adrian Bunk
-has been doing a terrific work. However, unexporting or removing
-functions just because they have no current user in the kernel tree is
-not always a clever thing to do. Keeping things square and logical
-should be taken into consideration, as should the possibility that some
-function might be used outside of the kernel tree. I do *not* mean
-entire interfaces only used outside of the kernel tree, because these
-are highly questionable, but functions that are part of a larger set of
-functions representing an interface, most of which are used inside the
-kernel. In this specific case, dropping exports or removing functions
-make very little sense to me and is sometimes calling for trouble, as
-Greg just underlined. In some cases, the functions are likely to be
-reintroduced/reexported a few months later and we certainly could use
-our time in a more useful way than undoing and redoing things.
+The patch follows.
 
-Thanks,
+Greets,
+Rafael
+
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+diff -Nrup linux-2.6.12-rc1/include/linux/suspend.h linux-2.6.12-rc1-a/include/linux/suspend.h
+--- linux-2.6.12-rc1/include/linux/suspend.h	2005-03-18 18:50:15.000000000 +0100
++++ linux-2.6.12-rc1-a/include/linux/suspend.h	2005-03-18 18:58:27.000000000 +0100
+@@ -34,8 +34,6 @@ typedef struct pbe {
+ #define SWAP_FILENAME_MAXLENGTH	32
+ 
+ 
+-#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
+-
+ extern dev_t swsusp_resume_device;
+    
+ /* mm/vmscan.c */
+diff -Nrup linux-2.6.12-rc1/kernel/power/swsusp.c linux-2.6.12-rc1-a/kernel/power/swsusp.c
+--- linux-2.6.12-rc1/kernel/power/swsusp.c	2005-03-18 18:50:18.000000000 +0100
++++ linux-2.6.12-rc1-a/kernel/power/swsusp.c	2005-03-18 18:59:46.000000000 +0100
+@@ -98,7 +98,6 @@ unsigned int nr_copy_pages __nosavedata 
+  */
+ suspend_pagedir_t *pagedir_nosave __nosavedata = NULL;
+ static suspend_pagedir_t *pagedir_save;
+-static int pagedir_order __nosavedata = 0;
+ 
+ #define SWSUSP_SIG	"S1SUSPEND"
+ 
+@@ -1219,7 +1218,6 @@ static int check_header(void)
+ 		return -EPERM;
+ 	}
+ 	nr_copy_pages = swsusp_info.image_pages;
+-	pagedir_order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
+ 	return error;
+ }
+ 
+
 -- 
-Jean Delvare
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,32 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279818AbRLDD0c>; Mon, 3 Dec 2001 22:26:32 -0500
+	id <S275552AbRLDDYc>; Mon, 3 Dec 2001 22:24:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278959AbRLDDYd>; Mon, 3 Dec 2001 22:24:33 -0500
-Received: from [210.176.202.14] ([210.176.202.14]:53899 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S280434AbRLDDXL>; Mon, 3 Dec 2001 22:23:11 -0500
-Subject: VM changes since 2.4.14
-From: David Chow <davidchow@rcn.com.hk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 04 Dec 2001 11:23:07 +0800
-Message-Id: <1007436187.9000.15.camel@star9.planet.rcn.com.hk>
-Mime-Version: 1.0
+	id <S283593AbRLCXqX>; Mon, 3 Dec 2001 18:46:23 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:55247 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S284407AbRLCK2f>; Mon, 3 Dec 2001 05:28:35 -0500
+Date: Mon, 3 Dec 2001 11:28:30 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Riccardo Facchetti <fizban@tin.it>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] s|sound/lowlevel/aedsp16.c|sound/aedsp16.c|
+Message-ID: <Pine.NEB.4.43.0112031122010.11219-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Hi Riccardo,
 
-In mm/page_io.c the function rw_swap_page_base(), since 2.4.14 the
-rw==WRITE case is missing. Does that mean rw_swap_page_base will never
-be called with rw==WRITE? That is rw_swap_page_base will never used to
-write a swap page? Then where does the swap write goes? Also the auto 
-int "zone_used" is never used twice and it seems useless, it is sitting
-there and wasting for memory. The 2.4.16 still keep the "int zone_used"
-which is totally usless and is a unused variable.
+the patch below (against 2.4.17-pre2) corrects three files that referred
+to the old location of aedsp16.c
 
-DC
+
+--- drivers/sound/aedsp16.c.old	Mon Dec  3 11:22:05 2001
++++ drivers/sound/aedsp16.c	Mon Dec  3 11:22:20 2001
+@@ -1,5 +1,5 @@
+ /*
+-   drivers/sound/lowlevel/aedsp16.c
++   drivers/sound/aedsp16.c
+
+    Audio Excel DSP 16 software configuration routines
+    Copyright (C) 1995,1996,1997,1998  Riccardo Facchetti (fizban@tin.it)
+--- Documentation/sound/AudioExcelDSP16.old	Mon Dec  3 11:19:41 2001
++++ Documentation/sound/AudioExcelDSP16	Mon Dec  3 11:19:56 2001
+@@ -2,7 +2,7 @@
+ ------
+
+ Informations about Audio Excel DSP 16 driver can be found in the source
+-file lowlevel/aedsp16.c
++file aedsp16.c
+ Please, read the head of the source before using it. It contain useful
+ informations.
+
+--- Documentation/Configure.help.old	Mon Dec  3 11:10:53 2001
++++ Documentation/Configure.help	Mon Dec  3 11:18:01 2001
+@@ -18367,7 +18367,7 @@
+   questions.
+
+   Read the <file:Documentation/sound/README.OSS> file and the head of
+-  <file:drivers/sound/lowlevel/aedsp16.c> as well as
++  <file:drivers/sound/aedsp16.c> as well as
+   <file:Documentation/sound/AudioExcelDSP16> to get more information
+   about this driver and its configuration.
+
+
+cu
+Adrian
+
+-- 
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 

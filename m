@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUBQV0D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266608AbUBQVZr
+	id S266616AbUBQVhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUBQVeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:25:47 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:34057 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id S266581AbUBQVXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:23:43 -0500
-Date: Tue, 17 Feb 2004 21:23:38 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: matthew@sphinx.mythic-beasts.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-In-Reply-To: <20040217205707.GF24311@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0402172119280.27679@sphinx.mythic-beasts.com>
-References: <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
- <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
- <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
- <20040217161111.GE8231@schmorp.de> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org>
- <20040217164651.GB23499@mail.shareable.org> <yw1xr7wtcz0n.fsf@ford.guide>
- <20040217205707.GF24311@mail.shareable.org>
+	Tue, 17 Feb 2004 16:34:06 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:1006 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S266608AbUBQVdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 16:33:44 -0500
+Date: Tue, 17 Feb 2004 16:33:34 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@ruby.engin.umich.edu
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <Linux-MM@kvack.org>
+Subject: Re: [PATCH] mremap NULL pointer dereference fix
+In-Reply-To: <Pine.LNX.4.58.0402162203230.2154@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0402171621110.29417-100000@ruby.engin.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004, Jamie Lokier wrote:
 
-> No, I think hacking the terminal I/O is the best bet here.  Then _all_
-> programs which currently work with UTF-8 terminals, which is rapidly
-> becoming most of them, will work the same with both kinds of terminal,
-> and the illusion of perfection will be complete and beautiful.
+> >
+> > This saves a goto.   It works, but I wasn't able to trigger
+> > the oops without it either.
+>
+> To trigger the bug you have to have _just_ the right memory usage, I
+> suspect. You literally have to have the destination page directory
+> allocation unmap the _exact_ source page (which has to be clean) for the
+> bug to hit.
 
-Yep.  A charset-translating tty proxy, a little like screen
-or detachtty is what you want.  I wonder if there's an SSH
-client or server which can do that.
+A minor point. It is not necessary for the src to be clean because a
+parallel truncate can also invalidate the src. Actually, my test program
+uses truncate to invalidate the src.
 
-Matthew.
+> Your version of the patch saves a goto in the source, but results in an
+> extra goto in the generated assembly unless the compiler is clever enough
+> to notice the double test for NULL.
+>
+> Never mind, that's a micro-optimization, and your version is cleaner.
+
+Yeah. Andrew's patch is lot cleaner than my _crap_ patch.
+
+> Let's go with it if Rajesh can verify that it fixes the problem for him.
+
+Yeap. Andrew's patch fixes the problem. I did put in a printk along with
+Andrew's patch to check whether the NULL src condition repeats. I could
+trigger the condition again, and the machine didn't oops because of the
+patch.
+
+Thanks,
+Rajesh
+
+

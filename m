@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265890AbUFXXlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265660AbUFXXmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265890AbUFXXlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 19:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUFXXlQ
+	id S265660AbUFXXmU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 19:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUFXXmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 19:41:16 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:58636 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265890AbUFXXlN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 19:41:13 -0400
-Date: Fri, 25 Jun 2004 09:40:44 +1000
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] PATCH: (as326) Add mb() during initialization of UHCI controller
-Message-ID: <20040624234044.GA5452@gondor.apana.org.au>
-References: <E1BdSOR-0000DJ-00@gondolin.me.apana.org.au> <Pine.LNX.4.44L0.0406241023300.1562-100000@ida.rowland.org>
+	Thu, 24 Jun 2004 19:42:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34025 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265660AbUFXXmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 19:42:00 -0400
+Date: Fri, 25 Jun 2004 01:41:45 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, zippel@linux-m68k.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add required dependencies to X86_NUMAQ
+Message-ID: <20040624234145.GA18303@fs.tum.de>
+References: <20040624231033.GF26669@fs.tum.de> <3450000.1088120038@flay>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0406241023300.1562-100000@ida.rowland.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <3450000.1088120038@flay>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 10:26:06AM -0400, Alan Stern wrote:
-> > > ===== drivers/usb/host/uhci-hcd.c 1.115 vs edited =====
-> > > --- 1.115/drivers/usb/host/uhci-hcd.c   Wed Jun 23 12:10:07 2004
-> > > +++ edited/drivers/usb/host/uhci-hcd.c  Wed Jun 23 12:30:05 2004
-> > > @@ -2261,6 +2261,11 @@
-> > >                uhci->fl->frame[i] = cpu_to_le32(uhci->skelqh[irq]->dma_handle);
-> > >        }
-> > > 
-> > > +       /*
-> > > +        * Some architectures require a full mb() to enforce completion of
-> > > +        * the memory writes above before the I/O transfers in start_hc().
-> > > +        */
-> > > +       mb();
-> > >        start_hc(uhci);
-> > > 
-> > >        init_stall_timer(hcd);
+On Thu, Jun 24, 2004 at 04:33:58PM -0700, Martin J. Bligh wrote:
+> > If you select another option, you have to ensure that the dependencies 
+> > of the selected options are met.
 > > 
-> > Any reason why a wmb() is not sufficient?
+> > The following patch adds to X86_NUMAQ the required dependencies for the 
+> > selected NUMA:
+> > 
+> > --- linux-2.6.7-mm2-full/arch/i386/Kconfig.old	2004-06-24 22:42:32.000000000 +0200
+> > +++ linux-2.6.7-mm2-full/arch/i386/Kconfig	2004-06-24 22:44:53.000000000 +0200
+> > @@ -65,6 +65,7 @@
+> >  
+> >  config X86_NUMAQ
+> >  	bool "NUMAQ (IBM/Sequent)"
+> > +	depends on SMP && HIGHMEM64G
+> >  	select DISCONTIGMEM
+> >  	select NUMA
+> >  	help
 > 
-> See http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108759528909973&w=2
+> Mmmm. As we already have this:
+> 
+> config NUMA
+>         bool "Numa Memory Allocation and Scheduler Support"
+>         depends on SMP && HIGHMEM64G && (X86_NUMAQ || X86_GENERICARCH || (X86_SU
+> MMIT && ACPI))
+>         default n if X86_PC
+>         default y if (X86_NUMAQ || X86_SUMMIT)
+> 
+> do we really need to cascade it back out like that into everything that
+> selects NUMA? Perhaps we should make NUMA select SMP && HIGHMEM64G, rather
+> than depend on it?
 
-Well I think this is something that we should document.
+This would work for SMP, but according to my testing, select doesn't 
+seem to work with options in choices like HIGHMEM64G.
 
-The question is what is the appropriate mechanism for synchronising
-a direct write to DMA coherent memory and a subsequent writel().
+> M.
 
-include/asm-ppc/system.h says that mb() should be used, while
-include/asm-ppc64/system.h says that wmb() should be and is used by
-many drivers.
+cu
+Adrian
 
-So which is it? Or perhaps we need something else?
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

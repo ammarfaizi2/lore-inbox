@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314783AbSFTQY6>; Thu, 20 Jun 2002 12:24:58 -0400
+	id <S315207AbSFTQ27>; Thu, 20 Jun 2002 12:28:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315167AbSFTQY5>; Thu, 20 Jun 2002 12:24:57 -0400
-Received: from chfdns02.ch.intel.com ([143.182.246.25]:50160 "EHLO
-	melete.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S314783AbSFTQY4>; Thu, 20 Jun 2002 12:24:56 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C057B49A4@orsmsx111.jf.intel.com>
-From: "Gross, Mark" <mark.gross@intel.com>
-To: "'Dave Hansen'" <haveblue@us.ibm.com>,
-       "Gross, Mark" <mark.gross@intel.com>
-Cc: "'Russell Leighton'" <russ@elegant-software.com>,
-       Andrew Morton <akpm@zip.com.au>, mgross@unix-os.sc.intel.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net,
-       "Griffiths, Richard A" <richard.a.griffiths@intel.com>
-Subject: RE: [Lse-tech] Re: ext3 performance bottleneck as the number of s
-	pindles gets large
-Date: Thu, 20 Jun 2002 09:24:54 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315210AbSFTQ26>; Thu, 20 Jun 2002 12:28:58 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:51963 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S315207AbSFTQ24>; Thu, 20 Jun 2002 12:28:56 -0400
+Date: Thu, 20 Jun 2002 12:28:58 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Robert Love <rml@tech9.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] (resend) credentials for 2.5.23
+Message-ID: <20020620122858.B4674@redhat.com>
+References: <20020619212909.A3468@redhat.com> <1024540235.917.127.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1024540235.917.127.camel@sinai>; from rml@tech9.net on Wed, Jun 19, 2002 at 07:30:35PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm don't have much visibility into this platform's journaling requirements.
-I suspect its to enable fast reboot / recovery from some klutz bumping the
-power cord or a crash of some sort.
+On Wed, Jun 19, 2002 at 07:30:35PM -0700, Robert Love wrote:
+> Yow, big patch... that is why it did not make it through.  Vger
+> (silently) rejects email over ~20KB.
 
-I will raise the issue with the platform folks.  However; for now I'm
-looking for ways to make it scale competitively WRT adapters and spindles
-for writes without changing the file system.  If this turns out to be a dead
-end then, hopefully, we'll move to a more spindle friendly file system.
+Silent is definately not good.  Oh well.
 
-The workload is http://www.coker.com.au/bonnie++/ (one of the newer versions
-;)
+> Question: what semantics would be broken if CLONE_CRED was implied by
+> CLONE_THREAD?  Regardless of code that needs this, it would be nice to
+> just save the memory when using threads.  Hell,  as far as I am
+> concerned as long as the tasks still share a VM they could share
+> credentials - but I am sure that breaks something.
 
---mgross
+Changing semantics like that is dangerous.  We have no way of knowing if 
+any applications rely on the existing behaviour, and furthermore if 
+changing it will silently introduce security holes.
 
-(W) 503-712-8218
-MS: JF1-05
-2111 N.E. 25th Ave.
-Hillsboro, OR 97124
+> Next, now that all this data no longer belongs solely to current... you
+> need to be explicit about locking rules.  There is a capability_lock
+> spinlock but the long semantics are not 100% respected.  I tried to firm
+> them up in my capability.c cleanup one or two kernels ago... it should
+> be good enough and not be highly contended.
 
+Noted.  Perhaps the current usage counts of the various limits should 
+be atomic types, or maybe the spinlock is enough.  If Linus is actually 
+interested in the patch, this could be easily fixed up.  Also, a few 
+parts of the kernel were suspiciously different in their use of euid/suid 
+instead of the plain old uid.  It would be nice if someone could double 
+check that these places are correct.
 
-> -----Original Message-----
-> From: Dave Hansen [mailto:haveblue@us.ibm.com]
-> Sent: Thursday, June 20, 2002 9:10 AM
-> To: Gross, Mark
-> Cc: 'Russell Leighton'; Andrew Morton; mgross@unix-os.sc.intel.com;
-> Linux Kernel Mailing List; lse-tech@lists.sourceforge.net; Griffiths,
-> Richard A
-> Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as 
-> the number of
-> spindles gets large
-> 
-> 
-> Gross, Mark wrote:
-> > We will get around to reformatting our spindles to some 
-> other FS after 
-> > we get as much data and analysis out of our current 
-> configuration as we 
-> > can get. 
-> >  
-> > We'll report out our findings on the lock contention, and 
-> throughput 
-> > data for some other FS then.  I'd like recommendations on what file 
-> > systems to try, besides ext2.
-> 
-> Do you really need a journaling FS?  If not, I think ext2 is a sure 
-> bet to be the fastest.  If you do need journaling, try 
-> reiserfs and jfs.
-> 
-> BTW, what kind of workload are you running under?
-> 
-> -- 
-> Dave Hansen
-> haveblue@us.ibm.com
-> 
+> I guess the only downside would be the extra overhead in our
+> preciously-fast do_fork... another slab allocation etc. but that is
+> countered if enough stuff starts using CLONE_CRED.
+
+I would hope that the per-cpu slab caches are fast enough.
+
+> Oh, and what is with the #if 0 over the set and getaffinity syscalls???
+> That needs to go!
+
+Whoops, that was a dirty workaround for the breakage of 2.5.23.
+
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265039AbSJWPP6>; Wed, 23 Oct 2002 11:15:58 -0400
+	id <S265049AbSJWPYX>; Wed, 23 Oct 2002 11:24:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265045AbSJWPP6>; Wed, 23 Oct 2002 11:15:58 -0400
-Received: from 62-190-219-129.pdu.pipex.net ([62.190.219.129]:17668 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S265039AbSJWPP6>; Wed, 23 Oct 2002 11:15:58 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210231531.g9NFVU0w000243@darkstar.example.net>
-Subject: Re: 2.5 Problem Report Status
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Wed, 23 Oct 2002 16:31:30 +0100 (BST)
-Cc: tmolina@cox.net, erik@debill.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1035386743.4033.61.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Oct 23, 2002 04:25:43 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S265050AbSJWPYX>; Wed, 23 Oct 2002 11:24:23 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:51726 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S265049AbSJWPYW>; Wed, 23 Oct 2002 11:24:22 -0400
+Date: Wed, 23 Oct 2002 09:26:37 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/10] 2.5.44 cciss zero cylinders too
+Message-ID: <20021023092637.B14917@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > definitely wrong, because I can actually hear the disk spindown for a
-> > fraction of a second, then spin up again, (at least with 2.5.43, so
-> > far not with 2.5.44).
-> 
-> Someone broke the power management code. When they fix it then I expect
-> the IDE powerdown stuff will behave better again. If you had scsi then
-> the scsi stuff may have been what broke it all.
+Patch 2 of 10
+The whole set can be grabbed via anonymous cvs (empty password):
+cvs -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss login
+cvs -z3 -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss co 2.5.44
 
-Ah, right, OK.  On the subject of SCSI, recent 2.5.x kernels have
-caused the SCSI bus activity LED on my Adaptec 2940AU to stay on after
-powerdown as well, is this related?
+DESC
+Zero out cylinders when zeroing out other disk info.
 
-John.
+
+ drivers/block/cciss.c |    1 +
+ 1 files changed, 1 insertion
+
+--- linux-2.5.44/drivers/block/cciss.c~zero_cyls	Mon Oct 21 12:05:12 2002
++++ linux-2.5.44-root/drivers/block/cciss.c	Mon Oct 21 12:05:12 2002
+@@ -808,6 +808,7 @@ static int deregister_disk(int ctlr, int
+ 	/* zero out the disk size info */ 
+ 	h->drv[logvol].nr_blocks = 0;
+ 	h->drv[logvol].block_size = 0;
++	h->drv[logvol].cylinders = 0;
+ 	h->drv[logvol].LunID = 0;
+ 	return(0);
+ }
+
+.

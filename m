@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266230AbUBKWdC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 17:33:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUBKWdB
+	id S266220AbUBKW2r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 17:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUBKW2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 17:33:01 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:17 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266230AbUBKWbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 17:31:40 -0500
-Message-ID: <402AAECC.1010606@techsource.com>
-Date: Wed, 11 Feb 2004 17:38:04 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: printk and long long
-References: <200402111604.49082.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.44.0402111655170.17933-100000@gaia.cela.pl> <c0e0gr$mcv$1@terminus.zytor.com> <yw1xvfmdwe4s.fsf@kth.se> <402AA2CE.2060104@nortelnetworks.com>
-In-Reply-To: <402AA2CE.2060104@nortelnetworks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 11 Feb 2004 17:28:46 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3800 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266220AbUBKW2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 17:28:09 -0500
+Date: Wed, 11 Feb 2004 23:27:59 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Greg KH <greg@kroah.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       kkeil@suse.de, kai.germaschewski@gmx.de,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
+Message-ID: <20040211222759.GV7388@fs.tum.de>
+References: <10763689362321@kroah.com> <Pine.GSO.4.58.0402101702420.2261@waterleaf.sonytel.be> <20040210164612.GB27221@kroah.com> <20040210174903.GA27891@pingi3.kke.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210174903.GA27891@pingi3.kke.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 10, 2004 at 06:49:03PM +0100, Karsten Keil wrote:
+>...
+> The bug is to use irq_resource[0].start here, it must be isa_dev[i].irq
+> instead, allready fixed in last night patch.
+>...
+
+Additionally, the following file needs to be fixed:
+  drivers/isdn/hisax/hisax_fcclassic.c
 
 
-Chris Friesen wrote:
-> Måns Rullgård wrote:
-> 
->> What is the proper way to deal with printing an int64_t when int64_t
->> can be either long or long long depending on machine?
-> 
-> 
-> Print it as long long, and even if there is an arch where that is 128 
-> bits it'll still work.
+Fixes for compilation errors introduced in 2.6.3-rc should not end in
+the big ISDN patch, they belong into 2.6.3-final.
+
+Please submit these fixes alone to Linus.
 
 
-In that case you'll want to cast it to (long long) before you pass it so 
-as to be sure that "%lld" and the parameter are the same size.  Right?
+> Karsten Keil
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136560AbRECKAi>; Thu, 3 May 2001 06:00:38 -0400
+	id <S136595AbRECKCs>; Thu, 3 May 2001 06:02:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136595AbRECKA3>; Thu, 3 May 2001 06:00:29 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:9356 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136560AbRECKAR>;
-	Thu, 3 May 2001 06:00:17 -0400
-Date: Thu, 3 May 2001 06:00:08 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Why recovering from broken configs is too hard
-In-Reply-To: <20010503054349.C28728@thyrsus.com>
-Message-ID: <Pine.GSO.4.21.0105030545470.15957-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136605AbRECKC2>; Thu, 3 May 2001 06:02:28 -0400
+Received: from t2.redhat.com ([199.183.24.243]:49136 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S136595AbRECKCZ>; Thu, 3 May 2001 06:02:25 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3AF12B94.60083603@alsa-project.org> 
+In-Reply-To: <3AF12B94.60083603@alsa-project.org>  <3AF10E80.63727970@alsa-project.org> <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> <11718.988883128@redhat.com> 
+To: Abramo Bagnara <abramo@alsa-project.org>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 03 May 2001 11:02:15 +0100
+Message-ID: <14097.988884135@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+abramo@alsa-project.org said:
+>  You understand that in this way you change a compile time warning in
+> a runtime error (conditioned to path reaching, not easy to interpret,
+> etc.)
 
-On Thu, 3 May 2001, Eric S. Raymond wrote:
+> IMO this is a far less effective debugging strategy. 
 
-> You're almost right.  If you counted only explicit constraints, 
-> created by require statements, you get a bunch of cliques that
-> aren't that large.
-> 
-> Unfortunately....there are a huge bunch of implicit constraints
-> created by dependency relationships in the menu tree.  For example,
-> all SCSI cards are dependents of the SCSI symbol.  Set SCSI to N
-> and all the card symbols get turned off; set any card symbol to Y or M
-> and the value of SCSI goes to Y or M correspondingly.
-> 
-> So the way it actually works (I think; I've have to write code to do a
-> topological analysis to be sure) out is that there's sort of a light
-> dust of atoms (BSD quota is one of them) surrounding one huge gnarly
-> menu-tree-shaped clique.
+True. Perhaps we should make sure the Stanford checker can find these bugs?
 
-Errrmmm... _That_ is not too horrible - e.g. SCSI definitely belongs
-to core. Individual drivers, OTOH, do not and there's a lot of them.
+--
+dwmw2
 
-I'm not talking about connectedness of the thing. However, I suspect that
-graph has a small subset such that removing it makes it fall apart.
-
-IOW, you have a small well-connected backbone and a lot of small groups
-around it, such that each path from one group to another hits the
-backbone. ACK? Picture you've described doesn't contradict that - there's
-a relatively small number of symbols that correspond to subsystems and
-tons of stuff hanging from that subset.
-
-Look at it as a network. How many sites do you need to nuke to break it
-into tiny bits?
 

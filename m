@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132057AbRAXAfa>; Tue, 23 Jan 2001 19:35:30 -0500
+	id <S132128AbRAXAia>; Tue, 23 Jan 2001 19:38:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132196AbRAXAfU>; Tue, 23 Jan 2001 19:35:20 -0500
-Received: from diver.doc.ic.ac.uk ([146.169.1.47]:31760 "EHLO
-	diver.doc.ic.ac.uk") by vger.kernel.org with ESMTP
-	id <S132126AbRAXAfP>; Tue, 23 Jan 2001 19:35:15 -0500
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
-Subject: Re: limit on number of kmapped pages
-In-Reply-To: <y7rsnmav0cv.fsf@sytry.doc.ic.ac.uk>
-	<m1r91udt59.fsf@frodo.biederman.org>
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 24 Jan 2001 00:35:12 +0000
-In-Reply-To: ebiederm@xmission.com's message of "23 Jan 2001 11:23:46 -0700"
-Message-ID: <y7rofwxeqin.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S132167AbRAXAiU>; Tue, 23 Jan 2001 19:38:20 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:28680 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132128AbRAXAiM>;
+	Tue, 23 Jan 2001 19:38:12 -0500
+Date: Wed, 24 Jan 2001 01:38:00 +0100
+From: Andi Kleen <ak@suse.de>
+To: Pete Elton <elton@iqs.net>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: Turning off ARP in linux-2.4.0
+Message-ID: <20010124013800.A12632@gruyere.muc.suse.de>
+In-Reply-To: <20010124011011.A12252@gruyere.muc.suse.de> <200101240027.QAA14665@tech1.nameservers.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101240027.QAA14665@tech1.nameservers.com>; from elton@iqs.net on Tue, Jan 23, 2001 at 04:27:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
-> Why do you need such a large buffer? 
+On Tue, Jan 23, 2001 at 04:27:21PM -0800, Pete Elton wrote:
+> Any ideas on how I can turn off the arping?  I guess the thing that I 
 
-ext2 doesn't guarantee sustained write bandwidth (in particular,
-writing a page to an ext2 file can have a high latency due to reading
-the block bitmap synchronously).  To deal with this I need at least a
-2MB buffer.
+I explained it in my last mail how to do it using arpfilter. I do not claim 
+that it is an elegant solution.
 
-I've modifed ext2 slightly to avoid that problem, but I still expect
-to need a 512KB buffer (though the usual requirements are much lower).
-While that wouldn't hit the kmap limit, it would bring the system
-closer to it.
+It's probably not worse a hack than hidden is in the first place though.
 
-Perhaps further tuning could reduce the buffer needs of my
-application, but it is better to have the buffer too big than too
-small.
+> am most curious about is how it ending up being removed from the kernel
+> in the first place.  It must have been a decision that someone made.
+> Either, we don't need that any more since we can do it this way, or
+> we'll take it out since nobody uses it.
 
-> And why do the pages need to be kmapped? 
-
-They only need to be kmapped while data is being copied into them.
-
-> If you are doing dma there is no such requirement...  And
-> unless you are running on something faster than a PCI bus I can't
-> imagine why you need a buffer that big. 
-
-Gigabit ethernet.
-
-> My hunch is that it makes
-> sense to do the kmap, and the i/o in the bottom_half.  What is wrong
-> with that?
-
-Do you mean kmap_atomic?  The comments around kmap don't mention
-avoiding it in BHs, but I don't see what prevents kmap -> kmap_high ->
-map_new_virtual -> schedule.
-
-> kmap should be quick and fast because it is for transitory mappings.
-> It shouldn't be something whose overhead you are trying to avoid.  If
-> kmap is that expensive then kmap needs to be fixed, instead of your
-> code working around a perceived problem.
-> 
-> At least that is what it looks like from here.
-
-When adding the kmap/kunmap calls to my code I arranged them so they
-would be used as infrequently as possible.  After working on making
-the critical paths in my code fast, I didn't want to add operations
-that have an uncertain cost into those paths unless there is a good
-reason.  Which is why I'm asking how significant the kmap limit is.
+It was only submitted to 2.2 a few months ago (=years after 2.3 branched), but 
+never added to 2.4. 
 
 
-
-David Wragg
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

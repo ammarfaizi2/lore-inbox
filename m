@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUHDHEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267302AbUHDHGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267287AbUHDHEV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 03:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267302AbUHDHEV
+	id S267302AbUHDHGb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 03:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267320AbUHDHGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 03:04:21 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:50655 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267287AbUHDHEU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 03:04:20 -0400
-Date: Wed, 4 Aug 2004 09:05:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler Evaluation
-Message-ID: <20040804070525.GA4719@elte.hu>
-References: <20040802134257.GE2334@holomorphy.com> <410EDD60.8040406@bigpond.net.au> <20040803020345.GU2334@holomorphy.com> <410F08D6.5050200@bigpond.net.au> <20040803104912.GW2334@holomorphy.com> <41102FE5.9010507@bigpond.net.au> <20040804005034.GE2334@holomorphy.com> <41103DBB.6090100@bigpond.net.au> <20040804015115.GF2334@holomorphy.com> <41104C8F.9080603@bigpond.net.au>
-Mime-Version: 1.0
+	Wed, 4 Aug 2004 03:06:31 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:1408 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S267302AbUHDHFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 03:05:54 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 4 Aug 2004 17:05:46 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41104C8F.9080603@bigpond.net.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+Message-ID: <16656.35530.819884.579436@cse.unsw.edu.au>
+Cc: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>,
+       Miquel van Smoorenburg <miquels@cistron.nl>
+Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
+In-Reply-To: message from Miquel van Smoorenburg on Wednesday August 4
+References: <410F481C.9090408@bio.ifi.lmu.de>
+	<64bf.410f9d6f.62af@altium.nl>
+	<ceouv0$7s8$2@news.cistron.nl>
+	<41108380.6080809@bio.ifi.lmu.de>
+	<20040804064716.GA31600@traveler.cistron.net>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Peter Williams <pwil3058@bigpond.net.au> wrote:
-
-> >>Unfortunately, to ensure no starvation, promotion has to continue even 
-> >>when there are tasks in MAX_RT_PRIO's slot.
-> >
-> >One may either demote to evict MAX_RT_PRIO immediately prior to
-> >rotation or rely on timeslice expiry to evict MAX_RT_PRIO. Forcibly
-> >evicting MAX_RT_PRIO undesirably accumulates tasks at the fencepost.
+On Wednesday August 4, miquels@cistron.nl wrote:
 > 
-> It's starting to get almost as complex as the current scheme :-)
+> On 2004.08.04 08:34, Frank Steiner wrote:
+> > Miquel van Smoorenburg wrote:
+> > 
+> > > If having /dev mounted read-only means you cannot open devices
+> > > like /dev/console read/write then that is a bug in the NFS client
+> > > in the kernel.
+> > 
+> > Which matches the fact the it works with server running 2.6 and
+> > client running 2.4.
+> > 
+> > > 
+> > > On all other filesystems (ext2, ext3, xfs etc) there's no problem
+> > > opening devices r/w on a read-only filesystem.
+> > 
+> > Should I report that as bug to someone special?
+> 
+> Assuming you have a way to reproduce this, to the NFS client
+> maintainer - see the file MAINTAINERS in the kernel source.
+> 
+> But I just tried to reproduce this on 2.6.7-rc2 (it's what my
+> workstation happens to be running) and I can't. I can mount an
+> nfs-exported /dev from both 2.4 and 2.6 servers read-only and
+> I can open devices on that read-only mount just fine.
 
-hey, it's 'complex' for a reason ;)
+Yes, it was a bug in the NFS server in 2.6 that was fixed fairly
+recently.
 
-	Ingo
+NeilBrown

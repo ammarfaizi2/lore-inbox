@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130016AbRBMMFs>; Tue, 13 Feb 2001 07:05:48 -0500
+	id <S130320AbRBMMKS>; Tue, 13 Feb 2001 07:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbRBMMFj>; Tue, 13 Feb 2001 07:05:39 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:31227 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130016AbRBMMF0>; Tue, 13 Feb 2001 07:05:26 -0500
-Message-ID: <3A892533.D7590C8F@uow.edu.au>
-Date: Tue, 13 Feb 2001 23:14:43 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: lost charaters -- this is becoming annoying!
-In-Reply-To: <Pine.LNX.4.21.0102131134300.927-100000@penguin.homenet> <Pine.LNX.4.21.0102131139430.927-100000@penguin.homenet>
+	id <S129463AbRBMMKJ>; Tue, 13 Feb 2001 07:10:09 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:22776 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S130320AbRBMMJ7>; Tue, 13 Feb 2001 07:09:59 -0500
+Date: Tue, 13 Feb 2001 13:09:49 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: ketil@froyn.com
+Cc: mas9483@ksu.edu, linux-kernel@vger.kernel.org
+Subject: Re: gzipped executables
+Message-ID: <20010213130949.A472@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010213084031.8598.qmail@www1.nameplanet.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010213084031.8598.qmail@www1.nameplanet.com>; from ketil@froyn.com on Tue, Feb 13, 2001 at 08:40:31AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
+On Tue, Feb 13, 2001 at 08:40:31AM -0000, ketil@froyn.com wrote:
+> On Mon, 12 Feb 2001 23:09:39 -0600 (CST) Matt Stegman <mas9483@ksu.edu> wrote:
+> >Is there any kernel patch that would allow Linux to properly recognize,
+> >and execute gzipped executables?
 > 
-> Ok, I decided to write this email inine on the console and... see? the
-> "inine" was supped to be "in pine" (not to mention the "supped" :)
-> 
+> Perhaps you could put it in the filesystem. Look at the
+> "chattr" manpage, which shows how this is meant to work with
+> ext2. It seems not to have been implemented yet. This way you
+> could also compress any files, not just executables.
 
-Well, an external keyboard in a Dell Latitude works just fine here.
-Perhaps you should remove it from the docking station and test
-with an external keyboard?
+A nice way already implemented in 2.4.x is cramfs. Many embedded
+people (like me) use it to fill up their flash disks.
 
-Or maybe it's just that chainsaw accident you had - have you tried
-counting to ten lately?
+Look at linux/Documentation/filesystems/cramfs.txt for more info.
 
--
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>

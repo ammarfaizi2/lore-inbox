@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281923AbRLFSZz>; Thu, 6 Dec 2001 13:25:55 -0500
+	id <S281921AbRLFSZz>; Thu, 6 Dec 2001 13:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282042AbRLFSZk>; Thu, 6 Dec 2001 13:25:40 -0500
-Received: from quechua.inka.de ([212.227.14.2]:28704 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S281923AbRLFSZU>;
-	Thu, 6 Dec 2001 13:25:20 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: transparent firewall??
-In-Reply-To: <5.0.2.1.0.20011205114948.01a65410@pop.mail.yahoo.fr>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.16-xfs (i686))
-Message-Id: <E16C3Cp-0007jf-00@calista.inka.de>
-Date: Thu, 06 Dec 2001 19:25:11 +0100
+	id <S281923AbRLFSZn>; Thu, 6 Dec 2001 13:25:43 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:55314 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281916AbRLFSXi>;
+	Thu, 6 Dec 2001 13:23:38 -0500
+Date: Thu, 6 Dec 2001 19:23:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: new bio: compile fix for alpha
+Message-ID: <20011206182318.GI4996@suse.de>
+In-Reply-To: <20011129165456.A13610@jurassic.park.msu.ru> <20011129152339.M10601@suse.de> <20011206204330.A608@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011206204330.A608@jurassic.park.msu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <5.0.2.1.0.20011205114948.01a65410@pop.mail.yahoo.fr> you wrote:
-> I'd like to know if anyone has a transparent firewall that is one that 
-> doesn't make any rules on the traffic but only always pass it without this 
-> beeing notified by the rest of the network system...
+On Thu, Dec 06 2001, Ivan Kokshaysky wrote:
+> On Thu, Nov 29, 2001 at 03:23:39PM +0100, Jens Axboe wrote:
+> > Please send whatever you find, thanks.
+> 
+> Well, I think this one is critical - in -pre4 BIO_CONTIG macro
+> has been changed:
+> -	(bio_to_phys((bio)) + bio_size((bio)) == bio_to_phys((nxt)))
+> +	(bvec_to_phys(__BVEC_END((bio)) + (bio)->bi_size) ==bio_to_phys((nxt)))
+> 		      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> This means that you add size in bytes to the `struct bio_vec' pointer,
+> which is obviously bogus. I wonder why this typo didn't expose itself
+> on x86 - on alpha I've got an oops on very first disk i/o in partition
+> check...
 
-There are 2 ways to add a computer into the stream (besides sniffing), you
-can set up a bridge, it is forwarding packets without having to have a own
-ip address and without the need of reconfiguration. Of course you can use a
-router to do the same, it just needs routing table modifications.
+Irk, good spotting. Thanks!
 
-If you want to look at the data stream on an application on a (TCP) socket
-level, you can use the transproxy function of linux kernel. It will redirect
-a connection which is done through a router to any local process. Those
-local process then can contact the original destination, having effectively
-beeing a man in the middle. There are a lot of tools out there to do this.
+> The rest is cleaning up some format vs. arg inconsistency on 64-bit
+> platforms.
+> Oh, and yet another [incorrect] BUG_ON macro on alpha killed.
 
-You may want to tell us, what you are trying to do.
+Applied, although I think we'll make BUG_ON a kernel generic and not
+platform specific as per Rusty's patch.
 
-Greetings
-Bernd
+-- 
+Jens Axboe
+

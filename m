@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288420AbSBMSpZ>; Wed, 13 Feb 2002 13:45:25 -0500
+	id <S288579AbSBMSuF>; Wed, 13 Feb 2002 13:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288566AbSBMSpW>; Wed, 13 Feb 2002 13:45:22 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:530 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S288420AbSBMSpN>;
-	Wed, 13 Feb 2002 13:45:13 -0500
-Date: Wed, 13 Feb 2002 10:40:55 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ? 
-In-Reply-To: <Pine.LNX.4.33L2.0202130857320.1530-200000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33L2.0202131038320.1530-100000@dragon.pdx.osdl.net>
+	id <S288595AbSBMSt4>; Wed, 13 Feb 2002 13:49:56 -0500
+Received: from prkele.tky.hut.fi ([130.233.19.186]:25627 "EHLO
+	prkele.tky.hut.fi") by vger.kernel.org with ESMTP
+	id <S288566AbSBMSto>; Wed, 13 Feb 2002 13:49:44 -0500
+Date: Wed, 13 Feb 2002 20:49:23 +0200 (EET)
+From: Tomi Manninen <tpm@prkele.tky.hut.fi>
+X-X-Sender: <tpm@oh2bns.ampr.org>
+Reply-To: <tpm@prkele.tky.hut.fi>
+To: "Henk de Groot (ELN)" <Henk.de.Groot@eln.ericsson.se>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-hams@vger.kernel.org'" <linux-hams@vger.kernel.org>,
+        "'stephen@g6dzj.demon.co.uk'" <stephen@g6dzj.demon.co.uk>,
+        "'davem@redhat.com'" <davem@redhat.com>,
+        "'henk.de.groot@hetnet.nl'" <henk.de.groot@hetnet.nl>
+Subject: Re: AX25 Patches for 2.4.17 and above - have they been included y
+ et
+In-Reply-To: <E244E44D6AB85E40AEEF7EAABE3545FA08ABD8@enleent104.nl.eu.ericsson.se>
+Message-ID: <Pine.LNX.4.33.0202132048310.5302-100000@oh2bns.ampr.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Randy.Dunlap wrote:
+On Wed, 13 Feb 2002, Henk de Groot (ELN) wrote:
 
-| On Wed, 13 Feb 2002, Richard B. Johnson wrote:
-|
-| | On Wed, 13 Feb 2002, Horst von Brand wrote:
-| |
-| | > Daniel Phillips <phillips@bonn-fries.net> said:
-| | > > On February 12, 2002 05:38 pm, Bill Davidsen wrote:
-| | >
-| | > [...]
-| | [SNIPPED...]
-| |
-| | My idea is to take the .config file and remove most of its
-| | redundancy and unnecessary verbage. Then, the result is
-| | compressed and written to a constant global array, linked
-| | into the kernel. Both the array and the array length will then
-| | be available from /proc/kcore for user-mode tools to recreate the
-| | .config file.
-|
-| This is a bit similar to what I did last weekend (and attach
-| here).  Mine goes into the kernel boot file, however, so that
-| it can be read even when the kernel isn't running.
-|
-| I'll experiment with ideas from Andreas (thanks) or Ian Soboroff
-| to create a userspace get-config tool.
-|
-| One small nit:  you say "user-mode tools", but /proc/kcore
-| is read-only for root only -- right?
-| That's not desirable or required IMO.
+> Jeroen has send a final version of the fix a while ago to the linux-ham mailing
+> list with the request to the maintainers to handle this. But it looks like
+> nothing has been done, or maybe we should be a little more patient. I haven't
+> seen it on the linux-kernel mailing-list yet.
 
+It's in 2.4.18-pre9.
 
-| On Wed, 13 Feb 2002, Richard B. Johnson wrote:
-> Hmmm. You are going to make a kernel and don't have root-access to
-> create a kernel configuration file?
-
-Well, I did say "small nit".  But some of us prefer to run
-as root as little as possible, and building a kernel
-certainly doesn't require root privileges.
-Only installing it does (or may).
-
-~Randy
+-- 
+Tomi Manninen           Internet:  oh2bns@sral.fi
+OH2BNS                  AX.25:     oh2bns@oh2rbi.fin.eu
+KP20ME04                Amprnet:   oh2bns@oh2rbi.ampr.org
 

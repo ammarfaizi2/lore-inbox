@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287493AbSAEDts>; Fri, 4 Jan 2002 22:49:48 -0500
+	id <S287497AbSAEEBV>; Fri, 4 Jan 2002 23:01:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287494AbSAEDtf>; Fri, 4 Jan 2002 22:49:35 -0500
-Received: from marta.ip.pt ([195.23.132.14]:53519 "HELO marta2.ip.pt")
-	by vger.kernel.org with SMTP id <S287493AbSAEDtZ>;
-	Fri, 4 Jan 2002 22:49:25 -0500
-Date: Sat, 5 Jan 2002 03:49:22 +0000 (WET)
-From: Rui Sousa <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-cc: <emu10k1-devel@opensource.creative.com>
-Subject: HIGHMEM and DMA (emu10k1 related)
-Message-ID: <Pine.LNX.4.33.0201050313200.2199-100000@localhost.localdomain>
+	id <S287498AbSAEEBM>; Fri, 4 Jan 2002 23:01:12 -0500
+Received: from frank.gwc.org.uk ([212.240.16.7]:22024 "EHLO frank.gwc.org.uk")
+	by vger.kernel.org with ESMTP id <S287497AbSAEEA6>;
+	Fri, 4 Jan 2002 23:00:58 -0500
+Date: Sat, 5 Jan 2002 04:00:57 +0000 (GMT)
+From: Alistair Riddell <ali@gwc.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: no highmem with 2GB RAM?
+Message-ID: <Pine.LNX.4.21.0201050126410.12917-100000@frank.gwc.org.uk>
+X-foo: bar
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a couple of SMP i386 boxes with 2GB RAM. They suffer from poor
+performance due to block IO page bouncing with highmem enabled. I have
+tried the block-highmem patch but this causes occasional oopses and even
+panics under high IO load.
 
-Hi,
+Will there be any ill effects if I change __PAGE_OFFSET to 0x7000000 or
+thereabouts so that all RAM is mapped? 
 
-Lately, there have been reports of problems when using
-the emu10k1 driver and a kernel compiled with HIGHMEM support.
-I finally managed to observe the problem myself and basically this 
-e-mail is a request for help to try and solve this.
+I presume I only have to change this is page.h and vmlinux.lds.S as in 2.2
+kernels.
 
-1. The problem is only observed when using a kernel compiled with 
-HIGHMEM support, even if actual RAM available is less than 1GiB 
-(192MiB in my case).
+-- 
+Alistair Riddell - BOFH
+IT Manager, George Watson's College, Edinburgh
+Tel: +44 131 446 6070    Fax: +44 131 452 8594
+Microsoft - because god hates us
 
-2. The emu10k1 uses DMA to get sound data from host memory.
-
-3. DMA memory is allocated with pci_alloc_consistent (in 
-PAGE_SIZE blocks).
-
-4. The emu10k1 reads some bytes from host memory and caches them 
-locally (up to 128 bytes). These can then be read back through PCI IO 
-registers (using inl()).
-
-5. When I compare the values in host memory to the ones read by the card
-_some times_ they are different (all of the 128 bytes read). The values
-read by the card are usually zero when this happens.
-
-6. Once the problem starts if I start/stop the same sound application
-(freeing and then allocating the same DMA memory pages) the problem
-persists. If I stop the application, start another one (with a 
-different buffer usually allocating more memory), stop it, go
-back to the initial one, the problem is gone.
-
-
-At the hardware level what is the difference between a kernel with 
-HIGHMEM support and one without? I see that the physical/virtual 
-addresses of the pages obtained with pci_alloc_consistent are within
-the same range... 
-
-If it's a bug in the driver why would it only show up some times and
-only if HIGHMEM support is enabled?
-
-Thanks for any help,
-Rui Sousa
 

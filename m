@@ -1,74 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbTDCRMI 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 12:12:08 -0500
+	id S261510AbTDCRPC 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 12:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S261510AbTDCRMI 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 12:12:08 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1664 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261505AbTDCRL5 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 12:11:57 -0500
-From: root@81-2-122-30.bradfords.org.uk
-Message-Id: <200304031725.h33HPCZK000160@81-2-122-30.bradfords.org.uk>
-Subject: Re: I compiled the kernel but it doesn't do any thing, its a bit like typing "halt
-To: dean.mcewan@eudoramail.com
-Date: Thu, 3 Apr 2003 18:25:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <LKIAPKGOJEIOACAA@whowhere.com> from "Dean McEwan" at Apr 03, 2003 04:49:58 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id S261513AbTDCRPC 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 12:15:02 -0500
+Received: from [207.61.129.108] ([207.61.129.108]:6849 "EHLO mail.datawire.net")
+	by vger.kernel.org with ESMTP id S261510AbTDCROx 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 12:14:53 -0500
+From: Shawn Starr <shawn.starr@datawire.net>
+Organization: Datawire Communication Networks Inc.
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: acpi spinlock breakage
+Date: Thu, 3 Apr 2003 12:26:12 -0500
+User-Agent: KMail/1.5
+Cc: Dave Jones <davej@codemonkey.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304031226.12300.shawn.starr@datawire.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > init=/bin/sh is already defined in init/main.c isn't 
-> > it?
-> >
-> >Once the kernel has booted, it usually passed control to init.  The
-> >kernel usually looks for init in /sbin /etc and /bin, but if there is
-> >no init in those locations, /bin/sh is looked for as a last resort.
-> 
-> 
-> >I am assuming that you have an init on your system, but something is
-> >wrong.
-> 
-> Perhaps. It may be the kernel.
-> 
->   Using init=/bin/sh will allow you to use the shell as the init
-> >process, which proves it's an init problem.
-> 
-> I did it but to no avail... Alas Mandrake sucks :-)
+Confirmed :-(
 
-So, does the shell run successfully, or does the kernel still hang?
+Trying to find out what broke, but none of those members are listed even 
+inside osl.c (perhaps a header down the line).
 
-If the shell runs successfully, it's an init problem.  If the kernel hangs,
-it's probably a kernel problem.
+>List:     linux-kernel
+>Subject:  acpi spinlock breakage
+From:     Dave Jones <davej () codemonkey ! org ! uk>
+>Date:     2003-04-02 16:21:26
 
-> >> I accidentally compiled initrd in, but ive got it off
-> >> with "noinitrd".
-> >
-> >I don't really understand what you're trying to do.
-> 
-> Ok John, I'll put it simply, Im trying to compile a 2.5.* kernel. ;-) 
+>osl stuff looks really borked in current 2.5-bk ..
 
-OK...
+>drivers/acpi/osl.c: In function `acpi_os_acquire_lock':
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `magic' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `lock' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `babble' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `module' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `owner' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `oline' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `babble' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `lock' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `owner' in something not a 
+>structure or union
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `oline' in something not a 
+>structure or union
+>...
 
-> Once ive got a 2.5.* series kernel to work on my machine, I've
-> decided to download .66 when I can get the one Ive got now to compile.
+-- 
+Shawn Starr
+UNIX Systems Administrator, Operations
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
+shawn.starr@datawire.net
+"The power to Transact" - http://www.datawire.net
 
-So, if your init works fine with 2.4.x, why are you assuming that it's
-likely to be an init problem when a 2.5.x kernel doesn't boot?  I thought
-maybe you were having specific problems that suggested that init might be to
-blame.
-
-> Ok John, calm down you seem a bit agitated :-)
-
-Eh?  What are you basing that on!?  I'm not agitated at all.
-
-> Maybe you've been talking to Andre ;-)
-
-Errr, no.
-
-John.

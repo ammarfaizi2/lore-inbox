@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268937AbUJTTGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269176AbUJTTNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268937AbUJTTGj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 15:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268984AbUJTSyh
+	id S269176AbUJTTNS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269175AbUJTTNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:54:37 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:34698 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268995AbUJTSww
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:52:52 -0400
-Date: Wed, 20 Oct 2004 11:53:01 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>
-cc: Hanna Linder <hannal@us.ibm.com>, greg@kroah.com, davej@codemonkey.org.uk
-Subject: [RFT 2.6] intel-mch-agp.c: replace pci_find_device with pci_get_device
-Message-ID: <17860000.1098298381@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 20 Oct 2004 15:13:10 -0400
+Received: from gprs214-236.eurotel.cz ([160.218.214.236]:46723 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S269152AbUJTTJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:09:10 -0400
+Date: Wed, 20 Oct 2004 21:08:46 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041020190846.GA21315@elf.ucw.cz>
+References: <41740384.5783.12A07B14@localhost> <41763777.26324.1B3B684C@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <41763777.26324.1B3B684C@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-As pci_find_device is going away soon I have converted this file to use
-pci_get_device instead. I have compile tested it. If anyone has this hardware
-and could test it that would be great.
+> > > Open Firmware may be a 'nicer' solution, but I guarantee that if the 
+> > > vendors started supporting that it would be just a bug ridden as any 16-
+> > > bit real mode BIOS code. For the Video BIOS the code always works for 
+> > > what it is tested for. Some vendors spend more time testing the VBE BIOS 
+> > > side of things fully (if they are smart they have licensed our VBETest 
+> > > tools for this purpose). Unfortunatley some vendors do not test this 
+> > > stuff thoroughly and it has problems. But the same testing issues would 
+> > > exist whether the firmware was written as a 16-bit x86 blob or as an Open 
+> > > Firmware blob.
+> > 
+> > Actually that 16-bit x86 blob can access any PC hardware, and that's
+> > where the stuff gets hard.
+> 
+> Yes, but there is only a very small set of PC hardware features you need 
+> to implement, and most BIOS'es only look at those things for timing 
+> purposes. Unfortunately there is no standard for how BIOS'es do internal 
+> timing and delay loops, so we emulate them all (8253 timers, speaker 
+> ports and CMOS time/date support ;-).
 
-Hanna Linder
-IBM Linux Technology Center
-
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
----
-
-diff -Nrup linux-2.6.9cln/drivers/char/agp/intel-mch-agp.c linux-2.6.9patch3/drivers/char/agp/intel-mch-agp.c
---- linux-2.6.9cln/drivers/char/agp/intel-mch-agp.c	2004-10-18 16:35:52.000000000 -0700
-+++ linux-2.6.9patch3/drivers/char/agp/intel-mch-agp.c	2004-10-18 17:23:22.000000000 -0700
-@@ -470,9 +470,9 @@ static int find_i830(u16 device)
- {
- 	struct pci_dev *i830_dev;
- 
--	i830_dev = pci_find_device(PCI_VENDOR_ID_INTEL, device, NULL);
-+	i830_dev = pci_get_device(PCI_VENDOR_ID_INTEL, device, NULL);
- 	if (i830_dev && PCI_FUNC(i830_dev->devfn) != 0) {
--		i830_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-+		i830_dev = pci_get_device(PCI_VENDOR_ID_INTEL,
- 				device, i830_dev);
- 	}
- 
-@@ -565,6 +565,7 @@ static void __devexit agp_intelmch_remov
- {
- 	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
- 
-+	pci_dev_put(pdev);
- 	agp_remove_bridge(bridge);
- 	agp_put_bridge(bridge);
- }
-
+Hmm, that does not seem that bad. Did you need to emulate interrupt
+controller, too? That one seemed most scary to me.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

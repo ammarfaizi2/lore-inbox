@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUDLVHd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUDLVHd
+	id S263126AbUDLVKn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:10:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUDLVKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:07:33 -0400
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:50831
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S263117AbUDLVH3 convert rfc822-to-8bit (ORCPT
+	Mon, 12 Apr 2004 17:10:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37052 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263126AbUDLVKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:07:29 -0400
-Subject: Re: NFS file handle cached incorrectly
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Mansfield <lkml@dm.cobite.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1081803713.7181.26.camel@lade.trondhjem.org>
-References: <Pine.LNX.4.58.0404121407530.23214@dhcp07.cobite.com>
-	 <1081803713.7181.26.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1081804045.7181.30.camel@lade.trondhjem.org>
+	Mon, 12 Apr 2004 17:10:35 -0400
+Date: Mon, 12 Apr 2004 14:12:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: vrajesh@umich.edu, hugh@veritas.com, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+Message-Id: <20040412141244.5e225cdf.akpm@osdl.org>
+In-Reply-To: <69200000.1081804458@flay>
+References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain>
+	<Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu>
+	<69200000.1081804458@flay>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 12 Apr 2004 14:07:25 -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På m , 12/04/2004 klokka 14:01, skreiv Trond Myklebust:
-> The problem here is rather that you are making remote modifications to
-> the NFS server's directory within < 1second (which is the resolution on
-> "mtime" on Linux 2.4.x) of the previous modification. Linux (and all
-> other NFS clients that I'm aware of) uses the mtime in order to decide
-> whether or not a file/directory/... has been modified since the cache
-> was last updated (unless it is a modification that was made by this
-> client).
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> Turns out he'd turned the
+> locking in find_get_page from "spin_lock(&mapping->page_lock)" into
+> "spin_lock_irq(&mapping->tree_lock)",
 
-Clarification: the problem is IOW the fact that the server will not
-update mtime for any changes that are made within 1 second of one
-another. The same client will work fine with any server that has better
-resolution on mtime. Hence the suggestion:
+That's from the use-radix-tree-walks-for-writeback code.
 
-> The only "solution" to your problem here is to upgrade the *server* to
-> Linux-2.6.x: the latter has 1 nanosecond resolution on the "mtime", and
-> so can register modifications that are far smaller than 1second.
+Use oprofile - it's NMI-based.
 
-Cheers,
-  Trond
+> and I'm using readprofile, which
+> doesn't profile with irqs off, so it's not really disappeared, just hidden.
+> Not sure which sub-patch that comes from, and it turned out to be a bit of
+> a dead end, but whilst I'm there, I thought I'd point out this was contended,
+> and show the diffprofile with and without spinline for aa5:
+> 
+>      22210  246777.8% find_trylock_page
+>       2538    36.4% atomic_dec_and_lock
+
+profiler brokenness, surely.  Almost nothing calls find_trylock_page(),
+unless Andrea has done something peculiar.  Use oprofile.

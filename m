@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265135AbTCFPLy>; Thu, 6 Mar 2003 10:11:54 -0500
+	id <S265736AbTCFPR2>; Thu, 6 Mar 2003 10:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265250AbTCFPLx>; Thu, 6 Mar 2003 10:11:53 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:24012 "EHLO
-	nessie.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S265135AbTCFPLw>; Thu, 6 Mar 2003 10:11:52 -0500
-Date: Fri, 7 Mar 2003 02:20:36 +1100
-From: CaT <cat@zip.com.au>
-To: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64 - xircom realport no workie well
-Message-ID: <20030306152036.GA432@zip.com.au>
-References: <20030306130340.GA453@zip.com.au> <20030306132904.A838@flint.arm.linux.org.uk> <20030306134746.GE464@zip.com.au> <20030306140945.B838@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030306140945.B838@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S265857AbTCFPR1>; Thu, 6 Mar 2003 10:17:27 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:28680 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265736AbTCFPR0>; Thu, 6 Mar 2003 10:17:26 -0500
+Date: Thu, 6 Mar 2003 15:27:54 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Ben Collins <bcollins@debian.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix compilation of atyfb
+In-Reply-To: <Pine.GSO.4.21.0303061106390.28248-100000@vervain.sonytel.be>
+Message-ID: <Pine.LNX.4.44.0303061527270.4540-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 02:09:45PM +0000, Russell King wrote:
-> On Fri, Mar 07, 2003 at 12:47:46AM +1100, CaT wrote:
-> > On Thu, Mar 06, 2003 at 01:29:04PM +0000, Russell King wrote:
-> > > Can you check whether the attached patch fixes this for you?  It's more
+
+I will be passing in the new fbdev code. I think it is time. It has this 
+fix as well as others.
+
+On Thu, 6 Mar 2003, Geert Uytterhoeven wrote:
+
+> On Wed, 5 Mar 2003, Ben Collins wrote:
+> > I needed this patch in order for mach64 fb support to be compiled.
 > > 
-> > Started compiling it and it just bombed out:
-> > 
-> > drivers/serial/8250_pci.c:1920: `PCI_DEVICE_ID_XIRCOM_RBM56G' undeclared
-> > here (not in a function)
-> > drivers/serial/8250_pci.c:1920: initializer element is not constant
-> > drivers/serial/8250_pci.c:1920: (near initialization for
-> > `serial_pci_tbl[86].device')
+> > --- linux-2.5.64.orig/drivers/video/Makefile	2003-03-05 08:49:48.000000000 -0500
+> > +++ linux-2.5.64/drivers/video/Makefile	2003-03-05 08:59:41.000000000 -0500
+> > @@ -57,7 +57,7 @@
+> >  obj-$(CONFIG_FB_MATROX)		  += matrox/
+> >  obj-$(CONFIG_FB_RIVA)		  += riva/ cfbimgblt.o vgastate.o 
+> >  obj-$(CONFIG_FB_SIS)		  += sis/
+> > -obj-$(CONFIG_FB_ATY)		  += aty/ cfbimgblt.o cfbfillrect.o cfbimgblt.o
+> > +obj-$(CONFIG_FB_ATY)		  += aty/ cfbimgblt.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+> >  obj-$(CONFIG_FB_I810)             += i810/ cfbfillrect.o cfbcopyarea.o \
+> >  	                             cfbimgblt.o vgastate.o
 > 
-> Bah.  You need this as well then:
-
-Applied. It compiles now. Did a reboot into the new kernel and it hangs
-somewhere in the point where it blanks the display but before it
-switches to the framebuffer to display the kernel output messages (hope
-that helps). I have no oops or anything. Just a blank display and no
-disc activity or anything. ctrl-alt-del don't work and I have to turn my
-laptop off in order to reboot.
-
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to         kill my dad."
-        - George W. Bush Jr, 'President' of the United States
-          September 26, 2002 (from a political fundraiser in Huston, Texas)
+> While you're at it, better remove the duplicate cfbimgblt.o too:
+> 
+> --- linux-2.5.64/drivers/video/Makefile	Wed Mar  5 10:07:24 2003
+> +++ linux-m68k-2.5.64/drivers/video/Makefile	Wed Mar  5 11:57:44 2003
+> @@ -57,7 +57,7 @@
+>  obj-$(CONFIG_FB_MATROX)		  += matrox/
+>  obj-$(CONFIG_FB_RIVA)		  += riva/ cfbimgblt.o vgastate.o 
+>  obj-$(CONFIG_FB_SIS)		  += sis/
+> -obj-$(CONFIG_FB_ATY)		  += aty/ cfbimgblt.o cfbfillrect.o cfbimgblt.o
+> +obj-$(CONFIG_FB_ATY)		  += aty/ cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+>  obj-$(CONFIG_FB_I810)             += i810/ cfbfillrect.o cfbcopyarea.o \
+>  	                             cfbimgblt.o vgastate.o
+>  
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278125AbRJLUei>; Fri, 12 Oct 2001 16:34:38 -0400
+	id <S278124AbRJLUnA>; Fri, 12 Oct 2001 16:43:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278126AbRJLUe2>; Fri, 12 Oct 2001 16:34:28 -0400
-Received: from nsd.mandrakesoft.com ([216.71.84.35]:46965 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S278125AbRJLUeW>; Fri, 12 Oct 2001 16:34:22 -0400
-Date: Fri, 12 Oct 2001 15:34:33 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Matt_Domsch@Dell.com
-cc: vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
-Subject: RE: crc32 cleanups
-In-Reply-To: <71714C04806CD51193520090272892178BD709@ausxmrr502.us.dell.com>
-Message-ID: <Pine.LNX.3.96.1011012153014.31508A-100000@mandrakesoft.mandrakesoft.com>
+	id <S278128AbRJLUmu>; Fri, 12 Oct 2001 16:42:50 -0400
+Received: from otter.mbay.net ([206.40.79.2]:21508 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S278124AbRJLUmd> convert rfc822-to-8bit;
+	Fri, 12 Oct 2001 16:42:33 -0400
+From: John Alvord <jalvo@mbay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: No love for the PPC
+Date: Fri, 12 Oct 2001 13:43:02 -0700
+Message-ID: <1blest8pb77m7j57e9c66a8t90gv7uov1r@4ax.com>
+In-Reply-To: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net> <20011012105643.C30739@moonkingdom.net>
+In-Reply-To: <20011012105643.C30739@moonkingdom.net>
+X-Mailer: Forte Agent 1.8/32.553
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Oct 2001 Matt_Domsch@Dell.com wrote:
-> > That leaves (a) unconditionally building 
-> > it into the kernel, or (b) Makefile and Config.in rules.
-> 
-> (a) is simple, but needs a 1KB malloc (or alternately, a 1KB static const
-> array - I've taken the approach that the malloc is better)
-> (b) isn't that much harder, but requires drivers to be sure to call
-> init_crc32 and cleanup_crc32.  If somehow they manage not to do that, Oops.
-> I don't want to add a runtime check for the existance of the array in
-> crc32().
+On Fri, 12 Oct 2001 10:56:43 -0700, Marc Wilson
+<mwilson@moonkingdom.net> wrote:
 
-You are talking about the data; I was talking about the code.
+>On Fri, Oct 12, 2001 at 10:08:39AM -0700, Mike Borrelli wrote:
+>> It isn't even big problems either.  A single line (#include
+>> <linux/pm.h>) is missing from pc_keyb.c and has been for at least three
+>> -ac releases.  Now, process.c in arch/ppc/kernel/ dies from an undeclared
+>> identifier (init_mmap).
+>> 
+>> Anyway, the real question is, why does the ppc arhitecture /always/ break
+>> between versions?
+>
+>An -ac kernel is SUPPOSED to break.  It's not a release kernel.  WHEN it
+>breaks, it gets fixed, and then it becomes a release kernel.
+>
+>Seems simple enough.
 
-I do not think kernels need the data table, kmalloc'd or statically
-built, unless it will be used.  That implies a refcounting scheme.
-[WRT "Oops", that is a driver bug, not a case to be considered.  In
-Linuxland we do not write code to protect us from rogue code.]
+When you use a development kernel (kernel created by developers) you
+have joined the test team. Breakages and bugs and failures are GOOD
+things that help perfect and stabilize the products. Success reports
+are interesting  but usually worthless.
 
-I was pondering whether it was ok to unconditionally include the
-lib/crc32.c code, regardless of need.  I am leaning towards "no," which
-implies Makefile and Config.in rules which must be updated for each
-driver that uses crc32.
-
-	Jeff
-
-
-
+john alvord

@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268184AbTCFQyo>; Thu, 6 Mar 2003 11:54:44 -0500
+	id <S268144AbTCFRDU>; Thu, 6 Mar 2003 12:03:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268190AbTCFQyn>; Thu, 6 Mar 2003 11:54:43 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27652 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268184AbTCFQym>; Thu, 6 Mar 2003 11:54:42 -0500
-Date: Thu, 6 Mar 2003 09:03:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@digeo.com>, <rml@tech9.net>,
+	id <S268147AbTCFRDU>; Thu, 6 Mar 2003 12:03:20 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:17071 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S268144AbTCFRDG>;
+	Thu, 6 Mar 2003 12:03:06 -0500
+Date: Thu, 6 Mar 2003 18:13:20 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303061752010.13348-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303060858120.7206-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0303060857380.4511-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 6 Mar 2003, Ingo Molnar wrote:
-> 
-> the whole compilation (gcc tasks) will be rated 'interactive' as well,
-> because an 'interactive' make process and/or shell process is waiting on
-> it.
+On Wed, 5 Mar 2003, Linus Torvalds wrote:
 
-No. The make that is waiting for it will be woken up _once_ - when the 
-thing dies. Marking it interactive at that point is absolutely fine.
+>  		p->sleep_avg += sleep_time;
+> -		if (p->sleep_avg > MAX_SLEEP_AVG)
+> +		if (p->sleep_avg > MAX_SLEEP_AVG) {
+> +			int ticks = p->sleep_avg - MAX_SLEEP_AVG + current->sleep_avg;
+>  			p->sleep_avg = MAX_SLEEP_AVG;
+> +			if (ticks > MAX_SLEEP_AVG)
+> +				ticks = MAX_SLEEP_AVG;
+> +			if (!in_interrupt())
+> +				current->sleep_avg = ticks;
+> +		}
+> +			
+>  		p->prio = effective_prio(p);
 
-> I tried something like this before, and it didnt work.
+interesting approach, but it has one problem which so far i tried to
+avoid: it makes it too easy for a process to gain a bonus. Until now
+pretty much the only way to get an interactive bonus was to actually
+sleep. Another rule was that interactivity is kept constant, ie. the only
+'source' of interactivity was passing time, not some artificial activity
+performed by any process. Even the timeslice passing across fork()/exit()  
+is controlled carefully to maintain the total sum of timeslices.
 
-You can't have tried it very hard.
+With the above code it's enough to keep a single helper thread around
+which blocks on a pipe, to create an almost endless source of
+interactivity bonus. And does not even have to be 'deliberate' - there's
+tons of code that just waits for a CPU-bound task to finish (eg. 'make'
+waiting for gcc to finish), and which processes/threads have a maximum
+boost already, in which case the interactivity boost is not justified.
 
-In fact, you haven't apparently tried it hard enough to even bother giving
-my patch a look, much less apply it and try it out.
+Anyway, Andrew, could you give Linus' patch a go as well?
 
-> the xine has been analyzed quite well (which is analogous to the XMMS
-> problem), it's not X that makes XMMS skip, it's the other CPU-bound tasks
-> on the desktops that cause it to skip occasionally. Increasing the
-> priority of xine to just -1 or -2 solves the skipping problem.
+	Ingo
 
-Are you _crazy_?
-
-Normal users can't "just increase the priority". You have to be root to do 
-so. And I already told you why it's only hiding the problem.
-
-In short, you're taking a very NT'ish approach - make certain programs run 
-in the "foreground", and give them a static boost because they are 
-magically more important. And you're ignoring the fact that the heuristics 
-we have now are clearly fundamentally broken in certain circumstances.
-
-I've pointed out the circumstances, I've told you why it happens and when 
-it happens, and you've not actually even answered that part. You've only 
-gone "it's not a problem, you can fix it up by renicing every time you 
-find a problem".
-
-Get your head out of the sand, and stop this "nice" blathering.
-
-			Linus
 

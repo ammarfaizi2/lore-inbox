@@ -1,52 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264770AbTF0UJp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 16:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTF0UJp
+	id S264763AbTF0UQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 16:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264768AbTF0UQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 16:09:45 -0400
-Received: from mail59-s.fg.online.no ([148.122.161.59]:38528 "EHLO
-	mail59.fg.online.no") by vger.kernel.org with ESMTP id S264770AbTF0UJm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 16:09:42 -0400
-From: Svein Ove Aas <svein.ove@aas.no>
-To: Bryan Whitehead <driver@jpl.nasa.gov>
-Subject: Re: TCP send behaviour leads to cable modem woes
-Date: Fri, 27 Jun 2003 22:24:03 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200306272020.57502.svein.ove@aas.no> <3EFCA478.7010404@jpl.nasa.gov>
-In-Reply-To: <3EFCA478.7010404@jpl.nasa.gov>
+	Fri, 27 Jun 2003 16:16:49 -0400
+Received: from arbi.Informatik.uni-oldenburg.de ([134.106.1.7]:21523 "EHLO
+	arbi.Informatik.Uni-Oldenburg.DE") by vger.kernel.org with ESMTP
+	id S264763AbTF0UQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 16:16:47 -0400
+Subject: PATCH 2.4.21 : make pid of type pid_t
+To: linux-kernel@vger.kernel.org
+Date: Fri, 27 Jun 2003 22:31:01 +0200 (MEST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200306272224.04335.svein.ove@aas.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E19Vzs5-000CSB-00@grossglockner.Informatik.Uni-Oldenburg.DE>
+From: "Walter Harms" <Walter.Harms@Informatik.Uni-Oldenburg.DE>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
+some function use int others use long for a pid. The right type is
+pid_t (and most functions use it). This fixes some that use something else
+than pid_t. The patches are work from daniele bellucci and me.
 
-fredag 27. juni 2003, 22:09, skrev Bryan Whitehead:
-> Take a look at the wondershaper script.
->
-> It's helped my DSL get good rates from home both up and down...
->
-> http://lartc.org/wondershaper/
+walter
 
-I wrote something like that myself once.
-It's a good shaper, but it works by *capping* up/download speeds and 
-rearranging the priorities locally, which wouldn't help me a bit.
+--- kernel/fork.c.org   2003-06-23 21:48:41.000000000 +0200
++++ kernel/fork.c       2003-06-25 21:14:15.000000000 +0200
+@@ -35,7 +35,7 @@
+ 
+ int max_threads;
+ unsigned long total_forks;     /* Handle normal Linux uptimes. */
+-int last_pid;
++pid_t last_pid;
+ 
+ struct task_struct *pidhash[PIDHASH_SZ];
+ 
+@@ -84,11 +84,11 @@
+ /* Protects next_safe and last_pid. */
+ spinlock_t lastpid_lock = SPIN_LOCK_UNLOCKED;
+ 
+-static int get_pid(unsigned long flags)
++static pid_t get_pid(unsigned long flags)
+ {
+-       static int next_safe = PID_MAX;
++       static pid_t next_safe = PID_MAX;
+        struct task_struct *p;
+-       int pid, beginpid;
++       pid_t pid, beginpid;
+ 
+        if (flags & CLONE_PID)
+                return current->pid;
+@@ -566,11 +566,11 @@
+        p->flags = new_flags;
+ }
+ 
+-long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++pid_t kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+        struct task_struct *task = current;
+        unsigned old_task_dumpable;
+-       long ret;
++       pid_t ret;
+ 
+        /* lock out any potential ptracer */
+        task_lock(task);
+@@ -600,10 +600,10 @@
+  * For an example that's using stack_top, see
+  * arch/ia64/kernel/process.c.
+  */
+-int do_fork(unsigned long clone_flags, unsigned long stack_start,
++pid_t do_fork(unsigned long clone_flags, unsigned long stack_start,
+            struct pt_regs *regs, unsigned long stack_size)
+ {
+-       int retval;
++       pid_t retval;
+        struct task_struct *p;
+        struct completion vfork;
+ 
 
-My problem seems to be the severe burstiness of my connection - read the head 
-post for a full explanation.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+/Kfj9OlFkai3rMARAsINAKCCNHifkbI098wUxyzXX8Tp+V9KUgCfbxDR
-JUKHOvOjTpXMWZLQ6nw6E4E=
-=1x7f
------END PGP SIGNATURE-----
-
+-- 

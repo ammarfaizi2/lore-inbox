@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130761AbRCEXVk>; Mon, 5 Mar 2001 18:21:40 -0500
+	id <S130766AbRCEXYU>; Mon, 5 Mar 2001 18:24:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130759AbRCEXVa>; Mon, 5 Mar 2001 18:21:30 -0500
-Received: from hs-gk.cyberbills.com ([216.35.157.254]:4107 "EHLO
-	hs-mail.cyberbills.com") by vger.kernel.org with ESMTP
-	id <S130758AbRCEXVN>; Mon, 5 Mar 2001 18:21:13 -0500
-Date: Mon, 5 Mar 2001 15:21:06 -0800 (PST)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac12
-In-Reply-To: <3AA41C3C.A8DE3254@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.31ksi3.0103051514050.12620-100000@nomad.cyberbills.com>
+	id <S130768AbRCEXYL>; Mon, 5 Mar 2001 18:24:11 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:61756 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S130766AbRCEXX7>; Mon, 5 Mar 2001 18:23:59 -0500
+Message-ID: <3AA41FE0.E7681291@sgi.com>
+Date: Mon, 05 Mar 2001 15:23:12 -0800
+From: Rajagopal Ananthanarayanan <ananth@sgi.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-4SGI_20smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: ramfs & a_ops->truncatepage()
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, Jeff Garzik wrote:
 
-> Amazingly you've hit one of the few problems caused by something
-> outside
-> the kernel tree.  db v1.85 has been superceded by db2 and db3.  db1 is
-> where the "original" Berkeley db stuff now lives.  Apparently aicasm
-> needs db 1.
->
-> So, update your packages, or create the proper symlinks if you've
-> already got db1 installed in some other location.
+I'm looking at this part of 2.4.2-ac8:
 
-I _DO_ know what db1 stands for. And we do _NOT_ have db1 in our
-distribution, KSI Linux. And we are _NOT_ going to build the obsolete
-library with all the accompanied development stuff just to be able to make
-some tool required to build exactly ONE kernel driver. It was a nightmare to
-get rid of TREE incompatible libdbs so it doesn't make any sence to get that
-mess back in. It's just plain braindead to do something like this. Occam was
-right and this is plain stupid.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.4.0/mm/filemap.c
+linux.ac/mm/filemap.c
+--- linux-2.4.0/mm/filemap.c    Wed Jan  3 02:59:45 2001
++++ linux.ac/mm/filemap.c       Thu Jan 11 17:26:55 2001
+@@ -206,6 +206,9 @@
+        if (!page->buffers || block_flushpage(page, 0))
+                lru_cache_del(page);
 
----
-Sergey Kubushin				Sr. Unix Administrator
-CyberBills, Inc.			Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8808
-Henderson, NV, 89014
++       if (page->mapping->a_ops->truncatepage)
++               page->mapping->a_ops->truncatepage(page);
++
+        /*
+         * We remove the page from the page cache _after_ we have
+         * destroyed all buffer-cache references to it. Otherwise some
+----------
 
+Does anyone know who proposed these changes as part of
+ramfs enhancements? Basically, we have a very similar
+operation in XFS, but would like the call to truncatepage
+be _before_ the call to block_flushpage(). As far as ramfs
+is concerned, such a change would be a no-op since ramfs doesn't
+have page->buffers. Is this correct?
+
+thanks,
+
+ananth.
+
+--------------------------------------------------------------------------
+Rajagopal Ananthanarayanan ("ananth")
+Member Technical Staff, SGI.
+--------------------------------------------------------------------------

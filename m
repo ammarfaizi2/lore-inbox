@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbTJ2DnF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 22:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTJ2DnF
+	id S261787AbTJ2Dok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 22:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTJ2Dok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 22:43:05 -0500
-Received: from smtp0.libero.it ([193.70.192.33]:41356 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id S261719AbTJ2DnD (ORCPT
+	Tue, 28 Oct 2003 22:44:40 -0500
+Received: from mail.kroah.org ([65.200.24.183]:29571 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261787AbTJ2Doi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 22:43:03 -0500
-Date: Wed, 29 Oct 2003 04:46:00 +0100
-From: "M. Fioretti" <m.fioretti@inwind.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Floppy in 2.6
-Message-ID: <20031029034600.GF1676@inwind.it>
-Reply-To: "M. Fioretti" <m.fioretti@inwind.it>
-References: <20031028232054.1d452baa.news.receive@zoznam.sk> <yw1xekwxx9vf.fsf@kth.se>
+	Tue, 28 Oct 2003 22:44:38 -0500
+Date: Tue, 28 Oct 2003 19:44:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Burjan Gabor <buga@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 usbserial/pl2303 oops
+Message-ID: <20031029034402.GB11297@kroah.com>
+References: <20031027083406.GA9326@odin.sis.hu> <20031027234233.GB3408@kroah.com> <20031029001731.GA20355@odin.sis.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xekwxx9vf.fsf@kth.se>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20031029001731.GA20355@odin.sis.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 28, 2003 23:42:12 at 11:42:12PM +0100, Måns Rullgård (mru@kth.se) wrote:
+On Wed, Oct 29, 2003 at 01:17:31AM +0100, Burjan Gabor wrote:
+> On Mon, Oct 27, 2003 at 03:42:34PM -0800, Greg KH wrote:
+>  
+> > Can you try 2.4.23-pre8 and see if that fixes your problem?
 > 
-> Who uses floppy disks nowadays, anyway?
+> 2.4.23-pre8 fixed that, so the serial emulation is working now.
 > 
+> How can I grove the serial baud rate?  After I change the baud rate over
+> 9600 bps in minicom, I see only the noise and cannot communicate with
+> the built-in modem of my phone.  In the phone I can't force the
+> communication speed, so I have to use some software solution.
 
-The many, many people who do need new kernel functionalities, but need
-to control all their existing hardware and simply won't trash a
-perfectly good PC just because it's the trendy thing to do, since:
+"grove"?  What does that mean?
 
-they can find a ton of more meaningful uses of the same money (dance
-classes, extra days of vacation, clothes, theater...)
+Have you read the Linux Serial Programming HOWTO?
 
-they simply don't have that money
-
-See the project in my signature, or the "Unbloating the kernel" thread
-here for the big picture.
-
-Ciao,
-	Marco Fioretti
-
--- 
-Marco Fioretti                 m.fioretti, at the server inwind.it
-Red Hat for low memory         http://www.rule-project.org/en/
-
-"Get real! This is a discussion group, not a helpdesk. You post
-something, we discuss its implications. If the discussion happens to
-answer a question you've asked, that's incidental."
-				 -- nobull in comp.lang.perl.misc
+greg k-h

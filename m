@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270659AbTGNSE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 14:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270680AbTGNSE2
+	id S270446AbTGNSMb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270653AbTGNSMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 14:04:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56011 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270659AbTGNSE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 14:04:26 -0400
-Date: Mon, 14 Jul 2003 20:19:05 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch balancing
-Message-ID: <20030714181904.GP12104@fs.tum.de>
-References: <D9B4591FDBACD411B01E00508BB33C1B01B1AEA8@mesadm.epl.prov-liege.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Jul 2003 14:12:31 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:19720 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270446AbTGNSMa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 14:12:30 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [trivial question] last messages to stderr
+Date: Mon, 14 Jul 2003 20:24:37 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01B1AEA8@mesadm.epl.prov-liege.be>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200307142024.47512.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 10:14:38AM +0200, Frederick, Fabian wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hi,
+Hi.
 
-Hi Fabian,
+Why are the last lines, while kernel-compilation,
+like these:
 
-> 	A simple question about patching : if I release a patch again vfs
-> for instance.Do I send it against 2.4 branch or 2.5 ?
-> Let's say it's get applied against 2.4 , when is it applied against 2.5 ?
+Root device is (9, 0)
+Boot sector 512 bytes.
+Setup is 4766 bytes.
+System is 2029 kB
 
-You should send patches for both branches, if you don't send them at the 
-same time send the 2.6 patch first.
+to stderr? Why aren't they printed to stdout?
 
-> PS: When we come to 2.6pre, does 2.4 branch continues or is it 2.5 sequel
-> only ?
+Thanks.
+- -- 
+Regards Michael Buesch
+http://www.8ung.at/tuxsoft
+ 20:22:35 up  1:33,  2 users,  load average: 1.64, 1.74, 1.55
 
-The 2,4 branch will continue several years in bugfis-only mode similar 
-to the 2.2 branch that is still alive.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> Regards,
-> Fabian
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+iD8DBQE/EvVvoxoigfggmSgRAhlLAJ9e+6RB8ipD4+7QrVd1qIsF4thL8ACeJxbH
+6L9glaUCaDzhfRohpG1UvVo=
+=+3GG
+-----END PGP SIGNATURE-----
 

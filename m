@@ -1,34 +1,220 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136645AbREAQRW>; Tue, 1 May 2001 12:17:22 -0400
+	id <S136649AbREAQ20>; Tue, 1 May 2001 12:28:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136649AbREAQRJ>; Tue, 1 May 2001 12:17:09 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:12692 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S136645AbREAQQt>;
-	Tue, 1 May 2001 12:16:49 -0400
-Message-ID: <3AEEE16E.52A9F4D1@mandrakesoft.com>
-Date: Tue, 01 May 2001 12:16:46 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ronny Haryanto <ronny-linux@haryan.to>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tulip driver broken in 2.4.4?
-In-Reply-To: <20010501110512.A8148@haryan.to>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136650AbREAQ2Q>; Tue, 1 May 2001 12:28:16 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:15710 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S136649AbREAQ2K>; Tue, 1 May 2001 12:28:10 -0400
+Date: Tue, 1 May 2001 18:27:57 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: linux-kernel@vger.kernel.org
+Subject: [cliff@oisec.net: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)]
+Message-ID: <20010501182757.A24833@oisec.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronny Haryanto wrote:
-> 
-> Just tried 2.4.4 yesterday and found that my eth1 was dead after 5 minutes.
 
-Does 2.4.3 work for you?
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+It seems that only ICMPv6 packages panic the kernel, sshing to the box on IPv6 keeps it alive, but ping6 and traceroute6 to the box kill it in about 10 seconds.
 
 -- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
+cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
+-[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE
+
+--VbJkn9YxBvnuCH5J
+Content-Type: message/rfc822
+Content-Disposition: inline
+
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: cliff@oisec.net
+Received: from lunchbox.oisec.net (lunchbox.oisec.net [3ffe:8114:2000:0:a00:20ff:fec0:ffee])
+	by hercules.oisec.net (Postfix) with ESMTP id 5A79111EE2
+	for <cliff@oisec.net>; Tue,  1 May 2001 15:48:14 +0200 (CEST)
+Received: from vger.kernel.org (vger.kernel.org [199.183.24.194])
+	by lunchbox.oisec.net (Postfix) with ESMTP id 565F6153F
+	for <cliff@oisec.net>; Tue,  1 May 2001 15:48:11 +0200 (CEST)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S136611AbREANpF>; Tue, 1 May 2001 09:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S136613AbREANo4>; Tue, 1 May 2001 09:44:56 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:21854 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S136611AbREANoo>; Tue, 1 May 2001 09:44:44 -0400
+Received: from hercules.oisec.net (hercules.oisec.net [3ffe:8114:2000:0:210:4bff:feb3:1fb4])
+	by lunchbox.oisec.net (Postfix) with ESMTP id CDE4B153F
+	for <linux-kernel@vger.kernel.org>; Tue,  1 May 2001 15:44:39 +0200 (CEST)
+Received: by hercules.oisec.net (Postfix, from userid 1000)
+	id 2E92411EE2; Tue,  1 May 2001 15:44:38 +0200 (CEST)
+Date: Tue, 1 May 2001 15:44:37 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)
+Message-ID: <20010501154437.A23200@oisec.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+When i traceroute6 my 2.4.4 box on my local lan, the 2.4.4 box panic's after about 10 seconds. The traceroute6 completes on the other box.
+
+2.4.3-ac14 doesn't experience these problems. Only 2.4.4 (with or without ac{1,2}) panics
+
+---- traceroute6 output ----
+traceroute to neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a) from 3ffe:8114:2000:0:210:4bff:feb3:1fb4, 30 hops max, 16 byte packets
+ 1  neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a)  0.583 ms  0.278 ms  0.233 ms
+
+
+wait 10 seconds and the following appears (unfortunately no stack dumps :()
+
+---- panic info 2.4.4-ac2 ----
+CPU	0
+EIP	0010:[<c0217314>]
+EFLAGS  00010206
+eax: c13c2060
+ebx: fffffffd
+ecx: 00000000
+edx: ca65b1dc
+esi: 00000000
+edi: 00000018
+ebp: cbf72000
+esp: c029feb0
+ds:  0018
+es:  0018
+ss:  0018
+Process swapper (pid: 0, stackpage=c029f000)
+
+Call Trace:
+
+ c021e828 [ndisc_send_ns]
+ c01e912c [deliver_to_old_ones]
+ c021ecfd [ndisc_error_report]
+ c01efd2b [ip_route_input_slow]
+ c01eb7ab [neigh_timer_handler]
+ c01eb664 [neigh_timer_handler]
+ c0119f12 [timer_bh]
+ c010b2db [timer_interrupt]
+ c0116e5f [bh_action]
+ c0116d98 [tasklet_hi_action]
+ c0116c9f [do_softirq]
+ c0107e41 [do_IRQ]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0106b14 [ret_from_intr]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0100018 [startup_32]
+ c0105143 [default_idle]
+ c01051a9 [cpu_idle]
+ c0105000 [init]
+ c0100197 [L6]
+
+---- panic info 2.4.4-ac1 ----
+CPU	0
+EIP	0010:[<c0217354>]
+EFLAGS  00010206
+eax: c13c2060
+ebx: fffffffd
+ecx: 00000000
+edx: cb73e35c
+esi: 00000000
+edi: 00000018
+ebp: cbf72000
+esp: c029feb0
+ds:  0018
+es:  0018
+ss:  0018
+Process swapper (pid: 0, stackpage=c029f000)
+
+Call Trace:
+
+ c021e868 [ndisc_send_ns]
+ c01e916c [deliver_to_old_ones]
+ c021ed3d [ndisc_error_report]
+ c01e5d6b [ip_route_input_slow]
+ c01eb7eb [neigh_timer_handler]
+ c01eb6a4 [neigh_timer_handler]
+ c0119f02 [timer_bh]
+ c010b2db [timer_interrupt]
+ c0116e4f [bh_action]
+ c0116d88 [tasklet_hi_action]
+ c0116c8f [do_softirq]
+ c0107e41 [do_IRQ]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0106b14 [ret_from_intr]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0100018 [startup_32]
+ c0105143 [default_idle]
+ c01051a9 [cpu_idle]
+ c0105000 [init]
+ c0100197 [L6]
+
+---- panic info 2.4.4 ----
+
+CPU	0
+EIP	0010:[<c021aa64>]
+EFLAGS  00010206
+eax: c13e3060
+ebx: fffffffd
+ecx: 00000000
+edx: c80ef3dc
+esi: 00000000
+edi: 00000018
+ebp: cbf7ac00
+esp: c02b9eb0
+ds:  0018
+es:  0018
+ss:  0018
+Process swapper (pid: 0, stackpage=c02b9000)
+
+Call Trace:
+
+ c0221fe8 [ndisc_send_ns]
+ c01ec2bc [deliver_to_old_ones]
+ c02224ed [ndisc_error_report]
+ c01e8d0b [ip_route_input_slow]
+ c01ee93b [neigh_timer_handler]
+ c01ee7f4 [neigh_timer_handler]
+ c0119402 [timer_bh]
+ c010aa3c [timer_interrupt]
+ c011634f [bh_action]
+ c0116288 [tasklet_hi_action]
+ c011618f [do_softirq]
+ c0107ec1 [do_IRQ]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0106b24 [ret_from_intr]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0100018 [startup_32]
+ c0105143 [default_idle]
+ c01051a9 [cpu_idle]
+ c0105000 [init]
+ c0100197 [L6]
+
+
+-- 
+Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
+cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
+-[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+--VbJkn9YxBvnuCH5J--

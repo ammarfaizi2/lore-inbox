@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263835AbTHVSYa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 14:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbTHVSYa
+	id S263501AbTHVSRg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 14:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTHVSRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 14:24:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43937 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263835AbTHVSY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 14:24:28 -0400
-Date: Tue, 12 Aug 2003 14:54:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI is shutting down my laptop spontaneously
-Message-ID: <20030812125451.GA9755@openzaurus.ucw.cz>
-References: <20030807221711.GO2712@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Aug 2003 14:17:36 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:19082 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263501AbTHVSRe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 14:17:34 -0400
+From: Andrew Theurer <habanero@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: CPU boot problem on 2.6.0-test3-bk8
+Date: Fri, 22 Aug 2003 13:16:44 -0500
+User-Agent: KMail/1.5
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>
+References: <200308201658.05433.habanero@us.ibm.com> <200308211202.02871.habanero@us.ibm.com> <20030822171625.GM4306@holomorphy.com>
+In-Reply-To: <20030822171625.GM4306@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030807221711.GO2712@vitelus.com>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200308221316.44041.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 22 August 2003 12:16, William Lee Irwin III wrote:
+> On Thu, Aug 21, 2003 at 12:02:02PM -0500, Andrew Theurer wrote:
+> > Boot log with extra kicked++ removed...
+>
+> Say, could you try last night's bk snapshot and let me know how it's
+> doing? I threw in a necessary fix on top of Dave's last night, but I
+> don't know whether it's sufficient for your purposes yet.
 
-> ...Until I upgraded to 2.6.0-test2 and enabled ACPI. At the point
-> where the CPU speed would have been scaled down before, the laptop
-> simply halts, giving no warning except announcing it to every
-> terminal. I don't like the way my laptop 
-What is exact message? Check /proc/acpi/thermal*...
-
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
-
+Yes, should have it tested in a few, just backed up right now.

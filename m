@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130938AbRAYSZl>; Thu, 25 Jan 2001 13:25:41 -0500
+	id <S132302AbRAYS1v>; Thu, 25 Jan 2001 13:27:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135654AbRAYSZb>; Thu, 25 Jan 2001 13:25:31 -0500
-Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:52236 "EHLO
-	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
-	id <S135662AbRAYSZT>; Thu, 25 Jan 2001 13:25:19 -0500
-Date: Thu, 25 Jan 2001 18:25:16 +0000 (GMT)
-From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-To: Ondrej Sury <ondrej@globe.cz>
-cc: Chris Mason <mason@suse.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1-pre10 slowdown at boot.
-In-Reply-To: <87puhbwl5v.fsf@ondrej.office.globe.cz>
-Message-ID: <Pine.LNX.4.30.0101251821260.5984-100000@pine.parrswood.manchester.sch.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S135654AbRAYS1l>; Thu, 25 Jan 2001 13:27:41 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:28169 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S132302AbRAYS13>; Thu, 25 Jan 2001 13:27:29 -0500
+Date: Thu, 25 Jan 2001 19:27:21 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, tmolina@home.com
+Subject: Re: problem with dd for floppy under 2.4.0
+Message-ID: <20010125192721.C5109@pcep-jamie.cern.ch>
+In-Reply-To: <200101231208.NAA29008@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101231208.NAA29008@harpo.it.uu.se>; from mikpe@csd.uu.se on Tue, Jan 23, 2001 at 01:08:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Are you using a VIA ide chipset? because a much slower version of the
-> > driver has been put in recently
->
-> Yes, I am.  Is it THAT slow?  That could be it, I will try to be more
-> patient on next boot.
+Mikael Pettersson wrote:
+> There's a known bug in dd where it incorrectly attempts to truncate
+> the output file even though it's a block device.
 
-I think that it is a temporey "safe but slow" driver until Vojtech Pavlik
-gets the driver to a state he and Andre Hendrick are happy with. iirc the
-driver has dma disabled for all VIA chipsets
+dd also attempts to truncate a character device, therefore fails in the
+same way.
 
--- 
-   Tim Fletcher - Network manager   .~.
-                                    /V\      L   I   N   U   X
-     nightshade@solanum.net        // \\  >Don't fear the penguin<
-tim@parrswood.manchester.sch.uk   /(   )\
- irc: Night-Shade on quakenet      ^^-^^
+The kernel should probably return EINVAL for this rather than EPERM.
 
-To err is human, to purchase NT is bovine!
+> In kernels older
+> than 2.4.0-test10 or so it got away with this, but now the kernel
+> correctly returns an error.
+> 
+> Use the 'conv=notrunc' option to dd to fix this, i.e.
+> 
+>     dd if=rootfs.gz of=/dev/fd0 bs=1k conv=notrunc seek=XXX
 
+If only it were so easy to fix the program that calls dd...
 
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

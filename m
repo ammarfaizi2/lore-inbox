@@ -1,108 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265530AbUFUBZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUFUBbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265530AbUFUBZi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 21:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbUFUBZi
+	id S262080AbUFUBbt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 21:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbUFUBbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 21:25:38 -0400
-Received: from cantor.suse.de ([195.135.220.2]:10905 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265530AbUFUBZf (ORCPT
+	Sun, 20 Jun 2004 21:31:49 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:10377 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S262080AbUFUBbh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 21:25:35 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Labs
-To: Hannu Savolainen <hannu@opensound.com>
-Subject: Re: [PATCH 0/2] kbuild updates
-Date: Mon, 21 Jun 2004 03:27:42 +0200
-User-Agent: KMail/1.6.2
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-References: <20040620211905.GA10189@mars.ravnborg.org> <20040620220319.GA10407@mars.ravnborg.org> <Pine.LNX.4.58.0406210242300.16975@zeus.compusonic.fi>
-In-Reply-To: <Pine.LNX.4.58.0406210242300.16975@zeus.compusonic.fi>
-MIME-Version: 1.0
+	Sun, 20 Jun 2004 21:31:37 -0400
+Date: Mon, 21 Jun 2004 03:31:36 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Matroxfb in 2.6 still doesn't work in 2.6.7
+Message-ID: <20040621013136.GB4683@vana.vc.cvut.cz>
+References: <20040618211031.GA4048@irc.pl> <20040619190503.GB17053@vana.vc.cvut.cz> <20040619193053.GA3644@irc.pl> <20040619203954.GC17053@vana.vc.cvut.cz> <20040620160437.GA29046@irc.pl> <20040620170114.GA4683@vana.vc.cvut.cz> <20040620213743.GA6974@irc.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406210327.42241.agruen@suse.de>
+In-Reply-To: <20040620213743.GA6974@irc.pl>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 June 2004 02:29, Hannu Savolainen wrote:
-> On Mon, 21 Jun 2004, Sam Ravnborg wrote:
-> > > Many external modules, libs, etc use
-> > > /lib/modules/`uname -r`/build to locate the _source_, and this will
-> > > break them all.
-> >
-> > Examples please. What I have seen so far is modules that was not
-> > adapted to use kbuild when being build.
-> > If they fail to do so they are inherently broken.
->
-> For example our installation script expects that
-> /lib/modules/`uname -r`/build behaves like a symbolic link that points to
-> /usr/src/linux-`uname -r`. If /lib/modules/`uname -r`/build doesn't exist
-> then /usr/src/linux-`uname -r` will be attempted instead.
->
-> "make -C $KERNELDIR SUBDIRS=$MYDIR \
->       CC=what_we_think_is_the_right_gcc_version" modules
->
-> This approach seems to work with the "stock" kernels as well as with all
-> the distribution kernels what we have tried so far (except the latest
-> kernel from SuSE that used different directory scheme).
+On Sun, Jun 20, 2004 at 11:37:43PM +0200, Tomasz Torcz wrote:
+> On Sun, Jun 20, 2004 at 07:01:14PM +0200, Petr Vandrovec wrote:
+> > > > video=matroxfb:vesa:0x11A,right:48,hslen:112,left:248,hslen:112,lower:1,vslen:3,upper:48
+> > > > maybe with ',sync:3' if +hsync/+vsync are mandatory for your monitor.
+> > > 
+> > >  Neither one works. During kernel boot resolution is switched to 1280x1024, but
+> > > screen become corrupted - there are some green points in upper part of
+> > > monitor. 
+> > 
+> > It works exactly as your kernel is configured. It switched to graphics, but it does
+> > not paint your console there because you told you kernel to not do that.
+> > >  Also, the patch from platan do not compile:
+> > 
+> > And this one too - my patch needs fbcon.
+> > > # CONFIG_FRAMEBUFFER_CONSOLE is not set
+> > 
+> > Enable this. Into the kernel, not as a module.
+> 
+>  Wow! It works! It not the same mode as in XFree (fb is moved lower by one line),
+> but it is working!
+>  I don't think if I've met CONFIG_FRAMEBUFFER_CONSOLE earlier in 2.6.x. Also
+> method of selecing videomode (vesa:xxx stuff, not plain resolution and bpp) seems
+> strange and alien, but it works with your patch. 
 
-Did you actually try the above command with a SUSE kernel? I don't think so; 
-one of the earlier postings in the other thread spiced with strong words 
-tried to do other unusual things.
+I bet that all this is not needed for you, now when you properly configured your system. 
 
-> It's relatively easy to use the dual directory scheme provided that the
-> object and source directories always have the same naming. However it's
-> possible that in the future there will be much more projects that need to
-> compile external modules. So it would be easier in general if the
-> (possible) dual directory scheme is "hidden" from the external projects.
+1280x1024-60 just selects some videomode fbdev subsystem thinks your monitor should use,
+while vesa:0x11A selects videomode I think you should use. And right/left/... modifies it
+to match with your X setup. Maybe I made some math wrong somewhere if you see picture one
+line lower. Try using upper=40 or 32 instead of 48 (or 47 if you are talking about
+one pixel line, not about one character line).  All this is available in standard
+kernel, and documented in matroxfb.txt.
 
-This is already in place with Sam's patches.
+>  When mergin with mainline is planned?
 
-> It should be easy difficult to patch the Makefile in
-> /lib/modules/`uname -r`/build to locate the object directory without
-> requiring the caller to pass it as a parameter to the "make modules"
-> command.
-
-There is one source tree for N object trees in general. Going from the N side 
-to the 1 side makes a lot more sense than going the other way around.
-
-> There is one special problem that doesn't affect users who have compiled
-> their kernel themselves. Many distributions don't include gcc, make and
-> related tools in the default installation so large amount of customer
-> sites don't have them installed.
-
-You will invoke make directly, so you should check if make and the kernel 
-sources for the running kernel are available.
-
-> In addition different gcc version may 
-> have to be used to compile the kernel than the one that is the default gcc
-> command in the system.
-
-Then this should be defined in the Makefile in the kernel sources. Fixing 
-problems for people who build their own kernels from vanilla sources without 
-paying attention to such details will take you nowhere, it will only mess 
-things up even worse.
-
-> So before anything can be compiled the installation 
-> scripts have to check also if the required tools are installed. If they
-> are not available then the customer needs to be instructed to install
-> them. Because the installation procedure depents on the distribution it's
-> very difficult to help the customer in any way. For this reason it would
-> be better if the re is some kind of unbrella script for building the
-> module. In the vanilla kernels it simply executes the right make command.
-> If the distribution vendors see it necessary they can improve the script
-> and add features like automatic installation of the required modules or
-> whatever else.
-
-There could be a few basic checks in kbuild whether or not the required tools 
-are available. Telling users who compile kernel modules on their own how to 
-install packages sounds a bit much asked for my taste.
-
-Regards,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
+Never. Main thing that patch does is resurrecting 2.4.x fbcon subsystem. And 2.6.x uses
+its own, 2.6.x fbcon subsystem. So you can either use what's in the kernel (and I see no 
+reason why in-kernel driver should not work for you if you do not need svgalib compatibility
+or multihead system or different resolution on each virtual terminal), or you'll have to 
+patch your kernel. Except resurrecting 2.4.x fbcon patch only adds support for native
+text mode (which is impossible with new fbcon), but otherwise in-kernel and in-patch
+drivers should be identical.
+							Best regards,
+								Petr Vandrovec
+	

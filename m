@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSGLQow>; Fri, 12 Jul 2002 12:44:52 -0400
+	id <S316666AbSGLQqy>; Fri, 12 Jul 2002 12:46:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSGLQov>; Fri, 12 Jul 2002 12:44:51 -0400
-Received: from speech.linux-speakup.org ([129.100.109.30]:18388 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S316610AbSGLQn6>; Fri, 12 Jul 2002 12:43:58 -0400
-To: Sandy Harris <pashley@storm.ca>
-Cc: linux-kernel@vger.kernel.org
+	id <S316667AbSGLQqw>; Fri, 12 Jul 2002 12:46:52 -0400
+Received: from smtp.eol.ca ([205.189.152.19]:35288 "HELO smtp.eol.ca")
+	by vger.kernel.org with SMTP id <S316666AbSGLQqr>;
+	Fri, 12 Jul 2002 12:46:47 -0400
+Date: Fri, 12 Jul 2002 12:49:31 -0400
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Advice saught on math functions
-References: <E17T15g-0007mP-00@speech.braille.uwo.ca>
-	<3D2EF8DB.4DB091FF@storm.ca>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 12 Jul 2002 12:46:42 -0400
-In-Reply-To: <3D2EF8DB.4DB091FF@storm.ca>
-Message-ID: <x73cuoevwt.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+Message-ID: <20020712164931.GA1830@node1.opengeometry.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <E17T1a9-00037I-00@the-village.bc.nu> <20020712162229.GC2348@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020712162229.GC2348@werewolf.able.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sandy Harris <pashley@storm.ca> writes:
+On Fri, Jul 12, 2002 at 06:22:29PM +0200, J.A. Magallon wrote:
+> 
+> On 2002.07.12 Alan Cox wrote:
+> >> Are these functions which are supplied by the FPU?  I've looked
+> >> through the fpu emulation headers and exp() is the only one I can find
+> >
+> >You can't use FPU operations in the x86 kernel.
+> 
+> Are you to worried about precission ? Can't you just do your sin() etc.
+> in fixed point ? (and move all your fpdata to fixed point, of course)
 
-> Can you do something useful with integer versions of those functions?
-> Forth people have done astronomical calculations with only scaled
-> 16-bit arithmetic. If it's accurate enough to aim telescopes, why
-> not for your job?
-
-Good question.  It might work just fine.  I'll take a closer look at
-your suggestions and try to figure it out.  The synth is not very
-high quality so fixed point or integer may be sufficient.
-
-  Kirk
+Or, you can use polynomial approximations.
 
 -- 
-
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+8-CPU Cluster, Hosting, NAS, Linux, LaTeX, python, vim, mutt, tin

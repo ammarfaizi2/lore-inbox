@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbTHTGiO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 02:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbTHTGiO
+	id S261722AbTHTGz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 02:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTHTGz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 02:38:14 -0400
-Received: from hendrix.ece.utexas.edu ([128.83.59.42]:17598 "EHLO
-	hendrix.ece.utexas.edu") by vger.kernel.org with ESMTP
-	id S261704AbTHTGiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 02:38:13 -0400
-Date: Wed, 20 Aug 2003 01:38:09 -0500 (CDT)
-From: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
-To: linux-kernel@vger.kernel.org
-Subject: sleeping function called from invalid context include/linux/rwsem.h:43
-Message-ID: <Pine.LNX.4.21.0308200117220.1817-100000@linux08.ece.utexas.edu>
+	Wed, 20 Aug 2003 02:55:56 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:39687 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261722AbTHTGzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 02:55:54 -0400
+Message-ID: <005201c366e8$0a422a20$c801a8c0@llewella>
+From: "Bas Bloemsaat" <bloemsaa@xs4all.nl>
+To: <hadi@cyberus.ca>, "David S. Miller" <davem@redhat.com>
+Cc: "Stephan von Krawczynski" <skraw@ithnet.com>, <willy@w.ods.org>,
+       <alan@lxorguk.ukuu.org.uk>, <carlosev@newipnet.com>,
+       <lamont@scriptkiddie.org>, <davidsen@tmr.com>,
+       <marcelo@conectiva.com.br>, <netdev@oss.sgi.com>,
+       <linux-net@vger.kernel.org>, <layes@loran.com>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+References: <20030728213933.F81299@coredump.scriptkiddie.org> <200308171509570955.003E4FEC@192.168.128.16> <200308171516090038.0043F977@192.168.128.16> <1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk> <200308171555280781.0067FB36@192.168.128.16> <1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk> <200308171759540391.00AA8CAB@192.168.128.16> <1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk> <200308171827130739.00C3905F@192.168.128.16> <1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk> <20030817224849.GB734@alpha.home.local> <20030817223118.3cbc497c.davem@redhat.com> <20030818133957.3d3d51d2.skraw@ithnet.com> <20030818044419.0bc24d14.davem@redhat.com> <20030818143401.1352d158.skraw@ithnet.com> <20030818053007.7852ca77.davem@redhat.com> <20030818145316.3a81f70c.skraw@ithnet.com> <20030818055555.248f2a01.davem@redhat.com> <1061213027.16017.2220.camel@jzny.localdomain>
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Wed, 20 Aug 2003 08:55:15 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam,
-	SpamAssassin (Disabled due to 10consecutive timeouts)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Under Linux, by default, IP addresses are owned by the system
+> > not by interfaces.
+>
+> Folks, the above is the punch line. I am just going over all emails on
+> this thread and i see this point being missed.
+> People are quoting tons of RFCs while the really important point being
+> missed is the above line.
 
-Hi,
+If that is true, then source routing would not work either: it would just
+route it back to the host, select the next hop, and choose based on
+destination routing tables. There would be no way to know which IP address
+is bound to which interface.
+If that is true, then then having multiple network interfaces on a segment
+would in effect mean that you have one IP address on multiple interfaces. As
+Alan mentioned that is an illegal configuration.
+If that is true, seperation of firewall interfaces is impossible.
 
-I get this debug message right before the oops(Oops linux-2.6.0-test3
-sound) that I sent earlier to the list. When this Debug message happens
-before the oops, the system freezes. All of this is related to the
-Maestro3.c sound card. I've ran 2.4{16, 20, 21, 22-pre8} without a
-problem. I searched through the list archive for a similar problem, in
-vain. Can someone please tell what's causing this?  
+All of which isn't the case.
 
-Thanks 
+I'll let it rest for now. I don't think quoting rfc's, pointing out that it
+doesn't confirm to any reference implementation of IP, or any argument are
+going to help. This is not a case where technical merits win. This is
+politics. I don't care anymore.
 
- Debug: sleeping function called from invalid context at
-include/linux/rwsem.h:43
-Aug 19 23:59:34 darkstar kernel: Debug: sleeping function called from
-invalid context at include/linux/rwsem.h:43
+Regards,
+Bas
 
-Call Trace:
- [<c012722e>] __might_sleep+0x5e/0x70
- [<c0127b20>] autoremove_wake_function+0x0/0x50
- [<c0122869>] do_page_fault+0x79/0x4dc
- [<c01c71ad>] ext2_get_inode+0xdd/0x140
- [<c022973c>] avc_has_perm+0x6c/0x7b
- [<c01227f0>] do_page_fault+0x0/0x4dc
- [<c010b1b9>] error_code+0x2d/0x38
- [<c03dabe1>] m3_open+0x131/0x390
- [<c0159b94>] check_poison_obj+0x54/0x1d0
- [<c03d4d25>] soundcore_open+0x1e5/0x4e0
- [<c0186c90>] exact_match+0x0/0x10
- [<c0186696>] chrdev_open+0x156/0x3e0
- [<c017a388>] get_empty_filp+0x98/0x100
- [<c017823c>] dentry_open+0x12c/0x1c0
- [<c0178106>] filp_open+0x66/0x70
- [<c0178855>] sys_open+0x55/0x90
- [<c010b00f>] syscall_call+0x7/0xb
 
 

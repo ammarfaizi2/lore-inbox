@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbTFKJMb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 05:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbTFKJMb
+	id S264248AbTFKJQk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 05:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTFKJQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 05:12:31 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:44210 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264246AbTFKJMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 05:12:30 -0400
-Date: Wed, 11 Jun 2003 02:27:00 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Stefano Rivoir <s.rivoir@gts.it>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm8
-Message-Id: <20030611022700.1ae8fd8b.akpm@digeo.com>
-In-Reply-To: <3EE6F3B7.9040809@gts.it>
-References: <20030611013325.355a6184.akpm@digeo.com>
-	<3EE6F3B7.9040809@gts.it>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Jun 2003 09:26:13.0136 (UTC) FILETIME=[803E2900:01C32FFB]
+	Wed, 11 Jun 2003 05:16:40 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:32262 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S264248AbTFKJQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 05:16:39 -0400
+To: linux-kernel@vger.kernel.org
+Cc: debian-alpha@lists.debian.org
+Subject: Re: RealTek NIC on alpha?
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20030611091910.GD801@rene-engelhard.de>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Wed, 11 Jun 2003 11:27:42 +0200
+Message-ID: <wrpznkp9d69.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030611091910.GD801@rene-engelhard.de> (Rene Engelhard's
+ message of "Wed, 11 Jun 2003 11:19:11 +0200")
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefano Rivoir <s.rivoir@gts.it> wrote:
->
-> Andrew Morton wrote:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm8/
-> 
-> arch/i386/kernel/setup.c: In function 'setup_early_printk':
-> arch/i386/kernel/setup.c:919: error: invalid lvalue in unary '&'
-> make[1]: *** [arch/i386/kernel/setup.o] Error 1
-> 
+>>>>> "Rene" == Rene Engelhard <rene@rene-engelhard.de> writes:
 
-That patch came from a person at IBM, where blissful unawareness of
-single-processor machines is rampant :)
+Rene> 8139too Fast Ethernet driver 0.9.2
+Rene> and does not do anything after that.
 
-Thanks, will fix.
+Make sure CONFIG_8139TOO_PIO is set. I had similar problem on one of
+my Multias...
 
+Regards,
 
-Meanwhile,  CONFIG_DEBUG_EARLY_PRINTK=n
+        M.
+-- 
+Places change, faces change. Life is so very strange.

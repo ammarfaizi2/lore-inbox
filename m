@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271837AbRH0So4>; Mon, 27 Aug 2001 14:44:56 -0400
+	id <S271832AbRH0Sqq>; Mon, 27 Aug 2001 14:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271841AbRH0Soq>; Mon, 27 Aug 2001 14:44:46 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:39697 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S271840AbRH0Som>;
-	Mon, 27 Aug 2001 14:44:42 -0400
-Message-Id: <200108271844.f7RIihe21559@thor.mesatop.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.4.9-ac2 fix typo in drivers/video/Config.in
-Date: Mon, 27 Aug 2001 12:43:34 -0400
-X-Mailer: KMail [version 1.2.3]
-Cc: <linux-kernel@vger.kernel.org>
+	id <S271838AbRH0Sqg>; Mon, 27 Aug 2001 14:46:36 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:21265 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S271832AbRH0SqZ>;
+	Mon, 27 Aug 2001 14:46:25 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Peter Surda <shurdeek@panorama.sth.ac.at>
+Date: Mon, 27 Aug 2001 20:46:17 MET-1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: memcpy to videoram eats too much CPU on ATI cards (cach
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <1C537DA22F7@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patchlet to fix a typo (missing $).  I found this while trying to fix
-this problem observed while trying to make xconfig for 2.4.9-ac2:
+On 27 Aug 01 at 20:13, Peter Surda wrote:
+> 
+> memcpy-ing 380kB at 25fps takes about 5ms per frame and causes X to eat 1% cpu
+> time (time measurements were done by tsc)
+> memcpy-ing 760kB at 25fps takes about 11ms per frame, but instead of eating
+> 2% CPU time, it eats 35% (yes, that's 35 times more)
 
-Error in startup script: syntax error in expression "($CONFIG_VT == 1) && ($CONFIG_EXPERIMENTAL == 1) && ($CONFIG"
-    ("if" test expression)
-    while compiling
-"if {($CONFIG_VT == 1) && ($CONFIG_EXPERIMENTAL == 1) && ($CONFIG_FB == 1) && ($CONFIG_FBCON_ADVANCED != 1) && ($CONFIG_FB_ACORN != 1 && $CONFIG_FB_ATA..."
-    (compiling body of proc "update_define_menu63", line 180)
-    invoked from within
-"update_define_menu$i"
-    (procedure "update_define" line 3)
-    invoked from within
-"update_define 1 $total_menus 0"
-    (file "scripts/kconfig.tk" line 23383)
-make: *** [xconfig] Error 1
+It is because of way how time accounting to processes works in Linux.
+Your X-server gets time quantum, and starts copying data to videoram.
+If it finishes before 1/HZ seconds, no consumed time is accounted to it.
 
-The following patch doesn't fix that, but it seems to be related.
+As soon as task does not finish its job in 1/HZ seconds, some time is
+accounted to it. Just try running some benchmark together with
+your memcpy. You'll found that benchmark slowdown is (almost) linear with
+memcpy size. Especially if you'll run benchmark on some nice level.
 
-Steven
-
---- linux/drivers/video/Config.in.ac2	Mon Aug 27 12:18:00 2001
-+++ linux/drivers/video/Config.in	Mon Aug 27 12:23:15 2001
-@@ -292,7 +292,7 @@
- 	      "$CONFIG_FB_P9100" = "m" -o "$CONFIG_FB_ATY128" = "m" -o \
- 	      "$CONFIG_FB_RIVA" = "m" -o "$CONFIG_FB_3DFX" = "m" -o \
- 	      "$CONFIG_FB_SGIVW" = "m" -o "$CONFIG_FB_CYBER2000" = "m" -o \
--	      "$CONFIG_FB_PMAG_BA" = "m" -o "CONFIG_FB_PMAGB_B" = "m" -o \
-+	      "$CONFIG_FB_PMAG_BA" = "m" -o "$CONFIG_FB_PMAGB_B" = "m" -o \
- 	      "$CONFIG_FB_MAXINE" = "m" -o "$CONFIG_FB_RADEON" = "m" -o \
- 	      "$CONFIG_FB_SA1100" = "m" -o "$CONFIG_FB_SIS" = "m" -o \
- 	      "$CONFIG_FB_TX3912" = "m" -o ]; then
+You can try varying size around 650-750kBs, and you'll find that it clibms
+up very quickly in this range, just when consumed time crosses 10ms.
+                                        Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

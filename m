@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310309AbSCLBsU>; Mon, 11 Mar 2002 20:48:20 -0500
+	id <S310120AbSCLBuu>; Mon, 11 Mar 2002 20:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310330AbSCLBsN>; Mon, 11 Mar 2002 20:48:13 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:18660 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S310309AbSCLBrS>; Mon, 11 Mar 2002 20:47:18 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Malte Starostik <malte@kde.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: directory notifications lost after fork?
-Date: Tue, 12 Mar 2002 02:47:05 +0100
-X-Mailer: KMail [version 1.4]
-X-Security-Warning: All Your Base Are Belong To Us!
+	id <S310330AbSCLBub>; Mon, 11 Mar 2002 20:50:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37387 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310120AbSCLBuY>;
+	Mon, 11 Mar 2002 20:50:24 -0500
+Message-ID: <3C8D5ECD.6090108@mandrakesoft.com>
+Date: Mon, 11 Mar 2002 20:50:05 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200203120247.05611.malte@kde.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: andersen@codepoet.org, Bill Davidsen <davidsen@tmr.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <Pine.LNX.4.33.0203111736520.8121-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Manually quoted from the archive)
+Linus Torvalds wrote:
 
-> Just a "me too".
-> I have tried also to use the default (SIGIO) by setting owner pid (just
-> in case). It is all the same.
-> Does someone use the notifications, btw?
-> The whole thing seems somewhat untested.
-> -alex
-We used to use them in the KDE libraries. However, we decided to disable it 
-for now due to this problem since it's not theoretical, it hits quite often 
-in konqueror and especially kdesktop as both spawn child processes.
-On a side note, dnotify is pretty weak compared to FAM with imon 
-(http://oss.sgi.com/projects/fam/) IMHO:
-Imagine a file manager that has a view on a large directory like /usr/bin. Now 
-a file in that directory is added / removed / changed. With dnotify, the 
-filemanager will have to rescan the whole directory as a reaction to the 
-signal, to find out which file has changed. OTOH, with FAM, it gets a precise 
-event that tells "file `somebinary' has been added" or similar.
-I don't have much of a clue about the kernel, so please excuse my ignorance, 
-but the imon patch seems pretty unintrusive to me and enables more 
-fine-grained file change notifications than dnotify. Also, FAM can monitor 
-NFS-mounted directories with almost no network overhead when it's also 
-running on the server.
+>
+>On Mon, 11 Mar 2002, Jeff Garzik wrote:
+>
+>>Your first question is really philosophical.  I think that people should
+>>-not- be able to send undocumented commands through the interface...
+>> and in this area IMO it pays to be paranoid.
+>>
+>
+>What if the command is perfectly documented, but only for a certain class
+>of IBM disks?
+>
+>Are you going to create a table of every disk out there, along with every
+>command it can do?
+>
+>Remember: the kernel driver is a driver for the host controller, yet the
+>command is for the _disk_. It makes no sense to check for disk commands in
+>a host controller driver - they are two different things.
+>
+>It's like checking for icmp messages in a network driver. Do you seriously
+>propose having network drivers check icmp messages for command validity?
+>
+See my other message, and thanks for making this analogy :)
 
-> On Sun, Mar 10, 2002 at 10:08:02PM +0100, Oskar Liljeblad wrote:
-> > The code snipper demonstrates what I consider a bug in the
-> > dnotify facilities in the kernel. After a fork, all registered
-> > notifications are lost in the process where they originally
-> > where registered (the parent process). "lost" here means that
-> > the signal specified with F_SETSIG fcntl no longer is delivered
-> > when notified.
+I -do- know the distrinction between hosts and devices.  I think there 
+should be -some- way, I don't care how, to filter out those unknown 
+commands (which may be perfectly valid for a small subset of special IBM 
+drives).  The net stack lets me do filtering, I want to sell you on the 
+idea of letting the ATA stack do the same thing.
 
-Regards,
--Malte
+You have convinced me that unconditional filtering is bad.  But I still 
+think people should be provided the option to filter if they so desire.
 
-PS: I'm not subscribed, please CC me on answers; I'll also watch the archive.
--- 
-Malte Starostik
-PGP: 1024D/D2F3C787 [C138 2121 FAF3 410A 1C2A  27CD 5431 7745 D2F3 C787]
+    Jeff
+
+
+
+
 

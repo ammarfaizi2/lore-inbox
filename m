@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267858AbUG3WPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267808AbUG3WSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267858AbUG3WPs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 18:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267857AbUG3WPs
+	id S267808AbUG3WSE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 18:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUG3WSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 18:15:48 -0400
-Received: from web14922.mail.yahoo.com ([216.136.225.6]:31631 "HELO
-	web14922.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267808AbUG3WP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 18:15:29 -0400
-Message-ID: <20040730221528.2702.qmail@web14922.mail.yahoo.com>
-Date: Fri, 30 Jul 2004 15:15:28 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-To: Jesse Barnes <jbarnes@engr.sgi.com>, Greg KH <greg@kroah.com>
+	Fri, 30 Jul 2004 18:18:03 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57229 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267808AbUG3WRq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 18:17:46 -0400
+Date: Fri, 30 Jul 2004 14:39:25 -0700
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
 Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
        Jon Smirl <jonsmirl@yahoo.com>
-In-Reply-To: <200407301434.50373.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040730213925.GA31789@kroah.com>
+References: <200407301409.05638.jbarnes@engr.sgi.com> <20040730212930.GA30979@kroah.com> <200407301434.50373.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407301434.50373.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> Jon, am I missing something or is it possible for us to cache the ROM
-> in userspace when it receives the hotplug event?  I saw your DRM
-code,
-> and for the case of ROMs at a nonstandard address, we can fixup the
-> address for pci_dev->resource[PCI_ROM_RESOURCE] in pci-quirks, 
-> can't we?
+On Fri, Jul 30, 2004 at 02:34:50PM -0700, Jesse Barnes wrote:
+> > > +void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
+> > > +{
+> > > +	/* Don't need to free config entries since they're static & global */
+> >
+> > What do you mean by this?  You should still remove all files we added in
+> > the pci_create_sysfs_dev_files() function here, not just the rom file.
+> 
+> What will happen if we don't?
 
-When I was done with the ROM I did this:
-if (r->parent) {
-	release_resource(r);
-	r->flags &= ~PCI_ROM_ADDRESS_ENABLE;
-	r->end -= r->start;
-	r->start = 0;
-}
-/* This will disable and set address to unassigned */
-pci_write_config_dword(dev->pdev, PCI_ROM_ADDRESS, 0);
-	
-Then when I accessed them I did this:
+Then the driver core will clean them up, like it does today :)
 
-/* assign the ROM an address if it doesn't have one */
-if (r->parent == NULL)
-	pci_assign_resource(dev->pdev, PCI_ROM_RESOURCE);
+But it's "not nice", and we should clean them up as we now have a
+function in which we can do that, and based on changes we have planned
+for the driver core in the future, it will be something that is required
+to do later on.  Might as well do it now, as you are modifying the same
+code...
 
-I believe I needed to do this because Xfree was enabling the ROMs
-without telling the kernel. This caused the kernel resource struct to
-get out of sync with the actual state of the ROM. 
+thanks,
 
-If you set pci_dev->resource[PCI_ROM_RESOURCE] to C000:0 won't this
-mess up pci_assign_resource()/release_resource()?
-
-I wrote this code a while ago so I'm forgetting exactly why I did
-things. There is a variation on this code in drivers/video/aty/radeon_base.c
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+greg k-h

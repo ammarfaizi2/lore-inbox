@@ -1,76 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265069AbTGWKHe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 06:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbTGWKHe
+	id S265922AbTGWKM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 06:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbTGWKM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 06:07:34 -0400
-Received: from pat.uio.no ([129.240.130.16]:63954 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265069AbTGWKHb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 06:07:31 -0400
-To: linux-kernel@vger.kernel.org
-Cc: tiwai@suse.de
-Subject: Oops with snd_via82xx and oss-emu on 2.6.0-test1
-From: Joachim B Haga <cjhaga@student.matnat.uio.no>
-Date: Wed, 23 Jul 2003 12:22:27 +0200
-Message-ID: <yydjsmoxczks.fsf@atta.ifi.uio.no>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (usg-unix-v)
+	Wed, 23 Jul 2003 06:12:58 -0400
+Received: from tudela.mad.ttd.net ([194.179.1.233]:32765 "EHLO
+	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S264448AbTGWKMu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 06:12:50 -0400
+Date: Wed, 23 Jul 2003 12:26:35 +0200 (MEST)
+From: Javier Achirica <achirica@telefonica.net>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Mike Kershaw <dragorn@melchior.nerv-un.net>
+Subject: Re: [PATCH 2.5] fixes for airo.c
+In-Reply-To: <000d01c350fd$e625c9d0$a61fc682@alcatel.ch>
+Message-ID: <Pine.SOL.4.30.0307231219020.12179-100000@tudela.mad.ttd.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have a via m10000 with integrated via82xx sound, and I get the
-following oops when I play through oss emulation. Alsaplayer seems
-to work fine when using alsa directly. (This may also be because 
-alsaplayer does resampling itself?)
+You cannot use down() in xmit, as it may be called in interrupt context. I
+know it slows things down, but that's the only way I figured out of
+handling a transmission while the card is processing a long command.
 
-This is with dxs_support=3, without it no oops. But it is necessary,
-without it the noise is bad.
+I thought about the fix and I think it's fixed. The only case the race
+could happen is if there's some work pending to be scheduled and the queue
+gets started again (by the interrupt handler), so airo_start_xmit
+overwrites the priv->xmit data. Now, because of the new flag, the
+interrupt handler won't wake the queue until the pending packet is
+sent to the card (or fails) so I don't see how can the race happen
+(although I didn't see it until you pointed out :-(
 
-The error is easily reproducable, so let me know if any more testing
-is needed.
+Javier Achirica
 
-----
+On Wed, 23 Jul 2003, Daniel Ritz wrote:
 
-Unable to handle kernel paging request at virtual address d0811000
- printing eip:
-d09f4f3b
-*pde = 0bd6d067
-*pte = 00000000
-Oops: 0000 [#3]
-CPU:    0
-EIP:    0060:[<d09f4f3b>]    Not tainted
-EFLAGS: 00010202
-EIP is at resample_expand+0x34b/0x380 [snd_pcm_oss]
-eax: d09f4f3b   ebx: 00000000   ecx: 000007ff   edx: 00000000
-esi: d0955166   edi: cb265750   ebp: d0810ffe   esp: c6597e58
-ds: 007b   es: 007b   ss: 0068
-Process xmms (pid: 444, threadinfo=c6596000 task=c65cd3c0)
-Stack: d09f21d2 cb2656c0 c77ca5c0 c6597e84 00000000 c747f8a8 ffffffff c02da3ec 
-       d09f4d61 d09f4eb2 d09f4f3b cb265730 00000000 00000004 00000004 00000001 
-       00000000 000003ee 0000045a 00000400 cb2656c0 c7834e40 d09f542c cb2656c0 
-Call Trace:
- [<d09f21d2>] snd_pcm_plug_playback_channels_mask+0x72/0xe0 [snd_pcm_oss]
- [<d09f4d61>] resample_expand+0x171/0x380 [snd_pcm_oss]
- [<d09f4eb2>] resample_expand+0x2c2/0x380 [snd_pcm_oss]
- [<d09f4f3b>] resample_expand+0x34b/0x380 [snd_pcm_oss]
- [<d09f542c>] rate_transfer+0x5c/0x60 [snd_pcm_oss]
- [<d09f25c7>] snd_pcm_plug_write_transfer+0x97/0x100 [snd_pcm_oss]
- [<d09ee400>] snd_pcm_oss_write2+0xd0/0x140 [snd_pcm_oss]
- [<d09ee616>] snd_pcm_oss_write1+0x1a6/0x1d0 [snd_pcm_oss]
- [<d09f06c3>] snd_pcm_oss_write+0x43/0x60 [snd_pcm_oss]
- [<d09f0680>] snd_pcm_oss_write+0x0/0x60 [snd_pcm_oss]
- [<c014fad8>] vfs_write+0xb8/0x130
- [<c014fc02>] sys_write+0x42/0x70
- [<c010909b>] syscall_call+0x7/0xb
+> ok, now the braindamaged thing called sourceforge showed the changes, but:
+> - i don't think the race is fixed. just remove the whole down_trylock()
+>   crap in the xmit altogether and replace it with a single down(). faster,
+>   simpler, not racy...and with the schedule_work you win nothing, you lose
+> speed
+> - please don't commit bugfixes and new features in the same changeset...
+> - the loop-forever fix in transmit_allocate: you should have copied the
+> comment
+>   changes from my patch too, so the spin-forever-comment goes away...
+>
+> i look closer when i'm home, having a real operating system to work on, not
+> this
+> winblows box at work now..
+>
+> -daniel
+>
+>
+> Javier Achirica wrote:
+> >
+> > Today I updated the CVS and Sourceforge (airo-linux.sf.net) with the
+> > latest version (1.53) that (I hope) fixes the race problem. If everything
+> > is fine, I'll commit the changes to the kernel tree.
+> >
+> > Javier Achirica
+> >
+> > On Mon, 21 Jul 2003, Daniel Ritz wrote:
+> >
+> > > On Mon July 21 2003 21:44, Javier Achirica wrote:
+> > > >
+> > > > On Mon, 21 Jul 2003, Daniel Ritz wrote:
+> > > >
+> > > > > On Mon July 21 2003 13:00, Javier Achirica wrote:
+> > > > > >
+> > > > > > Daniel,
+> > > > > >
+> > > > > > Thank you for your patch. Some comments about it:
+> > > > > >
+> > > > > > - I'd rather fix whatever is broken in the current code than going
+> back to
+> > > > > > spinlocks, as they increase latency and reduce concurrency. In any
+> case,
+> > > > > > please check your code. I've seen a spinlock in the interrupt
+> handler that
+> > > > > > may lock the system.
+> > > > >
+> > > > > but we need to protect from interrupts while accessing the card and
+> waiting for
+> > > > > completion. semaphores don't protect you from that.
+> spin_lock_irqsave does. the
+> > > > > spin_lock in the interrupt handler is there to protect from
+> interrupts from
+> > > > > other processors in a SMP system (see Documentation/spinlocks.txt)
+> and is btw.
+> > > > > a no-op on UP. and semaphores are quite heavy....
+> > > >
+> > > > Not really. You can still read the received packets from the card (as
+> > > > you're not issuing any command and are using the other BAP) while a
+> > > > command is in progress. There are some specific cases in which you
+> need
+> > > > to have protection, and that cases are avoided with the down_trylock.
+> > > >
+> > >
+> > > ok, i think i have to look closer...if the card can handle that then we
+> don't need
+> > > to irq-protect all the areas i did protect...but i do think that those
+> down_trylock and
+> > > then the schedule_work should be replaced by a simple
+> spinlock_irq_save...
+> > >
+> > > i look closer at it tomorrow.
+> > > you happen to have the tech spec lying aroung?
+> > >
+> > > > AFAIK, interrupt serialization is assured by the interrupt handler, so
+> you
+> > > > don't need to do that.
+> > > >
+> > > > > > - The fix for the transmit code you mention, is about fixing the
+> returned
+> > > > > > value in case of error? If not, please explain it to me as I don't
+> see any
+> > > > > > other changes.
+> > > > >
+> > > > > fixes:
+> > > > > - return values
+> > > > > - when to free the skb, when not
+> > > > > - disabling the queues
+> > > > > - netif_wake_queue called from the interrupt handler only (and on
+> the right
+> > > > >   net_device)
+> > > > > - i think the priv->xmit stuff and then the schedule_work is evil:
+> > > > >   if you return 0 from the dev->hard_start_xmit then the network
+> layer assumes
+> > > > >   that the packet was kfree_skb()'ed (which does only frees the
+> packet when the
+> > > > >   refcount drops to zero.) this is the cause for the keventd
+> killing, for sure!
+> > > > >
+> > > > >   if you return 0 you already kfree_skb()'ed the packet. and that's
+> it.
+> > > >
+> > > > This is where I have the biggest problems. As I've read in
+> > > > Documentation/networking/driver.txt, looks like the packet needs to be
+> > > > freed "soon", but doesn't require to be before returning 0 in
+> > > > hard_start_xmit. Did I get it wrong?
+> > > >
+> > >
+> > > no, i got it wrong. but still...it's the xmit where the oops comes
+> from....
+> > >
+> > > wait. isn't there a race in airo_do_xmit? at high xfer rates (when it
+> oopses) the
+> > > queue can wake right after it is stopped in the down_trylock section. so
+> you can
+> > > happen to loose an skb 'cos the write to priv->xmit is not protected at
+> all and
+> > > there should be a check so that only one skb can be queue there. no?
+> > > (and then the irq-handler can wake the queue too)
+> > >
+> > > ok, i think i got it now. i'll do a new patch tomorrow or so that tries:
+> > > - to fix the transmit not to oops
+> > > - to avoid disabling the irq's whenever possible
+> > > - using spinlocks instead of the heavier semaphores ('cos i think if
+> it's done cleaner
+> > >   than i did it now, it's faster than the semas, and to make hch happy
+> :)
+> > >
+> > >
+> > > > Thanks for your help,
+> > > > Javier Achirica
+> > > >
+> > >
+> > > rgds
+> > > -daniel
+> > >
+> > >
+> > >
+> >
+>
+>
+>
 
-Code: 8b 45 00 eb ac 0f b6 45 00 c1 e0 08 eb a3 81 fa 00 80 00 00 
-
-
--- 
-j.

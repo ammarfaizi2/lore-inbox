@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbUDHRwD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 13:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDHRwC
+	id S262100AbUDHRys (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 13:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDHRys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 13:52:02 -0400
-Received: from colin2.muc.de ([193.149.48.15]:54022 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262109AbUDHRv1 (ORCPT
+	Thu, 8 Apr 2004 13:54:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31947 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262100AbUDHRyp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 13:51:27 -0400
-Date: 8 Apr 2004 19:51:26 +0200
-Date: Thu, 8 Apr 2004 19:51:26 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Andi Kleen <ak@muc.de>, Andy Whitcroft <apw@shadowen.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de,
-       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
-Subject: Re: HUGETLB commit handling.
-Message-ID: <20040408175126.GA72736@colin2.muc.de>
-References: <1IKJu-Zn-29@gated-at.bofh.it> <m3u0zuwgbf.fsf@averell.firstfloor.org> <40758A74.3040107@sgi.com>
+	Thu, 8 Apr 2004 13:54:45 -0400
+Date: Thu, 8 Apr 2004 10:54:40 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, Nick.Holloway@pyrites.org.uk
+Subject: Re: [PATCH 2.6] Add missing MODULE_PARAM to dummy.c (and MAINTAINERShip)
+Message-ID: <20040408105440.G22989@build.pdx.osdl.net>
+References: <20040408174823.GA13335@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40758A74.3040107@sgi.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040408174823.GA13335@localhost>; from linux-kernel@24x7linux.com on Thu, Apr 08, 2004 at 07:48:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The other problem we are wrestling with is how to do the ia386 and ia64 
-> lazy allocation code without breaking the architectures that haven't yet 
-> switched to lazy allocation.  There will probbaly be some
-> 
-> #define ARCH_USES_HUGETLB_PREFAULT
-> 
-> nonsense added to deal with the latter, if needed.
+* Jose Luis Domingo Lopez (linux-kernel@24x7linux.com) wrote:
+> diff -Nrup linux-2.6.5/drivers/net/dummy.c linux-2.6.5-new/drivers/net/dummy.c
+> --- linux-2.6.5/drivers/net/dummy.c	2004-04-04 17:45:54.000000000 +0200
+> +++ linux-2.6.5-new/drivers/net/dummy.c	2004-04-08 19:23:23.000000000 +0200
+> @@ -89,7 +89,8 @@ static struct net_device_stats *dummy_ge
+>  static struct net_device **dummies;
+>  
+>  /* Number of dummy devices to be set up by this module. */
+> -module_param(numdummies, int, 0);
+> +MODULE_PARM(numdummies, "i");
+> +MODULE_PARM_DESC(numdummies, "Maximum number of dummy devices (defaults to one)");
 
-In my patch I just used weak functions: use a dummy weak function
-in the high level code and overwrite from the architecture specific 
-code as needed. This avoids all the ifdefs.
+this is going backwards.  module_param is the newer (preferred) interface.
 
--Andi
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

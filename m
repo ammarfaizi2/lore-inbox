@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129304AbRBFTbz>; Tue, 6 Feb 2001 14:31:55 -0500
+	id <S130174AbRBFTgF>; Tue, 6 Feb 2001 14:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129840AbRBFTbq>; Tue, 6 Feb 2001 14:31:46 -0500
-Received: from colorfullife.com ([216.156.138.34]:43528 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129304AbRBFTbl>;
-	Tue, 6 Feb 2001 14:31:41 -0500
-Message-ID: <3A805121.E4D47C32@colorfullife.com>
-Date: Tue, 06 Feb 2001 20:31:45 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jocelyn Mayer <jocelyn.mayer@netgem.com>, linux-kernel@vger.kernel.org
-Subject: Re: FA-311 / Natsemi problems with 2.4.1
-In-Reply-To: <3A80425C.8080506@netgem.com>
+	id <S130177AbRBFTfz>; Tue, 6 Feb 2001 14:35:55 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30993 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130174AbRBFTfn>;
+	Tue, 6 Feb 2001 14:35:43 -0500
+Date: Tue, 6 Feb 2001 20:35:25 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+Message-ID: <20010206203525.B2975@suse.de>
+In-Reply-To: <20010206190018.E580@suse.de> <Pine.LNX.4.30.0102061301310.15204-100000@today.toronto.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0102061301310.15204-100000@today.toronto.redhat.com>; from bcrl@redhat.com on Tue, Feb 06, 2001 at 01:09:09PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jocelyn Mayer wrote:
+On Tue, Feb 06 2001, Ben LaHaise wrote:
+> > > As for io completion, can't we just issue seperate requests for the
+> > > critical data and the readahead?  That way for SCSI disks, the important
+> > > io should be finished while the readahead can continue.  Thoughts?
+> >
+> > Priorities?
 > 
-> I'll send my patch for 2.4 kernel
-> as soon as I have finished to clean it up !!!
->
+> Definately.  I'd like to be able to issue readaheads with a "don't bother
+> executing if this request unless the cost is low" bit set.  It might also
+> be helpful for heavy multiuser loads (or even a single user with multiple
+> processes) to ensure progress is made for others.
 
-A few points:
+And in other contexts too it might be handy to assign priorities to
+requests as well. I don't know how sgi plan on handling grio (or already
+handle it in irix), maybe Steve can fill us in on that :)
 
-* set your tabs to 8, and indent by 8 characters.
-* Nastemi_auto_negociate: remove the 'static' variable - what if someone
-has multiple cards installed?
-* You cannot wait for for more than a few dozend microseconds in an
-hardware interrupt handle, and a few hundred microseconds in a bottom
-half handler (e.g a timer)
-Probably the autonegotiation takes longer - add a timer that calls you
-back after 50 milliseconds, and return.
+-- 
+Jens Axboe
 
-And are you sure that a full reset is required for a simple link change?
-
-Most other drivers are written the other way around:
-tx_timeout() performs the full reset if the transmitter is hung for > 2
-seconds, and link_change only changes the chip configuration.
-
-
---
-	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

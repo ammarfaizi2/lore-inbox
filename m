@@ -1,34 +1,38 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157405-25206>; Tue, 2 Mar 1999 12:32:01 -0500
-Received: by vger.rutgers.edu id <157013-25206>; Tue, 2 Mar 1999 12:31:50 -0500
-Received: from mail.blox.se ([195.7.73.197]:64503 "EHLO lix.blox.se" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <157278-25208>; Tue, 2 Mar 1999 12:30:18 -0500
-From: Bjorn Ekwall <bj0rn@blox.se>
-Message-Id: <199903021837.TAA22258@lix.blox.se>
-Subject: Getting close: modutils-snap990302
+Received: by vger.rutgers.edu via listexpand id <157037-25208>; Fri, 5 Mar 1999 01:51:25 -0500
+Received: by vger.rutgers.edu id <156510-25208>; Fri, 5 Mar 1999 01:51:06 -0500
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:59448 "EHLO rrzs2.rz.uni-regensburg.de" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156814-25206>; Fri, 5 Mar 1999 01:50:11 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
 To: linux-kernel@vger.rutgers.edu
-Date: Tue, 2 Mar 1999 19:36:59 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+Date: Fri, 5 Mar 1999 09:06:02 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.2.1 (possibly others as well): loosing 2 ticks even under light load
+X-mailer: Pegasus Mail for Windows (v3.01b)
+Message-ID: <CAA9E4E3E90@rkdvmks1.ngate.uni-regensburg.de>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi all,
+Hello, a notifier:
 
-After fixing (quite a few) problems, and after adding most Debian patches,
-it's time for me to recommend you all to look at:
+For debugging purposes I added a print statement to show lost ticks 
+in the i386 kernel. On my Pentium 100 even for very light load the 
+kernel declares having lost 2 ticks.
 
-	<http://www.pi.se/blox/modutils/modutils-snap990302.tar.gz>
+I don't know why this happend, but I see a problem: If the kernel 
+looses 2 ticks on a light load, it might loose more ticks on heavy 
+load. Unfortunately the non-TSC version of the timeoffset routine 
+(using the timer chip's register) can only span one tick, possibly 
+guessing that there's more than one, but not more.
 
-There might be some more Debian patches added, and some documentation
-updates, otherwise I think it is done...
-For example, I think that "modprobe -r" now is usable for crontab
-to clean up "autoclean"-able modules while still performing the
-pre-/post-remove commands in /etc/conf.modules.
+Therefore losing over 1 tick might cause a bad time.
 
-Prove me wrong!
+I have no idea how to find the parts that disable interrupts for that 
+long...
 
-Björn Ekwall <bj0rn@blox.se>
+Regards,
+Ulrich
 
 
 -

@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263142AbVCEPzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263131AbVCEPy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbVCEPzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbVCEPyA
+	id S263131AbVCEPy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263123AbVCEPxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:54:00 -0500
-Received: from coderock.org ([193.77.147.115]:48547 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262117AbVCEPgC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:36:02 -0500
-Subject: [patch 12/12] scripts/mod/sumversion.c: replace strtok() with strsep()
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nikai@nikai.net
-From: domen@coderock.org
-Date: Sat, 05 Mar 2005 16:35:45 +0100
-Message-Id: <20050305153545.9769F1F1F0@trashy.coderock.org>
+	Sat, 5 Mar 2005 10:53:54 -0500
+Received: from ctb-mesg2.saix.net ([196.25.240.74]:17831 "EHLO
+	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S262354AbVCEPpl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:45:41 -0500
+Subject: Device-mapper quary
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bJD7mY2kXlRpel7g1hPR"
+Date: Sat, 05 Mar 2005 17:48:30 +0200
+Message-Id: <1110037710.8842.2.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Replaces strtok() with strsep()
- 
- Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+--=-bJD7mY2kXlRpel7g1hPR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+I have been getting the following in my logs recently (just after
+bootup):
+
+-----
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
+Buffer I/O error on device sda3, logical block 308367488
+Buffer I/O error on device sda3, logical block 308367489
+Buffer I/O error on device sda3, logical block 308367490
+Buffer I/O error on device sda3, logical block 308367491
+Buffer I/O error on device sda3, logical block 308367492
+Buffer I/O error on device sda3, logical block 308367493
+Buffer I/O error on device sda3, logical block 308367494
+Buffer I/O error on device sda3, logical block 308367495
+Buffer I/O error on device sda3, logical block 308367488
+Buffer I/O error on device sda3, logical block 308367489
+-----
+
+I checked sda though, and it seems fine (badblocks, e2fsck, etc).  sda
+(and in theory sda3) is part of a device-mapper stripe array ....
 
 
- kj-domen/scripts/mod/sumversion.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+Thanks,
 
-diff -puN scripts/mod/sumversion.c~strtok-scripts_mod_sumversion scripts/mod/sumversion.c
---- kj/scripts/mod/sumversion.c~strtok-scripts_mod_sumversion	2005-03-05 16:13:15.000000000 +0100
-+++ kj-domen/scripts/mod/sumversion.c	2005-03-05 16:13:15.000000000 +0100
-@@ -419,7 +419,9 @@ void get_src_version(const char *modname
- 	*end = '\0';
- 
- 	md4_init(&md);
--	for (fname = strtok(sources, " "); fname; fname = strtok(NULL, " ")) {
-+	while ((fname = strsep(&sources, " ")) != NULL) {
-+		if (!*fname)
-+			continue;
- 		if (!parse_source_files(fname, &md))
- 			goto release;
- 	}
-_
+--=20
+Martin Schlemmer
+
+
+--=-bJD7mY2kXlRpel7g1hPR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCKdTOqburzKaJYLYRAosmAJ9ofvMln3suN58zB6jniIQUguKX0QCeKi14
+jrEJwfo3/GAXoZ/+uBBySXE=
+=m25o
+-----END PGP SIGNATURE-----
+
+--=-bJD7mY2kXlRpel7g1hPR--
+

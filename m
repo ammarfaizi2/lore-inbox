@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130119AbRBIQgu>; Fri, 9 Feb 2001 11:36:50 -0500
+	id <S129311AbRBIQku>; Fri, 9 Feb 2001 11:40:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129978AbRBIQgk>; Fri, 9 Feb 2001 11:36:40 -0500
-Received: from kerberos.suse.cz ([195.47.106.10]:9989 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129667AbRBIQgf>;
-	Fri, 9 Feb 2001 11:36:35 -0500
-Date: Fri, 9 Feb 2001 17:36:00 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, gandalf@winds.org
-Subject: Re: [preview] VIA IDE 4.0 and AMD IDE 2.0 with automatic PC
-Message-ID: <20010209173600.A2887@suse.cz>
-In-Reply-To: <1500B3C52526@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1500B3C52526@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Fri, Feb 09, 2001 at 05:29:52PM +0000
+	id <S129321AbRBIQkl>; Fri, 9 Feb 2001 11:40:41 -0500
+Received: from copland.udel.edu ([128.175.13.92]:925 "EHLO copland.udel.edu")
+	by vger.kernel.org with ESMTP id <S129311AbRBIQk1>;
+	Fri, 9 Feb 2001 11:40:27 -0500
+Date: Fri, 9 Feb 2001 11:40:15 -0500 (EST)
+From: Mike Porter <mike@UDel.Edu>
+To: Miles Lane <miles@megapathdsl.net>
+cc: Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+In-Reply-To: <3A83C4A1.5090903@megapathdsl.net>
+Message-ID: <Pine.SOL.4.31.0102091138170.10584-100000@copland.udel.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 09, 2001 at 05:29:52PM +0000, Petr Vandrovec wrote:
+On Fri, 9 Feb 2001, Miles Lane wrote:
+> Helge Hafting wrote:
+> > christophe barbe wrote:
+> >> Moreover there is no need to be ignorant. With LPP, messages are displayed during the boot process and if something goes wrong an little picture inform you. And you can switch to the classic console when you want (by a simple CTRL-ALT-F2).
+...
+> Since, as Christophe mentions, the boot messages would
+> still be accessible via CTRL-ALT-F2, I don't see what
+> the problem is with at least making this an option.
+>
+> 	Miles
 
-> > Unfortunately the PCI speed measuring code needs help from the chipset
-> > itself, so it isn't possible to implement in generic code. Maybe a
-> > callback could be added to the chipset-specific drivers, though ...
-> > 
-> > I do have some plans with ide-pci.c, so ...
-> 
-> Is not PCI speed determined by host-bridge setting (and not by IDE 
-> interface)?
+So long as the splash screen says "Press Ctrl-Alt-F2 to see system
+boot messages".  I hate the MS-Windows way...I'm always having to
+look up the special 'F-x' keys to make it boot safe mode, etc.
 
-I found no way of measuring the PCI speed than by doing an IDE PIO
-transfer unfortunately. Measuring all other PCI transactions gives bad
-results, because it is dependent on waitstates and other variables.
+Mike
 
-> In that case we should determine bus speed on PCI bus scan 
-> using chipset specific drivers. Other non IDE devices, such as matroxfb, 
-> may be interested in PCI speed too.
-
-Not the case, sorry. An IDE drive is needed. However, it still might be
-worth to pass the PCI speed to other drivers ...
-
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

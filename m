@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262332AbTJTADi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 20:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbTJTADi
+	id S262349AbTJTA0M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 20:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTJTA0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 20:03:38 -0400
-Received: from korppi.suomicommunications.com ([217.119.36.25]:46811 "EHLO
-	korppi.suomicommunications.com") by vger.kernel.org with ESMTP
-	id S262332AbTJTADh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 20:03:37 -0400
-From: Teemu Sohlman <tsohlman@suomiforum.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM:
-Date: Mon, 20 Oct 2003 03:03:29 +0300
-User-Agent: KMail/1.5.4
+	Sun, 19 Oct 2003 20:26:12 -0400
+Received: from dyn-ctb-210-9-246-209.webone.com.au ([210.9.246.209]:15108 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262349AbTJTA0J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 20:26:09 -0400
+Message-ID: <3F932B81.2040202@cyberone.com.au>
+Date: Mon, 20 Oct 2003 10:25:37 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: Peter Osterlund <petero2@telia.com>, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8, DEBUG_SLAB, oops in as_latter_request()
+References: <m2ismlovep.fsf@p4.localdomain> <20031019142042.2f41eb68.akpm@osdl.org>
+In-Reply-To: <20031019142042.2f41eb68.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310200303.29979.tsohlman@suomiforum.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In menuconfig all buttons (select, exit & help) have same results (select)
-
-Linux version 2.6.0-test8 (root@combi) (gcc version 3.3.1 20030927 (Gentoo 
-Linux 3.3.1-r5, propolice)) #1 Mon Oct 20 01:01:29 EEST 2003
-
-Linux combi 2.6.0-test8 #1 Mon Oct 20 01:01:29 EEST 2003 i686 AMD Athlon(tm) 
-processor AuthenticAMD GNU/Linux
-
-Gnu C                  3.3.1
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      0.9.15-pre2
-e2fsprogs              1.34
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.13
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               5.0.91
-Modules Loaded
 
 
-Thanks for your amazing work
+Andrew Morton wrote:
+
+>Peter Osterlund <petero2@telia.com> wrote:
+>
+>>I was running 2.6.0-test8 compiled with CONFIG_DEBUG_SLAB=y. When
+>> testing the CDRW packet writing driver, I got an oops in
+>> as_latter_request. (Full oops at the end of this message.) It is
+>> repeatable and happens because arq->rb_node.rb_right is uninitialized.
+>>
+>
+>deadline seems to have the same problem.
+>
+>We may as well squish this with the big hammer?
+>
+
+Thanks for the report, Peter.
+
+The request is a special request, so either blk_attempt_remerge should
+never be called on it, or blk_attempt_remerge (or as_latter_request) should
+check for this. Its up to Jens.
+
+I would say to stick something like
+if (!rq_mergeable(rq))
+    return;
+
+into blk_attempt_remerge.
+
+I'd say we shouldn't expect drivers to try to get this right.
 

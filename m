@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263455AbTFGUKs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 16:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263503AbTFGUKs
+	id S263535AbTFGUPN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 16:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTFGUPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 16:10:48 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:65053 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263455AbTFGUKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 16:10:47 -0400
-Date: Sat, 7 Jun 2003 13:24:32 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: colin@colina.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Maximum swap space?
-Message-Id: <20030607132432.26846b8a.akpm@digeo.com>
-In-Reply-To: <33435.4.64.196.31.1055008200.squirrel@www.osdl.org>
-References: <ltptlqb72n.fsf@colina.demon.co.uk>
-	<33435.4.64.196.31.1055008200.squirrel@www.osdl.org>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Jun 2003 16:15:13 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:1753 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263535AbTFGUPF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 16:15:05 -0400
+Message-ID: <20030607202725.22992.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Jun 2003 20:24:23.0543 (UTC) FILETIME=[C8B51070:01C32D32]
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: chris@memtest86.com
+Cc: linux-kernel@vger.kernel.org
+Date: Sat, 07 Jun 2003 15:27:25 -0500
+Subject: memtest86 on the opteron
+X-Originating-Ip: 66.127.101.73
+X-Originating-Server: ws3-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->
->  3.  Swap space limits
-> 
->  Linux 2.4.10 and later, and Linux 2.5 support any combination of swap
->  files or swap devices to a maximum number of 32 of them.  Prior to Linux
->  2.4.10, the limit was any combination of 8 swap files or swap devices.  On
->  x86 architecture systems, each of these swap areas has a limit of 2 GiB.
+Is there anyone working on Memtest86 for the AMD Opteron?
 
-The limit is now 16 swapfiles/devices, because one pte bit got
-stolen for nonlinear VMA pte's.
+What would be involved with making that work?
 
-I'm not sure where the 2G limit comes from?
+regards,
+dan carpenter
+
+
+-- 
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+

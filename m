@@ -1,102 +1,227 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUJYJL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUJYJNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUJYJL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 05:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUJYJL2
+	id S261718AbUJYJNh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 05:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUJYJNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 05:11:28 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:60257 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261726AbUJYJLB (ORCPT
+	Mon, 25 Oct 2004 05:13:36 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:10444 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S261718AbUJYJMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 05:11:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=SegqQhKU62o8w0Mq/2l9Xrz0KCUisVQucsxviKpY3HNDnJqqWUHxXDxJSE0yeLO8ikXheIrQTELgtVIVQSQED+1e/MIx622MakvN5lMEFMaKrBeQS2FNLbn/0FlDAY4FoGiBqxOCRiAvguqKkN3jjdznn1PBN7nX50u5WkHE534=
-Message-ID: <14dd4ead04102502115a9903d8@mail.gmail.com>
-Date: Mon, 25 Oct 2004 17:11:00 +0800
-From: jonathan li <spiderium@gmail.com>
-Reply-To: jonathan li <spiderium@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: oops on kernel-2.6-0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Oct 2004 05:12:41 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: kraxel@bytesex.org
+Subject: bttv_ioctl / BKL preempt / scheduling while atomic and panic
+Date: Mon, 25 Oct 2004 11:11:58 +0200
+User-Agent: KMail/1.7
+Cc: video4linux-list@redhat.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <200410251112.03241.mbuesch@freenet.de>
+Content-Type: multipart/signed;
+  boundary="nextPart1127907.JfeoCITSZt";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, all
+--nextPart1127907.JfeoCITSZt
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-   I want to use oprofile, but after the following steps,
-   # opcontrol --setup --vmlinux=/boot/vmlinux
-   # opcontrol --start
+Hi,
 
-   I get oops as follows:
+I recently had a crash with kernel 2.6.9-ck2-ac4-nozeroram
+The nozeroram patch is available here:
+ http://people.freenet.de/tuxsoft/other/nozeroram.diff
 
-Unable to handle kernel paging request at virtual address ffffd340
-printing eip:
-e09a7867
-*pde = 00002067
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<e09a7867>]    Tainted: P   VLI
-EFLAGS: 00010246
-EIP is at nmi_cpu_setup+0x27/0x40 [oprofile]
-eax: e09ab844   ebx: 00000000   ecx: 00000000   edx: ffffffff
-esi: e09aaa00   edi: d6995684   ebp: dfe34ac0   esp: d29d7f24
-ds: 007b   es: 007b   ss: 0068
-Process oprofiled (pid: 1828, threadinfo=d29d6000 task=d306b900)
-Stack: e09a789a 00000000 e09a6039 ffffffea d2fbaa80 e09a6b8e d2fbaa80 d34f6380
-      c015155c d34f6380 d2fbaa80 00000000 dd541000 00000000 d29d6000 c0151450
-      d2e0e280 dfe34ac0 00000000 d2e0e280 dfe34ac0 dfe37f80 d34fcd00 08050fc8
-Call Trace:
-[<e09a789a>] nmi_setup+0x1a/0x40 [oprofile]
-[<e09a6039>] oprofile_setup+0x39/0xa0 [oprofile]
-[<e09a6b8e>] event_buffer_open+0x3e/0x70 [oprofile]
-[<c015155c>] dentry_open+0xfc/0x190
-[<c0151450>] filp_open+0x50/0x60
-[<c01517eb>] sys_open+0x3b/0x70
-[<c010af47>] syscall_call+0x7/0xb
+I got the following messages in dmesg:
 
-Code: 75 d6 eb cf a1 40 b8 9a e0 68 44 b8 9a e0 ff 50 08 68 44 b8 9a
-e0 e8 d9 fe ff ff 58 a1 40 b8 9a e0 5a 68 44 b8 9a e0 ff 50 0c 58 <a1>
-40 d3 ff ff c7 05 40 d3 ff ff 00 04 00 00 a3 4c b8 9a e0 c3
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<f0a00f05>] bttv_ioctl+0x31/0x5e [bttv]
+Oct 25 09:39:03 lfs kernel:  [<f09ff7ac>] bttv_do_ioctl+0x0/0x1728 [bttv]
+Oct 25 09:39:03 lfs kernel:  [<b0162057>] sys_ioctl+0x1d4/0x245
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b01243b5>] __mod_timer+0x11d/0x159
+Oct 25 09:39:03 lfs kernel:  [<b035f1b0>] schedule_timeout+0x6a/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b0124e06>] process_timeout+0x0/0x5
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b035f904>] _spin_unlock_irq+0x9/0x1c
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0139799>] __alloc_pages+0x9f/0x323
+Oct 25 09:39:03 lfs kernel:  [<b02c9974>] sock_aio_read+0xe8/0x100
+Oct 25 09:39:03 lfs kernel:  [<b035f1fb>] schedule_timeout+0xb5/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b011a7f4>] add_wait_queue+0x1a/0x46
+Oct 25 09:39:03 lfs kernel:  [<b031d996>] unix_poll+0xc1/0xc6
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b011a9ec>] autoremove_wake_function+0x0/0x43
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: Warning: kfree_skb on hard IRQ 00000000
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0139799>] __alloc_pages+0x9f/0x323
+Oct 25 09:39:03 lfs kernel:  [<b02c9974>] sock_aio_read+0xe8/0x100
+Oct 25 09:39:03 lfs kernel:  [<b035f1fb>] schedule_timeout+0xb5/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b011a7f4>] add_wait_queue+0x1a/0x46
+Oct 25 09:39:03 lfs kernel:  [<b031d996>] unix_poll+0xc1/0xc6
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b011a9ec>] autoremove_wake_function+0x0/0x43
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: Warning: kfree_skb on hard IRQ 00000000
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<f0a00f05>] bttv_ioctl+0x31/0x5e [bttv]
+Oct 25 09:39:03 lfs kernel:  [<f09ff7ac>] bttv_do_ioctl+0x0/0x1728 [bttv]
+Oct 25 09:39:03 lfs kernel:  [<b0162057>] sys_ioctl+0x1d4/0x245
+Oct 25 09:39:03 lfs kernel:  [<b01207b6>] sys_time+0x16/0x50
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0139799>] __alloc_pages+0x9f/0x323
+Oct 25 09:39:03 lfs kernel:  [<b02c9974>] sock_aio_read+0xe8/0x100
+Oct 25 09:39:03 lfs kernel:  [<b035f1fb>] schedule_timeout+0xb5/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b011a7f4>] add_wait_queue+0x1a/0x46
+Oct 25 09:39:03 lfs kernel:  [<b031d996>] unix_poll+0xc1/0xc6
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b011a9ec>] autoremove_wake_function+0x0/0x43
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: Warning: kfree_skb on hard IRQ 00000000
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b01e55ab>] copy_to_user+0x32/0x45
+Oct 25 09:39:03 lfs kernel:  [<b0120869>] sys_gettimeofday+0x2c/0x65
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0139799>] __alloc_pages+0x9f/0x323
+Oct 25 09:39:03 lfs kernel:  [<b02c9974>] sock_aio_read+0xe8/0x100
+Oct 25 09:39:03 lfs kernel:  [<b035f1fb>] schedule_timeout+0xb5/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b011a7f4>] add_wait_queue+0x1a/0x46
+Oct 25 09:39:03 lfs kernel:  [<b031d996>] unix_poll+0xc1/0xc6
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b011a9ec>] autoremove_wake_function+0x0/0x43
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: Warning: kfree_skb on hard IRQ 00000000
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b01e55ab>] copy_to_user+0x32/0x45
+Oct 25 09:39:03 lfs kernel:  [<b0120869>] sys_gettimeofday+0x2c/0x65
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b012101f>] __do_softirq+0x5f/0xca
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0139799>] __alloc_pages+0x9f/0x323
+Oct 25 09:39:03 lfs kernel:  [<b02c9974>] sock_aio_read+0xe8/0x100
+Oct 25 09:39:03 lfs kernel:  [<b035f1fb>] schedule_timeout+0xb5/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b011a7f4>] add_wait_queue+0x1a/0x46
+Oct 25 09:39:03 lfs kernel:  [<b031d996>] unix_poll+0xc1/0xc6
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b011a9ec>] autoremove_wake_function+0x0/0x43
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: Warning: kfree_skb on hard IRQ 00000000
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b01e55ab>] copy_to_user+0x32/0x45
+Oct 25 09:39:03 lfs kernel:  [<b0120869>] sys_gettimeofday+0x2c/0x65
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0139799>] __alloc_pages+0x9f/0x323
+Oct 25 09:39:03 lfs kernel:  [<b02c9974>] sock_aio_read+0xe8/0x100
+Oct 25 09:39:03 lfs kernel:  [<b035f1fb>] schedule_timeout+0xb5/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b011a7f4>] add_wait_queue+0x1a/0x46
+Oct 25 09:39:03 lfs kernel:  [<b031d996>] unix_poll+0xc1/0xc6
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b011a9ec>] autoremove_wake_function+0x0/0x43
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: Warning: kfree_skb on hard IRQ 00000000
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b01e55ab>] copy_to_user+0x32/0x45
+Oct 25 09:39:03 lfs kernel:  [<b0120869>] sys_gettimeofday+0x2c/0x65
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<f0a00f05>] bttv_ioctl+0x31/0x5e [bttv]
+Oct 25 09:39:03 lfs kernel:  [<f09ff7ac>] bttv_do_ioctl+0x0/0x1728 [bttv]
+Oct 25 09:39:03 lfs kernel:  [<b0162057>] sys_ioctl+0x1d4/0x245
+Oct 25 09:39:03 lfs kernel:  [<b01207b6>] sys_time+0x16/0x50
+Oct 25 09:39:03 lfs kernel:  [<b0104052>] work_resched+0x5/0x16
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b01243b5>] __mod_timer+0x11d/0x159
+Oct 25 09:39:03 lfs kernel:  [<b035f1b0>] schedule_timeout+0x6a/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b01178ca>] try_to_wake_up+0x1e1/0x26d
+Oct 25 09:39:03 lfs kernel:  [<b0124e06>] process_timeout+0x0/0x5
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b0104d3b>] print_context_stack+0x1d/0x59
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: bad: scheduling while atomic!
+Oct 25 09:39:03 lfs kernel:  [<b035ebc0>] schedule+0x4a0/0x572
+Oct 25 09:39:03 lfs kernel:  [<b0139799>] __alloc_pages+0x9f/0x323
+Oct 25 09:39:03 lfs kernel:  [<b02c9974>] sock_aio_read+0xe8/0x100
+Oct 25 09:39:03 lfs kernel:  [<b035f1fb>] schedule_timeout+0xb5/0xb7
+Oct 25 09:39:03 lfs kernel:  [<b011a7f4>] add_wait_queue+0x1a/0x46
+Oct 25 09:39:03 lfs kernel:  [<b031d996>] unix_poll+0xc1/0xc6
+Oct 25 09:39:03 lfs kernel:  [<b0162a22>] do_select+0x294/0x2cf
+Oct 25 09:39:03 lfs kernel:  [<b01625dd>] __pollwait+0x0/0xc1
+Oct 25 09:39:03 lfs kernel:  [<b011a9ec>] autoremove_wake_function+0x0/0x43
+Oct 25 09:39:03 lfs kernel:  [<b0162cc7>] sys_select+0x255/0x488
+Oct 25 09:39:03 lfs kernel:  [<b0103fd9>] sysenter_past_esp+0x52/0x71
+Oct 25 09:39:03 lfs kernel: Warning: kfree_skb on hard IRQ 00000000
+[snipped thousands of scheduling while atomic messages]
+Then the kernel panicked.
 
- It seems that kernel was panic in this function:
+BKL preempt is enabled. I think this could be the reason for the crash.
+(normal preempt is enabled as well)
+It's all non-reproduceable.
 
-static void nmi_cpu_setup(void * dummy)
-{
-       int cpu = smp_processor_id();
-       struct op_msrs * msrs = &cpu_msrs[cpu];
-       model->fill_in_addresses(msrs);
-       nmi_save_registers(msrs);
-       spin_lock(&oprofilefs_lock);
-       model->setup_ctrs(msrs);
-       spin_unlock(&oprofilefs_lock);
-       saved_lvtpc[cpu] = apic_read(APIC_LVTPC);
-       apic_write(APIC_LVTPC, APIC_DM_NMI);
-}
+=2D-=20
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
-  the result of objdump -d oprofile.ko as follows:
 
-00001840 <nmi_cpu_setup>:
-   1840:       a1 40 02 00 00          mov    0x240,%eax
-   1845:       68 44 02 00 00          push   $0x244
-   184a:       ff 50 08                call   *0x8(%eax)
-   184d:       68 44 02 00 00          push   $0x244
-   1852:       e8 d9 fe ff ff          call   1730 <nmi_save_registers>
-   1857:       58                      pop    %eax
-   1858:       a1 40 02 00 00          mov    0x240,%eax
-   185d:       5a                      pop    %edx
-   185e:       68 44 02 00 00          push   $0x244
-   1863:       ff 50 0c                call   *0xc(%eax)
-   1866:       58                      pop    %eax
-   1867:       a1 40 d3 ff ff          mov    0xffffd340,%eax
-   186c:       c7 05 40 d3 ff ff 00    movl   $0x400,0xffffd340
-   1873:       04 00 00
-   1876:       a3 4c 02 00 00          mov    %eax,0x24c
-   187b:       c3                      ret
-   187c:       8d 74 26 00             lea    0x0(%esi,1),%esi
+--nextPart1127907.JfeoCITSZt
+Content-Type: application/pgp-signature
 
-   Why APIC_LVTPC get virtual address 0xffffd340? Anybody has
-confront this question? please point me how to resolve this question?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBfMNjFGK1OIvVOP4RAk0YAJ9I+SihqysY0HoBUT5GT4VfNY2YGwCbBMB4
+GDWPWTBAwybpiNXT47+jacg=
+=61mL
+-----END PGP SIGNATURE-----
+
+--nextPart1127907.JfeoCITSZt--

@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262511AbRFCAyi>; Sat, 2 Jun 2001 20:54:38 -0400
+	id <S262702AbRFCAt1>; Sat, 2 Jun 2001 20:49:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbRFCAy2>; Sat, 2 Jun 2001 20:54:28 -0400
-Received: from barry.mail.mindspring.net ([207.69.200.25]:65036 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S262511AbRFCAyN>; Sat, 2 Jun 2001 20:54:13 -0400
-Subject: Re: Intellimouse in 2.4.5-ac7
-From: Robert Love <rml@tech9.net>
-To: mythos <papadako@csd.uoc.gr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0106030331110.28653-100000@iridanos.csd.uch.gr>
-In-Reply-To: <Pine.GSO.4.33.0106030331110.28653-100000@iridanos.csd.uch.gr>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 02 Jun 2001 20:54:16 -0400
-Message-Id: <991529658.691.0.camel@phantasy>
-Mime-Version: 1.0
+	id <S262703AbRFCAtS>; Sat, 2 Jun 2001 20:49:18 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40378 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262702AbRFCAtF>;
+	Sat, 2 Jun 2001 20:49:05 -0400
+Date: Sat, 2 Jun 2001 20:49:03 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: symlink_prefix
+In-Reply-To: <UTC200106022354.BAA182685.aeb@vlet.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0106022036200.25668-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03 Jun 2001 03:34:14 +0300, mythos wrote:
-> Using kernel 2.4.5-ac7 my intelli is not working at all.
-> The kernel doesn't report that it has found it.My config is the same
-> with the previous kernel I used 2.4.5-ac2.
 
-can you test it with ac6? ac7 incorpates an incredibly simple patch to
-fix poor scrolling in ac4-ac6.  i cant see how this could break
-anything.
 
-i am running ac7 right now (and was running ac6 with the patch) and my
-IntelliMouse works fine.
+On Sun, 3 Jun 2001 Andries.Brouwer@cwi.nl wrote:
 
-I am using the USB HID driver, not the limited mouse-only driver.
+> This evening I needed to work on a filesystem of a non-Linux OS,
+> full of absolute symlinks. After mounting the fs on /mnt, each
+> symlink pointing to /foo/bar in that filesystem should be
+> regarded as pointing to /mnt/foo/bar.
+> 
+> Since doing ls -ld on every component of every pathname was
+> far too slow, I made a small kernel wart, where a mount option
+> -o symlink_prefix=/pathname would cause /pathname to be prepended
+> in front of every absolute symlink in the given filesystem
+> (when the symlink is followed). That works satisfactorily.
+> 
+> Remain the questions:
+> (i) is there already a mechanism that would achieve this?
+> (ii) if not, do we want something like this in the kernel?
+> 
+> There is already a vaguely similar (and much uglier) wart,
+> namely that of "altroot". It is really ugly - requires a path
+> set at kernel compile time. And the scope is different.
+> Instead of all processes and a single filesystem and symlinks only,
+> altroot affects a single process and all filesystems and all paths.
+> 
+> I do not immediately see a common generalization of these two.
 
-[20:48:33]rml@phantasy:~# uname -a
-Linux phantasy 2.4.5-ac7 #1 Sat Jun 2 19:38:20 EDT 2001 i686 unknown
+altroot should be buried, not generalized. It was a mistake and
+we will be better off forgetting about that nightmare instead of
+trying to design something around it.
 
-[20:49:43]rml@phantasy:~# grep Intelli /var/log/dmesg 
-input0: USB HID v1.00 Mouse [Microsoft Microsoft IntelliMouse® Explorer]
-on usb1:2.0
+Absolute symlinks... Dunno. _If_ we want that at all, we probably
+want it on per-mountpoint basis. However, that opens a door to
+_really_ ugly feature requests. E.g. "if symlink starts with
+/foo - replace it with /mnt/bar, but if it starts with /foo/baz -
+replace with /mnt/splat instead".
 
-maybe we should stop using microsoft products? :)
+I can see how to implement per-mountpoint variant. However, I'm
+less than enthusiastic about the API side of that and about the
+ugliness it will lead to. It smells like a wrong approach. And
+no, I don't see a good one right now.
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+As for the API... How would you pass that option? Yet another
+mount(2) argument?
 

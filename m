@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264397AbTDXVNW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 17:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTDXVNV
+	id S263938AbTDXVKf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTDXVKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 17:13:21 -0400
-Received: from [12.47.58.68] ([12.47.58.68]:41315 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S264397AbTDXVNR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:13:17 -0400
-Date: Thu, 24 Apr 2003 14:23:06 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: jt@hpl.hp.com
-Cc: jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       davem@redhat.com, kuznet@ms2.inr.ac.ru
-Subject: Re: [BUG 2.5.X] pipe/fcntl/F_GETFL/F_SETFL obvious kernel bug
-Message-Id: <20030424142306.4510d10f.akpm@digeo.com>
-In-Reply-To: <20030424183313.GA17374@bougret.hpl.hp.com>
-References: <20030424183313.GA17374@bougret.hpl.hp.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 24 Apr 2003 17:10:35 -0400
+Received: from almesberger.net ([63.105.73.239]:26634 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S263938AbTDXVKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 17:10:34 -0400
+Date: Thu, 24 Apr 2003 18:22:28 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Matthias Schniedermeyer <ms@citd.de>, Pat Suwalski <pat@suwalski.net>,
+       Jamie Lokier <jamie@shareable.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <20030424182227.P3557@almesberger.net>
+References: <20030424130151.O3557@almesberger.net> <Pine.LNX.4.44.0304241818400.1758-100000@pnote.perex-int.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Apr 2003 21:25:19.0037 (UTC) FILETIME=[01602ED0:01C30AA8]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304241818400.1758-100000@pnote.perex-int.cz>; from perex@suse.cz on Thu, Apr 24, 2003 at 06:26:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
->
-> 	Hi,
-> 
-> 	I reported this obvious kernel 2.5.X bug 6 months ago, and as
-> of 2.5.67 it is still not fixed. Do you know who I should send this
-> bug report to ?
+Jaroslav Kysela wrote:
+> We have emulation layer for non-ALSA mixers. This layer turns mute off 
+> automagically when volume is greater than zero.
 
-fcntl(fd, F_GETFL, intp) does not put the return value into *intp.  The
-flags are in fcntl()'s return value.  Same with 2.4.
+Thanks for clarifying this ! So, would you agree with the following
+addition to Documentation/Changes ?
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <stdio.h>
+  ALSA (Advanced Linux Sound Architecture) is now the preferred
+  architecture for sound support, instead of the older OSS (Open
+  Sound System). Note that, in ALSA, all volume settings default
+  to zero, and all channels default to being "muted".
 
-int main()
-{
-	int trigger_pipe[2];
-	int err;
-	int flags;
-	int newflags;
+  User space therefore needs to explicitly increase the volume,
+  and "unmute" the respective audio channels before any sound
+  can be heard. 
 
-	pipe(trigger_pipe);
+  Mixers not explicitly supporting the "mute" functionality will
+  usually "unmute" sources when setting the volume to a value
+  above zero.
 
-	/* Get flags */
-	flags = fcntl(trigger_pipe[0], F_GETFL, NULL);
-	fprintf(stderr, "Set flags: 0x%x\n", flags);
+  More information about ALSA, including configuration and OSS
+  compatibility, can be found in Documentation/sound/alsa/
 
-	/* Set flags */
-	flags |= O_NONBLOCK;
-	err = fcntl(trigger_pipe[0], F_SETFL, flags);
-	fprintf(stderr, "Set flags: %d\n", err);
+> Our policy is: Don't allow to users to jump from skin when default volumes 
+> are invalid. Because we cannot determine the settings of an user amplifier
+> (analog path), the most safe is mute everything.
 
-	/* Check flags */
-	flags = fcntl(trigger_pipe[0], F_GETFL, NULL);
-	fprintf(stderr, "Get flags: 0x%0x\n", flags);
-}
+I couldn't agree more.
 
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

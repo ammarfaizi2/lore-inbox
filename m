@@ -1,76 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263082AbUAaE2X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 23:28:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbUAaE2X
+	id S263606AbUAaE63 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 23:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbUAaE63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 23:28:23 -0500
-Received: from wilma.widomaker.com ([204.17.220.5]:5640 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S263082AbUAaE2V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 23:28:21 -0500
-Date: Fri, 30 Jan 2004 22:41:36 -0500
-From: Charles Shannon Hendrix <shannon@widomaker.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: nVidia driver uses far less memory now, was Re: Nvidia drivers and 2.6.x kernel
-Message-ID: <20040131034136.GA17945@widomaker.com>
-References: <200401221004.06645.chakkerz@optusnet.com.au> <200401230942.13888.chakkerz@optusnet.com.au> <401052C6.7040500@ihateaol.co.uk> <200401261024.28998.chakkerz@optusnet.com.au> <20040127224946.GC23758@widomaker.com>
+	Fri, 30 Jan 2004 23:58:29 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:51727 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S263606AbUAaE61 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 23:58:27 -0500
+Date: Sat, 31 Jan 2004 15:58:12 +1100
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: [2.4] invalid kfree in ntfs_printcb
+Message-ID: <20040131045812.GA19629@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
 Content-Disposition: inline
-In-Reply-To: <20040127224946.GC23758@widomaker.com>
-X-Message-Flag: Microsoft Loves You!
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tue, 27 Jan 2004 @ 17:49 -0500, Charles Shannon Hendrix said:
 
-> nVidia has released drivers supporting kernel 2.6 on their website.
-> 
-> They run nicely for me.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Followup note: Running the new nVidia drivers, I see a huge drop in the
-size of the X server.
+Hi:
 
-My normal X server virgual memory size was around 260MB.  If I played a
-game like Infiltration, it would rise to 300MB.  After exiting the game,
-the virtual size stayed where it was.  It never shrunk, and it ate a lot
-of swap space too.
+This patch fixes a potential double kfree in ntfs_printcb in 2.4.24.
 
-Then I upgraded to the new nVidia drivers which support the 2.6 kernel,
-and things have changed.
-
-I noticed my system was swapping a lot less, but didn't have time to
-look into it.
-
-Today I did.
-
-My X server now hovers around 76MB, virtual size. Loading Infiltration
-causes it to grow to around 98MB.  When I exit the game, it drops back
-down to 76MB virtual.
-
-It also seems to release memory after a program like The Gimp has been
-running, though I've done less testing with that.  I've observed a
-110MB->78MB drop when exiting The Gimp, but didn't record the event.
-
-Wow... I started out on 8-bit micros, and talking about "drops" of 32MB
-amazes me sometimes.
-
-Questions:
-
-Is the new driver able to hide the graphics aperature, showing a more
-true statistic on memory use?
-
-Was the 2.6 kernel always capable of showing the right thing, and the
-new driver being made for 2.6 is just working better?
-
-Why does the virtual memory size shrink now?  Could the new driver be
-unmapping vitual memory to free it up?
-
-I'm going to ask nVidia, but wanted to post here and also see if anyone
-else noticed this.
-
+Cheers,
 -- 
-shannon "AT" widomaker.com -- ["Star Wars Moral Number 17: Teddy bears are
-dangerous in herds."]
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: kernel-2.4/fs/ntfs/fs.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/fs/ntfs/fs.c,v
+retrieving revision 1.1.1.15
+diff -u -r1.1.1.15 fs.c
+--- kernel-2.4/fs/ntfs/fs.c	28 Nov 2003 18:26:21 -0000	1.1.1.15
++++ kernel-2.4/fs/ntfs/fs.c	31 Jan 2004 04:47:51 -0000
+@@ -199,7 +199,7 @@
+ 		ntfs_debug(DEBUG_OTHER, "%s(): Skipping unrepresentable "
+ 				"file.\n", __FUNCTION__);
+ 		err = 0;
+-		goto err_ret;
++		goto err_noname;
+ 	}
+ 	if (!show_sys_files && inum < 0x10UL) {
+ 		ntfs_debug(DEBUG_OTHER, "%s(): Skipping system file (%s).\n",
+@@ -233,8 +233,9 @@
+ 	if (err)
+ 		nf->ret_code = err;
+ err_ret:
+-	nf->namelen = 0;
+ 	ntfs_free(nf->name);
++err_noname:
++	nf->namelen = 0;
+ 	nf->name = NULL;
+ 	return err;
+ }
+
+--BXVAT5kNtrzKuDFl--

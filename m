@@ -1,90 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265351AbSKEXeY>; Tue, 5 Nov 2002 18:34:24 -0500
+	id <S265336AbSKEXcO>; Tue, 5 Nov 2002 18:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265352AbSKEXeX>; Tue, 5 Nov 2002 18:34:23 -0500
-Received: from chunk.voxel.net ([207.99.115.133]:32732 "EHLO chunk.voxel.net")
-	by vger.kernel.org with ESMTP id <S265351AbSKEXeV>;
-	Tue, 5 Nov 2002 18:34:21 -0500
-Date: Tue, 5 Nov 2002 18:40:58 -0500
-From: Andres Salomon <dilinger@voxel.net>
-To: Mike Diehl <mdiehl@dominion.dyndns.org>
-Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-announce] EVMS announcement
-Message-ID: <20021105234058.GA28941@chunk.voxel.net>
-References: <02110516191004.07074@boiler> <20021105214012.C2B4651CF@dominion.dyndns.org>
+	id <S265343AbSKEXcO>; Tue, 5 Nov 2002 18:32:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36113 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265336AbSKEXcM>; Tue, 5 Nov 2002 18:32:12 -0500
+Date: Tue, 5 Nov 2002 23:38:44 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: zippel@linux-m68k.org
+Subject: [PATCH] Up silly limit on .config line length
+Message-ID: <20021105233844.J24606@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021105214012.C2B4651CF@dominion.dyndns.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux chunk 2.4.18-ac3 
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note the difference between LVM (the tools, the on-disk format, etc) and
-device-mapper (simply a generic interface in the kernel).  I suspect the
-disasterous LVM experiences you've had were either with LVM1 (which did
-not use device-mapper), or with some aspect of LVM2's userspace stuff
-(which, I have yet to hear of any major problems with, other than
-important features like pvmove not yet being implemented).  There's no
-reason why EVMS would need to emulate similar behavior.
+kconfig brought in a bug whereby no .config line can be longer than 128
+characters.  This causes a problem since it is quite common to have
+.config lines longer than this on ARM, especially when they contain the
+default kernel command line, like:
 
+CONFIG_CMDLINE="console=ttySA0,38400n8 cpufreq=221200 rw root=/dev/ram0 mtdparts=sa1100:512K(boot),1M(kernel),2560K(initrd),4M("
 
-On Tue, Nov 05, 2002 at 04:00:10PM -0500, Mike Diehl wrote:
-> 
-> Well, I'm a bit disapointed.  My experience with LVM has been nothing short 
-> of disasterous; EVMS looked like a very good alternative to LVM.  Volume 
-> Management is one of the FEW things that Linux lacks that the "Big Boys" have.
-> 
-> 
-> 
-> 
-> On Tuesday 05 November 2002 05:19 pm, Kevin Corry wrote:
->      > Greetings EVMS users,
->      >
->      > On behalf of the EVMS team, we would like to announce a significant
->      > change in direction for the Enterprise Volume Management System
->      > project.
-[...]
->      > In summary, we feel that this decision is the best way to support our
->      > users for the long term. We want to provide EVMS on current and future
->      > kernels, and we feel this change provides the best method for
->      > achieving that. At the same time, this addresses all of the concerns
->      > voiced by the kernel community.  If anyone has any questions or
->      > concerns about this decision, please email us or the EVMS mailing list
->      > at
->      > evms-devel@lists.sf.net. We will be happy to answer any questions or
->      > discuss these changes in more detail.
->      >
->      > Thank you,
->      >
->      > The EVMS Team
->      > http://evms.sourceforge.net/
->      > evms-devel@lists.sourceforge.net
->      >
->      >
->      > -------------------------------------------------------
->      > This sf.net email is sponsored by: See the NEW Palm
->      > Tungsten T handheld. Power & Color in a compact size!
->      > http://ads.sourceforge.net/cgi-bin/redirect.pl?palm0001en
->      > _______________________________________________
->      > Evms-announce mailing list
->      > Evms-announce@lists.sourceforge.net
->      > To subscribe/unsubscribe, please visit:
->      > https://lists.sourceforge.net/lists/listinfo/evms-announce
-> 
-> -- 
-> Mike Diehl
-> PGP Encrypted E-mail preferred.
-> Public Key via: http://dominion.dyndns.org/~mdiehl/mdiehl.asc
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The effect of this bug can be seen above; in this case it has chopped
+off the parameters that allow this machine to boot; the missing parameters
+should be:
+
+ "root) load_ramdisk=1 prompt_ramdisk=0 mem=32M noinitrd initrd=0xc0800000,3M"
+
+I believe that this arbitary limit should be eliminated by some method.
+However, as a "get you working" patch with a new arbitary limit of 1024
+characters:
+
+--- linux/scripts/kconfig/confdata.c	Tue Nov  5 23:24:42 2002
++++ linux-sa1100/scripts/kconfig/confdata.c	Tue Nov  5 23:28:57 2002
+@@ -61,7 +61,7 @@
+ int conf_read(const char *name)
+ {
+ 	FILE *in = NULL;
+-	char line[128];
++	char line[1024];
+ 	char *p, *p2;
+ 	int lineno = 0;
+ 	struct symbol *sym;
+@@ -105,7 +105,7 @@
+ 		}
+ 	}
+ 
+-	while (fgets(line, 128, in)) {
++	while (fgets(line, sizeof(line), in)) {
+ 		lineno++;
+ 		switch (line[0]) {
+ 		case '#':
 
 -- 
-It's not denial.  I'm just selective about the reality I accept.
-	-- Bill Watterson
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

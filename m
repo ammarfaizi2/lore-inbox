@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280456AbRKXXFp>; Sat, 24 Nov 2001 18:05:45 -0500
+	id <S280457AbRKXXPr>; Sat, 24 Nov 2001 18:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280510AbRKXXFf>; Sat, 24 Nov 2001 18:05:35 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:35113 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S280456AbRKXXFW>; Sat, 24 Nov 2001 18:05:22 -0500
-From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-To: linux-kernel@vger.kernel.org,
-        Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: Sun, 25 Nov 2001 00:04:50 +0100
+	id <S280467AbRKXXPh>; Sat, 24 Nov 2001 18:15:37 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:50816 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S280457AbRKXXPR>; Sat, 24 Nov 2001 18:15:17 -0500
+Message-ID: <007901c1753d$b541ae80$f5976dcf@nwfs>
+From: "Jeff Merkey" <jmerkey@timpanogas.org>
+To: "Alexander Viro" <viro@math.psu.edu>, "Robert Boermans" <boermans@tfn.net>
+Cc: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0111241749320.6117-100000@weyl.math.psu.edu>
+Subject: Re: 2.5.0 breakage even with fix?
+Date: Sat, 24 Nov 2001 16:14:03 -0700
 MIME-Version: 1.0
-Subject: Re: Journaling pointless with today's hard disks?
-Message-ID: <3C0035A2.24075.FFE9A8@localhost>
-In-Reply-To: <20011124184119.C12133@emma1.emma.line.org> (Matthias Andree's message of "Sat, 24 Nov 2001 18:41:19 +0100")
-In-Reply-To: <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Al,
 
-   I've always favoured IBM disks in all my hardware, from enterprise external 
-scsi raid hardware to small ide hardware raid devices (3ware fyi). At home all 
-my four disks are IBM (two DTLA). But with your information it seems i have 
-been bitten by that problem twice at the same time. Several months ago a less 
-zealous system administrator, while shutting down a couple servers for 
-maintenance at night, made a mistake in the console kvm switch, and pushed 
-the red button on a live server with four DTLA IBM disks plugged to a 3ware 
-raid card. On recovery, and after some time, one of the volumes started 
-complaining about errors, and went into degraded mode. One of the disks was 
-clearly broken we thought. So we exchanged it, but alas a couple hours later 
-another one in another volume complained. We also exchanged that one and 
-rebuilt everything. After checking the disks with IBM drive fitness software both 
-presented bad blocks that were recovered with a low level format. I dismissed 
-the events as something weird, but with some logical explanation beyond my 
-grasp. Now all makes sense.
+I am not seeing any more breakage with this fix with NWFS.
+
+Jeff
+
+----- Original Message -----
+From: "Alexander Viro" <viro@math.psu.edu>
+To: "Robert Boermans" <boermans@tfn.net>
+Cc: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>; <linux-kernel@vger.kernel.org>
+Sent: Saturday, November 24, 2001 4:03 PM
+Subject: Re: 2.5.0 breakage even with fix?
 
 
-/Pedro
-
-
-On 24 Nov 2001 at 20:20, Florian Weimer wrote:
-
-> Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
-> 
-> > However, if it's really true that DTLA drives and their successor
-> > corrupt blocks (generate bad blocks) on power loss during block
-> > writes, these drives are crap.
-> 
-> They do, even IBM admits that (on
-> 
->         http://www.cooling-solutions.de/dtla-faq
-> 
-> you find a quote from IBM confirming this).  IBM says it's okay, you
-> have to expect this to happen.  So much for their expertise in making
-> hard disks.  This makes me feel rather dizzy (lots of IBM drives in
-> use).
-> 
-> -- 
-> Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-> University of Stuttgart           http://cert.uni-stuttgart.de/
-> RUS-CERT                          +49-711-685-5973/fax
-> +49-711-685-5898 - To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in the body of a message to
-> majordomo@vger.kernel.org More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html Please read the FAQ at 
-> http://www.tux.org/lkml/
-> 
-
+>
+>
+> On Sun, 25 Nov 2001, Robert Boermans wrote:
+>
+> > If the filesystem is marked clean, does that mean that people with
+> > journalling file systems are fscked? (since there might be no journal
+entry
+> > of what hasn't finished.)
+>
+> Well, if filesystem doesn't have a recovery tool that would allow forced
+> check mode - you _are_ screwed.  As you will be again and again if you get
+> memory corruption/driver bugs/fs bugs/RAID bugs/physical disk
+problems/etc.
+>
+> Again, if filesystem trusts clear bit to the extent that you have no way
+> to convince it that checks _are_ needed - it's unfit for any serious use.
+> I suspect that by now everybody had learnt that much - that used to be
+> a permanent source of problems with early journalling filesystems and
+AFAIK
+> all of them had been fixed since then.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

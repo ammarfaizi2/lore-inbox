@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272557AbRH3Xbf>; Thu, 30 Aug 2001 19:31:35 -0400
+	id <S272559AbRH3Xhi>; Thu, 30 Aug 2001 19:37:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272558AbRH3XbZ>; Thu, 30 Aug 2001 19:31:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3988 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272557AbRH3XbU>;
-	Thu, 30 Aug 2001 19:31:20 -0400
-Date: Thu, 30 Aug 2001 16:31:29 -0700 (PDT)
-Message-Id: <20010830.163129.55479282.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E15cbGc-00027M-00@the-village.bc.nu>
-In-Reply-To: <20010830.161453.130817352.davem@redhat.com>
-	<E15cbGc-00027M-00@the-village.bc.nu>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272560AbRH3Xh3>; Thu, 30 Aug 2001 19:37:29 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:56588 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S272559AbRH3XhO>;
+	Thu, 30 Aug 2001 19:37:14 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Date: 30 Aug 2001 23:33:52 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9mmih0$qvb$1@abraham.cs.berkeley.edu>
+In-Reply-To: <200108302044.f7UKi7c20040@wildsau.idv-edu.uni-linz.ac.at> <Pine.LNX.3.95.1010830171614.18406A-100000@chaos.analogic.com>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 999214432 27627 128.32.45.153 (30 Aug 2001 23:33:52 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 30 Aug 2001 23:33:52 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Fri, 31 Aug 2001 00:30:34 +0100 (BST)
+Richard B. Johnson wrote:
+>The min() macro is not really used for the mathematical min, anywhere
+>I've found it in the kernel. It's used as a whatever_will_fit() macro
+>where the writer wanted to prevent a buffer overflow. [...]
+>
+>I suggest we just leave the damn thing alone and fix any
+>bugs found in the normal way, i.e., "If it ain't broke, don't fix it."
 
-   That isnt done anyway - the card executes a risc instruction set for the
-   DMA engine specifying which to skip and draw. So you feed it a base
-   physical address for the fb via ioctl (yes this needs to be a pci device
-   bar and offset I suspect) and then tell it about the fb layout and the like
-
-We could do something interesting with /proc/bus/pci/bus/devfn nodes
-I suspect.
-
-You open the target fb pci dev, and part of the argument to the video
-ioctl is:
-
-	int pci_dev_fd;
-	int resource_num;
-	u64 offset;
-	u64 len;
-
-Something like that.
-
-Later,
-David S. Miller
-davem@redhat.com
+The problem is that this tends not to work out so well when it
+comes to security.  Patch-and-pray gets pretty painful after a
+while; proactive measures would seem to be called for, if security
+is on the line.

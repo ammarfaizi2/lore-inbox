@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbTDQMp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 08:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbTDQMp3
+	id S261329AbTDQNDi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 09:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbTDQNDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 08:45:29 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:39954 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261328AbTDQMp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 08:45:27 -0400
-Date: Thu, 17 Apr 2003 13:57:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Alan Cox <alan@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Mukker Atul <atulm@lsil.com>,
-       "'James.Bottomley@steeleye.com'" <James.Bottomley@steeleye.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>,
-       "'linux-megaraid-announce@dell.com'" 
-	<linux-megaraid-announce@dell.com>
-Subject: Re: [ANNOUNCE]: version 2.00.3 megaraid driver for 2.4.x and 2.5.67 kernels
-Message-ID: <20030417135719.A13189@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alan Cox <alan@redhat.com>, Mukker Atul <atulm@lsil.com>,
-	"'James.Bottomley@steeleye.com'" <James.Bottomley@steeleye.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-	"'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>,
-	"'linux-megaraid-announce@dell.com'" <linux-megaraid-announce@dell.com>
-References: <20030417133820.A12503@infradead.org> <200304171252.h3HCqG909973@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200304171252.h3HCqG909973@devserv.devel.redhat.com>; from alan@redhat.com on Thu, Apr 17, 2003 at 08:52:16AM -0400
+	Thu, 17 Apr 2003 09:03:38 -0400
+Received: from [63.246.199.14] ([63.246.199.14]:13696 "EHLO ns.briggsmedia.com")
+	by vger.kernel.org with ESMTP id S261329AbTDQNDh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 09:03:37 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Help with virus/hackers
+Date: Thu, 17 Apr 2003 10:15:13 -0400
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200304171015.13474.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 08:52:16AM -0400, Alan Cox wrote:
-> a) megaraid always used a set of basic typedefs. Seems to be your personal
-> view not general comment
+Please redirect me if this is not the appropriate place for this post.
 
-At least Linus seems to share my opinion :)
+I have several Debian/Woody/2.4.19 webserver/firewalls at various locations 
+that seem to have been hacked or victum of a worm or virus.  It is hard to 
+articulate exactly the symptoms since it quickly brings the system down, but 
+here is what I know so far:
 
-> >     Do you really need this?  Why can you use
-> >     struct device_driver->shutdown?
-> 
-> Not on 2.2
+1) There is no more output to /var/log/syslog.  The contents of the file is 
+'0'.
+2) 'last' works, but with no unexpected ftp or telnet logins.
+3) Windows systems on the inside seem to have been infected with the 
+W23.HLLW.ULTIMAX worm that propagates through Windows networking.  Samba was 
+indeed running on the servers.
+4) If I telnet into the server and 'ls', I get:
+ls: uncrecognized prefix: do
+ls: unparsable value for LS_COLORS environment variable
 
-This is a 2.5-only driver (in fact a 2.5 only patch against a 2.4 driver)
+But I can su to root.
 
-> > 	return FALSE;
-> > 
-> >     Please don't use TRUE/FALSE but 1/0 directly.
-> 
-> TRUE/FALSE is IMHO perfectly clear
+5) On some systems I rebooted and got the console errors "can't open 
+/etc/console/boottime.kmap.gz", and it can't seem to mount the the filesystem 
+and complete the boot.
 
-It's clear, but Linux kernel code avoids it usually.  I'm
-currently getting rid of it in the scsi headers so it's a good idea
-to avoid it in new drivers.
+The first machine went down last Friday in San Antonio TX last Friday.  Then 
+within a few hours two more went down that was on the same DSL providers's 
+network.  Today I experienced the problem on a server in Manchester NH.
 
+Can anyone offer any advice or insight?
+-- 
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL/FAX 603-232-3115 MOBILE 603-493-2386
+www.briggsmedia.com

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284837AbSACSCy>; Thu, 3 Jan 2002 13:02:54 -0500
+	id <S287325AbSACSCO>; Thu, 3 Jan 2002 13:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287388AbSACSCp>; Thu, 3 Jan 2002 13:02:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:33546 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284837AbSACSC3>;
-	Thu, 3 Jan 2002 13:02:29 -0500
-Date: Thu, 3 Jan 2002 19:02:28 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Dual athlon XP 1800 problems
-In-Reply-To: <a125gv$l3b$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0201031858200.11961-100000@Appserv.suse.de>
+	id <S284837AbSACSCF>; Thu, 3 Jan 2002 13:02:05 -0500
+Received: from dsl-213-023-043-223.arcor-ip.net ([213.23.43.223]:53262 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287325AbSACSBy>;
+	Thu, 3 Jan 2002 13:01:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>, Christoph Hellwig <hch@ns.caldera.de>
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+Date: Thu, 3 Jan 2002 19:04:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0201031139410.23312-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0201031139410.23312-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16MCEb-00019E-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Jan 2002, H. Peter Anvin wrote:
+On January 3, 2002 05:45 pm, Alexander Viro wrote:
+> On Thu, 3 Jan 2002, Christoph Hellwig wrote:
+> 
+> > In article <E16M7Gz-00015E-00@starship.berlin> you wrote:
+> > > -	inode = get_empty_inode();
+> > > +	inode = get_empty_inode(sb);
+> > 
+> > How about killing get_empty_inode completly and using new_inode() instead?
+> > There should be no regularly allocated inode without a superblock.
+> 
+> Seconded.  However, you'll need to zero out ->i_dev for objects that
+> traditionally have zero ->st_dev (pipes and sockets).
 
-> This seems very odd.  I thought in Athlon processors the ID string
-> came from the *CPU* (via CPUID), not the BIOS...
+If you spell out exactly what special case treatment you'd like for i_dev, 
+I'll make the changes to get rid of get_empty_inode.
 
-Software overridable cpuid strings are getting quick commonplace
-in CPUs from several vendors.
-
-I beleive the reasoning is that sometimes the lead time from
-manufacture to marketing is long enough that the default power-on string
-may not be correct, hence the BIOS can do the XP/MP descrimination, and
-set accordingly. (Unless you've got a crap BIOS).
-
-If anyone believes they have a BIOS which doesn't do this correctly,
-(/proc/cpuinfo reports XP, and x86info reports MP or vice versa),
-let me know, and I'll see what I can dig up.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+--
+Daniel

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263240AbUCTGk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 01:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbUCTGk3
+	id S263242AbUCTHMy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 02:12:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263243AbUCTHMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 01:40:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:35772 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263240AbUCTGk2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 01:40:28 -0500
-Date: Sat, 20 Mar 2004 17:36:42 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] cpu hotplug fix
-Message-ID: <20040320063642.GF1153@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Mar 2004 02:12:54 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:35289 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263242AbUCTHMx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 02:12:53 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>, kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Kgdb-bugreport] Move eth into 'lite' series?
+Date: Sat, 20 Mar 2004 12:42:21 +0530
+User-Agent: KMail/1.5
+References: <20040319210322.GA13141@smtp.west.cox.net>
+In-Reply-To: <20040319210322.GA13141@smtp.west.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403201242.21578.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 20 Mar 2004 2:33 am, Tom Rini wrote:
+> I was thinking, now that netpoll is in 2.6.5-rc1, should we move the
+> kgdboe driver into the -lite series?  I'd like to say Yes, with a quick
+> check over the include list.
 
-start_cpu_timer was changed to __init a few hours before the cpu hotplug
-patches went in. With cpu hotplug it can be called at any time, so fix
-this.
+Let's wait till current session to push kgdb into mainline kernel is over. We 
+need not push kgdboe into lite series, we can push it into mainline kernel 
+itself :-)
 
-Anton
+I was supposed to submit second version of lite patches monday this week, but 
+was preempted by some other work. I'll post them on coming monday now
 
-===== slab.c 1.125 vs edited =====
---- 1.125/mm/slab.c	Wed Mar 17 13:10:10 2004
-+++ edited/slab.c	Sat Mar 20 17:34:57 2004
-@@ -576,7 +576,7 @@
-  * Add the CPU number into the expiry time to minimize the possibility of the
-  * CPUs getting into lockstep and contending for the global cache chain lock.
-  */
--static void __init start_cpu_timer(int cpu)
-+static void start_cpu_timer(int cpu)
- {
- 	struct timer_list *rt = &per_cpu(reap_timers, cpu);
- 
+
+-- 
+Amit Kale
+EmSysSoft (http://www.emsyssoft.com)
+KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+

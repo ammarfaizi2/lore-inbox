@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271486AbRHZTbT>; Sun, 26 Aug 2001 15:31:19 -0400
+	id <S271498AbRHZTj7>; Sun, 26 Aug 2001 15:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271498AbRHZTbJ>; Sun, 26 Aug 2001 15:31:09 -0400
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:42933 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S271486AbRHZTbB>;
-	Sun, 26 Aug 2001 15:31:01 -0400
-Date: Sun, 26 Aug 2001 21:31:16 +0200
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        linux-kernel@vger.kernel.org
+	id <S271501AbRHZTjt>; Sun, 26 Aug 2001 15:39:49 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:23056 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271498AbRHZTjh>;
+	Sun, 26 Aug 2001 15:39:37 -0400
+Date: Sun, 26 Aug 2001 16:38:55 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Message-ID: <20010826213116.E2994@cerebro.laendle>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010824201125Z16096-32383+1213@humbolt.nl.linux.org> <Pine.LNX.4.33L.0108241713420.31410-100000@duckman.distro.conectiva> <20010825012338.B547@cerebro.laendle> <20010826164818Z16191-32383+1474@humbolt.nl.linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20010826164818Z16191-32383+1474@humbolt.nl.linux.org>
-X-Operating-System: Linux version 2.4.8-ac8 (root@cerebro) (gcc version 3.0.1) 
+In-Reply-To: <20010826125911.A20805@hq2>
+Message-ID: <Pine.LNX.4.33L.0108261632520.5646-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 26, 2001 at 06:54:55PM +0200, Daniel Phillips <phillips@bonn-fries.net> wrote:
-> But it's a very interesting idea: instead of performing readahead in 
-> generic_file_read the user thread would calculate the readahead window
+On Sun, 26 Aug 2001, Victor Yodaiken wrote:
 
-More basic, less interesting but far more useful would be real aio, sicne
-this would get rid of hundreds of threads that need manual killing when the
-server crashes during development and keep the accept socket open ;)
+> And scheduling gets even more complex as we try to account for work
+> done in this thread on behalf of other processes. And, of course, we
+> have all sorts of wacky merge problems
 
-(But it seems we will have sth. like that in 2.6, so I am generally happy
-;)
+Actually, readahead is always done by the thread reading
+the data, so this is not an issue.
 
-> submit.  The user thread benefits by avoiding some stalls due to
-> readahead->readpage, as well as avoiding thrashing due to excessive
-> readahead.
+> BTW: maybe I'm oversimplifying, but since read-ahead is an optimization
+> trading memory space for time, why doesn't it just turn off when there's
+> a shortage of free memory?
+> 		num_pages = (num_requestd_pages +  (there_is_a_boatload_of_free_space? readahead: 0)
 
-In an ideal world, I would not need user buffers as well and could just
-tell the kernel "copy from file to network", but that requires too much
-kernel tinkery I believe (although, when there is generic aio in the
-kernel there might some day be a aio_sendfile ;)
+When the VM load is high, the last thing you want to do is
+shrink the size of your IO operations, this would only lead
+to more disk seeks and possibly thrashing.
 
+It would be nice to do something similar to TCP window
+collapse for readahead, though...
+
+This would work by increasing the readahead size every
+time we reach the end of the last readahead window without
+having to re-read data twice and collapsing the readahead
+window if any of the pages we read in have to be read
+twice before we got around to using them.
+
+regards,
+
+Rik
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,95 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbUCMElu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 23:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbUCMElu
+	id S263045AbUCMExn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 23:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbUCMExn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 23:41:50 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:29665 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263041AbUCMEls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 23:41:48 -0500
-Subject: Re: ALSA via82xx fails since 2.6.2
-From: Len Brown <len.brown@intel.com>
-To: =?ISO-8859-1?Q?J=FCrgen?= Repolusk <juerep@gmx.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200403130336.36845.juerep@gmx.at>
-References: <A6974D8E5F98D511BB910002A50A6647615F4E8F@hdsmsx402.hd.intel.com>
-	 <1079142765.2175.71.camel@dhcppc4>  <200403130336.36845.juerep@gmx.at>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1079152902.2175.88.camel@dhcppc4>
+	Fri, 12 Mar 2004 23:53:43 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:37840 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S263043AbUCMExk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 23:53:40 -0500
+Date: Sat, 13 Mar 2004 13:56:38 +0900 (JST)
+Message-Id: <20040313.135638.78732994.taka@valinux.co.jp>
+To: raybry@sgi.com
+Cc: lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, n-yoshida@pst.fujitsu.com
+Subject: Re: Hugetlbpages in very large memory machines.......
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <40528383.10305@sgi.com>
+References: <40528383.10305@sgi.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 12 Mar 2004 23:41:43 -0500
-Content-Transfer-Encoding: 8bit
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-12 at 21:36, Jürgen Repolusk wrote:
+Hello,
 
->            CPU0
->   0:   22589343          XT-PIC  timer
->   1:       3716          XT-PIC  i8042
->   2:          0          XT-PIC  cascade
->   8:          2          XT-PIC  rtc
->   9:     100000          XT-PIC  acpi, uhci_hcd, uhci_hcd, yenta, eth1
->  10:     453565          XT-PIC  yenta, eth0
->  11:          0          XT-PIC  sonypi
->  12:     101345          XT-PIC  i8042
->  14:      42157          XT-PIC  ide0
->  15:         22          XT-PIC  ide1
-> NMI:          0
-> LOC:   22589934
-> ERR:      42084
-> MIS:          0
+My following patch might help you. It inclueds pagefault routine
+for hugetlbpages. If you want to use it for your purpose, you need to
+remove some code from hugetlb_prefault() that will call hugetlb_fault().
+http://people.valinux.co.jp/~taka/patches/va01-hugepagefault.patch
+
+But it's just for IA32.
+
+I heard that n-yoshida@pst.fujitsu.com was porting this patch
+on IA64.
+
+> We've run into a scaling problem using hugetlbpages in very large memory machines, e. g. machines 
+> with 1TB or more of main memory.  The problem is that hugetlbpage pages are not faulted in, rather 
+> they are zeroed and mapped in in by hugetlb_prefault() (at least on ia64), which is called in 
+> response to the user's mmap() request.  The net is that all of the hugetlb pages end up being 
+> allocated and zeroed by a single thread, and if most of the machine's memory is allocated to hugetlb 
+> pages, and there is 1 TB or more of main memory, zeroing and allocating all of those pages can take 
+> a long time (500 s or more).
 > 
+> We've looked at allocating and zeroing hugetlbpages at fault time, which would at least allow 
+> multiple processors to be thrown at the problem.  Question is, has anyone else been working on
+> this problem and might they have prototype code they could share with us?
 > 
-
-curious that an audio driver does not show up on irq 5 where the device
-claims to be...
-
-> > how about when you boot with acpi=off or pci=noacpi?
-> actually i gave it a try but it doesn't change anything. still the same error.
-
-Thanks for confirming that this isn't an ACPI bug;-)
-
-I think what's happening is that one of the devices on IRQ9 is pulling
-on that line.  ACPI is the 1st to register a handler on IRQ9, doesn't
-know where the interrupts are coming from, and IRQ9 gets shut down
-before the responsible device can register.
-
-> > Are you sure you didn't see these messages before 2.6.2 -- was ACPI
-> > enabled in the working release?
-> 
-> Yes I'm sure that before 2.6.2 I did not see this message at all - sound was 
-> working real fine. with changin to 2.6.2 up to 2.6.4 now I've this problem.
-> 
-> 	greets, jürgen
-
-There are a couple of things you can do to debug.
-
-boot with "noirqdebug" to treat the symptom.  This will prevent IRQ9
-from getting disabled.  If a device registers and claims those
-interrupts, then the system will function.  If none does, then you'll
-see IRQ9 in /proc/interrupts steadily climb and performance will be
-poor.
-
-remove your USB, yenta and eth1 hardware and see if one makes the issue
-go away.
-
-> ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 *9 10 11 12)
-
-You can also use a feature in ACPI to distribute the interrupts and
-perhaps isolate the offending device.  Boot with...
-
-acpi_irq_balance acpi_irq_pci=3,4,5,7 acpi_irq_isa=9
-
-This should tell the code to balance interrupts across IRQs where
-possible, tending towards 3,4,5,7 and avoiding 9; it already tends
-towards 10.
-
-cheers,
--Len
+> Thanks,
+> -- 
+> Best Regards,
+> Ray
 
 
+Thank you,
+Hirokazu Takahashi.

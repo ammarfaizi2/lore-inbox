@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131047AbQKBAVI>; Wed, 1 Nov 2000 19:21:08 -0500
+	id <S131260AbQKBAWS>; Wed, 1 Nov 2000 19:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131520AbQKBAU6>; Wed, 1 Nov 2000 19:20:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:30607 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S131047AbQKBAUw>;
-	Wed, 1 Nov 2000 19:20:52 -0500
-Date: Wed, 1 Nov 2000 16:06:24 -0800
-Message-Id: <200011020006.QAA20542@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: npsimons@fsmlabs.com
-CC: garloff@suse.de, jamagallon@able.es, linux-kernel@vger.kernel.org
-In-Reply-To: <20001101171158.A4708@fsmlabs.com> (message from Nathan Paul
-	Simons on Wed, 1 Nov 2000 17:11:58 -0700)
+	id <S131520AbQKBAV6>; Wed, 1 Nov 2000 19:21:58 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:20998 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S131260AbQKBAVv>;
+	Wed, 1 Nov 2000 19:21:51 -0500
+Date: Wed, 1 Nov 2000 17:21:00 -0700
+From: Nathan Paul Simons <npsimons@fsmlabs.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: cort@fsmlabs.com, garloff@suse.de, jamagallon@able.es,
+        linux-kernel@vger.kernel.org
 Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net> <20001101171158.A4708@fsmlabs.com>
+Message-ID: <20001101172100.A5081@fsmlabs.com>
+Reply-To: npsimons@fsmlabs.com
+In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net> <20001101165418.B3444@hq.fsmlabs.com> <200011012345.PAA20284@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <200011012345.PAA20284@pizda.ninka.net>; from David S. Miller on Wed, Nov 01, 2000 at 03:45:24PM -0800
+X-Bad-Disk-Header: Do you ever get that syncing feeling?
+Organization: FSMLabs <http://www.fsmlabs.com/>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Wed, 1 Nov 2000 17:11:58 -0700
-   From: Nathan Paul Simons <npsimons@fsmlabs.com>
+On Wed, Nov 01, 2000 at 03:45:24PM -0800, David S. Miller wrote:
+> Finally, if I were to state "fsmlabs are a bunch of pinheads because
+> they did XXX" I would expect you to defend your employer as well if I
+> misrepresented them due to incorrect statements.  Right?  :-)
 
-	   So other distro's did it too.  Why did nobody complain till
-   RedHat did it?  Because no one else decided to use, as the default,
-   a bleeding edge compiler that not only won't compile the kernel but
-   won't even touch a lot of userspace code either.
+Dave,
+	i meant no personal affront to yourself or RedHat; i just thought i'd
+let you know why myself (and i'm sure many others) don't use your distro 
+anymore.  i did label that little comment with a "<rant mode="flame">", now
+didn't i? ;)
+	BTW, if someone did say we were a bunch of pinheads, i'm sure we would
+listen and ask "why?" then try to fix what was making us pinheads, not just
+dismiss it by saying, "oh, everyone else is a pinhead too".
 
-The topic is this thread is whether "kgcc" as a seperate compiler for
-the kernel is a "Red Hat thing".  You stated that it is, I am showing
-you how it isn't.  Please don't change the topic.
-
-Red Hat's selection of it's userland compiler is an entirely different
-topic and there have probably been a few hundred seperate flame wars
-on this matter.  Such a discussion does not belong here on the kernel
-list.  FWIW, I will be one of the first people to say that there were
-some errors of judgment in the decision making that went on there.
-
-Later,
-David S. Miller
-davem@redhat.com
+-- 
+Nathan Paul Simons, Junior Software Engineer for FSMLabs
+http://www.fsmlabs.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

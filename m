@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVBKVBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVBKVIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVBKVBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 16:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVBKVBZ
+	id S262340AbVBKVIu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 16:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVBKVIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 16:01:25 -0500
-Received: from lyle.provo.novell.com ([137.65.81.174]:43098 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262339AbVBKVBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 16:01:23 -0500
-Date: Fri, 11 Feb 2005 13:01:14 -0800
-From: Greg KH <gregkh@suse.de>
-To: Harald Dunkel <harald.dunkel@t-online.de>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-Message-ID: <20050211210114.GA21314@suse.de>
-References: <20050211004033.GA26624@suse.de> <420D1050.3080405@t-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420D1050.3080405@t-online.de>
-User-Agent: Mutt/1.5.6i
+	Fri, 11 Feb 2005 16:08:50 -0500
+Received: from mail02.hansenet.de ([213.191.73.62]:26772 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S262340AbVBKVHw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 16:07:52 -0500
+Message-ID: <420D1EB4.3080704@web.de>
+Date: Fri, 11 Feb 2005 22:08:04 +0100
+From: Marcus Hartig <m.f.h@web.de>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to disable slow agpgart in kernel config?
+References: <420C4B9A.6020900@web.de> <20050211062100.GB1782@redhat.com> <420CDB93.70506@web.de> <20050211184604.GB15721@redhat.com>
+In-Reply-To: <20050211184604.GB15721@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 09:06:40PM +0100, Harald Dunkel wrote:
-> Greg KH wrote:
-> >I'd like to announce, yet-another-hotplug based userspace project:
-> >linux-ng.  This collection of code replaces the existing linux-hotplug
-> >package with very tiny, compiled executable programs, instead of the
-> >existing bash scripts.
-> >
-> 
-> cpio is running to setup a test partition.
-> 
-> But one question: This is yet another package with its
-> own private copy of klibc. Whats the reason behind this
-> non-modular approach?
+Dave Jones wrote:
 
-Because we don't have an easy way yet to build against a copy of klibc
-on a system?  For right now, it's the simplest way to ensure that it
-works for everyone, once klibc moves into the kernel tree I can remove
-it from udev and hotplug-ng.
+  > *shrug*, if the nvidia module is properly configured, it should make
+> no difference at all. AGPGART operation isn't a performance critical
+> thing, as the hardware does 99% of the work.
 
-Is it causing problems for you?
+Yes, that was also my opinion, but after using AGPGART, hmm.
 
-thanks,
+And it was on my last 32 bit FC2 systems with other hardware the same slow 
+operations on the desktop. And I'm not alone, there are some nvnews.net 
+linux forum users which report the same slow performance with AGPGART.
 
-greg k-h
+Maybe the linux kernel AGPGART do not run well with the nVidia 2D 
+acceleration renderer or the kernel driver and is a nvidia problem.
+
+http://www.marcush.de/Xorg.0.log
+
+Greetings,
+Marcus
+

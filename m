@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278647AbRJSUQL>; Fri, 19 Oct 2001 16:16:11 -0400
+	id <S278648AbRJSUVw>; Fri, 19 Oct 2001 16:21:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278648AbRJSUQC>; Fri, 19 Oct 2001 16:16:02 -0400
-Received: from relay1.ne.smtp.psi.net ([38.9.153.2]:64394 "EHLO
-	relay1.ne.smtp.psi.net") by vger.kernel.org with ESMTP
-	id <S278647AbRJSUPs>; Fri, 19 Oct 2001 16:15:48 -0400
-Date: Fri, 19 Oct 2001 16:16:21 -0400
-Message-Id: <200110192016.f9JKGLx25633@mojo.ma.radiance>
+	id <S278649AbRJSUVm>; Fri, 19 Oct 2001 16:21:42 -0400
+Received: from [207.8.4.6] ([207.8.4.6]:31714 "EHLO one.interactivesi.com")
+	by vger.kernel.org with ESMTP id <S278648AbRJSUVe>;
+	Fri, 19 Oct 2001 16:21:34 -0400
+Message-ID: <3BD08B57.1070604@interactivesi.com>
+Date: Fri, 19 Oct 2001 15:21:43 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Allocating more than 890MB in the kernel?
+In-Reply-To: <Pine.LNX.4.30.0110191204210.21846-100000@hill.cs.ucr.edu> <3BD08207.7090807@interactivesi.com> <9qq0mo$eun$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: John Ruttenberg <rutt@chezrutt.com>
-Reply-to: rutt@chezrutt.com
-To: linux-kernel@vger.kernel.o
-cc: wdl@ma.ultranet.com
-Subject: Dell Inspiron 8100 & ide dma
-X-Mailer: VM 6.96 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This computer doesn't seem to work with the 2.4.2 redhat default kernel and
-ide dma enabled.  In fact it cannot even get very far into the install before
-it craches.  I found (but cannot find again) a redhat bug report about this
-and was able to get through the install by using ide=nodma on the installer's
-lilo command line.
+H. Peter Anvin wrote:
 
-Once the default kernel booted up, it basically trashed the file system,
-perhaps because it was also running the ide dma.  We redid this and also
-supplied ide=nodma via lilo the installed kernel.
+> That's because you're running out of address space, not memory.
+> HIGHMEM doesn't do anything for the latter -- it can't.  You start
+> running into a lot of fundamental problems when your memory size gets
+> in the same (or higher) ballpark than your address space.
+> 
+> The best solution is go buy a 64-bit CPU.  There isn't much else you
+> can do about it.
 
-Now we have built linux-2.4.12-ac3.  Is there any chance this bug has been
-fixed in this new kernel and that it might be safe to reenable dma?
 
-Once interesting tidbit is that the dmesg files say pretty different things
-about ide in the new vs the old kernel:
+That's completely missing the point of my request (which, I admit, I didn't 
+make clear).  I need to allocate about 3/4 of available memory in the kernel. 
+  If I had 2GB of RAM, I'd need to allocate 1.5GB.  If I had 8 GB of RAM, I'd 
+need to allocate 6GB.  I just used 3GB/4GB because it's our current test platform.
 
-2.4.2 (redhat 7.1):
-
-    Uniform Multi-Platform E-IDE driver Revision: 6.31
-    ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-    PCI_IDE: unknown IDE controller on PCI bus 00 device f9, VID=8086, DID=244a
-    PCI_IDE: chipset revision 3
-    PCI_IDE: not 100% native mode: will probe irqs later
-        ide0: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA, hdb:DMA
-        ide1: BM-DMA at 0xbfa8-0xbfaf, BIOS settings: hdc:pio, hdd:pio
-    hda: HITACHI_DK23CA-30, ATA DISK drive
-    hdb: TEAC CD-ROM CD-224E, ATAPI CD/DVD-ROM drive
-    ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-    hda: 58605120 sectors (30006 MB) w/2048KiB Cache, CHS=3648/255/63
-
-2.4.12-ac3:
-
-    Uniform Multi-Platform E-IDE driver Revision: 6.31
-    ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-    PIIX4: IDE controller on PCI bus 00 dev f9
-    PIIX4: chipset revision 3
-    PIIX4: not 100% native mode: will probe irqs later
-        ide0: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA, hdb:DMA
-    hda: HITACHI_DK23CA-30, ATA DISK drive
-    hdb: TEAC CD-ROM CD-224E, ATAPI CD/DVD-ROM drive
-    ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-    hda: 58605120 sectors (30006 MB) w/2048KiB Cache, CHS=3648/255/63
-    hdb: ATAPI 24X CD-ROM drive, 128kB Cache
-    Uniform CD-ROM driver Revision: 3.12
-
-Does anyone know anything about this?

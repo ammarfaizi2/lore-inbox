@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265300AbSKFBay>; Tue, 5 Nov 2002 20:30:54 -0500
+	id <S265289AbSKFBXv>; Tue, 5 Nov 2002 20:23:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265302AbSKFBay>; Tue, 5 Nov 2002 20:30:54 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:27598 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265300AbSKFBax>;
-	Tue, 5 Nov 2002 20:30:53 -0500
-Date: Tue, 5 Nov 2002 20:37:10 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Werner Almesberger <wa@almesberger.net>
-cc: Andy Pfiffer <andyp@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: [lkcd-devel] Re: What's left over.
-In-Reply-To: <20021105221050.A10679@almesberger.net>
-Message-ID: <Pine.GSO.4.21.0211052017320.6521-100000@steklov.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265290AbSKFBXv>; Tue, 5 Nov 2002 20:23:51 -0500
+Received: from almesberger.net ([63.105.73.239]:52745 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S265289AbSKFBXu>; Tue, 5 Nov 2002 20:23:50 -0500
+Date: Tue, 5 Nov 2002 22:29:40 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, jw@pegasys.ws,
+       rml@tech9.net, andersen@codepoet.org, woofwoof@hathway.com
+Subject: Re: ps performance sucks
+Message-ID: <20021105222940.C10679@almesberger.net>
+References: <20021105203704.K1408@almesberger.net> <200211060010.gA60ALY387457@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211060010.gA60ALY387457@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Tue, Nov 05, 2002 at 07:10:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert D. Cahalan wrote:
+> I was thinking "80basic" would ask for the first 0x80 words
+> of basic info. If there's less, zero-fill. If there's more,
+> truncate the struct. Then "20pids" asks for the first 0x20
+> words of pid info (pid, ppid, sess, pgid...) and so on.
 
+Argl, this has "silent failure" written all over it. No, I think
+single-field granularity wouldn't incur excessive overhead: at
+run time, you can trivially handle adjacent fields with a single
+copy, and I don't think there are really that many practically
+useful fields that setup cost (CPU or memory) would be terrible.
 
-On Tue, 5 Nov 2002, Werner Almesberger wrote:
+[ Various change horrors ]
 
-> Now, if we assume that it's okay for kexec to use a system call,
-> the next question is whether kexec should indeed use it, i.e.
-> whether a system call makes sense for what it is trying to do.
-> Since there are no device files or network elements naturally
-> involved here (i.e. other major kernel function interfaces),
-> the answer seems to be "yes".
+Hmm yes, about as bad as I remember it from my psmisc days :-(
 
-That's not obvious.  By the same logics, we would need syscalls for
-turning off overcommit, etc., etc.
+> That's nice, until you exceed the amount of memory available.
 
-FWIW, I suspect that
-	open("/proc/image", O_EXCL|O_WRONLY);
-	bunch of lseek()/write()
-	close()
-would be more natural - definitely easier to understand than arguments of
-your sys_kexec().  It's easy to switch from your code to that - you
-put initialization into ->open(), pulling segments from userland into
-->write(), use default ->lseek() and do actual work on ->close() if
-no errors had happened.  file->private_data will point to intermediate
-state you need.
+That would the the least of my concerns. If you really run out
+of memory, you can always fall back to an iterative process.
 
-After all, that's what happens - you form an image, writing to it user-supplied
-data from given buffers at given offsets and when you are done with that you
-commit the changes.  IMO special syscall is less natural match for that
-than sequence above - commit-on-close is not something unusual, so it matches
-the semantics of all syscalls involved...
+> Hey, if reiserfs can have a database query syscall... >:-)
+> open("/proc/SELECT PID,TTY,TIME,CMD FROM PS WHERE RUID=42",O_RDONLY)
 
+Cute ;-) But it might be faster just to dump the whole data,
+and let user space worry about picking the right entries.
 
+- Werner
 
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

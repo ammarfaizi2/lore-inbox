@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVCVNnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVCVNqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVCVNnW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 08:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVCVNnV
+	id S261226AbVCVNqj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 08:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCVNqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 08:43:21 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:37075 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261208AbVCVNnP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 08:43:15 -0500
-Subject: Re: [CHECKER] writes not always synchronous on JFS with O_SYNC?
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: blp@cs.stanford.edu
-Cc: JFS Discussion <jfs-discussion@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>, mc@cs.stanford.edu
-In-Reply-To: <87vf7kr9gs.fsf@benpfaff.org>
-References: <87vf7kr9gs.fsf@benpfaff.org>
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 07:43:12 -0600
-Message-Id: <1111498992.8107.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Mar 2005 08:46:39 -0500
+Received: from dwdmx2.dwd.de ([141.38.3.197]:5686 "HELO dwdmx2.dwd.de")
+	by vger.kernel.org with SMTP id S261226AbVCVNq2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 08:46:28 -0500
+Date: Tue, 22 Mar 2005 13:46:06 +0000 (GMT)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+X-X-Sender: kiehl@diagnostix.dwd.de
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, "Moore, Eric  Dean" <emoore@lsil.com>
+Subject: RE: Fusion-MPT much faster as module
+In-Reply-To: <200503221029.j2MATNg12775@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.61.0503221344170.17195@diagnostix.dwd.de>
+References: <200503221029.j2MATNg12775@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-21 at 13:10 -0800, Ben Pfaff wrote:
-> Hi.  We've been running some tests on JFS and other file systems
-> and believe we've found an issue whereby O_SYNC does not always
-> cause data to be committed synchronously.  On Linux 2.6.11, we
-> found that the program appended below causes
-> /mnt/sbd0/0006/0010/0029/0033 to contain all zeros, despite the
-> use of O_SYNC on the write calls and the fsyncs on the
-> directories.  It seems to be pretty sensitive to the existence of
-> the rmdir calls: if I omit one of them, the data does get
-> written.
+On Tue, 22 Mar 2005, Chen, Kenneth W wrote:
 
-I can reproduce this behavior, but what I'm seeing is a little more
-alarming than the data being written asynchronously.  After fsck replays
-the journal, the xtree for the file is corrupt, which is why it appears
-to contain zeros.  The syslog is showing that a corrupted xtree has been
-found.  I am still investigating.
+> On Mon, 21 Mar 2005, Andrew Morton wrote:
+>> Holger, this problem remains unresolved, does it not?  Have you done any
+>> more experimentation?
+>>
+>> I must say that something funny seems to be happening here.  I have two
+>> MPT-based Dell machines, neither of which is using a modular driver:
+>>
+>> akpm:/usr/src/25> 0 hdparm -t /dev/sda
+>>
+>> /dev/sda:
+>> Timing buffered disk reads:  64 MB in  5.00 seconds = 12.80 MB/sec
+>
+>
+> Holger Kiehl wrote on Tuesday, March 22, 2005 12:31 AM
+>> Got the same result when compiled in, always between 12 and 13 MB/s. As
+>> module it is approx. 75 MB/s.
+>
+>
+> Half guess, half with data to prove: it must be the variable driver_setup
+> initialization.  If compiled as built-in, driver_setup is initialized to
+> zero for all of its member variables, which isn't the fastest setting. If
+> compiled as module, it gets first class treatment with shinny performance
+> setting.  Goofing around, this patch appears to be giving higher throughput.
+>
+Yes, that fixes it.
 
-> Note that /dev/sbd0 is essentially a ramdisk that we've developed
-> for testing this kind of thing: it allows a snapshot of a disk's
-> momentary contents to be copied out, so that we don't have to do
-> a reboot.
+Many thanks!
 
-I'm getting similar results writing to a regular disk partition and
-rebooting.
-
-> Can you confirm this?
-
-Confirmed.
-
-> 	ret = test_creat("/mnt/sbd0/0006/0028", 511);
-
-test_creat is type void.
-
-> 	CHECK(ret);
-> 	ret = test_write("/mnt/sbd0/0006/0028", 0);
-> 	CHECK(ret);
-> 	ret = mkdir("/mnt/sbd0/0006/0010/0029", 511);
-> 	CHECK(ret);
-> 	ret = test_creat("/mnt/sbd0/0006/0010/0029/0033", 511);
-> 	CHECK(ret);
-> 	ret = test_write("/mnt/sbd0/0006/0010/0029/0033", 0);
-> 	CHECK(ret);
-> 	ret = test_fsync("/mnt/sbd0/0006/0010/0029");
-
-so is test_fsync
-
-> 	CHECK(ret);
-
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+Holger

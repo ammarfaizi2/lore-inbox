@@ -1,95 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbQL3Xz5>; Sat, 30 Dec 2000 18:55:57 -0500
+	id <S129348AbQLaACL>; Sat, 30 Dec 2000 19:02:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbQL3Xzh>; Sat, 30 Dec 2000 18:55:37 -0500
-Received: from tungsten.btinternet.com ([194.73.73.81]:1723 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129348AbQL3Xzd>; Sat, 30 Dec 2000 18:55:33 -0500
-Date: Sat, 30 Dec 2000 23:24:40 +0000 (GMT)
-From: davej@suse.de
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: linux-usb-devel@lists.sourceforge.net
-Subject: Problems with ov511/USB on test13-pre7
-Message-ID: <Pine.LNX.4.21.0012302312580.13297-100000@neo.local>
+	id <S135244AbQLaAB7>; Sat, 30 Dec 2000 19:01:59 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:31506 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129348AbQLaABs>;
+	Sat, 30 Dec 2000 19:01:48 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] Generic deferred file writing
+Date: Sun, 31 Dec 2000 00:12:03 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0012301628120.4082-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0012301628120.4082-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0012310029010A.00966@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 30 Dec 2000, Alexander Viro wrote:
+> Well, see above. I'm pretty nervous about breaking the ordering of metadata
+> allocation. For pageout() we don't have such ordering. For write() we
+> certainly do. Notice that reserving disk space upon write() and eating it
+> later is _very_ messy job - you'll have to take care of situations when
+> we reserve the space upon write() and get pageout do the real allocation.
+> Not nice, since pageout has no way in hell to tell whether it is eating
+> from a reserved area or just flushing the mmaped one. We could keep the
+> per-bh "reserved" flag to fold that information into the pagecache, but
+> IMO it's simply not worth the trouble. If some filesystems wants that -
+> hey, it can do that right now. Just make ->prepare_write() do reservations
+> and let ->commit_write() mark the page dirty. Then ->writepage() will
+> eventually flush it.
 
-Hi,
+This is a refinement of the idea and some abstraction like that is
+clearly needed, and maybe that is exactly the right one.  For now I'm
+interested in putting this on the table so that we can check the
+stability and performance, maybe uncover come more bugs, then start
+going after some of the things that need to be done to turn it into a
+useful option.
 
- Problems with Creative Webcam III. This worked fine
-in test13-pre4, haven't tried pre5 & 6.
-
-On boot:
-
- usb_control/bulk_msg: timeout
- usb_control/bulk_msg: timeout
- usb.c: couldn't get all of config descriptors
- usb.c: unable to get device 2 configuration (error=-110)
- hub.c: USB new device connect on bus1/1, assigned device number 4
- usb_control/bulk_msg: timeout
- usb.c: USB device not accepting new address=4 (error=-110)
-
-On remove/reinsert:
-
- hub.c: USB new device connect on bus1/1, assigned device number 5
- usb_control/bulk_msg: timeout
- usb.c: USB device not accepting new address=5 (error=-110)
- hub.c: USB new device connect on bus1/1, assigned device number 6
- usb_control/bulk_msg: timeout
- usb.c: USB device not accepting new address=6 (error=-110)
-
-USB controller is:
-
-00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if
-00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32, cache line size 08
-        Interrupt: pin D routed to IRQ 5
-        Region 4: I/O ports at d400 [size=32]
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
-The only other thing of relevance in dmesg, is the flood of
-irq warnings related to the two USB controllers on 4.2 & 4.3 :-
-
- PCI: Found IRQ 5 for device 00:09.0
- PCI: The same IRQ used for device 00:04.2
- PCI: The same IRQ used for device 00:04.3
- PCI: Found IRQ 5 for device 00:04.2
- PCI: The same IRQ used for device 00:04.3
- PCI: The same IRQ used for device 00:09.0
- PCI: Found IRQ 5 for device 00:04.3
- PCI: The same IRQ used for device 00:04.2
- PCI: The same IRQ used for device 00:09.0
- usb-uhci.c: USB UHCI at I/O 0xd000, IRQ 5
- usb-uhci.c: Detected 2 ports
- hub.c: USB new device connect on bus1/1, assigned device number 2
- usb.c: new USB bus registered, assigned bus number 2
- usb-uhci.c: interrupt, status 2, frame# 135
- hub.c: USB hub found
- hub.c: 2 ports detected
- usb.c: registered new driver ov511
- ov511.c: ov511 driver version 1.28 registered
-
-regards,
-
-Davej.
+P.S., I humbly apologize for writing (!offset && bytes == PAGE_SIZE)
+when I could have just written (bytes == PAGE_SIZE).
 
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

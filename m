@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263718AbUELUtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263743AbUELUyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbUELUtr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 16:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbUELUtr
+	id S263743AbUELUyC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:54:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUELUyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 16:49:47 -0400
-Received: from ns.suse.de ([195.135.220.2]:13736 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263718AbUELUtl (ORCPT
+	Wed, 12 May 2004 16:54:01 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:63116 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263743AbUELUx5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 16:49:41 -0400
-To: Jan Olderdissen <jan@ixiacom.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+	Wed, 12 May 2004 16:53:57 -0400
+Date: Wed, 12 May 2004 22:55:38 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davidel@xmailserver.org, jgarzik@pobox.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: MSEC_TO_JIFFIES is messed up...
-References: <15FDCE057B48784C80836803AE3598D50627ACD5@racerx.ixiacom.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Tex SEX!  The HOME of WHEELS!  The dripping of COFFEE!!  Take me
- to Minnesota but don't EMBARRASS me!!
-Date: Wed, 12 May 2004 22:49:34 +0200
-In-Reply-To: <15FDCE057B48784C80836803AE3598D50627ACD5@racerx.ixiacom.com> (Jan
- Olderdissen's message of "Wed, 12 May 2004 13:40:18 -0700")
-Message-ID: <je4qqlpe01.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <20040512205538.GA19210@elte.hu>
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com> <20040512200305.GA16078@elte.hu> <20040512132050.6eae6905.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040512132050.6eae6905.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Olderdissen <jan@ixiacom.com> writes:
 
-> Couple nitpicks:
->
->> #define	MSEC_TO_JIFFIES(msec) (msec * 10)
+* Andrew Morton <akpm@osdl.org> wrote:
 
-#define	MSEC_TO_JIFFIES(msec) ((msec) * 10)
+> #if HZ=1000
+> #define	MSEC_TO_JIFFIES(msec) (msec)
+> #define JIFFIES_TO_MESC(jiffies) (jiffies)
+> #elif HZ=100
+> #define	MSEC_TO_JIFFIES(msec) (msec * 10)
+> #define JIFFIES_TO_MESC(jiffies) (jiffies / 10)
+> #else
+> #define	MSEC_TO_JIFFIES(msec) ((HZ * (msec) + 999) / 1000)
+> #define	JIFFIES_TO_MSEC(jiffies) ...
+> #endif
 
->> #define JIFFIES_TO_MESC(jiffies) (jiffies / 10)
->
-> #define JIFFIES_TO_MSEC(jiffies) (jiffies / 10)
+the HZ=100 define is broken. (it's correct in the -A2 patch i just
+sent.)
 
-#define JIFFIES_TO_MSEC(jiffies) ((jiffies) / 10)
+why the +999 rounding up in the generic case?
 
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+	Ingo

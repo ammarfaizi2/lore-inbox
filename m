@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317268AbSGHX5m>; Mon, 8 Jul 2002 19:57:42 -0400
+	id <S317267AbSGIABQ>; Mon, 8 Jul 2002 20:01:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317267AbSGHX5l>; Mon, 8 Jul 2002 19:57:41 -0400
-Received: from server0027.freedom2surf.net ([194.106.33.36]:1438 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S317266AbSGHX5g>; Mon, 8 Jul 2002 19:57:36 -0400
-Date: Tue, 9 Jul 2002 01:10:33 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: SERIOUSLY *crap* audio output.
-Message-Id: <20020709011033.521c7bab.spyro@armlinux.org>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.7.6cvs24 (GTK+ 1.2.10; )
+	id <S317269AbSGIABP>; Mon, 8 Jul 2002 20:01:15 -0400
+Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:44474 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S317267AbSGIABO>;
+	Mon, 8 Jul 2002 20:01:14 -0400
+Date: Mon, 8 Jul 2002 21:07:13 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Bill Davidsen <davidsen@tmr.com>, Keith Owens <kaos@ocs.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+Message-ID: <20020708210713.R2295@almesberger.net>
+References: <20020707220933.B11999@kushida.apsleyroad.org> <Pine.LNX.3.96.1020707201054.19682A-100000@gatekeeper.tmr.com> <20020708014626.B13387@kushida.apsleyroad.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020708014626.B13387@kushida.apsleyroad.org>; from lk@tantalophile.demon.co.uk on Mon, Jul 08, 2002 at 01:46:26AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Jamie Lokier wrote:
+> The more I think about it, the more I think the `owner' thing in
+> file_operations et al. is the right thing in all cases,
 
-not sure where to post this and its a bit rambling, but it does seem to
-indicate a problem in the emu10k1 kernel driver.
+What troubles me most in this discussion is that nobody seems to
+think of how these issues affect non-modules.
 
-I've been trying to track a fault on my speakers today, and not being
-able to pinpoint it, I got out the 'scope and a sine-generator program
-to output sinewaves for testing.
+Entry-after-removal is an anomaly in the subsystem making that call.
+Fixing it for modules is fine as long as only modules will ever
+un-register, but what do you do if non-module code ever wants to
+un-register too ? (E.g. think hot-plugging or software devices.)
 
-My soundcard is a SBLive! value (emu10k1).
+Invent some pseudo-module framework for it ? Require all code using
+that subsystem to be a module ? What happens if there are multiple
+registrations per chunk of code ?
 
-The sinewaves coming out of it were *really* bad.
+Besides, a common pattern for those "hold this down, kick that, then
+slowly count to ten, and now it's safe to release" solutions seems
+to be that it takes roughly ten times as long to find the race
+condition buried deep within them, than it took for the respective
+predecessor.
 
-I had long known that turning up the PCM volume over 79% was audio
-quality suicide for some reason, but wow.
+I'm not sure the incremental band aid approach works in this case.
 
-the sinewave was coming out ok at 79%, but almost completely tansformed
-to a square wave at 100%.
+I'm sorry that I don't have to offer anything more constructive at
+the moment, but I first want to build some testing framework. One
+oops says more than ten pages of analysis explaining a race
+condition :-)
 
-I assume that the PCM volume controls a mixer in the emu10k1, which,
-being a DSP probably does the job digitally, but something is very very
-wrong with this.
+- Werner
 
-also, running 2 copies of the sine-generator, even at 79% volume, at
-(say) 130 and 131Hz produces a waveform that instead of being a nice
-sinewave, growing and shrinking in amplitude every second, in fact goes
-from a sine to a squarewave!! (at 100% this is even worse).
-
-I know nothing of the audio layer in linux, but this seems to me like
-some top-byte-missing or something similar.
-
-Has anyone else exerienced this?
-
-Im using 2.4.19-pre8-ac-somethingorother, but based on my listening when
-the PCM vol was >79%, this problem has been around since 2.4.9 at least.
-probably earlier, but my memory fails me.
-
-The problem occurs with the soundcard outputs loaded or unloaded. the
-problem looks too clean to be a damaged card. below 79% PCM vol.,
-playing one audio source I cant hear any discernable distortion, even
-with the external amplifier cranked up a bit.
-
-...now, if I could just find the IRRITATING rattle somewhere near my
-left speaker... Im praying its not a faulty midrange unit...
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://icapeople.epfl.ch/almesber/_____________________________________/

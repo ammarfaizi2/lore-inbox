@@ -1,106 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269762AbUINUOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269657AbUINULL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269762AbUINUOS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUINUJb
+	id S269657AbUINULL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269747AbUINUKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:09:31 -0400
-Received: from holomorphy.com ([207.189.100.168]:13206 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269038AbUINUFA (ORCPT
+	Tue, 14 Sep 2004 16:10:11 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:42969 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269737AbUINTcv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 16:05:00 -0400
-Date: Tue, 14 Sep 2004 13:04:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrea Arcangeli <andrea@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Ray Bryant <raybry@sgi.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914200453.GI9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914155103.GR9106@holomorphy.com> <20040914160531.GP4180@dualathlon.random> <200409140916.48786.jbarnes@engr.sgi.com> <20040914190030.GZ9106@holomorphy.com> <20040914200220.GH9106@holomorphy.com>
+	Tue, 14 Sep 2004 15:32:51 -0400
+Date: Tue, 14 Sep 2004 21:31:39 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Albert Cahalan <albert@users.sf.net>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040914193139.GA30827@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sf.net>,
+	Stephen Smalley <sds@epoch.ncsc.mil>,
+	Andrew Morton OSDL <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
+	Chris Wright <chrisw@osdl.org>
+References: <20040914075508.GA10880@k3.hellgate.ch> <20040914080132.GJ9106@holomorphy.com> <20040914092748.GA11238@k3.hellgate.ch> <20040914153758.GO9106@holomorphy.com> <20040914160150.GB13978@k3.hellgate.ch> <20040914163712.GT9106@holomorphy.com> <20040914171525.GA14031@k3.hellgate.ch> <20040914174325.GX9106@holomorphy.com> <20040914184517.GA2655@k3.hellgate.ch> <20040914190747.GA9106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040914200220.GH9106@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040914190747.GA9106@holomorphy.com>
+X-Operating-System: Linux 2.6.8 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 12:00:30PM -0700, William Lee Irwin III wrote:
->> Goddamn fscking short-format VHPT crap. Rusty, how the hell do I
->> hotplug-ize this?
+On Tue, 14 Sep 2004 12:07:47 -0700, William Lee Irwin III wrote:
+> On Tue, Sep 14, 2004 at 08:45:18PM +0200, Roger Luethi wrote:
+> > I suppose you are thinking of a request that lists a number of PIDs along
+> > with a number of field IDs. In that case yes, I agree that it makes sense
+> > to provide some explicit feedback to the tool once we add access control
+> > (before that, there is no ambiguity: a missing answer means ESRCH).
+> > The most common request, though, won't provide a list of pids, it will
+> > only provide a list of field IDs and select all processes in the system
+> > (NPROC_SELECT_ALL). There is no ambiguity here, either: The tool didn't
+> > ask for any specific process to begin with, ESRCH doesn't make sense
+> > here. And for a system that looks anything like /proc does today,
+> > fields that are capable of triggering EPERM are few and far between,
+> > certainly not something you are hitting unexpectedly in the fast path
+> > of a process monitoring tool.
+> 
+> Okay, so what kinds of errors are returned in this case, if any, or
+> (worst case) are the offending tasks completely silently dropped?
 
-On Tue, Sep 14, 2004 at 01:02:20PM -0700, William Lee Irwin III wrote:
-> Okay, here's an attempt to hotplug-ize it. I have no clue whether this
-> actually works, compiles, or follows whatever rules there are about
-> dynamically allocated data referenced by per_cpu areas.
+In published code: No access control whatsoever. In dev tree: Silently
+dropped. Possible: Any kind of error and additional information that
+makes sense (we have netlink messages as a transport, after all).
 
-Take 2: actually register the notifier I wrote.
+That said, I don't think dropping tasks silently is a "worst case"
+in this scenario. Whatever your error report is going to be, it will
+boil down to saying "some tasks that may or may not live by the time
+you read this have been skipped because some fields that you knew had
+access restrictions prevented providing the information in those cases,
+and I must be cautious about not revealing any sensitive information
+to you so sorry I can't be more helpful". What's a tool going to do
+with that? If it cares to get a complete snapshot, it can simply send
+two requests: One with and one without restricted fields.
 
+So the tool would, say, request PID/VmSize in the first message and
+environ in the second message. Since only the owner can read the
+environment, the second request would yield answers only for a subset
+of the total process table.
 
-Index: mm5-2.6.9-rc1/kernel/profile.c
-===================================================================
---- mm5-2.6.9-rc1.orig/kernel/profile.c	2004-09-14 10:20:43.000000000 -0700
-+++ mm5-2.6.9-rc1/kernel/profile.c	2004-09-14 12:56:33.871160032 -0700
-@@ -20,6 +20,7 @@
- #include <linux/notifier.h>
- #include <linux/mm.h>
- #include <linux/cpumask.h>
-+#include <linux/cpu.h>
- #include <linux/profile.h>
- #include <asm/sections.h>
- #include <asm/semaphore.h>
-@@ -297,6 +298,44 @@
- 	local_irq_restore(flags);
- 	put_cpu();
- }
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+static int __devinit profile_cpu_callback(struct notifier_block *info,
-+					unsigned long action, void *__cpu)
-+{
-+	int cpu = (unsigned long)__cpu;
-+
-+	switch (action) {
-+	case CPU_UP_PREPARE:
-+		per_cpu(cpu_profile_flip, cpu) = 0;
-+		if (!per_cpu(cpu_profile_hits, cpu)[1])
-+			per_cpu(cpu_profile_hits, cpu)[1]
-+				= (void *)get_zeroed_page(GFP_KERNEL);
-+		if (!per_cpu(cpu_profile_hits, cpu)[1])
-+			return NOTIFY_BAD;
-+		if (!per_cpu(cpu_profile_hits, cpu)[0])
-+			per_cpu(cpu_profile_hits, cpu)[0]
-+				= (void *)get_zeroed_page(GFP_KERNEL);
-+		if (per_cpu(cpu_profile_hits, cpu)[0])
-+			break;
-+		free_page((unsigned long)per_cpu(cpu_profile_hits, cpu)[1]);
-+		return NOTIFY_BAD;
-+		break;
-+	case CPU_ONLINE:
-+		cpu_set(cpu, prof_cpu_mask);
-+		break;
-+	case CPU_UP_CANCELED:
-+	case CPU_DEAD:
-+		cpu_clear(cpu, prof_cpu_mask);
-+		free_page((unsigned long)per_cpu(cpu_profile_hits, cpu)[0]);
-+		per_cpu(cpu_profile_hits, cpu)[0] = NULL;
-+		free_page((unsigned long)per_cpu(cpu_profile_hits, cpu)[1]);
-+		per_cpu(cpu_profile_hits, cpu)[1] = NULL;
-+		break;
-+	}
-+	return NOTIFY_OK;
-+}
-+#endif /* CONFIG_HOTPLUG_CPU */
- #else /* !CONFIG_SMP */
- #define profile_flip_buffers()		do { } while (0)
- 
-@@ -459,6 +498,7 @@
- 		return 0;
- 	entry->proc_fops = &proc_profile_operations;
- 	entry->size = (1+prof_len) * sizeof(atomic_t);
-+	hotcpu_notifier(profile_cpu_callback, 0);
- 	return 0;
- #ifdef CONFIG_SMP
- out_cleanup:
+Roger

@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317397AbSGDMS4>; Thu, 4 Jul 2002 08:18:56 -0400
+	id <S317398AbSGDMcN>; Thu, 4 Jul 2002 08:32:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317398AbSGDMSz>; Thu, 4 Jul 2002 08:18:55 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:39437 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317397AbSGDMSz>; Thu, 4 Jul 2002 08:18:55 -0400
-Date: Thu, 4 Jul 2002 13:21:20 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rob Landley <landley@trommello.org>
-Cc: Dave Jones <davej@suse.de>, Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Kernel release management
-Message-ID: <20020704132120.C11601@flint.arm.linux.org.uk>
-References: <Pine.LNX.3.96.1020701140915.23920A-100000@gatekeeper.tmr.com> <20020703173421.B8934@suse.de> <20020703200044.EB039C2C@merlin.webofficenow.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020703200044.EB039C2C@merlin.webofficenow.com>; from landley@trommello.org on Wed, Jul 03, 2002 at 10:24:20AM -0400
+	id <S317395AbSGDMcM>; Thu, 4 Jul 2002 08:32:12 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59664 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317398AbSGDMcL>; Thu, 4 Jul 2002 08:32:11 -0400
+Date: Thu, 4 Jul 2002 08:29:03 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+In-Reply-To: <20020704032929.N2295@almesberger.net>
+Message-ID: <Pine.LNX.3.96.1020704081959.4082A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 03, 2002 at 10:24:20AM -0400, Rob Landley wrote:
-> And leaving stabilization to the people who care about stabilization
-> would be a bad thing why?
+On Thu, 4 Jul 2002, Werner Almesberger wrote:
 
-Think about who will do the stabilisation.  Do you really think Alan or
-Marcelo will pick up 2.6 when it comes out?  Or do you see someone else
-picking up 2.6?
+> Bill Davidsen wrote:
+> > Isn't the right thing to make everything stop using the module before
+> > ending it, for any definition of ending?
+> 
+> This certainly seems to be the most understandable way, yes. I think
+> modules follow basically the principle illistrated below (that's case
+> 4b in the taxonomy I posted earlier), where deregistration doesn't
+> stop everything, but which should be safe except for
+> return-after-removal:
 
-One of the fundamental questions that needs to be asked along side the
-"fork 2.7 with 2.6" problem is _who_ exactly is going to look after 2.6.
-Dave Jones?  If Dave, who's going to do Daves job of making sure fixes
-get propagated between stable and development trees?
+There seems no right thing to do when a module get a service request for
+something which is not active. Anything at that point would be likely to
+corrupt data structures, oops, or leave a process in some unkillable
+state.
+
+> I can understand why people don't want to use totally "safe"
+> deregistration, e.g.
+> 
+>  - locking gets more complex and you may run into hairy deadlock
+>    scenarios
+>  - accomplishing timely removal may become more difficult
+>  - nobody likes patches that change the world
+
+Everybody loves them in development kernels ;-) Actually, I think this is
+unlikely to result in more than a hang if it fails one way, or no worse
+than what we have if it fails the other.
+
+And if I understand the problem, it only is needed when either smp or
+preempt are built in, so there would be no overhead for small systems, one
+other possible objection to doing it safely.
+ 
+> So the entry/return-after-removal issues may still need to be
+> resolved. I'm mainly worried about entry-after-removal, because
+> it seems to me that this is likely to imply data races in
+> non-modules too, so try_inc_mod_count neither sufficient (for it
+> doesn't help with non-modules) nor required (because fixing the
+> race would also eliminate entry-after-removal).
+> 
+> I've seen very few reponses to my analysis. Does everybody think
+> I'm nuts (quite possible :-), or is this worth continuing ?
+
+My read is that eliminating actual unloading of modules won't solve these
+issues, it would just change them. Therefore if you're having a good time
+looking at this I think it would make the kernel more stable, which will
+be a goal of 2.6.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

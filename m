@@ -1,84 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbUC3JXS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 04:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUC3JXR
+	id S263568AbUC3JYl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 04:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbUC3JY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 04:23:17 -0500
-Received: from holomorphy.com ([207.189.100.168]:20384 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263565AbUC3JXM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 04:23:12 -0500
-Date: Tue, 30 Mar 2004 01:22:18 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org
-Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
-Message-ID: <20040330092218.GM791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, colpatch@us.ibm.com,
-	linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org
-References: <20040329041249.65d365a1.pj@sgi.com> <1080601576.6742.43.camel@arrakis> <20040329235233.GV791@holomorphy.com> <20040329154330.445e10e2.pj@sgi.com> <20040330020637.GA791@holomorphy.com> <20040330000029.6cd84d7f.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Mar 2004 04:24:27 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:25805 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263568AbUC3JX2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 04:23:28 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>, kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][KGDB] Drop 'E' packet support
+Date: Tue, 30 Mar 2004 13:38:51 +0530
+User-Agent: KMail/1.5
+References: <20040329201756.GK2895@smtp.west.cox.net>
+In-Reply-To: <20040329201756.GK2895@smtp.west.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040330000029.6cd84d7f.pj@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403301338.51561.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> No, the existing standard is to treat the unused bits as "don't cares".
+Fine with me.
 
-At some point in the past, Paul Jackson wrote:
-> ==> Note of course that the above model(s) are efforts to describe
->     the bitmap/bitop code.  The model I provide for my new mask ADT is
->     different - it makes use of the implementation condition above on
->     bitmaps "Zero tails in yield zero tails out", along with an added
->     precondition "Don't pass in masks with nonzero tails" to avoid
->     needing much filtering code.
+-Amit
 
-I think the difference is maybe one or two lines, but it doesn't matter
-much. If zeroed tails are what you want, by all means, have them. But
-please keep it to one change at a time(e.g. do the standardized
-array-in-struct datatype in a different patch). Also, please document
-the change of invariants. I didn't realize it would become a point of
-confusion and we should avoid repeating this kind of affair.
+On Tuesday 30 Mar 2004 1:47 am, Tom Rini wrote:
+> Hi.  After working on the docs a bit based on the textfile from Anurekh
+> Saxena, I'd like to commit the following patch (and similar hunks to the
+> i386-lite and x86_64 patch) to drop support for the 'E' packet.
+>
+> This isn't something supported by stock GDB, nor AFAIK is it something
+> that's been submitted for inclusion in GDB.  So I'd really like to drop
+> this entirely until it's something gdb CVS supports (and I assume would
+> be documented in
+> http://sources.redhat.com/gdb/current/onlinedocs/gdb_33.html#SEC656 ).
+> I could stand putting off the question for now and putting it in the
+> non-lite patches, but I'd really rather not.
+>
+> If no one objects, I'd like to commit this noon, -0700 on 30 March.
+> diff -u linux-2.6.4/kernel/kgdb.c linux-2.6.4/kernel/kgdb.c
+> --- linux-2.6.4/kernel/kgdb.c	2004-03-19 08:22:37.147169789 -0700
+> +++ linux-2.6.4/kernel/kgdb.c	2004-03-29 13:13:11.440594007 -0700
+> @@ -130,11 +130,6 @@
+>  }
+>
+>  void __attribute__ ((weak))
+> -    kgdb_printexceptioninfo(int exceptionNo, int errorcode, char *buffer)
+> -{
+> -}
+> -
+> -void __attribute__ ((weak))
+>      kgdb_disable_hw_debug(struct pt_regs *regs)
+>  {
+>  }
+> @@ -875,12 +870,6 @@
+>  				int_to_threadref(&thref, threadid);
+>  				pack_threadid(remcom_out_buffer + 2, &thref);
+>  				break;
+> -
+> -			case 'E':
+> -				/* Print exception info */
+> -				kgdb_printexceptioninfo(exVector, err_code,
+> -							remcom_out_buffer);
+> -				break;
+>  			case 'T':
+>  				if (memcmp(remcom_in_buffer + 1,
+>  					   "ThreadExtraInfo,", 16)) {
 
-I think I failed to convey the entire zeroed tail invariant I described.
-What I wanted to convey did include the precondition of zeroed tails
-for validity and/or satisfying zeroed tail postconditions. I think I
-even meant to go as far as saying not having zeroed tails meant undefined
-behavior, where I suspect you want general validity and zeroed tails
-preserved when present (and actually it would take some effort to barf
-on nonzeroed tails for most of the operations).
-
-
-At some point in the past, Paul Jackson wrote:
-> So - would you consent to my bundling the following changes as a single
-> patch - that adds to bitmaps the property that "output tails will be
-> zero if input tails are zero"?
->   1) Zero unused bits in the *_complement operators.
->   2) Zero unused bits in CPU_MASK_ALL (multiword).
-
-I think the change is small enough and transparent enough in general you
-could do the entire invariant conversion for arith and bitmaps as one
-patch. But please document it (possibly with kerneldoc) somewhere
-nearby to where the API's are implemented. I think a couple of lines of
-comments at the top of lib/bitmap.c should be enough if the bitmap
-functions don't rely on zeroed tails for correctness. If some do rely
-on zeroed tails for correctness, that should be in kerneldoc comments
-(e.g. if bitmap_shift_right() needs zeroed tails not to shift in garbage
-from upper bits, that's a gotcha that needs to be documented).
-
-Part of what led to this confusion in the first place was the assumption
-(likely on my part) that the "don't care" invariant was the most natural
-and not documenting it. Zeroed tails are a stronger condition in general
-and likely make some small optimizations possible if the bitmap functions
-are allowed to produce undefined results for nonzeroed tails (which is an
-okay thing to do, just needs to be a separate change for bisection/testing
-etc. purposes if by some catastrophe something does break).
-
-
--- wli

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269342AbRGaQFv>; Tue, 31 Jul 2001 12:05:51 -0400
+	id <S269345AbRGaQKN>; Tue, 31 Jul 2001 12:10:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269331AbRGaQFl>; Tue, 31 Jul 2001 12:05:41 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:27396 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S269338AbRGaQF1>; Tue, 31 Jul 2001 12:05:27 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [2.2.13] memory leak in NFS if a sever goes away?
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 31 Jul 2001 18:05:21 +0200
-Message-ID: <tgsnfdkrsu.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+	id <S269346AbRGaQKC>; Tue, 31 Jul 2001 12:10:02 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:712 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S269345AbRGaQJ6>;
+	Tue, 31 Jul 2001 12:09:58 -0400
+Message-ID: <3B66D873.FA2385FC@fc.hp.com>
+Date: Tue, 31 Jul 2001 10:10:28 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Support for serial console on legacy free machines
+In-Reply-To: <200107302332.f6UNWbxg001791@webber.adilger.int> <3B65F1A2.30708CC1@fc.hp.com> <000701c119cd$ebf0c720$294b82ce@connecttech.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-We've received a hard disk for post-mortem analysis because of a
-strange hole of several months in the system logs, and it seems the
-system's syslogd was killed by the VM subsystem during an OOM
-situation.
+Stuart MacDonald wrote:
+> 
+> It seems like pci consoles won't work, now that I think about it. The
+> console driver gets an index, which I'm going to assume works thusly:
+> lilo console=ttyS1 ends up passing 1 as the index. That index is used
+> to pick a serial port out of the array of serial ports that the driver
+> knows about. If console init happens early, and serial driver init happens
+> late (it would be dependent on pci init) then only hard coded ports
+> would work. Those are defined in asm/serial.h, and for i386 include the
+> standard ports, and a number of isa ports from various board manufacturers.
+> 
+> Using one of our pci ports would require knowledge of its io address,
+> which wouldn't be available until the pci subsystem had inited. Perhaps
+> that could be changed to allow pci based consoles?
+> 
 
-The problems seem to begin at the following syslog event:
-
-   kernel: nfs: server sun not responding, still trying
-
-Periodically (every quarter of an hour), the following messages appear:
-
-   kernel: nfs: task 111 can't get a request slot
-
-(The task number is monotonically increasing.)
-
-This goes on for about two days, after which the VM subsystem starts
-killing processes (kdm first, then several times the X server, and
-finally syslogd itself).
-
-Are there some known issues with 2.2.13, for example, a memory leak in
-the NFS code which is triggered in this specific situation?
-
-(The kernel seems to have some SuSE-specific patches, for example, the
-X server is sent the TERM signal, not the KILL signal on OOM.  Perhaps
-I should ask the SuSE folks if there were any NFS peculiarities in
-their 2.2.13 version. :-/)
+That is precisely the problem with trying to use a PCI serial port as
+console. It is not trivial to move the PCI initialization earlier in the
+boot sequence.
 
 -- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+Khalid
+
+====================================================================
+Khalid Aziz                              Linux Systems Operation R&D
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

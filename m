@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268127AbTBMWis>; Thu, 13 Feb 2003 17:38:48 -0500
+	id <S268128AbTBMWry>; Thu, 13 Feb 2003 17:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268126AbTBMWis>; Thu, 13 Feb 2003 17:38:48 -0500
-Received: from mail.scram.de ([195.226.127.117]:31942 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S268127AbTBMWhb>;
-	Thu, 13 Feb 2003 17:37:31 -0500
-Date: Thu, 13 Feb 2003 23:46:59 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, Jeff Garzik <jgarzik@pobox.com>
-Subject: [BUG] smctr.c changes in latest BK 
-Message-ID: <Pine.LNX.4.44.0302132335540.28838-100000@gfrw1044.bocc.de>
+	id <S268309AbTBMWry>; Thu, 13 Feb 2003 17:47:54 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:28164 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S268128AbTBMWrx>;
+	Thu, 13 Feb 2003 17:47:53 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302132258.h1DMwFtH024363@darkstar.example.net>
+Subject: Re: 2.5.60 cheerleading...
+To: Valdis.Kletnieks@vt.edu
+Date: Thu, 13 Feb 2003 22:58:14 +0000 (GMT)
+Cc: plars@linuxtestproject.org, linux-kernel@vger.kernel.org,
+       edesio@task.com.br, torvalds@transmeta.com
+In-Reply-To: <200302132220.h1DMKtFT011682@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Feb 13, 2003 05:20:55 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > Since Linus hasn't chimed in yet, I'm guessing that's exactly what
+> > happened.  I'm not trying to improve his workflow, but rather the
+> > workflow of anyone who might be interested in getting more involved in
+> > 2.5 testing.
+> 
+> What would help a lot of people (certainly me, at least), would be if
+> somebody kept a well-publicized "already known errata" list along with
+> (possibly unofficial) work-around patches.  Something along the line of:
+> 
+> compile fails in drivers/widget/fooby.c with error:
+> undefined structure member 'blat' in line 1149.
+> To fix:   apply <this patch>
 
-===== smctr.c 1.15 vs 1.16 =====
---- 1.15/drivers/net/tokenring/smctr.c  Thu Nov 21 23:06:12 2002
-+++ 1.16/drivers/net/tokenring/smctr.c  Thu Feb 13 07:23:32 2003
-@@ -3064,7 +3064,7 @@
-         __u8 r;
+Well, you can do that with my bug database - just open a new bug
+report for each compile failiure, upload a patch to the database, and
+link the patch with the new bug.  You can then collect together all
+the relevant bug reports in to a confirmed bug for each kernel
+version. You don't even have to duplicate bug reports if they occur in
+multiple kernel versions.
 
-         /* Check if node address has been specified by user. (non-0) */
--        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++);
-+        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++)
-         {
-                 if(i != 6)
-                 {
-
-Please revert this one as it is just wrong. As already mentioned here in
-LKML (IIRC it was Alan), the semicolon is really intended here.
-
-The above loop just runs until a non-zero byte is found in the MAC
-address or all 6 bytes have been checked. A value of i=6 will then
-indicate an all-zero MAC address.
-
-However, the block following the for loop is completely unnecessary and
-confusing. This patch just removes the irritating braces:
-
-===== smctr.c 1.17 vs edited =====
---- 1.17/drivers/net/tokenring/smctr.c  Thu Feb 13 22:47:11 2003
-+++ edited/smctr.c      Thu Feb 13 23:44:07 2003
-@@ -3058,26 +3058,25 @@
-         __u8 r;
-
-         /* Check if node address has been specified by user. (non-0) */
--        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++)
-+        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++);
-+
-+        if(i != 6) /* Node addr is not 00:00:00:00:00:00 */
-         {
--                if(i != 6)
-+                for(i = 0; i < 6; i++)
-                 {
--                        for(i = 0; i < 6; i++)
--                        {
--                                r = inb(ioaddr + LAR0 + i);
--                                dev->dev_addr[i] = (char)r;
--                        }
--                        dev->addr_len = 6;
-+                        r = inb(ioaddr + LAR0 + i);
-+                        dev->dev_addr[i] = (char)r;
-                 }
--                else    /* Node addr. not given by user, read it from board. */
-+                dev->addr_len = 6;
-+        }
-+        else    /* Node addr. not given by user, read it from board. */
-+        {
-+                for(i = 0; i < 6; i++)
-                 {
--                        for(i = 0; i < 6; i++)
--                        {
--                                r = inb(ioaddr + LAR0 + i);
--                                dev->dev_addr[i] = (char)r;
--                        }
--                        dev->addr_len = 6;
-+                        r = inb(ioaddr + LAR0 + i);
-+                        dev->dev_addr[i] = (char)r;
-                 }
-+                dev->addr_len = 6;
-         }
-
-         return (0);
-
-Thanks,
---jochen
-
+John.

@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267556AbUJIXkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267566AbUJIXkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267556AbUJIXkd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 19:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUJIXkd
+	id S267566AbUJIXkg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 19:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUJIXkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 9 Oct 2004 19:40:36 -0400
+Received: from web13709.mail.yahoo.com ([216.136.175.251]:34134 "HELO
+	web13709.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267566AbUJIXkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 9 Oct 2004 19:40:33 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57608 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S267556AbUJIXka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 19:40:30 -0400
-Date: Sun, 10 Oct 2004 01:36:42 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Michel Angelo da Silva Pereira <michel@michel.eti.br>
-Cc: linux-kernel@vger.kernel.org, Denis Oliver Kropp <dok@directfb.org>,
-       jsimmons@infradead.org, geert@linux-m68k.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: drivers/built-in.o(.text+0x1411f): In function `neo_scan_monitor
-Message-ID: <20041009233641.GB3727@stusta.de>
-References: <415B2974.2020208@michel.eti.br>
-Mime-Version: 1.0
+Message-ID: <20041009234032.57724.qmail@web13709.mail.yahoo.com>
+Date: Sat, 9 Oct 2004 16:40:32 -0700 (PDT)
+From: Martins Krikis <mkrikis@yahoo.com>
+Subject: Re: Linux 2.4.28-pre4
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4168614C.4000902@pobox.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <415B2974.2020208@michel.eti.br>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 06:30:28PM -0300, Michel Angelo da Silva Pereira wrote:
+--- Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> 	I'm getting this error on compiling 2.6.9-rc2 with FrameBuffer 
-> 	support for my ThinkPad.
-> 	01:00.0 VGA compatible controller: Neomagic Corporation NM2200 
-> 	[MagicGraph 256AV] (rev 20)
-> 
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0x1411f): In function `neo_scan_monitor':
-> : undefined reference to `vesa_modes'
-> drivers/built-in.o(.text+0x141bf): In function `neo_scan_monitor':
-> : undefined reference to `vesa_modes'
-> drivers/built-in.o(.text+0x1420b): In function `neo_scan_monitor':
-> : undefined reference to `vesa_modes'
-> make: ** [.tmp_vmlinux1] Erro 1
-> root@nerdbook:/usr/src/linux#
+> FWIW I ACK'd iswraid a while ago...
 
+True, and it was very much appreciated. Jeff's comments
+induced many of the changes between iswraid versions 
+0.1.3 and 0.1.4.
 
-Thanks for this report!
+But now, of course, the current iswraid version
+is 0.1.4.3, and nobody has reviewed it, AFAIK.
+As always, I'm looking forward to any feedback.
 
-This is a bug still present in both 2.6.9-rc3 and 2.6.9-rc3-mm3.
+Thanks,
 
-The following patch should fix it:
+  Martins Krikis
+  Storage Components Division
+  Intel Massachusetts
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.9-rc3-mm3/drivers/video/Kconfig.old	2004-10-10 01:31:52.000000000 +0200
-+++ linux-2.6.9-rc3-mm3/drivers/video/Kconfig	2004-10-10 01:32:26.000000000 +0200
-@@ -793,6 +793,7 @@
- config FB_NEOMAGIC
- 	tristate "NeoMagic display support"
- 	depends on FB && PCI
-+	select FB_MODE_HELPERS
- 	help
- 	  This driver supports notebooks with NeoMagic PCI chips.
- 	  Say Y if you have such a graphics card. 
-
-
+		
+_______________________________
+Do you Yahoo!?
+Declare Yourself - Register online to vote today!
+http://vote.yahoo.com

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130121AbQKLHtP>; Sun, 12 Nov 2000 02:49:15 -0500
+	id <S130215AbQKLIgU>; Sun, 12 Nov 2000 03:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130215AbQKLHtG>; Sun, 12 Nov 2000 02:49:06 -0500
-Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:35576 "EHLO
-	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
-	id <S130121AbQKLHsy>; Sun, 12 Nov 2000 02:48:54 -0500
-Date: Sun, 12 Nov 2000 13:55:31 -0600
-From: Eric Shattow <radoni@crosswinds.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test11pre2 ram size detect incorrect
-Reply-To: radoni@crosswinds.net
-X-Mailer: Spruce 0.7.5 for X11 w/smtpio 0.9.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E13ursj-000112-00@dfw-mmp1.email.verio.net>
+	id <S130241AbQKLIgL>; Sun, 12 Nov 2000 03:36:11 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:12049 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130215AbQKLIgD>;
+	Sun, 12 Nov 2000 03:36:03 -0500
+Date: Sun, 12 Nov 2000 09:35:54 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Hisaaki Shibata <shibata@luky.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch: atapi dvd-ram support
+Message-ID: <20001112093554.I805@suse.de>
+In-Reply-To: <20001028201047.A5879@suse.de> <20001029134145N.shibata@luky.org> <20001029141214.B615@suse.de> <20001111031748S.shibata@luky.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20001111031748S.shibata@luky.org>; from shibata@luky.org on Sat, Nov 11, 2000 at 03:17:48AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am happy to report that I finally got a 2.4.x kernel booted and running.
-To get the kernel booting without an oops, I had to use the kernel option
-"mem=64M" (I have 64 megabytes of ram installed). Aparently, without this
-option the kernel was detecting an absurdly large amount of installed
-memory, and thus dereferenced a null pointer. Should i help find out how to
-get the kernel to recognize the proper amount of memory in my computer
-without the kernel option?  What information should i make available? I am
-new to actual linux development, and do not know if this is something i
-should help fix or if it is just something that requires the kernel option.
+On Sat, Nov 11 2000, Hisaaki Shibata wrote:
+> > Or you could try the 2.4 version, as I said originally the 2.2 patch
+> > hasn't been tested at all. It would be nice to know if that works
+> > for you, as I may have screwed up the backport a bit.
+> 
+> I tested on 2.4-test10 + dvd-ram-240t10p5.diff.bz2 + dvdram-ro_fix.diff env.
+> It occured oops too :-(.
 
-regards to the kernel-hackers,
+Interesting, then it isn't the backport that is buggy.
 
-eric shattow [radoni@crosswinds.net]
+> And I forgot to say that my DVD-RAM drive is a new 9.4GB DVD-RAM model drive.
 
+I'd like to know specifically what make/model drive you have? The
+oops you sent earlier seems to indicate an empty ide dma request setup.
+If you disable DMA on the drive, does it then work? I'd send you a
+patch right now, but I have to unpack my trees first.
 
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

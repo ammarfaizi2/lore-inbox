@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265188AbUBEFXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 00:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUBEFXQ
+	id S264472AbUBEFTM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 00:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUBEFTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 00:23:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19136 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265188AbUBEFXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 00:23:10 -0500
-Date: Wed, 4 Feb 2004 21:24:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: mikem@beardog.cca.cpqcorp.net
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: cciss updates for 2.6 [9 of 11]
-Message-Id: <20040204212452.64620e38.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402041817280.18320@beardog.cca.cpqcorp.net>
-References: <Pine.LNX.4.58.0402041817280.18320@beardog.cca.cpqcorp.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 00:19:12 -0500
+Received: from web9704.mail.yahoo.com ([216.136.129.140]:32131 "HELO
+	web9704.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264472AbUBEFTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 00:19:06 -0500
+Message-ID: <20040205051905.19684.qmail@web9704.mail.yahoo.com>
+Date: Wed, 4 Feb 2004 21:19:05 -0800 (PST)
+From: Alok Mooley <rangdi@yahoo.com>
+Subject: Re: Active Memory Defragmentation: Our implementation & problems
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
+In-Reply-To: <1075924593.27981.458.camel@nighthawk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mikem@beardog.cca.cpqcorp.net wrote:
->
-> +		vol_sz = drv->nr_blocks/ENG_GIG_FACTOR;
-> +		vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
 
-This causes problems with CONFIG_LBD=y on ia32.
+--- Dave Hansen <haveblue@us.ibm.com> wrote:
+> On Wed, 2004-02-04 at 10:54, Alok Mooley wrote:
+> > --- Dave Hansen <haveblue@us.ibm.com> wrote:
+> Depending on the quantity of work that you're trying
+> to do at once, this
+> might be unavoidable.  
+> 
+> I know it's a difficult thing to think about, but I
+> still don't
+> understand the precise cases that you're concerned
+> about.  Page faults
+> to me seem like the least of your problems.  A
+> bigger issue would be if
+> the page is written to by userspace after you copy,
+> but before you
+> install the new pte.  Did I miss the code in your
+> patch that invalidated
+> the old tlb entries?
 
-drivers/built-in.o: In function `cciss_proc_get_info':
-/tmp/distcc_1108/drivers/block/cciss.c:217: undefined reference to `__udivdi3'
-/tmp/distcc_1108/drivers/block/cciss.c:218: undefined reference to `__umoddi3'
-/tmp/distcc_1108/drivers/block/cciss.c:218: undefined reference to `__udivdi3'
+This is a non issue for us right now, since we update
+the ptes in a lock, & so no one can access it before
+it is completely updated. Yes, we invalidate the old
+tlb entries as well as the cache entries as reqd. on
+some other architectures.
 
-I'll include the below fix - could you please test it?  With both
-CONFIG_LBD=y and CONFIG_LBD=n?
-
-Thanks.
+-Alok
 
 
-diff -puN drivers/block/cciss.c~cciss-64-bit-divide-fix drivers/block/cciss.c
---- 25/drivers/block/cciss.c~cciss-64-bit-divide-fix	2004-02-04 21:15:48.000000000 -0800
-+++ 25-akpm/drivers/block/cciss.c	2004-02-04 21:15:48.000000000 -0800
-@@ -211,11 +211,27 @@ static int cciss_proc_get_info(char *buf
-         pos += size; len += size;
- 	cciss_proc_tape_report(ctlr, buffer, &pos, &len);
- 	for(i=0; i<h->highest_lun; i++) {
-+		sector_t tmp;
-+
-                 drv = &h->drv[i];
- 		if (drv->block_size == 0)
- 			continue;
--		vol_sz = drv->nr_blocks/ENG_GIG_FACTOR;
--		vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
-+		vol_sz = drv->nr_blocks;
-+		sector_div(vol_sz, ENG_GIG_FACTOR);
-+
-+		/*
-+		 * Awkwardly do this:
-+		 * vol_sz_frac =
-+		 *     (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
-+		 */
-+		tmp = drv->nr_blocks;
-+		vol_sz_frac = sector_div(tmp, ENG_GIG_FACTOR);
-+
-+		/* Now, vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR) */
-+
-+		vol_sz_frac *= 100;
-+		sector_div(vol_sz_frac, ENG_GIG_FACTOR);
-+
- 		if (drv->raid_level > 5)
- 			drv->raid_level = RAID_UNKNOWN;
- 		size = sprintf(buffer+len, "cciss/c%dd%d:"
-
-_
-
+__________________________________
+Do you Yahoo!?
+Yahoo! Finance: Get your refund fast by filing online.
+http://taxes.yahoo.com/filing.html

@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbUKCBoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbUKCBpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbUKCBoq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 20:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbUKCBop
+	id S261311AbUKCBpq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 20:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUKCBpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 20:44:45 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:24711 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261306AbUKCBoo
+	Tue, 2 Nov 2004 20:45:46 -0500
+Received: from ctb-mesg6.saix.net ([196.25.240.78]:23210 "EHLO
+	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S261311AbUKCBpe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 20:44:44 -0500
-Message-ID: <418837D1.402@us.ibm.com>
-Date: Tue, 02 Nov 2004 17:43:45 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@novell.com>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
-References: <4187FA6D.3070604@us.ibm.com> <20041102220720.GV3571@dualathlon.random> <41880E0A.3000805@us.ibm.com> <4188118A.5050300@us.ibm.com> <20041103013511.GC3571@dualathlon.random>
-In-Reply-To: <20041103013511.GC3571@dualathlon.random>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Nov 2004 20:45:34 -0500
+Subject: Re: XMMS (or some other audio player) 'hang' issues with intel8x0
+	and	dmix plugin [u]
+From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>, alsa-user@lists.sourceforge.net
+In-Reply-To: <41873A9E.3020909@tequila.co.jp>
+References: <1099284142.11924.17.camel@nosferatu.lan>
+	 <41873A9E.3020909@tequila.co.jp>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xPmEzQrIJDvh3vi2aU7Y"
+Date: Wed, 03 Nov 2004 03:45:18 +0200
+Message-Id: <1099446318.11924.23.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> On Tue, Nov 02, 2004 at 03:00:26PM -0800, Dave Hansen wrote:
-> 
->>just sent out, I just wanted to demonstrate what solves my immediate 
->>problem.
-> 
-> sure ;)
-> 
-> that's like disabling the config option, the only point of
-> change_page_attr is to split the direct mapping, it does nothing on
-> highmem, it actually BUGS() (and it wasn't one of my new bugs ;):
-> 
-> #ifdef CONFIG_HIGHMEM
-> 	if (page >= highmem_start_page) 
-> 		BUG(); 
-> #endif
 
-Oh, crap.  I meant to clear ->mapped when change_attr(__pgprot(0)) was 
-done on it, and set it when it was changed back.  Doing that correctly 
-preserves the symmetry, right?
+--=-xPmEzQrIJDvh3vi2aU7Y
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2004-11-02 at 16:43 +0900, Clemens Schwaighofer wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>=20
+> On 11/01/2004 01:42 PM, Martin Schlemmer [c] wrote:
+
+> | Now I mostly use XMMS for playing mp3's, and intermittently xmms
+> | will just 'hang'.  It is not locked or anything, but the 'graph'
+> | just stand still, and no audio.  If I press play again, it starts
+> | to play for some time again.  This is especially easy to duplicate
+> | if the box is under heavy load.  If I use the device directly,
+> | without the dmix plugin, it works fine, or if I use oss emulation,
+> | it works fine as well ...
+>=20
+> I have the same problem at home, I changed something in the .asoundrc
+> and it went away. it still plays a little bit skippy, but better than
+> suddenly stop.
+>=20
+> I had this problem on a Sony Laptop (GRX series) with an i8x0 chipsetz
+> and a yamaha soundchip (which is controlled by the i8x0 drivers).
+>=20
+> I can give more info if needed.
+>=20
+
+I would appreciate that.  Any workaround currently will be nice.
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+
+--=-xPmEzQrIJDvh3vi2aU7Y
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBiDguqburzKaJYLYRAh2PAJ45qKni48ZIdeutTxvvIQUhZfdIggCggNW3
+Yjks4dhl+D9NkWvTuSRpdlM=
+=WAbO
+-----END PGP SIGNATURE-----
+
+--=-xPmEzQrIJDvh3vi2aU7Y--
+

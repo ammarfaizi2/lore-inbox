@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288192AbSACEUc>; Wed, 2 Jan 2002 23:20:32 -0500
+	id <S288197AbSACE0W>; Wed, 2 Jan 2002 23:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288196AbSACEUW>; Wed, 2 Jan 2002 23:20:22 -0500
-Received: from dsl-213-023-043-254.arcor-ip.net ([213.23.43.254]:60167 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288192AbSACEUJ>;
-	Wed, 2 Jan 2002 23:20:09 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: timothy.covell@ashavan.org,
-        Jonathan Amery <jdamery@chiark.greenend.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-Date: Thu, 3 Jan 2002 05:23:56 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011220203223.GO7414@vega.digitel2002.hu> <E16Lp0s-0003aS-00@chiark.greenend.org.uk> <200201022021.g02KL8Sr021924@svr3.applink.net>
-In-Reply-To: <200201022021.g02KL8Sr021924@svr3.applink.net>
+	id <S288200AbSACE0M>; Wed, 2 Jan 2002 23:26:12 -0500
+Received: from gear.torque.net ([204.138.244.1]:51720 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S288197AbSACE0C>;
+	Wed, 2 Jan 2002 23:26:02 -0500
+Message-ID: <3C33DDED.7212F2F9@torque.net>
+Date: Wed, 02 Jan 2002 23:28:29 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16LzQ6-00011Q-00@starship.berlin>
+To: Peter Osterlund <petero2@telia.com>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] kernel BUG at scsi_merge.c:83
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 2, 2002 09:17 pm, Timothy Covell wrote:
-> On Wednesday 02 January 2002 11:17, Jonathan Amery wrote:
-> > In article <3C2315D6.40105@purplet.demon.co.uk> you write:
-> > >Engineers not (yet) being familiar with the relatively new SI (and IEEE)
-> > >binary prefixes is just about acceptable. "Engineers" that misuse k/K
-> > >and (worse!) m/M should be in a different field entirely. The SI system
-> > >is generally taught as basic science to pre-teenagers. There is no
-> > >excuse!
-> >
-> >  How many of them learn it though?
-> >
-> >  Jonathan (occasionally guilty of s/kB/KB/ himself).
+Peter Osterlund <petero2@telia.com> wrote:
+
+> Jens Axboe <axboe@suse.de> writes:
 > 
-> For the 10th time, the K v. k issue is due to the standards
-> body ignoring common sense and following tradition instead.
-> All positive powers of ten should have upper-case letters
-> 	(D,H,K,M,T,P)
-> and negative powers of ten should use lower-case letters.
-> 	(d,c,m,n,p)
+> > On Wed, Jan 02 2002, Peter Osterlund wrote:
+> > > Hi!
+> > > 
+> > > While doing some stress testing on the 2.5.2-pre5 kernel, I am hitting
+> > > a kernel BUG at scsi_merge.c:83, followed by a kernel panic. The
+> > > problem is that scsi_alloc_sgtable fails because the request contains
+> > > too many physical segments. I think this patch is the correct fix:
+> > 
+> > Correct, ll_rw_blk default is ok now. I missed this when killing
+> > scsi_malloc/scsi_dma, thanks.
+> 
+> It turns out this is still not enough to fix the problem for me,
+> because ll_new_hw_segment is still allowing nr_phys_segments to become
+> too large. Is the following patch the correct way to deal with this
+> problem, or is that case supposed to be prevented by some other means?
+> At least, this patch prevents the kernel panic during my stress test.
 
-So if the box says '16 mB' flash, that's 16 millibytes, right?
+<snipped patches/>
 
-> The KB meaning 2^10 B instead of 10^3 B is just plain dumb,
-> and that's why the standards body tried to fix it with KiB.
-> But again, this solution was considered to look and sound
-> goofy and to be based on stupid mathematical games;
-> hence this whole long thread.   <rant>A thread which has shown
-> to me that most comp. sci. folks lack common sense and
-> are pendantic to the max.</rant>
+Peter,
+I was able to get a repeatable oops at that line copying
+files from /boot onto a "fake" scsi_debug disk with "pre5".
+The first largish file it attempted to copy caused the
+oops (which I sent to Jens).
 
-Yes, true, and?
+Anyway, I just applied your 2 patches (to scsi.c and ll_rw_blk.c)
+and the oops is no more.
 
---
-Daniel
+Good work.
+
+Doug Gilbert

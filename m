@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVC2R2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVC2Rao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVC2R2L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 12:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVC2R2K
+	id S261273AbVC2Rao (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 12:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVC2Ran
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 12:28:10 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:31071 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S261264AbVC2R2I (ORCPT
+	Tue, 29 Mar 2005 12:30:43 -0500
+Received: from admin.eth0.us ([67.15.164.189]:56993 "EHLO admin.eth0.us")
+	by vger.kernel.org with ESMTP id S261273AbVC2Rae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 12:28:08 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: 2.6.12-rc1-bk2+PREEMPT_BKL: Oops at serio_interrupt
-Date: Tue, 29 Mar 2005 21:28:20 +0400
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <200503282126.55366.adobriyan@mail.ru> <200503290127.52614.dtor_core@ameritech.net>
-In-Reply-To: <200503290127.52614.dtor_core@ameritech.net>
+	Tue, 29 Mar 2005 12:30:34 -0500
+From: "John Wigle" <forums@eth0.us>
+To: linux-kernel@vger.kernel.org
+Subject: 
+X-Mailer: NeoMail 1.27
+X-IPAddress: 152.17.63.39
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503292128.20140.adobriyan@mail.ru>
-X-Spam: Not detected
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <E1DGKXC-0001Cq-W0@admin.eth0.us>
+Date: Tue, 29 Mar 2005 12:29:46 -0500
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - admin.eth0.us
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32003 32003] / [47 12]
+X-AntiAbuse: Sender Address Domain - eth0.us
+X-Source: /bin/bash
+X-Source-Args: sh -c /usr/sbin/sendmail -oem -oi -F '"John Wigle"' -f 'forums@eth0.us' -t 1>&2 
+X-Source-Dir: :/base
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 March 2005 10:27, Dmitry Torokhov wrote:
-> On Monday 28 March 2005 12:26, Alexey Dobriyan wrote:
-> > Steps to reproduce for me:
-> > 	* Boot CONFIG_PREEMPT_BKL=y kernel (.config, dmesg are attached)
-> > 	* Start rebooting
-> > 	* Start moving serial mouse (I have Genius NetMouse Pro)
-> > 	* Right after gpm is shut down I see the oops
-> > 	* The system continues to reboot
-> 
-> Could you try the patch below, please? Thanks!
+I am fairly new to the mailing list but have been playing around with
+kernels for awhile. I have successfully built 2.4 and 2.6 kernels on
+different types of remote servers but this latest problem has me
+stumped. The config I am using was working fine under 2.6.9 but 2.6.10
+and 2.6.11 both are not able to boot up. I have posted the config at
+http://eth0.us/?q=node/39 if anybody is interested to look. On boot I
+get the cannot mount /dev/sda3 every single time when trying with a
+kernel above 2.6.9. 
 
-> Input: serport - fix an Oops when closing port - should not call
->        serio_interrupt when serio port is being unregistered.
+I have tried with modules and without module support. 
 
-Doesn't work, sorry. Even worse: rebooting now also produces many pages of
-oopsen, then hang the system. I'm willing to test any new patches.
+The problem comes from the following SCSI card in a dell poweredge server:
+SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X
+Fusion-MPT Dual Ultra320 SCSI (rev 07)
+
+The driver that the 2.4 kernel uses is:
+alias scsi_hostadapter mptscsih
+
+Does anybody have any idea why this is happening or what can be done to
+get it to boot? I have tried to compile it on a many different servers
+with the same results. I have also asked a few people and they have not
+been able to get it working. Any ideas or pointers in the right
+direction are GREATLY appreciated! I have searched google but so far
+have found nothing useful. 
+
+
+--
+Best regards,
+John Wigle
+"eth00"
+http://eth0.us

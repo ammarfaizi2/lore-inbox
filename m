@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263495AbRFANP6>; Fri, 1 Jun 2001 09:15:58 -0400
+	id <S263496AbRFANU2>; Fri, 1 Jun 2001 09:20:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263496AbRFANPt>; Fri, 1 Jun 2001 09:15:49 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:61853 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263495AbRFANPi>;
-	Fri, 1 Jun 2001 09:15:38 -0400
-Message-ID: <3B179579.F9C9C721@mandrakesoft.com>
-Date: Fri, 01 Jun 2001 09:15:37 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S263497AbRFANUS>; Fri, 1 Jun 2001 09:20:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59522 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263496AbRFANUL>;
+	Fri, 1 Jun 2001 09:20:11 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15127.38509.495537.405210@pizda.ninka.net>
+Date: Fri, 1 Jun 2001 06:19:41 -0700 (PDT)
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         netdev@oss.sgi.com
 Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
+In-Reply-To: <3B179579.F9C9C721@mandrakesoft.com>
 In-Reply-To: <Pine.LNX.4.33.0106011503030.18082-100000@kenzo.iwr.uni-heidelberg.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	<3B179579.F9C9C721@mandrakesoft.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bogdan Costescu wrote:
-> No way! If I implement a HA application which depends on link status, I
-> want the info to be accurate, I don't want to know that 30 seconds ago I
-> had good link.
 
-To tangent a little bit, and add netdev to the CC...
+Jeff Garzik writes:
+ > For your HA application specifically, right now, I would suggest making
+ > sure your net driver calls netif_carrier_xxx correctly, then checking
+ > for IFF_RUNNING interface flag.  IFF_RUNNING will disappear if the
+ > interface is up, but there is no carrier [as according to
+ > netif_carrier_ok].
 
-The loss and regain of link status should be proactively signalled to
-userspace using netlink or something similar.  Currently we have
-netif_carrier_{on,off,ok} but it is only passively checked. 
-netif_carrier_{on,off} should probably schedule_task() to fire off a
-netlink message...
+Don't such HA apps need to run as root anyways?
 
-For your HA application specifically, right now, I would suggest making
-sure your net driver calls netif_carrier_xxx correctly, then checking
-for IFF_RUNNING interface flag.  IFF_RUNNING will disappear if the
-interface is up, but there is no carrier [as according to
-netif_carrier_ok].
+Regardless, I agree that, long term, the way to do this is via netlink.
 
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,48 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129220AbQKQRmC>; Fri, 17 Nov 2000 12:42:02 -0500
+	id <S129702AbQKQRoN>; Fri, 17 Nov 2000 12:44:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129227AbQKQRlw>; Fri, 17 Nov 2000 12:41:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20997 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129220AbQKQRli>;
-	Fri, 17 Nov 2000 12:41:38 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011171711.RAA01375@raistlin.arm.linux.org.uk>
+	id <S129688AbQKQRoD>; Fri, 17 Nov 2000 12:44:03 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:60288 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129227AbQKQRn5>; Fri, 17 Nov 2000 12:43:57 -0500
+Date: Fri, 17 Nov 2000 12:13:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+        mj@suse.cz
 Subject: Re: VGA PCI IO port reservations
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Fri, 17 Nov 2000 17:11:28 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, mj@suse.cz
-In-Reply-To: <3A1564D9.2AC70F6F@mandrakesoft.com> from "Jeff Garzik" at Nov 17, 2000 12:03:21 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <3A155E8C.7D345649@mandrakesoft.com>
+Message-ID: <Pine.LNX.3.95.1001117114858.19946A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> Dig through the video card docs, even older ISA video cards let you
-> disable I/O decoding on all but a few ports, and/or relocate the ports
-> it does use to other areas.  Different with every video card, of course,
-> but most of them can do this to a greater or lesser extent.
+On Fri, 17 Nov 2000, Jeff Garzik wrote:
 
-Unfortunately, when you start thinking about x86 and running the BIOSes
-to (re-)initialise VGA cards back to text mode, they don't take it well
-if you do this sort of messing.
+> Russell King wrote:
+> > I've been looking at a number of VGA cards recently, and I've started
+> > wondering out the Linux resource management as far as allocation of
+> > IO ports.  I've come to the conclusion that it does not contain all
+> > information necessary to allow allocations to be made safely.
+> > 
+> > Thus far, VGA cards that I've looked at scatter extra registers through
+> > out the PCI IO memory region without appearing in the PCI BARs.  In fact,
+> > for some cards there wouldn't be enough BARs to list them all.
+> 
+> > For example, S3 cards typically use:
+> > 
+> >  0x0102,  0x42e8,  0x46e8,  0x4ae8,  0x8180 - 0x8200,  0x82e8,  0x86e8,
+> >  0x8ae8,  0x8ee8,  0x92e8,  0x96e8,  0x9ae8,  0x9ee8,  0xa2e8,  0xa6e8,
+> >  0xaae8,  0xaee8,  0xb2e8,  0xb6e8,  0xbae8,  0xbee8,  0xe2e8,
+> >  0xff00 - 0xff44
+> [...]
+> > Surely we should be reserving these regions before we start to allocate
+> > resources to PCI cards?
+> 
 
-However, I believe that my problem is sorted by use of that function from
-pci-i386.c.
+This can't be. If the IO decode doesn't exist in the BAR, the board
+can't access that address if it exists above 0x1000. Some ISA compatibable
+ports are decoded by some SVGA boards so that the BIOS can do an
+early initialization of compatible boards before the board's ROM bios
+is located, shadowed, then executed.
 
-Thanks to people who helped.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Anything you see above 0x1000, that seems to be coming from a PCI
+video board, has got to be an ISA alias and can be ignored.
+
+When you write bits to the base address registers, these turn out
+to be the physical bits set into the hardware decoder. That's why,
+if you need N kb of address space, it needs to be on a N kb boundary.
+
+If these bits are not set, the board is isolated.
+
+In the same vain, Linux may not have the information available to
+properly allocate addresses to PCI and AGP boards. This happens
+because some devices will fail if you change their addresses once
+they are initialized (Most SCSI controllers). Therefore you
+can't change them.
+
+This means that you can't really change anything else.
+
+
+What the BIOS does:
+
+(1)	Learn the last address occupied by memory.
+(2)	Learn the lowest unaliased port address above 0x1000.
+(3)	Starting with the bridge, allocate resources both
+	ports and memory addresses. 
+	The memory addresses start after the last RAM.
+	The port addresses start after the last alias.
+	The I/O or memory enables are usually left OFF.
+(4)	Copy any BIOS found for screen cards and IPL devices,
+	shadow them, remove the BIOS decode, then execute
+	their initialization code. These I/O or memory enables
+	are left ON.
+
+If Linux tries to do this after, say a BusLogic SCSI controller
+booted it, it may set a different I/O address for the SCSI controller.
+Since the SCSI controller needs a hardware reset to accept new
+I/O decodes, you are dead. Several "smart" controllers are like
+this. They have processors that "remember" stuff that you'd like
+them to forget.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

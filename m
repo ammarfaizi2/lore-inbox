@@ -1,59 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265126AbSLVRfk>; Sun, 22 Dec 2002 12:35:40 -0500
+	id <S264857AbSLVScD>; Sun, 22 Dec 2002 13:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbSLVRfk>; Sun, 22 Dec 2002 12:35:40 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:39354 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265126AbSLVRfj>; Sun, 22 Dec 2002 12:35:39 -0500
-Date: Sun, 22 Dec 2002 09:43:35 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       James Cleverdon <jamesclv@us.ibm.com>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-cc: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
-Subject: Re: [PATCH][2.4]  generic support for systems with more than 8 CPUs
- (2/2)
-Message-ID: <34630000.1040579013@titus>
-In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1912E1B3@fmsmsx405.fm.intel.com>
-References: <C8C38546F90ABF408A5961FC01FDBF1912E1B3@fmsmsx405.fm.intel.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265132AbSLVScD>; Sun, 22 Dec 2002 13:32:03 -0500
+Received: from [195.208.223.238] ([195.208.223.238]:27520 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S264857AbSLVScB>; Sun, 22 Dec 2002 13:32:01 -0500
+Date: Sun, 22 Dec 2002 21:39:45 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, davidm@hpl.hp.com,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+Message-ID: <20021222213945.A30070@localhost.park.msu.ru>
+References: <Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com> <m1y96il4oj.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1y96il4oj.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Dec 22, 2002 at 03:38:04AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#ifdef CONFIG_X86_CLUSTERED_APIC
-> +	/*
-> +	 * Switch to Physical destination mode in case of generic
-> +	 * more than 8 CPU system, which has xAPIC support
-> +	 */
-> +#define FLAT_APIC_CPU_MAX	8
-> +	if ((clustered_apic_mode == CLUSTERED_APIC_NONE) &&
-> +	    (xapic_support) &&
-> +	    (num_processors > FLAT_APIC_CPU_MAX)) {
-> +		clustered_apic_mode = CLUSTERED_APIC_XAPIC;
-> +		apic_broadcast_id = APIC_BROADCAST_ID_XAPIC;
-> +		int_dest_addr_mode = APIC_DEST_PHYSICAL;
-> +		int_delivery_mode = dest_Fixed;
-> +		esr_disable = 1;
-> +	}
-> +#endif
+On Sat, Dec 21, 2002 at 02:44:23PM -0800, Linus Torvalds wrote:
+> And hotplug devices should be disabled at plug-in, so later BAR probing
+> should be pretty harmless too (and, as you point out about bridging, they
+> should be shielded by the hotplug bridge itself).
 
-If you could stick the #define up in a header file somewhere, would
-be more standard / neater. Otherwise that looks good to me ...
+Agreed.
 
-Thanks for cleaning all this stuff up - the new set is much less
-invasive, and easier to read than the last set ;-)
+> This is why I repeated my "turn the power off at the whole house" analogy,
+> even if David didn't like it. It's _fine_ to turn the power off if we know
+> things are quiet, it's just that as things stand now, we don't actually
+> know that.
 
-M.
+The analogy is wonderful. I'd like to extend it to mentioned ia64 system:
+any attempt to replace a light bulb that consumes more than 32 Mb^H^HWatts
+without turning the power off will blow up fuses in the whole house.
 
+>  - (new) phase 1 - scan for and turn off all devices
+>  - phase 2 - go back and check the resources (BAR probing etc)
+>  - phase 3 - allocate unassigned resources.
+
+I don't think we want to turn off *all* devices in phase 1.
+Probably we need another level of fixups - PCI_FIXUP_EARLY, which
+will be called after phase 1, i.e. before fiddling with BARs.
+
+However, I'm still not convinced that we should ever change anything.
+
+On Sun, Dec 22, 2002 at 03:38:04AM -0700, Eric W. Biederman wrote:
+> So the problem we are facing is that we have some activity while BARs
+> are being sized.  Activity can be in the form of IRQs, DMA, IO, and
+> MEM accesses.
+
+I would suggest another classification: a) bus activity generated by CPU
+and b) bus activity generated by other devices.
+
+Case 'a' is mostly under our control. The only problem is an interrupt
+arriving during BAR probe, as Paul pointed out. This can be fixed:
+		pci_read_config_dword(dev, reg, &l);
++		local_irq_save(flags);
+		pci_write_config_dword(dev, reg, ~0);
+		pci_read_config_dword(dev, reg, &sz);
+		pci_write_config_dword(dev, reg, l);
++		local_irq_restore(flags);
+
+Case 'b', two variants.
+- The target of bus activity is a region located in the low bus
+  addresses (USB case), so there are no conflicts with probed BARs
+  of other devices. But we cannot safely disable devices while BARs
+  are being sized as we don't know for sure what device controls
+  that region.
+- Target region is in the high bus addresses (ia64 case), and conflicts
+  are possible when we do the sizing. Yes, disabling the devices does help
+  to avoid conflicts and it happens to work with *some* configurations.
+  But what if the said region in its turn is defined by BAR? or just
+  controlled by some PCI device and therefore can be disconnected from
+  the bus? Too many if's.
+
+I think it's obvious now that "disabling the BARs" is not a fix at all,
+it's just a hack for that particular setup.
+BTW, I think it is *not* required by PCI spec - v2.1 says nothing about it,
+in v2.2 it seems to be just an implementation example.
+
+The real fix is to shut up the device that makes a noise on the bus,
+at least during bus probe.
+I refuse to believe that it cannot be done with that ia64 SAPIC (must be
+a hidden switch somewhere ;-)
+So I'd wait for more tech details regarding that.
+
+> The goal being to keep the window when uncontrolled pci accesses
+> can blow the system up as small as possible.
+
+The window will be large enough anyway - the PCI config space accesses are
+very slow on most systems.
+
+Ivan.

@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSEJL7F>; Fri, 10 May 2002 07:59:05 -0400
+	id <S315591AbSEJMDR>; Fri, 10 May 2002 08:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315586AbSEJL7E>; Fri, 10 May 2002 07:59:04 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:6016 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S313113AbSEJL7D>;
-	Fri, 10 May 2002 07:59:03 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S315597AbSEJMDR>; Fri, 10 May 2002 08:03:17 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:61914 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S315591AbSEJMDQ>; Fri, 10 May 2002 08:03:16 -0400
+Message-ID: <3CDBB686.5080709@antefacto.com>
+Date: Fri, 10 May 2002 13:01:10 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+In-Reply-To: <Pine.LNX.4.44.0205070953420.2509-100000@home.transmeta.com> <3CD8DAA2.6080907@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15579.46584.447522.360378@kim.it.uu.se>
-Date: Fri, 10 May 2002 13:58:48 +0200
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: 2.5.15 warnings
-In-Reply-To: <26949.1021006885@kao2.melbourne.sgi.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
- > sound/oss/emu10k1/efxmgr.c: In function `emu10k1_find_control_gpr':
- > sound/oss/emu10k1/efxmgr.c:67: warning: passing arg 2 of `constant_test_bit' from incompatible pointer type
- > sound/oss/emu10k1/efxmgr.c:67: warning: passing arg 2 of `variable_test_bit' from incompatible pointer type
- > sound/oss/emu10k1/main.c: In function `fx_init':
- > sound/oss/emu10k1/main.c:473: warning: passing arg 2 of `set_bit' from incompatible pointer type
- > sound/oss/emu10k1/main.c:474: warning: passing arg 2 of `set_bit' from incompatible pointer type
- > sound/oss/emu10k1/main.c:475: warning: passing arg 2 of `set_bit' from incompatible pointer type
- > sound/oss/emu10k1/main.c:  and on and on and on ...
+Martin Dalecki wrote:
+> Uz.ytkownik Linus Torvalds napisa?:
+> 
+>> But there is definitely a potential backwards-compatibility-issue.
+> 
+> 
+> Linus - there are no backward compatibility issues here.
+> No single application from my system does mess with /proc/ide.
+> They showed you a list of programs which use /proc and not a list
+> of programs which use anything out of /proc/ide...
 
-This patch silences the sound/oss/emu10k1 warnings.
+To be thorough, I greped for /proc/ide not just /proc,
+the exact command was:
 
-/Mikael
+find /sbin /usr/sbin /bin /usr/bin /lib /usr/lib /usr/bin/X11/ -xdev 
+-perm +111 | xargs grep -l /proc/ide 2>/dev/null
 
---- linux-2.5.15/sound/oss/emu10k1/efxmgr.c.~1~	Wed Feb 20 03:10:55 2002
-+++ linux-2.5.15/sound/oss/emu10k1/efxmgr.c	Fri May 10 01:54:43 2002
-@@ -38,7 +38,7 @@
-         struct dsp_patch *patch;
- 	struct dsp_rpatch *rpatch;
- 	char s[PATCH_NAME_SIZE + 4];
--	u32 *gpr_used;
-+	unsigned long *gpr_used;
- 	int i;
- 
- 	DPD(2, "emu10k1_find_control_gpr(): %s %s\n", patch_name, gpr_name);
---- linux-2.5.15/sound/oss/emu10k1/efxmgr.h.~1~	Wed Feb 20 03:11:02 2002
-+++ linux-2.5.15/sound/oss/emu10k1/efxmgr.h	Fri May 10 01:54:43 2002
-@@ -50,10 +50,10 @@
-         u16 code_start;
-         u16 code_size;
- 
--        u32 gpr_used[NUM_GPRS / 32];
--        u32 gpr_input[NUM_GPRS / 32];
--        u32 route[NUM_OUTPUTS];
--        u32 route_v[NUM_OUTPUTS];
-+        unsigned long gpr_used[NUM_GPRS / 32];
-+        unsigned long gpr_input[NUM_GPRS / 32];
-+        unsigned long route[NUM_OUTPUTS];
-+        unsigned long route_v[NUM_OUTPUTS];
- };
- 
- struct dsp_patch {
-@@ -64,8 +64,8 @@
-         u16 code_start;
-         u16 code_size;
- 
--        u32 gpr_used[NUM_GPRS / 32];    /* bitmap of used gprs */
--        u32 gpr_input[NUM_GPRS / 32];
-+        unsigned long gpr_used[NUM_GPRS / 32];    /* bitmap of used gprs */
-+        unsigned long gpr_input[NUM_GPRS / 32];
-         u8 traml_istart;  /* starting address of the internal tram lines used */
-         u8 traml_isize;   /* number of internal tram lines used */
- 
+Padraig.
+

@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSDTXOG>; Sat, 20 Apr 2002 19:14:06 -0400
+	id <S313205AbSDTXOg>; Sat, 20 Apr 2002 19:14:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313205AbSDTXOF>; Sat, 20 Apr 2002 19:14:05 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17931 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313190AbSDTXOE>; Sat, 20 Apr 2002 19:14:04 -0400
-Date: Sat, 20 Apr 2002 16:13:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
-        <jh@suse.cz>
-Subject: Re: [PATCH] Re: SSE related security hole
-In-Reply-To: <20020420214114.A11894@wotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0204201611320.3643-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313206AbSDTXOg>; Sat, 20 Apr 2002 19:14:36 -0400
+Received: from bitmover.com ([192.132.92.2]:2200 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S313205AbSDTXOf>;
+	Sat, 20 Apr 2002 19:14:35 -0400
+Date: Sat, 20 Apr 2002 16:14:34 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Skip Ford <skip.ford@verizon.net>, Jeff Garzik <garzik@havoc.gtf.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020420161434.B31306@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Skip Ford <skip.ford@verizon.net>,
+	Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020420213446.ZCGU13286.out019.verizon.net@pool-141-150-235-204.delv.east.verizon.net> <Pine.LNX.4.44L.0204201839380.1960-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Sat, 20 Apr 2002, Skip Ford wrote:
+> > All of section 1 is an advertisement for using bk...including
+> > directions on how to setup your own clone.  Those are _clearly_
+> > bitkeeper directions and have nothing to do with how to submit
+> > patches.
+> 
+> I'm sure Jeff would be more than happy to include an
+> advertisement for a free bitkeeper alternative, once
+> one exists. ;)
 
-
-On Sat, 20 Apr 2002, Andi Kleen wrote:
-
-> > Besides, I seriously doubt it is any faster than what is there already.
-> >
-> > Time it, and notice how:
-> >
-> >  - fninit takes about 200 cycles
-> >  - fxrstor takes about 215 cycles
->
-> On what CPU?
-
-Sorry, should have mentioned. That's a P4.
-
-> I checked the Athlon4 optimization manual and fxrstor is listed as 68/108
-> cycles (i guess depending on whether there is XMM state or not so 68 cycles
-> probably apply here) and fninit as 91 cycles. It doesn't list the SSE1
-> timings, but i guess the instructions don't take more than 3 cycles
-> (MMX instructions take that long). So Andrea's way should be
-> 91+16*3=139+some cycles for emms (or 107 if sse ops take only a single cycle)
-> vs 68 or 108.  So the fxrstor wins well.
-
-The athlon should be able to do two MMX / cycle (the throughput is much
-lower, but there are no data dependencies here).
-
-> > In short, your "fast" code isn't actually any faster than doing it right.
->
-> At least on Athlon it should be slower.
-
-I suspect that the real answer is "the speed difference is _way_ in the
-noise".
-
-		Linus
-
+And the sooner the better.  I just read this entire thread and I'm disgusted.
+I've seen some lame threads in my day, but this takes the cake.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

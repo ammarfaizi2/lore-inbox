@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315195AbSEDVfs>; Sat, 4 May 2002 17:35:48 -0400
+	id <S315206AbSEDWEg>; Sat, 4 May 2002 18:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315197AbSEDVfr>; Sat, 4 May 2002 17:35:47 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:8715 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315195AbSEDVfr>; Sat, 4 May 2002 17:35:47 -0400
-Date: Sat, 4 May 2002 23:35:34 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IO stats in /proc/partitions
-Message-ID: <20020504213534.GA3034@louise.pinerecords.com>
-In-Reply-To: <UTC200205041959.g44JxQa20044.aeb@smtp.cwi.nl> <HBEHIIBBKKNOBLMPKCBBCEAOEMAA.znmeb@aracnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 12 days, 16:02)
+	id <S315208AbSEDWEf>; Sat, 4 May 2002 18:04:35 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6419 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315206AbSEDWEe>; Sat, 4 May 2002 18:04:34 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] initramfs
+Date: 4 May 2002 15:04:12 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ab1lss$2fi$1@cesium.transmeta.com>
+In-Reply-To: <1744hw-0EYlYuC@fwd01.sul.t-online.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I recently spent a week trying to track down the units used for the disk stats
-> in /proc/stat. Through a combination of queries on the LKML and trucking
-> through the source with rgrep, I managed to get my questions answered. It
-> matters to me and to the people I work for exactly how many bytes the I/O
-> subsystem is handling per second, and how close to the capacity of the I/O
-> subsystem a machine is operating. I consider the fact that I had to dig for
-> and ask for this information unacceptable.
+Followup to:  <1744hw-0EYlYuC@fwd01.sul.t-online.com>
+By author:    "ChristianK."@t-online.de (Christian Koenig)
+In newsgroup: linux.dev.kernel
+> 
+> I have tried to implement the "initramfs buffer spec -- third draft" by hpa 
+> and Al Viro. 
+> 
+> It isn't complete yet, because off the following unresolved topics:
+> 1. For the moment it only supports files,dirs and symlinks.
+> 2. It still needs the "RAM disk" and "initrd" support compiled in the Kernel.
+> 3. I haven't tried to support hardlinks.
+> 4. Since i use the ramdisk for decompression the cpio image must be a 
+> multiple of BLOCK_SIZE bytes.
+> 5. The cpio crc field is ignored.
+> 
+> I have done this only for testing if the "initramfs buffer spec -- third 
+> draft" suffers all requirements. And to give a starting point for 
+> implementing this. The patch works for linux 2.5.9 - 2.5.13.
+> 
+> The only problem i found is that after a "TRAILER!!!" cpio (per default) 
+> align on a 512 bytes boundary, not 4 bytes.
 
-But hey, you've suffered thru it, which, guess what, makes you the perfect
-candidate to have the honor of writing the docs!
+This is consistent with the spec.  It isn't *required* by the spec,
+but a data generator is free to add arbitrary amounts of zero-padding.
 
-Take care,
-T.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

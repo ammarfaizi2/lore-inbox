@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129132AbRBALss>; Thu, 1 Feb 2001 06:48:48 -0500
+	id <S129269AbRBALt5>; Thu, 1 Feb 2001 06:49:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129269AbRBALsi>; Thu, 1 Feb 2001 06:48:38 -0500
-Received: from silver.sucs.swan.ac.uk ([137.44.10.1]:64261 "EHLO
-	sucs.swan.ac.uk") by vger.kernel.org with ESMTP id <S129132AbRBALs0>;
-	Thu, 1 Feb 2001 06:48:26 -0500
-Message-ID: <4755.137.44.4.15.981028098.squirrel@www.sucs.swan.ac.uk>
-Date: Thu, 1 Feb 2001 11:48:18 -0000 (GMT)
-Subject: Need for more ISO8859 codepages?
-From: "Rhys Jones" <linux-kernel@postwales.com>
-To: linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 1.0pre2)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S129613AbRBALtr>; Thu, 1 Feb 2001 06:49:47 -0500
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:65259 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S129269AbRBALtg>; Thu, 1 Feb 2001 06:49:36 -0500
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@fi.muni.cz>
+Subject: Re: BUG
+Message-ID: <3A794D4A.CA113571@fi.muni.cz>
+Date: Thu, 1 Feb 2001 11:49:30 GMT
+To: Grzegorz Sojka <grzes@prioris.mini.pw.edu.pl>
+X-Nntp-Posting-Host: dual.fi.muni.cz
+Content-Transfer-Encoding: 7bit
+X-Accept-Language: Czech, en
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <Pine.BSF.4.21.0101312339170.38659-100000@prioris.mini.pw.edu.pl>
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre12-RTL3.11b i686)
+Organization: unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Grzegorz Sojka wrote:
+> 
+> I am using kernel v2.4.0 on Abit BP6 with two Intel Pentium Celeron
+> 366@517Mhz + video based on Riva TNT2 M64 32Mb + network card 3com 3c905b
+> + Creative Sound Blaster 64 pnp isa and hercules video card. I'm geting
+> all over the time messages like that:
+> Jan 31 23:37:16 Zeus kernel: APIC error on CPU0: 02(02)
+> Jan 31 23:37:17 Zeus kernel: APIC error on CPU1: 02(08)
 
-Please forgive a semi-newbie post.
+Enjoy this wonderful patch :)
 
-About 18 months ago I patched fs/nls/ to include support for the
-Celtic character set, ISO8859-14. I notice that there are still gaps
-in nls, specifically in ISO8859 codepages 10 to 13.
+--- linux.orig/arch/i386/kernel/apic.c  Tue Jan 23 21:41:23 2001
++++ linux/arch/i386/kernel/apic.c       Tue Jan 23 21:40:41 2001
+@@ -765,6 +765,7 @@
+        v1 = apic_read(APIC_ESR);
+        ack_APIC_irq();
+        irq_err_count++;
++       if (1) return;
+ 
+        /* Here is what the APIC error bits mean:
+           0: Send CS error
 
-The missing codepages are for Nordic/Icelandic (ISO8859-10), Thai
-(ISO8859-11), and Baltic Rim (ISO8859-13) languages. I'm still trying
-to determine the status of ISO8859-12 at the moment.
 
-Two questions, really. The general one is whether anyone would find
-these codepages useful. If they would, I'm willing to provide the
-patches in due course. More specifically, can anyone tell me why
-ISO8859-10 (Icelandic etc.) is mentioned in Documentation/Configure.help
-whilst nls_iso8859-10.c is missing from the fs/nls directory?
+It's not fix - you just don't get this borring message....
 
-Any and all feedback appreciated.
 
-Thanks,
-Rhys Jones, Swansea
 -- 
-http://www.sucs.org/~rhys/
+             There are three types of people in the world:
+               those who can count, and those who can't.
+  Zdenek Kabelac  http://i.am/kabi/ kabi@i.am {debian.org; fi.muni.cz}
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

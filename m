@@ -1,85 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261700AbTCZOMM>; Wed, 26 Mar 2003 09:12:12 -0500
+	id <S261703AbTCZONf>; Wed, 26 Mar 2003 09:13:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261702AbTCZOMM>; Wed, 26 Mar 2003 09:12:12 -0500
-Received: from imspcml002.netvigator.com ([203.198.23.216]:37770 "EHLO
-	imspcml002.netvigator.com") by vger.kernel.org with ESMTP
-	id <S261700AbTCZOML>; Wed, 26 Mar 2003 09:12:11 -0500
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: "M.H.VanLeeuwen" <vanl@megsinet.net>
-Subject: Resolved: ISAPNP BUG: 2.4.65 ne2000 driver w. isapnp not working
-Date: Wed, 26 Mar 2003 22:20:17 +0800
-User-Agent: KMail/1.5
-References: <3E7DE01B.2B6985DF@megsinet.net> <200303241203.01814.mflt1@micrologica.com.hk> <3E81A494.FF16EBCF@megsinet.net>
-In-Reply-To: <3E81A494.FF16EBCF@megsinet.net>
-Cc: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-X-OS: GNU/Linux 2.4.21-pre5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S261705AbTCZONf>; Wed, 26 Mar 2003 09:13:35 -0500
+Received: from 237.oncolt.com ([213.86.99.237]:62656 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261703AbTCZONe>; Wed, 26 Mar 2003 09:13:34 -0500
+Subject: Re: [patch] 2.4.21-pre5 kksymoops for i386/ia64
+From: David Woodhouse <dwmw2@infradead.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <24872.1048117135@ocs3.intra.ocs.com.au>
+References: <24872.1048117135@ocs3.intra.ocs.com.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048688679.12528.285.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
+Date: 26 Mar 2003 14:24:40 +0000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303262220.17895.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin,
+On Wed, 2003-03-19 at 23:38, Keith Owens wrote:
+> Bottom line - when, and only when, the kksymoops patch is in the 2.4
+> kernel, then I will spend the time to make modutils 2.4 work in cross
+> compile mode.  If you insist that kallsyms work in cross compile mode
+> before the patch goes in, then it is not going to happen and nobody
+> gets automatic oops decoding in 2.4.
 
-Thank you for getting the fix going and sending me this patch which I applid on 2.5.66.
+I can understand your frustration, but you know perfectly well that
+features which don't work for non-i386, don't work on SMP, or don't work
+when cross-compiled just _don't_ get merged. (In general, at least).
 
-The problem is resolved:
-
-  .config: CONFIG_NE2000=m
-
-  Tested:
-    network start on boot: 		OK
-    several network restart:		OK
-    rmmod ne 8390; network start:	OK
-    several network restart:		OK
-
-I like also to thank Adam Belay for getting this fixed.
-
-
-Best Regards
-Michael
-
- 
-
-On Wednesday 26 March 2003 21:01, you wrote:
-> Michael,
->
-> Adam Belay has posted some PNP patches you may want to try for 2.5.66.
->
-> One of them looks like it may help...I haven't tried.
->
-> Martin
->
->
->
-> diff -Nru a/drivers/pnp/manager.c b/drivers/pnp/manager.c
-> --- a/drivers/pnp/manager.c Tue Mar 25 21:44:41 2003
-> +++ b/drivers/pnp/manager.c Tue Mar 25 21:44:41 2003
-> @@ -632,8 +632,7 @@
->          if (!dev)
->                  return -EINVAL;
->          if (dev->active) {
-> - pnp_info("res: The PnP device '%s' is already active.", dev->dev.bus_id);
-> - return -EBUSY;
-> + return 0; /* the device is already active */
->          }
->          /* If this condition is true, advanced configuration failed, we
-> need to get this device up and running * so we use the simple config engine
-> which ignores cold conflicts, this of course may lead to new failures */ @@
-> -698,8 +697,7 @@
->          if (!dev)
->                  return -EINVAL;
->          if (!dev->active) {
-> - pnp_info("res: The PnP device '%s' is already disabled.",
-> dev->dev.bus_id); - return -EINVAL;
-> + return 0; /* the device is already disabled */
->          }
->          if (dev->status != PNP_READY){
->                  pnp_info("res: Disable failed becuase the PnP device '%s'
-> is busy.", dev->dev.bus_id);
+-- 
+dwmw2
 

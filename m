@@ -1,61 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132626AbRDQHhN>; Tue, 17 Apr 2001 03:37:13 -0400
+	id <S132658AbRDQIAJ>; Tue, 17 Apr 2001 04:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132629AbRDQHhD>; Tue, 17 Apr 2001 03:37:03 -0400
-Received: from smtphost5.home.se ([195.66.35.201]:4966 "EHLO smtp2.home.se")
-	by vger.kernel.org with ESMTP id <S132626AbRDQHgv>;
-	Tue, 17 Apr 2001 03:36:51 -0400
-Message-Id: <5.0.2.1.0.20010417082956.02ee5008@mail11.mail.home.se>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Tue, 17 Apr 2001 09:28:14 +0200
-To: Matti Aarnio <matti.aarnio@zmailer.org>, Drew Bertola <drew@drewb.com>
-From: Gunnar Ahlberg <gunnar.ahlberg@home.se>
-Subject: Re: "Why I get no more linux-kernel traffic ?"
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010322022834.J23336@mea-ext.zmailer.org>
-In-Reply-To: <15033.7145.547612.90560@champ.serialhacker.net>
- <15033.7145.547612.90560@champ.serialhacker.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S132659AbRDQIAA>; Tue, 17 Apr 2001 04:00:00 -0400
+Received: from mail.axisinc.com ([193.13.178.2]:32521 "EHLO roma.axis.se")
+	by vger.kernel.org with ESMTP id <S132658AbRDQH7r>;
+	Tue, 17 Apr 2001 03:59:47 -0400
+From: johan.adolfsson@axis.com
+Message-ID: <032e01c0c714$ba76e000$a4b270d5@homeip.net>
+Reply-To: <johan.adolfsson@axis.com>
+To: "Rob Landley" <telomerase@yahoo.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010414010504.2967.qmail@web5201.mail.yahoo.com>
+Subject: Re: How do I make a circular pipe?
+Date: Tue, 17 Apr 2001 10:02:19 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can't you do it like this?
+# mkfifo fifo
+# pppd notty < fifo | pppoe -I eth1 >fifo
+/Johan
 
-Just a another FAQ entry based on my experience
-
-I've found that home.com and home.se are messing with MAPI extensions.
-At home, you are able to setup your own rules, just like any reasonable 
-MAPI server,
-but I guess they are doing it wrong, or, I'm getting it wrong.
-This is what I did,
-I set up my email rule to move all messages from @vger to a separate folder 
-on the mail server.
-On home.se this is done through a web interface were you can setup basic 
-email features like rules.
-The mails are getting nicely to the new folder, but I can't download it 
-from the email client,
-Eudora. Just removing the rule helped, but, now I can't read my email over 
-the web interface...
-It's a tough mans world.
-I guess that either Eudora is not communicating with the mail server correctly
-or, the mail server are storing the mails in separate storage instead of 
-sorting them for the display
-view.
-
-/G
+----- Original Message -----
+From: Rob Landley <telomerase@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Saturday, April 14, 2001 3:05 AM
+Subject: How do I make a circular pipe?
 
 
->   The POSSIBLE reasons are FAQ items at the LKML FAQ:
->         http://www.tux.org/lkml/
+> How do I do the following:
 >
->   Lately we have had bounces from lots of places, INCLUDING  @home.com !
+> #  --> pppd notty | pppoe -I eth1 | --
+>    |_________________________________|
 >
->   However in your case I see no such events.
->   Everything seem to have worked just fine, until at circa 2:15 AM (EST)
->   on 16th of march was the last letter to you.
+> I.E. connect the stdout of a process  (or chain
+> thereof) to its own stdin?
 >
->   By the way, VGER's logs are not infinite,  only current plus 7 previous
->   days.  Good that you didn't wait for a week before wondering...
-
+> So I wrote a program to do it, along the lines of:
+>
+> sixty-nine /bin/sh -c "pppd notty | pppoe -I eth1"
+>
+> With an executable approximately along the lines of
+> (warning, pseudo-code, the other machine isn't hooked
+> up to the internet at the moment for obvious reasons):
+>
+> int main(int argc, char *argv[], char *envp[])
+> {
+>   int fd[2];
+>   pipe(fd);
+>   dup2(fd[0],0);
+>   dup2(fd[0],1);
+>   execve(argv[1],argv+1,envp);
+>   fprintf(stderr,"Bad.\n");
+>   exit(1);
+> }
+>
+> And it didn't work.  I made a little test program that
+> writes to stdout and reads from stdin and reports to
+> stderr, and it gets nothing.  Apparently, the pipe
+> fd's evaporate when the process does an execve.
+>
+> What do I do?  (If anybody else knows an easier way to
+> get pppoe working, that would be helpful too.
+>
+> Rob
+>
+> (P.S.  WHY does pppd want to talk to a tty by default
+> instead of stdin and stdout?  Were the people who
+> wrote it at all familiar with the unix philosophy?
+> Just curious...)
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Get email at your own domain with Yahoo! Mail.
+> http://personal.mail.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

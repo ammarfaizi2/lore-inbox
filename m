@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289013AbSAOLgS>; Tue, 15 Jan 2002 06:36:18 -0500
+	id <S289001AbSAOLfi>; Tue, 15 Jan 2002 06:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289038AbSAOLf7>; Tue, 15 Jan 2002 06:35:59 -0500
-Received: from dark.pcgames.pl ([195.205.62.2]:43466 "EHLO dark.pcgames.pl")
-	by vger.kernel.org with ESMTP id <S289013AbSAOLfw>;
-	Tue, 15 Jan 2002 06:35:52 -0500
-Date: Tue, 15 Jan 2002 12:35:33 +0100 (CET)
-From: Krzysztof Oledzki <ole@ans.pl>
-X-X-Sender: <ole@dark.pcgames.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: ide.2.2.21.05042001-Ole.patch.gz
-In-Reply-To: <Pine.LNX.4.33.0201112043340.14442-100000@dark.pcgames.pl>
-Message-ID: <Pine.LNX.4.33.0201151226350.21809-100000@dark.pcgames.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289013AbSAOLf2>; Tue, 15 Jan 2002 06:35:28 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:12548 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S289001AbSAOLfP>;
+	Tue, 15 Jan 2002 06:35:15 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Rob Landley <landley@trommello.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away? 
+In-Reply-To: Your message of "Mon, 14 Jan 2002 09:19:01 CDT."
+             <20020114222101.ZPUW15906.femail44.sdc1.sfba.home.com@there> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Jan 2002 22:35:03 +1100
+Message-ID: <5641.1011094503@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 14 Jan 2002 09:19:01 -0500, 
+Rob Landley <landley@trommello.org> wrote:
+>How much of the build process for the initramfs will be integrated with the 
+>kernel build?  Since the kernel won't boot without a matching initramfs, I 
+>take it that some kind of initramfs will be a kernel build target now?
+>
+>There's been a lot of talk about having the source for a mini-libc (uclibc, 
+>dietlibc, some combo) in the kernel tree, and other people saying we should 
+>just grab the binary for build purposes.  The most obvious model I can think 
+>of for klibc staying seperate from the kernel is the user-space 
+>pcmcia/cardbus hotplug stuff, but that DID get integrated into the kernel.
+>
+>The klibc source/binary debate still seems to be ongoing, but apart from 
+>that, will the build process for initramfs be part of the kernel build or not?
 
-I have just made ide.2.2.21.01152002-Ole patch:
+I am in two minds about this (but I am at one with my duality).  Part
+of me says that users will want to tweak the initramfs process and they
+may want to use different versions of klibc, so klibc and building
+initramfs should be outside the kernel build.  Another part says that
+users have to build initramfs before doing the install so initramfs and
+klibc should be part of kbuild.
 
-o       backport from ide.2.4.16.12102001.patch: pdc202xx.c - ver 0.30
-                - no 48-bit lba - this requires changes in other files:
-                   ide-disk.c, ide.c, ide.h, ... Maybe in future...
-o       fix missing DEVID_MR_IDE definition in ide-pci.c for VIA_82C576_1
-o       add PROMISE_20268R, PROMISE_20269, PROMISE_20275 in ide-pci.c
-o       add CONFIG_PDC202XX_FORCE option into Config.in, ide-pci.c
-
-BTW: why the pdc202xx.c file still has "Version 0.30    Mar. 18, 2000"?
-It has been changed since that time! :)
-
-After all this changes, pdc202xx.c driver still works for my PDC20265 :)
-So, if there is no problem with ide.2.4.16.12102001 my patch should also
-works, maybe even for 20268R, 20269 and 20275 chipsets. ;-)
-
-Best regards,
-
-				Krzysztof Oledzki
+It will probably end up with klibc as part of the kernel tarball
+supported by kbuild.  Generating initramfs will be done by a script,
+kbuild will supply a sample but users can copy and change the sample to
+suit their own requirements.
 

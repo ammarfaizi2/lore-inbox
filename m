@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263968AbTJFDhK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 23:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTJFDhJ
+	id S263969AbTJFDmo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 23:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbTJFDmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 23:37:09 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:27581 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263968AbTJFDhH (ORCPT
+	Sun, 5 Oct 2003 23:42:44 -0400
+Received: from smtp1.cwidc.net ([154.33.63.111]:38055 "EHLO smtp1.cwidc.net")
+	by vger.kernel.org with ESMTP id S263969AbTJFDmn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 23:37:07 -0400
-Date: Sun, 5 Oct 2003 20:36:06 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: oops when removing sbp2 module
-Message-ID: <20031005203606.A3829@beaverton.ibm.com>
-References: <16256.6322.388402.857084@cargo.ozlabs.ibm.com> <20031005074902.A26284@beaverton.ibm.com> <16256.56491.671416.205944@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 5 Oct 2003 23:42:43 -0400
+From: Clemens Schwaighofer <schwaigl@eunet.at>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: linux 2.6 csv from 20031006
+Date: Mon, 6 Oct 2003 12:42:17 +0900
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16256.56491.671416.205944@cargo.ozlabs.ibm.com>; from paulus@samba.org on Mon, Oct 06, 2003 at 01:08:27PM +1000
+Message-Id: <200310061242.17809.schwaigl@eunet.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 01:08:27PM +1000, Paul Mackerras wrote:
+after a clean checkout and just an load of the old config file, I get this 
+during the compile
 
-> That fixes it, it no longer oopses on removing sbp2.  As before I get
-> a message saying "Device 'fw-host0' does not have a release()
-> function, it is broken and must be fixed."  I assume that is a problem
-> with the sbp2 module.
-> 
-> The code in the patch looks a little worrying to me, though.  Is there
-> some lock we have taken to ensure that no other process could be
-> modifying sdev->access_count at the same time?  Also, what is to stop
-> some other process from noticing that sdev->access_count is 0 and
-> calling device_del(&sdev->sdev_gendev) ?
+net/appletalk/aarp.c: In function `aarp_seq_start':
+net/appletalk/aarp.c:944: parse error before '<<' token
+net/appletalk/aarp.c:954: redeclaration of `iter'
+net/appletalk/aarp.c:938: `iter' previously declared here
+net/appletalk/aarp.c:959: `v' undeclared (first use in this function)
+net/appletalk/aarp.c:959: (Each undeclared identifier is reported only once
+net/appletalk/aarp.c:959: for each function it appears in.)
+net/appletalk/aarp.c:960: `entry' undeclared (first use in this function)
+net/appletalk/aarp.c: At top level:
+net/appletalk/aarp.c:1029: `aarp_seq_next' undeclared here (not in a function)
+net/appletalk/aarp.c:1029: initializer element is not constant
+net/appletalk/aarp.c:1029: (near initialization for `aarp_seq_ops.next')
+make[2]: *** [net/appletalk/aarp.o] Error 1
+make[1]: *** [net/appletalk] Error 2
+make: *** [net] Error 2
 
-Yes, it's a known problem, there is also a comment in the code, Christoph
-was working on it.
+-- 
+Clemens
 
--- Patrick Mansfield

@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318984AbSHWRya>; Fri, 23 Aug 2002 13:54:30 -0400
+	id <S318991AbSHWRxC>; Fri, 23 Aug 2002 13:53:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319007AbSHWRya>; Fri, 23 Aug 2002 13:54:30 -0400
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:51840
-	"HELO ghanima.endorphin.org") by vger.kernel.org with SMTP
-	id <S318984AbSHWRy3>; Fri, 23 Aug 2002 13:54:29 -0400
-Date: Fri, 23 Aug 2002 19:58:38 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Does IRQ code touch FS code? (2.4.x)
-Message-ID: <20020823175838.GA1374@ghanima.endorphin.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: "Fruhwirth Clemens" <clemens@endorphin.org>
-X-Delivery-Agent: TMDA/0.47 (Python 2.1.3 on linux2)
+	id <S319007AbSHWRxB>; Fri, 23 Aug 2002 13:53:01 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26377
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318991AbSHWRxB>; Fri, 23 Aug 2002 13:53:01 -0400
+Date: Fri, 23 Aug 2002 10:42:43 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, jgarzik@mandrakesoft.com,
+       ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE-flash device and hard disk on same controller
+In-Reply-To: <Pine.LNX.4.10.10208231002220.14761-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10208231040200.14761-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Aug 2002, Andre Hedrick wrote:
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Fri, 23 Aug 2002, Russell King wrote:
+> 
+> > On Fri, Aug 23, 2002 at 12:45:03AM -0700, Andre Hedrick wrote:
+> > > This is where JG's hard work and my time with him explaining it will help
+> > > most.  Also case where RMK's ARM toys do fun things and the assumption by
+> > > the driver that POST is valid is DEAD WRONG.  I will repeat the assumption
+> > > of my code about POST is DEAD WRONG!  POST like events happen at different
+> > > times for various archs.
+> > 
+> > Yet more FUD.  Andre - go away and come back once you've calmed down.
+> > 
+> > Maybe its because you don't actually understand my IDE hardware.  I
+> > dunno.  But you are "DEAD WRONG" about the crap you've written above.
+> > 
+> > Completely.
+> 
+> NO, I just misreferenced you because you was asked to help in a situation
+> with G Britton, as you have refreshed my memory with a hammer.
+> 
+> So I apologize for mixing events and people.
+> 
+> The point still stands, there are case where the OS is launched,
+> regardless of bootloading, where devices can be lost if the time limits
+> are not followed.  In the case where my memory failed, you reminded me the
+> device took 40 secs to spinup.
 
-Hi!
+Oh I forgot to add, I said "POST-Like" events.
+If Execute Diagnostics is never issues w/ the prior reset of the
+devices/bus we do not have a quantified state the system should be left in
+at bootloading.
 
-As Marcello isn't sure if he should change the IV metric in 2.4.x/loop.c, I
-decided to circumvent the problem with an ugly hack.=20
-My hack (for cryptoloop of cryptoapi) depends on the fact that=20
-blksize[MAJOR_LOOP][SOME_MINOR] does not change within the loop thread.=20
+Therefore I suspect the device is compliant and the HOST is bad.
 
-The loop thread, however, runs with IRQs enabled. So IRQ handler code might
-break my assumption that blksize[..] does not change. As far as I can see
-there is just fs code which touches blksize. So my question is:=20
+Cheers,
 
-Is IRQ code allowed to touch FS code?
+Andre Hedrick
+LAD Storage Consulting Group
 
-I hope some kernel wizard can clarify that issue for me. My guess is, that
-IRQ code is not allowed to touch FS code, since FS code makes liberal use
-of schedule(), which is forbidden for IRQ code.
-
-Thanks, Clemens
-
-Please CC.
-
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9ZnfOHkYGUbdPrgQRAh3+AJwLxGwX/znhnRImbFyJnyxBpX/17ACdFO8j
-ItuGLeEZYCWiv3KbybLKLVI=
-=UaZu
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--

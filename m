@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268650AbUILKrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268648AbUILKyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268650AbUILKrb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 06:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUILKra
+	id S268648AbUILKyy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 06:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUILKyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 06:47:30 -0400
-Received: from ozlabs.org ([203.10.76.45]:9612 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268652AbUILKqo (ORCPT
+	Sun, 12 Sep 2004 06:54:54 -0400
+Received: from holomorphy.com ([207.189.100.168]:50820 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268648AbUILKyv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 06:46:44 -0400
-Date: Sun, 12 Sep 2004 20:43:06 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] Yielding processor resources during lock contention
-Message-ID: <20040912104306.GA25741@krispykreme>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com> <200409121210.32259.arnd@arndb.de>
+	Sun, 12 Sep 2004 06:54:51 -0400
+Date: Sun, 12 Sep 2004 03:54:36 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined atomic_sub_and_test
+Message-ID: <20040912105436.GP2660@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, Hans Reiser <reiser@namesys.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040912031235.48c738ae.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409121210.32259.arnd@arndb.de>
-User-Agent: Mutt/1.5.6+20040818i
+In-Reply-To: <20040912031235.48c738ae.pj@sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+On Sun, Sep 12, 2004 at 03:12:35AM -0700, Paul Jackson wrote:
+> The final link fails with:
+>   fs/built-in.o(.text+0x58618): In function `end_io_handler':
+>   : undefined reference to `atomic_sub_and_test'
+>   make[1]: *** [arch/sparc/boot/image] Error 1
+> The macro 'atomic_sub_and_test' is defined for more or less every other
+> arch, in various include/asm-*/atomic.h files, but not defined for
+> sparc.
+> This macro is used in:
+> 	fs/reiser4/flush_queue.c:
+>                if (atomic_sub_and_test(bio->bi_vcnt, &fq->nr_submitted))
+> If I disable the config items:
+>   CONFIG_REISER4_FS=y
+>   CONFIG_REISER4_LARGE_KEY=y
+> then it builds ok (with the bogus #else removed from cachefs.h, as
+> already reported on lkml).
 
-> For s390, this was solved by simply defining cpu_relax() to the hypervisor
-> yield operation, because we found that cpu_relax() is used only in busy-wait
-> situations where it makes sense to continue on another virtual CPU.
-> 
-> What is the benefit of not always doing a full hypervisor yield when
-> you hit cpu_relax()?
+I'm loath to add this for the sake of reiser4; I rather favor the use of
+portable constructs.
 
-cpu_relax doesnt tell us why we are busy looping. In this particular
-case we want to pass to the hypervisor which virtual cpu we are waiting
-on so the hypervisor make better scheduling decisions.
 
-Did you manage to see any improvement by yielding to the hypervisor
-in cpu_relax?
-
-Anton
+-- wli

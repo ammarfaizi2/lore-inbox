@@ -1,76 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267660AbUIMPMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268698AbUIMPRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267660AbUIMPMa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 11:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268578AbUIMPJA
+	id S268698AbUIMPRB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268401AbUIMPQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 11:09:00 -0400
-Received: from mail3.iserv.net ([204.177.184.153]:25277 "EHLO mail3.iserv.net")
-	by vger.kernel.org with ESMTP id S268172AbUIMPAW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 11:00:22 -0400
-Message-ID: <4145B606.5080505@didntduck.org>
-Date: Mon, 13 Sep 2004 11:00:22 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Mon, 13 Sep 2004 11:16:14 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:11933 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S267690AbUIMPJ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 11:09:59 -0400
+Date: Mon, 13 Sep 2004 08:09:37 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, colpatch@us.ibm.com,
+       Paul Jackson <pj@sgi.com>, Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5
+Message-ID: <650660000.1095088173@[10.10.2.4]>
+In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>
+References: <20040913015003.5406abae.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Constantine Gavrilov <constg@qlusters.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron
- machines
-References: <4145A8E1.8010409@qlusters.com>
-In-Reply-To: <4145A8E1.8010409@qlusters.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Constantine Gavrilov wrote:
-> Hello:
-> 
-> We have a piece of kernel code that calls some system calls in kernel 
-> context (from a process with mm and a daemonized kernel thread that does 
-> not have mm). This works fine on IA64 and i386 architectures.
-> 
-> When I try this on x86-64 kernel on Opteron machines, it results in 
-> immediate crash. I have tried standard _syscall() macros from 
-> asm/unistd.h. The system panics when returning from the system call.
-> The disassembled code shows that gcc has often a hard time deciding 
-> which registers (32-bit or 64-bit) it will use. For example, it puts the 
-> system call number to eax, while it should put it to rax. However, this 
-> register thing is not a problem. I have tried my own gcc hand-crafted 
-> inline assembly and glibc inline syscall assembly that results in 
-> "correct" disassembled code. The result is always the same -- kernel 
-> crash when calling a function defined by _syscall() macros or when using 
-> an "inline" block defined by glibc macros.
-> 
-> Attached please find a test module that tries to call the umask() (JUST 
-> TO DEMONSTRATE a problem) via the syscall machanism. Both methods (the 
-> _syscall1() marco and GLIBC INLINE_SYCALL() were used.
-> 
-> The assembly dump of the umask() called via _syscall(1) and via 
-> INLINE_SYSCALL() as well as the disassembly of umask() from glibc are 
-> provided in a separate attachement. The crash dump (captured with a 
-> serial console) is provided along with disassembly of the main module 
-> function.
-> 
-> It seems that segmentation is changed during the syscall and not 
-> restored properly, or some other REALLY BAD THING happens. The entry.S 
-> for x86_64 architecture is very informative, but I am not an expert in 
-> Opteron architecture and I do not know how the syscall instruction is 
-> supposed to work.
-> 
-> Can someone explain the reason for the crash? Can you think of a 
-> workaround? Comments and ideas are very welcome (except of the kind that 
-> it can be implemented in the user space or with a help of a user proxy 
-> process).
+OK, starfire broke and qlogicisp. Plus some NUMA stuff in mm/mempolicy.c
+Full error log below. Config is (on ia32):
 
-You should never use the unistd.h macros from kernel space.  Call 
-sys_foo() directly.  This may mean you have to export it.  The reason it 
-crashes is that the "syscall" opcode used by the x86-64 macros (unlike 
-the "int $0x80" for i386) causes a fault when already running in kernel 
-space.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/config.numaq
 
---
-				Brian Gerst
+The NUMA one is either cpusets-big-numa-cpu-and-memory-placement.patch
+or create-nodemask_t.patch by the looks of it. The only thing touching
+starfire is bk-netdev.patch, but as I get very similar errors from qlogicisp
+maybe someone's been futzing with readw/writew ?
+
+M.
+
+drivers/net/starfire.c: In function `starfire_init_one':
+drivers/net/starfire.c:924: warning: passing arg 1 of `readb' makes pointer from integer without a cast
+drivers/net/starfire.c:930: warning: passing arg 1 of `readb' makes pointer from integer without a cast
+drivers/net/starfire.c:935: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:937: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:940: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:944: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `mdio_read':
+drivers/net/starfire.c:1087: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `mdio_write':
+drivers/net/starfire.c:1100: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `netdev_open':
+drivers/net/starfire.c:1123: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1124: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1162: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1169: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1177: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1179: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1180: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1181: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1182: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1183: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1185: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1189: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1196: warning: passing arg 2 of `writeb' makes pointer from integer without a cast
+drivers/net/starfire.c:1199: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1200: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1201: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1205: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1206: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1207: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1213: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1215: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1217: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1219: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1232: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1238: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1240: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1241: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1257: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1260: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `tx_timeout':
+drivers/net/starfire.c:1312: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `init_ring':
+drivers/net/starfire.c:1356: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `start_tx':
+drivers/net/starfire.c:1477: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `intr_handler':
+drivers/net/starfire.c:1505: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1522: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1562: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1593: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `__netdev_rx':
+drivers/net/starfire.c:1710: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `refill_rx_ring':
+drivers/net/starfire.c:1779: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `netdev_media_change':
+drivers/net/starfire.c:1839: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1841: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:1849: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `netdev_error':
+drivers/net/starfire.c:1865: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `get_stats':
+drivers/net/starfire.c:1891: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1892: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1893: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1895: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1895: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1896: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1898: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1898: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1901: warning: passing arg 1 of `readw' makes pointer from integer without a cast
+drivers/net/starfire.c:1902: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1903: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1904: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1905: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:1906: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `set_rx_mode':
+drivers/net/starfire.c:1961: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1962: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1963: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1967: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1968: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1969: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1990: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1991: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1992: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1995: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/net/starfire.c:1998: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c: In function `netdev_close':
+drivers/net/starfire.c:2099: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/net/starfire.c:2106: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:2109: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/net/starfire.c:2110: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+mm/mempolicy.c: In function `get_zonemask':
+mm/mempolicy.c:419: `maxnode' undeclared (first use in this function)
+mm/mempolicy.c:419: (Each undeclared identifier is reported only once
+mm/mempolicy.c:419: for each function it appears in.)
+drivers/scsi/qlogicisp.c: In function `isp_inw':
+drivers/scsi/qlogicisp.c:632: warning: passing arg 1 of `readw' makes pointer from integer without a cast
+drivers/scsi/qlogicisp.c: In function `isp_outw':
+drivers/scsi/qlogicisp.c:641: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+

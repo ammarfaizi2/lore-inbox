@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVBBCoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVBBCpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbVBBCoL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 21:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVBBCoL
+	id S262216AbVBBCpL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 21:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbVBBCpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 21:44:11 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:17289 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262215AbVBBCnz (ORCPT
+	Tue, 1 Feb 2005 21:45:08 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:23945 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262216AbVBBCo4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 21:43:55 -0500
-Date: Wed, 2 Feb 2005 11:43:53 +0900
+	Tue, 1 Feb 2005 21:44:56 -0500
+Date: Wed, 2 Feb 2005 11:44:54 +0900
 From: Tejun Heo <tj@home-tj.org>
 To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
        linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2 01/29] ide: remove adma100
-Message-ID: <20050202024353.GB621@htj.dyndns.org>
+Subject: Re: [PATCH 2.6.11-rc2 02/29] ide: cleanup it8172
+Message-ID: <20050202024454.GC621@htj.dyndns.org>
 References: <20050202024017.GA621@htj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,90 +24,41 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 01_ide_remove_adma100.patch
+> 02_ide_cleanup_it8172.patch
 > 
-> 	Removes drivers/ide/pci/adma100.[hc].  The driver isn't
-> 	compilable (missing functions) and no Kconfig actually enables
-> 	CONFIG_BLK_DEV_ADMA100.
+> 	In drivers/ide/pci/it8172.h, it8172_ratefilter() and
+> 	init_setup_it8172() are declared and the latter is referenced
+> 	in it8172_chipsets.  Both functions are not defined or used
+> 	anywhere.  This patch removes the prototypes and reference.
+> 	it8172 should be compilable now.
 
 
 Signed-off-by: Tejun Heo <tj@home-tj.org>                                       
 
-Index: linux-ide-export/drivers/ide/pci/Makefile
+Index: linux-ide-export/drivers/ide/pci/it8172.h
 ===================================================================
---- linux-ide-export.orig/drivers/ide/pci/Makefile	2005-02-02 10:27:16.466108583 +0900
-+++ linux-ide-export/drivers/ide/pci/Makefile	2005-02-02 10:28:01.257841491 +0900
-@@ -1,5 +1,4 @@
+--- linux-ide-export.orig/drivers/ide/pci/it8172.h	2005-02-02 10:27:16.392120586 +0900
++++ linux-ide-export/drivers/ide/pci/it8172.h	2005-02-02 10:28:01.638779685 +0900
+@@ -6,7 +6,6 @@
+ #include <linux/ide.h>
  
--obj-$(CONFIG_BLK_DEV_ADMA100)		+= adma100.o
- obj-$(CONFIG_BLK_DEV_AEC62XX)		+= aec62xx.o
- obj-$(CONFIG_BLK_DEV_ALI15X3)		+= alim15x3.o
- obj-$(CONFIG_BLK_DEV_AMD74XX)		+= amd74xx.o
-Index: linux-ide-export/drivers/ide/pci/adma100.c
-===================================================================
---- linux-ide-export.orig/drivers/ide/pci/adma100.c	2005-02-02 10:27:16.466108583 +0900
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,30 +0,0 @@
--/*
-- *  linux/drivers/ide/pci/adma100.c -- basic support for Pacific Digital ADMA-100 boards
-- *
-- *     Created 09 Apr 2002 by Mark Lord
-- *
-- *  This file is subject to the terms and conditions of the GNU General Public
-- *  License.  See the file COPYING in the main directory of this archive for
-- *  more details.
-- */
--
--#include <linux/mm.h>
--#include <linux/blkdev.h>
--#include <linux/hdreg.h>
--#include <linux/ide.h>
--#include <linux/init.h>
--#include <linux/pci.h>
--#include <asm/io.h>
--
--void __init ide_init_adma100 (ide_hwif_t *hwif)
--{
--	unsigned long  phy_admctl = pci_resource_start(hwif->pci_dev, 4) + 0x80 + (hwif->channel * 0x20);
--	void *v_admctl;
--
--	hwif->autodma = 0;		// not compatible with normal IDE DMA transfers
--	hwif->dma_base = 0;		// disable DMA completely
--	hwif->io_ports[IDE_CONTROL_OFFSET] += 4;	// chip needs offset of 6 instead of 2
--	v_admctl = ioremap_nocache(phy_admctl, 1024);	// map config regs, so we can turn on drive IRQs
--	*((unsigned short *)v_admctl) &= 3;		// enable aIEN; preserve PIO mode
--	iounmap(v_admctl);				// all done; unmap config regs
--}
-Index: linux-ide-export/drivers/ide/pci/adma100.h
-===================================================================
---- linux-ide-export.orig/drivers/ide/pci/adma100.h	2005-02-02 10:27:16.466108583 +0900
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,28 +0,0 @@
--#ifndef ADMA_100_H
--#define ADMA_100_H
--
--#include <linux/config.h>
--#include <linux/pci.h>
--#include <linux/ide.h>
--
--extern void init_setup_pdcadma(struct pci_dev *, ide_pci_device_t *);
--extern unsigned int init_chipset_pdcadma(struct pci_dev *, const char *);
--extern void init_hwif_pdcadma(ide_hwif_t *);
--extern void init_dma_pdcadma(ide_hwif_t *, unsigned long);
--
--static ide_pci_device_t pdcadma_chipsets[] __devinitdata = {
--	{
--		.vendor		= PCI_VENDOR_ID_PDC,
--		.device		= PCI_DEVICE_ID_PDC_1841,
--		.name		= "ADMA100",
--		.init_setup	= init_setup_pdcadma,
--		.init_chipset	= init_chipset_pdcadma,
--		.init_hwif	= init_hwif_pdcadma,
--		.init_dma	= init_dma_pdcadma,
--		.channels	= 2,
--		.autodma	= NODMA,
--		.bootable	= OFF_BOARD,
--	}
--}
--
--#endif /* ADMA_100_H */
+ static u8 it8172_ratemask(ide_drive_t *drive);
+-static u8 it8172_ratefilter(ide_drive_t *drive, u8 speed);
+ static void it8172_tune_drive(ide_drive_t *drive, u8 pio);
+ static u8 it8172_dma_2_pio(u8 xfer_rate);
+ static int it8172_tune_chipset(ide_drive_t *drive, u8 xferspeed);
+@@ -14,14 +13,12 @@ static int it8172_tune_chipset(ide_drive
+ static int it8172_config_chipset_for_dma(ide_drive_t *drive);
+ #endif
+ 
+-static void init_setup_it8172(struct pci_dev *, ide_pci_device_t *);
+ static unsigned int init_chipset_it8172(struct pci_dev *, const char *);
+ static void init_hwif_it8172(ide_hwif_t *);
+ 
+ static ide_pci_device_t it8172_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+ 		.name		= "IT8172G",
+-		.init_setup	= init_setup_it8172,
+ 		.init_chipset	= init_chipset_it8172,
+ 		.init_hwif	= init_hwif_it8172,
+ 		.channels	= 2,

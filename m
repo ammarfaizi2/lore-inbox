@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUGBSp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUGBS4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264782AbUGBSp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 14:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264853AbUGBSp6
+	id S264788AbUGBS4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 14:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbUGBS4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 14:45:58 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:32271 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S264782AbUGBSpx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 14:45:53 -0400
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, bug-parted@gnu.org,
-       "K.G." <k_guillaume@libertysurf.fr>,
-       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
-References: <Pine.LNX.4.21.0407021936550.30622-100000@mlf.linux.rulez.org>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gzn6iz2or.fsf@patl=users.sf.net>
-Date: 02 Jul 2004 14:45:50 -0400
-In-Reply-To: <Pine.LNX.4.21.0407021936550.30622-100000@mlf.linux.rulez.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 Jul 2004 14:56:25 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:31699 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264788AbUGBS4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 14:56:23 -0400
+Subject: Re: [PATCH] [2.6] PPC64: log firmware errors during boot.
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linas@austin.ibm.com, Hollis Blanchard <hollisb@us.ibm.com>,
+       nfont@austin.ibm.com, Paul Mackerras <paulus@samba.org>,
+       PPC64 External List <linuxppc64-dev@lists.linuxppc.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040702182752.GA28825@kroah.com>
+References: <20040629191046.Q21634@forte.austin.ibm.com>
+	 <16610.39955.554139.858593@cargo.ozlabs.ibm.com>
+	 <20040701160614.I21634@forte.austin.ibm.com>
+	 <16613.15510.325099.273419@cargo.ozlabs.ibm.com>
+	 <3EC84E0C-CC32-11D8-BDBD-000A95A0560C@us.ibm.com>
+	 <40E58AE9.6050009@austin.ibm.com> <1088789345.26946.9.camel@localhost>
+	 <20040702131347.V21634@forte.austin.ibm.com>
+	 <20040702182752.GA28825@kroah.com>
+Content-Type: text/plain
+Message-Id: <1088794548.28076.49.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 02 Jul 2004 11:55:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here we go again.
-
-Szakacsits Szabolcs <szaka@sienet.hu> writes:
-
-> Two choices to "fix" this guess game:
+On Fri, 2004-07-02 at 11:27, Greg KH wrote:
+> On Fri, Jul 02, 2004 at 01:13:47PM -0500, linas@austin.ibm.com wrote:
+> > I mis-spoke earlier about who the intendend consumers of the printk'ed
+> > messages are; rtasd already implements its own kernl-to-user interface
+> > via the /proc interface.  Yes, everything in /proc/ppc64 is prolly
+> > deprecated, but lets put this off till later.
 > 
->     1) return error ("I don't know") but providing compatibility
->        functionality for things that the kernel knows (e.g. where the
->        partition starts). 
+> Later when?
 
-As you point out, this will require changes to several userspace
-programs.  It is the correct long term solution, but a deprecation
-period would be nice.
+2.7.0, anyone?
 
->     2) use EDD, it does a much better job -- maybe this suggestions
->        doesn't make much sense overall, so only 1) left if you don't 
->        want to keep guessing.
+I think it would be nice to put printk()s in /proc/ppc64 handler
+functions in early 2.7 and print out the task names along with a message
+asking the user to report them.  That way, we can more easily track down
+all of the users.  
 
-Using EDD to deduce the geometry is the "right" answer.  But this is
-sufficiently complex and special-purpose that it has no place in the
-kernel.
+The code would come back out before the next stable kernel.  
 
-> Unfortunately it seems it's more messed up. You didn't write any
-> specific why the current situation would be better. What does
-> HDIO_GETGEO returns at present? Hard coded values? Random values?
+-- Dave
 
-Values used by the controller itself.  Also the values you will get
-from the "extended INT13" BIOS interface.  As good a geometry as any,
-unless you plan to dual-boot Windows.
-
-> Then why not error instead?
-
-Fine idea in the long term, but start by declaring the HDIO_GETGEO
-interface "obsolescent" and spit a warning to syslog when it is used.
-Finding and fixing all the userspace invocations will take some time.
-
-Right now, HDIO_GETGEO is the only way some applications (e.g., mine)
-can convince Parted to use the right geometry.  So, fix Parted to
-allow the user (i.e., the higher-level partitioning machinery) to
-specify the geometry.  This is the first and last necessary task
-before eliminating Parted's use of HDIO_GETGEO.
-
-> On Fri, 2 Jul 2004, Andries Brouwer wrote:
->
-> > The only case I see where absolutely something is needed is the
-> > case of partitioning an empty disk.
-> 
-> Recovery, cloning, ...
-
-...moving a drive between machines...
-
-Why does this stupid idea keep coming up?  Inferring the geometry from
-the existing partition table is just plain wrong.  It is even more
-wrong than the old 2.4 behavior, because it is still a guess, just a
-worse guess.
-
- - Pat

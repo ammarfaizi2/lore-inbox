@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289762AbSCGBfP>; Wed, 6 Mar 2002 20:35:15 -0500
+	id <S290184AbSCGBwt>; Wed, 6 Mar 2002 20:52:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289815AbSCGBfF>; Wed, 6 Mar 2002 20:35:05 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:35087 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289762AbSCGBe7>;
-	Wed, 6 Mar 2002 20:34:59 -0500
-Date: Wed, 6 Mar 2002 22:34:46 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: David Schwartz <davids@webmaster.com>
-Cc: bernstein.46@osu.edu, Mike Fedyk <mfedyk@matchmail.com>,
-        Colin Walters <walters@debian.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        <linux-kernel@vger.kernel.org>, <opensource@cis.ohio-state.edu>
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
- BitKeeper by Linux Maintainers
-In-Reply-To: <20020307012747.AAA20283@shell.webmaster.com@whenever>
-Message-ID: <Pine.LNX.4.44L.0203062233220.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290120AbSCGBwk>; Wed, 6 Mar 2002 20:52:40 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60663 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289815AbSCGBwb>; Wed, 6 Mar 2002 20:52:31 -0500
+Date: Wed, 6 Mar 2002 20:52:29 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Message-ID: <20020306205229.A15048@redhat.com>
+In-Reply-To: <20020306182026.F866@redhat.com> <200203070127.UAA05891@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200203070127.UAA05891@ccure.karaya.com>; from jdike@karaya.com on Wed, Mar 06, 2002 at 08:27:51PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, David Schwartz wrote:
-> On Tue, 5 Mar 2002 18:36:08 -0500, Michael Bernstein wrote:
->
-> >However, when a whole movement based
-> >on the idea of creating non-proprietary software decides to utilize
-> >proprietary software in order to better create free software, I feel that
-> >there is some hypocrisy going on.
->
-> 	What?! It's really this simple, you use the best tool for the job.
-> Why can't we advocate the tools that really do work best.
+On Wed, Mar 06, 2002 at 08:27:51PM -0500, Jeff Dike wrote:
+> I showed the kernel build segfaulting as an improvement over UML hanging, 
+> which is the alternative behavior.
 
-I'm in it for quality software, not specifically for the ideology
-of free software.
+Versus fully allocating the backing store, which would neither hang nor 
+cause segfaults.  This is the behaviour that one expects by default, and 
+should be the first line of defense before going to the overcommit model.  
+Get that aspect of reliability in place, then add the overcommit support.  
+What is better: having uml fail before attempting to boot with an unable 
+to allocate backing store message, or a random oops during early kernel 
+init?  As I see it, supporting the safe mode of operation first makes more 
+sense before adding yet another arch hook.
 
-> Why do we have to be a movement based upon an inflexible ideology?
-
-Not to mention, why should we have to conform to the ideology of
-the "free software" crowd ?
-
-cheers,
-
-Rik
+		-ben
 -- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."

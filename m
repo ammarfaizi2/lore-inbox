@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264645AbSJTWQU>; Sun, 20 Oct 2002 18:16:20 -0400
+	id <S262883AbSJTWOS>; Sun, 20 Oct 2002 18:14:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264646AbSJTWQU>; Sun, 20 Oct 2002 18:16:20 -0400
-Received: from pacman.mweb.co.za ([196.2.45.77]:25793 "EHLO pacman.mweb.co.za")
-	by vger.kernel.org with ESMTP id <S264645AbSJTWQS>;
-	Sun, 20 Oct 2002 18:16:18 -0400
-From: Bongani <bhlope@mweb.co.za>
-To: kraxel@bytesex.org
-Subject: [PATCH] 2.5.44 bttv-driver.c
-Date: Mon, 21 Oct 2002 00:23:10 +0200
-User-Agent: KMail/1.4.7
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200210210023.10640.bhlope@mweb.co.za>
+	id <S264617AbSJTWOS>; Sun, 20 Oct 2002 18:14:18 -0400
+Received: from AGrenoble-101-1-3-17.abo.wanadoo.fr ([193.253.251.17]:40134
+	"EHLO awak") by vger.kernel.org with ESMTP id <S262883AbSJTWOR> convert rfc822-to-8bit;
+	Sun, 20 Oct 2002 18:14:17 -0400
+Subject: Re: Bitkeeper outrage, old and new
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Robert Love <rml@tech9.net>
+Cc: Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1035150671.16888.300.camel@phantasy>
+References: <20021014170248.A19897@infradead.org>
+	<E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org>
+	<200210161856.g9GIu57t013710@santafe.santafe.edu>
+	<20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org>
+	<20021019161201.A26017@work.bitmover.com> <3DB1EAAB.30401@pobox.com>
+	<20021020154609.GD696@phunnypharm.org> <3DB2E661.8070802@pobox.com> 
+	<20021020173438.GK696@phunnypharm.org> 
+	<1035141319.16887.293.camel@phantasy>  <1035150122.967.5.camel@bip> 
+	<1035150671.16888.300.camel@phantasy>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 21 Oct 2002 00:20:07 +0200
+Message-Id: <1035152407.967.11.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gerd
+Le dim 20/10/2002 à 23:51, Robert Love a écrit :
+> On Sun, 2002-10-20 at 17:42, Xavier Bestel wrote:
+> 
+> > You're plain wrong. 
+> > 
+> > You both have the copyright on your work.
+> 
+> It is called copyright _assignment_ for a reason.  How the hell are two
+> people supposed to simultaneously own a copyright on the same work?
+> 
+> The assignment says (I quote) "I hereby transfer... my entire right,
+> title, and interest (including all rights under copyright)... in my
+> program".
 
-You are listing as the maintainer of the bttv driver, so I hope I'm sending
-this to the correct person. The bttv drivers are printing the following
-following "debug" information, which is filling up my messages file the patch
-bellow seems to fix it.
+Last time I looked, it wasn't possible to relinquish copyright on your
+own work, no matter what you sign. Maybe it's not like that in all
+countries, after all.
 
-Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
-mux=4/1 irq=yes
-Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
-mux=1/1 irq=yes
-Oct 20 04:03:08 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
-mux=4/1 irq=yes
-Oct 20 04:03:08 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
-mux=1/1 irq=yes
-Oct 20 04:03:09 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
-mux=4/1 irq=yes
-Oct 20 04:03:09 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
-mux=1/1 irq=yes
-Oct 20 04:03:10 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
-mux=4/1 irq=yes
-
-Could you please foward the patch to Linus.(If you think its correct that is 
-;)
-
-Thanx
-
---- linux-2.5/drivers/media/video/bttv-driver.c.old     2002-10-21 
-00:08:50.000000000 +0200
-+++ linux-2.5/drivers/media/video/bttv-driver.c 2002-10-21 00:09:17.000000000 
-+0200
-@@ -813,7 +813,7 @@
-        i2c_mux = mux = (btv->audio & AUDIO_MUTE) ? AUDIO_OFF : btv->audio;
-        if (btv->opt_automute && !signal && !btv->radio_user)
-                mux = AUDIO_OFF;
--       printk("bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
-+       dprintk(KERN_DEBUG "bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d 
-irq=%s\n",
-               btv->nr, mode, btv->audio, signal ? "yes" : "no",
-               mux, i2c_mux, in_interrupt() ? "yes" : "no");
 
 

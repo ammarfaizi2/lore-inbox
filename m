@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129043AbQJ3SiR>; Mon, 30 Oct 2000 13:38:17 -0500
+	id <S129042AbQJ3SvU>; Mon, 30 Oct 2000 13:51:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129042AbQJ3SiH>; Mon, 30 Oct 2000 13:38:07 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:18692 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129554AbQJ3Sh5>; Mon, 30 Oct 2000 13:37:57 -0500
-Date: Mon, 30 Oct 2000 13:37:33 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kmalloc() allocation.
-In-Reply-To: <E13qJZL-00076K-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.95.1001030133720.3346A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129112AbQJ3SvK>; Mon, 30 Oct 2000 13:51:10 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:59915 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129042AbQJ3SvA>; Mon, 30 Oct 2000 13:51:00 -0500
+Date: Mon, 30 Oct 2000 10:50:54 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: Keith Owens <kaos@ocs.com.au>, Pavel Machek <pavel@suse.cz>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
+Message-ID: <20001030105054.A15381@twiddle.net>
+In-Reply-To: <20001027194513.A1060@bug.ucw.cz> <4309.972694843@ocs3.ocs-net> <20001028131558.A17429@uni-mainz.de> <20001028172700.A13608@twiddle.net> <20001029160916.B12250@uni-mainz.de> <20001030050543.A9175@wire.cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20001030050543.A9175@wire.cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, Alan Cox wrote:
+On Mon, Oct 30, 2000 at 05:05:43AM -0600, Peter Samuelson wrote:
+> But I think it's since been fixed:
 
-> > How much memory would it be reasonable for kmalloc() to be able
-> > to allocate to a module?
-> 
-> 64K probably less. kmalloc allocates physically linear spaces. vmalloc will
-> happily grab you 2Mb of space but it will not be physically linear
-> 
+No.
 
-Okay. Thanks.
+> Is there more subtle breakage?
+
+Yes.
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

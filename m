@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbVAVABG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVAVABG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbVAVABG (ORCPT <rfc822;willy@w.ods.org>);
+	id S262585AbVAVABG (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 21 Jan 2005 19:01:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVAUX7u
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVAUXcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 18:59:50 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:27610 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262624AbVAUX6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 18:58:31 -0500
-Subject: RE: How to add/drop SCSI drives from within the driver?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Mukker, Atul" <Atulm@lsil.com>
-Cc: Matt Domsch <Matt_Domsch@Dell.com>,
-       "'Salyzyn, Mark'" <mark_salyzyn@adaptec.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'brking@us.ibm.com'" <brking@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5705A70B74@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E5705A70B74@exa-atlanta>
-Content-Type: text/plain
-Date: Fri, 21 Jan 2005 15:58:14 -0800
-Message-Id: <1106351894.5932.12.camel@mulgrave>
+	Fri, 21 Jan 2005 18:32:00 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:31696
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262586AbVAUXXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 18:23:12 -0500
+Date: Fri, 21 Jan 2005 15:20:45 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: David Dillow <dave@thedillows.org>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, dave@thedillows.org
+Subject: Re: [RFC 2.6.10 5/22] xfrm: Attempt to offload bundled xfrm_states
+ for outbound xfrms
+Message-Id: <20050121152045.5c92ee05.davem@davemloft.net>
+In-Reply-To: <20041230035000.14@ori.thedillows.org>
+References: <20041230035000.13@ori.thedillows.org>
+	<20041230035000.14@ori.thedillows.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-21 at 17:11 -0500, Mukker, Atul wrote:
-> All right! The implementation is complete for this and the driver has
-> thoroughly gone through testing. Everything looks good except for a minor
-> glitch.
+On Thu, 30 Dec 2004 03:48:35 -0500
+David Dillow <dave@thedillows.org> wrote:
 
-That's good news.
+> +static void xfrm_accel_bundle(struct dst_entry *dst)
+> +{
+> +	struct xfrm_bundle_list bundle, *xbl, *tmp;
+> +	struct net_device *dev = dst->dev;
+> +	INIT_LIST_HEAD(&bundle.node);
+> +
+> +	if (dev && netif_running(dev) && (dev->features & NETIF_F_IPSEC)) {
 
-> After the new logical drives are created with "- - -" written to the
-> scsi_host scan attribute, there is a highly noticeable delay before device
-> names (e.g., sda) appears in the /dev directory. If the management
-> application tried to access the device immediately after creating new, the
-> access fails. Putting a 1 second delay helped, but of course this is not a
-> deterministic solution.
-> 
-> What are the other possibilities?
-
-Well, how about hotplug.  The device addition actually triggers a hot
-plug event already (there's no need to add anything, it's done by the
-mid-layer), so if you just listen for that, you'll know when the scan
-has detected a device.
-
-James
-
-
+netif_running() is only steady while the RTNL semaphore is held,
+which is not necessarily true when xfrm_lookup() is invoked.

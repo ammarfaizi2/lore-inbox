@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVBOMQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVBOMQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVBOMQo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 07:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVBOMQn
+	id S261696AbVBOMQV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 07:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVBOMOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 07:16:43 -0500
-Received: from host.atlantavirtual.com ([209.239.35.47]:908 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S261682AbVBOMO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 07:14:56 -0500
-Subject: Re: [BK] upgrade will be needed
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: Larry McVoy <lm@bitmover.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Mws <mws@twisted-brains.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050214160027.GA8381@bitmover.com>
-References: <20050214020802.GA3047@bitmover.com>
-	 <200502141413.36066.mws@twisted-brains.org>
-	 <1108393425.8413.9.camel@localhost.localdomain>
-	 <20050214160027.GA8381@bitmover.com>
-Content-Type: text/plain
-Message-Id: <1108469585.3845.17.camel@crazytrain>
+	Tue, 15 Feb 2005 07:14:25 -0500
+Received: from colin2.muc.de ([193.149.48.15]:44305 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261682AbVBOMOF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 07:14:05 -0500
+Date: 15 Feb 2005 13:14:04 +0100
+Date: Tue, 15 Feb 2005 13:14:04 +0100
+From: Andi Kleen <ak@muc.de>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview II
+Message-ID: <20050215121404.GB25815@muc.de>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <42114279.5070202@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 15 Feb 2005 07:13:05 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42114279.5070202@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 11:00, Larry McVoy wrote:
-> On Mon, Feb 14, 2005 at 10:03:45AM -0500, Steven Rostedt wrote:
-> > Can you see Ford Motors telling
-> > someone that you can't go work for GM if you drive a Ford?
+[Sorry, didn't answer to everything in your mail the first time. 
+See previous mail for beginning]
+
+On Mon, Feb 14, 2005 at 06:29:45PM -0600, Ray Bryant wrote:
+> migrating, and figure out from that what portions of which pid's
+> address spaces need to migrated so that we satisfy the constraints
+> given above.  I admit that this may be viewed as ugly, but I really
+> can't figure out a better solution than this without shuffling a
+> ton of ugly code into the kernel.
+
+I like the concept of marking stuff that shouldn't be migrated
+externally (using NUMA policy) better. 
+
 > 
+> One issue that hasn't been addressed is the following:  given a
+> particular entry in /proc/pid/maps, how does one figure out whether
+> that entry is mapped into some other process in the system, one
+> that is not in the set of processes to be migrated?   One could
 
-Actually, when I worked at Goodyear their policy was all
-execs/management had to drive an American car with Goodyear tires to
-work.  In mahogany row I never saw so many Vettes, Prowlers, and Vipers 
-:)
+[...]
 
-To work at Goodyear and be in that position you had to ride on the wings
-of Goodyear.  Everyone did it, complaints and all.
+Marking things externally would take care of that.
 
--fd 
+> If we did this, we still have to have the page migration system call
+> to handle those cases for the tmpfs/hugetlbfs/sysv shm segments whose
+> pages were placed by first touch and for which there used to not be
+> a memory policy.  As discussed in a previous note, we are not in a
 
+You can handle those with mbind(..., MPOL_F_STRICT); 
+(once it is hooked up to page migration) 
+
+Just mmap the tmpfs/shm/hugetlb file in an external program and apply
+the policy. That is what numactl supports today too for shm
+files like this.
+
+It should work later.
+
+
+-Andi

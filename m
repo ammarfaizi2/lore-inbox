@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289842AbSBOPQX>; Fri, 15 Feb 2002 10:16:23 -0500
+	id <S289854AbSBOPVD>; Fri, 15 Feb 2002 10:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289854AbSBOPQT>; Fri, 15 Feb 2002 10:16:19 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:12040 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S289842AbSBOPQG>; Fri, 15 Feb 2002 10:16:06 -0500
-Message-Id: <200202151515.g1FFFw801733@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Jens Axboe <axboe@suse.de>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-        Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] queue barrier support 
-In-Reply-To: Message from Jens Axboe <axboe@suse.de> 
-   of "Fri, 15 Feb 2002 10:02:24 +0100." <20020215090224.GB2727@suse.de> 
+	id <S289855AbSBOPUy>; Fri, 15 Feb 2002 10:20:54 -0500
+Received: from sphere.open-net.org ([64.53.98.77]:45240 "EHLO pbx.open-net.org")
+	by vger.kernel.org with ESMTP id <S289854AbSBOPUo>;
+	Fri, 15 Feb 2002 10:20:44 -0500
+Date: Fri, 15 Feb 2002 10:20:37 -0500
+From: Robert Jameson <rj@open-net.org>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: oops with 2.4.18-pre9-mjc2
+Message-Id: <20020215102037.00cf2ad9.rj@open-net.org>
+In-Reply-To: <1013780277.950.663.camel@phantasy>
+In-Reply-To: <20020215035135.0c26b130.rj@open-net.org>
+	<1013780277.950.663.camel@phantasy>
+X-Mailer: Sylpheed version 0.7.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 15 Feb 2002 10:15:58 -0500
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.bX8?cv2o8WbpbN"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James.Bottomley@steeleye.com said:
-> A further issue is that you haven't added anything to the error
-> recovery code for this.  If error recovery is activated for the device
-> at the reset level, all tags will be discarded by the device.  The eh
-> will retry the failing command and then the other tagged commands will
-> be re-issued from the scsi_bottom_half_handler (assuming the low level
-> device driver immediately fails them with DID_RESET) in the order in
-> which the low level driver failed them.  Thus you have potentially
-> completely messed up the ordering when the commands all get retried.
+--=.bX8?cv2o8WbpbN
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-axboe@suse.de said:
-> I already have this fixed locally by just maintaining a fifo list of
-> queued commands so we can retry them in the correct order. For 2.5
-> there's a busy and free list (so no more scanning for a free command
-> either), I would imagine that the easiest for 2.4 is to just maintain
-> a busy list in addition to the current array of pending/free commands.
+It's appears right after my PDA finishes syncing, so im guessing, its
+during a device close. To answer alans question im using nVidias kernel
+driver, therefor i tainted the kernel (tm) (c).
 
-mason@suse.com said:
-> I was wondering about this, we would need to change the error handler
-> to  fail all the requests after the barrier.  I was hoping the driver
-> did this for us ;-) 
+On 15 Feb 2002 08:37:52 -0500
+Robert Love <rml@tech9.net> wrote:
 
-Unfortunately, this is going to involve deep hackery inside the error handler. 
- The current initial premise is that it can simply retry the failing command 
-by issuing an ABORT to the tag and resending it (which can cause a tag to move 
-past your barrier).  In an error situation, it really wouldn't be wise to try 
-to abort lots of potentially running tags to preserve the barrier ordering 
-(because of the overload placed on a known failing component), so I think the 
-error handler has to abandon the concept of aborting commands and move 
-straight to device reset.  We then carefully resend the commands in FIFO order.
+> On Fri, 2002-02-15 at 03:51, Robert Jameson wrote:
+> > I have been seeing this oops from 2.4.16 -> 2.4.18-pre9, so here we
+> > go!
+> 
+> Do you see this on device close?  It looks like there may be a race
+> between device closer -> usb release.
+> 
+> Can you reproduce it without the binary module you are loading?
+> 
+> 	Robert Love
 
-Additionally, you must handle the case that a device is reset by something 
-else (in error handler terms, the cc_ua [check condition/unit attention]).  
-Here also, the tags would have to be sent back down in FIFO order as soon as 
-the condition is detected.
 
-mason@suse.com said:
-> Yes, this could get sticky.  Does anyone know if other OSes have
-> already done this? 
+-- 
+Robert Jameson                  http://rj.open-net.org
+C2 Village at Wexford Hwy 278,  Tel: +1 (843) 757 9428
+Hilton Head Isl, SC             Cel: +1 (843) 298 0957 
+US, 29928.                      mailto:rj@open-net.org
 
-Other OSs (well the ones I've heard about: Solaris and HP-UX) try to avoid 
-ordered tags, mainly because of the performance impact they have---the drive 
-tag service algorithms become inefficient in the presence of ordered tags 
-since they're usually optimised for all simple tags.
 
-James
+--=.bX8?cv2o8WbpbN
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8bSdJyWZRCCLwK/cRAq8VAJ971/wkwxM6++dvqX9xu1AGUBAatACdF3TS
+sevwlSYfkgRWlNRtYtxBOvI=
+=oKOi
+-----END PGP SIGNATURE-----
+
+--=.bX8?cv2o8WbpbN--
 

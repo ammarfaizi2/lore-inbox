@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbTBSQuC>; Wed, 19 Feb 2003 11:50:02 -0500
+	id <S261368AbTBSQyw>; Wed, 19 Feb 2003 11:54:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbTBSQuB>; Wed, 19 Feb 2003 11:50:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60686 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261286AbTBSQuB>; Wed, 19 Feb 2003 11:50:01 -0500
-Date: Wed, 19 Feb 2003 08:56:37 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S268470AbTBSQyw>; Wed, 19 Feb 2003 11:54:52 -0500
+Received: from griffon.mipsys.com ([217.167.51.129]:3033 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S261368AbTBSQyw>;
+	Wed, 19 Feb 2003 11:54:52 -0500
 Subject: Re: PATCH: clean up the IDE iops, add ones for a dead iface
-In-Reply-To: <1045647562.12533.1.camel@zion.wanadoo.fr>
-Message-ID: <Pine.LNX.4.44.0302190853180.18995-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0302190853180.18995-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302190853180.18995-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045674387.12533.48.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 19 Feb 2003 18:06:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-02-19 at 17:56, Linus Torvalds wrote:
 
-On 19 Feb 2003, Benjamin Herrenschmidt wrote:
+> We've seen that before: try unplugging a PCMCIA IDE card unexpectedly. 
 > 
-> Hrm... I tend to agree with Russell here... 0x7f is the "safe" value
-> for IDE. IDE controllers with nothing wired shall have a pull down
-> on D7. The reason is simple: busy loops in the IDE code waiting for
-> BSY to go down.
+> Guess what? It will start returning 0xff. And the machine dies, because 
+> the PCMCIA interrupt happened due to the removal event will also be shared 
+> by the IDE driver, so the IDE driver will react badly even before anybody 
+> has had a chance to tell it that the hardware no longer exists.
+> 
+> So if you have code that doesn't work with 0xff, then that code is already 
+> a-priori buggy. And getting it fixed would be a damn good idea.
 
-But that's a BUG.
+Yup, you are right. Removing a disk from a controller shall return
+anything with bit 7 at 0 per spec, but removing the controller
+itself will return 0xff. Actually, in my "wait for BSY low" loop
+I added to the probe code for pmac (should be made generic sooner
+or later), I did special case 0xff.
 
-We've seen that before: try unplugging a PCMCIA IDE card unexpectedly. 
-
-Guess what? It will start returning 0xff. And the machine dies, because 
-the PCMCIA interrupt happened due to the removal event will also be shared 
-by the IDE driver, so the IDE driver will react badly even before anybody 
-has had a chance to tell it that the hardware no longer exists.
-
-So if you have code that doesn't work with 0xff, then that code is already 
-a-priori buggy. And getting it fixed would be a damn good idea.
-
-		Linus
+So we should indeed fix the various bits in IDE. 0xff out of
+status, I beleive, never means anything and can always be considered
+as "this interface is gone".
+ 
+Ben.
 

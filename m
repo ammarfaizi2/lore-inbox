@@ -1,98 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315988AbSGARrO>; Mon, 1 Jul 2002 13:47:14 -0400
+	id <S316089AbSGARvR>; Mon, 1 Jul 2002 13:51:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316047AbSGARrN>; Mon, 1 Jul 2002 13:47:13 -0400
-Received: from codepoet.org ([166.70.99.138]:46739 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S315988AbSGARqq>;
-	Mon, 1 Jul 2002 13:46:46 -0400
-Date: Mon, 1 Jul 2002 11:49:13 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Timo Benk <t_benk@web.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: allocate memory in userspace
-Message-ID: <20020701174913.GA19338@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Timo Benk <t_benk@web.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20020701172659.GA4431@toshiba>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020701172659.GA4431@toshiba>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S316127AbSGARvR>; Mon, 1 Jul 2002 13:51:17 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55311 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316089AbSGARvP>; Mon, 1 Jul 2002 13:51:15 -0400
+Date: Mon, 1 Jul 2002 13:48:55 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OKS] Module removal
+Message-ID: <Pine.LNX.3.96.1020701133907.23769A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jul 01, 2002 at 07:26:59PM +0200, Timo Benk wrote:
-> Hi,
-> 
-> I am a kernel newbie and i am writing a module. I 
-> need to allocate some memory in userspace because
-> i want to access syscalls like open(), lstat() etc.
-> I need to call these methods in the kernel, and in
-> my special case there is no other way, but i 
-> do not want to reimplement all the syscalls.
+Having read some notes on the Ottawa Kernel Summit, I'd like to offer some
+comments on points raied.
 
-So use the C library and call malloc()
+The suggestion was made that kernel module removal be depreciated or
+removed. I'd like to note that there are two common uses for this
+capability, and the problems addressed by module removal should be kept in
+mind. These are in addition to the PCMCIA issue raised.
 
-> I read that it should be possible, but i cannot
-> find any example or recipe on how to do it.
-> It should work with do_mmap() and fd=-1 and
-> MAP_ANON, but i jusst can't get it to work.
+1 - conversion between IDE-CD and IDE-SCSI. Some applications just work
+better (or usefully at all) with one or the other driver used to read CDs.
+I've noted that several programs for reading the image from an ISO CD
+(readcd and sdd) have end of data problems with the SCSI interface.
 
-void *malloc(size_t size)
-{
-    void *result;
-    if (size == 0)
-	return NULL;
-    result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE, 
-	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-    if (result == MAP_FAILED)
-	return 0;
-    * (size_t *) result = size;
-    return(result + sizeof(size_t));
-}
+2 - restarting NICs when total reinitialization is needed. In server
+applications it's sometimes necessary to move or clear a NIC connection,
+force renegotiation because the blade on the switch was set wrong, etc.
+It's preferable to take down one NIC for a moment than suffer a full
+outage via reboot.
 
-void * calloc(size_t nelem, size_t size)
-{
-    void *result;
-    result = malloc(size * nelem);
-    if (result)
-	memset(result, 0, nelem * size);
-    return result;
-}
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-void *realloc(void *ptr, size_t size)
-{
-    void *newptr = NULL;
-    if (size > 0) {
-	newptr = malloc(size);
-	if (newptr && ptr) {
-	    memcpy(newptr, ptr, * ((size_t *) (ptr - sizeof(size_t))));
-	    free(ptr);
-	}
-    }
-    else {
-	free(ptr);
-    }
-    return newptr;
-}
-
-void free(void *ptr)
-{
-    if (ptr) {
-	ptr -= sizeof(size_t);
-	munmap(ptr, * (size_t *) ptr);
-    }
-}
-
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310395AbSCAIiY>; Fri, 1 Mar 2002 03:38:24 -0500
+	id <S310130AbSCAJHR>; Fri, 1 Mar 2002 04:07:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310406AbSCAIgc>; Fri, 1 Mar 2002 03:36:32 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:38066 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S310401AbSCAIeX>;
-	Fri, 1 Mar 2002 03:34:23 -0500
-Date: Fri, 1 Mar 2002 10:34:20 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Tim Peeler <timpeeler@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: BUG _llseek kernel 2.4.17
-Message-ID: <20020301103420.S23151@mea-ext.zmailer.org>
-In-Reply-To: <20020301080327.GA18948@comcast.net>
-Mime-Version: 1.0
+	id <S310404AbSCAJFM>; Fri, 1 Mar 2002 04:05:12 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:60428 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S310405AbSCAJEE>; Fri, 1 Mar 2002 04:04:04 -0500
+Message-ID: <3C7F43BE.B0D2EAE@aitel.hist.no>
+Date: Fri, 01 Mar 2002 10:02:54 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.5-dj2 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: Bharath Krishnan <bharath@mit.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Yet another disk transfer speed problem
+In-Reply-To: <1014914087.3274.22.camel@wavelets.mit.edu> 
+		<006401c1c091$d721ec00$5a5b903f@h90> <1014926801.3274.40.camel@wavelets.mit.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020301080327.GA18948@comcast.net>; from timpeeler@comcast.net on Fri, Mar 01, 2002 at 03:03:27AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 03:03:27AM -0500, Tim Peeler wrote:
-> There is a bug in _llseek (at least that's where I believe it to be)
-   Nope.
+Bharath Krishnan wrote:
+> 
+> Hi,
+> 
+> I would expect the disk which acts slower(maxtor) to be atleast as fast
+> as the other one (ibm).
+> 
+> reasons:
+> 
+> 1. Both are 7200RPM
+Not enough to get anywhere near equal performance.
+This also depends on how densely data is packed onto a single track.
+A 7200 RPM drive reads a whole track in 1/7200 minute, or 1/120 second.
+That limits the maximum speed - but how much data is there
+on a single track?  Slow 7200 RPM drives have many tracks and little
+data on each track.  Fast drives have fewer tracks and more
+data in each.  Note that this has nothing to do with disk geometry
+reported by hdparm, that geometry is just a lie.
+All new drives have a varying amount of data per track as the
+outermost tracks are longer than the innermost.
+That of course also means the speed varies a lot depending on
+_what_ track is used for testing.  
 
-> in kernel 2.4.17.   I'm using ext3 on an ia32 system.  While pondering
-> max file sizes allowed on an ext3 system, I used 'dd' to create a
-> fairly large file (8 gigs).  I decided to append to it, so I ran another
-> dd to add another 200 megs to it. In telling dd where to seek to before
-> appending to the file, i inadvertantly added an extra 0 telling it to
-> seek to about 80 _Gigs_, not 8:
+My atlas IV scsi drive does 21MB/s on the outer tracks and 15MB/s
+on the inner tracks according to specs.  Running bonnie tests
+on partitions at either end of the drive confirms the difference.
 
-   Yes ?  Ever heard of sparse files ?
-That is, space is never allocated for the intermediate data blocks,
-nor to most of the intermediate metadata indices.
+So, expect 7200 RPM drives from different manufacturers to
+have very different transfer speeds.  Or even different sized
+drives from the same.
 
-When read, those intermediate blocks will always show blocks filled
-with zeros, but as long as you don't actually write them, they won't
-consume space.
+> 2. The slower one(maxtor hdg) is one of the newer ata133 disks while
+> that faster one  is ata100(ibm hde). I would expect atleast equal
+> performance from both.
 
-> I didn't notice what had happended until I checked the size of the file,
-> and saw that it was 80 Gigs.   Since my disk is only 9 Gigs, this threw
-> me off.  I tried dd several more times including:
 
-  Sure, I have done maximum-file-offset testing on a 200 MB partition,
-no problem at all.  (Seek to curpos + 1M, write a few bytes, repeat)
-What "du -ak " reported on the file was few hundred kilobytes.  It gives
-space consumed by the user data, and the metadata for the indices.
+133 or 100 sets an upper limit of 133 or 100MB/s for sure, but that
+doesn't matter _at all_ because the platters aren't that fast
+anyway.  The best you'll ever get depends on how much data they fit
+on the outermost track.  The 133 interface will be 33% faster when
+transferring small amounts of data to or from the drive's internal
+cache, but it won't impact transfers bigger than the cacee size
+at all.  hdparms 64M test is bigger than the drive's internal cache
+which probably is a few megs only.
 
-...
-> After this careful consideration of the problem in question and
-> the apparent area of failure, it seems that fstat is doing its job
-> right, just that _llseek setting the position is the culprit.
-
-  Nope.
-
-> Tim
-
-/Matti Aarnio
+Helge Hafting

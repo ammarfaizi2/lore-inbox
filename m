@@ -1,544 +1,388 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317212AbSFKRhx>; Tue, 11 Jun 2002 13:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317215AbSFKRhw>; Tue, 11 Jun 2002 13:37:52 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:62367 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317212AbSFKRhr>;
-	Tue, 11 Jun 2002 13:37:47 -0400
-Date: Tue, 11 Jun 2002 19:35:35 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Robert Love <rml@tech9.net>
-Cc: Mike Kravetz <kravetz@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: [patch] current scheduler bits #2, 2.5.21
-In-Reply-To: <1023755255.21155.166.camel@sinai>
-Message-ID: <Pine.LNX.4.44.0206111917220.14481-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-Path: <rml@tech9.net>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand	id <S317215AbSFKRwT>; Tue, 11 Jun 2002 13:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org	id <S317217AbSFKRwS>; Tue, 11 Jun 2002 13:52:18 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:18933 "EHLO	hermes.mvista.com") by vger.kernel.org with ESMTP	id <S317215AbSFKRwP>; Tue, 11 Jun 2002 13:52:15 -0400
+Subject: [PATCH] CONFIG_NR_CPUS, redux
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@zip.com.au, davem@redhat.com, torvalds@transmeta.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 11 Jun 2002 10:52:16 -0700
+Message-Id: <1023817936.21176.232.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 11 Jun 2002 17:54:14.0568 (UTC) FILETIME=[FFD0D280:01C21170]
 
+On Tue, 2002-06-11 at 02:27, Andrew Morton wrote:
 
-On 10 Jun 2002, Robert Love wrote:
+> In which case, CONFIG_NR_CPUS is the only way to get the memory
+> back...
 
-> > - The spin_unlock_irqrestore path does not have to be split up like the
-> >   spin_lock path: spin_unlock() + local_irq_restore() ==
-> >   spin_unlock_irqrestore() ... this is true both in task_rq_unlock() and
-> >   rq_unlock() code.
-> 
-> I know.  The reason I split them up is to maintain consistency through
-> the way we lock vs unlock and enable vs disable interrupts.  Partly for
-> style, partly in case we ever decide to hook the different calls in a
-> different manner.
+Alright, so here we go.  Andrew introduced this idea last week and here
+is a revised, perhaps final, version.  We have two goals:
 
-well, i'm simply using a shorter code form, it's equivalent.
+	(a) allow NR_CPUS to be set at configure time, to save
+	    on memory and gain an unmeasurable boost in speed
 
-anyway, my current tree has a new type of optimization which again changes
-the way task_rq_lock() and task_rq_unlock() looks like: in this specific
-case we can rely on __cli() disabling preemption, we do not need to
-elevate the preemption count in this case. (Some special care has to be
-taken to not cause a preemption with the raw rq spinlock held, which the
-patch does.)
+	(b) let each architecture define a default NR_CPUS, i.e.
+	    64-bit architectures can have an NR_CPUS of 64
 
-and i found and fixed a preemption latency source in wait_task_inactive().
-That function can create *very* bad latencies if the target task happens
-to not go away from its CPU for many milliseconds (for whatever reason).
-So we should and can check the resched bit.
+We do this fairly easily.  In include/linux/threads.h:
 
-the full patch is attached, against vanilla 2.5.21.
+	#ifdef CONFIG_SMP
+	#define NR_CPUS		CONFIG_NR_CPUS
+	#else
+	#define NR_CPUS		1
+	#endif
 
-	Ingo
+and in each arch/xxx/config.in add a configure entry, conditional on
+CONFIG_SMP, for CONFIG_NR_CPUS with a proper default.  If CONFIG_SMP is
+set in defconfig, set CONFIG_NR_CPUS properly there, too.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.453   ->        
-#	           fs/pipe.c	1.12    -> 1.13   
-#	      kernel/ksyms.c	1.96    -> 1.97   
-#	include/linux/sched.h	1.65    -> 1.66   
-#	      kernel/sched.c	1.83    -> 1.89   
-#	include/linux/spinlock.h	1.11    -> 1.13   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/10	mingo@elte.hu	1.447.16.1
-# - get rid of rq->frozen, fix context switch races.
-# --------------------------------------------
-# 02/06/11	mingo@elte.hu	1.447.16.2
-# - put the sync wakeup feature back in, based on Mike Kravetz's patch.
-# --------------------------------------------
-# 02/06/11	mingo@elte.hu	1.447.16.3
-# - rq-lock optimization in the preemption case, from Robert Love, plus some more cleanups.
-# --------------------------------------------
-# 02/06/11	mingo@elte.hu	1.455
-# - set_cpus_allowed() optimization from Mike Kravetz: we can
-#   set p->thread_info->cpu directly if the task is not running
-#   and is not on any runqueue.
-# --------------------------------------------
-# 02/06/11	mingo@elte.hu	1.456
-# - wait_task_inactive() preemption-latency optimization: we should
-#   enable/disable preemption to not spend too much time with
-#   preemption disabled. wait_task_inactive() can take quite some
-#   time occasionally ...
-# --------------------------------------------
-# 02/06/11	mingo@elte.hu	1.457
-# - squeeze a few more cycles out of the wakeup hotpath.
-# --------------------------------------------
-#
-diff -Nru a/fs/pipe.c b/fs/pipe.c
---- a/fs/pipe.c	Tue Jun 11 19:27:46 2002
-+++ b/fs/pipe.c	Tue Jun 11 19:27:46 2002
-@@ -119,7 +119,7 @@
- 		 * writers synchronously that there is more
- 		 * room.
- 		 */
--		wake_up_interruptible(PIPE_WAIT(*inode));
-+		wake_up_interruptible_sync(PIPE_WAIT(*inode));
-  		kill_fasync(PIPE_FASYNC_WRITERS(*inode), SIGIO, POLL_OUT);
- 		if (!PIPE_EMPTY(*inode))
- 			BUG();
-@@ -219,7 +219,7 @@
- 			 * is going to give up this CPU, so it doesnt have
- 			 * to do idle reschedules.
- 			 */
--			wake_up_interruptible(PIPE_WAIT(*inode));
-+			wake_up_interruptible_sync(PIPE_WAIT(*inode));
-  			kill_fasync(PIPE_FASYNC_READERS(*inode), SIGIO, POLL_IN);
- 			PIPE_WAITING_WRITERS(*inode)++;
- 			pipe_wait(inode);
-diff -Nru a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	Tue Jun 11 19:27:46 2002
-+++ b/include/linux/sched.h	Tue Jun 11 19:27:46 2002
-@@ -491,6 +491,7 @@
- extern unsigned long prof_shift;
+Here are the defaults I picked:
+
+CONFIG_NR_CPUS=32: i386, mips, parisc, ppc, sparc
+
+CONFIG_NR_CPUS=64: alpha, ia64, mips64, ppc64, s390, s390x, sparc64, x86-64
+
+No CONFIG_NR_CPUS: arm, cris, sh
+
+Andrew has pointed out some architectures may need minor tweaks to work
+with NR_CPUS < 32.  He discovered and fixed a minor issue on i386...
+other architectures, please verify non-standard options work.  Also make
+sure 64 works!
+
+Patch is against 2.5.21, enjoy...
+
+	Robert Love
+
+diff -urN linux-2.5.21/arch/alpha/config.in linux/arch/alpha/config.in
+--- linux-2.5.21/arch/alpha/config.in	Sat Jun  8 22:28:07 2002
++++ linux/arch/alpha/config.in	Sun Jun  9 13:22:46 2002
+@@ -232,6 +232,7 @@
  
- extern void FASTCALL(__wake_up(wait_queue_head_t *q, unsigned int mode, int nr));
-+extern void FASTCALL(__wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr));
- extern void FASTCALL(sleep_on(wait_queue_head_t *q));
- extern long FASTCALL(sleep_on_timeout(wait_queue_head_t *q,
- 				      signed long timeout));
-@@ -507,6 +508,11 @@
- #define wake_up_interruptible(x)	__wake_up((x),TASK_INTERRUPTIBLE, 1)
- #define wake_up_interruptible_nr(x, nr)	__wake_up((x),TASK_INTERRUPTIBLE, nr)
- #define wake_up_interruptible_all(x)	__wake_up((x),TASK_INTERRUPTIBLE, 0)
-+#ifdef CONFIG_SMP
-+#define wake_up_interruptible_sync(x)   __wake_up_sync((x),TASK_INTERRUPTIBLE, 1)
-+#else
-+#define wake_up_interruptible_sync(x)   __wake_up((x),TASK_INTERRUPTIBLE, 1)
-+#endif
- asmlinkage long sys_wait4(pid_t pid,unsigned int * stat_addr, int options, struct rusage * ru);
+ if [ "$CONFIG_SMP" = "y" ]; then
+    define_bool CONFIG_HAVE_DEC_LOCK y
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
  
- extern int in_group_p(gid_t);
-diff -Nru a/include/linux/spinlock.h b/include/linux/spinlock.h
---- a/include/linux/spinlock.h	Tue Jun 11 19:27:46 2002
-+++ b/include/linux/spinlock.h	Tue Jun 11 19:27:46 2002
-@@ -26,6 +26,7 @@
- #define write_lock_bh(lock)			do { local_bh_disable();         write_lock(lock); } while (0)
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+diff -urN linux-2.5.21/arch/i386/Config.help linux/arch/i386/Config.help
+--- linux-2.5.21/arch/i386/Config.help	Sat Jun  8 22:27:21 2002
++++ linux/arch/i386/Config.help	Sun Jun  9 13:13:02 2002
+@@ -25,6 +25,14 @@
  
- #define spin_unlock_irqrestore(lock, flags)	do { spin_unlock(lock);  local_irq_restore(flags); } while (0)
-+#define _raw_spin_unlock_irqrestore(lock, flags) do { _raw_spin_unlock(lock);  local_irq_restore(flags); } while (0)
- #define spin_unlock_irq(lock)			do { spin_unlock(lock);  local_irq_enable();       } while (0)
- #define spin_unlock_bh(lock)			do { spin_unlock(lock);  local_bh_enable();        } while (0)
+   If you don't know what to do here, say N.
  
-@@ -143,6 +144,12 @@
- 		preempt_schedule(); \
- } while (0)
- 
-+#define preempt_check_resched() \
-+do { \
-+	if (unlikely(test_thread_flag(TIF_NEED_RESCHED))) \
-+		preempt_schedule(); \
-+} while (0)
++CONFIG_NR_CPUS
++  This allows you to specify the maximum number of CPUs which this
++  kernel will support.  The maximum supported value is 32 and the
++  mimimum value which makes sense is 2.
 +
- #define spin_lock(lock)	\
- do { \
- 	preempt_disable(); \
-@@ -157,6 +164,12 @@
- 	preempt_enable(); \
- } while (0)
- 
-+#define spin_unlock_no_resched(lock) \
-+do { \
-+	_raw_spin_unlock(lock); \
-+	preempt_enable_no_resched(); \
-+} while (0)
++  This is purely to save memory - each supported CPU adds
++  approximately eight kilobytes to the kernel image.
 +
- #define read_lock(lock)		({preempt_disable(); _raw_read_lock(lock);})
- #define read_unlock(lock)	({_raw_read_unlock(lock); preempt_enable();})
- #define write_lock(lock)	({preempt_disable(); _raw_write_lock(lock);})
-@@ -166,20 +179,22 @@
+ CONFIG_PREEMPT
+   This option reduces the latency of the kernel when reacting to
+   real-time or interactive events by allowing a low priority process to
+diff -urN linux-2.5.21/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.5.21/arch/i386/config.in	Sat Jun  8 22:28:47 2002
++++ linux/arch/i386/config.in	Sun Jun  9 13:23:20 2002
+@@ -185,8 +185,8 @@
  
- #else
+ bool 'Math emulation' CONFIG_MATH_EMULATION
+ bool 'MTRR (Memory Type Range Register) support' CONFIG_MTRR
+-bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'Preemptible Kernel' CONFIG_PREEMPT
++bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Local APIC support on uniprocessors' CONFIG_X86_UP_APIC
+    dep_bool 'IO-APIC support on uniprocessors' CONFIG_X86_UP_IOAPIC $CONFIG_X86_UP_APIC
+@@ -197,6 +197,7 @@
+       define_bool CONFIG_X86_IO_APIC y
+    fi
+ else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+    bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+ fi
  
--#define preempt_get_count()	(0)
--#define preempt_disable()	do { } while (0)
-+#define preempt_get_count()		(0)
-+#define preempt_disable()		do { } while (0)
- #define preempt_enable_no_resched()	do {} while(0)
--#define preempt_enable()	do { } while (0)
-+#define preempt_enable()		do { } while (0)
-+#define preempt_check_resched()		do { } while (0)
+diff -urN linux-2.5.21/arch/i386/defconfig linux/arch/i386/defconfig
+--- linux-2.5.21/arch/i386/defconfig	Sat Jun  8 22:27:26 2002
++++ linux/arch/i386/defconfig	Sun Jun  9 13:21:32 2002
+@@ -74,6 +74,7 @@
+ # CONFIG_PREEMPT is not set
+ # CONFIG_MULTIQUAD is not set
+ CONFIG_HAVE_DEC_LOCK=y
++CONFIG_NR_CPUS=32
  
--#define spin_lock(lock)		_raw_spin_lock(lock)
--#define spin_trylock(lock)	_raw_spin_trylock(lock)
--#define spin_unlock(lock)	_raw_spin_unlock(lock)
--
--#define read_lock(lock)		_raw_read_lock(lock)
--#define read_unlock(lock)	_raw_read_unlock(lock)
--#define write_lock(lock)	_raw_write_lock(lock)
--#define write_unlock(lock)	_raw_write_unlock(lock)
--#define write_trylock(lock)	_raw_write_trylock(lock)
-+#define spin_lock(lock)			_raw_spin_lock(lock)
-+#define spin_trylock(lock)		_raw_spin_trylock(lock)
-+#define spin_unlock(lock)		_raw_spin_unlock(lock)
-+#define spin_unlock_no_resched(lock)	_raw_spin_unlock(lock)
+ #
+ # General options
+diff -urN linux-2.5.21/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
+--- linux-2.5.21/arch/i386/kernel/smpboot.c	Sat Jun  8 22:29:52 2002
++++ linux/arch/i386/kernel/smpboot.c	Sun Jun  9 13:13:02 2002
+@@ -54,7 +54,7 @@
+ static int smp_b_stepping;
+ 
+ /* Setup configured maximum number of CPUs to activate */
+-static int max_cpus = -1;
++static int max_cpus = NR_CPUS;
+ 
+ /* Total count of live CPUs */
+ int smp_num_cpus = 1;
+@@ -1145,7 +1145,7 @@
+ 
+ 		if (!(phys_cpu_present_map & (1 << bit)))
+ 			continue;
+-		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
++		if (max_cpus <= cpucount+1)
+ 			continue;
+ 
+ 		do_boot_cpu(apicid);
+diff -urN linux-2.5.21/arch/ia64/config.in linux/arch/ia64/config.in
+--- linux-2.5.21/arch/ia64/config.in	Sat Jun  8 22:30:07 2002
++++ linux/arch/ia64/config.in	Sun Jun  9 13:24:00 2002
+@@ -95,6 +95,10 @@
+ tristate '/proc/pal support' CONFIG_IA64_PALINFO
+ tristate '/proc/efi/vars support' CONFIG_EFI_VARS
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
 +
-+#define read_lock(lock)			_raw_read_lock(lock)
-+#define read_unlock(lock)		_raw_read_unlock(lock)
-+#define write_lock(lock)		_raw_write_lock(lock)
-+#define write_unlock(lock)		_raw_write_unlock(lock)
-+#define write_trylock(lock)		_raw_write_trylock(lock)
- #endif
+ tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
  
- /* "lock on reference count zero" */
-diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
---- a/kernel/ksyms.c	Tue Jun 11 19:27:46 2002
-+++ b/kernel/ksyms.c	Tue Jun 11 19:27:46 2002
-@@ -457,6 +457,9 @@
- /* process management */
- EXPORT_SYMBOL(complete_and_exit);
- EXPORT_SYMBOL(__wake_up);
-+#if CONFIG_SMP
-+EXPORT_SYMBOL_GPL(__wake_up_sync); /* internal use only */
-+#endif
- EXPORT_SYMBOL(wake_up_process);
- EXPORT_SYMBOL(sleep_on);
- EXPORT_SYMBOL(sleep_on_timeout);
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Tue Jun 11 19:27:46 2002
-+++ b/kernel/sched.c	Tue Jun 11 19:27:46 2002
-@@ -135,7 +135,6 @@
+diff -urN linux-2.5.21/arch/ia64/defconfig linux/arch/ia64/defconfig
+--- linux-2.5.21/arch/ia64/defconfig	Sat Jun  8 22:27:16 2002
++++ linux/arch/ia64/defconfig	Sun Jun  9 13:21:00 2002
+@@ -61,6 +61,7 @@
+ CONFIG_EFI_VARS=y
+ CONFIG_BINFMT_ELF=y
+ # CONFIG_BINFMT_MISC is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # ACPI Support
+diff -urN linux-2.5.21/arch/mips/config.in linux/arch/mips/config.in
+--- linux-2.5.21/arch/mips/config.in	Sat Jun  8 22:30:41 2002
++++ linux/arch/mips/config.in	Sun Jun  9 13:24:57 2002
+@@ -500,6 +500,8 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
++else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ endmenu
+ 
+diff -urN linux-2.5.21/arch/mips64/config.in linux/arch/mips64/config.in
+--- linux-2.5.21/arch/mips64/config.in	Sat Jun  8 22:27:29 2002
++++ linux/arch/mips64/config.in	Sun Jun  9 13:25:12 2002
+@@ -247,6 +247,8 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
++else
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
+ endmenu
+ 
+diff -urN linux-2.5.21/arch/mips64/defconfig linux/arch/mips64/defconfig
+--- linux-2.5.21/arch/mips64/defconfig	Sat Jun  8 22:27:52 2002
++++ linux/arch/mips64/defconfig	Sun Jun  9 13:20:17 2002
+@@ -32,6 +32,7 @@
+ # CONFIG_EISA is not set
+ # CONFIG_MCA is not set
+ # CONFIG_SBUS is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # CPU selection
+diff -urN linux-2.5.21/arch/parisc/config.in linux/arch/parisc/config.in
+--- linux-2.5.21/arch/parisc/config.in	Sat Jun  8 22:31:31 2002
++++ linux/arch/parisc/config.in	Sun Jun  9 13:25:41 2002
+@@ -18,6 +18,10 @@
+ # bool 'Symmetric multi-processing support' CONFIG_SMP
+ define_bool CONFIG_SMP n
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
++
+ bool 'Kernel Debugger support' CONFIG_KWDB
+ # define_bool CONFIG_KWDB n
+ 
+diff -urN linux-2.5.21/arch/ppc/config.in linux/arch/ppc/config.in
+--- linux-2.5.21/arch/ppc/config.in	Sat Jun  8 22:26:28 2002
++++ linux/arch/ppc/config.in	Sun Jun  9 13:26:29 2002
+@@ -172,6 +172,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+    bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Preemptible Kernel' CONFIG_PREEMPT
+diff -urN linux-2.5.21/arch/ppc64/config.in linux/arch/ppc64/config.in
+--- linux-2.5.21/arch/ppc64/config.in	Sat Jun  8 22:27:32 2002
++++ linux/arch/ppc64/config.in	Sun Jun  9 13:26:43 2002
+@@ -21,6 +21,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+   bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++  int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+   if [ "$CONFIG_PPC_PSERIES" = "y" ]; then
+     bool '  Hardware multithreading' CONFIG_HMT
+   fi
+diff -urN linux-2.5.21/arch/ppc64/defconfig linux/arch/ppc64/defconfig
+--- linux-2.5.21/arch/ppc64/defconfig	Sat Jun  8 22:28:19 2002
++++ linux/arch/ppc64/defconfig	Sun Jun  9 13:20:43 2002
+@@ -38,6 +38,7 @@
+ CONFIG_IRQ_ALL_CPUS=y
+ # CONFIG_HMT is not set
+ # CONFIG_PREEMPT is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # General setup
+diff -urN linux-2.5.21/arch/s390/config.in linux/arch/s390/config.in
+--- linux-2.5.21/arch/s390/config.in	Sat Jun  8 22:28:13 2002
++++ linux/arch/s390/config.in	Sun Jun  9 13:27:07 2002
+@@ -20,6 +20,9 @@
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'IEEE FPU emulation' CONFIG_MATHEMU
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
+ endmenu
+ 
+ mainmenu_option next_comment
+diff -urN linux-2.5.21/arch/s390/defconfig linux/arch/s390/defconfig
+--- linux-2.5.21/arch/s390/defconfig	Sat Jun  8 22:31:19 2002
++++ linux/arch/s390/defconfig	Sun Jun  9 13:40:37 2002
+@@ -35,6 +35,7 @@
+ #
+ CONFIG_SMP=y
+ CONFIG_MATHEMU=y
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Base setup
+diff -urN linux-2.5.21/arch/s390x/config.in linux/arch/s390x/config.in
+--- linux-2.5.21/arch/s390x/config.in	Sat Jun  8 22:27:21 2002
++++ linux/arch/s390x/config.in	Sun Jun  9 13:40:14 2002
+@@ -19,6 +19,9 @@
+ mainmenu_option next_comment
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
+ bool 'Kernel support for 31 bit emulation' CONFIG_S390_SUPPORT
+ if [ "$CONFIG_S390_SUPPORT" = "y" ]; then
+   tristate 'Kernel support for 31 bit ELF binaries' CONFIG_BINFMT_ELF32 
+diff -urN linux-2.5.21/arch/s390x/defconfig linux/arch/s390x/defconfig
+--- linux-2.5.21/arch/s390x/defconfig	Sat Jun  8 22:26:26 2002
++++ linux/arch/s390x/defconfig	Sun Jun  9 13:40:46 2002
+@@ -36,6 +36,7 @@
+ CONFIG_SMP=y
+ CONFIG_S390_SUPPORT=y
+ CONFIG_BINFMT_ELF32=y
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Base setup
+diff -urN linux-2.5.21/arch/sparc/config.in linux/arch/sparc/config.in
+--- linux-2.5.21/arch/sparc/config.in	Sat Jun  8 22:26:59 2002
++++ linux/arch/sparc/config.in	Sun Jun  9 13:27:41 2002
+@@ -17,6 +17,10 @@
+ 
+ bool 'Symmetric multi-processing support (does not work on sun4/sun4c)' CONFIG_SMP
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
++
+ # Identify this as a Sparc32 build
+ define_bool CONFIG_SPARC32 y
+ 
+diff -urN linux-2.5.21/arch/sparc64/config.in linux/arch/sparc64/config.in
+--- linux-2.5.21/arch/sparc64/config.in	Sat Jun  8 22:28:44 2002
++++ linux/arch/sparc64/config.in	Sun Jun  9 13:28:05 2002
+@@ -17,6 +17,10 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'Preemptible kernel' CONFIG_PREEMPT
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
++
+ # Identify this as a Sparc64 build
+ define_bool CONFIG_SPARC64 y
+ 
+diff -urN linux-2.5.21/arch/sparc64/defconfig linux/arch/sparc64/defconfig
+--- linux-2.5.21/arch/sparc64/defconfig	Sat Jun  8 22:28:49 2002
++++ linux/arch/sparc64/defconfig	Sun Jun  9 13:21:45 2002
+@@ -63,6 +63,7 @@
+ CONFIG_BINFMT_MISC=m
+ # CONFIG_SUNOS_EMUL is not set
+ CONFIG_SOLARIS_EMUL=m
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Parallel port support
+diff -urN linux-2.5.21/arch/x86_64/config.in linux/arch/x86_64/config.in
+--- linux-2.5.21/arch/x86_64/config.in	Sat Jun  8 22:28:13 2002
++++ linux/arch/x86_64/config.in	Sun Jun  9 13:28:46 2002
+@@ -45,8 +45,11 @@
+ #bool 'MTRR (Memory Type Range Register) support' CONFIG_MTRR
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'Preemptible Kernel' CONFIG_PREEMPT
+-if [ "$CONFIG_SMP" = "y" -a "$CONFIG_X86_CMPXCHG" = "y" ]; then
+-    define_bool CONFIG_HAVE_DEC_LOCK y
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++   if [ "$CONFIG_X86_CMPXCHG" = "y" ]; then
++      define_bool CONFIG_HAVE_DEC_LOCK y
++   fi
+ fi
+ 
+ define_bool CONFIG_X86_MCE y
+diff -urN linux-2.5.21/arch/x86_64/defconfig linux/arch/x86_64/defconfig
+--- linux-2.5.21/arch/x86_64/defconfig	Sat Jun  8 22:30:52 2002
++++ linux/arch/x86_64/defconfig	Sun Jun  9 13:20:30 2002
+@@ -51,6 +51,7 @@
+ CONFIG_HAVE_DEC_LOCK=y
+ CONFIG_X86_MCE=y
+ # CONFIG_X86_MCE_NONFATAL is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # General options
+diff -urN linux-2.5.21/include/linux/threads.h linux/include/linux/threads.h
+--- linux-2.5.21/include/linux/threads.h	Sat Jun  8 22:26:49 2002
++++ linux/include/linux/threads.h	Sun Jun  9 13:16:29 2002
+@@ -8,10 +8,16 @@
+  * /proc/sys/kernel/threads-max.
   */
- struct runqueue {
- 	spinlock_t lock;
--	spinlock_t frozen;
- 	unsigned long nr_running, nr_switches, expired_timestamp;
- 	signed long nr_uninterruptible;
- 	task_t *curr, *idle;
-@@ -153,17 +152,27 @@
- #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
- #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
- 
+  
 +/*
-+ * task_rq_lock - lock the runqueue a given task resides on and disable
-+ * interrupts.  Note the ordering: we can safely lookup the task_rq without
-+ * explicitly disabling preemption.
-+ *
-+ * WARNING: to squeeze out a few more cycles we do not disable preemption
-+ * explicitly (or implicitly), we just keep interrupts disabled. This means
-+ * that within task_rq_lock/unlock sections you must be careful
-+ * about locking/unlocking spinlocks, since they could cause an unexpected
-+ * preemption.
++ * Maximum supported processors that can run under SMP.  This value is
++ * set via configure setting.  The maximum is equal to the size of the
++ * bitmasks used on that platform, i.e. 32 or 64.  Setting this smaller
++ * saves quite a bit of memory.
 + */
- static inline runqueue_t *task_rq_lock(task_t *p, unsigned long *flags)
- {
- 	struct runqueue *rq;
- 
- repeat_lock_task:
--	preempt_disable();
-+	local_irq_save(*flags);
- 	rq = task_rq(p);
--	spin_lock_irqsave(&rq->lock, *flags);
-+	_raw_spin_lock(&rq->lock);
- 	if (unlikely(rq != task_rq(p))) {
--		spin_unlock_irqrestore(&rq->lock, *flags);
--		preempt_enable();
-+		_raw_spin_unlock_irqrestore(&rq->lock, *flags);
- 		goto repeat_lock_task;
- 	}
- 	return rq;
-@@ -171,8 +180,24 @@
- 
- static inline void task_rq_unlock(runqueue_t *rq, unsigned long *flags)
- {
--	spin_unlock_irqrestore(&rq->lock, *flags);
--	preempt_enable();
-+	_raw_spin_unlock_irqrestore(&rq->lock, *flags);
-+}
-+
-+/*
-+ * rq_lock - lock a given runqueue and disable interrupts.
-+ */
-+static inline runqueue_t *rq_lock(runqueue_t *rq)
-+{
-+	local_irq_disable();
-+	rq = this_rq();
-+	spin_lock(&rq->lock);
-+	return rq;
-+}
-+
-+static inline void rq_unlock(runqueue_t *rq)
-+{
-+	spin_unlock(&rq->lock);
-+	local_irq_enable();
- }
- 
- /*
-@@ -263,8 +288,15 @@
- 	nrpolling |= test_tsk_thread_flag(p,TIF_POLLING_NRFLAG);
- 
- 	if (!need_resched && !nrpolling && (p->thread_info->cpu != smp_processor_id()))
-+		/*
-+		 * NOTE: smp_send_reschedule() can be called from
-+		 * spinlocked sections which do not have an elevated
-+		 * preemption count. So the code either has to avoid
-+	 	 * spinlocks, or has to put preempt_disable() and
-+		 * preempt_enable_no_resched() around the code.
-+		 */
- 		smp_send_reschedule(p->thread_info->cpu);
--	preempt_enable();
-+	preempt_enable_no_resched();
+ #ifdef CONFIG_SMP
+-#define NR_CPUS	32		/* Max processors that can be running in SMP */
++#define NR_CPUS		CONFIG_NR_CPUS
  #else
- 	set_tsk_need_resched(p);
- #endif
-@@ -284,9 +316,15 @@
- repeat:
- 	preempt_disable();
- 	rq = task_rq(p);
--	while (unlikely(rq->curr == p)) {
-+	if (unlikely(rq->curr == p)) {
- 		cpu_relax();
--		barrier();
-+		/*
-+		 * enable/disable preemption just to make this
-+		 * a preemption point - we are busy-waiting
-+		 * anyway.
-+		 */
-+		preempt_enable();
-+		goto repeat;
- 	}
- 	rq = task_rq_lock(p, &flags);
- 	if (unlikely(rq->curr == p)) {
-@@ -309,8 +347,10 @@
-  */
- void kick_if_running(task_t * p)
- {
--	if (p == task_rq(p)->curr)
-+	if (p == task_rq(p)->curr) {
- 		resched_task(p);
-+		preempt_check_resched();
-+	}
- }
+-#define NR_CPUS 1
++#define NR_CPUS		1
  #endif
  
-@@ -322,40 +362,50 @@
-  * "current->state = TASK_RUNNING" to mark yourself runnable
-  * without the overhead of this.
-  */
--static int try_to_wake_up(task_t * p)
-+static int try_to_wake_up(task_t * p, int sync)
- {
- 	unsigned long flags;
- 	int success = 0;
- 	long old_state;
- 	runqueue_t *rq;
- 
-+repeat_lock_task:
- 	rq = task_rq_lock(p, &flags);
- 	old_state = p->state;
--	p->state = TASK_RUNNING;
- 	if (!p->array) {
-+		if (unlikely(sync && (rq->curr != p))) {
-+			if (p->thread_info->cpu != smp_processor_id()) {
-+				p->thread_info->cpu = smp_processor_id();
-+				task_rq_unlock(rq, &flags);
-+				goto repeat_lock_task;
-+			}
-+		}
- 		if (old_state == TASK_UNINTERRUPTIBLE)
- 			rq->nr_uninterruptible--;
- 		activate_task(p, rq);
-+		/*
-+		 * If sync is set, a resched_task() is a NOOP
-+		 */
- 		if (p->prio < rq->curr->prio)
- 			resched_task(rq->curr);
- 		success = 1;
- 	}
-+	p->state = TASK_RUNNING;
- 	task_rq_unlock(rq, &flags);
-+
- 	return success;
- }
- 
- int wake_up_process(task_t * p)
- {
--	return try_to_wake_up(p);
-+	return try_to_wake_up(p, 0);
- }
- 
- void wake_up_forked_process(task_t * p)
- {
- 	runqueue_t *rq;
- 
--	preempt_disable();
--	rq = this_rq();
--	spin_lock_irq(&rq->lock);
-+	rq = rq_lock(rq);
- 
- 	p->state = TASK_RUNNING;
- 	if (!rt_task(p)) {
-@@ -371,8 +421,7 @@
- 	p->thread_info->cpu = smp_processor_id();
- 	activate_task(p, rq);
- 
--	spin_unlock_irq(&rq->lock);
--	preempt_enable();
-+	rq_unlock(rq);
- }
- 
- /*
-@@ -403,7 +452,7 @@
- #if CONFIG_SMP || CONFIG_PREEMPT
- asmlinkage void schedule_tail(void)
- {
--	spin_unlock_irq(&this_rq()->frozen);
-+	spin_unlock_irq(&this_rq()->lock);
- }
- #endif
- 
-@@ -828,9 +877,6 @@
- 	if (likely(prev != next)) {
- 		rq->nr_switches++;
- 		rq->curr = next;
--		spin_lock(&rq->frozen);
--		spin_unlock(&rq->lock);
--
- 		context_switch(prev, next);
- 
- 		/*
-@@ -840,10 +886,8 @@
- 		 */
- 		mb();
- 		rq = this_rq();
--		spin_unlock_irq(&rq->frozen);
--	} else {
--		spin_unlock_irq(&rq->lock);
- 	}
-+	spin_unlock_irq(&rq->lock);
- 
- 	reacquire_kernel_lock(current);
- 	preempt_enable_no_resched();
-@@ -880,7 +924,7 @@
-  * started to run but is not in state TASK_RUNNING.  try_to_wake_up() returns
-  * zero in this (rare) case, and we handle it by continuing to scan the queue.
-  */
--static inline void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive)
-+static inline void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive, int sync)
- {
- 	struct list_head *tmp;
- 	unsigned int state;
-@@ -891,7 +935,7 @@
- 		curr = list_entry(tmp, wait_queue_t, task_list);
- 		p = curr->task;
- 		state = p->state;
--		if ((state & mode) && try_to_wake_up(p) &&
-+		if ((state & mode) && try_to_wake_up(p, sync) &&
- 			((curr->flags & WQ_FLAG_EXCLUSIVE) && !--nr_exclusive))
- 				break;
- 	}
-@@ -905,17 +949,36 @@
- 		return;
- 
- 	spin_lock_irqsave(&q->lock, flags);
--	__wake_up_common(q, mode, nr_exclusive);
-+	__wake_up_common(q, mode, nr_exclusive, 0);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+
-+#if CONFIG_SMP
-+
-+void __wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr_exclusive)
-+{
-+	unsigned long flags;
-+
-+	if (unlikely(!q))
-+		return;
-+
-+	spin_lock_irqsave(&q->lock, flags);
-+	if (likely(nr_exclusive))
-+		__wake_up_common(q, mode, nr_exclusive, 1);
-+	else
-+		__wake_up_common(q, mode, nr_exclusive, 0);
- 	spin_unlock_irqrestore(&q->lock, flags);
- }
- 
-+#endif
-+ 
- void complete(struct completion *x)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&x->wait.lock, flags);
- 	x->done++;
--	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1);
-+	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, 0);
- 	spin_unlock_irqrestore(&x->wait.lock, flags);
- }
- 
-@@ -1342,8 +1405,7 @@
- 	runqueue_t *rq;
- 	prio_array_t *array;
- 
--	preempt_disable();
--	rq = this_rq();
-+	rq = rq_lock(rq);
- 
- 	/*
- 	 * Decrease the yielding task's priority by one, to avoid
-@@ -1353,7 +1415,6 @@
- 	 * If priority is already MAX_PRIO-1 then we still
- 	 * roundrobin the task within the runlist.
- 	 */
--	spin_lock_irq(&rq->lock);
- 	array = current->array;
- 	/*
- 	 * If the task has reached maximum priority (or is a RT task)
-@@ -1370,8 +1431,7 @@
- 		list_add_tail(&current->run_list, array->queue + current->prio);
- 		__set_bit(current->prio, array->bitmap);
- 	}
--	spin_unlock(&rq->lock);
--	preempt_enable_no_resched();
-+	spin_unlock_no_resched(&rq->lock);
- 
- 	schedule();
- 
-@@ -1599,7 +1659,6 @@
- 		rq->active = rq->arrays;
- 		rq->expired = rq->arrays + 1;
- 		spin_lock_init(&rq->lock);
--		spin_lock_init(&rq->frozen);
- 		INIT_LIST_HEAD(&rq->migration_queue);
- 
- 		for (j = 0; j < 2; j++) {
-@@ -1687,7 +1746,15 @@
- 		task_rq_unlock(rq, &flags);
- 		goto out;
- 	}
--
-+	/*
-+	 * If the task is not on a runqueue (and not running), then
-+	 * it is sufficient to simply update the task's cpu field.
-+	 */
-+	if (!p->array && (p != rq->curr)) {
-+		p->thread_info->cpu = __ffs(p->cpus_allowed);
-+		task_rq_unlock(rq, &flags);
-+		goto out;
-+	}
- 	init_MUTEX_LOCKED(&req.sem);
- 	req.task = p;
- 	list_add(&req.list, &rq->migration_queue);
+ #define MIN_THREADS_LEFT_FOR_ROOT 4
 

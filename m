@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313547AbSDHDpu>; Sun, 7 Apr 2002 23:45:50 -0400
+	id <S313549AbSDHETU>; Mon, 8 Apr 2002 00:19:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313548AbSDHDpt>; Sun, 7 Apr 2002 23:45:49 -0400
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:41991 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S313547AbSDHDpt>;
-	Sun, 7 Apr 2002 23:45:49 -0400
-Date: Sun, 7 Apr 2002 23:45:45 -0400 (EDT)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
-To: <linux-kernel@vger.kernel.org>
-Subject: Further WatchDog Updates
-Message-ID: <Pine.LNX.4.33.0204072342550.17511-100000@pita.lan>
+	id <S313550AbSDHETT>; Mon, 8 Apr 2002 00:19:19 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313549AbSDHETS>; Mon, 8 Apr 2002 00:19:18 -0400
+Date: Sun, 7 Apr 2002 21:17:17 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>, nahshon@actcom.co.il,
+        Pavel Machek <pavel@suse.cz>, Benjamin LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+In-Reply-To: <3CB0EF0B.14D48619@zip.com.au>
+Message-ID: <Pine.LNX.4.10.10204072115460.19432-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, new version of watchdog updates is up at
-http://osinvestor.com/bigwatchdog-4.diff
 
-This also includes replacing the three watchdog docs in Documentation/
-and slight modification of the watchdog API after discussion with Alan Cox.
+Well they are there if they were not deleted by the 2.5 maintainer.
+If they were, then feel free to copy and credit the work from 2.4 once I
+complete the infrastructure.
 
-Diffstat:
- Documentation/pcwd-watchdog.txt       |  132 -----------
- Documentation/watchdog-api.txt        |  390 ----------------------------------
- Documentation/watchdog.txt            |  113 ---------
- Documentation/watchdog/api.txt        |  139 ++++++++++++
- Documentation/watchdog/howtowrite.txt |   55 ++++
- Documentation/watchdog/status.txt     |  137 +++++++++++
- drivers/char/acquirewdt.c             |  100 +++++---
- drivers/char/advantechwdt.c           |   88 ++++---
- drivers/char/alim7101_wdt.c           |   83 ++++---
- drivers/char/eurotechwdt.c            |   65 +++--
- drivers/char/i810-tco.c               |   68 +++--
- drivers/char/ib700wdt.c               |   87 ++++---
- drivers/char/machzwd.c                |   96 ++++----
- drivers/char/mixcomwd.c               |   24 --
- drivers/char/pcwd.c                   |   26 +-
- drivers/char/sbc60xxwdt.c             |   75 ++++--
- drivers/char/sc1200wdt.c              |   30 --
- drivers/char/sc520_wdt.c              |   55 ++--
- drivers/char/shwdt.c                  |   67 ++---
- drivers/char/softdog.c                |   30 +-
- drivers/char/w83877f_wdt.c            |   52 ++--
- drivers/char/wafer5823wdt.c           |   45 +++
- drivers/char/wdt.c                    |   33 ++
- drivers/char/wdt285.c                 |   26 --
- drivers/char/wdt977.c                 |  137 ++++++++---
- drivers/char/wdt_pci.c                |   23 --
- 26 files changed, 1063 insertions(+), 1113 deletions(-)
+Cheers,
 
-Please take a look at it, especially the documentation.
+Andre Hedrick
+LAD Storage Consulting Group
 
-Regards,
-Rob Radez
+On Sun, 7 Apr 2002, Andrew Morton wrote:
+
+> Richard Gooch wrote:
+> > 
+> > But I *want* to write while the drive is spun down. And leave it spun
+> > down until the system is RAM starved (or some threshold is reached).
+> > 
+> 
+> Yes.  The desirable behaviour for laptops is to defer writes
+> for a very long time, or until the user says "sync".
+> 
+> Mechanisms need to be put in place so that if there are pending
+> writes and the disk happens to be spun up for a read, we take
+> advantage of that spinup to push out the pending writes at
+> the same time.
+> 
+> This behaviour should be all be enabled by a special "laptop mode"
+> switch.
+> 
+> There's nothing particularly hard in all this...  I'll do a 2.5
+> version at some stage.
+> 
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,55 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312939AbSDYGYd>; Thu, 25 Apr 2002 02:24:33 -0400
+	id <S312982AbSDYH3F>; Thu, 25 Apr 2002 03:29:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312942AbSDYGYc>; Thu, 25 Apr 2002 02:24:32 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:12297 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S312939AbSDYGYc>;
-	Thu, 25 Apr 2002 02:24:32 -0400
-Date: Thu, 25 Apr 2002 10:28:59 +0400
-From: Andrey Panin <pazke@orbita1.ru>
-To: Malcolm Mallardi <magamo@ranka.2y.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre7 MIPS compile errors.
-Message-ID: <20020425062859.GA2418@pazke.ipt>
-Mail-Followup-To: Malcolm Mallardi <magamo@ranka.2y.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020424145825.A21701@trianna.upcommand.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Uname: Linux pazke 2.5.8
+	id <S312983AbSDYH3E>; Thu, 25 Apr 2002 03:29:04 -0400
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:6298 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S312982AbSDYH3D>;
+	Thu, 25 Apr 2002 03:29:03 -0400
+Date: Thu, 25 Apr 2002 08:26:01 +0100
+Message-Id: <200204250726.g3P7Q1e14638@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
+To: Eric Sandeen <sandeen@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (repost) kmem_cache_zalloc
+In-Reply-To: <1019682472.15455.33.camel@stout.americas.sgi.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1019682472.15455.33.camel@stout.americas.sgi.com> you wrote:
+> We'd like to incorporate this into the kernel proper, and several others
+> chimed in that it would be useful, so here's the patch.  If it's a no-go
+> with Linus, we can roll this functionality back under fs/xfs to reduce
+> our changes in the mainline kernel.
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Malcolm,
-
-for the second problem did you try to add #include <linux/personality.h>=20
-line in signal.c ?
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
-
---KsGdsel6WgEHnImy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8x6IrBm4rlNOo3YgRAt7rAJwKm+torDR9w83njyZZY6yGB+gkuACfbEmm
-YPR0D8jUf8Rgj9ESEGIUMUw=
-=p/OG
------END PGP SIGNATURE-----
-
---KsGdsel6WgEHnImy--
+personally I liked the kcalloc suggesition more; that would fix a lot of
+multiplication exploitable bugs at the same time

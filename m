@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbTAUGvS>; Tue, 21 Jan 2003 01:51:18 -0500
+	id <S266038AbTAUGwL>; Tue, 21 Jan 2003 01:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265995AbTAUGvS>; Tue, 21 Jan 2003 01:51:18 -0500
-Received: from relief.getitback.org ([208.49.116.17]:18961 "EHLO
-	relief.getitback.org") by vger.kernel.org with ESMTP
-	id <S265987AbTAUGvP>; Tue, 21 Jan 2003 01:51:15 -0500
-Date: Tue, 21 Jan 2003 02:00:19 -0500
-From: Paul <set@pobox.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Spurious 8259A interrupt: IRQ7 ????
-Message-ID: <20030121070019.GL16611@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <3E2C8EFF.6020707@tin.it> <3E2C9623.60709@sktc.net> <3E2CD91B.2080305@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E2CD91B.2080305@tupshin.com>
+	id <S266041AbTAUGwL>; Tue, 21 Jan 2003 01:52:11 -0500
+Received: from dp.samba.org ([66.70.73.150]:30409 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266020AbTAUGwI>;
+	Tue, 21 Jan 2003 01:52:08 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: John Levon <levon@movementarian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: size in /proc/modules 
+In-reply-to: Your message of "Mon, 20 Jan 2003 14:27:03 -0000."
+             <20030120142703.GA58326@compsoc.man.ac.uk> 
+Date: Tue, 21 Jan 2003 17:44:21 +1100
+Message-Id: <20030121070114.A6A3D2C282@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tupshin Harper <tupshin@tupshin.com>, on Mon Jan 20, 2003 [09:22:35 PM] said:
-> David D. Hagood wrote:
+In message <20030120142703.GA58326@compsoc.man.ac.uk> you write:
 > 
-> >It is most likely a hardware problem.
-> >
-> I wouldn't necessarily assume a hardware problem (unless we also include 
-> chipset oddities). I get *exactly* one message stating exactly this per 
-> boot, and it always come a few seconds after loading the parport and 
-> parport_pc modules.
+> /proc/modules size field includes init_size in 2.5. Why ?
 > 
-> one example:
-> Jan 20 09:20:21 testing kernel: parport0: PC-style at 0x378 [PCSPP,EPP]
-> Jan 20 09:20:21 testing kernel: parport_pc: Via 686A parallel port: io=0x378
-> <snip>
-> Jan 20 09:20:07 testing kernel: spurious 8259A interrupt: IRQ7.
+> The removal of sensible values in /proc/ksyms means that oprofile can no
+> longer attribute module samples reliably. The only information we have
+> is module_core address, and size == core_size+init_size. Since init code
+> is removed in sys_init_module, this will overestimate, and can lead to
+> overlapping with the start of another module, afaics.
 > 
-> -Tupshin
+> In 2.4, we had size(.text), which could underestimate (think
+> .text.exit), but that is not a big problem.
 > 
+> Rusty, does this fall under another one of your "corner cases" ? (what I
+> would call "flaky code" ...)
+> 
+> Or I have I just missed something obvious ?
 
-	Hi;
+Yes, line 1328 of kernel/module.c, by the sound of it 8)
 
-	I see it just once every boot, and I dont have any parallel
-port stuff enabled. (2.5.59)
+I was thinking of you when I added this, actually.
 
-Paul
-set@pobox.com
+Hope that helps!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

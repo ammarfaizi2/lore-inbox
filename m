@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318469AbSGZTuI>; Fri, 26 Jul 2002 15:50:08 -0400
+	id <S318468AbSGZTuC>; Fri, 26 Jul 2002 15:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318472AbSGZTuI>; Fri, 26 Jul 2002 15:50:08 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:35745 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318469AbSGZTuG>;
-	Fri, 26 Jul 2002 15:50:06 -0400
-Date: Fri, 26 Jul 2002 21:52:11 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] f00f workaround update, TLS, 2.5.28
-Message-ID: <Pine.LNX.4.44.0207262147150.21525-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318469AbSGZTuC>; Fri, 26 Jul 2002 15:50:02 -0400
+Received: from holomorphy.com ([66.224.33.161]:57247 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318468AbSGZTuB>;
+	Fri, 26 Jul 2002 15:50:01 -0400
+Date: Fri, 26 Jul 2002 12:53:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Love <rml@tech9.net>
+Cc: Andrew Morton <akpm@zip.com.au>, Ravikiran G Thirumalai <kiran@in.ibm.com>,
+       linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
+       riel@conectiva.com.br, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC] Scalable statistics counters using kmalloc_percpu
+Message-ID: <20020726195304.GY2907@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
+	Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
+	riel@conectiva.com.br, Rusty Russell <rusty@rustcorp.com.au>
+References: <20020726204033.D18570@in.ibm.com> <3D41990A.EDC1A530@zip.com.au> <20020726194643.GX2907@holomorphy.com> <1027713012.2443.49.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <1027713012.2443.49.camel@sinai>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 26, 2002 at 11:46:34AM -0700, Andrew Morton wrote:
+>>> Oh dear.  Most people only have two CPUs.
+>>> Rusty, can we *please* fix this?  Really soon?
 
-the attached patch is ontop of the 2.5.28 TLS patch (which is in
-BK-current) updates the F00F bug workaround code to the IDT changes in the
-TLS patch. It compiles & works just fine - i've tested it on a non-Pentium
-box on which i triggered the workaround artificially.
+On Fri, 2002-07-26 at 12:46, William Lee Irwin III wrote:
+>> I'll post the panic triggered by lowering NR_CPUS shortly. There's
+>> an ugly showstopping i386 arch code issue here.
 
-Please apply,
+On Fri, Jul 26, 2002 at 12:50:12PM -0700, Robert Love wrote:
+> In current 2.5?  I thought Andrew and I fixed all those issues and
+> pushed them to Linus...
+> The `configurable NR_CPUS' patch works fine for me.  I always boot with
+> NR_CPUS=2.
 
-	Ingo
+Sorry I didn't get a chance to test in time, these things are slow to
+boot and my testing bandwidth is limited. Please hold off until the
+issue is resolved. You *will* prevent me from booting. IO-APIC APIC ID
+reassignment panics. I'll follow up after this when the thing comes up
+into the kernel exhibiting the problem.
 
---- linux/arch/i386/kernel/head.S.orig	Fri Jul 26 09:09:57 2002
-+++ linux/arch/i386/kernel/head.S	Fri Jul 26 21:45:55 2002
-@@ -348,6 +348,7 @@
- .globl cpu_gdt_descr
- 
- 	ALIGN
-+	.word 0				# 32-bit align idt_desc.address
- idt_descr:
- 	.word IDT_ENTRIES*8-1		# idt contains 256 entries
- 	.long idt_table
---- linux/arch/i386/kernel/traps.c.orig	Fri Jul 26 21:19:41 2002
-+++ linux/arch/i386/kernel/traps.c	Fri Jul 26 21:44:31 2002
-@@ -784,11 +784,10 @@
- 	__set_fixmap(FIX_F00F_IDT, __pa(&idt_table), PAGE_KERNEL_RO);
- 
- 	/*
--	 * "idt" is magic - it overlaps the idt_descr
--	 * variable so that updating idt will automatically
--	 * update the idt descriptor..
-+	 * Update the IDT descriptor and reload the IDT so that
-+	 * it uses the read-only mapped virtual address.
- 	 */
--	idt = (struct desc_struct *) fix_to_virt(FIX_F00F_IDT);
-+	idt_descr.address = fix_to_virt(FIX_F00F_IDT);
- 	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
- }
- #endif
---- linux/arch/i386/mm/fault.c.orig	Fri Jul 26 21:46:21 2002
-+++ linux/arch/i386/mm/fault.c	Fri Jul 26 21:46:34 2002
-@@ -24,6 +24,7 @@
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
- #include <asm/hardirq.h>
-+#include <asm/desc.h>
- 
- extern void die(const char *,struct pt_regs *,long);
- 
-@@ -129,7 +130,6 @@
- }
- 
- asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
--extern unsigned long idt;
- 
- /*
-  * This routine handles page faults.  It determines the address,
-@@ -293,7 +293,7 @@
- 	if (boot_cpu_data.f00f_bug) {
- 		unsigned long nr;
- 		
--		nr = (address - idt) >> 3;
-+		nr = (address - idt_descr.address) >> 3;
- 
- 		if (nr == 6) {
- 			do_invalid_op(regs, 0);
 
+Cheers,
+Bill

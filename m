@@ -1,91 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272819AbTG3LX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 07:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272822AbTG3LX3
+	id S272669AbTG3LXF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 07:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272819AbTG3LXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 07:23:29 -0400
-Received: from kempelen.iit.bme.hu ([152.66.241.120]:62099 "EHLO
-	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S272819AbTG3LXT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 07:23:19 -0400
-Date: Wed, 30 Jul 2003 13:23:17 +0200 (MET DST)
-From: Pilaszy Istvan <pila@inf.bme.hu>
-To: linux-kernel@vger.kernel.org
-Subject: bug in loopback device (Linux version 2.6.0-test2)
-Message-ID: <Pine.GSO.4.00.10307301313200.21959-100000@kempelen.iit.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jul 2003 07:23:05 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:37249 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272669AbTG3LXA (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 07:23:00 -0400
+Date: Wed, 30 Jul 2003 12:29:55 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307301129.h6UBTtBD001245@81-2-122-30.bradfords.org.uk>
+To: bunk@fs.tum.de, john@grabjohn.com
+Subject: Re: [2.6 patch] let broken drivers depend on BROKEN{,ON_SMP}
+Cc: Linux-Kernel@vger.kernel.org, Riley@Williams.Name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > >  * Driver does not work, and is thus disabled. If it is not
+> > >    fixed in the near future, it will be considered to be
+> > >    OBSOLETE as well.
+> > >
+> > > 		CONFIG_BROKEN
+> > 
+> > Please do _NOT_ do this - there is a far more important and worthwhile
+> > reason to have a CONFIG_BROKEN than to simply save the few minutes of
+> > inconvenience that including a non-compiling option in a kernel build
+> > causes.
+> > 
+> > Imagine the situation where a driver such as a SCSI driver builds
+> > successfully, but it silently corrupts data under certain, (possibly
+> > rare), circumstances.
+> > 
+> > In that case, it's important to warn people that it's broken, because
+> > it's not necessarily obvious, and could case significant data loss.
+> > If something doesn't compile, it already gives you an error message.
+> > The only problem is a few minutes of wasted time.
+>
+> You forget one important thing:
+> If a _user_ of a stable kernel notices "it doesn't even compile" this 
+> gives a very bad impression of the quality of the Linux kernel.
 
-I found a bug in the loopback device.
-See this two different results (the difference: in the second case I use
-`-o loop' mount option for mounting /dev/hda3 to /hda3_copy
+I don't agree.  The stock kernel is a work in progress, and things get
+broken from time to time as a normal part of development.  Experienced
+users will realise that, and I wouldn't encourage inexperienced users
+to compile their own kernel from the stock trees anyway, because they
+could easily miss bugfixes, including data corruption and security
+ones, simply because they assume that they are in the mainline
+kernel.
 
-First case:
-mount -t reiserfs /dev/hda3 /hda3
-mount -t reiserfs /dev/hda3 /hda3_copy
-rm -f /hda3/* /hda3_copy/*
-ls -l /hda3/ /hda3_copy/
-touch /hda3/xxx /hda3_copy/yyy
-echo
-ls -l /hda3 /hda3_copy
-umount /hda3
-umount /hda3_copy
+Compiling your own kernel from the stock kernel trees is still
+something that should be considered for experienced users only.
 
-The result is:
-/hda3/:
-total 0
+Besides, what's worse?  Possible data corruption or a bad impression?
 
-/hda3_copy/:
-total 0
+> > >  * Driver works on uniprocessor but not on SMP and is thus
+> > >    disabled when compiling for SMP. It is assumed that the
+> > >    driver will be fixed for SMP if relevant.
+> > >
+> > > 		CONFIG_BROKEN_ON_SMP
+> > 
+> > Please _don't_ do this either.  It implies that if
+> > CONFIG_BROKEN_ON_SMP isn't set, then it's SMP safe - a lot of drivers
+> > will NOT have been tested on SMP, so it's a bad thing to assume that
+> > is the case.
+> >...
+>
+> My patch adds BROKEN_ON_SMP only to drivers that don't compile, but if a 
+> driver causes e.g. data corruption on SMP I don't see a reason against 
+> letting it depend on BROKEN_ON_SMP.
 
-/hda3:
-total 0
--rw-r--r--    1 root     root            0 Jul 30 13:15 xxx
--rw-r--r--    1 root     root            0 Jul 30 13:15 yyy
+The name BROKEN_ON_SMP implies that if you don't set it, what's left
+is known to work on SMP.  In a lot of cases, it'll actually be
+untested on SMP.
 
-/hda3_copy:
-total 0
--rw-r--r--    1 root     root            0 Jul 30 13:15 xxx
--rw-r--r--    1 root     root            0 Jul 30 13:15 yyy
-
-Everything is OK.
------------------------------------------------------------------------
-Second case:
-
-mount -t reiserfs /dev/hda3 /hda3
-mount -o loop -t reiserfs /dev/hda3 /hda3_copy
-rm -f /hda3/* /hda3_copy/*
-ls -l /hda3/ /hda3_copy/
-touch /hda3/xxx /hda3_copy/yyy
-echo
-ls -l /hda3 /hda3_copy
-umount /hda3
-umount /hda3_copy
-
-And the result:
-/hda3/:
-total 0
-
-/hda3_copy/:
-total 0
-
-/hda3:
-total 0
--rw-r--r--    1 root     root            0 Jul 30 13:17 xxx
-
-/hda3_copy:
-total 0
--rw-r--r--    1 root     root            0 Jul 30 13:17 yyy
----------------------------------------------------------------------------
-Its quite interesting :-) Why to store to copy of the directory in the
-memory? It causes inconsistency, and wastes memory.
-
-Bye,
-Istvan
-
-
+John.

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317890AbSFNJLv>; Fri, 14 Jun 2002 05:11:51 -0400
+	id <S317891AbSFNJPi>; Fri, 14 Jun 2002 05:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317891AbSFNJLu>; Fri, 14 Jun 2002 05:11:50 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18950
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317890AbSFNJLs>; Fri, 14 Jun 2002 05:11:48 -0400
-Date: Fri, 14 Jun 2002 02:08:43 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Abraham vd Merwe <abraham@2d3d.co.za>
-cc: linux-kernel@vger.kernel.org
+	id <S317893AbSFNJPg>; Fri, 14 Jun 2002 05:15:36 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19903 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317891AbSFNJPe>; Fri, 14 Jun 2002 05:15:34 -0400
+Date: Fri, 14 Jun 2002 11:15:05 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
 Subject: Re: linux 2.4.19-preX IDE bugs
-In-Reply-To: <20020614105919.A18127@crystal.2d3d.co.za>
-Message-ID: <Pine.LNX.4.10.10206140200080.21513-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10206140155041.21513-100000@master.linux-ide.org>
+Message-ID: <Pine.SOL.4.30.0206141110320.7074-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jun 2002, Abraham vd Merwe wrote:
-> 
-> Regards
->  Abraham
-> 
-> The reason they're called wisdom teeth is that the experience makes you wise.
 
-Mine were removed, and does this count for "sarcastic response".
 
-I am happy not to be in 2.5.
+On Fri, 14 Jun 2002, Andre Hedrick wrote:
 
-But in a serious note "linux 2.4.19-preX" is a very lose term.
-Unless otherwise noted, only Alan Cox has been adopting code as a shake
-down before it goes to Marcelo.  So if these are straight 2.4.19-preX
-kernels, I have not sent anything to Marcelo for offical inclusion.
-If these are 2.4.19-preX-acX that is a different story.
+> On Fri, 14 Jun 2002, Vojtech Pavlik wrote:
+>
+> > > How about you rewriting the driver an take my name out of it too.
+> >
+> > Not such a bad idea after all. But the Promise hardware has way too many
+> > quirks only the Promise people know for my tastes, even more than VIA.
+> > And, after all, as far as I know Bartek is rewriting it right now.  ;)
 
-And yes, maybe I have lost the joy of public kernel development.
-Then again, I do not have anyone giving me a cakewalk employment package
-to just write code for kicks now.  The net result is vendors who have an
-interest in customer based support are seeking to offer direct support to
-get direct support.
+Cleanup is finished, rewrite is stalled due to lack of spec and
+hardware... wont spoil anything...
 
-Cheers,
+> >
+> > > Then you can have all the credit be yours.
+> >
+> > And all blame and responsibility - which, I think should make you quite
+> > happy. Also note that you're still credited in the rewritten drivers.
+>
+> I would rather not be associated with your careless and thoughtless
+> rework.  Funny how you got put on notice for over driving hardware.
+> It is clear you do not understand it so I would prefer to be disassociated
+> from your disasters.
+>
+> IIRC, gee it must to 133 even though the docs says it does not.
+>
+> Nice, with any luck pATA will be dead before 2.6 is released so people
+> will not have to suffer data losses from overclocked drivers and main
+> loops issuing "low-level format" command codes to the hardware at boot.
+>
+> Have a good day,
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
 
-Andre Hedrick
-LAD Storage Consulting Group
-
+--
+Bartlomiej
 

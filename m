@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283771AbRK3T5v>; Fri, 30 Nov 2001 14:57:51 -0500
+	id <S281020AbRK3UBM>; Fri, 30 Nov 2001 15:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283711AbRK3T5m>; Fri, 30 Nov 2001 14:57:42 -0500
-Received: from butterblume.comunit.net ([192.76.134.57]:18436 "EHLO
-	butterblume.comunit.net") by vger.kernel.org with ESMTP
-	id <S283769AbRK3T5b>; Fri, 30 Nov 2001 14:57:31 -0500
-Date: Fri, 30 Nov 2001 20:57:28 +0100 (CET)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: haegar@space.comunit.de
-To: Mauricio Culibrk <mauricio@infohit.si>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Device (LAN Cards) Naming
-In-Reply-To: <A57F0FE23B31C14E84E38657C03A44982BB3@Godzilla>
-Message-ID: <Pine.LNX.4.40.0111302055540.7425-100000@space.comunit.de>
+	id <S281017AbRK3UAx>; Fri, 30 Nov 2001 15:00:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16910 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281005AbRK3UAr>; Fri, 30 Nov 2001 15:00:47 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Slow start -- Linux vs. NT -- it's time to acknowledge the
+	problem!
+Date: 30 Nov 2001 12:00:14 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9u8oge$tbq$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.40.0111301002110.3351-100000@twu.net> <1007137256.1244.0.camel@aurora>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Mauricio Culibrk wrote:
+Followup to:  <1007137256.1244.0.camel@aurora>
+By author:    "Trever L. Adams" <vichu@digitalme.com>
+In newsgroup: linux.dev.kernel
+>
+> On Fri, 2001-11-30 at 11:02, Jessica Blank wrote:
+> > Sooo... having the Windows-type person remove NetBEUI and Windows
+> > filesharing (SMB) would fix this if this is indeed the cause of problems?
+> > 
+> 
+> Partially.  SMB can be an ok netizen given that you disable NetBEUI and
+> possibly IPX.  It won't be the best netizen, but it won't be so insanely
+> broken.
+> 
 
-> Is it possible to define a name for each interface instead of having
-> eth0, eth1 etc?
+Indeed.  Note that even Microsoft have been recommending running SMB
+over TCP/IP and disabling other protocols for many years now; starting
+in Win98 this is the default configuration.
 
-ip link set eth0 down
-ip link set eth0 name buggy
-ip link set buggy up
-
-c'ya
-sven
+	-hpa
 
 -- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

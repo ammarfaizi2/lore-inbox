@@ -1,60 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265804AbUAKIzN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 03:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265809AbUAKIzN
+	id S265809AbUAKJO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 04:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUAKJO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 03:55:13 -0500
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:29848 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id S265804AbUAKIzJ
+	Sun, 11 Jan 2004 04:14:28 -0500
+Received: from real-outmail.cc.huji.ac.il ([132.64.1.21]:52899 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S265809AbUAKJOZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 03:55:09 -0500
-Date: Sun, 11 Jan 2004 00:55:06 -0800
-From: Simon Kirby <sim@netnation.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 SMP lockups
-Message-ID: <20040111085506.GA6834@netnation.com>
-References: <20040109210450.GA31404@netnation.com> <Pine.LNX.4.58L.0401101719400.1310@logos.cnet> <20040110144049.5e195ebd.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040110144049.5e195ebd.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 11 Jan 2004 04:14:25 -0500
+Message-ID: <400113EE.6060909@mscc.huji.ac.il>
+Date: Sun, 11 Jan 2004 11:14:22 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031119
+X-Accept-Language: en-us, en, he
+MIME-Version: 1.0
+To: Bernhard Kuhn <bkuhn@metrowerks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [announcement, patch] real-time interrupts for the Linux kernel
+References: <3FFE078D.20400@metrowerks.com>
+In-Reply-To: <3FFE078D.20400@metrowerks.com>
+X-Enigmail-Version: 0.82.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 02:40:49PM -0800, Andrew Morton wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Presumably it's spinning on the lock with interrupts enabled.  Make that
-> the `NMI' counters in /proc/interrupts are incrementing for all CPUs.
+Hi,
+Can this be used for a normal desktop?
+Thanks
 
-Actually, on one of the boxes it doesn't seem to be working at all:
+Bernhard Kuhn wrote:
 
-activating NMI Watchdog ... done.
-testing NMI watchdog ... CPU#0: NMI appears to be stuck!  
+|
+| Hi everybody!
+|
+| I hope that i can steal enough of your precious time to get your
+| attention for a new patch that adds hard real time support to the
+| linux kernel (worst case interrupt response time below 5
+| microseconds):
+|
+| The proposed "real time interrupt patch" enables the linux kernel
+| for hard-real-time applications such as data aquisition and control
+| loops by adding priorities to interrupts and spinlocks.
+|
+| The following document will describe the patch in detail and how to
+| install it:
+|
+| http://home.t-online.de/home/Bernhard_Kuhn/rtirq/20040108/README
+|
+|
+| The patch and a demo application can be downloaded from:
+|
+|
+http://home.t-online.de/home/Bernhard_Kuhn/rtirq/20040108/rtirq-20040108.tgz
+|
+|
+|
+|
+| Comments are highly appreciated!
+|
+|
+| best regards
+|
+| Bernhard Kuhn, Senior Software Engineer, Metrowerks
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+| - To unsubscribe from this list: send the line "unsubscribe
+| linux-kernel" in the body of a message to majordomo@vger.kernel.org
+|  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+|  Please read the FAQ at  http://www.tux.org/lkml/
 
-This is on a Tyan Dual AMD MPX board with two MP 2000+ CPUs. 
-/proc/interrupts shows:
 
-           CPU0       CPU1       
-  0:    4897433    4904751    IO-APIC-edge  timer
-  1:          1          1    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          1          0    IO-APIC-edge  rtc
- 16:     699524     700761   IO-APIC-level  dpti0
- 19:   12480119   12480207   IO-APIC-level  eth0
-NMI:          0          0 
-LOC:    9801455    9801319 
-ERR:          0
-MIS:         13
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-I'll try reenabling it on the other (Intel) boxes where I think it
-actually does work, and see if anything results.
+iD8DBQFAARPskj4I0Et8EMgRAhPpAKDY3Eo6cexamFmBiQRnUZ5pJxcnwACgrseV
+0v1V9e72RMQ5wD32UNDK0qc=
+=E0xz
+-----END PGP SIGNATURE-----
 
-> sysrq-T would be best.
 
-I'll do the serial console dance next time and get some sysrq-T output.
-
-Simon-

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261393AbSJ2ABd>; Mon, 28 Oct 2002 19:01:33 -0500
+	id <S261427AbSJ2AHp>; Mon, 28 Oct 2002 19:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261396AbSJ2ABd>; Mon, 28 Oct 2002 19:01:33 -0500
-Received: from pc132.utati.net ([216.143.22.132]:128 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S261393AbSJ2ABa> convert rfc822-to-8bit; Mon, 28 Oct 2002 19:01:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Subject: Re: 2.5.44: what's .tmp_export-objs for?
-Date: Mon, 28 Oct 2002 14:07:44 -0500
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200210281054.16008.landley@trommello.org> <87y98inphh.fsf@goat.bogus.local>
-In-Reply-To: <87y98inphh.fsf@goat.bogus.local>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210281307.44739.landley@trommello.org>
+	id <S261550AbSJ2AHo>; Mon, 28 Oct 2002 19:07:44 -0500
+Received: from mail0.jaist.ac.jp ([150.65.5.97]:48847 "EHLO mail0.jaist.ac.jp")
+	by vger.kernel.org with ESMTP id <S261427AbSJ2AHm>;
+	Mon, 28 Oct 2002 19:07:42 -0500
+Date: Tue, 29 Oct 2002 09:13:55 +0900 (JST)
+Message-Id: <20021029.091355.41631341.amatsus@jaist.ac.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] add Intel cache-detection descriptors to the table
+From: Akihiro Matsushima <amatsus@jaist.ac.jp>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1
+ =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 October 2002 16:54, Olaf Dietsche wrote:
-> Rob Landley <landley@trommello.org> writes:
-> > I accidentally did a 2.5.44 kernel build as root rather than my normal
-> > user, so I'm trying to see what clean steps I need to so (as root) to be
-> > able to build the tree again.  A normal make clean failed (permission
-> > denied deleting files), so I did an su and a make clean.  Exit back to
-> > normal user, make clean, life is good, do a make dep, and it complains
-> > about the directory .tmp_export-objs.
-> >
-> > 1) Why does the build process use a hidden directory?
-> >
-> > 2) Why isn't make clean removing something with "tmp" in the name?
->
-> "make help" lists a bunch of options. I guess, what you're searching
-> for is "make mrproper" or even "make distclean".
+This patch adds new discriptors to IA-32 cache-detection table
+and fixes a failure in L2 cache detection on 2.4.20-pre series.
 
-Except that make mrproper deletes the .config file so I'd have to spend 
-fifteen minutes with menuconfig again unless I know (and remember) to back it 
-up. :)
+Thanks,
+Akihiro
 
-I guess make clean is trying to avoid damaging the "make dep" output.  I 
-thought that a big part of Keith Owens' new build system was to get rid of 
-the horror that is "make dep", but I remember now that Linus rejected it for 
-some reason.  Oh well.  Just curious...
-
-Rob
-
--- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+--- arch/i386/kernel/setup.c.orig	Sat Oct 19 10:30:52 2002
++++ arch/i386/kernel/setup.c	Sat Oct 19 10:40:16 2002
+@@ -2202,6 +2202,8 @@
+ 	{ 0x23, LVL_3,      1024 },
+ 	{ 0x25, LVL_3,      2048 },
+ 	{ 0x29, LVL_3,      4096 },
++	{ 0x39, LVL_2,      128 },
++	{ 0x3C, LVL_2,      256 },
+ 	{ 0x41, LVL_2,      128 },
+ 	{ 0x42, LVL_2,      256 },
+ 	{ 0x43, LVL_2,      512 },
+@@ -2214,7 +2216,9 @@
+ 	{ 0x7A, LVL_2,      256 },
+ 	{ 0x7B, LVL_2,      512 },
+ 	{ 0x7C, LVL_2,      1024 },
++	{ 0x7E, LVL_2,      256 },
+ 	{ 0x82, LVL_2,      256 },
++	{ 0x83, LVL_2,      512 },
+ 	{ 0x84, LVL_2,      1024 },
+ 	{ 0x85, LVL_2,      2048 },
+ 	{ 0x00, 0, 0}

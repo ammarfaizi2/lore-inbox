@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSJ2PVq>; Tue, 29 Oct 2002 10:21:46 -0500
+	id <S261907AbSJ2PVC>; Tue, 29 Oct 2002 10:21:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSJ2PVq>; Tue, 29 Oct 2002 10:21:46 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:34227 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S261963AbSJ2PVn>;
-	Tue, 29 Oct 2002 10:21:43 -0500
-Date: Tue, 29 Oct 2002 09:28:00 -0600
-From: Nathan Straz <nstraz@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] AIM Independent Resource Benchmark  results for kernel-2.5.44
-Message-ID: <20021029152800.GB2030@sgi.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <fa.d95885v.1d14t8c@ifi.uio.no> <037101c27c84$70015ce0$9865fea9@PCJohn> <20021028182839.GA2030@sgi.com> <20021028231738.GC15779@unthought.net>
+	id <S261911AbSJ2PVC>; Tue, 29 Oct 2002 10:21:02 -0500
+Received: from 24-216-100-96.charter.com ([24.216.100.96]:50856 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S261907AbSJ2PVB>;
+	Tue, 29 Oct 2002 10:21:01 -0500
+Date: Tue, 29 Oct 2002 10:27:23 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: How to diagnose...
+Message-ID: <20021029152723.GR3420@rdlg.net>
+Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021028231738.GC15779@unthought.net>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 29, 2002 at 12:17:38AM +0100, Jakob Oestergaard wrote:
-> On Mon, Oct 28, 2002 at 12:28:39PM -0600, Nathan Straz wrote:
-> > > The AIM7/AIM9 new_raph is broken code.  The convergence loop termination
-> > > conditional looks something like:
-> > >    if (delta == 0) break;
-> > > for a type "double" delta.  You ought to change that to be something
-> > > like:
-> > >    if (delta <= 0.00000001L) break;
-> > 
-> > I usually specify the compiler flag -ffloat-store and that fixes the
-> > issue for me.  
-> 
-> Maybe that will work as a work-around.  But it is nothing but a
-> work-around. The previous poster was right - the code is broken.
 
-/me looks at the code
 
-	/*
-	 * Step 4: if |p - p0| < TOL then terminate successfully
-	 */
-	delta = fabs(p - p0);
-	if (delta == 0.0)
-		break;
+  Need some brainstorming from people with a clue.
 
-Ok, I'll admit that the code does look broken, especially with regard to
-the comment *in* the code.  
+Hardware:
+  4xP3-550
+  16Gig of Ram
+  1x18Gig internal disk
+  4x54Gig RAID Disk
+  512Meg swap partition on sda2
+  1Gig swap file in /usr/local/swapfile on /dev/sda3
 
-Is anyone from Caldera still maintaining this code or shall I create a
-CVS module as part of LTP?
+The 4 54Gig disks are in a Raid5 with software raid.
 
--- 
-Nate Straz                                              nstraz@sgi.com
-sgi, inc                                           http://www.sgi.com/
-Linux Test Project                                  http://ltp.sf.net/
+I'm on a vanila 2.4.18 kernel configured for Huge Memory.
+
+This is supposed to be a new corporate mail server but we're having some
+issues.  What we have been see'ing the 3-4 times we tried is the Load 
+jumps to 9+ and the box drops to a crawl when we rsync the imap folders 
+from the old host to the new host.  Last night I readded the 1Gig file 
+(it was at 512Meg only) and we started again.  It ran great for about 
+2hrs then the box locked up.  I got to the console this morning and it 
+was scrolling so fast I couldn't even read it.  It looked like it was 
+reporting ACIC errors on a CPU but couldn't quite be sure.  It required 
+a hard reset as it was unresponsive to c-a-d and sysreq commands.
+
+There is nothing in the messages file and there was nothing useful on
+the console.
+
+"free" shows the rsync eats up alot of memory but never starts to swap
+or if it does only swaps less than 30k.
+
+
+Thoughts?
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                
+                               
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+FYI:
+ perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+

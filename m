@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131151AbRCRGz6>; Sun, 18 Mar 2001 01:55:58 -0500
+	id <S131152AbRCRHib>; Sun, 18 Mar 2001 02:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131152AbRCRGzs>; Sun, 18 Mar 2001 01:55:48 -0500
-Received: from snark.tuxedo.org ([207.106.50.26]:25349 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S131151AbRCRGzd>;
-	Sun, 18 Mar 2001 01:55:33 -0500
-Date: Sun, 18 Mar 2001 01:58:21 -0500
-Message-Id: <200103180658.f2I6wLH17136@snark.thyrsus.com>
-From: "Eric S. Raymond" <esr@snark.thyrsus.com>
-To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: CML2 0.9.4 is available
+	id <S131157AbRCRHiW>; Sun, 18 Mar 2001 02:38:22 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36625 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131152AbRCRHiG>; Sun, 18 Mar 2001 02:38:06 -0500
+Date: Sun, 18 Mar 2001 04:23:16 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: george anzinger <george@mvista.com>, Alexander Viro <viro@math.psu.edu>,
+        linux-mm@kvack.org, bcrl@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: changing mm->mmap_sem  (was: Re: system call for process
+ information?)
+In-Reply-To: <20010316125338.L30889@redhat.com>
+Message-ID: <Pine.LNX.4.21.0103180419550.13050-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+On Fri, 16 Mar 2001, Stephen C. Tweedie wrote:
 
-Release 0.9.4: Sun Mar 18 01:48:12 EST 2001
-	* Move to hand-rolled LL parser for increased compilation speed.
-	* Compile numbers as numbers (solves Giacomo's 0.9.3 bug).
+> Right, I'm not suggesting removing that: making the mmap_sem
+> read/write is fine, but yes, we still need that semaphore.
 
-The compilation-speed improvement is pretty dramatic -- factor of two.
-As a happy side effect, this change cuts the line count of CML2 by
-about 500 lines; the whole system is now 4874 lines of Python code.
+Initial patch (against 2.4.2-ac20) is available at
+http://www.surriel.com/patches/
 
-The rules file in this version is current to 2.4.2.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> But as for the "page faults would use an extra lock to protect against
+> each other" bit --- we already have another lock, the page table lock,
+> which can be used in this way, so ANOTHER lock should be unnecessary.
 
-The two pillars of `political correctness' are, 
-  a) willful ignorance, and
-  b) a steadfast refusal to face the truth
-	-- George MacDonald Fraser
+Tomorrow I'll take a look at the various ->nopage
+functions and do_swap_page to see if these functions
+would be able to take simultaneous faults at the same
+address (from multiple threads).  If not, either we'll
+need to modify these functions, or we could add a (few?)
+extra lock to prevent these functions from faulting at
+the same address at the same time in multiple threads.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

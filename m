@@ -1,150 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbUKSGp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbUKSGww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbUKSGp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 01:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbUKSGp2
+	id S261275AbUKSGww (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 01:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbUKSGwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 01:45:28 -0500
-Received: from NK210-202-245-3.vdsl.static.apol.com.tw ([210.202.245.3]:56516
-	"EHLO uli.com.tw") by vger.kernel.org with ESMTP id S261273AbUKSGoM
+	Fri, 19 Nov 2004 01:52:51 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:36502 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261275AbUKSGwr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 01:44:12 -0500
-Subject: [patch] char/agp: Add support for ULi M1681,M1683,M1689
-To: davej@codemonkey.org.uk
-Cc: alan@redhat.com, Peer.Chen@uli.com.tw, Emily.Jiang@uli.com.tw,
-       Eric.Lo@uli.com.tw, andrebalsa@mailingaddress.org,
-       linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes R5.0 (Intl) 30 March 1999
-Message-ID: <OFDCFDB653.BD918882-ON48256F51.0024609A@uli.com.tw>
-From: Clear.Zhang@uli.com.tw
-Date: Fri, 19 Nov 2004 14:43:38 +0800
-MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on ulicnm01/ULI(Release 5.0.11  |July 24, 2002) at 2004-11-19
- 14:43:39,
-	Itemize by SMTP Server on ulim01/ULI(Release 5.0.11  |July 24, 2002) at
- 2004/11/19 02:43:40 PM,
-	Serialize by Router on ulim01/ULI(Release 5.0.11  |July 24, 2002) at 2004/11/19
- 02:43:45 PM
-Content-type: multipart/mixed; 
-	Boundary="0__=C7BBE5C2DFB7E60A8f9e8a93df938690918cC7BBE5C2DFB7E60A"
+	Fri, 19 Nov 2004 01:52:47 -0500
+Date: Fri, 19 Nov 2004 12:22:58 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       davem@davemloft.net, prasanna@in.ibm.com, suparna@in.ibm.com
+Subject: Re: [PATCH] Kprobes: wrapper to define jprobe.entry
+Message-ID: <20041119065258.GA6863@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <20041118102641.GB8830@in.ibm.com> <20041118144746.7daa9395.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041118144746.7daa9395.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=C7BBE5C2DFB7E60A8f9e8a93df938690918cC7BBE5C2DFB7E60A
-Content-type: text/plain; charset=us-ascii
+On Thu, Nov 18, 2004 at 02:47:46PM -0800, Andrew Morton wrote:
+> Ananth N Mavinakayanahalli <ananth@in.ibm.com> wrote:
 
-Hi,
+Hi Andrew,
 
-We add the support for ULi's AGP M1681,M1683,M1689 in directory
-drivers/char/agp.
-This patch(the attachmemt) is applied to kernel 2.6.9. Please apply to new
-kernels, thanks.
+> >
+> > Here is a patch that adds a wrapper for defining jprobe.entry to make
+> > it easy to handle the three dword function descriptors defined by the
+> > PowerPC ELF ABI.
+> > 
+> > Current patch against 2.6.10-rc2-mm1 + kprobes patch for ppc64.
+> 
+> I don't have the kprobes-for-ppc64 patch here.
+> 
+> > Changes for adding this wrapper for x86, ppc64 (tested) and x86_64 
+> > (untested) below. The earlier method of defining jprobe.entry will
+> > continue to work.
+> 
+> So what should I do with this?  I'm inclined to drop it until the x86_64
+> part has been tested and Dave has had a go at the sparc64 version.
 
-We do some modification to the driver for compatible with our chip except
-for
-adding verdor ID and device ID.
+I have now tested the patch succesfully on x86_64 and updated it for
+sparc64 too (Dave says the change looks good).
 
-Signed-off-by: Clear Zhang <Clear.Zhang@uli.com.tw>
+Please apply.
 
-Thanks
+Thanks,
+Ananth
 
-Clear                   (See attached file: patch_agp)
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-
---0__=C7BBE5C2DFB7E60A8f9e8a93df938690918cC7BBE5C2DFB7E60A
-Content-type: application/octet-stream; 
-	name="patch_agp"
-Content-Disposition: attachment; filename="patch_agp"
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtdXByTiBsaW51eC0yLjYuOS12YW5pbGxhL2RyaXZlcnMvY2hhci9hZ3AvYWxpLWFncC5j
-IGxpbnV4LTIuNi45L2RyaXZlcnMvY2hhci9hZ3AvYWxpLWFncC5jCi0tLSBsaW51eC0yLjYuOS12
-YW5pbGxhL2RyaXZlcnMvY2hhci9hZ3AvYWxpLWFncC5jCTIwMDQtMTAtMTkgMDU6NTQ6MzguMDAw
-MDAwMDAwICswODAwCisrKyBsaW51eC0yLjYuOS9kcml2ZXJzL2NoYXIvYWdwL2FsaS1hZ3AuYwky
-MDA0LTExLTE5IDE0OjIxOjI3LjgxNTczNDkyOCArMDgwMApAQCAtMjc3LDYgKzI3NywxNCBAQCBz
-dGF0aWMgc3RydWN0IGFncF9kZXZpY2VfaWRzIGFsaV9hZ3BfZGV2CiAJCS5kZXZpY2VfaWQJPSBQ
-Q0lfREVWSUNFX0lEX0FMX00xNjcxLAogCQkuY2hpcHNldF9uYW1lCT0gIk0xNjcxIiwKIAl9LAor
-CXsKKwkJLmRldmljZV9pZAk9IFBDSV9ERVZJQ0VfSURfQUxfTTE2ODEsCisJCS5jaGlwc2V0X25h
-bWUJPSAiTTE2ODEiLAorCX0sCisJeworCQkuZGV2aWNlX2lkCT0gUENJX0RFVklDRV9JRF9BTF9N
-MTY4MywKKwkJLmNoaXBzZXRfbmFtZQk9ICJNMTY4MyIsCisJfSwKIAl7IH0sIC8qIGR1bW15IGZp
-bmFsIGVudHJ5LCBhbHdheXMgcHJlc2VudCAqLwogfTsKIApkaWZmIC11cHJOIGxpbnV4LTIuNi45
-LXZhbmlsbGEvZHJpdmVycy9jaGFyL2FncC9hbWQ2NC1hZ3AuYyBsaW51eC0yLjYuOS9kcml2ZXJz
-L2NoYXIvYWdwL2FtZDY0LWFncC5jCi0tLSBsaW51eC0yLjYuOS12YW5pbGxhL2RyaXZlcnMvY2hh
-ci9hZ3AvYW1kNjQtYWdwLmMJMjAwNC0xMC0xOSAwNTo1NDozOC4wMDAwMDAwMDAgKzA4MDAKKysr
-IGxpbnV4LTIuNi45L2RyaXZlcnMvY2hhci9hZ3AvYW1kNjQtYWdwLmMJMjAwNC0xMS0xOSAxNDoy
-MTozNy4xMjAzMjA0MTYgKzA4MDAKQEAgLTQ2LDYgKzQ2LDE1IEBACiAjZGVmaW5lIE5WSURJQV9Y
-ODZfNjRfMV9BUEJBU0UyCQkweGQ4CiAjZGVmaW5lIE5WSURJQV9YODZfNjRfMV9BUExJTUlUMgkw
-eGRjCiAKKy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vCisvLyAr
-KyBVTGkKKy8qIFVMaSBLOCByZWdpc3RlcnMgKi8KKyNkZWZpbmUgVUxJX1g4Nl82NF9CQVNFX0FE
-RFIJCTB4MTAKKyNkZWZpbmUgVUxJX1g4Nl82NF9IVFRfRkVBX1JFRwkJMHg1MAorI2RlZmluZSBV
-TElfWDg2XzY0X0VOVV9TQ1JfUkVHCQkweDU0CisvLyAtLSBVTGkKKy8vLy8vLy8vLy8vLy8vLy8v
-Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vCisKIHN0YXRpYyBpbnQgbnJfZ2FydHM7CiBzdGF0
-aWMgc3RydWN0IHBjaV9kZXYgKiBoYW1tZXJzW01BWF9IQU1NRVJfR0FSVFNdOwogCkBAIC00MDUs
-NiArNDE0LDY2IEBAIHN0YXRpYyB2b2lkIF9fZGV2aW5pdCBhbWQ4MTUxX2luaXQoc3RydWMKIAl9
-CiB9CiAKKworLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
-Ly8vLy8vCisvLyArK1VMaQorc3RhdGljIHN0cnVjdCBhcGVyX3NpemVfaW5mb18zMiB1bGlfc2l6
-ZXNbN10gPQoreworCXsyNTYsIDY1NTM2LCA2LCAxMH0sCisgICAgICAgIHsxMjgsIDMyNzY4LCA1
-LCA5fSwKKyAgICAgICAgezY0LCAxNjM4NCwgNCwgOH0sCisgICAgICAgIHszMiwgODE5MiwgMywg
-N30sCisgICAgICAgIHsxNiwgNDA5NiwgMiwgNn0sCisgICAgICAgIHs4LCAyMDQ4LCAxLCA0fSwK
-KyAgICAgICAgezQsIDEwMjQsIDAsIDN9Cit9Oworc3RhdGljIGludCBfX2RldmluaXQgdWxpX2Fn
-cF9pbml0KHN0cnVjdCBwY2lfZGV2ICpwZGV2KQoreworCXUzMiBodHRmZWEsYmFzZWFkZHIsZW51
-c2NyOworCXN0cnVjdCBwY2lfZGV2ICpkZXYxOworCWludCBpOworCXVuc2lnbmVkIHNpemUgPSBh
-bWQ2NF9mZXRjaF9zaXplKCk7CisJcHJpbnRrKEtFUk5fSU5GTyAiU2V0dGluZyB1cCBVTGkgQUdQ
-LiBcbiIpOworCWRldjEgPSBwY2lfZmluZF9zbG90ICgodW5zaWduZWQgaW50KXBkZXYtPmJ1cy0+
-bnVtYmVyLFBDSV9ERVZGTigwLDApKTsKKwlpZiAoZGV2MSA9PSBOVUxMKSB7CisJCXByaW50ayhL
-RVJOX0lORk8gUEZYICJhZ3BnYXJ0OiBEZXRlY3RlZCBhIFVMaSBjaGlwc2V0LCAiCisJCQkiYnV0
-IGNvdWxkIG5vdCBmaW5lIHRoZSBzZWNvbmRhcnkgZGV2aWNlLlxuIik7CisJCXJldHVybiAtRU5P
-REVWOworCX0KKyAgICAgICAgZm9yIChpID0gMDsgaSA8IEFSUkFZX1NJWkUodWxpX3NpemVzKTsg
-aSsrKQorICAgICAgICAgICAgICAgIGlmICh1bGlfc2l6ZXNbaV0uc2l6ZSA9PSBzaXplKQorICAg
-ICAgICAgICAgICAgICAgICAgICAgYnJlYWs7CisKKyAgICAgICAgaWYgKGkgPT0gQVJSQVlfU0la
-RSh1bGlfc2l6ZXMpKSB7CisgICAgICAgICAgICAgICAgcHJpbnRrKEtFUk5fSU5GTyBQRlggIk5v
-IFVMaSBzaXplIGZvdW5kIGZvciAlZFxuIiwgc2l6ZSk7CisgICAgICAgICAgICAgICAgcmV0dXJu
-IC1FTk9ERVY7CisgICAgICAgIH0KKworCisgICAgICAgIC8qIHNoYWRvdyB4ODYtNjQgcmVnaXN0
-ZXJzIGludG8gVUxpIHJlZ2lzdGVycyAqLworICAgICAgICBwY2lfcmVhZF9jb25maWdfZHdvcmQg
-KGhhbW1lcnNbMF0sIEFNRDY0X0dBUlRBUEVSVFVSRUJBU0UsICZodHRmZWEpOworCisgICAgICAg
-IC8qIGlmIHg4Ni02NCBhcGVydHVyZSBiYXNlIGlzIGJleW9uZCA0RywgZXhpdCBoZXJlICovCisg
-ICAgICAgIGlmICggKGh0dGZlYSAmIDB4N2ZmZikgPj4gKDMyIC0gMjUpICkKKyAgICAgICAgICAg
-ICAgICAgcmV0dXJuIC1FTk9ERVY7CisKKyAgICAgICAgaHR0ZmVhID0gKGh0dGZlYSYgMHg3ZmZm
-KSA8PCAyNTsKKworICAgICAgICBwY2lfcmVhZF9jb25maWdfZHdvcmQocGRldiwgVUxJX1g4Nl82
-NF9CQVNFX0FERFIsICZiYXNlYWRkcik7CisgICAgICAgIGJhc2VhZGRyJj0gflBDSV9CQVNFX0FE
-RFJFU1NfTUVNX01BU0s7CisgICAgICAgIGJhc2VhZGRyfD0gaHR0ZmVhOworICAgICAgICBwY2lf
-d3JpdGVfY29uZmlnX2R3b3JkKHBkZXYsIFVMSV9YODZfNjRfQkFTRV9BRERSLCBiYXNlYWRkcik7
-CisKKyAgICAgICAgZW51c2NyPSBodHRmZWErIChzaXplICogMTAyNCAqIDEwMjQpIC0gMTsKKyAg
-ICAgICAgcGNpX3dyaXRlX2NvbmZpZ19kd29yZChkZXYxLCBVTElfWDg2XzY0X0hUVF9GRUFfUkVH
-LCBodHRmZWEpOworICAgICAgICBwY2lfd3JpdGVfY29uZmlnX2R3b3JkKGRldjEsIFVMSV9YODZf
-NjRfRU5VX1NDUl9SRUcsIGVudXNjcik7CisgICAgICAgIHJldHVybiAwOworfQorLy8gLS1VTGkK
-Ky8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
-Ly8vLy8vLy8vLy8vLworCisKKwogc3RhdGljIHN0cnVjdCBhcGVyX3NpemVfaW5mb18zMiBuZm9y
-Y2UzX3NpemVzWzVdID0KIHsKIAl7NTEyLCAgMTMxMDcyLCA3LCAweDAwMDAwMDAwIH0sCkBAIC01
-MTMsNiArNTgyLDE4IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGFncF9hbWQ2NF9wcm9iZShzdHIK
-IAkJfQogCX0KIAorCS8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
-CisJLy8gKytVTGkKKwlpZiAocGRldi0+dmVuZG9yID09IFBDSV9WRU5ET1JfSURfQUwpIHsKKwkJ
-aW50IHJldCA9IHVsaV9hZ3BfaW5pdChwZGV2KTsKKwkJaWYgKHJldCkgeworCQkJYWdwX3B1dF9i
-cmlkZ2UoYnJpZGdlKTsKKwkJCXJldHVybiByZXQ7CisJCX0KKwl9CisJLy8gLS1VTGkKKwkvLy8v
-Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLworCiAJcGNpX3NldF9kcnZk
-YXRhKHBkZXYsIGJyaWRnZSk7CiAJcmV0dXJuIGFncF9hZGRfYnJpZGdlKGJyaWRnZSk7CiB9CkBA
-IC01MzYsNiArNjE3LDE5IEBAIHN0YXRpYyBzdHJ1Y3QgcGNpX2RldmljZV9pZCBhZ3BfYW1kNjRf
-cGMKIAkuc3VidmVuZG9yCT0gUENJX0FOWV9JRCwKIAkuc3ViZGV2aWNlCT0gUENJX0FOWV9JRCwK
-IAl9LAorCS8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vCisJ
-Ly8gKytVTGkKKwkvKiBVTGkgTTE2ODkgKi8KKwl7CisJLmNsYXNzCQk9IChQQ0lfQ0xBU1NfQlJJ
-REdFX0hPU1QgPDwgOCksCisJLmNsYXNzX21hc2sJPSB+MCwKKwkudmVuZG9yCQk9IFBDSV9WRU5E
-T1JfSURfQUwsCisJLmRldmljZQkJPSBQQ0lfREVWSUNFX0lEX0FMX00xNjg5LAorCS5zdWJ2ZW5k
-b3IJPSBQQ0lfQU5ZX0lELAorCS5zdWJkZXZpY2UJPSBQQ0lfQU5ZX0lELAorCX0sCisJLy8gLS1V
-TGkKKwkvLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLwogCS8q
-IFZJQSBLOFQ4MDBQcm8gKi8KIAl7CiAJLmNsYXNzCQk9IChQQ0lfQ0xBU1NfQlJJREdFX0hPU1Qg
-PDwgOCksCmRpZmYgLXVwck4gbGludXgtMi42LjktdmFuaWxsYS9pbmNsdWRlL2xpbnV4L3BjaV9p
-ZHMuaCBsaW51eC0yLjYuOS9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAotLS0gbGludXgtMi42Ljkt
-dmFuaWxsYS9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAkyMDA0LTEwLTE5IDA1OjU1OjM2LjAwMDAw
-MDAwMCArMDgwMAorKysgbGludXgtMi42LjkvaW5jbHVkZS9saW51eC9wY2lfaWRzLmgJMjAwNC0x
-MS0xOSAxNDoyMjoxMy4wMDAwMDAwMDAgKzA4MDAKQEAgLTEwMjIsNiArMTAyMiw5IEBACiAjZGVm
-aW5lIFBDSV9ERVZJQ0VfSURfQUxfTTE2NDcJCTB4MTY0NwogI2RlZmluZSBQQ0lfREVWSUNFX0lE
-X0FMX00xNjUxCQkweDE2NTEKICNkZWZpbmUgUENJX0RFVklDRV9JRF9BTF9NMTY3MQkJMHgxNjcx
-CisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfQUxfTTE2ODEJCTB4MTY4MQorI2RlZmluZSBQQ0lfREVW
-SUNFX0lEX0FMX00xNjgzICAJMHgxNjgzCisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfQUxfTTE2ODkg
-IAkweDE2ODkKICNkZWZpbmUgUENJX0RFVklDRV9JRF9BTF9NMTU0MwkJMHgxNTQzCiAjZGVmaW5l
-IFBDSV9ERVZJQ0VfSURfQUxfTTMzMDcJCTB4MzMwNwogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0FM
-X000ODAzCQkweDUyMTUK
-
---0__=C7BBE5C2DFB7E60A8f9e8a93df938690918cC7BBE5C2DFB7E60A--
-
+diff -Naurp temp/linux-2.6.10-rc2/include/asm-i386/kprobes.h linux-2.6.10-rc2/include/asm-i386/kprobes.h
+--- temp/linux-2.6.10-rc2/include/asm-i386/kprobes.h	2004-11-19 10:14:44.000000000 +0530
++++ linux-2.6.10-rc2/include/asm-i386/kprobes.h	2004-11-19 10:05:16.000000000 +0530
+@@ -38,6 +38,8 @@ typedef u8 kprobe_opcode_t;
+ 	? (MAX_STACK_SIZE) \
+ 	: (((unsigned long)current_thread_info()) + THREAD_SIZE - (ADDR)))
+ 
++#define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
++
+ /* Architecture specific copy of original instruction*/
+ struct arch_specific_insn {
+ 	/* copy of the original instruction */
+diff -Naurp temp/linux-2.6.10-rc2/include/asm-ppc64/kprobes.h linux-2.6.10-rc2/include/asm-ppc64/kprobes.h
+--- temp/linux-2.6.10-rc2/include/asm-ppc64/kprobes.h	2004-11-19 10:14:44.000000000 +0530
++++ linux-2.6.10-rc2/include/asm-ppc64/kprobes.h	2004-11-19 10:05:16.000000000 +0530
+@@ -35,6 +35,8 @@ typedef unsigned int kprobe_opcode_t;
+ #define BREAKPOINT_INSTRUCTION	0x7fe00008	/* trap */
+ #define MAX_INSN_SIZE 1
+ 
++#define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)((func_descr_t *)pentry)
++
+ /* Architecture specific copy of original instruction */
+ struct arch_specific_insn {
+ 	/* copy of original instruction */
+diff -Naurp temp/linux-2.6.10-rc2/include/asm-sparc64/kprobes.h linux-2.6.10-rc2/include/asm-sparc64/kprobes.h
+--- temp/linux-2.6.10-rc2/include/asm-sparc64/kprobes.h	2004-11-15 06:57:53.000000000 +0530
++++ linux-2.6.10-rc2/include/asm-sparc64/kprobes.h	2004-11-19 10:07:24.000000000 +0530
+@@ -10,6 +10,8 @@ typedef u32 kprobe_opcode_t;
+ #define BREAKPOINT_INSTRUCTION_2 0x91d02071 /* ta 0x71 */
+ #define MAX_INSN_SIZE 2
+ 
++#define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
++
+ /* Architecture specific copy of original instruction*/
+ struct arch_specific_insn {
+ 	/* copy of the original instruction */
+diff -Naurp temp/linux-2.6.10-rc2/include/asm-x86_64/kprobes.h linux-2.6.10-rc2/include/asm-x86_64/kprobes.h
+--- temp/linux-2.6.10-rc2/include/asm-x86_64/kprobes.h	2004-11-19 10:14:44.000000000 +0530
++++ linux-2.6.10-rc2/include/asm-x86_64/kprobes.h	2004-11-19 10:05:16.000000000 +0530
+@@ -37,6 +37,8 @@ typedef u8 kprobe_opcode_t;
+ 	? (MAX_STACK_SIZE) \
+ 	: (((unsigned long)current_thread_info()) + THREAD_SIZE - (ADDR)))
+ 
++#define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
++
+ /* Architecture specific copy of original instruction*/
+ struct arch_specific_insn {
+ 	/* copy of the original instruction */

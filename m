@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287042AbSAEBll>; Fri, 4 Jan 2002 20:41:41 -0500
+	id <S286723AbSAEBsn>; Fri, 4 Jan 2002 20:48:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286723AbSAEBld>; Fri, 4 Jan 2002 20:41:33 -0500
-Received: from gear.torque.net ([204.138.244.1]:17929 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S286262AbSAEBlU>;
-	Fri, 4 Jan 2002 20:41:20 -0500
-Message-ID: <3C365A5F.46938829@torque.net>
-Date: Fri, 04 Jan 2002 20:43:59 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre7 i686)
-X-Accept-Language: en
+	id <S286734AbSAEBsd>; Fri, 4 Jan 2002 20:48:33 -0500
+Received: from mail.nep.net ([12.23.44.24]:40717 "HELO nep.net")
+	by vger.kernel.org with SMTP id <S286723AbSAEBsX>;
+	Fri, 4 Jan 2002 20:48:23 -0500
+Message-ID: <19AB8F9FA07FB0409732402B4817D75A1251D4@FILESERVER.SRF.srfarms.com>
+From: "Ryan C. Bonham" <Ryan@srfarms.com>
+To: Ben Greear <greearb@candelatech.com>, "Ryan C. Bonham" <Ryan@srfarms.com>
+Cc: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: Tyan Tomcat i815T(S2080) LAN problems
+Date: Fri, 4 Jan 2002 20:48:22 -0500 
 MIME-Version: 1.0
-To: deshwar@ctd.hcltech.com
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Reg: SCSI
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eshwar D - CTD, Chennai wrote:
+Ben,
 
-> In my project while reading/writing the data in 
-> to scsi disk, I need to block the device using 
-> RESERVE UNIT and RELEASE UNIT. Can any one help me
-> how to send SCSI command to SCSI device. I know that 
-> this can be done under user level using SCSI generic 
-> interface. I  required function in kernel version 
-> 2.4.2. level.
+Just wanted to let you, and anyone else on the list who cares know that the onblard NICs on the Tyan i815T motherboard does work correctly, with the eepro100 driver. The original board i had was bad. I got the replacment in today and it works with Rehdat 7.2 Stock and Errata kernels both. I didn't have to set the MAC address for either NIC. Thanks for your help. Sorry for cluttering the list.
 
-See:
-http://www.linuxdoc.org/HOWTO/SCSI-Generic-HOWTO/
+Ryan
 
-To break reservations from a crippled SCSI initiator, the
-other initiator needs access to a SCSI bus reset. Even
-though the sg driver supports this, the SCSI mid-level
-support is missing in the standard lk 2.4 series. Many
-distributions have the required patch (from James
-Bottomley) that makes SCSI bus reset functional.
-
-That SCSI bus reset mid-level patch for the lk 2.5 series
-will be heading in Jens's direction shortly.
-
-Doug Gilbert
+> Make sure you enable the second port in the BIOS, btw.
+> 
+> I forget the exact syntax (I do it in c++ code, not with 
+> ifconfig or ip), but
+> both ifconfig and ip programs can set the mac address.  Try
+> /sbin/ip link help
+> 
+> That should point you in the right direction...  Note that 
+> MAC == Hardware-Address
+> 
+> Ben

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266851AbTBQFkr>; Mon, 17 Feb 2003 00:40:47 -0500
+	id <S266852AbTBQGHd>; Mon, 17 Feb 2003 01:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbTBQFkr>; Mon, 17 Feb 2003 00:40:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18195 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266851AbTBQFkq>;
-	Mon, 17 Feb 2003 00:40:46 -0500
-Message-ID: <3E507819.6000700@pobox.com>
-Date: Mon, 17 Feb 2003 00:50:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id <S266859AbTBQGHd>; Mon, 17 Feb 2003 01:07:33 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:45256 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266852AbTBQGHd>; Mon, 17 Feb 2003 01:07:33 -0500
+Date: Sun, 16 Feb 2003 22:17:14 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: more signal locking bugs?
+Message-ID: <77820000.1045462633@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0302161951580.1424-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302161951580.1424-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC] klibc for 2.5.59 bk
-References: <Pine.LNX.4.44.0302162057200.5217-100000@chaos.physics.uiowa.edu>
-In-Reply-To: <Pine.LNX.4.44.0302162057200.5217-100000@chaos.physics.uiowa.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
-> I did some work on integrating klibc into kbuild now. I used your patch as 
-> guide line, though I started from scratch with klibc-0.77. The build 
-> should work fine (reminder: "make KBUILD_VERBOSE=0 ..." will give you much 
+>> Ah, I see what happened, I think .... the locking used to be inside
+>> collect_sigign_sigcatch, and you moved it out into task_sig ... but 
+>> there were two callers of collect_sigign_sigcatch, the other one being
+>> proc_pid_stat
+> 
+> Doh.
+> 
+> This should fix it. 
 
-woo hoo!  Thanks much.  I was sorta hoping you would step in and help 
-out with the kbuild issues ;-)
-
-
-> To do something more useful than "hello world", I actually moved some part 
-> of finding / mounting the final root system into userspace, though only 
-> conditional on CONFIG_INITRAMFS.
-
-FWIW, this should be ok for testing, but not a merge...  we need to have 
-a single "do_mounts" code flow, not two code paths that are selected 
-with a switch.
-
-That's why I see a lot of little klibc binaries, especially initially. 
-Moving piece-by-piece from do_mounts.c (and other places) to userspace 
-takes longer, but really maximizes both stability and testing of new code.
-
-	Jeff
+Oooh, not only does SDET work now in 61, it doesn't freeze the whole box
+when I hit ^C any more (like it's been doing since the dawn of time).
+Spiffy ;-)
 
 
+M.
 

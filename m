@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262654AbTCTWEb>; Thu, 20 Mar 2003 17:04:31 -0500
+	id <S262647AbTCTV6h>; Thu, 20 Mar 2003 16:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbTCTWDT>; Thu, 20 Mar 2003 17:03:19 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:2944 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S262659AbTCTWCg>; Thu, 20 Mar 2003 17:02:36 -0500
-Date: Thu, 20 Mar 2003 23:13:32 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Hank Leininger <hlein@progressive-comp.com>
+	id <S262646AbTCTV6g>; Thu, 20 Mar 2003 16:58:36 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:26504 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S262648AbTCTV6P>; Thu, 20 Mar 2003 16:58:15 -0500
+Date: Thu, 20 Mar 2003 14:09:02 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Deprecating .gz format on kernel.org
-Message-ID: <20030320221332.GA13641@wohnheim.fh-wedel.de>
-References: <200303202154.h2KLsDcT009516@marc2.theaimsgroup.com>
+Subject: Re: Larger dev_t and major/minor split
+Message-ID: <20030320220901.GR2835@ca-server1.us.oracle.com>
+References: <b5dckh$lv1$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200303202154.h2KLsDcT009516@marc2.theaimsgroup.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <b5dckh$lv1$1@cesium.transmeta.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 March 2003 16:54:13 -0500, Hank Leininger wrote:
-> On 2003-03-20, Joern Engel <joern () wohnheim ! fh-wedel ! de> wrote:
-> 
-> > That shouldn't matter, most of the times. If you want to build the
-> > code, you have to [bg]unzip anyway, so there is no extra cost.
-> > And I have a hard time to think of a real-world application where you
-                                         ^^^^^^^^^^
-> > don't want to unpack but need to verify the signature.
-> 
-> A few come to mind:
+On Thu, Mar 20, 2003 at 01:42:41PM -0800, H. Peter Anvin wrote:
+> b) In order to support NFSv2 and other filesystems which only support
+>    a 32-bit dev_t, I suggest we stay within a (12,20)-bit range for as
 
-"Come to mind" doesn't sound line "that'd break our environment." ;)
+	Hmm, I guess that means dropping ext2/3 for / ;-(
 
-> -To verify and then use a .tar.[bg]z2?, you must gpg --verify and then
->   tar -x[jz]vf, but to unpack, then verify, then use you must uncompress
->   to a tempfile or pipe to gpg, then verify, then untar.  Silly waste of
->   CPU and/or disk space.[*]
-
-Veryfy and use are two action. You need a script or a human, changing
-either one won't be hard.
-
-> -Verifying downloads immediately, when they won't necessarily be needed /
->   used right away; no need to unpack until it's needed, but would like to
->   know the download is bad right away.
-
-real-world?
-
-> -Verifying something pulled down to one machine before scp'ing it elsewhere
->   where it will actually be used.
-
-real-world?
-
-> -Verifying before [bg]unzip means you won't expose [bg]unzip to likely
->   malicious data (think bugs in [bg]unzip which make them crash on bad
->   compressed files).  Of course GPG/PGP is still subject to input-based 
->   bugs, but they are in any case; no need for the decompression tools to
->   be as well.
-
-Crashes don't matter. Exploits would, so that point is actually valid.
-
-> [*] ...Now if tar had a --sig option to chain gpg between gunzip and 
->     untar... but that would just be Wrong.
-
-unzip && checksig && tar?
-
-Jörn
+Joel
 
 -- 
-More computing sins are committed in the name of efficiency (without
-necessarily achieving it) than for any other single reason - including
-blind stupidity.
--- W. A. Wulf 
+
+"Nothing is wrong with California that a rise in the ocean level
+ wouldn't cure."
+        - Ross MacDonald
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,65 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135671AbRDXPMt>; Tue, 24 Apr 2001 11:12:49 -0400
+	id <S135678AbRDXPL3>; Tue, 24 Apr 2001 11:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135672AbRDXPMa>; Tue, 24 Apr 2001 11:12:30 -0400
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:56077 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S135671AbRDXPMV>; Tue, 24 Apr 2001 11:12:21 -0400
-Date: Wed, 25 Apr 2001 01:11:32 +1000
-From: CaT <cat@zip.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexander Viro <viro@math.psu.edu>, "Mohammad A. Haque" <mhaque@haque.net>,
-        ttel5535@artax.karlin.mff.cuni.cz,
-        "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        linux-kernel@vger.kernel.org
+	id <S135671AbRDXPLT>; Tue, 24 Apr 2001 11:11:19 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:24740 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S135678AbRDXPLI>; Tue, 24 Apr 2001 11:11:08 -0400
+Date: Tue, 24 Apr 2001 10:11:06 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200104241511.KAA22256@tomcat.admin.navo.hpc.mil>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-Message-ID: <20010425011132.H1245@zip.com.au>
-In-Reply-To: <20010425004710.F1245@zip.com.au> <E14s4Hq-0002F0-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14s4Hq-0002F0-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 24, 2001 at 03:59:28PM +0100
-Organisation: Furball Inc.
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 03:59:28PM +0100, Alan Cox wrote:
-> What is this gid mail crap ? You don't need priviledge. You get the mail by
-> asking the daemon for it. procmail needs no priviledge either if it is done
-> right.
-> 
-> You just need to think about the security models in the right way. Linux gives
-> you the ability to do authenticated uid/gid checking over a socket connection.
-> That is an incredibly powerful model for real compartmentalisation.
+Tomas Telensky <ttel5535@ss1000.ms.mff.cuni.cz>
+> On Tue, 24 Apr 2001, Alexander Viro wrote:
+> > On Tue, 24 Apr 2001, Tomas Telensky wrote:
+> > 
+> > > of linux distributions the standard daemons (httpd, sendmail) are run as
+> > > root! Having multi-user system or not! Why? For only listening to a port
+> > > <1024? Is there any elegant solution?
+> > 
+> > Sendmail is old. Consider it as a remnant of times when network was
+> > more... friendly. Security considerations were mostly ignored - and
+> > not only by sendmail. It used to be choke-full of holes. They were
+> > essentially debugged out of it in late 90s. It seems to be more or
+> > less OK these days, but it's full of old cruft. And splitting the
+> > thing into reasonable parts and leaving them with minaml privileges
+> > they need is large and painful work.
 
-Ok. My experience isn't all that great so I may well be missing something
-here. But what?
+Actually, if you view sendmail as being an expert system it is very
+cutting edge :-) It can identify a user from very skimpy data if it
+is allowed to (fuzzy matching user names). It identifies local hosts
+(with FQDN or partial name, or only host name).
 
-1. email -> sendmail
+> Thanks for the comment. And why not just let it listen to 25 and then
+> being run as uid=nobody, gid=mail?
 
-2. sendmail figures out what it has to do with it. turns out it's deliver
-it locally for user blah
+Because then everybodys mail would be owned by user "nobody".
 
-3. sendmail starts procmail so that it delivers the email.
+There are some ways to do this, but they are unreliable.
 
-4. procmail goes through the recepie list for user blah and eventually
-delivers the email (one way or another)
+   1. If the users mail is delivered to /var/mail/<username>; then the
+      file /var/mail/<username> must always exist.
 
-Now, in order for step 4 to be done safely, procmail should be running
-as the user it's meant to deliver the mail for. for this to happen
-sendmail needs to start it as that user in step 3 and to do that it
-needs extra privs, above and beyond that of a normal user.
+	This requires ALL MUAs to truncate the file.
+	Some MUAs use file existance to determine if there is new mail.
+	If it doesn't exist, then no new mail... ever.
 
-Now as I said, I'm not a UNIX God[tm] and so I may well be missing something
-vital. If so, what is it? This sounds like something that would be way
-useful to learn. :)
+   2. sendmail will not be able to create the /var/mail/<username> mail box.
 
--- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
+   3. sendmail will not be able to process forwarding mail.
+	User nobody should not be able to read files in users home
+	directory... .forward files are private to the user...
 
+   4. sendmail will not be able to process user mail filters (same problem
+	as forwarding).
+
+	Note: these filters are applied on receipt of mail (saves time and
+	disk space since the filter can discard mail immediately or put it
+	in appropriate folders immediately).
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

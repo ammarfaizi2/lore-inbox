@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289517AbSAJQVF>; Thu, 10 Jan 2002 11:21:05 -0500
+	id <S289530AbSAJQ1z>; Thu, 10 Jan 2002 11:27:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289524AbSAJQU6>; Thu, 10 Jan 2002 11:20:58 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:25613 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S289517AbSAJQUl>;
-	Thu, 10 Jan 2002 11:20:41 -0500
-Date: Thu, 10 Jan 2002 17:20:38 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: [PATCH] Combined APM patch
-To: sfr@canb.auug.org.au
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3C3DBF56.2D9314BB@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S289531AbSAJQ1p>; Thu, 10 Jan 2002 11:27:45 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:11529 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289530AbSAJQ13>;
+	Thu, 10 Jan 2002 11:27:29 -0500
+Date: Thu, 10 Jan 2002 14:27:05 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Rodrigo Souza de Castro <rcastro@ime.usp.br>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pager_daemon removal
+In-Reply-To: <20020110161035.GC1780@vinci>
+Message-ID: <Pine.LNX.4.33L.0201101426110.2985-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why is the APM_IOC_REJECT ioctl functionality still not merged ?
-Does somebody hate it that much or are there any technical reasons ?
+On Thu, 10 Jan 2002, Rodrigo Souza de Castro wrote:
 
-Party on,
+> Comments?
+
+You're not allowed to renumber sysctl defines, it's ok
+to remove the VM_PAGER_DAEMON thing, but the following
+defines should stay the same number ...
+
+regards,
+
+Rik
 -- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

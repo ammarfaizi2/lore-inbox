@@ -1,105 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbUDERd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 13:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbUDERd2
+	id S262339AbUDERkR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 13:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbUDERkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 13:33:28 -0400
-Received: from asteroids.scarlet-internet.nl ([213.204.195.163]:37857 "EHLO
-	asteroids.scarlet-internet.nl") by vger.kernel.org with ESMTP
-	id S262931AbUDERdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 13:33:24 -0400
-Message-ID: <1081186402.407198620a28b@webmail.dds.nl>
-Date: Mon,  5 Apr 2004 19:33:22 +0200
-From: wdebruij@dds.nl
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [ANNOUNCE] various linux kernel devtools : device handling/memory mapping/profiling/etc.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+	Mon, 5 Apr 2004 13:40:16 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:14801 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262339AbUDERkL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 13:40:11 -0400
+Date: Mon, 5 Apr 2004 19:38:35 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davej@codemonkey.org.uk, cpufreq@www.linux.org.uk
+Subject: Re: [PATCH 2.6] cpufreq longrun driver fix
+Message-ID: <20040405173835.GA7328@dominikbrodowski.de>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	davej@codemonkey.org.uk, cpufreq@www.linux.org.uk
+References: <20040405155012.GI2718@deep-space-9.dsnet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+In-Reply-To: <20040405155012.GI2718@deep-space-9.dsnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-  During development of a linux kernel network monitoring package (FFPF) I 
-created a few kernelspace and cross-userspace/kernelspace tools that I hope 
-others can benefit from too.
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I haven't packages everything I wrote, just those elements that reduce
-kernelsize and development time when multiple people use it. In its current 
-state everything is functionally OK, but the code cannot as yet be merged 
-into the kernel directly as I developed it outside of the main tree. Instead, 
-I hope you will take a look at it and tell me what could be direct kernel 
-material, and what should be changed or removed. After that I will supply 
-individual patches against the latest version.
+On Mon, Apr 05, 2004 at 05:50:12PM +0200, Stelian Pop wrote:
+> Hi,
+>=20
+> My TM5600 Crusoe processor, found inside a Sony Vaio C1VE laptop,
+> does not work with the longrun cpufreq driver.
+>=20
+> Upon investigation, the reason is that trying to set the performance=20
+> to 80% in longrun_determine_freqs leaves the performance to 100%.
+> The performance level, at least on this particular model, can be lowered
+> only in 33% steps. And in order to put the performance to 66%, the
+> code should try to set the barrier to 70%.
+>=20
+> The following patch does even more, it tries every value from 80%
+> to 10% in 10% steps, until it succeeds in lowering the performance.
+> I'm not sure this is the best way to do it but in any case,=20
+> it works for me (and should continue to work for everybody else).
 
-very briefly, the toolbox contains the following:
+Patch looks good to me -- thanks, Stelian!=20
+Dave, could you merge it, please?
 
-KERNEL specific:
+Thanks,
+	Dominik
+=20
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-- a generic device file interface, which abstracts away kernelversion 
-differences, devfs/mknod/udev differences and memory addressing differences. 
-The device API implements most of the standard device file handling code, 
-including various memory mapping syscall handlers. With this interface driver 
-developers will only have to override small pieces of code, instead of 
-building everything from the ground up. I'm using it in 3 different modules, 
-already. This is the 'jewel' of the package, and grepping the kernel sources 
-I think many drivers could benefit from it (reduced size/complexity). 
-Especially for beginner kernel hackers this could reduce the learning curve 
-(and for those of you who've been going at it for a long time and forgot: 
-it's quite steep :).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-- a generic pci initialization interface. Could perhaps be merged with the 
-existing PCI subsytem. I needed it for implementing a PCI driver (more below)
-- a module API that abstracts away kernel version differences. 
+iD8DBQFAcZmbZ8MDCHJbN8YRAizlAJ9TiNHW/uSPvoifCulsOaeh17lJrQCgiBPj
+E3dQpPIvNLHTI7Kv9L6qs9M=
+=DrFa
+-----END PGP SIGNATURE-----
 
-CROSS kernel/userspace (ie, works in both) :
-- verbosity level-based debugging, with optional timing/clockcycle and 
-location information
-- clockcycle profiling: the profiler outputs aggregated stats, such as the 
-median to /proc and optionally through the debugging interface above.
-- a multi-policy circular buffer. A buffer where the handling code responds to
-policy decisions, such as whether writers should be aware of readers and if 
-so, how they should respond. I use it for network packet queueing to 
-userspace.
-- some simpler stuff: hashes, stacks (should probably go).
-
-also included in the distribution are demonstrator modules and userspace 
-programs. The pci module, for example, implements a mmapped interface to any 
-PCI device's resources. Just supply a vendor id/device id pair on insmod. 
-Could in itself perhaps be useful for userspace drivers. I've been using it 
-to initialize a network processor board over the PCI bus.
-
-  since most of my software has to be able to run both in kernel- and in 
-userspace I cannot simply supply a patch at the moment, I'm sorry. Instead, 
-I've packaged the sourcecode (all GPL'ed, naturally) and uploaded it to our 
-project's site at sourceforge:
-
-URL: http://osdn.dl.sourceforge.net/sourceforge/ffpf/lkct-1.0.tgz
-
-it's about 35kB. 
-
-Please have a look and send me your remarks. I would find it a shame if I end 
-up being the only one using this stuff. I would rather put some extra effort 
-into changing it to get it accepted.
-
-cheers,
-
-  Willem
-
--- 
-Willem de Bruijn
-+31 6 2695 2446
-+31 71 517 7174
-wdebruij_at_dds.nl
-http://www.wdebruij.dds.nl/
-
-current project : 
-Fairly Fast Packet Filter (FFPF)
-http://ffpf.sourceforge.net/
-
-
-
+--UlVJffcvxoiEqYs2--

@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbQLKUve>; Mon, 11 Dec 2000 15:51:34 -0500
+	id <S130454AbQLKUwE>; Mon, 11 Dec 2000 15:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130454AbQLKUvY>; Mon, 11 Dec 2000 15:51:24 -0500
-Received: from front3m.grolier.fr ([195.36.216.53]:33269 "EHLO
-	front3m.grolier.fr") by vger.kernel.org with ESMTP
-	id <S129716AbQLKUvK> convert rfc822-to-8bit; Mon, 11 Dec 2000 15:51:10 -0500
-Date: Mon, 11 Dec 2000 20:20:20 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: davej@suse.de, Martin Mares <mj@suse.cz>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pdev_enable_device no longer used ?
-In-Reply-To: <20001211002850.A14393@pcep-jamie.cern.ch>
-Message-ID: <Pine.LNX.4.10.10012111956510.1805-100000@linux.local>
+	id <S130671AbQLKUvz>; Mon, 11 Dec 2000 15:51:55 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:39887 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130454AbQLKUvo>;
+	Mon, 11 Dec 2000 15:51:44 -0500
+Date: Mon, 11 Dec 2000 15:21:16 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Dietmar Kling <dietmar.kling@sam-net.de>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <3A352443.E3FEE114@sam-net.de>
+Message-ID: <Pine.GSO.4.21.0012111519250.9674-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 11 Dec 2000, Jamie Lokier wrote:
+On Mon, 11 Dec 2000, Dietmar Kling wrote:
 
-> Here are a few more:
+> > You do realize what "evolution" means? I'm not talking about the bugs
+> > in implementation. I'm talking about botched design. _That_ never gets
+> > fixed. Show me one example when that would happen and I might consider
+> > taking such possibility seriously.
 > 
->  net/acenic.c: pci_write_config_byte(ap->pdev, PCI_CACHE_LINE_SIZE,
->  net/gmac.c: PCI_CACHE_LINE_SIZE, 8);
+> That's what I am talking about in my "mean" attitude. Some things
+> must be  carried until the dead end. When there's no place to move
+> anymore than new things will evolve.
 
->  scsi/sym53c8xx.c: printk(NAME53C8XX ": PCI_CACHE_LINE_SIZE set to %d (fix-up).\n",
+Minix is still alive.
 
-For this one, this happens on Intel:
+> < short thinking >
+> As for your second point. Take libc5 and libc6. I really have no
+> *deep* insight. But I believe redesigning it for Multithreading
+> was mayor step.
 
-- ONLY if PCI cache line size was configured to ZERO (i.e. not
-  configured).
-
-     AND
-
-- ONLY if user asked for this through the boot command line.
-
-Anyway, the driver WARNs user about if it shoe-horns some value as you can
-see above.
-
-Btw, there is a single case where using MWI is a workaround.
-
-Given that all known systems have a known PCI CACHE LINE SIZE for L2/L3,
-if POST software + O/S PCI driver are loose enough not to provide the
-RIGHT value of the PCI CACHE LINE LINE for devices that support it, what
-software drivers can do ?
-
-May-be, they should just refuse to attach the device, at least when this
-information _must_ be known in order to work-around a device problem. This
-will remove some ugly code for non-Intel plat-forms from the sym53c8xx
-source, by the way.
-
-Having to call some pdev_enable_device() to have the cache line size
-configured looks like shit to me. After all, the BARs, INT, LATENCY TIMER,
-etc.. are configured prior to entering driver probe. Why should the cache
-line size be deferred to some call to some obscure mismaned thing ?
-
-[...]
-
-  Gérard.
+... and libc6 was not a result of evolution of libc5 - they have a
+common ancestor, but they got several years of divergent evolution
+before the displacement had happened.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

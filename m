@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVA1SMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVA1SSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbVA1SMW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVA1SJo
+	id S261520AbVA1SSv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVA1SSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:09:44 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:5385 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261515AbVA1SIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:08:07 -0500
+	Fri, 28 Jan 2005 13:18:51 -0500
+Received: from hera.kernel.org ([209.128.68.125]:13451 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261520AbVA1SSj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 13:18:39 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
 Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-From: Arjan van de Ven <arjan@infradead.org>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <1106932637.3778.92.camel@localhost.localdomain>
+Date: Fri, 28 Jan 2005 10:18:25 -0800
+Organization: Open Source Development Lab
+Message-ID: <20050128101825.388990a0@dxpl.pdx.osdl.net>
 References: <1106932637.3778.92.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 28 Jan 2005 19:07:57 +0100
-Message-Id: <1106935677.7776.29.camel@laptopd505.fenrus.org>
+	<20050128174046.GR28047@stusta.de>
+	<1106934475.3778.98.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=ISO-8859-1
+X-Trace: build.pdx.osdl.net 1106936298 3049 172.20.1.103 (28 Jan 2005 18:18:18 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Fri, 28 Jan 2005 18:18:18 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+X-MIME-Autoconverted: from quoted-printable to 8bit by hera.kernel.org id j0SIIOJD026075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-28 at 18:17 +0100, Lorenzo HernÃ¡ndez GarcÃ­a-Hierro
-wrote:
-> Hi,
+On Fri, 28 Jan 2005 18:47:55 +0100
+Lorenzo Hernández García-Hierro <lorenzo@gnu.org> wrote:
+
+> El vie, 28-01-2005 a las 18:40 +0100, Adrian Bunk escribió:
+> > On Fri, Jan 28, 2005 at 06:17:17PM +0100, Lorenzo Hernández García-Hierro wrote:
+> > >...
+> > > As it's impact is minimal (in performance and development/maintenance
+> > > terms), I recommend to merge it, as it gives a basic prevention for the
+> > > so-called system fingerprinting (which is used most by "kids" to know
+> > > how old and insecure could be a target system, many time used as the
+> > > first, even only-one, data to decide if attack or not the target host)
+> > > among other things.
+> > >...
+> > 
+> > "basic prevention"?
+> > I hardly see how this patch makes OS fingerprinting by e.g. Nmap 
+> > impossible.
 > 
-> Attached you can find a split up patch ported from grSecurity [1], as
-> Linus commented that he wouldn't get a whole-sale patch, I was working
-> on it and also studying what features of grSecurity can be implemented
-> without a development or maintenance overhead, aka less-invasive
-> implementations.
+> That's an example, as you can find at the grsecurity handbook [1]:
+> 
+> "The default Linux TCP/IP-stack has some properties that make it more
+> vulnerable to prediction-based hacks. By randomizing several items,
+> predicting the behaviour will be a lot more difficult."
 
+No it just changes the fingerprint table.  "Hmm, this looks like a
+newer generation system, must be OpenBSD or Linux".
 
-why did you make it a config option? This is the kind of thing that is
-either good or isn't... at which point you can get rid of a lot of, if
-not all the ugly ifdefs the patch adds.
+> "Randomized IP IDs hinders OS fingerprinting and will keep your machine
+> from being a bounce for an untraceable portscan."
+> 
+> References:
+>  [1]: http://www.gentoo.org/proj/en/hardened/grsecurity.xml
 
-Also, why does it need to enhance the random driver this much, the
-random driver already has a facility to provide pseudorandom numbers
-good enough for networking use (eg the PRNG rekeys often enough with
-real entropy that brute forcing it shouldn't be possible).
+This is a very transitory effect, it works only because your machine
+is then different from the typical Linux machine; therefore the scanner
+will go on to the next obvious ones. But if this gets incorporated widely
+then the rarity factor goes away and this defense becomes useless.
 
-If you can fix those 2 things the patch will look a lot cleaner and has
-a lot higher chance to be merged.
+-- 
+Stephen Hemminger	<shemminger@osdl.org>
 

@@ -1,61 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRBLWmS>; Mon, 12 Feb 2001 17:42:18 -0500
+	id <S129099AbRBLWqT>; Mon, 12 Feb 2001 17:46:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129155AbRBLWmI>; Mon, 12 Feb 2001 17:42:08 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:61389 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S129267AbRBLWl4>; Mon, 12 Feb 2001 17:41:56 -0500
-Date: Mon, 12 Feb 2001 22:41:46 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: "John B. Jacobsen" <jbj_ss@mail.tele.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RedHat 7.0 4.1 / lpd warning
-Message-ID: <20010212224146.G911@redhat.com>
-In-Reply-To: <200102122150.f1CLoNC00878@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="eHhjakXzOLJAF9wJ"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200102122150.f1CLoNC00878@localhost.localdomain>; from jbj_ss@mail.tele.dk on Mon, Feb 12, 2001 at 10:50:23PM +0100
+	id <S129112AbRBLWqJ>; Mon, 12 Feb 2001 17:46:09 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58887 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129099AbRBLWqE>; Mon, 12 Feb 2001 17:46:04 -0500
+Date: Mon, 12 Feb 2001 18:56:40 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac7
+In-Reply-To: <Pine.Linu.4.10.10102111814140.521-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0102121852530.29727-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---eHhjakXzOLJAF9wJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 12, 2001 at 10:50:23PM +0100, John B. Jacobsen wrote:
+On Sun, 11 Feb 2001, Mike Galbraith wrote:
 
-> Starting lpd: Warning - lp: cannot open lp device '/dev/lp0' - No such de=
-vice
-> Warning - dj: cannot open lp device '/dev/lp0' - No such device
->=20
-> Why is that ? /dev/lp surely exists !
+> On Sun, 11 Feb 2001, Rik van Riel wrote:
+> 
+> > On Sun, 11 Feb 2001, Mike Galbraith wrote:
+> > > On Sun, 11 Feb 2001, Mike Galbraith wrote:
+> > > 
+> > > > Something else I see while watching it run:  MUCH more swapout than
+> > > > swapin.  Does that mean we're sending pages to swap only to find out
+> > > > that we never need them again?
+> > > 
+> > > (numbers might be more descriptive)
+> > > 
+> > > user  :       0:07:21.70  54.3%  page in :   142613
+> > > nice  :       0:00:00.00   0.0%  page out:   155454
+> > > system:       0:03:40.63  27.1%  swap in :    56334
+> > > idle  :       0:02:30.50  18.5%  swap out:   149872
+> > > uptime:       0:13:32.83         context :   519726
+> > 
+> > Indeed, in this case we send a lot more pages to swap
+> > than we read back in from swap, this means that the
+> > data is still sitting in swap space and was never needed
+> > again.
+> 
+> But it looks and feels (box is I/O hyper-saturated) like
+> it wrote it all to disk.
+> 
+> (btw, ac5 does more disk read.. ie the reduced cache size
+> of earlier kernels under heavy pressure does have it's price
+> with this workload.. quite visible in agregates.  looks to
+> be much cheaper than swap though.. for this workload)
 
-It's telling you that the driver is not loaded or won't load.  What
-happens if you do 'modprobe parport_lowlevel'?
+Mike,
 
-Tim.
-*/
+Could you please try the attached patch on top of latest Rik's patch?
 
---eHhjakXzOLJAF9wJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Thanks!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+--- linux.orig/mm/vmscan.c      Sun Feb 11 07:56:29 2001
++++ linux/mm/vmscan.c   Sun Feb 11 11:05:30 2001
+@@ -563,7 +566,8 @@
+                        /* The buffers were not freed. */
+                        if (!clearedbuf) {
+                                add_page_to_inactive_dirty_list(page);
+-                               flushed_pages++;
++                               if (wait)
++                                       flushed_pages++;
 
-iD8DBQE6iGapONXnILZ4yVIRAr8sAKCVssxrZtMp3snadyq0bp1PrixSBgCcDhKB
-GccaQE+IdRtur1CNGEsjkuo=
-=e8gD
------END PGP SIGNATURE-----
+                        /* The page was only in the buffer cache. */
+                        } else if (!page->mapping) {
 
---eHhjakXzOLJAF9wJ--
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVA1TYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVA1TYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbVA1TYd (ORCPT <rfc822;willy@w.ods.org>);
+	id S262774AbVA1TYd (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 28 Jan 2005 14:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVA1TRm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVA1TU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 14:17:42 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:50575 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S262776AbVA1TPJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 14:15:09 -0500
-Date: Fri, 28 Jan 2005 13:14:58 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Mark Haverkamp <markh@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: out of memory question
-Message-ID: <20050128191458.GA21601@lists.us.dell.com>
-References: <1106934186.27858.40.camel@markh1.pdx.osdl.net>
+	Fri, 28 Jan 2005 14:20:57 -0500
+Received: from pat.uio.no ([129.240.130.16]:19141 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262776AbVA1TTe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 14:19:34 -0500
+Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption,
+	-RT-2.6.10-rc2-mm3-V0.7.32-15)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Rui Nuno Capela <rncbc@rncbc.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+In-Reply-To: <20050128073856.GA2186@elte.hu>
+References: <20041214113519.GA21790@elte.hu>
+	 <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk>
+	 <20050128073856.GA2186@elte.hu>
+Content-Type: text/plain
+Date: Fri, 28 Jan 2005 11:18:30 -0800
+Message-Id: <1106939910.14321.37.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106934186.27858.40.camel@markh1.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12,
+	autolearn=disabled)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 09:43:06AM -0800, Mark Haverkamp wrote:
-> 
-> I have a situation where the out of memory killer kicked in and killed
-> off a process.  From the information displayed, it looks like there was
-> a lot of free memory available.  I need some help interpreting the
-> output. I have included the console output from the oom killer.
-> 
-> It is running 2.6.11-rc2 and has a patch from Nick Piggin:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110665524811826&w=2
-> The machine is running as an iscsi target with 4K luns configured.
+fr den 28.01.2005 Klokka 08:38 (+0100) skreiv Ingo Molnar:
 
-What is eating all of your ZONE_DMA?  Of the 16MB available
+> no, it's not a big scalability problem. rwlocks are really a mistake -
+> if you want scalability and spinlocks/semaphores are not enough then one
+> should either use per-CPU locks or lockless structures. rwlocks/rwsems
+> will very unlikely help much.
 
-> DMA: 55*4kB 4*8kB 2*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 348kB
-> DMA free:348kB min:68kB low:84kB high:100kB active:4kB inactive:0kB present:16384kB pages_scanned:0 all_unreclaimable? no
-> protections[]: 0 0 0
+If you do have a highest interrupt case that causes all activity to
+block, then rwsems may indeed fit the bill.
 
-only 348kB is available, and something is requesting more...
+In the NFS client code we may use rwsems in order to protect stateful
+operations against the (very infrequently used) server reboot recovery
+code. The point is that when the server reboots, the server forces us to
+block *all* requests that involve adding new state (e.g. opening an
+NFSv4 file, or setting up a lock) while our client and others are
+re-establishing their existing state on the server.
 
-> oom-killer: gfp_mask=0xd1  (__GFP_FS|__GFP_IO|__GFP_WAIT|__GFP_DMA)
+IOW: If you are planning on converting rwsems into a semaphore, you will
+screw us over most royally, by converting the currently highly
+infrequent scenario of a single task being able to access the server
+into the common case.
 
-
-This isn't a 64-bit architecture (you've got some ZONE_HIGHMEM), so
-it's not like the x86_64/ia64 iommu.  Perhaps a
-<32-bit DMA address mask PCI device?
-
-Thanks,
-Matt
-
+Cheers,
+  Trond
 -- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

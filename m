@@ -1,86 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262194AbSJZKj7>; Sat, 26 Oct 2002 06:39:59 -0400
+	id <S262080AbSJZK0Y>; Sat, 26 Oct 2002 06:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262198AbSJZKj7>; Sat, 26 Oct 2002 06:39:59 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:9487 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S262194AbSJZKjz>; Sat, 26 Oct 2002 06:39:55 -0400
-Message-ID: <Q2V7OBAeBnu9Ewt1@n-cantrell.demon.co.uk>
-Date: Sat, 26 Oct 2002 11:37:18 +0100
-To: linux-kernel@vger.kernel.org
-From: robert w hall <bobh@n-cantrell.demon.co.uk>
-Subject: Re: loadlin with 2.5.?? kernels
-References: <5.1.0.14.2.20021026064044.00b9a310@pop.gmx.net>
- <m1bs5in1zh.fsf@frodo.biederman.org>
- <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net>
- <5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net>
- <m18z0os1iz.fsf@frodo.biederman.org> <007501c27b37$144cf240$6400a8c0@mikeg>
- <m1bs5in1zh.fsf@frodo.biederman.org>
- <5.1.0.14.2.20021026064044.00b9a310@pop.gmx.net>
- <5.1.0.14.2.20021026073915.00b55008@pop.gmx.net>
- <m1vg3plfi7.fsf@frodo.biederman.org>
-In-Reply-To: <m1vg3plfi7.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-X-Mailer: Turnpike Integrated Version 4.02 U <ZNyPpF8T4habUIG8OkVoLRXKJZ>
+	id <S262055AbSJZKY5>; Sat, 26 Oct 2002 06:24:57 -0400
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:33548 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262046AbSJZKYk>; Sat, 26 Oct 2002 06:24:40 -0400
+X-Envelope-From: pavel@bug.ucw.cz
+Date: Mon, 21 Oct 2002 11:21:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+Subject: Re: [PATCH] fixes for building kernel using Intel compiler
+Message-ID: <20021021092127.GC2876@elf.ucw.cz>
+References: <F2DBA543B89AD51184B600508B68D4000E6ADE72@fmsmsx103.fm.intel.com> <20021019042929.A18070@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021019042929.A18070@wotan.suse.de>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m1vg3plfi7.fsf@frodo.biederman.org>, Eric W. Biederman
-<ebiederm@xmission.com> writes
->Mike Galbraith <efault@gmx.de> writes:
->
->> At 11:20 PM 10/25/2002 -0600, Eric W. Biederman wrote:
->> >Mike Galbraith <efault@gmx.de> writes:
->> >
->> > > I went back and double-checked my loadlin version, and it turned out I was
->> > > actually using 1.6a due to a fat finger.  Version 1.6c booted fine (only 
->one
->> 
->> > > kernel tested) without Eric's help.  1.6a definitely needs Eric's help to
->> > boot.
->> >
->> >Darn.  I guess the arguments for my patch may not be quite as good,
->> >but I still think it may be worth while.
->> 
->> Well, cleanup is always a pretty fine argument.  Since there only seem to be 
->two
->> 
->> of us loadlin users, you probably didn't loose much argument wise ;-) The 
->other
->> 
->> loadlin user reported failure at .38, so maybe your patch is needed sometimes
->> even with loadlin-1.6c.  (other loadlin user listening?)
->
->Robert thanks for your reply.
-(oops this thread is a bit messy now - sorry, I originally intended to
-post  off-list, [so as not to parade my ignorance in this august forum
-:-) ], and made a cockup of withdrawing a post to LK)
->
->I just looked at what the loadlin 1.6c code does, and it's heuristic
->is just slightly more reliable.  It assumes %ds is %cs+8.... 
+Hi!
 
-well that relationship has held for about 9 years, so it was a fairly
-safe bet when Hans was trying to fix 1.6a for win4lin :-)
+> BTW do you have any benchmark / code size results to share with 
+> Intel compiler vs gcc 3.2 ? How much does it give ?
 
-> That
->happens to work but there is nothing in the kernel keeping that from
->being broken.  So in practice it looks to be worthwhile to stabilize 
->this interface.
+Also does it work properly after compiling with icc? Working well with
+second compiler would be pretty good news for both kernel and icc...
 
-agreed - 
-/ignorant query/
-but if you aim for too much generality are you not eventually going to
-need Hans Lermen to revisit his loadlin version of the startup code
-(which is based in part on old code from head.S & misc.c of course)?
-//
->  So loadlin, and other bootloaders can work by design
->and not by chance.
-
-might also be worth checking out linlod (which still is only a beta I
-think) needs to run
->
->Eric
-Bob
+								Pavel
 -- 
-robert w hall
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291773AbSBHTg4>; Fri, 8 Feb 2002 14:36:56 -0500
+	id <S291771AbSBHTiE>; Fri, 8 Feb 2002 14:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291772AbSBHTgo>; Fri, 8 Feb 2002 14:36:44 -0500
-Received: from zero.tech9.net ([209.61.188.187]:40203 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S291771AbSBHTgb>;
-	Fri, 8 Feb 2002 14:36:31 -0500
-Subject: Re: [RFC] New locking primitive for 2.5
-From: Robert Love <rml@tech9.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-        Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org,
-        mingo@elte.hu, haveblue@us.ibm.com
-In-Reply-To: <Pine.GSO.4.21.0202081416410.28514-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0202081416410.28514-100000@weyl.math.psu.edu>
-Content-Type: text/plain
+	id <S291772AbSBHThz>; Fri, 8 Feb 2002 14:37:55 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:906 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S291771AbSBHThn>; Fri, 8 Feb 2002 14:37:43 -0500
+Message-ID: <3C642ABE.4B808E01@nortelnetworks.com>
+Date: Fri, 08 Feb 2002 14:45:02 -0500
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: trying to track down kernel stack overflow
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 08 Feb 2002 14:36:26 -0500
-Message-Id: <1013196987.805.153.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-02-08 at 14:21, Alexander Viro wrote:
 
-> Had anyone actually seen lseek() vs. lseek() contention prior to the
-> switch to ->i_sem-based variant?
+I've been doing some messing around and got the following on the serial console:
 
-Yes, I did, even on my 2-way.
+Kernel stack overflow in process ca2da000, r1=ca2da390
+NIP: 90015D6C XER: 00000000 LR: 90015D68 REGS: ca2da2c0 TRAP: 0500
+MSR: 00009032 [EEIRDRME]
+Unable to handle kernel paging request at virtual address 2442244f (error
+40000000)
+NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 901971f8 TRAP: 3000
+MSR: 00001032 [IRDRME]
+Unable to handle kernel paging request at virtual address 2442244f (error
+40000000)
+NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 901970b8 TRAP: 3000
+MSR: 00001032 [IRDRME]
+Unable to handle kernel paging request at virtual address 2442244f (error
+40000000)
+NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 90196f78 TRAP: 3000
+MSR: 00001032 [IRDRME]
+Unable to handle kernel paging request at virtual address 2442244f (error
+40000000)
+NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 90196e38 TRAP: 3000
+MSR: 00001032 [IRDRME]
 
-Additionally, when I posted the remove-bkl-llseek patch, someone from
-SGI noted that on a 24-processor NUMA IA-64 machine, _50%_ of machine
-time was spent spinning on the BKL in llseek-intense operations.
+<...snip...>
 
-The bkl is not held for a long time, but it is acquired often, and there
-are definitely workloads that show a big hit with the BKL in there.
 
-	Robert Love
+How do I go about figuring exactly what code this matches?  I've got the vmlinux
+file available...
 
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

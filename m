@@ -1,90 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVAEKb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVAEKfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbVAEKb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 05:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVAEKb1
+	id S262285AbVAEKfe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 05:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVAEKfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 05:31:27 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:45514 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S262284AbVAEKbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 05:31:19 -0500
-Subject: [PATCH] sis900.c net poll support
-From: Brancaleoni Matteo <mbrancaleoni@tiscali.it>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-wOoOx+UdN0gQ6NL5Mx1x"
-Date: Wed, 05 Jan 2005 11:32:07 +0100
-Message-Id: <1104921127.5729.17.camel@athlon64>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 5 Jan 2005 05:35:34 -0500
+Received: from av8-1-sn3.vrr.skanova.net ([81.228.9.183]:39301 "EHLO
+	av8-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S262285AbVAEKfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 05:35:17 -0500
+Message-ID: <41DBC2E3.8090908@gaisler.com>
+Date: Wed, 05 Jan 2005 11:35:15 +0100
+From: Jiri Gaisler <jiri@gaisler.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [5/7] LEON SPARC V8 processor support for linux-2.6.10
+References: <41DAE8BB.7050501@gaisler.com> <20050104191105.GN2708@holomorphy.com>
+In-Reply-To: <20050104191105.GN2708@holomorphy.com>
+Content-Type: multipart/mixed;
+ boundary="------------040207030109090804080505"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040207030109090804080505
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
---=-wOoOx+UdN0gQ6NL5Mx1x
-Content-Type: text/plain
+Sorry, the patch was accidentally reversed. I have attached the
+correct diff2.6.10_arch_sparc_Kocnfig.diff.
+
+Jiri.
+
+
+
+William Lee Irwin III wrote:
+> On Tue, Jan 04, 2005 at 08:04:27PM +0100, Jiri Gaisler wrote:
+> 
+>>Leon3 serial+ethermac driver:
+>>[5/7] diff2.6.10_arch_sparc_Kocnfig.diff  diff for arch/sparc/Kconfig
+>>--- ../linux-2.6.10-driver/arch/sparc/Kconfig	2005-01-03 18:03:49.000000000 +0100
+>>+++ linux-2.6.10/arch/sparc/Kconfig	2005-01-03 18:01:44.000000000 +0100
+>>@@ -239,12 +239,6 @@
+>> 	  Say Y here if you are running on a Leon3 from grlib
+>> 	  (download from www.gaisler.com). 
+>> 
+>>-if LEON_3
+>>-
+>>-source "drivers/amba/Kconfig"
+>>-
+>>-endif
+>>-
+>> endif
+> 
+> 
+> This one is a bit unusual. It doesn't seem to have been added by a
+> previous patch. The intended effect may have been something else. Were
+> there supposed to be drivers in this patch?
+> 
+> 
+> -- wli
+> 
+> .
+> 
+
+-- 
+--------------------------------------------------------------------------
+Gaisler Research, 1:a Långgatan 19, 413 27 Goteborg, Sweden, +46-317758650
+fax: +46-31421407 email: info@gaisler.com, home page: www.gaisler.com
+--------------------------------------------------------------------------
+
+
+
+--------------040207030109090804080505
+Content-Type: text/plain;
+ name="diff2.6.10_arch_sparc_Kconfig.diff"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff2.6.10_arch_sparc_Kconfig.diff"
 
-Hi.
-
-I was in need to use netconsole to trace some lock
-of my sata disk, but my onboard network card (sis900)
-seems doesn't support net poll.
-So searching the web I found out an old patch for enabling
-in under 2.4, and ported it to 2.6.10 (looking
-also into 2.6.x device drivers already working)
-
-Seems to be ok, netconsole works without issues.
-Hope that's ok and can be useful.
-
-Matteo Brancaleoni.
-
---=-wOoOx+UdN0gQ6NL5Mx1x
-Content-Disposition: attachment; filename=sis900.patch
-Content-Type: text/x-patch; name=sis900.patch; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.10/drivers/net/sis900.orig	2005-01-05 09:55:46.000000000 +0100
-+++ linux-2.6.10/drivers/net/sis900.c	2005-01-05 10:09:04.000000000 +0100
-@@ -185,6 +185,7 @@ MODULE_PARM_DESC(multicast_filter_limit,
- MODULE_PARM_DESC(max_interrupt_work, "SiS 900/7016 maximum events handled per interrupt");
- MODULE_PARM_DESC(debug, "SiS 900/7016 debug level (2-4)");
+diff -Naur linux-2.6.10-driver/arch/sparc/Kconfig linux-2.6.10-driver-patch/arch/sparc/Kconfig
+--- linux-2.6.10-driver/arch/sparc/Kconfig	2005-01-05 11:24:36.000000000 +0100
++++ linux-2.6.10-driver-patch/arch/sparc/Kconfig	2005-01-05 11:27:52.000000000 +0100
+@@ -241,6 +241,11 @@
  
-+static void sis900_poll(struct net_device *dev);
- static int sis900_open(struct net_device *net_dev);
- static int sis900_mii_probe (struct net_device * net_dev);
- static void sis900_init_rxfilter (struct net_device * net_dev);
-@@ -454,6 +455,9 @@ static int __devinit sis900_probe(struct
- 	net_dev->tx_timeout = sis900_tx_timeout;
- 	net_dev->watchdog_timeo = TX_TIMEOUT;
- 	net_dev->ethtool_ops = &sis900_ethtool_ops;
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+        net_dev->poll_controller = &sis900_poll;
-+#endif
- 	
- 	ret = register_netdev(net_dev);
- 	if (ret)
-@@ -928,6 +932,20 @@ static u16 sis900_reset_phy(struct net_d
- 	return status;
- }
+ endif
  
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+/*
-+ * Polling 'interrupt' - used by things like netconsole to send skbs
-+ * without having to re-enable interrupts. It's not called while
-+ * the interrupt routine is executing.
-+*/
-+static void sis900_poll(struct net_device *dev)
-+{
-+	disable_irq(dev->irq);
-+	sis900_interrupt(dev->irq, dev, NULL);
-+	enable_irq(dev->irq);
-+}
-+#endif
++if LEON_3
 +
- /**
-  *	sis900_open - open sis900 device
-  *	@net_dev: the net device to open
++source "drivers/amba/Kconfig"
++
++endif
+           
+ if !SUN4
+ 
 
---=-wOoOx+UdN0gQ6NL5Mx1x--
-
+--------------040207030109090804080505--

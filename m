@@ -1,46 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269398AbUICQja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269366AbUICQj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269398AbUICQja (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269369AbUICQja
+	id S269366AbUICQj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269369AbUICQj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:39:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54200 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269416AbUICQjW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:39:22 -0400
-Date: Fri, 3 Sep 2004 09:37:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
+	Fri, 3 Sep 2004 12:39:26 -0400
+Received: from adsl-ull-123-100.42-151.net24.it ([151.42.100.123]:58350 "EHLO
+	www.gtkperl.org") by vger.kernel.org with ESMTP id S269366AbUICQjT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 12:39:19 -0400
+Date: Fri, 3 Sep 2004 18:39:06 +0200
+From: Paolo Molaro <lupus@debian.org>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm3
-Message-Id: <20040903093727.5810bb7d.akpm@osdl.org>
-In-Reply-To: <m3brgncphy.fsf@telia.com>
-References: <20040903014811.6247d47d.akpm@osdl.org>
-	<m3brgncphy.fsf@telia.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: incorrect time accouting
+Message-ID: <20040903163906.GA2761@debian.org>
+Mail-Followup-To: Peter Chubb <peterc@gelato.unsw.edu.au>,
+	linux-kernel@vger.kernel.org
+References: <75465520@toto.iv> <16695.50657.670300.755315@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="8NvZYKFJsRX2Djef"
+Content-Disposition: inline
+In-Reply-To: <16695.50657.670300.755315@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> One problem that does remain though, is that when dumping huge amounts
->  of data to a CD or DVD disc (so that you get memory pressure), the
->  effective writing speed of other block devices (like IDE hard disks)
->  is reduced to the same speed as the packet device.
+
+--8NvZYKFJsRX2Djef
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On 09/03/04 Peter Chubb wrote:
+> Paolo> While benchmarking, a user pointed out that time(1) reported
+> Paolo> incorrect user and system times when running mono.
+> Paolo> A typical example (running on 2.6.8.1 is):
 > 
->  I have posted a patch that fixes this problem by limiting the amount
->  of writeback data in the packet driver, but unfortunately it makes the
->  effective writing speed of the packet device suffer a lot. The proper
->  fix is probably to improve the filesystem and/or VM code to start I/O
->  operations in sequential order a lot more often than it currently
->  does.
+> This is because mono is multithreaded.  At present, time(1) records
+> only the time of the parent thread.  This will change soon (I hope)
+> when the Roland McGrath's getrusage() patches are merged.
 
-If you decrease /proc/sys/vm/dirty_ratio and dirty_background_ratio to much
-smaller levels, does that fix things up? 
+Thanks for the feedback. This doesn't explain, though, why on 2.4.x and
+2.2.x sometimes sensible results are reported and sometimes not and it
+doesn't explain the results I got with a simple pthread test case on 2.6.8.1.
+[...doing more testing...]
+See the attached test case: the results reported are:
 
-If so, we might be able to put some sort of per-queue override into your
-queue's backing_dev_info.
+$ gcc test-thread-rusage.c -lpthread
+$ time ./a.out join
+using a subthread
+done
+
+real	0m1.469s
+user	0m1.461s
+sys	0m0.003s
+$ time ./a.out sleep
+using a subthread
+
+real	0m1.007s
+user	0m0.000s
+sys	0m0.001s
+
+So it looks like times for subthreads are accounted for, but only when
+the thread is joined (or if it is given time to properly exit). I guess
+Roland's patch takes care of the case when a subthread is destroyed by
+exiting from main() as well?
+A little tracing shows that the intermittent 2.4/2.2 results and the
+always low timings on 2.6 are probably due to the main program exiting
+before the subthread cleaned up after itself (the results are
+intermittent because it's a timing issue: we just wait for the subthread
+to finish it's work and it's preempted away before it has a chance of
+calling pthread_exit()).
+Thanks.
+
+lupus
+
+-- 
+-----------------------------------------------------------------
+lupus@debian.org                                     debian/rules
+lupus@ximian.com                             Monkeys do it better
+
+--8NvZYKFJsRX2Djef
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="test-thread-rusage.c"
+
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+#include <pthread.h>
+
+void* do_the_work (void *data) {
+	int *v = data;
+	int i;
+	for (i = 0; i < 300000000; ++i) {
+		*v = *v + 1;
+	}
+	printf ("done\n");
+	return NULL;
+}
+
+int 
+main (int argc, char *argv[]) {
+	int v = 0;
+	pthread_t thread;
+	if (argc > 1) {
+		printf ("using a subthread\n");
+		pthread_create (&thread, NULL, do_the_work, &v);
+		/* the loop above takes more than 1 second on my box, 
+		 * so this exits before the subthread has finished its work.
+		 */
+		if (strcmp (argv [1], "sleep") == 0)
+			sleep (1);
+		else if (strcmp (argv [1], "join") == 0)
+			pthread_join (thread, NULL);
+	} else {
+		printf ("doing the work in main()\n");
+		do_the_work (&v);
+	}
+	return 0;
+}
+
+--8NvZYKFJsRX2Djef--

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316492AbSEUCnE>; Mon, 20 May 2002 22:43:04 -0400
+	id <S316493AbSEUCpP>; Mon, 20 May 2002 22:45:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316493AbSEUCnD>; Mon, 20 May 2002 22:43:03 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:45800 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316492AbSEUCnB>;
-	Mon, 20 May 2002 22:43:01 -0400
-Date: Tue, 21 May 2002 12:43:24 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [TRIVIAL PATCH] Missing init.h in drivers/pci/power.c
-Message-ID: <20020521024324.GF4745@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316495AbSEUCpO>; Mon, 20 May 2002 22:45:14 -0400
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:35991 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S316493AbSEUCpN>; Mon, 20 May 2002 22:45:13 -0400
+Message-ID: <3CE9B37C.8010500@linuxhq.com>
+Date: Mon, 20 May 2002 22:39:56 -0400
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kurt Wall <kwall@kurtwerks.com>, linux-kernel@vger.kernel.org,
+        dkegel@ixiacom.com
+Subject: Re: Status of compiling 2.4 with gcc3.1?
+In-Reply-To: <3CE960BC.5858E63@ixiacom.com> <20020520223125.A629@marta>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  This adds a #include to drivers/pci/power.c to
-define __init.  At least on PPC4xx this fixes compile problems.
+Kurt Wall wrote:
+> Scribbling feverishly on May 20, Dan Kegel managed to emit:
+> 
+>>How far from wise is it to compile the 2.4.19-prex
+>>kernel with gcc3.1?  Is there a list of known issues?
+>>Only report of trouble I've seen so far is
+>>http://groups.google.com/groups?selm=linux.kernel.5.1.0.14.2.20020515015506.02749780%40pop.cus.cam.ac.uk
+>>and that's just a compile-time fatal error building ntfs.
+> 
+> 
+> I'm running 2.4.18 built with GCC 3.1 and having no trouble that
+> I've seen.
+> 
+> Kurt
 
-diff -urN /home/dgibson/kernel/linuxppc-2.5/drivers/pci/power.c linux-bluefish/drivers/pci/power.c
---- /home/dgibson/kernel/linuxppc-2.5/drivers/pci/power.c	Fri May 10 16:27:35 2002
-+++ linux-bluefish/drivers/pci/power.c	Mon May 13 14:46:16 2002
-@@ -1,5 +1,6 @@
- #include <linux/pci.h>
- #include <linux/pm.h>
-+#include <linux/init.h>
- 
- /*
-  * PCI Power management..
+I'm running both 2.4.19-pre8 and 2.5.16, and, though both were compiled 
+with gcc 3.1, I am having no problems.
 
+Although I remember someone saying that gcc 3.1 produced larger 
+binaries, and inefficient code in some places.
+
+Also, gcc 3.1 generates lots of warnings because of things like 
+multi-line string literals, etc.
 
 -- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.  -- H.L. Mencken
-http://www.ozlabs.org/people/dgibson
+  -o)  J o h n   W e b e r
+  /\\ john.weber@linuxhq.com
+_\/v http://www.linuxhq.com/people/weber/
+

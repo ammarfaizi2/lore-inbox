@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRB1XiP>; Wed, 28 Feb 2001 18:38:15 -0500
+	id <S129388AbRB1XjF>; Wed, 28 Feb 2001 18:39:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129389AbRB1XiG>; Wed, 28 Feb 2001 18:38:06 -0500
-Received: from tetsuo.zabbo.net ([204.138.55.44]:14600 "HELO tetsuo.zabbo.net")
-	by vger.kernel.org with SMTP id <S129381AbRB1Xhy>;
-	Wed, 28 Feb 2001 18:37:54 -0500
-Date: Wed, 28 Feb 2001 18:37:52 -0500
-From: Zach Brown <zab@zabbo.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] pci_dma_set_mask()
-Message-ID: <20010228183752.C25968@tetsuo.zabbo.net>
-In-Reply-To: <20010228103727.I23735@tetsuo.zabbo.net> <3A9D26A2.14563DE1@mandrakesoft.com> <20010228161450.A25553@tetsuo.zabbo.net> <15005.34953.909874.589120@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S129389AbRB1Xi4>; Wed, 28 Feb 2001 18:38:56 -0500
+Received: from [203.126.247.144] ([203.126.247.144]:25516 "EHLO
+	esngs144.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S129388AbRB1Xio>; Wed, 28 Feb 2001 18:38:44 -0500
+Message-ID: <3A9D8BC4.45009947@asiapacificm01.nt.com>
+Date: Wed, 28 Feb 2001 23:37:40 +0000
+From: "Andrew Morton" <morton@nortelnetworks.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ebuddington@wesleyan.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: time drift and fb comsole activity
+In-Reply-To: <20010228170030.C2122@sparrow.nad.adelphia.net>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <15005.34953.909874.589120@pizda.ninka.net>; from davem@redhat.com on Wed, Feb 28, 2001 at 03:23:53PM -0800
+Content-Transfer-Encoding: 7bit
+X-Orig: <morton@asiapacificm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28, 2001 at 03:23:53PM -0800, David S. Miller wrote:
+Eric Buddington wrote:
+> 
+> I know this has been reported on the list recently, but I think I can
+> provide better detail. I'm running 2.4.2 with atyfb on a K6-2/266
+> running at 250. This system has no history of clock problems.
+> 
+> adjtimex-1.12 --compare gives me "2nd diff" readings of -0.01 in quiescent
+> conditions.
+> 
+> flipping consoles rapidly cboosts this number to -3 or -4.
+> 
+> catting the full documentation to ntpd (seemed appropriate) gives me
+> "2nd diff" numbers a little over 34. If I read the numbers correctly,
+> 47 seconds of CMOS time passed while the system clock only passed 13
+> seconds.
+> 
+> The processor and the CMOS clock were moving at zero velocity relative
+> to each other, and were both in normal Earth gravity.
 
-> Jeff/Zach, I agree, I'm fully for such a patch, but please update the
-> documentation!  It is the most important part of the patch.
+The kernel blocks interrupts during console output.  fbdev
+consoles are slow.  Net result: many lost timer interrupts.
 
-Very good point.  I'll add Jeff's error returning and spin some minor
-docs and resend.
+I'm working on it.  Slowly.  Should have something next week.
 
-thanks.
+-

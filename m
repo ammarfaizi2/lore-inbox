@@ -1,77 +1,97 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317392AbSFMBbS>; Wed, 12 Jun 2002 21:31:18 -0400
+	id <S317393AbSFMBeG>; Wed, 12 Jun 2002 21:34:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317393AbSFMBbR>; Wed, 12 Jun 2002 21:31:17 -0400
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:1451 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S317392AbSFMBbO> convert rfc822-to-8bit; Wed, 12 Jun 2002 21:31:14 -0400
-Message-ID: <3D07F470.6060203@linuxhq.com>
-Date: Wed, 12 Jun 2002 21:25:04 -0400
-From: John Weber <john.weber@linuxhq.com>
-Organization: Linux Headquarters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
+	id <S317395AbSFMBeF>; Wed, 12 Jun 2002 21:34:05 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:1341 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S317393AbSFMBeC>; Wed, 12 Jun 2002 21:34:02 -0400
+Date: Thu, 13 Jun 2002 02:33:54 +0100
+From: Anton Altaparmakov <aia21@mole.bio.cam.ac.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+In-Reply-To: <3D07C977.7090603@zytor.com>
+Message-ID: <Pine.SGI.4.33.0206130210170.4638397-100000@mole.bio.cam.ac.uk>
 MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 IDE 87
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D05AACD.2080504@evision-ventures.com> <3D06495A.6030406@linuxhq.com> <3D06F195.1030901@evision-ventures.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
-> U¿ytkownik John Weber napisa³:
-> 
->> Martin Dalecki wrote:
->>
->>> Sun Jun  9 15:31:56 CEST 2002 ide-clean-87
->>>
->>> - Sync with 2.5.21
->>>
->>> - Don't call put_device inside idedisk_cleanup(). This is apparently 
->>> triggering
->>>   some bug inside the handling of device trees. Or we don't register 
->>> the device
->>>   properly within the tree. Check this later.
->>>
->>> - Further work on the channel register file access locking.  Push the 
->>> locking
->>>   out from __ide_end_request to ide_end_request.  Rename those 
->>> functions to
->>>   respective __ata_end_request() and ata_end_request().
->>>
->>> - Move ide_wait_status to device.c rename it to ata_status_poll().
->>>
->>> - Further work on locking scope issues.
->>>
->>> - devfs showed us once again that it changed the policy from agnostic 
->>> numbers
->>>   to unpleasant string names. What a piece of crap!
->>
->>
->>
->> FYI, this latest cleanup fixes the oops I reported earlier...
->> not that anyone cared :).
-> 
-> 
-> Please just don't expect an e-mail reply on every single
-> error report. Me beeing silent means sometimes that I'm just busy
-> fixing it...
-> 
+On Wed, 12 Jun 2002, H. Peter Anvin wrote:
+> Anton Altaparmakov wrote:
+> >>
+> >> Note that there is no requirement that we're still on cpu "cpu" when
+> >> we allocate the buffer.  Furthermore, if we fail, we just loop right
+> >> back to the top.
+> >
+> > What is the point though? Why not just:
+> >
+> >         if (!unlikely(decompression_buffers)) {
+> >                 down_sem();
+> >                 allocate_decompression_buffers();
+> >                 up_sem();
+> >         }
+> >
+> > And be done with it?
+> >
+> > I don't see any justification for the increased complexity...
+>
+> Race condition -- you have to drop out of the critical section before
+> you grab the allocation sempahore, and another CPU can grab the
+> semaphore in that time.
+>
+> Thus, the buffers might appear right under your nose.
 
-I was mostly joking about the fact that no one else on the list seemed 
-to run into the error.  I think you did more than your part when you 
-released IDE 87... I posted to the list as a way of "cancelling" the bug 
-report.
+The code would be run outside the critical region... But correct about
+the race. I thought that was obvious and wasn't suggesting the above to be
+the actual code... That was supposed to be obvious from lack of error
+handling etc... Never mind. My mistake, I should have been more precise
+the first time round, here is the actual code I had in mind:
 
-I apologize for the ill-planned joke... <TOTAL JOKE>I realize that 
-touchy bitch syndrome seems to be running rampant on LKML this 
-season</TOTAL JOKE>.
+[snip]
+	if (unlikely(!ntfs_compression_buffers)) {
+		int err;
 
-  -o)  J o h n   W e b e r
-  /\\ john.weber@linuxhq.com
-_\/v http://www.linuxhq.com/people/weber/
+		/*
+		 * This code path only ever triggers once so we take it
+		 * out of line.
+		 */
+		if ((err = try_to_allocate_compression_buffers())) {
+			// TODO: do appropriate cleanups
+			return err;
+		}
+	}
+	disable_preempt();
+	cb = ntfs_compression_buffers[smp_processor_id()];
+[snip]
+
+and try_to_allocate_compression_buffers would be:
+
+int try_to_allocate_compression_buffers(void)
+{
+	int err = 0;
+
+	down(&ntfs_lock);
+	if (likely(!ntfs_compression_buffers))
+		err = allocate_compression_buffers();
+	up(&ntfs_lock);
+	return err;
+}
+
+and allocate_compression_buffers() is the same as it is now. Actually I
+was going to fuse try_to_allocate and allocate into one function but as I
+am showing above it is clearer to see what I had in mind...
+
+Happy now? This basically just defers the allocation to a bit later. As it
+is at the moment the allocation happens at mount time of a partition which
+supports compression. Note that the code in super.c would still need to
+exist due to reference counting so we know when we can free the buffers
+again. The only thing changed in super.c will be to remove the actual call
+to allocate_compression_buffers, all else stays in place. Otherwise we
+have no way to tell when we can throw away the buffers.
+
+Best regards,
+
+Anton
 

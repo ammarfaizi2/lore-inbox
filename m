@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265458AbTFSNCM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 09:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbTFSNCL
+	id S265522AbTFSNB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 09:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbTFSNB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 09:02:11 -0400
-Received: from 216-42-72-143.ppp.netsville.net ([216.42.72.143]:44752 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S265458AbTFSNCG
+	Thu, 19 Jun 2003 09:01:26 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:45813 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S265522AbTFSNBW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 09:02:06 -0400
-Subject: [PATCH] buffer_insert_list should use list_add_tail
-From: Chris Mason <mason@suse.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+	Thu, 19 Jun 2003 09:01:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Martin List-Petersen <martin@list-petersen.dk>,
+       Magnus Solvang <magnus@solvang.net>
+Subject: Re: Sco vs. IBM
+Date: Thu, 19 Jun 2003 08:14:55 -0500
+X-Mailer: KMail [version 1.2]
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056028538.6757.94.camel@tiny.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 19 Jun 2003 09:15:39 -0400
-Content-Transfer-Encoding: 7bit
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <20030619125741.GB6757@first.knowledge.no> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
+In-Reply-To: <1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
+MIME-Version: 1.0
+Message-Id: <03061908145500.25179@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thursday 19 June 2003 08:03, Martin List-Petersen wrote:
+> Citat Magnus Solvang <magnus@solvang.net>:
+> > Quoting jdow (jdow@earthlink.net):
+> > [...]
+> >
+> > | > I believe it's this Norwegian company they write about:
+> > | >
+> > | > http://www.trolltech.com/
+> > |
+> > | If so then say good by to KDE sometime soon....
+> >
+> > How did you arrive at that conclusion? Do you believe that
+> > SCO will destroy everything and everybody related to Linux
+> > when they can make money by suing them? :)
+> > And KDE is not limited to just Linux.
+>
+> Go back and read the forbes article. That was more or less exactly the
+> point of that article.
 
-buffer_insert_list puts buffers onto the head of bh->b_inode_buffers,
-which means that on fsync we are writing things out in reverse order.  I
-think we either want this patch, or we want to walk the list in reverse
-in fsync_buffers_list
-
-(this has not been well tested, but I can't think of any problems it
-would cause)
-
--chris
-
---- linux.marcelo/fs/buffer.c	Thu Jun 19 09:09:28 2003
-+++ linux/fs/buffer.c	Thu Jun 19 09:04:17 2003
-@@ -591,7 +604,7 @@
- 	if (buffer_attached(bh))
- 		list_del(&bh->b_inode_buffers);
- 	set_buffer_attached(bh);
--	list_add(&bh->b_inode_buffers, list);
-+	list_add_tail(&bh->b_inode_buffers, list);
- 	spin_unlock(&lru_list_lock);
- }
- 
-
-
-
+It was the original reason Gnome was started. Trolltec had released thier
+toolkit for "free" but not GPL. They then changed the licence a bit, but I
+think they still have some (lot?) control over the toolkit. I believe the
+KDE group did start a re-work to implement an independant version, but I
+don't know how that went.

@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266826AbUGVH2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266824AbUGVHjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266826AbUGVH2F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 03:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266824AbUGVH2F
+	id S266824AbUGVHjo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 03:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266827AbUGVHjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 03:28:05 -0400
-Received: from moutng.kundenserver.de ([212.227.126.190]:15852 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S266826AbUGVH1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 03:27:52 -0400
-From: Amon Ott <ao@rsbac.org>
-Organization: RSBAC
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 4K stack kernel get Oops in Filesystem stress test
-Date: Thu, 22 Jul 2004 09:27:44 +0200
-User-Agent: KMail/1.6.2
-References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu>
-In-Reply-To: <40FD2E99.20707@mnsu.edu>
-MIME-Version: 1.0
+	Thu, 22 Jul 2004 03:39:44 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:21662 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266824AbUGVHjl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 03:39:41 -0400
+Date: Thu, 22 Jul 2004 09:40:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Scott Wood <scott@timesys.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Lee Revell <rlrevell@joe-job.com>,
+       Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
+       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040722074034.GC7553@elte.hu>
+References: <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au> <20040721183415.GC2206@yoda.timesys> <20040721184650.GA27375@elte.hu> <20040721195650.GA2186@yoda.timesys> <20040721214534.GA31892@elte.hu> <20040722022810.GA3298@yoda.timesys>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407220927.45201.ao@rsbac.org>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
+In-Reply-To: <20040722022810.GA3298@yoda.timesys>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-1.524, required 5.9,
+	autolearn=not spam, BAYES_01 -1.52
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dienstag, 20. Juli 2004 16:39, Jeffrey E. Hundstad wrote:
-> Steve Lord wrote:
-> > Don't use 4K stacks and XFS. What you hit here is a path where the
-> > filesystem is getting full and it needs to free some reserved space
-> > by flushing cached data which is using reserved extents. Reserved
-> > extents do not yet have an on disk address and they include a
-> > reservation for the worst case metadata usage. Flushing them will
-> > get you room back.
-> >
-> > As you can see, it is a pretty deep call stack, most of XFS is going
-> > to work just fine with a 4K stack, but there are end cases like
-> > this one which will just not fit.
+
+* Scott Wood <scott@timesys.com> wrote:
+
+> > if both hardirqs and softirqs are redirectable to process contexts then
+> > the only unpredictable latency would be the very short IRQ entry stub of
+> > a new hardirq costing ~5 usecs - which latency is limited in effect
+> > unless the CPU is hopelessly bombarded with interrupts.
 > 
-> If this is a known truth with XFS maybe it would be a good idea to have 
-> 4K stacks and XFS be an impossible combination using the config tool.
+> Those aren't the only sources; you also have preempt_disable() and
+> such (as well as hardware weirdness, though there's not much we can do
+> about that).
 
-It would be good if there was some warning in the 4K stack option help, 
-there have been quite many cases already where the kernel broke with odd 
-symptoms because of this switch.
+i did not say latency sources, i said unpredictable latency sources. 
+hardirq and softirq processing introduces near arbitrary latency at any
+(irqs-enabled) point in the kernel. Hence they make all kernel code
+unbound in essence - even the most trivial kernel code, sys_getpid().
 
-E.g.
-Warning: Use this option with care, as it might break your system under 
-load. If you experience weird crashes or oopses, please retry with this 
-option turned off.
+by (optionally) moving softirqs and hardirqs to a process context we've
+removed this source of uncertainty by making all processing synchronous,
+and what remains are ordinary algorithmic properties of the kernel code
+- which we can predict and control. I.e. with those two fixed we now
+have a _chance_ to guarantee latencies.
 
-Amon.
--- 
-http://www.rsbac.org - GnuPG: 2048g/5DEAAA30 2002-10-22
+[the only remaining source of 'latency uncertainty' is the small
+asynchronous hardirq stub that would still remain. This has an effect
+that can be compared to e.g. cache effects and it cannot become unbound
+unless the CPU is bombarded with a very high number of interrupts.]
+
+> > to solve the spinlock problem of hardirqs i'd propose a dual type
+> > spinlock that is a spinlock if hardirqs are immediate (synchronous) and
+> > it would be a mutex if hardirqs are redirected (asynchronous). Then some
+> > simple driver could be converted to this RT-aware spinlock and we'd see
+> > how well it works. Have you done experiments in this direction? 
+> 
+> This sort of substitution is what we did in 2.4, though we made this
+> type the default and gave the real spinlocks a new name to be used in
+> those few places where it was really needed.  Of course, this resulted
+> in a lot of places using a mutex where a spinlock would have been
+> fine.
+
+what are those few places where a spinlock was really needed?
+
+I'm a bit uneasy about making mutexes the default not due to performance
+but due to e.g. some hardware being very timing-sensitive. I dont think
+we can make a blanket assumption that every code path is preemptable if
+all processing is synchronous and the exclusions are listened to.
+
+	Ingo

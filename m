@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315593AbSGSCdU>; Thu, 18 Jul 2002 22:33:20 -0400
+	id <S318443AbSGSCja>; Thu, 18 Jul 2002 22:39:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318301AbSGSCdU>; Thu, 18 Jul 2002 22:33:20 -0400
-Received: from holomorphy.com ([66.224.33.161]:42893 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315593AbSGSCdT>;
-	Thu, 18 Jul 2002 22:33:19 -0400
-Date: Thu, 18 Jul 2002 19:36:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: kernel-janitor-discuss@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: remove declaration of __free_pte()
-Message-ID: <20020719023613.GF1022@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	kernel-janitor-discuss@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S318444AbSGSCj3>; Thu, 18 Jul 2002 22:39:29 -0400
+Received: from pD9E23646.dip.t-dialin.net ([217.226.54.70]:22400 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318443AbSGSCj3>; Thu, 18 Jul 2002 22:39:29 -0400
+Date: Thu, 18 Jul 2002 20:41:19 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>, <rwhron@earthlink.net>
+Subject: Re: [PATCHSET] Linux 2.4.19-rc1-jam1
+In-Reply-To: <20020719021538.GA1734@werewolf.able.es>
+Message-ID: <Pine.LNX.4.44.0207182040560.3525-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__free_pte() no longer exists in the kernel, but is still declared
-from include/linux/mm.h. This patch removes that declaration.
+Hi,
 
+On Fri, 19 Jul 2002, J.A. Magallon wrote:
+> The idea is to easy the way for Randy Hron to compare:
+> - rc2
+> - rc2-aa1
+> - rc2-jam1 minus irqrate == rc2-aa1 plus smptimers (that I think will not
+>   make a big difference)
+> - rc2-jam1 full == rc2-aa1 + smptimers + irqrate (if you don't rmmod anything...)
 
-Cheers,
-Bill
+So the heading is inaccurate.
 
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-===== include/linux/mm.h 1.56 vs edited =====
---- 1.56/include/linux/mm.h	Thu Jul  4 09:17:35 2002
-+++ edited/include/linux/mm.h	Thu Jul 18 21:41:41 2002
-@@ -393,8 +393,6 @@
- extern int can_share_swap_page(struct page *);
- extern int remove_exclusive_swap_page(struct page *);
- 
--extern void __free_pte(pte_t);
--
- /* mmap.c */
- extern void lock_vma_mappings(struct vm_area_struct *);
- extern void unlock_vma_mappings(struct vm_area_struct *);

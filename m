@@ -1,148 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273107AbRIJAQB>; Sun, 9 Sep 2001 20:16:01 -0400
+	id <S273112AbRIJA1b>; Sun, 9 Sep 2001 20:27:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273108AbRIJAPv>; Sun, 9 Sep 2001 20:15:51 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:45065 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S273107AbRIJAPi>; Sun, 9 Sep 2001 20:15:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: linux-2.4.10-pre5
-Date: Mon, 10 Sep 2001 02:23:11 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0109091615570.22033-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0109091615570.22033-100000@penguin.transmeta.com>
+	id <S273111AbRIJA1V>; Sun, 9 Sep 2001 20:27:21 -0400
+Received: from static004-9-151-24.nt02-c4.cpe.charter-ne.com ([24.151.9.4]:40732
+	"EHLO Jupiter.LIWAVE.COM") by vger.kernel.org with ESMTP
+	id <S273110AbRIJA1L>; Sun, 9 Sep 2001 20:27:11 -0400
+Reply-To: <rvandam@liwave.com>
+From: "Ron Van Dam" <rvandam@liwave.com>
+To: "'Frank Schneider'" <SPATZ1@t-online.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: FW: OT: Integrating Directory Services for Linux
+Date: Sun, 9 Sep 2001 20:27:21 -0400
+Message-ID: <001501c1398f$5bb85c40$1f0201c0@w2k001>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010910001556Z16150-26183+680@humbolt.nl.linux.org>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <3B9BCF6C.3BFC9466@t-online.de>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 10, 2001 01:24 am, Linus Torvalds wrote:
-> On Sun, 9 Sep 2001, Daniel Phillips wrote:
-> >
-> > Needed for basic IO functionality:
-> >         atomic_t b_count;               /* users using this block */
-> >         unsigned long b_state;          /* buffer state bitmap (see above) */
-> >         unsigned long b_blocknr;        /* block number */
-> >         unsigned long b_flushtime;      /* Time when (dirty) buffer should be written */
-> >         struct page *b_page;            /* the page this bh is mapped to */
-> >         struct buffer_head *b_reqnext;  /* request queue */
-> >         wait_queue_head_t b_wait;
-> >
-> > Can get from mapping:
-> >         unsigned short b_size;          /* block size */
-> 
-> No.
-> 
-> Don't fall into the trap of thinking that blocksizes are constant for a
-> mapping.
-> 
-> Yes, they are _right_now_, if only because of limitations of the old
-> buffer cache. But it's very very wrong to think you can get the buffer
-> size from the mapping.
 
-Well, I'm happy enough to get this far down the list before getting the first
-Bzzt.  But why do you think we need different blocks sizes in the same 
-mapping?  Maybe NTFS is bizarre enough to need that, but then why not just 
-have special mappings for the "misc" sizes?
+Frank Schneider:
+>>1.) Why add an extra-DS-System to the existing ones ?
+>>We have OpenLDAP, NDS (going down), ADS (going up, pushed by MS) and
+>>NIS+ out there, plus things like X.500 or how they are called. Currently
+>>Linux can work with most of them except ADS, AFAIK (better or worse with
+>>some, but it can)
+>>Why re-invent the wheel a 4th or even 5th time ?
 
-> Besides - we want to be able to do IO _without_ any mappings at all. The
-> "iobuf" thing should be completely mapping-independent, in case somebody
-> wants to just do raw IO.
-> 
-> Which means that these two:
-> 
-> >         kdev_t b_dev;                   /* device (B_FREE = free) */
-> >         void (*b_end_io)(struct buffer_head *bh, int uptodate); /* I/O completion */
-> 
-> also have to be in the iobuf anyway, quite regardless of any other issues.
-> 
-> > Could possibly get rid of (with a page cache mapping):
-> >         struct buffer_head *b_next;     /* Hash queue list */
-> >         struct buffer_head **b_pprev;   /* doubly linked list of hash-queue */
-> 
-> Absolutely.
-> 
-> > Used by raid, loop and highmem, could move to request struct:
-> >         void *b_private;                /* reserved for b_end_io */
-> 
-> No. We only have one request struct, and we can have hundreds of buffers
-> associated with it. This is very much a iobuf thing.
+ Using ADS or NDS is not a good solution, because in my opinion, it would be
+dependent on a another OS. I would rather have the DS maintained on a
+OpenSource OS. NIS+ is basically obsolete. OpenLDAP could be turned into a
+workable solution, but there is no "consistent" bridge between OpenLDAP and
+Linux. For instance if you want to manager user accounts with it you need
+PAM, and unfortunately PAM isn't compatible with a lot of userland
+applications and services.
 
-Yes, duh.
+In my opinion, I don't see any way for directory services to become a fully
+enabled tool without full support from all of the major Linux development
+groups. I believe its going require a lot of effort to to make it a reality.
+I don't think DS will work unless there some standard for DS established by
+the core linux development groups. Another words, what I would like have is
+the framework for a standard for implemeting DS for Linux.
 
-> > Should die:
-> >         kdev_t b_rdev;                  /* Real device */
-> >         unsigned long b_rsector;        /* Real buffer location on disk */
-> 
-> No - these are what all the indirect IO code uses.
+>> I think these DS-Systems are really a part of userland, and the
+>>kernel itself should never mess around with high-level-security issues
+>>like Access Controll Lists or such things...this is the job of
+>>userlandtools.
 
-They're still warts.  It would be nice if the various block remappers could
-provide their own pool of remapping structs.  Note that bounce buffers are
-never in the page cache, so there are a 
+Agreed, the database any other tools can be done in userland and should be.
+I started this discussion to see if anyone out there considers DS important
+for Linux growth.  I am not sugguesting that this should be in the kernel.
+Just some sort of directory system that can manage configurations of a large
+number of linux boxes.
 
-> 
-> >         struct buffer_head *b_next_free;/* lru/free list linkage */
-> >         struct buffer_head *b_prev_free;/* doubly linked list of buffers */
-> 
-> Right now we keep the dirty list in these. We should drop it eventually,
-> and just every time we mark a buffer dirty we also mark the page dirty,
-> and then we use the _real_ dirty lists (which are nicely per-inode etc).
-> 
-> > > Maybe we could do without bh->b_count, but it is at least
-> > > currently required for backwards compatibility with all the code that
-> > > thinks buffer heads are autonomous entities. But I actually suspect it
-> > > makes a lot of sense even for a stand-alone IO entity (I'm a firm believer
-> > > in reference counting as a way to avoid memory management trouble).
-> >
-> > Maybe.  We might be able to tell from the state flags and the page use count
-> > that the buffer head is really freeable.
-> 
-> I doubt it. Almost all data structures that are reachable many ways need
-> to have a _count_.
-> 
-> People who think that locking is a way of "pinning" data structures are
-> invariably wrong, stupid, and need to get spanked. Reference counts rule.
+However, I don't see how you can manage permissions to kernel function calls
+with out some kernel support. Depending on what level of functionally is
+included, there may be a need access database information during boot-up,
+before userland processes can be started. If you managing kernel functions
+calls for userland access, how can you tell if the process has permissions
+unless some functionally is built-in the kernel? Think of a directory
+service operating more like a file system than a database.
 
-I didn't want to get rid of it, it's in line with how all the other objects
-are handled.  It's robust.
+>>The problem i see, if you force these things into the kernel, you will
+>>get a significant performance impact, because if you start to do
+>>(perhaps complicated) securitychecks *everytime* before calling a single
+>>function, you will loose time...and performance is one of the points
+>>where linux is ahead of other OSes, IMHO.
 
-> > > Dan, how much of this do you have?
-> >
-> > Working code?  Just the page cache version of ext2_getblk in the directory
-> > indexing patch.
-> 
-> Which is probably fine - we could replace the existing getblk with it, and
-> do only minor fixups. Maybe.
+You're probably right. Perhaps groups of function calls could be grouped and
+other methods could be implemented to manage overhead, or shouldn't even be
+considered. However, I believe  here is already some limited support for
+this (RSBAC http://www.rsbac.org) and CAPs. Its just not supported in a
+directory service.
 
-Yep, maybe.  Christoph was looking at trying this idea with vxfs, I should
-ping him on that.
+>>3.) To the idea of a "linux-registry":
+>>I do not like this, UNIX lives now 30 years with /etc and human-readable
+>>configfiles and without a "database", and i think its a good compromise
+>>between usability and "keep-it-simple".
+>>And it works.
 
-> > One observation: the buffer hash link is currently unused for page cache
-> > buffers.  We could possibly use that for reverse mapping from logical inode
-> > blocks to physical device blocks, to combat aliasing.
-> 
-> That still assumes that we have to look them up, which I'd rather avoid.
-> Also, I'd rather get rid of the buffer hash link completely, instead of
-> making it more confusing..
+The Windows Registry isn't anything like what I am suggesting. The Windows
+Registry isn't really even a database, is more or less an open draw, shoved
+full of  bits and pieces of information everywhere. The Windows registry is
+a lot like a /etc directory in non-human readable form. Every Windows box
+has its own registry, just like every Unix box has a /etc directory. Think
+of a directory service of more than a simple database and more like a shared
+file system where you can access configuration information on any box from
+any box you choose.
 
-Just to start you thinking...
- 
-> >						  A spin-off benefit
-> > is, the same mechanism could be used to implement a physical readahead
-> > cache which can do things that logical readahead can't.
-> 
-> Considering that 99.9% of all disks do this on a lower hardware layer
-> anyway, I very much doubt it has any good properties to make software more
-> complex by having that kind of readahead in sw.
+How would you manage 1000 or 10,000 desktop boxes each with their own /etc
+directory?  Imagine your supporting several hundred or even several thousand
+unix boxes, and you need to apply a standard change to all of them. Lets
+also assume your not getting paid by the hour, or you need to get the change
+done in just a hour or two. Would you trust a running a script on a
+/etc/*.conf file to apply a change on your boxes? I suppose if you really
+like to torture yourself, you could modify each of those files by hand,
+ouch!
 
-Well, I already wrote a longer screed on the subject for your Sunday night
-reading pleasure ;-)
+Thanks for the response.
+Ron
 
---
-Daniel

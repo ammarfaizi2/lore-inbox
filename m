@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266848AbTADM76>; Sat, 4 Jan 2003 07:59:58 -0500
+	id <S266859AbTADNQ5>; Sat, 4 Jan 2003 08:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266859AbTADM76>; Sat, 4 Jan 2003 07:59:58 -0500
-Received: from samael.donpac.ru ([195.161.172.239]:24071 "EHLO
-	samael.donpac.ru") by vger.kernel.org with ESMTP id <S266848AbTADM75>;
-	Sat, 4 Jan 2003 07:59:57 -0500
-From: "Andrey Panin" <pazke@orbita1.ru>
-Date: Sat, 4 Jan 2003 16:03:52 +0300
-To: Miles Bader <miles@gnu.org>
+	id <S266898AbTADNQ5>; Sat, 4 Jan 2003 08:16:57 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:2975 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S266859AbTADNQ5>;
+	Sat, 4 Jan 2003 08:16:57 -0500
+Date: Sun, 5 Jan 2003 00:25:10 +1100 (EST)
+Message-Id: <200301041325.h04DPALr003903@supreme.pcug.org.au>
+From: sfr@canb.auug.org.au
+To: benh@kernel.crashing.org, davej@codemonkey.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] irq handling code consolidation, second try (v850 part)
-Message-ID: <20030104130352.GK10477@pazke>
-Mail-Followup-To: Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
-References: <87hecp83yq.fsf@tc-1-100.kawasaki.gol.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87hecp83yq.fsf@tc-1-100.kawasaki.gol.ne.jp>
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
+Subject: Re: odd phenomenon.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 04, 2003 at 10:00:29PM +0900, Miles Bader wrote:
-> Can't test it, but the v850 part looks great, ah, it's lovely to see all
-> that code being deleted...
+From: Dave Jones <davej@codemonkey.org.uk>
 > 
-> One comment:  `arch_check_irq' is a bad name, it doesn't make it at all
-> clear what it does.
+> On Sat, Jan 04, 2003 at 11:48:33AM +0100, Benjamin Herrenschmidt wrote:
 > 
-> I might suggest inverting the sense, and using `irq_valid' -- the `arch_'
-> prefix seems unnecessary (as with `irq_desc') since it's not a
-> arch-specific version of a more general wrapper.
+>  > Typically happens with any kind of intense disk activity slowing down
+>  > galeon's launch process. (Not only bk, but also for example updatedb
+>  > running in the background).
+> 
+> Maybe, but bk was the only disk-thrashing type app I regularly
+> have running when I've tried to reproduce this.
+> 
+> Is your PPC32 box SMP ?  I'm wondering why I don't see it on my
+> athlon/P3 boxes, just on my dual P4.
 
-I used arch_ prefix to clearly mark arch specifig things, but
-irq_valid() is probably a better name. Comments ?
- 
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+I see this every morning on my laptop.  Anancron starts my overnight
+cron jobs (mostly find across the whole disk).  So, it is not SMP
+specific.  I assumed there was some sort of timeout in galeon to make
+sure it starts within a particular amount of time or just aborts it.
+Always works the second time.
+
+This is on 2.4.19-pre8 (usually) (I must build a newer kernel :-)).
+
+Cheers,
+Stephen Rothwell

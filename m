@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273617AbRIQOF6>; Mon, 17 Sep 2001 10:05:58 -0400
+	id <S273616AbRIQOC6>; Mon, 17 Sep 2001 10:02:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273618AbRIQOFs>; Mon, 17 Sep 2001 10:05:48 -0400
-Received: from smtp.mediascape.net ([212.105.192.20]:27916 "EHLO
-	smtp.mediascape.net") by vger.kernel.org with ESMTP
-	id <S273617AbRIQOFc>; Mon, 17 Sep 2001 10:05:32 -0400
-Message-ID: <3BA602FA.247C808B@mediascape.de>
-Date: Mon, 17 Sep 2001 16:04:42 +0200
-From: Olaf Zaplinski <o.zaplinski@mediascape.de>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: de, en
+	id <S273617AbRIQOCs>; Mon, 17 Sep 2001 10:02:48 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:24006 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S273616AbRIQOCl>; Mon, 17 Sep 2001 10:02:41 -0400
+Date: Mon, 17 Sep 2001 15:03:05 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Jan Kara <jack@suse.cz>
+cc: <linux-kernel@vger.kernel.org>, <bertie@scn.org>
+Subject: Re: 2.4, 2.4-ac and quotas
+In-Reply-To: <20010917152855.B18298@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0109171441550.20292-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance> <9o1dev$23l$1@penguin.transmeta.com> <1000722338.14005.0.camel@x153.internalnet> <9o2v1r$85g$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> [...]
-> What do you want to happen? You want to have an interface like
-> 
->         echo 0 > /proc/bugs/mm
-> 
-> that makes mm bugs go away?
+At 15:28 +0200 Jan Kara wrote:
 
-Good idea! ;-)
+>  And are you sure that /export01/aquota.user is correct quotafile (ie.
+>created by quotacheck or convertquota)? This is message you usually get
+>when quotafile has incorrect header... (or also when bogus arguments
+>are specified but it's probably not your case).
 
-Well, I had similar problems and went back to 2.2.19... but isn't there a
-tuneable yet?
+Bingo.. I naively read http://www.linuxdoc.org/HOWTO/mini/Quota.html
+and applied it to vfsv0. Could this be updated to reflect the new quotas
+please? I'd like to read of the differences--is, for example, the new
+quotacheck faster? Or does it all depend on the speed of the underlying
+filesystem ond not much else?
 
-On http://www.badtux.org/eric/editorial/mindcraft.html I found this one:
+Thanks,
 
-'Tuning the file buffer size so that more than 60% of memory can be used
-(90% in this example) can be accomplished by issuing the following command:
-echo "2 10 90" >/proc/sys/vm/buffermem"
-This is documented in the file /usr/src/linux/Documentation/sysctl/vm.txt
-along with many other tuning parameters, such as the 'bdflush' parameter.'
+Matt
 
-
-But vm.txt from 2.4.9ac10 and 2.2.19 says:
-
-buffermem:
-
-The three values in this file correspond to the values in
-the struct buffer_mem. It controls how much memory should
-be used for buffer memory. The percentage is calculated
-as a percentage of total system memory.
-
-The values are:
-min_percent     -- this is the minimum percentage of memory
-                   that should be spent on buffer memory
-borrow_percent  -- UNUSED
-max_percent     -- UNUSED
-
-Is vm.txt out of date, or is there really no tuneable, neither in 2.2.x nor
-in 2.4.x?
-
-Olaf

@@ -1,142 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131117AbQKNNwR>; Tue, 14 Nov 2000 08:52:17 -0500
+	id <S131070AbQKNOHi>; Tue, 14 Nov 2000 09:07:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131118AbQKNNwI>; Tue, 14 Nov 2000 08:52:08 -0500
-Received: from ns.dce.bg ([212.50.14.242]:35083 "HELO home.dce.bg")
-	by vger.kernel.org with SMTP id <S131117AbQKNNwC>;
-	Tue, 14 Nov 2000 08:52:02 -0500
-Message-ID: <3A113C6A.940295C9@dce.bg>
-Date: Tue, 14 Nov 2000 15:21:47 +0200
-From: Petko Manolov <petkan@dce.bg>
-Organization: Deltacom Electronics
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, bg
-MIME-Version: 1.0
-To: Yann Dirson <ydirson@altern.org>
-CC: linux-kernel@vger.kernel.org, petkan@spct.net, mingo@redhat.com
-Subject: Re: Inconsistencies in 3dNOW handling
-In-Reply-To: <20001113234349.A28046@bylbo.nowhere.earth>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131039AbQKNOH3>; Tue, 14 Nov 2000 09:07:29 -0500
+Received: from [213.212.2.140] ([213.212.2.140]:63443 "EHLO echo.southpole.se")
+	by vger.kernel.org with ESMTP id <S131020AbQKNOHO>;
+	Tue, 14 Nov 2000 09:07:14 -0500
+Date: Tue, 14 Nov 2000 14:40:12 +0100
+From: Jakob Sandgren <jakob@southpole.se>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with ide, DMA with _lots_ of controllers. (2.4.0-test9)
+Message-ID: <20001114144010.D23051@southpole.se>
+Mail-Followup-To: Jakob Sandgren <jakob@southpole.se>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You already have good answer from Arjan van de Ven.
-I'm about to submit a patch for string-486.h where
-3Dnow! support will be removed. It is not needed as
-routines in this file expect 486 or older 586.
+Hi,
 
-Anyway, i'm in doubt if this file will be ever used.
+We have some problems with one experimental IDE-RAID machine, however
+the problem seem not to be with the RAID setup, actually the ide sub
+system. 
+
+Basic system information:
+=========================
+AMD k6-2 with motherboard ALI15X3 IDE
+3*PCI HPT366 IDE cards 
+PCI SCSI
+PCI NIC
+
+5*Maxtor 93652U8 (as master, one on each channel) on the HPT
+controller.
+
+CD-ROM (master) + IBM-DTLA-307015 (master) on the ALI15X3
+
+The 5 maxtor disks is used for the RAID.
+
+Problem description:
+====================
+With DMA disabled everything is _stable_ but the performance is _bad_:
 
 
-	Petkan
+# hdparm -tT /dev/md0 
+
+/dev/md0:
+ Timing buffer-cache reads:   128 MB in  2.26 seconds = 56.64 MB/sec
+ Timing buffered disk reads:  64 MB in 23.78 seconds =  2.69 MB/sec
 
 
+With DMA enabled, performance is a better ~10MB/sec but the system is
+very unstable. The system locks within seconds or minutes after the
+boot.
+
+The message printed before the system locks is something like this:
+
+hdm: timeout wainting for DMA ide_dmaproc: chipset supported ide_1
+dma_timeout func only = 14
 
 
-Yann Dirson wrote:
-> 
-> Looking at what the CONFIG_X86_USE_3DNOW config option in 2.40.-test10
-> enables, I find a couple of strange things.  This led me through a
-> small high-level audit of 3DNOW/MMX stuff.
-> 
-> Hopefully someone will be able to explain or to confirm whether the
-> points I highlight are indeed bugs.  I'd value some comments before
-> starting to change this :}
-> 
-> - CONFIG_MK6 is described as "K6/K6-II/K6-III", and CONFIG_MK7 as
-> "Athlon/K7".  Of these two, only the latter defines
-> CONFIG_X86_USE_3DNOW, although K6-II and K6-III do provide 3DNOW
-> instructions.  We even find in strings-486.h a comment saying:
-> 
->         This CPU favours 3DNow strongly (eg AMD K6-II, K6-III, Athlon)
-> 
-> OTOH, string.h only says:
-> 
->  *      This CPU favours 3DNow strongly (eg AMD Athlon)
-> 
-> page.h says:
-> 
->  *      On older X86 processors its not a win to use MMX here it seems.
->  *      Maybe the K6-III ?
-> 
-> Gasp.  Would it or not in the end be useful to add a CONFIG_MK6II
-> option that would enable 3DNOW ?
-> 
-> - In all places where 3DNOW is tested (strings-486.h, page.h), only
-> MMX-specific funcs are used (_mmx_memcpy mostly, mmx_{clear,copy}_page)
-> 
-> page.h says:
-> 
->  *      On older X86 processors its not a win to use MMX here it seems.
->  *      Maybe the K6-III ?
-> 
-> mmx.[ch] say:
-> 
->  *      MMX 3Dnow! helper operations
-> 
-> So do they use MMX or 3Dnow after all ?  They are distinct processor
-> features, aren't they ?
-> 
-> If this option is really just meant to enable MMX stuff, let's just
-> call it by its name
-> 
-> Some doc about that should be written - I'll gladly do that once I've
-> gathered the info.  Some Documentation/i386/MMX file maybe, or in
-> mmx.c.  But this info won't be easily found anyway if we keep using
-> 3DNOW as a name for the config option...  Objections ?
-> 
-> - mmx.c says:
-> 
->         Checksums are not a win with MMX on any CPU
->         tested so far for any MMX solution figured
-> 
-> This would be better to have the list of tested CPUs here.  Does
-> someone have this list ?
-> 
-> - there is even a CONFIG_X86_USE_3DNOW_AND_WORKS option, that would
-> enable MMX in __generic_copy-{to,from}_user
-> (arch/i386/lib/usercopy.c).  There is no comment about why this code
-> was disabled.
-> 
-> This code uses the following test to trigger MMX use:
-> 
->                 if(n<512)
->                         __copy_user(to,from,n);
->                 else
->                         mmx_copy_user(to,from,n);
-> 
-> ... whereas string{,-486}.h use the following test to trigger MMX use:
-> 
->         if(len<512 || in_interrupt())
->                 return __constant_memcpy(to, from, len);
->         return _mmx_memcpy(to, from, len);
-> 
-> Could this be the cause of the problem ?
-> 
-> You'll also have noticed the inconsistent naming in 2 highly similar
-> pieces of code.
-> 
-> - BTW, what does this 512 stand for ?  Especially as it's used in
-> several places, a #define would seem nice at first glance.
-> 
-> - In mmx.c, function naming and ordering really seems inconsistent.
-> Or is there a reason for a "zero/clear" duality ?
-> 
-> - drivers/md/xor.c says:
-> 
->         certain CPU features like MMX can only be detected runtime
-> 
-> I'm not sure how much this relates to the above, but I'd say a MMX
-> config option could be used for this ?  Or a common detection routine
-> that other drivers could use ?
-> 
-> --
-> Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
-> debian-email:   <dirson@debian.org> |   Support Debian GNU/Linux:
->                                     | Cheaper, more Powerful, more Stable !
-> http://ydirson.free.fr/             | Check <http://www.debian.org/>
+Anyone who has a clue about this? Below is some additional
+information.
+
+Best Regards,
+Jakob Sandgren
+
+Nov  6 12:00:11 heffaklump kernel: pty: 256 Unix98 ptys configured
+Nov  6 12:00:11 heffaklump kernel: Uniform Multi-Platform E-IDE driver Revision: 6.31
+Nov  6 12:00:11 heffaklump kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Nov  6 12:00:11 heffaklump kernel: HPT366: IDE controller on PCI bus 00 dev 48
+Nov  6 12:00:11 heffaklump kernel: HPT366: chipset revision 1
+Nov  6 12:00:11 heffaklump kernel: HPT366: not 100% native mode: will probe irqs later
+Nov  6 12:00:11 heffaklump kernel: HPT366: IDE controller on PCI bus 00 dev 49
+Nov  6 12:00:11 heffaklump kernel: HPT366: chipset revision 1
+Nov  6 12:00:11 heffaklump kernel: HPT366: not 100% native mode: will probe irqs later
+Nov  6 12:00:11 heffaklump kernel: HPT366: IDE controller on PCI bus 00 dev 50
+Nov  6 12:00:11 heffaklump kernel: HPT366: chipset revision 1
+Nov  6 12:00:11 heffaklump kernel: HPT366: not 100% native mode: will probe irqs later
+Nov  6 12:00:11 heffaklump kernel: HPT366: IDE controller on PCI bus 00 dev 51
+Nov  6 12:00:11 heffaklump kernel: HPT366: chipset revision 1
+Nov  6 12:00:11 heffaklump kernel: HPT366: not 100% native mode: will probe irqs later
+Nov  6 12:00:11 heffaklump kernel: HPT366: IDE controller on PCI bus 00 dev 68
+Nov  6 12:00:11 heffaklump kernel: HPT366: chipset revision 1
+Nov  6 12:00:11 heffaklump kernel: HPT366: not 100% native mode: will probe irqs later
+Nov  6 12:00:11 heffaklump kernel: HPT366: IDE controller on PCI bus 00 dev 69
+Nov  6 12:00:11 heffaklump kernel: HPT366: chipset revision 1
+Nov  6 12:00:11 heffaklump kernel: HPT366: not 100% native mode: will probe irqs later
+Nov  6 12:00:11 heffaklump kernel: ALI15X3: IDE controller on PCI bus 00 dev 78
+Nov  6 12:00:11 heffaklump kernel: ALI15X3: chipset revision 193
+Nov  6 12:00:11 heffaklump kernel: ALI15X3 standard IDE storage device detected
+Nov  6 12:00:11 heffaklump kernel: hda: IBM-DTLA-307015, ATA DISK drive
+Nov  6 12:00:11 heffaklump kernel: hdc: TOSHIBA CD-ROM XM-6502B, ATAPI CDROM drive
+Nov  6 12:00:11 heffaklump kernel: hde: Maxtor 93652U8, ATA DISK drive
+Nov  6 12:00:11 heffaklump kernel: hdh: Maxtor 93652U8, ATA DISK drive
+Nov  6 12:00:11 heffaklump kernel: hdk: Maxtor 93652U8, ATA DISK drive
+Nov  6 12:00:11 heffaklump kernel: hdn: Maxtor 93652U8, ATA DISK drive
+Nov  6 12:00:11 heffaklump kernel: hdp: Maxtor 93652U8, ATA DISK drive
+Nov  6 12:00:11 heffaklump kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Nov  6 12:00:11 heffaklump kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Nov  6 12:00:11 heffaklump kernel: ide2 at 0xb800-0xb807,0xb402 on irq 3
+Nov  6 12:00:11 heffaklump kernel: ide3 at 0xa800-0xa807,0xa402 on irq 3
+Nov  6 12:00:11 heffaklump kernel: ide5 at 0x8800-0x8807,0x8402 on irq 4
+Nov  6 12:00:11 heffaklump kernel: ide6 at 0x7000-0x7007,0x6802 on irq 3
+Nov  6 12:00:11 heffaklump kernel: ide7 at 0x6000-0x6007,0x5802 on irq 3
+Nov  6 12:00:11 heffaklump kernel: hda: 30003120 sectors (15362 MB) w/1916KiB Cache, CHS=1867/255/63
+Nov  6 12:00:11 heffaklump kernel: hde: 71346240 sectors (36529 MB) w/2048KiB Cache, CHS=70780/16/63
+Nov  6 12:00:11 heffaklump kernel: hdh: 71346240 sectors (36529 MB) w/2048KiB Cache, CHS=70780/16/63
+Nov  6 12:00:11 heffaklump kernel: hdk: 71346240 sectors (36529 MB) w/2048KiB Cache, CHS=70780/16/63
+Nov  6 12:00:11 heffaklump kernel: hdn: 71346240 sectors (36529 MB) w/2048KiB Cache, CHS=70780/16/63
+Nov  6 12:00:11 heffaklump kernel: hdp: 71346240 sectors (36529 MB) w/2048KiB Cache, CHS=70780/16/63
+Nov  6 12:00:11 heffaklump kernel: hdc: ATAPI 40X CD-ROM drive, 256kB Cache
+Nov  6 12:00:11 heffaklump kernel: Uniform CD-ROM driver Revision: 3.11
+Nov  6 12:00:11 heffaklump kernel: Partition check:
+Nov  6 12:00:11 heffaklump kernel:  hda: hda1 hda2 < hda5 hda6 >
+Nov  6 12:00:11 heffaklump kernel:  hde: hde1
+Nov  6 12:00:11 heffaklump kernel:  hdh: hdh1
+Nov  6 12:00:11 heffaklump kernel:  hdk: hdk1
+Nov  6 12:00:11 heffaklump kernel:  hdn: hdn1
+Nov  6 12:00:11 heffaklump kernel:  hdp: hdp1
+Nov  6 12:00:11 heffaklump kernel: Floppy drive(s): fd0 is 1.44M
+
+.......
+
+# cat /proc/interrupts 
+           CPU0       
+0:   42935593          XT-PIC  timer
+1:         21          XT-PIC  keyboard
+2:          0          XT-PIC  cascade
+3:  339227686          XT-PIC  ide2, ide3, ide6, ide7
+4:  121313762          XT-PIC  ide5
+10:    2319254          XT-PIC  eth0
+11:   10798826          XT-PIC  sym53c8xx
+12:          0          XT-PIC  PS/2 Mouse
+13:          0          XT-PIC  fpu
+14:    4356172          XT-PIC  ide0
+15:          4          XT-PIC  ide1
+NMI:          0 
+ERR:          0
+# cat /proc/ide/drivers 
+ide-cdrom version 4.58
+ide-disk version 1.10
+
+
+-- 
+Jakob Sandgren                  South Pole AB
+Phone:  +46 8 56610650          Banvaktsvägen 12
+Fax:    +46 8 56610601          SE - 17148 Solna 
+e-mail: jakob@southpole.se      www.southpole.se
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

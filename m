@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271911AbRIDIut>; Tue, 4 Sep 2001 04:50:49 -0400
+	id <S271915AbRIDJCK>; Tue, 4 Sep 2001 05:02:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271915AbRIDIuk>; Tue, 4 Sep 2001 04:50:40 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:60940 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S271911AbRIDIub>; Tue, 4 Sep 2001 04:50:31 -0400
-Date: Tue, 4 Sep 2001 09:50:42 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Patrick Dreker <patrick@dreker.de>
-Cc: Michael Ben-Gershon <mybg@netvision.net.il>, linux-kernel@vger.kernel.org
-Subject: Re: lpr to HP laserjet stalls
-Message-ID: <20010904095042.N20060@redhat.com>
-In-Reply-To: <3B93E289.7F121DE9@netvision.net.il> <20010903221142.J20060@redhat.com> <E15e4WO-0007uH-00@wintermute>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ehgLApe97pcc1Rh5"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15e4WO-0007uH-00@wintermute>; from patrick@dreker.de on Tue, Sep 04, 2001 at 02:56:56AM +0200
+	id <S271916AbRIDJB7>; Tue, 4 Sep 2001 05:01:59 -0400
+Received: from picard.auto.tuwien.ac.at ([128.130.12.4]:46234 "EHLO
+	picard.auto.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S271915AbRIDJBm>; Tue, 4 Sep 2001 05:01:42 -0400
+Date: Tue, 4 Sep 2001 11:02:01 +0200 (CEST)
+From: Heinz Deinhart <heinz@auto.tuwien.ac.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: Some experiences with the Athlon optimisation problem
+Message-ID: <Pine.LNX.4.33.0109041055250.25091-100000@xenon.auto.tuwien.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---ehgLApe97pcc1Rh5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+i might have found some interesting informations regarding the Athlon
+optimisation problems. I have two different Athlon versions, the
+older one seems to work very table, the newer one crashes always
+during system startup.  Both chips where running in exactly the same
+machine. (the older one is a 1.133Ghz the newer one a 1.2Ghz.)
 
-On Tue, Sep 04, 2001 at 02:56:56AM +0200, Patrick Dreker wrote:
+I tried 2.4.9, 2.4.9-ac6 and 2.4.3, not difference. The system is a
+MSI-K7A Turbo with KT133A from VIA, 256MB PC133 RAM. I have 8 of the
+new ones, and all of them do not work.
 
-> All of this vanished, when I replaced all occurrences of /dev/lp0 in my=
-=20
-> printer configuration by /dev/par0. I has been working flawlessly since t=
-hen.
+Because the same system is stable with one kind of Athlons and does
+not work with the other, couldn't this mean those Athlons are buggy ?
 
-crw-rw----    1 root     lp         6,   0 Aug 30 21:30 /dev/lp0
-crw-------    1 root     root       6,   0 Aug 30 21:30 /dev/par0
+Of course all troubles vanish when i turn off Athlon optimisation. But
+this probably doesnt kill the problem.
 
-Are you sure you didn't also upgrade the kernel? ;-)
+The old Athlon reads:
+	A1133AMS3C
+	AVIA 0115TPAW
+	95262550081
 
-Tim.
-*/
+The new (non working) one:
+	A1200AMS3C
+	AXIA 0121RPDW
+	95987660990
 
---ehgLApe97pcc1Rh5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I hope this is somehow useful.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+ciao,
+heinz
 
-iD8DBQE7lJXhONXnILZ4yVIRApdaAKCrDEMy8MxaEpBCcWcgcbpVzreyAACgpXJe
-0fgItE7YsjYZVU8ZSxyMwmw=
-=rzI3
------END PGP SIGNATURE-----
+-- 
+Heinz Deinhart <heinz@auto.tuwien.ac.at>
++43 1 58801-18321
+Technische Universitaet Wien, Dept. E183/1
 
---ehgLApe97pcc1Rh5--

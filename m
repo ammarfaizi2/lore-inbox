@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131489AbRA0GUh>; Sat, 27 Jan 2001 01:20:37 -0500
+	id <S129939AbRA0GxQ>; Sat, 27 Jan 2001 01:53:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131444AbRA0GUR>; Sat, 27 Jan 2001 01:20:17 -0500
-Received: from vitelus.com ([64.81.36.147]:11788 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S131349AbRA0GUL>;
-	Sat, 27 Jan 2001 01:20:11 -0500
-Date: Fri, 26 Jan 2001 22:20:03 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-Message-ID: <20010126222003.A11994@vitelus.com>
-In-Reply-To: <3A726087.764CC02E@uow.edu.au>
+	id <S130766AbRA0GxG>; Sat, 27 Jan 2001 01:53:06 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:29192 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129939AbRA0Gw6>;
+	Sat, 27 Jan 2001 01:52:58 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Sergey Kubushin" <ksi@cyberbills.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0ac12 
+In-Reply-To: Your message of "Fri, 26 Jan 2001 17:46:12 -0800."
+             <Pine.LNX.4.31ksi3.0101261742080.598-100000@nomad.cyberbills.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A726087.764CC02E@uow.edu.au>; from andrewm@uow.edu.au on Sat, Jan 27, 2001 at 04:45:43PM +1100
+Date: Sat, 27 Jan 2001 17:52:51 +1100
+Message-ID: <29609.980578371@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27, 2001 at 04:45:43PM +1100, Andrew Morton wrote:
-> 2.4.1-pre10-vanilla, using read()/write():      34.5% CPU
-> 2.4.1-pre10+zercopy, using read()/write():      38.1% CPU
+On Fri, 26 Jan 2001 17:46:12 -0800 (PST), 
+"Sergey Kubushin" <ksi@cyberbills.com> wrote:
+>Modules still don't load:
+>
+>=== Cut ===
+>ide-mod.o: Can't handle sections of type 32131
+>ide-probe-mod.o: Can't handle sections of type 256950710
+>ide-disk.o: Can't handle sections of type 688840897
+>ext2.o: Can't handle sections of type 69429248
+>=== Cut ===
 
-Am I right to be bothered by this?
+Works for me.
 
-The majority of Unix network traffic is handled with read()/write().
-Why would zerocopy slow that down?
+# uname -a
+Linux ocs4 2.4.0-ac12 #1 SMP Sat Jan 27 17:37:12 EST 2001 i686 unknown
+# lsmod
+Module                  Size  Used by
+binfmt_misc             3696   0 
+nfsd                   71632   0  (autoclean)
+vfat                   11504   1 
+fat                    32448   0  [vfat]
+af_packet               8720   0  (unused)
+isofs                  19216   0  (unused)
+sg                     26752   0  (unused)
+loop                    7680   0  (unused)
+nfs                    82720   0  (unused)
+lockd                  50416   0  [nfsd nfs]
+sunrpc                 62464   0  [nfsd nfs lockd]
+tulip                  37232   1 
+# insmod -V 2>&1 | head -1
+insmod version 2.4.2
+# gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+# ld -v
+GNU ld version 2.9.5 (with BFD 2.9.5.0.22)
 
-If zerocopy is simply unoptimized, that's fine for now. But if the
-problem is inherent in the implementation or design, that might be a
-problem. Any patch which incurs a signifigant slowdown on traditional
-networking should be contraversial.
-
-Aaron Lehmann
-
-please ignore me if I don't know what I'm talking about.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

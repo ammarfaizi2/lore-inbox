@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUAJR3N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 12:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUAJR3N
+	id S265279AbUAJRjq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUAJRjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 12:29:13 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:64837 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S265230AbUAJR3F (ORCPT
+	Sat, 10 Jan 2004 12:39:46 -0500
+Received: from odpn1.odpn.net ([212.40.96.53]:19601 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S265279AbUAJRjc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 12:29:05 -0500
-Message-ID: <40003655.3010702@samwel.tk>
-Date: Sat, 10 Jan 2004 18:28:53 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Sat, 10 Jan 2004 12:39:32 -0500
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, Feldman@tux.rsn.bth.se,
+       Scott <scott.feldman@intel.com>
+Subject: Re: 2.4.24 eth0: TX underrun, threshold adjusted.
+References: <x665fkb59o@gzp> <1073746559.752.44.camel@tux.rsn.bth.se>
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Date: Sat, 10 Jan 2004 18:39:21 +0100
+Message-ID: <x6oetb66uu@gzp>
+User-Agent: Gnus/5.1004 (Gnus v5.10.4)
 MIME-Version: 1.0
-To: Tim Cambrant <tim@cambrant.com>
-CC: Mario Vanoni <vanonim@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to 0x37ffffff"
- warning.
-References: <40001CEE.5050206@bluewin.ch> <20040110155626.GA20684@cambrant.com>
-In-Reply-To: <20040110155626.GA20684@cambrant.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Cambrant wrote:
-> On Sat, Jan 10, 2004 at 04:40:30PM +0100, Mario Vanoni wrote:
-> 
->>Compiling the kernel under 2.6.1-mm2, gcc-3.3.2
->>(same messages as under 2.6.1-rc1-mm1, re-tested),
->>
->>arch/i386/boot/setup.S: Assembler messages:
->>arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to 
->>0x37ffffff
-> 
-> This is apparently a known problem and has existed for a long time,
-> but no-one has fixed it for some reason. I asked the exacly same
-> question a few months ago, and someone told me that this issue has
-> been around forever, but is noticed under 2.6, since it is less
-> verbose during the compilation. I'll pass the message that was told
-> to me: If you've got a fix, it would surely be included in the kernel.
+* Martin Josefsson <gandalf@wlug.westbo.se>:
 
-The problem is in the MAXMEM macro. This macro takes the inverse of a 
-positive number, subtracts another number, and the negative result 
-overflows the negative range of a 32-bit integer. The assembler 
-truncates it, but apparently it can't print overly negative numbers 
-correctly, that's why it looks so strange.
+| > eth0: TX underrun, threshold adjusted.
+| > [10 times]
+| > eth0: TX underrun, threshold adjusted.
+| 
+| > eth0 intel eepro100
+| 
+| I think you ran the eepro100 driver in 2.4.23 and now in 2.4.24 you are
+| using the e100 driver, am I correct?
 
-My proposed fix is attached: change the macro to subtract the numbers 
-from 0xFFFFFFFF, and then add 1 at the end. That yields the same result, 
-but without going through a negative intermediate value that needs to be 
-truncated.
+No, you aren't.
 
--- Bart
+| This isn't really an error, it's an indicator that the pci-bus doesn't
+| really keep up, then the NIC has to increase the threshold (it tries to
+| start sending the packet out before it's fully transferred from main
+| memory to the NIC, it hopes the rest of the packet will have been
 
+Funny because I have changed the mobo/cpu/ram from P3 to P4. Maybe
+its related to that change?
 
+| This happens with the eepro100 driver as well but it doesn't tell you
+| about it, it just increases the threshold and goes on.
 
---- page.h.orig	2004-01-10 18:15:17.000000000 +0100
-+++ page.h	2004-01-10 18:15:47.000000000 +0100
-@@ -123,7 +123,7 @@
+I'm using Becker's eepro100, I'm sure.
 
-  #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
-  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
--#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
-+#define MAXMEM			(0xFFFFFFFF-__PAGE_OFFSET-__VMALLOC_RESERVE+1)
-  #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
-  #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
-  #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
+| I hope this helps to explain this message.
 
+Thanks.
 

@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVCYN5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVCYOIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVCYN5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 08:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCYN5Z
+	id S261617AbVCYOIG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 09:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVCYOIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 08:57:25 -0500
-Received: from mail.dif.dk ([193.138.115.101]:34947 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261320AbVCYN5V (ORCPT
+	Fri, 25 Mar 2005 09:08:06 -0500
+Received: from mail.dif.dk ([193.138.115.101]:30340 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261617AbVCYOH6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 08:57:21 -0500
-Date: Fri, 25 Mar 2005 14:59:14 +0100 (CET)
+	Fri, 25 Mar 2005 09:07:58 -0500
+Date: Fri, 25 Mar 2005 15:09:53 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: Squashfs without ./..
-In-Reply-To: <424324E4.9000003@zytor.com>
-Message-ID: <Pine.LNX.4.62.0503251444060.2498@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
- <20050323174925.GA3272@zero> <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
- <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com> <d1v67l$4dv$1@terminus.zytor.com>
- <3e74c9409b6e383b7b398fe919418d54@mac.com> <424324E4.9000003@zytor.com>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: security/keys/key.c broken with defconfig 
+In-Reply-To: <24082.1111664764@redhat.com>
+Message-ID: <Pine.LNX.4.62.0503251504220.2498@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503222223180.2683@dragon.hyggekrogen.localhost>
+  <24082.1111664764@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Mar 2005, H. Peter Anvin wrote:
+On Thu, 24 Mar 2005, David Howells wrote:
 
-> Kyle Moffett wrote:
-> > 
-> > IMHO, this is one of those cases where "Be liberal in what you accept
-> > and strict in what you emit" applies strongly.  New filesystems should
-> > probably always emit "." and ".." in that order with sane behavior,
-> > and new programs should probably be able to handle it if they don't. I
-> > would add ".." and "." to squashfs, just so that it acts like the rest
-> > of the filesystems on the planet, even if it has to emulate them
-> > internally.  OTOH, I think that the default behavior of find is broken
-> > and should probably be fixed, maybe by making the default use the full
-> > readdir and optionally allowing a -fast option that optimizes the
-> > search using such tricks.
-> > 
+> Jesper Juhl <juhl-lkml@dif.dk> wrote:
 > 
-> Note that Linux always accepts . and .. so it's just a matter of making them
-> appear in readdir.
+> > If I just do a 'make defconfig' and then try to build security/keys/ the 
+> > build breaks.  Doing 'make allyesconfig' fixes it by defining CONFIG_KEYS 
+> > which makes include/linux/key-ui.h include the full struct key definition.
+> > 
+> > I've not attempted to fix this yet, but thought I'd at least report it.
+> > 
+> > 
+> > juhl@dragon:~/download/kernel/linux-2.6.12-rc1-mm1$ make defconfig
+> > juhl@dragon:~/download/kernel/linux-2.6.12-rc1-mm1$ make security/keys/
 > 
-I'm working on that, but it's a learning experience for me, so it's going 
-a bit slow - but I'll get there.
+> Ah. Why would you do that last command at all?
+> 
+I had made a few small changes in there and wanted to see if they compiled 
+cleanly, but I didn't want to build cleanly and assumed that the build 
+system would figure out any dependencies. Obviously I forgot to enable 
+CONFIG_KEYS and thus the stuff in security/keys/ is not happy.
 
--- 
+> If you look in security/Makefile, you'll see that the security/keys/ directory
+> is only entered if CONFIG_KEYS is defined; which in your config it isn't.
+> 
+You are right. I had not looked into it that much, had I just tried to 
+"make security/" I'd have seen that the stuff in security/keys/ did not 
+build at all and would have realized my mistake. if the Makefile in 
+security/keys/ also checked for CONFIG_KEYS it would have been even more 
+obvious, but I guess that would just be bloat..?
+
+In any case, there's no problem except for user error on my part.
+
+
+--
 Jesper Juhl
+
+
 
 

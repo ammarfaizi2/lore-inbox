@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbVA1Ujo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVA1Uld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262795AbVA1Ujo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:39:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbVA1UjM
+	id S262734AbVA1Uld (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:41:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVA1UlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:39:12 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:63408 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262750AbVA1Ugb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:36:31 -0500
-Date: Fri, 28 Jan 2005 12:36:10 -0800 (PST)
+	Fri, 28 Jan 2005 15:41:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58827 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262758AbVA1Ufj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 15:35:39 -0500
+Date: Fri, 28 Jan 2005 12:35:11 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: Andi Kleen <ak@muc.de>
@@ -17,340 +17,111 @@ cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
        torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
        benh@kernel.crashing.org
-Subject: page fault scalability patch V16 [1/4]: avoid intermittent clearing
- of ptes
-In-Reply-To: <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0501281235200.19266@schroedinger.engr.sgi.com>
+Subject: page fault scalability patch V16 [0/4]: redesign overview
+In-Reply-To: <20050114170140.GB4634@muc.de>
+Message-ID: <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
 References: <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
  <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
  <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
  <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
  <20050114043944.GB41559@muc.de> <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
- <20050114170140.GB4634@muc.de> <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
+ <20050114170140.GB4634@muc.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current way of updating ptes in the Linux vm includes first clearing
-a pte before setting it to another value. The clearing is performed while
-holding the page_table_lock to insure that the entry has not been modified
-by the CPU directly, by an arch specific interrupt handler or another page
-fault handler running on another CPU. This approach is necessary for some
-architectures that cannot perform atomic updates of page table entries to
-set the page table entry to not present for the MMU logic.
+Changes from V15->V16 of this patch: Complete Redesign.
 
-If a page table entry is cleared then a second CPU may generate a page fault
-for that entry. The fault handler on the second CPU will then attempt to
-acquire the page_table_lock and wait until the first CPU has completed
-updating the page table entry. The fault handler on the second CPU will then
-discover that everything is ok and simply do nothing (apart from incrementing
-the counters for a minor fault and marking the page again as accessed).
+An introduction to what this patch does and a patch archive can be found on
+http://oss.sgi.com/projects/page_fault_performance. The archive also has a
+combined patch.
 
-However, most architectures actually support atomic operations on page
-table entries. The use of atomic operations on page table entries would
-allow the update of a page table entry in a single atomic operation instead
-of writing to the page table entry twice. There would also be no danger of
-generating a spurious page fault on other CPUs.
+The basic approach in this patchset is the same as used in SGI's 2.4.X
+based kernels which have been in production use in ProPack 3 for a long time.
 
-The following patch introduces two new atomic operations ptep_xchg and
-ptep_cmpxchg that may be provided by an architecture. The fallback in
-include/asm-generic/pgtable.h is to simulate both operations through the
-existing ptep_get_and_clear function. So there is essentially no change if
-atomic operations on ptes have not been defined. Architectures that do
-not support atomic operations on ptes may continue to use the clearing of
-a pte for locking type purposes.
+The patchset is composed of 4 patches (and was tested against 2.6.11-rc2-bk6
+on ia64, i386 and x86_64):
 
-Atomic operations may be enabled in the kernel configuration on
-i386, ia64 and x86_64 if a suitable CPU is configured in SMP mode.
-Generic atomic definitions for ptep_xchg and ptep_cmpxchg
-have been provided based on the existing xchg() and cmpxchg() functions
-that already work atomically on many platforms. It is very
-easy to implement this for any architecture by adding the appropriate
-definitions to arch/xx/Kconfig.
+1/4: ptep_cmpxchg and ptep_xchg to avoid intermittent zeroing of ptes
 
-The provided generic atomic functions may be overridden as usual by defining
-the appropriate__HAVE_ARCH_xxx constant and providing an implementation.
+	The current way of synchronizing with the CPU or arch specific
+	interrupts updating page table entries is to first set a pte
+	to zero before writing a new value. This patch uses ptep_xchg
+	and ptep_cmpxchg to avoid writing the zero for certain
+	configurations.
 
-My aim to reduce the use of the page_table_lock in the page fault handler
-rely on a pte never being clear if the pte is in use even when the
-page_table_lock is not held. Clearing a pte before setting it to another
-values could result in a situation in which a fault generated by
-another cpu could install a pte which is then immediately overwritten by
-the first CPU setting the pte to a valid value again. This patch is
-important for future work on reducing the use of spinlocks in the vm.
+	The patch introduces CONFIG_ATOMIC_TABLE_OPS that may be
+	enabled as a experimental feature during kernel configuration
+	if the hardware is able to support atomic operations and if
+	an SMP kernel is being configured. A Kconfig update for i386,
+	x86_64 and ia64 has been provided. On i386 this options is
+	restricted to CPUs better than a 486 and non PAE mode (that
+	way all the cmpxchg issues on old i386 CPUS and the problems
+	with 64bit atomic operations on recent i386 CPUS are avoided).
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+	If CONFIG_ATOMIC_TABLE_OPS is not set then ptep_xchg and
+	ptep_xcmpxchg are realized by falling back to clearing a pte
+	before updating it.
 
-Index: linux-2.6.10/mm/rmap.c
-===================================================================
---- linux-2.6.10.orig/mm/rmap.c	2005-01-27 14:47:20.000000000 -0800
-+++ linux-2.6.10/mm/rmap.c	2005-01-27 16:27:40.000000000 -0800
-@@ -575,11 +575,6 @@ static int try_to_unmap_one(struct page
+	The patch does not change the use of mm->page_table_lock and
+	the only performance improvement is the replacement of
+	xchg-with-zero-and-then-write-new-pte-value with an xchg with
+	the new value for SMP on some architectures if
+	CONFIG_ATOMIC_TABLE_OPS is configured. It should not do anything
+	major to VM operations.
 
- 	/* Nuke the page table entry. */
- 	flush_cache_page(vma, address);
--	pteval = ptep_clear_flush(vma, address, pte);
--
--	/* Move the dirty bit to the physical page now the pte is gone. */
--	if (pte_dirty(pteval))
--		set_page_dirty(page);
+2/4: Macros for mm counter manipulation
 
- 	if (PageAnon(page)) {
- 		swp_entry_t entry = { .val = page->private };
-@@ -594,11 +589,15 @@ static int try_to_unmap_one(struct page
- 			list_add(&mm->mmlist, &init_mm.mmlist);
- 			spin_unlock(&mmlist_lock);
- 		}
--		set_pte(pte, swp_entry_to_pte(entry));
-+		pteval = ptep_xchg_flush(vma, address, pte, swp_entry_to_pte(entry));
- 		BUG_ON(pte_file(*pte));
- 		mm->anon_rss--;
--	}
-+	} else
-+		pteval = ptep_clear_flush(vma, address, pte);
+	There are various approaches to handling mm counters if the
+	page_table_lock is no longer acquired. This patch defines
+	macros in include/linux/sched.h to handle these counters and
+	makes sure that these macros are used throughout the kernel
+	to access and manipulate rss and anon_rss. There should be
+	no change to the generated code as a result of this patch.
 
-+	/* Move the dirty bit to the physical page now that the pte is gone. */
-+	if (pte_dirty(pteval))
-+		set_page_dirty(page);
- 	mm->rss--;
- 	acct_update_integrals();
- 	page_remove_rmap(page);
-@@ -691,15 +690,15 @@ static void try_to_unmap_cluster(unsigne
- 		if (ptep_clear_flush_young(vma, address, pte))
- 			continue;
+3/4: Drop the first use of the page_table_lock in handle_mm_fault
 
--		/* Nuke the page table entry. */
- 		flush_cache_page(vma, address);
--		pteval = ptep_clear_flush(vma, address, pte);
+	The patch introduces two new functions:
 
- 		/* If nonlinear, store the file page offset in the pte. */
- 		if (page->index != linear_page_index(vma, address))
--			set_pte(pte, pgoff_to_pte(page->index));
-+			pteval = ptep_xchg_flush(vma, address, pte, pgoff_to_pte(page->index));
-+		else
-+			pteval = ptep_clear_flush(vma, address, pte);
+	page_table_atomic_start(mm), page_table_atomic_stop(mm)
 
--		/* Move the dirty bit to the physical page now the pte is gone. */
-+		/* Move the dirty bit to the physical page now that the pte is gone. */
- 		if (pte_dirty(pteval))
- 			set_page_dirty(page);
+	that fall back to the use of the page_table_lock if
+	CONFIG_ATOMIC_TABLE_OPS is not defined.
 
-Index: linux-2.6.10/mm/memory.c
-===================================================================
---- linux-2.6.10.orig/mm/memory.c	2005-01-27 14:52:11.000000000 -0800
-+++ linux-2.6.10/mm/memory.c	2005-01-27 16:27:40.000000000 -0800
-@@ -513,14 +513,18 @@ static void zap_pte_range(struct mmu_gat
- 				     page->index > details->last_index))
- 					continue;
- 			}
--			pte = ptep_get_and_clear(ptep);
--			tlb_remove_tlb_entry(tlb, ptep, address+offset);
--			if (unlikely(!page))
-+			if (unlikely(!page)) {
-+				pte = ptep_get_and_clear(ptep);
-+				tlb_remove_tlb_entry(tlb, ptep, address+offset);
- 				continue;
-+			}
- 			if (unlikely(details) && details->nonlinear_vma
- 			    && linear_page_index(details->nonlinear_vma,
- 					address+offset) != page->index)
--				set_pte(ptep, pgoff_to_pte(page->index));
-+				pte = ptep_xchg(ptep, pgoff_to_pte(page->index));
-+			else
-+				pte = ptep_get_and_clear(ptep);
-+			tlb_remove_tlb_entry(tlb, ptep, address+offset);
- 			if (pte_dirty(pte))
- 				set_page_dirty(page);
- 			if (PageAnon(page))
-Index: linux-2.6.10/mm/mprotect.c
-===================================================================
---- linux-2.6.10.orig/mm/mprotect.c	2005-01-27 14:47:20.000000000 -0800
-+++ linux-2.6.10/mm/mprotect.c	2005-01-27 16:27:40.000000000 -0800
-@@ -48,12 +48,16 @@ change_pte_range(pmd_t *pmd, unsigned lo
- 		if (pte_present(*pte)) {
- 			pte_t entry;
+	If CONFIG_ATOMIC_TABLE_OPS is defined those functions may
+	be used to prep the CPU for atomic table ops (i386 in PAE mode
+	may f.e. get the MMX register ready for 64bit atomic ops) but
+	are simply empty by default.
 
--			/* Avoid an SMP race with hardware updated dirty/clean
--			 * bits by wiping the pte and then setting the new pte
--			 * into place.
--			 */
--			entry = ptep_get_and_clear(pte);
--			set_pte(pte, pte_modify(entry, newprot));
-+			 /* Deal with a potential SMP race with hardware/arch
-+			  * interrupt updating dirty/clean bits through the use
-+			  * of ptep_cmpxchg.
-+			  */
-+			do {
-+				entry = *pte;
-+			} while (!ptep_cmpxchg(pte,
-+					entry,
-+					pte_modify(entry, newprot)
-+				));
- 		}
- 		address += PAGE_SIZE;
- 		pte++;
-Index: linux-2.6.10/include/asm-generic/pgtable.h
-===================================================================
---- linux-2.6.10.orig/include/asm-generic/pgtable.h	2004-12-24 13:34:30.000000000 -0800
-+++ linux-2.6.10/include/asm-generic/pgtable.h	2005-01-27 16:27:40.000000000 -0800
-@@ -102,6 +102,92 @@ static inline pte_t ptep_get_and_clear(p
- })
- #endif
+	Two operations may then be performed on the page table without
+	acquiring the page table lock:
 
-+#ifdef CONFIG_ATOMIC_TABLE_OPS
-+
-+/*
-+ * The architecture does support atomic table operations.
-+ * Thus we may provide generic atomic ptep_xchg and ptep_cmpxchg using
-+ * cmpxchg and xchg.
-+ */
-+#ifndef __HAVE_ARCH_PTEP_XCHG
-+#define ptep_xchg(__ptep, __pteval) \
-+	__pte(xchg(&pte_val(*(__ptep)), pte_val(__pteval)))
-+#endif
-+
-+#ifndef __HAVE_ARCH_PTEP_CMPXCHG
-+#define ptep_cmpxchg(__ptep,__oldval,__newval)				\
-+	(cmpxchg(&pte_val(*(__ptep)),					\
-+			pte_val(__oldval),				\
-+			pte_val(__newval)				\
-+		) == pte_val(__oldval)					\
-+	)
-+#endif
-+
-+#ifndef __HAVE_ARCH_PTEP_XCHG_FLUSH
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
-+({									\
-+	pte_t __pte = ptep_xchg(__ptep, __pteval);			\
-+	flush_tlb_page(__vma, __address);				\
-+	__pte;								\
-+})
-+#endif
-+
-+#else
-+
-+/*
-+ * No support for atomic operations on the page table.
-+ * Exchanging of pte values is done by first swapping zeros into
-+ * a pte and then putting new content into the pte entry.
-+ * However, these functions will generate an empty pte for a
-+ * short time frame. This means that the page_table_lock must be held
-+ * to avoid a page fault that would install a new entry.
-+ */
-+#ifndef __HAVE_ARCH_PTEP_XCHG
-+#define ptep_xchg(__ptep, __pteval)					\
-+({									\
-+	pte_t __pte = ptep_get_and_clear(__ptep);			\
-+	set_pte(__ptep, __pteval);					\
-+	__pte;								\
-+})
-+#endif
-+
-+#ifndef __HAVE_ARCH_PTEP_XCHG_FLUSH
-+#ifndef __HAVE_ARCH_PTEP_XCHG
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
-+({									\
-+	pte_t __pte = ptep_clear_flush(__vma, __address, __ptep);	\
-+	set_pte(__ptep, __pteval);					\
-+	__pte;								\
-+})
-+#else
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
-+({									\
-+	pte_t __pte = ptep_xchg(__ptep, __pteval);			\
-+	flush_tlb_page(__vma, __address);				\
-+	__pte;								\
-+})
-+#endif
-+#endif
-+
-+/*
-+ * The fallback function for ptep_cmpxchg avoids any real use of cmpxchg
-+ * since cmpxchg may not be available on certain architectures. Instead
-+ * the clearing of a pte is used as a form of locking mechanism.
-+ * This approach will only work if the page_table_lock is held to insure
-+ * that the pte is not populated by a page fault generated on another
-+ * CPU.
-+ */
-+#ifndef __HAVE_ARCH_PTEP_CMPXCHG
-+#define ptep_cmpxchg(__ptep, __old, __new)				\
-+({									\
-+	pte_t prev = ptep_get_and_clear(__ptep);			\
-+	int r = pte_val(prev) == pte_val(__old);			\
-+	set_pte(__ptep, r ? (__new) : prev);				\
-+	r;								\
-+})
-+#endif
-+#endif
-+
- #ifndef __HAVE_ARCH_PTEP_SET_WRPROTECT
- static inline void ptep_set_wrprotect(pte_t *ptep)
- {
-Index: linux-2.6.10/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.10.orig/arch/ia64/Kconfig	2005-01-27 14:47:14.000000000 -0800
-+++ linux-2.6.10/arch/ia64/Kconfig	2005-01-27 16:36:56.000000000 -0800
-@@ -280,6 +280,17 @@ config PREEMPT
-           Say Y here if you are building a kernel for a desktop, embedded
-           or real-time system.  Say N if you are unsure.
+	a) updating access bits in pte
+	b) anonymous read faults installed a mapping to the zero page.
 
-+config ATOMIC_TABLE_OPS
-+	bool "Atomic Page Table Operations (EXPERIMENTAL)"
-+	depends on SMP && EXPERIMENTAL
-+	help
-+	  Atomic Page table operations allow page faults
-+	  without the use (or with reduce use of) spinlocks
-+	  and allow greater concurrency for a task with multiple
-+	  threads in the page fault handler. This is in particular
-+	  useful for high CPU counts and processes that use
-+	  large amounts of memory.
-+
- config HAVE_DEC_LOCK
- 	bool
- 	depends on (SMP || PREEMPT)
-Index: linux-2.6.10/arch/i386/Kconfig
-===================================================================
---- linux-2.6.10.orig/arch/i386/Kconfig	2005-01-27 14:47:14.000000000 -0800
-+++ linux-2.6.10/arch/i386/Kconfig	2005-01-27 16:37:05.000000000 -0800
-@@ -868,6 +868,17 @@ config HAVE_DEC_LOCK
- 	depends on (SMP || PREEMPT) && X86_CMPXCHG
- 	default y
+	All counters are still protected with the page_table_lock thus
+	avoiding any issues there.
 
-+config ATOMIC_TABLE_OPS
-+	bool "Atomic Page Table Operations (EXPERIMENTAL)"
-+	depends on SMP && X86_CMPXCHG && EXPERIMENTAL && !X86_PAE
-+	help
-+	  Atomic Page table operations allow page faults
-+	  without the use (or with reduce use of) spinlocks
-+	  and allow greater concurrency for a task with multiple
-+	  threads in the page fault handler. This is in particular
-+	  useful for high CPU counts and processes that use
-+	  large amounts of memory.
-+
- # turning this on wastes a bunch of space.
- # Summit needs it only when NUMA is on
- config BOOT_IOREMAP
-Index: linux-2.6.10/arch/x86_64/Kconfig
-===================================================================
---- linux-2.6.10.orig/arch/x86_64/Kconfig	2005-01-27 14:52:10.000000000 -0800
-+++ linux-2.6.10/arch/x86_64/Kconfig	2005-01-27 16:37:15.000000000 -0800
-@@ -240,6 +240,17 @@ config PREEMPT
- 	  Say Y here if you are feeling brave and building a kernel for a
- 	  desktop, embedded or real-time system.  Say N if you are unsure.
+	Some additional statistics are added to /proc/meminfo to
+	give some statistics. Also counts spurious faults with no
+	effect. There is a surprisingly high number of those on ia64
+	(used to populate the cpu caches with the pte??)
 
-+config ATOMIC_TABLE_OPS
-+	bool "Atomic Page Table Operations (EXPERIMENTAL)"
-+	depends on SMP && EXPERIMENTAL
-+	help
-+	  Atomic Page table operations allow page faults
-+	  without the use (or with reduce use of) spinlocks
-+	  and allow greater concurrency for a task with multiple
-+	  threads in the page fault handler. This is in particular
-+	  useful for high CPU counts and processes that use
-+	  large amounts of memory.
-+
- config PREEMPT_BKL
- 	bool "Preempt The Big Kernel Lock"
- 	depends on PREEMPT
+4/4: Drop the use of the page_table_lock in do_anonymous_page
 
+	The second acquisition of the page_table_lock is removed
+	from do_anonymous_page and allows the anonymous
+	write fault to be possible without the page_table_lock.
+
+	The macros for manipulating rss and anon_rss in include/linux/sched.h
+	are changed if CONFIG_ATOMIC_TABLE_OPS is set to use atomic
+	operations for rss and anon_rss (safest solution for now, other
+	solutions may easily be implemented by changing those macros).
+
+	This patch typically yield significant increases in page fault
+	performance for threaded applications on SMP systems.
+
+I have an additional patch that drops the page_table_lock for COW but that
+raises a lot of other issues. I will post that patch separately and only
+to linux-mm.

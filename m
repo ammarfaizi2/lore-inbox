@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUHVXBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267664AbUHVXDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267668AbUHVXBu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 19:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUHVXBt
+	id S267664AbUHVXDw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 19:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267730AbUHVXDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 19:01:49 -0400
-Received: from home.powernetonline.com ([66.84.210.20]:62647 "EHLO
-	home.uspower.net") by vger.kernel.org with ESMTP id S267695AbUHVXBe convert rfc822-to-8bit
+	Sun, 22 Aug 2004 19:03:52 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:63250 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S267664AbUHVXDj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 19:01:34 -0400
-Date: Sun, 22 Aug 2004 23:02:47 +0000
-From: John Lenz <lenz@cs.wisc.edu>
-Subject: Re: platform bus, usage?
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-References: <41290606.10101@drzeus.cx>
-In-Reply-To: <41290606.10101@drzeus.cx> (from drzeus-list@drzeus.cx on Sun
-	Aug 22 15:45:58 2004)
-X-Mailer: Balsa 2.2.3
-Message-Id: <1093215767l.8554l.0l@hydra>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	Format=Flowed
+	Sun, 22 Aug 2004 19:03:39 -0400
+Date: Mon, 23 Aug 2004 00:03:36 +0100
+From: John Levon <levon@movementarian.org>
+To: Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Julien Oster <usenet-20040502@usenet.frodoid.org>,
+       Miles Lane <miles.lane@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+Message-ID: <20040822230336.GA2664@compsoc.man.ac.uk>
+References: <200408191822.48297.miles.lane@comcast.net> <87hdqyogp4.fsf@killer.ninja.frodoid.org> <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl> <1093174557.24319.55.camel@localhost.localdomain> <Pine.LNX.4.60L.0408221845450.3003@rudy.mif.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.60L.0408221845450.3003@rudy.mif.pg.gda.pl>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1Bz1NA-00056H-B8*GXv7FrtMb82*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/22/04 15:45:58, Pierre Ossman wrote:
-> I'm in the process of writing a driver for a SD/MMC card reader.  
-> Since this is the first driver I'm writing I'm having some  
-> difficulties fitting it into the linux driver model. I've read all  
-> the documentation I can find to no avail.
-> 
-> The device is attached to the LPC bus and cannot be found using PNP.  
-> From what I can gather this driver should therefore be organised  
-> under the platform bus. I can't figure out how to do this though.  
-> I've created the device structure, with platform_bus_type at .bus.  
-> I've called device_register with the structure. Now how to I create a  
-> device object and attach this to the bus? With PCI I guess this  
-> handles itself using the PCI id:s.
-> 
-> At the moment I just let the driver play by itself. But that doesn't  
-> seem to be using the driver model properly.
-> 
-> Any pointers would be helpful. Documentation, functions, example  
-> drivers, anything.
+On Sun, Aug 22, 2004 at 08:27:38PM +0200, Tomasz K?oczko wrote:
 
-First example that comes to mind is the pxafb framebuffer device.  The  
-framebuffer device_driver is implemented in drivers/video/pxafb.c.  The  
-actual devices are implemented in various files in arch/arm/mach-pxa,  
-for example, take a look at arch/arm/mach-pxa/generic.c
+> As same as KProbe/DTrace. Can you use OProfile for something other tnan 
+> profiling ? Probably yes and this answer opens: probably it will be good 
+> prepare some common code for KProbe and Oprofile.
 
-It is a little confusing, becuase the driver just uses a normal  
-device_driver structure, but for the actual device, you need to create  
-and register a platform_device structure.
+I don't see an overlap here, except maybe the possibility of delivering
+sample events into the kprobes framework
 
-So the driver has something like this
-static struct device_driver pxafb_driver = {
-	.name		= "pxa2xx-fb",
-	.bus		= &platform_bus_type,
-	.probe		= pxafb_probe,
-#ifdef CONFIG_PM
-	.suspend	= pxafb_suspend,
-	.resume		= pxafb_resume,
-#endif
-};
+> It is not only extenging entropy kernel tree. IMO KProbe can bring some
+> functionalities wich can be common also for OProfile and probably in 
+> future IMO OProfile can be droped.
 
-registered with a normal driver_register.
+This seems extremely unlikely to say the least, compare the methods
+used.
 
-the actual device looks like
-static struct platform_device pxafb_device = {
-	.name		= "pxa2xx-fb",
-	.id		= -1,
-	.dev		= {
- 		.platform_data	= &pxa_fb_info,
-		.dma_mask	= &fb_dma_mask,
-		.coherent_dma_mask = 0xffffffff,
-	},
-	.num_resources	= ARRAY_SIZE(pxafb_resources),
-	.resource	= pxafb_resources,
-};
-and it is registered with platform_add_devices.
-
-Notice the two names are the same.  Devices and drivers on the platform  
-bus are matched by name. (see platform_match function in drivers/base/ 
-platform.c)
-
-Hope that helps,
-John
-
+regards
+john

@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbTE2VY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 17:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTE2VYz
+	id S262568AbTE2VaD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 17:30:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTE2VaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 17:24:55 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:52999 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262884AbTE2VYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 17:24:53 -0400
-Date: Thu, 29 May 2003 14:35:36 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "John Stoffel" <stoffel@lucent.com>
-Cc: Thomas.Downing@ipc.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm2
-Message-Id: <20030529143536.438b14a0.akpm@digeo.com>
-In-Reply-To: <16086.31229.258838.80234@gargle.gargle.HOWL>
-References: <170EBA504C3AD511A3FE00508BB89A920221E5FF@exnanycmbx4.ipc.com>
-	<20030529103628.54d1e4a0.akpm@digeo.com>
-	<16086.31229.258838.80234@gargle.gargle.HOWL>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 May 2003 17:30:03 -0400
+Received: from fyserv1.fy.chalmers.se ([129.16.110.66]:26768 "EHLO
+	fyserv1.fy.chalmers.se") by vger.kernel.org with ESMTP
+	id S262568AbTE2VaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 17:30:02 -0400
+Message-ID: <3ED67F1C.BE1918E4@fy.chalmers.se>
+Date: Thu, 29 May 2003 23:43:56 +0200
+From: Andy Polyakov <appro@fy.chalmers.se>
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,sv,ru
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Markus Plail <linux-kernel@gitteundmarkus.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: readcd with 2.5 kernels and ide-cd
+References: <fa.hr5v5at.1e5iqab@ifi.uio.no> <fa.cqhesj4.p2oeoc@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 May 2003 21:38:11.0385 (UTC) FILETIME=[9A306290:01C3262A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John Stoffel" <stoffel@lucent.com> wrote:
->
+> > Is there work going on to get readcd working with 2.5 kernels and
+> > ide-cd (without ide-scsi)?
+> >
+> > strace readcd dev=/dev/dvd f=/dev/null
+> > ...
+> > ioctl(4, SNDCTL_TMR_TIMEBASE, 0xbfffedd8) = -1 ENOTTY (Inappropriate ioctl for device)
+> > ...
+> > ioctl(3, 0x2285, 0xbfffef9c)            = -1 ENOTTY (Inappropriate ioctl for device)
 > 
-> Does 2.5.70-mm2 include the RAID1 patch posted by Niel?
+> Something _very_ fishy is going on there.
 
-No.  It seems that it didn't work right.
+Nothing fishy, nothing at all... It's as simple as
+driver/block/scsi_ioctl.c doesn't accepts requestes larger than 64KB,
+while readcd asks for 256KB.
 
-Zwane had a different fix, but afaik nobody has tried it out.  Apart from
-Zwane of course.  And that was against raid0.
+> 0x2285 is the SG_IO ioctl.
 
+sg_io returns EINVAL (line 163), but driver/block/ioctl.c transforms it
+to ENOTTY (see last 8 lines).
 
-Zwane's RAID0 patch
+> First call to it completes, second one returns -ENOTTY. Looks very much
+> like some kernel bug, see the SNDCTL_TMR_TIMEBASE ioctl returning
+> -ENOTTY in-between.
 
+SNDCTL_TMR_TIMEBASE is actually TCGETS, originates in stdio and is not
+relevant.
 
-diff -puN drivers/md/raid0.c~zwane-raid-double-free-fix drivers/md/raid0.c
---- 25/drivers/md/raid0.c~zwane-raid-double-free-fix	Thu May 29 14:32:02 2003
-+++ 25-akpm/drivers/md/raid0.c	Thu May 29 14:32:02 2003
-@@ -85,10 +85,8 @@ static int create_strip_zones (mddev_t *
- 	conf->devlist = kmalloc(sizeof(mdk_rdev_t*)*
- 				conf->nr_strip_zones*mddev->raid_disks,
- 				GFP_KERNEL);
--	if (!conf->devlist) {
--		kfree(conf);
-+	if (!conf->devlist)
- 		return 1;
--	}
- 
- 	memset(conf->strip_zone, 0,sizeof(struct strip_zone)*
- 				   conf->nr_strip_zones);
-@@ -194,7 +192,6 @@ static int create_strip_zones (mddev_t *
- 	return 0;
-  abort:
- 	kfree(conf->devlist);
--	kfree(conf->strip_zone);
- 	return 1;
- }
- 
+> I've seen this before (this very bug), but haven't chased it down.
 
-
-Neil's RAID1 patch
-
-diff -puN drivers/md/raid1.c~neilb-raid1-double-free-fix drivers/md/raid1.c
---- 25/drivers/md/raid1.c~neilb-raid1-double-free-fix	Thu May 29 14:34:23 2003
-+++ 25-akpm/drivers/md/raid1.c	Thu May 29 14:34:23 2003
-@@ -137,7 +137,7 @@ static void put_all_bios(conf_t *conf, r
- 			BUG();
- 		bio_put(r1_bio->read_bio);
- 		r1_bio->read_bio = NULL;
--	}
-+	} else
- 	for (i = 0; i < conf->raid_disks; i++) {
- 		struct bio **bio = r1_bio->write_bios + i;
- 		if (*bio) {
-
-
-
+It's not a bug, but implementation deficiency. Cheers. A.

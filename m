@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262546AbTDAO3v>; Tue, 1 Apr 2003 09:29:51 -0500
+	id <S262581AbTDAOpx>; Tue, 1 Apr 2003 09:45:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262559AbTDAO3v>; Tue, 1 Apr 2003 09:29:51 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:23039 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S262546AbTDAO3u>; Tue, 1 Apr 2003 09:29:50 -0500
-Date: Tue, 1 Apr 2003 15:43:09 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: CaT <cat@zip.com.au>
-cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-In-Reply-To: <20030401142317.GC459@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0304011536350.1375-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S262582AbTDAOpx>; Tue, 1 Apr 2003 09:45:53 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:13828 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S262581AbTDAOpw>; Tue, 1 Apr 2003 09:45:52 -0500
+Date: Tue, 1 Apr 2003 18:57:07 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 2.5] net: severe bug in icmp stats
+Message-ID: <20030401185707.A955@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Apr 2003, CaT wrote:
-> > 
-> > Hardly, it'll overflow in even more cases
-> > than CaT's (si.totalram << PAGE_CACHE_SHIFT).
-> 
-> Yes. I had it initially as Xavier suggested but after thinking about it
-> a bit I felt that making the value smaller and -then- bigger was safer.
-> 
-> > I'll take a look at this later, not right now.
-> 
-> It is still an unsigned long long int so (AFAIK) it wont overflow till
-> it hits 18,446,744,073,709,551,615. Now... if you have that much ram...
-> wow! :)
+I believe many of those weird crash reports with recent 2.5
+kernels can be explained by wrong pointer arithmetic in
+ICMP_INC_STATS_xx_FIELD macros.
 
-There's plenty of room in unsigned long long size, yes, but si.totalram
-is only an unsigned long, so the arithmetic as you have it starts out
-overflowing an unsigned long.
+(*((long *)((void *)ptr) + offt))++
 
-I don't know yet what it should say: RH2.96-110 is getting confused
-by the do_div(size, 100) I have there (to respect Xavier's point),
-and this is definitely _not_ worth adding a compiler dependency for.
+This actually adds "offt" _longs_, not _bytes_ to "ptr",
+which causes increment of entirely unrelated kernel data.
+Nasty thing is that a result of this corruption usually
+shows up much later and depends on kernel layout.
+I was "lucky" enough - on one of my boxes ICMP redirect
+packets reproducibly caused increment of thread_info->task
+pointer of kswapd, so finally I traced this back to icmp.h.
 
-Hugh
+Ivan.
 
+--- 2.5/include/net/icmp.h	Tue Mar 25 01:01:22 2003
++++ linux/include/net/icmp.h	Tue Apr  1 13:34:06 2003
+@@ -39,15 +39,15 @@ DECLARE_SNMP_STAT(struct icmp_mib, icmp_
+ #define ICMP_INC_STATS_FIELD(offt)					\
+ 	(*((unsigned long *) ((void *)					\
+ 			     per_cpu_ptr(icmp_statistics[!in_softirq()],\
+-					 smp_processor_id())) + offt))++;
++					 smp_processor_id()) + offt)))++
+ #define ICMP_INC_STATS_BH_FIELD(offt)					\
+ 	(*((unsigned long *) ((void *)					\
+ 			     per_cpu_ptr(icmp_statistics[0],		\
+-					 smp_processor_id())) + offt))++;
++					 smp_processor_id()) + offt)))++
+ #define ICMP_INC_STATS_USER_FIELD(offt)					\
+ 	(*((unsigned long *) ((void *)					\
+ 			     per_cpu_ptr(icmp_statistics[1],		\
+-					 smp_processor_id())) + offt))++;
++					 smp_processor_id()) + offt)))++
+ 
+ extern void	icmp_send(struct sk_buff *skb_in,  int type, int code, u32 info);
+ extern int	icmp_rcv(struct sk_buff *skb);

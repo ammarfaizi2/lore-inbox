@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264402AbTDXTr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 15:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTDXTr5
+	id S263402AbTDXTw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 15:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263754AbTDXTw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 15:47:57 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:20124 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264402AbTDXTr4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 15:47:56 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Apr 2003 15:52:28 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:60396 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263402AbTDXTw1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 15:52:27 -0400
+Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Chris Wright <chris@wirex.com>, Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
+       Stephen Tweedie <sct@redhat.com>, lsm <linux-security-module@wirex.com>,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030424134040.T26054@schatzie.adilger.int>
+References: <20030423194501.B5295@infradead.org>
+	 <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423202614.A5890@infradead.org>
+	 <1051127534.14761.166.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423212004.A7383@infradead.org>
+	 <1051188945.14761.284.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030424140358.A30888@infradead.org>
+	 <1051192166.14761.334.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030424113615.F15094@figure1.int.wirex.com>
+	 <1051210971.20300.89.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030424134040.T26054@schatzie.adilger.int>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1051214655.20300.118.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Apr 2003 16:04:15 -0400
 Content-Transfer-Encoding: 7bit
-Message-ID: <16040.16960.528537.454110@gargle.gargle.HOWL>
-Date: Thu, 24 Apr 2003 22:00:00 +0200
-From: mikpe@csd.uu.se
-To: ak@suse.de
-Subject: 2.4.21-rc1 on x86_64 oops at shutdown -h
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Thu, 2003-04-24 at 15:40, Andreas Dilger wrote:
+> Couldn't that be used to do the trusted-namespace- means-CAP_SYS_ADMIN
+> checks, but it can be replaced by other LSM security modules if desired?
 
-2.4.21-rc1 on x86_64 oopses on me at shutdown -h in certain situations.
-It's repeatable. Here's the raw oops:
+If we move the CAP_SYS_ADMIN checks from the trusted xattr handlers to
+the corresponding hook functions in the capabilities module, then we can
+replace those checks with our own permission checking for user process
+access to trusted.selinux and avoid any restrictions when the SELinux
+module internally performs getxattr and setxattr inode operations to
+manage the security labels.  This isn't difficult to implement, but
+implies a change in meaning for the trusted namespace.  As I understand
+it, that namespace is intended for attributes that can be managed by
+superuser processes.  Using that namespace for SELinux means that it
+will also be used for attributes managed and used internally by the
+security module for access control purposes.  I'm not sure that you want
+to mix them; it would be similar to putting ACLs in the trusted
+namespace.
+ 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Turning off swap:				[  OK  ]
-Unable to handle kernel paging request at virtual address 0000010010000000
- printing rip:
-ffffffff801ed7ea
-PML4 8063 PGD 9063 PMD 0 
-Oops: 0002
-CPU 0 
-Pid: 0, comm:  Not tainted
-RIP: 0010:[<ffffffff801ed7ea>]
-RSP: 0018:000001000f99def8  EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 0000000000000040 RCX: 0000003fff881fc0
-RDX: 0000003ffffffff0 RSI: 0000000000515ff0 RDI: 0000010010000000
-RBP: 0000000000515030 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 000001000f881000
-R13: 000001000f99df40 R14: 0000000000001000 R15: 0000000000514ec0
-FS:  00000000005040a0(0000) GS:ffffffff80280f80(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 0000010010000000 CR3: 0000000000101000 CR4: 00000000000006a0
-
-Call Trace: <1>Unable to handle kernel NULL pointer dereference at virtual addre
-ss 0000000000000000
- printing rip:
-ffffffff8010de83
-
-The call trace is inaccessible because the stack dumper itself immediately
-triggers a new oops (ffffffff8010de83 is show_trace+0x223), resulting in the
-second oops repeating rapidly until Simics hangs or gets a triple fault.
-I had to ^C Simics and copy-paste the first oops from the Simics Console window.
-
-The RIP of the first oops, ffffffff801ed7ea, is copy_user_generic+0xea.
-
-1. ksymoops-2.4.9 hangs on the raw oops.
-2. The kernel is 2.4.21-rc1 with modules, modversions, and kmod enabled.
-   ide-cd, cdrom, isofs, and af_packet were loaded at the point of the oops.
-   modutils-2.4.22-10 from RedHat rawhide's x86_64 .rpm.
-4. Steps to reproduce: boot; find / -type f -print; rpm -qa | sort | diff -u /tmp/old.rpmlist -;
-   mount /mnt/cdrom (with no cdrom in cd drive, but it loads the modules); sync;
-   shutdown -h now. The oops occurs just after init's "Turning off swap:", at
-   the "Halting system..." step (which is probably where copy_user came from).
-5. A monolithic kernel doesn't oops.
-
-/Mikael

@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267627AbRGNMSX>; Sat, 14 Jul 2001 08:18:23 -0400
+	id <S267626AbRGNMPD>; Sat, 14 Jul 2001 08:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267635AbRGNMSO>; Sat, 14 Jul 2001 08:18:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63243 "EHLO
+	id <S267627AbRGNMOx>; Sat, 14 Jul 2001 08:14:53 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62475 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267627AbRGNMSD>; Sat, 14 Jul 2001 08:18:03 -0400
-Subject: Re: ORBS blacklist is BROKEN (deliberately)...
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sat, 14 Jul 2001 13:17:46 +0100 (BST)
-Cc: matti.aarnio@zmailer.org (Matti Aarnio), linux-kernel@vger.kernel.org,
-        linux-admin@vger.kernel.org
-In-Reply-To: <10249.995101943@ocs3.ocs-net> from "Keith Owens" at Jul 14, 2001 07:12:23 PM
+	id <S267626AbRGNMOp>; Sat, 14 Jul 2001 08:14:45 -0400
+Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy)
+To: Gunther.Mayer@t-online.de (Gunther Mayer)
+Date: Sat, 14 Jul 2001 13:15:00 +0100 (BST)
+Cc: torvalds@transmeta.com, paul@paulbristow.net, linux-kernel@vger.kernel.org
+In-Reply-To: <3B50213B.A826C259@t-online.de> from "Gunther Mayer" at Jul 14, 2001 12:38:51 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15LOMk-00018x-00@the-village.bc.nu>
+Message-Id: <E15LOK4-00018r-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> http://www.e-scrub.com/orbs/ is the key.  "Ronald F. Guilmette"
-> <rfg@monkeys.com> sent this message to spam lists.  Anybody still using
-> ORBS for lookups can expect to get random mail bounces.
+> Linus, please include if you like.
+> 
+> This is the original patch from the MAINTAINER
+> but he seems defunct since three weeks.
 
-Yeah he's decided to solve his load problem by committing an act of criminal
-fraud, computer misuse and a few other violations
+Argh so we now have two forked versions of ide-floppy to resolve.
 
-> Because of the way Alan disabled the former ORBS list zones, my name
-> server is now shouldering (at least) 1/11th of the total world-wide
+Linus - can this one wait until the main merges are done ?
 
-[I think he means the way the courts did..]
-
-And guess what, as soon as ORBS got beaten off the net MAPS starts talking
-about charging for their service, just like they promised they never would
-
-Alan

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129812AbQLMUgO>; Wed, 13 Dec 2000 15:36:14 -0500
+	id <S129406AbQLMUgy>; Wed, 13 Dec 2000 15:36:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQLMUgE>; Wed, 13 Dec 2000 15:36:04 -0500
-Received: from gear.torque.net ([204.138.244.1]:10250 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S129406AbQLMUft>;
-	Wed, 13 Dec 2000 15:35:49 -0500
-Message-ID: <3A37D68D.8F63DC21@torque.net>
-Date: Wed, 13 Dec 2000 15:05:33 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129525AbQLMUgo>; Wed, 13 Dec 2000 15:36:44 -0500
+Received: from u-code.de ([207.159.137.250]:42477 "EHLO u-code.de")
+	by vger.kernel.org with ESMTP id <S129406AbQLMUgJ>;
+	Wed, 13 Dec 2000 15:36:09 -0500
+From: Eckhard Jokisch <e.jokisch@u-code.de>
+Reply-To: e.jokisch@u-code.de
 To: linux-kernel@vger.kernel.org
-CC: Tracy Stenvik <imf@u.washington.edu>, linux-scsi@vger.kernel.org
-Subject: Re: 2.4.0-test12 unresolved symbols in ide-scsi.o
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: [me to]2.4.0-test12 randomly hangs up
+Date: Wed, 13 Dec 2000 21:07:23 +0000
+X-Mailer: KMail [version 1.1.61]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <00121321070701.22766@eckhard>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tracy,
-All scsi modules built with lk 2.4.0-test12 are broken due to
-scsi_sym.o being moved in drivers/scsi/Makefile .
 
-This patch against test12 from Bob Tracy worked for me.
+On Mit, 13 Dez 2000, Jani Monoses wrote:
+> Mine too did this 15 minutes ago.Just moving the mouse around in X and
+> suddenly complete freeze.No response to ping either.Such a thing didn't
+> happen for a long time to me.The only thing I've changed since test11 is
+> compiling fb+fbvesa in.
 
-Doug Gilbert
+I made similar experience but it also involved 2.2.18 in combination with
+KDE2.0 and ALSA.
+The machine "hung" but worked heavily on the HD and after about one hour it
+worked abain at least on the console.
+One thing I found was the current CVS from ALSA seems to have a bug.
 
+Another thing is tha the 8139too driver prodices
+Dec 13 12:34:09 eckhard kernel: eth0: Abnormal interrupt, status 00000006.
+Dec 13 12:34:19 eckhard kernel: eth0: Abnormal interrupt, status 00000002.
+Dec 13 12:34:44 eckhard last message repeated 7 times
+Dec 13 12:35:50 eckhard last message repeated 16 times
+Dec 13 12:36:23 eckhard last message repeated 4 times
+Dec 13 12:37:49 eckhard last message repeated 15 times
+Dec 13 12:38:21 eckhard last message repeated 7 times
+Dec 13 12:38:22 eckhard kernel: eth0: Abnormal interrupt, status 00000006.
+Dec 13 12:38:24 eckhard kernel: eth0: Abnormal interrupt, status 00000002.
 
---- linux/drivers/scsi/Makefile Tue Dec 12 10:49:32 2000
-+++ linux/drivers/scsi/Makefile.t12bt   Tue Dec 12 22:46:27 2000
-@@ -30,7 +30,7 @@
- CFLAGS_gdth.o    = # -DDEBUG_GDTH=2 -D__SERIAL__ -D__COM2__ -DGDTH_STATISTICS
- CFLAGS_seagate.o =   -DARBITRATE -DPARITY -DSEAGATE_USE_ASM
- 
--obj-$(CONFIG_SCSI)             += scsi_mod.o
-+obj-$(CONFIG_SCSI)             += scsi_mod.o scsi_syms.o
- 
- obj-$(CONFIG_A4000T_SCSI)      += amiga7xx.o   53c7xx.o
- obj-$(CONFIG_A4091_SCSI)       += amiga7xx.o   53c7xx.o
-@@ -122,8 +122,7 @@
- scsi_mod-objs  := scsi.o hosts.o scsi_ioctl.o constants.o \
-                        scsicam.o scsi_proc.o scsi_error.o \
-                        scsi_obsolete.o scsi_queue.o scsi_lib.o \
--                       scsi_merge.o scsi_dma.o scsi_scan.o \
--                       scsi_syms.o
-+                       scsi_merge.o scsi_dma.o scsi_scan.o
- 
- sr_mod-objs    := sr.o sr_ioctl.o sr_vendor.o
- initio-objs    := ini9100u.o i91uscsi.o
+in /var/log/messages and the machine is getting very slow then.
+This is even worse when compiled as a module.
+With rlt8139 driver this does not happen. The chip is 8139A.
+
+Eckhard Jokisch
+
+-------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266890AbUIERZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUIERY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266890AbUIERZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 13:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUIERZJ
+	id S266885AbUIERY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 13:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUIERY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 13:25:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1748 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266890AbUIERZE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 13:25:04 -0400
-Date: Sun, 5 Sep 2004 10:24:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-In-Reply-To: <413AE6E7.5070103@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org>
-References: <413AA7B2.4000907@yahoo.com.au> <20040904230210.03fe3c11.davem@davemloft.net>
- <413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au>
+	Sun, 5 Sep 2004 13:24:29 -0400
+Received: from host213-106-240-81.no-dns-yet.ntli.net ([213.106.240.81]:23308
+	"EHLO cus.org.uk") by vger.kernel.org with ESMTP id S266885AbUIERY1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 13:24:27 -0400
+Date: Sun, 5 Sep 2004 18:24:36 +0100 (BST)
+From: Alex Owen <owen@cus.org.uk>
+To: glen.turner@aarnet.edu.au
+cc: linux-kernel@vger.kernel.org
+Subject: Linux serial console patch
+Message-ID: <20040905175037.O58184@cus.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Glen Turner,
 
+I have read your posts to lkml containing your serial console flow control
+patches firstly for 2.4.x and then for 2.6.x kernels.
 
-On Sun, 5 Sep 2004, Nick Piggin wrote:
-> 
-> Hmm, and the crowning argument for not stopping at order 3 is that if we
-> never use higher order allocations, nothing will care about their watermarks
-> anyway. I think I had myself confused when that question in the first place.
-> 
-> So yeah, stopping at a fixed number isn't required, and as you say it keeps
-> things general and special cases minimal.
+Rationale:
+ "[PATCH] 0/3 Fix serial console flow control"
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1790.html
+2.4 patches:
+ "[PATCH] 1/3 Fix serial console flow control, serial.c"
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1791.html
+ "[PATCH] 2/3 Fix serial console flow control, serialP.h"
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1792.html
+ "[PATCH] 3/3 Fix serial console flow control, serial-console.txt"
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1793.html
+2.6 patch:
+ "[PATCH] Fix CTS/RTS flow control in serial console"
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0310.2/1080.html
 
-Hey, please refute my "you need 20% free" to get even to order-3 for most
-cases first.
+I have not been able to find any feedback on those patches in the lkml
+archives. Also I can find no evidence that the patch made it into the
+2.6.8.1 kernel. This is a shame as I found your rationale very
+persuasive.
 
-It's probably acceptable to have a _very_ backgrounded job that does
-freeing if order-3 isn't available, but it had better be pretty
-slow-moving, I suspect. On the order of "It's probably ok to try to aim
-for up to 25% free 'overnight' if the machine is idle" but it's almost
-certainly not ok to aggressively push things out to that degree..
+Do you maintain an up-to-date version of this patch?
+Did you get any feedback for this patch, positive or negative?
+Do you need people (i.e. me) to test this patch?
 
-		Linus
+Thanks
+Alex Owen

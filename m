@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbTIPAwg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 20:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTIPAwg
+	id S261721AbTIPBDR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 21:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbTIPBDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 20:52:36 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:41100
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S261732AbTIPAwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 20:52:34 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH]O20.3int
-Date: Tue, 16 Sep 2003 11:00:44 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_8CmZ/Be3ZG9BQv1"
-Message-Id: <200309161100.44312.kernel@kolivas.org>
+	Mon, 15 Sep 2003 21:03:17 -0400
+Received: from dp.samba.org ([66.70.73.150]:16828 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261721AbTIPBDN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 21:03:13 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Hu, Boris" <boris.hu@intel.com>
+Cc: "Jamie Lokier" <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] Split futex global spinlock futex_lock 
+In-reply-to: Your message of "Thu, 11 Sep 2003 15:02:17 +0800."
+             <37FBBA5F3A361C41AB7CE44558C3448E01C0B8DE@pdsmsx403.ccr.corp.intel.com> 
+Date: Tue, 16 Sep 2003 01:07:02 +1000
+Message-Id: <20030916010313.69E1F2C974@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <37FBBA5F3A361C41AB7CE44558C3448E01C0B8DE@pdsmsx403.ccr.corp.intel.com> you write:
+> +/*
+> + * Split the global futex_lock into every hash list lock.
+> + */
+> +struct futex_hash_bucket {
+> +       spinlock_t              lock;
+> +       struct list_head       chain;
+> +};
+> +
+>  /* The key for the hash is the address + index + offset within page */
+> -static struct list_head futex_queues[1<<FUTEX_HASHBITS];
+> -static spinlock_t futex_lock = SPIN_LOCK_UNLOCKED;
+> +static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS] \
+> +	__cacheline_aligned_in_smp;
 
---Boundary-00=_8CmZ/Be3ZG9BQv1
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This doesn't do what you expect, unfortunately.  You need:
 
-Yep I really hate doing this, sorry. This is what I was supposed to do in 
-O20.2int.
+struct futex_hash_bucket {
+       spinlock_t              lock;
+       struct list_head       chain;
+} ____cacheline_aligned_in_smp;
 
-applies to O20.2int
+static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS]
+	__cacheline_aligned_in_smp;
 
-Con
+Also, Jamie was hinting at a sectored approach: optimal memory
+footprint/speed balance might be one lock in one cache-line-worth of
+list_head.  But the above will do unless someone gets extremely
+excited.
 
---Boundary-00=_8CmZ/Be3ZG9BQv1
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-O20.2-O20.3int"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="patch-O20.2-O20.3int"
+Uli, can we ask you for benchmarks with this change, too?
 
---- linux-2.6.0-test5-mm2-O20.2/kernel/sched.c	2003-09-16 09:27:57.000000000 +1000
-+++ linux-2.6.0-test5-mm2-O20.3/kernel/sched.c	2003-09-16 10:50:49.000000000 +1000
-@@ -1426,11 +1426,11 @@ void scheduler_tick(int user_ticks, int 
- 		 * equal priority.
- 		 *
- 		 * This only applies to tasks in the interactive
--		 * delta range with at least MIN_TIMESLICE to requeue.
-+		 * delta range with at least TIMESLICE_GRANULARITY to requeue.
- 		 */
- 		if (TASK_INTERACTIVE(p) && !((task_timeslice(p) -
- 			p->time_slice) % TIMESLICE_GRANULARITY(p)) &&
--			(p->time_slice >= MIN_TIMESLICE) &&
-+			(p->time_slice >= TIMESLICE_GRANULARITY(p)) &&
- 			(p->array == rq->active)) {
- 
- 			dequeue_task(p, rq->active);
-
---Boundary-00=_8CmZ/Be3ZG9BQv1--
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267447AbUIWWJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267356AbUIWVJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267447AbUIWWJk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 18:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUIWWG1
+	id S267356AbUIWVJq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 17:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267404AbUIWVJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 18:06:27 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:27411 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S267450AbUIWWFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 18:05:48 -0400
-Message-ID: <41534989.3070001@kolumbus.fi>
-Date: Fri, 24 Sep 2004 01:09:13 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-CC: anil.s.keshavamurthy@intel.com, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][4/4] Add NUMA node handling to the container driver
-References: <20040920092520.A14208@unix-os.sc.intel.com>	<20040920094719.H14208@unix-os.sc.intel.com>	<20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com> <20040924013642.00003b08.tokunaga.keiich@jp.fujitsu.com>
-In-Reply-To: <20040924013642.00003b08.tokunaga.keiich@jp.fujitsu.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 24.09.2004 01:06:53,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 24.09.2004 01:07:45,
-	Serialize complete at 24.09.2004 01:07:45
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 23 Sep 2004 17:09:09 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:62174 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267370AbUIWVIX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 17:08:23 -0400
+Subject: [patch 02/20]  dvb/dvb_ca_en50221: replace 	schedule_timeout() with msleep()
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       janitor@sternwelten.at, nacc@us.ibm.com
+From: janitor@sternwelten.at
+Date: Thu, 23 Sep 2004 23:08:22 +0200
+Message-ID: <E1CAapC-0003J8-V1@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keiichiro Tokunaga wrote:
 
->Name: container_for_numa.patch
->Status: Tested on 2.6.9-rc2
->Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
->Description:
->Add NUMA node handling to the container driver.
->
->Thanks,
->Keiichiro Tokunaga
->---
->  
->
 
->@@ -198,6 +208,7 @@ container_device_add(struct acpi_device 
-> 	if (acpi_bus_add(device, pdev, handle, ACPI_BUS_TYPE_DEVICE)) {
-> 		return_VALUE(-ENODEV);
-> 	}
->+	container_numa_add((*device)->handle);
->  
->
-Maybe that should be :
 
-container_numa_add(phandle);
+
+
+
+I would appreciate any comments from the janitor@sternweltens list.
+
+Thanks,
+Nish
+
+
+
+Description: Replace dvb_delay() with msleep() to guarantee the
+task delays the desired time.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+---
+
+ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/dvb-core/dvb_ca_en50221.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN drivers/media/dvb/dvb-core/dvb_ca_en50221.c~msleep-drivers_media_dvb_dvb-core_dvb_ca_en50221 drivers/media/dvb/dvb-core/dvb_ca_en50221.c
+--- linux-2.6.9-rc2-bk7/drivers/media/dvb/dvb-core/dvb_ca_en50221.c~msleep-drivers_media_dvb_dvb-core_dvb_ca_en50221	2004-09-21 20:50:07.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/dvb-core/dvb_ca_en50221.c	2004-09-21 20:50:07.000000000 +0200
+@@ -277,7 +277,7 @@ static int dvb_ca_en50221_wait_if_status
+                 }
  
-instead? Device is the child at this point.
-
---Mika
-
-
-
+                 /* wait for a bit */
+-                dvb_delay(1);
++                msleep(1);
+         }
+ 
+         dprintk("%s failed timeout:%lu\n", __FUNCTION__, jiffies - start);
+@@ -1233,7 +1233,7 @@ static ssize_t dvb_ca_en50221_io_write(s
+ 			}
+                         if (status != -EAGAIN) goto exit;
+ 
+-                        dvb_delay(1);
++                        msleep(1);
+                 }
+ 	        if (!written) {
+ 		        status = -EIO;
+_

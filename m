@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbTIABik (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 21:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbTIABik
+	id S261192AbTIABdq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 21:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTIABdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 21:38:40 -0400
-Received: from PATH.Berkeley.EDU ([128.32.234.234]:4746 "EHLO
-	PATH.Berkeley.EDU") by vger.kernel.org with ESMTP id S261367AbTIABij
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 21:38:39 -0400
-From: Daniel Lyddy <sprocket@PATH.Berkeley.EDU>
-Organization: California CCIT
-To: mec@shout.net
-Subject: Q> scripts/Menuconfig: line 832: MCmenu78: command not found
-Date: Sun, 31 Aug 2003 18:38:25 -0700
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Aug 2003 21:33:46 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:722 "EHLO smtp.bitmover.com")
+	by vger.kernel.org with ESMTP id S261192AbTIABdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 21:33:45 -0400
+Date: Sun, 31 Aug 2003 18:33:35 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030901013335.GF18458@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Pascal Schmidt <der.eremit@email.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random> <20030901001819.GC29239@mail.jlokier.co.uk> <20030901002815.GB11503@dualathlon.random> <20030901005041.GC31531@mail.jlokier.co.uk> <20030901011055.GE11503@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308311838.25279.sprocket@path.berkeley.edu>
+In-Reply-To: <20030901011055.GE11503@dualathlon.random>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this error while trying to use menuconfig to set up Kernel 2.4.22-3mdk 
-sources for compilation.  I was trying to enter the "alsa" part of the 
-"sound" section.
+On Mon, Sep 01, 2003 at 03:10:55AM +0200, Andrea Arcangeli wrote:
+> now apparently bkbits.net has nothing to do with it, and it's all about
+> the http server. 
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+BK _is_ an http server.  The same daemon you talk to for clones is the
+HTTP server.  That's one and the same machine.
 
- Q> scripts/Menuconfig: line 832: MCmenu78: command not found
+> however keep in mind you will somehow throttle the number of syns too,
+> unless every single syn arrives to the webserver from a different user
+> (unlikely).
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+That's exactly the situation that any busy server has.  Which is
+why I kept saying "tell me how you made this work for a busy server".
+"Busy server" by definition in this context at least means a server that
+is getting lots of connection requests from lots of different users.
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-
-Dan
-
+Why that isn't obvious to you I don't understand.  This is bkbits.net.
+Yeah, it's not slashdot or anything but there are something like 400
+branches of the Linux kernel on it and that's ignoring all other projects.
+It's the web server which provides insight into the Linux kernel source
+base, of course it is busy.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

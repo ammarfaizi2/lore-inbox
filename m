@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286207AbSALNPJ>; Sat, 12 Jan 2002 08:15:09 -0500
+	id <S286215AbSALNRT>; Sat, 12 Jan 2002 08:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286215AbSALNO7>; Sat, 12 Jan 2002 08:14:59 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:35408 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S286207AbSALNOt>; Sat, 12 Jan 2002 08:14:49 -0500
-Date: Sat, 12 Jan 2002 14:14:11 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, bcrl@redhat.com,
-        axboe@suse.de, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] Mostly PAGE_SIZE IO for RAW (NEW VERSION)
-Message-ID: <20020112141411.K1482@inspiron.school.suse.de>
-In-Reply-To: <200201112351.g0BNp8912572@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S286221AbSALNRJ>; Sat, 12 Jan 2002 08:17:09 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:31154 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S286215AbSALNQ5>; Sat, 12 Jan 2002 08:16:57 -0500
+Message-ID: <3C40378B.583AC9E3@didntduck.org>
+Date: Sat, 12 Jan 2002 08:18:03 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: hpa@transmeta.com, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+In-Reply-To: <200201121048.CAA11276@adam.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200201112351.g0BNp8912572@eng2.beaverton.ibm.com>; from pbadari@us.ibm.com on Fri, Jan 11, 2002 at 03:51:08PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 03:51:08PM -0800, Badari Pulavarty wrote:
-> +					iosize = PAGE_SIZE - offset;
+"Adam J. Richter" wrote:
+> 
+> H. Peter Anvin wrote, in response to Andi Kleen:
+> >You don't need CMPXCHG8B to do efficient inline mutexes.  In fact, the
+> >pthreads code for i386 uses the same mutexes the kernel does (LOCK INC
+> >based, I believe), complete with section hacking to make them
+> >efficiently inlinable -- and then they're put inside a function call.
+> [...]
+> 
+>         Your comment prompted me to look at
+> linux-2.5.2-pre11/include/asm-i386/spinlock.h, and I now believe that
+> the "lock; decb" that it uses for grabbing spinlocks will return an
+> incorrect success if 255 or more processors are waiting on the same
+> spinlock.
 
-BTW, I'd be careful with true PAGE_SIZE I/O, PAGE_SIZE can be easily as
-large as 32k and not every driver is been tested to digest a b_size of
-32k, so I'd use 4k instead, noop for x86 so I think you won't mind to go
-safe here :). I'd define a RAWIO_BLOCKSIZE in iobuf.h defined to 4096.
+Implementation detail.  You could just as easily use a long instead of a
+char and have room for 2^32 processors.
 
-Andrea
+--
+						Brian Gerst

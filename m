@@ -1,100 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVBRXss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVBRXwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVBRXss (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 18:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVBRXss
+	id S261567AbVBRXwA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 18:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVBRXwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 18:48:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34066 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261565AbVBRXsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 18:48:14 -0500
-Date: Sat, 19 Feb 2005 00:48:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: phil.el@wanadoo.fr
-Cc: oprofile-list@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] oprofile: make some code static
-Message-ID: <20050218234809.GD4337@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Feb 2005 18:52:00 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:24544 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261567AbVBRXvv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 18:51:51 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6: drivers/input/power.c is never built
+Date: Sat, 19 Feb 2005 00:51:47 +0100
+User-Agent: KMail/1.7.1
+Cc: Vojtech Pavlik <vojtech@suse.cz>, dtor_core@ameritech.net,
+       Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <047401c515bb$437b5130$0f01a8c0@max> <200502182300.21420.oliver@neukum.org> <20050218233443.GB1628@elf.ucw.cz>
+In-Reply-To: <20050218233443.GB1628@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200502190051.48052.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+Am Samstag, 19. Februar 2005 00:34 schrieb Pavel Machek:
+> Hi!
+> 
+> > > Well, if you have power button on usb keyboard -- why should it be
+> > > handled differently from built-in button?
+> > 
+> > I see no reason. But that tells you that one subsystem should handle
+> > that, not which subsystem.
+> 
+> If usb keyboard has power button... I do not think we really want to
+> route that through acpi. And what if acpi is not available? (APM knows
+> about suspend key in weird way, but not about power key).
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I'd suggest to primarily care about acpi. The other important power
+management subsystems will follow suit.
 
----
+> > > trip points), and I do not see how you can do interrupts for fan
+> > > status. Either fans are under Linux control (and kernel could tell you
+> > > when it turns fan on/off, but...), or they do not exist from Linux's
+> > > point of few.
+> > 
+> > They still can have a readable rate, even if not under os control.
+> > Nevertheless I don't think you can reasonably define what might
+> > interest user space or not and in which detail.
+> 
+> Well, we can say that userspace definitely is interested in "power"
+> key ;-).
 
- drivers/oprofile/buffer_sync.c  |    6 +++---
- drivers/oprofile/cpu_buffer.c   |    2 +-
- drivers/oprofile/event_buffer.c |    7 ++++---
- 3 files changed, 8 insertions(+), 7 deletions(-)
+I wouldn't call that selfevident. The system might be eg. a ticket
+vending system and we care only about wake ups from touchscreen,
+trackball and modem and about volume control keys. I don't think
+you can make up any rules about what user space is interested or not.
 
---- linux-2.6.11-rc3-mm2-full/drivers/oprofile/buffer_sync.c.old	2005-02-17 22:18:31.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/buffer_sync.c	2005-02-17 22:19:25.000000000 +0100
-@@ -34,9 +34,9 @@
-  
- static LIST_HEAD(dying_tasks);
- static LIST_HEAD(dead_tasks);
--cpumask_t marked_cpus = CPU_MASK_NONE;
-+static cpumask_t marked_cpus = CPU_MASK_NONE;
- static DEFINE_SPINLOCK(task_mortuary);
--void process_task_mortuary(void);
-+static void process_task_mortuary(void);
- 
- 
- /* Take ownership of the task struct and place it on the
-@@ -422,7 +422,7 @@
-  * and to have reached the list, it must have gone through
-  * one full sync already.
-  */
--void process_task_mortuary(void)
-+static void process_task_mortuary(void)
- {
- 	struct list_head * pos;
- 	struct list_head * pos2;
---- linux-2.6.11-rc3-mm2-full/drivers/oprofile/cpu_buffer.c.old	2005-02-17 22:20:01.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/cpu_buffer.c	2005-02-17 22:20:10.000000000 +0100
-@@ -32,7 +32,7 @@
- static void wq_sync_buffer(void *);
- 
- #define DEFAULT_TIMER_EXPIRE (HZ / 10)
--int work_enabled;
-+static int work_enabled;
- 
- void free_cpu_buffers(void)
- {
---- linux-2.6.11-rc3-mm2-full/drivers/oprofile/event_buffer.c.old	2005-02-17 22:20:45.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/event_buffer.c	2005-02-17 22:21:38.000000000 +0100
-@@ -94,7 +94,7 @@
- }
- 
-  
--int event_buffer_open(struct inode * inode, struct file * file)
-+static int event_buffer_open(struct inode * inode, struct file * file)
- {
- 	int err = -EPERM;
- 
-@@ -130,7 +130,7 @@
- }
- 
- 
--int event_buffer_release(struct inode * inode, struct file * file)
-+static int event_buffer_release(struct inode * inode, struct file * file)
- {
- 	oprofile_stop();
- 	oprofile_shutdown();
-@@ -142,7 +142,8 @@
- }
- 
- 
--ssize_t event_buffer_read(struct file * file, char __user * buf, size_t count, loff_t * offset)
-+static ssize_t event_buffer_read(struct file * file, char __user * buf,
-+				 size_t count, loff_t * offset)
- {
- 	int retval = -EINVAL;
- 	size_t const max = buffer_size * sizeof(unsigned long);
-
+	Regards
+		Oliver

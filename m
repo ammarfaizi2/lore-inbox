@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbUK2TfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbUK2Tys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbUK2TfU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUK2Td4
+	id S261765AbUK2Tys (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUK2Tyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:33:56 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:54992 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S261622AbUK2TJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:09:51 -0500
-Date: Mon, 29 Nov 2004 12:09:48 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org,
-       SoftwareSuspend Development 
-	<softwaresuspend-devel@lists.berlios.de>
-Subject: Re: [PATCH 2.6.9] KDB: Fix compile problem when CONFIG_KPROBES and CONFIG_KDB set
-Message-ID: <20041129190948.GH22325@smtp.west.cox.net>
-References: <200411280418.47543.mhf@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411280418.47543.mhf@linuxmail.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 29 Nov 2004 14:54:35 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:35712 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261765AbUK2TyT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 14:54:19 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH] CKRM 1/10: Base CKRM Events 
+In-reply-to: Your message of Mon, 29 Nov 2004 20:32:26 +0100.
+             <20041129193226.GA8397@mars.ravnborg.org> 
+Date: Mon, 29 Nov 2004 11:40:53 -0800
+Message-Id: <E1CYrOH-0006gX-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 28, 2004 at 04:18:46AM +0800, Michael Frank wrote:
 
-> Both  kprobes and kdb defined function do_int3.
-> Both functions were merged.
+On Mon, 29 Nov 2004 20:32:26 +0100, Sam Ravnborg wrote:
+> 
+> Plase make this:
+> 
+> obj-y := ckrm_events.o
+> 
+> And this:
+> obj-$(CONFIG_CKRM) += ckrm/
+> 
+> 	Sam
 
-Is there a reason KDB (or KPROBES for that matter) can't use the notifyr
-chain?  That's what KGDB does...
+Great - will do.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+thanks!
+
+gerrit

@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265101AbUGNRZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265107AbUGNR25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265101AbUGNRZT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 13:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUGNRZT
+	id S265107AbUGNR25 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 13:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUGNR25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 13:25:19 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:23758 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265098AbUGNRZK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 13:25:10 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Adrian Bunk <bunk@fs.tum.de>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
-Date: Wed, 14 Jul 2004 19:31:12 +0200
-User-Agent: KMail/1.5.3
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org, dgilbert@interlog.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <200407141216.i6ECGHxg008332@harpo.it.uu.se> <40F562FC.50806@pobox.com> <20040714165419.GF7308@fs.tum.de>
-In-Reply-To: <20040714165419.GF7308@fs.tum.de>
+	Wed, 14 Jul 2004 13:28:57 -0400
+Received: from mail-out.m-online.net ([212.18.0.9]:26601 "EHLO
+	mail-out.m-online.net") by vger.kernel.org with ESMTP
+	id S265106AbUGNR2z convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 13:28:55 -0400
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: linuxppc-dev@lists.linuxppc.org
+Subject: sleep (rather, wake) of death on Powerbook G3 Lombard
+Organization: Lehrstuhl fuer vergleichende Astrozoologie
+X-Mahlzeit: Das ist per Saldo Gemuetlichkeit
+Reply-To: Jens Schmalzing <j.s@lmu.de>
+From: Jens Schmalzing <j.s@lmu.de>
+Date: 14 Jul 2004 19:28:50 +0200
+Message-ID: <hhzn62ijl9.fsf@theorie.physik.uni-muenchen.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407141931.12249.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-FYI 'inlining fix' was just merged as part of viro's sparse cleanups
+I'm getting reproducible freezes out of my Powerbook G3 Lombard if and
+only if the OHCI USB host controller is enabled and the machine is put
+to sleep.  On wakeup, the "breathing" green light goes off, but the
+screen stays blank and all can be done is to reboot using
+Ctrl-Command-Power.  If the module is not loaded, the system wakes up
+just fine.
 
-I still would like somebody to comment on idea of converting sg.c
-to use standard inlines from <linux/time.h> ...
+Regards, Jens.
 
-On Wednesday 14 of July 2004 18:54, Adrian Bunk wrote:
-> On Wed, Jul 14, 2004 at 12:44:44PM -0400, Jeff Garzik wrote:
-> > Adrian Bunk wrote:
-> > >On Wed, Jul 14, 2004 at 11:52:46AM -0400, Jeff Garzik wrote:
-> > >>...
-> > >>If gcc is insisting that prototypes for inlines no longer work, we have
-> > >>a lot of code churn on our hands ;-(  Grumble.
-> > >
-> > >I've counted at about 30 files with such problems in a full i386
-> > >2.6.7-mm7 compile.
-> > >
-> > >I've already sent patches for some of them (e.g. the dmascc.c one), and
-> > >they are usually pretty straightforward.
-> >
-> > This is not a problem with the kernel.
-> >
-> > All these files have been functioning just fine for years, with properly
-> > prototyped static inline functions.
->
-> Add -Winline to the compile flags, and name one gcc version that is able
-> to inline them all in sg.c ...
->
-> > Though there is a the claim that '#define inline always_inline' is
-> > leading to all this breakage.
->
-> gcc 3.4 is just complaining louder that it can't inline something it was
-> told to inline.
->
-> > 	Jeff
->
-> cu
-> Adrian
-
+-- 
+J'qbpbe, le m'en fquz pe j'qbpbe!
+Le veux aimeb et mqubib panz je pézqbpbe je djuz tqtaj!

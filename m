@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbUKOUr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUKOU7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbUKOUr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUKOUqP
+	id S261707AbUKOU7I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 15:59:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbUKOU5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:46:15 -0500
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:51654 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S261693AbUKOUpr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 15:45:47 -0500
-Message-ID: <41991511.1080006@ttnet.net.tr>
-Date: Mon, 15 Nov 2004 22:44:01 +0200
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: "John W. Linville" <linville@redhat.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [netdrvr] netdev-2.4 queue updated
-References: <4198C64A.6050900@ttnet.net.tr> <4198E20E.5070305@pobox.com> <20041115173245.GI14381@redhat.com>
-In-Reply-To: <20041115173245.GI14381@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 15 Nov 2004 15:57:11 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:43235 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261697AbUKOUyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 15:54:46 -0500
+Subject: Re: [2.6 patch] SCSI t128.c: remove an unused function
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041115170322.GB19860@stusta.de>
+References: <20041115023859.GE2249@stusta.de>
+	 <1100529621.27202.9.camel@localhost.localdomain>
+	 <20041115170322.GB19860@stusta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1100548155.27324.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 15 Nov 2004 19:49:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
-> On Mon, Nov 15, 2004 at 12:06:22PM -0500, Jeff Garzik wrote:
+On Llu, 2004-11-15 at 17:03, Adrian Bunk wrote:
+> On Mon, Nov 15, 2004 at 02:40:39PM +0000, Alan Cox wrote:
+> > On Llu, 2004-11-15 at 02:38, Adrian Bunk wrote:
+> > > The patch below removes the unused function t128_setup.
+> > > 
+> > > Please review whether it's correct.
+> > 
+> > Its wrong. The fix is to make the setup function get called, IFF you can
+> > find anyone with a t128 any more
 > 
->>O.Sezer wrote:
->>
->>>>John W. Linville:
->>>> o 3c59x: resync with 2.6
->>>>
->>>
->>>Any specific reason that the following two are not included ?
->>>
->>>3c59x: reload EEPROM values at rmmod for needy cards:
->>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109726032213947&w=2
->>>
->>>3c59x: remove EEPROM_RESET for 3c905 :
->>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109802672909516&w=2
->>
->>Ask John Linville...  IIRC they caused problems?
-> 
+> Ah, it seems your t128 fix which did this in 2.4.17-pre7 is (like your 
+> dtc cleanup in the same patch) among the fixes not yet forward-ported 
+> from 2.4 to 2.6 ...
 
-I have two machines with 3c905's (Boomerang series) running with
-Linville's 3 patches without any problems for more than 10 days I
-think. But that's only me.
-
-> Actually, the second one was there to correct the first one.
-> (Only PART of the first patch was undone by the second one.)
-
-I'm aware of that, thanks.
-
-> They are additive, so they should be applied in the order above.
-> If you'd prefer, I could gen-up a single patch?
-> 
-> Thanks,
-> 
-> John
-
-Ozkan Sezer
+Yep. Those probably want propogating so they don't get lost. Not that
+5380's work in 2.6 with all the scsi changes as far as I can tell
 

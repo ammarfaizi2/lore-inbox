@@ -1,60 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTIMQym (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 12:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTIMQym
+	id S261987AbTIMRcA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 13:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTIMRb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 12:54:42 -0400
-Received: from gprs148-167.eurotel.cz ([160.218.148.167]:16001 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261670AbTIMQyj (ORCPT
+	Sat, 13 Sep 2003 13:31:59 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:3515 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261987AbTIMRb7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 12:54:39 -0400
-Date: Sat, 13 Sep 2003 18:54:25 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: richard.brunner@amd.com
-Cc: ak@suse.de, davej@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030913165425.GC527@elf.ucw.cz>
-References: <99F2150714F93F448942F9A9F112634C0638B19A@txexmtae.amd.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B19A@txexmtae.amd.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Sat, 13 Sep 2003 13:31:59 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 13 Sep 2003 19:31:57 +0200 (MEST)
+Message-Id: <UTC200309131731.h8DHVvo24088.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] Re: [PATCH][IDE] update qd65xx driver
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> As stated before you got corruption with hpt366.c because it was calling
+> hpt3xx_tune_drive() *internally* with pio argument equal to 5 instead of 255.
+>
+> qd65xx.c is not calling qd*_tune_drive() internally et all -> no possibility
+> of corruption unless user *manually* sets mode higher than supported.
 
-> > >  > > What's wrong with the current status quo that just says 
-> > >  > > "Athlon prefetch is broken"?
-> > >  > It doesn't fix user space for once.
-> > > 
-> > > And for another, it cripples the earlier athlons which 
-> > > don't have this
-> > > errata. Andi's fix at least makes prefetch work again on 
-> > > those boxes.
-> > > It's also arguable that prefetch() helps the older K7's 
-> > > more than the
-> > > affected ones.
-> > 
-> > All Athlons have this Errata. I can trigger it on an old
-> > 900Mhz pre XP Athlon too. You just have to use 3dnow prefetch
-> > instead of SSE prefetch.
-> > 
-> > BTW the older Athlons currently don't use prefetch because 
-> > the alternative
-> > patcher does not handle 3dnow style prefetch.
-> > 
-> 
-> Avoiding prefetch for all Athlons and earlier Opterons/Athlon64
-> even in the kernel can really tank performance. And as Andi says
-> it still doesn't solve user mode from hitting the errata.
-
-How much speedups can be expected from prefetch? 5%?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+OK, agreed.

@@ -1,98 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbUKFXxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbUKGAL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbUKFXxT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 18:53:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUKFXxS
+	id S261502AbUKGAL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 19:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUKGALZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 18:53:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29963 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261313AbUKFXxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 18:53:11 -0500
-Date: Sun, 7 Nov 2004 00:52:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: tytso@mit.edu, support@comtrol.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Licencing of drivers/char/rocket.c ?
-Message-ID: <20041106235236.GX1295@stusta.de>
+	Sat, 6 Nov 2004 19:11:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29141 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261502AbUKGALW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 19:11:22 -0500
+Date: Sat, 6 Nov 2004 16:11:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: balance_pgdat(): where is total_scanned ever updated?
+Message-Id: <20041106161114.1cbb512b.akpm@osdl.org>
+In-Reply-To: <200411061418_MC3-1-8E17-8B6C@compuserve.com>
+References: <200411061418_MC3-1-8E17-8B6C@compuserve.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+> Kernel version is 2.6.9, but I see no updates to this function in BK-current.
+> How is total_scanned ever updated?  AFAICT it is always zero.
 
-could you clarify the licensing of drivers/char/rocket.c ?
+It's a bug which was introduced months ago when we added struct
+reclaim_state.
 
-<--  snip  -->
+> In mm/vmscan.c:balance_pgdat(), there are these references to total_scanned
+> (missing whitepace indicated by "^"):
+> 
+> 
+>  977:        int total_scanned, total_reclaimed;
+> 
+>  983:        total_scanned = 0;
+> 
+> 1076:                        if (total_scanned > SWAP_CLUSTER_MAX * 2 &&
+> 1077:                            total_scanned > total_reclaimed+total_reclaimed/2)
+>                                                                ^ ^             ^ ^
+> 
+> 1088:                if (total_scanned && priority < DEF_PRIORITY - 2)
+> 
+> 
+> Could this be part of the problems with reclaim?  Or have I missed something?
 
-/*
- * RocketPort device driver for Linux
- *
- * Written by Theodore Ts'o, 1995, 1996, 1997, 1998, 1999, 2000.
- * 
- * Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000, 2003 by Comtrol, 
-Inc.
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
-...
-/***********************************************************************
-                Copyright 1994 Comtrol Corporation.
-                        All Rights Reserved.
+I had a patch which fixes it in -mm for a while.  It does increase the
+number of pages which are reclaimed via direct reclaim and decreases the
+number of pages which are reclaimed by kswapd.  As one would expect from
+throttling kswapd.  This seems undesirable.
 
-The following source code is subject to Comtrol Corporation's
-Developer's License Agreement.
-
-This source code is protected by United States copyright law and 
-international copyright treaties.
-
-This source code may only be used to develop software products that
-will operate with Comtrol brand hardware.
-
-You may not reproduce nor distribute this source code in its original
-form but must produce a derivative work which includes portions of
-this source code only.
-
-The portions of this source code which you use in your derivative
-work must bear Comtrol's copyright notice:
-
-                Copyright 1994 Comtrol Corporation.
-
-***********************************************************************/
-...
-
-<--  snip  -->
-
-
-The third paragraph of the second copyright notice doesn't seem to be 
-compatible with the GPL.
-
-
-Could you clarify this?
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I'm leaving this alone until it can be demonstrated that fixing it improves
+kernel behaviour in some manner.
 

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTFZT5T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 15:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTFZT5T
+	id S263802AbTFZT7p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 15:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTFZT7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 15:57:19 -0400
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:48865 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S263638AbTFZT5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 15:57:14 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551DF@axcs03.cos.agilent.com>
-From: yiding_wang@agilent.com
-To: tony.luck@intel.com
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.72 doesn't boot solution
-Date: Thu, 26 Jun 2003 14:11:24 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 26 Jun 2003 15:59:44 -0400
+Received: from [128.242.106.49] ([128.242.106.49]:43785 "EHLO ziplip.com")
+	by vger.kernel.org with ESMTP id S263665AbTFZT7k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 15:59:40 -0400
+Message-ID: <MIJXCMB2BYF3IGODGJJ4OJOIOEKCMGEAGNADOJMH@ziplip.com>
+Date: Thu, 26 Jun 2003 13:10:56 -0700 (PDT)
+From: "burnt_2@ziplip.com" <burnt_2@ziplip.com>
+Reply-To: "burnt_2@ziplip.com" <burnt_2@ziplip.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: inode problem?
+Cc: Hans Reiser <reiser@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-ZLPwdHint: 
+X-ZLExpiry: -1
+X-ZLReceiptConfirm: N
+X-Mailer: ZipLip v4.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony,
+Hans Reiser wrote:
 
-I have compared the working configuration file and original one, and do see some possible setting issues.  I am tied up by other stuff and don't have time to confirm it now.  The suspicious parts are:
+> inodes are yucky yucky.;-) We ain't got none.
 
-CONFIG_BLK_DEV_INITRD
-CONFIG_SERIAL_8250
-CONFIG_VGA_CONSOLE
-CONFIG_SERIAL_CORE
-CONFIG_SERIAL_CORE_CONSOLE
+So are birthday problems and hash collisions, but I haven't seen you guys address that little detail yet...
 
-All above are set to yes in working configuration file but no in original file.
+(Speaking only as somebody who lost their /usr/local tree to reiserfs.  KEEP BACKUPS, especially if you're using an experimental filesystem.)
 
-Eddie
-
-
-> -----Original Message-----
-> From: Luck, Tony [mailto:tony.luck@intel.com]
-> Sent: Wednesday, June 25, 2003 4:12 PM
-> To: yiding_wang@agilent.com
-> Subject: RE: 2.5.72 doesn't boot
-> 
-> 
-> Great!  Did can you compare the non-working and working
-> .config files to see what it causing this?  If you find
-> something post to the kernel mailing list, I'm sure it
-> will be of general interest (since at least two of us hit
-> this problem).
-> 
-> -Tony
- 
+--Gordon

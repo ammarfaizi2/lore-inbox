@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270835AbUJUVG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270820AbUJUVPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270835AbUJUVG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270946AbUJUUcK
+	id S270820AbUJUVPP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270809AbUJUVLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 16:32:10 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:35501 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S270825AbUJUU3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 16:29:15 -0400
-Date: Thu, 21 Oct 2004 13:29:13 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: bk-commits-head@vger.kernel.org
-Subject: Re: [PATCH] ppc: fix build with O=$(output_dir)
-Message-ID: <20041021202913.GA335@smtp.west.cox.net>
-References: <200410211910.i9LJAKjf029014@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410211910.i9LJAKjf029014@hera.kernel.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 21 Oct 2004 17:11:38 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:17068 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S270838AbUJUVE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 17:04:56 -0400
+Message-ID: <41782472.4040800@nortelnetworks.com>
+Date: Thu, 21 Oct 2004 15:04:50 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Lord <lkml@rtr.ca>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE
+ CF adaptor
+References: <41780393.3000606@rtr.ca> <58cb370e041021121317083a3a@mail.gmail.com> <41781B13.3030803@rtr.ca>
+In-Reply-To: <41781B13.3030803@rtr.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 05:56:14PM +0000, roland@topspin.com wrote:
-> ChangeSet 1.2040, 2004/10/21 10:56:14-07:00, roland@topspin.com
-> 
-> 	[PATCH] ppc: fix build with O=$(output_dir)
-> 	
-> 	Recent changes to arch/ppc/boot/lib/Makefile cause
-> 	
-> 	      CC      arch/ppc/boot/lib/../../../../lib/zlib_inflate/infblock.o
-> 	    Assembler messages:
-> 	    FATAL: can't create arch/ppc/boot/lib/../../../../lib/zlib_inflate/infblock.o: No such file or directory
-> 	
-> 	when building a ppc kernel using O=$(output_dir) with CONFIG_ZLIB_INFLATE=n,
-> 	because the $(output_dir)/lib/zlib_inflate directory doesn't get created.
-> 	
-> 	This patch, which makes arch/ppc/boot/lib/Makefile create the
-> 	directory if needed, is one fix for the problem.
-> 	
-> 	Signed-off-by: Roland Dreier <roland@topspin.com>
-> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
-> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Mark Lord wrote:
 
-Can we back this out please?  As I noted on lkml once I saw this, it
-still doesn't fix the problem of overwriting files in lib/zlib_inflate/
-if ZLIB_INFLATE!=n, and adding explicit rules for lib/zlib_inflate/foo.c
--> ./foo.o looks quite bad (it's 2 calls if we want checker to get
-invoked, one if we skip doing that).  At the end of the thread, both
-Roland and I were hoping Sam knew of a clever solution to this.
+> Whatever happended to the days when Linux *wanted* more
+> drivers and such?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+I think Marcelo is trying to move 2.4 into maintenance mode.  At least that's 
+what I've seen around a few places.
+
+Chris

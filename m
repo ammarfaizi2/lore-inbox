@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUGLWCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUGLV7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUGLWCP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 18:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbUGLWCP
+	id S263818AbUGLV7B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUGLV6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 18:02:15 -0400
-Received: from mail.tmr.com ([216.238.38.203]:65033 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S263806AbUGLWBE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 18:01:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-Date: Mon, 12 Jul 2004 18:03:15 -0400
-Organization: TMR Associates, Inc
-Message-ID: <ccv1de$sq2$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org><E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+	Mon, 12 Jul 2004 17:58:47 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13580 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263806AbUGLVz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 17:55:58 -0400
+Date: Mon, 12 Jul 2004 22:55:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Update pcips2 driver
+Message-ID: <20040712225550.B15469@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <20040712154207.A15469@flint.arm.linux.org.uk> <20040712132525.550bcebb.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1089669358 29506 192.168.12.100 (12 Jul 2004 21:55:58 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
-In-Reply-To: <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040712132525.550bcebb.akpm@osdl.org>; from akpm@osdl.org on Mon, Jul 12, 2004 at 01:25:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On Mon, Jul 12, 2004 at 01:25:25PM -0700, Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> > Use pci_request_regions()/pci_release_regions() instead of
+> > request_region()/release_region()
+> 
+> Some of this patch is already in Vojtech's tree.  If it's not critical,
+> perhaps it would be best if he took the remaining bit:
 
-> Is doing memset(&(struct with_embeded_pointers), 0, sizeof(struct))
-> also wrong?
-> 
-> I don't see that 0 is WRONG.  I do agree that ``((void *)0)'' is
-> slightly more typesafe than ``0'', but since we don't have a lot of
-> (void *) pointers in the kernel that is still the WRONG pointer type.
-> 
-> I do see that NULL has superior readability and maintainability and so
-> should be encouraged by Documentation/CodingStyle.
-> 
-> The B and K&R roots of a simple single type language are what give C
-> most of it's simplicity flexibility and power.  Please don't be so
-> eager to throw those out.  
-> 
-> You want to be so typesafe it sounds like you want to recode the
-> kernel in Pascal.  You've written sparse, so it should be just a little
-> more work to write a Pascal backend.  After that the kernel will be so
-> typesafe the compiler won't let us poor programmers get it wrong.
+Looking at the bits in the 2.6.7-mm7 tree, none of my original patch
+is merged, and merging the bit below would mean that we then have an
+asymetry between the function used to request the resources and the
+function used to release them.
 
-You say that as if it were a bad thing...
-
-I don't have a current C standard handy, but I believe there's a 
-requirement that otherwise uninitialized static pointers be initialized 
-to NULL even if that isn't "all bits off."
+Therefore, I think the original patch should stand as-is.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314404AbSD0TXE>; Sat, 27 Apr 2002 15:23:04 -0400
+	id <S314407AbSD0TYN>; Sat, 27 Apr 2002 15:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314407AbSD0TXD>; Sat, 27 Apr 2002 15:23:03 -0400
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:64470 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S314404AbSD0TXD>;
-	Sat, 27 Apr 2002 15:23:03 -0400
-Date: Sat, 27 Apr 2002 20:19:58 +0100
-Message-Id: <200204271919.g3RJJwk25487@fenrus.demon.nl>
-From: arjan@fenrus.demon.nl
-To: Matthew M <matthew.macleod@btinternet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Microcode update driver
-In-Reply-To: <m171Yag-000Ga6C@Wasteland>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
+	id <S314409AbSD0TYM>; Sat, 27 Apr 2002 15:24:12 -0400
+Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:56327
+	"EHLO tweedle.cabbey.net") by vger.kernel.org with ESMTP
+	id <S314407AbSD0TYL>; Sat, 27 Apr 2002 15:24:11 -0400
+Date: Sat, 27 Apr 2002 14:22:16 -0500 (CDT)
+From: Chris Abbey <linux@cabbey.net>
+X-X-Sender: <cabbey@tweedle.cabbey.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Richard Thrapp <rthrapp@sbcglobal.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The tainted message
+In-Reply-To: <E171TzX-0008PF-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0204271406010.11653-100000@tweedle.cabbey.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m171Yag-000Ga6C@Wasteland> you wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Saturday 27 April 2002 7:57 pm, Roy Sigurd Karlsbakk wrote:
->> Sorry if this is a FAQ, but where's the microcode.dat supposed to be
->> placed? I can't find any information about that in the doc.
-> 
-> /usr/share/misc/microcode.dat
+Today, Alan Cox wrote:
+> How about
+>
+> Warning: The module you have loaded (%s) does not seem to have an open
+> 	 source license. Please send any kernel problem reports to the
+> 	 author of this module, or duplicate them from a boot without
+> 	 ever loading this module before reporting them to the community
+> 	 or your Linux vendor
 
-hum doesn't the FHS specify that /usr/share shouldn't contain arch
-specific files ? microcode.dat I can't really call arch neutral....
+I think you're making an assumption about the vendor's support statement
+that may not be valid. If I were a distro I wouldn't appreciate modutils
+makeing statements about my support policies and confusing the newbies,
+who are after all the target audience here. I'd take that last "or your
+Linux vendor." bit off of this.
+
+Note that this wouldn't be an issue if no one shipped modules that taint
+the kernel, however, I've seen modules on cds for two of the major distros
+that would taint the kernel lately. (drivers/cdrom/cdrom.c was just
+recenly corrected for example.) Of course if *no one* shipped modules that
+taint the kernel then this whole thing wouldn't be an issue. :)
+
+-- 
+Never make a technical decision based upon the politics of the situation.
+Never make a political decision based upon technical issues.
+The only place these realms meet is in the mind of the unenlightened.
+			-- Geoffrey James, The Zen of Programming
+

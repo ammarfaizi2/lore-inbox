@@ -1,77 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbTDZRD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 13:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbTDZRD6
+	id S262642AbTDZREr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 13:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbTDZREr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 13:03:58 -0400
-Received: from [81.80.245.157] ([81.80.245.157]:61576 "EHLO smtp.alcove-fr")
-	by vger.kernel.org with ESMTP id S262811AbTDZRDz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 13:03:55 -0400
-Date: Sat, 26 Apr 2003 19:15:18 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The IEEE-1394 saga continued... [ was: IEEE-1394 problem on init ]
-Message-ID: <20030426171518.GF18917@vitel.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Ben Collins <bcollins@debian.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030423144857.GN354@phunnypharm.org> <20030423152914.GM820@hottah.alcove-fr> <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva> <20030423202002.GA10567@vitel.alcove-fr> <20030423202453.GA354@phunnypharm.org> <20030423204258.GB10567@vitel.alcove-fr> <20030426082956.GB18917@vitel.alcove-fr> <20030426144017.GD2774@phunnypharm.org> <20030426162323.GD18917@vitel.alcove-fr> <20030426162503.GF2774@phunnypharm.org>
-Mime-Version: 1.0
+	Sat, 26 Apr 2003 13:04:47 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:17793
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262849AbTDZREO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 13:04:14 -0400
+Message-ID: <3EAABEB9.3030404@redhat.com>
+Date: Sat, 26 Apr 2003 10:15:37 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030426
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 vsyscall DSO implementation
+References: <200304250110.h3P1Aoo02525@magilla.sf.frob.com>
+In-Reply-To: <200304250110.h3P1Aoo02525@magilla.sf.frob.com>
+X-Enigmail-Version: 0.74.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030426162503.GF2774@phunnypharm.org>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 26, 2003 at 12:25:04PM -0400, Ben Collins wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Now if I couldn't reproduce the bug, I'd go back to you in a attempt to
-> test patches and pinpoint the problem. That just isn't the case here.
-> Once I reproduce the problem, your job is done.
+- From what I've read here so far there were no objections.  The only
+comments were to list the pages in /proc/*/maps and somehow make the DSO
+available as a real file in the filesystem.
 
-It is done from your point of view but not mine. You expect people
-to find bugs and report to you. I expect the bug to be fixed and 
-the solution be given to me. See the difference ?
+The first I think is reasonable.  But it is orthogonal to this patch.
+It applies as well to the code currently in the kernel.  I'm pretty sure
+we can arrange this to happen but it doesn't have to be in this patch.
 
-Look I'm not a luser, I do maintain several projects myself, so it's
-not like I'm talking of osmething I don't fully understand. When someone
-reports a bug, even if I can fix and test the fix myself, I do have
-the respect to let the reported know it is fixed, and how and when he
-will get the fix.
+As for the second, I do not think this is a good idea at all.  In theory
+there could be more then one such DSO in use.  Without looking at the
+actual process' address space it is not possible to determine which one
+is used.  Roland also has IIRC a patch for ptrace() which allows it to
+access the vsyscall page.  This is the method you'll have to apply.
+Your remote debugger will in any case have to use ptrace(), so this is
+no new requirement.
 
-> > As I said in the previous mail, I did check the archives and saw nothing
-> > trivially relevant. But of course, I could have missed something.
-> 
-> Then you must not be looking in the proper place.
+The fake kernel DSO will indeed be visible through the
+_dl_iterate_phdr() function.  This means programs have easy access to it.
 
-Thanks for pointing me to the right thread then.
 
-> But not all...I personally choose to keep specific discussions about
-> linux1394 on the linux1394 mailing lists. That's not to say I wont
-> respond on this list, but it is to say that if I announce something
-> important, it will be there and only there.
+And a few more points on the DSO solution:
 
-If the final point is that you just *don't want'* sending an announce mail
-(either here or on your own linux1394-announce) than I think it is clear
-why we had all this thread.
-> 
-> Sounds to me like you want to be in the middle of me and Marcelo. That
-> neither I nor him have the ability to agree on what patches should and
-> should not be moved from Linux1394 to the 2.4.x tree. Do you want either
-> or both of our jobs?
++ since the DSO is build just like an ordinary userlevel DSO there is
+  no problem with writing the code which goes into it in C.  It is
+  not necessary to do what is necessary for the current functions.
 
-I never said that, and you know it. But it is part of maintainer job to
-answer to criticism and be open to suggestions.
++ the DSO method allows to introduce new kernel interfaces which do
+  not require new syscalls.  Well, somehow the kernel must be entered
+  but how this happens is not visible to the user code.  This could
+  mean using a syscall but the actual syscall number changes with
+  every release.
 
-I don't think there is anymore to get from this discussion, so let's end
-it there.
++ the mechanism can easily be transferred to other architectures.  It
+  could in theory mean using syscall numbers as the kernel interface
+  can be abandoned.  Syscalls would be indentified by name at runtime
+  (which is, I think, what most people think is the right solution).
+  This has a slight runtime impact but it could be almost reduced to
+  nil (maybe prelink is already capable of doing this).
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+
+Having said this, Linus, could you apply the patch if you have no
+objections so that we can move on and add the remaining pieces?
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+qr652ijCOnn/RHQRAoZEAKCJ3D39tZubMFK+NBdoIHsixF3qhgCeMM/o
++IA3Hu+EMdNA+UYI4jlG6ys=
+=ENqC
+-----END PGP SIGNATURE-----
+

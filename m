@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUJIGkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUJIHLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUJIGkw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 02:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUJIGkw
+	id S266611AbUJIHLd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 03:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUJIHLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 02:40:52 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:49835 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266572AbUJIGkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 02:40:49 -0400
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
-In-Reply-To: <41677E4D.1030403@mvista.com>
-References: <41677E4D.1030403@mvista.com>
-Content-Type: text/plain
-Message-Id: <1097304045.1442.166.camel@krustophenia.net>
+	Sat, 9 Oct 2004 03:11:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25991 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266611AbUJIHLb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 03:11:31 -0400
+Subject: Re: autofs panic, linux 2.4.21-15.EL.c0smp
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Craig, Dave" <dwcraig@qualcomm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0320111483D8B84AAAB437215BBDA526D60686@NAEX01.na.qualcomm.com>
+References: <0320111483D8B84AAAB437215BBDA526D60686@NAEX01.na.qualcomm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TsK9jwGlXBmRj0wR4JCY"
+Organization: Red Hat UK
+Message-Id: <1097305880.2790.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 09 Oct 2004 02:40:45 -0400
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 09 Oct 2004 09:11:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-09 at 01:59, Sven-Thorsten Dietrich wrote:
-> Announcing the availability of prototype real-time (RT)
-> enhancements to the Linux 2.6 kernel.
-> 
 
-Does not compile:
+--=-TsK9jwGlXBmRj0wR4JCY
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-  CC      arch/i386/kernel/semaphore.o
-  CC      arch/i386/kernel/signal.o
-  AS      arch/i386/kernel/entry.o
-  CC      arch/i386/kernel/traps.o
-  CC      arch/i386/kernel/irq.o
-arch/i386/kernel/irq.c: In function `do_IRQ':
-arch/i386/kernel/irq.c:582: error: too many arguments to function `note_interrupt'
-arch/i386/kernel/irq.c:667: warning: ISO C90 forbids mixed declarations and code
-arch/i386/kernel/irq.c:751: error: initializer element is not constant
-arch/i386/kernel/irq.c:751: error: (near initialization for `__ksymtab_request_irq.value')
-arch/i386/kernel/irq.c:809: error: initializer element is not constant
-arch/i386/kernel/irq.c:809: error: (near initialization for `__ksymtab_free_irq.value')
-arch/i386/kernel/irq.c:904: error: initializer element is not constant
-arch/i386/kernel/irq.c:904: error: (near initialization for `__ksymtab_probe_irq_on.value')
-arch/i386/kernel/irq.c:1004: error: initializer element is not constant
-arch/i386/kernel/irq.c:1004: error: (near initialization for `__ksymtab_probe_irq_off.value')
-arch/i386/kernel/irq.c:1246: error: initializer element is not constant
-arch/i386/kernel/irq.c:1246: error: (near initialization for `__ksymtab_do_softirq.value')
-arch/i386/kernel/irq.c:1246: error: parse error at end of input
-arch/i386/kernel/irq.c:648: warning: label `out_no_end' defined but not used
-arch/i386/kernel/irq.c:79: warning: 'register_irq_proc' declared `static' but never defined
-arch/i386/kernel/irq.c:277: warning: 'report_bad_irq' defined but not used
-make[1]: *** [arch/i386/kernel/irq.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+On Sat, 2004-10-09 at 02:18, Craig, Dave wrote:
+> loop vfat fat nfs sr_mod ide-cd cdrom dcdipm dcdbas nfsd lockd sunrpc lp
+> parport autofs ppp_async ppp_generic slhc tg3 ipv6 floppy sg microcode
+> keybdev moused
+> CPU:    0
+> EIP:    0060:[<c017c362>]    Tainted: PF
+> EFLAGS: 00010207
 
-I am using gcc 3.4.  I accepted all the default settings except I
-enabled "Run all IRQS in threads".
 
-Lee
+you could start by not using binary only kernel modules; next step would
+be to run a kernel that some vendor supports and then complain to that
+vendor ;)
+(I don't know who made the kernel  you are running, but it's not Red
+Hat)
+
+--=-TsK9jwGlXBmRj0wR4JCY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBZ48Ypv2rCoFn+CIRAgGHAJ9sbl9sZQPu6KNlJB3YxRTPEq6oOwCdGxOu
+1W9LKrElCXwbr2COYTDalHg=
+=uUrG
+-----END PGP SIGNATURE-----
+
+--=-TsK9jwGlXBmRj0wR4JCY--
 

@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263288AbRFTVbu>; Wed, 20 Jun 2001 17:31:50 -0400
+	id <S264631AbRFTVdu>; Wed, 20 Jun 2001 17:33:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263433AbRFTVbk>; Wed, 20 Jun 2001 17:31:40 -0400
-Received: from mail01.onetelnet.fr ([213.78.0.138]:4163 "EHLO
-	mail01.onetelnet.fr") by vger.kernel.org with ESMTP
-	id <S263288AbRFTVba>; Wed, 20 Jun 2001 17:31:30 -0400
-Message-ID: <3B311519.3090401@free.fr>
-Date: Wed, 20 Jun 2001 23:26:49 +0200
-From: FORT David <popo.enlighted@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9.1) Gecko/20010607
-X-Accept-Language: fr, en-us
+	id <S264632AbRFTVdo>; Wed, 20 Jun 2001 17:33:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:18695 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264631AbRFTVd3>; Wed, 20 Jun 2001 17:33:29 -0400
+Date: Wed, 20 Jun 2001 18:33:20 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+In-Reply-To: <993069751.10191.0.camel@agate>
+Message-ID: <Pine.LNX.4.33.0106201833000.1376-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: is there a linux running on jvm arch ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I 've tested the User Mode Linux a few times ago, and it gave me an 
-idea: given the fact that we had a GCC which
-produce bytecode from C, it would be possible to produce a port of 
-linux(a new directory "jvm" in the arch dir) which
-would run in a Java Virtual Machine. (after some inquiries such compiler 
-does not exist :-( )
-I'm dreaming of a linux booting in a browser applet(imagine sending such 
-thing in a mail to MS peoples !!!!)
+On 20 Jun 2001, Miles Lane wrote:
+
+> http://www.zdnet.com/zdnn/stories/news/0,4586,5092935,00.html
+
+Yes, he sure knows how to bring Linux to the attention
+of people ;)
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

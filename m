@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbUEFTVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUEFTYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUEFTVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 15:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUEFTVx
+	id S262538AbUEFTYa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 15:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUEFTYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 15:21:53 -0400
-Received: from omr4.netsolmail.com ([216.168.230.140]:22239 "EHLO
-	omr4.netsolmail.com") by vger.kernel.org with ESMTP id S261928AbUEFTTz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 15:19:55 -0400
-Message-Id: <200405061918.BLI57844@ms6.netsolmail.com>
-Reply-To: <shai@ftcon.com>
-From: "Shai Fultheim" <shai@ftcon.com>
-To: "'Vojtech Pavlik'" <vojtech@suse.cz>,
-       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Multiple (ICH3) IDE-controllers in a system
-Date: Thu, 6 May 2004 12:18:55 -0700
-Organization: FT Consulting
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcQzNeC9mwL4bqI5RKyDnC4MX905GQAX7NKA
-In-Reply-To: <20040506064546.GA239@ucw.cz>
+	Thu, 6 May 2004 15:24:30 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:51629 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262538AbUEFTXl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 15:23:41 -0400
+Message-Id: <200405061923.i46JN97u006324@eeyore.valparaiso.cl>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] get rid of "+m" constraint in i386 rwsems 
+In-Reply-To: Your message of "Thu, 06 May 2004 14:24:54 +0100."
+             <20040506142454.C29621@flint.arm.linux.org.uk> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Thu, 06 May 2004 15:23:09 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok.
-I would suggest one of the followings:
-1. If we can't identify those machine, I would recommend to drop that patch,
-since probably the BIOS is taking care of it nowadays.
-2. If we believe we can't do (1) above, lets have it rest only the first
-controller it is being called for.  This will make any of the other
-controllers usable if their ports are set right.
+Russell King <rmk+lkml@arm.linux.org.uk> said:
 
-Any comments?
- 
+[...]
 
---Shai
-
-
------Original Message-----
-From: linux-ide-owner@vger.kernel.org
-[mailto:linux-ide-owner@vger.kernel.org] On Behalf Of Vojtech Pavlik
-Sent: Wednesday, May 05, 2004 23:46
-To: Bartlomiej Zolnierkiewicz
-Cc: shai@ftcon.com; linux-ide@vger.kernel.org; linux-kernel@vger.kernel.org
-Subject: Re: Multiple (ICH3) IDE-controllers in a system
-
-On Wed, May 05, 2004 at 05:16:43PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> After reading Richard's post, I wonder if, in the case of:
 > 
-> Hi Vojtech,
+> 	"=m" (x) : "m" (x)
 > 
-> Do I correctly assume that these fixups for Intel chipsets are from you?
+> whether assembly should assume that %0 is the same as %1.  Do they
+> just happen to be the same thing?  I'm thinking of the case where
+> there may be two different ways GCC may reference the same memory
+> location.
 
-Yes.
+It also might be a "memory location" that isn't really in memory (a local
+variable whose value resides in one register up to your asm() fragment, and
+from then on in another one or in memory; it might also be useful to load a
+value into a register from memory and restore it into memory after sundry
+manipulations, and even from a different register, much later).
 
->
-http://linus.bkbits.net:8080/linux-2.5/cset@3cfbacdfzHvfqp0Sa45QXt9pNn3LNg?n
-av=index.html|src/|src/arch|src/arch/i386|src/arch/i386/pci|related/arch/i38
-6/pci/fixup.c
->
-http://linus.bkbits.net:8080/linux-2.5/cset@3cfcec0fOJreGFyCWkPeT7EWiydYFw?n
-av=index.html|src/|src/arch|src/arch/i386|src/arch/i386/pci|related/arch/i38
-6/pci/fixup.c
-> 
-> Care to explain why 'trash' fixup is needed in 2.6 but not in 2.4?
-
-Because 2.4 was never used on the affected machines, where this fixup
-was needed - those machines sere putting nonsense into the BARs. I don't
-recall exactly what model they were, though I remember they were one of
-the first machines with ICH MMIO support.
-
+Today's compilers don't necessarily do things the way a naive understanding
+of the source language would say they do. Ever wonder why nobody uses
+"register" anymore (compilers are smarter than binding one value to a
+register today), and why fiddling with pointers when accessing arrays is
+not standard fare (compilers optimize the (bulky, slow) array accesses via
+indices out as a matter of course)?
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
--
-To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbUBYUB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 15:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUBYUB3
+	id S261415AbUBYUCU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 15:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbUBYUCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 15:01:29 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:12838 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261282AbUBYUB1
+	Wed, 25 Feb 2004 15:02:18 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:60383 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261287AbUBYUCN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 15:01:27 -0500
-Date: Wed, 25 Feb 2004 22:03:05 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kbuild: add defconfig targets to make help
-Message-ID: <20040225210305.GA6445@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Feb 2004 15:02:13 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Phil Thompson <phil@riverbankcomputing.co.uk>
+Subject: [PATCH] ATI IXP IDE support (was: Re: Support for ATI IXP150 Southbridge)
+Date: Wed, 25 Feb 2004 21:08:37 +0100
+User-Agent: KMail/1.5.3
+Cc: Matthew Tippett <mtippett@ati.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+References: <200402232123.43989.phil@riverbankcomputing.co.uk> <200402232354.42308.bzolnier@elka.pw.edu.pl> <200402241808.22246.phil@riverbankcomputing.co.uk>
+In-Reply-To: <200402241808.22246.phil@riverbankcomputing.co.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402252108.37225.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus & Andrew - please apply.
+On Tuesday 24 of February 2004 19:08, Phil Thompson wrote:
+> On Monday 23 February 2004 22:54, Bartlomiej Zolnierkiewicz wrote:
+> > On Monday 23 of February 2004 22:23, Phil Thompson wrote:
+> > > Is anybody working on support for the ATI IXP150 Southbridge?
+> > > Particularly the IDE and USB devices.
+> >
+> > IDE support should be added soon (thanks to ATI).
+> >
+> > --bart
+>
+> Great - is there someone I can contact to volunteer to help with testing?
 
-List all entries in arch/$(ARCH)/configs/*_defconfig when
-doing 'make help'.
+You can find experimental (I have not tested it!) driver for 2.6.3 kernel at:
+http://www.kernel.org/pub/linux/kernel/people/bart/atiixp_ide/atiixp_ide-2.6.3-1.patch
 
-Results in output like this (ppc64 as example):
+It was written by Hui Yu <hyu@ati.com>, additional fixes/cleanups by me.
 
-  g5_defconfig             - Build for g5
-  pSeries_defconfig        - Build for pSeries
+Thanks,
+--bart
 
-The implementation is generic and enables this for all users of _defconfig.
-
-	Sam
-
-===== Makefile 1.456 vs edited =====
---- 1.456/Makefile	Sun Feb 15 03:42:40 2004
-+++ edited/Makefile	Wed Feb 25 21:57:52 2004
-@@ -889,6 +889,9 @@
- # Brief documentation of the typical targets used
- # ---------------------------------------------------------------------------
- 
-+boards := $(wildcard $(srctree)/arch/$(ARCH)/configs/*_defconfig)
-+boards := $(notdir $(boards))
-+
- help:
- 	@echo  'Cleaning targets:'
- 	@echo  '  clean		  - remove most generated files but keep the config'
-@@ -914,6 +917,11 @@
- 	@$(if $(archhelp),$(archhelp),\
- 		echo '  No architecture specific help defined for $(ARCH)')
- 	@echo  ''
-+	@$(if $(boards), \
-+		$(foreach b, $(boards), \
-+		printf "  %-24s - Build for %s\\n" $(b) $(subst _defconfig,,$(b));) \
-+		echo '')
-+	
- 	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
- 	@echo  '  make O=dir [targets] Locate all output files in "dir", including .config'
- 	@echo  '  make C=1   [targets] Check all c source with checker tool'

@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUFBUQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264076AbUFBUUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264082AbUFBUQm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 16:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUFBUOy
+	id S264076AbUFBUUq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbUFBUTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 16:14:54 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:27778 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264058AbUFBUOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 16:14:14 -0400
-Date: Wed, 2 Jun 2004 21:14:03 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: rmk@arm.linux.org.uk, <paulus@samba.org>, <anton@samba.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] flush TLB when clearing young
-In-Reply-To: <Pine.LNX.4.44.0406022103500.27696-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0406022112020.27696-100000@localhost.localdomain>
+	Wed, 2 Jun 2004 16:19:12 -0400
+Received: from cits-darla.robins.af.mil ([137.244.215.8]:48843 "EHLO
+	cits-darla.robins.af.mil") by vger.kernel.org with ESMTP
+	id S264085AbUFBURK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:17:10 -0400
+Message-ID: <200406022013.i52KDu1l025256@cits-darla.robins.af.mil>
+From: Garboua Nahil Y Contr WRALC/MASFE <Nahil.Garboua@robins.af.mil>
+To: Mathieu Segaud <matt@minas-morgul.org>, linux-kernel@vger.kernel.org
+Subject: RE: Context switch Tick
+Date: Wed, 2 Jun 2004 20:15:50 -0000 
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Traditionally we've not flushed TLB after clearing the young/referenced
-bit, it has seemed just a waste of time.  Russell King points out that
-on some architectures, with the move from 2.4 mm sweeping to 2.6 rmap,
-this may be a serious omission: very frequently referenced pages never
-re-marked young, and the worst choices made for unmapping.
+Okay, vmstat show me the cs according to current load, what is the Maximum
+tick rate? 
+A process requests a 1 microseconds sleep, or even 500 nanoseconds, how long
+does it actually sleep, that is why I need to know max tick rate for context
+switch for a given CPU.
 
-So, replace ptep_test_and_clear_young by ptep_clear_flush_young
-throughout rmap.c.  Originally I'd imagined making some kind of TLB
-gather optimization, but don't see what now: whether worth it rather
-depends on how common cross-cpu flushes are, and whether global or not.
+-----Original Message-----
+From: Mathieu Segaud [mailto:matt@minas-morgul.org] 
+Sent: Wednesday, June 02, 2004 3:52 PM
+To: Garboua Nahil Y Contr WRALC/MASFE
+Subject: Re: Context switch Tick
 
-ppc and ppc64 have already found this issue, and worked around it by
-arranging TLB flush from their ptep_test_and_clear_young: with the aid
-of pgtable rmap pointers.  I'm hoping ptep_clear_flush_young will allow
-ppc and ppc64 to remove that special code, but won't change them myself.
+Garboua Nahil Y Contr WRALC/MASFE <Nahil.Garboua@robins.af.mil> writes:
 
-It's worth noting that it is Andrea's anon_vma rmap which makes the vma
-available for ptep_clear_flush_young in page_referenced_one: anonmm and
-pte_chains would both need an additional find_vma for that.
+> How fast does the kernel switches contexts, and does it dependent on type
+> and speed of cpu?   
+> Where/how can I find current system tick rate for the Linux kernel 
+> context switch?
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+The context switch tick rate depends on many things:
+- any time an interrupt is triggered, there is a ctx switch,
+- schedule() performs a context switch if it finds a suitable process,
+- schedule() is called on every blocking io that a process calls for,
 
- mm/rmap.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+so the rate is quite changing ;)
+if you want to know the current ctx switch rate, use vmstat
 
---- 2.6.7-rc2/mm/rmap.c	2004-05-30 11:36:40.000000000 +0100
-+++ linux/mm/rmap.c	2004-06-02 16:32:28.792923176 +0100
-@@ -232,7 +232,7 @@ static int page_referenced_one(struct pa
- 	if (page_to_pfn(page) != pte_pfn(*pte))
- 		goto out_unmap;
- 
--	if (ptep_test_and_clear_young(pte))
-+	if (ptep_clear_flush_young(vma, address, pte))
- 		referenced++;
- 
- 	(*mapcount)--;
-@@ -480,7 +480,7 @@ static int try_to_unmap_one(struct page 
- 	 * skipped over this mm) then we should reactivate it.
- 	 */
- 	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
--			ptep_test_and_clear_young(pte)) {
-+			ptep_clear_flush_young(vma, address, pte)) {
- 		ret = SWAP_FAIL;
- 		goto out_unmap;
- 	}
-@@ -590,7 +590,7 @@ static int try_to_unmap_cluster(unsigned
- 		if (PageReserved(page))
- 			continue;
- 
--		if (ptep_test_and_clear_young(pte))
-+		if (ptep_clear_flush_young(vma, address, pte))
- 			continue;
- 
- 		/* Nuke the page table entry. */
+vmstat 1 will gives a line per second on system info:
+process statistics, io stats, memory stats, and cpu stats
 
+the one you want is denoted "cs"
+
+--
+Mathieu Segaud
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org 
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

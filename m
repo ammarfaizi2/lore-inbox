@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276541AbRI2QUR>; Sat, 29 Sep 2001 12:20:17 -0400
+	id <S276540AbRI2QcM>; Sat, 29 Sep 2001 12:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276540AbRI2QUH>; Sat, 29 Sep 2001 12:20:07 -0400
-Received: from www.fagotten.org ([212.73.164.10]:14097 "EHLO
-	joxer.fagotten.org") by vger.kernel.org with ESMTP
-	id <S276539AbRI2QT5>; Sat, 29 Sep 2001 12:19:57 -0400
-Message-ID: <3BB5F4C6.DDB15B49@fagotten.org>
-Date: Sat, 29 Sep 2001 18:20:22 +0200
-From: Daniel Elvin <daniel.elvin@fagotten.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.17-ide i686)
-X-Accept-Language: en
+	id <S276543AbRI2QcD>; Sat, 29 Sep 2001 12:32:03 -0400
+Received: from otter.mbay.net ([206.40.79.2]:3089 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S276540AbRI2Qbu>;
+	Sat, 29 Sep 2001 12:31:50 -0400
+Date: Sat, 29 Sep 2001 09:32:00 -0700 (PDT)
+From: John Alvord <jalvo@mbay.net>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Randy.Dunlap" <rddunlap@osdlab.org>,
+        Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [patch] netconsole-2.4.10-B1
+In-Reply-To: <Pine.LNX.4.33.0109291146440.1715-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.20.0109290931160.18362-100000@otter.mbay.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: AST P/75 causes Machine Check Exception type 0x9 on v2.4.10
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary
-Booting an AST Bravo P/75 with kernel v2.4.10 results in a "CPU#0
-Machine Check Exception: 0x10C938 (type: 0x9)".
+On Sat, 29 Sep 2001, Ingo Molnar wrote:
 
-Description
-The AST Bravo P/75
-<http://www.ari-service.com/support/summary.asp?pn=501701-411&x=26&y=12>
-boots fine on a v2.2.19pre17-kernel but both v2.4.10 and v2.4.9 causes
-the Machine Check Exception-error with either of the config options
-M586TSC, M586, or M386 set. A TB from AST
-<http://www.ari-service.com/bulletin/TB/1641TB.HTM> reports a problem
-with parity checking using Netware on a number of AST Pentium computers,
-caused by the cache parity bit connector to the Pentium processor isn't
-connected to the cache. I have not found any information if this is also
-the case of the Bravo P/75. 
+> 
+> sorry :-) definitions of netconsole-terms:
+> 
+> 'server': the host that is the source of the messages. Ie. the box that
+>           runs the netconsole.o module. It serves log messages to the
+>           client.
+> 
+> 'client': the host that receives the messages. This box is running the
+>           netconsole-client.c program.
+> 
+> 'target': the host that gets the messages sent - ie. the client.
+> 
+> 'target IP address': the IP address of the 'target'.
+> 
+> 'target ethernet address': the local-net host or first-hop router that
+>                            gets the netconsole UDP packets sent. Ie. it
+>                            does not necesserily match the MAC address of
+>                            the 'target'.
+> 
+> (i can see where the confusion comes from, 'syslog servers' are ones that
+> receieve syslogs. It's a backwards term i think. 'netconsole servers' are
+> the ones that produce the messages.)
+> 
+> does it make more sense now? :)
 
-Keywords
-2.4.10, Machine Check Exception, AST Bravo P/75.
+Would this scheme work for crash dump capturing?
 
-Regards,
-Daniel Elvin
+john
 
-=========================================
- Daniel Elvin  daniel.elvin@fagotten.org
-=========================================
- Flojtvagen 8B     phone: +46 708 159351
- SE-224 68 Lund
- Sweden

@@ -1,50 +1,39 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154185AbQBAMyT>; Tue, 1 Feb 2000 07:54:19 -0500
-Received: by vger.rutgers.edu id <S154232AbQBAMyE>; Tue, 1 Feb 2000 07:54:04 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:1335 "EHLO sgi.com") by vger.rutgers.edu with ESMTP id <S154249AbQBAMwh>; Tue, 1 Feb 2000 07:52:37 -0500
-From: slurn@griffin.engr.sgi.com (Scott Lurndal)
-Message-Id: <200002011703.JAA66461@griffin.engr.sgi.com>
-Subject: [PATCH]  kdb v1.0 for 2.3.29 
+Received: by vger.rutgers.edu via listexpand id <S154081AbQBCN2A>; Thu, 3 Feb 2000 08:28:00 -0500
+Received: by vger.rutgers.edu id <S154085AbQBCNOz>; Thu, 3 Feb 2000 08:14:55 -0500
+Received: from web122.yahoomail.com ([205.180.60.57]:1748 "HELO web122.yahoomail.com") by vger.rutgers.edu with SMTP id <S154321AbQBCNKx>; Thu, 3 Feb 2000 08:10:53 -0500
+Message-ID: <20000203171037.19451.qmail@web122.yahoomail.com>
+Date: Thu, 3 Feb 2000 09:10:37 -0800 (PST)
+From: Anant Kabra <anantk@yahoo.com>
+Subject: More journaling FS mania
 To: linux-kernel@vger.rutgers.edu
-Date: Tue, 1 Feb 2000 09:03:23 -0800 (PST)
-Cc: kdb@oss.sgi.com
-X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+IBM has released a priliminary port of their
+Journaling file system (JFS) for Linux under the GPL.
 
-I've placed a pre-release of kdb v1.0 (restructured to support 
-additional architectures) for ia32 on 
+The readme is at
 
-http://oss.sgi.com/projects/kdb/download
+http://oss.software.ibm.com/developerworks/opensource/jfs/index.html
 
---
+cheers
 
-This release restructures the code a bit and adds breakpoint
-instruction style (int 03) breakpoints.   They don't completely
-work yet at this time, so as a workaround, the 'bph' command
-which uses the hardware debug registers should be used to
-establish breakpoints.
 
-There is some debug code present to save and display the contents of the
-last branch register MSR on page-fault entry to the kernel.
 
-A list of changes and features can be found on
-
-http://oss.sgi.com/projects/kdb/news.html
-
---
-
-I'll be in NYC for linuxworld expo this week, so I won't be able
-to move this forward to 2.3.41 until next week.
-
---
-
-scott lurndal
-sgi
-
+=====
+|||
++----------------------oOO(o o)OOo------------------------+
+|                          ( )                            |
+|    Anant Kabra            email : anantk@yahoo.com      |
+|                                                         |
+|     "Experience is the best teacher" -- <Anon>          |
++---------------------------------------------------------+
+__________________________________________________
+Do You Yahoo!?
+Talk to your friends online with Yahoo! Messenger.
+http://im.yahoo.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

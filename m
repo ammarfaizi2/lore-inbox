@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbUANW31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 17:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbUANW31
+	id S264305AbUANWd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 17:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUANWcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 17:29:27 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:16606 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264538AbUANW3S convert rfc822-to-8bit (ORCPT
+	Wed, 14 Jan 2004 17:32:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:60289 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263510AbUANWbH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 17:29:18 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Limit hash table size
-Date: Wed, 14 Jan 2004 14:29:12 -0800
-Message-ID: <B05667366EE6204181EABE9C1B1C0EB580245B@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Limit hash table size
-Thread-Index: AcPZEZIkqALiCxuuTBWhgMb+yXDLRAB19Egg
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 14 Jan 2004 22:29:13.0517 (UTC) FILETIME=[D65F25D0:01C3DAED]
+	Wed, 14 Jan 2004 17:31:07 -0500
+Date: Wed, 14 Jan 2004 14:32:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] /dev/anon
+Message-Id: <20040114143221.25dd7c7e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0401140749100.1829-100000@bigblue.dev.mdolabs.com>
+References: <20040114144131.GA6407@ccure.user-mode-linux.org>
+	<Pine.LNX.4.44.0401140749100.1829-100000@bigblue.dev.mdolabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> What about making the limit configurable with a boot time
-> parameter? If someone uses a 512 GB ppc64 as an nfs server,
-> he might want a 2 GB inode hash.
+Davide Libenzi <davidel@xmailserver.org> wrote:
+>
+> On Wed, 14 Jan 2004, Jeff Dike wrote:
+> 
+> > > I thought your goal was to release memory 
+> > > to the host, that's why I proposed sys_madvise(MADV_DONTNEED).
+> > 
+> > It is, I want memory released immediately as though it were clean, and
+> > MADV_DONTNEED doesn't help.
+> 
+> Strange, I didn't notice this before. If you look at the comment in 
+> mm/madvise.c:madvise_dontneed, it advertises that dirty pages are actually 
+> thrown away (that would be what you're actually looking for). But if you 
+> go down to zap_page_range -> unmap_vmas -> unmap_page_range -> 
+> zap_pmd_range -> zap_pte_range, if the page is dirty, set_page_dirty -> 
+> __set_page_dirty_buffers pushes the page into the mapping dirty pages list 
+> and __mark_inode_dirty push the inode inside the superblock dirty list. So 
+> the comment seems to be wrong (I also verified this with a simple program, 
+> and pages are actually flushed).
+> 
 
-I'm sorry, this code won't have any effect beyond MAX_ORDER defined for
-each architecture.  It's not possible to get 2GB hash table on PPC64
-since MAX_ORDER is defined at 13 so far for PPC64, which means a 16MB
-absolute upper limit enforced by the page allocator.
+We cannot invalidate the pages due to MADV_DONTNEED: there may be
+freshly-allocated, unwritten file blocks associated with them.  You'd have
+to be playing games with write() amd MAP_SHARED to do this.
 
-- Ken

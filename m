@@ -1,82 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbTK3JLP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 04:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbTK3JLP
+	id S263137AbTK3JTS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 04:19:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTK3JTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 04:11:15 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:38620 "EHLO
+	Sun, 30 Nov 2003 04:19:18 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:49628 "EHLO
 	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id S263125AbTK3JKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 04:10:54 -0500
-Date: Sun, 30 Nov 2003 10:10:51 +0100 (MET)
+	id S263137AbTK3JTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 04:19:10 -0500
+Date: Sun, 30 Nov 2003 10:19:07 +0100 (MET)
 From: Sebastiaan <S.Breedveld@ewi.tudelft.nl>
 To: linux-kernel@vger.kernel.org
-Subject: PowerMac doesn't boot
-Message-ID: <Pine.GHP.4.44.0311300958480.1608-200000@elektron.its.tudelft.nl>
+Subject: PowerMac floppy (SWIM-3) doesn't compile
+Message-ID: <Pine.GHP.4.44.0311301013160.3052-100000@elektron.its.tudelft.nl>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="2001768787-851401618-1070183451=:3052"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
---2001768787-851401618-1070183451=:3052
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
 Hi,
 
-I am trying to compile the 2.6.0-test11 kernel on my PowerMac 7300/166,
-but the kernel doesn't boot (or doesn't continue). It loads the kernel,
-displays the following information and hangs:
+I am trying to build the 2.6.0-test11 kernel for my PowerMac 7300/166, but
+the floppy controller doesn't want to compile. I have:
 
-Welcome to Linux, kernel 2.6.0-test11
+CONFIG_MAC_FLOPPY=y
 
-linked at      : 0xc0000000
-frame buffer at: 0x94800000 (phys), 0xd0800000 (log)
-klimit         : 0xc024cf88
-MSR            : 0x00003070
-HID0           : 0x8000c084
+After a while 'make all' fails with:
 
-pmac_init: exit
-idmach(): done
-MMU:enter
-MMU:hw init
-hash:enter
-hash:find piece
-hash:patch
-hash:done
-MMU:mapin
-MMU:setio
-MMU:exit
-setup_arch: enter
-setup_arch: bootmem
-arch: exit
+  CC      drivers/block/swim3.o
+drivers/block/swim3.c:224: parse error before `*'
+drivers/block/swim3.c:224: warning: function declaration isn't a prototype
+drivers/block/swim3.c:292: parse error before `*'
+drivers/block/swim3.c:293: warning: function declaration isn't a prototype
+drivers/block/swim3.c: In function `do_fd_request':
+drivers/block/swim3.c:302: warning: implicit declaration of function `sti'
+drivers/block/swim3.c: In function `start_request':
+drivers/block/swim3.c:315: warning: implicit declaration of function `elv_next_request'
+drivers/block/swim3.c:315: warning: assignment makes pointer from integer without a cast
+drivers/block/swim3.c:324: dereferencing pointer to incomplete type
+drivers/block/swim3.c:324: dereferencing pointer to incomplete type
+drivers/block/swim3.c:325: warning: implicit declaration of function `end_request'
+drivers/block/swim3.c:328: dereferencing pointer to incomplete type
+drivers/block/swim3.c:337: warning: implicit declaration of function `rq_data_dir'
+drivers/block/swim3.c:346: dereferencing pointer to incomplete type
+drivers/block/swim3.c:347: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `set_timeout':
+drivers/block/swim3.c:363: warning: implicit declaration of function `save_flags'
+drivers/block/swim3.c:363: warning: implicit declaration of function `cli'
+drivers/block/swim3.c:371: warning: implicit declaration of function `restore_flags'
+drivers/block/swim3.c: In function `setup_transfer':
+drivers/block/swim3.c:422: dereferencing pointer to incomplete type
+drivers/block/swim3.c:430: dereferencing pointer to incomplete type
+drivers/block/swim3.c:431: dereferencing pointer to incomplete type
+drivers/block/swim3.c:443: dereferencing pointer to incomplete type
+drivers/block/swim3.c:447: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `xfer_timeout':
+drivers/block/swim3.c:598: dereferencing pointer to incomplete type
+drivers/block/swim3.c:599: dereferencing pointer to incomplete type
+drivers/block/swim3.c:601: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `swim3_interrupt':
+drivers/block/swim3.c:623: warning: long unsigned int format, unsigned int arg (arg 3)
+drivers/block/swim3.c:695: dereferencing pointer to incomplete type
+drivers/block/swim3.c:696: dereferencing pointer to incomplete type
+drivers/block/swim3.c:697: dereferencing pointer to incomplete type
+drivers/block/swim3.c:706: dereferencing pointer to incomplete type
+drivers/block/swim3.c:715: warning: long unsigned int format, unsigned int arg (arg 3)
+drivers/block/swim3.c:721: dereferencing pointer to incomplete type
+drivers/block/swim3.c:722: dereferencing pointer to incomplete type
+drivers/block/swim3.c:723: dereferencing pointer to incomplete type
+drivers/block/swim3.c:724: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `floppy_ioctl':
+drivers/block/swim3.c:817: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `floppy_open':
+drivers/block/swim3.c:843: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `floppy_release':
+drivers/block/swim3.c:909: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `floppy_check_change':
+drivers/block/swim3.c:920: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `floppy_revalidate':
+drivers/block/swim3.c:926: dereferencing pointer to incomplete type
+drivers/block/swim3.c: In function `swim3_init':
+drivers/block/swim3.c:999: warning: implicit declaration of function `alloc_disk'
+drivers/block/swim3.c:999: warning: assignment makes pointer from integer without a cast
+drivers/block/swim3.c:1004: `FLOPPY_MAJOR' undeclared (first use in this function)
+drivers/block/swim3.c:1004: (Each undeclared identifier is reported only once
+drivers/block/swim3.c:1004: for each function it appears in.)
+drivers/block/swim3.c:1009: warning: implicit declaration of function `blk_init_queue'
+drivers/block/swim3.c:1009: warning: assignment makes pointer from integer without a cast
+drivers/block/swim3.c:1017: dereferencing pointer to incomplete type
+drivers/block/swim3.c:1018: dereferencing pointer to incomplete type
+drivers/block/swim3.c:1019: dereferencing pointer to incomplete type
+drivers/block/swim3.c:1020: dereferencing pointer to incomplete type
+drivers/block/swim3.c:1021: dereferencing pointer to incomplete type
+drivers/block/swim3.c:1022: dereferencing pointer to incomplete type
+drivers/block/swim3.c:1023: dereferencing pointer to incomplete type
+drivers/block/swim3.c:1024: warning: implicit declaration of function `set_capacity'
+drivers/block/swim3.c:1025: warning: implicit declaration of function `add_disk'
+drivers/block/swim3.c:1033: warning: implicit declaration of function `put_disk'
+drivers/block/swim3.c: In function `swim3_add_device':
+drivers/block/swim3.c:1084: warning: implicit declaration of function `request_irq'
+drivers/block/swim3.c: At top level:
+drivers/block/swim3.c:962: warning: `floppy_off' defined but not used
+make[2]: *** [drivers/block/swim3.o] Error 1
+make[1]: *** [drivers/block] Error 2
+make: *** [drivers] Error 2
 
 
->From what I can see in my 2.4 kernel as quickly as it boots, this is the
-same (or at least similar). CPU info:
+With my limiting knowledge about C and kernel sources I tried to locate
+the error, but I haven't succeeded.
 
-$ cat /proc/cpuinfo
-cpu             : 604e
-clock           : 170MHz
-revision        : 2.2 (pvr 0009 0202)
-bogomips        : 335.05
-machine         : Power Macintosh
-motherboard     : AAPL,7500 MacRISC
-L2 cache        : 256K unified
-memory          : 48MB
-pmac-generation : OldWorld
-
-I have attached my config file. My gcc version is 2.95.4 and my
-distribution Debian. Did I make a faulty configuration or is there really
-something wrong?
+Setting CONFIG_MAC_FLOPPY=n will build the whole kernel.
 
 Greetz,
 Sebastiaan
-
 
 
 --
@@ -90,152 +127,3 @@ in donkere zalen terwijl ze pillen eten en luisteren naar monotone electronische
 (Kristian Wilson, Nintendo, 1989)
 
 
-
---2001768787-851401618-1070183451=:3052
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=powermac_config
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GHP.4.44.0311301010510.3052@elektron.its.tudelft.nl>
-Content-Description: 
-Content-Disposition: attachment; filename=powermac_config
-
-Q09ORklHX01NVT15DQpDT05GSUdfUldTRU1fWENIR0FERF9BTEdPUklUSE09
-eQ0KQ09ORklHX0hBVkVfREVDX0xPQ0s9eQ0KQ09ORklHX1BQQz15DQpDT05G
-SUdfUFBDMzI9eQ0KQ09ORklHX0VYUEVSSU1FTlRBTD15DQpDT05GSUdfQ0xF
-QU5fQ09NUElMRT15DQpDT05GSUdfU1RBTkRBTE9ORT15DQpDT05GSUdfQlJP
-S0VOX09OX1NNUD15DQpDT05GSUdfU1dBUD15DQpDT05GSUdfU1lTVklQQz15
-DQpDT05GSUdfQlNEX1BST0NFU1NfQUNDVD15DQpDT05GSUdfU1lTQ1RMPXkN
-CkNPTkZJR19MT0dfQlVGX1NISUZUPTE0DQpDT05GSUdfSUtDT05GSUc9eQ0K
-Q09ORklHX0lLQ09ORklHX1BST0M9eQ0KQ09ORklHX0tBTExTWU1TPXkNCkNP
-TkZJR19GVVRFWD15DQpDT05GSUdfRVBPTEw9eQ0KQ09ORklHX0lPU0NIRURf
-Tk9PUD15DQpDT05GSUdfSU9TQ0hFRF9BUz15DQpDT05GSUdfSU9TQ0hFRF9E
-RUFETElORT15DQpDT05GSUdfTU9EVUxFUz15DQpDT05GSUdfTU9EVUxFX1VO
-TE9BRD15DQpDT05GSUdfTU9EVUxFX0ZPUkNFX1VOTE9BRD15DQpDT05GSUdf
-T0JTT0xFVEVfTU9EUEFSTT15DQpDT05GSUdfTU9EVkVSU0lPTlM9eQ0KQ09O
-RklHX0tNT0Q9eQ0KQ09ORklHXzZ4eD15DQpDT05GSUdfUFBDNjAxX1NZTkNf
-RklYPXkNCkNPTkZJR19QUENfU1REX01NVT15DQpDT05GSUdfUFBDX01VTFRJ
-UExBVEZPUk09eQ0KQ09ORklHX1BQQ19DSFJQPXkNCkNPTkZJR19QUENfUE1B
-Qz15DQpDT05GSUdfUFBDX1BSRVA9eQ0KQ09ORklHX1BQQ19PRj15DQpDT05G
-SUdfUFBDQlVHX05WUkFNPXkNCkNPTkZJR19LRVJORUxfRUxGPXkNCkNPTkZJ
-R19CSU5GTVRfRUxGPXkNCkNPTkZJR19CSU5GTVRfTUlTQz1tDQpDT05GSUdf
-UFJPQ19ERVZJQ0VUUkVFPXkNCkNPTkZJR19DTURMSU5FX0JPT0w9eQ0KQ09O
-RklHX0NNRExJTkU9InJvb3Q9L2Rldi9zZGEyIg0KQ09ORklHX0dFTkVSSUNf
-SVNBX0RNQT15DQpDT05GSUdfUENJPXkNCkNPTkZJR19QQ0lfRE9NQUlOUz15
-DQpDT05GSUdfSE9UUExVRz15DQpDT05GSUdfSElHSE1FTV9TVEFSVD0weGZl
-MDAwMDAwDQpDT05GSUdfTE9XTUVNX1NJWkU9MHgzMDAwMDAwMA0KQ09ORklH
-X0tFUk5FTF9TVEFSVD0weGMwMDAwMDAwDQpDT05GSUdfVEFTS19TSVpFPTB4
-ODAwMDAwMDANCkNPTkZJR19CT09UX0xPQUQ9MHgwMDgwMDAwMA0KQ09ORklH
-X0JMS19ERVZfTE9PUD15DQpDT05GSUdfQkxLX0RFVl9DUllQVE9MT09QPW0N
-CkNPTkZJR19CTEtfREVWX05CRD1tDQpDT05GSUdfQkxLX0RFVl9SQU09eQ0K
-Q09ORklHX0JMS19ERVZfUkFNX1NJWkU9NDA5Ng0KQ09ORklHX0JMS19ERVZf
-SU5JVFJEPXkNCkNPTkZJR19TQ1NJPXkNCkNPTkZJR19TQ1NJX1BST0NfRlM9
-eQ0KQ09ORklHX0JMS19ERVZfU0Q9eQ0KQ09ORklHX0NIUl9ERVZfU1Q9bQ0K
-Q09ORklHX0JMS19ERVZfU1I9bQ0KQ09ORklHX0JMS19ERVZfU1JfVkVORE9S
-PXkNCkNPTkZJR19DSFJfREVWX1NHPXkNCkNPTkZJR19TQ1NJX1JFUE9SVF9M
-VU5TPXkNCkNPTkZJR19TQ1NJX0NPTlNUQU5UUz15DQpDT05GSUdfU0NTSV9N
-RVNIPXkNCkNPTkZJR19TQ1NJX01FU0hfU1lOQ19SQVRFPTEwDQpDT05GSUdf
-U0NTSV9NRVNIX1JFU0VUX0RFTEFZX01TPTQwMDANCkNPTkZJR19TQ1NJX01B
-QzUzQzk0PXkNCkNPTkZJR19ORVQ9eQ0KQ09ORklHX1BBQ0tFVD15DQpDT05G
-SUdfTkVUTElOS19ERVY9eQ0KQ09ORklHX1VOSVg9eQ0KQ09ORklHX0lORVQ9
-eQ0KQ09ORklHX0lQX01VTFRJQ0FTVD15DQpDT05GSUdfTkVUX0lQSVA9bQ0K
-Q09ORklHX05FVF9JUEdSRT1tDQpDT05GSUdfU1lOX0NPT0tJRVM9eQ0KQ09O
-RklHX0lQVjY9bQ0KQ09ORklHX0lQVjZfUFJJVkFDWT15DQpDT05GSUdfSU5F
-VDZfQUg9bQ0KQ09ORklHX0lORVQ2X0VTUD1tDQpDT05GSUdfSU5FVDZfSVBD
-T01QPW0NCkNPTkZJR19JUFY2X1RVTk5FTD1tDQpDT05GSUdfTkVURklMVEVS
-PXkNCkNPTkZJR19JUF9ORl9DT05OVFJBQ0s9bQ0KQ09ORklHX0lQX05GX0ZU
-UD1tDQpDT05GSUdfSVBfTkZfSVJDPW0NCkNPTkZJR19JUF9ORl9URlRQPW0N
-CkNPTkZJR19JUF9ORl9BTUFOREE9bQ0KQ09ORklHX0lQX05GX1FVRVVFPW0N
-CkNPTkZJR19JUF9ORl9JUFRBQkxFUz15DQpDT05GSUdfSVBfTkZfTUFUQ0hf
-TElNSVQ9eQ0KQ09ORklHX0lQX05GX01BVENIX0lQUkFOR0U9eQ0KQ09ORklH
-X0lQX05GX01BVENIX01BQz15DQpDT05GSUdfSVBfTkZfTUFUQ0hfUEtUVFlQ
-RT15DQpDT05GSUdfSVBfTkZfTUFUQ0hfTUFSSz15DQpDT05GSUdfSVBfTkZf
-TUFUQ0hfTVVMVElQT1JUPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9UT1M9eQ0K
-Q09ORklHX0lQX05GX01BVENIX1JFQ0VOVD15DQpDT05GSUdfSVBfTkZfTUFU
-Q0hfRUNOPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9EU0NQPXkNCkNPTkZJR19J
-UF9ORl9NQVRDSF9BSF9FU1A9eQ0KQ09ORklHX0lQX05GX01BVENIX0xFTkdU
-SD15DQpDT05GSUdfSVBfTkZfTUFUQ0hfVFRMPXkNCkNPTkZJR19JUF9ORl9N
-QVRDSF9UQ1BNU1M9eQ0KQ09ORklHX0lQX05GX01BVENIX0hFTFBFUj1tDQpD
-T05GSUdfSVBfTkZfTUFUQ0hfU1RBVEU9bQ0KQ09ORklHX0lQX05GX01BVENI
-X0NPTk5UUkFDSz1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfT1dORVI9eQ0KQ09O
-RklHX0lQX05GX0ZJTFRFUj15DQpDT05GSUdfSVBfTkZfVEFSR0VUX1JFSkVD
-VD15DQpDT05GSUdfSVBfTkZfTkFUPW0NCkNPTkZJR19JUF9ORl9OQVRfTkVF
-REVEPXkNCkNPTkZJR19JUF9ORl9UQVJHRVRfTUFTUVVFUkFERT1tDQpDT05G
-SUdfSVBfTkZfVEFSR0VUX1JFRElSRUNUPW0NCkNPTkZJR19JUF9ORl9UQVJH
-RVRfTkVUTUFQPW0NCkNPTkZJR19JUF9ORl9UQVJHRVRfU0FNRT1tDQpDT05G
-SUdfSVBfTkZfTkFUX0xPQ0FMPXkNCkNPTkZJR19JUF9ORl9OQVRfU05NUF9C
-QVNJQz1tDQpDT05GSUdfSVBfTkZfTkFUX0lSQz1tDQpDT05GSUdfSVBfTkZf
-TkFUX0ZUUD1tDQpDT05GSUdfSVBfTkZfTkFUX1RGVFA9bQ0KQ09ORklHX0lQ
-X05GX05BVF9BTUFOREE9bQ0KQ09ORklHX0lQX05GX01BTkdMRT15DQpDT05G
-SUdfSVBfTkZfVEFSR0VUX1RPUz15DQpDT05GSUdfSVBfTkZfVEFSR0VUX0VD
-Tj15DQpDT05GSUdfSVBfTkZfVEFSR0VUX0RTQ1A9eQ0KQ09ORklHX0lQX05G
-X1RBUkdFVF9NQVJLPXkNCkNPTkZJR19JUF9ORl9UQVJHRVRfQ0xBU1NJRlk9
-eQ0KQ09ORklHX0lQX05GX1RBUkdFVF9MT0c9eQ0KQ09ORklHX0lQX05GX1RB
-UkdFVF9VTE9HPXkNCkNPTkZJR19JUF9ORl9UQVJHRVRfVENQTVNTPXkNCkNP
-TkZJR19JUF9ORl9BUlBUQUJMRVM9bQ0KQ09ORklHX0lQX05GX0FSUEZJTFRF
-Uj1tDQpDT05GSUdfSVBfTkZfQVJQX01BTkdMRT1tDQpDT05GSUdfSVA2X05G
-X1FVRVVFPW0NCkNPTkZJR19JUDZfTkZfSVBUQUJMRVM9bQ0KQ09ORklHX0lQ
-Nl9ORl9NQVRDSF9MSU1JVD1tDQpDT05GSUdfSVA2X05GX01BVENIX01BQz1t
-DQpDT05GSUdfSVA2X05GX01BVENIX1JUPW0NCkNPTkZJR19JUDZfTkZfTUFU
-Q0hfT1BUUz1tDQpDT05GSUdfSVA2X05GX01BVENIX0ZSQUc9bQ0KQ09ORklH
-X0lQNl9ORl9NQVRDSF9ITD1tDQpDT05GSUdfSVA2X05GX01BVENIX01VTFRJ
-UE9SVD1tDQpDT05GSUdfSVA2X05GX01BVENIX09XTkVSPW0NCkNPTkZJR19J
-UDZfTkZfTUFUQ0hfTUFSSz1tDQpDT05GSUdfSVA2X05GX01BVENIX0lQVjZI
-RUFERVI9bQ0KQ09ORklHX0lQNl9ORl9NQVRDSF9BSEVTUD1tDQpDT05GSUdf
-SVA2X05GX01BVENIX0xFTkdUSD1tDQpDT05GSUdfSVA2X05GX01BVENIX0VV
-STY0PW0NCkNPTkZJR19JUDZfTkZfRklMVEVSPW0NCkNPTkZJR19JUDZfTkZf
-VEFSR0VUX0xPRz1tDQpDT05GSUdfSVA2X05GX01BTkdMRT1tDQpDT05GSUdf
-SVA2X05GX1RBUkdFVF9NQVJLPW0NCkNPTkZJR19YRlJNPXkNCkNPTkZJR19J
-UFY2X1NDVFBfXz1tDQpDT05GSUdfTkVUREVWSUNFUz15DQpDT05GSUdfRFVN
-TVk9bQ0KQ09ORklHX0VUSEVSVEFQPW0NCkNPTkZJR19ORVRfRVRIRVJORVQ9
-eQ0KQ09ORklHX01BQ0U9eQ0KQ09ORklHX05FVF9WRU5ET1JfM0NPTT15DQpD
-T05GSUdfVk9SVEVYPW0NCkNPTkZJR19QUFA9bQ0KQ09ORklHX1BQUF9ERUZM
-QVRFPW0NCkNPTkZJR19QUFBfQlNEQ09NUD1tDQpDT05GSUdfVkdBX0NPTlNP
-TEU9eQ0KQ09ORklHX0RVTU1ZX0NPTlNPTEU9eQ0KQ09ORklHX0lOUFVUPXkN
-CkNPTkZJR19JTlBVVF9NT1VTRURFVj15DQpDT05GSUdfSU5QVVRfTU9VU0VE
-RVZfUFNBVVg9eQ0KQ09ORklHX0lOUFVUX01PVVNFREVWX1NDUkVFTl9YPTEw
-MjQNCkNPTkZJR19JTlBVVF9NT1VTRURFVl9TQ1JFRU5fWT03NjgNCkNPTkZJ
-R19JTlBVVF9FVkRFVj1tDQpDT05GSUdfU09VTkRfR0FNRVBPUlQ9eQ0KQ09O
-RklHX1NFUklPPXkNCkNPTkZJR19JTlBVVF9LRVlCT0FSRD15DQpDT05GSUdf
-S0VZQk9BUkRfQVRLQkQ9eQ0KQ09ORklHX0lOUFVUX01PVVNFPXkNCkNPTkZJ
-R19NT1VTRV9QUzI9eQ0KQ09ORklHX0lOUFVUX01JU0M9eQ0KQ09ORklHX0lO
-UFVUX1BDU1BLUj15DQpDT05GSUdfVlQ9eQ0KQ09ORklHX1ZUX0NPTlNPTEU9
-eQ0KQ09ORklHX0hXX0NPTlNPTEU9eQ0KQ09ORklHX1NFUklBTF9DT1JFPW0N
-CkNPTkZJR19TRVJJQUxfUE1BQ1pJTE9HPW0NCkNPTkZJR19VTklYOThfUFRZ
-Uz15DQpDT05GSUdfVU5JWDk4X1BUWV9DT1VOVD0yNTYNCkNPTkZJR19OVlJB
-TT15DQpDT05GSUdfRVhUMl9GUz15DQpDT05GSUdfRVhUM19GUz1tDQpDT05G
-SUdfRVhUM19GU19YQVRUUj15DQpDT05GSUdfSkJEPW0NCkNPTkZJR19GU19N
-QkNBQ0hFPXkNCkNPTkZJR19ST01GU19GUz15DQpDT05GSUdfQVVUT0ZTX0ZT
-PXkNCkNPTkZJR19JU085NjYwX0ZTPXkNCkNPTkZJR19KT0xJRVQ9eQ0KQ09O
-RklHX0ZBVF9GUz1tDQpDT05GSUdfTVNET1NfRlM9bQ0KQ09ORklHX1ZGQVRf
-RlM9bQ0KQ09ORklHX1BST0NfRlM9eQ0KQ09ORklHX1BST0NfS0NPUkU9eQ0K
-Q09ORklHX0RFVlBUU19GUz15DQpDT05GSUdfUkFNRlM9eQ0KQ09ORklHX0hG
-U19GUz15DQpDT05GSUdfTkZTX0ZTPW0NCkNPTkZJR19ORlNfVjM9eQ0KQ09O
-RklHX05GU0Q9bQ0KQ09ORklHX0xPQ0tEPW0NCkNPTkZJR19MT0NLRF9WND15
-DQpDT05GSUdfRVhQT1JURlM9bQ0KQ09ORklHX1NVTlJQQz1tDQpDT05GSUdf
-U01CX0ZTPW0NCkNPTkZJR19TTUJfTkxTX0RFRkFVTFQ9eQ0KQ09ORklHX1NN
-Ql9OTFNfUkVNT1RFPSJjcDQzNyINCkNPTkZJR19DT0RBX0ZTPW0NCkNPTkZJ
-R19NU0RPU19QQVJUSVRJT049eQ0KQ09ORklHX1NNQl9OTFM9eQ0KQ09ORklH
-X05MUz15DQpDT05GSUdfTkxTX0RFRkFVTFQ9ImNwNDM3Ig0KQ09ORklHX05M
-U19DT0RFUEFHRV80Mzc9eQ0KQ09ORklHX05MU19DT0RFUEFHRV83Mzc9bQ0K
-Q09ORklHX05MU19DT0RFUEFHRV83NzU9bQ0KQ09ORklHX05MU19DT0RFUEFH
-RV84NTA9bQ0KQ09ORklHX05MU19DT0RFUEFHRV84NTI9bQ0KQ09ORklHX05M
-U19DT0RFUEFHRV84NTU9bQ0KQ09ORklHX05MU19DT0RFUEFHRV84NTc9bQ0K
-Q09ORklHX05MU19DT0RFUEFHRV84NjA9bQ0KQ09ORklHX05MU19DT0RFUEFH
-RV84NjE9bQ0KQ09ORklHX05MU19DT0RFUEFHRV84NjI9bQ0KQ09ORklHX05M
-U19DT0RFUEFHRV84NjM9bQ0KQ09ORklHX05MU19DT0RFUEFHRV84NjQ9bQ0K
-Q09ORklHX05MU19DT0RFUEFHRV84NjU9bQ0KQ09ORklHX05MU19DT0RFUEFH
-RV84NjY9bQ0KQ09ORklHX05MU19DT0RFUEFHRV84Njk9bQ0KQ09ORklHX05M
-U19DT0RFUEFHRV85MzY9bQ0KQ09ORklHX05MU19DT0RFUEFHRV85NTA9bQ0K
-Q09ORklHX05MU19DT0RFUEFHRV85MzI9bQ0KQ09ORklHX05MU19DT0RFUEFH
-RV85NDk9bQ0KQ09ORklHX05MU19DT0RFUEFHRV84NzQ9bQ0KQ09ORklHX05M
-U19JU084ODU5Xzg9bQ0KQ09ORklHX05MU19JU084ODU5XzE9eQ0KQ09ORklH
-X05MU19JU084ODU5XzI9eQ0KQ09ORklHX05MU19JU084ODU5XzM9bQ0KQ09O
-RklHX05MU19JU084ODU5XzQ9bQ0KQ09ORklHX05MU19JU084ODU5XzU9bQ0K
-Q09ORklHX05MU19JU084ODU5XzY9bQ0KQ09ORklHX05MU19JU084ODU5Xzc9
-bQ0KQ09ORklHX05MU19JU084ODU5Xzk9bQ0KQ09ORklHX05MU19JU084ODU5
-XzE0PW0NCkNPTkZJR19OTFNfSVNPODg1OV8xNT15DQpDT05GSUdfTkxTX0tP
-SThfUj1tDQpDT05GSUdfQ1JDMzI9eQ0KQ09ORklHX1pMSUJfSU5GTEFURT1t
-DQpDT05GSUdfWkxJQl9ERUZMQVRFPW0NCkNPTkZJR19CT09UWF9URVhUPXkN
-CkNPTkZJR19DUllQVE89eQ0KQ09ORklHX0NSWVBUT19ITUFDPXkNCkNPTkZJ
-R19DUllQVE9fTUQ1PW0NCkNPTkZJR19DUllQVE9fU0hBMT1tDQpDT05GSUdf
-Q1JZUFRPX0RFUz1tDQpDT05GSUdfQ1JZUFRPX0RFRkxBVEU9bQ0K
---2001768787-851401618-1070183451=:3052--

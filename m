@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281926AbRKZQuk>; Mon, 26 Nov 2001 11:50:40 -0500
+	id <S281917AbRKZQux>; Mon, 26 Nov 2001 11:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281921AbRKZQua>; Mon, 26 Nov 2001 11:50:30 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4115 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281917AbRKZQuT>; Mon, 26 Nov 2001 11:50:19 -0500
-Subject: Re: [PATCH] net/802/Makefile
-To: kaos@ocs.com.au (Keith Owens)
-Date: Mon, 26 Nov 2001 16:56:17 +0000 (GMT)
-Cc: hch@ns.caldera.de (Christoph Hellwig),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <2695.1006782891@ocs3.intra.ocs.com.au> from "Keith Owens" at Nov 27, 2001 12:54:51 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281921AbRKZQuk>; Mon, 26 Nov 2001 11:50:40 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:23814 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S281917AbRKZQuf>; Mon, 26 Nov 2001 11:50:35 -0500
+Date: Mon, 26 Nov 2001 13:33:07 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: David Relson <relson@osagesoftware.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+In-Reply-To: <4.3.2.7.2.20011126113409.00bfaa70@mail.osagesoftware.com>
+Message-ID: <Pine.LNX.4.21.0111261328450.13681-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E168P3J-0005g3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was going to do that but AC said that all of net/802 was being
-> rewritten and removing cl2llc.c now would just be noise.  The file will
-> be removed in kbuild 2.5.
 
-The 802.2LLC layer will be replaced when netbeui goes in
+
+On Mon, 26 Nov 2001, David Relson wrote:
+
+> Marcelo,
+> 
+> Thank you for stepping forward to be the maintainer of the 2.4 tree.  This 
+> is a very valuable and important service for use Linux users.
+> 
+> Also, thank you for releasing 2.4.16.  I have it building on my linux box 
+> as I write this message :-)
+> 
+> Over the last few days, there have been lots of messages regarding "Kernel 
+> Release" and "-preX vs. -rcX".  You, as the official maintainer of kernel 
+> 2.4 are the person who actually creates the release policy and makes it happen.
+> 
+> Would you care to share your thoughts on this matter?
+
+Sorry for not being able to discuss this issues... Its just that I'm too
+busy doing the maintenance and other stuff at Conectiva at the same time
+(people are flooding me with patches, btw, please stop for a while).
+
+Daniel Quinlan suggested me to release a "pre-final" release before the
+real final one (which would catch most "stupid" bugs), and I think thats a
+nice way of solving the problem.
+
+I'll _probably_ do that --- not sure yet, though. 
+

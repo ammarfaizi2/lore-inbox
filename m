@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbTIDT0H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 15:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264849AbTIDT0H
+	id S265223AbTIDTdR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 15:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbTIDTdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 15:26:07 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:55261 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S262004AbTIDT0E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 15:26:04 -0400
-Date: Fri, 05 Sep 2003 07:28:52 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: swsusp: revert to 2.6.0-test3 state
-In-reply-to: <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>,
+	Thu, 4 Sep 2003 15:33:17 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:21721 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265223AbTIDTdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 15:33:15 -0400
+Subject: RE: [UPDATED PATCH] EFI support for ia32 kernels
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1062703732.12025.7.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0309041112530.6676-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0309041112530.6676-100000@home.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062703855.22550.8.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Thu, 04 Sep 2003 20:30:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-05 at 03:25, Patrick Mochel wrote:
-> No, you have to understand that I don't want to call software_suspend() at 
-> all. You've made the choice not to accept the swsusp changes, so we're 
-> forking the code. We will have competing implementations of 
-> suspend-to-disk in the kernel. 
-> 
-> You may keep the interfaces that you had to reach software_suspend(), but
-> you may not modify the semantics of my code to call it. At some point, you 
-> may choose to add hooks to swsusp that abide by the calling semantics of 
-> the PM core, so that you may use the same infrastructure.
-> 
-> Please send a patch that only removes the calls to swsusp_* from 
-> pm_{suspend,resume}. That would be a minimal patch. 
+On Iau, 2003-09-04 at 19:24, Linus Torvalds wrote:
+>    interfaces. The interfaces aren't well specified enough to write a PCI
+>    disk driver, of course, but they _are_ good enough to do discovery and 
+>    a lot of things.
 
-Where does this put me? I'm finishing off 1.1 for 2.4 and have a port to
-2.6 in process. I want to get it merged, but how do I go about that now?
+To be fair - for the hardware extant at the time - they were. Our 
+drivers/ide/pci/generic.c is exactly that. Also beyond the PCI code the
+vendors managed to create a standard that actually basically works and
+is back compatible. Bits of it are rather Lovecraftian but it works. 
+ide/pci/generic.c will drive almost any IDE controller today in BIOS
+tuned mode including basic IDE DMA.
 
-For the record, it's worth merging, I believe. It has a fully year of
-extensive testing, support for saving a full (as opposed to minimal)
-image of RAM, support for highmem, swap files, full asynchronous I/O,
-aborting cleanly from errors, user tuning and a nice interface. I don't
-want to see it thrown away, but neither do I want to have a third
-option!
+>    Intel _could_ make a "PCI disk controller interface definition", and it 
+>    will work. The way USB does actually work, and UHCI was actually a fair 
+>    standard, even if it left _way_ too much to software.
 
-Regards,
+UHCI, OHCI, their reuse for firewire and other stuff are all great
+examples. VGA is another example which alas fell apart as cards changed
+over time. Its always struck me as bizarre that graphics card vendors
+can create a chip that can texture a billion triangles a second but
+can't manage to agree on a hardware interface where I load height,
+width, depth and refresh rate and it sets it up for me.
 
-Nigel
+I grant I2O proved that you can make that control layer too complicated.
+Even then it wasn't the hardware interface that was the problem, it was
+the glue on top. People still use the i2o hw interface for many things.
 
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
+I'm hopeful now the world is effectively down to two scsi vendors
+(Adaptec and LSI) we can at least begin to see a reduction in the number
+of permutations of scsi insanity.
 

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261532AbSJQRAU>; Thu, 17 Oct 2002 13:00:20 -0400
+	id <S261714AbSJQRJ0>; Thu, 17 Oct 2002 13:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbSJQRAU>; Thu, 17 Oct 2002 13:00:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50959 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261532AbSJQRAS>; Thu, 17 Oct 2002 13:00:18 -0400
-Date: Thu, 17 Oct 2002 10:08:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Crispin Cowan <crispin@wirex.com>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make LSM register functions GPLonly exports
-In-Reply-To: <20021017175403.A32516@infradead.org>
-Message-ID: <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com>
+	id <S261721AbSJQRJ0>; Thu, 17 Oct 2002 13:09:26 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:19906 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261714AbSJQRJZ>; Thu, 17 Oct 2002 13:09:25 -0400
+Date: Thu, 17 Oct 2002 15:15:06 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Pathological case identified from contest
+In-Reply-To: <3DAE6826.72C345EE@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0210171506260.22993-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Oct 2002, Andrew Morton wrote:
 
-Note that if this fight ends up being a major issue, I'm just going to 
-remove LSM and let the security vendors do their own thing. So far
+> No, it's a bug in either the pipe code or the CPU scheduler I'd say.
 
- - I have not seen a lot of actual usage of the hooks
- - seen a number of people who still worry that the hooks degrade 
-   performance in critical areas
- - the worry that people use it for non-GPL'd modules is apparently real, 
-   considering Crispin's reply.
+The scheduler definately seems to have a big error here.
 
-I will re-iterate my stance on the GPL and kernel modules:
+Say we're doing a pipe test with 3 processes.  On an idle
+system this would result in each process getting 33% of
+the CPU and using the other 66% of the time sleeping.
+Of course, this makes all 3 processes "interactive", since
+they sleep twice as much as they run.
 
-  There is NOTHING in the kernel license that allows modules to be 
-  non-GPL'd. 
+Now introduce 1 CPU hog in competition to this load, this
+CPU hog never sleeps so it is quickly marked as cpu hog and
+will end up on the expired array after one timeslice (150 ms?).
 
-  The _only_ thing that allows for non-GPL modules is copyright law, and 
-  in particular the "derived work" issue. A vendor who distributes non-GPL 
-  modules is _not_ protected by the module interface per se, and should 
-  feel very confident that they can show in a court of law that the code 
-  is not derived.
+The pipe processes will have the CPU all to themselves until
+STARVATION_LIMIT (2 seconds) time has passed.
 
-  The module interface has NEVER been documented or meant to be a GPL 
-  barrier. The COPYING clearly states that the system call layer is such a 
-  barrier, so if you do your work in user land you're not in any way 
-  beholden to the GPL. The module interfaces are not system calls: there 
-  are system calls used to _install_ them, but the actual interfaces are
-  not.
+This means that the CPU hog will get 7.5% of the CPU, while
+the pipe processes get the other 92.5% of the CPU, or 30.8%
+each, almost 4 times as much as the CPU hog.
 
-  The original binary-only modules were for things that were pre-existing 
-  works of code, ie drivers and filesystems ported from other operating 
-  systems, which thus could clearly be argued to not be derived works, and 
-  the original limited export table also acted somewhat as a barrier to 
-  show a level of distance.
+This could either mean the sleep average isn't a useful way
+to measure CPU priority or the way we measure the sleep
+average needs to be changed somewhat...
 
-In short, Crispin: I'm going to apply the patch, and if you as a copyright 
-holder of that file disagree, I will simply remove all of he LSM code from 
-the kernel. I think it's very clear that a LSM module is a derived work, 
-and thus copyright law and the GPL are not in any way unclear about it. 
+kind regards,
 
-If people think they can avoid the GPL by using function pointers, they 
-are WRONG. And they have always been wrong.
-
-			Linus
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbTLCRT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 12:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbTLCRT4
+	id S265107AbTLCRZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 12:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbTLCRZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 12:19:56 -0500
-Received: from guardian.hermes.si ([193.77.5.150]:30471 "EHLO
-	guardian.hermes.si") by vger.kernel.org with ESMTP id S265102AbTLCRTy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 12:19:54 -0500
-Message-ID: <600B91D5E4B8D211A58C00902724252C01BC046D@piramida.hermes.si>
-From: David Balazic <david.balazic@hermes.si>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Bugs in linux-2.6.0-test11/README
-Date: Wed, 3 Dec 2003 18:19:45 +0100 
+	Wed, 3 Dec 2003 12:25:45 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:48585 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S265107AbTLCRZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 12:25:43 -0500
+Message-ID: <3FCE1C87.2050006@backtobasicsmgmt.com>
+Date: Wed, 03 Dec 2003 10:25:27 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jens Axboe <axboe@suse.de>,
+       =?ISO-8859-1?Q?David_Mart=EDnez_Moren?= =?ISO-8859-1?Q?o?= 
+	<ender@debian.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clubinfo.servers@adi.uam.es, Ingo Molnar <mingo@elte.hu>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Errors and later panics in 2.6.0-test11.
+References: <200312031417.18462.ender@debian.org> <Pine.LNX.4.58.0312030757120.5258@home.osdl.org> <20031203162045.GA27964@suse.de> <Pine.LNX.4.58.0312030823010.5258@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312030823010.5258@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.0-test11/README says :
+Linus Torvalds wrote:
 
- If you want
-   to make a boot disk (without root filesystem or LILO), insert a floppy
-   in your A: drive, and do a "make bzdisk".
+> The ones I've seen seem to be raid-0, but Nathan (nathans@sgi.com)
+> reported problems in RAID-5 under load. I didn't decode the full oops on
+> that one, but it really looked like a stale "bi" bio that trapped on the
+> PAGE_ALLOC debug code.
 
-Wasn't that feature (booting without LILO or other boot loader ) removed ?
-At least http://www.kniggit.net/wwol26.html says so.
-
-
- - If you configured any of the parts of the kernel as `modules', you
-   will have to do "make modules" followed by "make modules_install".
- 
-eh ? some other part says that "make modules" is now done as part of
-"make"
-
-
-...
-
-   For some, this is on a floppy disk, in which case you can copy the
-   kernel bzImage file to /dev/fd0 to make a bootable floppy.
- 
-...
-again, see above.
-
-
-Regards,
-David
-----------------------------------------------------------------------------
------------
-David Balazic                      mailto:david.balazic@hermes.si
-HERMES Softlab                 http://www.hermes-softlab.com
-Zolajeva 30                          Phone: +386 2 450 8851 
-SI-2000 Maribor
-Slovenija
-----------------------------------------------------------------------------
------------
-"Be excellent to each other." -
-Bill S. Preston, Esq. & "Ted" Theodore Logan
-----------------------------------------------------------------------------
------------
-
-
-
-
+The problem I reported was also with RAID-5, and I have also found a 
+problem similar to Nathan's (probably the same one) by just trying to 
+run bonnie++ on an XFS filesystem on DM over RAID-5, even after 
+formatting the XFS filesystem to forcibly align everything to RAID-5 
+stripes (64K units).
 

@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269537AbTGXRWn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 13:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbTGXRWn
+	id S263355AbTGXR1r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 13:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTGXR1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 13:22:43 -0400
-Received: from mcomail04.maxtor.com ([134.6.76.13]:47112 "EHLO
-	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
-	id S269537AbTGXRWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 13:22:36 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C102E0D69D@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'Robert L. Harris'" <Robert.L.Harris@rdlg.net>,
-       Steven Cole <elenstev@mesatop.com>
-Cc: Tomas Szepe <szepe@pinerecords.com>, bill davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Posting format
-Date: Thu, 24 Jul 2003 11:37:42 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 24 Jul 2003 13:27:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28817 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263355AbTGXR1o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 13:27:44 -0400
+Date: Thu, 24 Jul 2003 10:30:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
+       vortex@scyld.com, jgarzik@pobox.com
+Subject: Re: another must-fix: major PS/2 mouse problem
+Message-Id: <20030724103047.31e91a96.akpm@osdl.org>
+In-Reply-To: <1058921044.943.12.camel@cube>
+References: <1054431962.22103.744.camel@cube>
+	<3EDCF47A.1060605@ifrance.com>
+	<1054681254.22103.3750.camel@cube>
+	<3EDD8850.9060808@ifrance.com>
+	<1058921044.943.12.camel@cube>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not very readable unless you spend extra processing time to think about
-> it. Reading bottom to top is counter-intuitive and wastes time. Speaking
-> of which, apologies to all who feel they've wasted time by reading this.
+Albert Cahalan <albert@users.sourceforge.net> wrote:
+>
+> Using the lockmeter on a 2.5.75 kernel, I discovered
+> that boomerang_interrupt() grabs a spinlock for over
+> 1/4 second. No joke, 253 ms. Interrupts are off AFAIK.
 
-Actually, directions painted onto roads are often bottom to top in letter
-orientation...
+boomerang_interrupt() doesn't disable interrupts.  Is the NIC sharing the
+mouse's IRQ line?
 
-W
-O
-L
-S
+boomerang_interrupt() is only used by nasty old NICs and yes, I guess it is
+possible that something has gone wrong and is causing occasional long spins
+in there.
 
-etc...  every orientation has its place, though not necessarilly in this
-post =P
+But I am more suspecting that you're not really using boomerang_interrupt()
+at all, and that something has gone wrong with lockmeter.  What sort of NIC
+are you using?
+
+Bear in mind that if some other device generates an interrupt while the CPU
+is running boomerang_interrupt(), lockmeter will count the time spent in
+that other device's interrupt as "time spent in boomerand_interrupt()". 
+Which is very true, but it is not much help when one is trying to identify
+the source of the problem.
+
+Perhaps what you should do is to do an rdtsc on entry and exit of do_IRQ()
+and print stuff out when "long" periods of time in do_IRQ() are noticed.
 

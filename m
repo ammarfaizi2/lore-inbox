@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316461AbSEOSKa>; Wed, 15 May 2002 14:10:30 -0400
+	id <S316462AbSEOSPE>; Wed, 15 May 2002 14:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316462AbSEOSK3>; Wed, 15 May 2002 14:10:29 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:14834 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316461AbSEOSK2>; Wed, 15 May 2002 14:10:28 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.44.0205150931500.25038-100000@home.transmeta.com> 
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changelogs on kernel.org 
+	id <S316463AbSEOSPD>; Wed, 15 May 2002 14:15:03 -0400
+Received: from 213-96-224-204.uc.nombres.ttd.es ([213.96.224.204]:48392 "EHLO
+	manty.net") by vger.kernel.org with ESMTP id <S316462AbSEOSPD>;
+	Wed, 15 May 2002 14:15:03 -0400
+Date: Wed, 15 May 2002 20:15:01 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with smp kernels on alpha
+Message-ID: <20020515181501.GA1949@man.beta.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 15 May 2002 19:07:16 +0100
-Message-ID: <15953.1021486036@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-torvalds@transmeta.com said:
->  I try to avoid it as much as possible - it's actually more work for
-> me, and about 50% of the BK patches I get don't even apply, because
-> the person who sent them to me didn't send the whole series (ie left
-> out some patch he didn't like or something like that). 
+I've been trying to get a Digital Server 5305 to run a SMP kernel, but I was
+unsucessful till now, the machine runs 2.2.20 or 2.4.18 UP perfectly, but
+crashes rigt after booting or when booting whenever I tri the SMP versions
+of this kernels. This is what /proc/cpuinfo says about the machine:
 
-Oh Larry, are you listening? :)
+cpu                     : Alpha
+cpu model               : EV56
+cpu variation           : 7
+cpu revision            : 0
+cpu serial number       :
+system type             : Rawhide
+system variation        : 0
+system revision         : 0
+system serial number    : AY92103084
+cycle frequency [Hz]    : 531914893
+timer frequency [Hz]    : 1200.00
+page size [bytes]       : 8192
+phys. address bits      : 40
+max. addr. space #      : 127
+BogoMIPS                : 923.40
+kernel unaligned acc    : 0 (pc=0,va=0)
+user unaligned acc      : 0 (pc=0,va=0)
+platform string         : DIGITAL Server 5000 Model 5305 6533A 5/533 4MB
+cpus detected           : 2
 
->  I much prefer a bk pull, if the tree I pull from is clean (ie it
-> doesn't have random crud in it, and it contains changsets from just
-> one project). 
+I have tried Debian smp kernel 2.2.20 (generic cpu) and a custom 2.4.18
+kernel (using generic and then rawhide) and cpu allways crashes, las time I
+saw it crash I copied this:
 
-Noted. Thanks.
+Unable to handle kernel paging request at virtual address 0000000000000000000
+cpu 0 swapper(0): Oops 0
 
->  I personally like good changelog comments, and I find per-file
-> comments to be a mistake. 
+then it outputs the registers, then trace and code and then...
 
-They can be, but sometimes it can be useful to put a high-level overview of
-what you've done suitable for people who aren't familiar with the code into
-the changeset comment, and describe exactly _how_ you did it in per-file
-comments.
+Kernel panic: Attempted to kill the idle task!
+In idle tak - not syncing
 
-Which in the case of the patch I sent you yesterday would be something like
-'fix zisofs breakage with shared zlib' on the changeset and 'set return 
-value to trv not f in NEEDBYTE' in the lib/zlib_inflate/inflate.c log.
+Well, I know this doesn't show a thing, but I'm new to alpha so I don't know
+what to look at, if someone is willing to help on this I'll try to do
+whatever tests are needed to provide more info.
 
-In this case, the latter can obviously be deduced from the diffs because
-it's a one-liner, so perhaps it's a bad example -- but you don't always
-actually want to have to refer to the diffs.
-
---
-dwmw2
-
-
+Thanks in advance...
+-- 
+Manty/BestiaTester -> http://manty.net

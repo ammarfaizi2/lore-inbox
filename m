@@ -1,102 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271284AbTHHKh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 06:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271287AbTHHKh0
+	id S271203AbTHHKyF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 06:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271206AbTHHKyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 06:37:26 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2293 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271284AbTHHKhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 06:37:24 -0400
-Date: Fri, 8 Aug 2003 12:37:18 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: Problem multiple bool/tristate prompts
-Message-ID: <20030808103717.GP16091@fs.tum.de>
-References: <20030807235905.GO16091@fs.tum.de> <Pine.LNX.4.44.0308081135520.714-100000@serv>
+	Fri, 8 Aug 2003 06:54:05 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:21258 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S271203AbTHHKyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 06:54:00 -0400
+Date: Fri, 8 Aug 2003 20:53:21 +1000
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4: Fix steal_locks race
+Message-ID: <20030808105321.GA5096@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="3MwIy2ne0vdjdPXF"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308081135520.714-100000@serv>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 12:03:45PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 8 Aug 2003, Adrian Bunk wrote:
-> 
-> > config BLK_DEV_PS2
-> >         tristate "PS/2 ESDI hard disk support" if BROKEN_MODULAR
-> >         bool "PS/2 ESDI hard disk support" if !BROKEN_MODULAR
-> > 
-> > 
-> > Every "make *config" gives the warning
-> > 
-> >   drivers/block/Kconfig:45: prompt redefined
-> >   drivers/block/Kconfig:45:warning: type of 'BLK_DEV_PS2' redefined from 
-> >   'tristate' to 'boolean'
-> > 
-> > and the symbol is handled as tristate although BROKEN_MODULAR isn't
-> > defined.
-> 
-> A symbol can have only a single type and the warning is a bit misleading, 
-> the new type definition is simply ignored.
-> I'm not sure what you're trying makes really sense, but you have to use a 
 
-I made a patch that lets all broken drivers depend on an (undefined) 
-BROKEN symbol and all drivers that don't compile on SMP on a 
-BROKEN_ON_SMP symbol that is only defined if !SMP.
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This (undefined) BROKEN_MODULAR was an attempt to express that a driver
-compiles only statically.
+Hi:
 
-> separate symbol:
-> 
-> config BLK_DEV_PS2_B
-> 	bool "PS/2 ESDI hard disk support" if !BROKEN_MODULAR
-> 
-> config BLK_DEV_PS2
-> 	tristate "PS/2 ESDI hard disk support" if BROKEN_MODULAR
-> 	default BLK_DEV_PS2_B
+The steal_locks() call in binfmt_elf.c is buggy.  It steals locks from
+a files entry whose reference was dropped much earlier.  This allows it
+to steal other process's locks.
 
-It's too complicated to be actually useful, but it seems I'd then need a
+The following patch calls steal_locks() earlier so that this does not
+happen.
 
-config BLK_DEV_PS2_TRISTATE
-	tristate "PS/2 ESDI hard disk support"
-	depends on BROKEN_MODULAR
-	default y if BLK_DEV_PS2=y
-	default m if BLK_DEV_PS2=m
-
-config BLK_DEV_PS2_BOOL
-	bool "PS/2 ESDI hard disk support"
-	depends on !BROKEN_MODULAR
-	default y if BLK_DEV_PS2=y
-
-config BLK_DEV_PS2
-	default y if BLK_DEV_PS2_TRISTATE=y || BLK_DEV_PS2_BOOL
-	default m if BLK_DEV_PS2_TRISTATE=m
-
-Alternatively it might work with BLK_DEV_PS2_TRISTATE and
-BLK_DEV_PS2_BOOL using select.
-
-My problem isn't that important to satisfy such a complicated construct,
-I can accept that there's no easy way to express this and live without
-it.
-
-
-> bye, Roman
-
-cu
-Adrian
-
+Cheers,
 -- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
+--- kernel-source-2.4/fs/binfmt_elf.c.orig	2003-08-08 20:46:56.000000000 +1000
++++ kernel-source-2.4/fs/binfmt_elf.c	2003-08-08 20:47:05.000000000 +1000
+@@ -480,6 +480,7 @@
+ 	files = current->files;		/* Refcounted so ok */
+ 	if(unshare_files() < 0)
+ 		goto out_free_ph;
++	steal_locks(files, current->files);
+ 
+ 	/* exec will make our files private anyway, but for the a.out
+ 	   loader stuff we need to do it earlier */
+@@ -797,7 +798,6 @@
+ 	if (current->ptrace & PT_PTRACED)
+ 		send_sig(SIGTRAP, current, 0);
+ 	retval = 0;
+-	steal_locks(files, current->files);
+ out:
+ 	return retval;
+ 
+@@ -813,6 +813,7 @@
+ out_free_fh:
+ 	ftmp = current->files;
+ 	current->files = files;
++	steal_locks(ftmp, current->files);
+ 	put_files_struct(ftmp);
+ out_free_ph:
+ 	kfree(elf_phdata);
+
+--3MwIy2ne0vdjdPXF--

@@ -1,136 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264803AbUEER77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUEESGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264803AbUEER77 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 13:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264800AbUEER77
+	id S264798AbUEESGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 14:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbUEESGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 13:59:59 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:40145 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S264798AbUEER7w
+	Wed, 5 May 2004 14:06:09 -0400
+Received: from p3EE0629D.dip0.t-ipconnect.de ([62.224.98.157]:63360 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S264798AbUEESGD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 13:59:52 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: 2.6.6-rc3-mm2
-Date: Wed, 5 May 2004 19:59:13 +0200
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-References: <20040505013135.7689e38d.akpm@osdl.org> <20040505163320.A4250@infradead.org>
-In-Reply-To: <20040505163320.A4250@infradead.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_xtSmAeHXXVv5B77";
-  charset="iso-8859-1"
+	Wed, 5 May 2004 14:06:03 -0400
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: Problem with nptl and uname
+Date: Wed, 05 May 2004 20:05:41 +0200
+Organization: privat
+Message-ID: <c7badk$333$1@p3EE0629D.dip0.t-ipconnect.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405051959.13907.arnd@arndb.de>
+X-Complaints-To: abuse@fu.berlin.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040502
+X-Accept-Language: de, en-us, en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
---Boundary-02=_xtSmAeHXXVv5B77
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I've have a problem to get ntpl working on my machine:
 
-On Wednesday 05 May 2004 17:33, Christoph Hellwig wrote:
-> On Wed, May 05, 2004 at 01:31:35AM -0700, Andrew Morton wrote:
-> >static-define_per_cpu-vs-modules-2.patch
-> >=20
-> >  Work around relative address displacement problems on s390.
->=20
-> I'm not happy with this one.  It prevents perfectly valid optimizations
-> that become more important with modern compilers because of s390 brokenne=
-ss.
->=20
-> Of the options listed in the patch description (why the heck didn't it ev=
-er
-> make it to a mailinglist??) the options to avoid the static effect in s390
-> code looks most appealing but hard to implement to me, and if it doesn't
-> work out we'll probably have to do the STATIC_DEFINE_PER_CPU variant.
+I have a AMD Athlon XP and kernel 2.6.6-rc3 (2.6.6-rc3-mm1). I compiled 
+glibc 2.3.3 with gcc 3.3.2, kernelheaders 2.6.5.1 and binutils 
+2.15.90.0.3 with
 
-When I prepared that patch, I was certain that the bug was not s390
-specific, as it now turned out to be. The reason is that only on s390, the
-kernel virtual address space for builtin code is the same as the physical
-address space while modules are loaded to the vmalloc area, which may be >32
-bit apart.
+configure --with-tls --prefix=/usr --enable-add-ons=nptl --enable-kernel=2.4.1
 
-=46or exported symbols, we work around this by compiling modules with -fpic,
-which does not work for per_cpu relocations.
+It doesn't matter, if --enable-kernel is given or not or if it is 2.6.x or 
+2.2.99.
 
-Martin was now able to do a similar workaround for these by loading the
-address through inline assembly without affecting the other architectures,
-following a suggestion by Richard Henderson. This is his patch:
+Compiling works fine until make check / tst-attr3 core dumps:
 
-=46orce the use of a 64 bit relocation to access the per_cpu__##var
-variables and fix a problem in the module loader regarding GOTENT and=20
-GOTPLTENT relocs.
+initial thread stack 0x80037000-0xc0000000 (0x3ffc9000)
+/opt/cd/libc/compile/nptl/tst-attr3: pthread_create #1 failed: Cannot 
+allocate memory
+/opt/cd/libc/compile/nptl/tst-attr3: pthread_create #2 failed: Cannot 
+allocate memory
+/opt/cd/libc/compile/nptl/tst-attr3: pthread_create #3 failed: Cannot 
+allocate memory
 
-diff -urN linux-2.6/arch/s390/kernel/module.c linux-2.6-s390/arch/s390/kern=
-el/module.c
-=2D-- linux-2.6/arch/s390/kernel/module.c	Sun Apr  4 05:38:13 2004
-+++ linux-2.6-s390/arch/s390/kernel/module.c	Wed May  5 19:40:22 2004
-@@ -277,7 +277,8 @@
- 			*(unsigned int *) loc =3D val;
- 		else if (r_type =3D=3D R_390_GOTENT ||
- 			 r_type =3D=3D R_390_GOTPLTENT)
-=2D			*(unsigned int *) loc =3D val >> 1;
-+			*(unsigned int *) loc =3D
-+				(val + (Elf_Addr) me->module_core - loc) >> 1;
- 		else if (r_type =3D=3D R_390_GOT64 ||
- 			 r_type =3D=3D R_390_GOTPLT64)
- 			*(unsigned long *) loc =3D val;
-diff -urN linux-2.6/include/asm-s390/percpu.h linux-2.6-s390/include/asm-s3=
-90/percpu.h
-=2D-- linux-2.6/include/asm-s390/percpu.h	Sun Apr  4 05:38:20 2004
-+++ linux-2.6-s390/include/asm-s390/percpu.h	Wed May  5 19:40:22 2004
-@@ -5,10 +5,26 @@
- #include <asm/lowcore.h>
-=20
- /*
-=2D * s390 uses the generic implementation for per cpu data, with the excep=
-tion that
-=2D * the offset of the cpu local data area is cached in the cpu's lowcore =
-memory
-+ * For builtin kernel code s390 uses the generic implementation for
-+ * per cpu data, with the exception that the offset of the cpu local
-+ * data area is cached in the cpu's lowcore memory
-+ * For 64 bit module code s390 forces the use of a GOT slot for the
-+ * address of the per cpu variable. This is needed because the module
-+ * may be more than 4G above the per cpu area.
-  */
-+#if defined(__s390x__) && defined(MODULE)
-+#define __get_got_cpu_var(var,offset) \
-+  (*({ unsigned long *__ptr; \
-+       asm ( "larl %0,per_cpu__"#var"@GOTENT" : "=3Da" (__ptr) ); \
-+       ((typeof(&per_cpu__##var))((*__ptr) + offset)); \
-+    }))
-+#undef __get_cpu_var
-+#define __get_cpu_var(var) __get_got_cpu_var(var,S390_lowcore.percpu_offse=
-t)
-+#undef per_cpu
-+#define per_cpu(var,cpu) __get_got_cpu_var(var,__per_cpu_offset[cpu])
-+#else
- #undef __get_cpu_var
- #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, S390_lowcore.perc=
-pu_offset))
-+#endif
-=20
- #endif /* __ARCH_S390_PERCPU__ */
+strace says:
+11177 setrlimit(RLIMIT_CORE, {rlim_cur=0, rlim_max=0} <unfinished ...>
+11177 <... setrlimit resumed> )         = 0
+11177 getrlimit(RLIMIT_DATA,  <unfinished ...>
+11177 <... getrlimit resumed> {rlim_cur=2147483647, rlim_max=2147483647}) = 0
+11177 setrlimit(RLIMIT_DATA, {rlim_cur=65536*1024, rlim_max=2147483647}) = 0
+11177 setpgid(0, 0)                     = 0
+11177 brk(0)                            = 0x80016000
+11177 brk(0x80037000)                   = 0x80037000
+11177 brk(0)                            = 0x80037000
+11177 open("/proc/self/maps", O_RDONLY) = 3
+11177 getrlimit(RLIMIT_STACK, {rlim_cur=2147483647, rlim_max=2147483647}) = 0
+11177 fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+11177 mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 
+-1, 0) = 0x40125000
+11177 read(3, "08048000-0804b000 r-xp 00000000 "..., 1024) = 910
+11177 close(3)                          = 0
+11177 munmap(0x40125000, 4096)          = 0
+11177 sched_getaffinity(11177, 32,
 
---Boundary-02=_xtSmAeHXXVv5B77
-Content-Type: application/pgp-signature
-Content-Description: signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBAmStx5t5GS2LDRf4RAudCAKCX+8d+RcsfdnXUZ11aZWpmVAyN4wCcCHGV
-fI95O6DxzwsM60fO41c4e64=
-=/cWV
------END PGP SIGNATURE-----
+There seems to be another problem wit uname:
 
---Boundary-02=_xtSmAeHXXVv5B77--
+Hardware platform:
+uname -i
+unknown
+
+CPU:
+uname -p
+unknown
+
+
+Is this normal for Athlon boards? What should it be, if it is not correct? 
+What could be the reason for this wrong info?
+
+
+
+Thank you very much for any hint,
+kind regards,
+Andreas Hartmann

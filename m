@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTDIRYQ (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 13:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263635AbTDIRYQ (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 13:24:16 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:30345 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S263632AbTDIRYP (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 13:24:15 -0400
-Date: Wed, 09 Apr 2003 11:34:01 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] aic7* claims all checked EISA io ranges (was:	[MAILER-DAEMON@rumms.u
-Message-ID: <194120000.1049909641@aslan.btc.adaptec.com>
-In-Reply-To: <1049886804.9901.19.camel@dhcp22.swansea.linux.org.uk>
-References: <200304082124_MC3-1-3399-FBD0@compuserve.com> <1049886804.9901.19.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
-MIME-Version: 1.0
+	id S263635AbTDIRZT (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 13:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263641AbTDIRZT (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 13:25:19 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:41712 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263635AbTDIRZS (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 13:25:18 -0400
+Date: Wed, 9 Apr 2003 10:37:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Stian Jordet <liste@jordet.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i2c questions in kernel 2.5.67
+Message-ID: <20030409173733.GA14064@kroah.com>
+References: <1049902006.1362.6.camel@chevrolet.hybel> <20030409162537.GB1518@kroah.com> <1049909342.1269.0.camel@chevrolet.hybel>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1049909342.1269.0.camel@chevrolet.hybel>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mer, 2003-04-09 at 02:21, Chuck Ebbert wrote:
->> And your code goes for long periods of time without merging good fixes,
->> like this one (from 2.4.20):
+On Wed, Apr 09, 2003 at 07:29:03PM +0200, Stian Jordet wrote:
+> ons, 09.04.2003 kl. 18.25 skrev Greg KH:
+> > On Wed, Apr 09, 2003 at 05:26:46PM +0200, Stian Jordet wrote:
+> > > Hi,
+> > > 
+> > > I have a Asus CUV266-DLS motherboard, with a as99127f hardware monitor
+> > > chip. This is supposed to be supported by the W83781D sensor driver.
+> > 
+> > Does this motherboard work with this driver on 2.4?  (I'd recommend
+> > getting the lm_sensors package from their web site to check this out.)
 > 
-> Which is one reason Justin's patches don't get merged. They are giant
-> changes which back out other clear corrections.
+> Of course I should have checked this better before I sent the first
+> mail. I need the i2c-viapro module (in 2.4), which hasn't been ported
+> yet.
 
-This tells me two things:
+No problem, want to port that driver and send me a patch?  :)
 
-1) You don't trust maintainers.  If a maintainer can't make large changes,
-   who can?
+I sent out a document to the list a week or so ago on the changes
+necessary to do this if you're interested.
 
-2) When a maintainer makes a mistake (fails to integrate a good change,
-   or introduces a bug), the maintainers changes are simply dropped rather
-   then notify (either politely or not I don't much care) the maintainer
-   of his/her mistake.
+thanks,
 
-Neither of the above applied to integration of the aic79xx driver into
-the 2.4.X tree, but it still took something like 8 months.
-
-There must be a better way.
-
---
-Justin
-
+greg k-h

@@ -1,41 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266461AbUG0Qd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266453AbUG0Q3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266461AbUG0Qd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 12:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266466AbUG0Qbg
+	id S266453AbUG0Q3j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 12:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUG0Q2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 12:31:36 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:43137 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266477AbUG0QaJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 12:30:09 -0400
-Subject: Re: Problem with snd_atiixp in 2.6.8-rc2 (and a workaround)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <s5hn01l67v6.wl@alsa2.suse.de>
-References: <m37jsv3j6a.fsf@telia.com> <m3hdrx6w0p.fsf@telia.com>
-	 <1090701125.7455.3.camel@lade.trondhjem.org> <s5hn01l67v6.wl@alsa2.suse.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1090945801.4711.6.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Jul 2004 12:30:01 -0400
+	Tue, 27 Jul 2004 12:28:48 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:16846 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S266453AbUG0QX4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 12:23:56 -0400
+Message-ID: <410681DC.7030706@colorfullife.com>
+Date: Tue, 27 Jul 2004 18:25:00 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][2.6.8-rc1-mm1] perfctr inheritance locking issue
+References: <200407201122.i6KBMbPR021614@harpo.it.uu.se> <20040726165754.1a4eda43.akpm@osdl.org>
+In-Reply-To: <20040726165754.1a4eda43.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På ty , 27/07/2004 klokka 06:51, skreiv Takashi Iwai:
-> > It still needs to be fixed in the kernel itself. This bug and the fix
-> > were both reported during the 2.6.6 cycle: we're now in 2.6.8-rc2...
-> > 
-> > Why the delay on such a trivial bug?
-> 
-> It has been already in mm tree for long time...
+Andrew Morton wrote:
 
-...and has been available on the ALSA CVS site, yadda, yadda...
+>Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>  
+>
+>>Andrew,
+>>
+>>There is another locking problem with the per-process
+>>performance counter inheritance changes I sent you.
+>>
+>>I currently use task_lock(tsk) to synchronise accesses
+>>to tsk->thread.perfctr, when that pointer could change.
+>>
+>>The write_lock_irq(&tasklist_lock) in release_task() is
+>>needed to prevent ->parent from changing while releasing the
+>>child, but the parent's ->thread.perfctr must also be locked.
+>>However, sched.h explicitly forbids holding task_lock()
+>>simultaneously with write_lock_irq(&tasklist_lock). Ouch.
+>>    
+>>
+>
+>That's ghastly.
+>
+> * Nests both inside and outside of read_lock(&tasklist_lock).
+> * It must not be nested with write_lock_irq(&tasklist_lock),
+> * neither inside nor outside.
+>
+>Manfred, where did you discover the offending code?
+>
+>  
+>
+Think about interrupts: they are permitted to acquire the tasklist_lock 
+for read.
 
-That does nothing to change the fact that the *mainline* kernel tree has
-been stuck with a trivial but irritating bug.
+Someone does
+    read_lock(&tasklist_lock);
+    task_lock(tsk);
 
-Trond
+One example is __do_SAK in tty_io.c, but I think there are further examples.
+
+Now add a softirq that tries to deliver a signal: kill_something_info() 
+contains a
+    read_lock(&tasklist_lock);
+
+This sequence doesn't deadlock - rw spinlocks starve writers.
+But it means that both
+    task_lock();
+    write_lock_irq(&tasklist_lock);
+and
+    write_lock_irq(&tasklist_lock);
+    task_lock();
+
+can deadlock with the read_lock()/task_lock()/read_lock() sequence.
+
+>Would be better to just sort out the locking, then take task_lock() inside
+>tasklist_lock.  That was allegedly the rule in 2.4.
+>  
+>
+It probably works by chance in 2.4.
+
+--  
+    Manfred

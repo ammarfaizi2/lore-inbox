@@ -1,39 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAJV1v>; Wed, 10 Jan 2001 16:27:51 -0500
+	id <S132639AbRAJV3L>; Wed, 10 Jan 2001 16:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129903AbRAJV1l>; Wed, 10 Jan 2001 16:27:41 -0500
-Received: from 216.41.5.host170 ([216.41.5.170]:27260 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S129431AbRAJV1b>; Wed, 10 Jan 2001 16:27:31 -0500
-Message-Id: <200101102127.f0ALRSr01062@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: kernel@ddx.a2000.nu, linux-kernel@vger.kernel.org
-Subject: Re: unexplained high load 
-In-Reply-To: Your message of "Wed, 10 Jan 2001 22:06:27 +0100."
-             <Pine.LNX.4.30.0101102203340.4377-100000@ddx.a2000.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 10 Jan 2001 16:27:28 -0500
-From: Hacksaw <hacksaw@hacksaw.org>
+	id <S129903AbRAJV2v>; Wed, 10 Jan 2001 16:28:51 -0500
+Received: from tellus.thn.htu.se ([193.10.192.40]:14859 "EHLO thn.htu.se")
+	by vger.kernel.org with ESMTP id <S129610AbRAJV2u>;
+	Wed, 10 Jan 2001 16:28:50 -0500
+Date: Wed, 10 Jan 2001 22:26:32 +0100 (CET)
+From: Richard Torkar <ds98rito@thn.htu.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: bugreporting script - second try
+In-Reply-To: <Pine.LNX.4.30.0101102205250.1391-100000@studpc91.thndorm.htu.se>
+Message-ID: <Pine.LNX.4.30.0101102225170.1391-100000@studpc91.thndorm.htu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->don't think
->w,uptime,top give the same value
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The fact that they all give the same value does not indicate that you have not 
-been cracked. Obviously, part of the hacking is to cover trails; it'd be a 
-pretty poor job if they reported different values.
+Richard Torkar wrote:
 
-The mm stuff from your other message is, I think, an indication that you might 
-be being hit by a memory management bug that was corrected in 2.2.19pre2.
+> Matthias Juchem wrote:
+>
+> > Hi there.
+> >
+> > I rewrote my previous bugreport.pl in bash. I would appreciate it if you
+> > had a look on this one. Run it once and give me feedback if you like.
+> >
+>
+> Well it certantly works here. Almost everything is extracted correctly. I
+> could not btw test the ksymoops "feature" unfortunately.
+>
+> What I did notice was the following.
+> This was checking "b) software" in the output file.
+>
+>  GNU C                  2.96
+>  Modutils               2.4.1
+>  GNU make               3.79.1,
+>  Binutils               2.10.90
+>  Linux libc5 C Library  not found
+>  Linux libc6 C Library  2.2,
+>  Linux C++ library      2.7.2.8
+>  Dynamic linker         2.2
+>  Procps                 2.0.7
+>  Procinfo
+>  Psmisc                 19
+>  Net-tools              1.56
+>  PPP                    command
+>  Kdb
+>  Sh-utils               2.0
+>  Util-linux             2.10m
+>  E2fsprogs              1.19,
+>  Bash                   2.04.11(1)-release
+>
+>
+> I do not have any PPP, and no kdb installed on that machine, neither do I
+> have procinfo. Shouldn't it say N/A or not found instead of the above? The
+> ppp part is not true ;-).
+>
 
-It is my sincere belief that you will need to upgrade your kernel, but you are 
-in no serious danger.
 
-If it's a firewall box, you should be running tripwire or some free variation, 
-to help eliminate the possibility that cracking would go undetected.
+Oohh btw when doing a pppd --version on my system I get.
+[xxxx@~]$ pppd --version
+bash: pppd: command not found
+
+
+
+/Richard
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD4DBQE6XNOKUSLExYo23RsRApaPAJdFPBwbJ3cjbPEeSe9sF4bv95P1AJsElLpE
+sCnH3COXAqy2B4XzcML+FQ==
+=U2Yp
+-----END PGP SIGNATURE-----
 
 
 -

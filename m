@@ -1,89 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUIOB0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUIOB3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUIOB0h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 21:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUIOB0h
+	id S265395AbUIOB3X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 21:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUIOB3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 21:26:37 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:46585 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264917AbUIOB0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 21:26:25 -0400
-Message-ID: <41479A43.4040708@namesys.com>
-Date: Tue, 14 Sep 2004 18:26:27 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Mahoney <jeffm@suse.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: [PATCH] ReiserFS v3 I/O error handling
-References: <414710B7.5080709@suse.com>
-In-Reply-To: <414710B7.5080709@suse.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 21:29:23 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:49305 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S265395AbUIOB3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 21:29:20 -0400
+Date: Tue, 14 Sep 2004 21:29:44 -0400
+From: Avi Norowitz <anorowitz@fortressitx.com>
+Subject: High Memory Results in Poor Performance on Asus P4P800-MX Motherboard
+To: linux-kernel@vger.kernel.org
+Message-id: <009f01c49ac3$7b04aa20$0100000a@FIRE>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Mahoney wrote:
+Greetings,
 
-> Hey all -
->
-> One of the most common complaints I've heard about ReiserFS is how
-> graceless it is in handling critical I/O errors.
->
-> ext[23] can handle I/O errors anywhere, with the results being up to the
-> system admin to determine: continue, go read only, or panic.
->
-> ReiserFS doesn't offer the admin any such choice, instead panicking on
-> any I/O error in the journal.
->
-> I've posted four patches at:
-> ftp://ftp.suse.com/pub/people/jeffm/reiserfs/kernel-v2.6/io-error/
->
-> Against 2.6.9-rc2:
-> * reiserfs-cleanup-buffer-heads.diff
->     - Cleans up handling of buffer head bitfields - uses
->       the kernel supplied FNS_BUFFER macros instead.
-> * reiserfs-cleanup-sb-journal.diff
->     - Cleans up accessing of the journal structure, prefering
-> ~           to create a temporary variable in functions that access
-> ~           the journal structure non-trivially. Should make 0 difference
-> ~           at compile time.
-> * reiserfs-write-lock.diff
->     - Fixes two missing reiserfs_write_unlock() calls on error paths
-> ~           that are unrelated to the last patch.
-> * reiserfs-io-error-handling.diff
->     - Allows ReiserFS to gracefully handle I/O errors in critical
->       code paths. The admin has the option to go read-only or panic.
->       Since ReiserFS has no option to ignore the use of the journal,
-> ~          the "continue" method is not enabled.
->
-> These patches have seen a lot of testing in the SuSE Linux Enterprise
-> Server 9 kernel, and are considered ready for mainline.
->
-> Hans - please take a look.
->
-> -Jeff
->
-> [Resent: The patches initially were attached, and I suspect they were
-> too large to make it onto the list.]
->
-> --
-> Jeff Mahoney
-> SuSE Labs
+At the dedicated hosting company I work for we have been having some serious
+performance problems with Linux 2.6.8.1 on Pentium 4 servers running the
+Asus P4P800-MX motherboard. Some of these servers run as if they were
+Pentium 1s, while others run as if they were 386s. (I am not exaggerating.)
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Eventually I found that this problem is resolved with a compiled kernel with
+high memory disabled. Of course, this is not an attractive solution, since
+many of our servers have over 1GB of memory. However, I came across this
+solution on linux-kernel, archived at Google:
 
-I am going to let zam review it on my behalf due to urgent personal 
-issues.  If he does not respond in seven days, complain to me about it 
-and my personal issues will be past me by then.
+http://groups.google.com/groups?selm=1bD5H-1aI-9%40gated-at.bofh.it
 
-Hans
+This solution worked for servers with 1GB of memory, but not servers with
+1.5GB. However, I was able to modify the commands so it worked with servers
+with 1.5GB of memory, and presumably servers up to 4GB:
+
+echo "disable=9" >| /proc/mtrr
+echo "disable=8" >| /proc/mtrr
+echo "disable=7" >| /proc/mtrr
+echo "disable=6" >| /proc/mtrr
+echo "disable=5" >| /proc/mtrr
+echo "disable=4" >| /proc/mtrr
+echo "disable=3" >| /proc/mtrr
+echo "disable=2" >| /proc/mtrr
+echo "disable=1" >| /proc/mtrr
+echo "disable=0" >| /proc/mtrr
+echo "base=0x00000000 size=0x100000000 type=write-back" > /proc/mtrr
+
+I am very glad that I was able to resolve the problem, but I have three
+further questions.
+
+1. Is there a better fix to use than to have the above commands run at boot?
+
+2. Which is at fault: the motherboard or the Linux kernel?
+
+3. Should I expect this problem to be resolved in future kernels?
+
+If any developers would like root access to a test server having this
+problem to investigate the problem, please let me know.
+
+Thank you for your time.
+
+Sincerely,
+Avi Norowitz
+Unix Technical Support
+Fortress ITX / DedicatedNOW / Pegasus Web Technologies
+

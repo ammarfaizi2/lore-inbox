@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311320AbSERKJC>; Sat, 18 May 2002 06:09:02 -0400
+	id <S312169AbSERKQm>; Sat, 18 May 2002 06:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311839AbSERKI7>; Sat, 18 May 2002 06:08:59 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:14755 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S311320AbSERKI6>; Sat, 18 May 2002 06:08:58 -0400
-Message-ID: <3CE629F3.5040809@notnowlewis.co.uk>
-Date: Sat, 18 May 2002 11:16:19 +0100
-From: mikeH <mikeH@notnowlewis.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020502
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.5.16 and VIA Chipset
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312279AbSERKQl>; Sat, 18 May 2002 06:16:41 -0400
+Received: from ns.suse.de ([213.95.15.193]:10252 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312169AbSERKQl>;
+	Sat, 18 May 2002 06:16:41 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+In-Reply-To: <E178eMm-0000NO-00@wagner.rustcorp.com.au.suse.lists.linux.kernel> <Pine.LNX.4.44.0205171936220.1524-100000@home.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 18 May 2002 12:16:40 +0200
+Message-ID: <p733cwpzrp3.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-I have the VIA kt266 chipset, with CONFIG_BLK_DEV_VIA82CXXX)
-it refuses to boot, hanging just before you'd expect to see the IDE
-boot messages come up.
+> On Fri, 17 May 2002, Rusty Russell wrote:
+> >
+> > Sorry I wasn't clear: I'm saying *replace*, not add,
+> 
+> Ok, let _me_ be clear: replacing them with an inferior product that cannot
+> tell you partial copies is not going to happen. Not now, not ever. You
+> would break all the users who _require_ knowing about a read() that only
+> gave you 5 out of 50 bytes.
 
-lcpsi output :
+Are you sure they even exist ? As far as I can see near everybody relies
+on zeroing of target on exception instead.
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP]
-00:08.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1b)
-00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 1b)
-00:11.4 USB Controller: VIA Technologies, Inc. USB (rev 1b)
-01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 
-Ti4400] (rev a2)
+At least for the SSE optimized copy_*_user always would be much better,
+because optimizing the miss count is painful from an unrolled loop
+and cannot be even done accurately (8 bytes accuracy is best with 8 byte
+loads/stored).  With that in mind I think the byte count is broken by 
+design because it cannot be correctly implemented unless you do byte copies.
 
-Is there any other info from my system that would help track down why?
+I remember TCP was given as the prime user when this interface was 
+introduced in 2.1, but TCP does not use the byte count currently and never has
+(in fact the primary memory copy interface of TCP - csum_copy_* - does not 
+even support it)
 
-Thanks,
-
-mike
-
+-Andi 

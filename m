@@ -1,150 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263524AbTC3IRc>; Sun, 30 Mar 2003 03:17:32 -0500
+	id <S263526AbTC3JB2>; Sun, 30 Mar 2003 04:01:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263526AbTC3IRc>; Sun, 30 Mar 2003 03:17:32 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12051 "EHLO
+	id <S263527AbTC3JB2>; Sun, 30 Mar 2003 04:01:28 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3844 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263524AbTC3IR3>; Sun, 30 Mar 2003 03:17:29 -0500
-Date: Sun, 30 Mar 2003 09:28:46 +0100
+	id <S263526AbTC3JB0>; Sun, 30 Mar 2003 04:01:26 -0500
+Date: Sun, 30 Mar 2003 10:12:43 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [BK PULL] PCMCIA updates
-Message-ID: <20030330092846.B3375@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] pcmcia: add struct pcmcia_device
+Message-ID: <20030330101243.D3375@flint.arm.linux.org.uk>
+Mail-Followup-To: Dominik Brodowski <linux@brodo.de>,
+	linux-kernel@vger.kernel.org
+References: <20030329144547.GA17956@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030329144547.GA17956@brodo.de>; from linux@brodo.de on Sat, Mar 29, 2003 at 03:45:47PM +0100
 X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A gnu patch for this can be found at:
+Ok, some comments on this patch.
 
-	http://patches.arm.linux.org.uk/pcmcia/20030330.diff
+On Sat, Mar 29, 2003 at 03:45:47PM +0100, Dominik Brodowski wrote:
+> diff -ruN linux-original/drivers/pcmcia/cistpl.c linux/drivers/pcmcia/cistpl.c
+> --- linux-original/drivers/pcmcia/cistpl.c	2003-03-29 15:16:03.000000000 +0100
+> +++ linux/drivers/pcmcia/cistpl.c	2003-03-29 15:37:35.000000000 +0100
+> @@ -1392,6 +1392,7 @@
+>      ret = pcmcia_parse_tuple(handle, &tuple, parse);
+>      return ret;
+>  }
+> +EXPORT_SYMBOL(read_tuple);
+>  
+>  /*======================================================================
+>  
+> @@ -1451,4 +1452,4 @@
+>  
+>      return CS_SUCCESS;
+>  }
+> -
+> +EXPORT_SYMBOL(pcmcia_validate_cis);
+> diff -ruN linux-original/drivers/pcmcia/ds.c linux/drivers/pcmcia/ds.c
+> --- linux-original/drivers/pcmcia/ds.c	2003-03-29 15:22:14.000000000 +0100
+> +++ linux/drivers/pcmcia/ds.c	2003-03-29 15:37:35.000000000 +0100
+> @@ -108,11 +108,16 @@
+>  	struct device		*socket_dev;
+>  	struct list_head	socket_list;
+>  	unsigned int		socket_no; /* deprecated */
+> +	/* the PCMCIA devices connected to this socket (normally one, more
+> +	 * for multifunction devices: */
+> +	struct list_head	devices_list;
+> +	struct semaphore	devices_list_sem;
+>  };
+>  
+>  #define SOCKET_PRESENT		0x01
+>  #define SOCKET_BUSY		0x02
+>  #define SOCKET_REMOVAL_PENDING	0x10
+> +#define SOCKET_ADDING_PENDING	0x20
+>  
+>  /*====================================================================*/
+>  
+> @@ -121,6 +126,12 @@
+>  
+>  static int major_dev = -1;
+>  
+> +/* this is set to 1 when the iomem/ioport configuration of rsrc_mgr.c
+> + * is completed -- only then it is possible to decode the name, manfid,
+> + * prodid, etc. of the pcmcia card.
+> + */
+> +static int resources_available = 0;
+> +
 
-There's a few things outstanding from hch and Dominik, but this
-provides a set of fixes, and allows the ARM SA11xx drivers to work
-sanely with the recent pcmcia changes.
+This isn't actually such a clear-cut situation.  Statically mapped
+sockets like SA11x0-based stuff are able to access the card with no
+resources loaded - in fact, there are no resources to be loaded.
 
-Please note: I don't mind if people pull this around the time of the
-announcement.  However, some people have been regularly pulling from
-them "just in case" there's changes.  Please do not indescriminately
-pull from it without talking to myself first - these trees are *not*
-separate from the ones I work in.  If people disregard this, I will
-have to tweak my firewall appropriately, although I'd prefer not to.
+One of my patches (which was the troublesome pcmcia-10 patch from akpm's
+patch set) changes the way we deal with the CIS.  For windowed sockets,
+when a card detected, we immediately try to claim a resource for the CIS
+window.  If this fails, we whinge about "PCMCIA: insert failed" but
+continue anyway.  We could fail at this point.
 
------ Forwarded message from Russell King <rmk@arm.linux.org.uk> -----
+When resources are changed, I simulate a card removal + insertion request
+so that the CIS gets re-setup.  The longer term solution, imho, is to
+change the socket setup/reset/unreset code in cs.c to be more of a state
+machine which could be re-started when resources become available.
 
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [BK PULL] PCMCIA updates
+> +	/* first case: no resources are available, so we can't decode
+> +	 * any device information */
+> +	if (!resources_available) {
+> +		sprintf (p_dev->dev.bus_id, "pcmcia%d:%d.?", 
+> +			 s->socket_dev->class_num, s->socket_no);
+> +		sprintf (p_dev->dev.name, "unknown");
+> +		ret = device_register(&p_dev->dev);
+> +		if (ret) {
+> +			kfree(p_dev);
+> +			goto out;
+> +		}
+> +		list_add(&p_dev->socket_device_list, &s->devices_list);
+> +		goto out;
+> +	}
 
-Linus, please do a
+I'm not completely sure we want to add a device in this case - if we don't
+have any resources, there isn't much point in making the device available
+to drivers.
 
-	bk pull bk://bk.arm.linux.org.uk/linux-2.5-pcmcia
+> +	if (!func) {
+> +		cisinfo_t cisinfo;
+> +		ret = pcmcia_validate_cis(s->handle, &cisinfo);
+> +		if (ret || !cisinfo.Chains) {
+> +			printk(KERN_INFO "pcmcia: inserted card has invalid CIS.\n");
 
-to include the latest ARM changes.  This will update the following files:
-
- drivers/pcmcia/Kconfig                 |   14 
- drivers/pcmcia/Makefile                |    4 
- drivers/pcmcia/cs.c                    |   72 +-
- drivers/pcmcia/cs_internal.h           |    1 
- drivers/pcmcia/ds.c                    |   19 
- drivers/pcmcia/hd64465_ss.c            |    2 
- drivers/pcmcia/i82092.c                |   17 
- drivers/pcmcia/i82365.c                |    2 
- drivers/pcmcia/pci_socket.c            |   15 
- drivers/pcmcia/sa1100.h                |   85 --
- drivers/pcmcia/sa1100_adsbitsy.c       |  127 +--
- drivers/pcmcia/sa1100_assabet.c        |  144 +---
- drivers/pcmcia/sa1100_badge4.c         |   69 --
- drivers/pcmcia/sa1100_cerf.c           |  157 +---
- drivers/pcmcia/sa1100_flexanet.c       |  227 ++----
- drivers/pcmcia/sa1100_freebird.c       |  193 ++---
- drivers/pcmcia/sa1100_generic.c        | 1122 +--------------------------------
- drivers/pcmcia/sa1100_generic.h        |   93 --
- drivers/pcmcia/sa1100_graphicsclient.c |  165 ++--
- drivers/pcmcia/sa1100_graphicsmaster.c |  111 +--
- drivers/pcmcia/sa1100_h3600.c          |  104 ---
- drivers/pcmcia/sa1100_jornada720.c     |   32 
- drivers/pcmcia/sa1100_neponset.c       |  122 +--
- drivers/pcmcia/sa1100_pangolin.c       |  176 ++---
- drivers/pcmcia/sa1100_pfs168.c         |   52 -
- drivers/pcmcia/sa1100_shannon.c        |   89 --
- drivers/pcmcia/sa1100_simpad.c         |  177 ++---
- drivers/pcmcia/sa1100_stork.c          |  108 +--
- drivers/pcmcia/sa1100_system3.c        |   39 -
- drivers/pcmcia/sa1100_trizeps.c        |  103 +--
- drivers/pcmcia/sa1100_xp860.c          |   47 -
- drivers/pcmcia/sa1100_yopy.c           |  106 ---
- drivers/pcmcia/sa1111_generic.c        |  179 +----
- drivers/pcmcia/sa1111_generic.h        |   16 
- drivers/pcmcia/sa11xx_core.c           | 1054 +++++++++++++++++++++++++++++++
- drivers/pcmcia/sa11xx_core.h           |  122 +++
- drivers/pcmcia/tcic.c                  |    7 
- drivers/serial/8250_cs.c               |   25 
- include/pcmcia/ss.h                    |    5 
- 39 files changed, 2299 insertions, 2903 deletions
-
-through these ChangeSets:
-
-<rmk@flint.arm.linux.org.uk> (03/03/30 1.999)
-	[PCMCIA] Reorganise SA11xx PCMCIA support.
-	
-	The SA1100 PCMCIA structure didn't lend itself well to the device
-	model.  With this reorganisation, we end up with a reasonable
-	structure which fits better with the driver model.  It is now
-	obvious that SA11x0-based socket drivers are separate from
-	SA1111-based socket drivers, and are treated as two separate drivers
-	by the driver model.
-
-<linux@de.rmk.(none)> (03/03/30 1.998)
-	[PCMCIA] Fix "Removing wireless card triggers might_sleep warnings."
-	
-	Bug 516.
-	
-	Use schedule_delayed_work instead of a timer should fix this. Thanks
-	to Andrew Morton and Russell King.
-	
-	(Added flush_scheduled_work() to ensure our delayed work completes
-	before we free the pcmcia_bus_socket structure. --rmk)
-
-<hch@de.rmk.(none)> (03/03/29 1.997)
-	[SERIAL] switch over 8250_cs to pcmcia_register_driver
-
-<linux@de.rmk.(none)> (03/03/28 1.996)
-	[PCMCIA] don't inform "driver services" of cardbus-related events
-
-<linux@de.rmk.(none)> (03/03/28 1.995)
-	[PCMCIA] generic suspend/resume capability
-	
-	The socket drivers already offer suspend and resume
-	capability. Integrate this with the driver model, based on a
-	suggestion by Russell King.
-	
-	Also, remove two never-used functions from the socket drivers (to_ns).
-	
-	 drivers/pcmcia/cs.c             |   70 ++++++++++++++++++++--------------------
-	 drivers/pcmcia/cs_internal.h    |    1
-	 drivers/pcmcia/hd64465_ss.c     |    2 +
-	 drivers/pcmcia/i82092.c         |   17 ++++++---
-	 drivers/pcmcia/i82365.c         |    2 +
-	 drivers/pcmcia/pci_socket.c     |   15 +-------
-	 drivers/pcmcia/sa1100_generic.c |    2 +
-	 drivers/pcmcia/sa1111_generic.c |   14 +-------
-	 drivers/pcmcia/tcic.c           |    7 +---
-	 include/pcmcia/ss.h             |    5 ++
-	 10 files changed, 64 insertions(+), 71 deletions(-)
-
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
-
------ End forwarded message -----
+I have a memory-type pcmcia card here, and I believe it doesn't have any
+CIS what so ever, so this would fail.
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

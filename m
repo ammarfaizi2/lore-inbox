@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267331AbTACAFa>; Thu, 2 Jan 2003 19:05:30 -0500
+	id <S267333AbTACAMN>; Thu, 2 Jan 2003 19:12:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267333AbTACAF3>; Thu, 2 Jan 2003 19:05:29 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16266
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267331AbTACAF2>; Thu, 2 Jan 2003 19:05:28 -0500
-Subject: Re: [PATCH] TCP Zero Copy for mmapped files
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: lm@bitmover.com, tom@rhadamanthys.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030102.151600.129375771.davem@redhat.com>
-References: <20030102221210.GA7704@window.dhis.org>
-	<20030102222816.GF2461@work.bitmover.com>
-	<1041549644.24829.66.camel@irongate.swansea.linux.org.uk> 
-	<20030102.151600.129375771.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Jan 2003 00:56:59 +0000
-Message-Id: <1041555419.24901.86.camel@irongate.swansea.linux.org.uk>
+	id <S267347AbTACAMN>; Thu, 2 Jan 2003 19:12:13 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24592 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267333AbTACAMM>; Thu, 2 Jan 2003 19:12:12 -0500
+Date: Fri, 3 Jan 2003 00:20:32 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: david-b@pacbell.net, akpm@digeo.com, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+Message-ID: <20030103002032.D3782@flint.arm.linux.org.uk>
+Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>,
+	david-b@pacbell.net, akpm@digeo.com, James.Bottomley@steeleye.com,
+	linux-kernel@vger.kernel.org
+References: <200301022207.OAA00803@adam.yggdrasil.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200301022207.OAA00803@adam.yggdrasil.com>; from adam@yggdrasil.com on Thu, Jan 02, 2003 at 02:07:46PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-02 at 23:16, David S. Miller wrote:    
->    It depends how predictable your content is. With a 64bit box and a porn
->    server its probably quite tidy
->    
-> Let's say you have infinite VM (which is what 64-bit almost is :) then
-> the cost is setting up all of these useless VMAs for each and every
-> file (which is a 1 time cost, ok), and also the VMA lookup each
-> write() call.
-> 
-> With sendfile() all of this goes straight to the page cache directly
-> without a VMA lookup.
+On Thu, Jan 02, 2003 at 02:07:46PM -0800, Adam J. Richter wrote:
+> 	The pci_pool_alloc  in sa1111-buf.c is more interesting.
+> alloc_safe_buffer is used to implement an unusual version of
+> pci_map_single.  It is unclear to me whether this approach is optimal.
+> I'll look into this more.
 
-With a nasty unpleasant splat the moment you do modification on the
-content at all. For static objects sendfile is certainly superior,
+Welcome to the world of seriously broken hardware that a fair number
+of people put on their boards.  Unfortunately, the hardware bug got
+marged as "never fix" by Intel.
+
+Basically, the chip is only able to DMA from certain memory regions
+and its RAM size dependent.  For 32MB of memory, it works out at
+around 1MB regions - odd regions are not able to perform DMA, even
+regions can.
+
+Linux only supports one DMA region per memory node though, so in
+this configuration, we only have 1MB of memory able to be used for
+OHCI.
+
+To work around this, we have "unusual" versions of the mapping
+functions.  Although they may not be optimal, they are, afaik
+completely functional.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

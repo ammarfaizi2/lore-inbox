@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUHJTBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267634AbUHJTBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267361AbUHJTBI (ORCPT <rfc822;willy@w.ods.org>);
+	id S267634AbUHJTBI (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 10 Aug 2004 15:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267663AbUHJS6l
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267361AbUHJSzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:58:41 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:26512 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267678AbUHJSzO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:55:14 -0400
-Date: Tue, 10 Aug 2004 14:54:32 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Luesley, William" <william.luesley@amsjv.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Network routing issue
-In-Reply-To: <22CE8E75BE6AD3119A9800508B0FF7E9030BADD0@nmex02.nm.dsx.bae.co.uk>
-Message-ID: <Pine.LNX.4.53.0408101453250.13579@chaos>
-References: <22CE8E75BE6AD3119A9800508B0FF7E9030BADD0@nmex02.nm.dsx.bae.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Aug 2004 14:55:02 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:1971 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267673AbUHJSvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 14:51:42 -0400
+Subject: Re: bkl cleanup in do_sysctl
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Josh Aas <josha@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       steiner@sgi.com
+In-Reply-To: <1092158905.11212.18.camel@nighthawk>
+References: <4118FE9D.2050304@sgi.com> <1092158905.11212.18.camel@nighthawk>
+Content-Type: text/plain
+Message-Id: <1092163919.782.54.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 14:51:59 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004, Luesley, William wrote:
+On Tue, 2004-08-10 at 13:28, Dave Hansen wrote:
 
->
-> I have two devices setup as follows:
->
->
->           A --------------- B
-> 192.168.1.1                 192.168.1.2
->
->
-> The machines open a number of TCP and UDP ports with which to communicate.
-> In order to help testing, I have been asked to place a third machine between
-> these two which will be capable of intercepting and modifying any messages.
-> My initial plan was to have a device which could mimic both ends of the
-> connection (as I already have code to do this); with each connection being
-> on a separate NIC, leading to a setup as shown below:
->
->           A ------------ C  C  ---------- B
-> 192.168.1.1    192.168.1.2  192.168.1.1   192.168.1.2
->                     (eth0)  (eth1)
->
-> The obvious problem with this is that as C implements both ends of the
-> interface, any messages it sends are routed internally, rather than being
-> sent to the correct host.
->
-> I thought it would be possible to correct this by specifying the host routes
-> using the route command, i.e. setting a route to 192.168.1.1 via device eth0
-> and to 192.168.1.2 via eth1, therefore stopping the internal routing from
-> occurring. Even with these routes setup, the messages are still routed
-> internally.
->
->
->
-> Can the route somehow be forced?
->
-> If not, is there a way to stop the internal routing, preferably without a
-> code change to the kernel (if it is a code change - can someone point me
-> towards the file)?
->
-> Can I use IP Tables, how?
->
-> Or, am I on totally the wrong track?
->
->
-> Thanks for peoples time spent reading and looking into this.
->
->
->
->
->
+> Remember that the BKL isn't a plain-old spinlock.  You're allowed to
+> sleep while holding it and it can be recursively held, which isn't true
+> for other spinlocks.
+> 
+> So, if you want to replace it with a spinlock, you'll need to do audits
+> looking for sysctl users that might_sleep() or get called recursively
+> somehow.  The might_sleep() debugging checks should help immensely for
+> the first part, but all you'll get are deadlocks at runtime for any
+> recursive holders.  But, those cases are increasingly rare, so you might
+> luck out and not have any.  
+> 
+> Or, you could just make it a semaphore and forget about the no sleeping
+> requirement.  
+> 
 
-`ifconfig lo down` should force your stuff to go through the
-ethernet for testing.
+Someone once suggested that newbies who show up on LKML wanting to learn
+kernel hacking should be assigned to find one use of the BKL and replace
+it with proper locking.  Something similar worked very well with my
+previous employer, before giving someone root, new hires would first be
+assigned some task like writing a script to take the user account
+database and generate a report of old accounts on a bunch of machines,
+or rewrite the RADIUS accounting scripts, where the point was really to
+get them familiar with the system.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+This way, even if they come back with a totally botched fix, someone
+will probably just post a correct one.  We could get rid of the BKL very
+soon, I count only 247 files with lock_kernel in them.
 
+For example reiserfs uses the BKL for all write locking (!), but it
+probably would not be too hard to fix, because you can just look at
+another filesystem that has proper locking.
+
+Maybe this should be added to the FAQ:
+
+Q:  I want to hack the kernel, and I *think* I know what I am doing. 
+Where do I start?
+
+Lee
 

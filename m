@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313450AbSDMNOq>; Sat, 13 Apr 2002 09:14:46 -0400
+	id <S313540AbSDMNsh>; Sat, 13 Apr 2002 09:48:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313511AbSDMNOp>; Sat, 13 Apr 2002 09:14:45 -0400
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:60423 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S313450AbSDMNOo>;
-	Sat, 13 Apr 2002 09:14:44 -0400
-Date: Sat, 13 Apr 2002 09:14:41 -0400 (EDT)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
+	id <S313546AbSDMNsg>; Sat, 13 Apr 2002 09:48:36 -0400
+Received: from smtp.polyu.edu.hk ([158.132.14.103]:55822 "EHLO
+	hkpa04.polyu.edu.hk") by vger.kernel.org with ESMTP
+	id <S313540AbSDMNsf>; Sat, 13 Apr 2002 09:48:35 -0400
+Message-ID: <000901c1e2f1$e65e9b00$0100a8c0@winxp>
+From: "Anthony Chee" <anthony.chee@polyu.edu.hk>
 To: <linux-kernel@vger.kernel.org>
-Subject: Yet More Watchdog Stuff
-Message-ID: <Pine.LNX.4.33.0204130912040.17511-100000@pita.lan>
+Subject: read proc entry
+Date: Sat, 13 Apr 2002 21:48:31 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, you're all probably getting annoyed with the stupid watchdog driver
-updates, so hopefully this can be the last announcement for a while.  Maybe.
-Anyways, http://osinvestor.com/bigwatchdog-11.diff is up against
-2.4.19-pre5-ac3 still.
+I written the following code in a module
 
-Diff is 4400 lines long and 119k big with context.
+static struct proc_dir_entry *test_proc;
+test_proc = create_proc_read_entry(test_proc, 0444, NULL, read_test_proc,
+NULL);
 
- Documentation/pcwd-watchdog.txt       |  132 -----------
- Documentation/watchdog-api.txt        |  390 ----------------------------------
- Documentation/watchdog.txt            |  113 ---------
- Documentation/watchdog/api.txt        |  139 ++++++++++++
- Documentation/watchdog/howtowrite.txt |   62 +++++
- Documentation/watchdog/status.txt     |  137 +++++++++++
- drivers/char/acquirewdt.c             |  107 +++++----
- drivers/char/advantechwdt.c           |   95 ++++----
- drivers/char/alim7101_wdt.c           |  103 ++++----
- drivers/char/eurotechwdt.c            |   71 +++---
- drivers/char/i810-tco.c               |   80 ++++--
- drivers/char/ib700wdt.c               |   93 ++++----
- drivers/char/machzwd.c                |  103 ++++----
- drivers/char/mixcomwd.c               |   30 +-
- drivers/char/pcwd.c                   |   29 +-
- drivers/char/sbc60xxwdt.c             |  118 +++++-----
- drivers/char/sc1200wdt.c              |   95 +++++---
- drivers/char/sc520_wdt.c              |  106 +++++----
- drivers/char/shwdt.c                  |   87 ++++---
- drivers/char/softdog.c                |   42 ++-
- drivers/char/w83877f_wdt.c            |   98 ++++----
- drivers/char/wafer5823wdt.c           |   66 ++++-
- drivers/char/wdt.c                    |   39 ++-
- drivers/char/wdt285.c                 |   27 --
- drivers/char/wdt977.c                 |  139 ++++++++----
- drivers/char/wdt_pci.c                |   28 --
- drivers/sbus/char/cpwatchdog.c        |   16 -
- drivers/sbus/char/riowatchdog.c       |    6
- 28 files changed, 1278 insertions(+), 1273 deletions(-)
+void show_kernel_message() {
+    printk("\nkernel test\n");
+}
 
-Changes from last time include the include cleanups and fixing some minor
-copy-and-paste nits.
+int read_test_info(char* page, char** start, off_t off, int count, int* eof,
+void* data) {
+    show_kernel_message();
+}
 
-Regards,
-Rob Radez
-
+After I use "cat /proc/test_proc", it is found that there are three "kernel
+test" messages
+appear. Why it happened like this? I expected the message should be shown
+once.
 

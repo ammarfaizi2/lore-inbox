@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267359AbUIYVan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUIYVfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267359AbUIYVan (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 17:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267360AbUIYVan
+	id S267360AbUIYVfb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 17:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269416AbUIYVfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 17:30:43 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:21979 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S267359AbUIYVal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 17:30:41 -0400
-Date: Sat, 25 Sep 2004 23:30:39 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Matthias Andree <matthias.andree@gmx.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc2-mm3 breaks amanda (was: 2.6.9-rc2-mm3)
-Message-ID: <20040925213039.GB480@merlin.emma.line.org>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20040924014643.484470b1.akpm@osdl.org> <20040925172223.GA14562@merlin.emma.line.org> <200409251437.17017.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409251437.17017.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6i
+	Sat, 25 Sep 2004 17:35:30 -0400
+Received: from cantor.suse.de ([195.135.220.2]:10931 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267360AbUIYVfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 17:35:25 -0400
+Message-ID: <4155E40D.2020709@suse.de>
+Date: Sat, 25 Sep 2004 23:33:01 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
+References: <200409251214.28743.rjw@sisk.pl>
+In-Reply-To: <200409251214.28743.rjw@sisk.pl>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Sep 2004, Gene Heskett wrote:
+Rafael J. Wysocki wrote:
+> Pavel,
+> 
+> I've just tried to suspend my box and I must admit I've given up after 30 
+> minutes (sic!) of waiting when there were only 12% of pages written to disk.  
+> Apparently, swsusp slows down to an unacceptable level after saying "PM: 
+> Writing image to disk".
 
-> Sounds to me as if amanda isn't setup correctly.  its working here 
-> just fine with 1 server and 2 clients, one of which is the server 
-> itself.  Running version 2.4.5b1-20040915 to virtual tapes on a big 
-> disk.
+is this reproducible? can you get sysrq-t / sysrq-p while it is slow
+writing to disk?
+I have seen this, too but i cannot nail it down to some specific
+pattern, it just "sometimes" is slow. Sysrq-p shows me it's almost
+always in "pccardd" (where it shouldn't be during suspend, iiuc).
+Unfortunately Pavel does not see this so we have to convince him that
+this is really a problem ;-)
+So if you can reproduce this, it would be a step in the right direction.
 
-Is Amanda set up incorrectly if SuSE's default 2.6.5 kernel and a
-vanilla 2.6.7 work well even with clients, but 2.6.9-rc2-mm1 to -mm3
-versions fail at the same task, with the same Amanda installation and
-software?
-
-I only exchanged the kernel, nothing else. Same hardware, same
-user-space software.
-
-I doubt that it's Amanda's configuration. I'd expect a "stable"
-2.6.9-whatever kernel to be backwards compatible with its 2.6.X
-predecessors.
-
--- 
-Matthias Andree
-
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+    Stefan

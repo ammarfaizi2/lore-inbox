@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265242AbTAEVoo>; Sun, 5 Jan 2003 16:44:44 -0500
+	id <S265262AbTAEVvv>; Sun, 5 Jan 2003 16:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265262AbTAEVon>; Sun, 5 Jan 2003 16:44:43 -0500
-Received: from pl1310.nas921.ichikawa.nttpc.ne.jp ([219.102.249.30]:31279 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S265242AbTAEVon>;
-	Sun, 5 Jan 2003 16:44:43 -0500
-Date: Mon, 6 Jan 2003 06:53:05 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
+	id <S265266AbTAEVvv>; Sun, 5 Jan 2003 16:51:51 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48771
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265262AbTAEVvt>; Sun, 5 Jan 2003 16:51:49 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-Id: <20030106065305.36074071.bruce@ask.ne.jp>
-In-Reply-To: <ava580$g2a$1@forge.intermeta.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <ava7dg$g87$1@forge.intermeta.de>
 References: <20030102013736.GA2708@gnuppy.monkey.org>
-	<Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
-	<20030102055859.GA3991@gnuppy.monkey.org>
-	<20030102061430.GA23276@mark.mielke.cc>
-	<E18UIZS-0006Cr-00@fencepost.gnu.org>
-	<20030103040612.GA10651@work.bitmover.com>
-	<20030104220651.GA30907@merlin.emma.line.org>
-	<20030104222330.GA1386@work.bitmover.com>
-	<20030105101413.GC14362@louise.pinerecords.com>
-	<ava580$g2a$1@forge.intermeta.de>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14
- _qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq
- *)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	 <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
+	 <20030102055859.GA3991@gnuppy.monkey.org>
+	 <20030102061430.GA23276@mark.mielke.cc>
+	 <E18UIZS-0006Cr-00@fencepost.gnu.org>
+	 <20030103075134.GA31357@mark.mielke.cc>
+	 <E18UYSe-0004v1-00@fencepost.gnu.org>  <ava7dg$g87$1@forge.intermeta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041806677.15071.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 05 Jan 2003 22:44:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Jan 2003 20:40:32 +0000 (UTC)
-"Henning P. Schmiedehausen" <hps@intermeta.de> wrote:
+On Sun, 2003-01-05 at 21:17, Henning P. Schmiedehausen wrote:
+> Most of the open source software works "about so". Do we have a bullet
+> proof USB stack? WLAN drivers? DHCP code? ACPI? APM (which is about
+> what? eight years old?)?
 
-> rfc2237:	Japanese Character Encoding for Internet Messages
+USB is getting there, but its certainly better than some others
+WLAN yes - openap is superb stuff
+DHCP - yes
+ACPI - very recently become a truely open project so will I hope now
+improve
+APM - reliable for years, bios code (the nonfree bit) often very buggy
 
-Yeah, and what a hash they made of that one. They wrote it themselves, and
-they *still* ignore it... what hope do we have of them observing standards
-that they didn't write?
+> If you find a well designed and completely specified and developed
+> piece of open source software, you're almost sure to find a company or
+> an individual having been paid for developing it and the putting it
+> into open source.
 
+I don't think its that clear. We have some extremely classy code done
+for fun, or because people had the hardware, and some horrible code
+people were paid to write.
+
+Good code is about good engineers, and good engineers do things for many
+different reasons and motivations. 
+
+Alan
+
+-- 
+Alan Cox <alan@lxorguk.ukuu.org.uk>

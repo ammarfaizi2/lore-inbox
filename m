@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbTIFBWl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 21:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbTIFBWk
+	id S263210AbTIFBTC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 21:19:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTIFBTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 21:22:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56987 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265681AbTIFBWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 21:22:39 -0400
-Message-ID: <3F5936D2.3060502@pobox.com>
-Date: Fri, 05 Sep 2003 21:22:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+	Fri, 5 Sep 2003 21:19:02 -0400
+Received: from [203.221.72.243] ([203.221.72.243]:4868 "EHLO chimp.local.net")
+	by vger.kernel.org with ESMTP id S263210AbTIFBS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 21:18:59 -0400
+Message-ID: <3F5935EB.4000005@cyberone.com.au>
+Date: Sat, 06 Sep 2003 11:18:35 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-CC: torvalds@osdl.org, lkml <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net, linux-acpi@intel.com,
-       Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: [PATCH] 2.6.0-test4 ACPI fixes series (4/4)
-References: <200309051958.02818.adq_dvb@lidskialf.net> <200309060016.16545.adq_dvb@lidskialf.net> <3F590E28.6090101@pobox.com> <200309060157.47121.adq_dvb@lidskialf.net>
-In-Reply-To: <200309060157.47121.adq_dvb@lidskialf.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Mike Fedyk <mfedyk@matchmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v12
+References: <3F58CE6D.2040000@cyberone.com.au> <195560000.1062788044@flay> <20030905202232.GD19041@matchmail.com> <207340000.1062793164@flay>
+In-Reply-To: <207340000.1062793164@flay>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew de Quincey wrote:
-> This patch removes some erroneous code from mpparse which breaks IO-APIC programming
-> 
-> 
-> --- linux-2.6.0-test4.null_crs/arch/i386/kernel/mpparse.c	2003-09-06 00:23:10.000000000 +0100
-> +++ linux-2.6.0-test4.duffmpparse/arch/i386/kernel/mpparse.c	2003-09-06 00:28:23.788124872 +0100
-> @@ -1129,9 +1129,6 @@
->  			continue;
->  		ioapic_pin = irq - mp_ioapic_routing[ioapic].irq_start;
->  
-> -		if (!ioapic && (irq < 16))
-> -			irq += 16;
-> -
 
 
-Even though I've been digging through stuff off and on, I consider 
-myself pretty darn IOAPIC-clueless.  Mikael, does this look sane to you?
+Martin J. Bligh wrote:
+
+>>On Fri, Sep 05, 2003 at 11:54:04AM -0700, Martin J. Bligh wrote:
+>>
+>>>>Backboost is gone so X really should be at -10 or even higher.
+>>>>
+>>>Wasn't that causing half the problems originally? Boosting X seemed
+>>>to starve xmms et al. Or do the interactivity changes fix xmms
+>>>somehow, but not X itself? Explicitly fiddling with task's priorities
+>>>seems flawed to me.
+>>>
+>>Wasn't it the larger timeslices with lower nice values in stock and Con's
+>>patches that made X with nice -10 a bad idea?
+>>
+>
+>Debian renices X by default to -10 ... I fixed all my desktop interactivity
+>problems around 2.5.63 timeframe by just turning that off. That was way 
+>before Con's patches.
+>
+
+Yep, as Mike mentioned, renicing X causes it to get bigger
+timeslices with the stock scheduler. If you had 2 nice -20 processes,
+they would each get a timeslice of 200ms, so you're harming their
+latency.
+
+>
+>There may be some more details around this, and I'd love to hear them,
+>but I fundmantally believe that explitit fiddling with particular
+>processes because we believe they're somehow magic is wrong (and so
+>does Linus, from previous discussions).
+>
+
+Well it would be nice if someone could find out how to do it, but I
+think that if we want X to be able to get 80% CPU when 2 other CPU hogs
+are running, you have to renice it.
+
 

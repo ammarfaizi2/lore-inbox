@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265213AbSKEVEF>; Tue, 5 Nov 2002 16:04:05 -0500
+	id <S265212AbSKEVDz>; Tue, 5 Nov 2002 16:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265223AbSKEVEF>; Tue, 5 Nov 2002 16:04:05 -0500
-Received: from web20513.mail.yahoo.com ([216.136.174.44]:25514 "HELO
-	web20513.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265213AbSKEVEC>; Tue, 5 Nov 2002 16:04:02 -0500
-Message-ID: <20021105211035.77935.qmail@web20513.mail.yahoo.com>
-Date: Tue, 5 Nov 2002 13:10:35 -0800 (PST)
-From: vasya vasyaev <vasya197@yahoo.com>
-Subject: RE: Machine's high load when HIGHMEM is enabled
-To: "Nakajima, Jun" <jun.nakajima@intel.com>, Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000F2ECDBA@fmsmsx103.fm.intel.com>
+	id <S265213AbSKEVDz>; Tue, 5 Nov 2002 16:03:55 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:9657 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S265212AbSKEVDy>; Tue, 5 Nov 2002 16:03:54 -0500
+Date: 05 Nov 2002 21:57:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8$GqvaL1w-B@khms.westfalen.de>
+In-Reply-To: <1118170000.1036458859@flay>
+Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <1118170000.1036458859@flay>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By the way, please CC all of your answers, because I'm
-not soubscribed to the list.
-Thank you.
+mbligh@aracnet.com (Martin J. Bligh)  wrote on 04.11.02 in <1118170000.1036458859@flay>:
 
+> I had a very brief think about this at the weekend, seeing
+> if I could make a big melting pot /proc/psinfo file that did
+> seqfile and read everything out in one go, using seq_file
+> internally to interate over the tasklist. The most obvious
+> problem that sprung to mind seems to be the tasklist locking -
+> you obviously can't just hold a lock over the whole thing.
 
---- "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
-> Also try to disable BIOS remapping in the BIOS setup
-> menu, if any. I know
-> some BIOS that forgot to reset the proper memory
-> attribute in the MTRR(s)
-> after the remapping.
-> 
-> Jun
-> 
-> > -----Original Message-----
-> > From: Andrew Morton [mailto:akpm@digeo.com]
-> > Sent: Monday, November 04, 2002 11:28 AM
-> > To: vasya vasyaev
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: Machine's high load when HIGHMEM is
-> enabled
-> > 
-> > vasya vasyaev wrote:
-> > >
-> > > Hello,
-> > >
-> > > First of all - thanks to these people, who
-> responded
-> > > to my question.
-> > >
-> > > I have some news...
-> > >
-> > > I've tried kernels:
-> > > 2.4.19 - the same result
-> > > 2.5.44 - the same result
-> > > 2.5.45 - the same result
-> > >
-> > > If I take 1 Gb of memory away, then computer
-> works
-> > > much better, faster (something like without
-> enabled
-> > > HIGHMEM at all).
-> > > The same effect takes place if I say mem=1024M
-> while
-> > > physically box has 2Gb of RAM - everything is
-> fine!
-> > > But if I start HIGHMEM enabled kernel on this
-> box (2Gb
-> > > RAM), then it works too slowly...
-> > >
-> > 
-> > Please ensure that the mtrr driver is enabled in
-> kernel config,
-> > boot with mem=2G and send the output of `cat
-> /proc/mtrr'.
-> > 
-> > Also, `dmesg | head -120' would be interesting.
+Well, one thing i to make certain you can actually do it with one or two  
+system calls. Say, one system call to figure out how big a buffer is  
+necessary (essentially, #tasks*size), then one read with a suitably-sized  
+buffer. Then have a loop in the kernel that drops the lock as often as  
+necessary, and otherwise puts it all in the buffer in one go. (If the  
+#tasks grows too fast so it overruns the buffer even with some slack given  
+in advance, tough, have a useful return code to indicate that and let ps  
+retry.)
 
+I briefly thought about mmap, but I don't think that actually buys  
+anything.
 
-
-__________________________________________________
-Do you Yahoo!?
-HotJobs - Search new jobs daily now
-http://hotjobs.yahoo.com/
+MfG Kai

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKPSrf>; Thu, 16 Nov 2000 13:47:35 -0500
+	id <S129132AbQKPStz>; Thu, 16 Nov 2000 13:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129132AbQKPSrZ>; Thu, 16 Nov 2000 13:47:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15424 "EHLO
+	id <S129770AbQKPStp>; Thu, 16 Nov 2000 13:49:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17216 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129069AbQKPSrK>; Thu, 16 Nov 2000 13:47:10 -0500
-Subject: Re: APM oops with Dell 5000e laptop
-To: dax@gurulabs.com (Dax Kelson)
-Date: Thu, 16 Nov 2000 18:17:50 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.30.0011161054420.16124-100000@ultra1.inconnect.com> from "Dax Kelson" at Nov 16, 2000 10:59:27 AM
+	id <S129132AbQKPStd>; Thu, 16 Nov 2000 13:49:33 -0500
+Subject: Re: PATCH: 8139too kernel thread
+To: viro@math.psu.edu (Alexander Viro)
+Date: Thu, 16 Nov 2000 18:19:40 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, netdev@oss.sgi.com
+In-Reply-To: <Pine.GSO.4.21.0011161302200.13047-100000@weyl.math.psu.edu> from "Alexander Viro" at Nov 16, 2000 01:05:53 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13wTbc-0008BC-00@the-village.bc.nu>
+Message-Id: <E13wTdO-0008BQ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The kernel works around/ignores/disables other broken hardware or broken
-> features of otherwise working hardware with black lists.  There will be
-> many *many* of these laptops sold.
+> > 8K of memory, two tlb flushes, cache misses on the scheduler. The price is
+>                 ^^^^^^^^^^^^^^^
+> > actually extremely high.
+> 
+> <confused>
+> Does it really need non-lazy TLB?
 
-And I hope many many of these people demand BIOS upgrades or send them back.
+Good point, so its a mere 8K of memory and the scheduler cache misses
 
-> Is there a way to uniquely identify the affected BIOSes at boot time and
+> I'm not saying that it's a good idea, but...
 
-Im looking at one with some pointers from Dell. It won't be in 2.2.18 so its
-quite likely a fixed BIOS will be out first anyway.
+It seems a very bad idea for the general case. It might be justified for a few
+drivers but then they should not use their own thread but (to merge two mail
+discussions together) use the generic api dwmw2 is doing to solve the pcmcia
+problem.
 
-Alan
+Now we can sleep and we are back to a single 8K stack for all of it
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

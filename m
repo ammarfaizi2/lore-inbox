@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273349AbRI0P1g>; Thu, 27 Sep 2001 11:27:36 -0400
+	id <S273358AbRI0P1R>; Thu, 27 Sep 2001 11:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273326AbRI0P1R>; Thu, 27 Sep 2001 11:27:17 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59666 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S273349AbRI0P1E>; Thu, 27 Sep 2001 11:27:04 -0400
-Date: Thu, 27 Sep 2001 08:27:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux 0.01 disk lockup
-In-Reply-To: <Pine.LNX.3.96.1010927150812.28147B-100000@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.33.0109270826060.17030-100000@penguin.transmeta.com>
+	id <S273326AbRI0P04>; Thu, 27 Sep 2001 11:26:56 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:52486 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273295AbRI0P0x>;
+	Thu, 27 Sep 2001 11:26:53 -0400
+Date: Thu, 27 Sep 2001 12:27:01 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "George R.Kasica" <georgek@netwrx1.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.10
+In-Reply-To: <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com>
+Message-ID: <Pine.LNX.4.33L.0109271226360.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 27 Sep 2001, George R.Kasica wrote:
 
-On Thu, 27 Sep 2001, Mikulas Patocka wrote:
->
-> Linux 0.01 has a bug in disk request sorting - when interrupt happens
-> while sorting is active, the interrupt routine won't clear do_hd - thus
-> the disk will stay locked up forever.
+> What would be the advice of others in terms of moving up from 2.4.5
+> which has been rock solid here?
 
-Ehh..
+2.4.9-ac14, possibly 2.4.9-ac16 if it's out before you are around
+to upgrading.
 
-Mikulas, do you want to be the official maintainer for the 0.01.xxx
-series?
+cheers,
 
-Note that much of the maintenance work is probably just to reproduce and
-make all the user-level etc infrastructure available..
+Rik
+-- 
+IA64: a worthy successor to i860.
 
-		Linus
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

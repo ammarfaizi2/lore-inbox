@@ -1,168 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVATTJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbVATTHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbVATTJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVATTJF
+	id S261872AbVATTHV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVATTEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:09:05 -0500
-Received: from de01egw01.freescale.net ([192.88.165.102]:62615 "EHLO
-	de01egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261849AbVATTHR convert rfc822-to-8bit (ORCPT
+	Thu, 20 Jan 2005 14:04:09 -0500
+Received: from holomorphy.com ([66.93.40.71]:25033 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261777AbVATTCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:07:17 -0500
-In-Reply-To: <20050120154420.D13242@flint.arm.linux.org.uk>
-References: <20050120154420.D13242@flint.arm.linux.org.uk>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Message-Id: <736677C2-6B16-11D9-BD44-000393DBC2E8@freescale.com>
-Content-Transfer-Encoding: 8BIT
-Cc: "Linux Kernel list" <linux-kernel@vger.kernel.org>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: serial8250_init and platform_device
-Date: Thu, 20 Jan 2005 13:06:55 -0600
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-X-Mailer: Apple Mail (2.619)
+	Thu, 20 Jan 2005 14:02:32 -0500
+Date: Thu, 20 Jan 2005 10:59:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] unexport profile_pc
+Message-ID: <20050120185917.GM8896@holomorphy.com>
+References: <20050120182019.GJ3174@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050120182019.GJ3174@stusta.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
+On Thu, Jan 20, 2005 at 07:20:19PM +0100, Adrian Bunk wrote:
+> I haven't found any modular usage of profile_pc in the kernel.
+> Is the patch below correct?
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I think this all makes sense to me.  I'm just wondering why we would 
-have a platform device register in a system for 'legacy ISA' when we 
-know the system doesnt have any ports that will fit the category.
+In theory, /proc/ can be modular. In practice...
 
-As you show in example #2 you have
 
-.../devices/platform/serial82500
-.../devices/platform/serial8250
-
-why have the 'serial8250' if you know your system doesnt have any ports 
-that will exist there?
-
-- kumar
-
-On Jan 20, 2005, at 9:44 AM, Russell King wrote:
-
-> On Thu, Jan 20, 2005 at 09:23:56AM -0600, Kumar Gala wrote:
->  > No problem, let me try to clarify.  I'm trying to figure out in the 
-> ARM
->  > case if there are 2 platform_devices that are registered and if 
-> this is
-> > the desired behavior (and if so why?).
->
-> Yes.  The first (by serial8250_init) is the ISA compatibility platform
->  device, which registers the "old" static list of serial devices found
->  in include/asm-*/serial.h.
->
-> The second registers a platform device which contains the 8250 serial
->  devices for the particular platform.
->
-> > In serial8250_init() we call platform_device_register_simple(), this
-> > will be one registration of a serial8250 device.  In my example of
-> > vr1000, arch/arm/mach-s3c2410/cpu.c:s3c_arch_init() calls
-> > platform_device_register, the 2nd time a serial8250 device is
-> > registered.
->
-> Correct.
->
-> > > We then register the device driver, which allows us to pick up on 
-> the
->  > >  platform devices.  This causes the placeholder registrations to 
-> be
->  > >  reassigned to the platform devices on a first come first served 
-> basis
->  > >  via the standard registration call serial8250_register_port().
-> >
-> > I'm not following you here, its not clear if you mean we have 2
-> > platform devices registered in the system, but only one actually has
-> > serial ports that are registered.
->
-> We have two platform devices registered - one representing the
->  compatibility devices, and one (or more) representing the platform's
->  own devices.
->
-> To illustrate this, let's assume your architecture always has ports at
->  a fixed set of addresses, and then has a set of platform specific 
-> ports.
->  You may wish to have one platform device for the platform common 
-> serial
->  devices which always gets registered.  Your platform specific
->  initialisation code could then register another platform device which
->  contains details of the platform specific serial devices.
->
-> > If you are using SERIAL_PORT_DFNS,
->  > it will be the platform_device created in serial8250_init(), if you 
-> are
-> > not it will be the platform_device created elsewhere?
->
-> Initially, all serial devices are attached to the platform device
->  created in serial8250_init(), whether or not they are listed in
->  SERIAL_PORT_DFNS or not.  Serial devices not listed in 
-> SERIAL_PORT_DFNS
-> remain in an unconfigured state.
->
-> When the 8250 platform device driver is registered, serial devices
->  are "stolen" from this "private" platform device, and are owned by
->  the platform device which registered them.
->
-> Lets take some examples:
->
-> 1. SERIAL_PORT_DFNS contains port at 0x3f8, irq4, and we have space for
->     4 serial ports.  No other platform devices are registered.
->
-> # cat /proc/tty/driver/serial
-> serinfo:1.0 driver revision:
->  0: uart:16550A port:000003F8 irq:4 tx:0 rx:0
->  1: uart:unknown port:00000000 irq:0
->  2: uart:unknown port:00000000 irq:0
->  3: uart:unknown port:00000000 irq:0
->  # tree /sys/class/tty/ttyS*
-> /sys/class/tty/ttyS0
-> |-- dev
->  `-- device -> ../../../devices/platform/serial8250
-> /sys/class/tty/ttyS1
-> |-- dev
->  `-- device -> ../../../devices/platform/serial8250
-> /sys/class/tty/ttyS2
-> |-- dev
->  `-- device -> ../../../devices/platform/serial8250
-> /sys/class/tty/ttyS3
-> |-- dev
->  `-- device -> ../../../devices/platform/serial8250
->
-> 2. SERIAL_PORT_DFNS contains port at 0x3f8, irq4, and we have space for
->     4 serial ports.  A platform device also describing 0x3f8, irq 4 is
->     registered.
->
-> # cat /proc/tty/driver/serial
-> serinfo:1.0 driver revision:
->  0: uart:16550A port:000003F8 irq:4 tx:0 rx:0
->  1: uart:unknown port:00000000 irq:0
->  2: uart:unknown port:00000000 irq:0
->  3: uart:unknown port:00000000 irq:0
->  # tree /sys/class/tty/ttyS*
-> /sys/class/tty/ttyS0
-> |-- dev
->  |-- device -> ../../../devices/platform/serial82500
-> `-- driver -> ../../../bus/platform/drivers/serial8250
-> /sys/class/tty/ttyS1
-> |-- dev
->  `-- device -> ../../../devices/platform/serial8250
-> /sys/class/tty/ttyS2
-> |-- dev
->  `-- device -> ../../../devices/platform/serial8250
-> /sys/class/tty/ttyS3
-> |-- dev
->  `-- device -> ../../../devices/platform/serial8250
->
-> 3. SERIAL_PORT_DFNS is empty, otherwise the same as case (2).  Results
->     are identical to case (2).
->
-> HTH.
->
-> -- 
-> Russell King
->   Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
->  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
->                  2.6 Serial core
-
+-- wli

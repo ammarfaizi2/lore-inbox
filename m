@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129692AbRAIM5H>; Tue, 9 Jan 2001 07:57:07 -0500
+	id <S129778AbRAINGa>; Tue, 9 Jan 2001 08:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129710AbRAIM44>; Tue, 9 Jan 2001 07:56:56 -0500
-Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:49605 "EHLO
-	smtprelay1.abs.adelphia.net") by vger.kernel.org with ESMTP
-	id <S129692AbRAIM4m>; Tue, 9 Jan 2001 07:56:42 -0500
-Date: Tue, 9 Jan 2001 08:57:15 -0500 (EST)
-From: "Steven N. Hirsch" <shirsch@adelphia.net>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel network problem ?
-In-Reply-To: <3A5ADBC7.D297CFDB@idb.hist.no>
-Message-ID: <Pine.LNX.4.21.0101090853250.27322-100000@pii.fast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129826AbRAINGU>; Tue, 9 Jan 2001 08:06:20 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:248 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129778AbRAINGM>; Tue, 9 Jan 2001 08:06:12 -0500
+Date: Tue, 9 Jan 2001 09:18:08 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ad1848.c: include missing restore_flags
+Message-ID: <20010109091808.G21057@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010108201103.E17087@conectiva.com.br> <20010108202533.F17087@conectiva.com.br> <20010108203002.H17087@conectiva.com.br> <20010109001443.A20786@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010109001443.A20786@conectiva.com.br>; from acme@conectiva.com.br on Tue, Jan 09, 2001 at 12:14:43AM -0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Helge Hafting wrote:
+Alan,
 
-> Nicolas Noble wrote:
-> [...]
-> As others have told already, this is the ECN problem.
-> 
-> > I noticed the same bug. This is very weired, I can send a list of sites
-> > which I can't connect anymore. 
-> 
-> You have a list?  Send all of them a message stating that they ought
-> to upgrade their firewalls which cause this problem.  Or they
-> will loose customers/visitors.  Cisco already have an upgrade for them,
-> so fixing is dead easy, and they can then boast compatibility with
-> the latest internet standards.  
-> 
-> If they don't care about linux users, tell them that windows eventually
-> will use ECN too.  They definitely don't want to have a ECN problem when
-> that happens.
+	Please apply.
 
-After upgrading to kernel 2.4.0, I found myself unable to retrieve mail
-from Adelphia's (2-way cable ISP) POP server.  It took several days to
-figure out that _one_ of their routers was configured to block ECN.  After
-bringing this to the attention of their network engineers, I was informed
-that their policy prohibits making any router changes on the basis of one
-trouble report.  The person I spoke with did NOT try to defend their
-setup, but it was made clear that they'll do nothing until Windows breaks.
+- Arnaldo
 
-If I were packaging a Linux distribution, I'd be sure to have ECN disabled
-by default, FWIW.
-
-Steve
-
-
+--- linux-2.4.0-ac4/drivers/sound/ad1848.c	Thu Aug 24 07:40:05 2000
++++ linux-2.4.0-ac4.acme/drivers/sound/ad1848.c	Tue Jan  9 08:55:58 2001
+@@ -28,6 +28,7 @@
+  *		          of irqs. Use dev_id.
+  * Christoph Hellwig	: adapted to module_init/module_exit
+  * Aki Laukkanen	: added power management support
++ * Arnaldo C. de Melo	: added missing restore_flags in ad1848_resume
+  *
+  * Status:
+  *		Tested. Believed fully functional.
+@@ -2751,6 +2752,7 @@
+ 		bits = interrupt_bits[devc->irq];
+ 		if (bits == -1) {
+ 			printk(KERN_ERR "MSS: Bad IRQ %d\n", devc->irq);
++			restore_flags(flags);
+ 			return -1;
+ 		}
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

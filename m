@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263817AbTDXSYA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbTDXSYA
+	id S263806AbTDXSVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTDXSVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:24:00 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:23681 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263817AbTDXSX6 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:23:58 -0400
-Message-Id: <200304241835.h3OIZxvj006418@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Henti Smith <bain@tcsn.co.za>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: maximum possible memory limit .. 
-In-Reply-To: Your message of "Thu, 24 Apr 2003 20:05:24 +0200."
-             <20030424200524.5030a86b.bain@tcsn.co.za> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030424200524.5030a86b.bain@tcsn.co.za>
+	Thu, 24 Apr 2003 14:21:08 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:42908 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S263806AbTDXSVF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:21:05 -0400
+Date: Thu, 24 Apr 2003 11:33:14 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, davem@redhat.com, kuznet@ms2.inr.ac.ru
+Subject: [BUG 2.5.X] pipe/fcntl/F_GETFL/F_SETFL obvious kernel bug
+Message-ID: <20030424183313.GA17374@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1095087500P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Apr 2003 14:35:59 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1095087500P
-Content-Type: text/plain; charset=us-ascii
+	Hi,
 
-On Thu, 24 Apr 2003 20:05:24 +0200, Henti Smith <bain@tcsn.co.za>  said:
-> I had a discussion with somebody watching the whole M$ server launch and
-> mentioned then new systems supports up to a terabyte of ram. 
+	I reported this obvious kernel 2.5.X bug 6 months ago, and as
+of 2.5.67 it is still not fixed. Do you know who I should send this
+bug report to ?
+	Thanks...
 
-Well.. sure.. it's easy enough to write something that supports plugging in
-a terabyte.  The *tricky* part is supporting it well - you have page table
-issues, you have swapping/thrashing issues (if you *do* have to page something
-out, you're in trouble.. ;), you have process scheduling issues (how many
-Apache processes does it take to use up a terabyte?  What's your load average
-at that point?), you have multi-processor scaling issues (you're gonna want
-to have 64+ processors, etc..)
+	Jean
 
-Consider - the number of machines with over a terabyte of RAM is limited:
+---------------------------------------------
+	Compile test program below.
+	On 2.5.67 :
+GET FLAGS : 0 - 40044F18
+SET FLAGS : -1 - 22
+	On 2.4.21-pre7 :
+GET FLAGS : 0 - 40043F18
+SET FLAGS : 0 - 0
+---------------------------------------------
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdio.h>
 
-http://www.llnl.gov/asci/platforms/platforms.html
+int main()
+{
+  int trigger_pipe[2];
+  int err;
+  int flags;
 
-That's the sort of box that has a terabyte.  Do you *really* think that
-M$ 2003 has all the stuff needed to scale to THAT size?
+  pipe(trigger_pipe);
+
+  err = fcntl(trigger_pipe[0], F_GETFL, &flags);
+  fprintf(stderr, "GET FLAGS : %d - %X\n", err, flags);
+  if(err >= 0)
+    {
+      flags |= O_NONBLOCK;
+      //flags |= O_NDELAY;
+      //flags &= ~O_NDELAY;
+      err = fcntl(trigger_pipe[0], F_SETFL, flags);
+      fprintf(stderr, "SET FLAGS : %d - %d\n", err, errno);
+    }
+  return(0);
+}
 
 
-
---==_Exmh_-1095087500P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+qC6OcC3lWbTT17ARAiTKAJ0dW8tQewctUVkGYWKkgUv/DHRQBQCgjwpi
-W4LsmUb6JnjdbMvfI3Kob+Q=
-=WdO8
------END PGP SIGNATURE-----
-
---==_Exmh_-1095087500P--

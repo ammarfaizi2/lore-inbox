@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267491AbTAXBcP>; Thu, 23 Jan 2003 20:32:15 -0500
+	id <S267497AbTAXBjb>; Thu, 23 Jan 2003 20:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267493AbTAXBcP>; Thu, 23 Jan 2003 20:32:15 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:11950 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S267491AbTAXBcO>; Thu, 23 Jan 2003 20:32:14 -0500
-Message-ID: <3E309F22.5010102@kegel.com>
-Date: Thu, 23 Jan 2003 18:04:18 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: debate on 700 threads vs asynchronous code
-References: <Pine.LNX.4.44.0301232028480.980-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.44.0301232028480.980-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267498AbTAXBjb>; Thu, 23 Jan 2003 20:39:31 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:29705 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S267455AbTAXBja>; Thu, 23 Jan 2003 20:39:30 -0500
+Date: Thu, 23 Jan 2003 20:48:15 -0500
+From: Ben Collins <bcollins@debian.org>
+To: desrt <desrt@desrt.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ieee1394: Node 01:1023 has non-standard ROM format (0 quads), cannot parse
+Message-ID: <20030124014815.GB4524@hopper.phunnypharm.org>
+References: <1043372135.1442.7.camel@nothing.desrt.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043372135.1442.7.camel@nothing.desrt.ca>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
->>Nonblocking I/O is totally the way to go if you have full control over your
->>source code and want the maximal performance in userspace.  The best way
+On Thu, Jan 23, 2003 at 08:35:35PM -0500, desrt wrote:
+> Hello.
 > 
-> why do you think it's better for user-space?  I was trying to explain
-> it to someone this afternoon, and we couldn't find any reason for 
-> threads/blocking to be slow.  IO-completion wakes up the thread, which
-> goes through the scheduler right back to the user's stack-frame,
-> even providing the io-completion status.  no large cache footprint 
-> anywhere (at least with a lightweight thread library), no multiplexing
-> like for select/poll, etc.
-
-I suspect the thread *does* have a larger cache footprint,
-since in nonblocking I/O, session state is stored more compactly.
-Also, the threaded approach involves lots more context switches.
-
-> does epoll provide a thunk (callback and state variable) as well as the 
-> IO completion status?
-
-No.  It provides an event record containing a user-defined state pointer
-plus the IO readiness status change (different from IO completion status).
-But that's what you need; you can do the call yourself.
-
->>See http://www.kegel.com/c10k.html for an overview of the issue and some links.
+> I just got a new plextor combo (read dvd, write cd) drive and installed
+> it into my firewire drive enclosure.  The CD-ROM drive that was in there
+> previously was working fine.  I am using an Audigy as my firewire
+> controller.
 > 
+> Now, on attach/power on/modprobe ohci1394/etc I get this message:
 > 
-> it's a great resource, except that for 700 clients, the difference
-> between select, poll, epoll, aio are pretty moot.  no?
+> ieee1394: Node 01:1023 has non-standard ROM format (0 quads), cannot
+> parse
 
-Depends on how close to maximal performance you need, and whether
-you might later need to scale to more clients.
+Every 1394 device is required to have a Config ROM directory. The
+directory has to be _atleast_ 4 quads for basic information to be
+extracted and allow the subsystem to use the device. Without even 1 quad
+it cannot even verify the magic '1', '3', '9', '4' quad at the start of
+it.
 
-The average server is so lightly loaded, it really doesn't matter which approach you use.
-- Dan
+If one cdrom works in the enclosure and another doesn't, then I suspect
+something is weird with the enclosure's detection of the device you
+placed in it. Are you sure that the master/slave jumpers are set
+correctly for the enclosure? Anything else it needs?
 
+> If anybody has experienced this before, has any ideas, would like
+> information about the problem or even knows of a better forum to direct
+> this question to, your help would be greatly appreciated.  Please CC: me
+> a copy of your reply as I am not on the list.
+
+http://www.linux1394.org/ has a compatibility list. You can also email
+linux1394-devel@lists.sf.net.
 
 -- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,47 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269065AbUJUJ60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270669AbUJUJ4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269065AbUJUJ60 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 05:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270671AbUJUJ46
+	id S270669AbUJUJ4i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 05:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270381AbUJUJw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 05:56:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:11997 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270640AbUJUJyl (ORCPT
+	Thu, 21 Oct 2004 05:52:59 -0400
+Received: from ozlabs.org ([203.10.76.45]:53978 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269399AbUJUJk0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 05:54:41 -0400
-Date: Thu, 21 Oct 2004 11:53:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021095344.GA10531@suse.de>
-References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas>
+	Thu, 21 Oct 2004 05:40:26 -0400
+Subject: Re: Am I paranoid or is everyone out to break my kernel builds
+	(Breakage in drivers/pcmcia)
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041021100903.A3089@flint.arm.linux.org.uk>
+References: <20041021100903.A3089@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1098351606.10571.359.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098350190.26758.24.camel@thomas>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 19:40:25 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> On Thu, 2004-10-21 at 11:12, Rui Nuno Capela wrote:
-> >  [<e018e139>] queuecommand+0x70/0x7c [usb_storage] (24)
+On Thu, 2004-10-21 at 19:09, Russell King wrote:
+> It would appear that this change:
 > 
-> As I already pointed out, this is a problem due to up(sema) in
-> queuecommand. That's one of the semaphore abuse points, which needs to
-> be fixed. 
+> -module_param_array(irq_list, int, irq_list_count, 0444);
+> +module_param_array(irq_list, int, &irq_list_count, 0444);
 > 
-> The problem is that semaphores are hold by Process A and released by
-> Process B, which makes Ingo's checks trigger
+> given:
+> 
+> static int irq_list[16];
+> static int irq_list_count;
+> 
+> breaks PCMCIA drivers.  Why?
+> 
+> #define module_param_array(name, type, num, perm)               \
+>         module_param_array_named(name, name, type, num, perm)
+> 
+> #define module_param_array_named(name, array, type, num, perm)          \
+>         static struct kparam_array __param_arr_##name                   \
+>         = { ARRAY_SIZE(array), &num, param_set_##type, param_get_##type,\
+>             sizeof(array[0]), array };                                  \
+>         module_param_call(name, param_array_set, param_array_get,       \
+>                           &__param_arr_##name, perm)
 
-That's utter crap, it's perfectly valid use.
+I'm confused. Andrew, what happened to this part of my patch?
 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22800-linux-2.6-bk/include/linux/moduleparam.h .22800-linux-2.6-bk.updated/include/linux/moduleparam.h
+--- .22800-linux-2.6-bk/include/linux/moduleparam.h	2004-10-19 14:34:21.000000000 +1000
++++ .22800-linux-2.6-bk.updated/include/linux/moduleparam.h	2004-10-20 17:13:45.000000000 +1000
+@@ -129,16 +129,16 @@ extern int param_set_invbool(const char 
+ extern int param_get_invbool(char *buffer, struct kernel_param *kp);
+ #define param_check_invbool(name, p) __param_check(name, p, int)
+ 
+-/* Comma-separated array: num is set to number they actually specified. */
+-#define module_param_array_named(name, array, type, num, perm)		\
++/* Comma-separated array: *nump is set to number they actually specified. */
++#define module_param_array_named(name, array, type, nump, perm)		\
+ 	static struct kparam_array __param_arr_##name			\
+-	= { ARRAY_SIZE(array), &num, param_set_##type, param_get_##type,\
++	= { ARRAY_SIZE(array), nump, param_set_##type, param_get_##type,\
+ 	    sizeof(array[0]), array };					\
+ 	module_param_call(name, param_array_set, param_array_get, 	\
+ 			  &__param_arr_##name, perm)
+ 
+-#define module_param_array(name, type, num, perm)		\
+-	module_param_array_named(name, name, type, num, perm)
++#define module_param_array(name, type, nump, perm)		\
++	module_param_array_named(name, name, type, nump, perm)
+ 
+ extern int param_array_set(const char *val, struct kernel_param *kp);
+ extern int param_array_get(char *buffer, struct kernel_param *kp);
+
+
+Rusty.
 -- 
-Jens Axboe
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,147 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbUCEENV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 23:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbUCEENV
+	id S262204AbUCEEUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 23:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbUCEEUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 23:13:21 -0500
-Received: from sitemail3.everyone.net ([216.200.145.37]:49052 "EHLO
-	omta06.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S262193AbUCEENR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 23:13:17 -0500
-Content-Type: text/plain
-Content-Disposition: inline
+	Thu, 4 Mar 2004 23:20:32 -0500
+Received: from mail004.syd.optusnet.com.au ([211.29.132.145]:62670 "EHLO
+	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262204AbUCEEUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 23:20:30 -0500
+From: Stuart Young <sgy-lkml@amc.com.au>
+To: <jason@stdbev.com>, linux-kernel@vger.kernel.org
+Subject: Re: ACPI battery info failure after some period of time, 2.6.3-x and up
+Date: Fri, 5 Mar 2004 15:20:40 +1100
+User-Agent: KMail/1.5.4
+References: <4047756D.2050402@blue-labs.org> <a2dddb49576d8789a2f7092911006002@stdbev.com>
+In-Reply-To: <a2dddb49576d8789a2f7092911006002@stdbev.com>
+Organization: AMC Enterprises P/L
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Thu, 4 Mar 2004 20:13:11 -0800 (PST)
-From: john moser <bluefoxicy@linux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Userspace memory and kernel access
-Reply-To: bluefoxicy@linux.net
-X-Originating-Ip: [68.33.184.117]
-X-Eon-Sig: AQHDJlhAR/5XAAGQmgEAAAAB,d18a4fd520c6143ea4153a66af5b3304
-Message-Id: <20040305041311.1EEA27259@sitemail.everyone.net>
+Content-Disposition: inline
+Message-Id: <200403051520.40341.sgy-lkml@amc.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to code an ACL system for the kernel that relies on a
-userspace daemon instead of in-kernel code.  The daemon will call
-sys_acl_connect() to connect to the kernel, and the kernel will
-mmap() some ram for it, initialize the structure, pass it back,
-and let the process sleep.
+On Fri, 5 Mar 2004 03:08 pm, Jason Munro wrote:
+> On 12:29 pm Mar 4 David Ford <david+challenge-response@blue-labs.org> wrote:
+> > powerix root # cat /proc/acpi/battery/BAT0/state
+> > present:                 yes
+> > ERROR: Unable to read battery status
+> >
+> > powerix root # dmesg -c
+> >     ACPI-0279: *** Error: Looking up [BST0] in namespace,
+> > AE_ALREADY_EXISTS     ACPI-1120: *** Error: Method execution failed
+> > [\_SB_.BAT0._BST] (Node e7bd7680), AE_ALREADY_EXISTS
+> >
+> > powerix root # uname -r
+> > 2.6.4-rc1
+> >
+> > This has been going on since about 2.6.3-rc something.  Some while
+> > after reading the /proc files, the ability to read the battery
+> > information gets munged.
+>
+> Same here on a Toshiba 1410-s173 noteboook:
+>
+> [logger] ACPI group battery / action battery is not defined
+> [kernel] ACPI-0279: *** Error: Looking up [BUFF] in namespace,
+>          AE_ALREADY_EXISTS
+>
+> I don't think it's happened in less than 24 hours of uptime, during which
+> everything is good. I have been using suspend to ram daily if that matters
+> (echo 3 > /proc/acpi/sleep).
+>
+> Linux version 2.6.3-wolk1.0 (root@jackass) (gcc version 3.3.3 20040217
+> (Gentoo Linux 3.3.3, propolice-3.3-7)) #1 Thu Feb 26 16:18:24 CST 2004
 
-When an ACL request is made, the kernel follows the following
-process:
+Happened once to me. I actually thought my battery was dying, so I went into 
+the BIOS and did a battery cycle (full discharge). Hasn't come back since, 
+but I'd guess that was a co-incidence. Probably needed it anyway.
 
- - mmap() more ram for the acl daemon
- - initialize the ram to an end plug
- - Tack the ram onto the daemon's linked list
- - Write the request into what WAS the last structure on the
-   daemon's request linked list
- - wake the daemon
- - Sleep the current process
- - Evaluate the judgment returned from the daemon
- - return the result
+Feb 21 18:32:10 kosh kernel:     ACPI-0279: *** Error: Looking up [NACH] in 
+namespace, AE_ALREADY_EXISTS
+Feb 21 18:32:10 kosh kernel:     ACPI-1120: *** Error: Method execution failed 
+[\_SB_.BAT0._BST] (Node c7f88ba0), AE_ALREADY_EXISTS
 
-Note that once the process sleeps, it doesn't wake up until
-the acl daemon replies to the request; thus, the code for
-this is going to be right after the sleep code.
+Was running 2.6.3 (vanilla) at the time. Uptime at this point (first mention 
+in logs) was ~1 day, 1 hour & 15 mins. Probably haven't had >24 hrs uptime 
+since then. Will have this weekend (for testing).
 
-To clean up certain race conditions, I'll have to create a
-new type of wake-up signal "Wake or don't sleep" to be used
-internally by the kernel only.  No big deal.
-
-My question is about interracting with the acl daemon.  I'm
-using mmap()ed ram, but in certain situations it belongs to
-a process OTHER than the current, so I have to get the REAL
-address of the ram and write to that.  My current unfinished
-function looks as follows:
+Laptop is an Asus L7300/L7200 (PIII-600 on 440MX chipset) with the latest 
+BIOS. Currently running 2.6.4-rc2 vanilla.
 
 
-/*
- * Make a request.
- * wants the data for it as well as the request.
- * Returns the struct kacl_data
- *
- * This is insert sorted.
- */
-int *acl_request(int msg, void *data){
-        aclkdata *kaclitem;
-        aclkdata *curkacl;
-                                                                                                                                          
-        if (!acl_daemon || current == acl_daemon)
-                return ACL_RESP_NOT_DENY; /*acl is wide open until an acld is connected*/
-        kaclitem = kalloc(sizeof(aclkdata),GFP_KERN);
-                                                                                                                                          
-        spin_lock(&lock_acl);
-                                                                                                                                          
-        for (curkacl = kaclhead; curkacl && curkacl->next &&
-          curkacl->next->msgid == curkacl->msgid + 1; curkacl = curkacl->next) {
-                ; /*do nothing!*/
-        }
-        kaclitem->next  = curkacl->next;
-        curkacl->next   = kaclitem;
-        kaclitem->msgid = curkacl->msgid + 1;
-                                                                                                                                          
-        down_write(&acl_daemon->mm->mmap_sem);
-        acld_que->next = do_mmap_task(NULL, sizeof(acldata), PROT_READ|PROT_WRITE,
-          MAP_SHARED | MAP_ANONYMOUS, NULL, 0, acl_daemon); /* for acld*/
-        up_write(&acl_daemon->mm->mmap_sem);
-/*OBJECT OF QUERY 1*/
-        aclque_clear(acld_que->next);
-        /*FIXME:  Set previous end object of acld aclque to have
-          proper data, msgid, msg, and FINALLY eval type ACL_EVAL_EVAL*/
-                                                                                                                                          
-        acld_que->data  = data;
-        acld_que->msgid = kaclitem->msgid;
-        acld_que->msg   = msg;
-        acld_que->eval  = ACL_EVAL_EVAL;
-        acld_que = acld_que->next;
-/*END OBJECT OF QUERY 1*/
-        /*
-         * FIXME:  Race here:  Wake ACLD and go to SLEEP immediately, what if
-         * acld wakes you inbetween?  We'd need a preemptive wake, i.e. if
-         * sleeping a process that was told to wake or not sleep, do not sleep.
-         */
-        /* FIXME:  Possible race:
-         * acld:  if (!(aclque->eval))
-         * kernel:  acld_que->eval = ACL_EVAL_EVAL;
-         * kernel:  acld_que = acld_que->next;
-         * kernel:  wake_up_acld();
-         * acld:    sleeps;
-         * MAKE SURE the sys_acl_sleep() syscall doesn't sleep after
-         * acld_que->eval is set!!!!!!
-         */
-        /*FIXME:  Wake up acld*/
-        spin_unlock(&lock_acl);
-        /*FIXME:  Sleep this task here, until acld wakes it*/
-        /*FIXME:  Read result*/
-        /*FIXME:  Free *data*/
-out:
-        return retval;
-}
-
-On OBJECT OF QUERY 1:
-  I have altered do_mmap() to trigger
-    do_mmap_task(a,b,c,d,e,f,current);
-  and made the proper changes to the original code.  What
-would I have to do to the above code to actually be writing
-to the ram I expect to write to? acl_que belongs to a process
-that's NOT current. and so I expect the addresses to point to
-somewhere other than where I'd want to write as-is.
-
-I work best by example.  Show me the code around there, and
-I'll just take it apart and use it in all the other places
-I need it.
-
-I'm also going to need to know the function to copy kernel
-ram to userspace.  I thought it was copy_to_user() (I'd need
-to do it from kernelspace data to acl_que->data) but I don't
-know the syntax of the call and don't recall right now where
-to look it up.
-
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/

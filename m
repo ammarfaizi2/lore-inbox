@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbTAJWuN>; Fri, 10 Jan 2003 17:50:13 -0500
+	id <S266578AbTAJW6g>; Fri, 10 Jan 2003 17:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266537AbTAJWuN>; Fri, 10 Jan 2003 17:50:13 -0500
-Received: from holomorphy.com ([66.224.33.161]:17308 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266514AbTAJWuM>;
-	Fri, 10 Jan 2003 17:50:12 -0500
-Date: Fri, 10 Jan 2003 14:58:35 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anthony Lau <anthony@greyweasel.com>
+	id <S266584AbTAJW6g>; Fri, 10 Jan 2003 17:58:36 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:20104 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266578AbTAJW6f>; Fri, 10 Jan 2003 17:58:35 -0500
+Date: Sat, 11 Jan 2003 00:07:18 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Derek Atkins <warlord@MIT.EDU>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Oops with HIMEM+VM in 2.4.19,20
-Message-ID: <20030110225835.GC1147@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anthony Lau <anthony@greyweasel.com>, linux-kernel@vger.kernel.org
-References: <20030110083714.GA702@kimagure> <20030110104827.GM23814@holomorphy.com> <20030110180953.GB1292@kimagure>
+Subject: Re: Linus BK tree crashes with PANIC: INIT: segmentation violation
+Message-ID: <20030110230718.GO10062@louise.pinerecords.com>
+References: <sjm7kdc63ul.fsf@kikki.mit.edu> <Pine.LNX.4.44.0301101424590.1193-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030110180953.GB1292@kimagure>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <Pine.LNX.4.44.0301101424590.1193-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 02:48:27AM -0800, William Lee Irwin III wrote:
->> Looks like someone e.g. invalidate_inode_pages(), truncate_inode_pages(),
->> etc. etc., left pages hanging around. Borderline VM/vfs stuff. Or swap
->> code mangled something important. This oops either has buttloads of
->> stack noise or some other issue corrupting it. Can you find the first
->> oops? If this is not the first oops, then it's probably not useful.
+> [torvalds@transmeta.com]
+> 
+> I was hoping for a exact changset, your post didn't seem to be 100% sure.
+> 
+> Anyway, the one you pinpointed ("Make x86 platform choice strings more 
+> easily selectable" top-of-tree is working), is followed by a patch by 
+> Christop Hellwig ("Missed one 'try_inc_mod_count'") which almost certainly 
+> isn't the cause of your trouble. So I'd like you to go forward a bit.
+> 
+> For example, if you know that your (2) happens before 2.5.54, then you can 
+> do
+> 
+> 	bk clone -ql -rv2.5.54 linux-BK test-tree
+> 	bk changes
+> 	  .. look for the one you already know is ok: it's called 
+> 	     "1.911.13.50" in the full 2.5.54 tree ..
 
-On Fri, Jan 10, 2003 at 10:09:53AM -0800, Anthony Lau wrote:
-> That was the first Oops message logged. System instability starts before
-> any oop messages begin to show up in the standard syslogd logs. Something
-> does appear in ksymoops. I have setup "klogd -x" and await the next log.
+Or you can just do everything "by hand" using these two together:
+	http://linux.bkbits.net:8080/linux-2.5
+	ftp://ftp.nl.linux.org/pub/linux/bk2patch/v2.5
 
-Okay, what filesystem(s) are you using (this usually has something to do
-with a filesystem)?
-
-Also, are you applying any patches to 2.4.19/2.4.20?
-
-
-
-Thanks,
-Bill
+-- 
+Tomas Szepe <szepe@pinerecords.com>

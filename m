@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267204AbSKPCQQ>; Fri, 15 Nov 2002 21:16:16 -0500
+	id <S267205AbSKPC1U>; Fri, 15 Nov 2002 21:27:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267205AbSKPCQQ>; Fri, 15 Nov 2002 21:16:16 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:48304 "EHLO
+	id <S267206AbSKPC1U>; Fri, 15 Nov 2002 21:27:20 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:52400 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267204AbSKPCQP>; Fri, 15 Nov 2002 21:16:15 -0500
-Subject: Re: Dead & Dying interfaces
+	id <S267205AbSKPC1T>; Fri, 15 Nov 2002 21:27:19 -0500
+Subject: Re: 2.5.47 - unresolved symbols
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Wilcox <willy@debian.org>
+To: trelane@digitasaru.net
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021115184725.H20070@parcelfarce.linux.theplanet.co.uk>
-References: <20021115184725.H20070@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20021115174417.GC2828@digitasaru.net>
+References: <20021115174417.GC2828@digitasaru.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Nov 2002 02:49:42 +0000
-Message-Id: <1037414982.21922.22.camel@irongate.swansea.linux.org.uk>
+Date: 16 Nov 2002 03:00:43 +0000
+Message-Id: <1037415643.21974.31.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-15 at 18:47, Matthew Wilcox wrote:
-> 
-> We forgot to remove a lot of crap interfaces during 2.5 development.
-> Let's start a list now so we don't forget during 2.7.
-> 
-> This list is a combination of interfaces which have gone during 2.5 and
-> interfaces that should go during 2.7.  Think of it as a `updating your
-> driver/filesystem to sane code' guide.
-> 
-> sleep_on, sleep_on_timeout, interruptible_sleep_on,
-> 	interruptible_sleep_on_timeout
->  -> use wait_event interfaces
+On Fri, 2002-11-15 at 17:44, Joseph Pingenot wrote:
+> The following seem to be unresolved symbols when make modules_install:
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.47; fi
+> depmod: *** Unresolved symbols in /lib/modules/2.5.47/kernel/drivers/char/raw.o
+> depmod:         blkdev_ioctl
 
-We need to fix wait_event first, probably to do event variables of some
-kind (wait_nonzero_interruptible() etc).
+Patch on the list 
 
-get_cpu is the wrong thing in several places too
+> depmod: *** Unresolved symbols in /lib/modules/2.5.47/kernel/fs/binfmt_aout.o
+> depmod:         ptrace_notify
+
+Ditto and fixed in -ac4
 

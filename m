@@ -1,130 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSIJQyz>; Tue, 10 Sep 2002 12:54:55 -0400
+	id <S316342AbSIJQww>; Tue, 10 Sep 2002 12:52:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSIJQyz>; Tue, 10 Sep 2002 12:54:55 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:61588 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316582AbSIJQyw>; Tue, 10 Sep 2002 12:54:52 -0400
-Date: Tue, 10 Sep 2002 19:22:41 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@mwaikambo.name>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]][2.4-ac] opti621 can't do dma
-Message-ID: <Pine.LNX.4.44.0209101920260.1100-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316582AbSIJQwv>; Tue, 10 Sep 2002 12:52:51 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:457 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316342AbSIJQws>;
+	Tue, 10 Sep 2002 12:52:48 -0400
+Date: Tue, 10 Sep 2002 18:56:43 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB changes for 2.5.34
+Message-ID: <20020910185643.A9912@ucw.cz>
+References: <Pine.LNX.4.44.0209091926320.1911-100000@home.transmeta.com> <Pine.LNX.4.44.0209101044060.3793-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0209101044060.3793-100000@hawkeye.luckynet.adm>; from thunder@lightweight.ods.org on Tue, Sep 10, 2002 at 10:46:27AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andre, Alan
-	afaik the opti621 can't do DMA, also aren't they all addon cards?
+On Tue, Sep 10, 2002 at 10:46:27AM -0600, Thunder from the hill wrote:
+> Hi,
+> 
+> On Mon, 9 Sep 2002, Linus Torvalds wrote:
+> > I'm personally in X 99% of the time except for the reasonably rare case
+> > when I'm chasing down some bug I know I can reproduce and I want the
+> > kernel to have access to the console.
+> > 
+> > And I doubt I'm alone in that. I suspect most people who use Linux in any
+> > interesting situation (and no, I don't think servers are very interesting
+> > from most standpoints) tend to do this. Agreed?
+> 
+> Our gatekeeper has never even heard of X. And no, I wouldn't call it a 
+> server. The only thing it does is to control which doors and gates are 
+> open and which are closed, and whether or not the runaway is free...
 
-ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-SIS5513: IDE controller at PCI slot 00:00.1
-PCI: No IRQ known for interrupt pin A of device 00:00.1. Please try using 
-pci=biosirq.
-SIS5513: chipset revision 208
-SIS5513: not 100% native mode: will probe irqs later
-SiS620    ATA 66 controller
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-OPTI621: IDE controller at PCI slot 00:09.0
-PCI: Found IRQ 9 for device 00:09.0
-OPTI621: chipset revision 0
-OPTI621: 100% native mode on irq 9
-OPTI621: dma_base is invalid (0x0000)
-ide2: OPTI621 Bus-Master DMA disabled (BIOS)
-OPTI621: dma_base is invalid (0x0000)
-ide3: OPTI621 Bus-Master DMA disabled (BIOS)
-hda: WDC WD75DA-00AWA1, ATA DISK drive
-hdb: WDC AC11200L, ATA DISK drive
-blk: queue c04ad7c0, I/O limit 4095Mb (mask 0xffffffff)
-blk: queue c04ad91c, I/O limit 4095Mb (mask 0xffffffff)
-hdd: ATAPI CDROM, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-
-Index: linux-2.4.20-pre5-ac4/drivers/ide/pci//opti621.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.4.20-pre5-ac4/drivers/ide/pci/opti621.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 opti621.c
---- linux-2.4.20-pre5-ac4/drivers/ide/pci//opti621.c	8 Sep 2002 18:05:34 -0000	1.1.1.1
-+++ linux-2.4.20-pre5-ac4/drivers/ide/pci//opti621.c	9 Sep 2002 21:00:42 -0000
-@@ -330,30 +330,10 @@
-  */
- static void __init init_hwif_opti621 (ide_hwif_t *hwif)
- {
--	hwif->autodma = 0;
- 	hwif->drives[0].drive_data = PIO_DONT_KNOW;
- 	hwif->drives[1].drive_data = PIO_DONT_KNOW;
- 	hwif->tuneproc = &opti621_tune_drive;
--
--	if (!(hwif->dma_base))
--		return;
--
--	hwif->atapi_dma = 1;
--	hwif->mwdma_mask = 0x07;
--	hwif->swdma_mask = 0x07;
--
--#ifdef CONFIG_BLK_DEV_IDEDMA
--	if (!noautodma)
--		hwif->autodma = 1;
--	hwif->drives[0].autodma = hwif->autodma;
--	hwif->drives[1].autodma = hwif->autodma;
--#endif /* CONFIG_BLK_DEV_IDEDMA */
--
--}
--
--static void __init init_dma_opti621 (ide_hwif_t *hwif, unsigned long dmabase)
--{
--	ide_setup_dma(hwif, dmabase, 8);
-+	hwif->dma_base = 0;
- }
- 
- extern void ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
-Index: linux-2.4.20-pre5-ac4/drivers/ide/pci//opti621.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.4.20-pre5-ac4/drivers/ide/pci/opti621.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 opti621.h
---- linux-2.4.20-pre5-ac4/drivers/ide/pci//opti621.h	8 Sep 2002 18:05:34 -0000	1.1.1.1
-+++ linux-2.4.20-pre5-ac4/drivers/ide/pci//opti621.h	9 Sep 2002 20:56:11 -0000
-@@ -18,11 +18,11 @@
- 		init_chipset:	NULL,
- 		init_iops:	NULL,
- 		init_hwif:	init_hwif_opti621,
--		init_dma:	init_dma_opti621,
-+		init_dma:	NULL,
- 		channels:	2,
--		autodma:	AUTODMA,
-+		autodma:	NODMA,
- 		enablebits:	{{0x45,0x80,0x00}, {0x40,0x08,0x00}},
--		bootable:	ON_BOARD,
-+		bootable:	OFF_BOARD,
- 		extra:		0,
- 	},{
- 		vendor:		PCI_VENDOR_ID_OPTI,
-@@ -32,11 +32,11 @@
- 		init_chipset:	NULL,
- 		init_iops:	NULL,
- 		init_hwif:	init_hwif_opti621,
--                init_dma:	init_dma_opti621,
-+                init_dma:	NULL,
- 		channels:	2,
--		autodma:	AUTODMA,
-+		autodma:	NODMA,
- 		enablebits:	{{0x45,0x80,0x00}, {0x40,0x08,0x00}},
--		bootable:	ON_BOARD,
-+		bootable:	OFF_BOARD,
- 		extra:		0,
- 	},{
- 		vendor:		0,
+So you wanted to say that you'd prefer the machine to crash on a BUG()
+than try to keep going in case of a recoverable error? I don't think
+you'd like to stay locked in. At least that was what this discussion was
+about.
 
 -- 
-function.linuxpower.ca
-
+Vojtech Pavlik
+SuSE Labs

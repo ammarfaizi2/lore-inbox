@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUANA7P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 19:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUANA7P
+	id S265783AbUANBFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 20:05:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUANBFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 19:59:15 -0500
-Received: from [81.193.98.140] ([81.193.98.140]:2946 "EHLO
-	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
-	id S265117AbUANA7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 19:59:14 -0500
-Message-ID: <400494FB.7040709@vgertech.com>
-Date: Wed, 14 Jan 2004 01:01:47 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: ANother debugging Q
-References: <200401131243.27614.gene.heskett@verizon.net> <20040113175638.GG20763@actcom.co.il> <200401131817.44856.gene.heskett@verizon.net>
-In-Reply-To: <200401131817.44856.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jan 2004 20:05:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55245 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265783AbUANBFH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 20:05:07 -0500
+Date: Tue, 13 Jan 2004 17:05:05 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: john moser <bluefoxicy@linux.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Capabilities help
+Message-ID: <20040113170505.C30560@osdlab.pdx.osdl.net>
+References: <20040113235407.EA4D7393B@sitemail.everyone.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040113235407.EA4D7393B@sitemail.everyone.net>; from bluefoxicy@linux.net on Tue, Jan 13, 2004 at 03:54:07PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* john moser (bluefoxicy@linux.net) wrote:
+> I know this is working, because I checked my code over, plus the double
+> chroot / fails.  I can still load modules, change the system time,
+> and administrate the network.
 
+First are you sure you dropped those particular bits?  Assuming you are,
+what's your .config look like (esp. CONFIG_SECURITY_*)?  Can you show me
+that your process is dropping a capability (say from /proc/<pid>/status),
+and that the capability is still enabled?
 
-Gene Heskett wrote:
-> Unforch, that seems to shut down the opening of the error advisory 
-> window.  It just sits there showing a blank (data wise) screen. And 
-> extensive scrolling back thru about 5 megs of the output doesn't 
-> disclose a missing file that I can see.  How would I go about 
-> redirecting that output to grep, it seems to bypass an
-> 
->  "strace -f ksysguard|grep open"
-> 
-
-Do "man strace" again :-)
-
-Then see the -o option or the -e option.
-
-(Or "man bash" and read about output redirection 2>&1 )
-
-Regards,
-Nuno Silva
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

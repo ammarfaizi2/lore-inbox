@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293509AbSCAAwW>; Thu, 28 Feb 2002 19:52:22 -0500
+	id <S310169AbSB1XvM>; Thu, 28 Feb 2002 18:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310175AbSCAAue>; Thu, 28 Feb 2002 19:50:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39440 "EHLO
+	id <S310196AbSB1XtV>; Thu, 28 Feb 2002 18:49:21 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62479 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292332AbSCAAso>; Thu, 28 Feb 2002 19:48:44 -0500
-Subject: Re: Linux 2.4.x, ThinkPad T23 and HW?!
-To: arnvid@karstad.org (Arnvid Karstad)
-Date: Fri, 1 Mar 2002 01:03:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20020228233954.7840.qmail@nextgeneration.speedroad.net> from "Arnvid Karstad" at Mar 01, 2002 12:39:54 AM
+	id <S310206AbSB1Xqe>; Thu, 28 Feb 2002 18:46:34 -0500
+Subject: Re: Submissions for 2.4.19-pre [sdmany (Richard Gooch)] [Discuss :) ]
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Thu, 28 Feb 2002 23:58:18 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.3.96.1020228173303.2006G-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Feb 28, 2002 05:38:31 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16gbS1-0001r9-00@the-village.bc.nu>
+Message-Id: <E16gaRG-0001aR-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> /proc/pci or lspci. I also noticed that the IBM Wireless adapter, which is 
-> actually a prism2 (?) card, are mysteriously detected as an device created 
-> by "Harris Semiconductor" and it won't even try to let me access the card. I 
+> Hate to say it but 2.5 is not ready for any kind of production use, and
+> some people really need to connect more SCSI devices than are currently
+> supported. That's NOT ivory tower, it's real world "do it with Linux"
+> problem solving.
 
-Well guess what - it is
-
-> think I've tried every driver in the Kernel 2.4.18 now. Altho the kernel 
-> does state that the card in question is supported, it does seem that either 
-> the pci/device-id has changed (or something) so the driver doesn't notice 
-> any cards??? 
-
-Or IBM did something weird.
-
-Everything in that box looks fine with 2.4.18
+I'd be interested to know if Al Viro considers devfs production use ready yet

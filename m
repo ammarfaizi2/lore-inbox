@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265111AbUFAQXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265103AbUFAQZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265111AbUFAQXs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 12:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265108AbUFAQXr
+	id S265103AbUFAQZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 12:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265124AbUFAQYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 12:23:47 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25820 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265111AbUFAQTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 12:19:48 -0400
-Date: Tue, 1 Jun 2004 18:19:41 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Eric BEGOT <eric_begot@yahoo.fr>, Chris Wedgwood <cw@f00f.org>
-Cc: Alexander Gran <alex@zodiac.dnsalias.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+	Tue, 1 Jun 2004 12:24:08 -0400
+Received: from main.gmane.org ([80.91.224.249]:43407 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265103AbUFAQWX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 12:22:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ari Pollak <ajp@aripollak.com>
 Subject: Re: 2.6.7-rc2-mm1
-Message-ID: <20040601161940.GG25681@fs.tum.de>
-References: <20040601021539.413a7ad7.akpm@osdl.org> <200406011351.10669@zodiac.zodiac.dnsalias.org> <40BC746F.8070501@yahoo.fr>
+Date: Tue, 01 Jun 2004 12:22:19 -0400
+Message-ID: <c9iafp$r6g$1@sea.gmane.org>
+References: <20040601021539.413a7ad7.akpm@osdl.org> <200406011159.23532@zodiac.zodiac.dnsalias.org> <20040601202839.01c8a220.akiyama.nobuyuk@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40BC746F.8070501@yahoo.fr>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
+X-Accept-Language: en-us, en
+In-Reply-To: <20040601202839.01c8a220.akiyama.nobuyuk@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 02:19:59PM +0200, Eric BEGOT wrote:
-> On my x86, I've a problem durning the link edition :
-> lib/built-in.o(.text+0x280): In function `qsort':
-> lib/qsort.c:87: multiple definition of `qsort'
-> fs/built-in.o(.text+0x12eac0):fs/xfs/support/qsort.c:79: first defined here
-> ld: Warning: size of symbol `qsort' changed from 1721 in fs/built-in.o 
-> to 1095 in lib/built-in.o
-> ld: final link failed: Memory exhausted
-> make: *** [.tmp_vmlinux1] Error 1
+Almost. It looks like the #ifdefs should be changed to 
+CONFIG_X86_LOCAL_APIC, since without it, nmi.c never gets built.
+
+AKIYAMA Nobuyuki wrote:
+
+>>config attached, plain 2.6.7-rc2-mm1, only with dsdt patch for my laptop.
 > 
-> I don't understand why there are 2 qsorts files.
-> I have disabled the support of xfs to resolve the problem. I didn't want 
-> to change the name of the qsort implemented in fs/xfs/support/qsort.c or 
-> to delete this file :)
 > 
-> I include the .config
->...
-
-Thanks for this report.
-
-Better workaround:
-disable
-    Library routines
-      Quick Sort
-
-@Andrew:
-add-qsort-library-function depends on the XFS qsort patches you removed 
-(and it's currently not used by anything else).
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> Please try the patch below.
+> 
+> diff -Nur linux-2.6.7-rc2-mm1.org/kernel/sysctl.c linux-2.6.7-rc2-mm1/kernel/sysctl.c
+> --- linux-2.6.7-rc2-mm1.org/kernel/sysctl.c	2004-06-01 19:47:22.000000000 +0900
+> +++ linux-2.6.7-rc2-mm1/kernel/sysctl.c	2004-06-01 20:21:13.000000000 +0900
+> @@ -63,7 +63,7 @@
+>  extern int printk_ratelimit_jiffies;
+>  extern int printk_ratelimit_burst;
+>  
+> -#if defined(__i386__)
+> +#ifdef CONFIG_X86
+>  extern int unknown_nmi_panic;
+>  extern int proc_unknown_nmi_panic(ctl_table *, int, struct file *,
+>  				  void __user *, size_t *);
+> @@ -624,7 +624,7 @@
+>  		.mode		= 0444,
+>  		.proc_handler	= &proc_dointvec,
+>  	},
+> -#if defined(__i386__)
+> +#ifdef CONFIG_X86
+>  	{
+>  		.ctl_name       = KERN_UNKNOWN_NMI_PANIC,
+>  		.procname       = "unknown_nmi_panic",
+> 
+> 
 

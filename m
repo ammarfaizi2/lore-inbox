@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264433AbTL0Oo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 09:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTL0Oo7
+	id S264471AbTL0Ojh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 09:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbTL0Ojh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 09:44:59 -0500
-Received: from fep03.swip.net ([130.244.199.131]:12030 "EHLO
-	fep03-svc.swip.net") by vger.kernel.org with ESMTP id S264433AbTL0Oo5
+	Sat, 27 Dec 2003 09:39:37 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:51466 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264471AbTL0Ojg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 09:44:57 -0500
-Message-ID: <3FED9A87.4020209@free.fr>
-Date: Sat, 27 Dec 2003 15:43:19 +0100
-From: Jean-Luc Fontaine <jfontain@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, ja
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: kernel@pacrimopen.com
-Subject: Re: IDE performance drop between 2.4.23 and 2.6.0
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Dec 2003 09:39:36 -0500
+Date: Sat, 27 Dec 2003 15:51:02 +0100
+To: Bruce Ferrell <bferrell@baywinds.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: is it possible to have a kernel module with a BSD license?!
+Message-ID: <20031227145102.GA14464@hh.idb.hist.no>
+References: <3FE9ADEE.1080103@baywinds.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FE9ADEE.1080103@baywinds.org>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Dec 24, 2003 at 07:17:02AM -0800, Bruce Ferrell wrote:
+> from the project announcement on freshmeat:
+> 
+> 
+>  Dazuko 2.0.0-pre5 (Default)
+>  by John Ogness - Tuesday, November 11th 2003 06:56 PST
+> 
+> About:
+> This project provides a kernel module which provides 3rd-party 
+> applications with an interface for file access control. It was 
+> originally developed for on-access virus scanning. Other uses include a 
 
-I solved the problem in a very strange way. Note that the (b) disk
-performance only improves after readahead has been increased on another
-(c) drive! (the (c) drive performance was also increased by to 2.4
-levels but is not shown here). I could reliably repeat this behavior
-after rebooting.
+"On access" seems to be exactly the wrong moment for a virus check - 
+that way you are getting the check delay at the worst moment, when
+the user actually want to use the file.  
 
-Can any IDE expert explain it?
+Consider doing virus checking on write only, viruses spread
+only at that time.  
 
-# hdparm /dev/hdb
-~ multcount    =  0 (off)
-~ IO_support   =  1 (32-bit)
-~ unmaskirq    =  1 (on)
-~ using_dma    =  1 (on)
-~ keepsettings =  0 (off)
-~ readonly     =  0 (off)
-~ readahead    = 256 (on)
-~ geometry     = 65535/16/63, sectors = 80418240, start = 0
-# hdparm -t /dev/hdb
-~ Timing buffered disk reads:   34 MB in  3.09 seconds =  11.02 MB/sec
-# hdparm -a 4096 /dev/hdb
-/dev/hdb: readahead = 4096 (on)
-# hdparm -t /dev/hdb
-~ Timing buffered disk reads:   34 MB in  3.08 seconds =  11.04 MB/sec
-# hdparm -a 4096 /dev/hdc
-/dev/hdc: readahead = 4096 (on)
-# hdparm -t /dev/hdb
-~ Timing buffered disk reads:   46 MB in  3.12 seconds =  14.76 MB/sec
+Virus checkers that run during idle time s also a good idea.
 
-
-
-- --
-Jean-Luc Fontaine  mailto:jfontain@free.fr  http://jfontain.free.fr/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/7ZqDkG/MMvcT1qQRAvLKAKC0t3Lsq+B4DBCAwQVadoXVkPxahACfZbfU
-UBE4kGDSf6WpuMRtsuxSJCU=
-=0u8i
------END PGP SIGNATURE-----
-
+Helge Hafting

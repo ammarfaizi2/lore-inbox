@@ -1,94 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbTKDUl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 15:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTKDUl3
+	id S262546AbTKDUwb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 15:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbTKDUwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 15:41:29 -0500
-Received: from [62.233.185.126] ([62.233.185.126]:260 "EHLO
-	aclaptop.unregistered.futuro.pl") by vger.kernel.org with ESMTP
-	id S262564AbTKDUl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 15:41:27 -0500
-From: Szymon =?iso-8859-2?q?Aceda=F1ski?= <accek@poczta.gazeta.pl>
-To: cijoml@volny.cz
-Subject: Re: Some issues with Acer TravelMate 242
-Date: Tue, 4 Nov 2003 21:41:03 +0100
-User-Agent: KMail/1.5
-References: <200311042020.26085.cijoml@volny.cz>
-In-Reply-To: <200311042020.26085.cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Tue, 4 Nov 2003 15:52:31 -0500
+Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:55204
+	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S262546AbTKDUw2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 15:52:28 -0500
+Date: Tue, 4 Nov 2003 15:52:14 -0500
+Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: lkml <linux-kernel@vger.kernel.org>
+To: Tony Lindgren <tony@atomide.com>
+From: Charles Lepple <clepple@ghz.cc>
+In-Reply-To: <20031104200517.GD1042@atomide.com>
+Message-Id: <C4D11E6F-0F08-11D8-A943-003065DC6B50@ghz.cc>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311042141.03065.accek@poczta.gazeta.pl>
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 November 2003 20:20, Michal Semler (volny.cz) wrote:
-> Hi,
+On Tuesday, November 4, 2003, at 03:05 PM, Tony Lindgren wrote:
+
+> * Charles Lepple <clepple@ghz.cc> [031104 11:45]:
+>> On Tuesday 04 November 2003 02:15 pm, Tony Lindgren wrote:
+>>> I've heard of timing problems if it's compiled in, but supposedly 
+>>> they
+>>> don't happen when loaded as module.
+>>
+>> In some of the earlier testX versions of the kernel, I did not see any
+>> difference between compiling as a module, and compiling into the 
+>> kernel. (It
+>> is currently a module on my system.)
+>>
+>> I did, however, manage to keep ntpd happy by reducing HZ to 100. Even 
+>> raising
+>> HZ to 200 is enough to throw off its PLL. The machine is idle for 90% 
+>> of the
+>> day, though, so I don't know if the PLL is adapting to the fact that 
+>> the
+>> system is idling, but the values for tick look reasonable.
 >
-> I have Acer TravelMate 242 serie and I have these problems with 2.4 kernel:
+> Interesting, sounds like the idling causes missed timer interrupts? 
+> Can you
+> briefly describe what's the easiest way to reproduce the timer 
+> problem, just
+> change HZ to 200 and look at the system time?
 
-I also have one.
+At HZ=200, it would take a while to notice. I used adjtimexconfig, 
+which counts the number of kernel ticks which occur in 70 seconds 
+(according to the RTC). The RTC is pretty stable without power 
+management, so I tend to trust it. I think I ended up with a value of 
+tick=11000 (compensation for a 10% slow clock), and if I left the 
+machine idle, ntpd would converge based on the new tick value.
 
-> 2) USB 2.0 - notebook has 4 USB 2.0 ports - modprobe usb-ehci causes
-> loading USB and kernel finds USB ports, but when I plug in mouse or BT
-> adapter or harddrive into usb ports, those are not recognized anymore.
-> When I load usb-uhci all works fine, but communication is too slow with my
-> usb 2.0 harddrive
+Then again, I don't think I tried HZ>=200 on -test9. (When I got Pasi's 
+-test9 patch, I applied it to a -test8-bk kernel with HZ=1000-- I don't 
+remember exactly which one.) Based on his followup email, timekeeping 
+may be better in -test9. I'll check.
 
-Only the one of 4 USB ports is USB 2.0 - one farthest away from the RJ45 
-socket (it's EHCI). The rest are plain USB 1.1 UHCI ports. On my machine the 
-ehci-hcd module reports one controller with 6 ports hub, but only one of them 
-is physically present on the backside of the machine (other are purely 
-virtual). Uhci-hcd (usb-uhci in 2.4) says, that there are 3 UHCI controllers, 
-each of them having 2 ports (and only one physically present per controller). 
-So in total, Acer TM242 has 12 USB ports, 4 of them are physically available. 
-I don't know, why it is done this way.
+> I've been using kexec for reboots recently though as the bios reboot 
+> is soo slow.
 
-Greetings
-Szymon
+The slowness on my system is supposedly related to ECC initialization, 
+but it's only ~30 seconds for 512MB. Still, if I upgrade the memory, 
+that's a good tip.
 
+> But just to verify: 2.6.0-test9 & amd76x_pm as module, and the system 
+> drops
+> into sleep mode when the module is loaded for the first time until 
+> power is
+> pressed? And this does not happen after cold reboots or when the 
+> amd76x_pm
+> is reloaded?
 
->From dmesg:
+Correct.
 
-Linux version 2.6.0-test9-swsusp (root@aclaptop) (gcc version 3.3.1 20030930 
-(Red Hat Linux 3.3.1-6)) #9 Tue Nov 4 20:29:08 CET 2003
-[...]
-ehci_hcd 0000:00:1d.7: EHCI Host Controller
-PCI: Setting latency timer of device 0000:00:1d.7 to 64
-ehci_hcd 0000:00:1d.7: irq 10, pci mem cf87e000
-ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:00:1d.7: enabled 64bit PCI DMA
-PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-13
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 6 ports detected
-drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
-v2.1
-uhci_hcd 0000:00:1d.0: UHCI Host Controller
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-uhci_hcd 0000:00:1d.0: irq 5, io base 00001820
-uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 2 ports detected
-uhci_hcd 0000:00:1d.1: UHCI Host Controller
-PCI: Setting latency timer of device 0000:00:1d.1 to 64
-uhci_hcd 0000:00:1d.1: irq 11, io base 00001840
-uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 2 ports detected
-uhci_hcd 0000:00:1d.2: UHCI Host Controller
-PCI: Setting latency timer of device 0000:00:1d.2 to 64
-uhci_hcd 0000:00:1d.2: irq 4, io base 00001860
-uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
-hub 4-0:1.0: USB hub found
-hub 4-0:1.0: 2 ports detected
-[here's my USB mouse plugged into 4th port is being detected]
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-hub 2-0:1.0: new USB device on port 2, assigned address 2
-input: USB HID v1.10 Mouse [Logitech USB Mouse] on usb-0000:00:1d.0-2
+-- 
+Charles Lepple
+clepple@ghz.cc
 

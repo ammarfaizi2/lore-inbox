@@ -1,118 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVDESBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVDESFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbVDESBW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVDER7E
+	id S261847AbVDESFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVDESCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:59:04 -0400
-Received: from vbo91-1-82-238-217-224.fbx.proxad.net ([82.238.217.224]:43653
-	"EHLO mirchusko.localnet") by vger.kernel.org with ESMTP
-	id S261861AbVDERyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:54:11 -0400
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear 
-	copyright notice.
-From: Josselin Mouette <joss@debian.org>
-To: linux-os@analogic.com
-Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
-References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>
-	 <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JCDN6GY9etBv3HfuggMz"
-Date: Tue, 05 Apr 2005 19:53:57 +0200
-Message-Id: <1112723637.4878.14.camel@mirchusko.localnet>
+	Tue, 5 Apr 2005 14:02:16 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:11398 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261847AbVDERsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:48:31 -0400
+Subject: Re: [SCSI] Driver Broken in 2.6.x (attemp 2)
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: |TEcHNO| <techno@punkt.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4252CA25.70803@punkt.pl>
+References: <4252CA25.70803@punkt.pl>
+Content-Type: text/plain
+Date: Tue, 05 Apr 2005 12:48:23 -0500
+Message-Id: <1112723304.6463.17.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-04-05 at 19:25 +0200, |TEcHNO| wrote:
+> 	This is my second attemp to make anyone notice the bug that is in the 
+> 2.6.x tree. While many people tried to put blame on nvidia, here's a log 
+> that shows that it's purely kernel fault not to work.
+> 	At the end of this mail you can find some logs which show how 2.4.x and 
+> 2.6.x kernels work with my card. I hope now someone can really  show 
+> intrest into this, it's a shame something in 2.4.x worked (not perfect 
+> but worked), and fails completely (system hang) in 2.6.x.
+> 	It's also not nice if the system hangs (in 2.4.x) for a few seconds 
+> while getting a preview (form the scanner), and gets jaggy and useless 
+> while scanning, a userspace app (runned form normal user) shoudl not do 
+> so, and it's not using more than 20% of CPU.
 
---=-JCDN6GY9etBv3HfuggMz
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+I don't think anyone has the actual hardware, without which it's quite
+difficult to fix the problem.
 
-Le mardi 05 avril 2005 =C3=A0 11:50 -0400, Richard B. Johnson a =C3=A9crit =
-:
-> >> You are mixing apples and oranges. The fact that the GFDL sucks has
-> >> nothing to do with the firmware issue. With the current situation of
-> >> firmwares in the kernel, it is illegal to redistribute binary images o=
-f
-> >> the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may stil=
-l
-> >> be willing to distribute such binary images, but it isn't our problem.
-> >>
->=20
-> Wrong! It is perfectly legal in the United States, and I'm pretty
-> sure in your country, to distribute or redistribute copyrighted
-> works. Otherwise there wouldn't be any bookstores or newspaper
-> stands.
+What was the last 2.6 kernel version that this worked with?
 
-It is not legal to distribute the mix of a GPL software (the Linux
-kernel) and a proprietary file (the firmware). I wasn't aware of the
-"mere aggregation" interpretation, and I'm probably a bit late to say I
-disagree with it - mainly because you'd have a hard time convincing a
-court this is the case.
+James
 
-> There is nothing about firmware that is any different than any
-> other component of a product. If the product was legally obtained
-> and it requires firmware to run, then there are no special
-> considerations about how one inserts the firmware into the
-> product.
 
-Indeed, but that's not what I'm talking about.
-
-> If you are a GPL-religious-zealot who believes that you are
-> supposed to get the technical design (i.e. the software schematics)
-> of the hardware device for free so you can copy it, then you are
-> going to have to learn something about intellectual property.
-
-Maybe you should try to understand what people are saying before
-teaching them anything.
-
-> The firmware, in most cases, are the bits generated by a design
-> program that creates the function of the device. It's what the
-> manufacturer paid 5-10 engineers over a period of a year or so
-> to produce. The rest of the design is just some chips you
-> can get off-the-shelf. Even if the manufacturer said; "Here you
-> are.... You can have the design....". You don't have the
-> "compilers" and other stuff necessary to turn this design
-> into the firmware unless you planned to steal the design.
->=20
-> So, you either accept the firmware component, thanking the
-> manufacturer for it, or you go cry foul someplace else. This
-> whole firmware thing is a non-issue, blown way out of
-> proportion by people who don't have a clue.
-
-You are completely missing the point. I don't care whether the firmwares
-should be free, or whether they could be free. The fact is they are not
-free, and Debian doesn't distribute non-free software in the "main"
-archive. The fact is also that mixing them with a GPLed software gives
-an result you can't redistribute - although it seems many people
-disagree with that assertion now.
-
-Finally, you shouldn't forget that, technically speaking, using hotplug
-for uploading the firmware is much more flexible and elegant than
-including it in the kernel. Upgrading the firmware and the module should
-be two independent operations. People who are advocating the current
-situation are refusing technical improvements just because they are
-brought by people they find convenient to call "zealots".
---=20
- .''`.           Josselin Mouette        /\./\
-: :' :           josselin.mouette@ens-lyon.org
-`. `'                        joss@debian.org
-  `-  Debian GNU/Linux -- The power of freedom
-
---=-JCDN6GY9etBv3HfuggMz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCUtC0rSla4ddfhTMRAnXfAJoD85MkcC6YrTTsrBylJGNnwis3zgCfWY81
-F3s3ztAgwsawozQhhxOmy8o=
-=dQYl
------END PGP SIGNATURE-----
-
---=-JCDN6GY9etBv3HfuggMz--

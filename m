@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUIOMzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUIOM5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266003AbUIOMzA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 08:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUIOMx6
+	id S266069AbUIOM5t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 08:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUIOM4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 08:53:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:46052 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263626AbUIOMwc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 08:52:32 -0400
-Date: Wed, 15 Sep 2004 14:50:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm5
-Message-ID: <20040915125056.GD4111@suse.de>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040915113635.GO9106@holomorphy.com> <20040915113833.GA4111@suse.de> <20040915122852.GQ9106@holomorphy.com> <20040915124124.GC4111@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915124124.GC4111@suse.de>
+	Wed, 15 Sep 2004 08:56:53 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:15101 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S265489AbUIOMxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 08:53:46 -0400
+Date: Wed, 15 Sep 2004 08:55:47 -0400
+From: Andre Bonin <kernel@bonin.ca>
+Subject: PCI coprocessors
+To: linux-kernel@vger.kernel.org
+Message-id: <41483BD3.4030405@bonin.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2)
+ Gecko/20040803
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15 2004, Jens Axboe wrote:
-> On Wed, Sep 15 2004, William Lee Irwin III wrote:
-> > On Mon, Sep 13, 2004 at 01:50:03AM -0700, Andrew Morton wrote:
-> > >>> +cfq-iosched-v2.patch
-> > >>>  Major revamp of the CFQ IO scheduler
-> > 
-> > On Wed, Sep 15 2004, William Lee Irwin III wrote:
-> > >> While editing some files while booted into 2.6.9-rc1-mm5:
-> > >> # ----------- [cut here ] --------- [please bite here ] ---------
-> > >> Kernel BUG at cfq_iosched:1359
-> > 
-> > On Wed, Sep 15, 2004 at 01:38:34PM +0200, Jens Axboe wrote:
-> > > Hmm, ->allocated is unbalanced. What is your io setup like (adapter,
-> > > etc)?
-> > 
-> > 2 Maxtor Atlas10K 10Krpm U320 disks attached to some aic7902's. No
-> > binary or 3rd-party modules anywhere near the box' fs or even the
-> > network the thing is on. lspci output follows.
-> 
-> Hmm, I can only see this happening if rq->flags has its direction bit
-> changed between the allocation time and the time of freeing. I'll look
-> over scsi and see if I can find any traces of that, don't see any
-> immediately.
+Hey all,
+I'me building an FPGA based pci board for a degree project.  In theory 
+this board could be used as a custom, field programmable coprocessor (to 
+accelerate processes).  At which point, it might be nice to be able to 
+support it as a processor under the kernel.
 
-Can you try if this works?
+Yes bandwidth, yes it should be PCI-Express but it is still just a 
+degree project, 33mhz is fast enough for the proof of concept.
 
---- linux-2.6.9-rc1-mm5/drivers/block/cfq-iosched.c~	2004-09-15 14:50:14.941876065 +0200
-+++ linux-2.6.9-rc1-mm5/drivers/block/cfq-iosched.c	2004-09-15 14:51:09.889996813 +0200
-@@ -195,6 +195,7 @@
- 	unsigned int in_flight : 1;
- 	unsigned int accounted : 1;
- 	unsigned int is_sync   : 1;
-+	unsigned int is_write  : 1;
- };
- 
- static struct cfq_queue *cfq_find_cfq_hash(struct cfq_data *, unsigned long);
-@@ -1353,12 +1354,12 @@
- 		if (crq->io_context)
- 			put_io_context(crq->io_context->ioc);
- 
-+		BUG_ON(!cfqq->allocated[crq->is_write]);
-+		cfqq->allocated[crq->is_write]--;
-+
- 		mempool_free(crq, cfqd->crq_pool);
- 		rq->elevator_private = NULL;
- 
--		BUG_ON(!cfqq->allocated[rw]);
--		cfqq->allocated[rw]--;
--
- 		smp_mb();
- 		cfq_check_waiters(q, cfqq);
- 		cfq_put_queue(cfqq);
-@@ -1415,6 +1416,7 @@
- 		crq->io_context = cic;
- 		crq->service_start = crq->queue_start = 0;
- 		crq->in_flight = crq->accounted = crq->is_sync = 0;
-+		crq->is_write = rw;
- 		rq->elevator_private = crq;
- 		cfqq->allocated[rw]++;
- 		cfqq->alloc_limit[rw] = 0;
+Which leads me to my questions:
 
--- 
-Jens Axboe
+1) Is their support for having two different 'machine types' within one 
+kernel? that is for example, certain executables for intel would get run 
+on an intel processor, and others would get run on processor with type XXXX.
+
+I heard once someone put native "java" .class support within the kernel 
+(it would call the jvm run time if i remember).  I could maby do this 
+with my own set of libraries and driver.  But differentiating between 
+the types of executable might be hard.
+
+2) Is their kernel support for PCI coprocessors for thread allocation 
+etc.  I couldn't find any but i can try looking through the code again.
+
+
+
+
+
 

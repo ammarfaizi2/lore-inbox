@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290868AbSBFWqn>; Wed, 6 Feb 2002 17:46:43 -0500
+	id <S290870AbSBFWqv>; Wed, 6 Feb 2002 17:46:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290864AbSBFWqc>; Wed, 6 Feb 2002 17:46:32 -0500
-Received: from [209.237.59.50] ([209.237.59.50]:49191 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S290858AbSBFWqP>; Wed, 6 Feb 2002 17:46:15 -0500
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+	id <S290858AbSBFWqn>; Wed, 6 Feb 2002 17:46:43 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:2574 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290860AbSBFWqX>;
+	Wed, 6 Feb 2002 17:46:23 -0500
+Date: Wed, 6 Feb 2002 14:22:59 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ?????????????????????
-In-Reply-To: <0GR400G9IRB2XW@mtaout03.icomcast.net> <2094646627.1013034678@[195.224.237.69]>
-From: Roland Dreier <roland@topspincom.com>
-Date: 06 Feb 2002 14:46:10 -0800
-In-Reply-To: Alex Bligh - linux-kernel's message of "Wed, 06 Feb 2002 22:31:18 -0000"
-Message-ID: <52adumkz4d.fsf@love-boat.topspincom.com>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+Subject: Re: Asynchronous CDROM Events in Userland
+Message-ID: <20020206142259.A37@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <a3l4uc@cesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <a3l4uc@cesium.transmeta.com>; from hpa@zytor.com on Sun, Feb 03, 2002 at 09:07:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alex" == Alex Bligh <- linux-kernel <linux-kernel@alex.org.uk>> writes:
+Hi!
 
-    Alex> like Subject: [ANNOUNCE] blah blah?
+> Rather than a signal, it should be a file descriptor of some sort, so
+> one can select() etc on it.  Personally I can't imagine polling would
+> take any appreciable amount of resources, though.
 
-    Brian> Can we get something like /[\200-\377]{6}/ (6 upper ACSII
-    Brian> characters in a row) added to the taboo list?
+It may not eat CPU but it will definitely eat memory... Because polling
+means deamon that normally could be swapped out needs to stay in memory.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-Brian's pattern doesn't match upper case letters.  It matches
-characters with the most significant bit set.  'A' is 0101 octal,
-'N' is 0116 octal, etc. so your example would not trigger the rule.
-The idea of the rule is to filter out messages posted in non-Roman
-character sets.
-
-Roland

@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285120AbRLQNBa>; Mon, 17 Dec 2001 08:01:30 -0500
+	id <S285129AbRLQNFK>; Mon, 17 Dec 2001 08:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285127AbRLQNBU>; Mon, 17 Dec 2001 08:01:20 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:20490 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S285120AbRLQNBP>;
-	Mon, 17 Dec 2001 08:01:15 -0500
-Date: Mon, 17 Dec 2001 14:00:36 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Yoshiki Hayashi <yoshiki@xemacs.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4.16 Fix NULL pointer dereferencing in agpgart_be.c
-Message-Id: <20011217140036.4a0e8969.skraw@ithnet.com>
-In-Reply-To: <87zo4iroxw.fsf@u.sanpo.t.u-tokyo.ac.jp>
-In-Reply-To: <87zo4iroxw.fsf@u.sanpo.t.u-tokyo.ac.jp>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S285127AbRLQNFA>; Mon, 17 Dec 2001 08:05:00 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:57872 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S285129AbRLQNEt>; Mon, 17 Dec 2001 08:04:49 -0500
+Content-Type: text/plain;
+  charset="PT 154"
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Dmitry Volkoff <vdb@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
+Date: Mon, 17 Dec 2001 15:01:12 -0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20011216223909.A230@localhost>
+In-Reply-To: <20011216223909.A230@localhost>
+MIME-Version: 1.0
+Message-Id: <01121715011208.02146@manta>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Dec 2001 21:50:03 +0900
-Yoshiki Hayashi <yoshiki@xemacs.org> wrote:
+On Sunday 16 December 2001 17:39, Dmitry Volkoff wrote:
+> Hello!
+>
+> Below is simple test case which I think is related to "memory disappear"
+> problem.
+>
+> My real program is doing something like this:
+>
+> // test.c
+> #include <sys/types.h>
+> #include <sys/stat.h>
+> #include <fcntl.h>
+> #include <stdio.h>
+> #include <unistd.h>
+>
+> int main(void)
+> {
+>   int fd;
+>   int r;
+>   char data[10] = "0123456789";
+>   int i;
+>   int end = 30;
+>   for (i=0;i<end;i++) {
+>     fd = open("testfile", O_WRONLY | O_NDELAY | O_TRUNC | O_CREAT, 0644);
+>     if (fd == -1) {
+>       printf("unable to open\n");
+>       return;
+>     }
+>     r = write(fd,data,sizeof data);
+>     if (r == -1) {
+>       printf("unable to write\n");
+>       close(fd);
+>       return;
+>     }
+>     close(fd);
+>     sleep(1);
+>   }
+> }
+> // end test.c
 
-> This patch is against 2.4.16.  I couldn't find maintainer in
-> MAINTAINERS file so I'm simply sending this to Linus and
-> linux-kernel list.
-> 
-> In apggart_be.c, if the chip is i830M and the secondary device is not
-> found, linux kernel tries to dereference NULL pointer.  It checks NULL
-> and returns from the function in the next statement but it's too late.
-> 
-> The attached patch add NULL check before dereferencing the
-> pointer to fix the problem.
+I removed sleep(1). Is it needed?
 
-This was solved some weeks ago and the patch is pending somewhere (marcelo?).
-Unfortunately the complete cure is inside this pending patch, because there are
-other small tweaks for i830M. The NULL-check is sufficient for non-oops, but
-i830-register size is smaller than the further ongoings inside agpgart_be.c.
-
-Regards,
-Stephan
-
-
+After 10000+ runs of this proggy swap usage isn't changed on 2.4.17-pre7.
+top reports constant 2304K of swap usage.
+--
+vda

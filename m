@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129521AbQKVQGq>; Wed, 22 Nov 2000 11:06:46 -0500
+        id <S130355AbQKVQPi>; Wed, 22 Nov 2000 11:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131794AbQKVQGg>; Wed, 22 Nov 2000 11:06:36 -0500
-Received: from smtp2.free.fr ([212.27.32.6]:63759 "EHLO smtp2.free.fr")
-        by vger.kernel.org with ESMTP id <S129521AbQKVQGY>;
-        Wed, 22 Nov 2000 11:06:24 -0500
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [BUG] 2.2.1[78] : RTNETLINK lock not properly locking ?
-Message-ID: <974907379.3a1be7f3a0987@imp.free.fr>
-Date: Wed, 22 Nov 2000 16:36:19 +0100 (MET)
-From: Willy Tarreau <willy.lkml@free.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <974885943.3a1b9437847da@imp.free.fr> <200011220946.BAA07355@pizda.ninka.net> <974892477.3a1badbdefd2d@imp.free.fr> <200011221127.DAA07699@pizda.ninka.net>
-In-Reply-To: <200011221127.DAA07699@pizda.ninka.net>
+        id <S131826AbQKVQPT>; Wed, 22 Nov 2000 11:15:19 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:19183 "EHLO
+        sol.compendium-tech.com") by vger.kernel.org with ESMTP
+        id <S130355AbQKVQPP>; Wed, 22 Nov 2000 11:15:15 -0500
+Date: Wed, 22 Nov 2000 07:44:59 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Vincent <dtig@ihug.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mount /mnt/cdrom ok!but ls segmentation fault...
+In-Reply-To: <3A178406.1B0A1C8D@ihug.com.au>
+Message-ID: <Pine.LNX.4.21.0011220742580.3799-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 195.6.58.78
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, it guarentees that only one process may be in the middle
-> of modifying interface configuration state, the same and only
-> guarentee it makes in 2.4.x as well.
+On Sun, 19 Nov 2000, Vincent wrote:
+> Using linux-2.4.0-test11-pre7 right now..., here's what i did,
+> mount /mnt/cdrom
+> cd /mnt/cdrom
+> ls
+> Segmentation fault
+> ls
+> *NOT Responding....*
+> can't kill /sbin/ls
+> can't umount /mnt/cdrom
+> ps , shows ;
+> 
+> 613 ?        D      0:00 /bin/ls --color=auto -F -b -T 0
+>            ^^^^^
+> 
+> i didn't want to reboot...
+> CDRom door is locked..
+> 
+> BTW, what does D mean in ps?
 
-ok, Dave. But the code in dev_ioctl() actually is :
+It's somewhat comforting to know that someone else has the same problem as
+I do. I'd be willing to bet that he's using SCSI hostadapter emulation
+with this. I am, and it only started happening as soon as I enabled
+it. Any ideas? I need the sg stuff for my CD recorder to work properly...
 
-  rtnl_lock();
-  ret = dev_ifsioc(&ifr, cmd);
-  rtnl_unlock();
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
-if only these lock/unlock guarantee this atomicity, then I can't
-see why my A,B,C case could not work. If this is because the
-kernel has been locked somewhere else, then why are the locks
-still needed ? The author of rtnetlink.h has been very precautious
-about the atomicity of these locks when CONFIG_RTNETLINK is set. I
-don't understand why this could change in other cases. For this
-reason, I don't know what to write in my code ...
-
-Regards,
-Willy
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269008AbUJQCu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUJQCyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269008AbUJQCu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 22:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269010AbUJQCu7
+	id S269013AbUJQCyU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 22:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUJQCyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 22:50:59 -0400
-Received: from ozlabs.org ([203.10.76.45]:6849 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269008AbUJQCu5 (ORCPT
+	Sat, 16 Oct 2004 22:54:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9088 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269013AbUJQCyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 22:50:57 -0400
-Subject: Re: s390(64) per_cpu in modules (ipv6)
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pete Zaitcev <zaitcev@redhat.com>
-In-Reply-To: <OFC25D1557.60BFB654-ON42256F2E.00327ABF-42256F2E.0032D239@de.ibm.com>
-References: <OFC25D1557.60BFB654-ON42256F2E.00327ABF-42256F2E.0032D239@de.ibm.com>
-Content-Type: text/plain
-Message-Id: <1097981469.29286.14.camel@localhost.localdomain>
+	Sat, 16 Oct 2004 22:54:18 -0400
+Date: Sat, 16 Oct 2004 19:53:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Chris Rankin <rankincj@yahoo.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] Linux 2.6.8.1 with PL2303 USB serial converter
+Message-ID: <20041017025344.GA17007@kroah.com>
+References: <20041016225332.GA20284@kroah.com> <20041017005445.33808.qmail@web52905.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 17 Oct 2004 12:51:09 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041017005445.33808.qmail@web52905.mail.yahoo.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 19:15, Martin Schwidefsky wrote:
+On Sun, Oct 17, 2004 at 01:54:45AM +0100, Chris Rankin wrote:
+>  --- Greg KH <greg@kroah.com> wrote: 
+> > pl2303 devices will not work when connected to USB
+> > 2.0 hubs, sorry. Care to try it out without the hub
+> > in the way?
 > 
+> Hmm, is this a design limitation in the pl2303 driver?
+> Or the hub driver? Or does the problem lie with the
+> hardware somehow?
+
+It's an issue with the ehci driver right now.  The author of it knows
+about the problem.
+
+> > Also, can you try out 2.6.9-final and see if that
+> > oopses in the same way?
 > 
-> Rusty Russell <rusty@rustcorp.com.au> wrote on 15/10/2004 03:41:40 AM:
+> I'll definitely be trying this with 2.6.9 when it's
+> released; what's with this '-final' notation?
 
-> > The worse problem is that a (static) per-cpu var declared *inside* a
-> > function gets renamed by gcc; IIRC some generic code used to do this.
-> 
-> __thread in the kernel would be a real innovation, but I fear it isn't easy.
-> The problem with the per_cpu__x variables in modules is solved for s390x
-> by the way.
+It's what Linus released today.  Please try it, and if there's still an
+issue, I can fix it to be included when 2.6.9 is released.
 
-Sure, but it doesn't solve this case, AFAICT:
+thanks,
 
-void func(void)
-{
-	static DEFINE_PER_CPU(x, int);
-
-	__get_per_cpu(x)++;
-}
-
-The compiler will create a variable called "per_cpu__x.0" and your asm
-reference to "per_cpu__x" will cause a link failure, no?  Obviously, you
-would have noticed this, so I'm wondering what I'm missing.
-
-I hit this in mm/page-writeback.c:balance_dirty_pages_ratelimited().
-
-Confused,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+greg k-h

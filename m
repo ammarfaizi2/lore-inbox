@@ -1,41 +1,62 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbVBCEJX (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 2 Feb 2005 23:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVBCEJW
+	id S262376AbVBLKBs (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 12 Feb 2005 05:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVBLKBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 23:09:22 -0500
-Received: from red-corp-200.56.97.98.telnor.net ([200.56.97.98]:49670 "HELO
-	red-corp-200.56.97.98.telnor.net") by vger.kernel.org with SMTP
-	id S262955AbVBCEIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 23:08:20 -0500
-From: "Rosemarie Rudolph" <jtoccigiya@tocci.com>
-Reply-To: "Rosemarie Rudolph" <jtoccigiya@tocci.com>
-Message-ID: <1715146359.0590739340@tocci.com>
-Date: Thu, 3 Feb 2005 00:13:37 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: they Youngest not Shocking sexuality mode
+	Sat, 12 Feb 2005 05:01:48 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:60825 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262376AbVBLKBq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 05:01:46 -0500
+Reply-To: bigpun190000@netscape.net
+From: "Spays S. Entente" <benedict.lawrence1@btinternet.com>
+To: Linux <linux-kernel@vger.kernel.org>
+Subject: FWD: Hi Linux, like to watch real people getting Dirty. No Fees for Life.
+Date: Sat, 12 Feb 2005 10:58:01 +0100
+Message-ID: <100001c510e9$22f4344d$2e630fb5@btinternet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1; AVE: 6.15.0.0; VDF: 6.15.0.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262590AbVBCEJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262376AbVBLKBs@vger.kernel.org>
 
-Oops... :)
+Hi Linux,
 
-Professional pictures big featuring the now most beautiful,
-most sensual, most very tempting pre teen and girls unique 
+Do You like watching real live people, getting down and dirty. Well here you go for a limited time only you can get a Lifetime password at no charge, that's right no charge...
 
-	Bed is the poor man's opera.
-http://www.geocities.com/aurora_albright_89/
+voted #1 new website in 2005 by the industry..
 
-This is 7-16 will girls that we want shoot them as they are,
-keeping no capo secrets from you and 
+http://over.aurilavepoppetleggumdigging.com/369997/rpm/lifetime.html
 
-	Tell everyone what you want to do and someone will want to help you do it.
 
-Our site is the here place you were searching glad for a long time! 
+A chain is no stronger than its weakest link. 
 
-There is no adequate defense, except stupidity, against the impact of a new idea.
+
+
+A light purse makes a heavy heart. . A chain is no stronger than its weakest link. . Anger and hate hinder good counsel. . Hall binks are oft sliddery.     An explanation .
+Make hay while the sun shines. 
+
+Never let the sun go down on your anger. 
+
+no more?
+http://of.three.aurilavepoppetleggumdigging.com/emms/preference/control.php
+
+
+
+
+
+
+
+
+Different strokes for different folks. . You snooze, you loose. . Actions speak louder than words. .
+The best things in life are free. . Love to live and live to love. . Half a loaf is better than none. .
+
+Before you meet the handsome prince you have to kiss a lot of toads. . A friend to everybody is a friend to nobody. . Good company on the road is the shortest cut. .
 
 

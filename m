@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268154AbUIAVlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268199AbUIAWFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268154AbUIAVlW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 17:41:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUIAVhu
+	id S268199AbUIAWFP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 18:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUIAWCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:37:50 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:50048 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268121AbUIAVPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 17:15:09 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Schmitt <pnambic@unu.nu>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com, tytso@mit.edu
-In-Reply-To: <1094053973.2282.2.camel@tux.rsn.bth.se>
-References: <200408282210.03568.pnambic@unu.nu>
-	 <20040828203116.GA29686@elte.hu>
-	 <1093727453.8611.71.camel@krustophenia.net>
-	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>
-	 <1093737080.1385.2.camel@krustophenia.net>
-	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>
-	 <20040830090608.GA25443@elte.hu> <1093934448.5403.4.camel@krustophenia.net>
-	 <20040831065327.GA30631@elte.hu>
-	 <1093993396.3404.17.camel@krustophenia.net>
-	 <1094053973.2282.2.camel@tux.rsn.bth.se>
-Content-Type: text/plain
-Message-Id: <1094073302.1343.0.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 01 Sep 2004 17:15:02 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Sep 2004 18:02:54 -0400
+Received: from scl-ims.phoenix.com ([216.148.212.222]:49945 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S268224AbUIAV4v convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 17:56:51 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: EHCI errors in 2.6.8 (could be a patch mistake)
+Date: Wed, 1 Sep 2004 14:56:46 -0700
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B30162E5E6@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: EHCI errors in 2.6.8 (could be a patch mistake)
+Thread-Index: AcSQZgdaq/6FvX19Sb+YwWeFukNhSQABTCfg
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Gaetano Sferra" <gaesferr@libero.it>, <linux-kernel@vger.kernel.org>
+Cc: <zaitcev@redhat.com>, <dbrownell@users.sourceforge.net>, <greg@kroah.com>
+X-OriginalArrivalTime: 01 Sep 2004 21:56:46.0273 (UTC) FILETIME=[93258B10:01C4906E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-01 at 11:52, Martin Josefsson wrote:
-> On Wed, 2004-09-01 at 01:03, Lee Revell wrote:
-> 
-> Hi Lee
-> 
-> > This solves the problem with the random driver.  The worst latencies I
-> > am seeing are in netif_receive_skb().  With netdev_max_backlog set to 8,
-> > the worst is about 160 usecs:
-> 
-> I'm a bit curious... have you tried these tests with ip_conntrack
-> enabled?
+>I've patched my fully working 2.6.7 kernel to the 2.6.8 and I 
+>got these errors 
+>at boot time (no errors during patch and compilation using the 
+>same config of 
+>the 2.6.7 kernel):
+>
+>ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
+>ehci_hcd 0000:00:1d.7: can't reset
+>ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
+>ehci_hcd: probe of 0000:00:1d.7 failed with error -95
+>
+>In this condition the hotplugging of USB devices doesn't work at all!
+>The host controller is an Intel Corp. 82801DB (ICH4) USB2 EHCI 
+>and it fully 
+>work with the 2.6.7. Looking into the patched and original code of the 
+>ehci-hcd driver I've noticed that some changes has been maded 
+>but the only 
+>one that can influence the BIOS handoff is the following:
+>
+>kernel 2.6.7 - line 296: cap &= 1 << 24;
+>kernel 2.6.8 - line 296: cap |= 1 << 24;
+                          ^^^^^^^^^^^^^^
+This is correct in accordance with EHCI spec.
+Could you please try the following patch and see how it goes ?
+http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg270
+89.html
+Make sure you specify 'usb-handoff' as a kernel parameter.
 
-No, this is disabled in my config.  I will try enabling it.
+Pete,
+  BTW is this one a 'no go' or just got lost ?
 
-What would the expected result be?
-
-Lee
-
+Aleks.

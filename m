@@ -1,131 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbUDOSwj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDOSts
+	id S262925AbUDORZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbUDORYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:49:48 -0400
-Received: from reformers.mr.itd.umich.edu ([141.211.93.147]:22739 "EHLO
-	reformers.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S263089AbUDOSrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:47:18 -0400
-Date: Thu, 15 Apr 2004 14:47:07 -0400 (EDT)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@blue.engin.umich.edu
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-In-Reply-To: <192710000.1082052992@flay>
-Message-ID: <Pine.GSO.4.58.0404151421260.28662@blue.engin.umich.edu>
-References: <Pine.LNX.4.44.0404151842530.9612-100000@localhost.localdomain>
- <192710000.1082052992@flay>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Apr 2004 13:24:47 -0400
+Received: from mail.kroah.org ([65.200.24.183]:13998 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263095AbUDORYD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 13:24:03 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and PCI Hotplug update for 2.6.6-rc1
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <1082049826312@kroah.com>
+Date: Thu, 15 Apr 2004 10:23:46 -0700
+Message-Id: <10820498261812@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1692.3.11, 2004/04/07 16:10:06-07:00, dlsy@snoqualmie.dp.intel.com
 
-> It has similar problems, IIRC with increasing i_shared_sem contention.
+[PATCH] PCI Hotplug: Fix interpretation of 0/1 for MRL in SHPC & PCI-E hot-plug
 
-Agreed.
-
-> But I think it solves the same issues as prio_tree,
-
-Agreed.
-
-> is simpler,
-
-Agreed.
-
-> is easier to fix up to do clever locking with.
-
-I haven't thought about it fully, so I am not sure. But, it is likely
-that locking is easier with list-of-lists.
-
-[snip]
-
-> diff -urpN -X /home/fletch/.diff.exclude 820-numa_large_pages/mm/mmap.c 830-list-of-lists/mm/mmap.c
-> --- 820-numa_large_pages/mm/mmap.c	Wed Jun 18 21:49:20 2003
-> +++ 830-list-of-lists/mm/mmap.c	Wed Jun 18 23:29:38 2003
-> @@ -306,6 +306,56 @@ static void __vma_link_rb(struct mm_stru
->  	rb_insert_color(&vma->vm_rb, &mm->mm_rb);
->  }
->
-> +static void vma_add (struct vm_area_struct *vma,
-> +						struct list_head *range_list)
-> +{
-> +	struct address_range *range;
-> +	struct list_head *prev, *next;
-> +	unsigned long start = vma->vm_pgoff;
-> +	unsigned long end = vma->vm_pgoff +
-> +		(((vma->vm_end - vma->vm_start) >> PAGE_SHIFT) - 1);
-> +
-> +	/* First, look for an existing range that matches ours */
-> +	prev = range_list;
-> +	list_for_each(next, range_list) {
-> +		range = list_entry(next, struct address_range, ranges);
-> +		if (range->start > start)
-> +			break;    /* this list is sorted by start */
-> +		if ((range->start == start) && (range->end == end)) {
-> +			goto found;
-> +		}
-> +		prev = next;
-> +	}
-
-Hmm.. We do a linear O(N) search for each vma added. If the range_list
-has 1000 vmas, then it is really bad. Running Ingo's test-mmap3.c or
-Andrew's rmap-test.c (check 3rd test Andrew did - single process,
-10,000 different vmas - with different range->start and range->end)
-will be slow.
-
-The prio_tree patch optimizes these cases with O(log N) insert algorithm.
-
-[snip]
-
-> +static void vma_del (struct vm_area_struct *vma)
-> +{
-[snip]
-> +	next = vma->shared.next;	/* stash the range list we're on */
-> +	list_del(&vma->shared);		/* remove us from the list of vmas */
-> +	if (list_empty(next)) {		/* we were the last vma for range */
-> +		range = list_entry(next, struct address_range, vmas);
-> +		list_del(&range->ranges);
-> +		kfree(range);
-> +	}
-> +}
-
-Agree that vma_del is much simpler.
-
->  page_referenced_obj(struct page *page)
->  {
-[snip]
-> +	list_for_each_entry(range, &mapping->i_mmap, ranges) {
-> +		if (range->start > index)
-> +			break;     /* Sorted by start address => we are done */
-> +		if (range->end < index)
-> +			continue;
-
-Again O(N) search...
-
-> +		list_for_each_entry(vma, &range->vmas, shared)
-> +			referenced += page_referenced_obj_one(vma, page);
-> +	}
+This patch contains fixes for interpretation of 0/1 for MRL
+to match pcihpview, bus speed definition in shpchp_hpc.c etc.
 
 
-> @@ -512,7 +532,9 @@ static int
->  try_to_unmap_obj(struct page *page)
->  {
-[snip]
-> +	list_for_each_entry(range, &mapping->i_mmap, ranges) {
-> +		if (range->start > index)
-> +			break;     /* Sorted by start address => we are done */
-> +		if (range->end < index)
-> +			continue;
+ drivers/pci/hotplug/pci_hotplug.h |    2 +-
+ drivers/pci/hotplug/pciehp_ctrl.c |    6 +++---
+ drivers/pci/hotplug/shpchp_ctrl.c |   10 +++++-----
+ drivers/pci/hotplug/shpchp_hpc.c  |   15 ++++++++-------
+ 4 files changed, 17 insertions(+), 16 deletions(-)
 
-Here also O(N) search when each vma map a unique set of file pages...
 
-Thanks for posting the code. Your old postings (almost a year ago)
-regarding list-of-lists inspired me to develop prio_tree. Thanks.
+diff -Nru a/drivers/pci/hotplug/pci_hotplug.h b/drivers/pci/hotplug/pci_hotplug.h
+--- a/drivers/pci/hotplug/pci_hotplug.h	Thu Apr 15 10:03:55 2004
++++ b/drivers/pci/hotplug/pci_hotplug.h	Thu Apr 15 10:03:55 2004
+@@ -43,7 +43,7 @@
+ 	PCI_SPEED_100MHz_PCIX_266	= 0x0a,
+ 	PCI_SPEED_133MHz_PCIX_266	= 0x0b,
+ 	PCI_SPEED_66MHz_PCIX_533	= 0x11,
+-	PCI_SPEED_100MHz_PCIX_533	= 0X12,
++	PCI_SPEED_100MHz_PCIX_533	= 0x12,
+ 	PCI_SPEED_133MHz_PCIX_533	= 0x13,
+ 	PCI_SPEED_UNKNOWN		= 0xff,
+ };
+diff -Nru a/drivers/pci/hotplug/pciehp_ctrl.c b/drivers/pci/hotplug/pciehp_ctrl.c
+--- a/drivers/pci/hotplug/pciehp_ctrl.c	Thu Apr 15 10:03:55 2004
++++ b/drivers/pci/hotplug/pciehp_ctrl.c	Thu Apr 15 10:03:55 2004
+@@ -135,7 +135,7 @@
+ 	p_slot->hpc_ops->get_adapter_status(p_slot, &(func->presence_save));
+ 	p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
+ 
+-	if (!getstatus) {
++	if (getstatus) {
+ 		/*
+ 		 * Switch opened
+ 		 */
+@@ -1705,7 +1705,7 @@
+ 	}
+ 	
+ 	rc = p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
+-	if (rc || !getstatus) {
++	if (rc || getstatus) {
+ 		info("%s: latch open on slot(%x)\n", __FUNCTION__, p_slot->number);
+ 		up(&p_slot->ctrl->crit_sect);
+ 		return (0);
+@@ -1792,7 +1792,7 @@
+ 	}
+ 
+ 	ret = p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
+-	if (ret || !getstatus) {
++	if (ret || getstatus) {
+ 		info("%s: latch open on slot(%x)\n", __FUNCTION__, p_slot->number);
+ 		up(&p_slot->ctrl->crit_sect);
+ 		return (0);
+diff -Nru a/drivers/pci/hotplug/shpchp_ctrl.c b/drivers/pci/hotplug/shpchp_ctrl.c
+--- a/drivers/pci/hotplug/shpchp_ctrl.c	Thu Apr 15 10:03:55 2004
++++ b/drivers/pci/hotplug/shpchp_ctrl.c	Thu Apr 15 10:03:55 2004
+@@ -138,7 +138,7 @@
+ 	p_slot->hpc_ops->get_adapter_status(p_slot, &(func->presence_save));
+ 	p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
+ 
+-	if (!getstatus) {
++	if (getstatus) {
+ 		/*
+ 		 * Switch opened
+ 		 */
+@@ -1219,7 +1219,7 @@
+ 					up(&ctrl->crit_sect);
+ 				}
+ 			} else {
+-				if ((bus_speed > 0x4) || (max_bus_speed > 0x4))  {
++				if (bus_speed > 0x4) {
+ 					err("%s: speed of bus %x and adapter %x mismatch\n", __FUNCTION__, bus_speed, adapter_speed);
+ 					return WRONG_BUS_FREQUENCY;
+ 				}
+@@ -1302,7 +1302,7 @@
+ 					up(&ctrl->crit_sect);
+ 				}
+ 			} else {
+-				if ((bus_speed > 0x2) || (max_bus_speed > 0x2))  {
++				if (bus_speed > 0x2) {
+ 					err("%s: speed of bus %x and adapter %x mismatch\n", __FUNCTION__, bus_speed, adapter_speed);
+ 					return WRONG_BUS_FREQUENCY;
+ 				}
+@@ -2107,7 +2107,7 @@
+ 		return (0);
+ 	}
+ 	rc = p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
+-	if (rc || !getstatus) {
++	if (rc || getstatus) {
+ 		info("%s: latch open on slot(%x)\n", __FUNCTION__, p_slot->number);
+ 		up(&p_slot->ctrl->crit_sect);
+ 		return (0);
+@@ -2192,7 +2192,7 @@
+ 		return (0);
+ 	}
+ 	ret = p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
+-	if (ret || !getstatus) {
++	if (ret || getstatus) {
+ 		info("%s: latch open on slot(%x)\n", __FUNCTION__, p_slot->number);
+ 		up(&p_slot->ctrl->crit_sect);
+ 		return (0);
+diff -Nru a/drivers/pci/hotplug/shpchp_hpc.c b/drivers/pci/hotplug/shpchp_hpc.c
+--- a/drivers/pci/hotplug/shpchp_hpc.c	Thu Apr 15 10:03:55 2004
++++ b/drivers/pci/hotplug/shpchp_hpc.c	Thu Apr 15 10:03:55 2004
+@@ -104,12 +104,12 @@
+ #define PCIX_66MHZ_ECC		0x5
+ #define PCIX_100MHZ_ECC		0x6
+ #define PCIX_133MHZ_ECC		0x7
+-#define PCIX_66MHZ_266		0x8
+-#define PCIX_100MHZ_266		0x9
+-#define PCIX_133MHZ_266		0x0a
+-#define PCIX_66MHZ_533		0x0b
+-#define PCIX_100MHZ_533		0x0c
+-#define PCIX_133MHZ_533		0x0d
++#define PCIX_66MHZ_266		0x9
++#define PCIX_100MHZ_266		0xa
++#define PCIX_133MHZ_266		0xb
++#define PCIX_66MHZ_533		0x11
++#define PCIX_100MHZ_533		0x12
++#define PCIX_133MHZ_533		0x13
+ 
+ /* Slot Configuration */
+ #define SLOT_NUM		0x0000001F
+@@ -464,7 +464,8 @@
+ 	slot_reg = readl(php_ctlr->creg + SLOT1 + 4*(slot->hp_slot));
+ 	slot_status = (u16)slot_reg;
+ 
+-	*status = ((slot_status & 0x0100) == 0) ? 1 : 0;
++	*status = ((slot_status & 0x0100) == 0) ? 0 : 1;   /* 0 -> close; 1 -> open */
++
+ 
+ 	DBG_LEAVE_ROUTINE 
+ 	return 0;
 
-Rajesh

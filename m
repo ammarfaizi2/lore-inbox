@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317037AbSG1TNG>; Sun, 28 Jul 2002 15:13:06 -0400
+	id <S317142AbSG1TPE>; Sun, 28 Jul 2002 15:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317063AbSG1TNF>; Sun, 28 Jul 2002 15:13:05 -0400
-Received: from zwanebloem.xs4all.nl ([213.84.22.107]:9095 "EHLO
-	thuis.zwanebloem.nl") by vger.kernel.org with ESMTP
-	id <S317037AbSG1TNF>; Sun, 28 Jul 2002 15:13:05 -0400
-Date: Sun, 28 Jul 2002 21:23:41 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Tommy Faasen <faasen@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] agpgart splitup and cleanup for 2.5.25
-Message-ID: <20020728192341.GA30851@router.zwanebloem.xs4all.nl>
-References: <20020711230222.GA5143@kroah.com> <32918.192.168.0.100.1027865196.squirrel@thuis.zwanebloem.nl> <20020728190049.GA5959@kroah.com>
+	id <S317152AbSG1TPE>; Sun, 28 Jul 2002 15:15:04 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:24581 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317142AbSG1TPD>; Sun, 28 Jul 2002 15:15:03 -0400
+Date: Sun, 28 Jul 2002 20:18:22 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5] fs/binfmt_aout.c: Use PAGE_ALIGN_LL() on 64-bit values
+Message-ID: <20020728201821.A16713@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <E17YRsD-0006Hw-00@storm.christs.cam.ac.uk> <E17YRsD-0006Hw-00@storm.christs.cam.ac.uk> <m1wurfhgxd.fsf@frodo.biederman.org> <5.1.0.14.2.20020728194633.04207dd0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020728190049.GA5959@kroah.com>
-User-Agent: Mutt/1.4i
-From: root <root@thuis.zwanebloem.nl>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20020728194633.04207dd0@pop.cus.cam.ac.uk>; from aia21@cantab.net on Sun, Jul 28, 2002 at 07:55:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 12:00:49PM -0700, Greg KH wrote:
-> On Sun, Jul 28, 2002 at 04:06:36PM +0200, Tommy Faasen wrote:
-> > Hi,
-> > 
-> > I just tried to compile 2.5.29, haven't tried dev kernels since 2.5.24 and
-> > it seems that although the nvidia kernel module builds ok when I try to
-> > start X I get a freeze or a reboot. Any chance it has something to do with
-> > this?
-> 
-> No, I do not.  Without the nvidia kernel module, does everything work
-> just fine?
->
-Console wise yes, I'll give the xfree86 module a go...
+On Sun, Jul 28, 2002 at 07:55:51PM +0100, Anton Altaparmakov wrote:
+> I thought (intel) CPUs did 48-bit addressing? How do we support 32GiB of 
+> RAM? With pure 32-bit addressing it would be limited to 4GiB only... No? 
+> (Of course I am probably confusing varius types of addresses...)
 
-i'll let you know.
+P6+ support 36bit _physical_ addressing.
 
-Tommy 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

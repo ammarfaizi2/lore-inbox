@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUELWIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUELWJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUELWIl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUELWIk
+	id S261880AbUELWJz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 18:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUELWJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:08:40 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:22791 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S261156AbUELWIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:08:39 -0400
-Date: Wed, 12 May 2004 18:07:33 -0400
-To: Andreas Schwab <schwab@suse.de>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Ingo Molnar <mingo@elte.hu>,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-Message-ID: <20040512220733.GB16658@fieldses.org>
-References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com> <20040512200305.GA16078@elte.hu> <Pine.LNX.4.58.0405121400360.11950@bigblue.dev.mdolabs.com> <20040512213913.GA16658@fieldses.org> <jevfj1nwe1.fsf@sykes.suse.de>
-Mime-Version: 1.0
+	Wed, 12 May 2004 18:09:55 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:53920 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261580AbUELWJt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 18:09:49 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <jevfj1nwe1.fsf@sykes.suse.de>
-User-Agent: Mutt/1.5.6i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16546.41076.572371.307153@napali.hpl.hp.com>
+Date: Wed, 12 May 2004 15:08:52 -0700
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: ebiederm@xmission.com (Eric W. Biederman), drepper@redhat.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm <akpm@osdl.org>
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+In-Reply-To: <20040512143233.0ee0405a.rddunlap@osdl.org>
+References: <20040511212625.28ac33ef.rddunlap@osdl.org>
+	<40A1AF53.3010407@redhat.com>
+	<m13c66qicb.fsf@ebiederm.dsl.xmission.com>
+	<40A243C8.401@redhat.com>
+	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
+	<40A2517C.4040903@redhat.com>
+	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
+	<20040512143233.0ee0405a.rddunlap@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 11:55:18PM +0200, Andreas Schwab wrote:
-> "J. Bruce Fields" <bfields@fieldses.org> writes:
-> 
-> > If gcc really optimizes that to just the identity function, then surely
-> > that's a gcc bug?  Multiplication is left-associative, so i * 1000 /
-> > 1000 = (i * 1000) / 1000, but (i * 1000) should be zero for any i
-> > divisible by i^(sizeof(int) - 12).
-> 
-> Signed integer overflow is undefined in C, so the compiler is allowed to
-> assume it does not happen.
+>>>>> On Wed, 12 May 2004 14:32:33 -0700, "Randy.Dunlap" <rddunlap@osdl.org> said:
 
-Ugh, right, got it.--b.
+  Randy> I don't know when vdso will be available (for non-x86[2]) or
+
+  Randy> [2] kexec is currently only available for x86, but there is interest
+  Randy> in it for ia64 and ppc64 at least.
+
+ia64 does have VDSO (and has had it for some time).
+
+I quite like Uli's idea.
+
+	--david

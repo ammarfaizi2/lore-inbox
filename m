@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284246AbRLAUnm>; Sat, 1 Dec 2001 15:43:42 -0500
+	id <S284248AbRLAUrB>; Sat, 1 Dec 2001 15:47:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284248AbRLAUnb>; Sat, 1 Dec 2001 15:43:31 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:23454 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S284251AbRLAUn1> convert rfc822-to-8bit; Sat, 1 Dec 2001 15:43:27 -0500
-Date: Sat, 1 Dec 2001 18:50:11 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: 2 small patches against 2.4.17-pre2 (sym2 + email change)
-In-Reply-To: <3C093029.EEF79D5A@mandrakesoft.com>
-Message-ID: <20011201184332.E2444-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S284247AbRLAUqv>; Sat, 1 Dec 2001 15:46:51 -0500
+Received: from marine.sonic.net ([208.201.224.37]:34583 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S284244AbRLAUqo>;
+	Sat, 1 Dec 2001 15:46:44 -0500
+X-envelope-info: <dhinds@sonic.net>
+Date: Sat, 1 Dec 2001 12:46:30 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Ian Morgan <imorgan@webcon.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        hermes@gibson.dropbear.id.au
+Subject: Re: in-kernel pcmcia oopsing in SMP
+Message-ID: <20011201124630.A30249@sonic.net>
+In-Reply-To: <20011201120541.B28295@sonic.net> <Pine.LNX.4.40.0112011513041.2329-100000@light.webcon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0112011513041.2329-100000@light.webcon.net>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 01, 2001 at 03:27:24PM -0500, Ian Morgan wrote:
+> 
+> > I don't know how to interpret your oops report; you should probably
+> > also forward the bug to David Gibson, hermes@gibson.dropbear.id.au,
+> > since he is the orinoco maintainer.
+> 
+> Well, Gibson's the one who suggested the broblem was with the pcmcia system,
+> and not the orinoco driver! Hmm.... can you say runaround?
 
+It pretty much can't be a PCMCIA subsystem bug.  The basic PCMCIA code
+handles card identification and configuration of the socket; however,
+for almost all cards, the PCMCIA subsystem is completely out of the
+loop during normal card operation.  No PCMCIA code outside of the
+orinoco driver itself will ever be executed.
 
-On Sat, 1 Dec 2001, Jeff Garzik wrote:
+Your oops, in tasklet code, sounds to me like a locking bug in the
+driver code for managing the transmit stack vs. interrupt handling.
+Have there been reports of the driver working well on SMP boxes?
 
-> Gérard Roudier wrote:
-> >         * version sym-2.1.17a
-> >         - Use u_long instead of U32 for the IO base cookie. This is more
-> >           consistent with what archs are expecting.
->
-> Well...  if you want to speak of style, no arch uses 'u_long'... rather
-> they use 'unsigned long' :)
-
-I don't at any mailing list that has something to do with programming. :)
-
-   Gérard.
-
-PS: This email should not have gone to the list. I missed to remove the
-    LKML from the cc.
-
+-- Dave

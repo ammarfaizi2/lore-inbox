@@ -1,72 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVBFRAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVBFRDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVBFRAb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 12:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVBFRAb
+	id S261212AbVBFRDx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 12:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVBFRDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 12:00:31 -0500
-Received: from host.atlantavirtual.com ([209.239.35.47]:62669 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S261211AbVBFRAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 12:00:23 -0500
-Subject: Re: Dell Inspiron sensors (was: Re: Huge unreliability - does
-	Linux have something to do with it?)
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <MPG.1c7035d63901d496989710@news.gmane.org>
-References: <5a2cf1f605020401037aa610b9@mail.gmail.com>
-	 <20050204121817.GA7721@animx.eu.org>
-	 <d120d50005020406441ba6f919@mail.gmail.com>
-	 <MPG.1c7035d63901d496989710@news.gmane.org>
-Content-Type: text/plain
-Message-Id: <1107709117.3828.6.camel@crazytrain>
+	Sun, 6 Feb 2005 12:03:53 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:52106 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S261212AbVBFRDt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 12:03:49 -0500
+Date: Sun, 6 Feb 2005 19:03:47 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Add as-option to top-level Makefile
+Message-ID: <20050206170347.GB27853@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Sam Ravnborg <sam@ravnborg.org>, Ralf Baechle <ralf@linux-mips.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 06 Feb 2005 11:58:37 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="U+BazGySraz5kW0T"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-02-06 at 10:58, Giuseppe Bilotta wrote:
-> I have a Dell Inspiron 8200, from March 2002. Since end of 
-> December 2004 I've started having system lockups which at first 
-> I couldn't identify, although they seemed to be overheating 
-> related. So I started monitoring the temperatures on all the 
-> components in my system (I can monitor CPU, GPU and HD temp; 
-> more on this later), and noticed that the lockups happen when 
-> the HD temp gets around 40 C. Indeed, they are 99% of the time 
-> preceded by a loud "click" coming from the HD wereabouts ... 
-> haven't lost any data yet but I've started backing up 
-> everything and getting ready to get a replacement HD.
 
+--U+BazGySraz5kW0T
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You might want to try this;
+cc-option can presently not be used for checking as flags. It seems like
+MIPS ran into this already and added their own as-option (which at this
+point seems to be completely unused on MIPS, so perhaps it's worth
+removing entirely from there).
 
-Remove the keyboard, remove the cover beneath.  Take a can of air dust
-(or equivalent) and *carefully* blow out the inside of the laptop.  
+This patch moves the definition to the top-level Makefile so that others
+can make use of it (sh wants this with newer binutils that allow for ISA
+tuning, for instance).
 
--then-
+Additionally, it may make more sense to move the -Wa$(comma) stuff into
+as-option directly so it doesn't get repeated all over the place (though
+it seems unlikely that there will be enough users that actually care
+about this).
 
-Look at the back side and the right side of the laptop.  You'll see the
-intake for air and the A/C unit.  Take that air dust and blow in such
-that the plastic fan whirls away.   Take a snapshot of the dust bunnies
-and send them to Dell.
+=3D=3D=3D=3D=3D Makefile 1.563 vs edited =3D=3D=3D=3D=3D
+--- 1.563/Makefile	2005-02-03 03:50:51 +02:00
++++ edited/Makefile	2005-02-06 18:50:49 +02:00
+@@ -279,6 +279,13 @@
+ # cc support functions to be used (only) in arch/$(ARCH)/Makefile
+ # See documentation in Documentation/kbuild/makefiles.txt
+=20
++# as-option
++# Usage: cflags-y +=3D $(call as-option, -Wa$(comma)-isa=3Dfoo,)
++
++as-option =3D $(shell if $(CC) $(CFLAGS) $(1) -Wa,-Z -c -o /dev/null \
++	     -xassembler /dev/null > /dev/null 2>&1; then echo "$(1)"; \
++	     else echo "$(2)"; fi ;)
++
+ # cc-option
+ # Usage: cflags-y +=3D $(call gcc-option, -march=3Dwinchip-c6, -march=3Di5=
+86)
+=20
+=3D=3D=3D=3D=3D arch/mips/Makefile 1.28 vs edited =3D=3D=3D=3D=3D
+--- 1.28/arch/mips/Makefile	2005-01-31 08:33:43 +02:00
++++ edited/arch/mips/Makefile	2005-02-06 18:49:20 +02:00
+@@ -12,10 +12,6 @@
+ # for "archclean" cleaning up for this architecture.
+ #
+=20
+-as-option =3D $(shell if $(CC) $(CFLAGS) $(1) -Wa,-Z -c -o /dev/null \
+-	     -xassembler /dev/null > /dev/null 2>&1; then echo "$(1)"; \
+-	     else echo "$(2)"; fi ;)
+-
+ cflags-y :=3D
+=20
+ #
 
+--U+BazGySraz5kW0T
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I have a 5150 Inspiron.  In less than 1 year this thing started powering
-off (hard) on its own, no matter the OS installed (multi-boot).  I dug
-around the 'net and found similar issues, all relating to OVERHEATING. 
-Poorly designed was the culprit, but Dell has not yet admitted to this
-(but look at the Dell Linux forum or just Dell laptop forum and see
-Dell's techs replies) - think of the numbers sold and it makes sense.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-Anyways, aside from that, I had a dust bunny the size of a U.S. quarter
-fly out.  Since then I make certain to rest it on a flat surface (I cut
-some steel and carry it with me) and every couple of months take it
-apart as described and blow out the dust.  
+iD4DBQFCBk3z1K+teJFxZ9wRAkIJAJ9CNK4b7WJlVk+xsbDN7uFBLFLzSwCYxpe2
+a8kGpN6ulVxJby38Xbvlqw==
+=REKX
+-----END PGP SIGNATURE-----
 
--fd
-
-
+--U+BazGySraz5kW0T--

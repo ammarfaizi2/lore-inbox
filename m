@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264423AbRFOPMk>; Fri, 15 Jun 2001 11:12:40 -0400
+	id <S264424AbRFOPSV>; Fri, 15 Jun 2001 11:18:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264424AbRFOPMa>; Fri, 15 Jun 2001 11:12:30 -0400
-Received: from quasar.osc.edu ([192.148.249.15]:35523 "EHLO quasar.osc.edu")
-	by vger.kernel.org with ESMTP id <S264423AbRFOPMS>;
-	Fri, 15 Jun 2001 11:12:18 -0400
-Date: Fri, 15 Jun 2001 11:12:13 -0400
-From: Pete Wyckoff <pw@osc.edu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: nick@snowman.net, Kip Macy <kmacy@netapp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-Message-ID: <20010615111213.C2245@osc.edu>
-In-Reply-To: <15145.11935.992736.767777@pizda.ninka.net> <Pine.LNX.4.21.0106141739140.16013-100000@ns> <15145.12192.199302.981306@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15145.12192.199302.981306@pizda.ninka.net>; from davem@redhat.com on Thu, Jun 14, 2001 at 02:41:52PM -0700
+	id <S264425AbRFOPSK>; Fri, 15 Jun 2001 11:18:10 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:56583 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264424AbRFOPR4>; Fri, 15 Jun 2001 11:17:56 -0400
+Date: Fri, 15 Jun 2001 12:17:51 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: <linux-mm@kvack.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [RFT][PATCH] even out background aging
+Message-ID: <Pine.LNX.4.33.0106151211360.2262-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davem@redhat.com said:
-> nick@snowman.net writes:
->  > So are there any intresting changes one can make to the acenic?
-> 
-> Like I said, there is an entire firmware developer kit, so the only
-> limit is your imagination and coding skills :-)
+[Request For Testers:  please test this on your system...]
 
-I wrote a new firmware from scratch to offload most of a message passing
-implementation (MPI, actually) into the Alteon NIC, including timeout
-and retransmit, message matching, header building, etc.  It's almost
-ready for release.  We're currently working on using both processors
-of the Tigon in parallel.
+Hi,
 
-There is other work which has modified the Alteon firmware to do, for
-example, segmentation and reassembly (Underwood et al.), and further
-work in progress on other topics.
+the following patch makes use of the fact that refill_inactive()
+now calls swap_out() before calling refill_inactive_scan() and
+the fact that the inactive_dirty list is now reclaimed in a fair
+LRU order.
 
-Programmable NICs are fun.  I'd like to get one of those Tigon3 cards
-to see if any of the register layout on the Tigon2 is still there,
-hoping the interface is similar at least.
+Background scanning can now be replaced by a simple call to
+refill_inactive(), instead of the refill_inactive_scan(), which
+gave mapped pages an unfair advantage over unmapped ones.
 
-		-- Pete
+The special-casing of the amount to scan in refill_inactive_scan()
+is removed as well, there's absolutely no reason we'd need it with
+the current VM balance.
+
+regards,
+
+Rik
+--
+
+
+--- linux-2.4.6-pre3/mm/vmscan.c.orig	Thu Jun 14 12:28:03 2001
++++ linux-2.4.6-pre3/mm/vmscan.c	Fri Jun 15 11:55:09 2001
+@@ -695,13 +695,6 @@
+ 	int page_active = 0;
+ 	int nr_deactivated = 0;
+
+-	/*
+-	 * When we are background aging, we try to increase the page aging
+-	 * information in the system.
+-	 */
+-	if (!target)
+-		maxscan = nr_active_pages >> 4;
+-
+ 	/* Take the lock while messing with the list... */
+ 	spin_lock(&pagemap_lru_lock);
+ 	while (maxscan-- > 0 && (page_lru = active_list.prev) != &active_list) {
+@@ -978,7 +971,7 @@
+ 			recalculate_vm_stats();
+
+ 			/* Do background page aging. */
+-			refill_inactive_scan(DEF_PRIORITY, 0);
++			refill_inactive(GFP_KSWAPD, 0);
+ 		}
+
+ 		run_task_queue(&tq_disk);
+

@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbUB0RqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 12:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263068AbUB0RqJ
+	id S263078AbUB0Rvf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 12:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263068AbUB0Rvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 12:46:09 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:24028 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263064AbUB0RpC convert rfc822-to-8bit (ORCPT
+	Fri, 27 Feb 2004 12:51:35 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:37298 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S263089AbUB0RuH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 12:45:02 -0500
-content-class: urn:content-classes:message
+	Fri, 27 Feb 2004 12:50:07 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 27 Feb 2004 17:50:03 -0000
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Why no interrupt priorities?
-Date: Fri, 27 Feb 2004 09:44:44 -0800
-Message-ID: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Why no interrupt priorities?
-Thread-Index: AcP9GrRf3jY94efATaGcszL17lzFiQAOsadw
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Helge Hafting" <helgehaf@aitel.hist.no>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Feb 2004 17:44:45.0560 (UTC) FILETIME=[63409780:01C3FD59]
+Subject: Re: 2.6.3 - 8139too timeout debug info
+Message-ID: <403F834B.8112.2443EF92@localhost>
+In-reply-to: <200402271040.20721.lkml@lpbproductions.com>
+References: <403F7EEF.4124.2432E62F@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Helge Hafting [mailto:helgehaf@aitel.hist.no] 
-> Grover, Andrew wrote:
-> > Is the assumption that hardirq handlers are superfast also 
-> the reason
-> > why Linux calls all handlers on a shared interrupt, even if 
-> the first
-> > handler reports it was for its device?
-> > 
-> No, it is the other way around.  hardirq handlers have to be superfast
-> because linux usually _have to_ call all the handlers of a shared irq.
+> If your using acpi , boot up with either
+> acpi=ht
+> or
+> acpi=nopci
 > 
-> The fact that one device did indeed have an interrupt for us 
-> doesn't mean
-> that the others didn't.  So all of them have to be checked to be safe.
+> 
+> Matt H.
 
-If a device later in the handler chain is also interrupting, then the
-interrupt will immediately trigger again. The irq line will remain
-asserted until nobody is asserting it.
+I do not have apci compiled.
 
-If the LAST guy in the chain is the one with the interrupt, then you
-basically get today's ISR "call each handler" behavior, but it should be
-possible to in some cases to get less time spent in do_IRQ.
+# Power management options (ACPI, APM)
+#
+# CONFIG_PM is not set
 
-It is a trivial change to implement this behavior, but benchmarking
-would have to be done to verify it really would be a worthwhile
-optimization.
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+# CONFIG_ACPI is not set
 
-Regards -- Andy
+Also I forgot to mention, 'noapic' makes no difference either.
+
+Nick
+
+-- 
+"When you're chewing on life's gristle,
+Don't grumble,
+Give a whistle
+And this'll help things turn out for the best."
+

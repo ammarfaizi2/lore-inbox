@@ -1,80 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265150AbTLaPBy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 10:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbTLaPBy
+	id S265161AbTLaPFv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 10:05:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbTLaPFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 10:01:54 -0500
-Received: from mail.aei.ca ([206.123.6.14]:12780 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S265150AbTLaPBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 10:01:51 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
+	Wed, 31 Dec 2003 10:05:50 -0500
+Received: from postbode01.zonnet.nl ([62.58.50.88]:59316 "EHLO
+	postbode01.zonnet.nl") by vger.kernel.org with ESMTP
+	id S265161AbTLaPFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 10:05:48 -0500
+From: S Ait-Kassi <sait-kassi@zonnet.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0 - Watchdog patches (BK consistency checks)
-Date: Wed, 31 Dec 2003 10:01:48 -0500
-User-Agent: KMail/1.5.93
-Cc: Andy Isaacson <adi@hexapodia.org>
-References: <20030906125136.A9266@infomag.infomag.iguana.be> <200312300836.16559.edt@aei.ca> <20031230131350.A32120@hexapodia.org>
-In-Reply-To: <20031230131350.A32120@hexapodia.org>
+Subject: VESA fb weirdness in 2.6.0 kernel
+Date: Wed, 31 Dec 2003 16:07:38 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200312311001.48154.edt@aei.ca>
+Message-Id: <200312311607.38342.sait-kassi@zonnet.nl>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.1; VDF: 6.23.0.1; host: postbode01.zonnet.nl)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 30, 2003 02:13 pm, Andy Isaacson wrote:
-> On Tue, Dec 30, 2003 at 08:36:15AM -0500, Ed Tomlinson wrote:
-> > On December 29, 2003 07:49 pm, Matthias Andree wrote:
-> > > Well, talk about FAAAAAAST drives (10,025/min SCSI kind) unless you
-> > > have time to waste on all those BK consistency checks (which are, of
-> > > course, what #3 is all about).
-> > >
-> > > Or am I missing some obvious short cut?
-> >
-> > Is there a way to tell BK when to do consistency checks?  Here they
-> > easily take 15-20 min each time.  I would love to be able to tell BK
-> > to defer these checks.
+Hi,
+
+I'm having the same problem that has come to mention before in the mailing 
+list but hasn't been fixed since.
+
+I have been having the problem since a late 2.5 kernel (2.5.70 I believe) 
+before that I was using a 2.4 kernel with vesafb and didn't have any 
+complaints. The most apparent occurrence of the problem for me is when 
+running mc (Midnight Commander). The blue blackground isn't drawn in the 
+parts where there is no text. When using mcedit this comes all the more clear 
+and  particularly when scrolling is done. The space which hasn't got any text 
+is replaced with RGB pixels (looks grey from a distance). If you jump back 
+from one console and back again the screen is redrawn correctly.
+
+I checked if using ypan, ywrap or redraw would make a difference and also
+passed the other options through (mtrr,nomtrr ect.). Checked if the options 
+where taken by checking dmesg which was indeed the case. But I found that the 
+problem still continued to occur. It am using a resolution of 1024x768x24 
+(0x318). 
+
+I thought that maybe the redraw wasn't working since the redraw was faster 
+than under 2.4 allbut the problem mentioned in 2.6  and I thought it might be 
+using ypan by mistake. But since my card seems to handly ypan and ywrap under 
+2.4 I do  think that the cause lies in the vesafb implementation in the 2.6 
+kernel.
+
+The only other overlap I found was with the author of the following message to 
+the mailing list concerning the same problem I believe is the use of an ATI 
+card. His was a Radeon 7000 mine is a Radeon 9500.
+
+Here is and excerpt of the message:
+
+>"VESA fb weirdness in 2.6.0-test4-mm4"
+From: Petr Baudis
+>Date: Sun Aug 31 2003 - 08:36:36 EST
 >
-> The consistency check definitely should not take 15 minutes.  It should
-> be (much) less than 30 seconds.  What is the hardware you're running on?
->
-> I'm running on an Athlon 2 GHz (XP 2400+) with 512MB and a 7200RPM IDE
-> disk, and I can do a complete clone (with full data copy and consistency
-> check) of the 2.4 tree in 1:40.  That was with cold caches; with the
-> sfile copies and "checkout:get", a half-gig isn't enough to cache
-> everything.  The consistency check is about 19 seconds (bk -r check -acv).
+>when using VESA fb on 2.6.0-test4-mm4, some areas of the screen, in
+>particular those which have background set but space on that spot (or other
+>blank character), the area is drawn with thin vertical lines of other color
+>over them (bluespace is shown as magenta with thin cyan lines over it, 
+>redspace
+>is shown as darkgreen with darkred lines over it). Ie. in menuconfig, the 
+>blue
+>background shows such an effect, as well as the active item highlight in mutt
+>mails list.
 
-Its not a fast box.  Its an old K6-III 400 with 512MB with UDMA2 harddrives.
+I'm already compiling different kernels to see where the problem started and 
+have been looking in to the source to see if I can make sense of the changes.
+Too bad that the console and vesa parts have been seperated making it a lot
+harder for a novice like myself to find the cause. I'll be back on this if I 
+find out more.
 
-> If you keep all your trees on one filesystem, you can use "bk clone -l"
-> to make hard-links for the s. files.  This means you can create a
-> complete copy of the tree in about 6 MB, in 40 seconds or so.  BK is
-> very careful to check the links and break them when necessary.
+Regards,
 
-I use -ql for clones
+S Ait-Kassi
 
-> To save diskspace, you can turn off "checkout:get", like so:
->
-> --- 1.4/BitKeeper/etc/config    Tue Dec 30 12:16:44 2003
-> +++ edited/BitKeeper/etc/config Tue Dec 30 12:13:53 2003
-> @@ -3,4 +3,3 @@
->  logging: logging@openlogging.org
->  email: torvalds@transmeta.com
->  [davem]checkout:none
-> -[]checkout:get
->
-> (Or, add a [$USER]checkout:none line if that is easier.)
->
-> If the consistency check is problematic, let's fix that problem -- don't
-> turn it off, it's valuable.  It's found IDE corruption, it's found BK
-> bugs, it's found users who move s. files around behind BK's back.
-
-I am not saying I do not want do have consistency checks done.  I do want
-to control _when_ and how often they run
-
-Ed

@@ -1,39 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264641AbUFGQlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264923AbUFGQl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264641AbUFGQlP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 12:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUFGQlO
+	id S264923AbUFGQl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 12:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbUFGQl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 12:41:14 -0400
-Received: from zero.aec.at ([193.170.194.10]:15364 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264641AbUFGQlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 12:41:09 -0400
-To: <ingo@pyrillion.org>
-cc: j.dittmer@portrix.net, linux-kernel@vger.kernel.org
-Subject: Re: new icc kernel patch available (with kernel PGO)
-References: <24uHQ-6XR-49@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 07 Jun 2004 18:40:50 +0200
-In-Reply-To: <24uHQ-6XR-49@gated-at.bofh.it> (ingo@pyrillion.org's message
- of "Mon, 07 Jun 2004 18:00:22 +0200")
-Message-ID: <m3fz972uel.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 7 Jun 2004 12:41:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31492 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264923AbUFGQlw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 12:41:52 -0400
+Date: Mon, 7 Jun 2004 17:41:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Greg Weeks <greg.weeks@timesys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4] jffs2 aligment problems
+Message-ID: <20040607174147.I28526@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Greg Weeks <greg.weeks@timesys.com>, linux-kernel@vger.kernel.org
+References: <40C484F9.20504@timesys.com> <200406071736.53101.tglx@linutronix.de> <Pine.LNX.4.58.0406070900010.6162@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0406070900010.6162@ppc970.osdl.org>; from torvalds@osdl.org on Mon, Jun 07, 2004 at 09:03:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<ingo@pyrillion.org> writes:
+On Mon, Jun 07, 2004 at 09:03:07AM -0700, Linus Torvalds wrote:
+> On Mon, 7 Jun 2004, Thomas Gleixner wrote:
+> >
+> > On Monday 07 June 2004 17:08, Greg Weeks wrote:
+> > > This fixed some jffs2 alignment problems we saw on an IXP425 based
+> > > XScale board. I just got pinged that I was supposed to post this patch
+> > > in case anyone else finds it usefull. This was against a modified 2.4.19
+> > > kernel.
+> > 
+> > Enable CONFIG_ALIGNMENT_TRAP instead of tweaking the code. 
+> > JFFS2 / MTD must be allowed to do unaligned access
+> 
+> Wrong.
+> 
+> Pleas fix jffs2 to use the proper "get_unaligned()"/"put_unaligned()"
+> instead.
+> 
+> Emulating unaligned accesses with traps (even even the architecture
+> supports it, which isn't universally true) is _stupid_ when we have
+> perfectly well-defined macros for them that do it faster and are
+> _designed_ for this.
+> 
+> On architectures where it doesn't matter, the macros just do the access,
+> so it's not like you're slowing anything down.
+> 
+> 		Linus
 
-> I published some preliminary results in the German Linux Magazine, which
-> are copyrighted now. Sorry.
-> Some hints: maximum performance gain approx. 40%, avg. perf. gain:
-> approx. 8%; computed by LMBench+OProfile (accurate CPU cycle
-> measurement, 10us timer resolution).
+I'll let you have a bun fight with dwmw2 and networking people over
+this.  I'm standing well clear. 8)
 
-These were with profiling feedback, right? What training set did
-you use for it?
+[Added dwmw2 and dropped linux-arm-kernel]
 
--Andi
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264798AbTFLHHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 03:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264799AbTFLHHJ
+	id S264772AbTFLHIL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 03:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbTFLHIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 03:07:09 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:49800 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264798AbTFLHHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 03:07:05 -0400
-Date: Thu, 12 Jun 2003 12:57:07 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
+	Thu, 12 Jun 2003 03:08:11 -0400
+Received: from ip-86-245.evc.net ([212.95.86.245]:23193 "EHLO hal9003.1g6.biz")
+	by vger.kernel.org with ESMTP id S264772AbTFLHIB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 03:08:01 -0400
+From: Nicolas <linux@1g6.biz>
+Organization: 1G6
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: 536EP linux winmodem
+Date: Thu, 12 Jun 2003 09:24:30 +0200
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patchset] Fix mishandling of error/exit patchs in 2.5 --3/3 es1371
-Message-ID: <20030612072705.GJ1146@llm08.in.ibm.com>
-References: <20030612071330.GG1146@llm08.in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <Sea2-F56iZAtGYkNUTv0001fda1@hotmail.com> <200306101642.05357.linux@1g6.biz> <20030611195403.GB477@elf.ucw.cz>
+In-Reply-To: <20030611195403.GB477@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20030612071330.GG1146@llm08.in.ibm.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200306120924.30928.linux@1g6.biz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- linux-2.5.70-bk/sound/oss/es1371.c	2003-06-11 20:56:33.000000000 +0530
-+++ bklatest/sound/oss/es1371.c	2003-06-11 23:13:06.000000000 +0530
-@@ -2853,13 +2853,13 @@
- 	printk(KERN_INFO PFX "found es1371 rev %d at io %#lx irq %u joystick %#x\n",
- 	       s->rev, s->io, s->irq, s->gameport.io);
- 	/* register devices */
--	if ((res=(s->dev_audio = register_sound_dsp(&es1371_audio_fops,-1))<0))
-+	if ((res=(s->dev_audio = register_sound_dsp(&es1371_audio_fops,-1)))<0)
- 		goto err_dev1;
--	if ((res=(s->codec.dev_mixer = register_sound_mixer(&es1371_mixer_fops, -1)) < 0))
-+	if ((res=(s->codec.dev_mixer = register_sound_mixer(&es1371_mixer_fops, -1))) < 0)
- 		goto err_dev2;
--	if ((res=(s->dev_dac = register_sound_dsp(&es1371_dac_fops, -1)) < 0))
-+	if ((res=(s->dev_dac = register_sound_dsp(&es1371_dac_fops, -1))) < 0)
- 		goto err_dev3;
--	if ((res=(s->dev_midi = register_sound_midi(&es1371_midi_fops, -1))<0 ))
-+	if ((res=(s->dev_midi = register_sound_midi(&es1371_midi_fops, -1)))<0 )
- 		goto err_dev4;
- #ifdef ES1371_DEBUG
- 	/* initialize the debug proc device */
+
+You have access to a part of the sources :(
+
+http://linmodems.technion.ac.il/packages/Intel/
+
+but there is a big "536epcore.lib", 
+I don't know if it is workable in a 2.5 kernel ...
+I was just trying to compile the source part and it doesn't
+because of irq related stuffs at this time.
+
+Maybe I'm too naive, and 
+536epcore.lib is a big problem...
+
+Nicolas.
+
+Le Mercredi 11 Juin 2003 21:54, Pavel Machek a écrit :
+> Hi!
+>
+> > Sorry to disturb with a winmodem ...
+> > don't flame me please !
+> >
+> > Is there somebody having a working 536EP linux modem driver
+> > on 2.5.xx series ?, I began to port the old
+> > driver but with many irq problems related stuff, just
+> > compilation stage at this time ... :(
+>
+> Do you have driver sources?
+> 								Pavel
+>
+> > 00:0a.0 Communication controller: Intel Corp. 536EP Data Fax Modem
+> >         Subsystem: Creatix Polymedia GmbH V.9X DSP Data Fax Modem
+> >         Flags: bus master, medium devsel, latency 32, IRQ 17
+> >         Memory at e8000000 (32-bit, non-prefetchable) [size=4M]
+> >         Capabilities: <available only to root>
+

@@ -1,74 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTDYRvI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 13:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbTDYRvI
+	id S263487AbTDYRrl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 13:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDYRrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 13:51:08 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30985 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263597AbTDYRvG
+	Fri, 25 Apr 2003 13:47:41 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:33668 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263487AbTDYRrj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 13:51:06 -0400
-Date: Fri, 25 Apr 2003 13:55:03 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Hanna Linder <hannal@us.ibm.com>, jw schultz <jw@pegasys.ws>
-cc: lse-tech@lists.sourceforge.net,
+	Fri, 25 Apr 2003 13:47:39 -0400
+Date: Fri, 25 Apr 2003 10:59:29 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Werner Almesberger <wa@almesberger.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pat Suwalski <pat@suwalski.net>, Jamie Lokier <jamie@shareable.org>,
+       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LSE conference call
-In-Reply-To: <20030423011320.GG21518@pegasys.ws>
-Message-ID: <Pine.LNX.3.96.1030425134717.16623B-100000@gatekeeper.tmr.com>
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <427040000.1051293569@[10.10.2.4]>
+In-Reply-To: <20030425144449.X3557@almesberger.net>
+References: <20030423231149.I3557@almesberger.net>
+ <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net>
+ <20030424071439.GB28253@mail.jlokier.co.uk>
+ <20030424103858.M3557@almesberger.net>
+ <20030424213632.GK30082@mail.jlokier.co.uk>
+ <20030424205515.T3557@almesberger.net> <3EA87BE1.1070107@suwalski.net>
+ <20030425074116.V3557@almesberger.net>
+ <1051265094.5573.8.camel@dhcp22.swansea.linux.org.uk>
+ <20030425144449.X3557@almesberger.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Apr 2003, Hanna Linder wrote:
-
+>> The OSS audio drivers ac97 code now starts up with record muted. 
 > 
-> In light of our speaker sleeping through the meeting and
-> the fact that kernel hackers tend not to be awake early
-> in the morning I propose moving the time of the call to
-> 1pm Pacific Time (GMT-0800). 
+> Okay, so I guess this will then cover all cases ? (Changebar
+> marks OSS addition.)
 > 
-> Originally we chose 9:30am to encourage people in Europe and 
-> India to attend. However, the time change has not increased 
-> attendance so I think we should move it to a more reasonable 
-> time for North American Continental dwellers who are the 
-> main attendees.
+>   ALSA (Advanced Linux Sound Architecture) is now the preferred
+>   architecture for sound support, instead of the older OSS (Open
+>   Sound System). Note that, in ALSA, all volume settings default
+>| to zero, and all channels default to being "muted". Also some
+>| OSS drivers in 2.5 initialize certain mixer settings to zero.
+>   
+>   User space therefore needs to explicitly increase the volume,
+>   and "unmute" the respective audio channels before any sound
+>   can be heard.
+>   
+>   Mixers not explicitly supporting the "mute" functionality will
+>   usually "unmute" sources when setting the volume to a value
+>   above zero.
+>   
+>   More information about ALSA, including configuration and OSS
+>   compatibility, can be found in Documentation/sound/alsa/
 > 
-> Any comments? Debate? Hate mail?
+> (I guess a simpler rule would be "if there's no sound, check the
+> mixer - and you don't want to know why you have to do this" :-)
 
-Must have been really short, I missed it coming in a tad late. In any
-case, NY is nicely in the middle between CA and Europe, so any time good
-on the ends will be fine here.
+BTW, I realised there's a much simpler solution to the "but there's no
+sound coming out" problem .... xmms and friends should just give the user a
+warning on startup (or on play) if the main volume or pcm channel is at 0
+(or muted).
 
-
-On Tue, 22 Apr 2003, jw schultz wrote:
-
-> On Tue, Apr 22, 2003 at 06:49:41PM +0100, John Bradford wrote:
-> > > In light of our speaker sleeping through the meeting and
-> > > the fact that kernel hackers tend not to be awake early
-> > > in the morning I propose moving the time of the call to
-> > > 1pm Pacific Time (GMT-0800). 
-> > 
-> > 10 PM U.K. time is no problem for me.
-> 
-> I think Hanna meant 1:00PM PDT (GMT-0700)  With UK on DST it
-> is still 8 hours difference.  I think that also puts it
-> around 6-8AM down under.
-
-Please just give time in GMT and let us work it out! Between time zones
-and daylight savings it's more confusing than useful.
-
-Last week I went to Arizona from New York. It went like this: Sunday
-morning 1hr forward for DST. Sunday later, 2hr back for central timezone. 
-Sunday later 1hr more back, Arizona doesn't do DST, except... Monday, 1hr
-forward again, the Navaho nation in AZ does do DST. At that point I set my
-watch to GMT and told local time by the sun! Oh well, lots of brewpubs,
-it's always time for a beer. 
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+M.
 

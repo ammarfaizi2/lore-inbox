@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129791AbRBVGX3>; Thu, 22 Feb 2001 01:23:29 -0500
+	id <S129134AbRBVHCb>; Thu, 22 Feb 2001 02:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130144AbRBVGXT>; Thu, 22 Feb 2001 01:23:19 -0500
-Received: from mail.valinux.com ([198.186.202.175]:14860 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S129791AbRBVGXN>;
-	Thu, 22 Feb 2001 01:23:13 -0500
-To: phillips@innominate.de
-CC: Linux-kernel@vger.kernel.org, adilger@turbolinux.com, hch@ns.caldera.de,
-        ext2-devel@lists.sourceforge.net
-In-Reply-To: <01022020011905.18944@gimli> (message from Daniel Phillips on
-	Tue, 20 Feb 2001 16:04:50 +0100)
-Subject: Re: [Ext2-devel] [rfc] Near-constant time directory index for Ext2
-From: tytso@valinux.com
-Phone: (781) 391-3464
-In-Reply-To: <01022020011905.18944@gimli>
-Message-Id: <E14Vp9h-0001IB-00@beefcake.hdqt.valinux.com>
-Date: Wed, 21 Feb 2001 22:23:09 -0800
+	id <S129232AbRBVHCU>; Thu, 22 Feb 2001 02:02:20 -0500
+Received: from viper.haque.net ([64.0.249.226]:3968 "EHLO viper.haque.net")
+	by vger.kernel.org with ESMTP id <S129134AbRBVHCR>;
+	Thu, 22 Feb 2001 02:02:17 -0500
+Date: Thu, 22 Feb 2001 02:02:16 -0500 (EST)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: EXT2-fs error
+Message-ID: <Pine.LNX.4.32.0102220159390.1925-100000@viper.haque.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel,
+I got the following after compiling/rebooting into 2.4.2 and forcing a
+fsck.
 
-Nice work!
+EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory
+#508411: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0,
+name_len=0
+EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory
+#508411: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0,
+name_len=0
 
-A couple of comments.  If you make the beginning of each index block
-look like a an empty directory block (i.e, the first 8 blocks look like
-this):
+Possibly the result of the 'silent' bug in 2.4.1?
 
-	32 bits: ino == 0
-	16 bits: rec_len == blocksize
-	16 bits: name_len = 0
+-- 
 
-... then you will have full backwards compatibility, both for reading
-*and* writing.  When reading, old kernels will simply ignore the index
-blocks, since it looks like it has an unpopulated directory entry.  And
-if the kernel attempts to write into the directory, it will clear the
-BTREE_FL flag, in which case new kernels won't treat the directory as a
-tree anymore.  (Running a smart e2fsck which knows about directory trees
-will be able to restore the tree structure).
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
 
-Is it worth it?  Well, it means you lose an index entry from each
-directory block, thus reducing your fanout at each node of the tree by a
-worse case of 0.7% in the worst case (1k blocksize) and 0.2% if you're
-using 4k blocksizes.
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 
-						- Ted
 

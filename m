@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbUBTQmP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 11:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbUBTQmP
+	id S261339AbUBTQzi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 11:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbUBTQzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 11:42:15 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:20116 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261309AbUBTQmO (ORCPT
+	Fri, 20 Feb 2004 11:55:38 -0500
+Received: from ns.suse.de ([195.135.220.2]:31375 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261339AbUBTQze (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 11:42:14 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 20 Feb 2004 16:42:11 -0000
+	Fri, 20 Feb 2004 11:55:34 -0500
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, jun.nakajima@intel.com,
+       tom.l.nguyen@intel.com, tony.luck@intel.com
+Subject: Re: [PATCH]2.6.3-rc2 MSI Support for IA64
+References: <200402201747.i1KHlnqU005488@snoqualmie.dp.intel.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: YOW!!  Now I understand advanced MICROBIOLOGY
+ and th' new TAX REFORM laws!!
+Date: Fri, 20 Feb 2004 17:54:44 +0100
+In-Reply-To: <200402201747.i1KHlnqU005488@snoqualmie.dp.intel.com> (long's
+ message of "Fri, 20 Feb 2004 09:47:49 -0800")
+Message-ID: <jeeksp4ror.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Subject: Re: 2.6.3 RT8139too NIC problems
-Message-ID: <403638E3.7864.9E7B698@localhost>
-In-reply-to: <40353D2C.2050406@pobox.com>
-References: <4034E88C.24740.4C5D4B6@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Linux233 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-> > Linux233 kernel: eth1: link up, 10Mbps, half-duplex, lpa 0x0000
-> > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > Linux233 kernel: nfs: server 486Linux OK
-> > Linux233 kernel: nfs: server 486Linux OK
-> > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > Linux233 kernel: nfs: server 486Linux OK
-> 
-> 
-> This is usually irq routing related...  Try booting with 'noapic' or 
-> similar.
+long <tlnguyen@snoqualmie.dp.intel.com> writes:
 
-I don't have apic built in the kernel.  This has only started to 
-happen on 2.6.3.  As I said, on all other kernels, 2.4.x, 2.6.0, 
-2.6.1, 2.6.2 these NIC are OK.
+> @@ -316,6 +310,19 @@
+>  	return current_vector;
+>  }
+>  
+> +int ia64_alloc_vector(void)
+> +{
+> +	static int next_vector = IA64_FIRST_DEVICE_VECTOR;
+> +
+> +	if (next_vector > IA64_LAST_DEVICE_VECTOR)
+> +		/* XXX could look for sharable vectors instead of panic'ing... */
+> +		panic("ia64_alloc_vector: out of interrupt vectors!");
+> +
+> +	nr_alloc_vectors++;
+> +
+> +	return next_vector++;
+> +}
+> +
 
-With 2.6.3 my logs are now riddled with these messages (and the 
-period is totally random - sometimes 10 times in an hour), and I lose 
-connectivity during these periods.
+IMHO this should be CONFIG_IA64 only.
 
-I will be booting back into 2.6.2 tonight until I can resolve this.
-
-Nick
+Andreas.
 
 -- 
-"I am not Spock", said Leonard Nimoy.
-"And it is highly illogical of humans to assume so."
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,91 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263048AbTHVHcu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 03:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTHVHbk
+	id S263043AbTHVHct (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 03:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbTHVHbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 03:31:40 -0400
-Received: from catv-50624ad9.szolcatv.broadband.hu ([80.98.74.217]:28547 "EHLO
-	boszi-lnx.localdomain") by vger.kernel.org with ESMTP
-	id S263036AbTHVHCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 03:02:45 -0400
-Message-ID: <3F45C012.9080903@freemail.hu>
-Date: Fri, 22 Aug 2003 09:02:42 +0200
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, hu
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to use an USB<->serial adapter?
-References: <3F44BEA2.8010108@freemail.hu> <20030821170822.GA3584@kroah.com>
-In-Reply-To: <20030821170822.GA3584@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 22 Aug 2003 03:31:31 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:20751 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262990AbTHVG7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 02:59:22 -0400
+Date: Fri, 22 Aug 2003 03:58:39 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Kai Germaschewski <kkeil@suse.de>
+Subject: [PATCH][resend] 3/13 2.4.22-rc2 fix __FUNCTION__ warnings
+ drivers/isdn/hisax
+Message-Id: <20030822035839.5ddc8e81.vmlinuz386@yahoo.com.ar>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Aug 21, 2003 at 02:44:18PM +0200, Boszormenyi Zoltan wrote:
-> 
->>Hi,
->>
->>I am experimenting with a Prolific USB<->RS232 adaptor. We have
->>in-house developments that need serial communication and there
->>are more and more mainboards that provide only one RS232 connector.
->>(We would need more in one machine...)
->>So we decided to try an usb-serial converter. The one we bought
->>was happily recognized by a RedHat 9 system but I couldn't get
->>two-way communication over this converter.
-> 
-> 
-> Which kernel version are you using?
+Hi people,
+this patch fix the warning: concatenation of string literals with __FUNCTION__ is deprecated
 
-RH9 errata kernel 2.4.20-19.9, I also tried 2.6.0-test3-mm3.
-On a sidenote, I also tried its driver on W98SE, WinXP.
-Same result with the MinGW compiled test programs.
+ st5481.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-> I didn't run your test programs, but are you sure you got the hardware
-> flow control settings correct?  How about testing the device with
+--- linux-2.4.22-rc2/drivers/isdn/hisax/st5481.h	2003-06-13 11:51:34.000000000 -0300
++++ linux-2.4.22-rc2-fix/drivers/isdn/hisax/st5481.h	2003-08-21 00:08:28.000000000 -0300
+@@ -219,13 +219,13 @@
+ #define L1_EVENT_COUNT (EV_TIMER3 + 1)
+ 
+ #define ERR(format, arg...) \
+-printk(KERN_ERR __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_ERR __FILE__ ": %s: " format "\n" , __FUNCTION__ , ## arg)
+ 
+ #define WARN(format, arg...) \
+-printk(KERN_WARNING __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_WARNING __FILE__ ": %s: " format "\n" , __FUNCTION__ , ## arg)
+ 
+ #define INFO(format, arg...) \
+-printk(KERN_INFO __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_INFO __FILE__ ": %s: " format "\n" , __FUNCTION__ , ## arg)
+ 
+ #include "isdnhdlc.h"
+ #include "fsm.h"
 
-Hmm, how comes the same settings *work* on real 16550?
-Even under Win*, with the MinGW compiled testprograms...
+ciao,
+ djgera
 
-> minicom, as that is a program that is known to work properly with these
-> devices (along with lots of other ones, but that's a good place to
-> start.)
-
-I tried it now, thanks. Same thing happens. I set up two different
-minirc, /etc/minirc.dfl using /dev/ttyS0 and /etc/minirc.usb
-for /dev/ttyUSB0. In one terminal, I typed 'minicom', in another
-'minicom usb'. In the 'minicom usb' what I type, appears in the
-other window, but keys typed in the 'minicom' do not appear in
-'minicom usb'.
-
-I am starting to be convinced that it is a hardware flaw.
-I will try to replace it.
-
->>setserial produces an error:
->>
->># setserial /dev/ttyUSB0
->>Cannot get serial info: Invalid argument
-> 
-> 
-> Yes, setserial does not work with the majority of the usb-serial
-> drivers, patches gladly accepted to fix this :)
-
-I wasn't prepared to this answer. ;-)
-
-> 
-> thanks,
-> 
-> greg k-h
 
 -- 
-Best regards,
-Zoltán Böszörményi
-
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
-
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

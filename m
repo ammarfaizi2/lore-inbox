@@ -1,35 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268334AbUIBTYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268341AbUIBT2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268334AbUIBTYP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268341AbUIBTYP
+	id S268341AbUIBT2h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUIBT2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:24:15 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:60560 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268334AbUIBTYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:24:14 -0400
-Subject: Re: kernel bug: 2.6.8.1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Piotr Banasik <piotr@t-p-l.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409021158.15192.piotr@t-p-l.com>
-References: <200409021158.15192.piotr@t-p-l.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094149325.5726.4.camel@localhost.localdomain>
+	Thu, 2 Sep 2004 15:28:37 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:37320 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268341AbUIBT2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 15:28:33 -0400
+Date: Thu, 2 Sep 2004 12:28:20 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] i386 reduce spurious interrupt noise
+Message-ID: <20040902192820.GA6427@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 19:22:06 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-02 at 19:58, Piotr Banasik wrote:
-> [1.] One line summary of the problem:  
-> abnormaly slow download speeds (~10k/s)
-> [2.] Full description of the problem/report: 
-> any download .. for example: 
-> http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.1.tar.bz2 .. is throttled 
-> down to 10k/s
+i386 hardware can (and does) see spurious interrupts from time to
+tome.  Ideally I would like the printk removed completely but this is
+probably good enough for now.
 
-See http://lwn.net/Articles/92727/
+Singed-of-By: Chris Wedgwood <cw@f00f.org>
+
+===== arch/i386/kernel/apic.c 1.58 vs edited =====
+--- 1.58/arch/i386/kernel/apic.c	2004-08-26 23:30:31 -07:00
++++ edited/arch/i386/kernel/apic.c	2004-09-02 12:19:19 -07:00
+@@ -1190,7 +1190,7 @@
+ 	   6: Received illegal vector
+ 	   7: Illegal register address
+ 	*/
+-	printk (KERN_INFO "APIC error on CPU%d: %02lx(%02lx)\n",
++	printk (KERN_DEBUG "APIC error on CPU%d: %02lx(%02lx)\n",
+ 	        smp_processor_id(), v , v1);
+ 	irq_exit();
+ }
+===== arch/i386/kernel/i8259.c 1.36 vs edited =====
+--- 1.36/arch/i386/kernel/i8259.c	2004-08-23 12:48:32 -07:00
++++ edited/arch/i386/kernel/i8259.c	2004-09-02 12:20:49 -07:00
+@@ -226,7 +226,7 @@
+ 		 * lets ACK and report it. [once per IRQ]
+ 		 */
+ 		if (!(spurious_irq_mask & irqmask)) {
+-			printk("spurious 8259A interrupt: IRQ%d.\n", irq);
++			printk(KERN_DEBUG "spurious 8259A interrupt: IRQ%d.\n", irq);
+ 			spurious_irq_mask |= irqmask;
+ 		}
+ 		atomic_inc(&irq_err_count);
+
+

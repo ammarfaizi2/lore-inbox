@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130339AbRBBWjB>; Fri, 2 Feb 2001 17:39:01 -0500
+	id <S130397AbRBBWjL>; Fri, 2 Feb 2001 17:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbRBBWiv>; Fri, 2 Feb 2001 17:38:51 -0500
-Received: from arthur.runestig.com ([195.67.47.226]:28432 "EHLO
-	arthur.runestig.com") by vger.kernel.org with ESMTP
-	id <S130339AbRBBWik>; Fri, 2 Feb 2001 17:38:40 -0500
-Message-ID: <003e01c08d68$fd5b53f0$0201010a@runestig.com>
-From: "Peter 'Luna' Runestig" <peter@runestig.com>
-To: "Linux Kernel Mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <003c01c08633$9839c1f0$0201010a@runestig.com>
-Subject: Re: PROBLEM: 2.2.19pre7 opps on low mem machine
-Date: Fri, 2 Feb 2001 23:39:22 +0100
+	id <S130467AbRBBWjB>; Fri, 2 Feb 2001 17:39:01 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:61201 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S130397AbRBBWir>; Fri, 2 Feb 2001 17:38:47 -0500
+Message-ID: <3A7B2F7C.52AA6AFA@namesys.com>
+Date: Sat, 03 Feb 2001 01:06:52 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Ion Badulescu <ionut@moisil.cs.columbia.edu>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com, Jan Kasprzak <kas@informatics.muni.cz>
+Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink 
+ related)
+In-Reply-To: <E14OoD8-0007GI-00@the-village.bc.nu>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Peter 'Luna' Runestig" <peter@runestig.com>
-To: "Linux Kernel Mailing list" <linux-kernel@vger.kernel.org>
-Sent: Wednesday, January 24, 2001 7:29 PM
-Subject: PROBLEM: 2.2.19pre7 opps on low mem machine
+Alan Cox wrote:
+> 
+> > As it stands, there is no way to determine programatically whether
+> > gcc-2.96 is broken or now. The only way to do it is to check the RPM
+> > version -- which, needless to say, is a bit difficult to do from the
+> > C code about to be compiled. So I can't really blame Hans if he decides
+> > to outlaw gcc-2.96[.0] for reiserfs compiles.
+> 
+> Oh I can see why Hans wants to cut down his bug reporting load. I can also
+> say from experience it wont work. If you put #error in then everyone will
+> mail him and complain it doesnt build, if you put #warning in nobody will
+> read it and if you dont put anything in you get the odd bug report anyway.
+> 
+> Basically you can't win and unfortunately a shrink wrap forcing the user
+> to read the README file for the kernel violates the GPL ..
+> 
+> Jaded, me ?
+> 
+> Alan
 
+I fear that you are speaking from experience about the complaints it doesn't
+build, and that there is a strong element of truth in what you say.
 
-> [1.] One line summary of the problem:
-> Oops with 2.2.19pre7 on memory stressed, old PC.
->
-> [2.] Full description of the problem/report:
-> An old 486/66 with 20 Meg memory runs a a firewall at home. Probably runs
-> too much for that amount of memory (sendmail, bind, ntpd and FreeSWAN
-VPN),
-> but I can't find any more memory modules! I have gotten four or five oops
-> the last week or so (in different processes), running 2.2.18. Stepped up
-to
-> 2.2.19pre7 and hooked up a serial console two days ago, now I got one
-again.
->
-> [4.] Kernel version (from /proc/version):
-> Linux version 2.2.19pre7 (root@r2.runestig.com) (gcc version 2.95.2
-19991024
-> (release)) #1 Mon Jan 22 11:57:12 CET 2001
+That said, my opinion is that bug reporting load is not as important as bug
+avoidance, but I understand your position has merit to it also.
 
-OK, following the reiserfs/compiler thread, I can see now that my bug report
-may have been ignored since I was using a non-kosher compiler (although I
-have used it since late October -99 without any problems). Or, it might not
-have been ignored, just nobody told me he/she wasted some time on it. Since
-it seems to be hardware related; that oops wasn't the only one, and after
-some more strange behaviour, I moved the hard drive to another, almost
-identical, PC, with even less memory, 16 MB (but this one I have the chips
-to run 48 MB, but I wanted to stress it). And it's been running for a week
-now, like a clock.
-
-So, sorry for the false alarm!
-
-Cheers,
-Peter
-----------------------------------------------------------------
-Peter 'Luna' Runestig (fd. Altberg), Sweden <peter@runestig.com>
-PGP Key ID: 0xD07BBE13
-Fingerprint: 7B5C 1F48 2997 C061 DE4B  42EA CB99 A35C D07B BE13
-AOL Instant Messenger Screenname: PRunestig
-
-
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

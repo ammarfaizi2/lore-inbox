@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136137AbRD0Rhl>; Fri, 27 Apr 2001 13:37:41 -0400
+	id <S136138AbRD0RkC>; Fri, 27 Apr 2001 13:40:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136138AbRD0Rhc>; Fri, 27 Apr 2001 13:37:32 -0400
-Received: from [216.18.81.107] ([216.18.81.107]:6148 "EHLO
-	node0.opengeometry.ca") by vger.kernel.org with ESMTP
-	id <S136137AbRD0RhX>; Fri, 27 Apr 2001 13:37:23 -0400
-Date: Fri, 27 Apr 2001 13:37:28 -0400
-From: William Park <parkw@better.net>
-To: linux-kernel@vger.kernel.org
-Subject: ide.2.2.19.04092001.patch + VIA82CXXX (Abit VP6)
-Message-ID: <20010427133728.A280@better.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S136139AbRD0Rj4>; Fri, 27 Apr 2001 13:39:56 -0400
+Received: from www.wen-online.de ([212.223.88.39]:55824 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S136138AbRD0Rjb>;
+	Fri, 27 Apr 2001 13:39:31 -0400
+Date: Fri, 27 Apr 2001 19:38:34 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.21.0104260526020.2416-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0104271930070.225-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have Abit VP6 (VIA 82c694x, 82c686b) running 2.2.19 and
-ide.2.2.19.04092001.patch.  When I enable
-    VIA82CXXX chipset support (EXPERIMENTAL) -- CONFIG_BLK_DEV_VIA82CXXX 
-my machine hangs,
-    Uniform Multi-Platform E-IDE driver Revision: 6.30
-    ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-    VP_IDE: IDE controller on PCI bus 00 dev 39
-    VP_IDE: chipset revision 6
-    VP_IDE: not 100% native mode: will probe irqs later
-	ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
-	ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:pio
-    HPT370: IDE controller on PCI bus 00 dev 70
-    HPT370: chipset revision 3
-    HPT370: not 100% native mode: will probe irqs later
-	ide2: BM-DMA at 0xc000-0xc007, BIOS settings: hde:pio, hdf:pio
-	ide3: BM-DMA at 0xc008-0xc00f, BIOS settings: hdg:pio, hdh:pio
-    hda: ST315320A, ATA DISK drive
-    hdc: CD-ROM 24X/AKOx, ATAPI CDROM drive
-    ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-    ide1 at 0x170-0x177,0x376 on irq 15		<-- hangs here
+On Thu, 26 Apr 2001, Linus Torvalds wrote:
 
-Interestingly, I didn't have this problem with ide-2.2.18 patch.
+> Have you looked at "free_pte()"? I don't like that function, and it might
+> make a difference. There are several small nits with it:
 
---William Park, Open Geometry Consulting, Mississauga, Ontario, Canada.
-  8 CPUs, Linux, python, LaTeX, vim, mutt
+snip
+
+> I _think_ the logic should be something along the lines of: "freeing the
+> page amounts to a implied down-aging of the page, but the 'accessed' bit
+> would have aged it up, so the two take each other out". But if so, the
+> free_pte() logic should have something like
+>
+> 	if (page->mapping) {
+> 		if (!pte_young(pte) || PageSwapCache(page))
+> 			age_page_down_ageonly(page);
+> 		if (!page->age)
+> 			deactivate_page(page);
+> 	}
+
+Hi,
+
+I tried this out today after some more reading.
+
+virgin pre7 +Rik
+real    11m44.088s
+user    7m57.720s
+sys     0m36.420s
+
++Rik +Linus
+real    11m48.597s
+user    7m55.620s
+sys     0m37.860s
+
++Rik +Linus +HarshAging
+real    11m17.758s
+user    7m57.650s
+sys     0m36.350s
+
+None of them make much difference.
+
+	-Mike
+

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264841AbRFTFPE>; Wed, 20 Jun 2001 01:15:04 -0400
+	id <S264843AbRFTFxw>; Wed, 20 Jun 2001 01:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264842AbRFTFOx>; Wed, 20 Jun 2001 01:14:53 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64516 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264841AbRFTFOn>; Wed, 20 Jun 2001 01:14:43 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: 2.2 PATCH: check return from copy_*_user in fs/pipe.c
-Date: 19 Jun 2001 22:14:19 -0700
-Organization: Transmeta Corporation
-Message-ID: <9gpbfb$vlu$1@cesium.transmeta.com>
-In-Reply-To: <15152.4073.812901.656882@pizda.ninka.net> <20010619205924.H5679@stanford.edu>
+	id <S264846AbRFTFxn>; Wed, 20 Jun 2001 01:53:43 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:16144 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S264843AbRFTFx3>; Wed, 20 Jun 2001 01:53:29 -0400
+Reply-To: <martin.frey@compaq.com>
+From: "Martin Frey" <frey@scs.ch>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <zippel@linux-m68k.org>,
+        <tigran@veritas.com>, <hch@caldera.de>, <asun@cobaltnet.com>,
+        <mikulas@artax.karlin.mff.cuni.cz>, <jffs-dev@axis.com>,
+        <dwmw2@infradead.org>, <trond.myklebust@fys.uio.no>,
+        <aia21@cus.cam.ac.uk>, <reiserfs-dev@namesys.com>
+Cc: <baettig@scs.ch>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] large offset llseek breaks for device special files on ac series
+Date: Wed, 20 Jun 2001 01:53:08 -0400
+Message-ID: <017c01c0f94d$48e1f5e0$0100007f@SCHLEPPDOWN>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+In-Reply-To: <015e01c0f916$f9e33e30$0100007f@SCHLEPPDOWN>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010619205924.H5679@stanford.edu>,
-Zack Weinberg <zackw@Stanford.EDU> wrote:
->On Tue, Jun 19, 2001 at 07:52:25PM -0700, David S. Miller wrote:
->> 
->> Zack Weinberg writes:
->>  > It *has* been fixed in 2.4, though.  Some sort of compatibility issue?
->> 
->> No, some kind of "it doesn't matter" issue.
->
->I can demonstrate user code that behaves differently under 2.2 than
->2.4.  The example I have (appended) doesn't suffer data loss, but I
->bet I could make one that did.
+>Here is the patch.
 
-Hey, I can demonstrate user code that behaves differently depending on
-what compiler options were used etc.
+Sorry, at least most of the patch was there. Here is the rest:
 
-Hint: "undefined behaviour".
+diff -r -u -N -b linux-2.4.5.ac16/include/linux/fs.h linux-2.4.5.ac16.patched/include/linux/fs.h
+--- linux-2.4.5.ac16/include/linux/fs.h Tue Jun 19 15:12:50 2001
++++ linux-2.4.5.ac16.patched/include/linux/fs.h Tue Jun 19 18:28:47 2001
+@@ -1336,6 +1336,7 @@
+ extern void do_generic_file_read(struct file *, loff_t *, read_descriptor_t *, read_actor_t);
+ 
+ extern ssize_t generic_read_dir(struct file *, char *, size_t, loff_t *);
++extern loff_t generic_file_llseek(struct file *, loff_t, int);
+ extern int generic_file_open(struct inode *, struct file *);
+ 
+ extern struct file_operations generic_ro_fops;
+diff -r -u -N -b linux-2.4.5.ac16/kernel/ksyms.c linux-2.4.5.ac16.patched/kernel/ksyms.c
+--- linux-2.4.5.ac16/kernel/ksyms.c     Tue Jun 19 15:13:08 2001
++++ linux-2.4.5.ac16.patched/kernel/ksyms.c     Wed Jun 20 01:41:21 2001
+@@ -245,6 +245,7 @@
+ EXPORT_SYMBOL(vfs_unlink);
+ EXPORT_SYMBOL(vfs_rename);
+ EXPORT_SYMBOL(vfs_statfs);
++EXPORT_SYMBOL(generic_file_llseek);
+ EXPORT_SYMBOL(generic_read_dir);
+ EXPORT_SYMBOL(__pollwait);
+ EXPORT_SYMBOL(poll_freewait);
 
-If somebody passes in a bad pointer to a system call, you've just
-invoced the rule of "the kernel _may_ be nice to you, but the kernel
-might just consider you a moron and tell you it worked". 
 
-There is no "lost data" or anything else. You've screwed yourself, and
-you threw the data away. Don't blame the kernel.
-
-And before you say "it has to return EFAULT", check the standards, and
-think about the case of libraries vs system calls - and how do you tell
-them apart?
-
-		Linus

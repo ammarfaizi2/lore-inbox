@@ -1,83 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbUCKGvf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 01:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUCKGvf
+	id S261603AbUCKGuk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 01:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUCKGuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 01:51:35 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39648 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262905AbUCKGva (ORCPT
+	Thu, 11 Mar 2004 01:50:40 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:23493 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S261603AbUCKGuj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 01:51:30 -0500
-Date: Thu, 11 Mar 2004 07:51:19 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Itay Ben-Yaacov <pezz@math.mit.edu>
+	Thu, 11 Mar 2004 01:50:39 -0500
+Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x /
+	Crash/Freeze
+From: Len Brown <len.brown@intel.com>
+To: Richard Browning <richard@redline.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd detects wrong DVD size
-Message-ID: <20040311065119.GC6955@suse.de>
-References: <20040311050558.GA7497@pisica>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1078987834.2556.84.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311050558.GA7497@pisica>
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 11 Mar 2004 01:50:34 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11 2004, Itay Ben-Yaacov wrote:
-> 
-> Hi,
-> 
-> There appears to be a bug in ide-cd.c, which makes it unusable for
-> playing DVDs -- at some point it just stops reading.  This bug does
-> not exist when using ide-scsi (I heard reports that short DVDs are OK).
-> The reason seems to be in a wrong detected size:
-> "blockdev --getsize"   gives different results
-> with ide-cd and with ide-scsi+sr_mod, the latter being the correct
-> one.
-> 
-> I believe I tracked the problem to        "cdrom_read_toc()":
-> The following (lines 2304-2310) sets the correct capacity (line
-> numbers are from 2.6.3):
-> 
-> 
-> 
-> 	/* Try to get the total cdrom capacity and sector size. */
-> 	stat = cdrom_read_capacity(drive, &toc->capacity,
-> &sectors_per_frame,
-> 				   sense);
-> 	if (stat)
-> 		toc->capacity = 0x1fffff;
-> 
-> 	set_capacity(drive->disk, toc->capacity * sectors_per_frame);
-> 
-> 
-> 
-> But a bit later, on lines 2420-2425, it gets set again, this time to a
-> wrong value:
-> 
-> 
-> 
-> 	/* Now try to get the total cdrom capacity. */
-> 	stat = cdrom_get_last_written(cdi, &last_written);
-> 	if (!stat && last_written) {
-> 		toc->capacity = last_written;
-> 		set_capacity(drive->disk, toc->capacity *
-> sectors_per_frame);
-> 	}
+On Wed, 2004-03-10 at 07:27, Richard Browning wrote:
 
-Could have sworn this was already fixed. Change the 2nd occurence to:
+> When operating from the 
+> command line it is usual to see a Machine Check Exception error
+> immediately prior to system failure.
 
-        if (!toc->capacity || toc->capacity == 0x1fffff) {
-                stat = cdrom_get_last_written(cdi, &last_written);
-                if (!stat && last_written) {
-                        toc->capacity = last_written;
-                        set_capacity(drive->disk, toc->capacity *
-sectors_per_frame);
-                }
-        }
+details?
 
-Thanks for tracking this down and reporting.
-
--- 
-Jens Axboe
 

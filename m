@@ -1,105 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268588AbUH3RQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268590AbUH3RRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268588AbUH3RQt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUH3RQt
+	id S268590AbUH3RRk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUH3RRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:16:49 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:21969 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268578AbUH3RQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:16:40 -0400
-Subject: Re: [RFC&PATCH] Alternative RCU implementation
-From: Jim Houston <jim.houston@comcast.net>
-Reply-To: jim.houston@comcast.net
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jack Steiner <steiner@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       rusty@rustcorp.com.au
-In-Reply-To: <20040830004322.GA2060@us.ibm.com>
-References: <m3brgwgi30.fsf@new.localdomain>
-	 <20040830004322.GA2060@us.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1093886020.984.238.camel@new.localdomain>
+	Mon, 30 Aug 2004 13:17:38 -0400
+Received: from wasp.net.au ([203.190.192.17]:11465 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S268578AbUH3RRU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:17:20 -0400
+Message-ID: <41336141.7010407@wasp.net.au>
+Date: Mon, 30 Aug 2004 21:17:53 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 30 Aug 2004 13:13:41 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=_wasp.net.au-23117-1093886238-0001-2"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] libata ATA vs SATA detection and workaround.
+References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com> <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com> <41321F7F.7050300@pobox.com> <41333CDC.5040106@wasp.net.au> <41334058.4050902@wasp.net.au> <413350A2.1000003@pobox.com> <41335723.40907@wasp.net.au> <413357AE.3000009@pobox.com>
+In-Reply-To: <413357AE.3000009@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-29 at 20:43, Paul E. McKenney wrote:
-> On Fri, Aug 27, 2004 at 09:35:47PM -0400, Jim Houston wrote:
-> > 
-> > The attached patch against linux-2.6.8.1-mm4 is an experimental
-> > implementation of RCU.
-> > 
-> > It uses an active synchronization between the rcu_read_lock(),
-> > rcu_read_unlock(), and the code which starts a new RCU batch.  A RCU
-> > batch can be started at an arbitrary point, and it will complete without
-> > waiting for a timer driven poll.  This should help avoid large batches
-> > and their adverse cache and latency effects.
-> > 
-> > I did this work because Concurrent encourages its customers to 
-> > isolate critical realtime processes to their own cpu and shield
-> > them from other processes and interrupts.  This includes disabling
-> > the local timer interrupt.  The current RCU code relies on the local
-> > timer to recognize quiescent states.  If it is disabled on any cpu,
-> > RCU callbacks are never called and the system bleeds memory and hangs
-> > on calls to synchronize_kernel().
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
+
+--=_wasp.net.au-23117-1093886238-0001-2
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Jeff Garzik wrote:
+
+> For now I think moving your code to ata_dev_config() function is 
+> sufficient, with one modification:
 > 
-> Are these critical realtime processes user-mode only, or do they
-> also execute kernel code?  If they are user-mode only, a much more
-> straightforward approach might be to have RCU pretend that they do
-> not exist.
+> Move the
+>     ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(ap->device)))
+> test into a separate function all its own, "ata_knobble_device" or 
+> somesuch.  static inline if you wish.
 > 
-> This approach would have the added benefit of keeping rcu_read_unlock()
-> atomic-instruction free.  In some cases, the overhead of the atomic
-> exchange would overwhelm that of the read-side RCU critical section.
-> 
-> Taking this further, if the realtime CPUs are not allowed to execute in
-> the kernel at all, you can avoid overhead from smp_call_function() and
-> the like -- and avoid confusing those parts of the kernel that expect to
-> be able to send IPIs and the like to the realtime CPU (or do you leave
-> IPIs enabled on the realtime CPU?).
-> 
-> 							Thanx, Paul
+> Then it will be trivial to add a 'knobble' module parm later on, by 
+> simply modifying ata_knobble_device() to also check the module parameter 
+> in addition to the existing tests.
 
-Hi Paul,
+Pretty new at kernel code. (And C for that matter)
+I did note that it appears it's not going to do the right thing if we have more than one device per 
+host, but I guess thats not going to be an issue for SATA for the near future anyway.
 
-Our customers applications vary but, in general, the realtime processes
-will do the usual system calls to synchronize with other processes and
-do I/O.
+How's this grab you?
 
-I considered tracking the user<->kernel mode transitions extending the
-idea of the nohz_cpu_mask.  I gave up on this idea mostly because it
-required hooking into assembly code.  Just extending the idea of this
-bitmap has its own scaling issues.  We may have several cpus running
-realtime processes. The obvious answer is to keep the information in
-a per-cpu variable and pay the price of polling this from another cpu.
+Regards,
+Brad
 
-I know that I'm questioning one of your design goals for RCU by adding
-overhead to the read-side.  I have read everything I could find on RCU.
-My belief is that the cost of the xchg() instruction is small 
-compared to the cache benifit of freeing memory more quickly.
-I think it's more interesting to look at the impact of the xchg() at the
-level of an entire system call.  Adding 30 nanoseconds to a open/close
-path that tasks 3 microseconds seems reasonable.  It is hard to measure
-the benefit of reusing the a dcache entry more quickly.
+--=_wasp.net.au-23117-1093886238-0001-2
+Content-Type: text/plain; name=diff3; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff3"
 
-I would be interested in suggestions for testing.  I would be very
-interested to hear how my patch does on a large machine.
+diff -ur orig/linux-2.6.0/drivers/scsi/libata-core.c linux-2.6.9-rc1/drivers/scsi/libata-core.c
+--- orig/linux-2.6.0/drivers/scsi/libata-core.c	2004-08-30 20:48:35.000000000 +0400
++++ linux-2.6.9-rc1/drivers/scsi/libata-core.c	2004-08-30 21:02:42.000000000 +0400
+@@ -1128,6 +1128,37 @@
+ 	DPRINTK("EXIT, err\n");
+ }
+ 
++
++static inline u8 ata_dev_knobble(struct ata_port *ap)
++{
++	return ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(ap->device)));
++}
++
++/**
++ * 	ata_dev_config - Run device specific handlers and check for
++ * 			 SATA->PATA bridges
++ * 	@ap: Bus 
++ * 	@i:  Device
++ *
++ * 	LOCKING:
++ */
++ 
++void ata_dev_config(struct ata_port *ap, unsigned int i)
++{
++	/* limit bridge transfers to udma5, 200 sectors */
++	if (ata_dev_knobble(ap)) {
++		printk(KERN_INFO "ata%u(%u): applying bridge limits\n",
++			ap->id, ap->device->devno);
++		ap->udma_mask &= ATA_UDMA5;
++		ap->host->max_sectors = ATA_MAX_SECTORS;
++		ap->host->hostt->max_sectors = ATA_MAX_SECTORS;
++		ap->device->flags |= ATA_DFLAG_LOCK_SECTORS;
++	}
++
++	if (ap->ops->dev_config)
++		ap->ops->dev_config(ap, &ap->device[i]);
++}
++
+ /**
+  *	ata_bus_probe - Reset and probe ATA bus
+  *	@ap: Bus to probe
+@@ -1150,8 +1181,7 @@
+ 		ata_dev_identify(ap, i);
+ 		if (ata_dev_present(&ap->device[i])) {
+ 			found = 1;
+-			if (ap->ops->dev_config)
+-				ap->ops->dev_config(ap, &ap->device[i]);
++			ata_dev_config(ap,i);
+ 		}
+ 	}
+ 
+@@ -1226,7 +1256,7 @@
+ 		ata_port_disable(ap);
+ 		return;
+ 	}
+-
++	ap->cbl = ATA_CBL_SATA;
+ 	ata_bus_reset(ap);
+ }
+ 
+@@ -3567,3 +3597,4 @@
+ EXPORT_SYMBOL_GPL(ata_scsi_release);
+ EXPORT_SYMBOL_GPL(ata_host_intr);
+ EXPORT_SYMBOL_GPL(ata_dev_id_string);
++EXPORT_SYMBOL_GPL(ata_dev_config);
+nly in linux-2.6.9-rc1/include: config
+diff -ur orig/linux-2.6.0/include/linux/ata.h linux-2.6.9-rc1/include/linux/ata.h
+--- orig/linux-2.6.0/include/linux/ata.h	2004-08-30 20:48:35.000000000 +0400
++++ linux-2.6.9-rc1/include/linux/ata.h	2004-08-30 18:42:41.000000000 +0400
+@@ -218,6 +218,7 @@
+ };
+ 
+ #define ata_id_is_ata(dev)	(((dev)->id[0] & (1 << 15)) == 0)
++#define ata_id_is_sata(dev)	((dev)->id[93] == 0)
+ #define ata_id_rahead_enabled(dev) ((dev)->id[85] & (1 << 6))
+ #define ata_id_wcache_enabled(dev) ((dev)->id[85] & (1 << 5))
+ #define ata_id_has_flush(dev) ((dev)->id[83] & (1 << 12))
+diff -ur orig/linux-2.6.0/include/linux/libata.h linux-2.6.9-rc1/include/linux/libata.h
+--- orig/linux-2.6.0/include/linux/libata.h	2004-08-30 20:48:35.000000000 +0400
++++ linux-2.6.9-rc1/include/linux/libata.h	2004-08-30 20:42:05.000000000 +0400
+@@ -400,6 +400,7 @@
+ 		 unsigned int n_elem);
+ extern void ata_dev_id_string(struct ata_device *dev, unsigned char *s,
+ 			      unsigned int ofs, unsigned int len);
++extern void ata_dev_config(struct ata_port *ap, unsigned int i);
+ extern void ata_bmdma_setup_mmio (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_start_mmio (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_setup_pio (struct ata_queued_cmd *qc);
 
-I'm also trying to figure out if I need the call_rcu_bh() changes.
-Since my patch will recognize a grace periods as soon as any 
-pending read-side critical sections complete, I suspect that I
-don't need this change.
 
-
-Jim Houston - Concurrent Computer
-
-
+--=_wasp.net.au-23117-1093886238-0001-2--

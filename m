@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272892AbTG3OCG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272887AbTG3OCG
+	id S272895AbTG3OLY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272894AbTG3OLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:02:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15336 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S272893AbTG3OCC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:02:02 -0400
-Date: Wed, 30 Jul 2003 10:57:52 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: ROOT NFS fixes ...
-In-Reply-To: <20030729211521.GA19594@www.13thfloor.at>
-Message-ID: <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva>
-References: <20030729211521.GA19594@www.13thfloor.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 30 Jul 2003 10:11:11 -0400
+Received: from ifi.informatik.uni-stuttgart.de ([129.69.211.1]:45523 "EHLO
+	ifi.informatik.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id S272904AbTG3OIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:08:45 -0400
+Date: Wed, 30 Jul 2003 16:07:22 +0200
+From: "Marcelo E. Magallon" <mmagallo@debian.org>
+To: linux-kernel@vgers.kernel.org
+Subject: [PATCH] [2.4] AGPGART maximum memory computed incorrectly
+Message-ID: <20030730140722.GB9076@informatik.uni-stuttgart.de>
+Mail-Followup-To: "Marcelo E. Magallon" <mmagallo@debian.org>,
+	linux-kernel@vgers.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux techno 2.4.21-ck1
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+ the following patch fixes a problem that shows up on machines with 4GB
+ of physical RAM.  The operation num_physpages << PAGE_SHIFT overflows
+ and the maximum memory is reported as 0.  Please apply before releasing
+ 2.4.22.
 
-On Tue, 29 Jul 2003, Herbert Pötzl wrote:
+ Thanks,
 
->
-> Hi Marcelo!
->
-> just verified that the NFS root bug-fix was not
-> included in 2.4.22-pre9, unfortunately I have
-> to ask you again, why you do not want to fix
-> this issue in 2.4.22 ...
->
-> I do not understand why Trond obviously is
-> ignoring my mails, regarding this particular
-> issue, maybe he is just too busy to look at
-> four twoline changes, and more, I do not
-> understand why this isn't accepted into the
-> marcelo kernel tree, as it obviously fixes a
-> misbehaviour?
->
-> please explain!
->
-> It is okay for me, if your argumentation goes
-> like "I don't like you, that's reason enough
-> for me to not include your patches ...", but I
-> would like to know ...
+ Marcelo
 
-I do not consider the patch critical enough.
-
-Get it in 2.5 first, then come back :)
+--- linux-2.4.22-pre6-ac1+p4+4gb/drivers/char/agp/agpgart_be.c.orig	2003-07-30 12:26:18.000000000 +0200
++++ linux-2.4.22-pre6-ac1+p4+4gb/drivers/char/agp/agpgart_be.c	2003-07-30 12:29:03.000000000 +0200
+@@ -5655,7 +5655,11 @@
+ {
+ 	long memory, index, result;
+ 
+-	memory = (num_physpages << PAGE_SHIFT) >> 20;
++#if PAGE_SHIFT < 20
++	memory = num_physpages >> (20 - PAGE_SHIFT);
++#else
++	memory = num_physpages << (PAGE_SHIFT - 20);
++#endif
+ 	index = 1;
+ 
+ 	while ((memory > maxes_table[index].mem) &&

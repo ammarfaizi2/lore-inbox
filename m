@@ -1,148 +1,358 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVBAAP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVAaX6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVBAAP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 19:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVBAAOI
+	id S261491AbVAaX6E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVAaX5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 19:14:08 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:32697 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261498AbVBAAJn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 19:09:43 -0500
-Date: Mon, 31 Jan 2005 18:09:39 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 2.6.11-rc2] vmlinux: put built-in module parameter info in vmlinux
-Message-ID: <20050201000939.GF24164@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 31 Jan 2005 18:57:40 -0500
+Received: from [139.30.44.16] ([139.30.44.16]:48777 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261446AbVAaXjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 18:39:54 -0500
+Date: Tue, 1 Feb 2005 00:39:47 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Michael Buesch <mbuesch@freenet.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] "biological parent" pid
+In-Reply-To: <200501312309.57464.mbuesch@freenet.de>
+Message-ID: <Pine.LNX.4.53.0502010035480.19436@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de>
+ <200501312309.57464.mbuesch@freenet.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Module parameter descriptions are added to loadable modules, but is
-omitted from objects built into the kernel itself.  It would be nice
-if you could get the list of parameters usable on the kernel command
-line by looking at vmlinux.
+On Mon, 31 Jan 2005, Michael Buesch wrote:
 
-$ modinfo vmlinux | grep parm:
-parm:           thermal.tzp:Thermal zone polling frequency, in 1/10 seconds.
-parm:           drm.drm_debug:Enable debug output
-parm:           drm.drm_cards_limit:Maximum number of graphics cards
-parm:           i8042.debug:Turn i8042 debugging mode on and off
-parm:           i8042.noacpi:Do not use ACPI to detect controller settings
-parm:           i8042.dumbkbd:Disable the AUX Loopback command while probing for the AUX port
-parm:           i8042.dumbkbd:Pretend that controller can only read data from keyboard
-parm:           i8042.direct:Put keyboard port into non-translated mode.
-parm:           i8042.reset:Reset controller during init and cleanup.
-parm:           i8042.unlock:Ignore keyboard lock.
-parm:           i8042.nomux:Do not check whether an active multiplexing conrtoller is present.
-parm:           i8042.noaux:Do not probe or use AUX (mouse) port.
-parm:           8250.probe_rsa:Probe I/O ports for RSA
-parm:           8250.share_irqs:Share IRQs with other non-8250/16x50 devices (unsafe)
-parm:           rd.rd_blocksize:Blocksize of each RAM disk in bytes.
-parm:           rd.rd_size:Size of each RAM disk in kbytes.
-parm:           usbcore.use_both_schemes:try the other device initialization scheme if the first one fails
-parm:           usbcore.old_scheme_first:start with the old device initialization scheme
-parm:           usbcore.blinkenlights:true to cycle leds on hubs
-parm:           usbcore.usbfs_snoop:true to log all usbfs traffic
-parm:           mousedev.tap_time:Tap time for touchpads in absolute mode (msecs)
-parm:           mousedev.yres:Vertical screen resolution
-parm:           mousedev.xres:Horizontal screen resolution
-parm:           atkbd.extra:Enable extra LEDs and keys on IBM RapidAcces, EzKey and similar keyboards
-parm:           atkbd.scroll:Enable scroll-wheel on MS Office and similar keyboards
-parm:           atkbd.softraw:Use software generated rawmode
-parm:           atkbd.softrepeat:Use software keyboard repeat
-parm:           atkbd.reset:Reset keyboard during initialization
-parm:           atkbd.set:Select keyboard code set (2 = default, 3 = PS/2 native)
-parm:           psmouse.resetafter:Reset device after so many bad packets (0 = never).
-parm:           psmouse.smartscroll:Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.
-parm:           psmouse.rate:Report rate, in reports per second.
-parm:           psmouse.resolution:Resolution, in dpi.
-parm:           psmouse.proto:Highest protocol extension to probe (bare, imps, exps). Useful for KVM switches.
+> Quoting Tim Schmielau <tim@physik3.uni-rostock.de>:
+> > The ppid of a process is not really helpful if I want to reconstruct the 
+> > real history of processes on a machine, since it may become 1 when the
+> > parent dies and the process is reparented to init.
+> > 
+> > I am not aware of concepts in Linux or other unices that apply to this
+> > case. So I made up the "biological parent pid" bioppid (in contrast to the
+> > adoptive parents pid) that just never changes.
+> > Any user of it must of course remember that it doesn't need to be a valid 
+> > pid anymore or might even belong to a different process that was forked in 
+> > the meantime. bioppid only had to be a valid pid at time btime (it's
+> > a (btime, pid) pair that unambiguously identifies a process).
+> > 
+> > Comments? (other that I just broke /proc/nnn/status parsing once again :-)
+> 
+> Eh, I can't see how this bioppid would be useful.
+> Help me. Examples?
 
-Patch below implements such.  It also emits modulename.version fields
-should they exist, but omits license, author, and description fields,
-as I'm not sure how interesting those fields are when built-in.
+I'm trying to reconstruct the complete history of processes from the 
+BSD accounting records. However, this is not very useful if a large 
+fraction of the processes look as if they were started by init.
 
-Feedback requested prior to submission for inclusion.
+The following program will print the history in a form vaguely resembling
+pstree output from the accounting file:
 
-Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
+Tim
 
-Thanks,
-Matt
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+/* treeacct.c: use ac_pid and ac_ppid fields of struct acct_v3 to
+ * build a tree of the process history.
+ *
+ * $Id: treeacct.c,v 0.8 2005/01/31 23:34:51 tim Exp tim $
+ */
 
-===== include/linux/module.h 1.92 vs edited =====
---- 1.92/include/linux/module.h	2005-01-10 13:28:15 -06:00
-+++ edited/include/linux/module.h	2005-01-31 17:59:23 -06:00
-@@ -76,14 +79,27 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <assert.h>
+
+#include <linux/acct.h>
+
+
+#define TIME_FUZZ 4
+
+void *alloc(size_t size)
+{
+	void *mem;
+	
+	mem = malloc(size);
+	if (mem==NULL) {
+		fprintf(stderr, "out of memory.\n");
+		exit(5);
+	}
+	return mem;
+}
+
+/*
+ * For each pid the acct records are organized in a singly linked list
+ * named task_struct that is sorted by process start time (btime).
+ *
+ * They also form a tree according to their family relations.
+ */
  
- extern struct subsystem module_subsys;
- 
-+/* You can override this manually, but generally this should match the
-+   module name. */
- #ifdef MODULE
-+#define MODULE_PARAM_PREFIX /* empty */
-+#else
-+#define MODULE_PARAM_PREFIX __stringify(KBUILD_MODNAME) "."
-+#endif
-+
- #define ___module_cat(a,b) __mod_ ## a ## b
- #define __module_cat(a,b) ___module_cat(a,b)
- #define __MODULE_INFO(tag, name, info)					  \
- static const char __module_cat(name,__LINE__)[]				  \
-   __attribute_used__							  \
--  __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
-+  __attribute__((section(".modinfo"),unused)) = MODULE_PARAM_PREFIX __stringify(tag) "=" info
-+
-+#define ___MODULE_INFO(tag, name, info)					  \
-+static const char __module_cat(name,__LINE__)[]				  \
-+  __attribute_used__							  \
-+  __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" MODULE_PARAM_PREFIX info
- 
-+#ifdef MODULE
- #define MODULE_GENERIC_TABLE(gtype,name)			\
- extern const struct gtype##_id __mod_##gtype##_table		\
-   __attribute__ ((unused, alias(__stringify(name))))
-@@ -94,7 +110,6 @@
- #else  /* !MODULE */
- 
- #define MODULE_GENERIC_TABLE(gtype,name)
--#define __MODULE_INFO(tag, name, info)
- #define THIS_MODULE ((struct module *)0)
- #endif
- 
-@@ -130,6 +145,7 @@
-  * 2.	So the community can ignore bug reports including proprietary modules
-  * 3.	So vendors can do likewise based on their own policies
-  */
-+#ifdef MODULE
- #define MODULE_LICENSE(_license) MODULE_INFO(license, _license)
- 
- /* Author, ideally of form NAME <EMAIL>[, NAME <EMAIL>]*[ and NAME <EMAIL>] */
-@@ -137,11 +153,17 @@
-   
- /* What your module does. */
- #define MODULE_DESCRIPTION(_description) MODULE_INFO(description, _description)
-+#else
-+#define MODULE_LICENSE(_license)
-+#define MODULE_AUTHOR(_author)
-+#define MODULE_DESCRIPTION(_description)
-+#endif
-+
- 
- /* One for each parameter, describing how to use it.  Some files do
-    multiple of these per line, so can't just use MODULE_INFO. */
- #define MODULE_PARM_DESC(_parm, desc) \
--	__MODULE_INFO(parm, _parm, #_parm ":" desc)
-+	___MODULE_INFO(parm, _parm, #_parm ":" desc)
- 
- #define MODULE_DEVICE_TABLE(type,name)		\
-   MODULE_GENERIC_TABLE(type##_device,name)
+struct task_struct {
+	/* struct task_struct *prev;  seems to be superfluous  */
+	struct task_struct *next, *parent, *children, *siblings;
+	struct acct_v3 *acct;
+       };
+	
+
+struct pid_struct {
+	struct pid_struct *next;
+	struct task_struct *tasklist;
+       };
+
+/*
+ * The task_structs are stored in a hash array of singly linked pid_struct
+ * lists sorted by pid.
+ */
+
+#define PID_HASH_MASK 0xf
+
+struct pid_struct *pid_hash[PID_HASH_MASK + 1];
+
+/*
+ * List of tasks without parents.
+ */
+
+struct task_struct *orphans=NULL;
+
+/*
+ * Find the task that is uniquely determined by it's pid and the
+ * time when the pid was valid.
+ * If create!=0 and the task doesn't exist yet, create it.
+ */
+
+struct task_struct *get_task(__u32 pid, __u32 time, int create)
+{
+	struct task_struct **task, *newtask;
+	struct pid_struct **pidlist, *newpid;
+	
+	pidlist = &pid_hash[pid & PID_HASH_MASK];
+	while (*pidlist!=NULL && (*pidlist)->tasklist->acct->ac_pid > pid)
+		pidlist = &((*pidlist)->next);
+	if (*pidlist==NULL || (*pidlist)->tasklist->acct->ac_pid < pid) {
+		/* this pid doesn't exist */
+		if (create!=0) {
+			/* so create task */
+			newtask = alloc(sizeof(struct task_struct));
+			newtask->next = NULL;
+			/* as well as a pidlist for it*/
+			newpid = alloc(sizeof(struct pid_struct));
+			newpid->next = *pidlist;
+			newpid->tasklist = newtask;
+			*pidlist = newpid;
+			return newtask;
+		} else {
+			return NULL;
+		}
+	} else {
+		/* find task on pidlist */ 
+		task = &((*pidlist)->tasklist);
+		while (*task!=NULL
+		       && (*task)->acct->ac_btime < time)
+			task = &((*task)->next);
+		if (*task!=NULL
+		     && (*task)->acct->ac_btime <= time+TIME_FUZZ
+		     && (*task)->acct->ac_btime
+		         + (__u32)((*task)->acct->ac_etime+1)
+		        >= time-TIME_FUZZ) {
+			/* process found */
+			if (create!=0) {
+				fprintf(stderr,
+				        "warning: pid %lu, occurs twice"
+				        " at time $lu.",
+				        pid, time);
+			} else {
+				return *task;
+			}
+		}
+		if (create!=0) {
+			newtask = alloc(sizeof(struct task_struct));
+			newtask->next = *task;
+			*task = newtask;
+			return newtask;
+			
+		} else {
+			return NULL;
+		}
+	}
+}
+
+void fill_hashtab(struct acct_v3 *acct_record)
+{
+	struct task_struct *newtask;
+	
+	newtask = get_task(acct_record->ac_pid, acct_record->ac_btime, 1);
+	assert(newtask!=0);
+	
+	newtask->acct = acct_record;
+	newtask->children = NULL;
+}
+
+void tree_insert(struct task_struct *newtask)
+{
+	struct task_struct **task;
+
+	newtask->parent = get_task(newtask->acct->ac_ppid,
+	                           newtask->acct->ac_btime, 0);
+	if (newtask->parent==NULL) {
+		task = &orphans;
+	} else {
+		task = &(newtask->parent->children);
+	}
+	/* keep the list sorted */
+	while ((*task) != NULL
+	       && ((*task)->acct->ac_pid < newtask->acct->ac_pid
+	           || ((*task)->acct->ac_pid == newtask->acct->ac_pid
+		       && (*task)->acct->ac_btime < newtask->acct->ac_btime)))
+		task = &((*task)->siblings);
+	newtask->siblings = *task;
+	*task = newtask;
+}
+
+void build_tree(unsigned long count)
+{
+	struct task_struct *newtask;
+	struct pid_struct *pidlist;
+	int i;
+	
+	for (i=PID_HASH_MASK; i>=0; i--) 
+		for (pidlist = pid_hash[i];
+		     pidlist!=NULL;
+		     pidlist = pidlist->next)
+			for (newtask = pidlist->tasklist;
+			     newtask!=NULL;
+			     newtask = newtask->next) {
+				tree_insert(newtask);
+				count--;
+			}
+	assert(count==0);
+}
+
+void dump_task(struct task_struct *task, unsigned long depth)
+{
+	struct task_struct *parent;
+	time_t t;
+	char start[32], end[32];
+	unsigned long i;
+	int pos;
+
+	/* convert start and end time to ascii */
+	t = task->acct->ac_btime;
+	ctime_r(&t, start);
+	/* start[24] = 0; */
+	t += (unsigned long)(task->acct->ac_etime+1);
+	ctime_r(&t, end);
+	/* end[24] = 0; */
+
+	for(i=1; i<2*depth; i++)
+		putchar(' ');
+	printf("%.*s (%lu, parent %lu) %nstart %s",
+		ACCT_COMM,
+		task->acct->ac_comm,
+		task->acct->ac_pid,
+		task->acct->ac_ppid,
+		&pos,
+		start);
+	for(i=1; i<pos+2*depth; i++)
+		putchar(' ');
+	printf("end   %s", end);
+}
+
+void dump_tree(unsigned long count)
+{
+	__u32 pid, maxpid=PID_HASH_MASK;
+	struct pid_struct *pidlist;
+	struct task_struct *task, *parent;
+	unsigned long dumped = 0;
+	unsigned depth = 1;
+	
+	task = orphans;
+	while (task!=NULL) {
+		dump_task(task, depth);
+		dumped++;
+		if (task->children != NULL) {
+			depth++;
+			task = task->children;
+		} else if (task->siblings != NULL) {
+			task = task->siblings;
+		} else {
+			while (1) {
+				task = task->parent;
+				depth--;
+				if (task==NULL)
+					break;
+				if (task->siblings != NULL) {
+					task = task->siblings;
+					break;
+				}
+			}
+		}
+	}
+	fprintf(stderr, "dumped %lu records.\n", dumped);
+	assert(depth==0);
+	assert(dumped==count);
+}
+
+struct acct_v3
+*mmap_acct_file(char *name, size_t *length, off_t *offset)
+{
+	int acctfile;
+	struct acct_v3 *acct_records;
+	struct stat acctfile_status;
+	
+	acctfile = open(name, O_RDONLY);
+	if (acctfile==-1) {
+		perror("error opening accounting file");
+		exit(2);
+	}
+	if (fstat(acctfile, &acctfile_status)!=0) {
+		perror("cannot fstat accounting file");
+		exit(3);
+	}
+	*length = acctfile_status.st_size - *offset;
+	fprintf(stderr, "length: %lu.\n", *length);
+	
+	acct_records = mmap(NULL, *length, PROT_READ, MAP_PRIVATE, acctfile,
+	                    *offset);
+	if (acct_records==MAP_FAILED) {
+		perror("error mmapping accounting file");
+		exit(4);
+	}
+	close(acctfile);
+	
+	return acct_records;
+}
+
+int main(int argc, char *argv[])
+{
+	struct acct_v3 *acct_records;
+	size_t length = (unsigned long)(-1);
+	off_t offset = 0;
+	unsigned long count=0;
+	
+	if (argc!=2) {
+		printf("usage: %s <acctfile>\n", argv[0]);
+		return 1;
+	}
+	acct_records = mmap_acct_file(argv[1], &length, &offset);
+	
+	while (length>=sizeof(struct acct_v3)) {
+		fill_hashtab(acct_records);
+		acct_records++;
+		length -= sizeof(struct acct_v3);
+		count++;
+	}
+	if (length!=0)
+		fprintf(stderr,"Inclomplete last record of length %lu.\n",
+			       length);
+	fprintf(stderr, "%lu records sucessfully read.\n", count);
+	
+	build_tree(count);
+	dump_tree(count);
+
+	return 0;
+}

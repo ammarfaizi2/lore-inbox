@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUKDSUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbUKDSV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUKDSUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbUKDSSN
+	id S262345AbUKDSV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:21:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbUKDSU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:18:13 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:29063 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262309AbUKDSQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:16:16 -0500
-Date: Thu, 4 Nov 2004 12:15:47 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Valdis.Kletnieks@vt.edu
-cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers 
-In-Reply-To: <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58.0411041214590.1229@gradall.private.brainfood.com>
-References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
- <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
- <20041103233029.GA16982@taniwha.stupidest.org>           
- <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
- <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Nov 2004 13:20:58 -0500
+Received: from shinjuku.zaphods.net ([194.97.108.52]:50873 "EHLO
+	shinjuku.zaphods.net") by vger.kernel.org with ESMTP
+	id S262345AbUKDSTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 13:19:05 -0500
+Date: Thu, 4 Nov 2004 19:18:57 +0100
+From: Stefan Schmidt <zaphodb@zaphods.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures (Part 2)
+Message-ID: <20041104181856.GE28163@zaphods.net>
+References: <20041103222447.GD28163@zaphods.net> <20041104121722.GB8537@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104121722.GB8537@logos.cnet>
+X-Origin-AS: AS5430
+X-NCC-nic-hdl: ZAP-RIPE
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: zaphodb@zaphods.net
+X-SA-Exim-Scanned: No (on shinjuku.zaphods.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004,  wrote:
+On Thu, Nov 04, 2004 at 10:17:22AM -0200, Marcelo Tosatti wrote:
+> What is min_free_kbytes default on your machine?
+I think it was 768, definitely around 700-800.
+2.6.9 said:
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 4058200k/4095936k available (2005k kernel code, 36816k reserved, 995k
+data, 196k init, 3178432k highmem)
 
-> On Thu, 04 Nov 2004 10:50:38 CST, Adam Heath said:
->
-> > I didn't deny the speed difference of older and newer compilers.
-> >
-> > But why is this an issue when compiling a kernel?  How often do you compile
-> > your kernel?
->
-> If you're working on older hardware (note the number of people on this
-> list still using 500mz Pentium3 and similar), and a kernel developer, the
-> difference between 2 hours to build a kernel and 4 hours to build a
-> kernel matters quite a bit.
+> > I tried the following kernels: 2.6.9-mm1, 2.6.10-rc1-bk12, 2.6.9-rc3-bk6,
+> > 2.6.9-rc3-bk5 all of which froze at some point presenting me only with the
+> > above page allocation failure. (no more sysrq) 
+> This should be harmless as Andrew said - it would be helpful if you could 
+> plug a serial cable to the box - this last oops on the picture doesnt say 
+> much.
+Well right now the machine is running 2.4.28-rc1 with the 3w-9nnn patch by
+Adam Radford from this list and i would like to see it run stable for about a
+day before i give 2.6 another try. I think i'll have a terminal server hooked
+up by then.
 
-Use faster hardware to compile a kernel.  Cross-compiling is easy for kernels.
+> How intense is the network traffic you're generating?
+I was around 60-80 mbit/s each direction at i think 16k interrupts/s.
 
-Plus, at least on i386/debian, kernel-package makes it easy.
+With 2.4.28-rc1 this is currently at 180mbit/s 27kpps up, 116mbit/s 24kpps down 
+still swapping a bit but no kernel messages on this, just around 1.7 rx
+errors/s.
 
-Again, your argument doesn't hold water.
+> 2.6.7 was stable under the same load?
+No, sorry to give you this impression, 2.6.7 is just what some of my collegues
+and i consider the more stable 2.6 kernel under heavy i/o load.
+
+> Something is definately screwed, and there are quite an amount of 
+> similar reports.
+Can i tell people its ok to see nf_hook_slow in the stack trace as it's
+vm-related? A collegue was quite bluffed when i showed him. ;)
+
+> XFS also seems to be very memory hungry...
+I have 8 XFS-Filesystems in use here with several thousand files from some k to
+your 'usual' 4GB DVD-image. XFS built as a module at first and then inline but
+that did not change anything off course. 2x200 + 6x250GB that is.
+
+	Stefan

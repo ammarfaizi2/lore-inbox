@@ -1,38 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284779AbRLKBzE>; Mon, 10 Dec 2001 20:55:04 -0500
+	id <S284810AbRLKB7y>; Mon, 10 Dec 2001 20:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284810AbRLKByy>; Mon, 10 Dec 2001 20:54:54 -0500
-Received: from zero.tech9.net ([209.61.188.187]:1287 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S284808AbRLKByn>;
-	Mon, 10 Dec 2001 20:54:43 -0500
-Subject: Re: [PATCH] Make highly niced processes run only when idle
-From: Robert Love <rml@tech9.net>
-To: Ton Hospel <linux-kernel@ton.iguana.be>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9v3nvj$a99$1@post.home.lunix>
-In-Reply-To: <75F30A52-ECF4-11D5-80FE-00039355CFA6@suespammers.org>
-	<1007939114.878.1.camel@phantasy>  <9v3nvj$a99$1@post.home.lunix>
+	id <S284788AbRLKB7p>; Mon, 10 Dec 2001 20:59:45 -0500
+Received: from smtprelay7.dc2.adelphia.net ([64.8.50.39]:34769 "EHLO
+	smtprelay7.dc2.adelphia.net") by vger.kernel.org with ESMTP
+	id <S284810AbRLKB7b>; Mon, 10 Dec 2001 20:59:31 -0500
+Subject: Re: [RFC] Multiprocessor Control Interfaces
+From: Jason Baietto <jason@baietto.com>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
-Date: 10 Dec 2001 20:54:42 -0500
-Message-Id: <1008035682.4287.3.camel@phantasy>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Dec 2001 20:59:23 -0500
+Message-Id: <1008035965.11626.3.camel@tofu>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-10 at 20:36, Ton Hospel wrote:
+Some people have asked me for more information before they'll attempt
+to download and play with this stuff, so here's the --help output from
+the latest version of the run(1) command:
 
-> Please don't. Whenever you think you priority inheritance, it's a sign your 
-> system has got too complicated. The simplest solution is to simply have no
-> priorities when a task is in-kernel (or at least non that can completely
-> exclude a task).
 
-I agree, I said it was overkill.
+Usage: run [OPTIONS] { COMMAND [ARGS] | PROCESS_SPECIFIER }
+Set scheduling parameters and CPU bias for a new process or a list
+of existing processes.
 
-My solution is going to be to schedule the task as a SCHED_OTHER task
-when in the kernel, and as SCHED_IDLE task otherwise.
+OPTIONS can be one or more of the following options:
 
-	Robert Love
+   -b, --bias=LIST        Set the CPU bias to the LIST of CPUs;
+                          CPUs are numbered starting from 0
+   -s, --policy=POLICY    Set the scheduling policy to POLICY
+   -P, --priority=LEVEL   Set the scheduling priority to LEVEL
+   -q, --quantum=QUANTUM  Set the SCHED_RR quantum to QUANTUM
+   -v, --version          Output version information and exit
+   -h, --help             Display this help and exit
+
+PROCESS_SPECIFIER is exactly one of the following options:
+
+   -p, --pid=LIST         Specify LIST of existing PIDs to modify
+   -g, --group=LIST       Specify LIST of process groups to modify; all
+                          existing processes in the groups will be modified
+   -u, --user=LIST        Specify LIST of users to modify; all existing
+                          processes owned by the users will be modified
+   -n, --name=LIST        Specify LIST of existing process names to modify
+
+Multiple comma separated values can be specified for all LISTs and ranges
+are allowed where appropriate (e.g. "run -b 0,1-3 autopilot").
+
+See the run(1) man page for more information.
+
+
+Take care,
+Jason
+
+
+> Hello All,
+> 
+> I'm currently working on adding multiprocessor control interfaces
+> to Linux.  My current efforts can be found here:
+> 
+>    http://www.ccur.com/realtime/oss
+> 
+> These are clean-room implementations of similar tools that have
+> been available in our proprietary *nix for quite some time, and
+> so the interfaces have a fair amount of mileage under their belts.
+> Note that the scope is somewhat wider than just MP.
+> 
+> There has been some discussion of "chaff" and other interfaces
+> recently on this list, so in an effort to hopefully move towards
+> a standard more quickly I've gotten permission from my employer
+> to GPL the code I've written.  I'm very interested in comments
+> and feedback on any or all of this work.
+> 
+> Here's the README file from the package:
+> 
+> 
+> This package contains:
+> 
+>    run(1)
+>       A multiprocessor control command line tool.
+> 
+>    mpadvise(3)
+>       A multiprocessor control library interface.
+> 
+> These services rely upon Robert Love's CPU Affinity patch
+> (version 2.4.16-1 was used for testing) which is available here:
+> 
+>    http://www.kernel.org/pub/linux/kernel/people/rml/cpu-affinity/v2.4/
+> 
+> To build the code, simply unpack it and type "make".  The code has
+> been tested on Red Hat 7.1 and 7.2 systems, though it is still
+> fairly new and almost certainly contains bugs.
+> 
+> An attempt was made to abstract the "cpuset" representation of
+> the current system in order to have binaries that in theory
+> could work on systems with more than 32 cpus.  For this to work,
+> the run(1) command would need to be linked against a shared
+> mpadvise(3) library (currently only a static library is made).
+> 
+> This code is being released in the hopes that it will become
+> the basis for the Linux multiprocessor control standard interfaces.
+> I am very interested in getting feedback on this package,
+> so please contact me via email or LKML if you have any.
+> 
+> This source code is licensed under the GNU GPL Version 2.
+> Copyright (C) 2001  Concurrent Computer Corporation
+> 
+> --
+> Jason Baietto
+> jason.baietto@ccur.com
+> http://www.ccur.com/realtime/oss
+
+
 

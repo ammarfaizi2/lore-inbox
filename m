@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264619AbSJRGMK>; Fri, 18 Oct 2002 02:12:10 -0400
+	id <S264844AbSJRGPX>; Fri, 18 Oct 2002 02:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264666AbSJRGMJ>; Fri, 18 Oct 2002 02:12:09 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:42472 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S264619AbSJRGMI>;
-	Fri, 18 Oct 2002 02:12:08 -0400
-Message-ID: <3DAFA79C.7070907@candelatech.com>
-Date: Thu, 17 Oct 2002 23:18:04 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: atai@atai.org
-CC: linux-kernel@vger.kernel.org
+	id <S264883AbSJRGPW>; Fri, 18 Oct 2002 02:15:22 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32707 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264844AbSJRGO3>;
+	Fri, 18 Oct 2002 02:14:29 -0400
+Date: Thu, 17 Oct 2002 23:12:49 -0700 (PDT)
+Message-Id: <20021017.231249.14334285.davem@redhat.com>
+To: atai@atai.org, lichengtai@yahoo.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Tigon3 driver problem with raw socket on 2.4.20-pre10-ac2
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021018044402.42069.qmail@web10508.mail.yahoo.com>
 References: <20021018044402.42069.qmail@web10508.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Tai wrote:
-> Hi, I am having problem with the (ethernet) Tigon3
-> driver with Linux kernel 2.4.20-pre10-ac2.  If a
-> program busily sends packets out on a raw socket
-> (PF_PACKET, SOCK_RAW) on a Tigon3-chipset-based
-> ethernet card (Neargear GA302T), the machine (AMD
-> Athlon CPU, KT333 motherboard) locks up hard after a
-> while.  No kernel panic or other error messages.  If I
-> use a Intel PRO1000 card with the e1000 driver and
-> identical same hardware and program otherwise, no lock
-> up problem and the packets are sent properly.  Thus
-> this indicates the problem is in the Tigon3 driver.
-> 
-> Thanks for any info on solving this problem.
+   From: Andy Tai <lichengtai@yahoo.com>
+   Date: Thu, 17 Oct 2002 21:44:02 -0700 (PDT)
 
-I also had problems on an DUAL-AMD board, and also with a single
-AMD board (SMP kernel though).  It works without problems in a P-IV
-board though.  I compiled my kernels for Athlon target, and the P-IV
-for the P-IV processor specifically.  I wonder if using a generic
-x386 kernel would fix something...
+   Thus this indicates the problem is in the Tigon3 driver.
 
-Let me know what you find out!
+Please retest with 2.4.19.
 
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+There have actually been a lot of Athlon based problem reports in the
+2.4.20 series.  And to be honest, tigon3 hardware is buggy in spots.
+You could also download and try Broadcom's driver with your card in
+2.4.20-pre10-ac2 if you'd like to rule out tg3.c specifically.
 

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265324AbRFVEGO>; Fri, 22 Jun 2001 00:06:14 -0400
+	id <S265328AbRFVEZR>; Fri, 22 Jun 2001 00:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265325AbRFVEGE>; Fri, 22 Jun 2001 00:06:04 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:47084 "EHLO
+	id <S265330AbRFVEZH>; Fri, 22 Jun 2001 00:25:07 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:22003 "EHLO
 	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S265324AbRFVEF4>; Fri, 22 Jun 2001 00:05:56 -0400
-Date: Fri, 22 Jun 2001 13:05:08 +0900
-Message-Id: <200106220405.NAA09904@asami.proc.flab.fujitsu.co.jp>
-To: Rick Hohensee <humbubba@smarty.smart.net>
+	id <S265328AbRFVEYy>; Fri, 22 Jun 2001 00:24:54 -0400
+Date: Fri, 22 Jun 2001 13:24:50 +0900
+Message-ID: <1yodnnu5.wl@nisaaru.open.nm.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: raf@raf.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-In-Reply-To: <200106220305.XAA15554@smarty.smart.net>
-In-Reply-To: <200106220305.XAA15554@smarty.smart.net>
-Reply-To: kumon@flab.fujitsu.co.jp
-From: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: bugreport: poll() timeout always takes 10ms too long
+In-Reply-To: <20010622115212.A8681@eccles.raf.org>
+In-Reply-To: <20010622115212.A8681@eccles.raf.org>
+User-Agent: Wanderlust/2.5.8 (Smooth) EMY/1.13.9 (Art is long, life is
+ short) SLIM/1.14.7 (=?ISO-2022-JP?B?GyRCPHIwZjpMTD4bKEI=?=) APEL/10.3 MULE
+ XEmacs/21.2 (beta46) (Urania) (i386-kondara-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Hohensee writes:
- > Richard Stallman is the creator of the license. It's his greatest work.
- > Linus is in no way priviledged as to interpretation of it, other than
- > tolerance on the part of the parties that own the copyright to the
- > license.
 
-So, GPL FAQ on FSF web-site <http://www.fsf.org/copyleft/gpl-faq.html>
-is worth reading. It represents their thought.
+ Hello,
 
-* If a library is released under the GPL (not the LGPL), does that
-  mean that any program which uses it has to be under the GPL?
-  <http://www.fsf.org/copyleft/gpl-faq.html#IfLibraryIsGPL>
+At Fri, 22 Jun 2001 11:52:12 +1000,
+raf@raf.org wrote:
+> 
+> [1.] One line summary of the problem:    
+> 
+> poll() timeout always takes 10ms too long
+> 
+> [2.] Full description of the problem/report:
+> 
+> Select() timeouts work fine. A timeout between 10n-9 and 10n ms times
+> out after 10n ms on average. Poll() timeouts between 10n-9 and 10n ms,
+> on the other hand, time out after 10(n+1) ms on average. It's always a
+> jiffy too long. This means it's impossible to set a 10ms timeout using
+> poll() even though it's possible using select(). The programs and their
+> output below [6] demonstrate this. The same behavious occurs with
+> linux-2.2 and linux-2.4.
 
-* Why are some GNU libraries released under the ordinary GPL rather
-  than the Lesser GPL?
-  <http://www.fsf.org/copyleft/gpl-faq.html#WhySomeGPLAndNotLGPL>
 
-* I am writing free software that uses non-free libraries. What legal
-  issues come up if I use the GPL?
-  <http://www.fsf.org/copyleft/gpl-faq.html#TOCWritingFSWithNFLibs>
+  I think this is correct behavior. The Single UNIX Specification
+describes about the timeout parameter of poll() as follows,
 
---
-Computer Systems Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+	If none of the defined events have occurred on any selected
+	file descriptor, poll() waits at least timeout milliseconds
+	for an event to occur on any of the selected file descriptors.
+
+  On the other hand, select(),
+
+	If the specified condition is false for all of the specified
+	file descriptors, select() blocks, up to the specified timeout
+	interval, until the specified condition is true for at least
+	one of the specified file descriptors.

@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUIONpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUIONs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266366AbUIONpB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUIONnt
+	id S266333AbUIONs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 09:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266449AbUIONr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:43:49 -0400
-Received: from users.ccur.com ([208.248.32.211]:7664 "EHLO mig.iccur.com")
-	by vger.kernel.org with ESMTP id S266333AbUIONkw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:40:52 -0400
-Date: Wed, 15 Sep 2004 09:40:47 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] tune vmalloc size
-Message-ID: <20040915134047.GA30493@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20040915125356.GA11250@elte.hu> <20040915132936.GB30233@tsunami.ccur.com> <20040915133144.GB30530@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915133144.GB30530@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-OriginalArrivalTime: 15 Sep 2004 13:40:48.0961 (UTC) FILETIME=[9C309310:01C49B29]
+	Wed, 15 Sep 2004 09:47:56 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3458 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266333AbUIONpl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:45:41 -0400
+Date: Wed, 15 Sep 2004 09:45:32 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andre Bonin <kernel@bonin.ca>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCI coprocessors
+In-Reply-To: <41483BD3.4030405@bonin.ca>
+Message-ID: <Pine.LNX.4.53.0409150931540.7297@chaos>
+References: <41483BD3.4030405@bonin.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 03:31:44PM +0200, Arjan van de Ven wrote:
-> On Wed, Sep 15, 2004 at 09:29:36AM -0400, Joe Korty wrote:
-> > On Wed, Sep 15, 2004 at 02:53:56PM +0200, Ingo Molnar wrote:
-> > > 
-> > > there are a few devices that use lots of ioremap space. vmalloc space is
-> > > a showstopper problem for them.
-> > > 
-> > > this patch adds the vmalloc=<size> boot parameter to override
-> > > __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
-> > > doubles the size.
-> > 
-> > Perhaps this should instead be a configurable.
-> 
-> boot time settable is 100x better than only compile time settable imo :)
+On Wed, 15 Sep 2004, Andre Bonin wrote:
 
-IMO, everything that is changable at boot time needs an equivalent way
-of changing the default without specifying a boot time value.
+> Hey all,
+> I'me building an FPGA based pci board for a degree project.  In theory
+> this board could be used as a custom, field programmable coprocessor (to
+> accelerate processes).  At which point, it might be nice to be able to
+> support it as a processor under the kernel.
+>
+> Yes bandwidth, yes it should be PCI-Express but it is still just a
+> degree project, 33mhz is fast enough for the proof of concept.
+>
 
-boot time values works well only when the number of values that need
-changing is small.
+Typically, such a board would use a standard PCI interface chip
+like those made by PLX. This would be connected to a FPGA plus
+whatever else was needed to perform the needed functions.
 
-Joe
+If you attempt to make your own PCI interface using a FPGA,
+you are going to devote a lot of time to that, alone. You
+probably won't even get to your coprocessor until graduation.
+
+> Which leads me to my questions:
+>
+> 1) Is their support for having two different 'machine types' within one
+> kernel? that is for example, certain executables for intel would get run
+> on an intel processor, and others would get run on processor with type XXXX.
+>
+
+The support is for whatever driver you provide. For instance,
+the Analogic's Sky Computer Division produces array processors
+with their own CPUs. The Sky-code runs in those processors.
+It doesn't (can't) affect the Intel processor kernel code in
+the host.
+
+> I heard once someone put native "java" .class support within the kernel
+> (it would call the jvm run time if i remember).  I could maby do this
+> with my own set of libraries and driver.  But differentiating between
+> the types of executable might be hard.
+>
+
+You could certainly make a Java engine run on your coprocessor
+board or use Intel code, whatever is better at that instant.
+This is done with a library that you provide.
+
+> 2) Is their kernel support for PCI coprocessors for thread allocation
+> etc.  I couldn't find any but i can try looking through the code again.
+>
+
+Things that go on the PCI bus use drivers (modules) for interface.
+The kernel doesn't directly determine what functions are handled
+by kernel code and what ones are handled by your PCI interface
+coprocessor. Your (or the standard) runtime libraries do this.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

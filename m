@@ -1,91 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289659AbSBERPj>; Tue, 5 Feb 2002 12:15:39 -0500
+	id <S289619AbSBERNT>; Tue, 5 Feb 2002 12:13:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289661AbSBERP3>; Tue, 5 Feb 2002 12:15:29 -0500
-Received: from iere.net.avaya.com ([198.152.12.101]:23721 "EHLO
-	iere.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S289659AbSBERPQ>; Tue, 5 Feb 2002 12:15:16 -0500
-Message-ID: <029b01c1ae68$5df20b20$12320987@dr.avaya.com>
-From: "Roger Massey" <rmassey@avaya.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.17 panic on boot - patch for ide-pci
-Date: Tue, 5 Feb 2002 10:13:01 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-X-OriginalArrivalTime: 05 Feb 2002 17:15:46.0765 (UTC) FILETIME=[C03587D0:01C1AE68]
+	id <S289659AbSBERNJ>; Tue, 5 Feb 2002 12:13:09 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:15942 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289619AbSBERMz>; Tue, 5 Feb 2002 12:12:55 -0500
+Date: Tue, 5 Feb 2002 18:13:54 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+        Paul McKenney <paul.mckenney@us.ibm.com>
+Subject: Re: [PATCH] New Read-Copy Update patch
+Message-ID: <20020205181354.M3135@athlon.random>
+In-Reply-To: <20020205211826.B32506@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020205211826.B32506@in.ibm.com>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a kr7a-raid (hpt372 raid) motherboard.i The 2.4.17 kernel
-(plus the 2.4.xx variants on the redhat 7.2 and mandrake 8.1)
-panic during boot.
+On Tue, Feb 05, 2002 at 09:18:26PM +0530, Dipankar Sarma wrote:
+> Here is a "new" Read-Copy update patch that tries to address
+> many of the concerns with the previous RCU patches. The
+> details of RCU are documented as usual at
+> http://lse.sourceforge.net/locking/rcupdate.html.
+> 
+> Main features of rcu-2.5.3.patch -
+> 
+> 1. Unlike my previous patch based on the old DYNIX/ptx algorithm
+>    this does not have any code in arch-dependent directories. This
+>    should make Andrea happy ;-)
+> 2. No overhead in fastpath other than a per-cpu counter increment
+>    during context switch.
+> 3. RCU callbacks maintained in per-cpu lists, so global locking
+>    needs to be used only once in every quiescent cycle, not
+>    for queueing RCU callbacks.
+> 4. No changes to scheduler code.
+> 5. No RCU, no overhead other than the context switch counter increment.
 
-I have found the problem is in ide-pci.c (and a similar one in
-hpt366.c) and diff -u follows below.
+I think you attached the wrong patch, the below one is based on the
+kernel thread that we don't need with the scheduler counter.
 
-The code of interest begins at line 835 (2.4.17 base):
-The hpt372 returns a class_rev of  5  which is not expected
-by the switch statement.
+BTW, I'd like to point out that the schedule counter is likely to be at
+zero cacheline cost.
 
-        pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-        class_rev &= 0xff;
-
-        strcpy(d->name, chipset_names[class_rev]);
-
-        switch(class_rev) {
-                case 4:
-                case 3: printk("%s: IDE controller on PCI bus %02x dev
-%02x\n",d->name, dev->bus->number, dev->devfn);
-                        ide_setup_pci_device(dev, d);
-                        return;
-                default:        break;
-        }
-
-The patch makes this code more defensive by using the highest known
-class_rev if one is returned which is higher.
-
-Also, for class_rev == 4, the strcpy copies a 7 byte string over
-a 6 byte one ("HPT370A" over "HPT366") so I added a strncpy
-to make this more defensive as well.
-
-Roger Massey
-
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////
---- drivers/ide/ide-pci.c Mon Feb  4 19:44:02 2002
-+++ drivers/ide/ide-pci.orig.c Mon Feb  4 19:37:50 2002
-@@ -836,11 +836,7 @@
-  pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-  class_rev &= 0xff;
-
-- if(class_rev >= (sizeof(chipset_names)/sizeof(char *))) {
--  class_rev = (sizeof(chipset_names)/sizeof(char *)) - 1;
-- }
--
-- strncpy(d->name, chipset_names[class_rev], strlen(d->name));
-+ strcpy(d->name, chipset_names[class_rev]);
-
-  switch(class_rev) {
-   case 4:
---- drivers/ide/hpt366.c Mon Feb  4 19:32:45 2002
-+++ drivers/ide/hpt366.orig.c Mon Feb  4 19:33:30 2002
-@@ -214,9 +214,6 @@
-  pci_read_config_dword(bmide_dev, PCI_CLASS_REVISION, &class_rev);
-  class_rev &= 0xff;
-
-- if(class_rev >= (sizeof(chipset_names)/sizeof(char *)))
--  class_rev = (sizeof(chipset_names)/sizeof(char *)) -1;
--
-         /*
-          * at that point bibma+0x2 et bibma+0xa are byte registers
-          * to investigate:
-
-
-
+Andrea

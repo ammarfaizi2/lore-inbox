@@ -1,33 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261690AbREOXC6>; Tue, 15 May 2001 19:02:58 -0400
+	id <S261688AbREOXLJ>; Tue, 15 May 2001 19:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261688AbREOXCs>; Tue, 15 May 2001 19:02:48 -0400
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:35076 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S261692AbREOXCd>;
-	Tue, 15 May 2001 19:02:33 -0400
-Date: Tue, 15 May 2001 16:02:32 -0700
-From: "H . J . Lu" <hjl@lucon.org>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH: export linux_logo_bw for hgafb.c
-Message-ID: <20010515160232.A19573@lucon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261691AbREOXK7>; Tue, 15 May 2001 19:10:59 -0400
+Received: from mail.sai.co.za ([196.33.40.8]:24584 "EHLO mail.sai.co.za")
+	by vger.kernel.org with ESMTP id <S261688AbREOXKm>;
+	Tue, 15 May 2001 19:10:42 -0400
+From: "David Wilson" <davew@sai.co.za>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: FW: I think I've found a serious bug in AMD Athlon page_alloc.c routines, where do I mail the developer(s) ?
+Date: Wed, 16 May 2001 01:12:15 +0200
+Message-ID: <NEBBJFIIGKGLPEBIJACLAEHEDMAA.davew@sai.co.za>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <E14znhi-0003HR-00@the-village.bc.nu>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch for 2.4.4. linux_logo_bw is used in hgafb.c, which
-can be compiled as a module. But linux_logo_bw is not exported.
+Hi Alan,
+
+Thanks for getting back to me.
+I wonder if DFI has a bios or chipset patch available and whether that would
+help ?
+Maybe disabling the VIA chipset support in the kernel and running generic
+drivers would help ?
+Thanks.
+Keep up the good work anyways !
+
+Regards
+David Wilson
+Technical Support Centre
+The S.A Internet
+0860 100 869
+http://www.sai.co.za
 
 
-H.J.
----
---- linux-2.4.4-ac9/drivers/video/fbcon.c.mod	Tue May 15 15:39:17 2001
-+++ linux-2.4.4-ac9/drivers/video/fbcon.c	Tue May 15 15:40:18 2001
-@@ -2495,3 +2495,4 @@ EXPORT_SYMBOL(fbcon_redraw_bmove);
- EXPORT_SYMBOL(fbcon_redraw_clear);
- EXPORT_SYMBOL(fbcon_dummy);
- EXPORT_SYMBOL(fb_con);
-+EXPORT_SYMBOL(linux_logo_bw);
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: 16 May 2001 12:54
+To: David Wilson
+Subject: Re: FW: I think I've found a serious bug in AMD Athlon
+page_alloc.c routines, where do I mail the developer(s) ?
+
+
+Known funny. Only shows up on via chipset boards. Right now we think but
+have
+not proven its a hardware flaw somwhere
+
+

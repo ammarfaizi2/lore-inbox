@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131106AbQK3UGK>; Thu, 30 Nov 2000 15:06:10 -0500
+        id <S131157AbQK3UGK>; Thu, 30 Nov 2000 15:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130882AbQK3UF7>; Thu, 30 Nov 2000 15:05:59 -0500
-Received: from h50s48a140n47.user.nortelnetworks.com ([47.140.48.50]:54715
-        "EHLO zrtps06s.us.nortel.com") by vger.kernel.org with ESMTP
-        id <S131070AbQK3TgV>; Thu, 30 Nov 2000 14:36:21 -0500
-Message-ID: <3A2697E1.B41C448@nortelnetworks.com>
-Date: Thu, 30 Nov 2000 13:09:37 -0500
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
-X-Accept-Language: en
+        id <S131070AbQK3UGA>; Thu, 30 Nov 2000 15:06:00 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1723 "EHLO math.psu.edu")
+        by vger.kernel.org with ESMTP id <S131106AbQK3TiT>;
+        Thu, 30 Nov 2000 14:38:19 -0500
+Date: Thu, 30 Nov 2000 14:07:51 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jonathan Hudson <jonathan@daria.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: corruption
+In-Reply-To: <b09.3a269edc.6bd12@trespassersw.daria.co.uk>
+Message-ID: <Pine.GSO.4.21.0011301400290.20801-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fasttrak100 questions...
-In-Reply-To: <8voa7g$d1r$1@forge.tanstaafl.de> <Pine.LNX.4.21.0011291152500.5109-100000@sol.compendium-tech.com> <20001129210830.J17523@forge.tanstaafl.de> <20001129165236.A9536@vger.timpanogas.org> <3A266EE7.4C734350@nortelnetworks.com> <20001130114349.A12564@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@americasm01.nt.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
+
+
+On Thu, 30 Nov 2000, Jonathan Hudson wrote:
+
 > 
-> On Thu, Nov 30, 2000 at 10:14:47AM -0500, Christopher Friesen wrote:
-
-> > I think you should re-read the GPL.  You only have to provide source to
-> > people to whome you have distributed your new binaries, and you only
-> > have to provide that source if you are asked for it.  If you have some
-> > code that you have written that is based on GPL'd code, and you are the
-> > only person that ever runs the binaries, then there is no obligation for
-> > you to make your code available to anybody.
+> In article <3A26625E.446AE3D@uow.edu.au>,
+> 	Andrew Morton <andrewm@uow.edu.au> writes:
+> AM> In thread "File corruption part deux", Lawrence Walton wrote:
+> >> 
+> >> my system has been acting slightly odd on all the pre 12 kernels
+> >> with the fs going read only with out any messages until now.
+> >> no opps or anything like that, but I did get this just now.
+> >> 
+> >> EXT2-fs error (device sd(8,2)): ext2_readdir:
+> >> bad entry in directory #458430: directory entry
+> >> across blocks - offset=152, inode=3393794200,
+> >> rec_len=12440, name_len=73
+> >>
+> AM> 
+> AM> 3393794200 == 0xca493098.  A kernel address. And 152 is 0x98,
+> AM> which is equal to N * 0x20 + 0x18. Read on...
+> AM> 
 > 
-> Depends on what terms the code is provided under.  Using GPL code in a
-> for profit enterprise and distributing it to customers does require
-> that the changes be provided upon request.  I have read the GPL, and
-> I've had a lot of lawyers around here read and analyze it too.
+> Don't know what these do for your analysis, observed on
+> 2.4.0test12pre2, compiling mozilla. 
 > 
-> :-)
+>  EXT2-fs error (device ide0(3,11)):
+>    ext2_readdir: bad entry in directory #409870: directory entry across blocks
+>    - offset=88, inode=3284439128, rec_len=36952, name_len=196
 
-Well of course this is the case.  I specifically said that I am the only
-one that ever ran the binaries.  Once you start distributing it to other
-people, then they can request the source additions/modifications and you
-are obligated to provide it.
+offset 0x58, data: 58 90 c4 c3 58 90 c4
 
-Theoretically you could use software based on GPL'd code all throughout
-a for-profit corporation and make boatloads of money using that
-software.  As long as you don't distribute it to customers outside the
-company, and as long as none of the employees using it ask for the
-source and distribute it outside the company, nobody outside that
-corporation has any right to the source even though it is being used for
-profit.
+Confirms. That's definitely an empty list_head at address 0xc3c49058 and -pre2
+has O_SYNC patches.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+>  EXT2-fs error (device ide0(3,11)): 
+>    ext2_add_entry: bad entry in directory #344273: rec_len % 4 != 0 - offset=0, 
+>    inode=1769234798, rec_len=28271, name_len=85
+
+data: 6e 61 74 69 6f 6e 55, i.e. "nationU"
+
+... and that one looks like a duplicated blocks effect, but there may be a lot
+of other reasons for that.
+
+> Recompiling it with 2.4.0test12pre3 last night did not cause any fs
+> problems, at least that I've noticed.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

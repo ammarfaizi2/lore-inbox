@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276966AbRJKW0k>; Thu, 11 Oct 2001 18:26:40 -0400
+	id <S277001AbRJKW3A>; Thu, 11 Oct 2001 18:29:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276990AbRJKW0a>; Thu, 11 Oct 2001 18:26:30 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:32647 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276966AbRJKW0T>;
-	Thu, 11 Oct 2001 18:26:19 -0400
-Date: Thu, 11 Oct 2001 18:26:42 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: adilger@turbolabs.com, arvest@orphansonfire.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11 loses sda9
-In-Reply-To: <UTC200110112211.WAA33043.aeb@cwi.nl>
-Message-ID: <Pine.GSO.4.21.0110111815520.24742-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277000AbRJKW2u>; Thu, 11 Oct 2001 18:28:50 -0400
+Received: from jalon.able.es ([212.97.163.2]:59078 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S276990AbRJKW2e>;
+	Thu, 11 Oct 2001 18:28:34 -0400
+Date: Fri, 12 Oct 2001 00:28:59 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Corin Hartland-Swann <cdhs@commerce.uk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with lo and AF_NETLINK
+Message-ID: <20011012002859.E18540@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.21.0110111730250.25144-100000@willow.commerce.uk.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0110111730250.25144-100000@willow.commerce.uk.net>; from cdhs@commerce.uk.net on Thu, Oct 11, 2001 at 18:37:10 +0200
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 20011011 Corin Hartland-Swann wrote:
+>
+>As the previous poster suggested, I have tried re-compiling with
+>CONFIG_NETLINK_DEV, but that didn't help, and I am still getting:
+>
+>  Cannot send dump request: Connection refused
+>
 
-On Thu, 11 Oct 2001 Andries.Brouwer@cwi.nl wrote:
+My actual setup (2.4.10-ac12) is:
 
-> Not really. I don't know whether you ever tried the experiment
-> and compiled kdev_t as a pointer to a struct with two members
-> namely major and minor, where the struct is allocated by MKDEV().
-> Very few places break, and these places are very easy to fix.
-> Stuff that is used as numbers can be forgotten quickly.
-> It is not difficult at all to get a kernel up and running that has
-> kdev_t a pointer type.
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+# CONFIG_NETLINK_DEV is not set
+# CONFIG_NETFILTER is not set
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
 
-Ugh... When do you free them?
- 
-> > Moreover, allocation policy for these structures is a tricky beast.
-> 
-> Yes. I entirely agree. All the rest is a mechanical action.
-> (Or, more precisely, removable modules require freeing, and
-> freeing requires refcounting. It is the refcounting that is
-> work, more than the allocation.)
+But the origin of the question wast that 'pump' DHCP client stopped working.
+No I have switched to dhcp-client-3.0-1mdk.
 
-Precisely.  I think that on the block side we are fairly close to
-reasonable one - at least I see how to get there.  Character devices
-are nastier - especially with the lack of common point on ->release()
-path (->f_op reassignment done by various subsystems).  Once we have
-that, the rest will be pretty easy (there will be a separate issue
-with per-disk objects, e.g. for serialization between open() and
-BLKRRPART, but that's almost independent).
+Anybody has pump working with newer kernels ?
 
-However, amount of mechanical work is going to be large - especially
-if ->i_rdev becomes dev_t.  That means changing types of a lot of local
-variables in drivers and I'd rather leave that to 2.5.  It _does_ break
-source compatibility, and that makes it -CURRENT material.
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.10-ac12-beo #6 SMP Thu Oct 11 17:41:34 CEST 2001 i686

@@ -1,512 +1,354 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVAPOFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVAPOJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbVAPOFd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 09:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVAPOEd
+	id S262521AbVAPOJL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 09:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVAPOHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 09:04:33 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:14290 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S262514AbVAPNxf
+	Sun, 16 Jan 2005 09:07:01 -0500
+Received: from out010pub.verizon.net ([206.46.170.133]:21458 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S262513AbVAPNxl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 08:53:35 -0500
+	Sun, 16 Jan 2005 08:53:41 -0500
 From: James Nelson <james4765@cwazy.co.uk>
 To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
 Cc: akpm@osdl.org, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050116135331.30109.34015.41638@localhost.localdomain>
+Message-Id: <20050116135338.30109.11810.59816@localhost.localdomain>
 In-Reply-To: <20050116135223.30109.26479.55757@localhost.localdomain>
 References: <20050116135223.30109.26479.55757@localhost.localdomain>
-Subject: [PATCH 10/13] pcxx: remove cli()/sti() in drivers/char/pcxx.c
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.220.243] at Sun, 16 Jan 2005 07:53:31 -0600
-Date: Sun, 16 Jan 2005 07:53:32 -0600
+Subject: [PATCH 11/13] riscom8: remove cli()/sti() in drivers/char/riscom8.c
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.220.243] at Sun, 16 Jan 2005 07:53:38 -0600
+Date: Sun, 16 Jan 2005 07:53:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: James Nelson <james4765@gmail.com>
 
-diff -urN --exclude='*~' linux-2.6.11-rc1-mm1-original/drivers/char/pcxx.c linux-2.6.11-rc1-mm1/drivers/char/pcxx.c
---- linux-2.6.11-rc1-mm1-original/drivers/char/pcxx.c	2004-12-24 16:35:00.000000000 -0500
-+++ linux-2.6.11-rc1-mm1/drivers/char/pcxx.c	2005-01-16 07:32:19.508528433 -0500
-@@ -209,8 +209,7 @@
- 
- 	printk(KERN_NOTICE "Unloading PC/Xx version %s\n", VERSION);
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	del_timer_sync(&pcxx_timer);
- 
- 	if ((e1 = tty_unregister_driver(pcxe_driver)))
-@@ -219,7 +218,7 @@
- 	put_tty_driver(pcxe_driver);
- 	cleanup_board_resources();
- 	kfree(digi_channels);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- static inline struct channel *chan(register struct tty_struct *tty)
-@@ -323,12 +322,12 @@
- 	info->blocked_open++;
- 
- 	for (;;) {
--		cli();
-+		local_irq_disable();
- 		globalwinon(info);
- 		info->omodem |= DTR|RTS;
- 		fepcmd(info, SETMODEM, DTR|RTS, 0, 10, 1);
- 		memoff(info);
--		sti();
-+		local_irq_enable();
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		if(tty_hung_up_p(filp) || (info->asyncflags & ASYNC_INITIALIZED) == 0) {
- 			if(info->asyncflags & ASYNC_HUP_NOTIFY)
-@@ -404,8 +403,7 @@
- 			return -ERESTARTSYS;
- 	}
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	ch->count++;
- 	tty->driver_data = ch;
- 	ch->tty = tty;
-@@ -428,7 +426,7 @@
- 		memoff(ch);
- 		ch->asyncflags |= ASYNC_INITIALIZED;
- 	}
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	if(ch->asyncflags & ASYNC_CLOSING) {
- 		interruptible_sleep_on(&ch->close_wait);
-@@ -463,8 +461,7 @@
- 	if (!(info->asyncflags & ASYNC_INITIALIZED)) 
- 		return;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	globalwinon(info);
- 
- 	bc = info->brdchan;
-@@ -483,7 +480,7 @@
- 
- 	memoff(info);
- 	info->asyncflags &= ~ASYNC_INITIALIZED;
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- 
-@@ -493,14 +490,12 @@
- 
- 	if ((info=chan(tty))!=NULL) {
- 		unsigned long flags;
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
- 
--		if(tty_hung_up_p(filp)) {
-+		if(tty_hung_up_p(filp))
- 			/* flag that somebody is done with this module */
--			restore_flags(flags);
--			return;
--		}
-+			goto out;
-+
- 		/* this check is in serial.c, it won't hurt to do it here too */
- 		if ((tty->count == 1) && (info->count != 1)) {
- 			/*
-@@ -513,10 +508,9 @@
- 			printk("pcxe_close: bad serial port count; tty->count is 1, info->count is %d\n", info->count);
- 			info->count = 1;
- 		}
--		if (info->count-- > 1) {
--			restore_flags(flags);
--			return;
--		}
-+		if (info->count-- > 1)
-+			goto out;
-+
- 		if (info->count < 0) {
- 			info->count = 0;
- 		}
-@@ -544,7 +538,7 @@
- 		}
- 		info->asyncflags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
- 		wake_up_interruptible(&info->close_wait);
--		restore_flags(flags);
-+out:		local_irq_restore(flags);
- 	}
- }
- 
-@@ -556,15 +550,14 @@
- 	if ((ch=chan(tty))!=NULL) {
- 		unsigned long flags;
- 
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
- 		shutdown(ch);
- 		ch->event = 0;
- 		ch->count = 0;
- 		ch->tty = NULL;
- 		ch->asyncflags &= ~ASYNC_NORMAL_ACTIVE;
- 		wake_up_interruptible(&ch->open_wait);
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 	}
- }
- 
-@@ -590,8 +583,7 @@
- 	 */
- 
- 	total = 0;
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	globalwinon(ch);
- 	head = bc->tin & (size - 1);
- 	tail = bc->tout;
-@@ -629,7 +621,7 @@
- 		bc->ilow = 1;
- 	}
- 	memoff(ch);
--	restore_flags(flags);
-+	local_irq_restore(flags);
+diff -urN --exclude='*~' linux-2.6.11-rc1-mm1-original/drivers/char/riscom8.c linux-2.6.11-rc1-mm1/drivers/char/riscom8.c
+--- linux-2.6.11-rc1-mm1-original/drivers/char/riscom8.c	2004-12-24 16:34:44.000000000 -0500
++++ linux-2.6.11-rc1-mm1/drivers/char/riscom8.c	2005-01-16 07:32:19.510528165 -0500
+@@ -232,13 +232,13 @@
+ {
+ 	unsigned long flags;
  	
- 	return(total);
- }
-@@ -653,8 +645,7 @@
- 		unsigned int head, tail;
- 		unsigned long flags;
- 
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
- 		globalwinon(ch);
- 
- 		bc = ch->brdchan;
-@@ -672,7 +663,7 @@
- 			bc->ilow = 1;
- 		}
- 		memoff(ch);
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 	}
- 
- 	return remain;
-@@ -691,8 +682,7 @@
- 	if ((ch=chan(tty))==NULL)
- 		return(0);
- 
--	save_flags(flags);
--	cli();
+-	save_flags(flags); cli();
 +	local_irq_save(flags);
- 	globalwinon(ch);
- 
- 	bc = ch->brdchan;
-@@ -718,7 +708,7 @@
- 	}
- 
- 	memoff(ch);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	return(chars);
- }
-@@ -734,8 +724,7 @@
- 	if ((ch=chan(tty))==NULL)
- 		return;
- 
--	save_flags(flags);
+ 	rc_out(bp, RC_CTOUT, 0);     	           /* Clear timeout             */
+ 	rc_wait_CCR(bp);			   /* Wait for CCR ready        */
+ 	rc_out(bp, CD180_CCR, CCR_HARDRESET);      /* Reset CD180 chip          */
+-	sti();
++	local_irq_enable();
+ 	rc_long_delay(HZ/20);                      /* Delay 0.05 sec            */
 -	cli();
-+	local_irq_save(flags);
- 
- 	globalwinon(ch);
- 	bc = ch->brdchan;
-@@ -743,7 +732,7 @@
- 	fepcmd(ch, STOUT, (unsigned) tail, 0, 0, 0);
- 
- 	memoff(ch);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	tty_wakeup(tty);
- }
-@@ -755,11 +744,10 @@
- 	if ((ch=chan(tty))!=NULL) {
- 		unsigned long flags;
- 
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
- 		if ((ch->statusflags & TXBUSY) && !(ch->statusflags & EMPTYWAIT))
- 			setup_empty_event(tty,ch);
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 	}
- }
- 
-@@ -1512,8 +1500,7 @@
- 	struct channel *ch;
- 	struct board_info *bd;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 
- 	for(crd=0; crd < numcards; crd++) {
- 		bd = &boards[crd];
-@@ -1536,7 +1523,7 @@
- 	}
- 
- 	mod_timer(&pcxx_timer, jiffies + HZ/25);
++	local_irq_disable();
+ 	rc_out(bp, CD180_GIVR, RC_ID);             /* Set ID for this chip      */
+ 	rc_out(bp, CD180_GICR, 0);                 /* Clear all bits            */
+ 	rc_out(bp, CD180_PILR1, RC_ACK_MINT);      /* Prio for modem intr       */
+@@ -249,7 +249,7 @@
+ 	rc_out(bp, CD180_PPRH, (RC_OSCFREQ/(1000000/RISCOM_TPS)) >> 8);
+ 	rc_out(bp, CD180_PPRL, (RC_OSCFREQ/(1000000/RISCOM_TPS)) & 0xff);
+ 	
 -	restore_flags(flags);
 +	local_irq_restore(flags);
  }
  
- static void doevent(int crd)
-@@ -1940,12 +1927,11 @@
- 		return(-EINVAL);
+ /* Main probing routine, also sets irq. */
+@@ -861,7 +861,7 @@
+ 		port->xmit_buf = (unsigned char *) tmp;
  	}
- 
--	save_flags(flags);
--	cli();
+ 		
+-	save_flags(flags); cli();
 +	local_irq_save(flags);
- 	globalwinon(ch);
- 	mstat = bc->mstat;
- 	memoff(ch);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	if(mstat & DTR)
- 		mflag |= TIOCM_DTR;
-@@ -1978,8 +1964,7 @@
- 		return(-EINVAL);
- 	}
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	/*
- 	 * I think this modemfake stuff is broken.  It doesn't
- 	 * correctly reflect the behaviour desired by the TIOCM*
-@@ -2005,7 +1990,7 @@
- 	globalwinon(ch);
- 	pcxxparam(tty,ch);
- 	memoff(ch);
+ 		
+ 	if (port->tty) 
+ 		clear_bit(TTY_IO_ERROR, &port->tty->flags);
+@@ -873,7 +873,7 @@
+ 	rc_change_speed(bp, port);
+ 	port->flags |= ASYNC_INITIALIZED;
+ 		
 -	restore_flags(flags);
 +	local_irq_restore(flags);
  	return 0;
  }
  
-@@ -2028,8 +2013,6 @@
- 		return(-EINVAL);
+@@ -984,19 +984,19 @@
+ 	 */
+ 	retval = 0;
+ 	add_wait_queue(&port->open_wait, &wait);
+-	cli();
++	local_irq_disable();
+ 	if (!tty_hung_up_p(filp))
+ 		port->count--;
+-	sti();
++	local_irq_enable();
+ 	port->blocked_open++;
+ 	while (1) {
+-		cli();
++		local_irq_disable();
+ 		rc_out(bp, CD180_CAR, port_No(port));
+ 		CD = rc_in(bp, CD180_MSVR) & MSVR_CD;
+ 		rc_out(bp, CD180_MSVR, MSVR_RTS);
+ 		bp->DTR &= ~(1u << port_No(port));
+ 		rc_out(bp, RC_DTR, bp->DTR);
+-		sti();
++		local_irq_enable();
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		if (tty_hung_up_p(filp) ||
+ 		    !(port->flags & ASYNC_INITIALIZED)) {
+@@ -1069,7 +1069,7 @@
+ 	if (!port || rc_paranoia_check(port, tty->name, "close"))
+ 		return;
+ 	
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	if (tty_hung_up_p(filp))
+ 		goto out;
+ 	
+@@ -1136,7 +1136,7 @@
  	}
+ 	port->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
+ 	wake_up_interruptible(&port->close_wait);
+-out:	restore_flags(flags);
++out:	local_irq_restore(flags);
+ }
+ 
+ static int rc_write(struct tty_struct * tty, 
+@@ -1155,34 +1155,34 @@
+ 	if (!tty || !port->xmit_buf || !tmp_buf)
+ 		return 0;
  
 -	save_flags(flags);
--
- 	switch(cmd) {
- 		case TCSBRK:	/* SVID version: non-zero arg --> no break */
- 			retval = tty_check_change(tty);
-@@ -2074,21 +2057,21 @@
- 			return pcxe_tiocmset(tty, file, mstat, ~mstat);
- 
- 		case TIOCSDTR:
--			cli();
-+			local_irq_save(flags);
- 			ch->omodem |= DTR;
- 			globalwinon(ch);
- 			fepcmd(ch, SETMODEM, DTR, 0, 10, 1);
- 			memoff(ch);
++	local_save_flags(flags);
+ 	while (1) {
+-		cli();		
++		local_irq_disable();		
+ 		c = min_t(int, count, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
+ 					  SERIAL_XMIT_SIZE - port->xmit_head));
+ 		if (c <= 0) {
 -			restore_flags(flags);
 +			local_irq_restore(flags);
  			break;
- 
- 		case TIOCCDTR:
- 			ch->omodem &= ~DTR;
--			cli();
-+			local_irq_save(flags);
- 			globalwinon(ch);
- 			fepcmd(ch, SETMODEM, 0, DTR, 10, 1);
- 			memoff(ch);
--			restore_flags(flags);
-+			local_irq_restore(flags);
- 			break;
- 
- 		case DIGI_GETA:
-@@ -2123,16 +2106,16 @@
- 				ch->dsr = DSR;
- 			}
- 		
--			cli();
-+			local_irq_save(flags);
- 			globalwinon(ch);
- 			pcxxparam(tty,ch);
- 			memoff(ch);
--			restore_flags(flags);
-+			local_irq_restore(flags);
- 			break;
- 
- 		case DIGI_GETFLOW:
- 		case DIGI_GETAFLOW:
--			cli();	
-+			local_irq_save(flags);	
- 			globalwinon(ch);
- 			if(cmd == DIGI_GETFLOW) {
- 				dflow.startc = bc->startc;
-@@ -2142,7 +2125,7 @@
- 				dflow.stopc = bc->stopca;
- 			}
- 			memoff(ch);
--			restore_flags(flags);
-+			local_irq_restore(flags);
- 
- 			if (copy_to_user((char*)arg, &dflow, sizeof(dflow)))
- 				return -EFAULT;
-@@ -2162,7 +2145,7 @@
- 				return -EFAULT;
- 
- 			if(dflow.startc != startc || dflow.stopc != stopc) {
--				cli();
-+				local_irq_save(flags);
- 				globalwinon(ch);
- 
- 				if(cmd == DIGI_SETFLOW) {
-@@ -2179,7 +2162,7 @@
- 					pcxe_start(tty);
- 
- 				memoff(ch);
--				restore_flags(flags);
-+				local_irq_restore(flags);
- 			}
- 			break;
- 
-@@ -2196,8 +2179,7 @@
- 
- 	if ((info=chan(tty))!=NULL) {
- 		unsigned long flags;
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
- 		globalwinon(info);
- 		pcxxparam(tty,info);
- 		memoff(info);
-@@ -2208,7 +2190,7 @@
- 		if(!(old_termios->c_cflag & CLOCAL) &&
- 			(tty->termios->c_cflag & CLOCAL))
- 			wake_up_interruptible(&info->open_wait);
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 	}
- }
- 
-@@ -2237,15 +2219,14 @@
- 
- 	if ((info=chan(tty))!=NULL) {
- 		unsigned long flags;
--		save_flags(flags); 
--		cli();
-+		local_irq_save(flags); 
- 		if ((info->statusflags & TXSTOPPED) == 0) {
- 			globalwinon(info);
- 			fepcmd(info, PAUSETX, 0, 0, 0, 0);
- 			info->statusflags |= TXSTOPPED;
- 			memoff(info);
  		}
+ 
+ 		memcpy(port->xmit_buf + port->xmit_head, buf, c);
+ 		port->xmit_head = (port->xmit_head + c) & (SERIAL_XMIT_SIZE-1);
+ 		port->xmit_cnt += c;
 -		restore_flags(flags);
 +		local_irq_restore(flags);
+ 
+ 		buf += c;
+ 		count -= c;
+ 		total += c;
  	}
+ 
+-	cli();
++	local_irq_disable();
+ 	if (port->xmit_cnt && !tty->stopped && !tty->hw_stopped &&
+ 	    !(port->IER & IER_TXRDY)) {
+ 		port->IER |= IER_TXRDY;
+ 		rc_out(bp, CD180_CAR, port_No(port));
+ 		rc_out(bp, CD180_IER, port->IER);
+ 	}
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 
+ 	return total;
+ }
+@@ -1198,7 +1198,7 @@
+ 	if (!tty || !port->xmit_buf)
+ 		return;
+ 
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	
+ 	if (port->xmit_cnt >= SERIAL_XMIT_SIZE - 1)
+ 		goto out;
+@@ -1206,7 +1206,7 @@
+ 	port->xmit_buf[port->xmit_head++] = ch;
+ 	port->xmit_head &= SERIAL_XMIT_SIZE - 1;
+ 	port->xmit_cnt++;
+-out:	restore_flags(flags);
++out:	local_irq_restore(flags);
  }
  
-@@ -2255,15 +2236,14 @@
+ static void rc_flush_chars(struct tty_struct * tty)
+@@ -1221,11 +1221,11 @@
+ 	    !port->xmit_buf)
+ 		return;
  
- 	if ((info=chan(tty))!=NULL) {
- 		unsigned long flags;
--		save_flags(flags);
--		cli();
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	port->IER |= IER_TXRDY;
+ 	rc_out(port_Board(port), CD180_CAR, port_No(port));
+ 	rc_out(port_Board(port), CD180_IER, port->IER);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static int rc_write_room(struct tty_struct * tty)
+@@ -1260,9 +1260,9 @@
+ 	if (rc_paranoia_check(port, tty->name, "rc_flush_buffer"))
+ 		return;
+ 
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 	
+ 	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+@@ -1280,11 +1280,11 @@
+ 		return -ENODEV;
+ 
+ 	bp = port_Board(port);
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	rc_out(bp, CD180_CAR, port_No(port));
+ 	status = rc_in(bp, CD180_MSVR);
+ 	result = rc_in(bp, RC_RI) & (1u << port_No(port)) ? 0 : TIOCM_RNG;
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 	result |= ((status & MSVR_RTS) ? TIOCM_RTS : 0)
+ 		| ((status & MSVR_DTR) ? TIOCM_DTR : 0)
+ 		| ((status & MSVR_CD)  ? TIOCM_CAR : 0)
+@@ -1305,7 +1305,7 @@
+ 
+ 	bp = port_Board(port);
+ 
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	if (set & TIOCM_RTS)
+ 		port->MSVR |= MSVR_RTS;
+ 	if (set & TIOCM_DTR)
+@@ -1319,7 +1319,7 @@
+ 	rc_out(bp, CD180_CAR, port_No(port));
+ 	rc_out(bp, CD180_MSVR, port->MSVR);
+ 	rc_out(bp, RC_DTR, bp->DTR);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 	return 0;
+ }
+ 
+@@ -1328,7 +1328,7 @@
+ 	struct riscom_board *bp = port_Board(port);
+ 	unsigned long flags;
+ 	
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	port->break_length = RISCOM_TPS / HZ * length;
+ 	port->COR2 |= COR2_ETC;
+ 	port->IER  |= IER_TXRDY;
+@@ -1338,7 +1338,7 @@
+ 	rc_wait_CCR(bp);
+ 	rc_out(bp, CD180_CCR, CCR_CORCHG2);
+ 	rc_wait_CCR(bp);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static inline int rc_set_serial_info(struct riscom_port * port,
+@@ -1381,9 +1381,9 @@
+ 		port->closing_wait = tmp.closing_wait;
+ 	}
+ 	if (change_speed)  {
+-		save_flags(flags); cli();
 +		local_irq_save(flags);
- 		if ((info->statusflags & RXSTOPPED) == 0) {
- 			globalwinon(info);
- 			fepcmd(info, PAUSERX, 0, 0, 0, 0);
- 			info->statusflags |= RXSTOPPED;
- 			memoff(info);
- 		}
+ 		rc_change_speed(bp, port);
 -		restore_flags(flags);
 +		local_irq_restore(flags);
  	}
+ 	return 0;
  }
- 
-@@ -2275,8 +2255,7 @@
- 		unsigned long flags;
- 
- 		/* Just in case output was resumed because of a change in Digi-flow */
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
- 		if(info->statusflags & RXSTOPPED) {
- 			volatile struct board_chan *bc;
- 			globalwinon(info);
-@@ -2285,7 +2264,7 @@
- 			info->statusflags &= ~RXSTOPPED;
- 			memoff(info);
- 		}
--		restore_flags(flags);
-+		local_irq_restore(flags);
+@@ -1464,7 +1464,7 @@
+ 	
+ 	bp = port_Board(port);
+ 	
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	port->MSVR &= ~MSVR_RTS;
+ 	rc_out(bp, CD180_CAR, port_No(port));
+ 	if (I_IXOFF(tty))  {
+@@ -1473,7 +1473,7 @@
+ 		rc_wait_CCR(bp);
  	}
+ 	rc_out(bp, CD180_MSVR, port->MSVR);
+-	restore_flags(flags);
++	local_irq_restore(flags);
  }
  
-@@ -2297,8 +2276,7 @@
- 	if ((info=chan(tty))!=NULL) {
- 		unsigned long flags;
- 
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
- 		/* Just in case output was resumed because of a change in Digi-flow */
- 		if(info->statusflags & TXSTOPPED) {
- 			volatile struct board_chan *bc;
-@@ -2310,7 +2288,7 @@
- 			info->statusflags &= ~TXSTOPPED;
- 			memoff(info);
- 		}
--		restore_flags(flags);
-+		local_irq_restore(flags);
+ static void rc_unthrottle(struct tty_struct * tty)
+@@ -1487,7 +1487,7 @@
+ 	
+ 	bp = port_Board(port);
+ 	
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	port->MSVR |= MSVR_RTS;
+ 	rc_out(bp, CD180_CAR, port_No(port));
+ 	if (I_IXOFF(tty))  {
+@@ -1496,7 +1496,7 @@
+ 		rc_wait_CCR(bp);
  	}
+ 	rc_out(bp, CD180_MSVR, port->MSVR);
+-	restore_flags(flags);
++	local_irq_restore(flags);
  }
  
-@@ -2319,8 +2297,7 @@
+ static void rc_stop(struct tty_struct * tty)
+@@ -1510,11 +1510,11 @@
+ 	
+ 	bp = port_Board(port);
+ 	
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	port->IER &= ~IER_TXRDY;
+ 	rc_out(bp, CD180_CAR, port_No(port));
+ 	rc_out(bp, CD180_IER, port->IER);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static void rc_start(struct tty_struct * tty)
+@@ -1528,13 +1528,13 @@
+ 	
+ 	bp = port_Board(port);
+ 	
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	if (port->xmit_cnt && port->xmit_buf && !(port->IER & IER_TXRDY))  {
+ 		port->IER |= IER_TXRDY;
+ 		rc_out(bp, CD180_CAR, port_No(port));
+ 		rc_out(bp, CD180_IER, port->IER);
+ 	}
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ /*
+@@ -1586,9 +1586,9 @@
+ 	    tty->termios->c_iflag == old_termios->c_iflag)
+ 		return;
+ 
+-	save_flags(flags); cli();
++	local_irq_save(flags);
+ 	rc_change_speed(port_Board(port), port);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 
+ 	if ((old_termios->c_cflag & CRTSCTS) &&
+ 	    !(tty->termios->c_cflag & CRTSCTS)) {
+@@ -1684,12 +1684,11 @@
  {
  	unsigned long flags;
  
 -	save_flags(flags);
 -	cli();
 +	local_irq_save(flags);
- 	globalwinon(ch);
- 
- 	/* 
-@@ -2334,7 +2311,7 @@
- 	fepcmd(ch, SENDBREAK, msec, 0, 10, 0);
- 	memoff(ch);
- 
+ 	free_page((unsigned long)tmp_buf);
+ 	tty_unregister_driver(riscom_driver);
+ 	put_tty_driver(riscom_driver);
 -	restore_flags(flags);
 +	local_irq_restore(flags);
  }
  
- static void setup_empty_event(struct tty_struct *tty, struct channel *ch)
-@@ -2342,12 +2319,11 @@
- 	volatile struct board_chan *bc;
- 	unsigned long flags;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	globalwinon(ch);
- 	ch->statusflags |= EMPTYWAIT;
- 	bc = ch->brdchan;
- 	bc->iempty = 1;
- 	memoff(ch);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
+ #ifndef MODULE

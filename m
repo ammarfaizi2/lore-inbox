@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbUCVLKp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 06:10:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUCVLKo
+	id S261880AbUCVLPc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 06:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbUCVLPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 06:10:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:18373 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261874AbUCVLKl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 06:10:41 -0500
-Date: Mon, 22 Mar 2004 12:10:39 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mason@suse.com
+	Mon, 22 Mar 2004 06:15:32 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:4780 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261880AbUCVLPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 06:15:31 -0500
+Date: Mon, 22 Mar 2004 12:15:26 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] barrier patch set
-Message-ID: <20040322111039.GL1481@suse.de>
-References: <20040319153554.GC2933@suse.de> <20040322030939.6243c1c2.akpm@osdl.org>
+Message-ID: <20040322111526.GB9299@merlin.emma.line.org>
+Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040319153554.GC2933@suse.de> <405B2127.8090705@pobox.com> <20040319230136.GC7161@merlin.emma.line.org> <200403200102.39716.bzolnier@elka.pw.edu.pl> <20040320185209.GB2016@hh.idb.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040322030939.6243c1c2.akpm@osdl.org>
+In-Reply-To: <20040320185209.GB2016@hh.idb.hist.no>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> >  A first release of a collected barrier patchset for 2.6.5-rc1-mm2.
-> 
-> The tagging of BIOs with set_buffer_ordered() or WRITE_BARRIER is a little
-> awkward.
-> 
-> Take the case of an ext2 fsync() or even an ext3 fsync() which frequently
-> will not trigger a commit.  If we must perform the barrier by tagging the
-> final BIO, that will be tricky to implement.  I could set some new field in
-> struct writeback_control and rework the mpage code, but working out "this
-> is the final BIO for this operation" is a fairly hard thing to do. 
-> sys_sync() would require even more VFS surgery.
+On Sat, 20 Mar 2004, Helge Hafting wrote:
 
-Yeah, it's not very pretty if you have to track the last sumit. Chris
-complained about that in 2.4 as well :-)
+> On Sat, Mar 20, 2004 at 01:02:39AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> [...]
+> > There were reports that on some drives you can't disable write cache
+> > and even (?) that some drives lie (WC still enabled but marked as disabled).
+> > 
+> I think the simple solution of not supporting data integrity properly
+> on such a broken disk is perfectly ok.
 
-> Generally, it would be much preferable to use the blkdev_issue_flush()
-> API.  What is the status of that?
-
-It'll be fully supported.
+At least Linux should warn the user that his data is heading for doom.
 
 -- 
-Jens Axboe
+Matthias Andree
 
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

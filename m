@@ -1,97 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287317AbSALS7O>; Sat, 12 Jan 2002 13:59:14 -0500
+	id <S287333AbSALTQh>; Sat, 12 Jan 2002 14:16:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287319AbSALS7F>; Sat, 12 Jan 2002 13:59:05 -0500
-Received: from gumby.it.wmich.edu ([141.218.23.21]:17055 "EHLO
-	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
-	id <S287317AbSALS6r>; Sat, 12 Jan 2002 13:58:47 -0500
-Message-ID: <005301c19b9b$6acc61e0$0501a8c0@psuedogod>
-From: "Ed Sweetman" <ed.sweetman@wmich.edu>
-To: "Andrea Arcangeli" <andrea@suse.de>, <yodaiken@fsmlabs.com>
-Cc: <jogi@planetzork.ping.de>, "Robert Love" <rml@tech9.net>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <nigel@nrg.org>,
-        "Rob Landley" <landley@trommello.org>,
-        "Andrew Morton" <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Sat, 12 Jan 2002 14:00:17 -0500
+	id <S287334AbSALTQ1>; Sat, 12 Jan 2002 14:16:27 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:25499 "EHLO
+	out007pub.verizon.net") by vger.kernel.org with ESMTP
+	id <S287333AbSALTQT>; Sat, 12 Jan 2002 14:16:19 -0500
+Message-ID: <3C408B78.6050102@bellatlantic.net>
+Date: Sat, 12 Jan 2002 14:16:08 -0500
+From: "James C. Owens" <owensjc@bellatlantic.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020105
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: O(1) scheduler ver H6 - more straightforward timeslice macros
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo,
+
+I like the new scheduler. It seems like the timeslice macros in sched.h 
+could be more straighforward - i.e. instead of
+
+#define PRIO_TO_TIMESLICE(p) \
+((( (MAX_USER_PRIO-1-USER_PRIO(p))*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+MAX_USER_PRIO-1) / MAX_USER_PRIO) + MIN_TIMESLICE)
+
+#define RT_PRIO_TO_TIMESLICE(p) \
+((( (MAX_RT_PRIO-(p)-1)*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+MAX_RT_PRIO-1) / MAX_RT_PRIO) + MIN_TIMESLICE)
+
+why not
+
+#define PRIO_TO_TIMESLICE(p) \
+(MAX_TIMESLICE - 
+(USER_PRIO(p)/(MAX_USER_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
+
+#define RT_PRIO_TO_TIMESLICE(p) \
+(MAX_TIMESLICE - (p/(MAX_RT_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
 
 
-> On Sat, Jan 12, 2002 at 09:52:09AM -0700, yodaiken@fsmlabs.com wrote:
-> > On Sat, Jan 12, 2002 at 04:07:14PM +0100, jogi@planetzork.ping.de wrote:
-> > > I did my usual compile testings (untar kernel archive, apply patches,
-> > > make -j<value> ...
-> >
-> > If I understand your test,
-> > you are testing different loads - you are compiling kernels that may
-differ
-> > in size and makefile organization, not to mention different layout on
-the
-> > file system and disk.
+The second way seems simpler to me, and really illustrates what you are 
+doing in a more straightforward manner.
 
-Can someone tell me why we're "testing" the preempt kernel by running
-make -j on a build?  What exactly is this going to show us?  The only thing
-i can think of is showing us that throughput is not damaged when you want to
-run single apps by using preempt.  You dont get to see the effects of the
-kernel preemption because all the damn thing is doing is preempting itself.
-
-If you want to test the preempt kernel you're going to need something that
-can find the mean latancy or "time to action" for a particular program or
-all programs being run at the time and then run multiple programs that you
-would find on various peoples' systems.   That is the "feel" people talk
-about when they praise the preempt patch.  make -j'ing something and not
-testing anything else but that will show you nothing important except "does
-throughput get screwed by the preempt patch."   Perhaps checking the
-latencies on a common program on people's systems like mozilla or konqueror
-while doing a 'make -j N bzImage'  would be a better idea.
-
-> Ouch, I assumed this wasn't the case indeed.
->
-> >
-> > What happens when you do the same test, compiling one kernel under
-multiple
-> > different kernels?
->
-> Andrea
+I also cleaned up some of the comments. The sched.h diff between the H6 
+version of the scheduler applied to 2.4.18-pre3 and vanilla 2.4.18-pre3 
+follows: (Note that I changed the min and max timeslices to 20 and 100 
+for my own use.)
 
 
-You should _always_ use the same kernel tree at the same point each time you
-rerun the test under a different kernel.  Always make clean before rebooting
-to the next kernel.  setting up the test bed should be pretty straight
-forward.   make sure the build tree is clean then make dep it.   reboot to
-the next kernel.   load up mozilla but nothing else (mozilla should be
-modified a bit to display the time it takes to do certain functions such as
-displaying drop down menus, loading, opening a new window. Also you should
-make the homepage something on the drive or blank.).  start make -j 4
-bzImage then load mozilla (no other gnome gtk libraries or having them
-loaded via running gnome doesn't matter, just as long as it's the same each
-time).  Mozilla should then output times it takes to do certain things and
-that should give you a good idea of how the preempt patch is performing
-assuming everything is running on the same priority and your memory isn't
-being maxed out and your hdd isn't eating the majority of the cpu time.
+474c474
 
-But i really think make -j'ing and only testing that or reporting those
-numbers is a complete waste of time if you're trying to look at the
-preempt's patch performance.  I like using mozilla in this example because
-it's a big bulky app that most people have (kde users possibly excluded)
-where an improvement in latency or "time to action" is actually important to
-people, and cant be easily ignored.
+< * is for SCHED_OTHER tasks.
+---
+ > * is for SCHED_OTHER tasks. (Max Priority is 168.)
+481c481
+< * to static priority [ 24 ... 63 (MAX_PRIO-1) ]
+---
+ > * to static priority [ 128 ... 167 (MAX_PRIO-1) ]
+483,484c483,484
+< * User-nice value of -20 == static priority 24, and
+< * user-nice value 19 == static priority 63. The lower
+---
+ > * User-nice value of -20 == static priority 128, and
+ > * user-nice value 19 == static priority 167. The lower
+486,488d485
+< *
+< * Note that while static priority cannot go below 24,
+< * the priority of a process can go as low as 0.
+495,496c492,493
+< * Default timeslice is 90 msecs, maximum is 150 msecs.
+< * Minimum timeslice is 30 msecs.
+---
+ > * Default timeslice is 60 msecs; maximum is 100 msecs.
+ > * Minimum timeslice is 20 msecs.
+498,499c495,496
+< #define MIN_TIMESLICE	( 30 * HZ / 1000)
+< #define MAX_TIMESLICE	(150 * HZ / 1000)
+---
+ > #define MIN_TIMESLICE	(20 * HZ / 1000)
+ > #define MAX_TIMESLICE	(100 * HZ / 1000)
+500a498,503
+ > /*
+ > * Scales priority values to user priority values.
+ > * This means nice of -20 => p of 128 => user priority of 0.
+ > * This means nice of +19 => p of 167 => user priority of 39.
+ > * MAX_USER_PRIO is 40 which would be nice of +20.
+ > */
+505,506c508,512
+< * PRIO_TO_TIMESLICE scales priority values [ 100 ... 139  ]
+< * to initial time slice values [ MAX_TIMESLICE (150 msec) ... 2 ]
+---
+ > * PRIO_TO_TIMESLICE scales priority values [ 128 ... 167  ]
+ > * to initial time slice values [ MAX_TIMESLICE ... MIN_TIMESLICE ]
+ > *
+ > * RT_PRIO_TO_TIMESLICE scales priority values [ 0 ... 127  ]
+ > * to initial time slice values [ MAX_TIMESLICE ... MIN_TIMESLICE ]
+508,509c514,515
+< * The higher a process's priority, the bigger timeslices
+< * it gets during one round of execution. But even the lowest
+---
+ > * The numerically lower a process's priority, the bigger timeslices
+ > * it gets during one round of execution. But even the numerically highest
+513,514c519
+< ((( (MAX_USER_PRIO-1-USER_PRIO(p))*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+< MAX_USER_PRIO-1) / MAX_USER_PRIO) + MIN_TIMESLICE)
+---
+ > (MAX_TIMESLICE - 
+(USER_PRIO(p)/(MAX_USER_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
+517,518c522
+< ((( (MAX_RT_PRIO-(p)-1)*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+< MAX_RT_PRIO-1) / MAX_RT_PRIO) + MIN_TIMESLICE)
+---
+ > (MAX_TIMESLICE - (p/(MAX_RT_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
 
-well those are just my two cents,  i'd do it myself but i'm waiting for
-hardware to replace the broken crap i have now.  but if nobody has done it
-by then i'll set that up.
 
--formerly safemode
+To lkml - please cc me on any response, as I do not subscribe to the 
+lkml - I read it via a news gateway.
+
+
+Jim Owens
+SuSE Linux 6.4 (kernel 2.4.18-pre3)
+Tyan Tiger MP 2xAthlon MP 1600+
+1.25 GB RAM
 

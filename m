@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132186AbRDPV1J>; Mon, 16 Apr 2001 17:27:09 -0400
+	id <S132313AbRDPVaJ>; Mon, 16 Apr 2001 17:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132224AbRDPV1A>; Mon, 16 Apr 2001 17:27:00 -0400
-Received: from mailhost3.lanl.gov ([128.165.3.9]:24175 "EHLO
-	mailhost3.lanl.gov") by vger.kernel.org with ESMTP
-	id <S132147AbRDPV0v>; Mon, 16 Apr 2001 17:26:51 -0400
-Message-ID: <3ADB637B.13E4F1AD@lanl.gov>
-Date: Mon, 16 Apr 2001 15:26:19 -0600
-From: Eric Weigle <ehw@lanl.gov>
-Organization: CCS-1 RADIANT team
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en, es-ES, ex-MX, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Sampsa Ranta <sampsa@netsonic.fi>, linux-net@vger.kernel.org,
-        linux-kernel@vger.kernel.org, zebra@zebra.org
-Subject: Re: ARP responses broken!
+	id <S132301AbRDPV37>; Mon, 16 Apr 2001 17:29:59 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:22543 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S132224AbRDPV3q>; Mon, 16 Apr 2001 17:29:46 -0400
+Date: Tue, 17 Apr 2001 09:29:42 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: george anzinger <george@mvista.com>, Mark Salisbury <mbs@mc.com>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        Ben Greear <greearb@candelatech.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        linux-kernel@vger.kernel.org,
+        high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: No 100 HZ timer!
+Message-ID: <20010417092942.B1254@metastasis.f00f.org>
+In-Reply-To: <3ADB45C0.E3F32257@mvista.com> <200104162045.f3GKjd4522374@saturn.cs.uml.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104162045.f3GKjd4522374@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Mon, Apr 16, 2001 at 04:45:39PM -0400
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello-
+On Mon, Apr 16, 2001 at 04:45:39PM -0400, Albert D. Cahalan wrote:
 
-This is a known 'feature' of the Linux kernel, and can help with load sharing
-and fault tolerance. However, it can also cause problems (such as when one nic
-in a multi-nic machine fails and you don't know right away).
+    > CLOCK_10MS a wall clock supporting timers with 10 ms resolution (same as
+    > linux today). 
+    
+    Except on the Alpha, and on some ARM systems, etc.
+    The HZ constant varies from 10 to 1200.
 
-There are three 'solutions' I know of:
+Or some people use higher values on x86:
 
-  * In recent 2.2 kernels, it was possible to fix this by doing the following as
-root: 
-        # Start the hiding interface functionality
-        echo 1 > /proc/sys/net/ipv4/conf/all/hidden
-        # Hide all addresses for this interface
-        echo 1 > /proc/sys/net/ipv4/conf/<interface_name>/hidden
-    but 2.4 doesn't have that option, for technical reasons.
+cw@charon(cw)$ uptime
+ 14:13:02 up 11 days, 21:44,  2 users,  load average: 0.00, 0.00, 0.00
+cw@charon(cw)$ cat /proc/interrupts
+           CPU0
+  0: 2106736381          XT-PIC  timer
+  1:     187633          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  7:   94128650          XT-PIC  eth0, usb-uhci, usb-uhci
+ 10:   18265929          XT-PIC  ide2
+ 12:    3107415          XT-PIC  PS/2 Mouse
+ 14:     753375          XT-PIC  via82cxxx
+ 15:          2          XT-PIC  ide1
+NMI:          0
+ERR:          0
 
-   * Use 'ifconfig -arp ...' to force an interface not to respond to ARP
-requests. Hosts which want to send to that interface may need to manually add
-the proper mac address to their ARP tables with 'arp -s'.
 
-   * Use a packet filtering tool (iptables arp filter module, for example) and
-just filter the ARP requests and ARP replies so that only the proper set get
-through, i.e. when an arp request for the mac address of an interface arrives,
-filter out arp replies from all the other interfaces. 
 
-There have been a few threads on this on the linux-kernel mailing list. Search
-your favorite archive for them.
+thats 2048 ticks/sec -- I had to hack the kernel in a couple of
+places to make things happy with that, but so far it seems to work.
 
--Eric
- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------
+I also had to hack libproc.so.* -- what a terribly obscure way that
+it uses to determine what HZ is defined as!
+
+I know this has ben beaten to death before but can someone tell me:
+
+   - why we cannot export HZ somewhere
+
+   - why is it called HZ, it seems misleading why not something like
+     TICKS_PER_SECOND or similar
+
+   - it seems there are a couple of places that assume HZ==100 still,
+     or am I just imagining this (ide code, I forget where now)
+
+
+
+
+  --cw

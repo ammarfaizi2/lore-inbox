@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135594AbRAJOVu>; Wed, 10 Jan 2001 09:21:50 -0500
+	id <S135663AbRAJOlZ>; Wed, 10 Jan 2001 09:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135645AbRAJOVm>; Wed, 10 Jan 2001 09:21:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2835 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135594AbRAJOVW>; Wed, 10 Jan 2001 09:21:22 -0500
-Subject: Re: 2.4.0 umount problem
-To: kaos@ocs.com.au (Keith Owens)
-Date: Wed, 10 Jan 2001 14:22:30 +0000 (GMT)
-Cc: hyponephele@hotmail.com (M T), linux-kernel@vger.kernel.org
-In-Reply-To: <31178.979125106@ocs3.ocs-net> from "Keith Owens" at Jan 10, 2001 10:11:46 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135645AbRAJOlP>; Wed, 10 Jan 2001 09:41:15 -0500
+Received: from smtp3.xs4all.nl ([194.109.127.132]:7954 "EHLO smtp3.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S135630AbRAJOlK>;
+	Wed, 10 Jan 2001 09:41:10 -0500
+Date: Wed, 10 Jan 2001 11:12:07 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Linux-2.4.x patch submission policy
+Message-ID: <20010110111207.A4231@grobbebol.xs4all.nl>
+In-Reply-To: <20010108223343.O10035@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.21.0101081837520.21675-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14GM93-0000L1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0101081837520.21675-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Jan 08, 2001 at 06:40:21PM -0200
+X-OS: Linux grobbebol 2.2.19pre6 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >shutting system down with kernel-2.4.0. I get message that "/ device is 
-> >busy".
-> 
-> Known problem with Redhat 6.2 scripts.  Ask Redhat for the fix.
+On Mon, Jan 08, 2001 at 06:40:21PM -0200, Rik van Riel wrote:
+> I wasn't aware Andrea switched the way he stored his patches
+> lately ;)
 
-Are you sure its that. I was seeing this with one box in 2.4.0 but I don't see
-it in -ac. (No I dont know why either). Even better do you know which script so
-I can work out why
+he's doing that for quite some time now (for suse's kernels too) and
+that works pretty well :-)
+ 
+> OTOH, the advantage of having a big patch means that it's
+> easier for me to get people to test all of the things I
+> have. Guess I'll need to find a way to easily get both the
+> small and the big patches ;)
 
+
+the trouble with that is also that the whole patch must be checked again
+and again if a new version is being sent out. Andrea's patches have th
+epossibility to be applied for several versions and indeed are easy to
+use -- apply what you want.
+
+it made SMP testing more fun compared to the big patches where nobody
+exactly knows what patch may have caused [in]stability.
+
+I for instance have the daunting task to check why 2.4.0 here crashes so
+easily without messages, except some occasional APIC error. yuck.
+-- 
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

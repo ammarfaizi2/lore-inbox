@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289912AbSAWREj>; Wed, 23 Jan 2002 12:04:39 -0500
+	id <S289886AbSAWRHt>; Wed, 23 Jan 2002 12:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289911AbSAWRE3>; Wed, 23 Jan 2002 12:04:29 -0500
-Received: from [24.64.71.161] ([24.64.71.161]:27889 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S289886AbSAWREQ>;
-	Wed, 23 Jan 2002 12:04:16 -0500
-Date: Wed, 23 Jan 2002 10:03:57 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: gspujar@hss.hns.com
-Cc: linux-kernel@vger.kernel.org, achowdhry@hss.hns.com
-Subject: Re: file system unmount
-Message-ID: <20020123100357.K960@lynx.adilger.int>
-Mail-Followup-To: gspujar@hss.hns.com, linux-kernel@vger.kernel.org,
-	achowdhry@hss.hns.com
-In-Reply-To: <65256B4A.0021662F.00@sandesh.hss.hns.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <65256B4A.0021662F.00@sandesh.hss.hns.com>; from gspujar@hss.hns.com on Wed, Jan 23, 2002 at 11:38:35AM +0530
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S289919AbSAWRHj>; Wed, 23 Jan 2002 12:07:39 -0500
+Received: from dsl-213-023-038-076.arcor-ip.net ([213.23.38.76]:65433 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289886AbSAWRHg>;
+	Wed, 23 Jan 2002 12:07:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Duraid Madina" <duraid@fl.net.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM: Where do we stand?
+Date: Wed, 23 Jan 2002 18:12:26 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <000901c1a3f0$d2e44ba0$022a17ac@simplex>
+In-Reply-To: <000901c1a3f0$d2e44ba0$022a17ac@simplex>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16TQwk-00020U-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 23, 2002  11:38 +0530, gspujar@hss.hns.com wrote:
-> I am using softdog in my application. One of the problems I am facing is,
-> when the system comes up after the reboot forced by softdog, file system
-> gets corrupted and fsck has to check. Some times fsck fails to force check
-> the file system and the system enters in to run level 1, leading to manual
-> intervention.
->
-> Any idea how to unmount the file system before the system is rebooted by
-> softdog, so that system always comes up properly without manual intervention.
+On January 23, 2002 10:32 am, Duraid Madina wrote:
+> >The paging queues ( determing the age of the page and whether to 
+> >free or clean it) need to be written... the algorithms being used
+> >are terrible.
+> >
+> > * For the nominal page scan, it is using a one-hand clock algorithm.  
+> >   All I can say is:  Oh my god!  Are they nuts?  That was abandoned
+> >   a decade ago.
 
-That is like asking for advance notice of system failures -> can't be done.
+We don't use a one-hand clock now, we use an lru list coupled with a virtual 
+scan which sucks slightly less, but only slightly.
 
-What you really want is a journaled filesystem (e.g. ext3 or resierfs)
-which avoids the lengthy/troublesome fsck stage.
+> > The priority mechanism they've implemented is nearly
+> >   useless.
 
-Cheers, Andreas
+There's a new priority mechanism now ;-)
+
+> > * To locate pages to swap out, it takes a pass through the task list. 
+> >   Ostensibly it locates the task with the largest RSS to then try to
+> >   swap pages out from rather then select pages that are not in use.
+> >   From my read of the code, it also botches this badly.
+
+It now tries to select pages that are not in use.
+
 --
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Daniel

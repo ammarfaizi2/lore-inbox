@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315775AbSEDFoS>; Sat, 4 May 2002 01:44:18 -0400
+	id <S315778AbSEDG3G>; Sat, 4 May 2002 02:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315777AbSEDFoS>; Sat, 4 May 2002 01:44:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22802 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315775AbSEDFoR>;
-	Sat, 4 May 2002 01:44:17 -0400
-Message-ID: <3CD3759D.768D652D@zip.com.au>
-Date: Fri, 03 May 2002 22:46:05 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Milton Miller <miltonm@bga.com>
-CC: Milton Miller <miltonm@sss.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.12 severe ext3 filesystem corruption warning!
-In-Reply-To: <87offy17li.fsf@enki.rimspace.net> <200205040526.g445Qgc74545@sullivan.realtime.net>
+	id <S315779AbSEDG3F>; Sat, 4 May 2002 02:29:05 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:29700 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S315778AbSEDG3E>; Sat, 4 May 2002 02:29:04 -0400
+Date: Sat, 4 May 2002 07:28:49 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Guest section DW <dwguest@win.tue.nl>, Jeff Dike <jdike@karaya.com>,
+        linux-kernel@vger.kernel.org,
+        user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: Re: UML is now self-hosting!
+Message-ID: <20020504072849.B2295@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Gerrit Huizenga <gh@us.ibm.com>,
+	Guest section DW <dwguest@win.tue.nl>, Jeff Dike <jdike@karaya.com>,
+	linux-kernel@vger.kernel.org,
+	user-mode-linux-devel@lists.sourceforge.net,
+	user-mode-linux-user@lists.sourceforge.net
+In-Reply-To: <20020503215102.GA24653@win.tue.nl> <E173lX2-0001k3-00@w-gerrit2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Milton Miller wrote:
-> 
-> Maybe this patch would make a difference ??
+On Fri, May 03, 2002 at 03:28:03PM -0700, Gerrit Huizenga wrote:
+> PTX could *almost* run VMWare (might be able to run Win4Lin or Boochs...)
 
-Well it certainly won't hurt.  Thanks.
+Umm, you have ported the VMWare and Win4Lin kernel modules?
+For Win4Lin I could almost image it as it is ported UnixWare code..
 
--

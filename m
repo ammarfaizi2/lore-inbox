@@ -1,94 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265696AbUFXVh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUFXVkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265696AbUFXVh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUFXVd0
+	id S265701AbUFXVkX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265727AbUFXVkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:33:26 -0400
-Received: from mail.kroah.org ([65.200.24.183]:54702 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265676AbUFXVbu (ORCPT
+	Thu, 24 Jun 2004 17:40:22 -0400
+Received: from gprs214-211.eurotel.cz ([160.218.214.211]:15489 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265701AbUFXVjP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:31:50 -0400
-Date: Thu, 24 Jun 2004 14:30:29 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] PCI fixes for 2.6.7
-Message-ID: <20040624213029.GA2477@kroah.com>
+	Thu, 24 Jun 2004 17:39:15 -0400
+Date: Thu, 24 Jun 2004 23:38:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
+Subject: Re: SMP support for swsusp (this one actually works for me)
+Message-ID: <20040624213858.GC20649@elf.ucw.cz>
+References: <20040623121727.GA26623@elf.ucw.cz> <Pine.LNX.4.50.0406241354340.32272-100000@monsoon.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.50.0406241354340.32272-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Here are some small PCI patches for 2.6.7.  They include some pci id
-fixes, quirk fixups, and pci hotplug driver updates.  They have all been
-in the last few -mm releases.
+> > Here's SMP support for swsusp; this one actually works for me [with
+> > keyboard hack], but I'd like more testers. If it looks okay, I'll
+> > merge simple pieces with andrew.
+> 
+> This looks cool, but I have some aesthetic nits about it:
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/pci-2.6
+I'll kill #if 0s before attempting to merge.
 
-thanks,
+> > +#ifdef CONFIG_SMP
+> > +extern void smp_freeze(void);
+> > +extern void smp_restart(void);
+> > +#else
+> > +static inline void smp_freeze(void) {}
+> > +static inline void smp_restart(void) {}
+> > +#endif
+> 
+> Could you name those something more explicit, like swsusp_smp_freeze(),
+> etc, so you don't have potential namespace conflicts?
 
-greg k-h
+I guess that S3 sleep might find them usefull, too.
 
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
+Perhaps calling them disable_nonboot_cpus() and enable_nonboot_cpus()
+are better names?
 
+> > -void save_processor_state(void)
+> > +void __save_processor_state(struct saved_context *ctxt)
+> 
+> > +void save_processor_state(void)
+> > +{
+> > +	__save_processor_state(&saved_context);
+> >  }
+> 
+> This also looks completely gratuitous and confusing - if you're not doing
+> anything else but calling the __function, then why even create
+> __function?
 
- Documentation/pci.txt                  |    5 
- Documentation/power/pci.txt            |    8 
- arch/i386/kernel/dmi_scan.c            |   59 +++++
- arch/i386/pci/irq.c                    |   27 ++
- drivers/pci/hotplug/pciehp_ctrl.c      |  147 ++++----------
- drivers/pci/hotplug/pciehp_hpc.c       |    4 
- drivers/pci/hotplug/pciehprm_acpi.c    |   22 +-
- drivers/pci/hotplug/pciehprm_nonacpi.c |   18 +
- drivers/pci/hotplug/rpadlpar_core.c    |   28 --
- drivers/pci/hotplug/rpaphp.h           |   28 ++
- drivers/pci/hotplug/rpaphp_core.c      |  199 +++++++++++++-------
- drivers/pci/hotplug/rpaphp_pci.c       |  328 ++++++++++++++++++++++-----------
- drivers/pci/hotplug/rpaphp_slot.c      |  136 +++++++++++--
- drivers/pci/hotplug/rpaphp_vio.c       |    6 
- drivers/pci/hotplug/shpchp.h           |    1 
- drivers/pci/hotplug/shpchp_ctrl.c      |   60 ++----
- drivers/pci/hotplug/shpchp_pci.c       |    1 
- drivers/pci/hotplug/shpchprm_acpi.c    |   22 +-
- drivers/pci/hotplug/shpchprm_nonacpi.c |   18 +
- drivers/pci/msi.c                      |   10 -
- drivers/pci/pci.c                      |    2 
- drivers/pci/quirks.c                   |    1 
- include/linux/pci_ids.h                |   54 +++--
- 23 files changed, 781 insertions(+), 403 deletions(-)
------
+__save_processor_state() is needed from smp.c, save_processor_state()
+is needed from swsusp.S. I did not want to break that for now.
 
-<ossi:kde.org>:
-  o PCI: (one more) PCI quirk for SMBus bridge on Asus P4 boards
+> >  EXPORT_SYMBOL(save_processor_state);
+> >  EXPORT_SYMBOL(restore_processor_state);
+> 
+> And, why are they exported in the first place?
 
-Bjorn Helgaas:
-  o PCI: clarify pci.txt wrt IRQ allocation
+Not sure... swsusp can't be modular so I should be able to just kill
+this, right?
 
-Daniel Ritz:
-  o PCI: fix irq routing on acer travelmate 360 laptop
+> > %diffstat
+> >  Documentation/power/swsusp.txt   |    5 +
+> >  Documentation/power/video.txt    |    4 +
+...
+> >  kernel/power/smp.c               |   85 ++++++++++++++++++++++++++++++
+> >  kernel/power/swsusp.c            |   78 +++++++++++++++++++--------
+> >  kernel/signal.c                  |    6 +-
+> >  17 files changed, 293 insertions(+), 102 deletions(-)
+> 
+> Were there more files to the patch? Some of the ones listed here were not
+> in the email?
 
-Dely Sy:
-  o Fixes for hot-plug drivers (updated)
+I hand-edited the diff and forgot to kill this, sorry. Nothing should
+be missing.
 
-Linda Xie:
-  o PCI Hotplug: rpaphp.patch -- multi-function devices not handled correctly
+> BTW, nice work.
 
-Roger Luethi:
-  o PCI: Fix off-by-one in pci_enable_wake
-  o PCI: Fix PME bits in pci.txt
-
-Roland Dreier:
-  o PCI: Fix MSI-X setup
-
-Stephen Hemminger:
-  o PCI: add id's for sk98 driver
-  o PCI: fix out of order entry in pci_ids.h
-  o PCI: remove duplicate in pci_ids.h
-
+Thanks!
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

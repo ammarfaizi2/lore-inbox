@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278416AbRJMV1i>; Sat, 13 Oct 2001 17:27:38 -0400
+	id <S278414AbRJMVYR>; Sat, 13 Oct 2001 17:24:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278415AbRJMV12>; Sat, 13 Oct 2001 17:27:28 -0400
-Received: from [202.135.142.194] ([202.135.142.194]:52749 "EHLO
+	id <S278415AbRJMVYI>; Sat, 13 Oct 2001 17:24:08 -0400
+Received: from [202.135.142.194] ([202.135.142.194]:36365 "EHLO
 	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S278418AbRJMV1U>; Sat, 13 Oct 2001 17:27:20 -0400
+	id <S278414AbRJMVYC>; Sat, 13 Oct 2001 17:24:02 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Paul E. McKenney" <pmckenne@us.ibm.com>
-Cc: torvalds@transmeta.com (Linus Torvalds), dipankar@in.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion ^M 
-In-Reply-To: Your message of "Sat, 13 Oct 2001 09:28:15 PDT."
-             <200110131628.f9DGSGW09534@eng4.beaverton.ibm.com> 
-Date: Sun, 14 Oct 2001 07:23:11 +1000
-Message-Id: <E15sWFT-0005tf-00@wagner>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: dipankar@beaverton.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion 
+In-Reply-To: Your message of "Sat, 13 Oct 2001 10:23:23 PDT."
+             <Pine.LNX.4.33.0110131015410.8707-100000@penguin.transmeta.com> 
+Date: Sun, 14 Oct 2001 07:19:54 +1000
+Message-Id: <E15sWCI-0005tP-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200110131628.f9DGSGW09534@eng4.beaverton.ibm.com> you write:
-> OK, here is an RFC patch with the read_barrier_depends().  (I know that
-> the indentation is messed up, will fix when I add the read_barrier()
-> and friends).
+In message <Pine.LNX.4.33.0110131015410.8707-100000@penguin.transmeta.com> you 
+write:
+> 
+>  (b) the whole notiong of "scheduling point" is a lot too fragile to be
+>      acceptable for important data structures. It breaks with the
+>      pre-emption patches on UP, and we've seen many times how hard it is
+>      for developers to notice even when there _is_ an explicit "end
+>      critical region now"  kind of thing
 
-Yep, this is a 2.5 thing: we should probably combine change the
-barriers so read_barrier et. al. only have effect on SMP, and then
-have io_read_barrier for IO (these can be usefully differentiated on
-PPC IIUC).
+Yeah, if you can't get locking right, you can't get RCU right.  I've
+shown you that using it in place of standard locking is simple: the
+ONLY added issue is being careful not to screw readers while doing the
+actual insert/delete.
 
-The stillborn smp_mb() etc. can then be abandoned.
+Where, if anywhere, is this worth it?  Good question: 3% on 4-way
+dbench doesn't cut it in my book...
 
 Rusty.
 --

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbUCAPCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 10:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbUCAPCe
+	id S261317AbUCAPU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 10:20:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUCAPU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 10:02:34 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:40580 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261326AbUCAPCc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 10:02:32 -0500
-Date: Mon, 1 Mar 2004 10:04:28 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: -Wshadow
-Message-ID: <Pine.LNX.4.53.0403010958240.31041@chaos>
+	Mon, 1 Mar 2004 10:20:59 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:36764 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261317AbUCAPU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 10:20:57 -0500
+Date: Mon, 1 Mar 2004 10:20:46 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: David Luyer <david@luyer.net>, <linux-kernel@vger.kernel.org>,
+       <akpm@osdl.org>
+Subject: Re: Linux 2.4.25-rc1
+In-Reply-To: <Pine.LNX.4.44.0403011209200.4148-100000@dmt.cyclades>
+Message-ID: <Pine.LNX.4.44.0403011020190.21897-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Mar 2004, Marcelo Tosatti wrote:
 
-Don't know about the latest version(s), but with 2.4.25, compiling
-with -Wshadow brings up a lot of potential problems. One can
-turn off (temporarily) the built in functions to get rid of the
-spurious warnings about memcpy(), etc., then you see that too many
-variables to mention here are shadowed (probably thousands). Some
-of them may be hazardous because they are spin-lock variables and
-semaphores. There are also some shadowed functions. NotGood(tm)!
+> > We just had a box which crashed only 2 hour from deployment, and
+> > reading over the recent changes this seems like a potential cause
+> > (although being new, faulty hardware is always a possibility); the
+> > last items on its serial console were:
+> > 
+> > INIT: Sending processes the TERM signal
+> > memory.c:100: bad pmd 000001e3.
+> > memory.c
+> 
+> This looks like hardware fault to me or a (maybe, not sure) badly
+> behaving driver. The inode-highmem modifications can't cause such
+> breakage, as far as I can see.
+
+Agreed, this looks like a hardware fault.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

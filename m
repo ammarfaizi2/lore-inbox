@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTGKPw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 11:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTGKPwQ
+	id S263637AbTGKPzL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 11:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTGKPzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 11:52:16 -0400
-Received: from f25.mail.ru ([194.67.57.151]:50958 "EHLO f25.mail.ru")
-	by vger.kernel.org with ESMTP id S263945AbTGKPvm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 11:51:42 -0400
-From: =?koi8-r?Q?=22?=Peter Lojkin=?koi8-r?Q?=22=20?= <ia6432@inbox.ru>
-To: =?koi8-r?Q?=22?=Oleg Drokin=?koi8-r?Q?=22=20?= <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre3 and reiserfs problem (not boot)
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: unknown via proxy [81.89.69.194]
-Date: Fri, 11 Jul 2003 20:06:23 +0400
-In-Reply-To: <20030711154959.GJ17180@namesys.com>
-Reply-To: =?koi8-r?Q?=22?=Peter Lojkin=?koi8-r?Q?=22=20?= 
-	  <ia6432@inbox.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19b0Pf-000Jzx-00.ia6432-inbox-ru@f25.mail.ru>
+	Fri, 11 Jul 2003 11:55:10 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:21465 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S264075AbTGKPye
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 11:54:34 -0400
+Date: Fri, 11 Jul 2003 17:00:35 +0100 (BST)
+From: Jon Masters <jonathan@jonmasters.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Jon Masters <jonathan@jonmasters.org>, linux-kernel@vger.kernel.org,
+       jcm@printk.net
+Subject: Re: Stripped binary insertion with the GNU Linker suggestions (fwd)
+In-Reply-To: <20030711153557.GB30378@work.bitmover.com>
+Message-ID: <Pine.LNX.4.10.10307111655430.25244-100000@router>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Jul 10 06:25:10 host kernel: journal-601, buffer write failed
+On Fri, 11 Jul 2003, Larry McVoy wrote:
+
+> On Fri, Jul 11, 2003 at 04:19:55PM +0100, Jon Masters wrote:
+> > I have seen other nasty ways to do this involving converting the image to
+> > byte values in very large arrays or inserting literal byte values in to
+> > the output file but there just has to be a generic method for inserting
+> > an image in to the middle of an output file.
 > 
-> Well, the write to journal failed. Reiserfs panics in such an event as it does not
-> know what to do in such a case (there are some works at SuSE by Jeff Mahoney to
-> remount r/o if such an event happens).
-yes, once i found the "buffer write failed" i knew it wasn't a random
-reiserfs oops. just missed it first time, sorry.
+> No, there isn't, at least I haven't found one.
 
-and i think that close timming of oopses was caused by some cron job
-started at this time, the one that does search through entire fs tree...
+Arrgh! :-).
 
-> Well, how about some i/o error messages from block device drivers?
-> 
-> > in the logs we often get messages like:
-> > Jul 11 14:25:59 host kernel: (scsi0:A:10:0): parity error detected in Data-out phase. SEQADDR(0x55) SCSIRATE(0xc2)
-> > Jul 11 14:25:59 host kernel: ^INo terminal CRC packet recevied
-> 
-> Hm, can that lead to i/o error propagated up to reiserfs? If yes,
-> then thats' the problem.
-sure if there were real errors, but with earlier kernels we get
-this errors in logs but no problems or data loss. strange...
+In that case I might take you up on the BK idea or write something using
+bfd to munge the elf content - odd that it does not exist already.
 
-> Hm, I guess you need to stop the driver to propagate i/o errors upstream
-> (perhaps find a recent change that started to do this).
-> There is nothing to do from reiserfs perspective (except for better error handling,
-> which will not do you anything good anyway).
-well i cannot do a lot of reboots on this box, so i guess i just
-try to move promise to another host with another scsi hba and see if
-it works... 
+The reason I want it is that I am creating a single elf output file which
+is loaded in to SDRAM by a SystemACE chip and in order for that to work
+correctly I need to give the appropriate tools a single elf input
+containing everything where I want it to be loaded in memory.
 
-Big thanks for quick reply!
+Fun for the weekend I suppose... :-).
+
+Jon.
 

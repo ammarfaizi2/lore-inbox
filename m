@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUJGRlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUJGRGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267497AbUJGRlW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:41:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUJGRJ7
+	id S267423AbUJGRGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUJGREP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:09:59 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39599 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267516AbUJGQwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 12:52:22 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Patrick Gefre <pfg@sgi.com>
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-Date: Thu, 7 Oct 2004 09:52:02 -0700
-User-Agent: KMail/1.7
-Cc: Grant Grundler <iod00d@hp.com>, Colin Ngam <cngam@sgi.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <200410061344.38265.jbarnes@engr.sgi.com> <41655A91.1010307@sgi.com>
-In-Reply-To: <41655A91.1010307@sgi.com>
+	Thu, 7 Oct 2004 13:04:15 -0400
+Received: from siaag1aj.mx.compuserve.com ([149.174.40.25]:38980 "EHLO
+	siaag1aj.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S267469AbUJGQlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 12:41:13 -0400
+Date: Thu, 7 Oct 2004 12:37:30 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200410071240_MC3-1-8BB8-4BD1@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410070952.02291.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, October 7, 2004 8:02 am, Patrick Gefre wrote:
-> > They should each be separate cleanup patches.  What I've done in the past
-> > is make copies (in this case 5) of the big patch.  Then I edit all of
-> > them to include only the hunks I want there.  Hopefully that'll minimize
-> > the pain of respinning the big patch (i.e. no respin).  Also, Tony
-> > doesn't want to deal with the above files, patches for them should be
-> > sent to Andrew as separate mails with lkml in the cc list.
->
-> These are not cleanup.
->
-> The mmtimer code and sn_console include a file that doesn't exist anymore
-> in the directory included - it's moved to somewhere else in the 002 patch.
->
-> snsc.c, sgiioc4.c have changes for things that won't exist after this patch
-> is applied.
+Alan Cox wrote:
 
-Yeah, sorry, I shouldn't have said cleanup, fixup is better.  Anyway, they 
-need to be separate since they'll be going into the tree via Andrew not Tony.
+> >  But it would be pointless without offical blessing from Linus.
+>
+> Pray how do you thing the 2.0.x-ac kernel series started. Yes it
+> would be ".2ce" but people will judge code by whether it works and over
+> time.
 
-Thanks,
-Jesse
+ Another boutique kernel was not what I had in mind.
+
+ If it weren't official there would probably be just one user: me.
+
+
+--Chuck Ebbert  07-Oct-04  12:39:34

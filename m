@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264496AbTKNTWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 14:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTKNTWN
+	id S264443AbTKNT1K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 14:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTKNT1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 14:22:13 -0500
-Received: from noose.gt.owl.de ([62.52.19.4]:61704 "EHLO noose.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264496AbTKNTWL (ORCPT
+	Fri, 14 Nov 2003 14:27:10 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:3853 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S264443AbTKNT1H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 14:22:11 -0500
-Date: Fri, 14 Nov 2003 20:21:36 +0100
-From: Florian Lohoff <flo@rfc822.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9 / EXT3-fs warning...ext3_unlink: Deleting nonexistent file
-Message-ID: <20031114192136.GB5594@paradigm.rfc822.org>
-References: <20031114174254.GA5594@paradigm.rfc822.org> <20031114105724.D11847@schatzie.adilger.int>
+	Fri, 14 Nov 2003 14:27:07 -0500
+Date: Fri, 14 Nov 2003 20:03:37 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Patrick Beard <patrick@scotcomms.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9 VFAT problem
+Message-ID: <20031114190337.GA18107@win.tue.nl>
+References: <09A92EA4A9D2D51182170004AC96FE7A1216BB@mercury.scotcomms>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wzJLGUyc3ArbnUjN"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031114105724.D11847@schatzie.adilger.int>
-Organization: rfc822 - pure communication
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <09A92EA4A9D2D51182170004AC96FE7A1216BB@mercury.scotcomms>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 14, 2003 at 11:51:57AM -0000, Patrick Beard wrote:
+> > > My fstab entry is;
+> > > /dev/sda    /mnt/smedia    vfat    rw,user,noauto    0,0
+> > 
+> > I would guess that you have to mount /dev/sda1 or perhaps /dev/sda4.
+> > Isn't that what you do under 2.4?
+> 
+> Yes, with 2.4 I used sda1. When I first compiled 2.6 I used sda1 but I got
+> the 'wrong fs..' error. This was a clean install of debian so I didn't have
+> my original fstab. I checked the web and noticed people using sda. so I
+> tried that - same error. In trying to get this to work I've used sda and
+> sda1 at different times both gave the same errors.
 
---wzJLGUyc3ArbnUjN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Good.
 
-On Fri, Nov 14, 2003 at 10:57:24AM -0700, Andreas Dilger wrote:
-> On Nov 14, 2003  18:42 +0100, Florian Lohoff wrote:
-> > i seem to have experienced some ext3 inconsistencys - After some reboots
-> > today i was wondering why cron wasnt running and discovered that
-> > starting cron failed because /var/run/crond.pid could not be written.
-> > ls did not show and file under that name. touch showed i/o error on that
-> > file although other file in that directory could be touched.
-> >=20
-> > When i tried to rm crond.pid this showed up:
-> >=20
-> > EXT3-fs warning (device hda8): ext3_unlink: Deleting nonexistent file (=
-107669), 0
-> >=20
-> > After that i could touch the file again and crond did not refuse to sta=
-rt anymore.
->=20
-> This sounds like the htree "get back deleted entry on directory split" bug
-> that was fixed months ago in 2.6 htree, but not in any 2.4 patches.  Did
-> you test htree on this system under 2.4 recently?
+Maybe you know already, but just to be sure:
+You must use sda if the thing has no partition table.
+You must use sda1 if the thing has a partition table.
 
-Nope - I have turned dir_index on on the /tmp filesystem - nowhere else.=20
+So, if sda1 works under 2.4, then sda is certainly wrong under 2.6 -
+your device would just look like garbage and the error messages are
+meaningless.
+Only try sda1, and report whatever goes wrong in that case.
 
-Flo
---=20
-Florian Lohoff                  flo@rfc822.org             +49-171-2280134
-                        Heisenberg may have been here.
+Andries
 
---wzJLGUyc3ArbnUjN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/tStAUaz2rXW+gJcRAmtkAJ95kAV3KkIbdBIRGHcd2CfBEEv2ZQCdFctQ
-rB2ph+XlBeZOREw/i2mLNmE=
-=Jb3b
------END PGP SIGNATURE-----
-
---wzJLGUyc3ArbnUjN--

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314379AbSDRPwh>; Thu, 18 Apr 2002 11:52:37 -0400
+	id <S314380AbSDRPzD>; Thu, 18 Apr 2002 11:55:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314380AbSDRPwg>; Thu, 18 Apr 2002 11:52:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59402 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314379AbSDRPwg>; Thu, 18 Apr 2002 11:52:36 -0400
-Date: Thu, 18 Apr 2002 16:52:29 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 2.5.8 sort kernel tables
-Message-ID: <20020418165229.A16156@flint.arm.linux.org.uk>
-In-Reply-To: <15550.50131.489249.256007@nanango.paulus.ozlabs.org> <3112.1019144339@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314381AbSDRPzC>; Thu, 18 Apr 2002 11:55:02 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48393 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314380AbSDRPzB>; Thu, 18 Apr 2002 11:55:01 -0400
+Date: Thu, 18 Apr 2002 11:51:48 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: nick@snowman.net
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE/raid performance
+In-Reply-To: <Pine.LNX.4.21.0204171108480.3300-100000@ns>
+Message-ID: <Pine.LNX.3.96.1020418114238.5375A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 01:38:59AM +1000, Keith Owens wrote:
-> For example, arm #defines get8_unaligned_check which uses __ex_table.
+On Wed, 17 Apr 2002 nick@snowman.net wrote:
 
-This doesn't cause your issue though.  Its only used from code built into
-the kernel .text segment, never from any other segment.  It isn't a
-#define in some random header file that may end up in the .init segment
-either.
+> to be about 25-30watts.  Each 1800+ MP puts out 66w of heat, meaning it
+> uses more than 66w
 
-So this instance doesn't fit your problem.
+  Unless they changed the laws of physics, the power in is the same as the
+power out, and the temp will rise to increase power out (or limit power in
+by melting). The power of the output driver lines is really too small to
+consider.
+
+>                         Morale of this message:  Don't be a dipshit and
+> put 12 IDE disks on a single power supply.
+
+1. learn physics
+2. learn vocabulary
+3. learn diplomacy
+
+  Since he has problems running, when there's no question of power being
+adequate, rather than while booting, I think looking for the real problem
+is now in order. There have been several constructive suggestions on this,
+which address the problem. 
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

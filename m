@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263736AbUCXPLe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 10:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbUCXPLe
+	id S263743AbUCXPNz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 10:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbUCXPMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 10:11:34 -0500
-Received: from holomorphy.com ([207.189.100.168]:33668 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263736AbUCXPLd (ORCPT
+	Wed, 24 Mar 2004 10:12:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:1438 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263742AbUCXPMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 10:11:33 -0500
-Date: Wed, 24 Mar 2004 07:11:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, Nick Piggin <piggin@cyberone.com.au>,
-       Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040324151111.GG791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Takashi Iwai <tiwai@suse.de>, Andrea Arcangeli <andrea@suse.de>,
-	Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-	mjy@geizhals.at, linux-kernel@vger.kernel.org
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <405A584B.40601@cyberone.com.au> <20040319050948.GN2045@holomorphy.com> <20040320121423.GA9009@dualathlon.random> <20040320145111.GD2045@holomorphy.com> <20040320150311.GN9009@dualathlon.random> <s5hfzby1h6n.wl@alsa2.suse.de>
+	Wed, 24 Mar 2004 10:12:25 -0500
+Date: Wed, 24 Mar 2004 16:12:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: drivers/block/elevator.c:249
+Message-ID: <20040324151222.GS3377@suse.de>
+References: <Pine.LNX.4.58.0403241006310.28727@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hfzby1h6n.wl@alsa2.suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.58.0403241006310.28727@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 24, 2004 at 02:57:20PM +0100, Takashi Iwai wrote:
-> 	http://www.alsa-project.org/~iwai/audio-latency.pdf
-> the data there are already old (based on 2.6.0-test9), and were
-> measured by the old version of latency-test program (modifed version
-> from Benno Senor's latencytest suite).
-> basically, the latency-test program measures the latency between the
-> time of (periodical) irq and the time when user RT-thread is woken
-> up under different workloads.  the user thread can perform an
-> artificial CPU load (busy loop) to simulate the situation that any RT
-> process does a heavy job.
-> the resultant plot shows the critical deadline, the total latency and
-> the CPU latency (busy loop) responses, as you can see in the above
-> pdf.
-> the latest version of latency-test suite is found at
-> 	http://www.alsa-project.org/~iwai/latencytest-0.5.3.tar.gz
-> it uses its own kernel module to generate irqs from RTC and to trace
-> stacks.
-> i'll show the results of the recent kernels tomorrow...
+On Wed, Mar 24 2004, Zwane Mwaikambo wrote:
+> I'm hitting the following WARN_ON constantly on a slow (133MHz) SMP box
+> with Fast SCSI for disks. Kernel is 2.6.5-rc2-mm1, i'll be trying
+> 2.6.5-rc2-mm2 shortly. The warning crops up as early as the bootscripts.
+> 
+> Badness in elv_remove_request at drivers/block/elevator.c:249
+> Call Trace:
+>  [<c034ab67>] elv_remove_request+0x77/0x80
+>  [<c03a3432>] scsi_request_fn+0x432/0x4f0
 
-Very nice. This document is the kind of thing I wanted to see.
+Known bug in that kernel, just go to the next one...
 
+-- 
+Jens Axboe
 
--- wli

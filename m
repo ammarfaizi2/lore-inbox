@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129159AbRBPQXi>; Fri, 16 Feb 2001 11:23:38 -0500
+	id <S129259AbRBPQbR>; Fri, 16 Feb 2001 11:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129259AbRBPQX1>; Fri, 16 Feb 2001 11:23:27 -0500
-Received: from colorfullife.com ([216.156.138.34]:26895 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129159AbRBPQXQ>;
-	Fri, 16 Feb 2001 11:23:16 -0500
-Message-ID: <3A8D540C.92C66398@colorfullife.com>
-Date: Fri, 16 Feb 2001 17:23:40 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
+	id <S130606AbRBPQbH>; Fri, 16 Feb 2001 11:31:07 -0500
+Received: from smtp.circle.net ([209.95.64.26]:1548 "EHLO smtp.circle.net")
+	by vger.kernel.org with ESMTP id <S129259AbRBPQa4>;
+	Fri, 16 Feb 2001 11:30:56 -0500
+From: "Mark Haney" <mhaney@info4cars.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Cc: "James Sutherland" <jas88@cam.ac.uk>,
+        "Rik van Riel" <riel@conectiva.com.br>,
+        "Alan Olsen" <alan@clueserver.org>,
+        "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Linux stifles innovation... 
+Date: Fri, 16 Feb 2001 11:30:52 -0500
+Message-ID: <ENEOLFJEOCOEGPDADHEHGENDCOAA.mhaney@info4cars.com>
 MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86 ptep_get_and_clear question
-In-Reply-To: <3A8C499A.E0370F63@colorfullife.com> <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com> <20010216151839.A3989@pcep-jamie.cern.ch> <3A8D4045.F8F27782@colorfullife.com> <20010216162741.A4284@pcep-jamie.cern.ch> <3A8D4D43.CF589FA0@colorfullife.com> <20010216170029.A4450@pcep-jamie.cern.ch>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <19733.982340788@redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> 
-> And how does that lose a dirty bit?
-> 
-> For the other processor to not write a dirty bit, it must have a dirty
-                            ^^^^^^^^^^^
-> TLB entry already which, along with the locked cycle in
-> ptep_get_and_clear, means that `entry' will have _PAGE_DIRTY set.  The
-> dirty bit is not lost.
-> 
-The other cpu writes the dirty bit - we just overwrite it ;-)
-After the ptep_get_and_clear(), before the set_pte().
+Oh God.  You're right.  But who's going to patent the patent on the patent?
+*ad infinitum*
 
-The current assumption about the page dirty logic is:
-A cpu that has a writable, non-dirty pte cached in its tlb it may
-unconditionally set the dirty bit - without honoring present or write
-protected bits.
 
---> set_pte() can either loose a dirty bit or a 'pte_none() entry' could
-suddenly become a swap entry unless it's guaranteed that no cpus has a
-cached valid tlb entry.
+-----Original Message-----
+From: David Woodhouse [mailto:dwmw2@redhat.com]On Behalf Of David
+Woodhouse
+Sent: Friday, February 16, 2001 11:26 AM
+To: Mark Haney
+Cc: James Sutherland; Rik van Riel; Alan Olsen; David D.W. Downey;
+linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
 
-Linus, does the proposed pte gather code handle the second part?
-pte_none() suddenly becomes 0x0040.
 
-Back to the current mprotect.c code:
 
-pte is writable, not-dirty.
+mhaney@info4cars.com said:
+> Okay, so if we are going to get real stupid about the whole thing, I
+> wonder if Microsloth is going to patent the patent?
 
-cpu1:
-has a writable, non-dirty pte in it's tlb.
-		cpu 2: in mprotect.c
-	        entry = ptep_get_and_clear(pte);
-		* pte now clear.
-		* entry contains the pte value without
-		  the dirty bit
-cpu decodes a write instruction, and dirties the pte.
-lock; orl DIRTY_BIT, *pte
-	        set_pte(pte, pte_modify(entry, newprot));
-		* pte overwritten with entry.
+Filing nuisance patents for obvious stuff which shouldn't ever get granted
+is a viable business method and as such is patentable in the US.
 
---> dirty bit lost.
+After all, what patent officer is going to point out the prior art?
+
+:)
 
 --
-	Manfred
+dwmw2
+
+
+

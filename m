@@ -1,34 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbULFXmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbULFXxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbULFXmq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 18:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbULFXmp
+	id S261700AbULFXxG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 18:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbULFXxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 18:42:45 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:20105 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261495AbULFXmo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 18:42:44 -0500
-Date: Tue, 7 Dec 2004 00:41:31 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Nicholas Papadakos <panic@quake.gr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: realtek r8169 + kernel 2.4.24 (openmosix)
-Message-ID: <20041206234131.GA12838@electric-eye.fr.zoreil.com>
-References: <20041205122414.GA22383@electric-eye.fr.zoreil.com> <200412051317.iB5DHrOL026570@kane.otenet.gr> <20041205135132.GA23262@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041205135132.GA23262@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Mon, 6 Dec 2004 18:53:06 -0500
+Received: from quechua.inka.de ([193.197.184.2]:47770 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261700AbULFXxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 18:53:04 -0500
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <20041206224107.GA8529@soohrt.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Tue, 07 Dec 2004 00:53:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> :
-[2.4 backport]
+In article <20041206224107.GA8529@soohrt.org> you wrote:
+> Removing the iptables rules helps reducing the load a little, but the
+> majority of time is still spent somewhere else.
 
-I've messed something. It is not stable.
+In handling Interrupts. Are those equally sidtributed on eth0 and eth1?
 
---
-Ueimor
+Gruss
+Bernd

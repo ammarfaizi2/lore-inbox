@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272285AbRIKFep>; Tue, 11 Sep 2001 01:34:45 -0400
+	id <S272280AbRIKFaY>; Tue, 11 Sep 2001 01:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272289AbRIKFef>; Tue, 11 Sep 2001 01:34:35 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:34320 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S272285AbRIKFeS>; Tue, 11 Sep 2001 01:34:18 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andreas Steinmetz <ast@domdv.de>
-Date: Tue, 11 Sep 2001 15:34:20 +1000 (EST)
-MIME-Version: 1.0
+	id <S272282AbRIKFaN>; Tue, 11 Sep 2001 01:30:13 -0400
+Received: from wire.cadcamlab.org ([156.26.20.181]:21511 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S272280AbRIKF3z>; Tue, 11 Sep 2001 01:29:55 -0400
+Date: Tue, 11 Sep 2001 00:29:57 -0500
+To: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <20010911002956.D582@cadcamlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15261.41564.349012.114622@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reboot notifier priority definitions
-In-Reply-To: message from Andreas Steinmetz on Tuesday September 11
-In-Reply-To: <15261.26206.601070.598763@notabene.cse.unsw.edu.au>
-	<XFMail.20010911032626.ast@domdv.de>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <88a0nPmXw-B@khms.westfalen.de>
+User-Agent: Mutt/1.3.20i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday September 11, ast@domdv.de wrote:
-> > 
-> > I think this misses the point of reboot notifiers (as I understand
-> > it).
-> > 
-> > There are *only* meant for "physical" sorts of things.
-> > The comment in the code says:
-> >  *    Notifier list for kernel code which wants to be called
-> >  *    at shutdown. This is used to stop any idling DMA operations
-> >  *    and the like. 
-> > 
-> > md, lvm, knfsd and tux have no business registering a reboot notifier.
-> > If they have something to shut down, it should be shut down in a
-> > higher-level way, such as when a process gets a signal. 
-> > 
-> Even then: My servers do have watchdog cards. Unfortunately without the
-> priority definitions the watchdog card was shut down prior to the oops. Thus,
-> due to missing priority, the system did require hitting the reboot button.
-> So some well defined priorization is still required.
+> I see two possible atime uses:
+>
+> 1. Cleaning up /tmp (mtime is *not* a good indicator that a file is no
+> longer used)
+> 2. Swapping out files to slower storage
+>
+> Essentially, both use the "do we still need this thing" aspect.
 
-Fair enough.
+The Debian 'popularity-contest' package has an interesting use for
+atime.  It runs weekly (if you install it, of course -- nobody *has* to
+do this!) and determines when each of your installed packages was last
+referenced -- then mails this anonymously to a drop box somewhere.  The
+Higher Purpose here is to determine what the "most useful" Debian
+packages are.  These go on the first volume of the Debian CD set, to
+make a one-volume Debian CD as useful as possible.
 
-Maybe we need one priority for devices,
-A lower priority for busses,
-An even lower one for watchdogs,
+The Windows 2000 install subsystem seems to collect similar data.
+Heaven only knows whether *that* data ever makes it back to its
+owners....
 
-or something like that.
-I'll leave to to people who understand hardware configurations and
-controllers better than me.
-
-NeilBrown
+Peter

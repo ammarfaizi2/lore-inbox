@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbVBCVo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVBCVtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbVBCVo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 16:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVBCVo1
+	id S262305AbVBCVtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 16:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVBCVtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 16:44:27 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:28883 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263001AbVBCVmr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 16:42:47 -0500
-Date: Thu, 3 Feb 2005 22:41:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-Message-ID: <20050203214133.GA27956@elte.hu>
-References: <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us> <20050202111045.GA12155@nietzsche.lynx.com> <87is5ahpy1.fsf@sulphur.joq.us> <20050202211405.GA13941@nietzsche.lynx.com> <20050202212100.GA12808@elte.hu> <20050202213402.GB14023@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 16:49:24 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:5078 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S263180AbVBCVpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 16:45:46 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
+Date: Thu, 3 Feb 2005 22:46:12 +0100
+User-Agent: KMail/1.7.1
+Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+References: <200502021428.12134.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de> <20050203142057.GA1402@elf.ucw.cz>
+In-Reply-To: <20050203142057.GA1402@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050202213402.GB14023@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200502032246.13057.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Bill Huey <bhuey@lnxw.com> wrote:
-
-> > but Jack is right in practical terms: the audio folks achieved pretty
-> > good results with the current IRQ threading mechanism, partly due to the
-> > fact that the audio stack doesnt use softirqs, so all the
-> > latency-critical activities are in the audio IRQ thread and the
-> > application itself.
+On Thursday, 3 of February 2005 15:20, Pavel Machek wrote:
+> Hi!
 > 
-> It's clever that they do that, but additional control is needed in the
-> future. jackd isn't the most sophisticate media app on this planet (not
-> too much of an insult :)) [...]
+> > > > > > On Thu, Feb 03, 2005 at 11:41:26AM +0100, Pavel Machek wrote:
+> > > > > > > Okay, you are right, restoring it unconditionaly would be bad
+> > > > > > > idea. Still it would be nice to tell cpufreq governor "please change
+> > > > > > > the frequency ASAP" so it does not run at 800MHz for half an hour
+> > > > > > > compiling kernels on AC power.
+> > > > > > 
+> > > > > > It already does that... or at least it should. in cpufreq_resume() there is
+> > > > > > a call to schedule_work(&cpu_policy->update); which will cause a call
+> > > > > > cpufreq_update_policy() in due course. And cpufreq_update_policy() calls the
+> > > > > > governor, and it is supposed to adjust the frequency to the user's wish
+> > > > > > then.
+> > > > > 
+> > > > > Ok, so Rafael's suspend() routine seems like good fix...
+> > > > 
+> > > > No. I don't see a reason why my desktop P4 should drop to 12.5 frequency
+> > > > (p4-clockmod) if I ask it to suspend to mem.
+> > > 
+> > > So, would it be acceptable to check in _suspend() if the state is S4
+> > > and drop the frequency in that case or do nothing otherwise?
+> > 
+> > No. The point is that this is _very_ system-specific. Some systems resume
+> > always at full speed, some always at low speed; for S4 the behaviour may be
+> > completely unpredictable. And in fact I wouldn't want my desktop P4 drop th
+> > 12.5 % frequency if I ask it to suspend to disk, too. "Ignoring" the warning
+> > seems to be the best thing to me. The good thing is, after all, that cpufreq
+> > detected this situation and tries to correct for it.
+> 
+> You may not run k8 notebook on max frequency on battery. Your system
+> will crash; and you might even damage battery.
 
-i think you are underestimating Jack - it is easily amongst the most
-sophisticated audio frameworks in existence, and it certainly has one of
-the most robust designs. Just shop around on google for Jack-based audio
-applications. What i'd love to see is more integration (and cooperation)
-between the audio frameworks of desktop projects (KDE, Gnome) and Jack.
+When I don't compile in cpufreq, it seems to run at 1,8 GHz (the max)
+all the time, on AC power as well as on battery.  Along with what you're
+saying it leads to the conclusion that in fact I have to compile in cpufreq
+or I can damage the battery otherwise.  Is that right?
 
-	Ingo
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

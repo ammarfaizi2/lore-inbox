@@ -1,92 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317786AbSHCVMt>; Sat, 3 Aug 2002 17:12:49 -0400
+	id <S317816AbSHCVNs>; Sat, 3 Aug 2002 17:13:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSHCVMt>; Sat, 3 Aug 2002 17:12:49 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:31750 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S317786AbSHCVMs>; Sat, 3 Aug 2002 17:12:48 -0400
-Date: Sat, 3 Aug 2002 23:16:19 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: linux-kernel@vger.kernel.org
-Cc: Lars Schmitt <lschmitt@e18.physik.tu-muenchen.de>
-Subject: large file IO starving ls -l
-Message-ID: <Pine.LNX.4.44.0208032253260.23040-100000@pc40.e18.physik.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317817AbSHCVNs>; Sat, 3 Aug 2002 17:13:48 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:15861 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317816AbSHCVNr>; Sat, 3 Aug 2002 17:13:47 -0400
+Subject: Re: Problem with AHA152X driver in 2.4.19
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc Lefranc <lefranc.m@free.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <p6r65yrlvt1.fsf@free.fr>
+References: <p6r65yrlvt1.fsf@free.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 03 Aug 2002 23:35:14 +0100
+Message-Id: <1028414114.1760.40.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear kernel hackers!
+On Sat, 2002-08-03 at 18:02, Marc Lefranc wrote:
+>------------------------------------------------
+> Aug  3 17:44:55 socrate kernel: Unable to handle kernel NULL pointer dereference
+>  at virtual address 0000001b
+> Aug  3 17:44:55 socrate kernel:  printing eip:
+> Aug  3 17:44:55 socrate kernel: c68a21d9
+> Aug  3 17:44:55 socrate kernel: *pde = 00000000
+> Aug  3 17:44:55 socrate kernel: Oops: 0000
+> Aug  3 17:44:55 socrate kernel: CPU:    0
+> Aug  3 17:44:55 socrate kernel: EIP:    0010:[<c68a21d9>]    Not tainted
+> Aug  3 17:44:55 socrate kernel: EFLAGS: 00010002
+> Aug  3 17:44:55 socrate kernel: eax: 00000000   ebx: c2575000   ecx: c26e9e30   
+> edx: c1d9a240
 
-While investigating some issues with our computing farm (*) I came across
-this issue: when writing a 2GB file with 'dd if=/dev/zero of=bigfile
-bs=1024k count=2048' onto a 3ware RAID (5*Maxtor 160GB, RAID-5), ls -l in
-that directory sometimes takes some minutes to complete, thereby
-presenting obviously the file sizes corresponding to the starting time of
-the command. The directory has less than ten entries, the filesystem is 
-reiserfs, kernel 2.4.18-3 from RedHat. Nothing else going on during the 
-test.
-
-I modified the 3ware driver to provide information on how long each 
-command takes from posting to the controller to receiving the answer via 
-an interrupt:
-
-scsi0: 3ware Storage Controller
-Driver version: 1.02.00.025
-Current commands posted:         0
-Max commands posted:           255
-Current pending commands:        0
-Max pending commands:            0
-Last sgl length:                 7
-Max sgl length:                 32
-Last sector count:              56
-Max sector count:              256
-Resets:                          0
-Aborts:                          0
-AEN's:                           0
-      time    read   write   query  capcty   ioctl
-        10     843      14       1       1      17
-        20      86      23       0       0       0
-        40      17      16       0       0       0
-        80      23      54       0       0       0
-       160      59      41       0       0       0
-       320     124     269       0       0       0
-       640     771    2794       0       0       0
-      1280    1386   10917       0       0       2
-      2560    1598    3410       0       0       0
-      5120       0      35       0       0       0
-     10240       0       0       0       0       0
-     20480       0       0       0       0       0
-     40960       0       0       0       0       0
-     81920       0       0       0       0       0
-gliding avg   2036    2124       0       0      11
-
-The time is given in ms (actually jiffies differences, rounded down
-towards the next power of two, then multiplied by ten), the gliding 
-average gives an exponentially weighted average with a lifetime of 200. 
-This sample is from a mount (the reads) and the aforementioned 2GB write. 
-During the writing, 255 commands are posted, nearly all with 256 sectors 
-each, so that the data rate is about 16MB/s which also fits the 
-measurement with the wall clock.
-
-Now the question is: who keeps ls from returning? The command never hits 
-the disk (reads in above histogram do not increase), but stays for many 
-seconds (up to one minute) in state D.
-
-Ciao,
-					Roland
-
-(*) It's not actually a CPU intensive task: we call these machines 
-eventbuilders as they gather data from our experiment and write it to disk 
-with an average rate of about 5-10MB/s. The relevance of the ls problem is 
-that sometimes also these eventbuilding jobs get stuck for several 
-seconds and are afterwards unable to catch up again.
-
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
-
+You need to run through the oops through the ksymoops decoder (see
+REPORTING-BUGS in the kernel)

@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265373AbUEZJd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265323AbUEZJmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265373AbUEZJd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 05:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265381AbUEZJdZ
+	id S265323AbUEZJmX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 05:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265385AbUEZJmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 05:33:25 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10880 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S265373AbUEZJdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 05:33:19 -0400
-Date: Wed, 26 May 2004 10:40:19 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200405260940.i4Q9eJdS000767@81-2-122-30.bradfords.org.uk>
-To: Helge Hafting <helgehaf@aitel.hist.no>, orders@nodivisions.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40B45CB7.6010407@aitel.hist.no>
-References: <40B43B5F.8070208@nodivisions.com>
- <40B45CB7.6010407@aitel.hist.no>
+	Wed, 26 May 2004 05:42:23 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:16280 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S265323AbUEZJmV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 05:42:21 -0400
+Message-ID: <40B4667B.5040303@nodivisions.com>
+Date: Wed, 26 May 2004 05:42:19 -0400
+From: Anthony DiSante <orders@nodivisions.com>
+Reply-To: orders@nodivisions.com
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: why swap at all?
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au>
+In-Reply-To: <40B4590A.1090006@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Helge Hafting <helgehaf@aitel.hist.no>:
-> Anthony DiSante wrote:
-> 
-> > As a general question about ram/swap and relating to some of the 
-> > issues in this thread:
-> >
-> >     ~500 megs cached yet 2.6.5 goes into swap hell
-> >
-> > Consider this: I have a desktop system with 256MB ram, so I make a 
-> > 256MB swap partition.  So I have 512MB "memory" and if some process 
-> > wants more, too bad, there is no more.
-> >
-> > Now I buy another 256MB of ram, so I have 512MB of real memory.  Why 
-> > not just disable my swap completely now?  I won't have increased my 
-> > memory's size at all, but won't I have increased its performance lots? 
-> 
-> This is correct. You now have 512M of fast memory instead of
-> 256M fast memory and 256M "slow" memory. You don't _need_ to have additional
-> swap, but it is usually a good idea.  If you keep your 256M of swap, 
-> then you now
-> have 512M fast memory + 256M slow memory for a total of 768M.  This is 
-> even better.
+Nick Piggin wrote:
+> The VM doesn't always get it right, and to make matters worse, desktop
+> users don't appreciate their long running jobs finishing earlier, but
+> *hate* having to wait a few seconds for a window to appear if it hasn't
+> been used for 24 hours.
 
-I strongly disagree on the last point.  It may be better, but it may also
-be a lot worse.  Too much swap can be a bad thing - see my example in another
-post about run-away processes on remote machines.
+Come on, that is quite an exaggeration.  It can happen in a span of minutes 
+-- after rsyncing a dir to a backup dir, for example, which fills ram rather 
+quickly with cache I'll never use again.  Or after configuring and compiling 
+a package, which does the same thing.
 
-> Please note that  your machine _will_ do one kind of swapping even if you
-> don't configure any swap: Executable files are a kind of swap-files,
-> if memory pressure happens then (part of) your programs will be evicted
-> from memory _because_ they can be reloaded from their executables.
-> 
-> This cause the same sort of performance degradations as swapping to
-> a swap partition.  Actually, it is worse because swapping to a swap 
-> partition
-> allows swapping out little-used writeable memory before discarding
-> program code that might see more use.  So if swapping happens, then
-> you're better off with a swap partition because then it is the least used
-> stuff that goes first. Without a swap partition, the least used program code
-> goes, but it may or may not be the least used memory overall.
+As you said, the VM doesn't, in fact, always get it right.  If 512MB worked 
+before when it was half swap, 512MB of pure ram will work too, only faster. 
+  I don't see how adding more swap at that point could increase performance 
+unless you are keeping your ram full of non-cached pages, and that's never 
+the case for me -- my ram is almost always half cached pages.
 
-Again, the user _may_ be better off swapping to a swap partition rather than
-having executable code paged out, but this is not necessarily true in all
-circumstances.
-
-John.
+-Anthony
+http://nodivisions.com/

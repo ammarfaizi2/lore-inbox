@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264803AbRF1WtC>; Thu, 28 Jun 2001 18:49:02 -0400
+	id <S264816AbRF1WtC>; Thu, 28 Jun 2001 18:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264807AbRF1Wsw>; Thu, 28 Jun 2001 18:48:52 -0400
-Received: from m29-mp1-cvx1b.col.ntl.com ([213.104.72.29]:41605 "EHLO
-	[213.104.72.29]") by vger.kernel.org with ESMTP id <S264794AbRF1Wsj>;
-	Thu, 28 Jun 2001 18:48:39 -0400
-To: Jason McMullan <jmcmullan@linuxcare.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com>
-From: John Fremlin <vii@users.sourceforge.net>
-Date: 28 Jun 2001 23:47:53 +0100
-In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com> (Jason McMullan's message of "Tue, 26 Jun 2001 15:58:38 -0400")
-Message-ID: <m24rt0gr1i.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
+	id <S264812AbRF1Wsx>; Thu, 28 Jun 2001 18:48:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20382 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264803AbRF1Wsl>;
+	Thu, 28 Jun 2001 18:48:41 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15163.46150.164836.342792@pizda.ninka.net>
+Date: Thu, 28 Jun 2001 15:48:38 -0700 (PDT)
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: Jes Sorensen <jes@sunsite.dk>,
+        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
+ achi ne
+In-Reply-To: <Pine.LNX.4.33.0106281840330.32276-100000@toomuch.toronto.redhat.com>
+In-Reply-To: <15163.45534.977835.569473@pizda.ninka.net>
+	<Pine.LNX.4.33.0106281840330.32276-100000@toomuch.toronto.redhat.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[...]
+Ben LaHaise writes:
+ > > How do you represent this with the undocumented API ia64 has decided
+ > > to use?  You can't convey this information to the driver, because the
+ > > driver may say "I don't care if it's slower, I want the large
+ > > addressing because otherwise I'd consume or overflow the IOMMU
+ > > resources".  How do you say "SAC is preferred for performance" with
+ > > ia64's API?  You can't.
+ > 
+ > How is SAC useful on ia64?  All the machines are going to be shipped with
+ > more than 4GB of RAM, and they need an IOMMU.
 
-> 	immediate: RAM, on-chip cache, etc. 
-> 	fast:	   Flash reads, ROMs, etc.
-> 	medium:    Hard drives, CD-ROMs, 100Mb ethernet, etc.
-> 	slow:	   Flash writes, floppy disks,  CD-WR burners
-> 	packeted:  Reads/write should be in as large a packet as possible
-> 
-> Embedded Case
+That is all that some devices are able to do, especially sound
+cards, some of which even have < 32-bit addressing limitations.
+ia64 supports such devices just fine, I know it does, else you
+couldn't stick an eepro100 into an ia64 box running Linux :-)
 
-[...]
+There is a software IOMMU implemented in the ia64 port, and it
+handles such SAC situations today.
 
-> Desktop Case
+ > Like it or not, 64 bit DMA is here, NOW.  Not during the 2.6, but during
+ > 2.4.  We can either start fixing the ia64 APIs and replacing them with
+ > something that's "Right" or we can continue with ad hoc solutions.
 
-I'm not sure there's any point in separating the cases like this.  The
-complex part of the VM is the caching part => to be a good cache you
-must take into account the speed of accesses to the cached medium,
-including warm up times for sleepy drives etc.
+It will be fixed in 2.5.x and backported perhaps to 2.4.x, 2.4.x is
+not a place for API experimentation.
 
-It would be really cool if the VM could do that, so e.g. in the ideal
-world you could connect up a slow harddrive and have its contents
-cached as swap on your fast harddrive(!) (not a new idea btw and
-already implemented elsewhere). I.e. from the point of view of the VM a
-computer is just a group of data storage units and it's allowed to use
-up certain parts of each one to do stuff
-
-[...]
-
--- 
-
-	http://ape.n3.net
+Later,
+David S. Miller
+davem@redhat.com

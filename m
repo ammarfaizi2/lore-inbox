@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263979AbTE0R5h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTE0R4h
+	id S264041AbTE0SCY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTE0SAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:56:37 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:6407 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264060AbTE0Rz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:55:56 -0400
-Subject: Re: [BK PATCHES] add ata scsi driver
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030527171605.GL845@suse.de>
-References: <1053972773.2298.177.camel@mulgrave>
-	<20030526181852.GL845@suse.de> <1053974830.1768.190.camel@mulgrave>
-	<20030526190707.GM845@suse.de> <1053976644.2298.194.camel@mulgrave>
-	<20030526193327.GN845@suse.de> <20030527123901.GJ845@suse.de>
-	<1054045594.1769.24.camel@mulgrave>  <20030527171605.GL845@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 27 May 2003 14:09:05 -0400
-Message-Id: <1054058946.1769.223.camel@mulgrave>
+	Tue, 27 May 2003 14:00:50 -0400
+Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:50186 "EHLO
+	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id S264016AbTE0R7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:59:48 -0400
+Date: Tue, 27 May 2003 20:12:06 +0200
+From: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       manish <manish@storadinc.com>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527181206.GA763@rz.uni-karlsruhe.de>
+Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel@vger.kernel.org,
+	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+	manish <manish@storadinc.com>,
+	Christian Klose <christian.klose@freenet.de>,
+	William Lee Irwin III <wli@holomorphy.com>
+References: <3ED2DE86.2070406@storadinc.com> <3ED372DB.1030907@gmx.net> <Pine.LNX.4.55L.0305271425500.30637@freak.distro.conectiva> <200305271936.34006.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271447100.756@freak.distro.conectiva>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0305271447100.756@freak.distro.conectiva>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-27 at 13:16, Jens Axboe wrote:
-> If you increase it again, the maps are resized. Is that a problem? Seems
-> ok to me.
+Hi,
 
-What I mean is that you allocate memory whenever the depth increases. 
-Even if you have an array large enough to accommodate the increase
-(because you don't release when you decrease the tag depth).
+On Tue, May 27, 2003 at 02:47:24PM -0300, Marcelo Tosatti wrote:
+> On Tue, 27 May 2003, Marc-Christian Petersen wrote:
+> > > A "pause" is perfectly fine (to some extent, of course), now a hang is
+> > > not. Is this backtrace from a hanged, unusable kernel or ?
+> > A pause is _not_ perfectly fine, even not to some extent. That pause we are
+> > discussing about is a pause of the _whole_ machine, not just disk i/o pauses.
+> > Mouse stops, keyboard stops, everything stops, who knows wtf.
+> 
+> Do you also notice them?
 
-On further examination, there's also an invalid tag race:  If a device
-is throttling, it might want to do a big decrease followed fairly
-quickly by a small increase.  When it does the increase, you potentially
-still have outstanding tags above the new depth, which will now run off
-the end of your newly allocated tag array.
+Since 2.4.19 I notice a lot of pauses with interactive work (desktop
+usage). If i copy a big file over network or on local disk, some of my
+desktop machines simply don't respond anymore to user requests (e.g. I
+start copying a large file over nfs to local disk and start mozilla,
+mozilla won't start until the copy is finished).
+My current testcase is: dd if=/dev/zero of=blubber bs=4096 count=65000 and
+moving the mouse during this operation. With 2.4.18 everything is ok, the
+mouse runs smooth the whole time. 2.4.19 and later: I get mouse hangs, it
+won't move for a second, sometimes longer. wolk reduces this problem, but
+doesn't solve it.
+On my servers (mostly IBM xseries 345 and 335) it's ok with a
+vanilla-kernel, but there is no interactive work, mostly routing or
+network monitoring.
+I hope, I can run a vanilla 2.4 kernel again on my machines, at the moment
+that isn't possible.
 
-James
-
-
-
+Bye,
+Matthias
+-- 
+Matthias.Mueller@rz.uni-karlsruhe.de
+Rechenzentrum Universitaet Karlsruhe
+Abteilung Netze

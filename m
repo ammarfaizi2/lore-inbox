@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283163AbRLDTEm>; Tue, 4 Dec 2001 14:04:42 -0500
+	id <S283291AbRLDTGO>; Tue, 4 Dec 2001 14:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283320AbRLDTDR>; Tue, 4 Dec 2001 14:03:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60933 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283282AbRLDTBo>; Tue, 4 Dec 2001 14:01:44 -0500
-Subject: Re: Insmod problems
-To: apiggyjj@yahoo.ca
-Date: Tue, 4 Dec 2001 19:10:10 +0000 (GMT)
-Cc: BIRDTY@uvsc.edu (Tyler BIRD), linux-kernel@vger.kernel.org
-In-Reply-To: <20011204182023.87068.qmail@web20206.mail.yahoo.com> from "Michael Zhu" at Dec 04, 2001 01:20:23 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S283293AbRLDTEt>; Tue, 4 Dec 2001 14:04:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:64261 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283273AbRLDTDy>;
+	Tue, 4 Dec 2001 14:03:54 -0500
+Date: Tue, 4 Dec 2001 20:03:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Stephen Cameron <smcameron@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cciss max SGs is 31, not 32, 2.5.1-pre5
+Message-ID: <20011204200331.F15152@suse.de>
+In-Reply-To: <20011204170252.43996.qmail@web12302.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BKxG-000370-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20011204170252.43996.qmail@web12302.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've changed my source file like this:
-> #define MODULE
+On Tue, Dec 04 2001, Stephen Cameron wrote:
+> Guys,
 > 
-> #include <linux/module.h>
+> wrt 2.5.1-pre5
+> 
+> The change below should be reverted.  The controller will reject a command
+> with 32 scatter gather entries.  
 
-Is your kernel configured with module versioning ?
+Oops, probably my mistake. Funny thing is even tested this months ago
+and came to the same conclusion (your docs are not that good...), I
+guess it survived in the 2.5 tree because of lack of testing.
+
+-- 
+Jens Axboe
 

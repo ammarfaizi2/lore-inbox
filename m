@@ -1,24 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262314AbTCMN3N>; Thu, 13 Mar 2003 08:29:13 -0500
+	id <S262311AbTCMNZp>; Thu, 13 Mar 2003 08:25:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262324AbTCMN3N>; Thu, 13 Mar 2003 08:29:13 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:39688 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S262314AbTCMN3M>;
-	Thu, 13 Mar 2003 08:29:12 -0500
-Date: Thu, 13 Mar 2003 16:39:26 +0300
-From: Samium Gromoff <deepfire@ibe.miee.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: DAC960 in 2.5.59 vs modem
-Message-Id: <20030313163926.6e95029f.deepfire@ibe.miee.ru>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262313AbTCMNZp>; Thu, 13 Mar 2003 08:25:45 -0500
+Received: from ns.suse.de ([213.95.15.193]:39696 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262311AbTCMNZ2>;
+	Thu, 13 Mar 2003 08:25:28 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64-mm6
+References: <20030313032615.7ca491d6.akpm@digeo.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 13 Mar 2003 14:36:14 +0100
+In-Reply-To: Andrew Morton's message of "13 Mar 2003 12:30:11 +0100"
+Message-ID: <p73n0jz4cdt.fsf@amdsimf.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	The matters are quite simple: any disk acces to the drives on my
-  DAC960PL tends to kill my ppp connection. that is on a p3-600.
+Andrew Morton <akpm@digeo.com> writes:
 
-regards, Samium Gromoff
+
+>   This means that large cache-cold executables start significantly faster.
+>   Launching X11+KDE+mozilla goes from 23 seconds to 16.  Starting OpenOffice
+>   seems to be 2x to 3x faster, and starting Konqueror maybe 3x faster too. 
+>   Interesting.
+> 
+>   This might cause weird thing to happen, especially on small-memory machines.
+
+That's great. It would be nice to have this as a sysctl or perhaps
+some heuristic based on file size and available memory for 2.6.
+
+-Andi
+

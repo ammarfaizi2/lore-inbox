@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283390AbRLDUEw>; Tue, 4 Dec 2001 15:04:52 -0500
+	id <S283429AbRLDUKK>; Tue, 4 Dec 2001 15:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281664AbRLDUDP>; Tue, 4 Dec 2001 15:03:15 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22537 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S282910AbRLDUCL> convert rfc822-to-8bit; Tue, 4 Dec 2001 15:02:11 -0500
-Date: Tue, 4 Dec 2001 16:45:26 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops: 0000 with kernel 2.4.17pre2
-In-Reply-To: <E16BKMt-0004SE-00@mrvdom00.schlund.de>
-Message-ID: <Pine.LNX.4.21.0112041644310.19750-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S283353AbRLDUIY>; Tue, 4 Dec 2001 15:08:24 -0500
+Received: from zero.tech9.net ([209.61.188.187]:51460 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281664AbRLDUHj>;
+	Tue, 4 Dec 2001 15:07:39 -0500
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+From: Robert Love <rml@tech9.net>
+To: Edward Muller <emuller@learningpatterns.com>
+Cc: =?ISO-8859-1?Q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
+	<raul@viadomus.com>,
+        esr@thyrsus.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1007495452.4621.7.camel@akira.learningpatterns.com>
+In-Reply-To: <E16BKL5-0001yJ-00@DervishD.viadomus.com> 
+	<1007495452.4621.7.camel@akira.learningpatterns.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 04 Dec 2001 15:07:14 -0500
+Message-Id: <1007496450.16169.20.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2001-12-04 at 14:50, Edward Muller wrote:
 
+> I've put python on my Compaq IPAQ (running linux) and with very few
+> amounts of tweaks it took up less 1 MB. And that's including gtk
+> bindings (no tk though) and just about the entire standard python
+> library. Someone else tried to do this with perl and they couldn't get
+> it under 3 MB IIRC. And IIRC, the current kernel build system requires
+> perl (I could be wrong, I'm just a watcher on this list, not a hacker).
+> So ... PYTHON IS NOT BLOATED.
 
-On Tue, 4 Dec 2001, Christian Bornträger wrote:
+No, it doesn't require Perl.  Its sh along with the standard Linux
+toolset.  xconfig is Tk, but not binded to Perl.
 
-> I found this in my logs.
-> I have no idea, why the log says not tainted, because I am quite sure that 
-> the nvidia-driver was loaded at this moment.
-> It seems that this happened while trying to kill a quake3-session.(I noticed 
-> today, that there is a linux version..... ;-))
-> 
-> I don´t know if I should blame the nvidia-driver, but please have a look at 
-> it, because there were some other oops messages with 2.4.16 in the LKML.
-> The call trace has functions of the VM, of the file system layer and reiserfs.
-> 
-> 
-> greetings
-> 
-> 4e 08 8b 41 04 89
-> Dec  4 16:48:12 cubus kernel:  <6>NVRM: AGPGART: freed 16 pages
-				    ^^^
-> Dec  4 16:48:14 cubus kernel:  printing eip:
-> Dec  4 16:48:14 cubus kernel: e097134a
+Regardless, I don't look at bloat as the issue -- who configures and
+compiles their kernel on an embedded device?  More specifically, it is
+what the kernel hackers have available and want to use that is the
+requirement.  This is partly why the whole "now your mom can easily
+configure her kernel" is a bs argument to me.  Forget my mom..._I_ want
+things a certain way.  My mom, if I ever forc^H^H^H^H get her to use
+Linux, will surely use the distro's kernel.
 
-It really seems to be the nvidia driver which is causing problems. 
+	Robert Love
 

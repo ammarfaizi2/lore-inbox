@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130172AbRASDQb>; Thu, 18 Jan 2001 22:16:31 -0500
+	id <S130807AbRASD0D>; Thu, 18 Jan 2001 22:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130894AbRASDQL>; Thu, 18 Jan 2001 22:16:11 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:46858 "HELO
+	id <S130894AbRASDZy>; Thu, 18 Jan 2001 22:25:54 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:3339 "HELO
 	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S130548AbRASDQG>; Thu, 18 Jan 2001 22:16:06 -0500
-Date: Thu, 18 Jan 2001 19:16:05 -0800 (PST)
+	id <S130807AbRASDZh>; Thu, 18 Jan 2001 22:25:37 -0500
+Date: Thu, 18 Jan 2001 19:25:36 -0800 (PST)
 From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Zach Brown <zab@zabbo.net>
-cc: <linux-kernel@vger.kernel.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+        Rick Jones <raj@cup.hp.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <20010118124928.F8658@tetsuo.zabbo.net>
-Message-ID: <Pine.LNX.4.30.0101181913540.16292-100000@twinlark.arctic.org>
+In-Reply-To: <20010118203802.D28276@athlon.random>
+Message-ID: <Pine.LNX.4.30.0101181918280.16292-100000@twinlark.arctic.org>
 X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Zach Brown wrote:
+huh -- i think with this apache could solve the problem documented in
+heidemann's paper while also leaving nagle on... which would solve the CGI
+dribbler vs. bulk problem i just posted about.
 
-> We set TCP_CORK on the socket we handed to external programs that were
-> being run via 'site exec' in an ftp server.  It resulted in much nicer
-> packets being spit out, especially in the 'ls' case where it likes to
-> write() on really goofy boundaries.
->
-> [yes, ftp and 'site exec' in particular are far from sexy, but do the same
-> with CGI scripts and the world might care :)]
+at the end of a request apache would check first if it can get another
+request without blocking; if it would block then it issues a SIOCPUSH and
+drops into poll() waiting for a new request.
 
-actually in apache we deliberately writev() on (essentially) the same
-boundaries the CGI passed to us.
+this means the final packet of a response isn't ever delayed (which is the
+motivation for turning off nagle); and a multi-request pipeline has
+maximal packets... and a dribbling CGI won't cause as many tiny packets.
 
-the reason, gag puke, is for doing things such as sending "activity"
-progress -- like a line at a time or whatever to indicate that the CGI is
-there and still working.
+this may in fact also eliminate the need for CORK, unless anyone can
+really think of an app that wouldn't even want small packets on the wire
+when the server hasn't sent anything for a while.
 
-this is obviously something that we really should enable nagle for, and
-we've been in a dilemma of whether to nagle or not in this case for a few
-years.  we want to not nagle if the CGI is bulk... we want to nagle if the
-CGI is a dribbler (because that's what nagle is for).
-
-CORK would probably be wrong for us.
+i like this one :)
 
 -dean
+
+On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
+
+> diff -urN -X /home/andrea/bin/dontdiff 2.4.1pre8/net/ipv4/tcp.c SIOCPUSH/net/ipv4/tcp.c
+> --- 2.4.1pre8/net/ipv4/tcp.c	Wed Jan 17 04:02:38 2001
+> +++ SIOCPUSH/net/ipv4/tcp.c	Thu Jan 18 19:10:14 2001
+> @@ -671,6 +671,11 @@
+>  		else
+>  			answ = tp->write_seq - tp->snd_una;
+>  		break;
+> +	case SIOCPUSH:
+> +		lock_sock(sk);
+> +		__tcp_push_pending_frames(sk, tp, tcp_current_mss(sk), 1);
+> +		release_sock(sk);
+> +		break;
+>  	default:
+>  		return(-ENOIOCTLCMD);
+>  	};
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

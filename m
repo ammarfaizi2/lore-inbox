@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132955AbRDEQTv>; Thu, 5 Apr 2001 12:19:51 -0400
+	id <S132569AbRDEQ6q>; Thu, 5 Apr 2001 12:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132956AbRDEQTm>; Thu, 5 Apr 2001 12:19:42 -0400
-Received: from medusa.sparta.lu.se ([194.47.250.193]:53338 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S132955AbRDEQTk>; Thu, 5 Apr 2001 12:19:40 -0400
-Date: Thu, 5 Apr 2001 17:02:42 +0200 (MET DST)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-To: Jani Monoses <jani@virtualro.ic.ro>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ERESTARTSYS question.
-In-Reply-To: <Pine.LNX.4.10.10104051908540.29169-100000@virtualro.ic.ro>
-Message-ID: <Pine.LNX.3.96.1010405165939.30281E-100000@medusa.sparta.lu.se>
+	id <S132583AbRDEQ6h>; Thu, 5 Apr 2001 12:58:37 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:39049 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132569AbRDEQ6Y>;
+	Thu, 5 Apr 2001 12:58:24 -0400
+Message-ID: <3ACCA403.BFC86E41@mandrakesoft.com>
+Date: Thu, 05 Apr 2001 12:57:39 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Manuel A. McLure" <mmt@unify.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: tulip (was RE: Kernel 2.4.3 fails to compile)
+In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C169@pcmailsrv1.sac.unify.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Apr 2001, Jani Monoses wrote:
-> On Thu, 5 Apr 2001, Bjorn Wesen wrote:
-> > ERESTARTSYS is a part of the api between the driver and the
-> > signal-handling code in the kernel. It does not reach user-space (provided
-> > of course that it's used appropriately in the drivers :) 
+"Manuel A. McLure" wrote:
 > 
-> As an example sound/via82cxxx_audio.c returns ERESTARTSYS from
-> via_dsp_open() .I suppose this _does_ reach userland right? 
+> Jeff Garzik wrote:
+> > On Fri, 30 Mar 2001, Manuel A. McLure wrote:
+> > > It looks like the tulip driver isn't as up-to-date as the one from
+> > > 2.4.2-ac20 - when is 2.4.3-ac1 due? :-) I got NETDEV
+> > WATCHDOG errors shortly
+> > > after rebooting with 2.4.3, although these were of the
+> > "slow/packet lossy"
+> > > type I got with 2.4.2-ac20 instead of the "network
+> > completely unusable" type
+> > > I got with 2.4.2-ac11 and earlier.
+> >
+> > I'm betting that the latest ac (ac28?) is broken for you, too.
+> >
+> > I had to revert the changes in 'ac' tulip -- they fixed Comet
+> > and 21041
+> > cards, but broke some others.  sigh.
+> >
+> > sigh.  More testing and debugging for Jeffro...  Comet (your chip, I
+> > am guessing?) should be fixed ASAP, it's pretty easy.  21041 is not as
+> > easy, but should be fixed quickly as well.
+> 
+> Yes, mine is a Comet - here's the exact detection message:
+> 
+> Mar 30 13:09:06 ulthar kernel: Linux Tulip driver version 0.9.14 (February
+> 20, 2
+> 001)
+> Mar 30 13:09:06 ulthar kernel: PCI: Found IRQ 5 for device 00:0c.0
+> Mar 30 13:09:06 ulthar kernel: eth0: ADMtek Comet rev 17 at 0xb000,
+> 00:20:78:0D:
+> D2:E1, IRQ 5.
 
-No; system calls do not exit directly to userland, they exit through the
-magic in entry.S (confusingly so :). If a signal is pending (which it is,
-if down_interruptible fails) the return is made through do_signal, which
-rewrites the return value and does the proper restarting.
+Ok, this should be fixed in the latest patches sent to Alan and Linus.
 
-(down_interruptible means it can be interrupted by a signal, btw - bad
-drivers do sleep and semaphoring without _interruptible so if your HW is
-bad the process can get stuck irrecoverably in the kernel)
-
-/Bjorn
-
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

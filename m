@@ -1,50 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313569AbSDHGhN>; Mon, 8 Apr 2002 02:37:13 -0400
+	id <S313574AbSDHHYf>; Mon, 8 Apr 2002 03:24:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313571AbSDHGhM>; Mon, 8 Apr 2002 02:37:12 -0400
-Received: from rj.SGI.COM ([204.94.215.100]:57807 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S313569AbSDHGhK>;
-	Mon, 8 Apr 2002 02:37:10 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Tom Holroyd <tomh@po.crl.go.jp>
-Cc: marcelo@conectiva.com.br,
-        kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Extraversion in System.map? 
-In-Reply-To: Your message of "Mon, 08 Apr 2002 15:29:47 +0900."
-             <Pine.LNX.4.44.0204081526200.548-100000@holly.crl.go.jp> 
+	id <S313575AbSDHHYe>; Mon, 8 Apr 2002 03:24:34 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:34446 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313574AbSDHHYd>;
+	Mon, 8 Apr 2002 03:24:33 -0400
+Date: Mon, 8 Apr 2002 09:24:14 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Neale Banks <neale@lowendale.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VIA timer fix was removed?
+Message-ID: <20020408092414.D1509@ucw.cz>
+In-Reply-To: <20011119182927.A19179@suse.cz> <Pine.LNX.4.05.10204081626560.1445-100000@marina.lowendale.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Apr 2002 16:36:56 +1000
-Message-ID: <595.1018247816@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2002 15:29:47 +0900 (JST), 
-Tom Holroyd <tomh@po.crl.go.jp> wrote:
->On Mon, 8 Apr 2002, Keith Owens wrote:
->
->> System.map only contains the numeric kernel version.  After all, it is
->> difficult to convert 2.4.19-pre6 to Version_132115-pre6 when symbols
->> cannot contain '-'.
->
->Well, that has an obvious solution, but modifying the Version string
->would likely break something.  Adding another string would work.  It
->could even be done without making the kernel image bigger.  In fact,
->the Version_* symbol (and Extraversion_* symbol) could both be made
->__initdata, couldn't they?
+On Mon, Apr 08, 2002 at 04:33:49PM +1000, Neale Banks wrote:
 
-Where the symbol's content is placed is irrelevant.  System.map
-contains the symbol _name_, not its _contents_.  But symbol names
-cannot contain the special characters that people put in extraversion.
-Even mapping the special characters to '_' will not help because a lot
-of people do not change extraversion when changing config and the
-change of config can really move symbols around.  Hence all the checks
-that ksymoops does to validate symbol addresses between multiple
-sources.
+> Hi Vojtech,
+> 
+> Appended patch:
+> 
+> (a) merges your patch of November 2001 into 2.2.21rc3
+> (b) adds a boot-time option to explicitly disable the via-timer hacks.
+> 
+> I've been using this patch for a while, but haven't subjected it to more
+> thorough testing than that it boots OK and doesn't appear to complicate
+> anything (I might be able to trigger the relevant condition by running the
+> battery right down on my (old) AcerNote-950, but one of the last times
+> this happened I also got some pretty nasty file system corruption - so I'm
+> not too keen to try that one again :-| ).
+> 
+> Anyway, does this patch and my merge of it look correct?
 
-I have some ideas about making System.map and the kernel record which
-build they refer to, including the .config data.  But that is 2.5
-material, after kbuild 2.5 goes in.
+Looks OK.
 
+> 
+> Thanks,
+> Neale.
+> 
+> --- linux-2.2.21-rc3-orig/arch/i386/kernel/time.c	Mon Mar 26 02:37:30 2001
+> +++ linux-2.2.21-rc3-ntb/arch/i386/kernel/time.c	Fri Apr  5 23:04:13 2002
+> @@ -81,6 +81,8 @@
+>  
+>  spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
+>  
+> +static int		via686a_hacks = 1; /* default to enabled */
+> +
+>  static inline unsigned long do_fast_gettimeoffset(void)
+>  {
+>  	register unsigned long eax asm("ax");
+> @@ -111,6 +113,54 @@
+>  	return delay_at_last_interrupt + edx;
+>  }
+>  
+> +/*
+> + * VIA hardware bug workaround with check if it is really needed and
+> + * a printk that could tell us what's exactly happening on machines which
+> + * trigger the check, but are not VIA-based.
+> + *
+> + * Must be called with the i8253_spinlock held.
+> + */
+> +
+> +static void via_reset_and_whine(int *count)
+> +{
+> +	static unsigned long last_whine = 0;
+> +	unsigned long new_whine;
+> +	int count2;
+> +
+> +	new_whine = last_whine;
+> +
+> +	outb_p(0x00, 0x43);		/* Re-read the timer */
+> +	count2 = inb_p(0x40);
+> +	count2 |= inb(0x40) << 8;
+> +
+> +	if (time_after(jiffies, last_whine)) {
+> +		printk(KERN_WARNING "timer.c: VIA bug check triggered. "
+> +			"Value read %d [%#x], re-read %d [%#x]\n",
+> +			*count, *count, count2, count2);
+> +		new_whine = jiffies + HZ;
+> +	}
+> +
+> +	*count = count2;
+> +
+> +	if (count2 > LATCH) {		/* Still bad */
+> +		if (time_after(jiffies, last_whine)) {
+> +			printk(KERN_WARNING "timer.c VIA bug really present. ");
+> +			new_whine = jiffies + HZ;
+> +		}
+> +		if (via686a_hacks) {
+> +			printk(KERN_WARNING "Resetting PIT timer.\n");
+> +			outb_p(0x34, 0x43);
+> +			outb_p(LATCH & 0xff, 0x40);
+> +			outb(LATCH >> 8, 0x40);
+> +		} else {
+> +			printk(KERN_WARNING "But VIA hacks disabled.\n");
+> +		}
+> +		*count = LATCH - 1;
+> +	}
+> +
+> +	last_whine = new_whine;
+> +}
+> +
+>  #define TICK_SIZE tick
+>  
+>  #ifndef CONFIG_X86_TSC
+> @@ -177,12 +227,8 @@
+>  	count |= inb_p(0x40) << 8;
+>  
+>  	/* VIA686a test code... reset the latch if count > max */
+> - 	if (count > LATCH-1) {
+> -		outb_p(0x34, 0x43);
+> -		outb_p(LATCH & 0xff, 0x40);
+> -		outb(LATCH >> 8, 0x40);
+> -		count = LATCH - 1;
+> -	}	
+> +	if (count > LATCH)
+> +		via_reset_and_whine(&count);
+>  	
+>  	/*
+>  	 * avoiding timer inconsistencies (they are rare, but they happen)...
+> @@ -478,19 +524,8 @@
+>  		count |= inb(0x40) << 8;
+>  
+>  		/* VIA686a test code... reset the latch if count > max */
+> -		if (count > LATCH-1) {
+> -			static int last_whine;
+> -			outb_p(0x34, 0x43);
+> -			outb_p(LATCH & 0xff, 0x40);
+> -			outb(LATCH >> 8, 0x40);
+> -			count = LATCH - 1;
+> -			if(time_after(jiffies, last_whine))
+> -			{
+> -				printk(KERN_WARNING "probable hardware bug: clock timer configuration lost - probably a VIA686a.\n");
+> -				printk(KERN_WARNING "probable hardware bug: restoring chip configuration.\n");
+> -				last_whine = jiffies + HZ;
+> -			}			
+> -		}	
+> +		if (count > LATCH)
+> +			via_reset_and_whine(&count);
+>  
+>  #if 0
+>  		spin_unlock(&i8253_lock);
+> @@ -737,3 +772,25 @@
+>  	setup_x86_irq(0, &irq0);
+>  #endif
+>  }
+> +
+> +static int __init timer_setup(char *str)
+> +{
+> +	int	invert;
+> +
+> +	while ((str != NULL) && (*str != '\0')) {
+> +		invert = (strncmp(str, "no-", 3) == 0);
+> +		if (invert)
+> +			str += 3;
+> +		if (strncmp(str, "via686a", 7) == 0) {
+> +			via686a_hacks = !invert;
+> +			if (invert)
+> +				printk(KERN_INFO "timer: VIA686a workaround disabled.\n");
+> +		}
+> +		str = strchr(str, ',');
+> +		if (str != NULL)
+> +			str += strspn(str, ", \t");
+> +	}
+> +	return 1;
+> +}
+> +
+> +__setup("timer=", timer_setup);
+
+-- 
+Vojtech Pavlik
+SuSE Labs

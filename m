@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273324AbRIWJqm>; Sun, 23 Sep 2001 05:46:42 -0400
+	id <S271982AbRIWKFa>; Sun, 23 Sep 2001 06:05:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273361AbRIWJqd>; Sun, 23 Sep 2001 05:46:33 -0400
-Received: from colorfullife.com ([216.156.138.34]:50954 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S273324AbRIWJqU>;
-	Sun, 23 Sep 2001 05:46:20 -0400
-X-Mozilla-Status: 0801
-Message-ID: <3BADAF6A.8090400@colorfullife.com>
-Date: Sun, 23 Sep 2001 11:46:18 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010725
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10pre13aa1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S273361AbRIWKFV>; Sun, 23 Sep 2001 06:05:21 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:6411 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S271982AbRIWKFN>; Sun, 23 Sep 2001 06:05:13 -0400
+Date: Sat, 22 Sep 2001 21:32:18 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems, kupdated bugfixes
+Message-ID: <20010922213218.D31000@emma1.emma.line.org>
+Mail-Followup-To: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010921152627.C13862@emma1.emma.line.org> <Pine.LNX.4.30.0109230226210.25332-100000@gamma.student.ljbc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0109230226210.25332-100000@gamma.student.ljbc>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >> with only the dirty bit set?  Does somebody know for sure? I can
- >> imagine the cpu finding the tlb state writeable, and issuing
- >> just a locked bit test and set in the pte without caring to
- >> check if the pte is zero or not.
- >>
- >> If the cpu just set the bit this patch will avoid to lose a shared
- >> mapping update. Otherwise it's a safe noop so I keep it applied
- >> until this issue is sorted out
- >
- >I've tested this on all the machines I could get my hands on, and every
- >single CPU will take a page fault if the pte is not present on dirtying
- >the page.  If people are truely paranoid, then make it a boot time
- > assertion.
- >
+On Sun, 23 Sep 2001, Beau Kuiper wrote:
 
-I don't think that this is a valid argument:
-you are testing on i386 and make design decisions for the architecture
-independant part.
+> > Be careful! MTAs rely on this behaviour on fsync(). The official
+> > consensus on ReiserFS and ext3 on current Linux 2.4.x kernels (x >= 9)
+> > is that "any synchronous operation flushes all pending operations", and
+> > if that is changed, you MUST make sure that the changed ReiserFS/ext3fs
+> > still make all the guarantees that softupdated BSD file systems make,
+> > lest you want people to run their mail queues off "sync" disks.
+> 
+> This code change does not affect the functionality of fsync(), only
+> kupdated. kupdated is responsible for flushing buffers that have been
+> sitting around too long to disk.
 
-I'd prefer ptep_get_and_clear_and_flush(), then the arch part can do
-what's needed to get the final pte value. (if a single page is modified,
-otherwise the arch can define a suitable mmu_gather)
+Sorry, I didn't grok that when writing my previous mail in this thread.
+I thought kupdate was the one that writes ReiserFS transactions, but
+that's kreiserfsd, I think.
 
---
-     Manfred
+> > Note also, if these blocks belong to newly-opened files, you definitely
+> > want kupdated to flush these to disk on its next run so that the files
+> > are still there after a crash.
+> 
+> They still are (they would be flushed out by the sync_inodes call in
+> sync_old_buffers. But why are the file records for any new file more
+> important than changes to old files? (This is what an application can
+> determince, the kernel should just do what the app says, and treat
+> everything else fairly)
 
+Not really, but open is a directory operation, while writing is a file
+operation. Directory operations have been flushed earlier traditionally
+(5s vs. 30s).
 
+-- 
+Matthias Andree
 
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin

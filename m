@@ -1,34 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312208AbSCRGYi>; Mon, 18 Mar 2002 01:24:38 -0500
+	id <S312209AbSCRGZt>; Mon, 18 Mar 2002 01:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312209AbSCRGYS>; Mon, 18 Mar 2002 01:24:18 -0500
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:40586 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S312208AbSCRGYK>; Mon, 18 Mar 2002 01:24:10 -0500
-Date: Mon, 18 Mar 2002 08:06:43 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
-Subject: Re: [PATCH] Natsemi Geode GXn PM support and extended MMX
-In-Reply-To: <E16me0C-0002u1-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0203180803430.25834-100000@netfinity.realnet.co.sz>
+	id <S312210AbSCRGZk>; Mon, 18 Mar 2002 01:25:40 -0500
+Received: from smtp1.extremenetworks.com ([216.52.8.6]:11140 "HELO
+	smtp1.extremenetworks.com") by vger.kernel.org with SMTP
+	id <S312209AbSCRGZY>; Mon, 18 Mar 2002 01:25:24 -0500
+Message-ID: <3C95884C.DCD11F6F@extremenetworks.com>
+Date: Sun, 17 Mar 2002 22:25:16 -0800
+From: Jason Li <jli@extremenetworks.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: EXPORT_SYMBOL doesn't work
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Mar 2002, Alan Cox wrote:
 
-> The ones I've looked at do - remember any Geode BIOS is customised for that
-> CPU alone and already has either VSA1 or VSA2 built into it - its not like
-> a socket 7 board where many machines have CPU's newer than the bios
+Hi,
 
-Cool, it all makes sense i'll back off this one, for now...
+Have been puzzled by the problem for a couple of hours now, can some
+experts here please help me out. Thanks very much for any info you can
+provide here. Please remember to reply back to me also as I am not on
+the list yet.
 
-/me goes back to evil-power-management-scheming drawing board >8)
+I am trying to use module to do kernel development. Currently I have
+some code to be loaded as a module. In the code though I need some hooks
+to the existing kernel.
 
-Thanks,
-	Zwane
+Basically I am working on the bridge code. In the bridge there is a hook
+created by myslef as:
 
+
+
+int (*fdbIoSwitchHook)(
+                           unsigned long arg0,
+                           unsigned long arg1,
+                           unsigned long arg2)=NULL;
+EXPORT_SYMBOL(fdbIoSwitchHook);
+
+
+The hook will be connected by my module on module_init:
+
+	fdbIoSwitchHook = myFdbFunc;
+
+But the symbol fdbIoSwitchHook can't bve resolved by the insmod for my
+module.
+
+I saw there is no fdbIoSwitchHook in the /proc/ksyms. My kernel is
+versioned it seems.
+
+
+When I compile the export_symbol file, it did complained:
+gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686    -c -o br_ioctl.o br_ioctl.c
+br_ioctl.c:26: warning: type defaults to `int' in declaration of
+`EXPORT_SYMBOL'
+br_ioctl.c:26: warning: parameter names (without types) in function
+declaration
+br_ioctl.c:26: warning: data definition has no type or storage class
+br_ioctl.c: In function `br_ioctl_device':
+br_ioctl.c:206: warning: implicit declaration of function `fdbShow'
+
+Can someone please shed some light on this please? I don't understand
+why the symbol is not exported and what I need to do to finished my task
+ahead.
+
+Best regards,
+Jason

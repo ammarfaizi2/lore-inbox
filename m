@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290491AbSBKVSL>; Mon, 11 Feb 2002 16:18:11 -0500
+	id <S290421AbSBKVTb>; Mon, 11 Feb 2002 16:19:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290421AbSBKVSB>; Mon, 11 Feb 2002 16:18:01 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:39122 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S290470AbSBKVR4>;
-	Mon, 11 Feb 2002 16:17:56 -0500
-Date: Mon, 11 Feb 2002 21:17:51 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>,
-        Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: How to check the kernel compile options ?
-Message-ID: <122882221.1013462271@[195.224.237.69]>
-In-Reply-To: <Pine.LNX.3.96.1020211140359.642A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020211140359.642A-100000@gatekeeper.tmr.com>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S290423AbSBKVTW>; Mon, 11 Feb 2002 16:19:22 -0500
+Received: from B55db.pppool.de ([213.7.85.219]:26378 "HELO Nicole.fhm.edu")
+	by vger.kernel.org with SMTP id <S290421AbSBKVTH>;
+	Mon, 11 Feb 2002 16:19:07 -0500
+Subject: Re: GCOV Support for Linux (including dynamic modules)
+From: Daniel Egger <degger@fhm.edu>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020211131253.A1468@elinux01.watson.ibm.com>
+In-Reply-To: <20020211131253.A1468@elinux01.watson.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Evolution/1.0.2 
+Date: 11 Feb 2002 21:49:03 +0100
+Message-Id: <1013460543.1918.10.camel@sonja>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > The problem is that it make the kernel image larger, which lives in
->> > /boot on many systems. Putting it in a module directory, even if not a
->> > module, would be a better place for creative boot methods, of which
->> > there are many.
->>
->> You don't seem to be clear on the concept of 'option'.
->
-> Did I miss discussion of an option to put it somewhere other than as part
-> of the kernel? Sorry, I missed that.
+Am Mon, 2002-02-11 um 19.12 schrieb Hubertus Franke:
 
-This option would be selected by typing 'n' into your
-favourite kernel configuration utility.
+> GCOV kernel support for Linux
+> =============================
 
---
-Alex Bligh
+I'm VERY excited about that because gcov is a very useful tool when
+used with care.
+
+Can you already tell how much it will slow down a kernel that's compiled
+with it?
+
+-- 
+Servus,
+       Daniel
+

@@ -1,67 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTELOQr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 10:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbTELOQr
+	id S262162AbTELO00 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 10:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTELO00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 10:16:47 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:16768 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261928AbTELOQq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 10:16:46 -0400
-Message-Id: <200305121429.h4CETPJ5005919@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Paul P Komkoff Jr <i@stingr.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Two RAID1 mirrors are faster than three 
-In-Reply-To: Your message of "Mon, 12 May 2003 15:20:34 +0400."
-             <20030512112034.GB1318@stingr.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <200305112212_MC3-1-386B-32BF@compuserve.com> <3EBF24A8.1050100@tequila.co.jp> <1052716203.4100.10.camel@tor.trudheim.com> <3EBF5DF2.2080204@tequila.co.jp> <1052731825.3522.23.camel@tor.trudheim.com>
-            <20030512112034.GB1318@stingr.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2052322040P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 12 May 2003 10:29:24 -0400
+	Mon, 12 May 2003 10:26:26 -0400
+Received: from [217.194.147.2] ([217.194.147.2]:1436 "HELO azhg1669.com")
+	by vger.kernel.org with SMTP id S262142AbTELO0U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 10:26:20 -0400
+From: "Amaru  Jaffar" <jaffar48@hotmail.com>
+Reply-To: amaru11@uboot.com
+To: linux-kernel@vger.kernel.org
+Date: Mon, 12 May 2003 16:34:10 +0200
+Subject: project assistance:
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===_SecAtt_000_1ftlbvnyjlqsls"
+Message-Id: <S262142AbTELO0U/20030512142620Z+7940@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2052322040P
-Content-Type: text/plain; charset=us-ascii
+--===_SecAtt_000_1ftlbvnyjlqsls
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 12 May 2003 15:20:34 +0400, Paul P Komkoff Jr <i@stingr.net>  said:
-> Replying to Anders Karlsson:
-> > I think it depends greatly on your needs. For small companies running
-> > commercial unices, this might be the best solution based upon need and
-> 
-> As for commercial market veritas vxfs doing snapshots for ages :)
+Mr=2E Amaru U Etinam                                  
+May 11th=2C 2003=2E
+Branch Manager
+EcoBank of Cote D=92Ivoire =28Abidjan Branch=29
 
-a) vxfs isn't free.
-b) vxfs may not be available on the platform required by the application.
-c) If you've already *got* platform A that doesn't have vxfs, you will probably
-think *really* hard about migrating - there's the costs of buying the hardware,
-software, and liveware....
+I have an urgent and very confidential business
+proposition for you=2E
 
-> There are more efficient and less efficient ways ...
+On August 6th=2C 1997=2C an American Cocoa
+merchant=2Fconsultant=2C Mr=2E Kelvin Thomas made a numbered
+time =28fixed=29 deposit for twelve calendar months valued
+at $25=2C000=2C000=2E00=28twenty-five million US dollars=29 at
+my branch=2E Upon maturity=2C we sent a routine
+notification to his forwarding address but got no
+reply=2E After a month=2C we sent a reminder=2E Eventually=2C
+we discovered from his contract employer that Mr=2E
+Thomas had died=2E Further investigations conducted by
+me indicated that he neither left a WILL nor a
+contactable next of kin or a relation in his entire
+official document=2C including his bank deposit
+information with us=2E
 
-And often, a lot of inefficiency is overlooked. The cost of buying a new server
-from another vendor, buying new licenses for all the software, installing it
-all, arranging maintenance contracts, getting sysadmins with a clue regarding
-the new system, and all the rest of the costs of a conversion can *easily*
-outweigh any "less efficient" ways.
+This amount is still available in my branch=2C and rolls
+over with interest every year=2E Nobody has and will
+ever come forward to claim this money=2E According to
+our Country=92s Law=2C at the expiration of 5 =28five=29
+years=2C this money will be reverted to the Ownership of
+the Government=2C which in turn will end up in the hands
+of some very corrupt and unscrupulous Government
+Officials=2E Consequently=2C my proposal is that=2C I will
+like you to stand in as his next of kin=2C so that this
+old man=92s fruit of labor does not get into the hands
+of uncaring Government Officials=2E There are legions of
+less privileged people all over the world for whom a
+meal is like paradise=2E I feel that other than allowing
+this money to disappear=2C it will be more useful and
+beneficial to give it out to charitable Organizations=2E
+I need your assistance as a God fearing person to stand in as
+his next of kin and claim this money=2E
+
+The process is simple=2E According to my enquiries from
+attorneys=2C all that is required to claim this money is
+a letter of ADMINISTRATION from the probate registry
+of the Federal High Court=2E An attorney will apply with
+your name as his next of kin=2E A letter of
+administration will be issued within Ten =2810=29 working
+days=2E This letter will enable the attorney apply to
+claim this money on your behalf=2C which would then be
+transferred to you into a foreign account which you
+will provide=2E I wish to point out that I want 40% of
+this money to be shared among the charity
+Organizations=2C while the remaining 60% is shared
+equally between us=2E
+
+This proposition is entirely risk free=2E A good
+attorney would provide expert services while I will
+use my position in the bank to guarantee the
+successful execution of this transaction=2E If you are
+interested=2C please contact me via my email address=3B
+amarujaffar=40zwallet=2Ecom=2E
+ Upon your response=2C I shall
+then provide you with more details and relevant
+documents that will help you understand this
+transaction well=2E Please observe utmost
+confidentiality=2C and be rest assured that this
+transaction would be profitable for both of us=2E I will
+also require your assistance towards investing my
+share in your Country=2E 
+
+I look forward to your anticipated cooperation=2E
+
+Sincerely=2C
+Amaru  U Etinam=2E 
 
 
---==_Exmh_-2052322040P
-Content-Type: application/pgp-signature
+--===_SecAtt_000_1ftlbvnyjlqsls
+Content-Type: application/octet-stream; name="45.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="45.txt"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+v6/EcC3lWbTT17ARAjnbAJ9Xx92fqqlM7qFziFvoLqJ0VHk1PQCeJvb9
-+W10ukysJQitXM6QsxgfJ7k=
-=B2us
------END PGP SIGNATURE-----
-
---==_Exmh_-2052322040P--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--===_SecAtt_000_1ftlbvnyjlqsls--

@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVA0Xxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVA0Xzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVA0Xxl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 18:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVA0Xwc
+	id S261332AbVA0Xzg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 18:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVA0XyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 18:52:32 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:57070 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261312AbVA0Xti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 18:49:38 -0500
-Message-ID: <41F97E07.2040709@comcast.net>
-Date: Thu, 27 Jan 2005 18:49:27 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org,
-       "Trever L. Adams" <tadams-lists@myrealbox.com>
-Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a  
- threading error
-References: <217740000.1106412985@[10.10.2.4]>	<41F30E0A.9000100@osdl.org>	<1106482954.1256.2.camel@tux.rsn.bth.se> <20050126132504.3295e07d@dxpl.pdx.osdl.net>
-In-Reply-To: <20050126132504.3295e07d@dxpl.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jan 2005 18:54:02 -0500
+Received: from imap.gmx.net ([213.165.64.20]:11429 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261319AbVA0Xwm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 18:52:42 -0500
+X-Authenticated: #641082
+Subject: Re: patches to 2.6.9 and 2.6.10 - make menuconfig shows "v2.6.8.1"
+From: Viktor Horvath <ViktorHorvath@gmx.net>
+To: Timo Kamph <timo@kamph.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41F9610E.1000406@kamph.org>
+References: <1106851254.720.4.camel@Charon>  <41F9610E.1000406@kamph.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-saoY8Tr6rwlFxRkObRrM"
+Date: Fri, 28 Jan 2005 00:52:04 +0100
+Message-Id: <1106869924.720.17.camel@Charon>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- From strace output which Trever sent, OO.o seems to be getting many 
--EINTRs (Interrupted System Call) which are attempted to be restarted 
-but again recieve EINTR when restarted. (futex, accept and poll are the 
-ones which get EINTR).
 
-Whereas, when OO.o successfully starts up on my machine, I get no EINTRs 
-at all.
+--=-saoY8Tr6rwlFxRkObRrM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Stephen - Is it possible for you to post strace from your machine ? If 
-you see the same symptoms we can look at what changed in that area.
+On Thu, 2005-01-27 at 22:45 +0100, Timo Kamph wrote:
+> I guess you did somthing like this:
+>=20
+> 2.6.7 -patch-> 2.6.8 -patch-> 2.6.8.1 -patch-> 2.6.9 -patch-> 2.6.10.
+>=20
+> And you didn't noticed that the 2.6.9 patch failed, because it is diffed=20
+> against 2.6.8 and not 2.6.8.1!
 
-Thanks
-Parag
+You're perfectly right. I thought "patch" would stop and ask me
+something, but the error was silently buried under lots of "patching
+file" lines.
 
-Stephen Hemminger wrote:
+> If you do the patching without the 2.6.8.1 patch everything should be fin=
+e.
 
->On my laptop with Fedora Core 3, OpenOffice 1.0.1, 1.0.4 and the pre 2.0 version
->all work fine running 2.6.10-FCxx kernel but get a SEGV when running on 2.6.11-rc1 or 2.6.11-rc2
->
->Any hints?
->
->
->  
->
+It is! Thanks a lot!
+
+Viktor.
+
+--=-saoY8Tr6rwlFxRkObRrM
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBB+X6kO3SWVYLvaJQRAhqSAJ98k6xkv3T9rcii/rMrHu68awF5JACfV9PL
+LO4TO8fVNZPX93vWi/1PyXU=
+=I52Z
+-----END PGP SIGNATURE-----
+
+--=-saoY8Tr6rwlFxRkObRrM--
 

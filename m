@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbVCDBeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVCDA1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbVCDBeM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 20:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVCDAwp
+	id S262649AbVCDA1W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:27:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVCDAGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:52:45 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:51974 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262750AbVCDAvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 19:51:01 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][16/26] IB/mthca: mem-free doorbell record writing
-X-Message-Flag: Warning: May contain useful information
-References: <2005331520.WW3zbnVIUjZ4q0Ov@topspin.com>
-	<4227A606.50703@pobox.com> <52vf88ntbo.fsf@topspin.com>
-	<4227AEA2.8060007@pobox.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 03 Mar 2005 16:50:59 -0800
-In-Reply-To: <4227AEA2.8060007@pobox.com> (Jeff Garzik's message of "Thu, 03
- Mar 2005 19:41:06 -0500")
-Message-ID: <52bra0nsi4.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Mar 2005 00:50:59.0507 (UTC) FILETIME=[3B5AB830:01C52054]
+	Thu, 3 Mar 2005 19:06:53 -0500
+Received: from fire.osdl.org ([65.172.181.4]:26824 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262750AbVCCX2i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 18:28:38 -0500
+Date: Thu, 3 Mar 2005 15:28:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: vonbrand@inf.utfsm.cl, jgarzik@pobox.com, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-Id: <20050303152825.08e7e4c6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
+References: <200503031644.j23Gi0Eh011165@laptop11.inf.utfsm.cl>
+	<Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jeff> Well, we don't just add code to "hope and pray" for an event
-    Jeff> that nobody is sure can even occur...
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> Now, I haven't actually gotten any complaints about 2.6.11 (apart from 
+> "gcc4 still has problems" with fairly trivial solutions)
 
-The hardware requires that if the record is written in two 32-bit
-chunks, then they must be written in order.  Of course the hardware
-probably won't be reading just as we're writing, so almost all of the
-time we won't notice the problem.
+There have been quite a few.  Mainly driver stuff again:
 
-It feels more like "hope and pray" to me to leave the barrier out and
-assume that every possible implementation of every architecture will
-always write them in order.
+Subject: Re: [BUG] 2.4.27 - 2.4.29 tar: /dev/nst0: Warning: Cannot seek: Illegal seekg
+Subject: PCMCIA breaks suspend-to-(disk|ram) with 2.6.11
+Subject:  2.6.11: iostat values broken ?
+Subject: 2.6.11: suspending laptop makes system randomly unstable
+Subject: [Bugme-new] [Bug 4281] New: ALPS Touchpad Tap-to-Click Broken
+Subject: [Bugme-new] [Bug 4282] New: ALSA driver in Linux 2.6.11 causes a kernel panic when loading the EMU10K1 driver
+Subject: [Bugme-new] [Bug 4283] New: weird messages after normal kernel messages with enabled netconsole
+Subject: 2.6.11 (stable and -rc) ACPI breaks USB
 
-    Jeff> Does someone have a concrete case where this could happen? ever?
 
-I don't see how you can rule it out on out-of-order architectures.  If
-the second word becomes ready before the first, then the CPU may
-execute the second write before the first.
-
-It's not precisely the same situation, but if you look at mthca_eq.c
-you'll see an rmb() in mthca_eq_int().  That's there because on ppc64,
-I really saw a situation where code like:
-
-	while (foo->x) {
-		switch (foo->y) {
-
-was behaving as if foo->y was being read before foo->x.  Even though
-both foo->x and foo->y are in the same cache line, and foo->x was
-written by the hardware after foo->y.
-
- - R.
+The biggest problem is the new ACPI-based i8042 probing on Dells.  I'm
+kicking myself over that because we *knew* the damn thing was busted, and
+people kept on having to add i8042.noacpi=1.  We now have a three-line
+work-around-it-until-we-fix-it-for-real patch.

@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVCEVkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVCEVph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVCEVkF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 16:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVCEVkF
+	id S261203AbVCEVph (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 16:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVCEVpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 16:40:05 -0500
-Received: from secure.htb.at ([195.69.104.11]:45060 "EHLO pop3.htb.at")
-	by vger.kernel.org with ESMTP id S261199AbVCEVkA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 16:40:00 -0500
-Date: Sat, 5 Mar 2005 22:39:45 +0100
-From: Richard Mittendorfer <jkerdawn@yahoo.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
+	Sat, 5 Mar 2005 16:45:36 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:17093 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261203AbVCEVpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 16:45:33 -0500
+Message-ID: <422A285D.1060206@ens-lyon.org>
+Date: Sat, 05 Mar 2005 22:45:01 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
+       Len Brown <len.brown@intel.com>
 Subject: Re: s4bios: does anyone use it?
-Message-Id: <20050305223945.39c588a5.jkerdawn@yahoo.com>
-In-Reply-To: <20050305191405.GA1463@elf.ucw.cz>
-References: <20050305191405.GA1463@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.99-gtk2-20041024 (GTK+ 2.4.14; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20050305191405.GA1463@elf.ucw.cz> <422A1FB6.3000504@ens-lyon.org> <20050305211747.GF1424@elf.ucw.cz> <422A23FB.2010707@ens-lyon.org> <20050305213236.GH1424@elf.ucw.cz>
+In-Reply-To: <20050305213236.GH1424@elf.ucw.cz>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1D7h02-0004Lu-00*vxVUkElip8c*
+X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Pavel Machek <pavel@ucw.cz> (Sat, 5 Mar 2005 20:14:05
-+0100):
-> Hi!
-
-hi!
-
-> Is there single user of s4bios? It used to work for me 4 notebooks
-> ago, but I never really used it. I think I'm the only person that ever
-> seen it working, but I could be wrong. Is there anyone using s4bios in
-> 2.6.11?
+> Hmm, your system says it supports s4bios. But if you can see 
 > 
-> If not, I guess we should remove that code from kernel. It is not
-> usefull, and it is likely broken.
-> 								Pavel
+> Writing data to swap (XXX pages)... XXX %
+> 
+> then you are definitely using swsusp. Strange.
 
-it doesn't work here (libretto). it goes to sleep but hangs on wakeup.
+That's what I see.
 
-would be fine if.. but i'm satisfied with s3 and halt. never tried
-swsuspend. also havn't tried since 2.6.9
-
-as 2.6 is IMHO toooo large there should be something done about it (make
-it configurable?patchable).
-
-sl ritch.
+Thanks,
+Brice

@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263277AbTJVBWj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 21:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTJVBWj
+	id S263395AbTJVBsm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 21:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbTJVBsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 21:22:39 -0400
-Received: from hibernia.jakma.org ([213.79.33.168]:63123 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263277AbTJVBWh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 21:22:37 -0400
-Date: Wed, 22 Oct 2003 02:22:06 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Steven Cole <elenstev@mesatop.com>
-cc: Larry McVoy <lm@bitmover.com>, Timothy Miller <miller@techsource.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-In-Reply-To: <200309272113.18030.elenstev@mesatop.com>
-Message-ID: <Pine.LNX.4.56.0310220220130.27492@fogarty.jakma.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
- <20030910151238.GC32321@work.bitmover.com> <Pine.LNX.4.56.0309280249030.19081@fogarty.jakma.org>
- <200309272113.18030.elenstev@mesatop.com>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	Tue, 21 Oct 2003 21:48:41 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22412 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263395AbTJVBsi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 21:48:38 -0400
+Date: Tue, 21 Oct 2003 18:46:39 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 004 release
+Message-ID: <20031022014639.GA5573@kroah.com>
+References: <20031021162856.GA1030@kroah.com> <20031021214554.GA7791@sgi.com> <20031021221337.GA3083@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031021221337.GA3083@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Sep 2003, Steven Cole wrote:
+On Tue, Oct 21, 2003 at 03:13:38PM -0700, Greg KH wrote:
+> On Tue, Oct 21, 2003 at 02:45:55PM -0700, Jesse Barnes wrote:
+> > Thanks for the new release, Greg.  I just tried it out on a system with
+> > some disks, but a bunch of udev processes ended up hanging.  Is there
+> > something I'm missing or do you need a patch like this?
+> 
+> Yeah, sorry, this kind of fix is required :(
+> 
+> It's fixed in my bk tree now.
+> 
+> Oh, and it looks like the LABEL rule is also broken due to the libsysfs
+> changes...  I'm working on adding regression tests right now to prevent
+> things like this from slipping through.
 
-> It appears that SGI is working to scale the Altix to 128 CPUs on
-> Linux.
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106323064611280&w=2
+Here's a patch for this.  It fixes the problem of LABEL rules on the
+device, not the class device.  LABEL rules on the class device seem to
+work just fine.
 
-This may be interesting so:
+Thanks to Dan Stekloff for help in finding this bug.
 
-	http://lwn.net/Articles/54822/
+thanks,
 
-it announces:
+greg k-h
 
-	"record levels of sustained performance and scalability on a
-        256-processor global shared-memory SGI Altix 3000 system, the 
-        largest such system ever to run on the Linux ® operating 
-        system."
 
-> Steven
+# fix LABEL bug for device files (not class files.)
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-I'm going to give my psychoanalyst one more year, then I'm going to Lourdes.
-		-- Woody Allen
+diff -Nru a/namedev.c b/namedev.c
+--- a/namedev.c	Tue Oct 21 18:44:59 2003
++++ b/namedev.c	Tue Oct 21 18:44:59 2003
+@@ -566,7 +566,7 @@
+ 
+ 			/* look in the class device directory if present */
+ 			if (class_dev->sysdevice) {
+-				tmpattr = sysfs_get_classdev_attr(class_dev, dev->sysfs_file);
++				tmpattr = sysfs_get_device_attr(class_dev->sysdevice, dev->sysfs_file);
+ 				if (tmpattr)
+ 					goto label_found;
+ 			}
+@@ -599,7 +599,7 @@
+ 
+ 					/* look in the class device directory if present */
+ 					if (class_dev_parent->sysdevice) {
+-						tmpattr = sysfs_get_classdev_attr(class_dev_parent, dev->sysfs_file);
++						tmpattr = sysfs_get_device_attr(class_dev_parent->sysdevice, dev->sysfs_file);
+ 						if (tmpattr) 
+ 							goto label_found;
+ 					}

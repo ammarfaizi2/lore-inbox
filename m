@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136058AbREJC6l>; Wed, 9 May 2001 22:58:41 -0400
+	id <S136035AbREJCyc>; Wed, 9 May 2001 22:54:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136047AbREJC6d>; Wed, 9 May 2001 22:58:33 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22795 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136049AbREJC6W>; Wed, 9 May 2001 22:58:22 -0400
-Date: Wed, 9 May 2001 22:19:56 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] writepage method changes
-In-Reply-To: <3AF9F7F2.AC47F7AC@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0105092134230.16052-100000@freak.distro.conectiva>
+	id <S136044AbREJCyL>; Wed, 9 May 2001 22:54:11 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:2820 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S136035AbREJCyC>;
+	Wed, 9 May 2001 22:54:02 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105100253.f4A2rsK305959@saturn.cs.uml.edu>
+Subject: Re: Patch to make ymfpci legacy address 16 bits
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Wed, 9 May 2001 22:53:53 -0400 (EDT)
+Cc: proski@gnu.org (Pavel Roskin), zaitcev@redhat.com (Pete Zaitcev),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3AF9A726.BF819B30@mandrakesoft.com> from "Jeff Garzik" at May 09, 2001 04:23:02 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik writes:
+> Pavel Roskin wrote:
 
+>> You may need to save some data in memory when the system goes
+>> to suspend and restore them afterwards. I believe that the PCI
+>> config space should be saved by BIOS. Everything else is the
+>> responsibility of the driver.
+>
+> In ACPI land the kernel should save and restore the PCI device
+> config space and the PCI bus config space.  It is probably that
+> similar is necessary under APM.
 
-On Thu, 10 May 2001, Andrew Morton wrote:
+When you write "the kernel", do you mean the driver or generic
+code? I hope you mean the driver, because I have this:
 
-> Marcelo Tosatti wrote:
-> > 
-> > Well,
-> > 
-> > Here is the updated version of the patch to add the "priority" argument to
-> > writepage().
-> 
-> It appears that a -EIO return from block_write_full_page() will
-> result in an unlock of an unlocked page in page_launder(). Splat.
+1. the device looks normal at power on
+2. the driver pokes a device-specific config register
+3. the config space header changes from type 0 to type 1
 
-Right. Will fix the filesystems.
+(The class code does NOT indicate PCI-to-PCI bridge.
+You could say this is like CardBus but much weirder)
 
-> What does the new writepage() argument do, and why does
-> it exist?
-
-The immediate reason for the "priority" argument is to avoid special
-casing for the removal of dead dirty swap cache pages inside the VM.
-
-With the new argument, page_launder() will call writepage() _even_ if it
-does not want to do IO (in this case priority will be 0), so:
-
-  - swap_writepage() can remove dirty swap pages
-  - other filesystems are warned that the VM will probably want to
-    write the page out soon.
-
-Positive values of "priority" means "write this page out".
-
-In the future higher positive values for writepage() can indicate the
-level of VM pressure. Example: fs's which do delayed allocation may want
-to return zero for priority 1 in case the page can be written out at a
-"better time", but for priority's > 1 they should write the page
-unconditionally. 
-
-> What is the meaning of the writepage return value for
-> the respective values of `priority'?
-
-They should always return zero if they wrote (or freed) the page.
-
-Otherwise return non-zero.
-
-This way the VM can account for the amount of queue pages for IO. (which
-we don't do right now, but we definately want to)
-
-> When should writepage return with the page locked,
-> and when not?
-
-Locked for the "not wrote out case" (I will fix my patch now, thanks)
-
-For the "wrote out" case there its undetermined.
-
+If the kernel saves type 1 header data, cuts power using
+motherboard features, restores power, and then tries to
+restore type 1 header data into a type 0 header... the
+system will be well and truly screwed IMHO.
 

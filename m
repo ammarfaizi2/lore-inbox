@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265684AbUBBSUA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 13:20:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUBBSUA
+	id S265796AbUBBS0R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 13:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265788AbUBBS0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 13:20:00 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:5713 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265684AbUBBST7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 13:19:59 -0500
-Date: Mon, 2 Feb 2004 19:19:58 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 1/42]
-Message-ID: <20040202181958.GA6785@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
-Mime-Version: 1.0
+	Mon, 2 Feb 2004 13:26:16 -0500
+Received: from s4.uklinux.net ([80.84.72.14]:22409 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id S265802AbUBBS0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 13:26:11 -0500
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
+References: <87oesieb75.fsf@codematters.co.uk>
+	<20040201151111.4a6b64c3.akpm@osdl.org>
+	<401D9154.9060903@cyberone.com.au> <87llnm482q.fsf@codematters.co.uk>
+	<401DDCD7.3010902@cyberone.com.au>
+From: Philip Martin <philip@codematters.co.uk>
+Date: Mon, 02 Feb 2004 18:08:01 +0000
+In-Reply-To: <401DDCD7.3010902@cyberone.com.au> (Nick Piggin's message of
+ "Mon, 02 Feb 2004 16:15:03 +1100")
+Message-ID: <877jz55p8e.fsf@codematters.co.uk>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ac97_plugin_ad1980.c:92: warning: initialization from incompatible pointer type
+Nick Piggin <piggin@cyberone.com.au> writes:
 
-Fixed. Use correct prototype for ad1980_remove.
+> Thats weird. It looks like 2.6 is being stalled on writeout.
+> Are running on all local filesystems?
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/sound/ac97_plugin_ad1980.c linux-2.4/drivers/sound/ac97_plugin_ad1980.c
---- linux-2.4-vanilla/drivers/sound/ac97_plugin_ad1980.c	Sat Jan 31 15:54:42 2004
-+++ linux-2.4/drivers/sound/ac97_plugin_ad1980.c	Sat Jan 31 15:57:43 2004
-@@ -45,7 +45,7 @@
-  *	use of the codec after the probe function.
-  */
-  
--static void ad1980_remove(struct ac97_codec *codec)
-+static void ad1980_remove(struct ac97_codec *codec, struct ac97_driver *driver)
- {
- 	/* Nothing to do in the simple example */
- }
+Yes.
+
+> You said a non-RAID ext2 filesystem performed similarly?
+
+Yes, the ext2 build was a little faster in terms of elapsed time, but
+it used the same amount of CPU as the RAID/ReiserFS build.
 
 -- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Collect some stars to shine for you
-And start today 'cause there's only a few
-A sign of times my friend
+Philip Martin

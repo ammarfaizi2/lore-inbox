@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264360AbTLBUQS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbTLBUQR
+	id S264371AbTLBUWR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTLBUUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:16:17 -0500
-Received: from [65.37.126.18] ([65.37.126.18]:28044 "EHLO the-penguin.otak.com")
-	by vger.kernel.org with ESMTP id S264360AbTLBUPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:15:34 -0500
-Date: Tue, 2 Dec 2003 12:16:00 -0800
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: linux-kernel@vger.kernel.org
+	Tue, 2 Dec 2003 15:20:07 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:27584 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S264343AbTLBURn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:17:43 -0500
+Date: Tue, 2 Dec 2003 18:05:37 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, <nathans@sgi.com>,
+       <lm@work.bitmover.com>, <linux-kernel@vger.kernel.org>,
+       <linux-xfs@oss.sgi.com>
 Subject: Re: XFS for 2.4
-Message-ID: <20031202201600.GA26952@the-penguin.otak.com>
-References: <20031202002347.GD621@frodo> <Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet> <20031202205502.474755f3.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20031202205502.474755f3.skraw@ithnet.com>
-X-Operating-System: Linux 2.6.0-test10-mm1 on an i686
-User-Agent: Mutt/1.5.4i
+Message-ID: <Pine.LNX.4.44.0312021802310.32164-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
+
+
+On Tue, 2 Dec 2003, Stephan von Krawczynski wrote:
+
+> On Tue, 2 Dec 2003 09:22:48 -0200 (BRST)
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> 
+> > [...]
+> > A development tree is much different from a stable tree. You cant just
+> > simply backport generic VFS changes just because everybody agreed with
+> > them on the development tree.
+> > 
+> > My whole point is "2.6 is almost out of the door and its so much better".  
+> > Its much faster, much cleaner. 
+> 
 > Even if I am a bit off-topic here, please reconsider your last sentence. Don't
 > make people think that 2.6 is in a widely useable state right now. Just take a
 > look at the history of 2.4. Don't forget 2.4 can be used in boxes beyond 4 GB
@@ -35,27 +49,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > amount of people that need a real stable environment - and that's why they will
 > have to use 2.4 for at least one year from now on.
 > 
-Ye gods I'm going to regret butting into this conversation but...
+> This is no vote for or against XFS-inclusion, I don't know the thing at all. I
+> only want to state: developer environment is pretty different from the real
+> world, so don't dump 2.4 too early please.
 
-I have moved a couple servers successfully to 2.6.0-pre9, felt (over)
-confident that 2.6.x would work on my busiest server. It was a mistake,
-lightly loaded it worked great. As user logged in that morning the
-server became unstable, processes started waiting forever and hanging,
-imap mostly, later exim and openldap. I never reported it for lack of
-good debugging info, I plan to take another wack at it in a month or so.
+I'm not dumping 2.4. It will enter "maintenance-only" mode in 2.4.25. It
+will be update as long as there are problems in it, but no more features
+will creep in.
+
+As for XFS, Christoph will review the patches and tell me what he thinks. 
+
+Also other people mailed me saying they reviewed the code.
+
+That makes me more comfortable with merging the XFS modifications.
 
 
-2.4.x is my only option, I would imagine I'm not in the minority here.
-I do use XFS, not on this particular server but I do use it and would
-like to see it included into 2.4.x for no other reason than 2.6.x is not
-stable in all situations.
 
--- 
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://the-penguin.otak.com/~lawrence
---------------------------------------
-- - - - - - O t a k  i n c . - - - - - 
 
 

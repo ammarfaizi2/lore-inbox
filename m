@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268868AbUHLXWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268866AbUHLXY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268868AbUHLXWz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268866AbUHLXWz
+	id S268866AbUHLXY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUHLXY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:22:55 -0400
-Received: from gprs214-76.eurotel.cz ([160.218.214.76]:13960 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268873AbUHLXWe (ORCPT
+	Thu, 12 Aug 2004 19:24:56 -0400
+Received: from zero.aec.at ([193.170.194.10]:24069 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268880AbUHLXYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:22:34 -0400
-Date: Fri, 13 Aug 2004 01:21:47 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Len Brown <len.brown@intel.com>
-Cc: Dax Kelson <dax@gurulabs.com>, trenn@suse.de, seife@suse.de,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Allow userspace do something special on overtemp
-Message-ID: <20040812232147.GH15138@elf.ucw.cz>
-References: <20040811085326.GA11765@elf.ucw.cz> <1092269309.3948.57.camel@mentorng.gurulabs.com> <1092281393.7765.141.camel@dhcppc4> <20040812074002.GC29466@elf.ucw.cz> <1092320883.5021.173.camel@dhcppc4> <20040812202401.GB14556@elf.ucw.cz> <1092351080.5021.198.camel@dhcppc4>
-Mime-Version: 1.0
+	Thu, 12 Aug 2004 19:24:39 -0400
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: New concept of ext3 disk checks
+References: <2ssbz-jB-1@gated-at.bofh.it> <2swyz-3ny-13@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 13 Aug 2004 01:24:33 +0200
+In-Reply-To: <2swyz-3ny-13@gated-at.bofh.it> (Theodore Ts'o's message of
+ "Fri, 13 Aug 2004 00:50:07 +0200")
+Message-ID: <m3acx0szwu.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092351080.5021.198.camel@dhcppc4>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Theodore Ts'o <tytso@mit.edu> writes:
 
-> > hmm, yes, but it still would be nice to properly shutdown instead of
-> > fail.
-> 
-> The reality is that most of the critical temperature events
-> are false positives, and for those that are not, the hardware
-> will keep itself from burning even when the OS control fails.
-> 
-> If we confuse some self-supporting kernel types, that is too bad.
-> If they're supporting themselves, they should read the change logs
-> for the kernels that they download.  I don't think
-> this is of a magnitude that it needs to wait for 2.7 to be fixed.
+> 4) If there were no errors detecting by the fsck run, run the command
+> "tune2fs -C 0 -T now /dev/XXX" on the live filesystem.  This sets the
+> mount count and last filesystem checked time to the appropriate values
+> in the superblock.
 
-There's nothing to fix. It is not broken. It just does /sbin/poweroff;
-that's correct.
+Is it safe now to run tune2fs on a mounted busy fs? afaik it would
+need at least support to quiescence the fs temporarily. Otherwise you 
+have a race window where changes to the superblock could get lost.
 
-/sbin/poweroff is there on almost all systems; that is not case with
-acpid. Currently *noone* has acpid that handles critical properly,
-right?
+-Andi
 
-So I believe that change is bad idea. /sbin/overtemp lets user
-configure it etc.
-
-Ouch and btw I've done some torturing on one prototype (AMD). It had
-thermal at 98Celsius (specs for this cpu said 95C max), and I ended my
-test at 105Celsius. I do not know about TM1/TM2 etc, but in this case
-hardware clearly failed to do the right thing.
-
-I do not know why acpid should be involved in this. execing binary
-seems safer to me -- acpid might have died (OOM? segfault?), and exec
-does not strike me like too ugly.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

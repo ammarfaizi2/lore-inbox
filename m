@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264141AbTLEO4e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 09:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTLEO4e
+	id S264120AbTLEOwN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 09:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbTLEOwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 09:56:34 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:58545 "EHLO
-	VL-MO-MR005.ip.videotron.ca") by vger.kernel.org with ESMTP
-	id S264141AbTLEO4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 09:56:32 -0500
-Date: Fri, 05 Dec 2003 09:53:47 -0500
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Subject: Re: High-pitch noise with 2.6.0-test11
-In-reply-to: <3FD05E9C.5080501@thule.no>
-To: Troels Walsted Hansen <troels@thule.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <1070636027.4328.18.camel@idefix.homelinux.org>
-Organization: =?ISO-8859-1?Q?Universit=C3=A9_de?= Sherbrooke
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
-Content-type: multipart/signed; boundary="=-rNacGTOQnIyeZZd4WQTh";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1070605910.4867.9.camel@idefix.homelinux.org>
- <3FD05E9C.5080501@thule.no>
+	Fri, 5 Dec 2003 09:52:13 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:4819 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S264120AbTLEOwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 09:52:11 -0500
+Message-ID: <3FD09B8E.7020701@softhome.net>
+Date: Fri, 05 Dec 2003 15:51:58 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stefan Smietanowski <stesmi@stesmi.com>
+CC: Helge Hafting <helgehaf@aitel.hist.no>,
+       Jason Kingsland <Jason_Kingsland@hotmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux GPL and binary module exception clause?
+References: <YPep.5Y5.21@gated-at.bofh.it> <Z3AK-Qw-13@gated-at.bofh.it> <3FCF696F.4000605@softhome.net> <3FD067CF.4010207@aitel.hist.no> <3FD07611.4050709@stesmi.com>
+In-Reply-To: <3FD07611.4050709@stesmi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stefan Smietanowski wrote:
+> Helge Hafting wrote:
+> 
+>> Ihar 'Philips' Filipau wrote:
+>>
+>>>   GPL is about distribution.
+>>>
+>>>   e.g. NVidia can distribute .o file (with whatever license they have 
+>>> to) and nvidia.{c,h} files (even under GPL license).
+>>>   Then install.sh may do on behalf of user "gcc nvidia.c blob.o -o 
+>>> nvidia.ko". Resulting module are not going to be distributed - it is 
+>>> already at hand of end-user. So no violation of GPL whatsoever.
+>>
+>>
+>>
+>> Open source still win if they do this.  Anybody interested
+>> may then read the restricted source and find out how
+>> the chip works.  They may then write an open driver
+>> from scratch, using the knowledge.
+> 
+> 
+> What I think he means is that nvidia.c only contains glue code and
+> blob.o contains the secret parts just like the current driver from
+> nvidia.
+> 
 
---=-rNacGTOQnIyeZZd4WQTh
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+   Exactly.
+   Source code licensing from second parties is really pain in the ass.
 
-Actually, I'm already using ACPI, so it's not an APM problem. I really
-don't see what thermal.o can do to cause this.
+   At my previous job I had situation that piece of code was several 
+times. I beleive we were fourth company who bought it and incorporated 
+into applience. But ask anyone "what kind of rights do we have for this 
+stuff?" - no-one really can answer, since we-are-not-lawyers so better 
+to tell no-one how we use it. Probably we even had no rights to fix 
+bugs... who knows?..
 
-	Jean-Marc
-
-> I had the same problem with my Dell Latitude C600 and newer kernels with=20
->   HZ>100. The solution I found was to add "apm=3Didle-threshold=3D100" to=
-=20
-> the kernel commandline, to disable APM idle calls.
->=20
-> You should monitor the temperature of your laptop to make sure it=20
-> doesn't spin wildly and create extra heat if you use the same solution.
->=20
-> Using ACPI instead of APM might also be a solution?
->=20
-> Troels
---=20
-Jean-Marc Valin, M.Sc.A., ing. jr.
-LABORIUS (http://www.gel.usherb.ca/laborius)
-Universit=E9 de Sherbrooke, Qu=E9bec, Canada
-
---=-rNacGTOQnIyeZZd4WQTh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/0Jv7dXwABdFiRMQRAos4AJ4xQ8AkZFQ0MouQ2W79OdNjU/nlJgCfdjIt
-/mjP0Ot+ZKwQyoyHpZPTij0=
-=6IgZ
------END PGP SIGNATURE-----
-
---=-rNacGTOQnIyeZZd4WQTh--
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  Because the kernel depends on it existing. "init"          |_|*|_|
+  literally _is_ special from a kernel standpoint,           |_|_|*|
+  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
+  that would be a great name for a rock band).
+                                 -- Linus Torvalds
 

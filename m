@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265269AbUGCVpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265271AbUGCVps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265269AbUGCVpX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 17:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265271AbUGCVpX
+	id S265271AbUGCVps (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 17:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUGCVps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 17:45:23 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:7297 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265269AbUGCVpU (ORCPT
+	Sat, 3 Jul 2004 17:45:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:8347 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265271AbUGCVpo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 17:45:20 -0400
-Date: Sat, 3 Jul 2004 23:45:33 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Joel Soete <soete.joel@tiscali.be>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, marcelo.tosatti@cyclades.com
-Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
-Message-ID: <20040703214533.GA2121@ucw.cz>
-References: <40E6AC41.4050804@tiscali.be> <20040703205621.GA1640@ucw.cz> <40E7278C.8040001@tiscali.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40E7278C.8040001@tiscali.be>
-User-Agent: Mutt/1.4.1i
+	Sat, 3 Jul 2004 17:45:44 -0400
+Date: Sat, 3 Jul 2004 14:45:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: current BK compilation failure on ppc32
+In-Reply-To: <20040703185606.GA4718@lst.de>
+Message-ID: <Pine.LNX.4.58.0407031439240.15998@ppc970.osdl.org>
+References: <20040703185606.GA4718@lst.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 09:39:24PM +0000, Joel Soete wrote:
 
-> Very interesting but well I am not enough fluent in C to understand this 
-> fine detail :(
-> Can you explain me by an example (let say a long*) what would did "((char 
-> *) buffer)++;" versus "buffer += sizeof(char);"
-> (Don't worry, if don't have time, I will perfectly understand and will 
-> experiment by myself)
 
-Ok. Let's assume
+On Sat, 3 Jul 2004, Christoph Hellwig wrote:
+> 
+> kernel/power/smp.c seems to be inherently swsusp-specific but is
+> compiled for CONFIG_PM. (Same seems to be true for amny other files
+> in kernel/power/, but as they compile it only causes bloat..)
+> 
+> 
+> --- 1.10/kernel/power/Makefile	2004-07-02 07:23:47 +02:00
+> +++ edited/kernel/power/Makefile	2004-07-03 22:07:29 +02:00
+> @@ -1,5 +1,7 @@
+>  obj-y				:= main.o process.o console.o pm.o
+> +ifeq ($(CONFIG_SOFTWARE_SUSPEND), y)
+>  obj-$(CONFIG_SMP)		+= smp.o
+> +endif
 
-	int *buffer;
+Don't do it like that.
 
-just for this example.
+Instead, do something like
 
-	((char *) buffer)++;
+	smp-power-$(CONFIG_SMP)	+= smp.o
+	obj-$(CONFIG_SOFTWARE_SUSPEND) += $(smp-power-y)
 
-increments buffer by 1, while
+which not only is shorter, but gets a _lot_ more readable after a while.
 
-	buffer += sizeof(char);
+It's also extremely useful for constructs like "include this file X is
+either 'y' or 'm'". From fs/Makefile:
 
-increments buffer by 4, because an int* is always
-increased/decreased by multiples of sizeof(int).
+	..
 
-So
+	nfsd-$(CONFIG_NFSD)             := nfsctl.o
+	obj-y                           += $(nfsd-y) $(nfsd-m)
 
-	buffer += 2;
+	..
 
-would increment the pointer by 8.
+which just means that "nfsctl.o" will be compiled in if nfsd is 
+compiled-in or a module.
 
-Similarly for other pointer types.
+You can make pretty complex decision trees this way - much more readably 
+than by explicit comparisons.
 
-> >So just use
-> >
-> >	buffer++;
-> >
-> >here, and the intent is then clear.
-> >
-> Yes ;)
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+		Linus

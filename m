@@ -1,445 +1,445 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbUATAd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 19:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbUATAWR
+	id S265293AbUATAb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 19:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbUATA3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 19:22:17 -0500
-Received: from mail.kroah.org ([65.200.24.183]:31404 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264391AbUATAAR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 19:00:17 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.1
-In-Reply-To: <10745567661565@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 19 Jan 2004 15:59:27 -0800
-Message-Id: <10745567673681@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Mon, 19 Jan 2004 19:29:39 -0500
+Received: from mail.rdslink.ro ([193.231.236.20]:61349 "EHLO mail.rdslink.ro")
+	by vger.kernel.org with ESMTP id S265246AbUATAZg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 19:25:36 -0500
+Date: Tue, 20 Jan 2004 02:27:35 +0200 (EET)
+From: caszonyi@rdslink.ro
+X-X-Sender: sony@grinch.ro
+Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
+To: Gerd Knorr <kraxel@bytesex.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Fw: Slab coruption and oops with 2.6.1-mm4
+In-Reply-To: <20040119160512.GB8321@bytesex.org>
+Message-ID: <Pine.LNX.4.53.0401200219170.293@grinch.ro>
+References: <20040118220051.3f3d8420.akpm@osdl.org> <20040119121546.GD5498@bytesex.org>
+ <20040119160512.GB8321@bytesex.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811838-1890634692-1074558455=:293"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1474.98.26, 2004/01/19 15:06:56-08:00, greg@kroah.com
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[PATCH] I2C: add I2C_DEBUG_CORE config option and convert the i2c core code to use it.
+---1463811838-1890634692-1074558455=:293
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-This cleans up the mismatch of ways we could enable debugging messages.
+On Mon, 19 Jan 2004, Gerd Knorr wrote:
 
+> > > CONFIG_PREEMPT=y
+> >
+> > Bug reproducable with this one turned off?
+>
+> Hmm, running -mm4 with CONFIG_PREEMPT now, box loaded with bttv capture
+> + parallel kernel builds, no problems so far ...
+>
 
- drivers/i2c/Kconfig      |    8 +++
- drivers/i2c/i2c-core.c   |  110 +++++++++++++++++++++--------------------------
- drivers/i2c/i2c-dev.c    |   10 ++--
- drivers/i2c/i2c-sensor.c |    5 +-
- 4 files changed, 69 insertions(+), 64 deletions(-)
+yes
+bug is reproduceable with preempt turned off
 
+Transcode uses threads to capture and encode the movie. However i don't
+know how many threads are allocated for capturing.
 
-diff -Nru a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
---- a/drivers/i2c/Kconfig	Mon Jan 19 15:28:09 2004
-+++ b/drivers/i2c/Kconfig	Mon Jan 19 15:28:09 2004
-@@ -41,5 +41,13 @@
- source drivers/i2c/busses/Kconfig
- source drivers/i2c/chips/Kconfig
- 
-+config I2C_DEBUG_CORE
-+	bool "I2C Core debugging messages"
-+	depends on I2C
-+	help
-+	  Say Y here if you want the I2C core to produce a bunch of debug
-+	  messages to the system log.  Select this if you are having a
-+	  problem with I2C support and want to see more of what is going on.
-+
- endmenu
- 
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	Mon Jan 19 15:28:09 2004
-+++ b/drivers/i2c/i2c-core.c	Mon Jan 19 15:28:09 2004
-@@ -23,7 +23,10 @@
- 
- /* $Id: i2c-core.c,v 1.95 2003/01/22 05:25:08 kmalkki Exp $ */
- 
--/* #define DEBUG 1 */		/* needed to pick up the dev_dbg() calls */
-+#include <linux/config.h>
-+#ifdef CONFIG_I2C_DEBUG_CORE
-+#define DEBUG	1
-+#endif
- 
- #include <linux/module.h>
- #include <linux/kernel.h>
-@@ -35,16 +38,10 @@
- #include <asm/uaccess.h>
- 
- 
--#define DEB(x) if (i2c_debug>=1) x;
--#define DEB2(x) if (i2c_debug>=2) x;
--
- static LIST_HEAD(adapters);
- static LIST_HEAD(drivers);
- static DECLARE_MUTEX(core_lists);
- 
--/**** debug level */
--static int i2c_debug;
--
- int i2c_device_probe(struct device *dev)
- {
- 	return -ENODEV;
-@@ -162,7 +159,7 @@
- 	}
- 	up(&core_lists);
- 
--	DEB(dev_dbg(&adap->dev, "registered as adapter #%d\n", adap->nr));
-+	dev_dbg(&adap->dev, "registered as adapter #%d\n", adap->nr);
- 	return 0;
- }
- 
-@@ -217,7 +214,7 @@
- 	wait_for_completion(&adap->dev_released);
- 	wait_for_completion(&adap->class_dev_released);
- 
--	DEB(dev_dbg(&adap->dev, "adapter unregistered\n"));
-+	dev_dbg(&adap->dev, "adapter unregistered\n");
- 
-  out_unlock:
- 	up(&core_lists);
-@@ -250,7 +247,7 @@
- 		goto out_unlock;
- 	
- 	list_add_tail(&driver->list,&drivers);
--	DEB(printk(KERN_DEBUG "i2c-core.o: driver %s registered.\n",driver->name));
-+	pr_debug("i2c-core: driver %s registered.\n", driver->name);
- 
- 	/* now look for instances of driver on our adapters */
- 	if (driver->flags & I2C_DF_NOTIFY) {
-@@ -279,14 +276,14 @@
- 	 * attached. If so, detach them to be able to kill the driver 
- 	 * afterwards.
- 	 */
--	DEB2(printk(KERN_DEBUG "i2c-core.o: unregister_driver - looking for clients.\n"));
-+	pr_debug("i2c-core: unregister_driver - looking for clients.\n");
- 	/* removing clients does not depend on the notify flag, else 
- 	 * invalid operation might (will!) result, when using stale client
- 	 * pointers.
- 	 */
- 	list_for_each(item1,&adapters) {
- 		adap = list_entry(item1, struct i2c_adapter, list);
--		DEB2(dev_dbg(&adap->dev, "examining adapter\n"));
-+		dev_dbg(&adap->dev, "examining adapter\n");
- 		if (driver->detach_adapter) {
- 			if ((res = driver->detach_adapter(adap))) {
- 				dev_warn(&adap->dev, "while unregistering "
-@@ -300,9 +297,7 @@
- 				client = list_entry(item2, struct i2c_client, list);
- 				if (client->driver != driver)
- 					continue;
--				DEB2(printk(KERN_DEBUG "i2c-core.o: "
--					    "detaching client %s:\n",
--					    client->name));
-+				pr_debug("i2c-core.o: detaching client %s:\n", client->name);
- 				if ((res = driver->detach_client(client))) {
- 					dev_err(&adap->dev, "while "
- 						"unregistering driver "
-@@ -321,7 +316,7 @@
- 
- 	driver_unregister(&driver->driver);
- 	list_del(&driver->list);
--	DEB(printk(KERN_DEBUG "i2c-core.o: driver unregistered: %s\n",driver->name));
-+	pr_debug("i2c-core: driver unregistered: %s\n", driver->name);
- 
-  out_unlock:
- 	up(&core_lists);
-@@ -372,8 +367,8 @@
- 		}
- 	}
- 
--	DEB(dev_dbg(&adapter->dev, "client [%s] registered to adapter\n",
--			client->name));
-+	dev_dbg(&adapter->dev, "client [%s] registered to adapter\n",
-+		client->name);
- 
- 	if (client->flags & I2C_CLIENT_ALLOW_USE)
- 		client->usage_count = 0;
-@@ -385,7 +380,7 @@
- 	
- 	snprintf(&client->dev.bus_id[0], sizeof(client->dev.bus_id),
- 		"%d-%04x", i2c_adapter_id(adapter), client->addr);
--	printk("registering %s\n", client->dev.bus_id);
-+	pr_debug("registering %s\n", client->dev.bus_id);
- 	device_register(&client->dev);
- 	device_create_file(&client->dev, &dev_attr_client_name);
- 	
-@@ -404,8 +399,8 @@
- 	if (adapter->client_unregister)  {
- 		res = adapter->client_unregister(client);
- 		if (res) {
--			printk(KERN_ERR
--			       "i2c-core.o: client_unregister [%s] failed, "
-+			dev_err(&client->dev,
-+			       "client_unregister [%s] failed, "
- 			       "client not detached", client->name);
- 			goto out;
- 		}
-@@ -467,9 +462,9 @@
- 	if(client->flags & I2C_CLIENT_ALLOW_USE) {
- 		if(client->usage_count>0)
- 			client->usage_count--;
--		else
--		{
--			printk(KERN_WARNING " i2c-core.o: dec_use_client used one too many times\n");
-+		else {
-+			pr_debug("i2c-core: %s used one too many times\n",
-+				__FUNCTION__);
- 			return -EPERM;
- 		}
- 	}
-@@ -544,7 +539,7 @@
- 	int ret;
- 
- 	if (adap->algo->master_xfer) {
-- 	 	DEB2(dev_dbg(&adap->dev, "master_xfer: with %d msgs.\n", num));
-+ 	 	dev_dbg(&adap->dev, "master_xfer: with %d msgs.\n", num);
- 
- 		down(&adap->bus_lock);
- 		ret = adap->algo->master_xfer(adap,msgs,num);
-@@ -552,7 +547,7 @@
- 
- 		return ret;
- 	} else {
--		DEB2(dev_dbg(&adap->dev, "I2C level transfers not supported\n"));
-+		dev_dbg(&adap->dev, "I2C level transfers not supported\n");
- 		return -ENOSYS;
- 	}
- }
-@@ -569,8 +564,8 @@
- 		msg.len = count;
- 		msg.buf = (char *)buf;
- 	
--		DEB2(dev_dbg(&client->adapter->dev, "master_send: writing %d bytes.\n",
--				count));
-+		dev_dbg(&client->adapter->dev, "master_send: writing %d bytes.\n",
-+			count);
- 	
- 		down(&adap->bus_lock);
- 		ret = adap->algo->master_xfer(adap,&msg,1);
-@@ -598,15 +593,15 @@
- 		msg.len = count;
- 		msg.buf = buf;
- 
--		DEB2(dev_dbg(&client->adapter->dev, "master_recv: reading %d bytes.\n",
--				count));
-+		dev_dbg(&client->adapter->dev, "master_recv: reading %d bytes.\n",
-+			count);
- 	
- 		down(&adap->bus_lock);
- 		ret = adap->algo->master_xfer(adap,&msg,1);
- 		up(&adap->bus_lock);
- 	
--		DEB2(printk(KERN_DEBUG "i2c-core.o: master_recv: return:%d (count:%d, addr:0x%02x)\n",
--			ret, count, client->addr));
-+		dev_dbg(&client->dev, "master_recv: return:%d (count:%d, addr:0x%02x)\n",
-+			ret, count, client->addr);
- 	
- 		/* if everything went ok (i.e. 1 msg transmitted), return #bytes
- 	 	* transmitted, else error code.
-@@ -625,8 +620,8 @@
- 	int ret = 0;
- 	struct i2c_adapter *adap = client->adapter;
- 
--	DEB2(printk(KERN_DEBUG "i2c-core.o: i2c ioctl, cmd: 0x%x, arg: %#lx\n", cmd, arg));
--	switch ( cmd ) {
-+	dev_dbg(&client->dev, "i2c ioctl, cmd: 0x%x, arg: %#lx\n", cmd, arg);
-+	switch (cmd) {
- 		case I2C_RETRIES:
- 			adap->retries = arg;
- 			break;
-@@ -670,8 +665,8 @@
- 			if (((adap_id == address_data->force[i]) || 
- 			     (address_data->force[i] == ANY_I2C_BUS)) &&
- 			     (addr == address_data->force[i+1])) {
--				DEB2(printk(KERN_DEBUG "i2c-core.o: found force parameter for adapter %d, addr %04x\n",
--				            adap_id,addr));
-+				dev_dbg(&adapter->dev, "found force parameter for adapter %d, addr %04x\n",
-+					adap_id, addr);
- 				if ((err = found_proc(adapter,addr,0)))
- 					return err;
- 				found = 1;
-@@ -688,8 +683,8 @@
- 			if (((adap_id == address_data->ignore[i]) || 
- 			    ((address_data->ignore[i] == ANY_I2C_BUS))) &&
- 			    (addr == address_data->ignore[i+1])) {
--				DEB2(printk(KERN_DEBUG "i2c-core.o: found ignore parameter for adapter %d, "
--				     "addr %04x\n", adap_id ,addr));
-+				dev_dbg(&adapter->dev, "found ignore parameter for adapter %d, "
-+					"addr %04x\n", adap_id ,addr);
- 				found = 1;
- 			}
- 		}
-@@ -700,8 +695,8 @@
- 			    ((address_data->ignore_range[i]==ANY_I2C_BUS))) &&
- 			    (addr >= address_data->ignore_range[i+1]) &&
- 			    (addr <= address_data->ignore_range[i+2])) {
--				DEB2(printk(KERN_DEBUG "i2c-core.o: found ignore_range parameter for adapter %d, "
--				            "addr %04x\n", adap_id,addr));
-+				dev_dbg(&adapter->dev, "found ignore_range parameter for adapter %d, "
-+					"addr %04x\n", adap_id,addr);
- 				found = 1;
- 			}
- 		}
-@@ -715,8 +710,8 @@
- 		     i += 1) {
- 			if (addr == address_data->normal_i2c[i]) {
- 				found = 1;
--				DEB2(printk(KERN_DEBUG "i2c-core.o: found normal i2c entry for adapter %d, "
--				            "addr %02x", adap_id,addr));
-+				dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, "
-+					"addr %02x", adap_id,addr);
- 			}
- 		}
- 
-@@ -726,8 +721,8 @@
- 			if ((addr >= address_data->normal_i2c_range[i]) &&
- 			    (addr <= address_data->normal_i2c_range[i+1])) {
- 				found = 1;
--				DEB2(printk(KERN_DEBUG "i2c-core.o: found normal i2c_range entry for adapter %d, "
--				            "addr %04x\n", adap_id,addr));
-+				dev_dbg(&adapter->dev, "found normal i2c_range entry for adapter %d, "
-+					"addr %04x\n", adap_id,addr);
- 			}
- 		}
- 
-@@ -738,8 +733,8 @@
- 			    ((address_data->probe[i] == ANY_I2C_BUS))) &&
- 			    (addr == address_data->probe[i+1])) {
- 				found = 1;
--				DEB2(printk(KERN_DEBUG "i2c-core.o: found probe parameter for adapter %d, "
--				            "addr %04x\n", adap_id,addr));
-+				dev_dbg(&adapter->dev, "found probe parameter for adapter %d, "
-+					"addr %04x\n", adap_id,addr);
- 			}
- 		}
- 		for (i = 0;
-@@ -750,8 +745,8 @@
- 			   (addr >= address_data->probe_range[i+1]) &&
- 			   (addr <= address_data->probe_range[i+2])) {
- 				found = 1;
--				DEB2(printk(KERN_DEBUG "i2c-core.o: found probe_range parameter for adapter %d, "
--				            "addr %04x\n", adap_id,addr));
-+				dev_dbg(&adapter->dev, "found probe_range parameter for adapter %d, "
-+					"addr %04x\n", adap_id,addr);
- 			}
- 		}
- 		if (!found) 
-@@ -908,9 +903,9 @@
- 			cpec = rpec = 0;
- 			break;
- 	}
--	if(rpec != cpec) {
--		DEB(printk(KERN_DEBUG "i2c-core.o: Bad PEC 0x%02x vs. 0x%02x\n",
--		           rpec, cpec));
-+	if (rpec != cpec) {
-+		pr_debug("i2c-core: Bad PEC 0x%02x vs. 0x%02x\n",
-+			rpec, cpec);
- 		return -1;
- 	}
- 	return 0;	
-@@ -1130,13 +1125,13 @@
- 	case I2C_SMBUS_BLOCK_DATA:
- 	case I2C_SMBUS_BLOCK_DATA_PEC:
- 		if (read_write == I2C_SMBUS_READ) {
--			printk(KERN_ERR "i2c-core.o: Block read not supported "
-+			dev_err(&adapter->dev, "Block read not supported "
- 			       "under I2C emulation!\n");
- 			return -1;
- 		} else {
- 			msg[0].len = data->block[0] + 2;
- 			if (msg[0].len > I2C_SMBUS_BLOCK_MAX + 2) {
--				printk(KERN_ERR "i2c-core.o: smbus_access called with "
-+				dev_err(&adapter->dev, "smbus_access called with "
- 				       "invalid block write size (%d)\n",
- 				       data->block[0]);
- 				return -1;
-@@ -1149,7 +1144,7 @@
- 		break;
- 	case I2C_SMBUS_BLOCK_PROC_CALL:
- 	case I2C_SMBUS_BLOCK_PROC_CALL_PEC:
--		printk(KERN_ERR "i2c-core.o: Block process call not supported "
-+		dev_dbg(&adapter->dev, "Block process call not supported "
- 		       "under I2C emulation!\n");
- 		return -1;
- 	case I2C_SMBUS_I2C_BLOCK_DATA:
-@@ -1158,7 +1153,7 @@
- 		} else {
- 			msg[0].len = data->block[0] + 1;
- 			if (msg[0].len > I2C_SMBUS_I2C_BLOCK_MAX + 1) {
--				printk("i2c-core.o: i2c_smbus_xfer_emulated called with "
-+				dev_err(&adapter->dev, "i2c_smbus_xfer_emulated called with "
- 				       "invalid block write size (%d)\n",
- 				       data->block[0]);
- 				return -1;
-@@ -1168,7 +1163,7 @@
- 		}
- 		break;
- 	default:
--		printk(KERN_ERR "i2c-core.o: smbus_access called with invalid size (%d)\n",
-+		dev_err(&adapter->dev, "smbus_access called with invalid size (%d)\n",
- 		       size);
- 		return -1;
- 	}
-@@ -1303,6 +1298,3 @@
- MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
- MODULE_DESCRIPTION("I2C-Bus main module");
- MODULE_LICENSE("GPL");
--
--MODULE_PARM(i2c_debug, "i");
--MODULE_PARM_DESC(i2c_debug,"debug level");
-diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
---- a/drivers/i2c/i2c-dev.c	Mon Jan 19 15:28:09 2004
-+++ b/drivers/i2c/i2c-dev.c	Mon Jan 19 15:28:09 2004
-@@ -29,8 +29,10 @@
- /* The devfs code is contributed by Philipp Matthias Hahn 
-    <pmhahn@titan.lahn.de> */
- 
--/* If you want debugging uncomment: */
--/* #define DEBUG 1 */
-+#include <linux/config.h>
-+#ifdef CONFIG_I2C_DEBUG_CORE
-+#define DEBUG	1
-+#endif
- 
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -137,7 +139,7 @@
- 	if (tmp==NULL)
- 		return -ENOMEM;
- 
--	pr_debug("i2c-dev.o: i2c-%d reading %d bytes.\n",
-+	pr_debug("i2c-dev: i2c-%d reading %d bytes.\n",
- 		iminor(file->f_dentry->d_inode), count);
- 
- 	ret = i2c_master_recv(client,tmp,count);
-@@ -165,7 +167,7 @@
- 		return -EFAULT;
- 	}
- 
--	pr_debug("i2c-dev.o: i2c-%d writing %d bytes.\n",
-+	pr_debug("i2c-dev: i2c-%d writing %d bytes.\n",
- 		iminor(file->f_dentry->d_inode), count);
- 
- 	ret = i2c_master_send(client,tmp,count);
-diff -Nru a/drivers/i2c/i2c-sensor.c b/drivers/i2c/i2c-sensor.c
---- a/drivers/i2c/i2c-sensor.c	Mon Jan 19 15:28:09 2004
-+++ b/drivers/i2c/i2c-sensor.c	Mon Jan 19 15:28:09 2004
-@@ -19,7 +19,10 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--/* #define DEBUG 1 */
-+#include <linux/config.h>
-+#ifdef CONFIG_I2C_DEBUG_CORE
-+#define DEBUG	1
-+#endif
- 
- #include <linux/module.h>
- #include <linux/kernel.h>
+I tried to run transcode with only one thread for encoding and one buffer
+for capturing (option -u 1,1 )
 
+When  writing this email (after the oops) i also got this:
+
+MCE: The hardware reports a non fatal, correctable incident occurred on
+CPU 0.
+Bank 1: 9400000000000151
+
+> > > Slab corruption: start=c57c2000, len=4096
+>                            ^^^^^^^^
+> > > 000: 6e 72 6d 71 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> > > bttv0: skipped frame. no signal? high irq latency? [main=b030000,o_vbi=b030018,o_field=5378000,rc=537801c]
+>
+> Who is this?  Is this allocated by bttv?  Or someone else corrupts
+> memory here?
+>
+> btcx-risc and video-buf have a "debug=1" insmod option, bttv has
+> "bttv_debug=1".  Those make bttv verbose (*plenty* of log, so better
+> don't try all three at the same time ...) and also log addresses of
+> (some) allocated memory blocks.
+>
+> btcx-risc calls pci_alloc_consistent() and thus does PAGE_SIZE
+> allocations, that one likely is a good candidate to start with.
+>
+
+see atachment
+this is with btcx-risc and video-buf with debug=1
+
+i tried also with bttv_debug=1 when loadijng bttv module but haven't
+noticed anything strange.
+I can send the debug messages from bttv if you want.
+
+>   Gerd
+>
+
+--
+"A mouse is a device used to point at
+the xterm you want to type in".
+Kim Alm on a.s.r.
+---1463811838-1890634692-1074558455=:293
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=debug
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0401200227350.293@grinch.ro>
+Content-Description: 
+Content-Disposition: attachment; filename=debug
+
+ZyAxLTAwNTINCnJlZ2lzdGVyaW5nIDEtMDA1Mw0KcmVnaXN0ZXJpbmcgMS0w
+MDU0DQpyZWdpc3RlcmluZyAxLTAwNTUNCnJlZ2lzdGVyaW5nIDEtMDA1Ng0K
+cmVnaXN0ZXJpbmcgMS0wMDU3DQp0dW5lcjogY2hpcCBmb3VuZCBAIDB4YzIN
+CnJlZ2lzdGVyaW5nIDEtMDA2MQ0KYnR0djA6IEF2ZXJtZWRpYSBlZXByb21b
+MHg0MDExXTogdHVuZXI9NSByYWRpbzpubyByZW1vdGUgY29udHJvbDp5ZXMN
+CmJ0dHYwOiB1c2luZyB0dW5lcj01DQp0dW5lcjogdHlwZSBzZXQgdG8gNSAo
+UGhpbGlwcyBQQUxfQkcgKEZJMTIxNiBhbmQgY29tcGF0aWJsZXMpKQ0KYnR0
+djA6IGkyYzogY2hlY2tpbmcgZm9yIE1TUDM0eHggQCAweDgwLi4uIG5vdCBm
+b3VuZA0KYnR0djA6IGkyYzogY2hlY2tpbmcgZm9yIE1TUDM0eHggKGFsdGVy
+bmF0ZSBhZGRyZXNzKSBAIDB4ODguLi4gbm90IGZvdW5kDQpidHR2MDogaTJj
+OiBjaGVja2luZyBmb3IgVERBOTg3NSBAIDB4YjAuLi4gbm90IGZvdW5kDQpi
+dHR2MDogaTJjOiBjaGVja2luZyBmb3IgVERBNzQzMiBAIDB4OGEuLi4gbm90
+IGZvdW5kDQpyZXF1ZXN0X21vZHVsZTogZmFpbGVkIC9zYmluL21vZHByb2Jl
+IC0tIHR2YXVkaW8uIGVycm9yID0gMjU2DQpidHR2MDogcmVnaXN0ZXJlZCBk
+ZXZpY2UgdmlkZW8wDQpidHR2MDogcmVnaXN0ZXJlZCBkZXZpY2UgdmJpMA0K
+YnR0djA6IFBMTDogMjg2MzYzNjMgPT4gMzU0Njg5NTAgLi4gb2sNCmJ0dHYw
+OiBhZGQgc3ViZGV2aWNlICJyZW1vdGUwIg0KYWdwZ2FydDogRm91bmQgYW4g
+QUdQIDIuMCBjb21wbGlhbnQgZGV2aWNlIGF0IDAwMDA6MDA6MDAuMC4NCmFn
+cGdhcnQ6IFB1dHRpbmcgQUdQIFYyIGRldmljZSBhdCAwMDAwOjAwOjAwLjAg
+aW50byA0eCBtb2RlDQphZ3BnYXJ0OiBQdXR0aW5nIEFHUCBWMiBkZXZpY2Ug
+YXQgMDAwMDowMTowMC4wIGludG8gNHggbW9kZQ0KYXRrYmQuYzogVW5rbm93
+biBrZXkgcmVsZWFzZWQgKHRyYW5zbGF0ZWQgc2V0IDIsIGNvZGUgMHg3YSBv
+biBpc2EwMDYwL3NlcmlvMCkuDQphdGtiZC5jOiBVbmtub3duIGtleSByZWxl
+YXNlZCAodHJhbnNsYXRlZCBzZXQgMiwgY29kZSAweDdhIG9uIGlzYTAwNjAv
+c2VyaW8wKS4NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT0yMzIwIFsyXQ0K
+YnRjeDogc2tpcHMgbGluZSAwLTk5OTk6DQpidGN4OiByaXNjbWVtIGZyZWUg
+WzFdDQp2YnVmOiBpbml0IHVzZXIgWzB4NDMyNjcwMDgrMHg2YzAwMCA9PiAx
+MDkgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9MzE4NCBbMl0N
+CmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMV0NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mg
+c2l6ZT0yMzIwIFsyXQ0KYnRjeDogc2tpcHMgbGluZSAwLTk5OTk6DQpidGN4
+OiByaXNjbWVtIGZyZWUgWzFdDQp2YnVmOiBpbml0IHVzZXIgWzB4NDMyNjcw
+MDgrMHg2YzAwMCA9PiAxMDkgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9j
+IHNpemU9MzE4NCBbMl0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMV0NCnZidWY6
+IG1tYXAgc2V0dXA6IDMyIGJ1ZmZlcnMsIDIxMjk5MjAgYnl0ZXMgZWFjaA0K
+dmJ1ZjogbW1hcCBjOWNmYzk2YzogNDIyZmQwMDAtNDYzZmQwMDAgcGdvZmYg
+MDAwMDAwMDAgYnVmcyAwLTMxDQp2YnVmOiBpbml0IHVzZXIgWzB4NDI1MDUw
+MDArMHgyMDgwMDAgPT4gNTIwIHBhZ2VzXQ0KYnRjeDogcmlzY21lbSBhbGxv
+YyBzaXplPTc4MjAgWzJdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9Nzgy
+MCBbM10NCnZidWY6IGluaXQgdXNlciBbMHg0MjcwZDAwMCsweDIwODAwMCA9
+PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBb
+NF0NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFs1XQ0KdmJ1Zjog
+aW5pdCB1c2VyIFsweDQyOTE1MDAwKzB4MjA4MDAwID0+IDUyMCBwYWdlc10N
+CmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFs2XQ0KYnRjeDogcmlz
+Y21lbSBhbGxvYyBzaXplPTc4MjAgWzddDQp2YnVmOiBpbml0IHVzZXIgWzB4
+NDJiMWQwMDArMHgyMDgwMDAgPT4gNTIwIHBhZ2VzXQ0KYnRjeDogcmlzY21l
+bSBhbGxvYyBzaXplPTc4MjAgWzhdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNp
+emU9NzgyMCBbOV0NCnZidWY6IGluaXQgdXNlciBbMHg0MmQyNTAwMCsweDIw
+ODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9
+NzgyMCBbMTBdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbMTFd
+DQp2YnVmOiBpbml0IHVzZXIgWzB4NDJmMmQwMDArMHgyMDgwMDAgPT4gNTIw
+IHBhZ2VzXQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzEyXQ0K
+YnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzEzXQ0KdmJ1ZjogaW5p
+dCB1c2VyIFsweDQzMTM1MDAwKzB4MjA4MDAwID0+IDUyMCBwYWdlc10NCmJ0
+Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFsxNF0NCmJ0Y3g6IHJpc2Nt
+ZW0gYWxsb2Mgc2l6ZT03ODIwIFsxNV0NCnZidWY6IGluaXQgdXNlciBbMHg0
+MzMzZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVt
+IGFsbG9jIHNpemU9NzgyMCBbMTZdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNp
+emU9NzgyMCBbMTddDQp2YnVmOiBpbml0IHVzZXIgWzB4NDM1NDUwMDArMHgy
+MDgwMDAgPT4gNTIwIHBhZ2VzXQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXpl
+PTc4MjAgWzE4XQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzE5
+XQ0KdmJ1ZjogaW5pdCB1c2VyIFsweDQzNzRkMDAwKzB4MjA4MDAwID0+IDUy
+MCBwYWdlc10NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFsyMF0N
+CmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFsyMV0NCnZidWY6IGlu
+aXQgdXNlciBbMHg0Mzk1NTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpi
+dGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbMjJdDQpidGN4OiByaXNj
+bWVtIGFsbG9jIHNpemU9NzgyMCBbMjNdDQp2YnVmOiBpbml0IHVzZXIgWzB4
+NDNiNWQwMDArMHgyMDgwMDAgPT4gNTIwIHBhZ2VzXQ0KYnRjeDogcmlzY21l
+bSBhbGxvYyBzaXplPTc4MjAgWzI0XQ0KYnRjeDogcmlzY21lbSBhbGxvYyBz
+aXplPTc4MjAgWzI1XQ0KdmJ1ZjogaW5pdCB1c2VyIFsweDQzZDY1MDAwKzB4
+MjA4MDAwID0+IDUyMCBwYWdlc10NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6
+ZT03ODIwIFsyNl0NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFsy
+N10NCnZidWY6IGluaXQgdXNlciBbMHg0M2Y2ZDAwMCsweDIwODAwMCA9PiA1
+MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbMjhd
+DQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbMjldDQp2YnVmOiBp
+bml0IHVzZXIgWzB4NDQxNzUwMDArMHgyMDgwMDAgPT4gNTIwIHBhZ2VzXQ0K
+YnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzMwXQ0KYnRjeDogcmlz
+Y21lbSBhbGxvYyBzaXplPTc4MjAgWzMxXQ0KdmJ1ZjogaW5pdCB1c2VyIFsw
+eDQ0MzdkMDAwKzB4MjA4MDAwID0+IDUyMCBwYWdlc10NCmJ0Y3g6IHJpc2Nt
+ZW0gYWxsb2Mgc2l6ZT03ODIwIFszMl0NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mg
+c2l6ZT03ODIwIFszM10NCnZidWY6IGluaXQgdXNlciBbMHg0NDU4NTAwMCsw
+eDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNp
+emU9NzgyMCBbMzRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBb
+MzVdDQp2YnVmOiBpbml0IHVzZXIgWzB4NDQ3OGQwMDArMHgyMDgwMDAgPT4g
+NTIwIHBhZ2VzXQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzM2
+XQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzM3XQ0KdmJ1Zjog
+aW5pdCB1c2VyIFsweDQ0OTk1MDAwKzB4MjA4MDAwID0+IDUyMCBwYWdlc10N
+CmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFszOF0NCmJ0Y3g6IHJp
+c2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFszOV0NCnZidWY6IGluaXQgdXNlciBb
+MHg0NGI5ZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNj
+bWVtIGFsbG9jIHNpemU9NzgyMCBbNDBdDQpidGN4OiByaXNjbWVtIGFsbG9j
+IHNpemU9NzgyMCBbNDFdDQp2YnVmOiBpbml0IHVzZXIgWzB4NDRkYTUwMDAr
+MHgyMDgwMDAgPT4gNTIwIHBhZ2VzXQ0KYnRjeDogcmlzY21lbSBhbGxvYyBz
+aXplPTc4MjAgWzQyXQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAg
+WzQzXQ0KdmJ1ZjogaW5pdCB1c2VyIFsweDQ0ZmFkMDAwKzB4MjA4MDAwID0+
+IDUyMCBwYWdlc10NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFs0
+NF0NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFs0NV0NCnZidWY6
+IGluaXQgdXNlciBbMHg0NTFiNTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNd
+DQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNDZdDQpidGN4OiBy
+aXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNDddDQp2YnVmOiBpbml0IHVzZXIg
+WzB4NDUzYmQwMDArMHgyMDgwMDAgPT4gNTIwIHBhZ2VzXQ0KYnRjeDogcmlz
+Y21lbSBhbGxvYyBzaXplPTc4MjAgWzQ4XQ0KYnRjeDogcmlzY21lbSBhbGxv
+YyBzaXplPTc4MjAgWzQ5XQ0KdmJ1ZjogaW5pdCB1c2VyIFsweDQ1NWM1MDAw
+KzB4MjA4MDAwID0+IDUyMCBwYWdlc10NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mg
+c2l6ZT03ODIwIFs1MF0NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIw
+IFs1MV0NCnZidWY6IGluaXQgdXNlciBbMHg0NTdjZDAwMCsweDIwODAwMCA9
+PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBb
+NTJdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNTNdDQp2YnVm
+OiBpbml0IHVzZXIgWzB4NDU5ZDUwMDArMHgyMDgwMDAgPT4gNTIwIHBhZ2Vz
+XQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzU0XQ0KYnRjeDog
+cmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzU1XQ0KdmJ1ZjogaW5pdCB1c2Vy
+IFsweDQ1YmRkMDAwKzB4MjA4MDAwID0+IDUyMCBwYWdlc10NCmJ0Y3g6IHJp
+c2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFs1Nl0NCmJ0Y3g6IHJpc2NtZW0gYWxs
+b2Mgc2l6ZT03ODIwIFs1N10NCnZidWY6IGluaXQgdXNlciBbMHg0NWRlNTAw
+MCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9j
+IHNpemU9NzgyMCBbNThdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9Nzgy
+MCBbNTldDQp2YnVmOiBpbml0IHVzZXIgWzB4NDVmZWQwMDArMHgyMDgwMDAg
+PT4gNTIwIHBhZ2VzXQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAg
+WzYwXQ0KYnRjeDogcmlzY21lbSBhbGxvYyBzaXplPTc4MjAgWzYxXQ0KdmJ1
+ZjogaW5pdCB1c2VyIFsweDQ2MWY1MDAwKzB4MjA4MDAwID0+IDUyMCBwYWdl
+c10NCmJ0Y3g6IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFs2Ml0NCmJ0Y3g6
+IHJpc2NtZW0gYWxsb2Mgc2l6ZT03ODIwIFs2M10NCnZidWY6IGluaXQgdXNl
+ciBbMHg0MjJmZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiBy
+aXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFs
+bG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0K
+YnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0
+MjUwNTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVt
+IGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNp
+emU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0MjcwZDAw
+MCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9j
+IHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9Nzgy
+MCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21l
+bSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0MjkxNTAwMCsweDIw
+ODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9
+NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVd
+DQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVl
+IFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0MmIxZDAwMCsweDIwODAwMCA9
+PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBb
+NjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4
+OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10N
+CnZidWY6IGluaXQgdXNlciBbMHg0MmQyNTAwMCsweDIwODAwMCA9PiA1MjAg
+cGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpi
+dGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNj
+bWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6
+IGluaXQgdXNlciBbMHg0MmYyZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNd
+DQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiBy
+aXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQg
+dXNlciBbMHg0MzEzNTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4
+OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVt
+IGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0
+XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBb
+MHg0MzMzZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNj
+bWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9j
+IHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRj
+eDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0MzU0
+NTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFs
+bG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9
+NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlz
+Y21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0Mzc0ZDAwMCsw
+eDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNp
+emU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBb
+NjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBm
+cmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0Mzk1NTAwMCsweDIwODAw
+MCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9Nzgy
+MCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2
+M10NCnZidWY6IGluaXQgdXNlciBbMHg0M2I1ZDAwMCsweDIwODAwMCA9PiA1
+MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRd
+DQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiBy
+aXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZi
+dWY6IGluaXQgdXNlciBbMHg0M2Q2NTAwMCsweDIwODAwMCA9PiA1MjAgcGFn
+ZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4
+OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVt
+IGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGlu
+aXQgdXNlciBbMHg0M2Y2ZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpi
+dGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNj
+bWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUg
+WzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNl
+ciBbMHg0NDE3NTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiBy
+aXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFs
+bG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0K
+YnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0
+NDM3ZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVt
+IGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNp
+emU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0NDU4NTAw
+MCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9j
+IHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9Nzgy
+MCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21l
+bSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0NDc4ZDAwMCsweDIw
+ODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9
+NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVd
+DQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVl
+IFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0NDk5NTAwMCsweDIwODAwMCA9
+PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBb
+NjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4
+OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10N
+CnZidWY6IGluaXQgdXNlciBbMHg0NGI5ZDAwMCsweDIwODAwMCA9PiA1MjAg
+cGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpi
+dGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNj
+bWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6
+IGluaXQgdXNlciBbMHg0NGRhNTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNd
+DQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiBy
+aXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQg
+dXNlciBbMHg0NGZhZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4
+OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVt
+IGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0
+XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBb
+MHg0NTFiNTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNj
+bWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9j
+IHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRj
+eDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0NTNi
+ZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFs
+bG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9
+NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlz
+Y21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0NTVjNTAwMCsw
+eDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNp
+emU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBb
+NjVdDQpidGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBm
+cmVlIFs2M10NCnZidWY6IGluaXQgdXNlciBbMHg0NTdjZDAwMCsweDIwODAw
+MCA9PiA1MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9Nzgy
+MCBbNjRdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2
+M10NCnZidWY6IGluaXQgdXNlciBbMHg0NTlkNTAwMCsweDIwODAwMCA9PiA1
+MjAgcGFnZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRd
+DQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiBy
+aXNjbWVtIGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZi
+dWY6IGluaXQgdXNlciBbMHg0NWJkZDAwMCsweDIwODAwMCA9PiA1MjAgcGFn
+ZXNdDQpidGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4
+OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVt
+IGZyZWUgWzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGlu
+aXQgdXNlciBbMHg0NWRlNTAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpi
+dGN4OiByaXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNj
+bWVtIGFsbG9jIHNpemU9NzgyMCBbNjVdDQpidGN4OiByaXNjbWVtIGZyZWUg
+WzY0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2M10NCnZidWY6IGluaXQgdXNl
+ciBbMHg0NWZlZDAwMCsweDIwODAwMCA9PiA1MjAgcGFnZXNdDQpidGN4OiBy
+aXNjbWVtIGFsbG9jIHNpemU9NzgyMCBbNjRdDQpidGN4OiByaXNjbWVtIGFs
+bG9jIHNpemU9NzgyMCBbNjVdDQpVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBw
+YWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMjUyNjJlMjkNCiBw
+cmludGluZyBlaXA6DQpkMDhlNTYxMw0KKnBkZSA9IDAwMDAwMDAwDQpPb3Bz
+OiAwMDAwIFsjMV0NCkRFQlVHX1BBR0VBTExPQw0KQ1BVOiAgICAwDQpFSVA6
+ICAgIDAwNjA6WzxkMDhlNTYxMz5dICAgIE5vdCB0YWludGVkIFZMSQ0KRUZM
+QUdTOiAwMDIxMDI5Mw0KRUlQIGlzIGF0IHZpZGVvYnVmX2RtYV9mcmVlKzB4
+MzMvMHhjMCBbdmlkZW9fYnVmXQ0KZWF4OiAwMDAwMDAwMCAgIGVieDogYzQ1
+YTcwMDAgICBlY3g6IDAwMDAwMjA4ICAgZWR4OiAyNTI2MmUyOQ0KZXNpOiAw
+MDAwMDAwMCAgIGVkaTogYzgxN2NmNTQgICBlYnA6IGQwYTM1NzIwICAgZXNw
+OiBjNDEzNWMxOA0KZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4DQpQ
+cm9jZXNzIHRyYW5zY29kZSAocGlkOiAyNDEsIHRocmVhZGluZm89YzQxMzQw
+MDAgdGFzaz1jNDE3MzlkMCkNClN0YWNrOiBkMGEzNTcyMCBjODE3Y2Y1NCBj
+ODE3Y2YzOCBkMGEzNTcyMCBkMGEyNDkzMCBjODE3Y2Y1NCBjODE3Y2Y1NCAw
+MDAwMDAwMCANCiAgICAgICBjODE3Y2YzOCAwMDAwMDAwMCBjNDEzNWVlYyBk
+MGExZWRmMyBkMGEzNTcyMCBjODE3Y2YzOCAwMDAwMDAwMSAwMDAwMDJkMCAN
+CiAgICAgICAwMDAwMDI0MCAwMDAwMDAwNCA1YTVhNWE1YSBjOGYwY2RmOCBj
+OGYwY2UwOCA1YTVhNWE1YSA1YTVhNWE1YSBjOGYwY2UwOCANCkNhbGwgVHJh
+Y2U6DQogWzxkMGEyNDkzMD5dIGJ0dHZfZG1hX2ZyZWUrMHg2MC8weGEwIFti
+dHR2XQ0KIFs8ZDBhMWVkZjM+XSBidHR2X2RvX2lvY3RsKzB4NDAzLzB4MTY5
+MCBbYnR0dl0NCiBbPGMwMTFhMTIwPl0gcmVjYWxjX3Rhc2tfcHJpbysweDkw
+LzB4MWEwDQogWzxjMDExOWZkOD5dIGtlcm5lbF9tYXBfcGFnZXMrMHgyOC8w
+eDkwDQogWzxjMDExYTZkZD5dIHNjaGVkdWxlcl90aWNrKzB4MWQvMHg1NjAN
+CiBbPGMwMTI1Yjk2Pl0gdXBkYXRlX3Byb2Nlc3NfdGltZXMrMHg0Ni8weDYw
+DQogWzxjMDExYTZkZD5dIHNjaGVkdWxlcl90aWNrKzB4MWQvMHg1NjANCiBb
+PGMwNDBkNTBhPl0gYXBpY190aW1lcl9pbnRlcnJ1cHQrMHgxYS8weDIwDQog
+WzxjMDJhYzFlMD5dIF9fY29weV90b191c2VyX2xsKzB4NTAvMHg4MA0KIFs8
+YzAxMGE3MWM+XSBzZXR1cF9zaWdjb250ZXh0KzB4MTBjLzB4MTIwDQogWzxj
+MDEwYTgzYT5dIHNldHVwX2ZyYW1lKzB4MTBhLzB4MWUwDQogWzxjMDMxZjUz
+OD5dIHZpZGVvX3VzZXJjb3B5KzB4ZTgvMHgxZTANCiBbPGMwMTBhMmZjPl0g
+cmVzdG9yZV9zaWdjb250ZXh0KzB4NWMvMHgxODANCiBbPGQwYTIwMGJlPl0g
+YnR0dl9pb2N0bCsweDNlLzB4NzAgW2J0dHZdDQogWzxkMGExZTlmMD5dIGJ0
+dHZfZG9faW9jdGwrMHgwLzB4MTY5MCBbYnR0dl0NCiBbPGMwMTYxZTg1Pl0g
+c3lzX2lvY3RsKzB4YjUvMHgyMzANCiBbPGMwNDBkMzdiPl0gc3lzY2FsbF9j
+YWxsKzB4Ny8weGINCg0KQ29kZTogMjQgMTQgOGIgNWYgMTQgODUgZGIgNzQg
+MDggMGYgMGIgZjMgMDAgODAgNzAgOGUgZDAgOGIgNWYgMDQgODUgZGIgNzQg
+NDcgOGIgNGYgMTggMzEgZjYgMzkgY2UgN2QgMmYgOGQgYjQgMjYgMDAgMDAg
+MDAgMDAgOGIgMTQgYjMgPDhiPiAwMiBhOSAwMCAwOCAwMCAwMCA3NSAxNyA4
+YiA0MiAwNCA4NSBjMCA3NCA2NiBmZiA0YSAwNCAwZiA5NCANCiA8Nz52YnVm
+OiBtdW5tYXAgYzljZmM5NmMNCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbNjRdDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzYzXQ0KYnRjeDogcmlzY21lbSBmcmVlIFs2
+Ml0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbNjFdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzYwXQ0KYnRjeDogcmlzY21lbSBmcmVlIFs1OV0NCmJ0Y3g6IHJpc2Nt
+ZW0gZnJlZSBbNThdDQpidGN4OiByaXNjbWVtIGZyZWUgWzU3XQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFs1Nl0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbNTVdDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzU0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs1
+M10NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbNTJdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzUxXQ0KYnRjeDogcmlzY21lbSBmcmVlIFs1MF0NCmJ0Y3g6IHJpc2Nt
+ZW0gZnJlZSBbNDldDQpidGN4OiByaXNjbWVtIGZyZWUgWzQ4XQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFs0N10NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbNDZdDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzQ1XQ0KYnRjeDogcmlzY21lbSBmcmVlIFs0
+NF0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbNDNdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzQyXQ0KYnRjeDogcmlzY21lbSBmcmVlIFs0MV0NCmJ0Y3g6IHJpc2Nt
+ZW0gZnJlZSBbNDBdDQpidGN4OiByaXNjbWVtIGZyZWUgWzM5XQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFszOF0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMzddDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzM2XQ0KYnRjeDogcmlzY21lbSBmcmVlIFsz
+NV0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMzRdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzMzXQ0KYnRjeDogcmlzY21lbSBmcmVlIFszMl0NCmJ0Y3g6IHJpc2Nt
+ZW0gZnJlZSBbMzFdDQpidGN4OiByaXNjbWVtIGZyZWUgWzMwXQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFsyOV0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMjhdDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzI3XQ0KYnRjeDogcmlzY21lbSBmcmVlIFsy
+Nl0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMjVdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzI0XQ0KYnRjeDogcmlzY21lbSBmcmVlIFsyM10NCmJ0Y3g6IHJpc2Nt
+ZW0gZnJlZSBbMjJdDQpidGN4OiByaXNjbWVtIGZyZWUgWzIxXQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFsyMF0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMTldDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzE4XQ0KYnRjeDogcmlzY21lbSBmcmVlIFsx
+N10NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMTZdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzE1XQ0KYnRjeDogcmlzY21lbSBmcmVlIFsxNF0NCmJ0Y3g6IHJpc2Nt
+ZW0gZnJlZSBbMTNdDQpidGN4OiByaXNjbWVtIGZyZWUgWzEyXQ0KYnRjeDog
+cmlzY21lbSBmcmVlIFsxMV0NCmJ0Y3g6IHJpc2NtZW0gZnJlZSBbMTBdDQpi
+dGN4OiByaXNjbWVtIGZyZWUgWzldDQpidGN4OiByaXNjbWVtIGZyZWUgWzhd
+DQpidGN4OiByaXNjbWVtIGZyZWUgWzddDQpidGN4OiByaXNjbWVtIGZyZWUg
+WzZdDQpidGN4OiByaXNjbWVtIGZyZWUgWzVdDQpidGN4OiByaXNjbWVtIGZy
+ZWUgWzRdDQpidGN4OiByaXNjbWVtIGZyZWUgWzNdDQpVbmFibGUgdG8gaGFu
+ZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3Mg
+MjUyNjJlMjkNCiBwcmludGluZyBlaXA6DQpkMDhlNTYxMw0KKnBkZSA9IDAw
+MDAwMDAwDQpPb3BzOiAwMDAwIFsjMl0NCkRFQlVHX1BBR0VBTExPQw0KQ1BV
+OiAgICAwDQpFSVA6ICAgIDAwNjA6WzxkMDhlNTYxMz5dICAgIE5vdCB0YWlu
+dGVkIFZMSQ0KRUZMQUdTOiAwMDAxMDI5Mw0KRUlQIGlzIGF0IHZpZGVvYnVm
+X2RtYV9mcmVlKzB4MzMvMHhjMCBbdmlkZW9fYnVmXQ0KZWF4OiAwMDAwMDAw
+MCAgIGVieDogYzQ1YTcwMDAgICBlY3g6IDAwMDAwMjA4ICAgZWR4OiAyNTI2
+MmUyOQ0KZXNpOiAwMDAwMDAwMCAgIGVkaTogYzgxN2NmNTQgICBlYnA6IGM4
+ODM3ZGY0ICAgZXNwOiBjOGIzM2UyYw0KZHM6IDAwN2IgICBlczogMDA3YiAg
+IHNzOiAwMDY4DQpQcm9jZXNzIHRyYW5zY29kZSAocGlkOiAyMjUsIHRocmVh
+ZGluZm89YzhiMzIwMDAgdGFzaz1jOWE4MzlkMCkNClN0YWNrOiBjODE3Y2Y1
+NCBjODE3Y2Y1NCBjODE3Y2YzOCBkMGEzNTcyMCBkMGEyNDkzMCBjODE3Y2Y1
+NCBjODE3Y2Y1NCAwMDAwMDAwMCANCiAgICAgICAwMDAwMDAxZiBjOWNmYzk2
+YyBjOGRiYzk1NCBkMDhlNmFjNCBkMGEzNTcyMCBjODE3Y2YzOCBjZmZkMGYz
+OCAwMDAwMDI4MiANCiAgICAgICBjOGRiYzk1NCBjOGRiYzk1NCBjOTIzNGVh
+YyBjOWE4MzlkMCBjMDE0NmMwZCBjOGRiYzk1NCBjODllNWJiNCAwMDAwMDMw
+MCANCkNhbGwgVHJhY2U6DQogWzxkMGEyNDkzMD5dIGJ0dHZfZG1hX2ZyZWUr
+MHg2MC8weGEwIFtidHR2XQ0KIFs8ZDA4ZTZhYzQ+XSB2aWRlb2J1Zl92bV9j
+bG9zZSsweDk0LzB4YzAgW3ZpZGVvX2J1Zl0NCiBbPGMwMTQ2YzBkPl0gZXhp
+dF9tbWFwKzB4MTVkLzB4MTgwDQogWzxjMDExYzhjZj5dIG1tcHV0KzB4NGYv
+MHg5MA0KIFs8YzAxMjAyMzg+XSBkb19leGl0KzB4MTI4LzB4MzEwDQogWzxj
+MDEyMDRlND5dIGRvX2dyb3VwX2V4aXQrMHg1NC8weDgwDQogWzxjMDEyOGM4
+MD5dIGdldF9zaWduYWxfdG9fZGVsaXZlcisweDFjMC8weDMwMA0KIFs8YzAx
+MGFkYWQ+XSBkb19zaWduYWwrMHhkZC8weDExMA0KIFs8YzAxMjc4ZDA+XSBr
+aWxsX3Byb2NfaW5mbysweDMwLzB4NDANCiBbPGMwMTFhMTIwPl0gcmVjYWxj
+X3Rhc2tfcHJpbysweDkwLzB4MWEwDQogWzxjMDExYTEyMD5dIHJlY2FsY190
+YXNrX3ByaW8rMHg5MC8weDFhMA0KIFs8YzAxMWFmNmM+XSBzY2hlZHVsZSsw
+eDMzYy8weDU0MA0KIFs8YzAxMGFlMzY+XSBkb19ub3RpZnlfcmVzdW1lKzB4
+NTYvMHg2MA0KIFs8YzA0MGQzYzY+XSB3b3JrX25vdGlmeXNpZysweDEzLzB4
+MTUNCg0KQ29kZTogMjQgMTQgOGIgNWYgMTQgODUgZGIgNzQgMDggMGYgMGIg
+ZjMgMDAgODAgNzAgOGUgZDAgOGIgNWYgMDQgODUgZGIgNzQgNDcgOGIgNGYg
+MTggMzEgZjYgMzkgY2UgN2QgMmYgOGQgYjQgMjYgMDAgMDAgMDAgMDAgOGIg
+MTQgYjMgPDhiPiAwMiBhOSAwMCAwOCAwMCAwMCA3NSAxNyA4YiA0MiAwNCA4
+NSBjMCA3NCA2NiBmZiA0YSAwNCAwZiA5NCANCiANCg==
+
+---1463811838-1890634692-1074558455=:293--

@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132757AbRDDHAq>; Wed, 4 Apr 2001 03:00:46 -0400
+	id <S132756AbRDDHAq>; Wed, 4 Apr 2001 03:00:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132754AbRDDHAg>; Wed, 4 Apr 2001 03:00:36 -0400
-Received: from dial082.za.nextra.sk ([195.168.64.82]:516 "HELO Boris.SHARK")
-	by vger.kernel.org with SMTP id <S132755AbRDDHA1>;
+	id <S132757AbRDDHAf>; Wed, 4 Apr 2001 03:00:35 -0400
+Received: from dial082.za.nextra.sk ([195.168.64.82]:260 "HELO Boris.SHARK")
+	by vger.kernel.org with SMTP id <S132754AbRDDHA1>;
 	Wed, 4 Apr 2001 03:00:27 -0400
-Date: Wed, 4 Apr 2001 09:12:59 +0200
+Date: Wed, 4 Apr 2001 09:44:12 +0200
 From: Boris Pisarcik <boris@acheron.sk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Question about SysRq
-Message-ID: <20010404091259.A808@Boris>
-In-Reply-To: <20010331230454.A801@Boris> <m2n1a1pj8r.fsf@boreas.yi.org.>
+Subject: Re: Basic Text Mode (was: Re: Question about SysRq)
+Message-ID: <20010404094412.B808@Boris>
+In-Reply-To: <20010331230454.A801@Boris> <000201c0bb97$6c4e4ae0$de00a8c0@homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <m2n1a1pj8r.fsf@boreas.yi.org.>; from chief@bandits.org on Sun, Apr 01, 2001 at 01:16:20AM +0100
+In-Reply-To: <000201c0bb97$6c4e4ae0$de00a8c0@homeip.net>; from eccesys@topmail.de on Mon, Apr 02, 2001 at 04:35:56PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->You could even set sysvinit
-> to run it when you press a certain key combo.
+> It is a very good idea, and to implement quite easy. You just do have to
+> diff between three types of video cards (MDA, MGA and HGC vs. CGA and AGA vs. EGA+).
+> Then you do direct register writes. For the HGC I did it recently in a DOS proggy
+> which switched from text to gfx and back. I had a TSR which simulated a gfx BIOS.
+> Only problem is, I lost the source. But I could rewrite and test it on request.
+> I even would put it under GPL for the kernel (normally this is a no-no for me),
+> just ask me. I will write it in NASM then because I can't the AT&T syntax.
+> For non-i386 Platforms I do not know about this topic. (IIRC the Apples didnt
+> even have a text mode)
+> Maybe I could look up the EGA register values somewhere.
 
-You mean inittab & kbrequest ? I didn't know about this. Must have a look
-at some documentation, manpage didn't help me a lot.
+The hardware part of mode restoring could really be done the register way and
+may be interesting - i did code a lot in dos and this is what i did too, 
+if i had experience with register programming and vga(..). Mostly i skipped
+this arena, because i have had information about vga registers just enough
+to damage monitor, so rather used VESA for video stuff :)
+But i think only this way should break some internal state of console or
+what driver. 
 
-Besides, you have very interesting name/domain, cheaf of bandits !!
+Thanks for the willingness, thought. I read from the thread - James Simmons,
+console developer, is working on it, so you may eg. ask to cooperate with him,
+he surely has a lot of ideas of text/vga switching in linux.
 
-                                                                   B.
+Cheers                                                               B.

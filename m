@@ -1,49 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263431AbVBCSZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263652AbVBCSVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263431AbVBCSZm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 13:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbVBCSYd
+	id S263652AbVBCSVC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 13:21:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVBCR4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 13:24:33 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:61591
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S263687AbVBCSVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 13:21:43 -0500
-Date: Thu, 3 Feb 2005 10:14:20 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Anton Blanchard <anton@samba.org>
-Cc: herbert@gondor.apana.org.au, okir@suse.de, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-Id: <20050203101420.468c1607.davem@davemloft.net>
-In-Reply-To: <20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-References: <20050131102920.GC4170@suse.de>
-	<E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
-	<20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 3 Feb 2005 12:56:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:59047 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263634AbVBCRlB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:41:01 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: Do not show disabled pc87360 fans
+In-Reply-To: <11074523382465@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 3 Feb 2005 09:38:58 -0800
+Message-Id: <11074523382272@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 01:27:05 +1100
-Anton Blanchard <anton@samba.org> wrote:
+ChangeSet 1.2046, 2005/02/03 00:30:49-08:00, khali@linux-fr.org
 
-> Architectures should guarantee that any of the atomics and bitops that
-> return values order in both directions. So you dont need the
-> smp_mb__before_atomic_dec here.
-> 
-> It is, however, required on the atomics and bitops that dont return
-> values. Its difficult stuff, everyone gets it wrong and Andrew keeps
-> hassling me to write up a document explaining it.
+[PATCH] I2C: Do not show disabled pc87360 fans
 
-Sparc64 happens to order the atomic we use in the bitops and atomic_t
-ops, so sparc64 gets this right by accident.
+The pc87360 driver create sysfs files even for disabled fans. Since data
+won't ever be updated, it doesn't make much sense. The following patch
+adds some tests to only create the interface files that are actually
+needed.
 
-I had no idea about this requirement before reading your email.
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-If IBM is seeing race this on ppc64, then I'm even more confused.
-If Anton understands the requirements, then ppc64 should have
-the return value atomic's implemented with the proper barriers.
+
+ drivers/i2c/chips/pc87360.c |   49 +++++++++++++++++++++++++++++++-------------
+ 1 files changed, 35 insertions(+), 14 deletions(-)
+
+
+diff -Nru a/drivers/i2c/chips/pc87360.c b/drivers/i2c/chips/pc87360.c
+--- a/drivers/i2c/chips/pc87360.c	2005-02-03 09:34:48 -08:00
++++ b/drivers/i2c/chips/pc87360.c	2005-02-03 09:34:48 -08:00
+@@ -795,8 +795,10 @@
+ 
+ 	/* Fan clock dividers may be needed before any data is read */
+ 	for (i = 0; i < data->fannr; i++) {
+-		data->fan_status[i] = pc87360_read_value(data, LD_FAN,
+-				      NO_BANK, PC87360_REG_FAN_STATUS(i));
++		if (FAN_CONFIG_MONITOR(data->fan_conf, i))
++			data->fan_status[i] = pc87360_read_value(data,
++					      LD_FAN, NO_BANK,
++					      PC87360_REG_FAN_STATUS(i));
+ 	}
+ 
+ 	if (init > 0) {
+@@ -898,14 +900,27 @@
+ 	}
+ 
+ 	if (data->fannr) {
+-		device_create_file(&new_client->dev, &dev_attr_fan1_input);
+-		device_create_file(&new_client->dev, &dev_attr_fan2_input);
+-		device_create_file(&new_client->dev, &dev_attr_fan1_min);
+-		device_create_file(&new_client->dev, &dev_attr_fan2_min);
+-		device_create_file(&new_client->dev, &dev_attr_fan1_div);
+-		device_create_file(&new_client->dev, &dev_attr_fan2_div);
+-		device_create_file(&new_client->dev, &dev_attr_fan1_status);
+-		device_create_file(&new_client->dev, &dev_attr_fan2_status);
++		if (FAN_CONFIG_MONITOR(data->fan_conf, 0)) {
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan1_input);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan1_min);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan1_div);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan1_status);
++		}
++
++		if (FAN_CONFIG_MONITOR(data->fan_conf, 1)) {
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan2_input);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan2_min);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan2_div);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan2_status);
++		}
+ 
+ 		if (FAN_CONFIG_CONTROL(data->fan_conf, 0))
+ 			device_create_file(&new_client->dev, &dev_attr_pwm1);
+@@ -913,10 +928,16 @@
+ 			device_create_file(&new_client->dev, &dev_attr_pwm2);
+ 	}
+ 	if (data->fannr == 3) {
+-		device_create_file(&new_client->dev, &dev_attr_fan3_input);
+-		device_create_file(&new_client->dev, &dev_attr_fan3_min);
+-		device_create_file(&new_client->dev, &dev_attr_fan3_div);
+-		device_create_file(&new_client->dev, &dev_attr_fan3_status);
++		if (FAN_CONFIG_MONITOR(data->fan_conf, 2)) {
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan3_input);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan3_min);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan3_div);
++			device_create_file(&new_client->dev,
++					   &dev_attr_fan3_status);
++		}
+ 
+ 		if (FAN_CONFIG_CONTROL(data->fan_conf, 2))
+ 			device_create_file(&new_client->dev, &dev_attr_pwm3);
+

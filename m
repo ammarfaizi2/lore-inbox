@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266785AbTGGCXj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 22:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266794AbTGGCXj
+	id S264547AbTGGCXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 22:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266785AbTGGCXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 22:23:39 -0400
-Received: from dyn-ctb-210-9-243-115.webone.com.au ([210.9.243.115]:51716 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S266785AbTGGCX2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 22:23:28 -0400
-Message-ID: <3F08DCFB.6030400@cyberone.com.au>
-Date: Mon, 07 Jul 2003 12:37:47 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Brandon Low <lostlogic@gentoo.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: anticipatory scheduler merged
-References: <20030705133334.4cc7e11b.akpm@osdl.org> <20030707022212.GE27027@lostlogicx.com>
-In-Reply-To: <20030707022212.GE27027@lostlogicx.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 6 Jul 2003 22:23:08 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:46013 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264547AbTGGCW5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 22:22:57 -0400
+Date: Sun, 6 Jul 2003 19:37:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: barryn@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] heavy disk access sometimes freezes 2.5.73-mm[123]
+Message-Id: <20030706193722.79352bc3.akpm@osdl.org>
+In-Reply-To: <3F08DA84.7010500@cyberone.com.au>
+References: <20030703090541.GB5044@ip68-101-124-193.oc.oc.cox.net>
+	<20030706204630.GA2904@ip68-4-255-84.oc.oc.cox.net>
+	<3F08DA84.7010500@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Brandon Low wrote:
-
->On Sat, 07/05/03 at 13:33:34 -0700, Andrew Morton wrote:
+Nick Piggin <piggin@cyberone.com.au> wrote:
 >
->>- These changes have been well tested, but it is five months work and
->>  over 100 patches.  There's probably a bug or two.  If you suspect that
->>  something has gone wrong at the block layer (lots of tasks stuck in D
->>  state) then please retest with `elevator=deadline'.
->>
->>Thanks.
->>
->
->I am seeing these D tasks when running 2.5.74-mm2 under a heavy seeking
->load (compiling application, untarring kernel, and filesharing
->simultaneously) on a slow (laptop 4200RPM) hdd.  I find that after about
->10 uptime when I start throwing on the seeking loads one or all of them
->go to D state and any new disk IO is either blocked or very slow.
->
->I have tested with elevator=deadline and have been unable to reproduce.
->
->Any further testing or debugging you need me to do I can probably do
->(but I'm not terribly knowledgable so I'll need step by step for said
->testing).  Thanks!
->
->
+> >I've figured things out a bit more and filed a Bugzilla report:
+> >http://bugme.osdl.org/show_bug.cgi?id=877
 
-OK, so the disk is IDE, and you aren't using ide-scsi? Please compile the
-kernel with "Magic SysRq key" config option enabled. Its in the Kernel
-hacking submenu.
+Barry says the problem started with 2.5.73-mm1.  There was a reiserfs patch
+added in that kernel.
 
-Then repeat the system freeze, and press alt+sys rq+t. Run dmesg | less to
-get the task trace. You'll get a lot of lines like this:
-bash          S 00000001   627    625                 626 (NOTLB)
-followed by their call traces. Copy the call trace of one or two tasks that
-have a D following their name. Then post it here.
+Does a `patch -R' of this fix it up?
 
-Oh and you'll probably have to run dmesg and less to get them into cache
-before the system freezes!
 
-Thanks,
-Nick
+ fs/reiserfs/tail_conversion.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+)
+
+diff -puN fs/reiserfs/tail_conversion.c~reiserfs-unmapped-buffer-fix fs/reiserfs/tail_conversion.c
+--- 25/fs/reiserfs/tail_conversion.c~reiserfs-unmapped-buffer-fix	2003-06-27 23:20:15.000000000 -0700
++++ 25-akpm/fs/reiserfs/tail_conversion.c	2003-06-27 23:20:15.000000000 -0700
+@@ -143,6 +143,16 @@ void reiserfs_unmap_buffer(struct buffer
+     }
+     clear_buffer_dirty(bh) ;
+     lock_buffer(bh) ;
++    /* Remove the buffer from whatever list it belongs to. We are mostly
++       interested in removing it from per-sb j_dirty_buffers list, to avoid
++        BUG() on attempt to write not mapped buffer */
++    if ( !list_empty(&bh->b_assoc_buffers) && bh->b_page) {
++	struct inode *inode = bh->b_page->mapping->host;
++	struct reiserfs_journal *j = SB_JOURNAL(inode->i_sb);
++	spin_lock(&j->j_dirty_buffers_lock);
++	list_del_init(&bh->b_assoc_buffers);
++	spin_unlock(&j->j_dirty_buffers_lock);
++    }
+     clear_buffer_mapped(bh) ;
+     clear_buffer_req(bh) ;
+     clear_buffer_new(bh);
+@@ -180,6 +190,9 @@ unmap_buffers(struct page *page, loff_t 
+         }
+ 	bh = next ;
+       } while (bh != head) ;
++      if ( PAGE_SIZE == bh->b_size ) {
++	ClearPageDirty(page);
++      }
+     }
+   } 
+ }
+
+_
 

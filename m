@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263915AbTFPTyi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 15:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbTFPTyi
+	id S264208AbTFPTzB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 15:55:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFPTzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 15:54:38 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:56032 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263915AbTFPTyh
+	Mon, 16 Jun 2003 15:55:01 -0400
+Received: from wmail.atlantic.net ([209.208.0.84]:42369 "HELO
+	wmail.atlantic.net") by vger.kernel.org with SMTP id S264208AbTFPTy6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 15:54:37 -0400
-Date: Mon, 16 Jun 2003 22:08:07 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Hadmut Danisch <hadmut@danisch.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VIA VT8366 and IDE/DMA?
-In-Reply-To: <20030616194924.GA15602@danisch.de>
-Message-ID: <Pine.SOL.4.30.0306162204060.6968-100000@mion.elka.pw.edu.pl>
+	Mon, 16 Jun 2003 15:54:58 -0400
+Message-ID: <3EEE272A.2040208@techsource.com>
+Date: Mon, 16 Jun 2003 16:23:06 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Aschwin Marsman <a.marsman@aYniK.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Coding technique question
+References: <Pine.LNX.4.44.0306162202480.1924-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you for pointing this out to me.  It's very interesting reading.
 
-On Mon, 16 Jun 2003, Hadmut Danisch wrote:
 
-> Hi,
->
-> I have a K7 mainboard with VT8366 chipset, but I can't
+Aschwin Marsman wrote:
+> On Mon, 16 Jun 2003, Timothy Miller wrote:
+> 
+> 
+>>I believe I've seen this sort of thing done in the kernel:
+>>
+>>do {
+>>     ....
+>>     code
+>>     ....
+>>} while (0);
+>>
+>>
+>>What I was wondering is how this is any different from:
+>>
+>>{
+>>     ....
+>>     code
+>>     ....
+>>}
+> 
+> 
+> See the Kernel Newbies FAQ at http://kernelnewbies.org/faq/
+> Q: "Why do a lot of #defines in the kernel use do { ... } while(0)? "
+>  
+> Best regards,
+>  
+> Aschwin Marsman
+>  
+> --
+> aYniK Software Solutions         all You need is Knowledge
+> Bedrijvenpark Twente 305         NL-7602 KL Almelo - the Netherlands
+> P.O. box 134                     NL-7600 AC Almelo - the Netherlands
+> a.marsman@aYniK.com              http://www.aYniK.com
+> 
+> 
+> 
 
-VT8366 (KT266) is a north bridge and has nothing to do with IDE.
-
-> turn IDE DMA on:
->
-> atlantis# hdparm -d1 /dev/hda
->
-> /dev/hda:
->  setting using_dma to 1 (on)
->  HDIO_SET_DMA failed: Operation not permitted
->  using_dma    =  0 (off)
-
-Compile kernel with VIA IDE support:
-
-CONFIG_BLK_DEV_VIA82CXXX=y
-
-> Writing to /proc/ide/ide0/hda/settings has no effect.
->
->
-> Can anyone give me a hint how to turn DMA on?
->
-> regards
-> Hadmut
-
-Regards,
---
-Bartlomiej
 

@@ -1,143 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266809AbTAIQP6>; Thu, 9 Jan 2003 11:15:58 -0500
+	id <S266794AbTAIQZ0>; Thu, 9 Jan 2003 11:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266810AbTAIQP6>; Thu, 9 Jan 2003 11:15:58 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:4996 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266809AbTAIQP4>;
-	Thu, 9 Jan 2003 11:15:56 -0500
-Date: Thu, 9 Jan 2003 08:20:36 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5 patch] correct help text for LOG_BUF_SHIFT
-In-Reply-To: <20030109121132.GP6626@fs.tum.de>
-Message-ID: <Pine.LNX.4.33L2.0301090818510.9978-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266796AbTAIQZ0>; Thu, 9 Jan 2003 11:25:26 -0500
+Received: from kilroy.chi.il.us ([205.243.139.239]:15497 "EHLO
+	kilroy.chi.il.us") by vger.kernel.org with ESMTP id <S266794AbTAIQZY>;
+	Thu, 9 Jan 2003 11:25:24 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in non-freedrivers?
+From: Edward Kuns <ekuns@kilroy.chi.il.us>
+To: linux-kernel@vger.kernel.org
+Cc: Edward Kuns <ekuns@kilroy.chi.il.us>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Jan 2003 10:36:24 -0600
+Message-Id: <1042130184.1944.44.camel@kilroy.chi.il.us>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, Adrian Bunk wrote:
+Richard Stallman (rms at gnu.org) said:
+> But if that doesn't work for you, I would not consider it a great loss
+> for the world if your products were not produced.  They contribute
+> something to the world if they are free software, but otherwise not.
 
-| On Thu, Jan 09, 2003 at 12:04:46PM +0100, Geert Uytterhoeven wrote:
-| > On Wed, 8 Jan 2003, Linus Torvalds wrote:
-| > > Andrew Morton <akpm@digeo.com>:
-| > >   o move LOG_BUF_SIZE to header/config
-| >
-| > I find the config a bit confusing:
-| >
-| > | Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW) ?
-| > | Select kernel log buffer size from this list (power of 2).
-| > | Defaults:  17 (=> 128 KB for S/390)
-| > |            16 (=> 64 KB for x86 NUMAQ or IA-64)
-| > |            15 (=> 32 KB for SMP)
-| > |            14 (=> 16 KB for uniprocessor)
-| > |
-| > | Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW)
-| >
-| > E.g. should I enter `14' or `16 KB' (or `16') for `16 KB'?
+Richard, you have stated eloquently and perhaps completely the divide
+between the FSF and the supporters of the Open Software movement.  You
+have also stated quite eloquently the exact reason that an Open Software
+movement exists.
 
-Sorry about that.
+You presume to speak to what is moral and ethical for everybody.  You
+speak as if your definition of "free" is the dictionary definition of
+"free."  You speak as if you alone (and those who fully toe your line)
+can decide what brings value to the world.
 
-| After reading init/Kconfig it seems the following was intended:
-|
-| --- linux-2.5.55/init/Kconfig.old	2003-01-09 13:06:43.000000000 +0100
-| +++ linux-2.5.55/init/Kconfig	2003-01-09 13:08:44.000000000 +0100
-| @@ -89,11 +89,11 @@
-|  	default LOG_BUF_SHIFT_15 if SMP
-|  	default LOG_BUF_SHIFT_14
-|  	help
-| -	  Select kernel log buffer size from this list (power of 2).
-| -	  Defaults:  17 (=> 128 KB for S/390)
-| -		     16 (=> 64 KB for x86 NUMAQ or IA-64)
-| -	             15 (=> 32 KB for SMP)
-| -	             14 (=> 16 KB for uniprocessor)
-| +	  Select kernel log buffer size from this list.
-| +	  Defaults:  128 KB for S/390
-| +		     64 KB for x86 NUMAQ or IA-64
-| +	             32 KB for SMP
-| +	             16 KB for uniprocessor
-|
-|  config LOG_BUF_SHIFT_17
-|  	bool "128 KB"
+Wow.
 
-I'd prefer the change that I sent Monday and is appended below.
-It only asks for a shift value, and only if DEBUG_KERNEL is enabled,
-like Linus asked for.
+I, for one, put my money where my mouth is.  I am squarely in the Open
+Software movement.  I support (with money) NVidia, Code Weavers, and in
+the past, 4 Front Technologies, for example.  If I were a commercial
+entity in need of the technologies that Andre brings to the table, I
+would gladly support his company by purchasing non-free (by your
+definition) products.  Note:  I refused to purchase NVidia graphics
+cards before the time when they released version 1.0 of their drivers. 
+If they ever stopped supporting their Linux drivers, I would immediately
+stop purchasing their hardware.  I vote with my wallet.
+
+*I* get to decide what brings value to me and what I consider to be
+freedom.  Richard, you don't get to define those values for me or for
+anybody else except those who *choose* to agree with your narrow
+definitions.
+
+It is true that the GNU model works for *many* large software projects. 
+This does not mean that it will work for *all* large software projects. 
+You agree with this and then say that the world would be better off by
+not having those products because they would have been done in the
+"usual grabbing way."
+
+Richard, you *do* understand why people compare your views to Communism,
+right?  I'm not saying such opinions are accurate or inaccurate, but
+Communism advocates public ownership of *all* property and you advocate
+public ownership of *all* software.  IMO, that is the core of the
+comparison that people make and you MUST already understand that, right?
+
+(OK, you don't advocate public ownership of software that is developed
+but never distributed.  Most software that concerns people in this arena
+is software that is distributed, so that point is irrelevant to this
+discussion.  No-one here is talking about such software.)
+
+I am glad that people are willing to produce "non-free" (by your
+definition) software.  I don't even always prefer "free" software to
+"non-free" software.  (quotes to indicate the FSF definition of "free"
+is being used.)  I evaluate each case, taking all options into account,
+and then choose what best fits my needs.  To me, THAT is freedom.  We
+would have substantially less freedom if the GNU project never existed,
+and I acknowledge and thank all from the GNU project for their
+contributions, past and present and future.  HOWEVER.  We would also
+have substantially less freedom if *all* distributable software was
+required to be GPL.  (Lack of quotes to indicate that I am NOT using the
+FSF definition.)
+
+This is my opinion but also the opinion of many here.  Richard, you are
+not going to change people's views on this.  The Open Source movement
+doesn't exist just because people hadn't thought "freedom" through
+completely yet.  It exists, in part at least, because people rejected
+the FSF definition of "freedom" after fully considering the issue.
+
+       Eddie
+
+P.S.  In the interests of moving off-topic conversions off the list, I
+will not publicly respond to any replies or any more of this thread.  I
+*will* privately respond to any replies, whether they are posted only to
+me or also to the list.  I just wanted to speak up once so that my
+silence could not possibly be construed by RMS or others as agreement. 
+If you wish a response from me, you must CC: me as I am not subscribed
+to this list.
 
 -- 
-~Randy
-
-
-
---- ./init/Kconfig%LGBUF	Mon Jan  6 16:01:55 2003
-+++ ./init/Kconfig	Mon Jan  6 16:38:35 2003
-@@ -82,50 +82,21 @@
- 	  building a kernel for install/rescue disks or your system is very
- 	  limited in memory.
-
--choice
--	prompt "Kernel log buffer size"
--	default LOG_BUF_SHIFT_17 if ARCH_S390
--	default LOG_BUF_SHIFT_16 if X86_NUMAQ || IA64
--	default LOG_BUF_SHIFT_15 if SMP
--	default LOG_BUF_SHIFT_14
--	help
--	  Select kernel log buffer size from this list (power of 2).
--	  Defaults:  17 (=> 128 KB for S/390)
--		     16 (=> 64 KB for x86 NUMAQ or IA-64)
--	             15 (=> 32 KB for SMP)
--	             14 (=> 16 KB for uniprocessor)
--
--config LOG_BUF_SHIFT_17
--	bool "128 KB"
--	default y if ARCH_S390
--
--config LOG_BUF_SHIFT_16
--	bool "64 KB"
--	default y if X86_NUMAQ || IA64
--
--config LOG_BUF_SHIFT_15
--	bool "32 KB"
--	default y if SMP
--
--config LOG_BUF_SHIFT_14
--	bool "16 KB"
--
--config LOG_BUF_SHIFT_13
--	bool "8 KB"
--
--config LOG_BUF_SHIFT_12
--	bool "4 KB"
--
--endchoice
--
- config LOG_BUF_SHIFT
--	int
--	default 17 if LOG_BUF_SHIFT_17=y
--	default 16 if LOG_BUF_SHIFT_16=y
--	default 15 if LOG_BUF_SHIFT_15=y
--	default 14 if LOG_BUF_SHIFT_14=y
--	default 13 if LOG_BUF_SHIFT_13=y
--	default 12 if LOG_BUF_SHIFT_12=y
-+	int "Kernel log buffer size" if DEBUG_KERNEL
-+	default 17 if ARCH_S390
-+	default 16 if X86_NUMAQ || IA64
-+	default 15 if SMP
-+	default 14
-+	help
-+	  Select kernel log buffer size as a power of 2.
-+	  Defaults and Examples:
-+	  	     17 => 128 KB for S/390
-+		     16 => 64 KB for x86 NUMAQ or IA-64
-+	             15 => 32 KB for SMP
-+	             14 => 16 KB for uniprocessor
-+		     13 =>  8 KB
-+		     12 =>  4 KB
-
- endmenu
-
-
+  Eddie Kuns  |  Home: ekuns@kilroy.chi.il.us
+--------------/  URL:  (none at the moment)
+  "Ah, savory cheese puffs, made inedible by time and fate."  -- The
+Tick

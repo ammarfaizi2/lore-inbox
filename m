@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316080AbSEZNld>; Sun, 26 May 2002 09:41:33 -0400
+	id <S316088AbSEZNvG>; Sun, 26 May 2002 09:51:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316086AbSEZNlc>; Sun, 26 May 2002 09:41:32 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:49904 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316080AbSEZNlc>; Sun, 26 May 2002 09:41:32 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <acm1vp$2ak$1@penguin.transmeta.com> 
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ehci-hcd on CARDBUS hangs when stopping card service 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 26 May 2002 14:41:30 +0100
-Message-ID: <28429.1022420490@redhat.com>
+	id <S316089AbSEZNvE>; Sun, 26 May 2002 09:51:04 -0400
+Received: from waste.org ([209.173.204.2]:56737 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S316088AbSEZNvE>;
+	Sun, 26 May 2002 09:51:04 -0400
+Date: Sun, 26 May 2002 08:50:55 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Robert Schwebel <robert@schwebel.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <Pine.LNX.4.44.0205252116240.1028-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0205260053000.2614-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 25 May 2002, Linus Torvalds wrote:
 
-torvalds@transmeta.com said:
-> > Is there a clean way to detect the "card ejected before anything
-> > calls pci_dev->remove()" case?  I don't really like the idea of
-> > wrapping code around every PCI register access to detect such cases.
+> On Sat, 25 May 2002, Oliver Xymoron wrote:
+> >
+> > I'm sure you know this route is not very useful - there's practically
+> > nothing that we can push across the hard RT divide anyway. We can't do
+> > meaningful filesystem I/O, memory allocation, networking, or VM fiddling -
+> > what's left?
+>
+> Atomic memory allocation, for one. Potentially very useful.
 
-> You don't have much choice with CardBus, I'm afraid.
+Dunno. That implies reservations on the Linux side - generally RT apps
+are going to be sensitive to memory exhaustion. Given that, it's easier
+just to budget for them all up front and carve that memory out at boot.
 
-You get an interrupt _before_ the card goes away, because the pins are of
-different lengths. 
+Not that I'm against a reservation scheme.  I've been arguing for one for
+a while to avoid deadlocks with network storage.
 
-As long as your driver API has some kind of abort() call to tell it that the
-device is no longer present, and you manage to call that within the few
-milliseconds between the card detect pin contact breaking and the rest of
-the pins breaking, you should be fine.
+> > Cleaning up soft RT latencies will make the vast majority of people who
+> > think they want hard RT happy anyway.
+>
+> I certainly personally agree with you, but the hard-liners don't.
 
-If you're sharing interrupts and have high interrupt latency, there may be a
-problem -- perhaps it would be better if in that case you could ensure that
-the socket IRQ handler gets run _before_ the device IRQ handler. 
+Making subsystems of the kernel RT-safe won't buy much for them and won't
+help latencies. The people who would want you to do that are from the
+buzzword camp.
 
->  Also, it's generally a good idea to "just say no" to endless loops in
-> drivers. Hardware bugs _do_ happen, and it's a lot more pleasant to
-> have the driver do a
-> 	printk("Device does not respond\n");
-> than for the kernel to hang.
-
-Too late. On some hardware, if you try to talk to the device once it's 
-gone, you're already dead. Not all the world is a PeeCee.
-
---
-dwmw2
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

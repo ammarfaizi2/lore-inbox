@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTBEPVN>; Wed, 5 Feb 2003 10:21:13 -0500
+	id <S261486AbTBEPYt>; Wed, 5 Feb 2003 10:24:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbTBEPVN>; Wed, 5 Feb 2003 10:21:13 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:54726 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261463AbTBEPVM>; Wed, 5 Feb 2003 10:21:12 -0500
-Date: Wed, 05 Feb 2003 07:30:08 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua,
-       Herman Oosthuysen <Herman@WirelessNetworksInc.com>
-cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: gcc 2.95 vs 3.21 performance
-Message-ID: <193350000.1044459007@[10.10.2.4]>
-In-Reply-To: <200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua>
-References: <200302042011.h14KBuG6002791@darkstar.example.net>
- <3E40264C.5050302@WirelessNetworksInc.com>
- <200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S261495AbTBEPYt>; Wed, 5 Feb 2003 10:24:49 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:51722 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261486AbTBEPYs>; Wed, 5 Feb 2003 10:24:48 -0500
+Date: Wed, 5 Feb 2003 15:34:17 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Cc: greg@kroah.com, torvalds@transmeta.com, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030205153417.A21675@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+	torvalds@transmeta.com, linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+References: <200302051500.KAA05879@moss-shockers.ncsc.mil>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302051500.KAA05879@moss-shockers.ncsc.mil>; from sds@epoch.ncsc.mil on Wed, Feb 05, 2003 at 10:00:23AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> GCC already went this way, i.e. it aligns functions and loops by
-> ridiculous (IMHO) amounts like 16 bytes. That's 7,5 bytes per alignment
-> on average. Now count lk functions and loops and mourn for lost icache.
-> Or just disassemble any .o module and read the damn code.
-> 
-> This is the primary reason why people report larger kernels for GCC 3.x
-> 
-> I am damn sure that if you compile with less sadistic alignment
-> you will get smaller *and* faster kernel.
+On Wed, Feb 05, 2003 at 10:00:23AM -0500, Stephen D. Smalley wrote:
+> No.  If one were to add such a field, then it would be accessible
+> through the ctl_table structure that is already passed to the hook.
 
-There's only one real way to know that. Do it, test it.
+It would.  But it shouldn't be passed in for the first time.
 
-M.
+> You would not replace the ctl_table parameter with the kernel's
+> sensitivity hint, since the security module must be able to make its
+> own determination as to the protection requirements based on its
+> particular security model and attributes.  If you only pass the
+> kernel's view of the sensitivity, then you are hardcoding a specific
+> policy into the kernel and severely limiting the flexibility of the
+> security module.
+
+Yes, and exactly that's the whole point of it!  The problem with LSM
+is that it tries to be overly flexible and thus adds random hooks that
+expose internal details all over the place.  Just stop that silly no policy
+approach and life will get a lot simpler.  There's no reason to implement
+everything and a kitchen sink in LSM.
+
+Since the kernel's hint is necessarily independent of
+> any particular security model/attributes, it will only provide a
+> coarse-grained partitioning, e.g. you are unlikely to be able to
+> uniquely distinguish the modprobe variable if you want to specifically
+> limit a particular process to modifying it.  The existing hook
+> interface does not need to change.
+
+If you need attributes attached to the sysctl nodes just diable sysctl by
+number and use the existing filesystem based hooks.
 

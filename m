@@ -1,101 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVAWC6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVAWC7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVAWC6t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 21:58:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVAWC6t
+	id S261191AbVAWC7f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 21:59:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVAWC7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 21:58:49 -0500
-Received: from main.gmane.org ([80.91.229.2]:32954 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261190AbVAWC6p (ORCPT
+	Sat, 22 Jan 2005 21:59:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:734 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261191AbVAWC7H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 21:58:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: 2.6 more picky about IDE drives than 2.4 ?
-Date: Sun, 23 Jan 2005 04:00:52 +0100
-Message-ID: <csv3ss$a4m$1@sea.gmane.org>
+	Sat, 22 Jan 2005 21:59:07 -0500
+Date: Sat, 22 Jan 2005 18:58:47 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Jack O'Quin" <joq@io.com>, Ingo Molnar <mingo@elte.hu>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+Message-ID: <20050122185847.R24171@build.pdx.osdl.net>
+References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <41F306B0.7050306@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsl-082-083-000-032.arcor-ip.net
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: de, en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <41F306B0.7050306@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sun, Jan 23, 2005 at 01:06:40PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+* Nick Piggin (nickpiggin@yahoo.com.au) wrote:
+> Jack O'Quin wrote:
+> 
+> > Chris Wright and Arjan van de Ven have outlined a proposal to address
+> > the privilege issue using rlimits.  This is still the only workable
+> > alternative to the realtime LSM on the table.  If the decision were up
+> > to me, I would choose the simplicity and better security of the LSM.
+> > But their approach is adequate, if implemented in a timely fashion.  I
+> > would like to see some progress on this in addition to the scheduler
+> > work.  People still need SCHED_FIFO for some applications.
+> > 
+> 
+> I think this is a pretty sane and minimally intrusive (for the kernel)
+> way to support what you want.
 
-i have many problems with kernel 2.6.10 since it won't run stable with 
-an IDE-device. It's an internal IDE-RAID subsystem. The DMA is 
-frequently disabled, and even writes/reads fail and the kernel reports 
-I/O-Errors for many sectors. The RAID-device doesn't report any errors 
-it it's own event-log. You can have a closer look at the error-messages 
-below.
+Here's an untested respin against current bk.
 
-I'm mailing to the LKML, since i haven't been abled to reproduce the 
-problem with a kernel 2.4 bases system, but it randomly happens with 2.6 
-kernels. Let's take the latest Knoppix as an example (it comes with both 
-kernels):
-- if i boot kernel 2.4, i can stress test the harddisk as much as i 
-want. the kernel does report any problem and it doesn't disable DMA well
-- if i boot kernel 2.6, after a while, there are the error-message below 
-in the log. "hdparm -k1" doesn't help, the kernel will disable DMA mode. 
-There was a also a bigger problems for two times now, where the kernel 
-refused to write to the devide, due to the I/O-Errors below. I'm very 
-sad, that i haven't the log-lines prior to the I/O-Errors.
+thanks,
+-chris
 
-I testes the RAID-subsystem with two different PC-systems. Always the 
-same result: 2.4 works, 2.6 does not. It's hard for me to reproduce the 
-Errors through. I'm still writing an application to reliably reproduce 
-them :-( Does anybody know a good stress-test perhaps? Sequential 
-reading doesn't seem to do the trick.
-
-What changes have been applied to the IDE subsystem from kernel 2.4 to 
-kernel 2.6? What may cause this different behaviour? What does 
-"status=0x51" mean? And why is "error=0x00" although the Error-Bit in 
-the status-byte has been set. (i guess this is what status=0x51 means).
-
-How can the behaviour of kernel 2.6 be reverted to the behaviour of 
-kernel 2.4? I already tried "hda=nowerr" in the append-line, but it 
-doesn't help either. Is it a Bug of kernel 2.6, or should i smash the 
-manufactures doors, to make them release a firmware-update of the 
-RAID-subsystem since it reports strange values to the OS?
-
-
-The first kind of errors:
-
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x00 { }
-ide: failed opcode was: unknown
-hda: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: recal_intr: error=0x00 { }
-ide: failed opcode was: unknown
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x00 { }
-ide: failed opcode was: unknown
-hda: DMA disabled
-ide0: reset: success
-
-"dmesg" after with bigger problems:
-
-end_request: I/O error, dev hdc, sector 709679458
-ReiserFS: hdc3: warning: vs-13070: reiserfs_read_locked_inode: i/o 
-failure occurred trying to find stat data of [1018017 1018816 0x0 SD]
-ReiserFS: hdc3: warning: clm-6006: writing inode 283 on readonly FS
-end_request: I/O error, dev hdc, sector 705275426
-ReiserFS: hdc3: warning: vs-13070: reiserfs_read_locked_inode: i/o 
-failure occurred trying to find stat data of [1018017 1018708 0x0 SD]
-ReiserFS: hdc3: warning: clm-6006: writing inode 283 on readonly FS
-end_request: I/O error, dev hdc, sector 709687130
-ReiserFS: hdc3: warning: vs-13070: reiserfs_read_locked_inode: i/o 
-failure occurred trying to find stat data of [1018017 1018817 0x0 SD]
-ReiserFS: hdc3: warning: clm-6006: writing inode 283 on readonly FS
-end_request: I/O error, dev hdc, sector 709695114
-ReiserFS: hdc3: warning: vs-13070: reiserfs_read_locked_inode: i/o 
-failure occurred trying to find stat data of [1018017 1018818 0x0 SD]
-ReiserFS: hdc3: warning: clm-6006: writing inode 283 on readonly FS
-end_request: I/O error, dev hdc, sector 709107250
-...
-
+===== include/asm-generic/resource.h 1.1 vs edited =====
+--- 1.1/include/asm-generic/resource.h	2005-01-20 21:00:51 -08:00
++++ edited/include/asm-generic/resource.h	2005-01-22 18:54:58 -08:00
+@@ -20,8 +20,11 @@
+ #define RLIMIT_LOCKS		10	/* maximum file locks held */
+ #define RLIMIT_SIGPENDING	11	/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE		12	/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS		13
++#define RLIMIT_NICE		13	/* max nice prio allowed to raise to
++					   0-39 for nice level 19 .. -20 */
++#define RLIMIT_RTPRIO		14	/* maximum realtime priority */
++  
++#define RLIM_NLIMITS		15
+ #endif
+ 
+ /*
+@@ -53,6 +56,8 @@
+ 	[RLIMIT_LOCKS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+ 	[RLIMIT_SIGPENDING]	= { MAX_SIGPENDING, MAX_SIGPENDING },	\
+ 	[RLIMIT_MSGQUEUE]	= { MQ_BYTES_MAX, MQ_BYTES_MAX },	\
++	[RLIMIT_NICE]		= {             0,             0 },	\
++	[RLIMIT_RTPRIO]		= {             0,             0 },	\
+ }
+ 
+ #endif	/* __KERNEL__ */
+===== include/asm-alpha/resource.h 1.6 vs edited =====
+--- 1.6/include/asm-alpha/resource.h	2005-01-20 21:00:50 -08:00
++++ edited/include/asm-alpha/resource.h	2005-01-22 18:58:04 -08:00
+@@ -18,8 +18,11 @@
+ #define RLIMIT_LOCKS	10		/* maximum file locks held */
+ #define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS	13
++#define RLIMIT_NICE	13		/* max nice prio allowed to raise to
++					   0-39 for nice level 19 .. -20 */
++#define RLIMIT_RTPRIO	14		/* maximum realtime priority */
++ 
++#define RLIM_NLIMITS	15
+ #define __ARCH_RLIMIT_ORDER
+ 
+ /*
+===== include/asm-mips/resource.h 1.8 vs edited =====
+--- 1.8/include/asm-mips/resource.h	2005-01-20 21:00:50 -08:00
++++ edited/include/asm-mips/resource.h	2005-01-22 18:59:29 -08:00
+@@ -25,8 +25,11 @@
+ #define RLIMIT_LOCKS 10			/* maximum file locks held */
+ #define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
++#define RLIMIT_NICE 13			/* max nice prio allowed to raise to
++					   0-39 for nice level 19 .. -20 */
++#define RLIMIT_RTPRIO 14		/* maximum realtime priority */
+ 
+-#define RLIM_NLIMITS 13			/* Number of limit flavors.  */
++#define RLIM_NLIMITS 15			/* Number of limit flavors.  */
+ #define __ARCH_RLIMIT_ORDER
+ 
+ /*
+===== include/asm-sparc/resource.h 1.6 vs edited =====
+--- 1.6/include/asm-sparc/resource.h	2005-01-20 21:00:50 -08:00
++++ edited/include/asm-sparc/resource.h	2005-01-22 19:00:07 -08:00
+@@ -24,8 +24,11 @@
+ #define RLIMIT_LOCKS	10		/* maximum file locks held */
+ #define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
++#define RLIMIT_NICE	13		/* max nice prio allowed to raise to
++					   0-39 for nice level 19 .. -20 */
++#define RLIMIT_RTPRIO	14		/* maximum realtime priority */
+ 
+-#define RLIM_NLIMITS	13
++#define RLIM_NLIMITS	15
+ #define __ARCH_RLIMIT_ORDER
+ 
+ /*
+===== include/asm-sparc64/resource.h 1.6 vs edited =====
+--- 1.6/include/asm-sparc64/resource.h	2005-01-20 21:00:50 -08:00
++++ edited/include/asm-sparc64/resource.h	2005-01-22 19:00:41 -08:00
+@@ -24,8 +24,11 @@
+ #define RLIMIT_LOCKS	10		/* maximum file locks held */
+ #define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
++#define RLIMIT_NICE	13		/* max nice prio allowed to raise to
++					   0-39 for nice level 19 .. -20 */
++#define RLIMIT_RTPRIO	14		/* maximum realtime priority */
+ 
+-#define RLIM_NLIMITS	13
++#define RLIM_NLIMITS	15
+ #define __ARCH_RLIMIT_ORDER
+ 
+ #include <asm-generic/resource.h>
+===== include/linux/sched.h 1.274 vs edited =====
+--- 1.274/include/linux/sched.h	2005-01-18 12:27:58 -08:00
++++ edited/include/linux/sched.h	2005-01-22 18:52:07 -08:00
+@@ -767,6 +767,7 @@ extern void sched_idle_next(void);
+ extern void set_user_nice(task_t *p, long nice);
+ extern int task_prio(const task_t *p);
+ extern int task_nice(const task_t *p);
++extern int can_nice(const task_t *p, const int nice);
+ extern int task_curr(const task_t *p);
+ extern int idle_cpu(int cpu);
+ extern int sched_setscheduler(struct task_struct *, int, struct sched_param *);
+===== kernel/sched.c 1.387 vs edited =====
+--- 1.387/kernel/sched.c	2005-01-20 16:00:00 -08:00
++++ edited/kernel/sched.c	2005-01-22 18:52:07 -08:00
+@@ -3220,6 +3220,19 @@ out_unlock:
+ 
+ EXPORT_SYMBOL(set_user_nice);
+ 
++/**
++ * can_nice - check if a task can reduce its nice value
++   @p: task
++ * @nice: nice value
++ */
++int can_nice(const task_t *p, const int nice)
++{
++	/* convert nice value [19,-20] to rlimit style value [0,39] */
++	int nice_rlim = 19 - nice;
++	return (nice_rlim <= p->signal->rlim[RLIMIT_NICE].rlim_cur || 
++		capable(CAP_SYS_NICE));
++}
++
+ #ifdef __ARCH_WANT_SYS_NICE
+ 
+ /*
+@@ -3239,12 +3252,8 @@ asmlinkage long sys_nice(int increment)
+ 	 * We don't have to worry. Conceptually one call occurs first
+ 	 * and we have a single winner.
+ 	 */
+-	if (increment < 0) {
+-		if (!capable(CAP_SYS_NICE))
+-			return -EPERM;
+-		if (increment < -40)
+-			increment = -40;
+-	}
++	if (increment < -40)
++		increment = -40;
+ 	if (increment > 40)
+ 		increment = 40;
+ 
+@@ -3254,6 +3263,9 @@ asmlinkage long sys_nice(int increment)
+ 	if (nice > 19)
+ 		nice = 19;
+ 
++	if (increment < 0 && !can_nice(current, nice))
++		return -EPERM;
++
+ 	retval = security_task_setnice(current, nice);
+ 	if (retval)
+ 		return retval;
+@@ -3369,6 +3381,7 @@ recheck:
+ 		return -EINVAL;
+ 
+ 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
++	    param->sched_priority > p->signal->rlim[RLIMIT_RTPRIO].rlim_cur && 
+ 	    !capable(CAP_SYS_NICE))
+ 		return -EPERM;
+ 	if ((current->euid != p->euid) && (current->euid != p->uid) &&
+===== kernel/sys.c 1.104 vs edited =====
+--- 1.104/kernel/sys.c	2005-01-11 16:42:35 -08:00
++++ edited/kernel/sys.c	2005-01-22 18:52:07 -08:00
+@@ -225,7 +225,7 @@ static int set_one_prio(struct task_stru
+ 		error = -EPERM;
+ 		goto out;
+ 	}
+-	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
++	if (niceval < task_nice(p) && !can_nice(p, niceval)) {
+ 		error = -EACCES;
+ 		goto out;
+ 	}

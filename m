@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbUCSXUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 18:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUCSXUq
+	id S263144AbUCSX0C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 18:26:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbUCSX0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 18:20:46 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:25286 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263178AbUCSXUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 18:20:45 -0500
-Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
-From: Len Brown <len.brown@intel.com>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: Thomas Schlichter <thomas.schlichter@web.de>, ross@datscreative.com.au,
-       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org
-In-Reply-To: <405B4893.70701@gmx.de>
-References: <200403181019.02636.ross@datscreative.com.au>
-	 <200403191955.38059.thomas.schlichter@web.de>  <405B4893.70701@gmx.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079738422.7279.308.camel@dhcppc4>
+	Fri, 19 Mar 2004 18:26:02 -0500
+Received: from [62.81.186.19] ([62.81.186.19]:47755 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S263144AbUCSXZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 18:25:59 -0500
+Date: Sat, 20 Mar 2004 00:25:48 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jens Axboe <axboe@suse.de>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Eric Valette <eric.valette@free.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-mm2 : Badness in elv_requeue_request at drivers/block/elevator.c:157
+Message-ID: <20040319232548.GA29690@werewolf.able.es>
+References: <40596FC5.3080703@free.fr> <20040318100222.GE22234@suse.de> <20040318100606.GG22234@suse.de> <20040318231957.GA3867@werewolf.able.es> <20040319073716.GX22234@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 19 Mar 2004 18:20:22 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040319073716.GX22234@suse.de> (from axboe@suse.de on Fri, Mar 19, 2004 at 08:37:17 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-19 at 14:22, Prakash K. Cheemplavam wrote:
 
-> Hmm, I just did a cat /proc/acpi/processor/CPU0/power:
-> active state:            C1
-> default state:           C1
-> bus master activity:     00000000
-> states:
->     *C1:                  promotion[--] demotion[--] latency[000] 
-> usage[00000000]
->      C2:                  <not supported>
->      C3:                  <not supported>
+On 03.19, Jens Axboe wrote:
+> On Fri, Mar 19 2004, J.A. Magallon wrote:
+> > 
+> > On 03.18, Jens Axboe wrote:
+> > > On Thu, Mar 18 2004, Jens Axboe wrote:
+> > > > On Thu, Mar 18 2004, Eric Valette wrote:
+> > > > > I have this message two times as I have two adaptec controllers...
+> > > > > 
+> > 
+> > I have a similar but different place oops. My box was dog slow with -mm2,
+> > and syslog was flooded with:
+> > 
+> > Mar 18 20:00:00 werewolf kernel: Badness in elv_remove_request at drivers/block/elevator.c:249
+> > Mar 18 20:00:00 werewolf kernel: Call Trace:
+> > Mar 18 20:00:00 werewolf kernel:  [elv_remove_request+156/160] elv_remove_request+0x9c/0xa0
 > 
-> I am currently NOT using APIC mode (nforce2, as well) and using vanilla 
-> 2.6.4. It seems C1 halt state isn't used, which exlains why I am having 
-> trouble to keep my CPU cooler these day. I once started a thread 
-> suspecting acpi timer, but it is not the case. It seems to be something 
-> else. As I don't use PIC, it cannot be that  8259-timer-ack-fix.patch 
-> causin git, or can it? Maybe something broken in ACPI? I might try out 
-> older kernels to find out...
+> Tell me a bit about your io setup please, ide/scsi, raid, what?
 > 
-> Prakash
 
-Actually I think it is that we don't _count_ C1 usage.
+Simple scsi (no raid, no md), on an 2940.
+Anyways, the patch you posted made everything work fine again.
+Thanks. 
 
-cheers,
--Len
-
-
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Community) for i586
+Linux 2.6.5-rc1-jam2 (gcc 3.4.0 (Mandrake Linux 10.0 3.4.0-0.4mdk))

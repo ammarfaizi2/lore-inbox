@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbUDPPHY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 11:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbUDPPHY
+	id S263309AbUDPPLr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 11:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbUDPPLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 11:07:24 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9640 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263280AbUDPPHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 11:07:22 -0400
-Date: Fri, 16 Apr 2004 17:00:27 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, announce@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] x86-64 2.4 tree in strict maintenance mode now
-Message-ID: <20040416150027.GQ468@openzaurus.ucw.cz>
-References: <20040414174353.1dcbda16.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040414174353.1dcbda16.ak@suse.de>
-User-Agent: Mutt/1.3.27i
+	Fri, 16 Apr 2004 11:11:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9432 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263309AbUDPPLp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 11:11:45 -0400
+Message-Id: <200404161511.i3GFBX213703@mail.osdl.org>
+Date: Fri, 16 Apr 2004 07:51:53 -0700 (PDT)
+From: markw@osdl.org
+Subject: Re: 2.6.5-mm5
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, mingo@elte.hu
+In-Reply-To: <20040415124255.4bde2f1f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 15 Apr, Andrew Morton wrote:
+> Could we see 2.6.6-rc1 numbers please?
 
-> I will also not add workarounds for broken hardware to 2.4 anymore unless the change
-> is very simple and obvious (and even then it may be not worth it)
+I have a result on ext2 with 2.6.6-rc1 that looks good:
+	http://developer.osdl.org/markw/fs/dbt2_project_results.html
 
-This looks even more strict than Marcelo's rules... Is it wise?
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+           ext2  ext3
+2.6.6-rc1  2385
+2.6.5-mm5  2165  1933
+2.6.5-mm4  2180
+2.6.5-mm3  2165  1930
+2.6.5      2385
 
+I'll run one for ext3 too.
+
+Mark

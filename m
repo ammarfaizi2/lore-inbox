@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265433AbRFVPPB>; Fri, 22 Jun 2001 11:15:01 -0400
+	id <S265446AbRFVPRl>; Fri, 22 Jun 2001 11:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265446AbRFVPOv>; Fri, 22 Jun 2001 11:14:51 -0400
-Received: from mail.frontsite.de ([212.3.154.50]:39440 "HELO mail.frontsite.de")
-	by vger.kernel.org with SMTP id <S265433AbRFVPOl> convert rfc822-to-8bit;
-	Fri, 22 Jun 2001 11:14:41 -0400
-Message-ID: <3B335D8D.BBFFE309@frontsite.de>
-Date: Fri, 22 Jun 2001 17:00:29 +0200
-From: Matthias Welwarsky <matthias.welwarsky@frontsite.de>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.14 i586)
-X-Accept-Language: en, de-DE, ja
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: Guy Van Den Bergh <guy.vandenbergh@pandora.be>,
-        linux-kernel@vger.kernel.org, Holger Kiehl <Holger.Kiehl@dwd.de>,
-        "David S. Miller" <davem@redhat.com>,
-        VLAN Mailing List <vlan@Scry.WANfear.com>,
-        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
-        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
-Subject: Re: [Vlan-devel] Should VLANs be devices or something else?
-In-Reply-To: <Pine.LNX.4.30.0106191016200.27487-100000@talentix.dwd.de> <3B2FCE0C.67715139@candelatech.com> <3B3270C4.3080103@pandora.be> <3B327B2A.26DBC2C4@candelatech.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S265447AbRFVPRV>; Fri, 22 Jun 2001 11:17:21 -0400
+Received: from [207.213.212.4] ([207.213.212.4]:45198 "EHLO geos.coastside.net")
+	by vger.kernel.org with ESMTP id <S265446AbRFVPRM>;
+	Fri, 22 Jun 2001 11:17:12 -0400
+Mime-Version: 1.0
+Message-Id: <p05100301b759107790aa@[207.213.214.37]>
+In-Reply-To: <20010622134357.D641@arthur.ubicom.tudelft.nl>
+In-Reply-To: <200106220230.WAA11443@smarty.smart.net>
+ <20010622134357.D641@arthur.ubicom.tudelft.nl>
+Date: Fri, 22 Jun 2001 08:16:19 -0700
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        Rick Hohensee <humbubba@smarty.smart.net>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: mktime in include/linux
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+At 1:43 PM +0200 2001-06-22, Erik Mouw wrote:
+>On Thu, Jun 21, 2001 at 10:30:40PM -0400, Rick Hohensee wrote:
+>>  Why does Linux have a mktime routine fully coded in linux/time.h that
+>>  conflicts directly with the ANSI C standard library routine of the same
+>>  name? It breaks a couple things against libc5, including gcc 3.0. OK, you
+>>  don't care about libc5. It's still pretty weird. Wierd? Weird.
+>
+>This has been brought up many times on this list: you are not supposed
+>to include kernel headers in userland.
 
-Can I use CBQ with VLans? It should be possible if they are devices, has
-anybody tried this yet?
+That's not the problem, I think. Most of time.h, including the 
+definition of mktime, is #ifdef __KERNEL__, so it shouldn't be 
+breaking anything in userland even if you do include it. And you 
+might, in order to obtain the interface definition of struct 
+timespec. What's weird is: why is __KERNEL__ getting #defined in 
+Rick's userland?
 
-regards,
-    Matthias Welwarsky
-
---
------------------------------------------------------------------------
-Matthias Welwarsky               mail: matthias.welwarsky@frontsite.de
-System Engineer
-
-frontsite AG
-Gesellschaft für Informationstechnologie  tel.: +49 6151 - 86 00 00
-Gutenbergstraße 10                        fax.: +49 6151 - 86 00 499
-64331 Weiterstadt                         web: http://www.frontsite.de
------------------------------------------------------------------------
-
-
-
+There can't, of course, be any blanket prohibition against using 
+kernel headers in userland. Think about ioctl.h, for example.
+-- 
+/Jonathan Lundell.

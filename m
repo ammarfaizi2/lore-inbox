@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265275AbUBPBSu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 20:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265284AbUBPBSu
+	id S265289AbUBPBPW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 20:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbUBPBPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 20:18:50 -0500
-Received: from [217.7.64.198] ([217.7.64.198]:56710 "EHLO mx1.net4u.de")
-	by vger.kernel.org with ESMTP id S265275AbUBPBSs (ORCPT
+	Sun, 15 Feb 2004 20:15:22 -0500
+Received: from may.nosdns.com ([207.44.240.96]:4751 "EHLO may.nosdns.com")
+	by vger.kernel.org with ESMTP id S265289AbUBPBPS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 20:18:48 -0500
-From: Ernst Herzberg <earny@net4u.de>
-Reply-To: earny@net4u.de
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Linux 2.6.3-rc3
-Date: Mon, 16 Feb 2004 02:18:44 +0100
-User-Agent: KMail/1.6
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org> <200402160138.02212.earny@net4u.de> <1076892215.6957.141.camel@gaston>
-In-Reply-To: <1076892215.6957.141.camel@gaston>
+	Sun, 15 Feb 2004 20:15:18 -0500
+Date: Sun, 15 Feb 2004 18:14:17 -0700
+From: Elikster <elik@webspires.com>
+X-Mailer: The Bat! (v2.02.3 CE) Personal
+Reply-To: Elikster <elik@webspires.com>
+Organization: WebSpires Technologies
+X-Priority: 3 (Normal)
+Message-ID: <121605967.20040215181417@webspires.com>
+To: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re[3]: e1000 problems in 2.6.x
+In-Reply-To: <20040215152057.GA582@xeon2.local.here>
+References: <20040215152057.GA582@xeon2.local.here>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402160218.44351.earny@net4u.de>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - may.nosdns.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - webspires.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Montag, 16. Februar 2004 01:43, Benjamin Herrenschmidt wrote:
-> On Mon, 2004-02-16 at 11:38, Ernst Herzberg wrote:
-> > On Montag, 16. Februar 2004 01:29, Ernst Herzberg wrote:
-> >
-> > Haaaalt! Yes, works, __but__:
-> >
-> > If you start X, the console is gone. No recovery but reboot possible.
->
-> Using ATI binary drivers or XFree ones ? What XFree version ? X
-> loves to screw things up on console save/restore in interesting
-> ways. I think it +/- puts the chip back into some VGA mode...
->
-> Another patch I posted earlier (copied below) _might_ help as it
-> force radeonfb to reprogram the mode. Let me know.
+Hello Klaus,
 
-Sorry, does not work. Previous attached patch does not help.
+   Hmmm..that might explains it, since I don't use NAPI enabled on the E1000 and it works fine without in the 2.4.x series kernels, but under 2.6, it barfs half the time.
 
-I'm _not_ using any binary drivers, as far as i know ;-)
-I'm using gentoo stable,  i don't know exactly which patches are applied to 
-the x-server:-)
+Sunday, February 15, 2004, 8:20:57 AM, you wrote:
 
-relevant entries in this config:
+KD> I have a Tyan-S2665 mobo which has an intergrated
+KD> e1000 and I never saw such errors with 2.6 kernels. 
 
-Section "Device"
-        Identifier  "Card0"
-        Driver      "vesa"
-        VendorName  "ATI Technologies Inc"
-        BoardName   "Unknown Board"
-        BusID       "PCI:1:0:0"
-EndSection
+KD> I use it with 100-MBit Full-Duplex in a switched 
+KD> private network.
 
-~Earny
+KD> CONFIG_IP_MULTICAST=y
+KD> CONFIG_E1000=y
+KD> CONFIG_E1000_NAPI=y
+
+
+
+
+-- 
+Best regards,
+ Elikster                            mailto:elik@webspires.com
+

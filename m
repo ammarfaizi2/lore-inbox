@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132976AbRBEPTx>; Mon, 5 Feb 2001 10:19:53 -0500
+	id <S132990AbRBEPaz>; Mon, 5 Feb 2001 10:30:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132990AbRBEPTm>; Mon, 5 Feb 2001 10:19:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21252 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132976AbRBEPTk>; Mon, 5 Feb 2001 10:19:40 -0500
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-To: sct@redhat.com (Stephen C. Tweedie)
-Date: Mon, 5 Feb 2001 15:19:09 +0000 (GMT)
-Cc: manfred@colorfullife.com (Manfred Spraul),
-        sct@redhat.com (Stephen C. Tweedie),
-        torvalds@transmeta.com (Linus Torvalds),
-        hch@caldera.de (Christoph Hellwig), lord@sgi.com (Steve Lord),
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <20010205150354.E1167@redhat.com> from "Stephen C. Tweedie" at Feb 05, 2001 03:03:54 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S133053AbRBEPap>; Mon, 5 Feb 2001 10:30:45 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:46900 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S132990AbRBEPam>;
+	Mon, 5 Feb 2001 10:30:42 -0500
+Message-ID: <20010205163024.A19399@win.tue.nl>
+Date: Mon, 5 Feb 2001 16:30:24 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org, rbrito@iname.com
+Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't work)
+In-Reply-To: <20010203230544.A549@MourOnLine.dnsalias.org> <20010205020952.B1276@suse.de> <20010205013424.A15384@iname.com> <20010205144043.H849@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14PnQ8-0003WC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010205144043.H849@nightmaster.csn.tu-chemnitz.de>; from Ingo Oeser on Mon, Feb 05, 2001 at 02:40:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, it's the sort of thing that you would hope should work, but in
-> practice it's not reliable.
 
-So the less smart devices need to call something like
+> On Mon, Feb 05, 2001 at 01:34:24AM -0200, Rogerio Brito wrote:
+> > 	Well, this has nothing to do with the above, but is there any
+> > 	utility or /proc entry that lets me say to my CD drive that it
+> > 	should not work at full speed?
 
-	kiovec_align(kiovec, 512);
-
-and have it do the bounce buffers ?
-
-
+I missed the original post, but there is a mount flag "-o speed="
+for precisely this purpose.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

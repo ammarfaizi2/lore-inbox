@@ -1,59 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUHCXEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266882AbUHCXJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUHCXEM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 19:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUHCXEM
+	id S266882AbUHCXJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 19:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUHCXJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 19:04:12 -0400
-Received: from smtp06.ya.com ([62.151.11.163]:62137 "EHLO smtp.ya.com")
-	by vger.kernel.org with ESMTP id S261184AbUHCXEJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 19:04:09 -0400
-From: Luis Miguel =?iso-8859-1?q?Garc=EDa_Mancebo?= <ktech@wanadoo.es>
-To: Greg KH <greg@kroah.com>
-Subject: Re: USB troubles in rc2
-Date: Wed, 4 Aug 2004 01:04:00 +0200
-User-Agent: KMail/1.6.82
-Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <200408022100.54850.ktech@wanadoo.es> <200408031046.57137.ktech@wanadoo.es> <20040803135730.GB13390@kroah.com>
-In-Reply-To: <20040803135730.GB13390@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200408040104.00177.ktech@wanadoo.es>
+	Tue, 3 Aug 2004 19:09:56 -0400
+Received: from mail-out.m-online.net ([212.18.0.9]:414 "EHLO
+	mail-out.m-online.net") by vger.kernel.org with ESMTP
+	id S266882AbUHCXJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 19:09:55 -0400
+Subject: Re: Tuning (stv0299.ko) with SkyStar2/DVB not working with
+	2.6.8-rc* anymore
+From: Florian Huber <florian.huber@mnet-online.de>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1090750814.17579.15.camel@suprafluid.huber.lan>
+References: <1090750814.17579.15.camel@suprafluid.huber.lan>
+Content-Type: text/plain
+Message-Id: <1091574593.24571.13.camel@suprafluid.huber.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 04 Aug 2004 01:09:53 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Martes, 3 de Agosto de 2004 15:57, Greg KH escribió:
-> On Tue, Aug 03, 2004 at 10:46:57AM +0200, Luis Miguel Garc?a Mancebo wrote:
-> > With 2.6.7-mm7 don't work either, but I can revert the bk-usb.patch in
-> > the andrew tree and all works ok. Even the camera:
->
-> So 2.6.7 (with no patches) worked for you?  Did 2.6.8-rc1 break?  Or was
-> it 2.6.8-rc2 that broke your box?
->
-> thanks,
->
-> greg k-h
+My problem seems to be solved with some 2.6.8-rc2-mm2 and 2.6.8-rc3.
 
-I have been testing various kernels. Here's the restult:
+But the major device node change from 250 to 212 should be emphasized.
+Without the obsolete devfs it is not that easy to find out the new
+device node for an average user.
 
-2.6.7-mm7   DON'T WORK
-2.6.7-mm7 (with bk-usb.patch reverted) WORKS
+   Florian
 
-2.6.7-rc1    DON'T WORK
-2.6.7-rc2    DON'T WORK
-
-
-So I think the problems started on vanilla in 2.6.8-rc1 but was already there 
-in 2.6.7-mm7.
-
-Thanks  a lot. Any patch do you want for me to test?
-
--- 
-Luis Miguel García Mancebo
-Universidad de Deusto / Deusto University
-Spain

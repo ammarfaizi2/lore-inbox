@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbRBWVop>; Fri, 23 Feb 2001 16:44:45 -0500
+	id <S129211AbRBWVnz>; Fri, 23 Feb 2001 16:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129291AbRBWVoi>; Fri, 23 Feb 2001 16:44:38 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17934 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129232AbRBWVo1>; Fri, 23 Feb 2001 16:44:27 -0500
-Message-ID: <3A96D9AE.C320EC1@transmeta.com>
-Date: Fri, 23 Feb 2001 13:44:14 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129232AbRBWVnq>; Fri, 23 Feb 2001 16:43:46 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:4363 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S129211AbRBWVn0>;
+	Fri, 23 Feb 2001 16:43:26 -0500
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Fri, 23 Feb 2001 20:14:40 +0000 (GMT)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: Francis Galiegue <fg@mandrakesoft.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.1-ac16: add CDROM_LOCKDOOR ioctl to IDE floppies
+In-Reply-To: <Pine.LNX.4.21.0102191406060.884-100000@toy.mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0102232009180.31418-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Quim K Holland <qkholland@my-deja.com>
-CC: dledford@redhat.com, hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: cpu_has_fxsr or cpu_has_xmm?
-In-Reply-To: <200102232051.MAA18803@mail17.bigmailbox.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quim K Holland wrote:
-> 
-> DL> As to the correctness, the mxcsr register really only exists
-> DL> if you have xmm, so the xmm is the correct test. However,...
-> 
-> DL> ...  User space programmers should be checking for xmm
-> DL> capability themselves before ever paying attention to mxcsr
-> DL> anyway, so it's not an end of the world error.
-> 
-> If that is the case, wouldn't it be simpler to always return
-> tsk->thread.i387.fxsave.mxcsr from this function, and initialize
-> that field to 0x1f80 (whatever that magic number means) when
-> the structure is built?
-> 
+Francis, do I understand that you can remove the disk while it is
+mounted? If so, there is a later version of ide-floppy.c (0.96) on
+sourceforge.net which for some reason hasn't made it into the -ac kernels.
+With 2.4.2 vanilla and ide-floppy 0.96 I don't get this problem, it also
+removes some i/o error messages I was seeing.
+Ken
 
-No, because the CPU *may* overwrite it when you do an FXSAVE.
+On Mon, 19 Feb 2001, Francis Galiegue wrote:
 
-	-hpa
+> Patch below. It Work For Me(tm) with an IDE ZIP drive.
+> 
+> --- drivers/ide/ide-floppy.c.old        Mon Feb 19 13:39:55 2001
+> +++ drivers/ide/ide-floppy.c    Mon Feb 19 13:48:53 2001
+> @@ -1517,15 +1517,21 @@
+>                                  unsigned int cmd, unsigned long arg)
+>  {
+>         idefloppy_pc_t pc;
+> +       int prevent = (arg) ? 1 : 0;
+> 
+>         switch (cmd) {
+>         case CDROMEJECT:
+> +               prevent = 0;
+> +               /* fall through */
+> +       case CDROM_LOCKDOOR:
+>                 if (drive->usage > 1)
+>                         return -EBUSY;
+> -               idefloppy_create_prevent_cmd (&pc, 0);
+> -               (void) idefloppy_queue_pc_tail (drive, &pc);
+> -               idefloppy_create_start_stop_cmd (&pc, 2);
+> +               idefloppy_create_prevent_cmd (&pc, prevent);
+>                 (void) idefloppy_queue_pc_tail (drive, &pc);
+> +               if (cmd == CDROMEJECT) {
+> +                       idefloppy_create_start_stop_cmd (&pc, 2);
+> +                       (void) idefloppy_queue_pc_tail (drive, &pc);
+> +               }
+>                 return 0;
+>         case IDEFLOPPY_IOCTL_FORMAT_SUPPORTED:
+>                 return (0);
+> 
+> 
+>
+ 
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

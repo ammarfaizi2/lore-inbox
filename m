@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTJJB02 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 21:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTJJB02
+	id S262714AbTJJBmK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 21:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbTJJBmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 21:26:28 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:36282 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262738AbTJJB0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 21:26:25 -0400
-To: andersen@codepoet.org
-Cc: Greg Stark <gsstark@MIT.EDU>, Jeff Garzik <jgarzik@pobox.com>,
-       Philippe Lochon <plochon.n0spam@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: P4C800E-Dlx: ICH5/S-ATA and Intel Pro onboard network incompatibility ?
-References: <3F7EDCDD.7090500@free.fr> <20031004180338.GA24607@codepoet.org>
-	<20031004192733.GA30371@gtf.org> <20031004195342.GA25328@codepoet.org>
-	<20031005201638.GB4259@codepoet.org> <87r81l9a9u.fsf@stark.dyndns.tv>
-	<20031010010629.GA20873@codepoet.org>
-In-Reply-To: <20031010010629.GA20873@codepoet.org>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 09 Oct 2003 21:26:24 -0400
-Message-ID: <87fzi19933.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Oct 2003 21:42:10 -0400
+Received: from fep01-svc.mail.telepac.pt ([194.65.5.200]:1680 "EHLO
+	fep01-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id S262714AbTJJBmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 21:42:06 -0400
+Date: Fri, 10 Oct 2003 02:42:06 +0100
+From: Nuno Monteiro <nmonteiro@uk2.net>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Re: linking problem with 2.6.0-test6-bk10
+Message-ID: <20031010014206.GA9121@hobbes.itsari.int>
+References: <42450.212.113.164.100.1065637962.squirrel@maxproxy1.uk2net.com> <20031008200420.GA23545@redhat.com> <57145.212.113.164.100.1065647937.squirrel@maxproxy3.uk2net.com> <20031009234000.GC4683@hobbes.itsari.int> <20031010004047.GE4683@hobbes.itsari.int> <20031010004224.GH4683@hobbes.itsari.int> <20031010005521.GC25856@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20031010005521.GC25856@redhat.com> (from davej@redhat.com on Fri, Oct 10, 2003 at 01:55:22 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Erik Andersen <andersen@codepoet.org> writes:
-
-> Do check your /proc/interrupts though.  With my P4P800 I found
-> that when set to Enhanced mode, and when ide-scsi was carefully
-> avoided, I was still getting a storm of interrupts that were
-> doing rather bad things for system performance.  Can you check if
-> you are also seeing the same thing?  i.e. does the interrupt line
-> with your ide controller(s) on it show bazillions of interrupts?
-
-Well I'm not really sure what numbers would be reasonable here, but these
-don't seem insane to me.
-
-bash-2.05b$ uptime
- 21:24:57 up 7 days, 10:41, 10 users,  load average: 0.10, 0.07, 0.01
+On 2003.10.10 01:55, Dave Jones wrote:
+> 
+> As well as looking pretty ugly, I can't convince myself this is safe.
+> I think it's going to be better off making that whole code compile out
+> if MTRRs are disabled. MTRR is a must-have if we want this code to actually
+> work anyway.
+> 
+> Either change the ifdef at the top of centaur.c to 
+> #ifdef CONFIG_X86_OOSTORE && CONFIG_MTRR, or futz around it in the
+> Kconfig, by changing the X86_OOSTORE depends line to
+> 
 
 
-           CPU0       CPU1       
-  0:   64325490          0    IO-APIC-edge  timer
-  1:     629096          0    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:   40215382          0    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 12:    5479273          0    IO-APIC-edge  PS/2 Mouse
- 14:     382236          1    IO-APIC-edge  ide0
- 15:         63          0    IO-APIC-edge  ide1
- 17:    5379508          0   IO-APIC-level  Intel ICH5
- 18:    4574111          2   IO-APIC-level  ide3
- 22:   26963560          0   IO-APIC-level  SysKonnect SK-98xx
-NMI:          0          0 
-LOC:   64325091   64325140 
-ERR:          0
-MIS:          2
+Hi Dave,
 
--- 
-greg
 
+Right you are :)
+
+Here is the updated fix.
+
+
+--- linux-2.6.0-test7/arch/i386/Kconfig.orig	2003-10-10 02:24:47.000000000 +0100
++++ linux-2.6.0-test7/arch/i386/Kconfig	2003-10-10 02:16:14.000000000 +0100
+@@ -394,7 +394,7 @@ config X86_USE_3DNOW
+ 
+ config X86_OOSTORE
+ 	bool
+-	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6
++	depends on (MWINCHIP3D || MWINCHIP2 || MWINCHIPC6) && MTRR
+ 	default y
+ 
+ config HPET_TIMER

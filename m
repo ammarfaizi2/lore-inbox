@@ -1,89 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263471AbTHWCLr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 22:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263480AbTHWCLr
+	id S263531AbTHWCxB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 22:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTHWCxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 22:11:47 -0400
-Received: from proxyip5.us.army.mil ([140.183.234.119]:3422 "EHLO
-	mailrouter.us.army.mil") by vger.kernel.org with ESMTP
-	id S263471AbTHWCLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 22:11:44 -0400
-Date: Sat, 23 Aug 2003 10:41:46 +0900
-From: kenton.groombridge@us.army.mil
-Subject: Re: nforce2 lockups
-To: Patrick Dreker <patrick@dreker.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <34a0a7034a4308.34a430834a0a70@us.army.mil>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.17 (built Jun 23 2003)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Fri, 22 Aug 2003 22:53:01 -0400
+Received: from ns.aratech.co.kr ([61.34.11.200]:32640 "EHLO ns.aratech.co.kr")
+	by vger.kernel.org with ESMTP id S264186AbTHWCw4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 22:52:56 -0400
+Date: Sat, 23 Aug 2003 11:54:48 +0900
+From: TeJun Huh <tejun@aratech.co.kr>
+To: linux-kernel@vger.kernel.org
+Subject: Race condition in 2.4 tasklet handling
+Message-ID: <20030823025448.GA32547@atj.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you!!!
 
-I had done this before but without the nolapic option.  That appears to have been the solution.  Ran a whole day without one lockup where before 10 minutes was rarely achieved.
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I don't know if you knew I had a $20 reward for the fix, but it looks like you got it.
+ It's a similar to race condition spotted in i386 interrupt code.  The
+race exists between tasklet_[hi_]action() and tasklet_disable().
+Again, memory-ordered synchronization is used between
+tasklet_struct.count and tasklet_struct.state.
 
-Going to run a few more days just to be sure, but send me your address and I will send you the $20 after stressing my system a bit more.
+ tasklet_disable() is find because there's an smp_mb() at the end of
+tasklet_disable_nosync(); however, in tasklet_action(), there is no
+mb() between tasklet_trylock(t) and atomic_read(&t->count).  This
+won't cause any trouble on architectures which orders memory accesses
+around atomic operations such (including x86), but on architectures
+which don't, a tasklet can be executing on another cpu on return from
+tasklet_disable().
 
-It looks like the nolapic kernel parameter was just recently introduced.  I tried it in both the 2.4.22-rc2 kernel and the 2.6.0-test3 kernel with success in both.
+ Adding smp_mb__after_test_and_set_bit() at the end of
+tasklet_trylock() should remedy the situation.  As
+smp_mb__{before|after}_test_and_set_bit() don't exist yet, I'm
+attaching a patch which adds smp_mb__after_clear_bit().  The patch is
+against 2.4.21.
 
-Would still like apic to be completely fixed in the nforce2 chipsets, but I am just happy to have a working system again.
+P.S. Please comment on the addition of
+smp_mb__{before|after}_test_and_set_bit().
 
-Thanks again,
-Ken
+P.P.S. One thing I don't really understand is the uses of smp_mb() at
+the end of tasklet_disable() and smp_mb__before_atomic_dec() inside
+tasklet_enable().  Can anybody tell me what those are for?
 
------ Original Message -----
-From: Patrick Dreker <patrick@dreker.de>
-Date: Thursday, August 21, 2003 8:05 pm
-Subject: Re: nforce2 lockups
+--
+tejun
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Am Thursday 21 August 2003 03:39 schrieb 
-> kenton.groombridge@us.army.mil zum 
-> Thema Re: nforce2 lockups:
-> > and it did cure my spurious interrupt problem, but 
-> unfortunately, my
-> > lockups have returned.
-> I managed to stabilize my Board, but I don't think the trick was 
-> obvious: 
-> Disable alle APIC related kernel Options (Local APIC and IO-APIC), 
-> disable 
-> APIC Mode in the BIOS. Check on reboot if it still talks about the 
-> APIC in 
-> the boot messages (How? IIRC mine did, which was why I did not 
-> think that 
-> disabling the APIC helped... Actually somehow it still was 
-> activated. Could 
-> ACPI be part of this?). If it does try noapic and/or nolapic boot 
-> options.
-> If you completely shut off the APIC it runs stable, but 1 of the 3 
-> USB 
-> Controllers is not assigned an interrupt. All this with ACPI 
-> enabled (ACPI 
-> patch 20030730 and kernel 2.6.0-test3).
-> 
-> - -- 
-> Patrick Dreker
-> 
-> GPG KeyID  : 0xFCC2F7A7 (Patrick Dreker)
-> Fingerprint: 7A21 FC7F 707A C498 F370  1008 7044 66DA FCC2 F7A7
-> Key available from keyservers or http://www.dreker.de/pubkey.asc
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.2 (GNU/Linux)
-> 
-> iD8DBQE/RKdhcERm2vzC96cRAtjAAJ4y5oOm7uhtPqWtaS/S+mnWTr9C5gCdF3hK
-> 2JQZ86psKDmWO74wxrINSRE=
-> =YbYq
-> -----END PGP SIGNATURE-----
-> 
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch.taskletrace"
 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: linux
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.3     -> 1.4    
+#	include/linux/interrupt.h	1.1     -> 1.2    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/08/23	tj@atj.dyndns.org	1.4
+# - tasklet race fix.
+# --------------------------------------------
+#
+diff -Nru a/include/linux/interrupt.h b/include/linux/interrupt.h
+--- a/include/linux/interrupt.h	Sat Aug 23 11:52:03 2003
++++ b/include/linux/interrupt.h	Sat Aug 23 11:52:03 2003
+@@ -134,7 +134,10 @@
+ #ifdef CONFIG_SMP
+ static inline int tasklet_trylock(struct tasklet_struct *t)
+ {
+-	return !test_and_set_bit(TASKLET_STATE_RUN, &(t)->state);
++	int ret;
++	ret = !test_and_set_bit(TASKLET_STATE_RUN, &(t)->state);
++	smp_mb__after_clear_bit();
++	return ret;
+ }
+ 
+ static inline void tasklet_unlock(struct tasklet_struct *t)
+
+--tKW2IUtsqtDRztdT--

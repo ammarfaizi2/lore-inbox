@@ -1,143 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbUAMIKc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 03:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUAMIKc
+	id S262564AbUAMIdH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 03:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUAMIdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 03:10:32 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:36016 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261950AbUAMIKO convert rfc822-to-8bit
+	Tue, 13 Jan 2004 03:33:06 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:15750 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S262564AbUAMIdE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 03:10:14 -0500
-content-class: urn:content-classes:message
+	Tue, 13 Jan 2004 03:33:04 -0500
+Date: Tue, 13 Jan 2004 03:33:03 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@portland.hansa.lan
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       kpfleming@cox.net
+Subject: Re: [PATCH]: Fw: [Bugme-new] [Bug 1242] New: devfs oops with SMP
+ kernel (not in UP mode)
+In-Reply-To: <200401041932.40960.arvidjaar@mail.ru>
+Message-ID: <Pine.LNX.4.58.0401130323510.1229@portland.hansa.lan>
+References: <20030915212755.5017acc7.akpm@osdl.org> <200401041932.40960.arvidjaar@mail.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: 2.6.1 and irq balancing
-Date: Tue, 13 Jan 2004 00:09:59 -0800
-Message-ID: <7F740D512C7C1046AB53446D3720017361882F@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.1 and irq balancing
-Thread-Index: AcPZpG2hzJO47IlTQEeslKjRIvwu+AABm65g
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Nick Piggin" <piggin@cyberone.com.au>,
-       "Ethan Weinstein" <lists@stinkfoot.org>
-Cc: "Ed Tomlinson" <edt@aei.ca>, <linux-kernel@vger.kernel.org>,
-       "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-X-OriginalArrivalTime: 13 Jan 2004 08:10:00.0600 (UTC) FILETIME=[A4068980:01C3D9AC]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Aside from the obvious imbalance between physical CPUs:
-> I think interrupts should be much more freely balanced between
-siblings
-> that share cache, otherwise process a running on CPU0 gets less time
-than
-> process b running on CPU1 because of the interrupt load.
->
-That scheduling issue is true. Today we balance interrupt load on a
-package (i.e. physical CPU) basis, and we don't care which logical
-processors do the interrupt handling because it should not matter in
-terms of performance. 
+On Sun, 4 Jan 2004, Andrey Borzenkov wrote:
 
-Jun
+> Pavel, you have been lucky in cathing devfs bugs, could you please test this
+> if it works for you?
 
-> -----Original Message-----
-> From: Nick Piggin [mailto:piggin@cyberone.com.au]
-> Sent: Monday, January 12, 2004 11:05 PM
-> To: Ethan Weinstein
-> Cc: Nakajima, Jun; Ed Tomlinson; linux-kernel@vger.kernel.org; Kamble,
-> Nitin A
-> Subject: Re: 2.6.1 and irq balancing
-> 
-> 
-> 
-> Ethan Weinstein wrote:
-> 
-> > Nakajima, Jun wrote:
-> >
-> >>> Admittedly, the machine's load was not high when I took this
-sample.
-> >>> However, creating a great deal of load does not change these
-> >>> statistics at all.  Being that there are patches available for
-2.4.x
-> >>> kernels to fix this, I don't think this at all by design, but what
-> >>> do I know? =)
-> >>>
-> >>
-> >
-> >> 2.6 kernels don't need a patch to it as far as I understand. Are
-you
-> >> saying that with significant amount of load, you did not see any
-> >> distribution of interrupts? Today's threshold in the kernel is high
-> >> because we found moving around interrupts frequently rather hurt
-the
-> >> cache and thus lower the performance compared to "do nothing". Can
-you
-> >> try to create significant load with your network (eth0 and eh1) and
-see
-> >> what happens?
-> >> Jun
-> >
-> >
-> > Here's the situation two days later, I created some brief periods of
-> > high load on eth1 and I see we have some change:
-> >
-> >
-> >            CPU0       CPU1       CPU2       CPU3
-> >   0:  184932542          0    2592511          0    IO-APIC-edge
-timer
-> >   1:       1875          0          0          0    IO-APIC-edge
-i8042
-> >   2:          0          0          0          0          XT-PIC
-> cascade
-> >   3:    3046103          0          0          0    IO-APIC-edge
-serial
-> >   8:          2          0          0          0    IO-APIC-edge
-rtc
-> >   9:          0          0          0          0   IO-APIC-level
-acpi
-> >  14:         76          0          0          0    IO-APIC-edge
-ide0
-> >  16:    2978264          0          0          0   IO-APIC-level
-> > sym53c8xx
-> >  22:    7838940          0          0          0   IO-APIC-level
-eth0
-> >  48:     916078          0     125150          0   IO-APIC-level
-> aic79xx
-> >  49:    1099375          0          0          0   IO-APIC-level
-> aic79xx
-> >  54:   51484241        316   50560879        279   IO-APIC-level
-eth1
-> > NMI:          0          0          0          0
-> > LOC:  187530735  187530988  187530981  187530986
-> > ERR:          0
-> > MIS:          0
-> >
-> 
-> 
-> Aside from the obvious imbalance between physical CPUs:
-> I think interrupts should be much more freely balanced between
-siblings
-> that share cache, otherwise process a running on CPU0 gets less time
-than
-> process b running on CPU1 because of the interrupt load.
-> 
-> 
-> >
-> > My argument is (see below).  This is an old 2x pentium2 @400, also
-> > running 2.6, an old Compaq Proliant to be exact.  This machine
-> > obviously has no HT, so why the balanced load?
-> 
-> 
-> IIRC the P2/3 APICs are set to a round robin delivery mode while the
-P4
-> ones are not. It is still not ideal though, while you have fairness,
-you
-> now
-> have suboptimal performance.
-> 
+Yes, it does.  No apparent problems.  However, I only had lookups on Red
+Hat 8 and 9, and I'm running Debian unstable now.  The kernel is
+2.6.1-bk1.  devfs is enabled, devfsd is running.  SMP is not enabled.
 
+-- 
+Regards,
+Pavel Roskin

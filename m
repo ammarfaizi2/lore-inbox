@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266165AbUAQWrp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 17:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUAQWrp
+	id S266140AbUAQWpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 17:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266152AbUAQWpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 17:47:45 -0500
-Received: from [66.50.163.253] ([66.50.163.253]:48444 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266165AbUAQWro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 17:47:44 -0500
-Message-ID: <4009BB8C.50107@computingsupport.org>
-Date: Sat, 17 Jan 2004 18:47:40 -0400
-From: Rafael Fernandez <rafael@computingsupport.org>
-User-Agent: Mozilla Thunderbird 0.5a (X11/20040115)
-X-Accept-Language: en-us, en
+	Sat, 17 Jan 2004 17:45:18 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:40341 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S266140AbUAQWpO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 17:45:14 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Andreas Schwab <schwab@suse.de>,
+       Charles Shannon Hendrix <shannon@widomaker.com>
+Subject: Re: kernel 2.6.1 and cdrecord on ATAPI bus
+Date: Sat, 17 Jan 2004 17:45:08 -0500
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040117031925.GA26477@widomaker.com> <20040117154905.GB26248@widomaker.com> <jevfna5vg7.fsf@sykes.suse.de>
+In-Reply-To: <jevfna5vg7.fsf@sykes.suse.de>
+Organization: Organization: None, detectable by casual observers
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.1: Sidewinder Precision 2 not working 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200401171745.08874.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.55.154] at Sat, 17 Jan 2004 16:45:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Saturday 17 January 2004 12:36, Andreas Schwab wrote:
+>Charles Shannon Hendrix <shannon@widomaker.com> writes:
+>> Sat, 17 Jan 2004 @ 05:22 +0100, Matthias Andree said:
+>>> Interesting. I use dev=/dev/hdc and it works fine for me (Plextor
+>>> 48X), but then again, I'm also running the latest cdrecord alpha.
+>>
+>> % cdrecord -version
+>> Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg
+>> Schilling
+>>
+>> I can try an alpha version,
 
-I once used the Sidewinder Precision 2 joystick in kernel 2.4.22 but the 
-calibration wasn't any good. I just thought to give it a try in the 
-2.6.1 kernel, I loaded the module, modprobe sidewinder without any 
-errors. Yet, when I run FlighGear with fgfs --control=joystick or with 
-just fgfs I can't use it. I don't know if this is a kernel bug, but I 
-though it might be worth posting it.
+Please do, a23 and a25 both work just fine ehre.
 
-Rafael Fernandez
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+

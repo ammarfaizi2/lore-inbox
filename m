@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVCXBuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVCXBwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVCXBuP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 20:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbVCXBuO
+	id S262391AbVCXBwV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 20:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbVCXBwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 20:50:14 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:14615
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S262977AbVCXBt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 20:49:56 -0500
-Date: Thu, 24 Mar 2005 02:49:48 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, aebr@win.tue.nl, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
-Message-ID: <20050324014948.GE14202@opteron.random>
-References: <20050316003134.GY7699@opteron.random> <20050316040435.39533675.akpm@osdl.org> <20050316183701.GB21597@opteron.random> <1111607584.5786.55.camel@localhost.localdomain> <20050323144953.288a5baf.akpm@osdl.org> <17250000.1111619602@flay> <20050323152055.6fc8c198.akpm@osdl.org> <20050323232656.GA5704@pclin040.win.tue.nl> <25760000.1111620606@flay> <20050323154232.376f977f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Mar 2005 20:52:20 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:30313 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262391AbVCXBvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 20:51:25 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [patch 02/12] uml: cpu_relax fix
+Date: Thu, 24 Mar 2005 02:50:37 +0100
+User-Agent: KMail/1.7.2
+Cc: Bodo Stroesser <bstroesser@fujitsu-siemens.com>, akpm@osdl.org,
+       jdike@addtoit.com, linux-kernel@vger.kernel.org
+References: <20050322162121.4295D2125C@zion> <4241A2C0.2050206@fujitsu-siemens.com>
+In-Reply-To: <4241A2C0.2050206@fujitsu-siemens.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050323154232.376f977f.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.6i
+Message-Id: <200503240250.38153.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 23, 2005 at 03:42:32PM -0800, Andrew Morton wrote:
-> I'm suspecting here that we simply leaked a refcount on every darn
-> pagecache page in the machine.  Note how mapped memory has shrunk down to
-> less than a megabyte and everything which can be swapped out has been
-> swapped out.
-> 
-> If so, then oom-killing everything in the world is pretty inevitable.
+On Wednesday 23 March 2005 18:09, Bodo Stroesser wrote:
+> blaisorblade@yahoo.it wrote:
+> > Use rep_nop instead of barrier for cpu_relax, following $(SUBARCH)'s
+> > doing that (i.e. i386 and x86_64).
+>
+> IIRC, Jeff had the idea, to use sched_yield() for this (from a discussion
+> on #uml).
+Hmm, makes sense, but this is to benchmark well... I remember from early 
+discussions on 2.6 scheduler that using sched_yield might decrease 
+performance (IIRC starve the calling application).
 
-Agreed, it looks like a memleak of a page_count (while mapcount is fine).
+Also, that call should be put inside the idle loop, not for cpu_relax, which 
+is very different, since it is used (for instance) in kernel/spinlock.c for 
+spinlocks, and in such things. The "Pause" opcode is explicitly recommended 
+(by Intel manuals, I don't recall why) for things like spinlock loops, and 
+using yield there would be bad.
 
-I would suggest looking after pages part of pagecache (i.e.
-page->mapcount not null) that have a mapcount of 0 and a page_count > 1,
-almost all of them should be like that during the memleak, and almost
-none should be like that before the memleak.
+> S390 does something similar using a special DIAG-opcode that 
+> gives permission to zVM, that another Guest might run.
 
-This seems unrelated to the bug that started the thread that was clearly
-a slab shrinking issue and not a pagecache memleak.
+> On a host running many UMLs, this might improve performance.
+>
+> So, I would like to have the small patch below (it's not tested, just an
+> idea).
 
-Thanks.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+

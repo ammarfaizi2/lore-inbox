@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbUKJJTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUKJJVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbUKJJTt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 04:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbUKJJTt
+	id S261300AbUKJJVi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 04:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbUKJJVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 04:19:49 -0500
-Received: from outgoing1.jumpy.it ([213.215.144.9]:32504 "EHLO mail.jumpy.it")
-	by vger.kernel.org with ESMTP id S261549AbUKJJTr (ORCPT
+	Wed, 10 Nov 2004 04:21:38 -0500
+Received: from outgoing1.jumpy.it ([213.215.144.9]:44295 "EHLO mail.jumpy.it")
+	by vger.kernel.org with ESMTP id S261300AbUKJJVV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 04:19:47 -0500
-Date: Wed, 10 Nov 2004 01:19:34 -0800
-Message-ID: <40FC7417000AF128@mail16.jumpyint.it>
+	Wed, 10 Nov 2004 04:21:21 -0500
+Date: Wed, 10 Nov 2004 01:20:50 -0800
+Message-ID: <40FC7417000AF12F@mail16.jumpyint.it>
 From: "Minerals & Energy" <moloinb@jumpy.it>
 Subject: for sure
 MIME-Version: 1.0

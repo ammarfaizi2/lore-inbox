@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267552AbUIJQTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIJQTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267552AbUIJQTV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267497AbUIJQS0
+	id S267464AbUIJQTW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIJQSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:18:26 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:37553 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267527AbUIJQMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:12:53 -0400
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20040910152852.GC15643@x30.random>
-References: <593560000.1094826651@[10.10.2.4]>
-	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
-	 <20040910151538.GA24434@devserv.devel.redhat.com>
-	 <20040910152852.GC15643@x30.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094828979.17442.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Sep 2004 16:09:40 +0100
+	Fri, 10 Sep 2004 12:18:20 -0400
+Received: from mk-smarthost-2.mail.uk.tiscali.com ([212.74.114.38]:58896 "EHLO
+	mk-smarthost-2.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id S267497AbUIJQNO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 12:13:14 -0400
+Date: Fri, 10 Sep 2004 09:11:45 -0700
+Message-ID: <413FCB3B00013DF2@mk-cpfrontend-1.mail.uk.tiscali.com>
+From: manoj_andersen@handbag.com
+Subject: Re:Investment / Partnership Inquiry
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-10 at 16:28, Andrea Arcangeli wrote:
-> > What we should consider regardless is disable the nesting of irqs for
-> > performance reasons but that's an independent matter
-> 
-> disabling nesting completely sounds a bit too aggressive, but limiting
-> the nesting is probably a good idea.
+Sir,
 
-Thats a trivial change because you can poke the overflow IRQs into
-IRQ_PENDING and then do a cleanup loop if it was hit
+ Re: Investment / Partnership Inquiry.
+
+ My cleint has found you listed as a business legally registered in your
+country. The origin of the source is the the Saudi Arabia Chamber of Commerce
+and Industry.
+
+My client who is a woman intends to do a business with you related to investment,
+hence I am writing this letter as a foundation of this interaction, I would
+be glad to get your response as quickly as possible.
+ 
+As an insight, it may be proper of you to please let me know what your response
+will be to an offer to receive investment funds in cash if:
+
+ 1. The said fund amounts to Twenty Five Million Dollars (US).
+
+ 2. The said fund is in cash and will be transferred to you in same (Cash)state.
+
+ 3.The fund is intended to be invested through your agency within your country,
+Preferably in real estate and other hard investment.
+
+ 4. This transaction will result in your being paid a commission of 10%
+off the investment capital.
+
+ 5.The fund owner desires absolute confidentiality and professionalism in
+the handling of this matter.
+
+You will be expected to justify the confidence been repososed in you by
+presenting logical investment plans, along with a banking scheme that is
+both safe
+and secure.
+
+Please respond urgently.
+
+Sincerely yours.
+
+Manoj  Andersen.
+
+Wong, Andersen & Co.
+Investment Consultants.
+Chittagong, Bangladesh.
+For expedient response please copy reply to:
+manoj_andersen@yahoo.com 
+
+__________________________________________________________________
+Get Tiscali Broadband From £15:99
+http://www.tiscali.co.uk/products/broadbandhome/
+
+
 

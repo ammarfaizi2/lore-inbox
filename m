@@ -1,76 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312090AbSCQSP2>; Sun, 17 Mar 2002 13:15:28 -0500
+	id <S312092AbSCQSR6>; Sun, 17 Mar 2002 13:17:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312091AbSCQSPT>; Sun, 17 Mar 2002 13:15:19 -0500
-Received: from bitmover.com ([192.132.92.2]:138 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S312090AbSCQSPK>;
-	Sun, 17 Mar 2002 13:15:10 -0500
-Date: Sun, 17 Mar 2002 10:15:07 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
-Message-ID: <20020317101507.N10086@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Larry McVoy <lm@bitmover.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <30393.1016362174@redhat.com> <20020317075443.A15420@work.bitmover.com> <16049.1016382201@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16049.1016382201@redhat.com>; from dwmw2@infradead.org on Sun, Mar 17, 2002 at 04:23:21PM +0000
+	id <S312091AbSCQSRt>; Sun, 17 Mar 2002 13:17:49 -0500
+Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:4875 "EHLO
+	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
+	id <S312092AbSCQSRj>; Sun, 17 Mar 2002 13:17:39 -0500
+Message-ID: <003c01c1cddf$f9fdb780$7e0aa8c0@bridge>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: New commandline parsing framework
+Date: Sun, 17 Mar 2002 10:17:16 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 04:23:21PM +0000, David Woodhouse wrote:
-> 
-> lm@bitmover.com said:
-> >  BK works that way on purpose.  If we merge changes into your local
-> > changes, there is no automatic way to "unmerge".  It is way to easy to
-> > do a pull, do the merge, and then realize you lost work in the merge
-> > because you told it to do the wrong thing.
-> 
-> > Short summary: commit your changes before you pull and you'll be fine.
-> 
-> If it was changes that deserved a changelog, I'd have committed them. But 
-> it's typically one-line hacks to make it compile, which I know will be 
-> obsoleted by 'correct' fixes in Linus' tree later. 
+Hi linux-kernel,
 
-Then you get to save them as diffs, unedit the files, and put them back 
-after the merge.
+In looking through the IDE hotswap support (2.5.6), it occurred to me that
+having a static array big enough to hold all possibly interfaces, is,
+um, inelegant, when you start adding and removing devices.  This is common
+with many things.
 
-> Btw, the citool is cute but would be cuter if
->  - the diffs were '-up' format - showing the function that the hunk is in.
+Looking furthur, I see that this is because the structures must
+exist when the command line is parsed, and that's done ahead
+of the IDE module's init, before kmalloc is available.
 
-citool is a tcl program, how about you hack it in?  Look for $diffsOpts,
-that's what you'll need to modify.  You need to get the diffs parsing 
-code to do the right thing with -up style diffs though.
+__setup("",ide_setup); is called by __parse_options() in main.c by
+start_kernel()
 
->  - You could select a hunk and say "omit this change from what's committed"
+Of course the mm subsys needs access to cmdline args.  But *most* other
+sys don't.  So they shouldn't *have* to be able to parse here.  Forcing them
+to means they must use fixed sized arrays in bss segment, not kmalloc et al.
 
-Get bk-2.1.5.  We added multiple options to the edit button, try the fmtool
-option and learn how to use it.  You can trivially walk the code and pick
-and choose which diffs you want.
+I have almost completed a patch which moves the IDE module's cmdline
+parsing into the module's init routine, allowing the hwif structure to
+become an linked list of hwif_t structures, kmalloced or slab
+construced/freed as needed.  It simply copies the options it's given into an
+__initdata
+buffer, delaying parsing them until ide.c:init_ata().  Of course it could
+just
+use the saved_command_line[], as could everyone.
 
-> Another thing I have a distinct feeling I'm going to want is tracking
-> functions across files. I sometimes shuffle functions between files for
-> portability - selective compilation is nicer with your Linux-specific
-> functions in one file and eCos-specific functions in another than with a
-> litter of ifdefs. If Linus' tree gets a patch to a file that I moved, BK can
-> work it out. If Linus' tree gets a patch to a _function_ that I moved to a
-> different file while leaving the rest of the original file in place, AFAICT
-> not even the merge tool deals with that nicely. Did I miss an option to
-> 'apply this diff hunk to a different file'?
+Question: are there any problems with using this approach in general?
 
-We don't have this feature.  We've talked about it, but that's all we've
-done.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+* extra pointer derefrence (linked list vs static array indexing)
+performance issue?
+
+Perks:
+
+* slab cache constructor could fill in what's currently initialized data
+* backwards compatibility is easy to provide
+* may be incrementally/optionally adopted in drivers in kernel tree and
+outside
+* old interface may be removed easily at some time in future
+* drivers can unify boot cmdline and module load options parsing,
+   reducing complexity and code size
+* eases removal of legacy support (ie don't probe, just use PCI config
+  data and allocate one hwif for each one found)
+* each subsys is more self-contained. cleaner code.
+
+I propose to create a patch which makes main.c:checksetup() more of a
+library function, with __setup being used only by subsystems that
+require
+command line parsing at the current early point.  Others can call
+checksetup(saved_command_line, __setup-like-list-of-my-argnames);
+in their main init routine.  the /sbin/init env/arg construction could
+be
+delayed until the init thread is started.
+
+things like serial driver (when serial console support is selected)
+could simply start their linked list with one statically allocated,
+and add others in later, so they can still be initialized early on.
+
+I think I've figured out the side effects but I'm looking for some more
+experienced advice.
+
+Thanks,
+
+Jeremy
+

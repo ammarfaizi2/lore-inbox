@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132195AbRAOFfJ>; Mon, 15 Jan 2001 00:35:09 -0500
+	id <S132294AbRAOGJ1>; Mon, 15 Jan 2001 01:09:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132314AbRAOFen>; Mon, 15 Jan 2001 00:34:43 -0500
-Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:60679 "EHLO
-	draco.foogod.com") by vger.kernel.org with ESMTP id <S132140AbRAOFef>;
-	Mon, 15 Jan 2001 00:34:35 -0500
-Date: Sun, 14 Jan 2001 21:34:27 -0800
-From: alex@foogod.com
-To: Jordan <jordang@pcc.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can't build small enough zImage for floppy
-Message-ID: <20010114213427.A10734@draco.foogod.com>
-In-Reply-To: <3A5F7BA7.B2FF852B@pcc.net> <20010112152032.C5625@draco.foogod.com> <3A604FF7.EF3D9D51@pcc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <3A604FF7.EF3D9D51@pcc.net>
+	id <S132314AbRAOGJR>; Mon, 15 Jan 2001 01:09:17 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:17867 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S132294AbRAOGJE>; Mon, 15 Jan 2001 01:09:04 -0500
+Message-ID: <3A628A49.7A8E3F69@mvista.com>
+Date: Sun, 14 Jan 2001 21:27:37 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: nigel@nrg.org, andrewm@uow.edu.au, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <200101110519.VAA02784@pizda.ninka.net>
+		<Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org> <14942.9759.730641.804611@pizda.ninka.net>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2001 at 06:54:15AM -0600, Jordan wrote:
-> alex@foogod.com wrote:
+"David S. Miller" wrote:
 > 
-> > I forgot to ask.. when attempting to boot from a floppy, are you using
-> > SYSLINUX, or something else?  What version?
+> Nigel Gamble writes:
+>  > That's why MontaVista's kernel preemption patch uses sleeping mutex
+>  > locks instead of spinlocks for the long held locks.
 > 
-> unsure.  I have booted floppies on my machine before which displayed SYSLINUX on
-> boot, but the 2.4.0 kernel I compiled (on my Red Hat 6.2 with 2.2.14-5.0 Vaio
-> Desktop) and used "make bzdisk" to make the disk, does not display SYSLINUX while
-> booting.  It displays
+> Anyone who uses sleeping mutex locks is asking for trouble.  Priority
+> inversion is an issue I dearly hope we never have to deal with in the
+> Linux kernel, and sleeping SMP mutex locks lead to exactly this kind
+> of problem.
 > 
-> Loading.........................................
-> Uncompressing Linux...
-> 
-> invalid compressed format (err=21)
-> 
-> -- System Halted
+Exactly why we are going to us priority inherit mutexes.  This handles
+the inversion nicely.
 
-Ah, this explains it.. the basic bootloader built into the kernel images is 
-apparently not compatible with the Z505 (possibly because it doesn't like the 
-BIOS emulation done to make the USB floppy look like a traditional floppy 
-drive during boot).  I've never attempted this form of booting a kernel 
-before, so I hadn't seen this behavior (of course this method also seems to 
-have different problems booting on my desktop system, too, so..).  Had you 
-managed to make a small enough zImage you would have had the same results.
-
-My advice is to try using SYSLINUX 
-(http://www.kernel.org/pub/linux/utils/boot/syslinux/) to load the kernel 
-instead of writing it straight to the floppy, as this is known to work on the 
-Z505 and is more flexible anyway.
-
--alex
+George
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

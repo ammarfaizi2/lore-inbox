@@ -1,54 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbUBYCBp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 21:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbUBYB7R
+	id S262357AbUBYCSA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 21:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbUBYCSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 20:59:17 -0500
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:11262 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262352AbUBYB6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 20:58:49 -0500
-To: Matthew Wilcox <willy@debian.org>
-Cc: "Steven J. Hill" <sjhill@realitydiluted.com>,
-       Jeremy Higdon <jeremy@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.6.2, Partition support for SCSI CDROM...
-References: <40396134.6030906@realitydiluted.com>
-	<20040222190047.01f6f024.akpm@osdl.org>
-	<40396E8F.4050307@realitydiluted.com>
-	<20040224061130.GC503530@sgi.com>
-	<403B8108.6080606@realitydiluted.com>
-	<20040224170906.GQ25779@parcelfarce.linux.theplanet.co.uk>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 25 Feb 2004 10:58:37 +0900
-In-Reply-To: <20040224170906.GQ25779@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <buoishvyl6a.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	Tue, 24 Feb 2004 21:18:00 -0500
+Received: from guug.org ([168.234.203.30]:43398 "EHLO guug.galileo.edu")
+	by vger.kernel.org with ESMTP id S262357AbUBYCR5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 21:17:57 -0500
+Date: Tue, 24 Feb 2004 20:18:08 -0600
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
+Message-ID: <20040225021808.GB17390@guug.org>
+References: <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org> <1077672591.978.49.camel@gaston>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1077672591.978.49.camel@gaston>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Otto Solares <solca@guug.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <willy@debian.org> writes:
-> sr0 whole disc
-> sr0a ... sr0o partitions
-> sr1, sr1a ... sr1o
+On Wed, Feb 25, 2004 at 12:29:52PM +1100, Benjamin Herrenschmidt wrote:
+> On Wed, 2004-02-25 at 12:21, James Simmons wrote:
+> > > Sure, hopefully fbdev drivers became more 'intelligent', with just a
+> > > 
+> > > echo "1024x768x16-75" > /sys/class/fbdev/0/geometry
+> > > 
+> > > they will compute internally the timings or get it from EDID and
+> > > glad the user with something correct for the hardware.
+> > > 
+> > > cat /sys/class/fbdev/0/modes
+> > > 
+> > > will give you the modes supported by the card.
+> > 
+> > Yes.
 > 
-> It's probably too late to be consistent with discs and call them
-> sra, sra1, ... sra15
-> srb, srb1, ... srb15
+> Note that "the modes supported by the card" means nothing.
+> 
+> They depend on something fundamentally dynamic, which is what is
+> connected to what output, mixed with some card-spcific limitations
+> (like bandwidth limitations when using 2 very big monitors, vram
+> limitations, etc...)
+> 
+> You can not really know a-priori what modes will be available for
+> sure. You can provide a list of modes that are considered as valid
+> for a given output, but the whole mode setting scheme cannot be
+> anything else but non-deterministic. You setup a global configuration,
+> send it down the driver, and obtain a new configuration which may or
+> may not be what you asked for.
 
-The (BSDish) xx0a convention is arguably better anyway (because the
-various parts of the name split naturally along the letter-digit
-boundaries); I never quite figured out why linux used the convention it
-does for disks.
+Hmm, how does winxp and macosx get their respectives video modes,
+what is missing in fbdev for that? MacOSX always gives you valid modes
+including refresh rates per adaptor/monitor, WinXP always give you valid
+modes and valid refresh rates for the video card, you actually
+'Apply' to test, most of the time it simply works.
 
-[Of course consistency generally wins out over niceness, but where
-consistency isn't an option...]
+> I'm trying to address the API issues as part of the userland library
+> I'm talking about in the other email. The actual interface to the
+> kernel driver should ultimately be hidden, and eventually private
+> between card-specific kernel driver and card-specific module in
+> the userland API.
 
--Miles
--- 
-`The suburb is an obsolete and contradictory form of human settlement'
+Great! i think your idea is great, does that library will be xserver
+dependant or will be an independent lib so others projects like mine
+could benefit from it?  Any bits somewhere?  This alone could boom
+and revolutionize the graphics solutions for linux.  A step in the
+right direction for "World Domination" in the desktop field.
+
+-otto
+

@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265200AbTFYXjG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 19:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbTFYXjG
+	id S265125AbTFYXnm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 19:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbTFYXnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 19:39:06 -0400
-Received: from smtprelay01.ispgateway.de ([62.67.200.160]:23494 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S265200AbTFYXjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 19:39:04 -0400
-Message-ID: <3EFA35D3.3020408@hipac.org>
-Date: Thu, 26 Jun 2003 01:52:51 +0200
-From: Thomas Heinz <creatix@hipac.org>
-Reply-To: Michael Bellion and Thomas Heinz <nf@hipac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: de, en
+	Wed, 25 Jun 2003 19:43:42 -0400
+Received: from 25.mdrx.com ([65.67.58.25]:60587 "EHLO duallie.mdrx.com")
+	by vger.kernel.org with ESMTP id S265125AbTFYXnl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 19:43:41 -0400
+From: Brian Jackson <brian@brianandsara.net>
+To: Orion Poplawski <orion@cora.nwra.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is their an explanation of various kernel versions/brances/patches/? (-mm, -ck, ..)
+Date: Wed, 25 Jun 2003 18:57:48 -0500
+User-Agent: KMail/1.5.2
+References: <bdd64m$3dr$1@main.gmane.org>
+In-Reply-To: <bdd64m$3dr$1@main.gmane.org>
 MIME-Version: 1.0
-To: folkert@vanheusden.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-References: <200306252248.44224.nf@hipac.org> <200306252303.13366.folkert@vanheusden.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200306251857.48341.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folkert
+I don't know of a website that tracks that stuff, but here goes my knowledge 
+of the different patchsets:
 
-You wrote:
-> Looks great!
-> Any chance on a port to 2.5.x?
+for the most part all of them are testing grounds for patches that someday 
+hope to be in the vanilla kernel
 
-It should not be that hard to port nf-hipac to 2.5 since most of the
-code (the whole hipac core) is not "kernel specific".
-But since we are busy planning the next hipac extension we don't have
-the time to do this ourselves.
-Maybe some volunteer is willing to implement the port.
+mm - Andrew Morton - vm related testing ground for dev tree
+ck - Con Kolivas - desktop/interactivity patches
+kj - Kernel Janitors - testing ground for kernel cleanups on development trees
+mjb - Martin J Bligh - scalability stuff
+wli - William Lee Irwin - other vm related stuff for dev tree that Andrew
+	Morton may not have time for
+ac - Alan Cox - lately it's been a testing ground for new ide
+lsm - Chris Wright - Linux Security Modules, provides a lightweight, general
+	purpose framework for access control
+osdl - Stephen Hemminger, ? maybe enterprise stuff
+laptop - Hanno Böck - unproven laptop type patches
+aa - Andrea Arcangeli - stable series vm stuff
+dj - Dave Jones - cleanups/AGP
+rmap - Rik van Riel - reverse mapping vm for 2.4
+pgcl - William Lee Irwin - ?
 
+Others? Oh yes. Maybe this is something that should be tracked on a webpage 
+somewhere.
 
-Thomas
+--Brian Jackson
+
+On Wednesday 25 June 2003 05:02 pm, Orion Poplawski wrote:
+> Seems like everybody and their brother is maintaining a kernel patch set
+> these days :-).
+>
+> Is there a page somewhere that explains the goals of each of the various
+> versions?
+>
+> Thanks!
+>
+> - Orion
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+OpenGFS -- http://opengfs.sourceforge.net
+Home -- http://www.brianandsara.net
 

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVAGN1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVAGNai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVAGN1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 08:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVAGN1t
+	id S261406AbVAGNai (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 08:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVAGNah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 08:27:49 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:32234 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261407AbVAGN1q (ORCPT
+	Fri, 7 Jan 2005 08:30:37 -0500
+Received: from mail.suse.de ([195.135.220.2]:2196 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261406AbVAGNac (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 08:27:46 -0500
-Message-ID: <41DE9D10.B33ED5E4@tv-sign.ru>
-Date: Fri, 07 Jan 2005 17:30:40 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Fri, 7 Jan 2005 08:30:32 -0500
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Soeren Sonnenburg <kernel@nn7.de>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
+References: <1103389648.5967.7.camel@gaston>
+	<pan.2004.12.21.07.53.37.708238@nn7.de> <jezmzuo5jc.fsf@sykes.suse.de>
+	<s5hr7kxwit8.wl@alsa2.suse.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Yow!  Did something bad happen or am I in a drive-in movie??
+Date: Fri, 07 Jan 2005 14:30:31 +0100
+In-Reply-To: <s5hr7kxwit8.wl@alsa2.suse.de> (Takashi Iwai's message of "Fri,
+ 07 Jan 2005 13:00:03 +0100")
+Message-ID: <je4qhtjrig.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Make pipe data structure be a circular list of pages, rather than
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Takashi Iwai <tiwai@suse.de> writes:
 
-pipe_writev:
-> +		if (bufs < PIPE_BUFFERS) {
-> +			ssize_t chars;
-> +			int newbuf = (info->curbuf + bufs) & (PIPE_BUFFERS-1);
+> Isn't it the bug which was fixed in 2.6.10-final?
+>
+> ================================================================
+> ChangeSet@1.1938.423.42, 2004-12-22 10:46:54-08:00, tiwai@suse.de
+>   [PATCH] alsa: fix oops with ALSA OSS emulation on PPC
+> ================================================================
 
-If i understand this patch correctly, then this code
+Yes, I guess so.
 
-	for (;;)
-		write(pipe_fd, &byte, 1);
+Andreas.
 
-will block after writing PIPE_BUFFERS == 16 characters, no?
-And pipe_inode_info will use 64K to hold 16 bytes!
-
-Is it ok?
-
-May be it make sense to add data to the last allocated page
-until buf->len > PAGE_SIZE ?
-
-Oleg.
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,91 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbSLOMKi>; Sun, 15 Dec 2002 07:10:38 -0500
+	id <S266453AbSLOMSN>; Sun, 15 Dec 2002 07:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266433AbSLOMKi>; Sun, 15 Dec 2002 07:10:38 -0500
-Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:11904 "EHLO
-	r2d2.office") by vger.kernel.org with ESMTP id <S266417AbSLOMKe>;
-	Sun, 15 Dec 2002 07:10:34 -0500
-Message-ID: <3DFC72E4.30400@walrond.org>
-Date: Sun, 15 Dec 2002 12:17:40 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: junkio@cox.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Symlink indirection
-References: <fa.eib7vkv.1tju08k@ifi.uio.no> <fa.cnblikv.qjmuqd@ifi.uio.no> <7v65tvn3s0.fsf@assigned-by-dhcp.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266456AbSLOMSN>; Sun, 15 Dec 2002 07:18:13 -0500
+Received: from 3eea160b.cable.wanadoo.nl ([62.234.22.11]:16261 "EHLO
+	asterix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S266453AbSLOMSM>; Sun, 15 Dec 2002 07:18:12 -0500
+Date: Sun, 15 Dec 2002 13:25:54 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.51 load avg += 1
+Message-ID: <20021215132554.D3779@bitwizard.nl>
+References: <Pine.LNX.4.44.0212141357550.9240-100000@coffee.psychology.mcmaster.ca> <200212151202.09618.roy@karlsbakk.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212151202.09618.roy@karlsbakk.net>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-junkio@cox.net wrote:
-> "AW" == Andrew Walrond <andrew@walrond.org> gives an example of
-> a/{x,y,z}, b/{y,z}, c/z mounted on d/. in that order, later
-> mounts covering the earlier ones.
+On Sun, Dec 15, 2002 at 12:02:09PM +0100, Roy Sigurd Karlsbakk wrote:
+> On Saturday 14 December 2002 19:58, Mark Hahn wrote:
+> > > running 2.5.51, when I run 'uptime', it shows my uptime+1. that means if
+> > > my
+> >
+> > might you have a process/thread stuck in a short wait?
 > 
-> AW> echo "d/w" > d/w would create a new file in directory a.
-> 
-> Personally I'd rather expect this to happen in c/.  Imagine a/
-> being on read-only medium like CD-ROM containing bunch of source
-> files, b/ to hold patched source, and c/ to hold binaries
-> resulting from compilation.  That is,
-> 
->     rm -fr a b c d
->     mkdir a b c d
->     mount /cdrom a
->     mount --bind a d
->     mount --bind --overlay b d
->     (cd b && bzip2 -d <../patch-2.9.91.bz2 | patch -p1)
->     mount --bind --overlay c d
->     (cd c && make mrproper && cat ../.config >.config &&
->     make oldconfig && make dep && make bzImage)
+> how can this be? the load average was at the given point excactly 1.0, but the 
+> number of running processes (ps ax|grep -v grep | grep -w R) was 0.
 
-A nice example.
+Processes in "D" state also count towards the load average. Because
+usually that means a "disk wait" which usually impacts 
+subjective-performance of the system just as much as the "running" 
+processes do. 
 
-Lets ditch --overlay and replace it with:
-
---transparent
-	just like --overlay
---read-transparent
-	a bit like a pane of glass. You can see stuff behind it (read) but 
-throw a tomato at it and it sticks to the glass (write)
-
-Then, simplifying your example a bit, we can mount the source cd then 
-mount a directory --read-transparent over the top to hold both our 
-patched source and compiled binaries.
-
-Or if you want to keep patched-source and binaries seperate,
-
-mount /cdrom stuff
-mount --bind --read-transparent patched-src stuff
-
-cd stuff
-patch the src
-
-mount --bind --read-transparent binaries stuff
-
-compile your code
-
-> 
-> Back to your example; what do you wish to happen when we do
-> this?
-> 
->     $ mv d/z d/zz && test -f d/z && cat d/z
-> 
-> Here we rename d/z (which is really c/z) to zz.  Does this
-> reveal z that used to be hidden by that, namely b/z, and "cat
-> d/z" now shows "b/z"?
-
-Yes - exactly
-
-> 
-> Or just like the case of creating a new file, does the union
-> "remember" the fact that the directory "d" should not contain
-> "z" anymore, and "test -f d/z" fails?
-> 
-
-No. Thats not necessary.
-
+				Roger. 

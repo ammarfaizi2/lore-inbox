@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311688AbSCNR26>; Thu, 14 Mar 2002 12:28:58 -0500
+	id <S311694AbSCNRlU>; Thu, 14 Mar 2002 12:41:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311689AbSCNR2i>; Thu, 14 Mar 2002 12:28:38 -0500
-Received: from rj.sgi.com ([204.94.215.100]:39571 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S311688AbSCNR2h>;
-	Thu, 14 Mar 2002 12:28:37 -0500
-Date: Thu, 14 Mar 2002 09:28:08 -0800
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Erich Focht <focht@ess.nec.de>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Node affine NUMA scheduler
-Message-ID: <20020314172808.GB138234@sgi.com>
-Mail-Followup-To: Erich Focht <focht@ess.nec.de>,
-	lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20020314025818.GA136486@sgi.com> <Pine.LNX.4.21.0203141459260.12844-100000@sx6.ess.nec.de>
+	id <S311695AbSCNRlL>; Thu, 14 Mar 2002 12:41:11 -0500
+Received: from smokey.blackcatnetworks.co.uk ([212.135.138.139]:50375 "EHLO
+	smokey.blackcatnetworks.co.uk") by vger.kernel.org with ESMTP
+	id <S311694AbSCNRlB>; Thu, 14 Mar 2002 12:41:01 -0500
+Date: Thu, 14 Mar 2002 17:40:27 +0000
+From: Alex Walker <alex@x3ja.co.uk>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.5.6 and 2.5.7-pre1 - reiserfs?
+Message-ID: <20020314174027.H9664@x3ja.co.uk>
+In-Reply-To: <20020314162009.F9664@x3ja.co.uk> <20020314192916.A1929@namesys.com> <20020314170123.G9664@x3ja.co.uk> <20020314200337.A2186@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0203141459260.12844-100000@sx6.ess.nec.de>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020314200337.A2186@namesys.com>; from green@namesys.com on Thu, Mar 14, 2002 at 08:03:37PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 03:54:12PM +0100, Erich Focht wrote:
-> Jesse,
-> 
-> thanks for running the tests. Actually "hackbench" is a bad example for
-> the node affinity (though it's a good test for heavy scheduling). The code
-> forks but doesn't exec and therefore all hackbench tasks have the same
-> homenode. Also the tasks are not particularly memory bandwidth or latency
-> hungry, therefore node affinity won't speed them up. I'm actually glad
-> that they aren't slower, that shows that the additional overhead is small.
+On Thu, Mar 14, 2002 at 08:03:37PM +0300, Oleg Drokin wrote:
+> > Whilst I'm here... Is there a neat way to convert your root system
+> > from 3.5 to 3.6?  I tried "mount -o remount,conv /" which gave no
+> > errors, but didn't actually convert it.  I also tried adding conv to
+> > the options in /etc/fstab, but to similar effect...  Do I have to
+> > copy to a different partition with a 3.6 format and use that as my
+> > root to do it?
+> I think you need to pass "rootflags=conv" option to your kernel.  That
+> should work. Esp. if you do not use any kind of initrd.
 
-Alright, I'll try running some other numbers too, what can you
-recommend other than aim and kernel compiles?
+This doesn't work, sorry.
 
-> Thanks for sending the macros for SGI_SN1/2, I'll include them. You
-> probably use the DISCONTIGMEM patch, for that I append a small patch which
-> "couples" DISCONTIGEMEM with the node affine scheduler such that pages
-> will be allocated on the node current->node instead of the node on which
-> the task is currently running. Hackbench might slow down a bit but
-> AIM7 should improve.
+I get:
+EXT3-fs: Unrecognized mount option conv
+EXT2-fs: Unrecognized mount option conv
+found reiserfs format "3.5" with standard journal
+[Usual boot messages]
 
-Sounds good, I'll have to update those macros later too (Jack
-reminded me that physical node numbers aren't always the same as
-logical node numbers).
+on boot, which is odd.  I do have some EXT3 partitions too, but my root
+is certainly reiserfs.
 
-Jesse
+This probably isn't the right place to be asking for this kind of help I
+guess, but if anyone can shed any light - I would appreciate it.
+
+However I am in the process of creating some reiserfs boot disks so I
+can convert it...
+
+Alex
+
+-- 
+      ALEX|X3JA
+   alex@x3ja.co.uk
+    ICQ: 1523424
+MSN: x3ja@hotmail.com

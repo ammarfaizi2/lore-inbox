@@ -1,95 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266037AbTLIPWA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 10:22:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266038AbTLIPWA
+	id S266048AbTLIP2O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 10:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbTLIP2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 10:22:00 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:21754 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S266037AbTLIPV5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 10:21:57 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Stian Jordet <liste@jordet.nu>
-Subject: Re: sensors vs 2.6
-Date: Tue, 9 Dec 2003 10:21:42 -0500
-User-Agent: KMail/1.5.1
-Cc: Sebastian Kaps <seb-keyword-linux.637a6e@toyland.sauerland.de>,
-       linux-kernel@vger.kernel.org
-References: <200312090258.01944.gene.heskett@verizon.net> <200312090741.31290.gene.heskett@verizon.net> <1070981656.26479.7.camel@chevrolet.hybel>
-In-Reply-To: <1070981656.26479.7.camel@chevrolet.hybel>
+	Tue, 9 Dec 2003 10:28:14 -0500
+Received: from quechua.inka.de ([193.197.184.2]:64234 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S266048AbTLIP2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 10:28:13 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+Date: Tue, 09 Dec 2003 16:28:55 +0100
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2003.12.09.15.28.54.594379@dungeon.inka.de>
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com> <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org> <3FD577E7.9040809@nishanet.com> <pan.2003.12.09.09.46.27.327988@dungeon.inka.de> <yw1x4qwai8yx.fsf@kth.se>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312091021.42283.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.57.120] at Tue, 9 Dec 2003 09:21:43 -0600
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 December 2003 09:54, Stian Jordet wrote:
->tir, 09.12.2003 kl. 13.41 skrev Gene Heskett:
->> I have this:
->> -----------------------
->> [root@coyote linux-2.6]# grep I2C .config
->> # I2C support
->> CONFIG_I2C=y
->> CONFIG_I2C_CHARDEV=y
->> # I2C Algorithms
->> CONFIG_I2C_ALGOBIT=y
->> # CONFIG_I2C_ALGOPCF is not set
->> # I2C Hardware Bus support
->> # CONFIG_I2C_ALI1535 is not set
->> # CONFIG_I2C_ALI15X3 is not set
->> # CONFIG_I2C_AMD756 is not set
->> # CONFIG_I2C_AMD8111 is not set
->> # CONFIG_I2C_I801 is not set
->> # CONFIG_I2C_I810 is not set
->> # CONFIG_I2C_NFORCE2 is not set
->> # CONFIG_I2C_PHILIPSPAR is not set
->> # CONFIG_I2C_PIIX4 is not set
->> # CONFIG_I2C_PROSAVAGE is not set
->> # CONFIG_I2C_SAVAGE4 is not set
->> # CONFIG_I2C_SIS5595 is not set
->> # CONFIG_I2C_SIS630 is not set
->> # CONFIG_I2C_SIS96X is not set
->> CONFIG_I2C_VIA=y
->> CONFIG_I2C_VIAPRO=y
->> # CONFIG_I2C_VOODOO3 is not set
->> # I2C Hardware Sensors Chip support
->> CONFIG_I2C_SENSOR=y
->
->You seem to be missing support for a sensor chip.
+On Tue, 09 Dec 2003 10:29:05 +0000, Måns Rullgård wrote:
 
-That wasn't covered by this: ??
+> Andreas Jellinghaus <aj@dungeon.inka.de> writes:
+> 
+>> maybe add this to the faq?
+>>
+>> Q: devfs did load drivers when someone tried to open() a non existing
+>> device. will sysfs/hotplug/udev do this?
+>>
+>> A: there is no need to.
+> 
+> I never like it when the answer is "you don't want to do this".  It
+> makes me think of a certain Redmond based company.
 
-[root@coyote linux-2.6]# grep SENSORS .config
-# CONFIG_SENSORS_ADM1021 is not set
-CONFIG_SENSORS_EEPROM=y
-# CONFIG_SENSORS_IT87 is not set
-# CONFIG_SENSORS_LM75 is not set
-# CONFIG_SENSORS_LM78 is not set
-# CONFIG_SENSORS_LM85 is not set
-CONFIG_SENSORS_VIA686A=y
-CONFIG_SENSORS_W83781D=y
+ok, rephrase:
+A: all drivers are already loaded via the hotplug mechanism, and
+sysfs/udev did create the device. If it is still missing, you don't
+have drivers for your hardware.
 
-I just rebuilt, but haven't rebooted to test it yet, a kernel without 
-the VIA686 stuff just in case that was getting in the way.  I should 
-reboot and see what I've got now.
+better?
 
->
->Best regards,
->Stian
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Andreas
 

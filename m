@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266128AbSLOB44>; Sat, 14 Dec 2002 20:56:56 -0500
+	id <S266122AbSLOBz4>; Sat, 14 Dec 2002 20:55:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbSLOB44>; Sat, 14 Dec 2002 20:56:56 -0500
-Received: from adsl-64-161-31-90.dsl.sntc01.pacbell.net ([64.161.31.90]:59307
-	"EHLO doma.ballum") by vger.kernel.org with ESMTP
-	id <S266128AbSLOB4z>; Sat, 14 Dec 2002 20:56:55 -0500
-From: tho@doma.ballum.wikaba.com
-Reply-To: gthomsen@sbcglobal.net
-To: dri-devel@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.4.{19,20} fails to resume if radeon.o is loaded
-Date: Sat, 14 Dec 2002 18:04:06 -0800
-Message-Id: <E18NO8U-0005j1-00@doma.ballum>
+	id <S266128AbSLOBz4>; Sat, 14 Dec 2002 20:55:56 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:26328 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S266122AbSLOBzz>;
+	Sat, 14 Dec 2002 20:55:55 -0500
+Date: Sun, 15 Dec 2002 03:03:18 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021215020318.GC2265@werewolf.able.es>
+References: <Pine.LNX.4.33.0212132319280.29293-100000@router.windsormachine.com> <Pine.LNX.4.33.0212132345040.12319-100000@router.windsormachine.com> <20021214100125.GA30545@suse.de> <1039890995.17062.1.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1039890995.17062.1.camel@localhost>; from masterlee@digitalroadkill.net on Sat, Dec 14, 2002 at 19:36:35 +0100
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-after about a dozen reboots and half a dozen fscks, I finally was
-able to pinpoint the reason of why my laptop (ThinkPad X22 (2662XXK))
-wasn't able to resume after suspend.
+On 2002.12.14 GrandMasterLee wrote:
+>On Sat, 2002-12-14 at 04:01, Dave Jones wrote:
+>> On Fri, Dec 13, 2002 at 11:53:51PM -0500, Mike Dresser wrote:
+>>  > On Fri, 13 Dec 2002, Mike Dresser wrote:
+>>  > 
+>>  > > The single P4/2.53 in another machine can haul down in 3m17s
+>>  > >
+>>  > Amend that to 2m19s, forgot to kill a background backup that was moving
+>>  > files around at about 20 meg a second.
+>
+>
+>
+>> Note that there are more factors at play than raw cpu speed in a
+>> kernel compile. Your time here is slightly faster than my 2.8Ghz P4-HT for
+>> example.  My guess is you have faster disk(s) than I do, as most of
+>> the time mine seems to be waiting for something to do.
+>
+>An easy way to level the playing field would be to use /dev/shm to build
+>your kernel in. That way it's all in memory. If you've got a maching
+>with 512M, then it's easily accomplished.
+>
 
-The DRM module 'radeon.o' somehow prevents a successful resume (but
-not the suspend). Only after I made that module unavailable to the
-modutils, my laptop now successfully completes suspend/resume cycles.
+tmpfs does not guarantee you that it is always in ram. It also can be paged.
+An easier way is to fill you page cache with the kernel tree like
 
-I noticed also that the radeon.o module sometimes refuses to
-be removed claiming that some resources were still busy (while
-I wasn't aware of using DRM).
+werewolf:/usr/src/linux# grep -v -r "" *
 
-Software:
-vanilla Linux Kernel + FreeSWAN patch	2.4.19 as well as 2.4.20
-Debian 3.0
-	modutils	2.4.21
-	binutils	2.12.90.0.1 20020307
-	gcc		2.95.4
+and then build, so no disk read will be trown.
 
-Hardware:
-IBM ThinkPad X22 (2662XXK)
-	ATI Radeon Mobility M6 LY
-
-Please let me know, if I can help solving this issue by providing
-more information or otherwise. I'm actually OK with how things
-are right now (I don't use DRM), but this should be documented.
-Maybe the kernel build system should prevent one from choosing
-to build the radeon DRM as module, if CONFIG_APM is set?
-
-Guenther
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-jam1 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))

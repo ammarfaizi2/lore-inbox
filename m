@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSILPDg>; Thu, 12 Sep 2002 11:03:36 -0400
+	id <S316089AbSILPLc>; Thu, 12 Sep 2002 11:11:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316430AbSILPDg>; Thu, 12 Sep 2002 11:03:36 -0400
-Received: from [212.18.235.100] ([212.18.235.100]:21665 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id <S316289AbSILPDf>; Thu, 12 Sep 2002 11:03:35 -0400
-From: kernel@street-vision.com
-Message-Id: <200209121507.g8CF7cY07728@tench.street-vision.com>
-Subject: Re: AMD 760MPX DMA lockup
-To: kas@informatics.muni.cz (Jan Kasprzak)
-Date: Thu, 12 Sep 2002 15:07:38 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020912161258.A9056@fi.muni.cz> from "Jan Kasprzak" at Sep 12, 2002 04:12:58 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316182AbSILPLc>; Thu, 12 Sep 2002 11:11:32 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:10415 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S316089AbSILPLb>; Thu, 12 Sep 2002 11:11:31 -0400
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DE4E@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Soos Peter'" <sp@osb.hu>, linux-kernel@vger.kernel.org
+Subject: RE: APM & ACPI detect
+Date: Thu, 12 Sep 2002 08:16:05 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Soos Peter [mailto:sp@osb.hu] 
+> Are there any "official way" to detect that APM or ACPI is active?
 > 
-> 	Hello, kernel hackers,
+> With APM I try it and it works:
 > 
-> my dual athlon box is unstable in some situations. I can consistently
-> lock it up by running the following code:
+> #ifdef CONFIG_APM
+> #include <linux/apm_bios.h>
+> #endif
 > 
-> fd = open("/dev/hda3", O_RDWR);
-> for (i=0; i<1024*1024; i++) {
-> 	read(fd, buffer, 8192);
-> 	lseek(fd, -8192, SEEK_CUR);
-> 	write(fd, buffer, 8192);
+> ...
+> 
+> #ifdef CONFIG_APM
+> if (apm_info.disabled >= 0) {
+>                 printk(KERN_NOTICE "Real APM support is present.\n");
 > }
+> #endif
 > 
-> It locks up in a minute or so (solid lock up, it does not react even
-> to a NumLock key or console switching). It can surely be a HW problem
-> (this is a new box), but how to tell whether this is the case?
-> 
-> The mainboard is MSI K7D Master, AMD 760MPX chipset, 460W power supply,
-> 1GB RAM.
-> 
-> The box survived whole night of memtest86 and the whole night of three kernel
-> compiles running in parallel in an infinite loop.
-> 
-> This problem is on many recent kernels (tried 2.4.18-11 from RedHat "null",
-> 2.4.20-pre5-ac1, 2.4.20-pre5-ac5, 2.4.20-pre6). It does not matter whether
-> I compile the kernel SMP or UP, with or without CONFIG_HIGHMEM.
+> Are there any similar for ACPI?
 
-Well I have run this several times on my MPX, and it is fine.
+Well there's pm_active, which is 1 if either is on. Is this really what you
+want?
 
-This is 2.4.20-pre1, dual AMD 2000MP, only difference is it is the Tyan
-version of the MPX, not the MSI. 
-
-Justin
+Regards -- Andy

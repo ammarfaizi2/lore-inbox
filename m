@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280732AbRKBRCS>; Fri, 2 Nov 2001 12:02:18 -0500
+	id <S280731AbRKBQ63>; Fri, 2 Nov 2001 11:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280733AbRKBRCI>; Fri, 2 Nov 2001 12:02:08 -0500
-Received: from aloha.egartech.com ([62.118.81.133]:57870 "HELO
-	mx02.egartech.com") by vger.kernel.org with SMTP id <S280732AbRKBRCA>;
-	Fri, 2 Nov 2001 12:02:00 -0500
-Message-ID: <3BE2D20C.3F7E7817@egartech.com>
-Date: Fri, 02 Nov 2001 20:04:12 +0300
-From: Kirill Ratkin <kratkin@egartech.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA->USB
-In-Reply-To: <3BE29AC3.DEB4B31A@egartech.com> <3BE2CC18.976C2A9B@osdl.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2001 17:01:52.0150 (UTC) FILETIME=[117F2360:01C163C0]
+	id <S280732AbRKBQ6S>; Fri, 2 Nov 2001 11:58:18 -0500
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:51099 "EHLO
+	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S280731AbRKBQ6I>; Fri, 2 Nov 2001 11:58:08 -0500
+Date: Fri, 2 Nov 2001 08:58:03 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH][RFC] Proposal For A More Scalable Scheduler ...
+Message-ID: <20011102085803.A1150@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <20011031151243.E1105@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0110311544330.1484-100000@blue1.dev.mcafeelabs.com> <20011102072036.D17792@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011102072036.D17792@watson.ibm.com>; from frankeh@watson.ibm.com on Fri, Nov 02, 2001 at 07:20:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" wrote:
+On Fri, Nov 02, 2001 at 07:20:36AM -0500, Hubertus Franke wrote:
 > 
-> Kirill Ratkin wrote:
-> >
-> > Do somebody make driver for subject device now!?
+> One more. Throughout our MQ evaluation, it was also true that 
+> the overall performance particularly for large thread counts was
+> very sensitive to the goodness function, that why a na_goodness_local 
+> was introduced.
 > 
-> Do you have a web page reference for the subject device?
-No, It isn't finished yet. I thought may be somebody have made it
-already.
 
-> 
-> The usb-ohci driver has been known to work with PCMCIA/USB OHCI
-> cards.
-> 
-> ~Randy
+Correct, we did notice measurable differences in performance just
+from the additional (unnecessary) checks in goodness.  Unfortunately,
+the current version of MQ has 3 different (but similar) variations
+of the goodness function.  This is UGLY, and I intend to clean this
+up (without impacting performance of course :).
+
+-- 
+Mike

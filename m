@@ -1,129 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbULIVzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbULIV4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbULIVzz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 16:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbULIVzy
+	id S261637AbULIV4p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 16:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbULIV4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 16:55:54 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:11952 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261634AbULIVyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 16:54:18 -0500
-Date: Thu, 9 Dec 2004 21:54:14 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jakob Oestergaard <jakob@unthought.net>, Jan Kasprzak <kas@fi.muni.cz>,
-       linux-kernel@vger.kernel.org, kruty@fi.muni.cz
-Subject: Re: XFS: inode with st_mode == 0
-Message-ID: <20041209215414.GA21503@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jakob Oestergaard <jakob@unthought.net>,
-	Jan Kasprzak <kas@fi.muni.cz>, linux-kernel@vger.kernel.org,
-	kruty@fi.muni.cz
-References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041209135322.GK347@unthought.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 9 Dec 2004 16:56:45 -0500
+Received: from mail00hq.adic.com ([63.81.117.10]:25961 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261646AbULIVzx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 16:55:53 -0500
+Message-ID: <41B8C8F0.8000705@xfs.org>
+Date: Thu, 09 Dec 2004 15:51:44 -0600
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: negative dentry_stat.nr_unused causes aggressive dcache pruning
+References: <41B77D54.4080909@xfs.org>	<20041209020919.6f17e322.akpm@osdl.org>	<41B8BB96.4040006@xfs.org> <20041209131949.7862f0c8.akpm@osdl.org>
+In-Reply-To: <20041209131949.7862f0c8.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Dec 2004 21:55:46.0284 (UTC) FILETIME=[D64932C0:01C4DE39]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sorry, last post got out to far too few people]
+Andrew Morton wrote:
+> Steve Lord <lord@xfs.org> wrote:
 
-On Thu, Dec 09, 2004 at 02:53:23PM +0100, Jakob Oestergaard wrote:
-> On Thu, Dec 09, 2004 at 01:59:18PM +0100, Jan Kasprzak wrote:
-> > 	Hi all,
-> > 
-> > I have seen the strange problem on our NFS server: yesterday I have
-> > found an empty file owned by UID 0/GID 0 and st_mode == 0 in my home
-> > directory (ls -l said "?--------- 1 root root 0 <date> <filename>").
-> > The <filename> was correct name of a temporary file used by one of my
-> > cron jobs (and the cron job was failing because it could not rewrite the file).
-> > It was not possible to write to this file, so I have renamed it
-> > as "badfile" for further investigation (using mv(1) on the NFS server itself).
+>>
+>>I still do not know exactly how the count gets negative, but I tracked it
+>>down to a user space app from emulex called HBAanywhere. The only thing I
+>>can see this doing which might be related is attempting to open a lot of
+>>non-existant /proc entries:
+>>
+>>	/proc/scsi//120
+>>	/proc/scsi//121
+>>	etc...
+>>
+>>Yes there is a // in there.
+>>
+>>I ran with a BUG call if we manipulate nr_unused without the dcache lock
+>>and it never tripped. All very wierd.
+>>
 > 
-> Known problem
 > 
-> http://lkml.org/lkml/2004/11/23/283
+> Is that 2.4 or 2.6?
 > 
-> Seems there is no solution yet
+> I'd be expecting a systematic counting bug.  After all, nr_unused would
+> normally be in the thousands and it'd take a lot of races to get that down
+> to zero.
 > 
-> http://lkml.org/lkml/2004/11/30/145
 
-If it's really st_mode I suspect it's a different problem.  Can you retry
-with current oss.sgi.com CVS (or the patch below).  Note that this patch
-breaks xfsdump unfortunately, we're looking into a fix.
+  2.4.20-31.9 (aka Yea Olde Kernel), it is a redhat 9.0 update from the
+  fedora legacy project.
 
-> > Maybe some data is flushed in an incorrect order?
-> 
-> Maybe  :)
+Something is pushing down hard on the dcache, I can watch the numbers
+drop after boot up. They start out a few hundred but within a few
+minutes they go negative.
 
-No, the problem I've fixed was related to XFS getting the inode version
-number wrong - or at least different than NFSD expects.
+I have a fiber channel driver from out the tree loaded (emulex lpfcdd)
+but it does not appear to mess with dcache entries itself. Nothing else
+from outside the tree. I have not had a chance to try 2.6 yet, not
+even sure this code would run on 2.6.
+
+I don't have the source of this app, so all I can do is strace it and
+watch that. Actually I don't even need the app, so I can make the problem
+go away, but it seems very odd that a user space program can do this.
+
+If I start up the program and watch /proc/sys/fs/dentry-state every second
+or so I see a sequence something like this:
+slord@k4> cat /proc/sys/fs/dentry-state
+368     22      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+364     18      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+363     16      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+361     14      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+361     14      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+359     13      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+359     13      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+359     13      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+359     13      45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+348     5       45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+332     -16     45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+332     -16     45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+332     -16     45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+332     -16     45      0       0       0
+slord@k4> cat /proc/sys/fs/dentry-state
+332     -16     45      0       0       0
+
+Its not like I am low on memory though:
+slord@k4> free
+              total       used       free     shared    buffers     cached
+Mem:       1030108     244932     785176          0      15012     147808
+-/+ buffers/cache:      82112     947996
+Swap:      1574360         76    1574284
+
+All I can see the program doing is attempting to open these non-existent
+/proc entries and doing an ioctl FIBMAP on a /dev/ device bound to the fiber
+channel driver. Of course, FIBMAP is not FIBMAP in this driver.
+
+It looks like a steaming pile in there, and I think I am just going to
+assume the driver is guilty until proven innocent.
 
 
-Index: fs/xfs/xfs_ialloc.c
-===================================================================
-RCS file: /cvs/linux-2.6-xfs/fs/xfs/xfs_ialloc.c,v
-retrieving revision 1.175
-diff -u -p -r1.175 xfs_ialloc.c
---- fs/xfs/xfs_ialloc.c	6 Oct 2003 18:11:55 -0000	1.175
-+++ fs/xfs/xfs_ialloc.c	30 Nov 2004 10:18:16 -0000
-@@ -270,6 +270,11 @@ xfs_ialloc_ag_alloc(
- 	INT_SET(dic.di_magic, ARCH_CONVERT, XFS_DINODE_MAGIC);
- 	INT_SET(dic.di_version, ARCH_CONVERT, version);
- 
-+	/*
-+	 * Start at generation 1 because the NFS code uses 0 as wildcard.
-+	 */
-+	INT_SET(dic.di_gen, ARCH_CONVERT, 1);
-+
- 	for (j = 0; j < nbufs; j++) {
- 		/*
- 		 * Get the block.
-Index: fs/xfs/xfs_inode.c
-===================================================================
-RCS file: /cvs/linux-2.6-xfs/fs/xfs/xfs_inode.c,v
-retrieving revision 1.406
-diff -u -p -r1.406 xfs_inode.c
---- fs/xfs/xfs_inode.c	27 Oct 2004 12:06:24 -0000	1.406
-+++ fs/xfs/xfs_inode.c	30 Nov 2004 10:18:18 -0000
-@@ -1028,6 +1028,16 @@ xfs_iread(
- 		ip->i_d.di_projid = 0;
- 	}
- 
-+	/*
-+	 * IRIX and older Linux Kernel initialized di_gen to zero when
-+	 * creating new inodes, but the NFSD uses i_generation = 0 as
-+	 * a wildcard.  We bump di_gen here to avoid that problem for new
-+	 * exports, and filehandles created by an older kernel using
-+	 * the same filesystem are still valid as the wildcard matches it.
-+	 */
-+	if (unlikely(ip->i_d.di_gen == 0))
-+		ip->i_d.di_gen++;
-+
- 	ip->i_delayed_blks = 0;
- 
- 	/*
-@@ -2370,11 +2380,17 @@ xfs_ifree(
- 		XFS_IFORK_DSIZE(ip) / (uint)sizeof(xfs_bmbt_rec_t);
- 	ip->i_d.di_format = XFS_DINODE_FMT_EXTENTS;
- 	ip->i_d.di_aformat = XFS_DINODE_FMT_EXTENTS;
-+
- 	/*
- 	 * Bump the generation count so no one will be confused
--	 * by reincarnations of this inode.
-+	 * by reincarnations of this inode.  Note that we have to
-+	 * skip 0 as that would confuse the NFS server, and we
-+	 * have to do it here because the XFS inode might be
-+	 * around for a while after deletion (unlike the normal
-+	 * Linux inode semantics).
- 	 */
--	ip->i_d.di_gen++;
-+	if (++ip->i_d.di_gen == 0)
-+		ip->i_d.di_gen++;
- 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
- 
- 	if (delete) {
+Steve
+
+

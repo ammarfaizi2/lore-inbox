@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbTHYC5q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 22:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTHYC5q
+	id S261410AbTHYDGF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 23:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbTHYDGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 22:57:46 -0400
-Received: from [62.75.136.201] ([62.75.136.201]:14739 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261408AbTHYC5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 22:57:44 -0400
-Message-ID: <3F499638.5040105@g-house.de>
-Date: Mon, 25 Aug 2003 06:53:12 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030815
-X-Accept-Language: de, en
+	Sun, 24 Aug 2003 23:06:05 -0400
+Received: from dyn-ctb-210-9-243-120.webone.com.au ([210.9.243.120]:6916 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261410AbTHYDGC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 23:06:02 -0400
+Message-ID: <3F497CEC.3030507@cyberone.com.au>
+Date: Mon, 25 Aug 2003 13:05:16 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: parport_pc Oops with 2.6.0-test3
-References: <3F40B665.2010407@g-house.de> <20030824030043.729a5786.akpm@osdl.org>
-In-Reply-To: <20030824030043.729a5786.akpm@osdl.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy
+References: <3F48B12F.4070001@cyberone.com.au> <1061735355.1034.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1061735355.1034.2.camel@teapot.felipe-alfaro.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Can you retest on 2.6.0-test4?
 
-i have, but with no (?) changes:
 
-prinz:~$ modprobe parport_pc
-parport0: PC-style at 0x378 (0x778), irq 7, using FIFO 
-[PCSPP,TRISTATE,COMPAT,ECP]
-prinz:~$ rmmod parport_pc
-Unable to handle kernel paging request at virtual address e1a4f164
-  printing eip:
-  e1a4757a
-  *pde = 1fe2a067
-  *pte = 00000000
-  Oops: 0000 [#1]
-  CPU:    0
-  EIP:    0060:[<e1a4757a>]    Tainted: P
-  EFLAGS: 00010282
-  EIP is at cleanup_module+0xa/0x50 [parport_pc]
-  eax: deab8980   ebx: e1a4b2c0   ecx: 00000000   edx: e1a4b2c0
-  esi: 00000880   edi: 00000000   ebp: c0320318   esp: dae47f50
-  ds: 007b   es: 007b   ss: 0068
-  Process rmmod (pid: 618, threadinfo=dae46000 task=dcda4640)
-  Stack: dae47f70 e1a4b2c0 00000880 c01346a8 e1a4b2c0 bffffce0 \
-         0000003b 00000000
-         70726170 5f74726f c0006370 dfd69940 db6be180 dfd60280 \
-         40014000 40015000
-         40015000 dfd60280 dfd69940 dfd69960 00000000 dae46000 \
-         00148634 dfd69940
-  Call Trace:
-  [<c01346a8>] sys_delete_module+0x138/0x1b0
-  [<c010929b>] syscall_call+0x7/0xb
+Felipe Alfaro Solana wrote:
 
-Code: 8b 15 64 f1 a4 e1 89 c3 85 d2 74 29 85 db 74 15 8d b6 00 00
-Segmentation fault
-prinz:~$
+>On Sun, 2003-08-24 at 14:35, Nick Piggin wrote:
+>
+>>Hi,
+>>Patch against 2.6.0-test4. It fixes a lot of problems here vs
+>>previous versions. There aren't really any open issues for me, so
+>>testers would be welcome.
+>>
+>>The big change is more dynamic timeslices, which allows "interactive"
+>>tasks to get very small timeslices while more compute intensive loads
+>>can be given bigger timeslices than usual. This works properly with
+>>nice (niced processes will tend to get bigger timeslices).
+>>
+>>I think I have cured test-starve too.
+>>
+>
+>I haven't still found any starvation cases, but forking time when the
+>system is under heavy load has increased considerable with respect to
+>vanilla or Con's O18.1int:
+>
+>1. On a Konsole session, run "while true; do a=2; done"
+>2. Now, try forming a new Konsole session and you'll see it takes
+>approximately twice the time it takes when the system is under no load.
+>
 
-(oh, yes, it's tainted again. the nvidia.ko module. but it oopsed with a 
-non-tainted 2.6.0-test3 too: 
-http://christian.go4more.de/parport/parport_oops.txt )
+Yeah, it probably penalises parents and children too much on fork, and
+doesn't penalise parents of exiting cpu hogs enough. I have noticed
+this too.
 
-thank you for your time,
-Christian.
--- 
-BOFH excuse #161:
+>
+>Also, renicing X to -20 helps X interactivity, while with Con's patches,
+>renicing X to -20 makes it feel worse.
+>
 
-monitor VLF leakage
+renicing IMO is a lot more sane in my patches, although others might
+disagree. In Con's patches, when you make X -20, it gets huge timeslices.
+In my version, it will get lots of smaller timeslices.
+
+Thanks again for testing.
+
+Nick
 

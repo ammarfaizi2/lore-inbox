@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268220AbTALEIm>; Sat, 11 Jan 2003 23:08:42 -0500
+	id <S268228AbTALEKs>; Sat, 11 Jan 2003 23:10:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268224AbTALEIm>; Sat, 11 Jan 2003 23:08:42 -0500
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:16604 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S268220AbTALEIl>; Sat, 11 Jan 2003 23:08:41 -0500
-Date: Sat, 11 Jan 2003 23:15:31 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: The GPL, the kernel, and everything else.
-In-reply-to: <20030112010621.GD12020@michonline.com>
-To: Ryan Anderson <ryan@michonline.com>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042344930.1034.161.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
- <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
- <20030111020738.GC9373@work.bitmover.com>
- <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
- <20030111021741.GF9373@work.bitmover.com>
- <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
- <20030111214437.GD9153@nbkurt.casa-etp.nl>
- <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
- <20030111233633.A17042@ucw.cz>
- <1042325870.1034.45.camel@RobsPC.RobertWilkens.com>
- <20030112010621.GD12020@michonline.com>
+	id <S268227AbTALEKs>; Sat, 11 Jan 2003 23:10:48 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:50923 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S268225AbTALEKr> convert rfc822-to-8bit; Sat, 11 Jan 2003 23:10:47 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <mark@mark.mielke.cc>
+CC: Linux kernel list <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Sat, 11 Jan 2003 20:19:32 -0800
+In-Reply-To: <20030112033325.GA14644@mark.mielke.cc>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030112041934.AAA18620@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-11 at 20:06, Ryan Anderson wrote:
-> Because, to a large extent, for the core kernel developers, the existing
-> system is fine.
+On Sat, 11 Jan 2003 22:33:25 -0500, Mark Mielke wrote:
 
-If you're designing a system for kernel developers use, then that's
-fine.  But if you want to see linux proliferate to the average desktop
-(and I do), then you've got to look at the bigger picture.  There
-_should_ be a way for a company like nvidia to build a binary driver,
-adn ship it in binary form, maybe even digitally signed the way
-microsoft allows digital signing of drivers so you know the driver is
-legit and OK.  
+>Why do I doubt the calibre of vxWorks? People I trust who work on RT
+>systems
+>have told me that in many cases, products with RT requirements can
+>perform
+>better on Linux, than on vxWorks. (Better meaning managing a higher
+>capacity without significant side effects)
 
-> progress.  ("Stream of consciousness" might not be a bad analogy)
+	This is an atrocious way to compare a real-time operating system to 
+a non-real-time operating system. One would expect that real-time's 
+benefits also come at a cost, otherwise all operating systems would 
+be real-time operating systems.
 
-It's actually a good analogy.  What mailing list (if not the kernel
-mailing list) do I sign up for if I want to read about the design
-aspects of the kernel.  I realize and understand if this is an exclusive
-members-only list that doesn't allow the likes of me into its
-membership.
+	Perhaps Linux can handle more web clients than vxWorks, but can 
+Linux guarantee that if the temperature in the core coolant exceeds 
+350 degrees, the secondary pump circuit will be activated within 13 
+milliseconds?
 
-> There is, but it's not CVS.  CVS has... issues when you get into complex
+	A cheap hammer can drive in more nails than a top of the line 
+screwdriver.
 
-I just read about bitkeeper in the "Virtual Memory Manager" document
-someone posted tonight (of all the places to learn about it)...
+	DS
 
-Anyway, I've put that document aside, but will probably get back to it
-later.
-
--Rob
 

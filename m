@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318322AbSHEFui>; Mon, 5 Aug 2002 01:50:38 -0400
+	id <S318308AbSHEFs3>; Mon, 5 Aug 2002 01:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318323AbSHEFuh>; Mon, 5 Aug 2002 01:50:37 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:25279 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318322AbSHEFug>;
-	Mon, 5 Aug 2002 01:50:36 -0400
-Date: Sun, 04 Aug 2002 22:40:43 -0700 (PDT)
-Message-Id: <20020804.224043.06804556.davem@redhat.com>
-To: frankeh@watson.ibm.com
-Cc: torvalds@transmeta.com, davidm@hpl.hp.com, davidm@napali.hpl.hp.com,
-       gh@us.ibm.com, Martin.Bligh@us.ibm.com, wli@holomorpy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: large page patch (fwd) (fwd)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200208041331.24895.frankeh@watson.ibm.com>
-References: <Pine.LNX.4.44.0208031027330.3981-100000@home.transmeta.com>
-	<20020803.172836.60864598.davem@redhat.com>
-	<200208041331.24895.frankeh@watson.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318312AbSHEFs2>; Mon, 5 Aug 2002 01:48:28 -0400
+Received: from mail.pixelwings.com ([194.152.163.212]:27151 "EHLO
+	pixelwings.com") by vger.kernel.org with ESMTP id <S318308AbSHEFs0>;
+	Mon, 5 Aug 2002 01:48:26 -0400
+Date: Mon, 5 Aug 2002 07:51:59 +0200
+From: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
+X-Mailer: The Bat! (v1.61) Personal
+Reply-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
+Organization: Chaos is just another way of organisation
+X-Priority: 3 (Normal)
+Message-ID: <22123693381.20020805075159@eunet.at>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19 framebuffer issues?
+In-Reply-To: <20020805033909.4477.qmail@operamail.com>
+References: <20020805033909.4477.qmail@operamail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Hubertus Franke <frankeh@watson.ibm.com>
-   Date: Sun, 4 Aug 2002 13:31:24 -0400
-   
-   Can we tweak the buddy allocator to give us this additional functionality?
+Hello Malcolm, 
 
-Absolutely not, it's a total lose.
+Monday, August 5, 2002, 5:39:09 AM, Malcolm Smith  wrote,
+and I answered on Montag, 05. August 2002, 07:49:30 with this ...
 
-I have tried at least 5 times to make it work without fragmenting the
-buddy lists to shit.  I channege you to code one up that works without
-fragmenting things to shreds.  Just run an endless kernel build over
-and over in a loop for a few hours to a day.  If the buddy lists are
-not fragmented after these runs, then you have succeeded in my
-challenge.
+> Has anybody else had any issues with 2.4.19 fb code?
 
-Do not even reply to this email without meeting the challenge as it
-will fall on deaf ears.  I've been there and I've done that, and at
-this point code talks bullshit walks when it comes to trying to
-colorize the buddy allocator in a way that actually works and isn't
-disgusting.
+using 2.4.19-ac2 here and no real problems at the moment.
+
+> 1. Displays everything 1cm to the right (compared to 2.4.18) - annoying, but ok
+
+can't confirm this, as I change the resolution when I rebootet to .19
+...
+
+> 3. Related, X won't work on it.
+
+X works fine here ...
+
+> Also,  I  don't think my driver (SiS) is working right - the vga and
+> vesa  drivers  seem to, but from memory, compiling a kernel with sis
+> alone runs in text mode.
+
+> Can anybody shed any light on these problems?
+
+with my crap VIA & my wonderful Matrox I have no Problems here :)
+lucky me ...
+
+best regards, Clemens
+-- 
+_________/\_____________________              ^_^             ()~()
+Clemens 'Gullevek' Schwaighofer \_______ @_@       ^_~       //@ @\\
+ICQ#: 9646646        I AM FROM AUSTRIA! \______________ °_° //\ ~ /\\
+http://www.animeundmanga.at | http://www.gullevek.org  \_____________
+

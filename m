@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314938AbSGUQYt>; Sun, 21 Jul 2002 12:24:49 -0400
+	id <S316530AbSGUQiq>; Sun, 21 Jul 2002 12:38:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315202AbSGUQYt>; Sun, 21 Jul 2002 12:24:49 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:47528 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S314938AbSGUQYs>;
-	Sun, 21 Jul 2002 12:24:48 -0400
-Date: Sun, 21 Jul 2002 18:26:49 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S316542AbSGUQiq>; Sun, 21 Jul 2002 12:38:46 -0400
+Received: from ns.suse.de ([213.95.15.193]:29200 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316530AbSGUQip>;
+	Sun, 21 Jul 2002 12:38:45 -0400
+Date: Sun, 21 Jul 2002 18:41:51 +0200
+From: Dave Jones <davej@suse.de>
+To: Markus Pfeiffer <profmakx@profmakx.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 'select' failure or signal should not update timeout
-In-Reply-To: <ahau4q$1n2$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0207211817200.17344-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: CPU detection broken in 2.5.27?
+Message-ID: <20020721184151.A17463@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Markus Pfeiffer <profmakx@profmakx.org>, linux-kernel@vger.kernel.org
+References: <200207211537.03813.mcp@linux-systeme.de> <3D3ADC3E.9050307@milliways.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D3ADC3E.9050307@milliways.de>; from profmakx@profmakx.org on Sun, Jul 21, 2002 at 06:07:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 21, 2002 at 06:07:26PM +0200, Markus Pfeiffer wrote:
 
-On Sat, 20 Jul 2002, Linus Torvalds wrote:
+ > I just noticed that my /proc/cpuinfo states wrong or incomplete 
+ > information about my processor. My PIII-1000M Processor is reported as 
+ > 00/0B (Stepping?)
 
-> The thing is, nobody should really ever use timeouts, because the notion
-> of "I want to sleep X seconds" is simply not _useful_ if the process
-> also just got delayed by a page-out event as it said so.  What does "X
-> seconds" mean at that point? It's ambiguous - and the kernel will (quite
-> naturally) just always assume that it is "X seconds from when the kernel
-> got notified".
-> 
-> A _useful_ interface would be to say "I want to sleep to at most time X"
-> or "to at least time X".  Those are unambiguous things to say, and are
-> not open to interpretation.
+Yep, I told Patrick about this last week sometime. The problem is
+that only later Intels (from P4 onwards iirc) have the
+name string cpuid function. Without which we need a table to
+do the family/model/stepping translation to name strings.
 
-on the other hand, the application itself cannot even know what exact
-absolute time it is, in any unambiguous form - what if right after the
-gettimeofday() it got scheduled away and swapped out for many seconds?
+It's not that much work (and most of it already exists in the
+kernels before the per-cpu split up).
 
-so the notion of 'sleep until absolute time X' just brings the 'time
-uncertainity' down one more level, it doesnt eliminate it.
+        Dave
 
-the rounding issue is valid when an unlimited number of restarts are
-allowed - N x relative timeouts are numerically inaccurate. But there is
-no fundamental difference (only performance difference): correct timeouts
-can be achieved even if the kernel interface only supports relative
-timeouts: the application has to save the absolute target time and has to
-recalculate the relative timeout based on the target date and current
-date. (which involves multiple calls to gettimeofday(), so it's additional
-overhead.)
-
-	Ingo
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,75 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312579AbSDVFTz>; Mon, 22 Apr 2002 01:19:55 -0400
+	id <S314056AbSDVFkT>; Mon, 22 Apr 2002 01:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314052AbSDVFTy>; Mon, 22 Apr 2002 01:19:54 -0400
-Received: from mail.bmlv.gv.at ([193.171.152.34]:46506 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id <S312579AbSDVFTy>;
-	Mon, 22 Apr 2002 01:19:54 -0400
-Message-Id: <3.0.6.32.20020422072320.009347f0@pop3.bmlv.gv.at>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Mon, 22 Apr 2002 07:23:20 +0200
-To: sct@redhat.com, akpm@zip.com.au, adilger@turbolinux.com
-From: "Ph. Marek" <marek@bmlv.gv.at>
-Subject: Re: [PATCH] open files in kjounald (2)
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S314057AbSDVFkS>; Mon, 22 Apr 2002 01:40:18 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30475
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S314056AbSDVFkS>; Mon, 22 Apr 2002 01:40:18 -0400
+Date: Sun, 21 Apr 2002 22:38:23 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Hans-Peter Jansen <hpj@urpla.net>
+cc: andersen@codepoet.org, drd@homeworld.ath.cx, linux-kernel@vger.kernel.org
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
+ reading damadged files
+In-Reply-To: <20020422005439.0799e874.hpj@urpla.net>
+Message-ID: <Pine.LNX.4.10.10204212235220.24428-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, got it the wrong way around :-(
 
+You have addressed the core problem I have been working on quietly.
+The export of the sense data and end request per subdriver is required to
+make the personalities proper.  This is messy for two of the four current
+subdrivers, and teh fifth new one will be clean from the start.
 
-Hello everybody!
+Cheers,
 
-As I wrote in my mail the previous week ("BUG: 2.4.19pre1 & journal_thread
-& open filehandles") I followed the problem a little bit further.
+Andre Hedrick
+LAD Storage Consulting Group
 
-Here's my patch; I beg the ext3-maintainers (Stephen, Andreas, Andrew) to
-have a look at it and submit it to Marcelo and Linux for inclusion.
-(2.4 is for now for me more important than 2.5).
+On Mon, 22 Apr 2002, Hans-Peter Jansen wrote:
 
-
-Patch
------
-
-On every mount of ext3 (and I suppose all journaling filesystems which use
-jbd, although I didn't test this) a new kjournald is created. All kjournald
-share the same file-information.
-
-Before this patch it would accumulativly fetch open files from the calling
-process (normally mount); I verified this via (in bash)
-	exec 30< /etc/services
-	mount <partition> /mnt/tmp
-	ps -aux | grep kjournald
-	ls -la <pid of any kjournald>
-gives, among 0, 1 and 2
-	30 -> /etc/services
-
-This is really awful as you can't umount devfs (normally /dev/console is
-opened as from the start-scripts) and so / can't be umounted.
-
-After applying this patch the open files were gone.
-
-
-Please apply this patch ASAP - thank you very much.
-
-
-Regards,
-
-Phil
-
-
-diff -ru linux/fs/jbd/journal.c linux.ori/fs/jbd/journal.c
---- linux.ori/fs/jbd/journal.c  Mon Apr 22 06:28:54 2002
-+++ linux/fs/jbd/journal.c      Mon Apr 22 06:29:16 2002
-@@ -204,7 +204,6 @@
-
-        lock_kernel();
-        daemonize();
-+       exit_files(current);
-        spin_lock_irq(&current->sigmask_lock);
-        sigfillset(&current->blocked);
-        recalc_sigpending(current);
+> On Fri, 19 Apr 2002 14:01:13 -0600
+> "Erik Andersen" <andersen@codepoet.org> wrote:
+> 
+> > This should help somewhat.  Currently, ide-cd.c retries ERROR_MAX
+> > (8) times when it sees an error.  But ide.c is also retrying
+> > ERROR_MAX times when _it_ sees an error, and does a bus reset
+> > after evey 4 failures.  So for each bad sector, you get 64
+> > retries (with typical timouts of 7 seconds each) plus 16 bus
+> > resets per bad sector.
+> 
+> Thanks for investigation. BTW: Does this cover the ide-scsi case, too?
+>  
+> > The funny thing is though, we knew after the first read that we
+> > had an uncorrectable medium error.  Try this patch vs 2.4.19-pre7
+> > 
+> > --- linux/drivers/ide/ide-cd.c.orig	Tue Apr  9 06:59:56 2002
+> > +++ linux/drivers/ide/ide-cd.c	Tue Apr  9 07:04:59 2002
+> > @@ -657,6 +657,11 @@
+> >  			   request or data protect error.*/
+> >  			ide_dump_status (drive, "command error", stat);
+> >  			cdrom_end_request (0, drive);
+> > +		} else if (sense_key == MEDIUM_ERROR) {
+> > +			/* No point in re-trying a zillion times on a bad 
+> > +			 * sector...  If we got here the error is not correctable */
+> > +			ide_dump_status (drive, "media error (bad sector)", stat);
+> 
+> .. and some curious will want to know which sector has thrown the error 
+> [which would save me to patch this some day myself...]
+> 
+> > +			cdrom_end_request (0, drive);
+> >  		} else if ((err & ~ABRT_ERR) != 0) {
+> >  			/* Go to the default handler
+> >  			   for other errors. */
+> >  -Erik
+> > 
+> > --
+> > Erik B. Andersen             http://codepoet-consulting.com/
+> > --This message was written using 73% post-consumer electrons--
+> 
+> Cheers,
+>   Hans-Peter
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

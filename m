@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136299AbRD2UYw>; Sun, 29 Apr 2001 16:24:52 -0400
+	id <S131480AbRD2U2X>; Sun, 29 Apr 2001 16:28:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136327AbRD2UYn>; Sun, 29 Apr 2001 16:24:43 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:24838 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136334AbRD2UXi>; Sun, 29 Apr 2001 16:23:38 -0400
-Message-ID: <3AEC7842.B6AB7663@transmeta.com>
-Date: Sun, 29 Apr 2001 13:23:30 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+	id <S136330AbRD2U2O>; Sun, 29 Apr 2001 16:28:14 -0400
+Received: from 13dyn119.delft.casema.net ([212.64.76.119]:59653 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131481AbRD2U1L>; Sun, 29 Apr 2001 16:27:11 -0400
+Message-Id: <200104292027.WAA25283@cave.bitwizard.nl>
 Subject: Re: Sony Memory stick format funnies...
-In-Reply-To: <200104292018.WAA25250@cave.bitwizard.nl>
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3AEC76E1.EF589359@transmeta.com> from "H. Peter Anvin" at "Apr
+ 29, 2001 01:17:37 pm"
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Date: Sun, 29 Apr 2001 22:27:08 +0200 (MEST)
+CC: Gregory Maxwell <greg@linuxpower.cx>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff wrote:
-> >
-> > I doubt the kernel is seeing it without it being there (it doesn't have
-> > much imagination.)  However, it may very well be there in a funny
-> > manner.  You do realize, of course, that it's pretty much impossible for
-> > us to help you answer that question without a complete dump of the
-> > filesystem on hand, I hope?
+H. Peter Anvin wrote:
+> Gregory Maxwell wrote:
+> > >
+> > > I doubt the kernel is seeing it without it being there (it doesn't have
+> > > much imagination.)  However, it may very well be there in a funny
+> > > manner.  You do realize, of course, that it's pretty much impossible for
+> > > us to help you answer that question without a complete dump of the
+> > > filesystem on hand, I hope?
+> > 
+> > He gave what he thought was a complete dump of the non-null bytes. The
+> > obvious answer is that he's looking wrong. :)
+> > 
 > 
-> Yes, I realize. That's why I gave the whole dump in the first Email.
-> 
-> These are all lines of 16 bytes that do not contain only zeroes or
-> only 0xff's.
-> 
+> Hence the "complete" part...
 
-I can't test kernel behaviour with a hexdump!  I think the first thing
-you should do is dd your entire thing to a file, mount it loopback, and
-see if the behaviour reoccurs or not using the file.  Then you may want
-to consider posting the binary somewhere.
+OK. 
 
-	-hpa
+The image of the disk (including partition table) is at:
+
+	ftp://ftp.bitwizard.nl/misc_junk/formatted.img.gz
+
+It's 63kb and uncompresses to the 64Mb (almost) that it's sold as.
+
+			Roger. 
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

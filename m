@@ -1,39 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUEOSHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUEOSJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUEOSHl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 14:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEOSHl
+	id S261752AbUEOSJL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 14:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUEOSJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 14:07:41 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:6924 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261205AbUEOSHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 14:07:40 -0400
-Date: Sat, 15 May 2004 19:07:35 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: axboe@suse.de, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slabify iocontext + request_queue
-Message-ID: <20040515190735.A4189@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, axboe@suse.de,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Sat, 15 May 2004 14:09:11 -0400
+Received: from mxout2.iskon.hr ([213.191.128.16]:42943 "HELO mxout2.iskon.hr")
+	by vger.kernel.org with SMTP id S261752AbUEOSJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 14:09:06 -0400
+X-Remote-IP: 213.191.128.11
+X-Remote-IP: 213.202.124.154
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz, netdev@oss.sgi.com,
+       jgarzik@pobox.com
+Subject: Re: [PATCH] Re: ethernet/b44: Bug in b44.c:v0.93 (Mar, 2004)
+ ethernet driver in 2.6.6
+X-face: GK)@rjKTDPkyI]TBX{!7&/#rT:#yE\QNK}s(-/!'{dG0r^_>?tIjT[x0aj'Q0u>a
+              yv62CGsq'Tb_=>f5p|$~BlO2~A&%<+ry%+o;k'<(2tdowfysFc:?@($aTGX
+              4fq`u}~4,0;}y/F*5,9;3.5[dv~C,hl4s*`Hk|1dUaTO[pd[x1OrGu_:1%-lJ]W@
+Organization: EINPROGRESS
+X-Operating-System: GNU/Linux 2.6.5
+Mail-Copies-To: never
+References: <lzekpnlxwl.fsf@nimiumvax.nimium.local>
+	<20040514130206.GA9583@ee.oulu.fi> <20040515120518.GA9480@ee.oulu.fi>
+	<20040515121112.GA9579@ee.oulu.fi>
+From: Miroslav Zubcic <mvz@nimium.com>
+In-Reply-To: <20040515121112.GA9579@ee.oulu.fi> (Pekka Pietikainen's message
+ of "Sat, 15 May 2004 15:11:12 +0300")
+Message-ID: <lzbrkp36rr.fsf@anthea.home.int>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Date: Sat, 15 May 2004 20:07:50 +0200
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this just went in:
+Pekka Pietikainen <pp@ee.oulu.fi> writes:
 
->  From: Jens Axboe <axboe@suse.de>
-> 
-> Move both request_queue and io_context allocation to a slab cache.
-> 
-> This is mainly a space-saving exercise.  Some setups have a lot of disks
-> and the kmalloc rounding-up can consume significant amounts of memory.
+> On Sat, May 15, 2004 at 03:05:19PM +0300, Pekka Pietikainen wrote:
+>> +	/* Enable CRC32, set proper LED modes and power on MAC */
+>> +	bw32(B44_MAC_CTRL, MAC_CTRL_CRC32_ENAB | MAC_CTRL_PHY_LEDCTRL);
+> Erk, that comment should of course be "power on PHY". I hate acronyms...
+>
+> --- linux-2.6.5-1.358/drivers/net/b44.c.orig	2004-05-15 13:59:57.000000000 +0300
+> +++ linux-2.6.5-1.358/drivers/net/b44.c	2004-05-15 14:59:39.794720368 +0300
+> @@ -27,8 +27,8 @@
 
-While I agree on the io_context part, slabifying request_queue is a space
-waste on most machines out there.  The averange desktop has less than a
-handfull of these, and even for smaller servers it doesn't exactly look
-like a gain.
+Pekka, thank you very much for your patch. It looks like things are
+working now:
+
+dmesg part:
+b44.c:v0.95 (May 15, 2004)
+...
+eth0: Broadcom 4400 10/100BaseT Ethernet 00:08:02:e2:2d:ba
+ip_tables: (C) 2000-2002 Netfilter core team
+b44: eth0: Link is down.
+b44: eth0: Link is up at 100 Mbps, full duplex.
+b44: eth0: Flow control is off for TX and off for RX.
+
+I have tried moving large packets, NFS, ping etc ... no problem
+anymore, it works.
+
+Thanks again!
+
+
+-- 
+		The Network is the Filesystem.
+

@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbUL2CRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbUL2CUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbUL2CRN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 21:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbUL2CRN
+	id S261310AbUL2CUh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 21:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbUL2CUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 21:17:13 -0500
-Received: from 80-219-192-102.dclient.hispeed.ch ([80.219.192.102]:12958 "EHLO
-	xbox.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
-	id S261306AbUL2CRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 21:17:09 -0500
-Subject: Re: ptrace single-stepping change breaks Wine
-From: Thomas Sailer <sailer@scs.ch>
-To: Mike Hearn <mh@codeweavers.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Jesse Allen <the3dfxdude@gmail.com>, Daniel Jacobowitz <dan@debian.org>,
-       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-In-Reply-To: <1101161953.13273.7.camel@littlegreen>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
-	 <419E42B3.8070901@wanadoo.fr>
-	 <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
-	 <419E4A76.8020909@wanadoo.fr>
-	 <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
-	 <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
-	 <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
-	 <20041120214915.GA6100@tesore.ph.cox.net> <41A251A6.2030205@wanadoo.fr>
-	 <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>
-	 <1101161953.13273.7.camel@littlegreen>
-Content-Type: text/plain
-Organization: Supercomputing Systems AG
-Date: Wed, 29 Dec 2004 03:14:19 +0100
-Message-Id: <1104286459.7640.54.camel@gamecube.scs.ch>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Dec 2004 21:20:36 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:7947 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S261308AbUL2CUb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 21:20:31 -0500
+Message-ID: <41D2152F.8080501@conectiva.com.br>
+Date: Wed, 29 Dec 2004 00:23:43 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Organization: Conectiva S.A.
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Networking Team <netdev@oss.sgi.com>,
+       linux-net <linux-net@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: add loglevel to printk's in net/ipv4/route.c
+References: <Pine.LNX.4.61.0412290256000.3528@dragon.hygekrogen.localhost> <41D2104D.3010406@conectiva.com.br> <Pine.LNX.4.61.0412290312540.3528@dragon.hygekrogen.localhost> <41D2120E.8030008@conectiva.com.br> <20041229021256.GD29323@wohnheim.fh-wedel.de>
+In-Reply-To: <20041229021256.GD29323@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any news about the ptrace single-stepping breakage of wine?
-
-The application that stopped working for me is xst, the Xilinx HDL
-synthesizer (there's a free as in beer version at
-http://www.xilinx.com/xlnx/xebiz/designResources/ip_product_details.jsp?sGlobalNavPick=PRODUCTS&sSecondaryNavPick=Design+Tools&key=DS-ISE-WEBPACK
-). I'm currently at kernel 2.6.10-ac1 (as packaged by Arjan van de Ven),
-and wine-20041201-1fc3winehq.
-
-Compiling vhdl file H:/sailer/src/vhdl/xxx/vprim.vhd in Library synwork.
-FATAL_ERROR:Xst:Portability/export/Port_Main.h:127:1.13 - This
-application has discovered an exceptional condition from which it cannot
-recover.  Process will terminate.  To resolve this error, please consult
-the Answers Database and other online resources at
-http://support.xilinx.com. If you need further assistance, please open a
-Webcase by clicking on the "WebCase" link at http://support.xilinx.com
-
-Thanks,
-Tom
 
 
+Jörn Engel wrote:
+> On Wed, 29 December 2004 00:10:22 -0200, Arnaldo Carvalho de Melo wrote:
+> 
+>>>It doesn't make much difference, it's mostly for completeness/correctness.
+>>
+>>No, it does a helluva difference, give it a try :-)
+> 
+> 
+> hint: look for "\n"
+
+hint2: Or the _lack_ of "\n" 8)
+
+- Arnaldo

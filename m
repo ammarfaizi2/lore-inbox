@@ -1,27 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292137AbSBAX1x>; Fri, 1 Feb 2002 18:27:53 -0500
+	id <S292135AbSBAX2Q>; Fri, 1 Feb 2002 18:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292136AbSBAX1d>; Fri, 1 Feb 2002 18:27:33 -0500
-Received: from adsl-63-197-0-76.dsl.snfc21.pacbell.net ([63.197.0.76]:17167
-	"HELO www.pmonta.com") by vger.kernel.org with SMTP
-	id <S292135AbSBAX1Y>; Fri, 1 Feb 2002 18:27:24 -0500
-From: Peter Monta <pmonta@pmonta.com>
-To: hpa@zytor.com
-Cc: garzik@havoc.gtf.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3C5B1CBB.6080802@zytor.com> (hpa@zytor.com)
-Subject: Re: Continuing /dev/random problems with 2.4
-In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201202334.72F921C5@www.pmonta.com> <20020201153346.B2497@havoc.gtf.org> <20020201205605.ED5111C5@www.pmonta.com> <3C5B1CBB.6080802@zytor.com>
-Message-Id: <20020201232723.12F3E1C5@www.pmonta.com>
-Date: Fri,  1 Feb 2002 15:27:23 -0800 (PST)
+	id <S292136AbSBAX2D>; Fri, 1 Feb 2002 18:28:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8204 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292135AbSBAX1q>; Fri, 1 Feb 2002 18:27:46 -0500
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+To: yoder1@us.ibm.com (Kent E Yoder)
+Date: Fri, 1 Feb 2002 23:40:41 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <OFB91B46B3.DE7448D0-ON85256B53.0071158D@raleigh.ibm.com> from "Kent E Yoder" at Feb 01, 2002 02:53:43 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16WnIP-0006TQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The point with the tests that have been mentioned is to derive such a
-> conservative estimate, and to raise a red flag if the output suddenly
-> becomes predictable.
+> handle adapters which write to one address and read from another for the 
+> same variable?  I'm guessing it flushes all writes on a read?  This is 
+> exactly what lanstreamer does, and I'm thinking this may have caused 
+> problems before.
 
-Ah, I see; I was misled by the "truly random" remark, sorry.  So a reasonable
-sanity test for a block of audio samples might be a standard deviation
-greater than a few LSB; this will catch constant or close-to-constant
-output.
+You probably want to get the actual documentation and read it - there are
+a set of guarantees that I/O's do not pass one another. A read will not pass
+a write for example. When you think about PCI as a message passing system
+in both directions its generally a lot better for your head 8). The guarantees
+are also defined in terms of PCI functions rather than a single port
+
+Alan

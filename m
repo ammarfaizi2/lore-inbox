@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268457AbUJOV2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUJOVfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268457AbUJOV2p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 17:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268458AbUJOV2p
+	id S268446AbUJOVfO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 17:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268458AbUJOVfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 17:28:45 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:32482 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S268457AbUJOV2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 17:28:44 -0400
-Date: Fri, 15 Oct 2004 23:28:31 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Albert Cahalan <albert@users.sf.net>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: per-process shared information
-Message-ID: <20041015212831.GL17849@dualathlon.random>
-References: <1097846353.2674.13298.camel@cube> <20041015162000.GB17849@dualathlon.random> <1097857912.2669.13548.camel@cube> <20041015171355.GD17849@dualathlon.random> <1097862714.2666.13650.camel@cube> <20041015181446.GF17849@dualathlon.random> <20041015183025.GN5607@holomorphy.com> <20041015184009.GG17849@dualathlon.random> <20041015184713.GO5607@holomorphy.com> <20041015211626.GQ5607@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041015211626.GQ5607@holomorphy.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Fri, 15 Oct 2004 17:35:14 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:25829 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S268446AbUJOVfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 17:35:10 -0400
+Message-ID: <4170426E.5070108@nortelnetworks.com>
+Date: Fri, 15 Oct 2004 15:34:38 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Lee Revell <rlrevell@joe-job.com>, root@chaos.analogic.com,
+       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
+       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       David Howells <dhowells@redhat.com>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
+Subject: Re: Fw: signed kernel modules?
+References: <27277.1097702318@redhat.com> <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com> <1097843492.29988.6.camel@weaponx.rchland.ibm.com> <200410151153.08527.gene.heskett@verizon.net> <1097857049.29988.29.camel@weaponx.rchland.ibm.com> <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com> <1097860121.13633.358.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com> <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
+In-Reply-To: <20041015211809.GA27783@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 02:16:26PM -0700, William Lee Irwin III wrote:
-> they're only waiting for ports to the vendor kernel(s) now.
+Greg KH wrote:
 
-Ok fine. But first it has to be included into mainline, then of course
-we'll merge it. Fixing Oracle at the expense of being incompatible with
-the user-ABI with future 2.6 is a no-way.
+> If you have a BSD licensed module, you do not have to provide the source
+> code for it.
+
+Maybe we need a "BSD with source" module string that doesn't taint?  Or is that 
+getting too ridiculous?
+
+Chris

@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263126AbTCLKAh>; Wed, 12 Mar 2003 05:00:37 -0500
+	id <S263135AbTCLKJP>; Wed, 12 Mar 2003 05:09:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263128AbTCLKAh>; Wed, 12 Mar 2003 05:00:37 -0500
-Received: from pusa.informat.uv.es ([147.156.10.98]:37044 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP
-	id <S263126AbTCLKAf>; Wed, 12 Mar 2003 05:00:35 -0500
-Date: Wed, 12 Mar 2003 11:11:16 +0100
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is irq smp affinity good for anything?
-Message-ID: <20030312101116.GB12206@pusa.informat.uv.es>
-References: <20030311140458.GA15465@pusa.informat.uv.es> <Pine.LNX.4.44.0303112047240.15753-100000@coffee.psychology.mcmaster.ca>
+	id <S263136AbTCLKJP>; Wed, 12 Mar 2003 05:09:15 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:16879 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S263135AbTCLKJO>; Wed, 12 Mar 2003 05:09:14 -0500
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0303120622290.15538-100000@divine.city.tvnet.hu>
+References: <Pine.LNX.4.30.0303120622290.15538-100000@divine.city.tvnet.hu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2/AbCyP9LqxkARfA8id6"
+Organization: Red Hat, Inc.
+Message-Id: <1047464392.1556.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0303112047240.15753-100000@coffee.psychology.mcmaster.ca>
-User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 Mar 2003 11:19:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 11, 2003 at 08:48:59PM -0500, Mark Hahn wrote:
-> > I did not expect to increase global latency to these results...
-> > and neither to increase latency in the CPU that's receiving 
-> > just one interrupt!
-> 
-> but isn't that just a cache effect?  that is, you're keeping 
-> all cpus busy (caches too) with user-space, so when the interrupt
-> comes in, a bound interrupt has no choice, even if the cache 
-> is busy with userspace.
-Hi
 
-first of all thanks for your reply, 
+--=-2/AbCyP9LqxkARfA8id6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I think that user space code always has to make the best use of cache as it
-can... in other words, i don't want to use a cpu exclusively for a device
-that delivers 6000 ints/second
+On Wed, 2003-03-12 at 07:07, Szakacsits Szabolcs wrote:
+> On 11 Mar 2003, Linus Torvalds wrote:
+> >
+> > If there is a well-known list of compilers, we should put a BIG warning
+> > in some core kernel file to guide people to upgrade (or maybe work
+>=20
+> Not enough, nobody would notice and today most end user doesn't
+> compile the kernel himself, they are just shipped by a broken kernels.
 
-I bound an irq to a cpu because I thought that:
+and all vendors always ship -fno-frame-pointer kernels so far so those
+users are ok! Until recently there was no way to build a non
+-fno-frame-pointer kernel!
 
-as spin_irq_locks just disables interrupts locally I should get better
-latency that just one ISR on that particular cpu could at least reduce
-a little the number of times that interrupts get disabled on that cpu
+--=-2/AbCyP9LqxkARfA8id6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-... that was my reasoning...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-but latency gets worse... that's not comphrensible for me...
+iD8DBQA+bwnIxULwo51rQBIRAntYAJ9koKtRpiyBCWyAuFKmlKdNgJBiwgCfXpIZ
+ipNXWU6Y8w8lv0LVURsQfc0=
+=/PgZ
+-----END PGP SIGNATURE-----
 
-	Ulisses
-
-
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
- 
+--=-2/AbCyP9LqxkARfA8id6--

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263653AbREYIhj>; Fri, 25 May 2001 04:37:39 -0400
+	id <S263656AbREYIkj>; Fri, 25 May 2001 04:40:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263655AbREYIh3>; Fri, 25 May 2001 04:37:29 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:2309 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S263653AbREYIhL>;
-	Fri, 25 May 2001 04:37:11 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8 
-In-Reply-To: Your message of "Fri, 25 May 2001 10:27:53 +0200."
-             <20010525102753.A26379@gruyere.muc.suse.de> 
+	id <S263657AbREYIkb>; Fri, 25 May 2001 04:40:31 -0400
+Received: from ns.suse.de ([213.95.15.193]:4100 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S263656AbREYIkX>;
+	Fri, 25 May 2001 04:40:23 -0400
+Date: Fri, 25 May 2001 10:39:21 +0200
+From: Andi Kleen <ak@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
+Message-ID: <20010525103921.A26630@gruyere.muc.suse.de>
+In-Reply-To: <20010525102015.C26038@gruyere.muc.suse.de> <26599.990779480@ocs3.ocs-net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 25 May 2001 18:37:04 +1000
-Message-ID: <26797.990779824@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <26599.990779480@ocs3.ocs-net>; from kaos@ocs.com.au on Fri, May 25, 2001 at 06:31:20PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 May 2001 10:27:53 +0200, 
-Andi Kleen <ak@suse.de> wrote:
->On Fri, May 25, 2001 at 06:25:57PM +1000, Keith Owens wrote:
->> Nothing in arch/i386/kernel/traps.c uses a task gate, they are all
->> interrupt, trap, system or call gates.  I guarantee that kdb on ix86
->> and ia64 uses the same kernel stack as the failing task, the starting
->> point for the kdb backtrace is itself and it does not follow segment
->> switches.
->
->I would consider this a bug in kdb then.
+On Fri, May 25, 2001 at 06:31:20PM +1000, Keith Owens wrote:
+> That is exactly what I said above, a separate fault task with its own
+> stack for every cpu.  But there is no point in doing this to detect a
+> hardware stack overflow when the overflow has already corrupted the
+> struct task which is at the bottom of the stack segment.
 
-No more of a bug than panic(), show_stack(), printk() and all the other
-routines that get called during a kernel problem.  They all use the
-current kernel stack and they work almost all the time.  Kernel stack
-overflows are symptoms of bad code, so fix the code, not the recovery
-routines.
+You can at least get a backtrace, which is useful enough.
 
+> 
+> To get any benefit from hardware detection of kernel stack overflow you
+> must also dedicate the stack segment to hold only stack data.  That
+> means moving struct task to yet another page, adding an extra page per
+> task.  It is just too expensive, we write better code than that.
+
+Ah this was a misunderstanding. I was just talking about plain recovery
+from stack faults; not from hardware stack overflow detection. Even without
+wather tight overflow detection they happen often enough and usually not
+too long after a stack page overflow.
+
+
+
+
+-Andi

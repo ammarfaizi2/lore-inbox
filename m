@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263913AbTLOTyn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 14:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264123AbTLOTyn
+	id S263876AbTLOTwi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 14:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTLOTwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 14:54:43 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:9372
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S263913AbTLOTyg
+	Mon, 15 Dec 2003 14:52:37 -0500
+Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:1257
+	"EHLO bastard") by vger.kernel.org with ESMTP id S263876AbTLOTwe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 14:54:36 -0500
-Date: Mon, 15 Dec 2003 15:02:28 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Andries Brouwer <aebr@win.tue.nl>
+	Mon, 15 Dec 2003 14:52:34 -0500
+Message-ID: <3FDE10FA.4040305@tupshin.com>
+Date: Mon, 15 Dec 2003 11:52:26 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 and IDE "geometry"
-Message-ID: <20031215150228.A10222@animx.eu.org>
-References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl> <20031212163545.A26866@animx.eu.org> <20031213132208.GA11523@win.tue.nl> <20031213171800.A28547@animx.eu.org> <20031214144046.GA11870@win.tue.nl> <20031214112728.A8201@animx.eu.org> <20031214202741.GA11909@win.tue.nl> <20031214162348.A8691@animx.eu.org> <20031214220346.GA11927@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20031214220346.GA11927@win.tue.nl>; from Andries Brouwer on Sun, Dec 14, 2003 at 11:03:46PM +0100
+Subject: Re: RFC - tarball/patch server in BitKeeper
+References: <20031214172156.GA16554@work.bitmover.com> <3FDCEF70.5040808@tupshin.com> <20031214234348.GA15850@work.bitmover.com> <3FDCFE17.5010309@tupshin.com> <20031215034627.GB16554@work.bitmover.com> <3FDD4FB2.8020607@tupshin.com> <20031215160246.GA3947@work.bitmover.com>
+In-Reply-To: <20031215160246.GA3947@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Yes, and that is what the kernel used to do.
-> > > In general, however, the answer is unreliable. 
-> > 
-> > anyway to get this unreliable answer back?  =)
-> 
-> Easy enough, the code is still there, just the result is no longer used.
-> 
-> But unless you have good reason, you should not wish those old times
-> back. This geometry stuff has caused such a large amount of pain.
+Larry McVoy wrote:
 
-Maybe atleast an option?  I personally have not had any pain with it.
+>On Sun, Dec 14, 2003 at 10:07:46PM -0800, Tupshin Harper wrote:
+>  
+>
+>>>Great, glad you understand that you are crossing the legal line.
+>>>      
+>>>
+>>??? what line am I crossing? Or do you mean that I would be if I were
+>>to do something, and if so, what is that something? I informed you the
+>>day that  decided I was interested in exploring the internals of other
+>>SCM products, and deleted the bk binaries from my machine at the same
+>>time.
+>>    
+>>
+>Tupshin, the BK license makes it clear that BK doesn't want to be reverse
+>engineered, we've been over this and over this.  Furthermore, reverse
+>engineering for interoperability has a prerequisite that there is no other
+>way to get at the data and we give you tons of ways to get at the data.
+>  
+>
+But not all data. That's the point. The bk2cvs process is lossy...you 
+can't gloss over that point.
 
-> Set your geometry to the constant */255/63 - depending on precisely
-> what you did, that may already have been what you got from 2.4 anyway.
-> Complain if you have troubles - specify BIOS type, geometry, operating
-> system that has problems booting.
+>You keep wanting more and more information about how BitKeeper manages
+>to do what it does and that certainly falls under reverse engineering.
+>  
+>
+No...I keep wanting free (speech) access to all (current and historical 
+information) that is part of the kernel. You ignored the question of who 
+owns the changesets. Or maybe, more appropriately, what license do the 
+changesets have?
 
-The OS Is one of Windows 98, 2000, NT4, and in the future possibly XP.  BIOS
-type varies.  Could be Dell's, the ones on hp compaq, award, phoenix, or
-ami.
+>Getting at the raw information is just another way to figure out how
+>BitKeeper manages that data, it's exactly the same as running a compiler
+>and looking at the assembly language it produces. 
+>
+Is there some implication here that is a license violation for a bk 
+(free license) user to make available full changesets for non-bk users 
+to user for *any* purpose?
 
-I use this so I don't ever have to boot dos to configure the drive
-(partition) then boot back to linux to do what I need to do.
-
-(OT: IT takes me 10 minutes or less to load the OS and everything with the
-linux boot system I'm using.  I can't get the OS loaded from their CD that
-quick!)
-
-> I hope we'll find out that everything can be made to work without
-> kernel support.
-
-For me, this would be the easiest.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+-Tupshin

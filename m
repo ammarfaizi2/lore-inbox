@@ -1,38 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272268AbRH3Pa3>; Thu, 30 Aug 2001 11:30:29 -0400
+	id <S272280AbRH3PcI>; Thu, 30 Aug 2001 11:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272272AbRH3PaK>; Thu, 30 Aug 2001 11:30:10 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:35601 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S272268AbRH3PaA>; Thu, 30 Aug 2001 11:30:00 -0400
-Date: Thu, 30 Aug 2001 11:30:05 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: ATAPI Floppy Problem
-In-Reply-To: <3B8E5A50.3040703@nyc.rr.com>
-Message-ID: <Pine.LNX.4.33.0108301129080.29615-100000@terbidium.openservices.net>
+	id <S272279AbRH3Pbs>; Thu, 30 Aug 2001 11:31:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38928 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272269AbRH3Pbg>; Thu, 30 Aug 2001 11:31:36 -0400
+Subject: Re: EISA irq probing problem (ESIC chip)
+To: bgerst@didntduck.org (Brian Gerst)
+Date: Thu, 30 Aug 2001 16:35:10 +0100 (BST)
+Cc: Bart.Vandewoestyne@pandora.be (Bart Vandewoestyne),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3B8E55F3.EA83A325@didntduck.org> from "Brian Gerst" at Aug 30, 2001 11:04:19 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15cTqY-0001GF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001, John Weber wrote:
+> Out of curiosity, have you tried a recent -ac kernel with PnP BIOS
+> enabled?  EISA devices might possibly show up there.
 
-> I get the following error on reboot...
->
-> Aug 30 02:31:17 boolean kernel: ide-floppy: hdc: I/O error, pc = 5a, key
-> =  5, asc = 24, ascq =  0
->
-> I have a ZIP 100, and am currently using ide-floppy driver 0.97
-> (included with linux 2.4.9).
->
-> Suggestions?
-
-Do you have media in the drive? The only time I've ever seen that is with my
-LS-120 when there's no disk in it. If that's the case then you can ignore it.
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
+I believe EISA bios services are different

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbTHYGfL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 02:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbTHYGfL
+	id S261494AbTHYG3L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 02:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTHYG3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 02:35:11 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:52632 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261548AbTHYGfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 02:35:04 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308250023.39596.bzolnier@elka.pw.edu.pl>
-References: <1061730317.31688.10.camel@gaston>
-	 <200308250023.39596.bzolnier@elka.pw.edu.pl>
-Message-Id: <1061793253.779.27.camel@gaston>
+	Mon, 25 Aug 2003 02:29:11 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:52612 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261494AbTHYG3J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 02:29:09 -0400
+Date: Mon, 25 Aug 2003 07:29:05 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Jakob Oestergaard <jakob@unthought.net>,
+       Jim Houston <jim.houston@comcast.net>, linux-kernel@vger.kernel.org,
+       jim.houston@ccur.com
+Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
+Message-ID: <20030825062905.GA21262@mail.jlokier.co.uk>
+References: <1061498486.3072.308.camel@new.localdomain> <20030825040514.GA20529@mail.jlokier.co.uk> <20030825041423.GB29987@unthought.net> <20030825055028.GE20529@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 25 Aug 2003 08:34:14 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: [PATCH] Fix ide unregister vs. driver model
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030825055028.GE20529@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-25 at 00:23, Bartlomiej Zolnierkiewicz wrote:
-> On Sunday 24 of August 2003 15:05, Benjamin Herrenschmidt wrote:
-> > Hi Bart !
-> 
-> Hi,
-> 
-> > This patch seem to have been lost, so here it is again. It fixes
-> > an Ooops on unregistering hwifs due to the device model now having
-> > mandatory release() functions. It also close the possible race we
-> > had on release if the entry was in use (by or /sys typically) by
-> > using a semaphore waiting for the release() to be called after
-> > doing an unregister.
-> 
-> I can't see the race - all references to struct device should be dropped
-> by driver model before finally calling ->release() function...
+Jamie Lokier wrote:
+> So that means the sysenter instruction _does_ exist on the PPro and
+> early Pentium II, but it isn't usable.
 
-We have no race with the patch, that is we have no race when we wait
-for the semaphore after calling unregister(). We have a race if we
-don't as unregister() will drop a reference, but we may have pending
-ones from sysfs still... so if we don't wait for release() to be
-called, we may overwrite a struct device currently beeing used by
-sysfs.
+If anyone has information on what the SYSENTER and SYSEXIT
+instructions actually do on Intel Pentium Pro or stepping<3 Pentium II
+processors, I am very interested.
 
-Ben.
+I'm intrigued to know if the buggy behaviour of these instructions is
+really unsafe, or simply hard to use so Intel changed the behaviour.
+(An example of hard to use would be SYSENTER not disabling
+interrupts).  If they are safe but hard to use, perhaps the ingenuity
+of kernel hackers can work around the hardness >:)
 
+Does anyone have a contact at Intel for this question?
 
+Thanks,
+-- Jamie

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277285AbRJEB3k>; Thu, 4 Oct 2001 21:29:40 -0400
+	id <S277296AbRJEBeL>; Thu, 4 Oct 2001 21:34:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277296AbRJEB3a>; Thu, 4 Oct 2001 21:29:30 -0400
-Received: from dot.cygnus.com ([205.180.230.224]:3844 "EHLO dot.cygnus.com")
-	by vger.kernel.org with ESMTP id <S277285AbRJEB3S>;
-	Thu, 4 Oct 2001 21:29:18 -0400
-Date: Thu, 4 Oct 2001 18:29:40 -0700
+	id <S277297AbRJEBeC>; Thu, 4 Oct 2001 21:34:02 -0400
+Received: from dot.cygnus.com ([205.180.230.224]:5124 "EHLO dot.cygnus.com")
+	by vger.kernel.org with ESMTP id <S277296AbRJEBdt>;
+	Thu, 4 Oct 2001 21:33:49 -0400
+Date: Thu, 4 Oct 2001 18:34:15 -0700
 From: Richard Henderson <rth@dot.cygnus.com>
 To: torvalds@transmeta.com, alan@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: alpha 2.4.11-pre3: misc fixes
-Message-ID: <20011004182940.A6318@dot.cygnus.com>
+Subject: alpha 2.4.11-pre3: delay disabling early boot messages
+Message-ID: <20011004183415.A6357@dot.cygnus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,32 +21,82 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 >From Jay Estabrook:
 
-(1) apecs_iounmap prototype wrong.
-(2) RTC_IRQ properly defined in arch/alpha/kernel/irq_impl.h.
+Alpha has this nice way to output console messages via SRM callbacks
+which we can enable immediately on bootup, and so get debugging output
+before console_init.  This patch delays when we turn that off, and so
+narrows the window in which we can't get debug output.
 
 
 r~
 
 
-diff -rup 2.4.10-dist/include/asm-alpha/core_apecs.h 2.4.10/include/asm-alpha/core_apecs.h
---- 2.4.10-dist/include/asm-alpha/core_apecs.h	Thu Sep 13 15:21:32 2001
-+++ 2.4.10/include/asm-alpha/core_apecs.h	Thu Oct  4 16:12:05 2001
-@@ -502,7 +502,7 @@ __EXTERN_INLINE unsigned long apecs_iore
- 	return addr + APECS_DENSE_MEM;
- }
+diff -rup 2.4.10-dist/arch/alpha/kernel/irq_alpha.c 2.4.10/arch/alpha/kernel/irq_alpha.c
+--- 2.4.10-dist/arch/alpha/kernel/irq_alpha.c	Mon Sep 17 13:16:30 2001
++++ 2.4.10/arch/alpha/kernel/irq_alpha.c	Thu Oct  4 16:05:16 2001
+@@ -108,11 +108,6 @@ init_IRQ(void)
+ 	wrent(entInt, 0);
  
--__EXTERN_INLINE void apecs_iounmap(unsigned addr)
-+__EXTERN_INLINE void apecs_iounmap(unsigned long addr)
- {
- 	return;
- }
-diff -rup 2.4.10-dist/include/asm-alpha/mc146818rtc.h 2.4.10/include/asm-alpha/mc146818rtc.h
---- 2.4.10-dist/include/asm-alpha/mc146818rtc.h	Tue Jul 18 23:05:08 2000
-+++ 2.4.10/include/asm-alpha/mc146818rtc.h	Thu Oct  4 16:14:53 2001
-@@ -24,6 +24,4 @@ outb_p((addr),RTC_PORT(0)); \
- outb_p((val),RTC_PORT(1)); \
- })
- 
--#define RTC_IRQ 0		/* Don't support interrupt features.  */
+ 	alpha_mv.init_irq();
 -
- #endif /* __ASM_ALPHA_MC146818RTC_H */
+-	/* If we had wanted SRM console printk echoing early, undo it now. */
+-	if (alpha_using_srm && srmcons_output) {
+-		unregister_srm_console();
+-	}
+ }
+ 
+ /*
+diff -rup 2.4.10-dist/arch/alpha/kernel/setup.c 2.4.10/arch/alpha/kernel/setup.c
+--- 2.4.10-dist/arch/alpha/kernel/setup.c	Sun Aug 12 10:38:47 2001
++++ 2.4.10/arch/alpha/kernel/setup.c	Thu Oct  4 16:05:16 2001
+@@ -63,12 +63,20 @@ unsigned long srm_hae;
+ /* Which processor we booted from.  */
+ int boot_cpuid;
+ 
+-/* Using SRM callbacks for initial console output. This works from
+-   setup_arch() time through the end of init_IRQ(), as those places
+-   are under our control.
+-
+-   By default, OFF; set it with a bootcommand arg of "srmcons".
+-*/
++/*
++ * Using SRM callbacks for initial console output. This works from
++ * setup_arch() time through the end of time_init(), as those places
++ * are under our (Alpha) control.
++
++ * "srmcons" specified in the boot command arguments allows us to
++ * see kernel messages during the period of time before the true
++ * console device is "registered" during console_init(). As of this
++ * version (2.4.10), time_init() is the last Alpha-specific code
++ * called before console_init(), so we put "unregister" code
++ * there to prevent schizophrenic console behavior later... ;-}
++ *
++ * By default, OFF; set it with a bootcommand arg of "srmcons".
++ */
+ int srmcons_output = 0;
+ 
+ /* Enforce a memory size limit; useful for testing. By default, none. */
+diff -rup 2.4.10-dist/arch/alpha/kernel/time.c 2.4.10/arch/alpha/kernel/time.c
+--- 2.4.10-dist/arch/alpha/kernel/time.c	Sun Aug 12 10:38:48 2001
++++ 2.4.10/arch/alpha/kernel/time.c	Thu Oct  4 16:05:16 2001
+@@ -332,6 +333,21 @@ time_init(void)
+ 	alpha_mv.init_rtc();
+ 
+ 	do_get_fast_time = do_gettimeofday;
++
++	/*
++	 * If we had wanted SRM console printk echoing early, undo it now.
++	 *
++	 * "srmcons" specified in the boot command arguments allows us to
++	 * see kernel messages during the period of time before the true
++	 * console device is "registered" during console_init(). As of this
++	 * version (2.4.10), time_init() is the last Alpha-specific code
++	 * called before console_init(), so we put this "unregister" code
++	 * here to prevent schizophrenic console behavior later... ;-}
++	 */
++	if (alpha_using_srm && srmcons_output) {
++		unregister_srm_console();
++		srmcons_output = 0;
++	}
+ }
+ 
+ /*

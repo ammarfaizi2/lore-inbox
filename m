@@ -1,86 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264939AbTF0Xhn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 19:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbTF0Xhn
+	id S264955AbTF0Xjm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 19:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbTF0Xjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 19:37:43 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:21703 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264939AbTF0Xhl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 19:37:41 -0400
-Date: Fri, 27 Jun 2003 16:51:50 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: CaT <cat@zip.com.au>, nick@snowman.net, Larry McVoy <lm@bitmover.com>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030627235150.GA21243@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
-	nick@snowman.net, Larry McVoy <lm@bitmover.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 27 Jun 2003 19:39:42 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:3523 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264955AbTF0Xjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 19:39:39 -0400
+Date: Fri, 27 Jun 2003 16:44:15 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB update for 2.4.22-pre2
+Message-ID: <20030627234415.GA11813@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone know what this means?  This is from the supposedly superduper
-rackspace machine which has a Mylex SCSI RAID (see below):
+Hi,
 
-DAC960#0: Physical Device 0:0 Sense Data Received
-DAC960#0: Physical Device 0:0 Request Sense: Sense Key = 3, ASC = 11, ASCQ = 00
-DAC960#0: Physical Device 0:0 Request Sense: Information = 0380A6CA 00000000
-DAC960#0: Physical Device 0:0 Sense Data Received
-DAC960#0: Physical Device 0:0 Request Sense: Sense Key = 3, ASC = 11, ASCQ = 00
-DAC960#0: Physical Device 0:0 Request Sense: Information = 0380A6CA 00000000
-DAC960#0: Physical Device 0:0 Errors: Parity = 0, Soft = 0, Hard = 0, Misc = 0
-DAC960#0: Physical Device 0:0 Errors: Timeouts = 0, Retries = 0, Aborts = 0, Predicted = 0
+Here are some USB bugfixes and updates against 2.4.21.  There biggest
+thing here is a speedtouch driver cleanup to use the kernel's crc32
+code, and a ftdi_sio update.  I've also included the one-shot interrupt
+patches that are shipping in the latest Red Hat kernel, and have had
+many people wanting for a while now.
 
-Boot messages:
+I've also removed the floating point code that was present in the last
+USB patches that went into 2.4.22-pre1.
 
-DAC960: ***** DAC960 RAID Driver Version 2.4.10 of 23 July 2001 *****
-DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
-DAC960#0: Configuring Mylex AcceleRAID 170 PCI RAID Controller
-DAC960#0:   Firmware Version: 7.01-00, Channels: 1, Memory Size: 32MB
-DAC960#0:   PCI Bus: 0, Device: 10, Function: 0, I/O Address: Unassigned
-DAC960#0:   PCI Address: 0xF6000000 mapped at 0xF883F000, IRQ Channel: 18
-DAC960#0:   Controller Queue Depth: 512, Maximum Blocks per Command: 2048
-DAC960#0:   Driver Queue Depth: 511, Scatter/Gather Limit: 128 of 257 Segments
-DAC960#0:   Physical Devices:
-DAC960#0:     0:0  Vendor: IBM       Model: IC35L036UCD210-0  Revision: S5BS
-DAC960#0:          Wide Synchronous at 160 MB/sec
-DAC960#0:          Serial Number:         KQZ3S401
-DAC960#0:          Disk Status: Online, 71651328 blocks
-DAC960#0:     0:1  Vendor: IBM       Model: IC35L036UCD210-0  Revision: S5BS
-DAC960#0:          Wide Synchronous at 160 MB/sec
-DAC960#0:          Serial Number:         KQZ3E613
-DAC960#0:          Disk Status: Online, 71651328 blocks
-DAC960#0:     0:2  Vendor: IBM       Model: IC35L036UCD210-0  Revision: S5BS
-DAC960#0:          Wide Synchronous at 160 MB/sec
-DAC960#0:          Serial Number:         KQZ39942
-DAC960#0:          Disk Status: Online, 71651328 blocks
-DAC960#0:     0:7  Vendor: MYLEX     Model: AcceleRAID 170    Revision: 0701
-DAC960#0:          Wide Synchronous at 160 MB/sec
-DAC960#0:          Serial Number:   
-DAC960#0:   Logical Drives:
-DAC960#0:     /dev/rd/c0d0: RAID-5, Online, 143302656 blocks
-DAC960#0:                   Logical Device Uninitialized, BIOS Geometry: 255/63
-DAC960#0:                   Stripe Size: 64KB, Segment Size: 8KB
-DAC960#0:                   Read Cache Disabled, Write Cache Disabled
-Partition check:
- rd/c0d0: rd/c0d0p1 rd/c0d0p2 rd/c0d0p3
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/marcelo-2.4
 
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+The individual patches will be sent in follow up messages to this email
+to you and the linux-usb-devel mailing list.
+
+thanks,
+
+greg k-h
+
+ drivers/usb/speedcrc.c             |  124 ---
+ drivers/usb/speedcrc.h             |   28 
+ drivers/usb/speedtouch.c           | 1344 -------------------------------------
+ drivers/usb/Makefile               |    4 
+ drivers/usb/Makefile.lib           |    1 
+ drivers/usb/aiptek.c               |   11 
+ drivers/usb/host/uhci-debug.h      |    2 
+ drivers/usb/host/usb-ohci.c        |   19 
+ drivers/usb/host/usb-uhci.c        |    9 
+ drivers/usb/powermate.c            |   22 
+ drivers/usb/serial/ftdi_sio.c      |  604 +++++++++++++---
+ drivers/usb/serial/ftdi_sio.h      |   69 +
+ drivers/usb/serial/io_edgeport.c   |    3 
+ drivers/usb/serial/pl2303.c        |    5 
+ drivers/usb/speedtch.c             | 1344 +++++++++++++++++++++++++++++++++++++
+ drivers/usb/storage/initializers.c |   48 +
+ drivers/usb/storage/initializers.h |    6 
+ drivers/usb/storage/unusual_devs.h |   20 
+ drivers/usb/usbnet.c               |   19 
+ drivers/usb/vicam.c                |   52 +
+ 20 files changed, 2077 insertions(+), 1657 deletions(-)
+-----
+
+<abbotti:mev.co.uk>:
+  o USB: several ftdi_sio driver patches
+
+<david:csse.uwa.edu.au>:
+  o USB: usb-ohci handling of one-shot interrupt transfers
+  o USB: usb-uhci fix for one-shot interrupt problem
+
+<grigouze:noos.fr>:
+  o USB: zaurus SL-C700
+
+<kpc-usbdev:gelato.uiuc.edu>:
+  o USB: Desknote/ECS UCR-61S2B card reader (2.4.21 patched)
+
+Duncan Sands:
+  o USB speedtouch: use common CRC library
+
+Greg Kroah-Hartman:
+  o USB: compiler fixes for previous vicam patches
+  o Cset exclude: cweidema@indiana.edu|ChangeSet|20030620002017|05386
+  o USB: pl2303: report CTS and DSR status changes to userspace
+  o USB: add support for 50 baud to io_edgeport.c
+  o USB: 2.4 fix UHCI debug kmalloc() usage
+  o USB: remove stupid conversions and use of floating point from aiptek.c
+
+Oliver Neukum:
+  o USB: fix to previous vicam patch
+  o USB: disconnect of v4l devices in 2.4
+
+William R. Sowerbutts:
+  o USB: Update for the powermate driver to work with newer devices
+

@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265009AbUEUWgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264813AbUEUWfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbUEUWgI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 18:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUEUWfy
+	id S264813AbUEUWfd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 18:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUEUWfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:35:54 -0400
-Received: from mail.kroah.org ([65.200.24.183]:32955 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265857AbUEUWdw (ORCPT
+	Fri, 21 May 2004 18:35:32 -0400
+Received: from zero.aec.at ([193.170.194.10]:65284 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266086AbUEUWdt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:33:52 -0400
-Date: Fri, 21 May 2004 14:56:29 -0700
-From: Greg KH <greg@kroah.com>
-To: nardelli <jnardelli@infosciences.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] visor: Fix Oops on disconnect
-Message-ID: <20040521215629.GA7121@kroah.com>
-References: <40AD3A88.2000002@infosciences.com> <20040521043032.GA31113@kroah.com> <40AE5DBB.6030003@infosciences.com> <20040521204430.GA5875@kroah.com> <40AE7829.9060105@infosciences.com>
-Mime-Version: 1.0
+	Fri, 21 May 2004 18:33:49 -0400
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
+Subject: Re: [PATCH] fixing sendfile on 64bit architectures
+References: <1Y1yE-4Lz-7@gated-at.bofh.it> <1Y1yF-4Lz-9@gated-at.bofh.it>
+	<1Y1yF-4Lz-11@gated-at.bofh.it> <1Y1yF-4Lz-13@gated-at.bofh.it>
+	<1Y1yF-4Lz-15@gated-at.bofh.it> <1Y1yE-4Lz-5@gated-at.bofh.it>
+	<1Y1yJ-4Lz-37@gated-at.bofh.it> <1Y2l5-5rr-5@gated-at.bofh.it>
+	<1Y3Ki-6x6-35@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 21 May 2004 11:01:15 +0200
+In-Reply-To: <1Y3Ki-6x6-35@gated-at.bofh.it> (Andrew Morton's message of
+ "Fri, 21 May 2004 00:00:18 +0200")
+Message-ID: <m3fz9uxig4.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40AE7829.9060105@infosciences.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 05:44:09PM -0400, nardelli wrote:
-> Greg KH wrote:
-> >On Fri, May 21, 2004 at 03:51:23PM -0400, nardelli wrote:
-> >
-> >
-> >Patch is line-wrapped, so I can't apply it :(
-> >
-> >
-> 
-> Hmmm... I couldn't see the linewrap in the original I sent, or
-> in test ones that I did.  Probably my mail tool, but then it
-> is getting late on a Friday, which probably means that it is me.
-> 
-> To aid in diagnosing where I'm goofing up, could you point out
-> a spot where it is linewrapping?
+Andrew Morton <akpm@osdl.org> writes:
+>
+> An alternative might be to remove all the ifdefs, build with
+> -ffunction-sections and let the linker drop any unreferenced code...
 
-Ok, my bad, sorry, mutt likes to wrap stuff when the mail has the
-following header in it like yours did:
-	Content-Type: text/plain; charset=us-ascii; format=flowed
+I am not sure if it will handle EXPORT_SYMBOL correctly. Sometimes
+we have the situation that a function is only referenced from EXPORT_SYMBOL,
+but we do not want the linker to drop it because modules may use it.
+(this regularly causes problems in lib-y files) 
 
-Sorry about that, the patch is not wrapped.
+If it did it would be great to use though. I am sure there are other
+dead functions around too. Or maybe someday we could even use the 
+IPA functionality in gcc 3.4 ... 
 
-greg k-h
+-Andi
+

@@ -1,35 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288902AbSATSm0>; Sun, 20 Jan 2002 13:42:26 -0500
+	id <S288925AbSATSt4>; Sun, 20 Jan 2002 13:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288919AbSATSmQ>; Sun, 20 Jan 2002 13:42:16 -0500
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:50157 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S288902AbSATSmB>; Sun, 20 Jan 2002 13:42:01 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: OT: AOL want take RedHat? --- Washington Post
-Date: Sun, 20 Jan 2002 19:42:04 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S288923AbSATSts>; Sun, 20 Jan 2002 13:49:48 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:44551 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S288922AbSATStj>; Sun, 20 Jan 2002 13:49:39 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 20 Jan 2002 10:55:27 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jens Axboe <axboe@suse.de>
+cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+In-Reply-To: <20020120114850.J27835@suse.de>
+Message-ID: <Pine.LNX.4.40.0201201054011.7238-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020120184208Z288902-13996+8669@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry,
+On Sun, 20 Jan 2002, Jens Axboe wrote:
 
-for OT but what's up?
+> On Sat, Jan 19 2002, Andre Hedrick wrote:
+> > > On Sat, Jan 19 2002, Andre Hedrick wrote:
+> > > > On Sat, 19 Jan 2002, Jens Axboe wrote:
+> > > >
+> > > > > On Fri, Jan 18 2002, Davide Libenzi wrote:
+> > > > > > Guys, instead of requiring an -m8 to every user that is observing this
+> > > > > > problem, isn't it better that you limit it inside the driver until things
+> > > > > > gets fixed ?
+> > > > >
+> > > > > There is no -m8 limit, 2.5.3-pre1 + ata253p1-2 patch handles any set
+> > > > > multi mode value.
+> > > > >
+> > > > > --
+> > > > > Jens Axboe
+> > > > >
+> > > >
+> > > > And that will generate the [lost interrupt], and I have it fixed at all
+> > > > levels too now.
+> > >
+> > > How so? I don't see the problem.
+> >
+> > Unlike ATAPI which will generally send you more data than requested on
+> > itw own, ATA devices do not like enjoy or play the game.  Additionally the
+>
+> Unrelated ATAPI fodder :-)
+>
+> > current code asks for 16 sectors, but we do not do the request copy
+> > anymore, and this mean for every 4k of paging we are soliciting for 8k.
+>
+> The (now) missing copy is unrelated.
+>
+> > We only read out 4k thus the device has the the next 4k we may be wanting
+> > ready.  Look at it as a dirty prefetch, but eventally the drive is going
+> > to want to go south, thus [lost interrupt]
+>
+> Even if the drive is programmed for 16 sectors in multi mode, it still
+> must honor lower transfer sizes. The fix I did was not to limit this,
+> but rather to only setup transfers for the amount of sectors in the
+> first chunk. This is indeed necessary now that we do not have a copy of
+> the request to fool around with.
+>
+> > Basically as the Block maintainer, you pointed out I am restricted to 4k
+> > chunking in PIO.  You decided, in the interest of the block glue layer
+> > into the driver, to force early end request per Linus's requirements to
+> > return back every 4k completed to block regardless of the size of the
+> > total data requested.
+>
+> Correct. The solution I did (which was one of the two I suggested) is
+> still the cleanest, IMHO.
+>
+> > For the above two condition to be properly satisfied, I have to adjust
+> > and apply one driver policy make the driver behave and give the desired
+> > results.  We should note this will conform with future IDEMA proposals
+> > being submitted to the T committees.
+>
+> I still don't see a description of why this would cause a lost
+> interrupt. What is the flaw in my theory and/or code?
 
-Thanks,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
+Guys, i'm sorry to report you bad news but i still get 'lost interrupt'
+with all applied patches ( Anton and Andre ).
 
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+
+
+
+- Davide
+
+

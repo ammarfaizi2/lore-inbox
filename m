@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSBXMBl>; Sun, 24 Feb 2002 07:01:41 -0500
+	id <S286647AbSBXMTq>; Sun, 24 Feb 2002 07:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286339AbSBXMBb>; Sun, 24 Feb 2002 07:01:31 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:32215 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S286322AbSBXMB0>;
-	Sun, 24 Feb 2002 07:01:26 -0500
-Date: Sun, 24 Feb 2002 13:01:23 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200202241201.NAA11762@harpo.it.uu.se>
-To: beh@icemark.net
-Subject: Re: Some problems on a ThinkPad A30P (again...)
-Cc: linux-kernel@vger.kernel.org
+	id <S286687AbSBXMTg>; Sun, 24 Feb 2002 07:19:36 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:25614 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S286647AbSBXMTS>; Sun, 24 Feb 2002 07:19:18 -0500
+Message-ID: <3C78DA19.4020401@evision-ventures.com>
+Date: Sun, 24 Feb 2002 13:18:33 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Troy Benjegerdes <hozer@drgw.net>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Andre Hedrick <andre@linuxdiskcert.org>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flash Back -- kernel 2.1.111
+In-Reply-To: <Pine.LNX.4.10.10202232136560.5715-100000@master.linux-ide.org> <Pine.LNX.4.33.0202232152200.26469-100000@home.transmeta.com> <20020224013038.G10251@altus.drgw.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Feb 2002 23:53:53 +0100 (CET), beh@icemark.net wrote:
-> -> Hibernation doesn't work at all (this used to work on the TP600
->    and on the TP A21P I had before)...
-> -> When the system resumes from a suspend, the following message
->    turns up in dmesg:
->
->	APIC error on CPU0: 00(40)
+> Ummm, how does this work if I have two PCI ide cards, one on a 66mhz PCI 
+> bus, and one on a 33mhz PCI bus?
+> 
+> Or am I missing something?
 
-This indicates that your A30P has a local-APIC capable P6-class
-cpu, and that you're not using the latest 2.4.18-pre or -rc kernel.
+You are missing the fact that it didn't work before.
 
-The APIC error at resume from suspend is fixed in current 2.4.18-rc,
-so a simple kernel upgrade will silence that message.
-
-Your machine survives APM suspend? That's encouraging since I've
-had a report that the T20 doesn't if the local APIC is enabled.
-What's the difference between suspend and hibernate?
-Does the machine survive if you pull the power cord or enter the
-BIOS setup screens?
-
-/Mikael

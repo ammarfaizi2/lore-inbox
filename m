@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267161AbSLKNhf>; Wed, 11 Dec 2002 08:37:35 -0500
+	id <S267148AbSLKNgG>; Wed, 11 Dec 2002 08:36:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267150AbSLKNgK>; Wed, 11 Dec 2002 08:36:10 -0500
-Received: from ns.suse.de ([213.95.15.193]:9230 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267149AbSLKNfi>;
-	Wed, 11 Dec 2002 08:35:38 -0500
-Date: Wed, 11 Dec 2002 14:43:23 +0100
-From: Stefan Reinauer <stepan@suse.de>
-To: Matt Young <wz6b@arrl.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: grub and 2.5.50
-Message-ID: <20021211134322.GA23761@suse.de>
-References: <200212091640.35716.wz6b@arrl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212091640.35716.wz6b@arrl.net>
-User-Agent: Mutt/1.4i
-X-OS: Linux 2.4.19 alpha
+	id <S267150AbSLKNfV>; Wed, 11 Dec 2002 08:35:21 -0500
+Received: from 5-048.ctame701-1.telepar.net.br ([200.193.163.48]:19426 "EHLO
+	5-048.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267148AbSLKNeU>; Wed, 11 Dec 2002 08:34:20 -0500
+Date: Wed, 11 Dec 2002 11:41:47 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+cc: "'Serge Kuznetsov'" <serge@wcom.ca>, "" <linux-kernel@vger.kernel.org>
+Subject: RE: Is this going to be true ?
+In-Reply-To: <001801c2a0a9$02613f40$2e863841@joe>
+Message-ID: <Pine.LNX.4.50L.0212111139560.21756-100000@imladris.surriel.com>
+References: <001801c2a0a9$02613f40$2e863841@joe>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Matt Young <wz6b@arrl.net> [021210 01:40]:
-> These grub commands work with SUSE 2.4.19-4GB:
-> 
->    kernel (hd0,0)/bzImage root=/dev/hda3   vga=791
->    initrd (hd0,0)/initrd
-> 
-> But with 2.5.50 the kernel panics after Freeing the initrd memory with 
-> "Unable te mount root FS, please correct the root= cammand line"
+On Tue, 10 Dec 2002, Joseph D. Wagner wrote:
 
-> I have compiled with the required file systems (EXT2,EXT3,REISERFS).
+> > Research Firm: Microsoft Will Use Linux by 2004:
+> > [trim]
+>
+> Over Bill Gates' dead body.  The Microsoft Corporation is of the genuine
+> belief that Microsoft Windows is the operating system of the future.
 
-Did you also compile in support for the root device itself (i.e. ide or
-scsi driver). These are loaded via the initrd normally on SuSE, which
-will not work, if you did not install newer modutils..
+Wait a moment, didn't they say that OS/2 was the operating
+system of the future ?
 
-  Stefan
+And what about that overly complex internet thingy, that'd
+never take off, people would use MSN instead.
 
+We have always been at war with Oceania.
+
+> The following scenarios are far more likely.
+
+They'll have no choice but to follow their customers around.
+A corporation can't exist without clients.
+
+regards,
+
+Rik
 -- 
-The x86 isn't all that complex - it just doesn't make a lot of
-sense.          -- Mike Johnson, Leader of 80x86 Design at AMD
-	                          Microprocessor Report (1994)
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

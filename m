@@ -1,44 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291307AbSBSLxj>; Tue, 19 Feb 2002 06:53:39 -0500
+	id <S291318AbSBSLz7>; Tue, 19 Feb 2002 06:55:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291309AbSBSLxc>; Tue, 19 Feb 2002 06:53:32 -0500
-Received: from mail2.alphalink.com.au ([202.161.124.58]:55413 "EHLO
-	mail2.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S291307AbSBSLxO>; Tue, 19 Feb 2002 06:53:14 -0500
-Message-ID: <3C722E1E.B8F7C231@alphalink.com.au>
-Date: Tue, 19 Feb 2002 21:51:10 +1100
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Giacomo Catenazzi <cate@debian.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <fa.h0m1njv.tgmh9v@ifi.uio.no> <3C72359C.6020008@debian.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S291320AbSBSLzu>; Tue, 19 Feb 2002 06:55:50 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:1710 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S291318AbSBSLz2>; Tue, 19 Feb 2002 06:55:28 -0500
+Date: Tue, 19 Feb 2002 12:52:11 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Michal Jaegermann <michal@harddata.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: 2.4.18-pre9-ac4 filesystem corruption
+Message-Id: <20020219125211.10f80f4e.kristian.peters@korseby.net>
+In-Reply-To: <20020218115143.A13070@mail.harddata.com>
+In-Reply-To: <20020218115143.A13070@mail.harddata.com>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: Debian GNU/Linux 2.4.17
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo Catenazzi wrote:
-> 
-> There are two other projects of C implementation of CML2:
-> 
-> cml2config in sourceforce,
+Hello.
 
-  I've spoken with these guys.  They're using Prolog and a new
-language which they're inventing.  Their goal of a smarter inference
-engine is interesting from a theoretical point of view, but if you
-don't like Python you're going to *loathe* their stuff.
+I've seen filesystem corruption using -ac4 with ext2 although I'm not using a SIS chipset. So I really recommend using not this patch.
 
-> and another I lost the link.
+PS: This may have nothing in common with your problem cause I encountered these corruption on Intel.
 
-  Well, good luck to them, whoever they are.
+Yesterday:
 
-Greg.
--- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.	   - Roger Sandall, The Age, 28Sep2001.
+kernel: init_special_inode: bogus imode (177777) 
+kernel: init_special_inode: bogus imode (177777) 
+kernel: init_special_inode: bogus imode (167777) 
+kernel: init_special_inode: bogus imode (177777) 
+last message repeated 2 times 
+kernel: init_special_inode: bogus imode (177767) 
+kernel: init_special_inode: bogus imode (177767) 
+kernel: init_special_inode: bogus imode (137777) 
+kernel: init_special_inode: bogus imode (167777) 
+kernel: init_special_inode: bogus imode (177777) 
+kernel: init_special_inode: bogus imode (177757) 
+kernel: init_special_inode: bogus imode (177677) 
+kernel: init_special_inode: bogus imode (177777) 
+last message repeated 2 times 
+kernel: init_special_inode: bogus imode (177377) 
+kernel: init_special_inode: bogus imode (177777) 
+
+after fsck-ing:
+
+kernel: init_special_inode: bogus imode (0) 
+kernel: init_special_inode: bogus imode (0) 
+kernel: init_special_inode: bogus imode (20) 
+kernel: init_special_inode: bogus imode (0) 
+kernel: init_special_inode: bogus imode (10) 
+kernel: init_special_inode: bogus imode (0) 
+last message repeated 6 times 
+kernel: init_special_inode: bogus imode (20) 
+kernel: init_special_inode: bogus imode (0) 
+last message repeated 3 times 
+
+Today:
+
+kernel: init_special_inode: bogus imode (0) 
+kernel: init_special_inode: bogus imode (35623) 
+kernel: init_special_inode: bogus imode (0) 
+kernel: init_special_inode: bogus imode (30070) 
+kernel: init_special_inode: bogus imode (30061) 
+kernel: init_special_inode: bogus imode (0) 
+kernel: init_special_inode: bogus imode (35623) 
+kernel: init_special_inode: bogus imode (0) 
+
+I'm using -rc2 now and compiling 5 kernels at the same time and haven't seen any of those problems yet.
+
+*Kristian
+
+Michal Jaegermann <michal@harddata.com> wrote:
+> ..........
+> FAT: bogus logical sector size 0
+> FAT: bogus logical sector size 0
+> Kernel panic: VFS: Unable to mount root fs on 03:00
+
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :..........................:

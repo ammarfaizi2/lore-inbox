@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136628AbREAPGR>; Tue, 1 May 2001 11:06:17 -0400
+	id <S136619AbREAPHI>; Tue, 1 May 2001 11:07:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136629AbREAPGI>; Tue, 1 May 2001 11:06:08 -0400
-Received: from nic-25-c96-156.mn.mediaone.net ([24.25.96.156]:39179 "EHLO
-	lupo.thebarn.com") by vger.kernel.org with ESMTP id <S136620AbREAPGC>;
-	Tue, 1 May 2001 11:06:02 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15086.53450.320884.346281@lupo.thebarn.com>
-Date: Tue, 1 May 2001 10:05:46 -0500 (CDT)
-From: xfs-masters@oss.sgi.com
-Subject: Announce: XFS Release 1.0 for Linux
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S136629AbREAPG5>; Tue, 1 May 2001 11:06:57 -0400
+Received: from jalon.able.es ([212.97.163.2]:65251 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S136630AbREAPGk>;
+	Tue, 1 May 2001 11:06:40 -0400
+Date: Tue, 1 May 2001 17:06:32 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac2
+Message-ID: <20010501170632.A1057@werewolf.able.es>
+In-Reply-To: <E14uXjN-0001UN-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14uXjN-0001UN-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 01, 2001 at 12:50:07 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tuesday May 1 2001:
-SGI is pleased to announce the 1.0 release of XFS, high-performance
-journaled file system for Linux. 
+Hi,
 
-http://oss.sgi.com/projects/xfs/
+On 05.01 Alan Cox wrote:
+> 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 
 
-XFS is widely recognized as the industry-leading high-performance file system,
-providing rapid recovery from system crashes and the ability to support
-extremely large disk farms. XFS is the first journaled file system for Linux
-available today that has a proven track record in production environments
-since December 1994. 
+Hangs after APIC init:
 
-XFS Linux 1.0 is released for the Linux 2.4 kernel and offers the following
-advanced features:
+(bootlog from ac1)
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+.... CPU clock speed is 400.9211 MHz.
+.... host bus clock speed is 100.2300 MHz.
+cpu: 0, clocks: 1002300, slice: 334100
+CPU0<T0:1002288,T1:668176,D:12,S:334100,C:1002300>
+cpu: 1, clocks: 1002300, slice: 334100
+CPU1<T0:1002288,T1:334080,D:8,S:334100,C:1002300>
+checking TSC synchronization across CPUs: passed.
 
-        * Fast recovery after a system crash or power failure, NO fsck!
-        * Journaling for guaranteed file system integrity 
-        * Direct I/O 
-        * Space preallocation 
-        * Transactionally recorded quotas 
-        * Access control lists and Extended attributes 
-        * Infrastructure for XDSM support (DMAPI) 
-        * Excellent overall performance 
-        * Excellent scalability (64 bit file system) 
-        * On-disk compatibility with IRIX XFS file systems
+<ac2 stops here>
 
-A complete toolset including: 
+PCI: PCI BIOS revision 2.10 entry at 0xfdb81, last bus=1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
 
-        * dump/restore support including all XFS file system features such as ACLs and quotas 
-        * Repair utility, file system editor, and growing the file system 
-        * ACL editing utility 
-        * Extended attribute editing utility
+Now I am going to spread printk's over the source, and set APIC_DEBUG=1,
+but if someone has a clue ?
+Ask for more info if it can be useful...
 
-Excellent integration with other Linux subsystems: 
-        * NFS version 2 and 3 server support 
-        * Root file system and lilo support 
-        * Software raid integration with md and lvm packages 
-        * Mount by label and mount by uuid 
+--
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
 
-
-The SGI XFS team is also providing a modified Red Hat Linux anaconda based installer.
-The installer handles all the details of setting up a Red Hat Linux 7.1 system running
-entirely on XFS, or a combination of XFS and ext2 file systems.
-
-
-Sincerely 
-The SGI XFS Team.
-
-
-
-
-
-
-
-
-
+Linux werewolf 2.4.4-ac1 #1 SMP Tue May 1 11:35:17 CEST 2001 i686
 

@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269639AbTGJWMf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 18:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbTGJWL1
+	id S269628AbTGJWMx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 18:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269589AbTGJWMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 18:11:27 -0400
-Received: from smtp.terra.es ([213.4.129.129]:63643 "EHLO tsmtp7.mail.isp")
-	by vger.kernel.org with ESMTP id S269589AbTGJWLV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 18:11:21 -0400
-Date: Fri, 11 Jul 2003 00:26:07 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: "=?ISO-8859-15?Q?Rafa=B3?= 'rmrmg' Roszak" <rmrmg@wp.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compile warnings
-Message-Id: <20030711002607.6b82540f.diegocg@teleline.es>
-In-Reply-To: <20030710175135.1c6094d8.rmrmg@wp.pl>
-References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva>
-	<20030710175135.1c6094d8.rmrmg@wp.pl>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 10 Jul 2003 18:12:52 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:15756 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269633AbTGJWLm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 18:11:42 -0400
+Date: Thu, 10 Jul 2003 15:26:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.75
+In-Reply-To: <20030710223548.A20214@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0307101512350.4757-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 10 Jul 2003 17:51:35 +0200 Rafa³ 'rmrmg' Roszak <rmrmg@wp.pl> escribió:
 
-> Hi
+On Thu, 10 Jul 2003, Russell King wrote:
 > 
-> "Nie ma takiego pliku ani katalogu"  mean " no such file or directory"
-> and "UWAGA: 1 z 13 wyliczonych sum kontrolnych siê NIE zgadza"  mean 
-> "1of 13 checked  checksums is NOT correct."
+> Well, only two words from me.  Oh Shit.
 
+Hey, this is already much later than it should have been, so it's not as
+if this is a huge surprise.
 
-could you recompile with "LC_ALL='C' make whatever" ?
+> The 2.5.70 ARM patch currently looks like this:
+
+We can sort it out later. Obviously, clearly arm-specific patches (ie
+stuff in arch/arm and include/asm-arm) I wouldn't mind per se, but I'd
+rather hold back on even those just to make the patches and the changlogs
+not be mixed up with the "main bugfixes".
+
+We've never had a first stable release that has all architectures
+up-to-date, and I'm not planning on changing that for 2.6.x. This is _not_
+the time to try to make my tree build on arm (or other architectures
+either), considering that my tree hasn't been the main ARM tree for a long 
+time.
+
+> Frustrated such an understatement.
+
+To be blunt, which part of "we want to release 2.6.x this year" came as a
+surprise to you? I
+
+That means that I'm not willing to hold stuff up any more. Stuff that 
+hasn't followed the development tree doesn't magically just "get fixed". 
+
+Also, the only real point of a stable release is for distribution makers.
+That pretty much cuts the list of "needs to be supported" down to x86,
+ia64, x86-64 and possibly sparc/alpha.
+
+So everything else is a bonus, but can equally well just play catch-up
+later. Embedded people tend to want to stay back anyway, which is 
+obviously why they don't follow the development tree in the first place. 
+
+			Linus
 

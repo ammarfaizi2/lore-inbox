@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268541AbUIXIMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268565AbUIXIQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268541AbUIXIMV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 04:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268544AbUIXIMU
+	id S268565AbUIXIQB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 04:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268553AbUIXIQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 04:12:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27285 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268541AbUIXIMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 04:12:08 -0400
-Date: Fri, 24 Sep 2004 10:11:46 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Martin Diehl <lists@mdiehl.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm2: devmem_is_allowed
-Message-ID: <20040924081145.GA16455@devserv.devel.redhat.com>
-References: <1096008029.2612.37.camel@laptop.fenrus.com> <Pine.LNX.4.44.0409240947230.14340-100000@notebook.home.mdiehl.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+	Fri, 24 Sep 2004 04:16:00 -0400
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:41417 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S268565AbUIXIPh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 04:15:37 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: lost memory on a 4GB amd64
+Date: Fri, 24 Sep 2004 09:15:34 +0100
+User-Agent: KMail/1.7
+Cc: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au> <Pine.LNX.4.58.0409200815420.3644@fb07-calculator.math.uni-giessen.de> <Pine.LNX.4.58.0409202020370.5797@magvis2.maths.usyd.edu.au>
+In-Reply-To: <Pine.LNX.4.58.0409202020370.5797@magvis2.maths.usyd.edu.au>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0409240947230.14340-100000@notebook.home.mdiehl.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409240915.34471.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 20 Sep 2004 11:26, Sergei Haller wrote:
+>
+> fang ~sergei> ./memtest 1000000000
+> allocate 1000000000: ok
+>
+> Message from syslogd@fang at Mon Sep 20 18:03:16 2004 ...
+> fang kernel: Oops: 0000 [1] PREEMPT SMP
+>
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Works fine on my 4Gb Tyan thunder K8W machine, even running from an xterm:
+andrew@orac ~ $ uname -a
+Linux orac.walrond.org 2.6.8.1 #3 SMP Sun Aug 29 17:36:49 BST 2004 x86_64 
+unknown unknown GNU/Linux
 
+andrew@orac ~ $ free -m
+             total       used       free     shared    buffers     cached
+Mem:          4008        263       3744          0          0         66
+-/+ buffers/cache:        195       3812
+Swap:         3827         25       3802
 
-On Fri, Sep 24, 2004 at 10:09:40AM +0200, Martin Diehl wrote:
-> On Fri, 24 Sep 2004, Arjan van de Ven wrote:
-> 
-> > On Fri, 2004-09-24 at 00:37, Martin Diehl wrote:
-> > > Hi,
-> > > 
-> > > after switching from working 2.6.9-rc2 to -mm2, X refused to start on my 
-> > > testbox. It turned out this was because it failed (EPERM) reading from 
-> > > /dev/mem beyond the 1MB limit.
-> > 
-> > can you get me a strace of the failing X server?
-> > The code as is is as designed; X has no business messing with kernel ram
-> > over 1Mb, there is nothing there for it to (ab)use.
-> > (There is PCI memory much higher up but that is allowed again)
-> 
-> See below. I've reduced it to show the critical parts (AFAICS). Please 
-> tell me if I shall mail you the whole unmodified strace -f output from 
-> startx.
+andrew@orac ~ $ ./memtest 1000000000
+allocate 1000000000: ok
+set them to 0... done
+andrew@orac ~ $ ./memtest 4000000000
+allocate 4000000000: ok
+set them to 0... done
+andrew@orac ~ $ ./memtest 5000000000
+allocate 5000000000: ok
+set them to 0... done
+andrew@orac ~ $
 
-this looks good already; I'll investigate this further
+The last one took a while (using 1Gb swap) but it still worked fine.
 
-> It looks like it is scanning /dev/mem page-by-page for some reason trying 
-> to get or identify some 512 page mapping. If /dev/mem does not return 
-> EPERM after 1MB (i.e. with my patch applied), it scans the whole 192MB of 
-> physical memory in the box entirely before it continues.
+Without swap:
 
-WHAT? WHY?
+andrew@orac ~ $ sudo swapoff -a
+andrew@orac ~ $ free -m
+             total       used       free     shared    buffers     cached
+Mem:          4008        237       3770          0          1         54
+-/+ buffers/cache:        181       3826
+Swap:            0          0          0
+andrew@orac ~ $ ./memtest 1000000000
+allocate 1000000000: ok
+set them to 0... done
+andrew@orac ~ $ ./memtest 2000000000
+allocate 2000000000: ok
+set them to 0... done
+andrew@orac ~ $                          
 
-> Btw, if reading from /dev/mem is intended to fail above 1MB, it seems 
-> there might be an off-by-one somewhere, because the read starting at
-> 1048576 (=1024 x 1024) below succeeds. I.e. the first page failing the 
-> read is page 257 on zero-based page counting, not 256.
+Still fine.
 
-the first page after 1Mb is "magic" for some bioses so this was deliberate
-
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBU9bBxULwo51rQBIRAp4tAJ9d/Ys+q/A52mc+s/fceTSxn03MGACdG15J
-kcmVaDm8J5FMMo1EybWPrKI=
-=x1Kf
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--
+Andrew Walrond

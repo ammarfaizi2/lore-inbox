@@ -1,97 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265692AbTFSBeg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 21:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbTFSBeg
+	id S265690AbTFSBe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 21:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbTFSBe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 21:34:36 -0400
-Received: from fe5.rdc-kc.rr.com ([24.94.163.52]:50697 "EHLO mail5.kc.rr.com")
-	by vger.kernel.org with ESMTP id S265692AbTFSBeZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 21:34:25 -0400
-Date: Wed, 18 Jun 2003 20:48:23 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.72 oops (scheduling while atomic)
-Message-ID: <20030619014822.GA5705@glitch.localdomain>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030617143551.GA3057@glitch.localdomain>
+	Wed, 18 Jun 2003 21:34:59 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:64016 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S265690AbTFSBel
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 21:34:41 -0400
+Date: Wed, 18 Jun 2003 18:45:09 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DVB updates, 3rd try
+Message-ID: <20030619014509.GC20116@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <3EF051AF.1060006@convergence.de> <Pine.LNX.4.44.0306180849150.9782-100000@home.transmeta.com> <20030618161253.GA53261@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="zYM0uCDKw75PZbzx"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030617143551.GA3057@glitch.localdomain>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030618161253.GA53261@compsoc.man.ac.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 18, 2003 at 05:12:54PM +0100, John Levon wrote:
+> On Wed, Jun 18, 2003 at 08:58:43AM -0700, Linus Torvalds wrote:
+> 
+> > 	[DVB PATCH 1/9] Replace frobutomic counter with sequence numbers
+> 
+> People might find the below script (hacked from gregkh's version) useful
+> for doing this. Should be fairly obvious.
+> 
+> regards,
+> john
+> 
+> #!/usr/bin/perl -w
+> 
+> # horrible hack of a script to send off a large number of email messages, one after
+> # each other, all chained together.  This is useful for large numbers of patches.
+> #
+> # Use at your own risk!!!!
+> #
+> # greg kroah-hartman Jan 8, 2002
+> # <greg@kroah.com>
+> #
+> # Released under the artistic license.
+> #
+> 
+> #
+> # modify these options each time you run the script
+> #
+> #$to = 'torvalds@transmeta.com, linux-kernel@vger.kernel.org';
+> $to = 'levon@movementarian.org';
+> 
+> # If you want to chain the first post, fill this in
+> $initial_reply_to = '';
+> 
+> # a list of patches to send out
+> @files = (
+> ["shutdown.diff", "OProfile: small NMI shutdown fix"],
+> ["ioapic.diff", "OProfile: IO-APIC based NMI delivery"],
+> ["exec.diff", "OProfile: thread switching performance fix"],
+> );
+> 
+> # Put your name and address here
+> $from = "John Levon <levon\@movementarian.org>";
+> 
+> # Don't need to change anything below here...
+> 
+> use Mail::Sendmail;
+> 
+> 
+> # we make a "fake" message id by taking the current number
+> # of seconds since the beginning of Unix time and tacking on
+> # a random number to the end, in case we are called quicker than
+> # 1 second since the last time we were called.
+> sub make_message_id
+> {
+> 	my $date = `date "+\%s"`;
+> 	chomp($date);
+> 	my $pseudo_rand = int (rand(4200));
+> 	$message_id = "<$date$pseudo_rand\@movementarian.org>";
+> 	print "new message id = $message_id\n";
+> }
+> 
+> 
+> 
+> 
+> 
+> sub send_message
+> {
+> 	%mail = (	To	=>	$to,
+> 			From	=>	$from,
+> 			Subject	=>	$subject,
+> 			Message	=>	$message,
+> 			'In-Reply-To'	=>	$reply_to,
+> 			'Message-ID'	=>	$message_id,
+> 			'X-Mailer'	=> "gregkh_patchbomb_levon_offspring",
+> 		);
+> 
+> 	$mail{smtp} = 'localhost';
+> 
+> 	sendmail(%mail) or die $Mail::Sendmail::error;
+> 
+> 	print "OK. Log says:\n", $Mail::Sendmail::log;
+> 	print "\n\n"
+> }
+> 
+> 
+> $reply_to = $initial_reply_to;
+> make_message_id();
+> $nrfiles = @files;
+> $current = 1;
+> 
+> foreach $t (@files) {
+> 	($F, $subj) = @$t;
+> 	open F or die "can't open file $t";
+> 	undef $/;
+> 	$message = <F>;	# slurp the whole file in
+> 	close F;
+> 	$/ = "\n";
+> 	$subject = "[PATCH $current/$nrfiles] $subj";
+> 	send_message();
+> 
+> 	# set up for the next message
+> 	$reply_to = $message_id;
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Please don't do this.  $reply_to ||= $message_id is OK but
+having each patch as a reply to the previous one is
+annoying.  I think it was Greg who recently posted one set
+of patches that was so large the indentation for the thread
+went off the screen.
 
-I just re-tested with 2.5.72-bk1, which still experiences the problem. 
-I enabled all of the debugging options this time, however, and so
-captured what I hope to be a more informative oops.  The .config was
-otherwise unchanged.
+       [PATCH 0/n] frob the niggle
+       |-> [PATCH 1/n] frob the niggle
+         |-> [PATCH 2/n] frob the niggle
+           |-> [PATCH 3/n] frob the niggle
+             |-> [PATCH 4/n] frob the niggle
+               |-> [PATCH 5/n] frob the niggle
+                 |-> [PATCH 6/n] frob the niggle
+                   |-> [PATCH 7/n] frob the niggle
+                     |-> [PATCH 8/n] frob the niggle
+vs
+       [PATCH 0/n] frob the niggle
+       |-> [PATCH 1/n] frob the niggle
+       |-> [PATCH 2/n] frob the niggle
+       |-> [PATCH 3/n] frob the niggle
+       |-> [PATCH 4/n] frob the niggle
+       |-> [PATCH 5/n] frob the niggle
+       |-> [PATCH 6/n] frob the niggle
+       |-> [PATCH 7/n] frob the niggle
+       |-> [PATCH 8/n] frob the niggle
 
-Let me know if I can provide any additional information.
+> 	make_message_id();
+> 	$current++;
+> }
 
+Other than that, thanks. If more people posted patch sets
+like this it would be much nicer.
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=oops-decoded
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-ksymoops 2.4.8 on i686 2.4.21.  Options used
-     -v ../vmlinux_glitch.1 (specified)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.21/ (default)
-     -m /boot/System.map-2.5.72-bk1 (specified)
-
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Call Trace:
- [<c011c4f3>] schedule+0x607/0x60c
- [<c010a0ea>] apic_timer_interrupt+0x1a/0x20
- [<c01070e9>] default_idle+0x0/0x31
- [<c01070e9>] default_idle+0x0/0x31
- [<c01071a3>] cpu_idle+0x0x51/0x53
- [<c0105000>] _stext+0x0/0x92
- [<c0320842>] start_kernel+0x16d/0x185
- [<c0320432>] unknown_bootoption+0x0/0xf8
-Unable to handle kernel paging request at virtual address 40128560
-400d2aa3
-*pde = 3ff58067
-Oops:   0007 [#1]
-CPU:    0
-EIP:    0073:[<400d2aa3>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010216
-eax: 40128560  ebx: 0804d5e9  ecx: 00000002  edx: 00000002
-esi: 00000005  edi: 0804d5e9  ebp: bffffbe8  esp: bffff8bc
-ds: 007b  es: 007b  ss: 007b
- <0>Kernel panic: Attempted to kill init!
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-
-Trace; c011c4f3 <schedule+607/60c>
-Trace; c010a0ea <apic_timer_interrupt+1a/20>
-Trace; c01070e9 <default_idle+0/31>
-Trace; c01070e9 <default_idle+0/31>
-Trace; c01071a3 <cpu_idle+51/53>
-Trace; c0105000 <_stext+0/0>
-Trace; c0320842 <start_kernel+16d/185>
-Trace; c0320432 <unknown_bootoption+0/f8>
-
->>EIP; 400d2aa3 <__crc_param_set_short+8c15a/1fb35f>   <=====
-
->>eax; 40128560 <__crc_param_set_short+e1c17/1fb35f>
->>ebx; 0804d5e9 <__crc___mntput+21e4fc/396ec3>
->>edi; 0804d5e9 <__crc___mntput+21e4fc/396ec3>
->>ebp; bffffbe8 <__crc_input_register_handler+86aeb4/8a7903>
->>esp; bffff8bc <__crc_input_register_handler+86ab88/8a7903>
-
-
-1 warning issued.  Results may not be reliable.
-
---zYM0uCDKw75PZbzx--
+		Remember Cernan and Schmitt

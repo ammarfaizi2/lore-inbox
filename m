@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315627AbSFEVIk>; Wed, 5 Jun 2002 17:08:40 -0400
+	id <S316422AbSFEVNf>; Wed, 5 Jun 2002 17:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315746AbSFEVIj>; Wed, 5 Jun 2002 17:08:39 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:49545 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S315627AbSFEVIi>;
-	Wed, 5 Jun 2002 17:08:38 -0400
-Date: Wed, 5 Jun 2002 14:04:36 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with new driver model?
-In-Reply-To: <3CFE7BFC.8EE5605@didntduck.org>
-Message-ID: <Pine.LNX.4.33.0206051357170.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316465AbSFEVNe>; Wed, 5 Jun 2002 17:13:34 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41201 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316422AbSFEVNd>; Wed, 5 Jun 2002 17:13:33 -0400
+Subject: Re: pctel modem bug
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Boris Kimelman <erwin138@netvision.net.il>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CFE6AE0.2000600@netvision.net.il>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Jun 2002 23:06:35 +0100
+Message-Id: <1023314795.2443.29.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-06-05 at 20:47, Boris Kimelman wrote:
+> Hello,
+> you probably know about this but i'll tell you anyway. there is a bug 
+> related to pctel modems. a very nice person made drivers for linux of 
+> this modems and they can work on linux. the problem is that when the 
+> modem finally dials after all the configuration, it puts out a "no 
+> carrier" message and disconnects. please handle the problem and if it 
+> was already fixed please reply to me and say which kernel i should download.
 
-> Shouldn't the calls to __remove_driver be done inside the device_lock?
-
-No. If the driver needs to lock, it is free to use it. But, what the 
-driver needs to do is up to the driver, and we don't want to force it not 
-to sleep. 
-
-But, the driver needs to be removed from the bus's list inside the lock, 
-so if a device the driver supports gets inserted, we won't try and bind 
-the two...Patch coming shortly.
-
-	-pat
+PCtel modem drivers are not last time I checked open source. They are
+also not part of the base kernel. You need to ask whoever made the
+packages
 

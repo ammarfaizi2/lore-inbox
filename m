@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319109AbSHSXvB>; Mon, 19 Aug 2002 19:51:01 -0400
+	id <S319110AbSHTAA0>; Mon, 19 Aug 2002 20:00:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319110AbSHSXvB>; Mon, 19 Aug 2002 19:51:01 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:37369 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319109AbSHSXvA>; Mon, 19 Aug 2002 19:51:00 -0400
-Subject: Re: 2.4 and full ipv6 - will it happen?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: thunder@lightweight.ods.org, zdzichu@irc.pl, linux-kernel@vger.kernel.org
-In-Reply-To: <20020819.162340.133733118.davem@redhat.com>
-References: <20020818.213719.117777405.davem@redhat.com>
-	<Pine.LNX.4.44.0208191733540.3234-100000@hawkeye.luckynet.adm> 
-	<20020819.162340.133733118.davem@redhat.com>
-Content-Type: text/plain
+	id <S319113AbSHTAA0>; Mon, 19 Aug 2002 20:00:26 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:489 "EHLO fed1mtao01.cox.net")
+	by vger.kernel.org with ESMTP id <S319110AbSHTAA0>;
+	Mon, 19 Aug 2002 20:00:26 -0400
+Message-ID: <3D618789.7040408@cox.net>
+Date: Mon, 19 Aug 2002 17:04:25 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1b) Gecko/20020721
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stanislav Brabec <utx@penguin.cz>
+CC: Paul Bristow <paul@paulbristow.net>, linux-kernel@vger.kernel.org
+Subject: Re: ide-floppy & devfs - /dev entry not created if drive is empty
+References: <20020818185620.GA6013@utx>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Aug 2002 00:54:22 +0100
-Message-Id: <1029801262.21242.13.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-20 at 00:23, David S. Miller wrote:
->    From: Thunder from the hill <thunder@lightweight.ods.org>
->    Date: Mon, 19 Aug 2002 17:34:51 -0600 (MDT)
->    
->    We're using it for years now. Works well, made me incredibly happy ever
->    since. Just too cool thing.
-> 
-> The keyword is "you", you are using is locally at your site.
-> 
-> There are zero backbone ipv6 routers, everyone is still tunneling
-> or has a custom network layout for their usage.
+There are patches at http://members.cox.net/kpfleming/ide-floppy to 
+resolve this.
 
-That will begin to change. The twenty year expiry for all the potential
-lunatic submarine patents on IPv6 stuff will expire in a few years. And
-while many vendors and big carriers won't publically admit it that is
-one of the current major concerns.
-
-3G phones might help too, although they seem to have gone down the
-cosmic toilet pan in the short term
+Stanislav Brabec wrote:
+> Hallo Paul Bristow,
+> 
+> I have tested ide-floppy on my Linux 2.4.19 with ATAPI ZIP 100. I am
+> using devfs.
+> 
+> I found following problem:
+> 
+> If module ide-floppy is loaded and no disc is present in the drive,
+> /dev/ide/host0/bus1/target1/lun0/disc entry is not created. Later
+> inserted media cannot be checked in any way, because no /dev entry
+> exists.
+> 
+> Older kernels have also this behavior.
+> 
+> Fix: Create .../disc entry in all cases, even if no disc is present.
+> 
 

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274507AbRITOPk>; Thu, 20 Sep 2001 10:15:40 -0400
+	id <S274508AbRITORk>; Thu, 20 Sep 2001 10:17:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274508AbRITOPa>; Thu, 20 Sep 2001 10:15:30 -0400
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:30936 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S274507AbRITOPP>; Thu, 20 Sep 2001 10:15:15 -0400
-Message-Id: <5.1.0.14.2.20010920134347.00a3c990@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 20 Sep 2001 15:15:01 +0100
-To: csaradap <csaradap@mihy.mot.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: NTFS--MOUNTING PROBLEM
-Cc: linux-kernel@vger.kernel.org, linux-india-help@lists.sourceforge.net
-In-Reply-To: <3BA9DE60.2511DB44@mihy.mot.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S274509AbRITORa>; Thu, 20 Sep 2001 10:17:30 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:49620 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S274508AbRITORT>; Thu, 20 Sep 2001 10:17:19 -0400
+Date: Thu, 20 Sep 2001 08:18:45 -0600
+Message-Id: <200109201418.f8KEIjG01625@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: drivers/char/sonypi.h broken
+In-Reply-To: <E15k37E-0005CC-00@the-village.bc.nu>
+In-Reply-To: <200109200401.f8K413n29745@vindaloo.ras.ucalgary.ca>
+	<E15k37E-0005CC-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13:17 20/09/01, csaradap wrote:
->I have installed Red Hat 7.1 from PCQ, and my disk shares NT with LINUX.
->By default I think NTFS file support was not installed, so i recompiled
->the kernel with that support selected. But still it is giving that
->NTFS not suppoted and while mounting under HPFS i get error like too mny
->mounted file systems. plz help...
+Alan Cox writes:
+> > Yes, I'm annoyed. So much for syncing up tonight with -pre12, testing
+> > (yeah, some of us still believe in TESTING), and thence onto coding.
+> > I've spent the evening flushing out other people's turds. Grrr.
+> 
+> Turn off the computer, go spend a day cooling down for god sake.
 
-Sorry if this is a really stupid questions, but did you install the new 
-kernel and boot into it after recompiling?
+Well, I went to bed shortly after my missive :-)
 
-If you compiled NTFS as a module did you also "make modules" and "make 
-modules_install"? Did you try to load the ntfs module manually?
+> One header file disappeared in the email pile somewhere. Of course
+> if you'd _bothered_ to check the l/k archive before ranting you'd
+> have found the posting about it.
 
-Does /proc/filesystems list ntfs as an available filesystem?
+Hm. I got testy because there were three broken things I stumbled over
+in 12 hours. I think this just highlights the need for BitKeeper or
+equivalent, where automated regression testing (even a simple "does it
+compile and link?") is performed, and if the test fails, it gets
+bounced and doesn't even get to Linus.
 
-If all of the above are ok, can you copy out the EXACT error message you 
-get when you try the mount?
+Alan: I realise it's impractical for you to manually test each
+patchlet that you send to Linus, since you carry a large number of
+them. But would you consider an automated system? I'm thinking of a
+script that you use to "mail" each patch to Linus. Said script applies
+and compiles, and either bounces the patch, or sends it off the Linus.
+That way you get the same fire-and-forget behaviour you have now with
+email, but with better testing.
 
-Anton
+				Regards,
 
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,441 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263364AbTCNPgi>; Fri, 14 Mar 2003 10:36:38 -0500
+	id <S263373AbTCNPi2>; Fri, 14 Mar 2003 10:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263365AbTCNPgi>; Fri, 14 Mar 2003 10:36:38 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:64659 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S263364AbTCNPgb>; Fri, 14 Mar 2003 10:36:31 -0500
-Date: Fri, 14 Mar 2003 16:46:42 +0100
-From: Joern Engel <joern@wohnheim.fh-wedel.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jonas Holmberg <jonas.holmberg@axis.com>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix stack usage for amd_flash.c
-Message-ID: <20030314154642.GC27154@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+	id <S263375AbTCNPi2>; Fri, 14 Mar 2003 10:38:28 -0500
+Received: from portal.beam.ltd.uk ([62.49.82.227]:45953 "EHLO beam.beamnet")
+	by vger.kernel.org with ESMTP id <S263373AbTCNPi0>;
+	Fri, 14 Mar 2003 10:38:26 -0500
+Message-ID: <3E71F9CB.706@beam.ltd.uk>
+Date: Fri, 14 Mar 2003 15:48:27 +0000
+From: Terry Barnaby <terry@beam.ltd.uk>
+Organization: Beam Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: mmadore@aslab.com, linux-kernel@vger.kernel.org
+Subject: Re: Reproducible SCSI Error with Adaptec 7902
+References: <3E71B629.60204@beam.ltd.uk> <1999490000.1047653585@aslan.scsiguy.com>
+In-Reply-To: <1999490000.1047653585@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Justin,
 
-This patch reduces the stack usage of amd_flash_probe by a couple of
-kByte. The target of freeing the memory after probe should be reached
-with __initdata as well. Untested, though.
+Thanks for the info.
+We were using these drivers as:
 
-Is it ok to apply?
+1. The 1.0.0 driver is as used in the Stock Redhat 7.3 release (updated
+	to current updates).
+2. The 1.1.0 driver is on the Adaptec web site for Linux and is I 		 
+believe the one shipped on there CDROM for the on-board 7902
+	controller.
 
-Jörn
+We were not aware of a later driver.
+For future reference, where should we go to find the latest drivers
+for any device for the linux 2.4.x kernel ?
+
+Do you know if the latest driver at 
+http://people.FreeBSD.org/~gibbs/linux/RPM/aic79xx/
+might fix this problem ?
+
+Cheers
+
+Terry
+
+Justin T. Gibbs wrote:
+>>Our system is:
+>>System: Dual Xeon 2.4GHz system using SuperMicro X5DA8 Motherboard.
+>>SCSI: Adaptec 7902 onboard dual channel SCSI controller
+>>Disks: 2 off Quantum Atlas 10K2 18G (160LW), 1 of Quantum 9G (80LW)
+>>Disks: 1 off Seagate ST336607LW 36G (320LW)
+>>System: RedHat 7.3 with updates to 18/02/03
+>>Kernel: 2.4.18-24.7.xsmp
+>>Aic79xx Driver: versions 1.0.0 and 1.1.0
+> 
+> 
+> Is there some reason why you are using such old versions of the aic79xx
+> driver?  You can obtain the latest version of the driver from here:
+> 
+> http://people.FreeBSD.org/~gibbs/linux/RPM/aic79xx/
+> http://people.FreeBSD.org/~gibbs/linux/DUD/aic79xx/
+> 
+> or in source form for a 2.4.X or 2.5.X kernel from here:
+> 
+> http://people.freebsd.org/~gibbs/linux/SRC/
+> 
+> --
+> Justin
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-My second remark is that our intellectual powers are rather geared to
-master static relations and that our powers to visualize processes
-evolving in time are relatively poorly developed.
--- Edsger W. Dijkstra
+Dr Terry Barnaby                     BEAM Ltd
+Phone: +44 1454 324512               Northavon Business Center, Dean Rd
+Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
+Email: terry@beam.ltd.uk             Web: www.beam.ltd.uk
+BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software
+                       "Tandems are twice the fun !"
 
---- linux-2.5.64/drivers/mtd/chips/amd_flash.c	Wed Mar 12 14:16:34 2003
-+++ linux-2.5.64-i2o/drivers/mtd/chips/amd_flash.c	Thu Mar 13 13:18:10 2003
-@@ -417,205 +417,202 @@
- 
- 
- 
--static struct mtd_info *amd_flash_probe(struct map_info *map)
-+const __initdata struct amd_flash_info table[] = {
- {
--	/* Keep this table on the stack so that it gets deallocated after the
--	 * probe is done.
--	 */
--	const struct amd_flash_info table[] = {
--	{
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29LV160DT,
--		.name = "AMD AM29LV160DT",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
--			{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29LV160DB,
--		.name = "AMD AM29LV160DB",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
--			{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_TOSHIBA,
--		.dev_id = TC58FVT160,
--		.name = "Toshiba TC58FVT160",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
--			{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_FUJITSU,
--		.dev_id = MBM29LV160TE,
--		.name = "Fujitsu MBM29LV160TE",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
--			{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_TOSHIBA,
--		.dev_id = TC58FVB160,
--		.name = "Toshiba TC58FVB160",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
--			{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_FUJITSU,
--		.dev_id = MBM29LV160BE,
--		.name = "Fujitsu MBM29LV160BE",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
--			{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29LV800BB,
--		.name = "AMD AM29LV800BB",
--		.size = 0x00100000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
--			{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 15 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29F800BB,
--		.name = "AMD AM29F800BB",
--		.size = 0x00100000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
--			{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 15 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29LV800BT,
--		.name = "AMD AM29LV800BT",
--		.size = 0x00100000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
--			{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29F800BT,
--		.name = "AMD AM29F800BT",
--		.size = 0x00100000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
--			{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29LV800BB,
--		.name = "AMD AM29LV800BB",
--		.size = 0x00100000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
--			{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_ST,
--		.dev_id = M29W800T,
--		.name = "ST M29W800T",
--		.size = 0x00100000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
--			{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_ST,
--		.dev_id = M29W160DT,
--		.name = "ST M29W160DT",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
--			{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_ST,
--		.dev_id = M29W160DB,
--		.name = "ST M29W160DB",
--		.size = 0x00200000,
--		.numeraseregions = 4,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
--			{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
--			{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
--			{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29BDS323D,
--		.name = "AMD AM29BDS323D",
--		.size = 0x00400000,
--		.numeraseregions = 3,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 48 },
--			{ .offset = 0x300000, .erasesize = 0x10000, .numblocks = 15 },
--			{ .offset = 0x3f0000, .erasesize = 0x02000, .numblocks  = 8 },
--		}
--	}, {
--		.mfr_id = MANUFACTURER_AMD,
--		.dev_id = AM29BDS643D,
--		.name = "AMD AM29BDS643D",
--		.size = 0x00800000,
--		.numeraseregions = 3,
--		.regions = {
--			{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 96 },
--			{ .offset = 0x600000, .erasesize = 0x10000, .numblocks = 31 },
--			{ .offset = 0x7f0000, .erasesize = 0x02000, .numblocks  = 8 },
--		}
--	} 
--	};
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29LV160DT,
-+	.name = "AMD AM29LV160DT",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
-+		{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29LV160DB,
-+	.name = "AMD AM29LV160DB",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
-+		{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_TOSHIBA,
-+	.dev_id = TC58FVT160,
-+	.name = "Toshiba TC58FVT160",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
-+		{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_FUJITSU,
-+	.dev_id = MBM29LV160TE,
-+	.name = "Fujitsu MBM29LV160TE",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
-+		{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_TOSHIBA,
-+	.dev_id = TC58FVB160,
-+	.name = "Toshiba TC58FVB160",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
-+		{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_FUJITSU,
-+	.dev_id = MBM29LV160BE,
-+	.name = "Fujitsu MBM29LV160BE",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
-+		{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29LV800BB,
-+	.name = "AMD AM29LV800BB",
-+	.size = 0x00100000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
-+		{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 15 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29F800BB,
-+	.name = "AMD AM29F800BB",
-+	.size = 0x00100000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
-+		{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 15 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29LV800BT,
-+	.name = "AMD AM29LV800BT",
-+	.size = 0x00100000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
-+		{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29F800BT,
-+	.name = "AMD AM29F800BT",
-+	.size = 0x00100000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
-+		{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29LV800BB,
-+	.name = "AMD AM29LV800BB",
-+	.size = 0x00100000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
-+		{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_ST,
-+	.dev_id = M29W800T,
-+	.name = "ST M29W800T",
-+	.size = 0x00100000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 15 },
-+		{ .offset = 0x0F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x0F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x0FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_ST,
-+	.dev_id = M29W160DT,
-+	.name = "ST M29W160DT",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 31 },
-+		{ .offset = 0x1F0000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x1F8000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x1FC000, .erasesize = 0x04000, .numblocks  = 1 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_ST,
-+	.dev_id = M29W160DB,
-+	.name = "ST M29W160DB",
-+	.size = 0x00200000,
-+	.numeraseregions = 4,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x04000, .numblocks  = 1 },
-+		{ .offset = 0x004000, .erasesize = 0x02000, .numblocks  = 2 },
-+		{ .offset = 0x008000, .erasesize = 0x08000, .numblocks  = 1 },
-+		{ .offset = 0x010000, .erasesize = 0x10000, .numblocks = 31 }
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29BDS323D,
-+	.name = "AMD AM29BDS323D",
-+	.size = 0x00400000,
-+	.numeraseregions = 3,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 48 },
-+		{ .offset = 0x300000, .erasesize = 0x10000, .numblocks = 15 },
-+		{ .offset = 0x3f0000, .erasesize = 0x02000, .numblocks  = 8 },
-+	}
-+}, {
-+	.mfr_id = MANUFACTURER_AMD,
-+	.dev_id = AM29BDS643D,
-+	.name = "AMD AM29BDS643D",
-+	.size = 0x00800000,
-+	.numeraseregions = 3,
-+	.regions = {
-+		{ .offset = 0x000000, .erasesize = 0x10000, .numblocks = 96 },
-+		{ .offset = 0x600000, .erasesize = 0x10000, .numblocks = 31 },
-+		{ .offset = 0x7f0000, .erasesize = 0x02000, .numblocks  = 8 },
-+	}
-+} 
-+};
- 
-+static struct mtd_info *amd_flash_probe(struct map_info *map)
-+{
- 	struct mtd_info *mtd;
- 	struct flchip chips[MAX_AMD_CHIPS];
- 	int table_pos[MAX_AMD_CHIPS];

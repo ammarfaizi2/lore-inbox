@@ -1,50 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269756AbUJGJCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269748AbUJGJCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269756AbUJGJCa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 05:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUJGJC3
+	id S269748AbUJGJCg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 05:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUJGJCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 05:02:29 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:41381 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S269756AbUJGJAw (ORCPT
+	Thu, 7 Oct 2004 05:02:36 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20142 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269759AbUJGJBe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 05:00:52 -0400
-To: akpm@osdl.org, marian.eichholz@freenet-ag.de
-Subject: Re: Fwd: Re: 2.6.9-rc3 does not like diablo news reader daemon
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1CFU8h-0005Vr-1V@nostromo.freenet-ag.de>
-From: Michael Haardt <michael@freenet-ag.de>
-Date: Thu, 07 Oct 2004 11:00:43 +0200
+	Thu, 7 Oct 2004 05:01:34 -0400
+Date: Thu, 7 Oct 2004 01:59:12 -0700
+From: Paul Jackson <pj@sgi.com>
+To: colpatch@us.ibm.com
+Cc: Simon.Derr@bull.net, mbligh@aracnet.com, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
+ memory placement
+Message-Id: <20041007015912.3da745a9.pj@sgi.com>
+In-Reply-To: <1097104367.4907.91.camel@arrakis>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<835810000.1096848156@[10.10.2.4]>
+	<20041003175309.6b02b5c6.pj@sgi.com>
+	<838090000.1096862199@[10.10.2.4]>
+	<20041003212452.1a15a49a.pj@sgi.com>
+	<843670000.1096902220@[10.10.2.4]>
+	<Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>
+	<1097015619.4065.61.camel@arrakis>
+	<20041005200124.415f39d1.pj@sgi.com>
+	<1097104367.4907.91.camel@arrakis>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Are the oopses always the same?  Please send some more.
+Matthew wrote:
+> > Perhaps these flags should be called:
+> > 	mems_exclusive_precursor
+> > 	cpus_exclusive_precursor
+> > ;).
+> 
+> Ok...  So if we could offer the 'real' exclusion that the PBS and LSF
+> workload managers offer directly, would that suffice?  Meaning, could we
+> make PBS and LSF work on top of in-kernel mechanisms that offer 'real'
+> exclusion.  'Real' exclusion defined as isolated groups of CPUs and
+> memory that the kernel can guarantee will not run other processes?  That
+> way we can get the job done without having to rely on these external
+> workload managers, and be able to offer this dynamic partitioning to all
+> users.  Thoughts?
 
-There was only one so far, but I will send more, in case I get any.
 
-> - What types of filesytem are in use?
+I agree entirely.  Before when I was being a penny pincher about
+how much went in the kernel, it might have made sense to have
+the mems_exclusive and cpus_exclusive precursor flags.
 
-Ext2fs.
+But now that we have demonstrated a bone fide need for a really
+really exclusive cpuset, it was silly of me to consider offering:
 
-> - Are you using any unusual mount options?
+> > 	mems_exclusive_precursor
+> > 	cpus_exclusive_precursor
+> >     really_really_exclusive
 
-No, just defaults.
+These multiple flavors just confuse and annoy.
 
-> - Are you using any uncommon hardware?
+You're right.  Just one flag option, for the really exclusive cpuset,
+is required here.
 
-No: 2x P3 1 GHz, a standard platform we use for many services.
+A different scheduler domain (whether same scheduler with awareness of
+the boundaries, or something more substantially distinct) may only be
+attached to a cpuset if it is exclusive.
 
-> - Does the application do anything unusual such as O_DIRECT I/O?
-
-Dreaderd is not compiled with AIO enabled, but it does use mmap(),
-madvise() and SYSV shared memory segments.
-
-> - Are any other machines running the same application and kernel?  If so,
->   are they failing?  If not, are you able to use a different machine with
->   2.6.9-rc3?  That'll help us work out whether it's a hardware or software
->   failure.
-
-I will run the same setup on a different machine of same type, no problem.
-In the mean time, I keep an eye on the machine that generated the oops.
-
-Michael
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

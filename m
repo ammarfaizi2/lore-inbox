@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263623AbTIHUgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 16:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTIHUgZ
+	id S263587AbTIHU1w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 16:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTIHU1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 16:36:25 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:60422 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263623AbTIHUeM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 16:34:12 -0400
-Date: Mon, 8 Sep 2003 22:34:09 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: David Garfield <garfield@irving.iisd.sra.com>
-Cc: linux-kernel@vger.kernel.org, andersen@codepoet.org,
-       Matthew Wilcox <willy@debian.org>
-Subject: Re: kernel header separation
-Message-ID: <20030908223409.B1085@pclin040.win.tue.nl>
-References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk> <20030903014908.GB1601@codepoet.org> <20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk> <20030905211604.GB16993@codepoet.org> <16220.58678.399619.878405@irving.iisd.sra.com>
+	Mon, 8 Sep 2003 16:27:51 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:58907 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263587AbTIHU1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 16:27:45 -0400
+Date: Mon, 8 Sep 2003 21:26:35 +0100
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Andries Brouwer <aebr@win.tue.nl>, willy@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use size_t for the broken ioctl numbers
+Message-ID: <20030908202635.GB681@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Andries Brouwer <aebr@win.tue.nl>, willy@debian.org,
+	linux-kernel@vger.kernel.org
+References: <20030908195329.GA5720@gtf.org> <Pine.LNX.4.44.0309081313260.1666-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16220.58678.399619.878405@irving.iisd.sra.com>; from garfield@irving.iisd.sra.com on Mon, Sep 08, 2003 at 04:23:18PM -0400
+In-Reply-To: <Pine.LNX.4.44.0309081313260.1666-100000@home.osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 04:23:18PM -0400, David Garfield wrote:
+On Mon, Sep 08, 2003 at 01:15:26PM -0700, Linus Torvalds wrote:
+ > On Mon, 8 Sep 2003, Jeff Garzik wrote:
+ > > I should send Linus my snapshot script ;-)
+ > Oh, please don't. I wouldn't use it anyway.
+ > 
+ > I'm a big believer in avoiding unnecessary work - especially stuff I'm not
+ > good at. And maintaining automated scripts falls under that description. 
+ > I'm a total disaster when it comes to MIS-like things.
+ 
+Then the snapshot robot will continue to make them available for
+non-bk users at http://www.codemonkey.org.uk/projects/sparse
 
-> On the other hand, the ISO C99 definition is probably something like:
-> an integral type capable of storing the values 0 through 255
-> inclusive.  (ok, I don't have a copy of the new standard but I have
-> seriously examined the old one.)  I would not count on uint8_t
-> necessarily being unsigned on unusual hardware.
+Right now, it deletes snapshots after a week. I figure anyone who wanted
+to find regressions, or step back through the history could extract it
+from the bk web frontend (or use bk).  If anyone would prefer me to keep
+them there longer, shout and I'll change the script.
 
-Why do you come with FUD and speculation when it is so easy
-to check the facts?
+		Dave
 
-  "The typedef name intN_t designates a signed integer type with width N,
-   no padding bits, and a two's complement representation. Thus, int8_t
-   denotes a signed integer type with a width of exactly 8 bits.
-
-   The typedef name uintN_t designates an unsigned integer type with width N.
-   Thus, uint24_t denotes an unsigned integer type with a width of exactly 24 bits.
-
-   These types are optional. However, if an implementation provides integer types with
-   widths of 8, 16, 32, or 64 bits, it shall define the corresponding typedef names."
-
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266711AbUBQWwp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 17:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUBQWwp
+	id S266808AbUBQWet (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 17:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUBQWel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 17:52:45 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:4107 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266711AbUBQWvA (ORCPT
+	Tue, 17 Feb 2004 17:34:41 -0500
+Received: from gprs159-87.eurotel.cz ([160.218.159.87]:17028 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266809AbUBQWdj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 17:51:00 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: John Bradford <john@grabjohn.com>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
-Date: Tue, 17 Feb 2004 23:50:58 +0100
-User-Agent: KMail/1.6.1
-Cc: Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, Marc <pcg@goof.com>,
-       Marc Lehmann <pcg@schmorp.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0402161205120.30742@home.osdl.org> <Pine.LNX.4.58.0402171259440.2154@home.osdl.org> <200402172116.i1HLGESi000350@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200402172116.i1HLGESi000350@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
+	Tue, 17 Feb 2004 17:33:39 -0500
+Date: Tue, 17 Feb 2004 23:33:20 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Carl Thompson <cet@carlthompson.net>
+Cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: hard lock using combination of devices
+Message-ID: <20040217223319.GB666@elf.ucw.cz>
+References: <20040216214111.jxqg4owg44wwwc84@carlthompson.net> <200402170854.22973.vda@port.imtp.ilyichevsk.odessa.ua> <20040216231401.3ig4kksk4k8g8440@carlthompson.net> <200402171149.49985.vda@port.imtp.ilyichevsk.odessa.ua> <20040217061400.z9r4gss0gsockws4@carlthompson.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402172350.58184.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <20040217061400.z9r4gss0gsockws4@carlthompson.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 February 2004 22.16, John Bradford wrote:
-> Quote from Linus Torvalds <torvalds@osdl.org>:
-> > On Tue, 17 Feb 2004, John Bradford wrote:
-> > > > Ok, but... why?  What does 32-bit words get you that UTF-8 does not?
-> > > > I can't think of a single advantage, just lots of disadvantages.
-> > > The advantage is that you can use them to store UCS-4.
-> > Wrong. UTF-8 can store UCS-4 characters just fine.
-<nitpick>Yes and no. There are no UTF-8 or UCS-4 characters. These are encodings
-for Unicode characters. </nitpick>
+Hi!
 
-> At the end of the day, I just don't see how your suggestion of leaving
-> UTF-8 undecoded unless you're presenting it to the user is ever going
-> to be practical, which brings us back to my first point, that UTF-8
-> can't, in the real world, represent UCS-4 characters acceptably,
-> (I.E. unambiguously).
-The standard say a decode should not accept invalid UTF-8 characters. Not
-decoding them and just pass the garbage on is one way of not "accepting" them; i.e.
-"i'm not decoding this trash". In UTF-8 seen as a byte stream this is trivial. Those that 
-recode to a 16-bit encoding like QT (recode them to invalid UTF-16 so it can be encoded
-back to the original invalid UTF-8). That's at least what the kopete people told me. (Haven't
-read the code yet). With UCS-4 or UCS-2 the decoder must reject the data or make a very
-good decision. Normalizing is a very bad one, since, as we know, an invalid UTF-8 sequence
-simply does not represent a unicode character.
+> >>> Your box share IRQs in a big way :)
+> >>
+> >>Your point?
+> >
+> >While shared interrupts can in theory work right,
+> >lots of hardware and/or drivers do not handle
+> >that.
+> 
+> First, the two devices in question are not on the same interrupt.  Second, 
+> it
+> is very difficult in this day in age to build a system without interrupt
+> sharing.  While I agree that it's better to have as few devices sharing as
+> possible, there are simply too many devices in modern systems and too few
+> interrupts.  Interrupt sharing needs to work on modern hardware and needs to
+> work in Linux.  This notebook is pretty typical in its interrupt 
+> distribution
 
-> > > Basically - no more multiple representations of the same thing.  No more
-> > > funny corner cases where several different strings of bytes eventually
-> > > resolve to the same name being presented to the user.
-> > 
-> > Welcome to normalized UTF-8. And realize that the "non-normalized" broken 
-> > stuff is what allows us backwards compatibility.
-And then (above) there is no normalized UTF-8. There are strings of valid characters
-and invalid characters. Any app that tries to make sense of any garbage is a security
-risk. This apples not only to UTF-8. but function like atof that decodes anything
-to a double at best NaN).
+>            CPU0       
+>   0:   41027968          XT-PIC  timer
+>   1:      26061          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   8:          1          XT-PIC  rtc
+>   9:       2020          XT-PIC  acpi
+>  10:    2187181          XT-PIC  yenta, driverloader
+>  11:        111          XT-PIC  ALI 5451
+>  12:    2399118          XT-PIC  i8042
+>  14:     169829          XT-PIC  ide0
+>  15:          1          XT-PIC  ide1
+> NMI:          0 
+> LOC:   41036749 
+> ERR:     275764
+> MIS:          0
 
--- robin
-
-
--- robin
+Does that mean you are actually using windows driver for your wireless
+card? At that point ... no wonder it breaks ;-).
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261563AbSJALJu>; Tue, 1 Oct 2002 07:09:50 -0400
+	id <S261564AbSJALP1>; Tue, 1 Oct 2002 07:15:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261568AbSJALJu>; Tue, 1 Oct 2002 07:09:50 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:55785 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261564AbSJALJt>;
-	Tue, 1 Oct 2002 07:09:49 -0400
-Date: Tue, 1 Oct 2002 12:18:26 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "David L. DeGeorge" <dld@degeorge.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU/cache detection wrong
-Message-ID: <20021001111826.GA18583@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"David L. DeGeorge" <dld@degeorge.org>,
-	linux-kernel@vger.kernel.org
-References: <200209302106.10518.dld@degeorge.org>
+	id <S261567AbSJALP1>; Tue, 1 Oct 2002 07:15:27 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:28685 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261564AbSJALP1>; Tue, 1 Oct 2002 07:15:27 -0400
+Date: Tue, 1 Oct 2002 12:20:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "John L. Males" <software_iq@hotmail.com>
+Cc: jbradford@dial.pipex.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: v2.6 vs v3.0
+Message-ID: <20021001122048.A15828@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"John L. Males" <software_iq@hotmail.com>, jbradford@dial.pipex.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020930142022.592b020b.software_iq@hotmail.com> <200209302059.g8UKxQEh007769@darkstar.example.net> <20020930180244.6521ce5a.software_iq@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200209302106.10518.dld@degeorge.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020930180244.6521ce5a.software_iq@hotmail.com>; from software_iq@hotmail.com on Mon, Sep 30, 2002 at 06:02:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 09:06:10PM -0400, David L. DeGeorge wrote:
- > I too have incorrect CPU/cache detection using  2.4.20-pre7-ac3. I seem to 
- > recall it working correctly on 2.4.19-ac1 (this was the version in which the 
- > ac did not get added by the patch). Anyway I have a tualatin PIII with a 512K 
- > L2 cache.
+On Mon, Sep 30, 2002 at 06:02:44PM -0400, John L. Males wrote:
+> John,
+> 
+> ***** Please BCC me in on any reply, not CC me.
+> Two reasons, I am not on the Mailing List,
+> and second I am suffering BIG time with SPAM
+> from posting to mailing lists/Newsgroups.
+> Instructions on real address at bottom.
+> Thanks in advance. *****
+> 
 
-Some of the tualatins have an errata which makes L2 cache sizing
-impossible. They actually report they have 0K L2 cache. By checking
-the CPU model, we can guess we have at least 256K (which is where Linux
-got that number from in your case). But this however means the 512K
-models will report as 256K too.
-To work around it, boot with cachesize=512 and all will be good.
+Then don't post to public lists.
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315449AbSFCTto>; Mon, 3 Jun 2002 15:49:44 -0400
+	id <S315443AbSFCTux>; Mon, 3 Jun 2002 15:50:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSFCTtn>; Mon, 3 Jun 2002 15:49:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42501 "EHLO
+	id <S315454AbSFCTuw>; Mon, 3 Jun 2002 15:50:52 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48645 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315449AbSFCTtm>; Mon, 3 Jun 2002 15:49:42 -0400
+	id <S315443AbSFCTuu>; Mon, 3 Jun 2002 15:50:50 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Atomic operations
-Date: 3 Jun 2002 12:49:36 -0700
+Subject: Re: please kindly get back to me
+Date: 3 Jun 2002 12:50:35 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <adgh8g$1vm$1@cesium.transmeta.com>
-In-Reply-To: <EE83E551E08D1D43AD52D50B9F5110927E7A10@ntserver2> <3CFBB7DB.831BE453@didntduck.org>
+Message-ID: <adghab$20m$1@cesium.transmeta.com>
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7801@nocmail101.ma.tmpw.net> <20020603220046.D18899@mea-ext.zmailer.org> <20020603120653.C4940@work.bitmover.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,35 +21,26 @@ Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3CFBB7DB.831BE453@didntduck.org>
-By author:    Brian Gerst <bgerst@didntduck.org>
+Followup to:  <20020603120653.C4940@work.bitmover.com>
+By author:    Larry McVoy <lm@bitmover.com>
 In newsgroup: linux.dev.kernel
+>
+> On Mon, Jun 03, 2002 at 10:00:46PM +0300, Matti Aarnio wrote:
+> >   Anti-spam technology really needs constant evolution, as those
+> >   spammers do evolve themselves...
 > 
-> int atomic_xadd(int i, atomic_t *v)
-> {
-> 	int ret;
-> 	__asm__(LOCK "xaddl %1,%0"
-> 		: "=m" (v->counter), "=r" (ret)
-> 		: "0" (v->counter), "1" (i));
-> 	return ret;
-> }
-> 
-> This one only works on 486+, but there are practically no real 386 SMP
-> systems.
+> If ever there was something which was screaming for an open source project,
+> it's spam filtering.  It seems like every major mailing list has someone
+> like Matti, working really hard on a thankless task, but losing out under
+> the tide of new spam every day.  Seems to me if there was a public repository
+> (sourceforge, bkbits, whatever) with a collection of procmail filters which
+> have been shown to work correctly, that would be a win.
 > 
 
-<slaps forehead>
+The biggest problem is that you're bound to get sued, so you have to
+worry about legal defence...
 
-Boy do I feel dumb now.
-
-The only nitpick is that it's probably better coded as:
-
-int atomic_xadd(int i, atomic_t *v)
-{
-	asm volatile(LOCK "xaddl %1,%0"
-		: "+m" (v->counter), "+r" (i));
-	return i;
-}
+	-hpa
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286422AbRL0SDS>; Thu, 27 Dec 2001 13:03:18 -0500
+	id <S286403AbRL0SAS>; Thu, 27 Dec 2001 13:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286428AbRL0SDE>; Thu, 27 Dec 2001 13:03:04 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56838
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S286422AbRL0SBw>; Thu, 27 Dec 2001 13:01:52 -0500
-Date: Thu, 27 Dec 2001 09:59:38 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
+	id <S286401AbRL0SAI>; Thu, 27 Dec 2001 13:00:08 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6854 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S286407AbRL0R7y>; Thu, 27 Dec 2001 12:59:54 -0500
+Date: Thu, 27 Dec 2001 10:59:55 -0700
+Message-Id: <200112271759.fBRHxtH31437@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: rmk@arm.linux.org.uk (Russell King), riel@conectiva.com.br (Rik van Riel),
+        dana.lacoste@peregrine.com (Dana Lacoste),
+        linuz_kernel_q@hotmail.com ('Eyal Sohya'),
         linux-kernel@vger.kernel.org
 Subject: Re: The direction linux is taking
-In-Reply-To: <20011227165752.A19618@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10112270955570.24428-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <E16JerY-0006Jm-00@the-village.bc.nu>
+In-Reply-To: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
+	<E16JerY-0006Jm-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox writes:
+> > So you just do what Linus does: delete those questions without
+> > replying. No matter what system you use, if you want to avoid an
+> > overflowing mailbox, you either have to silently drop patches, and/or
+> > silently drop questions/requests/begging letters. There isn't really
+> > much difference between the two.
+> 
+> The problem is that if Linus is simply ignoring you then you don't
+> know why, A simple "Clean up the ifdefs" would make a lot of
+> difference. If someone sent a patch its because they hit something
+> they felt needed fixing and as far as they can tell fixed it. If you
+> want them to go elsewhere ignore them, but its much more useful to
+> give them at least brief answers to actual patch files
 
-I agree with Russell, because we now have a pile of shit known as 2.5.X.
-Noting that 2.4.X is just a little less stinky, but still a rat-hole of
-bug infested crap that fixes for are being ignored out of total
-ignorrance.
+Oh, don't get me wrong. I agree completely. A short two minute reply
+is not that much to ask for, and I wish Linus would be more
+responsive. And apply bugfix patches (I've been trying for weeks
+to get him to apply my patches to fix a bunch of Oopses:-().
+But years of observations tells me that Linus likes the way he does
+things and doesn't care if others don't like it. I don't expect to see
+much change there.
 
-I just wish I could spell.
+But the point I was making was that a patch management system doesn't
+really make things harder to drop/ignore. If you're comfortable with
+ignoring patches (which take *work* to construct), then it's no
+stretch to ignore questions (which often take little work to send).
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+				Regards,
 
-On Thu, 27 Dec 2001, Russell King wrote:
-
-> On Thu, Dec 27, 2001 at 04:33:50PM +0000, Alan Cox wrote:
-> > Tridge wrote the system you describe, several years ago. Its called
-> > jitterbug but it doesnt help because Linus wont use it
-> 
-> Speaking as someone who _does_ use a system for tracking patches, I
-> believe that patch management systems are a right pain in the arse.
-> 
-> If the quality of patches aren't good, then it throws you into a problem.
-> You have to provide people with a reason why you discarded their patch,
-> which provides people with the perfect opportunity to immediately start
-> bugging you about exactly how to make it better.  If you get lots of
-> such patches, eventually you've got a mailbox of people wanting to know
-> how to make their patches better.
-> 
-> I envy Alan, Linus, and Marcelo for having the ability to silently drop
-> patches and wait for resends.  I personally don't believe a patch tracking
-> system makes life any easier.  Yes, it means you can't loose patches, but
-> it means you can't accidentally loose them on purpose.  This, imho, makes
-> life very much harder.
-> 
-> I hope this makes some sort of sense 8)
-> 
-> -- 
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

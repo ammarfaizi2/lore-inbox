@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263946AbRFEJ2K>; Tue, 5 Jun 2001 05:28:10 -0400
+	id <S263943AbRFEJdl>; Tue, 5 Jun 2001 05:33:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263943AbRFEJ17>; Tue, 5 Jun 2001 05:27:59 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:33029 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S263264AbRFEJ1n>;
-	Tue, 5 Jun 2001 05:27:43 -0400
-Date: Mon, 4 Jun 2001 12:27:11 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: green@linuxhacker.ru, Alan Cox <laughing@shared-source.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac7
-Message-ID: <20010604122708.B33@toy.ucw.cz>
-In-Reply-To: <mailman.991555081.25242.linux-kernel2news@redhat.com> <200106032051.f53Kpgg10681@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200106032051.f53Kpgg10681@devserv.devel.redhat.com>; from zaitcev@redhat.com on Sun, Jun 03, 2001 at 04:51:42PM -0400
+	id <S263948AbRFEJda>; Tue, 5 Jun 2001 05:33:30 -0400
+Received: from carrot.linuxgrrls.org ([212.18.228.66]:6660 "HELO
+	carrot.linuxgrrls.org") by vger.kernel.org with SMTP
+	id <S263947AbRFEJdQ>; Tue, 5 Jun 2001 05:33:16 -0400
+Date: Tue, 5 Jun 2001 10:29:16 +0100 (BST)
+From: kira brown <kira@linuxgrrls.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "David S. Miller" <davem@redhat.com>, Chris Wedgwood <cw@f00f.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, <bjornw@axis.com>,
+        <linux-kernel@vger.kernel.org>, <linux-mtd@lists.infradead.org>
+Subject: Re: Missing cache flush. 
+In-Reply-To: <25587.991730769@redhat.com>
+Message-ID: <Pine.LNX.4.30.0106051028390.10786-100000@carrot.linuxgrrls.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > How about ISA USB host controllers?
-> 
-> Those, unfortunately, do not exist. I was shopping for one
-> in vain for a long time. One formiddable difficulty is that
-> USB bandwidth is larger than ISA, so the only feasible way
-> to make a HC is to have all TD's in its onboard memory,
-> as in VGA.
 
-USB is 1.2MB/sec while 8-bit ISA is 4MB/sec (memory-mapped).
+On Tue, 5 Jun 2001, David Woodhouse wrote:
 
-...and OHCI does use board memory, anyway.
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+>
+> davem@redhat.com said:
+> > Chris Wedgwood writes:
+> > > What if the memory is erased underneath the CPU being aware of
+> > > this? In such a way ig generates to bus traffic...
+>
+> > This doesn't happen on x86.  The processor snoops all transactions
+> > done by other agents to/from main memory.  The processor caches are
+> > always up to date.
+>
+> No. My original mail presented two situations in which this assumption is
+> false.
+>
+> 1. Bank-switched RAM. You want to force a writeback before switching pages.
+>    I _guarantee_ you that the CPU isn't snooping my access to the I/O port
+>    which sets the latch that drives the upper few address bits of the RAM
+>    chips.
+>
+> 2. Flash. A few writes of magic data to magic addresses and a whole erase
+>    block suddenly contains 0xFF. The CPU doesn't notice that either.
+
+3. Buggy implementations like the Cyrix 486es that don't properly maintain
+   cache coherency.
+
+kira.
 

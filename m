@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbTABM4p>; Thu, 2 Jan 2003 07:56:45 -0500
+	id <S261868AbTABNUc>; Thu, 2 Jan 2003 08:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbTABM4p>; Thu, 2 Jan 2003 07:56:45 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:50399 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S261640AbTABM4o>; Thu, 2 Jan 2003 07:56:44 -0500
-Date: Thu, 2 Jan 2003 14:04:53 +0100
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: linux-kernel@vger.kernel.org
-Cc: Will Dyson <will_dyson@pobox.com>, torvalds@transmeta.com
-Subject: Patch: linux-2.5.54/fs/befs/linuxvfs.c compilation fix
-Message-ID: <20030102130453.GA12098@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+	id <S261872AbTABNUc>; Thu, 2 Jan 2003 08:20:32 -0500
+Received: from hibernia.jakma.org ([212.17.32.129]:10890 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S261868AbTABNUb>; Thu, 2 Jan 2003 08:20:31 -0500
+Date: Thu, 2 Jan 2003 13:28:53 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Milosz Tanski <mtanski@wideopenwest.com>
+cc: david.lang@digitalinsight.com, <riel@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>, <rms@gnu.org>
+Subject: Re: [OT] Re: Why is Nvidia given GPL'd code to use in closed source
+ drivers?
+In-Reply-To: <20030102013405.4f0d3417.mtanski@wideopenwest.com>
+Message-ID: <Pine.LNX.4.44.0301021327220.15225-100000@fogarty.jakma.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter, Thu, Jan 02, 2003 06:53:43 +0100:
-> 	linux-2.5.54/fs/romfs/inode.c needs to include <asm/statfs.h>
-> (which is new to 2.5.54) to compile again.  Here is the one line
-> patch.
+On Thu, 2 Jan 2003, Milosz Tanski wrote:
 
-Also BeFS was touched.
+> be forced to use it, and thus open up their code). I'll see you in
+> two years, when you fully complete the drivers? Ok, bye.
 
+NVidia would not release the neccessary specs to the project to allow 
+them to write acceptable drivers. That is why they are so lacking - 
+but its amazing they even got that far.
 
---- 2.5.54/fs/befs/linuxvfs.c	2003-01-02 06:03:26.000000000 +0100
-+++ 2.5.54a/fs/befs/linuxvfs.c	2003-01-02 13:57:27.000000000 +0100
-@@ -12,7 +12,7 @@
- #include <linux/stat.h>
- #include <linux/nls.h>
- #include <linux/buffer_head.h>
--#include <linux/statfs.h>
-+#include <asm/statfs.h>
- 
- #include "befs.h"
- #include "btree.h"
+> P.S: I think the code there is under a BSD (BSDish, MITish licence,
+> ...).
+
+XFree licence, yes. Which allows binary only modules.
+
+regards
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+The best things in life go on sale sooner or later.
+

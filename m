@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262946AbTCKPVB>; Tue, 11 Mar 2003 10:21:01 -0500
+	id <S262945AbTCKPUr>; Tue, 11 Mar 2003 10:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262947AbTCKPVB>; Tue, 11 Mar 2003 10:21:01 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:13248 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262946AbTCKPVA>;
-	Tue, 11 Mar 2003 10:21:00 -0500
-Date: Tue, 11 Mar 2003 09:06:54 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Oliver Neukum <oliver@neukum.name>
-cc: Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PCI driver module unload race?
-In-Reply-To: <200303111000.40387.oliver@neukum.name>
-Message-ID: <Pine.LNX.4.33.0303110902010.1003-100000@localhost.localdomain>
+	id <S262946AbTCKPUr>; Tue, 11 Mar 2003 10:20:47 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:45495 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262945AbTCKPUq>; Tue, 11 Mar 2003 10:20:46 -0500
+Date: Tue, 11 Mar 2003 07:31:23 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dcache hash distrubition patches
+Message-ID: <31840000.1047396682@[10.10.2.4]>
+In-Reply-To: <20030311152322.GA2358@averell>
+References: <10280000.1047318333@[10.10.2.4]> <20030310175221.GA20060@averell> <26350000.1047368465@[10.10.2.4]> <20030311152322.GA2358@averell>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > I think it's not easy. I haven't studied the code completely yet, but
-> > > e.g. when you attach a device to a driver you also have to get a
-> > > reference to the driver.
-> >
-> > You get a link to the driver, but you can't increment the module count
-> > of the driver at that time, as we have to be able to remove a module
-> > somehow :)
+>> some numbers. They still look pretty good to me. I shrunk us from
+>> 1,048,576 buckets to 65536, and loaded 1,150,000 entries in there.
 > 
-> That is simple. Export a generic way to disconnect a driver from a device.
+> Interesting would be to find the sweet spot with the smallest hash table 
+> size that still performs well. Not sure if find / is a good workload
+> for that though.
 
-It's not that easy - Linux has always supported the operation of being
-able to remove a module while it is attached to devices. The reference
-count only goes up if a device is opened. 
+Difficult, as it depends how many files are in the working set of the 
+machine, really. Right now it eats 4Mb of lowmem ... 1M entries seems
+to be about 150Mb of slab for dentries, which is probably as much as
+anyone wants ... but it's nice to keep those hash chains short ;-)
 
-This means the module refcount must remain at 0, even after it's bound to 
-devices. Changing this would require a change in visible behavior, and 
-require an extra step by a user to disconnect the driver before they 
-unload the module. 
+I can try 1Mb or something I suppose ... what's the purpose here,
+to keep the cachelines of the bucket heads warm? Not sure it's worth
+the tradeoff, as we have to touch another line for each element we
+walk?
 
+I take it you're happy enough with the current hash function distribution?
+ 
+> Also same for inode hash (but I don't have statistics for that right now)
 
-	-pat
+I could hack something up ... but 1 machine ain't going to cut it. I
+suspect I'd have a much smaller inode hash, as I tend to have masses
+of kernel trees, mostly hardlinked to each other.
 
+M.

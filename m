@@ -1,73 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265309AbUEZEWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265310AbUEZEYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265309AbUEZEWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 00:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265308AbUEZEWS
+	id S265310AbUEZEYf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 00:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUEZEYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 00:22:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:20616 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265302AbUEZEWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 00:22:16 -0400
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
-       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
-       bcrl@kvack.org, linux-mm@kvack.org,
-       Linux Arch list <linux-arch@vger.kernel.org>
-In-Reply-To: <1085544720.5580.9.camel@gaston>
-References: <1085369393.15315.28.camel@gaston>
-	 <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-	 <1085371988.15281.38.camel@gaston>
-	 <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-	 <1085373839.14969.42.camel@gaston>
-	 <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-	 <20040525034326.GT29378@dualathlon.random>
-	 <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-	 <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-	 <20040525153501.GA19465@foobazco.org>
-	 <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
-	 <20040525102547.35207879.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
-	 <20040525105442.2ebdc355.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-	 <1085521251.24948.127.camel@gaston>
-	 <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org>
-	 <1085522860.15315.133.camel@gaston>
-	 <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
-	 <1085530867.14969.143.camel@gaston>
-	 <Pine.LNX.4.58.0405251749500.9951@ppc970.osdl.org>
-	 <1085541906.14969.412.camel@gaston>
-	 <Pine.LNX.4.58.0405252031270.15534@ppc970.osdl.org>
-	 <1085544720.5580.9.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1085545114.5578.11.camel@gaston>
+	Wed, 26 May 2004 00:24:35 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:39439 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S265310AbUEZEYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 00:24:15 -0400
+Date: Wed, 26 May 2004 06:21:44 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Andrey Nekrasov <andy@spylog.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sata promise and software raid5...
+Message-ID: <20040526042144.GE578@alpha.home.local>
+References: <1236867749.20040526034657@spylog.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 26 May 2004 14:18:34 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1236867749.20040526034657@spylog.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-26 at 14:12, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-05-26 at 14:08, Linus Torvalds wrote:
+Hi,
+
+I think I had the same problem on a PIIX SATA with RAID1. Basically, I noticed
+that each disk could be accessed one at a time, and that it was totally
+impossible to access the second one while the first one was reading. A simple
+"cat /dev/sda >/dev/null" prevented anyone from logging into the box or doing
+anything which required disk I/O.
+
+So if you have the same problem, I can fairly understand your low numbers.
+Could you try something like :
+
+# cat /dev/sda >/dev/null &
+# hdparm -t /dev/sdb
+
+If hdparm doesn't start before the 'cat' ends, you do have the same problem.
+Well, I don't know where it comes from, and unfortunately I don't have the
+machine anymore to try fixes.
+
+Regards,
+Willy
+
+On Wed, May 26, 2004 at 03:46:57AM +0400, Andrey Nekrasov wrote:
+> Hello,
 > 
-> > You're right. We do use it on the do_wp_page() path, and there we actually 
-> > use a whole new page in the "break_cow()" case. That case is in fact 
-> > fundamentally different from the other ones.
-> > 
-> > So we should probably break up the "ptep_establish()" into its two pieces,
-> > since the callers don't actually want to do the same thing. One really
-> > wants to do a "clear old one, set a totally new one", and the two other
-> > places want to actually update just the dirty and accessed bits.
-
-Hrm... Still dies, some kind of loop it seems, I'll have a look
-
-Ben.
-
-
+> controller - Promise SATA 150 TX4, linux 2.6.7-rc1-bk1, HDD Maxtor
+> 250Gb (x4)
+> 
+> Why so slowly reads (and writes) with software raid5?
+> 
+> gnome:~ # hdparm -t /dev/sda2
+> 
+> /dev/sda2:
+>  Timing buffered disk reads:  148 MB in  3.01 seconds =  49.16 MB/sec
+> gnome:~ # hdparm -t /dev/sdb2
+> 
+> /dev/sdb2:
+>  Timing buffered disk reads:  148 MB in  3.02 seconds =  49.01 MB/sec
+> gnome:~ # hdparm -t /dev/sdc2
+> 
+> /dev/sdc2:
+>  Timing buffered disk reads:  148 MB in  3.03 seconds =  48.90 MB/sec
+> gnome:~ # hdparm -t /dev/sdd2
+> 
+> /dev/sdd2:
+>  Timing buffered disk reads:  144 MB in  3.00 seconds =  47.96 MB/sec
+> gnome:~ #
+> gnome:~ #
+> gnome:~ # hdparm -t /dev/md0
+> 
+> /dev/md0:
+>  Timing buffered disk reads:   64 MB in  3.12 seconds =  20.52 MB/sec
+> gnome:~ #
+> 
+> 
+> gnome:~ # cat /etc/raidtab
+> raiddev /dev/md0
+>         raid-level              5
+>         nr-raid-disks           4
+>         nr-spare-disks          0
+>         persistent-superblock   1
+>         parity-algorithm        left-symmetric
+>         chunk-size              1024
+> 
+>         device                  /dev/sda2
+>         raid-disk               0
+> 
+>         device                  /dev/sdb2
+>         raid-disk               1
+> 
+>         device                  /dev/sdc2
+>         raid-disk               2
+> 
+>         device                  /dev/sdd2
+>         raid-disk               3
+> 
+>         
+> bye
+> --
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

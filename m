@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263719AbTHWRhc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 13:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbTHWRgT
+	id S264084AbTHWRUg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 13:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTHWRA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 13:36:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39585 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264953AbTHWReY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 13:34:24 -0400
-Date: Sat, 23 Aug 2003 18:34:23 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: acpi-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Invalid PBLK length for athlon XP-M on Asus laptop
-Message-ID: <20030823173423.GQ18834@parcelfarce.linux.theplanet.co.uk>
-References: <20030823125812.GC913@renditai.milesteg.arr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030823125812.GC913@renditai.milesteg.arr>
-User-Agent: Mutt/1.4.1i
+	Sat, 23 Aug 2003 13:00:26 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:20669 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262904AbTHWQYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 12:24:24 -0400
+Message-ID: <3F4798B5.7040109@kegel.com>
+Date: Sat, 23 Aug 2003 09:39:17 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: Mehmet Ali Suzen <msuzen@mail.north-cyprus.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Running SMP 2.4.21 #2 SMP Kernel on single processor : Memory
+ Leakage?
+References: <3F46511D.9080108@kegel.com> <20030823152455.A1771@mail.north-cyprus.net>
+In-Reply-To: <20030823152455.A1771@mail.north-cyprus.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 23, 2003 at 02:58:12PM +0200, Daniele Venzano wrote:
-> Since this is a laptop it seemed a bit strange to me 8), so I checked
-> dmesg with acpi debugging turned on (full dmesg is attached), and I
-> found these:
+Mehmet Ali Suzen wrote:
+>>> I am running RedHat Linux 9 Linux 2.4.21 SMP  ...
+>>
+>>Then you should contact a Red Hat Linux forum for support.
 > 
-> [.....]
-> ACPI: Fan [FAN0] (on)
-> acpi_processor-1626 [30] acpi_processor_get_inf: Invalid PBLK length [5]
+> it was a compiled kernel.
 
-This is a bug in your ACPI bios, you need a vendor update.  We tried
-fixing this but it broke a number of laptops, so we had to revert it.
+Ah, if you were running a kernel.org kernel, apologies.
 
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> acpi_processor_perf-0104 [28] acpi_processor_get_per: Unsupported address space [127] (control_register)
-> cpufreq: No CPUs supporting ACPI performance management found.
+> I am running RedHat Linux 9 Linux 2.4.21 SMP and 
+> memory usage is increasing regularly even if 
+> no heavy service like (radiusd,mysqld, httpd, named) is not
+> running. After some time I get Out of Memory 
+> messages and system hungs!
+> 
+> It sounds stupid but we are running single cpu.
+> Would it be possible to have a memory leakage due to SMP 
+> operations? Board is Intel Server Board SE7501BR2
 
-That means that you need a non-acpi driver for perf throttling.  Did you
-try enabling some of the other cpufreq drivers?
+I haven't seen the problem you describe, so I'm shooting in
+the dark, but:
 
+How long does the problem take to occur after boot?
+What kind of load are you putting on the system?
+Have you checked the output of ps and /proc/slabinfo to
+look for obvious bloats?
+
+- Dan
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313421AbSEFIpF>; Mon, 6 May 2002 04:45:05 -0400
+	id <S314132AbSEFIrB>; Mon, 6 May 2002 04:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314132AbSEFIpE>; Mon, 6 May 2002 04:45:04 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:23307 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S313421AbSEFIpE>; Mon, 6 May 2002 04:45:04 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-Date: 6 May 2002 08:40:07 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrnadcgb7.8b3.kraxel@bytesex.org>
-In-Reply-To: <23739.1020512961@ocs3.intra.ocs.com.au>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1020674407 8834 127.0.0.1 (6 May 2002 08:40:07 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S314283AbSEFIrA>; Mon, 6 May 2002 04:47:00 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:46960 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314132AbSEFIq7>; Mon, 6 May 2002 04:46:59 -0400
+Message-Id: <5.1.0.14.2.20020506093027.00aca720@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 06 May 2002 09:47:06 +0100
+To: Jens Axboe <axboe@suse.de>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: vanilla 2.5.13 severe file system corruption experienced
+  follozing e2fsck ...
+Cc: william stinson <wstinsonfr@yahoo.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020506055554.GM811@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Surely the dependencies on the dates of source and header files are
-> >handled by make itself?  The global makefile wouldn't change just
-> >because I touch a source file would it?
->  
->  phase1 gathers timestamps to use for _all_ kbuild processing, not just
->  generating the global makefile.  NFS timestamp skew between edit and
->  build systems can make timestamps go backwards.  Edit a file, decide
->  you made a mistake, restore from a backup or a repository and the
->  timestamp goes backwards.
+At 06:55 06/05/02, Jens Axboe wrote:
+>On Sun, May 05 2002, Anton Altaparmakov wrote:
+> > Note even with that fix IDE (at least TCQ) is really easy to crash when 
+> you
+> > put the system under heavier I/O (at least on my via box)...
+>
+>If you have stumpled upon a tcq bug, I'd like to know more about it.
 
-Ah, *that* is the point of rebuilding the Makefile every time.  Sounds
-like you are tried to write a better make utility, not better Makefiles.
+Back trace (sorry didn't have ckermit running so didn't catch the whole 
+output and was too lazy to write it all down): blk_queue_invalidate_tags, 
+tcq_invalidate_queue, ide_dmaq_complete, ide_dmaq_intr, ata_irq_request, 
+ide_dmaq_intr, handle_IRQ_event, do_IRQ, ideprobe_init.
 
-Just curious:  If kbuild does all the work usually done by make (i.e.
-check timestamps, look what needs rebuilding, ...), why do you need make
-at all?  IMHO this is bad designed:  People know what make is and how it
-works, but kbuild (ab)uses make in different ways.  Which is bad from
-the usability point of view because people simply don't expect that.
-That is the reason why the question about the Makefile generation comes
-up again and again.  And I'm pretty sure that will never stop if you
-keep that design.
+At the moment I try to not use 2.5.x as much as possible and only boot into 
+it to test ntfs or other changes I make, so when I do that next I will make 
+sure I am capturing on the serial console and send you details if I 
+experince the panic again...
 
-I think you should either use make the usual way, i.e. let make do all
-the timestamp checking (I know it is less strict, but I don't think it
-is a big issue because developers know how make works and what the
-pitfalls are).  Or don't use make at all.
+Anton
 
-  Gerd
 
 -- 
-You can't please everybody.  And usually if you _try_ to please
-everybody, the end result is one big mess.
-				-- Linus Torvalds, 2002-04-20
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

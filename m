@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270583AbUJUB35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270441AbUJUCSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270583AbUJUB35 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270594AbUJUBZu
+	id S270441AbUJUCSl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 22:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270699AbUJUCSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 21:25:50 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:10725 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S270710AbUJUBQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 21:16:18 -0400
-Date: Thu, 21 Oct 2004 03:17:14 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: ZONE_PADDING wastes 4 bytes of the new cacheline
-Message-ID: <20041021011714.GQ24619@dualathlon.random>
+	Wed, 20 Oct 2004 22:18:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39605 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270643AbUJUBz1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 21:55:27 -0400
+Date: Thu, 21 Oct 2004 02:55:22 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, John Cherry <cherry@osdl.org>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: Linux v2.6.9... (compile stats)
+Message-ID: <20041021015522.GH23987@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <1098196575.4320.0.camel@cherrybomb.pdx.osdl.net> <20041019161834.GA23821@one-eyed-alien.net> <1098310286.3381.5.camel@cherrybomb.pdx.osdl.net> <20041020224106.GM23987@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0410201710370.2317@ppc970.osdl.org> <41770307.5060304@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <41770307.5060304@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't see why this 'int x' exists, alignment should really work fine
-even with empty structure (works with my compiler with an userspace
-test, please double check).
+On Wed, Oct 20, 2004 at 08:29:59PM -0400, Jeff Garzik wrote:
+> I still merging stuff, so won't get around to it for another day or so :)
+> 
+> I certainly don't mind anyone stealing the task from me, but the effort 
+> is larger than the other iomap conversions.  The patch above hits all 
+> the easily-picked fruit, leaving the stuff that requires a modicum of 
+> effort:
+> 
+> * map/unmap N PCI bars (N >= 4, per controller)
+> * map/unmap 2 ISA I/O regions (0x170, 0x1f0)
+> * accurately handle the odd situation where IDE driver steals 0x170 
+> while libata steals 0x1f0 (or vice versa), a.k.a. the reason for 
+> quirk_intel_ide_combined() and the ____request_resource nastiness
+> 
+> Currently the code is set up to handle:
+> * N PIO ports
+> 	or
+> * a single MMIO address that contains all the registers the driver needs
+> (mmio_base)
 
-Index: linux-2.5/include/linux/mmzone.h
-===================================================================
-RCS file: /home/andrea/crypto/cvs/linux-2.5/include/linux/mmzone.h,v
-retrieving revision 1.67
-diff -u -p -r1.67 mmzone.h
---- linux-2.5/include/linux/mmzone.h	19 Oct 2004 14:58:00 -0000	1.67
-+++ linux-2.5/include/linux/mmzone.h	21 Oct 2004 01:14:20 -0000
-@@ -35,7 +35,6 @@ struct pglist_data;
-  */
- #if defined(CONFIG_SMP)
- struct zone_padding {
--	int x;
- } ____cacheline_maxaligned_in_smp;
- #define ZONE_PADDING(name)	struct zone_padding name;
- #else
+Hmm...  It misses a bunch of easy stuff, actually (tons of casts to void *
+from what used to be unsigned long and is void __iomem * with your patch).
+
+I don't see where you handle PIO stuff, though - no ioport_map() _or_
+pci_iomap() in sight.  Note that ioport_map() is not equivalent to a cast -
+we add a constant there.  How does ioread/iowrite work on the results?

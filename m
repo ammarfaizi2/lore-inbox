@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269102AbRHBT4I>; Thu, 2 Aug 2001 15:56:08 -0400
+	id <S269068AbRHBTy2>; Thu, 2 Aug 2001 15:54:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269082AbRHBTzw>; Thu, 2 Aug 2001 15:55:52 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:62224 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269099AbRHBTzf>; Thu, 2 Aug 2001 15:55:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: ext3-2.4-0.9.4
-Date: Thu, 2 Aug 2001 22:01:01 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0108021347300.29563-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0108021347300.29563-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Message-Id: <01080222010104.00440@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S269082AbRHBTyS>; Thu, 2 Aug 2001 15:54:18 -0400
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:27063 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S269068AbRHBTyK>; Thu, 2 Aug 2001 15:54:10 -0400
+Date: Thu, 2 Aug 2001 14:54:09 -0500
+From: J Troy Piper <jtp@dok.org>
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk, chrisv@b0rked.dhs.org,
+        nerijus@users.sourceforge.net, dwguest@win.tue.nl
+Subject: Re: cannot copy files larger than 40 MB from CD
+Message-ID: <20010802145409.A2217@dok.org>
+Mime-Version: 1.0
+Content-Type: message/rfc822
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 August 2001 19:54, Alexander Viro wrote:
-> On Thu, 2 Aug 2001, Daniel Phillips wrote:
-> > I don't know why it is hard or inefficient to implement this at the
-> > VFS level, though I'm sure there is a reason or this thread
-> > wouldn't exist.  Stephen, perhaps you could explain for the record
-> > why sys_fsync can't just walk the chain of dentry parent links
-> > doing fdatasync?  Does this create VFS or Ext3 locking problems? 
-> > Or maybe it repeats work that Ext3 is already supposed to have
-> > done?
->
-> Parent directory can be renamed. Which grandparent should we sync?
-> New one? Old one? Both?
 
-Either one, or both, it doesn't matter since the application has not 
-forced any serialization on this and can't assume any.
+On 2001.08.02 10:14 Alan Cox wrote:
+> > > Tried vfat, ext2 and reiserfs.
+> > >
+> > > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
+> >                                ^^^^^^^^^^^
+> > > that matters.
+> > 
+> > Have you tried compiling your kernel using kgcc?
+> > 
+> > gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
+> > used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
+> 
+> [x86 hat on]
+> 
+> egcs-1.1.2 aka kgcc wont build 2.4.7 it seems. gcc 2.96 >= 2.96.75 or so
+> is
+> just fine, gcc 2.95-2/3 is fine, gcc 3.0 seems to be doing the right
+> thing
+> -
 
-> BTW, how about file itself getting renamed during fsync()?
+Sounds to me like someone needs to check their ulimit.
+---
 
-It doesn't matter.  If the application wants to race that way, let it.  
-We're talking about ensuring access to the fsynced fd's inode.
-
-> See the problem? And no, blocking all renames while fsync() happens
-> is not an answer - it's a DoS.
-
-We would have done our duty by fsyncing the inodes one at a time 
-working up the dentry chain towards the root, and not trying to lock 
-the whole chain.  If something happens while we're doing that it's an 
-application race.
-
---
-Daniel

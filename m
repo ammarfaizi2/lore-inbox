@@ -1,98 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263736AbUDNQX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 12:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUDNQX3
+	id S264270AbUDNQZS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 12:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbUDNQZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 12:23:29 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:51654 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263736AbUDNQX0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 12:23:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Mingming Cao <cmm@us.ibm.com>
-Subject: Re: [PATCH 0/4] ext3 block reservation patch set
-Date: Wed, 14 Apr 2004 09:11:57 -0700
-User-Agent: KMail/1.4.1
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-References: <200403190846.56955.pbadari@us.ibm.com> <1081903949.3548.6837.camel@localhost.localdomain> <20040413194734.3a08c80f.akpm@osdl.org>
-In-Reply-To: <20040413194734.3a08c80f.akpm@osdl.org>
+	Wed, 14 Apr 2004 12:25:17 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:57094 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264270AbUDNQZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 12:25:05 -0400
+Date: Thu, 15 Apr 2004 00:29:28 +0800 (WST)
+From: raven@themaw.net
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] umount after bad chdir
+In-Reply-To: <20040414152420.GE31500@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0404142352590.1480@donald.themaw.net>
+References: <Pine.LNX.4.44.0404141241450.29568-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0404142009500.1537@donald.themaw.net>
+ <20040414121026.GD31500@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0404142023460.1537@donald.themaw.net>
+ <Pine.LNX.4.58.0404142308260.20568@donald.themaw.net>
+ <20040414152420.GE31500@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404140911.57772.pbadari@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 April 2004 07:47 pm, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> > Here is a set of patches which implement the in-memory ext3 block
-> >  reservation (previously called reservation based ext3 preallocation).
->
-> Great, thanks.  Let's get these in the pipeline.
->
-> A few thoughts, from a five-minute read:
->
->
-> - The majority of in-core inodes are not open for reading, and we've
->   added 24 bytes to the inode just for inodes which are open for writing.
->
->   At some stage we should stop aggregating struct reserve_window into the
->   inode and dynamically allocate it.  We can move i_next_alloc_block,
->   i_next_alloc_goal and possibly other fields in there too.
->
->   At which point it has the wrong name ;) Should be `write_state' or
->   something.
->
->   It's not clear when we should free up the write_state.  I guess we
->   could leave it around for the remaining lifetime of the inode - that'd
->   still be a net win.
->
->   Is this something you can look at as a low-priority activity?
+On Wed, 14 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-Good point !! we will surely look at it.
->
-> - You're performing ext3_discard_reservation() in ext3_release_file().
->   Note that the file may still have pending allocations at this stage: say,
->   open a file, map it MAP_SHARED, dirty some pages which lie over file
->   holes then close the file again.
-..
-> - Why do we discard the file's reservation on every iput()?  iput's are
->   relatively common operations. (see fs/fs-writeback.c)
+> On Wed, Apr 14, 2004 at 11:13:13PM +0800, raven@themaw.net wrote:
+> > On Wed, 14 Apr 2004 raven@themaw.net wrote:
+> > 
+> > > > Mind you, chdir() patch in -mm is broken in a lot of other ways - e.g.
+> > > > it assumes that another thread sharing ->fs with us won't call chdir()
+> > > > in the wrong moment...
+> > > 
+> > > Thanks for your interest Al.
+> > > 
+> > > I see your point (I think).
+> > > 
+> > > If I understand you correctly (please explain if I don't) I need to lock 
+> > > the ->fs struct.
+> > 
+> > Mmm ... doesn't look much good in the light of Als comment.
+> > 
+> > Looks like it's not possible to take the lock for long enough even if I 
+> > could.
+> > 
+> > Lets have some comments, criticisms or suggestions please.
+> 
+> Why do you need to assign pwd before revalidation?
+> 
 
-We just followed old prealloc code. Where ever preallocation is dropped
-we dropped reservation.  May be thats overkill. We will look at it.
+Good question.
 
-Whats the best place to drop the reservation ?
+I'm talking about lazy mounting in autofs version 4 (suprise, suprise).
 
-> - Have you tested and profiled this with a huge number of open files?  At
->   what stage do we get into search complexity problems?
+I think this should be done in the call backs during the path_walk 
+but I couldn't work out how. But see below...
 
-In our TODO list. But our original thought was, we have to search only the
-current block group reservations to get a window. So, if we have lots & lots
-of reservations in a single block group - search gets complicated. We were
-thinking of adding (dummy) anchors in the list to represent begining of each
-block group, so that we can get to the start of a block group quickly. But
-so far, we haven't done anything.
+The basic problem this is meant to solve is that I can't tell when a 
+chdir or chroot is to be done from within the revalidate or lookup. To 
+delay mounting until (or correctly trigger a mount at) the proper 
+time I must know if the service request is a chdir or chroot, in which 
+case an automount needs to be done. The chdir and chroot are the only 
+problematic services that I'm aware of atm.
 
-We are also looking at RB tree and see how we can make use of it. Our problem
-is,  we are interested in finding out a big enough hole in the tree to put our
-reservation. We need to look closely.
+But looking further I see that a LOOKUP_DIRECTORY flag is used only for 
+these two routines (excluding pivot_root) and when a trailing slash is 
+present in the path. I think that the if this flag is present then the 
+request will always want to look into the directory anyway, so if it's 
+an autofs4 mount point it should be mounted then. If this is the case I 
+can get this stuff into the fs module where it belongs.
 
+I'll think about it some more and look around further before I do 
+anything.
 
-> - What locking protects rsv_alloc_hit?  i_sem is not held during
->   VM-initiated writeout.  Maybe an atomic_t there, or just say that if we
->   race and the number is a bit inaccurate, we don't care?
+Thoughts?
 
-We need to atleast change it to atomic_t. 
-
-Mingming, I don't see any check to force maximum. Am I missing something ?
-
-We really appreciate your comments.
-
-Thanks,
-Badari
-
-
+Ian
 

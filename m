@@ -1,126 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281189AbRKHAgp>; Wed, 7 Nov 2001 19:36:45 -0500
+	id <S281185AbRKHAiZ>; Wed, 7 Nov 2001 19:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281188AbRKHAgf>; Wed, 7 Nov 2001 19:36:35 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:53399 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S281189AbRKHAgV>; Wed, 7 Nov 2001 19:36:21 -0500
-Date: Thu, 8 Nov 2001 01:39:51 +0100
-From: Peter Seiderer <Peter.Seiderer@ciselant.de>
-To: linux-kernel@vger.kernel.org
-Cc: "Sartorelli, Kevin" <SarKev@topnz.ac.nz>
-Subject: Re: [linux-kernel] What is the difference between 'login: root' and 'su -' ?
-Message-ID: <20011108013951.A1471@zodiak.ecademix.com>
-In-Reply-To: <4B2093FFC31B7A45862B62A376EA717690CE00@mickey.topnz.ac.nz>
+	id <S281197AbRKHAiM>; Wed, 7 Nov 2001 19:38:12 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:20220 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281185AbRKHAh0>;
+	Wed, 7 Nov 2001 19:37:26 -0500
+Date: Wed, 7 Nov 2001 17:36:27 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+Message-ID: <20011107173626.S5922@lynx.no>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com,
+	andrewm@uow.edu.au, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com, netdev@oss.sgi.com, ak@muc.de,
+	kuznet@ms2.inr.ac.ru
+In-Reply-To: <Pine.LNX.4.30.0111080003320.29364-100000@gans.physik3.uni-rostock.de> <20011107.160950.57890584.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4B2093FFC31B7A45862B62A376EA717690CE00@mickey.topnz.ac.nz>; from SarKev@topnz.ac.nz on Thu, Nov 08, 2001 at 07:58:05AM +1300
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011107.160950.57890584.davem@redhat.com>; from davem@redhat.com on Wed, Nov 07, 2001 at 04:09:50PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I tried your tip, but it did not help in my case, sorry....
-I do not think it is an easy ulimit case, see output of getrlimit(RLIMIT_FSIZE).
-Cheers
-Peter
+On Nov 07, 2001  16:09 -0800, David S. Miller wrote:
+>    From: Tim Schmielau <tim@physik3.uni-rostock.de>
+> 
+>    jiffies cleanup patch of the day follows. Mostly boring changes of jiffies
+>    comparisons to use time_{before,after} in order to handle jiffies
+>    wraparound correctly.
+> 
+> These cases handle wraparound correctly!!!!
+> 
+> Please stop sending these changes, start thinking about what the
+> code is doing.
+> 
+> It is comparing a "DIFFERRENCE" not raw jiffy values with each other.
+> It works just fine.
 
-On Thu, Nov 08, 2001 at 07:58:05AM +1300, Sartorelli, Kevin wrote:
-> I struck the same error, and found it was a limit of the shell.  using
-> bash and doing ulimit -f 10240000 (unlimited) fixed the problem for me.
-> I think that if you su from one user to another, the underlying shell
-> can still affect things (like ulimit).
-> 
-> Cheers
-> Kevin
-> 
-> -----Original Message-----
-> From: Peter Seiderer [mailto:Peter.Seiderer@ciselant.de]
-> Sent: Thursday, 8 November 2001 6:47 a.m.
-> To: linux-kernel@vger.kernel.org
-> Subject: [linux-kernel] What is the difference between 'login: root' and
-> 'su -' ?
-> 
-> 
-> Hello,
-> tried today to mkfs.ext2 a partition of my disk and detected there is
-> a little difference between 'login: root' and 'su -'.
-> 
-> First I tried it this way:
-> 
-> 	Welcome to SuSE Linux 7.0 (i386) - Kernel 2.4.14 (tty1).
-> 
-> 	zodiak login: seiderer
-> 	Password:
-> 	seiderer@zodiak:~ > su -
-> 	Password:
-> 	zodiak:~ #
-> 	zodiak:~ # mkfs.ext2 /dev/hdc4
-> 	mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> 	Filesystem label=
-> 	OS type: Linux
-> 	Block size=4096 (log=2)
-> 	Fragment size=4096 (log=2)
-> 	716672 inodes, 1432116 blocks
-> 	71605 blocks (5.00%) reserved for the super user
-> 	First data block=0
-> 	44 block groups
-> 	32768 blocks per group, 32768 fragments per group
-> 	16288 inodes per group
-> 	Superblock backups stored on blocks:
-> 	        32768, 98304, 163840, 229376, 294912, 819200, 884736
-> 
-> 	Writing inode tables: 16/44File size limit exceeded
-> 
-> strace showed that write returned wit EFBIG and the process ended with
-> SIGXFSZ:
-> 
-> 	write(1, "\10\10\10\10\10", 5)          = 5
-> 	write(1, "16/44", 5)                    = 5
-> 	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
-> 	write(4,
-> "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = -1
-> EFBIG (File too large)
-> 	--- SIGXFSZ (File size limit exceeded) ---
-> 	+++ killed by SIGXFSZ +++
-> 
-> When login in directly from the console as root everything went right:
-> 	Welcome to SuSE Linux 7.0 (i386) - Kernel 2.4.14 (tty1).
-> 
-> 	zodiak login: root
-> 	Password:
-> 	zodiak:~ # mkfs.ext2 /dev/hdc4
-> 	mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> 	Filesystem label=
-> 	OS type: Linux
-> 	Block size=4096 (log=2)
-> 	Fragment size=4096 (log=2)
-> 	716672 inodes, 1432116 blocks
-> 	71605 blocks (5.00%) reserved for the super user
-> 	First data block=0
-> 	44 block groups
-> 	32768 blocks per group, 32768 fragments per group
-> 	16288 inodes per group
-> 	Superblock backups stored on blocks:
-> 	        32768, 98304, 163840, 229376, 294912, 819200, 884736
-> 
-> 	Writing inode tables: done
-> 	Writing superblocks and filesystem accounting information: done
-> 	zodiak:~ #
-> 
-> The RLIMIT_FSIZE showed in both cases the same values:
-> getrlimit(RLIMIT_FSIZE) rlim_cur: 2147483647 rlim_max: 2147483647
-> 
-> Can anybody point me out what went wrong? Is it a kernel limit?
-> 
-> Peter
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+No, only a limited number of them cast to a signed value, which means
+that a large number of them get the comparison wrong in the case of
+jiffies wrap (where the difference is a large unsigned value, and not
+a small negative number).
+
+
+This is not just idle change.  Tim has problems when jiffies is
+initialized to a pre-wrap value at boot, and changing everything to
+use time_{before,after} is the only easy way to audit all of the code
+(and know that it is done).
+
+As I sent to Alan privately (and he agreed), there are three reasons to
+change this code (even if it is correct) to using time_{before,after}:
+
+1) because it is non-obvious what "correct" is when dealing with jiffies wrap
+   (some of the changes that Alan previously complained about as being already
+   correct were in fact broken, and if _he_ can't get it right, who can?)
+2) so that people see it more and are more likely to get it correct, instead
+   of always adding in code that only breaks after 497 days of uptime
+3) to isolate code from any changes if jiffies moves to a 64-bit value (where
+   casts to "(long)" may not be appropriate anymore)
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

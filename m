@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135199AbRDROyp>; Wed, 18 Apr 2001 10:54:45 -0400
+	id <S135202AbRDRPJK>; Wed, 18 Apr 2001 11:09:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135200AbRDROyi>; Wed, 18 Apr 2001 10:54:38 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:16480 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135199AbRDROxx>; Wed, 18 Apr 2001 10:53:53 -0400
-Date: Wed, 18 Apr 2001 17:07:02 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Theodore Tso <tytso@mit.edu>, "David S. Miller" <davem@redhat.com>,
-        Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better audio.
-Message-ID: <20010418170702.B30770@athlon.random>
-In-Reply-To: <20010417205722.A3626@think> <200104180246.f3I2kL1192784@saturn.cs.uml.edu>
+	id <S135204AbRDRPJB>; Wed, 18 Apr 2001 11:09:01 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:25350 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S135202AbRDRPIs>;
+	Wed, 18 Apr 2001 11:08:48 -0400
+Date: Wed, 18 Apr 2001 11:09:20 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Supplying missing entries for Configure.help -- corrections
+Message-ID: <20010418110920.A21430@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+	axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104181335.f3IDZrq17002@snark.thyrsus.com> <E14ptK2-0004ts-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200104180246.f3I2kL1192784@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Tue, Apr 17, 2001 at 10:46:20PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14ptK2-0004ts-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 18, 2001 at 03:52:43PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 10:46:20PM -0400, Albert D. Cahalan wrote:
-> support for NUMA hardware (it's not cache coherent) right now
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> >  Support for Cobalt Micro Server
+> >  CONFIG_COBALT_MICRO_SERVER
+> > -  Support for ARM-based Cobalt boxes (they have been bought by Sun and
+>  +  Support for MIPS-based Cobalt boxes (they have been bought by Sun and
+> 
+> Cobalt support was removed in the 2.4.4pre4 tree. Its not been maintained
+> for 2.4 because nobody is interested in doing the job
 
-btw, there are three kind of NUMA systems:
+OK, I'll add that and COBALT_28 to my list of dead symbols to be removed.
+I'm working on patches to do that now.
 
-        1)      cc-numa first citizens (wildfire alpha, future chips)
-        2)      cc-numa second citizens (origin2k)
-        3)      non cache coherent numa machines
+Have you applied Steven Cole's version of my Configure.help patches
+1-5 yet?  If not, would you prefer to see further incremental patches
+or a consolidated config-namespace cleanup patch including both
+help additions and dead-symbol removals?  I can do either; please let me
+know which would make life easier for you.
 
-On the first class numa citizens NUMA means "heuristics for higher performance".
-On those systems you don't need any NUMA change for correct operation of the
-kernel (besides the fact you may need to use discontigmem to boot the kernel
-if there can be huge physical holes in the physical layout of the ram but
-that is true also for any other non numa machine with big holes in the physical
-ram address space).
+(Intentionally, none of this is CML2 stuff.)
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-On the second and thrid class of NUMA systems NUMA means "required changes
-for correct operations of the system". difference between 1 and 2 is that
-category 2) needs also to put specialized PIO memory barriers to serialize the
-I/O across different nodes. So it "only" additionaly requires total auditing of
-the device drivers.
-
-I think linux will need to optimize class 1 of systems and I assume SGI has the
-PIO memory barriers patches for the device drivers to support class 2 as well.
-
-Nobody ever considered the non cache coherent numa support so far AFIK and
-I guess it will hardly end into mainline (personally I wouldn't be that
-excited to deal with that additional complexity ;). If you can tell, what
-system is it?
-
-Andrea
+Every election is a sort of advance auction sale of stolen goods. 
+	-- H.L. Mencken 

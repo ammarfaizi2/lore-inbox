@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266003AbTGAGJs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 02:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbTGAGJs
+	id S266006AbTGAGLX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 02:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbTGAGJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 02:09:48 -0400
-Received: from angband.namesys.com ([212.16.7.85]:22765 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S266003AbTGAGIW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 02:08:22 -0400
-Date: Tue, 1 Jul 2003 10:22:42 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Fredrik Tolf <fredrik@dolda2000.cjb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PTY DOS vulnerability?
-Message-ID: <20030701062242.GA7998@namesys.com>
-References: <200306301613.11711.fredrik@dolda2000.cjb.net>
-Mime-Version: 1.0
+	Tue, 1 Jul 2003 02:09:58 -0400
+Received: from otello.alma.unibo.it ([137.204.24.163]:65411 "EHLO
+	otello.alma.unibo.it") by vger.kernel.org with ESMTP
+	id S266005AbTGAGJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 02:09:34 -0400
+Message-ID: <3F014378.6D3F598C@otello.alma.unibo.it>
+Date: Tue, 01 Jul 2003 08:16:56 +0000
+From: Diego Zuccato <diego@otello.alma.unibo.it>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.21-rc6-ac2 i686)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SIS IO-APIC troubles
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306301613.11711.fredrik@dolda2000.cjb.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hello.
 
-On Mon, Jun 30, 2003 at 04:18:36PM +0200, Fredrik Tolf wrote:
-> Has someone considered PTYs as a possible attack vector for DOS 
-> attacks? Correct me if I'm wrong, but cannot someone just open 
-> all available PTYs on a console-less server and make everyone 
-> unable to log in?
+I'm trying to install Linux on an Acer Aspire 1700. To be able to boot,
+I've had to use "noapic" parameter. But, then, many peripherals won't
+work (like USB2) or they'll be sluggish (like nic that reaches about
+80KB/s in a direct 100Mbps link).
+I've put all the info I could gather at
+http://otello.alma.unibo.it/~diego/Aspire1700/ .
+Since it's not my machine, but a friend lets me experiment with it, it's
+better if I have a list of tests to try.
 
-ability to login != availability of free ptys.
+Please CC: me as I'm not subscribed.
 
-> I mean, what if eg. apache is hacked, and the first thing the 
-> attacker does is to tie up all PTYs, so that noone can log in to 
-> correct the situation while the attacker can go about his 
-> business? Then the only possible solution would be to reboot the 
-> server, which might very well not be desirable.
-
-Nope.
-slogin someuser@someserver "/bin/bash -i"
-will let you in even if you do not have a single pty free. Try it.
-If course job control won't work and other minor things are there,
-but still this is enough to e.g kill apache and all of its children in your case.
-
-> Shouldn't PTYs be a per-user resource limit?
-
-This one is still interesting, though.
-
-Bye,
-    Oleg
+Tks,
+ Diego.

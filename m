@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130347AbRACCFc>; Tue, 2 Jan 2001 21:05:32 -0500
+	id <S131689AbRACCKW>; Tue, 2 Jan 2001 21:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131943AbRACCFX>; Tue, 2 Jan 2001 21:05:23 -0500
-Received: from pD902B859.dip.t-dialin.net ([217.2.184.89]:15 "EHLO
-	spruce.forest") by vger.kernel.org with ESMTP id <S130347AbRACCFE>;
-	Tue, 2 Jan 2001 21:05:04 -0500
-Date: Wed, 3 Jan 2001 02:33:52 +0100
-To: linux-kernel@vger.kernel.org
-Subject: removing the bootlogo
-Message-ID: <20010103023351.A9753@spruce.yi.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Jens Nestel <niob@spruce.yi.org>
+	id <S131943AbRACCKM>; Tue, 2 Jan 2001 21:10:12 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:6148 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131689AbRACCKK>; Tue, 2 Jan 2001 21:10:10 -0500
+Date: Wed, 3 Jan 2001 01:37:31 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Daniel Stone <daniel@kabuki.eyep.net>, Elmer Joandi <elmer@ylenurme.ee>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Compile errors: RCPCI, LANE, and others
+In-Reply-To: <E14DVBT-0002YO-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0101030136240.1221-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Tue, 2 Jan 2001, Alan Cox wrote:
 
-I am using matroxfb with a MGA200 card,
-but I find the bootlogo quite annoying.
+> > > i2o_block.c:595: warning: #warning "RACE"
+> > this is most likely a bad thing, yes.
+>
+> Yeah its to remind me to fix a small race
 
-Is there an easy way to remove it ?
+If preferred the alternative approach to this:
 
-thanks - Jens Nestel -< niob@spruce.yi.org >-
+	if (!current->lock_depth)
+		BUG();
+
+in sleep_on().
+
+-- 
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

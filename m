@@ -1,35 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269968AbRHMIm6>; Mon, 13 Aug 2001 04:42:58 -0400
+	id <S268022AbRHMIks>; Mon, 13 Aug 2001 04:40:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269969AbRHMIms>; Mon, 13 Aug 2001 04:42:48 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:1799 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S269968AbRHMImh>; Mon, 13 Aug 2001 04:42:37 -0400
-Message-ID: <3B7792B9.61721B85@idb.hist.no>
-Date: Mon, 13 Aug 2001 10:41:29 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre8 i686)
-X-Accept-Language: no, en
+	id <S268150AbRHMIkj>; Mon, 13 Aug 2001 04:40:39 -0400
+Received: from www.grips.com ([62.144.214.31]:14093 "EHLO grips_nts2.grips.com")
+	by vger.kernel.org with ESMTP id <S268022AbRHMIkd>;
+	Mon, 13 Aug 2001 04:40:33 -0400
+Message-ID: <3B77933C.5080109@grips.com>
+Date: Mon, 13 Aug 2001 10:43:40 +0200
+From: jury gerold <geroldj@grips.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010803
+X-Accept-Language: de-at, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM working much better in 2.4.8 than before
-In-Reply-To: <20010811234822.A422@debian>
-Content-Type: text/plain; charset=us-ascii
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: "David E. Weekly" <dweekly@legato.com>
+Subject: Re: Efficient Event Handling In Linux?
+In-Reply-To: <3B74A274.FB34AF2C@kegel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-misty-@charter.net wrote:
-> 
->         I've said it before, I'll say it again - you guys deserve a
-> 'this is a great thing' report once in a while. This is such a report :)
+I want to add, that the SGI kaio patch handles disk as well as sockets.
 
-2.4.8 is good indeed.  My vmstat window tells me it ties up
-about 40M less in page cache than earlier kernels, possibly an
-effect of use-once.  (This is a 128M desktop machine.)
+Gerold
 
-updatedb run still manages to use some swap, but the machine
-is no longer sluggish in the morning. :-)
+Dan Kegel wrote:
 
-Helge Hafting
+>"David E. Weekly" <dweekly@legato.com> wrote:
+>
+>>Hey all. I've been looking at efficient event-handling mechanisms (for I/O
+>>on sockets, disk, devices) ... As far as I could tell ... the discussion 
+>>[on linux-kernel] trailed off without any real resolution as to what
+>>would actually be done to empower Linux with efficient event handling;
+>>perhaps I missed it, but I couldn't find Linus's get_events/bind_event
+>>calls, nor could I find /dev/poll or kqueue-styled interfaces integrated
+>>into the latest kernel.
+>>I did find what looks to be an excellent patch in the way of /dev/epoll
+>>(written up here:
+>>http://www.xmailserver.org/linux-patches/nio-improve.html). According to the
+>>benchmarks he's got, the patch really spanks /dev/poll and POSIX SIGIO. I'm
+>>going to begin testing with it soon and was hoping to get some feel for
+>>whether /dev/epoll might end up in the kernel mainstream at some point in
+>>the not-too-distant future? 
+>>
+>
+>My impression is that /dev/epoll is the best for sockets at the moment, and 
+>that several people are using it happily now.  (The interface is
+>still in flux, I think, so only use it now if you don't mind that.)
+>
+>However, for disk I/O, IMHO you really want aio instead.
+>If you need aio now, SGI's kaio patch is available and is said to work well 
+>(and heck, there's also a userland emulation in glibc, but I 
+>suspect it doesn't perform well).
+>For the future, Ben LaHaise's aio may have better performance when it's done
+>( http://uwsg.iu.edu/hypermail/linux/kernel/0102.0/0459.html );
+>he's going to do things like async sendfile, and is willing to provide a nonposix
+>interface for those who don't want signal delivery's overhead
+>(see http://uwsg.iu.edu/hypermail/linux/kernel/0102.0/0384.html
+>and http://www.kvack.org/~blah/aio/v2.4.5-ac9-bcrl4-aio.diff )
+>
+>I suspect both /dev/epoll and LaHaise's aio will end up being integrated 
+>into the stock 2.5 kernel.  And if we're really lucky, there will be 
+>a single integrated event stream for both.  I'm quite annoyed
+>that Posix defines separate polling methods for file descriptors
+>and aio completions (http://www.opengroup.org/onlinepubs/7908799/xsh/aio_suspend.html);
+>if one simple interface can handle both, we ought to try to do it.
+>
+>- Dan "but I play one on TV" Kegel
+>
+
+

@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272264AbTG3WVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 18:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272276AbTG3WVZ
+	id S272303AbTG3WTy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 18:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272307AbTG3WTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 18:21:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14002 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272264AbTG3WUr (ORCPT
+	Wed, 30 Jul 2003 18:19:54 -0400
+Received: from adsl-67-124-145-217.dsl.pltn13.pacbell.net ([67.124.145.217]:17793
+	"EHLO top") by vger.kernel.org with ESMTP id S272303AbTG3WTw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 18:20:47 -0400
-Date: Wed, 30 Jul 2003 15:09:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2+ext3+dbench=Buffer I/O error
-Message-Id: <20030730150902.5281f72c.akpm@osdl.org>
-In-Reply-To: <5.2.1.1.2.20030730163933.00b41b50@wen-online.de>
-References: <5.2.1.1.2.20030730163933.00b41b50@wen-online.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 30 Jul 2003 18:19:52 -0400
+From: brian@futuretel.com
+Date: Wed, 30 Jul 2003 11:54:07 -0700
+To: Anuradha Ratnaweera <anuradha@ratnaweera.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Contributing to the kernel while being employed
+Message-ID: <20030730185407.GA12651@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Anuradha Ratnaweera <anuradha@ratnaweera.net>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1059574407.1759.26.camel@anuradha>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059574407.1759.26.camel@anuradha>
+X-No-Archive: yes
+X-Noarchive: yes
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith <efault@gmx.de> wrote:
->
-> Greetings,
+On Wed, Jul 30, 2003 at 10:13:27AM -0400, Anuradha Ratnaweera wrote:
 > 
-> While trying to duplicate Randy Hron's "dbench has intermittent hang on 
-> 2.6.0-test1-ac2" report, I received quite a few "Buffer I/O error on 
-> /dev/hda8, logical block N" messages.  (changing elevators makes no 
-> difference fwiw).
+> Slightly off-topic, but not completely ...
+> 
+> Before working for a commercial organization, one usually has to sign a
+> contract which makes all the work done during the period of employment
+> (including innovations, "hobby" coding done during "after hours")
+> copyrighted by the employer.  This introduces various problems when one
+> wishes to do open source development, especially as a hobby.
 
-That's just a gremlinlet.  You can delete the offending printk for now.
+In California, USA:
 
-> I went back to test1, and it spat up a couple of "buffer 
-> layer error" messages and associated traces.   Attempting to umount 
-> afterward to run fsck left umount in D state.  See attachment.
+There is no such thing as a free lunch, even as an employer.
 
-Well that's a worry.  Is it repeatable?
+A clause of that sort it technically unenforceable.
+
+However, due to a broken tort system, there is an indirect way for
+an employer to enforce such a clause.   However, this same strategy
+works whether you signed such an agreement or not and whether 
+such a clause exists or not, thus this risk isn't directly related
+to the issue.
+
+The bottom line being that having or not having such a clause
+in your contract won't change your liability (at least in California).
+
+-- 
+Brian Litzinger

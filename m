@@ -1,38 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280931AbRKORuQ>; Thu, 15 Nov 2001 12:50:16 -0500
+	id <S280966AbRKORvQ>; Thu, 15 Nov 2001 12:51:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280968AbRKORuA>; Thu, 15 Nov 2001 12:50:00 -0500
-Received: from t2.redhat.com ([199.183.24.243]:62716 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S280931AbRKORsi>; Thu, 15 Nov 2001 12:48:38 -0500
-Message-ID: <3BF3FFF4.A4768C43@redhat.com>
-Date: Thu, 15 Nov 2001 17:48:36 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
-X-Accept-Language: en
+	id <S280967AbRKORvH>; Thu, 15 Nov 2001 12:51:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1038 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280966AbRKORvB>; Thu, 15 Nov 2001 12:51:01 -0500
+Subject: Re: apm suspend broken ?
+To: suonpaa@iki.fi (Samuli Suonpaa)
+Date: Thu, 15 Nov 2001 17:58:19 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <87adxond4n.fsf@puck.erasmus.jurri.net> from "Samuli Suonpaa" at Nov 15, 2001 07:43:36 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.>=13 VM/kswapd/shmem/Oracle issue (was Re: Google's mm problems)
-In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin> <20011109033851.A15099@asooo.flowerfire.com> <20011115184036.D1381@athlon.random>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E164QmJ-00016v-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+> It seems it broke with 2.4.12-ac4, which I believe updated APM
+> subsystem from 1.14 to 1.15.
 
-> loop that can trigger with the -ac VM when all the ZONE_DMA is
-> unfreeable (now fixed in mainline with classzone) have nothing to do
-
-Ok I think I've misunderstood classzone then.
-As I understand it, it prevents looping in ZONE_NORMAL when ZONE_DMA has
-memory free,
-and looping in ZONE_HIGHMEM if ZONE_NORMAL or ZONE_DMA have memory free.
-Can you please explain how it also solves the ZONE_DMA problem ? 
-
-Greetings,
-   Arjan van de Ven
+Thanks. That sounds much like my thinkpad, which I now have working again.
+If so then it'll work again soon in a 2.4.15pre/16pre

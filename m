@@ -1,42 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277291AbRJEBE7>; Thu, 4 Oct 2001 21:04:59 -0400
+	id <S277293AbRJEBTA>; Thu, 4 Oct 2001 21:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277292AbRJEBEt>; Thu, 4 Oct 2001 21:04:49 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:52731
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277291AbRJEBEn>; Thu, 4 Oct 2001 21:04:43 -0400
-Date: Thu, 4 Oct 2001 18:05:03 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S277294AbRJEBSu>; Thu, 4 Oct 2001 21:18:50 -0400
+Received: from dot.cygnus.com ([205.180.230.224]:772 "EHLO dot.cygnus.com")
+	by vger.kernel.org with ESMTP id <S277293AbRJEBSf>;
+	Thu, 4 Oct 2001 21:18:35 -0400
+Date: Thu, 4 Oct 2001 18:18:53 -0700
+From: Richard Henderson <rth@dot.cygnus.com>
+To: torvalds@transmeta.com, alan@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [POT] Which journalised filesystem ?
-Message-ID: <20011004180503.A576@mikef-linux.matchmail.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10110031648250.20425-100000@coffee.psychology.mcmaster.ca> <E15pHJT-00041q-00@calista.inka.de> <9pir9h$ief$1@penguin.transmeta.com>
+Subject: alpha 2.4.11-pre3: fix bootp initrd
+Message-ID: <20011004181853.A789@dot.cygnus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9pir9h$ief$1@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 04, 2001 at 11:27:45PM +0000, Linus Torvalds wrote:
-> We (as in Linux) should make sure that we explicitly tell the disk when
-> we need it to flush its disk buffers. We don't do that right, and
-> because of _our_ problems some people claim that writeback caching is
-> evil and bad.
->
+>From Jay Estabrook:
 
-Actually, their claim is that most drives won't even *honor* the request to
-sync to oxide.
+At some point the bootp image builder broke wrt initrd.
 
-Once the number of drives that support this goes up, then write cache is
-safe to use...
+There is a definition of INITRD_SIZE in <asm/system.h>
+that defines how the running kernel gets hold of this
+size, which conflicts with the INITRD_SIZE used in the
+bootstrap code.
 
-Personally, I have a script that enables write cache, and sets the drive to
-its highest dma level on boot...
+So rename the variable in the bootstrap code.
 
-Mike
+
+r~
+
+
+
+diff -rup 2.4.10-dist/arch/alpha/boot/Makefile 2.4.10/arch/alpha/boot/Makefile
+--- 2.4.10-dist/arch/alpha/boot/Makefile	Mon Sep 25 12:36:09 2000
++++ 2.4.10/arch/alpha/boot/Makefile	Thu Oct  4 16:05:16 2001
+@@ -59,7 +59,7 @@ ksize.h: vmlinux.nh dummy
+ 	echo "#define KERNEL_SIZE `ls -l vmlinux.nh | awk '{print $$5}'`" > $@T
+ ifdef INITRD
+ 	[ -f $(INITRD) ] || exit 1
+-	echo "#define INITRD_SIZE `ls -l $(INITRD) | awk '{print $$5}'`" >> $@T
++	echo "#define INITRD_IMAGE_SIZE `ls -l $(INITRD) | awk '{print $$5}'`" >> $@T
+ endif
+ 	cmp -s $@T $@ || mv -f $@T $@
+ 	rm -f $@T
+diff -rup 2.4.10-dist/arch/alpha/boot/bootp.c 2.4.10/arch/alpha/boot/bootp.c
+--- 2.4.10-dist/arch/alpha/boot/bootp.c	Mon Jun 19 17:59:32 2000
++++ 2.4.10/arch/alpha/boot/bootp.c	Thu Oct  4 16:05:16 2001
+@@ -147,7 +147,7 @@ start_kernel(void)
+ 	 */
+ 	static long nbytes;
+ 	static char envval[256] __attribute__((aligned(8)));
+-#ifdef INITRD_SIZE
++#ifdef INITRD_IMAGE_SIZE
+ 	static unsigned long initrd_start;
+ #endif
+ 
+@@ -164,7 +164,7 @@ start_kernel(void)
+ 	}
+ 	pal_init();
+ 
+-#ifdef INITRD_SIZE
++#ifdef INITRD_IMAGE_SIZE
+ 	/* The initrd must be page-aligned.  See below for the 
+ 	   cause of the magic number 5.  */
+ 	initrd_start = ((START_ADDR + 5*KERNEL_SIZE) | (PAGE_SIZE-1)) + 1;
+@@ -192,17 +192,17 @@ start_kernel(void)
+ 	 *
+ 	 * Sigh...  */
+ 
+-#ifdef INITRD_SIZE
+-	load(initrd_start, KERNEL_ORIGIN+KERNEL_SIZE, INITRD_SIZE);
++#ifdef INITRD_IMAGE_SIZE
++	load(initrd_start, KERNEL_ORIGIN+KERNEL_SIZE, INITRD_IMAGE_SIZE);
+ #endif
+         load(START_ADDR+(4*KERNEL_SIZE), KERNEL_ORIGIN, KERNEL_SIZE);
+         load(START_ADDR, START_ADDR+(4*KERNEL_SIZE), KERNEL_SIZE);
+ 
+ 	memset((char*)ZERO_PGE, 0, PAGE_SIZE);
+ 	strcpy((char*)ZERO_PGE, envval);
+-#ifdef INITRD_SIZE
++#ifdef INITRD_IMAGE_SIZE
+ 	((long *)(ZERO_PGE+256))[0] = initrd_start;
+-	((long *)(ZERO_PGE+256))[1] = INITRD_SIZE;
++	((long *)(ZERO_PGE+256))[1] = INITRD_IMAGE_SIZE;
+ #endif
+ 
+ 	runkernel();

@@ -1,70 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSGMUNW>; Sat, 13 Jul 2002 16:13:22 -0400
+	id <S315420AbSGMUY1>; Sat, 13 Jul 2002 16:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315420AbSGMUNV>; Sat, 13 Jul 2002 16:13:21 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:43790 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315430AbSGMUNQ>;
-	Sat, 13 Jul 2002 16:13:16 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207132015.g6DKFsH103416@saturn.cs.uml.edu>
-Subject: Re: What is supposed to replace clock_t?
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sat, 13 Jul 2002 16:15:54 -0400 (EDT)
-Cc: tim@physik3.uni-rostock.de (Tim Schmielau),
-       linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <Pine.LNX.4.44.0207131103410.16670-100000@home.transmeta.com> from "Linus Torvalds" at Jul 13, 2002 11:15:28 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315427AbSGMUY0>; Sat, 13 Jul 2002 16:24:26 -0400
+Received: from stingr.net ([212.193.32.15]:31646 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S315420AbSGMUY0>;
+	Sat, 13 Jul 2002 16:24:26 -0400
+Date: Sun, 14 Jul 2002 00:27:16 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, kbuild-devel@lists.sourceforge.net
+Subject: [ANNOUNCE] kbuild 2.5 for 2.4.19-rc1-ac3
+Message-ID: <20020713202716.GD2280@stingr.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Just resync, as usual
 
-> The only sane interface is a seconds-based one, either like /proc/uptime
-> (ie ASCII floating point representation) or a mixed integer representation
-> like timeval/timespec where you have seconds and micro/nanoseconds
-> separately.
+http://stingr.net/l/kbuild25-for-2.4.19-rc1-ac3.bz2
 
-Anything wrong with 64-bit nanoseconds? It's easy to work with,
-being an integer type, and it survives the year 2038.
+Alan, it seems that you occasionally dropped IKCONFIG and CPU_FREQ from
+kernel/Makefile ... is it correct ?
 
-> That's something we should strive for, but I also think we should avoid
-> using the clock_t format at all, and give alternate representations (for
-> example, leave the broken clock_t representation in /proc/<pid>/stat
-> alone, and just add a _sane_ seconds-based thing in the much more readable
-> and parseable /proc/<pid>/status file.
-
-Other than the parentheses issue, /proc/<pid>/stat can
-be handled with sscanf. Nobody dinks with the format.
-
-People "correct" the spelling and formatting in the
-fancy /proc files. Is it "SigCgt" or "SigCat"? That
-depends on the kernel version; somebody "fixed" the
-spelling.
-
-There isn't any BNF for any /proc file. The raw files
-are easy to handle, but one can only guess at what
-others will assume about the format of a fancy one.
-
-Take /proc/cpuinfo for example. Long ago, it was like
-this:
-
-foo   some value
-bar   1 2 3 4 5
-baz   8000:0
-
-Then it turned into this:
-
-foo   : some value
-bar   : 1 2 3 4 5
-baz   : 8000:0
-uh oh : 69
-
-Who could have guessed?
-
-Stuff broke. Formatted files are too damn tempting
-to muck with. People don't touch the ugly files.
-
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

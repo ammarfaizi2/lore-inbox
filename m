@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269215AbUIHX3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269203AbUIHXd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269215AbUIHX3N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 19:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269216AbUIHX2P
+	id S269203AbUIHXd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 19:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269220AbUIHXd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 19:28:15 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:5289 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269220AbUIHX0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 19:26:54 -0400
-Subject: Re: irq 26: nobody cared!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adam K Kirchhoff <adamk@voicenet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0409081726530.1820@thorn.ashke.com>
-References: <Pine.LNX.4.58.0409081726530.1820@thorn.ashke.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094682284.12336.21.camel@localhost.localdomain>
+	Wed, 8 Sep 2004 19:33:56 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:8388 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S269203AbUIHXc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 19:32:29 -0400
+Message-Id: <200409090035.i890ZYBP016288@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: BlaisorBlade <blaisorblade_spam@yahoo.it>
+cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] uml-patch-2.6.7-2 
+In-Reply-To: Your message of "Sun, 05 Sep 2004 17:35:36 +0200."
+             <200408251746.53523.blaisorblade_spam@yahoo.it> 
+References: <200408190301.i7J30xek004150@ccure.user-mode-linux.org>  <200408251746.53523.blaisorblade_spam@yahoo.it> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Sep 2004 23:24:44 +0100
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 08 Sep 2004 20:35:34 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-08 at 22:35, Adam K Kirchhoff wrote:
-> I have a dual P3 system (via motherboard) with 1.5 gigs of RAM (with
-> highmem enabled in the kernel).  Under heavy networking load, I get the
-> following error:
+blaisorblade_spam@yahoo.it said:
+> * First, please do a "make clean" before releasing the patch. There
+> are some  binaries included in it! And also semaphore.c, which is a
+> symlink normally. 
 
-Try variously turning off acpi and the apic. If the routing tables are
-still shot try the irqfixup patch I posted, it might well rescue your
-box.
+I do.  It's just that make clean didn't catch everything.
 
+> * About filehandle_switch: you deleted a line (probably by mistake).
+> Reread  more carefully the separate patches you get with quilt: when
+> you see the  other attached patch (uml-restore-lost-code.patch),
+> you'll agree with me. 
+
+Yuck, I have no idea how that happened.
+
+> However, IMHO, since you cannot close and reopen a pipe, it's
+> braindead that  the switch_pipe[] array is an array of filehandles.
+
+Yeah, this is fixed in my 2.6 tree now.
+
+				Jeff
 

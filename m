@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUKOWzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbUKOWz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUKOWzG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 17:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUKOWxh
+	id S261521AbUKOWz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbUKOWzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 17:53:37 -0500
-Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:16789 "EHLO
-	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S261509AbUKOWvX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:51:23 -0500
-From: Ryan Cumming <ryan@spitfire.gotdns.org>
-To: Sami Farin <7atbggg02@sneakemail.com>
-Subject: Re: vm-pageout-throttling.patch: hanging in throttle_vm_writeout/blk_congestion_wait
-Date: Mon, 15 Nov 2004 14:51:19 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041115012620.GA5750@m.safari.iki.fi> <Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain> <20041115223709.GD6654@m.safari.iki.fi>
-In-Reply-To: <20041115223709.GD6654@m.safari.iki.fi>
+	Mon, 15 Nov 2004 17:55:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25750 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261533AbUKOWxW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 17:53:22 -0500
+Date: Mon, 15 Nov 2004 14:53:08 -0800
+Message-Id: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1230411.UrjID7IX2L";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411151451.21671.ryan@spitfire.gotdns.org>
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Mike Hearn <mh@codeweavers.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Eric Pouech <pouech-eric@wanadoo.fr>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: Linus Torvalds's message of  Monday, 15 November 2004 14:41:31 -0800 <Pine.LNX.4.58.0411151439270.2222@ppc970.osdl.org>
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1230411.UrjID7IX2L
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> No, TIF_SINGLESTEP gets set even when the _user_ set TF. It is just a flag
+> saying that we should re-enable TF when we get back to user space.
+> 
+> So TIF_SINGLESTEP in no way implies that TF was set by a debugger.
 
-On Monday 15 November 2004 14:37, Sami Farin wrote:
-> I know it's a "nicer" idea to use some partition for the swap
-> instead of a file on reiserfs, but I created too small swap partitions
-> originally and I can't(/bother?) resize the other partitions.
-> And sometimes some memhog forces me to add even more swap.
+Ok, whatever.  I'm not really sure its use for the single-step stuff in
+Davide Libenzi's changes doesn't change the expected behavior for the
+nondebugger case, but it's too early in the morning to think hard about that.
 
-He's not suggesting you use a swap partition; he's suggesting you swapon th=
-e=20
-file directly without using the loopback device, ie:
+Your change hit only one spot of three in arch/i386/kernel/signal.c where
+PT_PTRACED is now tested and it should be a "is PTRACE_SINGLESTEP in effect?"
+test.  Also the same spots in native and 32-bit emul for x86-64.
 
-swapon /path/to/file/on/reiserfs
 
-This allows the kernel to perform certain optimizations and removes the=20
-overhead of the loopback device.
-
-=2DRyan
-
---nextPart1230411.UrjID7IX2L
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBmTLpW4yVCW5p+qYRAovEAJ90ntUCjwKQfLofi8WBnr2tfecyPgCgt2je
-xAksRUJ61JPYu3o5Cn3bLHc=
-=64L1
------END PGP SIGNATURE-----
-
---nextPart1230411.UrjID7IX2L--
+Thanks,
+Roland

@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266081AbUALIg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 03:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266082AbUALIg7
+	id S266084AbUALJAR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 04:00:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266086AbUALJAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 03:36:59 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:10123 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266081AbUALIg6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 03:36:58 -0500
-Date: Mon, 12 Jan 2004 09:36:47 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel 2.6.1
-Message-ID: <20040112083647.GB2372@ucw.cz>
-References: <200401111545.59290.murilo_pontes@yahoo.com.br> <20040111235025.GA832@ucw.cz> <Pine.LNX.4.58.0401120004110.601@pervalidus.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0401120004110.601@pervalidus.dyndns.org>
-User-Agent: Mutt/1.5.4i
+	Mon, 12 Jan 2004 04:00:17 -0500
+Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:52360
+	"HELO mail.falke.at") by vger.kernel.org with SMTP id S266084AbUALJAM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 04:00:12 -0500
+Message-ID: <400261C9.5000505@winischhofer.net>
+Date: Mon, 12 Jan 2004 09:58:49 +0100
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en, de, de-de, de-at, sv
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jsimmons@infradead.org
+Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
+References: <20040109014003.3d925e54.akpm@osdl.org> <20040109233714.GL1440@fs.tum.de> <3FFF79E5.5010401@winischhofer.net> <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12, 2004 at 12:17:03AM -0200, Frédéric L. W. Meunier wrote:
-
-> Vojtech, he reported the same problem I have. The "/ ?" key not
-> working anymore with ABNT2 keyboards.
+Linus Torvalds wrote:
 > 
-> I tested with the patch and it didn't fix it on the console.
-
-Yes, the patch didn't fix it for the console.
-
-> I'm using kbd 1.10.
+> On Sat, 10 Jan 2004, Thomas Winischhofer wrote:
 > 
-> showkey under 2.4:
+>>The whole framebuffer stuff in 2.6 is ancient. (Look at the file dates.)
 > 
-> keycode  89
+> 
+> Note that the fb stuff is ancient because it's basically not maintained as 
+> far as I'm concerned.
 
-This, however, is VERY interesting, I didn't expect this keycode under
-2.4 at all. Can you check with 'evtest' what it does send there?
+Erm, well, _I_ know. But I assume you meant this message mainly for the 
+public.
 
-> showkey under 2.6.1:
-> 
-> keycode   0 press
-> keycode   1 release
-> keycode  53 release
-> keycode   0 release
-> keycode   1 release
-> keycode  53 release
-> 
-> It works with XFree86.
-> 
-> Since 2.6.0 worked, I assume something broke it.
+> I'm sorry, but this i show it is.  The fbcon people have been changing 
+> interfaces faster than they have been fixing bugs in the code. Together
 
-Can you check what it does under 2.6.0? Thanks.
+You tell me. I actually stopped adapting sisfb for a couple of months 
+during the 2.5 development cycle - I could not keep up with the speed of 
+substantial changes either.
+
+> with the fact that most of the development seems to happen in outside 
+> trees, and nobody ever sends me fixes relative to the released tree, this 
+> makes for a pretty bad situation.
+> 
+> I really think that development should happen in the regular tree, or at 
+> least be synched up in reasonable chunks THAT DO NOT BREAK everything.
+> 
+> I realize that some fb developers seem to disagree with me, but the fact 
+> is, the way things are done now, fb will _always_ be broken. Most people 
+> for whom the standard kernel works will never test the fb development 
+> trees, so those trees will never get any amount of reasonable testing. As 
+> a result, they WILL be buggy, and synching with them WILL be painful as 
+> hell.
+
+Isn't a large part of the fbcon/dev stuff in current 2.6 broken anyway? 
+Could it become worse by merging James' current changes? But I guess 
+this question - as well as the rest of your message - is for James to 
+answer.
+
+If the lastest and greatest of the fbdev stuff isn't merged with 2.6.2, 
+I will revert the interface changes in sisfb and send a patch which 
+works with the then-current vanilla kernel.
+
+Thomas
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
+twini AT xfree86 DOT org
+
+
+

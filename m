@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVAYTLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVAYTPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVAYTLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:11:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVAYTKm
+	id S262067AbVAYTPG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVAYTOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:10:42 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8494
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262065AbVAYTKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:10:03 -0500
-Date: Tue, 25 Jan 2005 20:09:58 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: CVSps@dm.cobite.com, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org, Andreas Gruenbacher <agruen@suse.de>
-Subject: Re: kernel CVS troubles with cvsps
-Message-ID: <20050125190958.GC7587@dualathlon.random>
-References: <20050125164203.GY7587@dualathlon.random> <tnxsm4po2o6.fsf@arm.com>
+	Tue, 25 Jan 2005 14:14:49 -0500
+Received: from mailfe07.swip.net ([212.247.154.193]:7573 "EHLO
+	mailfe07.swip.net") by vger.kernel.org with ESMTP id S262067AbVAYTML
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 14:12:11 -0500
+X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
+Subject: Re: Kernel 2.6.11-rc1/2 goes Postal on LTP
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Bryce Harrington <bryce@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       dev@osdl.org, linux-kernel@vger.kernel.org,
+       stp-devel@lists.sourceforge.net
+In-Reply-To: <41F46B32.9070904@osdl.org>
+References: <Pine.LNX.4.33.0501221125140.30167-100000@osdlab.pdx.osdl.net>
+	 <41F46B32.9070904@osdl.org>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 20:12:01 +0100
+Message-Id: <1106680321.705.52.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tnxsm4po2o6.fsf@arm.com>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 05:10:17PM +0000, Catalin Marinas wrote:
-> I noticed this problem some time ago when trying to see whether the
-> darcs repository is consistent with the BK one:
+> Similar for me, easy to reproduce (3 times today).
+> Here's a kernel messages log, with 32 processes killed,
+> mostly hotplug, but also bash (2x), runltp, & some daemons.
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110026570201544&w=2
+> I could not login and do anything else, but I could/did
+> SysRq-T, P, M, S, U, B to reboot.  These are also in the log.
 > 
-> A solution is to use the "(Logical change ...)" string within each
-> file's commit log instead of the date (I realised that it is simpler
-> to write a shell script to generate the diffs rather than modifying
-> cvsps).
+> log:
+> http://developer.osdl.org/rddunlap/oom/oom_kill.txt
+> 
+> config:
+> http://developer.osdl.org/rddunlap/oom/config-2611rc2
+> 
+> on P4-UP, 1 GB RAM.
+> 
 
-Thanks for the confirmation. To me this hour difference looks like a bug
-in bkcvs. It would be nice to get it fixed so we don't have to
-workaround it in cvsps or hack around more scripts.
+I saw this aswell. Appears to be the pipe leak cause it doesn't go nuts
+with the patch at the bottom from Linus.
 
-Thanks.
+
+> 
+> Would indicate that the new pipe code is leaking.
+
+Duh. It's the pipe merging.
+
+		Linus
+
+----
+--- 1.40/fs/pipe.c	2005-01-15 12:01:16 -08:00
++++ edited/fs/pipe.c	2005-01-24 14:35:09 -08:00
+@@ -630,13 +630,13 @@
+ 	struct pipe_inode_info *info = inode->i_pipe;
+ 
+ 	inode->i_pipe = NULL;
+-	if (info->tmp_page)
+-		__free_page(info->tmp_page);
+ 	for (i = 0; i < PIPE_BUFFERS; i++) {
+ 		struct pipe_buffer *buf = info->bufs + i;
+ 		if (buf->ops)
+ 			buf->ops->release(info, buf);
+ 	}
++	if (info->tmp_page)
++		__free_page(info->tmp_page);
+ 	kfree(info);
+ }
+ 
+
+

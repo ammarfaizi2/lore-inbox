@@ -1,113 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbUCZVbT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 16:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUCZVbS
+	id S261253AbUCZVbn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 16:31:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUCZVbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 16:31:18 -0500
-Received: from mail.tpgi.com.au ([203.12.160.61]:50311 "EHLO mail4.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S261158AbUCZVbJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 16:31:09 -0500
-Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was
-	Re: Your opinion on the merge?]]
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Pavel Machek <pavel@suse.cz>
-Cc: Michael Frank <mhf@linuxmail.org>,
-       Suspend development list <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040326102206.GD388@elf.ucw.cz>
-References: <20040323233228.GK364@elf.ucw.cz>
-	 <opr5d7ad0b4evsfm@smtp.pacific.net.th> <20040325014107.GB6094@elf.ucw.cz>
-	 <200403250857.08920.matthias.wieser@hiasl.net>
-	 <1080247142.6679.3.camel@calvin.wpcb.org.au>
-	 <20040325222745.GE2179@elf.ucw.cz> <opr5gf93ik4evsfm@smtp.pacific.net.th>
-	 <20040326102206.GD388@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1080333011.2022.9.camel@laptop-linux.wpcb.org.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Sat, 27 Mar 2004 08:30:11 +1200
+	Fri, 26 Mar 2004 16:31:43 -0500
+Received: from hmarson.gotadsl.co.uk ([81.6.239.220]:51010 "EHLO
+	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
+	id S261253AbUCZVba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 16:31:30 -0500
+Message-ID: <4064A12E.7070502@travellingkiwi.com>
+Date: Fri, 26 Mar 2004 21:31:26 +0000
+From: hamish <hamish@travellingkiwi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Bug in Kernel 2.6.4?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning.
 
-On Fri, 2004-03-26 at 22:22, Pavel Machek wrote:
-> > /proc is needed a lot
-> > 
-> > - enable escape
-> > - select reboot mode
-> > 	which is essential for multibooting. We use it all the time to
-> > 	boot various installations of Linux
-> 
-> Perhaps reboot() can have parameter for that.
+Hi all.
 
-Sounds feasible. Who maintains the package with reboot/shutdown and so
-on?
+I got this message from my Kernel tonight when unplugging my USB 
+BlueTooth adapter form my laptop. It WAS working fine, then suddenly 
+after transferring about 10 files using kbtobexclient, I kept getting 
+messgae about unable to connect transport frm the obex client software. 
+Upon unplugging the adapter I got the following in my messages file...
 
-> > - select compression none, lzw or gzip
-> > 	none is used when disk faster that cpu-limited lzf
-> > 	lzf is used when cpu is fast enough to compress to disk
-> > 		Fast CPU can do 100MB/s+ to 50MB/s drives
-> > 	gzip is used by some who care about image size eg flash users
-> 
-> If you are doing "resume=swap:<something>", why not "resume=lzw-swap:something"?
+Thought someone might be interested...
 
-Because it's ugly? resume= is supposed to specify where the image's
-header is found, nothing more. More than that, though, doing this still
-doesn't solve the issue of how to enable/disable a compressor (or
-encryption when such a plugin appears) after booting. (Yes, I know - you
-don't want that much flexibility).
 
-> > - keep image mode (when compiled in)
-> > 	which is used for embedded kiosks for example
-> > 		Boeing requested and uses it
-> 
-> Boeing can keep external patch, this seems like pretty dangerous
-> feature for joe user. And it should not be selected at /proc, but as
-> command line parameter.
-
-It relies upon both a compile time CONFIG option (because yes, it is
-rarely used) and a /proc entry. The proc entry is necessary so that the
-image can be updated and set up in the first place.
-
-> > - default console level
-> > 	Controls console messages or nice display
-> > - access debug info header
-> > 	This is needed to analyze swsusp2 performance
-> > - access resume parameters
-> > 	Saves a reboot when changing parameters
-> > - activate
-> > 	swsusp2 activation independent of apci, apm
-> 
-> Should not be needed. There's reboot() syscall to do that.
-
-That's fine once we get one implementation. For now, I've been trying to
-play nicely with swsusp and pmdisk. That's why I used resume2= and its
-also why I supported 13 headers; I needed to recognise pmdisk and swsusp
-headers so that I could know to ignore them (I tried leaving swsusp
-first in the boot order, and it paniced when I'd suspended from suspend2
-because it didn't recognise the header format).
-
-> > - last result
-> > 	info on why swsusp2 did not suspend such as out of
-> > 	memory or swap or freezing failure
-> 
-> That should be return value of reboot() syscall.
-
-Could be.
-
-Nigel
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+Mar 26 21:26:08 ballbreaker kernel: usb 1-1: USB disconnect, address 2
+Mar 26 21:26:08 ballbreaker kernel: Call Trace:
+Mar 26 21:26:08 ballbreaker kernel:  [kfree+741/1040] kfree+0x2e5/0x410
+Mar 26 21:26:08 ballbreaker kernel:  [_end+543601752/1069281088] 
+hci_usb_unlink_urbs+0xa8/0x110 [hci_usb]
+Mar 26 21:26:08 ballbreaker kernel:  [_end+543601752/1069281088] 
+hci_usb_unlink_urbs+0xa8/0x110 [hci_usb]
+Mar 26 21:26:08 ballbreaker kernel:  [_end+543601907/1069281088] 
+hci_usb_close+0x33/0x40 [hci_usb]
+Mar 26 21:26:08 ballbreaker kernel:  [_end+543605030/1069281088] 
+hci_usb_disconnect+0x26/0x90 [hci_usb]
+Mar 26 21:26:08 ballbreaker kernel:  [_end+541663318/1069281088] 
+usb_unbind_interface+0x76/0x80 [usbcore]
+Mar 26 21:26:08 ballbreaker kernel:  [device_release_driver+102/112] 
+device_release_driver+0x66/0x70
+Mar 26 21:26:09 ballbreaker kernel:  [bus_remove_device+83/160] 
+bus_remove_device+0x53/0xa0
+Mar 26 21:26:09 ballbreaker kernel:  [device_del+93/160] 
+device_del+0x5d/0xa0
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541687008/1069281088] 
+usb_disable_device+0x70/0xb0 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541666340/1069281088] 
+usb_disconnect+0xa4/0x100 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541674303/1069281088] 
+hub_port_connect_change+0x27f/0x290 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541672673/1069281088] 
+hub_port_status+0x41/0xb0 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541675016/1069281088] 
+hub_events+0x2b8/0x310 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541675157/1069281088] 
+hub_thread+0x35/0x100 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [default_wake_function+0/32] 
+default_wake_function+0x0/0x20
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541675104/1069281088] 
+hub_thread+0x0/0x100 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [kernel_thread_helper+5/12] 
+kernel_thread_helper+0x5/0xc
+Mar 26 21:26:09 ballbreaker kernel:
+Mar 26 21:26:09 ballbreaker kernel: ------------[ cut here ]------------
+Mar 26 21:26:09 ballbreaker kernel: kernel BUG at mm/slab.c:1740!
+Mar 26 21:26:09 ballbreaker kernel: invalid operand: 0000 [#1]
+Mar 26 21:26:09 ballbreaker kernel: DEBUG_PAGEALLOC
+Mar 26 21:26:09 ballbreaker kernel: CPU:    0
+Mar 26 21:26:09 ballbreaker kernel: EIP:    0060:[kfree+635/1040]    Not 
+tainted
+Mar 26 21:26:09 ballbreaker kernel: EFLAGS: 00010002
+Mar 26 21:26:09 ballbreaker kernel: EIP is at kfree+0x27b/0x410
+Mar 26 21:26:09 ballbreaker kernel: eax: dbe83000   ebx: 80010c00   ecx: 
+00001000   edx: 00000008
+Mar 26 21:26:09 ballbreaker kernel: esi: dffef5c0   edi: dbe83000   ebp: 
+debade50   esp: debade20
+Mar 26 21:26:09 ballbreaker kernel: ds: 007b   es: 007b   ss: 0068
+Mar 26 21:26:09 ballbreaker kernel: Process khubd (pid: 51, 
+threadinfo=debac000 task=dec18a60)
+Mar 26 21:26:09 ballbreaker kernel: Stack: dffef5c0 dbe83008 5a5a5a5a 
+00000007 1be83008 e0aaa518 dbe83008 dffe0f78
+Mar 26 21:26:09 ballbreaker kernel:        00000282 c2b1ff8c c2b1ff78 
+db439fd0 debade74 e0aaa518 dbe83f40 db439fb0
+Mar 26 21:26:09 ballbreaker kernel:        db439fd0 00000000 c28f2df8 
+c28f2df8 c3041df8 debade84 e0aaa5b3 db439f38
+Mar 26 21:26:09 ballbreaker kernel: Call Trace:
+Mar 26 21:26:09 ballbreaker kernel:  [_end+543601752/1069281088] 
+hci_usb_unlink_urbs+0xa8/0x110 [hci_usb]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+543601752/1069281088] 
+hci_usb_unlink_urbs+0xa8/0x110 [hci_usb]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+543601907/1069281088] 
+hci_usb_close+0x33/0x40 [hci_usb]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+543605030/1069281088] 
+hci_usb_disconnect+0x26/0x90 [hci_usb]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541663318/1069281088] 
+usb_unbind_interface+0x76/0x80 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [device_release_driver+102/112] 
+device_release_driver+0x66/0x70
+Mar 26 21:26:09 ballbreaker kernel:  [bus_remove_device+83/160] 
+bus_remove_device+0x53/0xa0
+Mar 26 21:26:09 ballbreaker kernel:  [device_del+93/160] 
+device_del+0x5d/0xa0
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541687008/1069281088] 
+usb_disable_device+0x70/0xb0 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541666340/1069281088] 
+usb_disconnect+0xa4/0x100 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541674303/1069281088] 
+hub_port_connect_change+0x27f/0x290 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541672673/1069281088] 
+hub_port_status+0x41/0xb0 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541675016/1069281088] 
+hub_events+0x2b8/0x310 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541675157/1069281088] 
+hub_thread+0x35/0x100 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [default_wake_function+0/32] 
+default_wake_function+0x0/0x20
+Mar 26 21:26:09 ballbreaker kernel:  [_end+541675104/1069281088] 
+hub_thread+0x0/0x100 [usbcore]
+Mar 26 21:26:09 ballbreaker kernel:  [kernel_thread_helper+5/12] 
+kernel_thread_helper+0x5/0xc
+Mar 26 21:26:09 ballbreaker kernel:
+Mar 26 21:26:09 ballbreaker kernel: Code: 0f 0b cc 06 e4 9a 32 c0 e9 e1 
+fe ff ff 0f 0b cb 06 e4 9a 32
 

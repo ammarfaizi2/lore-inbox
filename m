@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbTDRBuN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 21:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbTDRBuN
+	id S262706AbTDRB7J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 21:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbTDRB7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 21:50:13 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:5560 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262737AbTDRBuM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 21:50:12 -0400
-Date: Thu, 17 Apr 2003 19:02:07 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200304180202.h3I227mw032608@napali.hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@linuxia64.org
-Subject: USB deadlock in v2.5.67
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	Thu, 17 Apr 2003 21:59:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21471 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262706AbTDRB7I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 21:59:08 -0400
+Message-ID: <3E9F5EAD.2070006@pobox.com>
+Date: Thu, 17 Apr 2003 22:10:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: My P3 runs at.... zero Mhz (bug rpt)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So my 2.5.67 kernel was humming along nicely when I got the idea to
-unplug a USB keyboard.  Instant deadlock.  The backtrace shows this:
+Just booted into 2.5.67-BK-latest (plus my __builtin_memcpy patch). 
+Everything seems to be running just fine, so naturally one must nitpick 
+little things like being told my CPU is running at 0.000 Mhz.  :)
 
-Call Trace:
- [<e0000000048c4260>] hcd_free_dev+0x140/0x240
- [<e0000000048b96e0>] usb_release_dev+0x100/0x140
- [<e000000004743420>] device_release+0x80/0xa0
- [<e000000004697600>] kobject_cleanup+0x100/0x120
- [<e0000000048c34d0>] urb_unlink+0x110/0x1a0
- [<e0000000048c4390>] usb_hcd_giveback_urb+0x30/0x1a0
- [<e0000000048da730>] dl_done_list+0x230/0x2a0
- [<e0000000048dbfd0>] ohci_irq+0x290/0x340
- [<e0000000048c4580>] usb_hcd_irq+0x80/0x100
- [<e000000004414e00>] handle_IRQ_event+0xa0/0x120
- [<e0000000044155e0>] do_IRQ+0x360/0x460
- [<e0000000044174b0>] ia64_handle_irq+0x70/0x140
- [<e000000004411e40>] ia64_leave_kernel+0x0/0x240
+2.4.x reports the Mhz correctly.  I don't recall if 2.5.x did in the 
+past, but can check if needed.
 
-<hcd_free_dev+0x140> translates into line 1249 in hcd.c, where it
-does:
 
-	spin_lock_irqsave (&hcd_data_lock, flags);
 
-The deadlock is pretty obvious: the same lock has already been
-acquired urb_unlink(), 4 levels up in the call-chain.
+sh-2.05b$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 7
+model name      : Pentium III (Katmai)
+stepping        : 3
+cpu MHz         : 0.000
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca 
+cmov pat pse36 mmx fxsr sse
+bogomips        : 494.59
 
-Anybody have a fix for this?
 
-	--david
+Selected dmesg bits:
+Calibrating delay loop... 494.59 BogoMIPS
+Memory: 644596k/655296k available (2192k kernel code, 9960k reserved, 
+694k data, 296k init, 0k highmem)
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+CPU serial number disabled.
+CPU:     After generic, caps: 0383f9ff 00000000 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel Pentium III (Katmai) stepping 03
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+IA-32 Microcode Update Driver: v1.11 <tigran@veritas.com>
+Enabling SEP on CPU 0
+

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUC2Upy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 15:45:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUC2Upy
+	id S262049AbUC2UrM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 15:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUC2UrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 15:45:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23939 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261474AbUC2Upx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 15:45:53 -0500
-Date: Mon, 29 Mar 2004 12:48:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, hugh@veritas.com
-Subject: Re: 2.6.5-rc2-aa5
-Message-Id: <20040329124803.072bb7c6.akpm@osdl.org>
-In-Reply-To: <20040329150646.GA3808@dualathlon.random>
-References: <20040329150646.GA3808@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Mar 2004 15:47:12 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:41386 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262049AbUC2UrE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 15:47:04 -0500
+Message-Id: <200403292045.i2TKjnF11402@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andy Whitcroft'" <apw@shadowen.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, "Ray Bryant" <raybry@sgi.com>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Cc: <anton@samba.org>, <sds@epoch.ncsc.mil>, <ak@suse.de>,
+       <lse-tech@lists.sourceforge.net>, <linux-ia64@vger.kernel.org>
+Subject: RE: [PATCH] [0/6] HUGETLB memory commitment
+Date: Mon, 29 Mar 2004 12:45:49 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQVkBQZE22XHoMUTr6zcz3m3jTLKAAO2bgQ
+In-Reply-To: <11580712.1080567019@42.150.104.212.access.eclipse.net.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
+>>>> Andy Whitcroft wrote on Mon, March 29, 2004 4:30 AM
+> Indeed.  The previous patches I submitted only address #1.  Attached is
+> another patch which should address #2, it supplies hugetlb commit
+> accounting.  This is checked and applied when the segment is created.  It
+> also supplements the meminfo information to display this new commitment.
+> The patch only implments strict commitment, but as has been stated here
+> often, it is not clear that overcommit of unswappable memory makes any
+> sense in the absence of demand allocation.  When that is implemented then
+> this will likely need a policy.
 >
-> Notably there is a BUG_ON(page->mapping) triggering in
-> page_remove_rmap in the pagecache case. that could be ex-pagecache being
-> removed from pagecache before all ptes have been zapped, infact the
-> page_remove_rmap triggers in the vmtruncate path.
+> Patch applies on top of my previous patch and has been tested on i386.
 
-Confused.  vmtruncate zaps the ptes before removing pages from pagecache,
-so I'd expect a non-null ->mapping in page_remove_rmap() is a very common
-thing.  truncate a file which someone has mmapped and it'll happen every
-time, will it not?
+
++int hugetlbfs_report_meminfo(char *buf)
++{
++	long htlb = atomic_read(&hugetlb_committed_space);
++	return sprintf(buf, "HugeCommited_AS: %5lu\n", htlb);
++}
+
+"HugeCommited_AS", typo?? Should that be double "t"?  Also can we print
+in terms of kB instead of num pages to match all other entries? Something
+Like: htlb<<(PAGE_SHIFT-10)?
+
+overcomit is not checked for hugetlb mmap, is it intentional here?
+
+- Ken
+
 

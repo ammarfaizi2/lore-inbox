@@ -1,31 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264809AbUEKRqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264805AbUEKRtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbUEKRqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 13:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264805AbUEKRqb
+	id S264805AbUEKRtt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 13:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbUEKRtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 13:46:31 -0400
-Received: from alfa.wprost.pl ([217.153.70.90]:18692 "EHLO alfa.wprost.pl")
-	by vger.kernel.org with ESMTP id S264809AbUEKRp5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 13:45:57 -0400
-From: Mail Delivery System <postmaster@theta.prometeus.pl>
+	Tue, 11 May 2004 13:49:49 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:39468 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S264805AbUEKRtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 13:49:47 -0400
+Date: Tue, 11 May 2004 12:49:45 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Mail delivery failed: returning message to sender
-Message-Id: <20040511174555.E509032E42@alfa.wprost.pl>
-Date: Tue, 11 May 2004 19:45:55 +0200 (CEST)
+Cc: thockin@sun.com
+Subject: [PATCH] calculate NGROUPS_PER_BLOCK from PAGE_SIZE
+Message-ID: <20040511174944.GA26708@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
+From: edwardsg@sgi.com (Greg Edwards)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the Webmail program at host alfa.prometeus.pl.
+On ia64, EXEC_PAGESIZE (max page size) is 65536, but the default page
+size is 16k.  This results in NGROUPS_PER_BLOCK in include/linux/sched.h
+being calculated incorrectly when the page size is anything other than
+64k.  For example, on a 16k page size kernel, a setgroups() call with a
+gidsetsize of 65536 will end up walking over memory since only 1/4 of
+the needed pages were allocated for the blocks[] array in the group_info
+struct.
 
-I'm sorry to have to inform you that the message returned
-below could not be delivered to one or more destinations.
+Patch below calculates NGROUPS_PER_BLOCK from PAGE_SIZE instead.
 
-For further assistance, please contact <postmaster@theta.prometeus.pl>
+Greg
 
-If you do so, please include this problem report.
 
-The Webmail program
-
-Invalid recipient: <ihiglduzfeensaasxbfh@poczta.wprost.pl>
+===== include/linux/sched.h 1.210 vs edited =====
+--- 1.210/include/linux/sched.h	Mon May 10 06:25:34 2004
++++ edited/include/linux/sched.h	Tue May 11 11:45:29 2004
+@@ -352,7 +352,7 @@
+ void exit_io_context(void);
+ 
+ #define NGROUPS_SMALL		32
+-#define NGROUPS_PER_BLOCK	((int)(EXEC_PAGESIZE / sizeof(gid_t)))
++#define NGROUPS_PER_BLOCK	((int)(PAGE_SIZE / sizeof(gid_t)))
+ struct group_info {
+ 	int ngroups;
+ 	atomic_t usage;

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267342AbTBPTKe>; Sun, 16 Feb 2003 14:10:34 -0500
+	id <S267335AbTBPTJZ>; Sun, 16 Feb 2003 14:09:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267348AbTBPTKe>; Sun, 16 Feb 2003 14:10:34 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49164 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267342AbTBPTKc>; Sun, 16 Feb 2003 14:10:32 -0500
-Date: Sun, 16 Feb 2003 11:17:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
+	id <S267337AbTBPTJZ>; Sun, 16 Feb 2003 14:09:25 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:13289 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267335AbTBPTJX>; Sun, 16 Feb 2003 14:09:23 -0500
+Date: Sun, 16 Feb 2003 11:19:03 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
 cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Zwane Mwaikambo <zwane@holomorphy.com>,
        Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: Fw: 2.5.61 oops running SDET
+Subject: more signal locking bugs?
+Message-ID: <27100000.1045423143@[10.10.2.4]>
 In-Reply-To: <26480000.1045422382@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0302161115290.2874-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302161017500.2619-100000@home.transmeta.com> <26480000.1045422382@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+task_lock nests *inside* tasklist_lock but ... :
 
-On Sun, 16 Feb 2003, Martin J. Bligh wrote:
-> 
-> Well, I did the stupid safe thing, and it hangs the box once we get up to 
-> a load of 32 with SDET. Below is what I did, the only other issue I can
-> see in here is that task_mem takes mm->mmap_sem which is now nested inside
-> the task_lock inside tasklist_lock ... but I can't see anywhere that's a
-> problem from a quick search
+__do_SAK:
 
-Ho - you can _never_ nest a semaphore inside a spinlock - if the semaphore 
-sleeps, the spinlock will cause a lockup regardless of any reverse nesting 
-issues.. So I guess the old "get_task_mm()" code is requried anyway.
+	task_lock
+	...
+	send_sig (SIGKILL, ...)
+		send_sig_info (SIGKILL, ...)
+			if (T(sig, SIG_KERNEL_BROADCAST_MASK)))
+				read_lock(&tasklist_lock);
+				...
+				read_unlock(&tasklist_lock);
+	...
+	task_unlock
 
-		Linus
+
+#define SIG_KERNEL_BROADCAST_MASK (\
+        M(SIGHUP)    |  M(SIGINT)    |  M(SIGQUIT)   |  M(SIGILL)    | \
+        M(SIGTRAP)   |  M(SIGABRT)   |  M(SIGBUS)    |  M(SIGFPE)    | \
+        M(SIGKILL)   |  M(SIGUSR1)   |  M(SIGSEGV)   |  M(SIGUSR2)   | \
+        M(SIGPIPE)   |  M(SIGALRM)   |  M(SIGTERM)   |  M(SIGXCPU)   | \
+        M(SIGXFSZ)   |  M(SIGVTALRM) |  M(SIGPROF)   |  M(SIGPOLL)   | \
+        M(SIGSYS)    |  M_SIGSTKFLT  |  M(SIGPWR)    |  M(SIGCONT)   | \
+        M(SIGSTOP)   |  M(SIGTSTP)   |  M(SIGTTIN)   |  M(SIGTTOU)   | \
+        M_SIGEMT )
 

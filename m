@@ -1,114 +1,160 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281126AbRKOWba>; Thu, 15 Nov 2001 17:31:30 -0500
+	id <S281128AbRKOWcK>; Thu, 15 Nov 2001 17:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281128AbRKOWbV>; Thu, 15 Nov 2001 17:31:21 -0500
-Received: from elin.scali.no ([62.70.89.10]:56335 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S281126AbRKOWbL>;
-	Thu, 15 Nov 2001 17:31:11 -0500
-Message-ID: <3BF44234.FFC3BE9@scali.no>
-Date: Thu, 15 Nov 2001 23:31:16 +0100
-From: Steffen Persvold <sp@scali.no>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13win4lin i686)
-X-Accept-Language: en
+	id <S281129AbRKOWcB>; Thu, 15 Nov 2001 17:32:01 -0500
+Received: from postfix2-2.free.fr ([213.228.0.140]:37548 "HELO
+	postfix2-2.free.fr") by vger.kernel.org with SMTP
+	id <S281128AbRKOWbq> convert rfc822-to-8bit; Thu, 15 Nov 2001 17:31:46 -0500
+Date: Thu, 15 Nov 2001 20:46:34 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Anton Blanchard <anton@samba.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] small sym-2 fix
+In-Reply-To: <20011115172204.B1589-100000@gerard>
+Message-ID: <20011115203852.M2136-100000@gerard>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: kswapd using a lot of CPU
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear kernel/VM gurus,
-
-What the f**k is going on here (RedHat 7.1 kernel-2.4.9-12smp, glibc-2.2.4-19)
-?
-
- 10:58pm  up 6 days, 12:06,  1 user,  load average: 3.33, 3.31, 3.20
-146 processes: 142 sleeping, 4 running, 0 zombie, 0 stopped
-CPU0 states: 36.2% user, 63.3% system, 35.4% nice,  0.0% idle
-CPU1 states: 84.1% user, 15.1% system, 84.2% nice,  0.0% idle
-Mem:   512244K av,  202012K used,  310232K free,    1072K shrd,   13480K buff
-Swap: 2048248K av,       0K used, 2048248K free                   58708K cached
-
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    5 root      20   0     0    0     0 RW   78.4  0.0  97:45 kswapd
- 3342 magma     20   2 71200  43M 15196 R N  60.2  8.7  54:20 MAGMAfill
- 3341 magma     18   2 71516  44M 16044 R N  60.0  8.8  54:37 MAGMAfill
 
 
-# vmstat 2
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 2  0  1      0 309100  13480  58932   2   3    10    15   31    32  18   1   4
- 2  0  1      0 309076  13480  58940   0   0     0    28  180   161  60  40   0
- 2  0  1      0 309020  13480  58944   0   0     0    46  215   191  60  40   0
- 2  0  1      0 309080  13480  58948   0   0     0    20  152   143  61  39   0
- 2  0  1      0 309088  13480  58948   0   0     0     6  131   141  59  41   0
- 2  0  1      0 309064  13480  58952   0   0     0    12  109   129  59  41   0
- 2  0  1      0 309028  13480  58956   0   0     0    56  167   153  57  43   0
- 2  0  1      0 308912  13480  58960   0   0     0    32  211   201  60  39   0
- 2  0  1      0 309072  13480  58960   0   0     0     0  115   118  62  38   0
- 2  0  1      0 309072  13480  58960   0   0     0    12  134   142  60  40   0
- 2  0  1      0 309076  13480  58960   0   0     0     0  104   122  59  41   0
- 2  0  1      0 309072  13480  58960   0   0     0     0  130   127  61  39   0
+On Thu, 15 Nov 2001, Gérard Roudier wrote:
 
-kswapd is using plenty of CPU (this is, as you can see, a dual processor box,
-more exactly 2xPIII 1GHz), but there's no swapping going on ?!?. And even more
-strange is that there is actually nothing that is swapped out (2GB free).
+> On Thu, 15 Nov 2001, Anton Blanchard wrote:
+>
+> >
+> > Hi,
+> >
+> > I tested the sym-2 driver on ppc64 and found that hcb_p can be > 1 page
+> > but __sym_malloc fails for allocations over 1 page. This means we
+> > die in sym_attach.
+>
+> The driver should not need more than 4096 bytes for a single allocation.
+> If the ppc64 page size is smaller, your patch is ok, otherwise something
+> may have to be fixed, likely in the driver. I cannot access to kernel
+> source immediately but I will check what kind of page size ppc64 is using
+> asap.
 
-If I try the following :
+Could you revert your change and give my patch below a try. Btw, you will
+be in sync with my current sources. Booting with sym53c8xx=debug:1 will
+let the driver print all memory allocations to the syslog. You may send me
+the drivers messages related to these allocations for information.
 
-# cat /proc/swaps 
-Filename                        Type            Size    Used    Priority
-/dev/hda7                       partition       2048248 0       -1
+  Gérard.
 
-# /sbin/swapoff /dev/hda7
+PS: I do have tried the patch on a IA32 machine under linux-2.4.13.
 
-Still kswapd is using a lot of CPU :
+> > With this patch the sym-2 works on ppc64. BTW so far it looks solid :)
+>
+> Great!
+>
+> Thanks for your report.
+>
+> Regards,
+>   Gérard.
+> >
+> > Anton
+> >
+> > diff -urN 2.4.15-pre4/drivers/scsi/sym53c8xx_2/sym_glue.h linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h
+> > --- 2.4.15-pre4/drivers/scsi/sym53c8xx_2/sym_glue.h	Thu Nov 15 13:38:02 2001
+> > +++ linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h	Tue Nov 13 18:03:07 2001
+> > @@ -526,7 +526,7 @@
+> >   *  couple of things related to the memory allocator.
+> >   */
+> >  typedef u_long m_addr_t;	/* Enough bits to represent any address */
+> > -#define SYM_MEM_PAGE_ORDER 0	/* 1 PAGE  maximum */
+> > +#define SYM_MEM_PAGE_ORDER 1	/* 2 PAGE  maximum */
+> >  #define SYM_MEM_CLUSTER_SHIFT	(PAGE_SHIFT+SYM_MEM_PAGE_ORDER)
+> >  #ifdef	MODULE
+> >  #define SYM_MEM_FREE_UNUSED	/* Free unused pages immediately */
 
- 11:07pm  up 6 days, 12:15,  1 user,  load average: 3.33, 3.33, 3.24
-146 processes: 141 sleeping, 5 running, 0 zombie, 0 stopped
-CPU0 states: 40.0% user, 58.0% system, 40.0% nice,  0.1% idle
-CPU1 states: 69.1% user, 30.0% system, 68.0% nice,  0.0% idle
-Mem:   512244K av,  324476K used,  187768K free,    1072K shrd,   13608K buff
-Swap:       0K av,       0K used,       0K free                  151296K cached
+diff -u ../sym-2-orig/sym_glue.h ./sym_glue.h
+--- ../sym-2-orig/sym_glue.h	Thu Nov 15 22:53:34 2001
++++ ./sym_glue.h	Thu Nov 15 23:18:58 2001
+@@ -77,7 +77,6 @@
+ #include <linux/errno.h>
+ #include <linux/pci.h>
+ #include <linux/string.h>
+-#include <linux/malloc.h>
+ #include <linux/mm.h>
+ #include <linux/ioport.h>
+ #include <linux/time.h>
+Only in .: sym_glue.o
+diff -u ../sym-2-orig/sym_hipd.c ./sym_hipd.c
+--- ../sym-2-orig/sym_hipd.c	Thu Nov 15 22:53:28 2001
++++ ./sym_hipd.c	Thu Nov 15 23:16:03 2001
+@@ -4691,6 +4691,7 @@
+ 	OUTL_DSP (SCRIPTA_BA (np, clrack));
+ 	return;
+ out_stuck:
++	return;
+ }
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    5 root      20   0     0    0     0 RW   80.0  0.0 105:19 kswapd
- 3342 magma     20   2 65036  37M 15368 R N  62.3  7.5  60:10 MAGMAfill
- 3341 magma     18   2  104M  78M 16096 R N  60.5 15.7  60:12 MAGMAfill
+ /*
+@@ -5226,6 +5227,7 @@
 
+ 	return;
+ fail:
++	return;
+ }
 
+ /*
+@@ -5788,6 +5790,13 @@
+ 		goto attach_failed;
 
-When I do :
+ 	/*
++	 *  Allocate the array of lists of CCBs hashed by DSA.
++	 */
++	np->ccbh = sym_calloc(sizeof(ccb_p *)*CCB_HASH_SIZE, "CCBH");
++	if (!np->ccbh)
++		goto attach_failed;
++
++	/*
+ 	 *  Initialyze the CCB free and busy queues.
+ 	 */
+ 	sym_que_init(&np->free_ccbq);
+@@ -5978,6 +5987,8 @@
+ 			sym_mfree_dma(cp, sizeof(*cp), "CCB");
+ 		}
+ 	}
++	if (np->ccbh)
++		sym_mfree(np->ccbh, sizeof(ccb_p *)*CCB_HASH_SIZE, "CCBH");
 
-# /sbin/swapon /dev/hda7
+ 	if (np->badluntbl)
+ 		sym_mfree_dma(np->badluntbl, 256,"BADLUNTBL");
+diff -u ../sym-2-orig/sym_hipd.h ./sym_hipd.h
+--- ../sym-2-orig/sym_hipd.h	Thu Nov 15 22:53:34 2001
++++ ./sym_hipd.h	Thu Nov 15 22:54:31 2001
+@@ -1068,7 +1068,8 @@
+ 	/*
+ 	 *  CCB lists and queue.
+ 	 */
+-	ccb_p ccbh[CCB_HASH_SIZE];	/* CCB hashed by DSA value	*/
++	ccb_p *ccbh;			/* CCBs hashed by DSA value	*/
++					/* CCB_HASH_SIZE lists of CCBs	*/
+ 	SYM_QUEHEAD	free_ccbq;	/* Queue of available CCBs	*/
+ 	SYM_QUEHEAD	busy_ccbq;	/* Queue of busy CCBs		*/
 
-Nothing changes for kswapd, but the swap device gets a lower priority :
+diff -u ../sym-2-orig/sym_nvram.c ./sym_nvram.c
+--- ../sym-2-orig/sym_nvram.c	Thu Nov 15 22:53:28 2001
++++ ./sym_nvram.c	Thu Nov 15 22:54:25 2001
+@@ -505,10 +505,10 @@
+ 	return retv;
+ }
 
-# cat /proc/swaps 
-Filename                        Type            Size    Used    Priority
-/dev/hda7                       partition       2048248 0       -2
+-#undef SET_BIT 0
+-#undef CLR_BIT 1
+-#undef SET_CLK 2
+-#undef CLR_CLK 3
++#undef SET_BIT
++#undef CLR_BIT
++#undef SET_CLK
++#undef CLR_CLK
 
+ /*
+  *  Try reading Symbios NVRAM.
 
-If I repetedly do 'swapoff/swapon' the Priority decreases each time.
-
-
-If I try a test application I've written which just mallocs a given amount of
-memory (I tried 450MBytes in this case), memsets it and then frees it, I'm able
-to force something to swap out, but after the application has exited kswapd is
-still using a lot of CPU.
-
-
-The only thing that seems to solve the issue is to kill the two user processes
-(MPI processes) that is also using CPU.
-
-Any feedback is highly appreciated,
-
-Thanks,
--- 
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
- mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbTIPNAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 09:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTIPNAQ
+	id S261853AbTIPNHS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:07:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTIPNHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 09:00:16 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:33540 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S261794AbTIPNAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 09:00:12 -0400
-Date: Tue, 16 Sep 2003 10:01:42 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: MAJEK <majek@witek.liceum64.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Computer was left to work at night, in the morning i
- saw only the panic messages.
-In-Reply-To: <Pine.LNX.4.50.0309111217480.2308-300000@witek.liceum64.pl>
-Message-ID: <Pine.LNX.4.44.0309160943200.1636-100000@logos.cnet>
+	Tue, 16 Sep 2003 09:07:18 -0400
+Received: from [220.89.72.236] ([220.89.72.236]:55308 "HELO msn.com")
+	by vger.kernel.org with SMTP id S261853AbTIPNHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:07:17 -0400
+Message-ID: <000411e4cc81$eab61075$08055401@kdmtsvi.qeb>
+From: <guyyyvx@msn.com>
+To: Webmaster@vger.kernel.org
+Subject: Re                                    1577pLxm9-613-12
+Date: Tue, 16 Sep 2003 10:59:35 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_00B2_72A73B1C.A8666D55"
+X-Priority: 3
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------=_NextPart_000_00B2_72A73B1C.A8666D55
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: base64
 
 
-On Thu, 11 Sep 2003, MAJEK wrote:
-
-> [1.]
-> Computer was left to work at night, in the morning i saw only the panic messages.
-> [2.]
-> Logs stop after three hours of working with no user. I have no idea what can crash.
-> Bttv and usb modules were unloaded. Only cmpci.o and some codepages were
-> loaded.
-> Maybe it was acpi fault?(and maybe not)
-> [3.]
-> No idea.
-> [4.]
-> Linux version 2.4.22 (root@tigger) (gcc version 3.2) #1 Mon Sep 8 01:25:40 CEST 2003
-> [5.]
-> unable to handle kernel null pointer dereference at virtual adress 00000000
-> *pde = 00000000
-> oops = 2
-> eip 0010:c0105386  tained p
-> eflags 00010246
-> eax 00000000 ebx c0105360 ecx 00000000 edx 00000000
-> esi c0408000 edi c0408000 ebp c0409fcc esp c0409fcc
-> ds 0018 es 0018 ss 0018
-> proces swapper pid:0 stackpage c0409000
-> stack
-> c0409fe0 c0105402 00000000 000a0200 c0105000 c0409ff8 c040a72f c0373ec0
-> c04597c0 00000000 c04596c0 0008e000 c0100191
-> call trace
-> c0105402 c0105000
-> code
-> c9 c3 fb eb fb 90 8d 74 26 00 55 89 e5 fb ba 00 e0 ff ff b8
-> [6.]
-> No code. Computer was left to work at night. After 3 hours he panicked.
-
-You seem to be using proprietary nvidia module?
-
-Can you transform the output in human readable format with ksymoops? 
-
-
+TWVuLCBXb21lbiBBbmQgQW5pbWFscyBJbiBBY3Rpb24hISEhDQoNCg0KIEp1
+c3Qgd2hlbiB5b3UgdGhvdWdodCB5b3UgaGF2ZSBzZWVuIHNvbWUgb2YgdGhl
+IG1vc3Qgd2lsZCBhbmQgKHNvbWUgdGhpbmspDQogZGlzZ3VzdGluZyBzZXgg
+c2NlbmVzIGV2ZXIgd2UgYnJpbmcgeW91IHRoZSBzaXRlIHlvdSBoYXZlIG9u
+bHkgaGVhcmQgcGVvcGxlDQogICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB0YWxrIGFib3V0Lg0KICAgICAgICAgICAgICAgICAgICAgICAgIGh0
+dHA6Ly93d3cua2lua2Zhcm0uY29tL2Juci8zMDUwNzM1NjIwDQoNCiAgICAg
+ICAgICAgIERvIHlvdSB0aGluayBhIGhvcnNlIGNhcmVzIHdoZXJlIGhlIHN0
+aWNrcyBoaXMgY29jaz8NCiAgICAgICAgICAgICAgICBIYXZlIHlvdSBldmVy
+IHNlZW4gYSBtYW4gdGFrZSBpdCBkb2dneSBzdHlsZT8NCiAgICAgICBEb2Vz
+IGl0IHNob2NrIHlvdSB0byBzZWUgd2hhdCBzb21lIHdvbWVuIHdpbGwgcHV0
+IGluc2lkZSB0aGVtPw0KICAgICAgICAgICAgIENvbWUgc2VlIHRoZSBhbnN3
+ZXJzIHRvIGFsbCBvZiB0aGVzZSBxdWVzdGlvbnMgYXQuDQogICAgICAgICAg
+ICAgICAgICAgICAgICAgaHR0cDovL3d3dy5raW5rZmFybS5jb20vYm5yLzMw
+NTA3MzU2MjANCg0KICAgICAgU2VlIHdoeSBEZW5tYXJrIGlzIGtub3duIGFz
+IHRoZSBhbmltYWwgc2V4IGNhcGl0YWwgb2YgdGhlIHdvcmxkLg0KICAgICAg
+ICAgICAgICAgICAgICAgICAgIFNlZSB3aHkgQW1lcmljYSBpcyBzZWNvbmQu
+DQogQW5kIHNlZSB3aG8gd291bGQgc2VuZCBpbiBwaWN0dXJlcyBvZiB0aGVt
+c2VsdmVzIHdpdGggdGhlIGZhbWlseSBkb2cgaGF2aW5nDQogICAgICAgICAg
+ICAgICAgICAgICAgYSBnb29kIHRpbWUgdG8gdHJ5IGFuZCB3aW4gJDEwMC4N
+CiAgICAgICAgICAgICAgICAgICAgICAgICBodHRwOi8vd3d3LmtpbmtmYXJt
+LmNvbS9ibnIvMzA1MDczNTYyMCAgDQoNCnlvdSBkb250IHdhbnQgdGhvc2Ug
+ZW1haWxzIGFueW1vcmUgPw0KdmlzaXQgaHR0cDovL3d3dy5hMWhvc3Rpbmdk
+aXJlY3QuY29tL2dvbmUuaHRtbA0KDQoNCjkzNTRtUE9COC0wNDhTc0lQNDg0
+NFN5YlE4LTAyMGlwdGEwOTk1WlV2YTUtOTgwdmlpbjI4MjdSbEdzNC0zNmw1
+OQ==
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+------=_NextPart_000_00B2_72A73B1C.A8666D55--

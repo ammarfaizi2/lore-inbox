@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUIECmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUIECoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266116AbUIECmh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 22:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUIECmh
+	id S266128AbUIECoN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 22:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUIECoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 22:42:37 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:8607 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S266116AbUIECmd (ORCPT
+	Sat, 4 Sep 2004 22:44:13 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:51251 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266128AbUIECnB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 22:42:33 -0400
-Message-Id: <200409050203.i8523X6W031952@localhost.localdomain>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Tim Fairchild <tim@bcs4me.com>, Christoph Hellwig <hch@infradead.org>,
-       Sid Boyce <sboyce@blueyonder.co.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NVIDIA Driver 1.0-6111 fix 
-In-Reply-To: Message from Lee Revell <rlrevell@joe-job.com> 
-   of "Sat, 04 Sep 2004 17:22:29 -0400." <1094332949.6575.360.camel@krustophenia.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Sat, 04 Sep 2004 22:03:33 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sat, 4 Sep 2004 22:43:01 -0400
+Message-ID: <9e4733910409041943490b9587@mail.gmail.com>
+Date: Sat, 4 Sep 2004 22:43:01 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>, Jaroslav Kysela <perex@suse.cz>
+Subject: Intel ICH - sound/pci/intel8x0.c
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> said:
-> Tim Fairchild <tim@bcs4me.com> said:
+The joystick PCI ID table in intel8x0.c is not correct. Joysticks and
+MIDI ports are ISA devices and need be located by manual probing. This
+ID table needs to be removed. Joystick and MIDI ports do not have PCI
+IDs.
 
-[...]
+The PCI IDs in this table are for the ISA bridge chips, not the
+joystick port.  These PC IDs should belong to the PCI bus driver. If I
+fix the PCI bus driver to claim these like it should, joystick support
+won't work any more.
 
-> > Users don't really care about open and closed source. They just want 
-> > to play quake 3 (etc).
+static struct pci_device_id snd_intel8x0_joystick_ids[] = {
+        { 0x8086, 0x2410, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* 82801AA */
+        { 0x8086, 0x2420, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* 82901AB */
+        { 0x8086, 0x2440, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* ICH2 */
+        { 0x8086, 0x244c, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* ICH2M */
+        { 0x8086, 0x248c, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* ICH3 */
+        // { 0x8086, 0x7195, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* 440MX */
+        // { 0x1039, 0x7012, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* SI7012 */
+        { 0x10de, 0x01b2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* NFORCE */
+        { 0x10de, 0x006b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* NFORCE2 */
+        { 0x10de, 0x00db, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* NFORCE3 */
+        { 0, }
+};
 
-> I have never understood why these people don't just run Windows.
+2410	82801AA ISA Bridge (LPC)
+2420	82801AB ISA Bridge (LPC)
+2440	82801BA ISA Bridge (LPC)
+244c	82801BAM ISA Bridge (LPC)
+248c	82801CAM ISA Bridge (LPC)
+01b2	nForce ISA Bridge
 
-Some run Linux because it _works_, and also want to play.
-
->                                                                   I have
-> also never understood why people make so much noise about having to use
-> a closed source driver to play A CLOSED SOURCE GAME!  What's next, a
-> petition to open the UT2004 source?  Sheesh...
-
-8-D
-
-> > I've never had an oops that was specifically caused by the nvidia
-> > module, tho I suppose it does happen.
-
-> And I have never seen one either.
-
-How do you know?
-
->                                    I am just using the OOPS'es as an
-> indication of how many Linux users use this driver.
-
-How do you know the OOPSes aren't caused (indirectly) by nVidia? Sure, the
-incidence seems to have gone down, and perhaps lusers have learnt not to
-post OOPSes for tainted kernels...
-
->                                                      It's WAY more than
-> I expected.
-
-Now you confuse me... you see _many_ OOPSes with nVidia, but know for
-_sure_ nVidia has nothing to do with it?
-
->              The open source nv.o module works fine for me, I don't see
-> how the 2D would need to be faster, or how you would even tell the
-> difference.
-
-Try using a 1280x800 screen (wide notebook screen, as on Toshiba M30), nv
-says that is incorrect and gives you a (very distorted) 1024x768. Up to
-here, the binary module is the only way out for me (and I don't care for 3D
-or high-performance 2D).
-
-> I suspect many of these users are ricers who tweak CFLAGS and compare
-> benchmark scores all day, and cannot bear to use the open source driver
-> if it will make their machine 1% slower.  I was surprised to find that
-> apparently there are open source ATI 3D drivers after all but some
-> people are petitioning ATI anyway because these 'aren't as good' as the
-> binary ones.  So fix it already, this is open source, and if you can't,
-> then please learn to write code or STFU.
-
-Right.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Jon Smirl
+jonsmirl@gmail.com

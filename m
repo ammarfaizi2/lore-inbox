@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269144AbUIYHIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269205AbUIYHJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269144AbUIYHIj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 03:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269205AbUIYHIf
+	id S269205AbUIYHJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 03:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269160AbUIYHJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 03:08:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:50149 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269144AbUIYHIZ (ORCPT
+	Sat, 25 Sep 2004 03:09:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9955 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269256AbUIYHJh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 03:08:25 -0400
-Date: Sat, 25 Sep 2004 00:08:20 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [vm 6/76] convert zr36120.c to use remap_pfn_range()
-Message-ID: <20040925070820.GB9106@holomorphy.com>
-References: <20040925065335.GV9106@holomorphy.com> <20040925065816.GW9106@holomorphy.com> <20040925065959.GX9106@holomorphy.com> <20040925070151.GY9106@holomorphy.com> <20040925070346.GZ9106@holomorphy.com> <20040925070536.GA9106@holomorphy.com>
+	Sat, 25 Sep 2004 03:09:37 -0400
+Date: Sat, 25 Sep 2004 00:09:33 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x USB and 1394 hotplug
+Message-Id: <20040925000933.7791e660@lembas.zaitcev.lan>
+In-Reply-To: <mailman.1096076831.4041.linux-kernel2news@redhat.com>
+References: <mailman.1096076831.4041.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040925070536.GA9106@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 25, 2004 at 12:05:36AM -0700, William Lee Irwin III wrote:
-> Convert the IGA 1682 framebuffer driver to use remap_pfn_range().
+On Fri, 24 Sep 2004 19:38:51 -0600
+Erik Andersen <andersen@codepoet.org> wrote:
 
-Conver the Zoran 36120/36125 framegrabber driver to use remap_pfn_range().
+> This patch has been in use locally for quite some time now and
+> makes working with USB and 1394 mass-storage devices in 2.4.x a
+> much less painful experience. [...]
 
-Index: mm3-2.6.9-rc2/drivers/media/video/zr36120.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/media/video/zr36120.c	2004-09-24 17:37:19.000000000 -0700
-+++ mm3-2.6.9-rc2/drivers/media/video/zr36120.c	2004-09-24 22:10:34.377593616 -0700
-@@ -1474,8 +1474,8 @@
- 	/* start mapping the whole shabang to user memory */
- 	pos = (unsigned long)ztv->fbuffer;
- 	while (size>0) {
--		unsigned long page = virt_to_phys((void*)pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+		unsigned long pfn = virt_to_phys((void*)pos) >> PAGE_SHIFT;
-+		if (remap_pfn_range(vma, start, pfn, PAGE_SIZE, PAGE_SHARED))
- 			return -EAGAIN;
- 		start += PAGE_SIZE;
- 		pos += PAGE_SIZE;
+Nice, but probably a year or two too late. I do not care to be a
+strong advocate. If you want to push for it, I suggest posting
+to linux-scsi@vger.kernel.org and linux-usb-devel@lists.sourceforge.net.
+Someone might be interested.
+
+-- Pete

@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272632AbTG3Bi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 21:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272640AbTG3Bi1
+	id S272620AbTG3Bbn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 21:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272631AbTG3Bbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 21:38:27 -0400
-Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:1966
-	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S272632AbTG3Bi0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 21:38:26 -0400
-Date: Tue, 29 Jul 2003 21:38:25 -0400
-Subject: Re: [REPOST] "apm: suspend: Unable to enter requested state" after 2.5.31 (incl. 2.6.0testX)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: linux-kernel@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-From: Charles Lepple <clepple@ghz.cc>
-In-Reply-To: <20030730110548.73919ca0.sfr@canb.auug.org.au>
-Message-Id: <82E003DC-C22E-11D7-BB43-003065DC6B50@ghz.cc>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Tue, 29 Jul 2003 21:31:43 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:63667
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272620AbTG3Bbm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 21:31:42 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Diego Calleja =?iso-8859-15?q?Garc=EDa?= <diegocg@teleline.es>
+Subject: Re: [PATCH] O10int for interactivity
+Date: Wed, 30 Jul 2003 11:36:06 +1000
+User-Agent: KMail/1.5.2
+Cc: miller@techsource.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <200307280112.16043.kernel@kolivas.org> <200307300035.01354.kernel@kolivas.org> <20030730031616.3ed14362.diegocg@teleline.es>
+In-Reply-To: <20030730031616.3ed14362.diegocg@teleline.es>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200307301136.06396.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, July 29, 2003, at 09:05  PM, Stephen Rothwell wrote:
-
-> I may have missed this, but do you have the APIC or IO-APIC enabled?
-
-Not sure that I have one on this system... it's pre-i686 (Pentium MMX).
-
-I left the laptop at work, so I don't have dmesg output nearby.
-
-> The patch in question merely moved where the 0x40 descriptor was 
-> installed
-> in the descriptor table.
-
-You mean it appears at a different table index? For some reason, I 
-thought that was a different patch (but I can't seem to find anything 
-else from that time period).
-
-[snip]
-> The base and limit parts of the descriptor get initialised at run time 
-> by
-> the code:
+On Wed, 30 Jul 2003 11:16, Diego Calleja García wrote:
+> El Wed, 30 Jul 2003 00:35:01 +1000 Con Kolivas <kernel@kolivas.org> 
+escribió:
+> > That's not as silly as it sounds. In fact it should be dead easy to
+> > increase/decrease the amount of anticipatory time based on the bonus from
+> > looking at the code. I dunno how the higher filesystem gods feel about
+> > this though.
 >
-> 	set_base(bad_bios_desc, __va((unsigned long)0x40 << 4));
-> 	_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
->
-> These could be set statically, but it was easier to use the availble
-> macros.
+> I've done a small patch (one line) which tries to implement that.
+> At as-iosched.c:as_add_request() there's:
 
-Do you think it's worth checking the initialized value of the 
-bad_bios_desc fields in a 2.5 kernel with working APM? Or do you have 
-any other ideas on where to look?
+The logic is in the difference between the dynamic and the static priority to 
+determine if a task is interactive. 
+current->static_prio - current->prio
+will give you a number of -5 to +5, with +5 being a good bonus and vice versa.
+however you need to ensure that the value you are fiddling with in the i/o 
+scheduler is actually due to the current process[1]
 
-thanks for taking the time to explain this,
+On top of that, the p->prio itself will give you a number of 0-140 depending 
+with higher being a lower priority task; numbers 100-140 are for user tasks 
+and <100 for real time tasks. 
 
--- 
-Charles Lepple <ghz.cc!clepple>
-http://www.ghz.cc/charles/
+These all change if you fiddle with the magic in bonus ratios and max rt prio 
+etc.
+
+Con
+
+[1] This is why I didn't bother posting my attempts ;)
 

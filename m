@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbUKRIAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262663AbUKRIR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbUKRIAI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 03:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUKRIAI
+	id S262663AbUKRIR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 03:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbUKRIR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 03:00:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18638 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261750AbUKRIAB (ORCPT
+	Thu, 18 Nov 2004 03:17:26 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:27285 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S261868AbUKRIRV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 03:00:01 -0500
-Date: Thu, 18 Nov 2004 02:59:43 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-cc: netdev@oss.sgi.com, Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-In-Reply-To: <419C4E72.5050307@blueyonder.co.uk>
-Message-ID: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Nov 2004 03:17:21 -0500
+To: pavel@ucw.cz
+CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <20041117204424.GC11439@elf.ucw.cz> (message from Pavel Machek on
+	Wed, 17 Nov 2004 21:44:24 +0100)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <20041117190055.GC6952@openzaurus.ucw.cz> <E1CUVkG-0005sV-00@dorka.pomaz.szeredi.hu> <20041117204424.GC11439@elf.ucw.cz>
+Message-Id: <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 18 Nov 2004 09:17:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004, Ross Kendall Axe wrote:
+> I know I've asked before... but how is the "fuse-userspace-part
+> swapped out and memory full of dirty data on fuse" deadlock solved?
 
-> That seems eminently sensible. Again, I was just cut-n'-pasting from
-> SOCK_STREAM. If these error codes are wrong, then SOCK_STREAM also needs
-> fixing.
+By either
 
-An issue here though is that what impact will this have on existing 
-applications?
+  1) not allowing share writable mappings 
 
-> > 
-> > There is a non SELinux-related bug lurking in this code.
-> 
-> IMHO, there never was an SELinux bug here. SELinux merely exposed an 
-> existing bug.
+  2) doing non-blocking asynchronous writepage
 
-Looks like it, testing a fix now.
+In the first case there will never be dirty data, since normal writes
+go synchronously through the page cache.
 
-> I'm unable to reproduce that, or the bug you mention in your other 
-> message. Care to send us your code?
+In the second case there is no deadlock, because the memory subsystem
+doesn't wait for data to be written.  If the filesystem refuses to
+write back data in a timely manner, memory will get full and OOM
+killer will go to work.  Deadlock simply cannot happen.
 
-See http://people.redhat.com/jmorris/net/seqpacket-killer-jm.tar.bz2 
-
-> I think that af_unix.c needs a bit of cleaning up. All of the functions 
-> are named as being stream vs dgram, even when the issue is connectionless 
-> vs connection-oriented.
-
-Agreed.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+Miklos
